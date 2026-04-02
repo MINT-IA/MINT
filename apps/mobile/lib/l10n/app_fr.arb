@@ -10182,5 +10182,23 @@
     }
   },
   "landingCoupleAction": "Voir le mode couple",
-  "landingCoupleGeneric": "Les couples mariés perdent jusqu'à CHF\u00a08'000/an en optimisations manquées."
+  "landingCoupleGeneric": "Les couples mariés perdent jusqu'à CHF\u00a08'000/an en optimisations manquées.",
+  "landingTransparency": "Ce qui se passe quand tu tapes ton salaire\u00a0: le calcul est fait sur ton téléphone. Rien n'est envoyé. Rien n'est stocké. Quand tu fermes cette page, les chiffres disparaissent.",
+  "bankImportTransparency": "Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.",
+  "coachTransparencySLM": "Réponse générée sur ton téléphone. Rien n'est envoyé à un serveur.",
+  "coachTransparencyBYOK": "Réponse via ton API Claude. Ton salaire exact n'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.",
+  "dataTransparencyTitle": "Comment MINT utilise tes données",
+  "dataTransparencySalary": "Quand tu entres ton salaire",
+  "dataTransparencySalaryDetail": "Stocké uniquement sur ton téléphone. Jamais envoyé.",
+  "dataTransparencyScan": "Quand tu scannes un document",
+  "dataTransparencyScanDetail": "Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.",
+  "dataTransparencyCoach": "Quand tu parles au coach",
+  "dataTransparencyCoachDetail": "SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n'est jamais partagé.",
+  "dataTransparencyImport": "Quand tu importes un relevé",
+  "dataTransparencyImportDetail": "Envoyé chiffré. Catégorisé. Fichier brut supprimé. Seuls les résumés sont conservés.",
+  "dataTransparencyDelete": "Quand tu supprimes ton compte",
+  "dataTransparencyDeleteDetail": "Tout est purgé\u00a0: base de données, stockage local, embeddings. Rien ne reste.",
+  "dataTransparencyLocal": "Local",
+  "dataTransparencyServer": "Serveur (chiffré)",
+  "dataTransparencyThirdParty": "Tiers (avec ton accord)"
 }

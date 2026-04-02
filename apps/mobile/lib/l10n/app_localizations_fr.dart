@@ -21109,4 +21109,67 @@ class SFr extends S {
   @override
   String get landingCoupleGeneric =>
       'Les couples mariés perdent jusqu\'à CHF 8\'000/an en optimisations manquées.';
+
+  @override
+  String get landingTransparency =>
+      'Ce qui se passe quand tu tapes ton salaire : le calcul est fait sur ton téléphone. Rien n\'est envoyé. Rien n\'est stocké. Quand tu fermes cette page, les chiffres disparaissent.';
+
+  @override
+  String get bankImportTransparency =>
+      'Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.';
+
+  @override
+  String get coachTransparencySLM =>
+      'Réponse générée sur ton téléphone. Rien n\'est envoyé à un serveur.';
+
+  @override
+  String get coachTransparencyBYOK =>
+      'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.';
+
+  @override
+  String get dataTransparencyTitle => 'Comment MINT utilise tes données';
+
+  @override
+  String get dataTransparencySalary => 'Quand tu entres ton salaire';
+
+  @override
+  String get dataTransparencySalaryDetail =>
+      'Stocké uniquement sur ton téléphone. Jamais envoyé.';
+
+  @override
+  String get dataTransparencyScan => 'Quand tu scannes un document';
+
+  @override
+  String get dataTransparencyScanDetail =>
+      'Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.';
+
+  @override
+  String get dataTransparencyCoach => 'Quand tu parles au coach';
+
+  @override
+  String get dataTransparencyCoachDetail =>
+      'SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n\'est jamais partagé.';
+
+  @override
+  String get dataTransparencyImport => 'Quand tu importes un relevé';
+
+  @override
+  String get dataTransparencyImportDetail =>
+      'Envoyé chiffré. Catégorisé. Fichier brut supprimé. Seuls les résumés sont conservés.';
+
+  @override
+  String get dataTransparencyDelete => 'Quand tu supprimes ton compte';
+
+  @override
+  String get dataTransparencyDeleteDetail =>
+      'Tout est purgé : base de données, stockage local, embeddings. Rien ne reste.';
+
+  @override
+  String get dataTransparencyLocal => 'Local';
+
+  @override
+  String get dataTransparencyServer => 'Serveur (chiffré)';
+
+  @override
+  String get dataTransparencyThirdParty => 'Tiers (avec ton accord)';
 }

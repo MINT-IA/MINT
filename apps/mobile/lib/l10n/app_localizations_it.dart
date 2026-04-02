@@ -21167,4 +21167,67 @@ class SIt extends S {
   @override
   String get landingCoupleGeneric =>
       'Le coppie sposate perdono fino a CHF 8\'000/anno in ottimizzazioni mancate.';
+
+  @override
+  String get landingTransparency =>
+      'Cosa succede quando inserisci il tuo stipendio: il calcolo avviene sul tuo telefono. Niente viene inviato. Niente viene salvato. Quando chiudi questa pagina, i numeri scompaiono.';
+
+  @override
+  String get bankImportTransparency =>
+      'Il tuo estratto conto viene inviato criptato al nostro server svizzero per l\'analisi. Le transazioni vengono categorizzate, poi il file originale viene eliminato. Solo i riepiloghi per categoria vengono conservati nel tuo profilo.';
+
+  @override
+  String get coachTransparencySLM =>
+      'Risposta generata sul tuo telefono. Niente inviato a un server.';
+
+  @override
+  String get coachTransparencyBYOK =>
+      'Risposta tramite la tua API Claude. Il tuo stipendio esatto NON viene inviato — solo età, cantone e archetipo sono condivisi.';
+
+  @override
+  String get dataTransparencyTitle => 'Come MINT usa i tuoi dati';
+
+  @override
+  String get dataTransparencySalary => 'Quando inserisci il tuo stipendio';
+
+  @override
+  String get dataTransparencySalaryDetail =>
+      'Salvato solo sul tuo telefono. Mai inviato.';
+
+  @override
+  String get dataTransparencyScan => 'Quando scansioni un documento';
+
+  @override
+  String get dataTransparencyScanDetail =>
+      'Inviato criptato al nostro server svizzero. Analizzato ed eliminato. Solo il risultato viene conservato.';
+
+  @override
+  String get dataTransparencyCoach => 'Quando parli con il coach';
+
+  @override
+  String get dataTransparencyCoachDetail =>
+      'SLM locale (niente inviato) o API Claude (a tua scelta). Il tuo stipendio esatto non viene mai condiviso.';
+
+  @override
+  String get dataTransparencyImport => 'Quando importi un estratto conto';
+
+  @override
+  String get dataTransparencyImportDetail =>
+      'Inviato criptato. Categorizzato. File originale eliminato. Solo i riepiloghi vengono conservati.';
+
+  @override
+  String get dataTransparencyDelete => 'Quando elimini il tuo account';
+
+  @override
+  String get dataTransparencyDeleteDetail =>
+      'Tutto viene eliminato: database, archiviazione locale, embeddings. Non resta nulla.';
+
+  @override
+  String get dataTransparencyLocal => 'Locale';
+
+  @override
+  String get dataTransparencyServer => 'Server (criptato)';
+
+  @override
+  String get dataTransparencyThirdParty => 'Terze parti (con il tuo consenso)';
 }

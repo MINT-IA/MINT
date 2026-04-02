@@ -447,11 +447,10 @@ class _BankImportV2ScreenState extends State<BankImportV2Screen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              s.bankImportPrivacy,
-              style: const TextStyle(
-                  fontSize: 13,
-                  color: MintColors.textSecondary,
-                  height: 1.5),
+              s.bankImportTransparency,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ).copyWith(height: 1.5),
             ),
           ),
         ],

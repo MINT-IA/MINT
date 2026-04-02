@@ -20999,4 +20999,67 @@ class SEn extends S {
   @override
   String get landingCoupleGeneric =>
       'Married couples lose up to CHF 8,000/year in missed optimizations.';
+
+  @override
+  String get landingTransparency =>
+      'What happens when you type your salary: the calculation runs on your phone. Nothing is sent. Nothing is stored. When you close this page, the numbers disappear.';
+
+  @override
+  String get bankImportTransparency =>
+      'Your statement is sent encrypted to our Swiss server for analysis. Transactions are categorized, then the raw file is deleted. Only category summaries are kept in your profile.';
+
+  @override
+  String get coachTransparencySLM =>
+      'Response generated on your phone. Nothing sent to a server.';
+
+  @override
+  String get coachTransparencyBYOK =>
+      'Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.';
+
+  @override
+  String get dataTransparencyTitle => 'How MINT uses your data';
+
+  @override
+  String get dataTransparencySalary => 'When you enter your salary';
+
+  @override
+  String get dataTransparencySalaryDetail =>
+      'Stored only on your phone. Never sent.';
+
+  @override
+  String get dataTransparencyScan => 'When you scan a document';
+
+  @override
+  String get dataTransparencyScanDetail =>
+      'Sent encrypted to our Swiss server. Parsed and deleted. Only the result is kept.';
+
+  @override
+  String get dataTransparencyCoach => 'When you talk to the coach';
+
+  @override
+  String get dataTransparencyCoachDetail =>
+      'Local SLM (nothing sent) or Claude API (your choice). Your exact salary is never shared.';
+
+  @override
+  String get dataTransparencyImport => 'When you import a statement';
+
+  @override
+  String get dataTransparencyImportDetail =>
+      'Sent encrypted. Categorized. Raw file deleted. Only summaries are kept.';
+
+  @override
+  String get dataTransparencyDelete => 'When you delete your account';
+
+  @override
+  String get dataTransparencyDeleteDetail =>
+      'Everything is purged: database, local storage, embeddings. Nothing remains.';
+
+  @override
+  String get dataTransparencyLocal => 'Local';
+
+  @override
+  String get dataTransparencyServer => 'Server (encrypted)';
+
+  @override
+  String get dataTransparencyThirdParty => 'Third party (with your consent)';
 }

@@ -21115,4 +21115,68 @@ class SPt extends S {
   @override
   String get landingCoupleGeneric =>
       'Os casais casados perdem até CHF 8.000/ano em otimizações perdidas.';
+
+  @override
+  String get landingTransparency =>
+      'O que acontece quando digitas o teu salário: o cálculo é feito no teu telemóvel. Nada é enviado. Nada é guardado. Quando fechas esta página, os números desaparecem.';
+
+  @override
+  String get bankImportTransparency =>
+      'O teu extrato é enviado encriptado para o nosso servidor suíço para análise. As transações são categorizadas e depois o ficheiro original é eliminado. Apenas os resumos por categoria são mantidos no teu perfil.';
+
+  @override
+  String get coachTransparencySLM =>
+      'Resposta gerada no teu telemóvel. Nada enviado para um servidor.';
+
+  @override
+  String get coachTransparencyBYOK =>
+      'Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.';
+
+  @override
+  String get dataTransparencyTitle => 'Como o MINT usa os teus dados';
+
+  @override
+  String get dataTransparencySalary => 'Quando introduzes o teu salário';
+
+  @override
+  String get dataTransparencySalaryDetail =>
+      'Guardado apenas no teu telemóvel. Nunca enviado.';
+
+  @override
+  String get dataTransparencyScan => 'Quando digitalizas um documento';
+
+  @override
+  String get dataTransparencyScanDetail =>
+      'Enviado encriptado para o nosso servidor suíço. Analisado e eliminado. Apenas o resultado é mantido.';
+
+  @override
+  String get dataTransparencyCoach => 'Quando falas com o coach';
+
+  @override
+  String get dataTransparencyCoachDetail =>
+      'SLM local (nada enviado) ou API Claude (a tua escolha). O teu salário exato nunca é partilhado.';
+
+  @override
+  String get dataTransparencyImport => 'Quando importas um extrato';
+
+  @override
+  String get dataTransparencyImportDetail =>
+      'Enviado encriptado. Categorizado. Ficheiro original eliminado. Apenas os resumos são mantidos.';
+
+  @override
+  String get dataTransparencyDelete => 'Quando eliminas a tua conta';
+
+  @override
+  String get dataTransparencyDeleteDetail =>
+      'Tudo é eliminado: base de dados, armazenamento local, embeddings. Nada resta.';
+
+  @override
+  String get dataTransparencyLocal => 'Local';
+
+  @override
+  String get dataTransparencyServer => 'Servidor (encriptado)';
+
+  @override
+  String get dataTransparencyThirdParty =>
+      'Terceiros (com o teu consentimento)';
 }

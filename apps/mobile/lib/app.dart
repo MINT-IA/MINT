@@ -21,6 +21,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
+import 'package:mint_mobile/screens/profile/data_transparency_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/tools_library_screen.dart';
@@ -711,6 +712,10 @@ final _router = GoRouter(
         GoRoute(
           path: 'bilan',
           builder: (context, state) => const FinancialSummaryScreen(),
+        ),
+        GoRoute(
+          path: 'data-transparency',
+          builder: (context, state) => const DataTransparencyScreen(),
         ),
       ],
     ),
