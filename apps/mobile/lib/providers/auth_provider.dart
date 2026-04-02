@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -9,6 +10,7 @@ import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
 ///
@@ -440,10 +442,28 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
-      // Mark migration as complete — actual cloud sync will happen
-      // when the sync service is implemented (post-V1).
-      // For now we just tag local data with the user ID so it can
-      // be associated later.
+      // Push local wizard data to backend via claimLocalData.
+      // Best-effort: failure does not block the auth flow.
+      try {
+        final answers = await ReportPersistenceService.loadAnswers();
+        if (answers.isNotEmpty) {
+          var deviceId = prefs.getString('_mint_device_id');
+          if (deviceId == null) {
+            deviceId = const Uuid().v4();
+            await prefs.setString('_mint_device_id', deviceId);
+          }
+          await ApiService.claimLocalData(
+            localDataVersion: 1,
+            deviceId: deviceId,
+            wizardAnswers: answers,
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('[AuthProvider] claimLocalData sync failed: $e');
+        }
+      }
+
       await prefs.setString('local_data_owner', currentUserId);
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {

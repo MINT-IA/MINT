@@ -1,12 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/snapshot_service.dart';
 
 /// Provider pour le profil Coach MINT.
 ///
@@ -131,6 +135,43 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// True si le profil a ete mis a jour depuis la derniere synchro budget.
   bool get profileUpdatedSinceBudget => _profileUpdatedSinceBudget;
+
+  // ════════════════════════════════════════════════════════════════
+  //  BACKEND SYNC — fire-and-forget profile push
+  // ════════════════════════════════════════════════════════════════
+
+  /// Best-effort sync of local profile data to the backend.
+  /// Fire-and-forget: failure does NOT block local operations.
+  /// Only runs when the user is authenticated.
+  /// All exceptions are caught — safe to call without awaiting.
+  Future<void> _syncToBackend() async {
+    if (_profile == null || !_isLoaded) return;
+    try {
+      // Only sync when authenticated — avoid 401 errors.
+      final isLoggedIn = await AuthService.isLoggedIn();
+      if (!isLoggedIn) return;
+      final answers = Map<String, dynamic>.from(_lastAnswers);
+      final prefs = await SharedPreferences.getInstance();
+      // Stable device ID — generated once, persisted across sessions.
+      var deviceId = prefs.getString('_mint_device_id');
+      if (deviceId == null) {
+        deviceId = const Uuid().v4();
+        await prefs.setString('_mint_device_id', deviceId);
+      }
+      await ApiService.claimLocalData(
+        localDataVersion: 1,
+        deviceId: deviceId,
+        wizardAnswers: answers,
+      );
+    } catch (e) {
+      debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
+    }
+  }
+
+  /// Public entry point for backend sync.
+  /// Called by [AuthProvider] after login/register to push local data
+  /// when the backend profile is empty.
+  Future<void> triggerBackendSync() => _syncToBackend();
 
   String get personaKey {
     final p = _profile;
@@ -362,6 +403,7 @@ class CoachProfileProvider extends ChangeNotifier {
     _profileUpdatedSinceBudget = true;
     await ReportPersistenceService.saveAnswers(merged);
     notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
@@ -552,6 +594,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
     await ReportPersistenceService.setMiniOnboardingCompleted(true);
     notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   /// Create a NEW local CoachProfile from backend data when no local profile
@@ -776,6 +819,23 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
   }
 
+  /// W15: Create a financial snapshot from the current profile state.
+  /// Fire-and-forget — errors are logged, never surfaced to the user.
+  void _createSnapshotFromProfile(String trigger) {
+    final p = _profile;
+    if (p == null) return;
+    SnapshotService.createSnapshot(
+      trigger: trigger,
+      age: p.age,
+      grossIncome: p.salaireBrutMensuel * p.nombreDeMois,
+      canton: p.canton,
+      replacementRatio: 0.0, // Computed by projection services, not available here
+      monthsLiquidity: 0.0, // Requires budget data not in CoachProfile
+      taxSavingPotential: 0.0, // Requires tax simulation
+      confidenceScore: 0.0, // Requires projection
+    );
+  }
+
   void _persistHousingFieldsSync(Map<String, dynamic> answers, CoachProfile profile) {
     if (profile.housingStatus != null) {
       answers['q_housing_status'] = profile.housingStatus;
@@ -814,6 +874,10 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveCheckIns(
       updated.map((ci) => ci.toJson()).toList(),
     );
+
+    // W15: Auto-trigger financial snapshot after each check-in
+    _createSnapshotFromProfile('check_in');
+
     notifyListeners();
   }
 
@@ -952,6 +1016,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _profileUpdatedSinceBudget = true;
     notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -1146,7 +1211,12 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+
+    // W15: Auto-trigger snapshot after LPP certificate scan
+    _createSnapshotFromProfile('document_scan');
+
     notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   /// Inject PARTNER LPP certificate extraction into CoachProfile.conjoint.
