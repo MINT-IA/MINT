@@ -1092,6 +1092,13 @@ class RetirementProjectionService {
     final solde = totalRevenus - impotMensuel - depensesMensuelles;
 
     final alertes = <String>[];
+    // Guard: canton not provided → ZH default used silently
+    if (profile.canton.isEmpty) {
+      alertes.add(
+        'Canton non renseign\u00e9 \u2014 taux fiscaux de Zurich utilis\u00e9s par d\u00e9faut. '
+        'Renseigne ton canton pour une estimation plus pr\u00e9cise.',
+      );
+    }
     if (solde < 0) {
       alertes.add(
         'Deficit mensuel estime de ${formatChfWithPrefix(solde.abs())}. '

@@ -74,7 +74,8 @@ void main() {
         currentMonthlySalary: 8333,
       ));
       await tester.pumpAndSettle();
-      expect(find.textContaining('63%'), findsWidgets);
+      // Non-breaking space (\u00a0) before % per French typography rules
+      expect(find.textContaining('63\u00a0%'), findsWidgets);
       expect(find.textContaining('train de vie'), findsWidgets);
     });
 

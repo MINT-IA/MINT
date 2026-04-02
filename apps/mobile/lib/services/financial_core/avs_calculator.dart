@@ -72,9 +72,12 @@ class AvsCalculator {
     // 2a. Divorce income splitting (LAVS art. 29quinquies)
     // During marriage years, combined income is split 50/50.
     // Remaining years use individual salary.
+    // Guard: skip splitting if marriageYears <= 0 or totalContributionYears <= 0
+    // (avoids division by zero and meaningless splits).
     if (isDivorced &&
         exSpouseAnnualSalary != null &&
-        marriageYears > 0) {
+        marriageYears > 0 &&
+        totalContributionYears > 0) {
       final combinedDuringMarriage =
           (grossAnnualSalary + exSpouseAnnualSalary) / 2;
       final marriageRatio = marriageYears / totalContributionYears;
@@ -86,7 +89,7 @@ class AvsCalculator {
     // 2b. Child-raising credits / bonifications éducatives (LAVS art. 29sexies)
     // Annual credit = 3× minimum annual AVS pension.
     // Added to RAMD prorated over total contribution years.
-    if (childRaisingYears > 0) {
+    if (childRaisingYears > 0 && totalContributionYears > 0) {
       const bonificationAnnuelle = 3 * avsRenteMinMensuelle * 12;
       final bonificationRAMD =
           (bonificationAnnuelle * childRaisingYears) / totalContributionYears;
@@ -235,5 +238,28 @@ class AvsCalculator {
     final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
     final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
     return renteMax * gap / fullYears;
+  }
+
+  /// Explains why a computed rente is zero or very low.
+  ///
+  /// Use after [computeMonthlyRente] returns 0 or near-zero to provide
+  /// user-facing context instead of a bare "0 CHF".
+  static String? explainZeroRente({
+    required double computedRente,
+    required double grossAnnualSalary,
+    required int currentAge,
+    required int retirementAge,
+  }) {
+    if (computedRente > 0) return null;
+    if (grossAnnualSalary <= 0) {
+      return 'Aucun revenu d\u00e9clar\u00e9 \u2014 renseigne ton salaire pour estimer ta rente AVS.';
+    }
+    if (retirementAge < 63) {
+      return 'Anticipation AVS possible uniquement d\u00e8s 63 ans (LAVS art.\u00a040).';
+    }
+    if (currentAge < 20) {
+      return 'Les cotisations AVS d\u00e9butent \u00e0 20 ans (LAVS art.\u00a03).';
+    }
+    return 'Revenu insuffisant pour g\u00e9n\u00e9rer une rente dans cette configuration.';
   }
 }

@@ -535,8 +535,24 @@ class CoachNarrativeService {
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
       final retAge = profile.effectiveRetirementAge;
-      retirementCountdown = 'Plus que ${yearsLeft * 12} mois avant ta retraite '
-          'a $retAge ans.';
+      // When less than 2 years away, show months for precision.
+      // Integer year truncation can mislead (e.g. 64.9 → "12 mois" instead of "1 mois").
+      if (yearsLeft <= 1 && profile.dateOfBirth != null) {
+        final now = DateTime.now();
+        final retirementDate = DateTime(
+          profile.dateOfBirth!.year + retAge,
+          profile.dateOfBirth!.month,
+          profile.dateOfBirth!.day,
+        );
+        final monthsLeft = ((retirementDate.difference(now).inDays) / 30.44).round().clamp(0, 999);
+        if (monthsLeft > 0) {
+          retirementCountdown = 'Plus que $monthsLeft mois avant ta retraite '
+              '\u00e0 $retAge ans.';
+        }
+      } else {
+        retirementCountdown = 'Plus que $yearsLeft ans avant ta retraite '
+            '\u00e0 $retAge ans.';
+      }
     }
 
     // ── Monthly briefing N vs N-1 (Coach Vivant Track A) ──

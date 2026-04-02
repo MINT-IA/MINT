@@ -301,13 +301,18 @@ class HeroRetirementCard extends StatelessWidget {
             : MintColors.scoreCritique;
 
     // P1-A: Human explanation of replacement ratio
-    final explanation = ratio >= 70
-        ? 'Confortable \u2014 tu gardes ton train de vie'
-        : ratio >= 60
-            ? 'Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)'
-            : ratio >= 50
-                ? 'Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires'
-                : 'Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation';
+    // Guard: clamp to 200% to prevent absurd display values
+    // (consistent with ForecasterService.safeReplacementRate)
+    final displayRatio = ratio.clamp(0.0, 200.0);
+    final explanation = displayRatio > 100
+        ? 'Tu disposes de ressources sup\u00e9rieures \u00e0 ton revenu actuel \u2014 v\u00e9rifie les hypoth\u00e8ses'
+        : displayRatio >= 70
+            ? 'Confortable \u2014 tu gardes ton train de vie'
+            : displayRatio >= 60
+                ? 'Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)'
+                : displayRatio >= 50
+                    ? 'Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires'
+                    : 'Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation';
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -326,7 +331,9 @@ class HeroRetirementCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tu garderas ${ratio.toStringAsFixed(0)}% de ton train de vie',
+                      displayRatio > 100
+                          ? 'Tu as ${(displayRatio - 100).toStringAsFixed(0)}\u00a0% de ressources suppl\u00e9mentaires'
+                          : 'Tu garderas ${displayRatio.toStringAsFixed(0)}\u00a0% de ton train de vie',
                       style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
