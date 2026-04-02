@@ -21092,4 +21092,67 @@ class SDe extends S {
   @override
   String get actionInsightFallback =>
       'Vervollständige dein Profil um den genauen Einfluss zu sehen';
+
+  @override
+  String get glossaryLpp =>
+      'Die 2. Säule. Geld, das du und dein Arbeitgeber monatlich für deine Rente zurücklegen. Obligatorisch ab CHF 22\'680 Lohn.';
+
+  @override
+  String get glossaryAvs =>
+      'Die 1. Säule. Die Grundrente, die alle in der Schweiz bei der Pensionierung erhalten. Maximum CHF 2\'520/Monat für Einzelpersonen.';
+
+  @override
+  String get glossary3a =>
+      'Die 3. Säule. Deine persönliche, freiwillige und steuerlich abzugsfähige Altersvorsorge. Maximum CHF 7\'258/Jahr wenn du eine 2. Säule hast.';
+
+  @override
+  String get glossaryRamd =>
+      'Massgebendes durchschnittliches Jahreseinkommen. Der Durchschnitt deiner Jahresgehälter über deine gesamte Karriere. Diese Zahl bestimmt deine AHV-Rente.';
+
+  @override
+  String get glossaryTauxConversion =>
+      'Der Prozentsatz, der auf dein BVG-Kapital angewendet wird, um deine Jahresrente zu berechnen. Gesetzliches Minimum: 6.8%. Je höher, desto mehr Rente.';
+
+  @override
+  String get glossaryRachat =>
+      'Eine freiwillige Einzahlung in deine 2. Säule, um eine Lücke zu schliessen. Vollständig steuerlich abzugsfähig. Begrenzt auf deine maximale Lücke.';
+
+  @override
+  String get glossaryLacune =>
+      'Die Differenz zwischen dem, was du in deiner 2. Säule hast, und dem, was du hättest, wenn du seit Anfang das Maximum einbezahlt hättest. Das kannst du einkaufen.';
+
+  @override
+  String get glossaryTauxRemplacement =>
+      'Der Prozentsatz deines letzten Gehalts, den du bei der Pensionierung erhältst. In der Schweiz liegt das Ziel bei 60-80%.';
+
+  @override
+  String get glossaryRente =>
+      'Ein monatliches Einkommen auf Lebenszeit nach der Pensionierung. Maximale Sicherheit, aber fixer Betrag. Die Alternative ist der Kapitalbezug.';
+
+  @override
+  String get glossaryCapital =>
+      'Deine 2. Säule als Einmalbetrag statt als monatliche Rente beziehen. Mehr Freiheit, aber du trägst das Risiko selbst.';
+
+  @override
+  String get glossaryCoordination =>
+      'Der Teil deines Lohns, der NICHT durch die 2. Säule versichert ist (CHF 26\'460 im 2025). Darum ist nur ein Teil deines Lohns versichert.';
+
+  @override
+  String get glossarySurobligatoire =>
+      'Der Teil deiner 2. Säule über dem gesetzlichen Minimum. Umwandlungssatz oft tiefer (4-5%), aber flexiblere Bezugsbedingungen.';
+
+  @override
+  String get landingCoupleTitle => 'Zu zweit? MINT optimiert für euch beide.';
+
+  @override
+  String landingCouplePersonalized(String penalty) {
+    return 'Mit deinem Einkommen beträgt die geschätzte Heiratsstrafe CHF $penalty/Jahr. 3 Hebel existieren, um sie zu reduzieren.';
+  }
+
+  @override
+  String get landingCoupleAction => 'Paar-Modus entdecken';
+
+  @override
+  String get landingCoupleGeneric =>
+      'Verheiratete Paare verlieren bis zu CHF 8\'000/Jahr an verpassten Optimierungen.';
 }

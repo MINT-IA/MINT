@@ -21104,4 +21104,67 @@ class SIt extends S {
   @override
   String get actionInsightFallback =>
       'Completa il tuo profilo per vedere l\'impatto esatto';
+
+  @override
+  String get glossaryLpp =>
+      'Il 2° pilastro. Soldi che tu e il tuo datore di lavoro mettete da parte ogni mese per la pensione. Obbligatorio da CHF 22\'680 di salario.';
+
+  @override
+  String get glossaryAvs =>
+      'Il 1° pilastro. La rendita base che tutti ricevono alla pensione in Svizzera. Massimo CHF 2\'520/mese per persona singola.';
+
+  @override
+  String get glossary3a =>
+      'Il 3° pilastro. Il tuo risparmio pensionistico personale, volontario e deducibile dalle tasse. Massimo CHF 7\'258/anno se hai un 2° pilastro.';
+
+  @override
+  String get glossaryRamd =>
+      'Reddito Annuo Medio Determinante. La media dei tuoi salari annuali durante tutta la carriera. È questa cifra che determina la tua rendita AVS.';
+
+  @override
+  String get glossaryTauxConversion =>
+      'La percentuale applicata al tuo capitale LPP per calcolare la tua rendita annuale. Tasso minimo legale: 6.8%. Più alto è, più alta è la tua rendita.';
+
+  @override
+  String get glossaryRachat =>
+      'Un versamento volontario nel tuo 2° pilastro per colmare una lacuna. Interamente deducibile dalle tasse. Limite: la tua lacuna massima.';
+
+  @override
+  String get glossaryLacune =>
+      'La differenza tra quello che hai nel tuo 2° pilastro e quello che avresti se avessi versato il massimo dall\'inizio. È quello che puoi riscattare.';
+
+  @override
+  String get glossaryTauxRemplacement =>
+      'La percentuale dell\'ultimo salario che riceverai alla pensione. In Svizzera, l\'obiettivo è 60-80%.';
+
+  @override
+  String get glossaryRente =>
+      'Un reddito mensile versato a vita dopo la pensione. Sicurezza massima ma importo fisso. L\'alternativa è il capitale.';
+
+  @override
+  String get glossaryCapital =>
+      'Ricevere il tuo 2° pilastro in un\'unica soluzione invece di una rendita mensile. Più libertà, ma gestisci il rischio da solo.';
+
+  @override
+  String get glossaryCoordination =>
+      'La parte del tuo salario NON assicurata dal 2° pilastro (CHF 26\'460 nel 2025). Per questo solo una parte del tuo salario è coperta.';
+
+  @override
+  String get glossarySurobligatoire =>
+      'La parte del tuo 2° pilastro sopra il minimo legale. Tasso di conversione spesso più basso (4-5%), ma condizioni di prelievo più flessibili.';
+
+  @override
+  String get landingCoupleTitle => 'In coppia? MINT ottimizza per due.';
+
+  @override
+  String landingCouplePersonalized(String penalty) {
+    return 'Con il tuo reddito, la penalità matrimonio stimata è di CHF $penalty/anno. 3 leve esistono per ridurla.';
+  }
+
+  @override
+  String get landingCoupleAction => 'Scopri la modalità coppia';
+
+  @override
+  String get landingCoupleGeneric =>
+      'Le coppie sposate perdono fino a CHF 8\'000/anno in ottimizzazioni mancate.';
 }

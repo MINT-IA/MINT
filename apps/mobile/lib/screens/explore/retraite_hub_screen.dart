@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/action_insight_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/glossary_term.dart';
 
 class RetraiteHubScreen extends StatelessWidget {
   const RetraiteHubScreen({super.key});
@@ -66,6 +67,18 @@ class RetraiteHubScreen extends StatelessWidget {
               route: '/onboarding/quick',
             ),
           const SizedBox(height: MintSpacing.md),
+          // Glossary quick-access: key retirement terms
+          const MintEntrance(child: Wrap(
+            spacing: MintSpacing.md,
+            runSpacing: MintSpacing.sm,
+            children: [
+              GlossaryTerm(term: 'AVS'),
+              GlossaryTerm(term: 'LPP'),
+              GlossaryTerm(term: '3a'),
+              GlossaryTerm(term: 'Taux de remplacement'),
+            ],
+          )),
+          const SizedBox(height: MintSpacing.lg),
           MintEntrance(child: Text(
             l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),

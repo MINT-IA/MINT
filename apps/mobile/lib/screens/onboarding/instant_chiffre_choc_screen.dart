@@ -8,6 +8,7 @@ import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/widgets/glossary_term.dart';
 
 /// Instant chiffre choc screen — shown from landing without account.
 ///
@@ -187,6 +188,26 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                                 '$formattedTotal par mois \u00e0 la retraite',
                           ),
                         ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: MintSpacing.md),
+
+                  // Glossary terms — explain what composes the number
+                  MintEntrance(
+                    delay: const Duration(milliseconds: 150),
+                    child: FadeTransition(
+                      opacity: _fadeAnim,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const GlossaryTerm(term: 'AVS'),
+                          Text(' + ', style: MintTextStyles.bodySmall(
+                            color: MintColors.textMuted,
+                          )),
+                          const GlossaryTerm(term: 'LPP'),
+                        ],
                       ),
                     ),
                   ),

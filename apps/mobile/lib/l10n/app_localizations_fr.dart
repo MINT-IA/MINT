@@ -21046,4 +21046,67 @@ class SFr extends S {
   @override
   String get actionInsightFallback =>
       'Complète ton profil pour voir l\'impact exact';
+
+  @override
+  String get glossaryLpp =>
+      'Le 2e pilier. L\'argent que ton employeur et toi mettez de côté chaque mois pour ta retraite. C\'est obligatoire dès CHF 22\'680 de salaire.';
+
+  @override
+  String get glossaryAvs =>
+      'Le 1er pilier. La rente de base que tout le monde touche à la retraite en Suisse. Maximum CHF 2\'520/mois pour une personne seule.';
+
+  @override
+  String get glossary3a =>
+      'Le 3e pilier. Ton épargne retraite personnelle, volontaire et déductible des impôts. Maximum CHF 7\'258/an si tu as un 2e pilier.';
+
+  @override
+  String get glossaryRamd =>
+      'Revenu Annuel Moyen Déterminant. La moyenne de tes salaires annuels sur toute ta carrière. C\'est ce chiffre qui détermine ta rente AVS.';
+
+  @override
+  String get glossaryTauxConversion =>
+      'Le pourcentage appliqué à ton capital LPP pour calculer ta rente annuelle. Taux minimum légal : 6.8 %. Plus il est haut, plus ta rente est élevée.';
+
+  @override
+  String get glossaryRachat =>
+      'Un versement volontaire dans ton 2e pilier pour combler une lacune. Entièrement déductible des impôts. Limite : ta lacune maximale.';
+
+  @override
+  String get glossaryLacune =>
+      'La différence entre ce que tu as dans ton 2e pilier et ce que tu aurais si tu avais cotisé au maximum depuis le début. C\'est ce que tu peux racheter.';
+
+  @override
+  String get glossaryTauxRemplacement =>
+      'Le pourcentage de ton dernier salaire que tu toucheras à la retraite. En Suisse, la cible est 60-80 %.';
+
+  @override
+  String get glossaryRente =>
+      'Un revenu mensuel versé à vie après la retraite. Sécurité maximale mais montant fixe. L\'alternative, c\'est le capital.';
+
+  @override
+  String get glossaryCapital =>
+      'Recevoir son 2e pilier en une fois au lieu d\'une rente mensuelle. Plus de liberté, mais tu gères le risque toi-même.';
+
+  @override
+  String get glossaryCoordination =>
+      'La partie de ton salaire NON assurée par le 2e pilier (CHF 26\'460 en 2025). C\'est pour ça que seule une partie de ton salaire est couverte.';
+
+  @override
+  String get glossarySurobligatoire =>
+      'La partie de ton 2e pilier au-dessus du minimum légal. Taux de conversion souvent plus bas (4-5 %), mais conditions de retrait plus flexibles.';
+
+  @override
+  String get landingCoupleTitle => 'En couple ? MINT optimise à deux.';
+
+  @override
+  String landingCouplePersonalized(String penalty) {
+    return 'Avec ton revenu, la pénalité mariage estimée est de CHF $penalty/an. 3 leviers existent pour la réduire.';
+  }
+
+  @override
+  String get landingCoupleAction => 'Voir le mode couple';
+
+  @override
+  String get landingCoupleGeneric =>
+      'Les couples mariés perdent jusqu\'à CHF 8\'000/an en optimisations manquées.';
 }

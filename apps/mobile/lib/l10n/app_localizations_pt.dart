@@ -21052,4 +21052,67 @@ class SPt extends S {
   @override
   String get actionInsightFallback =>
       'Completa o teu perfil para ver o impacto exato';
+
+  @override
+  String get glossaryLpp =>
+      'O 2° pilar. Dinheiro que tu e o teu empregador põem de lado mensalmente para a reforma. Obrigatório a partir de CHF 22.680 de salário.';
+
+  @override
+  String get glossaryAvs =>
+      'O 1° pilar. A pensão base que todos recebem na reforma na Suíça. Máximo CHF 2.520/mês para pessoa solteira.';
+
+  @override
+  String get glossary3a =>
+      'O 3° pilar. A tua poupança pessoal para a reforma, voluntária e dedutível nos impostos. Máximo CHF 7.258/ano se tiveres um 2° pilar.';
+
+  @override
+  String get glossaryRamd =>
+      'Rendimento Anual Médio Determinante. A média dos teus salários anuais ao longo de toda a carreira. É este valor que determina a tua pensão AVS.';
+
+  @override
+  String get glossaryTauxConversion =>
+      'A percentagem aplicada ao teu capital LPP para calcular a tua pensão anual. Taxa mínima legal: 6.8%. Quanto mais alta, maior a tua pensão.';
+
+  @override
+  String get glossaryRachat =>
+      'Um pagamento voluntário no teu 2° pilar para preencher uma lacuna. Totalmente dedutível nos impostos. Limite: a tua lacuna máxima.';
+
+  @override
+  String get glossaryLacune =>
+      'A diferença entre o que tens no teu 2° pilar e o que terias se tivesses contribuído o máximo desde o início. É o que podes recomprar.';
+
+  @override
+  String get glossaryTauxRemplacement =>
+      'A percentagem do teu último salário que receberás na reforma. Na Suíça, o objetivo é 60-80%.';
+
+  @override
+  String get glossaryRente =>
+      'Um rendimento mensal vitalício após a reforma. Segurança máxima mas montante fixo. A alternativa é o capital.';
+
+  @override
+  String get glossaryCapital =>
+      'Receber o teu 2° pilar de uma vez em vez de uma pensão mensal. Mais liberdade, mas geres o risco sozinho.';
+
+  @override
+  String get glossaryCoordination =>
+      'A parte do teu salário NÃO coberta pelo 2° pilar (CHF 26.460 em 2025). Por isso apenas parte do teu salário está segurada.';
+
+  @override
+  String get glossarySurobligatoire =>
+      'A parte do teu 2° pilar acima do mínimo legal. Taxa de conversão frequentemente mais baixa (4-5%), mas condições de levantamento mais flexíveis.';
+
+  @override
+  String get landingCoupleTitle => 'A dois? O MINT otimiza para o casal.';
+
+  @override
+  String landingCouplePersonalized(String penalty) {
+    return 'Com o teu rendimento, a penalização por casamento estimada é de CHF $penalty/ano. Existem 3 alavancas para a reduzir.';
+  }
+
+  @override
+  String get landingCoupleAction => 'Descobrir o modo casal';
+
+  @override
+  String get landingCoupleGeneric =>
+      'Os casais casados perdem até CHF 8.000/ano em otimizações perdidas.';
 }
