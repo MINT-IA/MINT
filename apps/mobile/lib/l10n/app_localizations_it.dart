@@ -21000,4 +21000,41 @@ class SIt extends S {
 
   @override
   String get chiffreChocSkipToHome => 'Vai alla dashboard';
+
+  @override
+  String get landingQuickCalcTitle => 'Il tuo numero in 30 secondi';
+
+  @override
+  String get landingQuickCalcSubtitle =>
+      'Nessun conto. Nulla salvato. Calcolo effimero.';
+
+  @override
+  String get landingBirthYear => 'Anno di nascita';
+
+  @override
+  String get landingSalary => 'Stipendio annuo lordo (CHF)';
+
+  @override
+  String get landingCanton => 'Cantone';
+
+  @override
+  String get landingCalculate => 'Vedi il mio numero';
+
+  @override
+  String get landingPrivacyBadge =>
+      'Nessun conto richiesto. Calcolato sul tuo telefono. Nulla salvato.';
+
+  @override
+  String get landingVzComparison =>
+      'Quello che VZ fattura CHF 1’200, tu lo hai in 30 secondi.';
+
+  @override
+  String get instantChiffreChocConfidence =>
+      'Stima ±15 % — crea un conto per maggiore precisione';
+
+  @override
+  String get instantChiffreChocNothingStored => 'Nessun conto. Nulla salvato.';
+
+  @override
+  String get instantChiffreChocComeBack => 'Torna quando vuoi';
 }

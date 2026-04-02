@@ -20948,4 +20948,41 @@ class SPt extends S {
 
   @override
   String get chiffreChocSkipToHome => 'Ir para o dashboard';
+
+  @override
+  String get landingQuickCalcTitle => 'O teu número em 30 segundos';
+
+  @override
+  String get landingQuickCalcSubtitle =>
+      'Sem conta. Nada armazenado. Cálculo efémero.';
+
+  @override
+  String get landingBirthYear => 'Ano de nascimento';
+
+  @override
+  String get landingSalary => 'Salário bruto anual (CHF)';
+
+  @override
+  String get landingCanton => 'Cantão';
+
+  @override
+  String get landingCalculate => 'Ver o meu número';
+
+  @override
+  String get landingPrivacyBadge =>
+      'Sem conta. Calculado no teu telemóvel. Nada armazenado.';
+
+  @override
+  String get landingVzComparison =>
+      'O que a VZ cobra CHF 1.200, tu tens em 30 segundos.';
+
+  @override
+  String get instantChiffreChocConfidence =>
+      'Estimativa ±15 % — cria uma conta para mais precisão';
+
+  @override
+  String get instantChiffreChocNothingStored => 'Sem conta. Nada armazenado.';
+
+  @override
+  String get instantChiffreChocComeBack => 'Volta quando quiseres';
 }

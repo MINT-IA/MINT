@@ -20946,4 +20946,41 @@ class SEs extends S {
 
   @override
   String get chiffreChocSkipToHome => 'Ir al dashboard';
+
+  @override
+  String get landingQuickCalcTitle => 'Tu número en 30 segundos';
+
+  @override
+  String get landingQuickCalcSubtitle =>
+      'Sin cuenta. Nada almacenado. Cálculo efímero.';
+
+  @override
+  String get landingBirthYear => 'Año de nacimiento';
+
+  @override
+  String get landingSalary => 'Salario bruto anual (CHF)';
+
+  @override
+  String get landingCanton => 'Cantón';
+
+  @override
+  String get landingCalculate => 'Ver mi número';
+
+  @override
+  String get landingPrivacyBadge =>
+      'Sin cuenta. Calculado en tu teléfono. Nada almacenado.';
+
+  @override
+  String get landingVzComparison =>
+      'Lo que VZ cobra CHF 1.200, tú lo tienes en 30 segundos.';
+
+  @override
+  String get instantChiffreChocConfidence =>
+      'Estimación ±15 % — crea una cuenta para más precisión';
+
+  @override
+  String get instantChiffreChocNothingStored => 'Sin cuenta. Nada almacenado.';
+
+  @override
+  String get instantChiffreChocComeBack => 'Vuelve cuando quieras';
 }

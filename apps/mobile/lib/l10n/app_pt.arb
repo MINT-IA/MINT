@@ -9652,5 +9652,16 @@
   "disclaimerFull": "Ferramenta educativa simplificada. Não constitui aconselhamento financeiro personalizado (LSFin). Fontes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta um especialista qualificado.",
   "chiffreChocSilenceQuestion": "Este é o teu número. O que achas?",
   "chiffreChocSilenceHint": "Diz o que te vem à mente...",
-  "chiffreChocSkipToHome": "Ir para o dashboard"
+  "chiffreChocSkipToHome": "Ir para o dashboard",
+  "landingQuickCalcTitle": "O teu n\u00famero em 30 segundos",
+  "landingQuickCalcSubtitle": "Sem conta. Nada armazenado. C\u00e1lculo ef\u00e9mero.",
+  "landingBirthYear": "Ano de nascimento",
+  "landingSalary": "Sal\u00e1rio bruto anual (CHF)",
+  "landingCanton": "Cant\u00e3o",
+  "landingCalculate": "Ver o meu n\u00famero",
+  "landingPrivacyBadge": "Sem conta. Calculado no teu telem\u00f3vel. Nada armazenado.",
+  "landingVzComparison": "O que a VZ cobra CHF 1.200, tu tens em 30 segundos.",
+  "instantChiffreChocConfidence": "Estimativa \u00b115\u00a0% \u2014 cria uma conta para mais precis\u00e3o",
+  "instantChiffreChocNothingStored": "Sem conta. Nada armazenado.",
+  "instantChiffreChocComeBack": "Volta quando quiseres"
 }

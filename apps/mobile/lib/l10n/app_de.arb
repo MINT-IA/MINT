@@ -9652,5 +9652,16 @@
   "disclaimerFull": "Vereinfachtes Bildungstool. Stellt keine persönliche Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7. Konsultiere eine qualifizierte Fachperson für individuelle Beratung.",
   "chiffreChocSilenceQuestion": "Das ist deine Zahl. Was denkst du?",
   "chiffreChocSilenceHint": "Sag, was dir einfällt...",
-  "chiffreChocSkipToHome": "Zum Dashboard"
+  "chiffreChocSkipToHome": "Zum Dashboard",
+  "landingQuickCalcTitle": "Deine Zahl in 30 Sekunden",
+  "landingQuickCalcSubtitle": "Kein Konto. Nichts gespeichert. Fl\u00fcchtige Berechnung.",
+  "landingBirthYear": "Geburtsjahr",
+  "landingSalary": "Brutto-Jahresgehalt (CHF)",
+  "landingCanton": "Kanton",
+  "landingCalculate": "Meine Zahl sehen",
+  "landingPrivacyBadge": "Kein Konto erforderlich. Berechnung auf deinem Handy. Nichts gespeichert.",
+  "landingVzComparison": "Wof\u00fcr VZ CHF 1\u2019200 verlangt, bekommst du in 30 Sekunden.",
+  "instantChiffreChocConfidence": "Sch\u00e4tzung \u00b115\u00a0% \u2014 erstelle ein Konto f\u00fcr mehr Genauigkeit",
+  "instantChiffreChocNothingStored": "Kein Konto. Nichts gespeichert.",
+  "instantChiffreChocComeBack": "Komm zur\u00fcck, wann immer du willst"
 }

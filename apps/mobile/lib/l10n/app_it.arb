@@ -9652,5 +9652,16 @@
   "disclaimerFull": "Strumento educativo semplificato. Non costituisce consulenza finanziaria personalizzata (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta uno specialista qualificato.",
   "chiffreChocSilenceQuestion": "Questo è il tuo numero. Cosa ne pensi?",
   "chiffreChocSilenceHint": "Dì quello che ti viene in mente...",
-  "chiffreChocSkipToHome": "Vai alla dashboard"
+  "chiffreChocSkipToHome": "Vai alla dashboard",
+  "landingQuickCalcTitle": "Il tuo numero in 30 secondi",
+  "landingQuickCalcSubtitle": "Nessun conto. Nulla salvato. Calcolo effimero.",
+  "landingBirthYear": "Anno di nascita",
+  "landingSalary": "Stipendio annuo lordo (CHF)",
+  "landingCanton": "Cantone",
+  "landingCalculate": "Vedi il mio numero",
+  "landingPrivacyBadge": "Nessun conto richiesto. Calcolato sul tuo telefono. Nulla salvato.",
+  "landingVzComparison": "Quello che VZ fattura CHF 1\u2019200, tu lo hai in 30 secondi.",
+  "instantChiffreChocConfidence": "Stima \u00b115\u00a0% \u2014 crea un conto per maggiore precisione",
+  "instantChiffreChocNothingStored": "Nessun conto. Nulla salvato.",
+  "instantChiffreChocComeBack": "Torna quando vuoi"
 }
