@@ -49,6 +49,7 @@ from app.services.open_banking.blink_connector import BLinkConnector
 from app.services.open_banking.consent_manager import ConsentManager
 from app.services.open_banking.transaction_categorizer import TransactionCategorizer
 from app.services.open_banking.account_aggregator import AccountAggregator
+from app.services.feature_flags import FeatureFlags
 
 logger = logging.getLogger(__name__)
 
@@ -98,8 +99,10 @@ DISCLAIMER = (
 def _check_open_banking_enabled():
     """Check if Open Banking is enabled (requires FINMA consultation).
 
-    Raises HTTPException 503 if the feature gate is closed.
+    Raises HTTPException 403 via feature flag if enable_blink_production is off,
+    then 503 if the legacy OPEN_BANKING_ENABLED env var is also off.
     """
+    FeatureFlags.require_flag("enable_blink_production")
     enabled = os.environ.get("OPEN_BANKING_ENABLED", "false").lower() == "true"
     if not enabled:
         raise HTTPException(

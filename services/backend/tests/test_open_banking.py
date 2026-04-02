@@ -62,14 +62,20 @@ def aggregator(connector, consent_manager, categorizer):
 
 @pytest.fixture(autouse=True)
 def set_open_banking_env():
-    """Ensure OPEN_BANKING_ENABLED is set for gated endpoint tests."""
+    """Ensure OPEN_BANKING_ENABLED and FF_ENABLE_BLINK_PRODUCTION are set for gated endpoint tests."""
     original = os.environ.get("OPEN_BANKING_ENABLED")
+    original_ff = os.environ.get("FF_ENABLE_BLINK_PRODUCTION")
     os.environ["OPEN_BANKING_ENABLED"] = "true"
+    os.environ["FF_ENABLE_BLINK_PRODUCTION"] = "true"
     yield
     if original is None:
         os.environ.pop("OPEN_BANKING_ENABLED", None)
     else:
         os.environ["OPEN_BANKING_ENABLED"] = original
+    if original_ff is None:
+        os.environ.pop("FF_ENABLE_BLINK_PRODUCTION", None)
+    else:
+        os.environ["FF_ENABLE_BLINK_PRODUCTION"] = original_ff
 
 
 # ===========================================================================

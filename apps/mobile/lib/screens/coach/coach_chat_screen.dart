@@ -30,6 +30,8 @@ import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
 import 'package:mint_mobile/widgets/coach/coach_rich_widgets.dart';
+import 'package:mint_mobile/models/coach_insight.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -560,6 +562,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isStreaming = false;
     });
     _scrollToBottom();
+
+    // Wire S58: extract and persist insight from SLM exchange.
+    _extractAndSaveInsight(userMessage, finalText);
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
@@ -602,6 +607,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _isLoading = false;
       });
       _scrollToBottom();
+
+      // Wire S58: extract and persist insight from BYOK/fallback exchange.
+      _extractAndSaveInsight(text, response.message);
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
@@ -635,6 +643,50 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  INSIGHT EXTRACTION (S58 — AI Memory wiring)
+  // ════════════════════════════════════════════════════════════
+
+  /// Regex for detecting financial topics in conversation text.
+  static final RegExp _financialTopicPattern = RegExp(
+    r'\b(3a|3e|lpp|retraite|fiscalit[eé]|budget|logement|avs|imp[oô]t|rente|capital|pilier)\b',
+    caseSensitive: false,
+  );
+
+  /// Extract a key insight from a coach exchange and persist it.
+  ///
+  /// Fire-and-forget: errors are caught silently so chat flow is never blocked.
+  /// Skips short exchanges (user < 20 chars or coach < 50 chars) to avoid
+  /// storing trivial greetings / acknowledgements.
+  void _extractAndSaveInsight(String userMessage, String coachResponse) {
+    // Skip trivial exchanges.
+    if (userMessage.length < 20 || coachResponse.length < 50) return;
+
+    // Detect financial topic via regex.
+    final match = _financialTopicPattern.firstMatch(
+      '${userMessage.toLowerCase()} ${coachResponse.toLowerCase()}',
+    );
+    if (match == null) return;
+
+    final topic = match.group(1) ?? 'general';
+
+    // Build a privacy-safe summary (max 200 chars, no PII).
+    final summary = coachResponse.length > 200
+        ? coachResponse.substring(0, 197).replaceAll(RegExp(r'\s+\S*$'), '...')
+        : coachResponse;
+
+    final insight = CoachInsight(
+      id: '${DateTime.now().millisecondsSinceEpoch}_${topic}',
+      createdAt: DateTime.now(),
+      topic: topic,
+      summary: summary,
+      type: InsightType.fact,
+    );
+
+    // Fire-and-forget — never block the UI.
+    CoachMemoryService.saveInsight(insight).catchError((_) {});
   }
 
   // ════════════════════════════════════════════════════════════

@@ -19,6 +19,7 @@ from app.services.household_service import (
     dissolve_household,
     admin_override_cooldown,
 )
+from app.services.feature_flags import FeatureFlags
 from app.schemas.household import (
     HouseholdResponse,
     InviteRequest,
@@ -114,6 +115,7 @@ def override_cooldown(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> AdminOverrideCooldownResponse:
+    FeatureFlags.require_flag("enable_admin_screens")
     # RBAC check: require BOTH DB role AND email in allowlist (defense in depth).
     # P0-4: Previously used OR — a compromised email allowlist alone granted admin.
     has_role = getattr(current_user, 'role', None) == 'support_admin'

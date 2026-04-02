@@ -9,8 +9,9 @@ from uuid import uuid4
 
 @pytest.fixture
 def admin_env(monkeypatch):
-    """Set AUTH_ADMIN_EMAIL_ALLOWLIST so test@mint.ch is recognized as admin."""
+    """Set AUTH_ADMIN_EMAIL_ALLOWLIST and enable_admin_screens FF so test@mint.ch is recognized as admin."""
     monkeypatch.setenv("AUTH_ADMIN_EMAIL_ALLOWLIST", "test@mint.ch")
+    monkeypatch.setenv("FF_ENABLE_ADMIN_SCREENS", "true")
 
 
 def test_post_single_event_anonymous(client):
@@ -471,18 +472,17 @@ def test_analytics_multiple_events_same_session(client, admin_env):
 
 
 def test_analytics_summary_requires_admin(client):
-    """V6-1: summary endpoint requires admin access."""
+    """V6-1: summary endpoint requires admin access (FF gate or RBAC)."""
     # Default client has test@mint.ch but NO admin allowlist configured
+    # and FF_ENABLE_ADMIN_SCREENS is not set — gets 403 from FF gate.
     response = client.get("/api/v1/analytics/summary")
     assert response.status_code == 403
-    assert "Admin access required" in response.json()["detail"]
 
 
 def test_analytics_funnel_requires_admin(client):
-    """V6-1: funnel endpoint requires admin access."""
+    """V6-1: funnel endpoint requires admin access (FF gate or RBAC)."""
     response = client.get("/api/v1/analytics/funnel?steps=landing_view")
     assert response.status_code == 403
-    assert "Admin access required" in response.json()["detail"]
 
 
 def test_post_events_system_category(client):

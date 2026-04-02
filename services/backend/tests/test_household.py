@@ -2,6 +2,7 @@
 Tests for household management endpoints (Couple+ billing, P6.4 + P6.5).
 """
 
+import os
 from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
@@ -507,6 +508,7 @@ def test_a3_accept_on_full_household_direct(client: TestClient):
 # Admin override cooldown
 # ---------------------------------------------------------------------------
 def test_admin_override_cooldown(client: TestClient):
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     auth_client = _auth_client(client)
     owner_token, partner_token, owner_id, partner_id, code = _setup_household_with_invite(auth_client)
 
@@ -560,6 +562,7 @@ def test_admin_override_cooldown(client: TestClient):
 # Admin override without admin role -> 403
 # ---------------------------------------------------------------------------
 def test_admin_override_without_admin_role(client: TestClient):
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     auth_client = _auth_client(client)
     token = _register_and_token(auth_client, "hh-nonadmin@example.com")
 
@@ -674,6 +677,7 @@ def test_revoke_idempotent(client: TestClient):
 # Admin override cooldown with short reason -> 400
 # ---------------------------------------------------------------------------
 def test_admin_override_short_reason(client: TestClient):
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     auth_client = _auth_client(client)
     admin_token = _register_and_token(auth_client, "admin-short@mint.ch")
 
