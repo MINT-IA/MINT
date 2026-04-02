@@ -1038,7 +1038,18 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProvider(create: (_) => MintStateProvider()),
+        ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
+          create: (_) => MintStateProvider(),
+          update: (_, coachProvider, mintState) {
+            if (coachProvider.hasProfile && coachProvider.profileUpdatedSinceBudget) {
+              final profile = coachProvider.profile!;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                mintState?.recompute(profile);
+              });
+            }
+            return mintState!;
+          },
+        ),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();

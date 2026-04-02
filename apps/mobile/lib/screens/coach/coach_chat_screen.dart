@@ -33,6 +33,17 @@ import 'package:mint_mobile/widgets/coach/coach_rich_widgets.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
+//
+//  Extracted components (W13 refactoring, 4193→836 lines):
+//  - CoachAppBar         → widgets/coach/coach_app_bar.dart
+//  - CoachEmptyState     → widgets/coach/coach_empty_state.dart
+//  - CoachInputBar       → widgets/coach/coach_input_bar.dart
+//  - CoachLoadingIndicator → widgets/coach/coach_loading_indicator.dart
+//  - CoachMessageBubble  → widgets/coach/coach_message_bubble.dart
+//  - CoachRichWidgets    → widgets/coach/coach_rich_widgets.dart
+//  - LightningMenu       → widgets/coach/lightning_menu.dart
+//  Greeting card, canvas background, and disclaimer remain inline
+//  (tightly coupled to screen state — extraction deferred).
 // ────────────────────────────────────────────────────────────
 //
 // Priority chain:

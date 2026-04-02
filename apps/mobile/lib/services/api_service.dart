@@ -1217,20 +1217,4 @@ class ApiService {
     }
   }
 
-  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
-  static Future<SessionReport> getSessionReport(String sessionId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/sessions/$sessionId/report'),
-      headers: await _authHeaders(),
-    );
-
-    if (response.statusCode == 200) {
-      return SessionReport.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
-    } else {
-      throw ApiException(
-        _extractErrorDetail(response.body, fallback: 'Failed to get session report'),
-        statusCode: response.statusCode,
-      );
-    }
-  }
 }

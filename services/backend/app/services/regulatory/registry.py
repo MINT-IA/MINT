@@ -425,6 +425,26 @@ _PARAMETERS: list[RegulatoryParameter] = [
         reviewed_at=_REVIEWED,
     ),
     RegulatoryParameter(
+        key="avs.echelle44",
+        value=[
+            [14700, 1260], [17640, 1299], [20580, 1338], [23520, 1377],
+            [26460, 1416], [29400, 1470], [32340, 1524], [35280, 1578],
+            [38220, 1632], [41160, 1686], [44100, 1743], [47040, 1800],
+            [49980, 1857], [52920, 1914], [55860, 1971], [58800, 2028],
+            [61740, 2085], [64680, 2142], [67620, 2199], [70560, 2256],
+            [73500, 2313], [76440, 2370], [79380, 2427], [82320, 2462],
+            [85260, 2491], [88200, 2520],
+        ],
+        unit="CHF",
+        effective_from=date(2025, 1, 1),
+        source_url=_OFAS_AVS_URL,
+        source_title="Mémento 6.01 — Tables des rentes AVS/AI (OFAS 2025)",
+        source_type="law",
+        description="Échelle 44 — table de correspondance RAMD annuel → rente mensuelle AVS. "
+        "Mise à jour tous les 2 ans par le Conseil fédéral (indice mixte).",
+        reviewed_at=_REVIEWED,
+    ),
+    RegulatoryParameter(
         key="avs.max_annual_pension",
         value=30_240.0,
         unit="CHF",
