@@ -20871,4 +20871,27 @@ class SEn extends S {
 
   @override
   String get instantChiffreChocComeBack => 'Come back anytime';
+
+  @override
+  String get coachSilentOpenerQuestion => 'Want to talk about it?';
+
+  @override
+  String get coachProactiveOptIn =>
+      'By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?';
+
+  @override
+  String get coachOptInAccept => 'Yes, flag for me';
+
+  @override
+  String get coachOptInDecline => 'No, I\'ll come when I want';
+
+  @override
+  String get coachSilentOpenerReplacementRate => 'Retirement replacement rate';
+
+  @override
+  String get coachSilentOpenerFitnessScore => 'Financial fitness score';
+
+  @override
+  String get coachSilentOpenerRetirementCapital =>
+      'Projected retirement capital';
 }

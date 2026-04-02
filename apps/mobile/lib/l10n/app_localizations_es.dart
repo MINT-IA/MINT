@@ -20983,4 +20983,28 @@ class SEs extends S {
 
   @override
   String get instantChiffreChocComeBack => 'Vuelve cuando quieras';
+
+  @override
+  String get coachSilentOpenerQuestion => '¿Quieres hablar de esto?';
+
+  @override
+  String get coachProactiveOptIn =>
+      'Por cierto — ¿quieres que te señale las cosas importantes al abrir la app? ¿O prefieres que hablemos solo cuando te apetezca?';
+
+  @override
+  String get coachOptInAccept => 'Sí, señálame';
+
+  @override
+  String get coachOptInDecline => 'No, vengo cuando quiera';
+
+  @override
+  String get coachSilentOpenerReplacementRate =>
+      'Tasa de reemplazo en la jubilación';
+
+  @override
+  String get coachSilentOpenerFitnessScore => 'Puntuación de salud financiera';
+
+  @override
+  String get coachSilentOpenerRetirementCapital =>
+      'Capital proyectado a la jubilación';
 }

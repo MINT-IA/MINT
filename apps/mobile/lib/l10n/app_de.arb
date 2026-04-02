@@ -9663,5 +9663,12 @@
   "landingVzComparison": "Wof\u00fcr VZ CHF 1\u2019200 verlangt, bekommst du in 30 Sekunden.",
   "instantChiffreChocConfidence": "Sch\u00e4tzung \u00b115\u00a0% \u2014 erstelle ein Konto f\u00fcr mehr Genauigkeit",
   "instantChiffreChocNothingStored": "Kein Konto. Nichts gespeichert.",
-  "instantChiffreChocComeBack": "Komm zur\u00fcck, wann immer du willst"
+  "instantChiffreChocComeBack": "Komm zur\u00fcck, wann immer du willst",
+  "coachSilentOpenerQuestion": "M\u00f6chtest du dar\u00fcber reden?",
+  "coachProactiveOptIn": "\u00dcbrigens \u2014 soll ich dir wichtige Dinge anzeigen, wenn du die App \u00f6ffnest? Oder m\u00f6chtest du lieber nur reden, wenn du Lust hast?",
+  "coachOptInAccept": "Ja, zeig mir an",
+  "coachOptInDecline": "Nein, ich komme wenn ich will",
+  "coachSilentOpenerReplacementRate": "Ersatzrate bei Pensionierung",
+  "coachSilentOpenerFitnessScore": "Finanzieller Fitness-Score",
+  "coachSilentOpenerRetirementCapital": "Projiziertes Pensionierungskapital"
 }

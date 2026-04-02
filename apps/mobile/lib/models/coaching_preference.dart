@@ -25,13 +25,13 @@ class CoachingPreference {
   /// 5 = proactif (triggers every session, rich recall)
   final int intensity;
 
-  /// Voice intensity level (1-5). Default: 3 (Direct).
+  /// Voice intensity level (1-5). Default: 2 (Clair).
   ///
   /// 1 = Tranquille: chiffres seuls, pas d'opinion
-  /// 2 = Clair: chiffres + une phrase de contexte
+  /// 2 = Clair: chiffres + une phrase de contexte (default)
   /// 3 = Direct: comparaisons concrètes, questions franches
   /// 4 = Cash: dit ce que l'ami cultivé penserait
-  /// 5 = Brut: aucun filtre de politesse, pique et fait sourire
+  /// 5 = Brut: aucun filtre de politesse, pique et fait sourire (settings only)
   final int cashLevel;
 
   /// Per-trigger-type engagement score (0.0 to 1.0).
@@ -51,7 +51,7 @@ class CoachingPreference {
 
   const CoachingPreference({
     this.intensity = 3,
-    this.cashLevel = 3,
+    this.cashLevel = 2,
     this.triggerEngagement = const {},
     this.totalGreetingsShown = 0,
     this.totalGreetingsEngaged = 0,
@@ -193,8 +193,8 @@ class CoachingPreference {
       };
 
   factory CoachingPreference.fromJson(Map<String, dynamic> json) {
-    final rawCash = json['cashLevel'] ?? json['cash_level'] ?? 3;
-    final cashLvl = (rawCash is int) ? rawCash : int.tryParse('$rawCash') ?? 3;
+    final rawCash = json['cashLevel'] ?? json['cash_level'] ?? 2;
+    final cashLvl = (rawCash is int) ? rawCash : int.tryParse('$rawCash') ?? 2;
     return CoachingPreference(
       intensity: (json['intensity'] as int?) ?? 3,
       cashLevel: cashLvl.clamp(1, 5),

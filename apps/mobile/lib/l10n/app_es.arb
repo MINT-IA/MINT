@@ -9663,5 +9663,12 @@
   "landingVzComparison": "Lo que VZ cobra CHF 1.200, t\u00fa lo tienes en 30 segundos.",
   "instantChiffreChocConfidence": "Estimaci\u00f3n \u00b115\u00a0% \u2014 crea una cuenta para m\u00e1s precisi\u00f3n",
   "instantChiffreChocNothingStored": "Sin cuenta. Nada almacenado.",
-  "instantChiffreChocComeBack": "Vuelve cuando quieras"
+  "instantChiffreChocComeBack": "Vuelve cuando quieras",
+  "coachSilentOpenerQuestion": "\u00bfQuieres hablar de esto?",
+  "coachProactiveOptIn": "Por cierto \u2014 \u00bfquieres que te se\u00f1ale las cosas importantes al abrir la app? \u00bfO prefieres que hablemos solo cuando te apetezca?",
+  "coachOptInAccept": "S\u00ed, se\u00f1\u00e1lame",
+  "coachOptInDecline": "No, vengo cuando quiera",
+  "coachSilentOpenerReplacementRate": "Tasa de reemplazo en la jubilaci\u00f3n",
+  "coachSilentOpenerFitnessScore": "Puntuaci\u00f3n de salud financiera",
+  "coachSilentOpenerRetirementCapital": "Capital proyectado a la jubilaci\u00f3n"
 }

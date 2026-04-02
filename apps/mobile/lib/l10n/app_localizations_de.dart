@@ -21026,4 +21026,27 @@ class SDe extends S {
 
   @override
   String get instantChiffreChocComeBack => 'Komm zurück, wann immer du willst';
+
+  @override
+  String get coachSilentOpenerQuestion => 'Möchtest du darüber reden?';
+
+  @override
+  String get coachProactiveOptIn =>
+      'Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?';
+
+  @override
+  String get coachOptInAccept => 'Ja, zeig mir an';
+
+  @override
+  String get coachOptInDecline => 'Nein, ich komme wenn ich will';
+
+  @override
+  String get coachSilentOpenerReplacementRate => 'Ersatzrate bei Pensionierung';
+
+  @override
+  String get coachSilentOpenerFitnessScore => 'Finanzieller Fitness-Score';
+
+  @override
+  String get coachSilentOpenerRetirementCapital =>
+      'Projiziertes Pensionierungskapital';
 }

@@ -9663,5 +9663,12 @@
   "landingVzComparison": "What VZ charges CHF 1,200 for, you get in 30 seconds.",
   "instantChiffreChocConfidence": "Estimate \u00b115% \u2014 create an account for more accuracy",
   "instantChiffreChocNothingStored": "No account. Nothing stored.",
-  "instantChiffreChocComeBack": "Come back anytime"
+  "instantChiffreChocComeBack": "Come back anytime",
+  "coachSilentOpenerQuestion": "Want to talk about it?",
+  "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
+  "coachOptInAccept": "Yes, flag for me",
+  "coachOptInDecline": "No, I'll come when I want",
+  "coachSilentOpenerReplacementRate": "Retirement replacement rate",
+  "coachSilentOpenerFitnessScore": "Financial fitness score",
+  "coachSilentOpenerRetirementCapital": "Projected retirement capital"
 }

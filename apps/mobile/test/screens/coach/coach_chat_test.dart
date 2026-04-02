@@ -122,18 +122,20 @@ void main() {
       expect(find.byIcon(Icons.more_horiz_rounded), findsOneWidget);
     });
 
-    testWidgets('shows initial greeting with name', (tester) async {
+    testWidgets('shows silent opener instead of greeting', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
-      expect(find.textContaining('Julien'), findsWidgets);
+      // Silent opener shows "Tu veux en parler ?" instead of a proactive greeting.
+      expect(find.textContaining('Tu veux en parler'), findsOneWidget);
     });
 
-    testWidgets('shows initial greeting with question prompt', (tester) async {
+    testWidgets('shows silent opener with financial data', (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
-      expect(find.byType(Text), findsWidgets); // Greeting text changes per data-driven opener
+      // Should show Text widgets (either key number or at minimum the question).
+      expect(find.byType(Text), findsWidgets);
     });
 
     testWidgets('shows input field with placeholder', (tester) async {

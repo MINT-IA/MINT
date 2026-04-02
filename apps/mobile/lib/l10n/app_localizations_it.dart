@@ -21037,4 +21037,28 @@ class SIt extends S {
 
   @override
   String get instantChiffreChocComeBack => 'Torna quando vuoi';
+
+  @override
+  String get coachSilentOpenerQuestion => 'Vuoi parlarne?';
+
+  @override
+  String get coachProactiveOptIn =>
+      'A proposito — vuoi che ti segnali le cose importanti quando apri l\'app? O preferisci che parliamo solo quando ne hai voglia?';
+
+  @override
+  String get coachOptInAccept => 'Sì, segnalami';
+
+  @override
+  String get coachOptInDecline => 'No, vengo quando voglio';
+
+  @override
+  String get coachSilentOpenerReplacementRate =>
+      'Tasso di sostituzione alla pensione';
+
+  @override
+  String get coachSilentOpenerFitnessScore => 'Punteggio di salute finanziaria';
+
+  @override
+  String get coachSilentOpenerRetirementCapital =>
+      'Capitale proiettato alla pensione';
 }
