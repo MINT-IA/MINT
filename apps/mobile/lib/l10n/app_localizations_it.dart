@@ -20892,4 +20892,19 @@ class SIt extends S {
 
   @override
   String get intensityAdjustedDown => 'OK, abbasso di un livello.';
+
+  @override
+  String get coachSuggestBudget =>
+      'Qual è il mio budget realistico per la pensione?';
+
+  @override
+  String get coachSuggestBudgetGap => 'Quanto mi manca al mese?';
+
+  @override
+  String get coachSuggestMortgage =>
+      'Posso permettermi un acquisto immobiliare?';
+
+  @override
+  String get coachSuggestMortgageCapacity =>
+      'Qual è la mia capacità di credito?';
 }

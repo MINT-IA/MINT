@@ -36662,6 +36662,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'OK, je baisse d’un cran.'**
   String get intensityAdjustedDown;
+
+  /// No description provided for @coachSuggestBudget.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quel est mon budget réaliste à la retraite ?'**
+  String get coachSuggestBudget;
+
+  /// No description provided for @coachSuggestBudgetGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il me manque combien par mois ?'**
+  String get coachSuggestBudgetGap;
+
+  /// No description provided for @coachSuggestMortgage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Est-ce que je peux me permettre un achat ?'**
+  String get coachSuggestMortgage;
+
+  /// No description provided for @coachSuggestMortgageCapacity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle capacité d’emprunt j’ai ?'**
+  String get coachSuggestMortgageCapacity;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

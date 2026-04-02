@@ -539,8 +539,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             ? compliance.sanitizedText
             : rawText);
 
-    final suggestedActions =
-        compliance.useFallback ? null : _inferSuggestedActions(userMessage);
+    final suggestedActions = compliance.useFallback
+        ? null
+        : _inferSuggestedActions(userMessage, finalText);
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
@@ -582,12 +583,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ? ResponseCardService.generateForChat(_profile!, text, l: S.of(context)!)
           : <ResponseCard>[];
 
+      // Use LLM-provided suggestions if available, otherwise infer from
+      // both the user message and the coach response.
+      final suggestedActions = response.suggestedActions ??
+          _inferSuggestedActions(text, response.message);
+
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
           content: response.message,
           timestamp: DateTime.now(),
-          suggestedActions: response.suggestedActions,
+          suggestedActions: suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
           responseCards: cards,
@@ -784,22 +790,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  List<String> _inferSuggestedActions(String userMessage) {
+  List<String> _inferSuggestedActions(
+    String userMessage,
+    String coachResponse,
+  ) {
     final s = S.of(context)!;
-    final lower = userMessage.toLowerCase();
-    if (lower.contains('3a')) {
-      return [s.coachSuggestSimulate3a, s.coachSuggestView3a];
+    final combined = '$userMessage $coachResponse'.toLowerCase();
+    final actions = <String>[];
+
+    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
     }
-    if (lower.contains('lpp') || lower.contains('rachat')) {
-      return [s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp];
+    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
     }
-    if (lower.contains('retraite')) {
-      return [s.coachSuggestTrajectory, s.coachSuggestScenarios];
+    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
     }
-    if (lower.contains('impot') || lower.contains('fiscal')) {
-      return [s.coachSuggestDeductions, s.coachSuggestTaxImpact];
+    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
     }
-    return [s.coachSuggestFitness, s.coachSuggestRetirement];
+    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
+        .hasMatch(combined)) {
+      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
+    }
+    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
+        .hasMatch(combined)) {
+      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
+    }
+
+    if (actions.isEmpty) {
+      return [s.coachSuggestFitness, s.coachSuggestRetirement];
+    }
+    // Deduplicate and cap at 3
+    return actions.toSet().take(3).toList();
   }
 
   /// Map suggested action labels to direct navigation routes.
@@ -816,6 +840,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       s.coachSuggestTaxImpact: '/fiscal',
       s.coachSuggestFitness: '/confidence',
       s.coachSuggestRetirement: '/retraite',
+      s.coachSuggestBudget: '/budget',
+      s.coachSuggestBudgetGap: '/budget',
+      s.coachSuggestMortgage: '/hypotheque',
+      s.coachSuggestMortgageCapacity: '/hypotheque',
     };
     if (routes.containsKey(action)) return routes[action];
 
@@ -834,6 +862,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
     if (lower.contains('impot') || lower.contains('fiscal')) {
       return '/fiscal';
+    }
+    if (lower.contains('budget') || lower.contains('depense')) {
+      return '/budget';
+    }
+    if (lower.contains('immobilier') ||
+        lower.contains('hypotheque') ||
+        lower.contains('maison')) {
+      return '/hypotheque';
     }
     return null;
   }

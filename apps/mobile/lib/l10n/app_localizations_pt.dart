@@ -20842,4 +20842,18 @@ class SPt extends S {
 
   @override
   String get intensityAdjustedDown => 'OK, desci um nível.';
+
+  @override
+  String get coachSuggestBudget =>
+      'Qual é o meu orçamento realista para a reforma?';
+
+  @override
+  String get coachSuggestBudgetGap => 'Quanto me falta por mês?';
+
+  @override
+  String get coachSuggestMortgage => 'Posso comprar um imóvel?';
+
+  @override
+  String get coachSuggestMortgageCapacity =>
+      'Qual é a minha capacidade de empréstimo?';
 }

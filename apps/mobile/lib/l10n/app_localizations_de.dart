@@ -20881,4 +20881,18 @@ class SDe extends S {
 
   @override
   String get intensityAdjustedDown => 'OK, ich nehme es etwas zurück.';
+
+  @override
+  String get coachSuggestBudget =>
+      'Was ist mein realistisches Budget bei der Pensionierung?';
+
+  @override
+  String get coachSuggestBudgetGap => 'Wie viel fehlt mir pro Monat?';
+
+  @override
+  String get coachSuggestMortgage => 'Kann ich mir einen Kauf leisten?';
+
+  @override
+  String get coachSuggestMortgageCapacity =>
+      'Wie hoch ist meine Kreditkapazität?';
 }

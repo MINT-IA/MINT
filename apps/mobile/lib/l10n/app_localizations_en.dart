@@ -20730,4 +20730,16 @@ class SEn extends S {
 
   @override
   String get intensityAdjustedDown => 'OK, I’ve toned it down a notch.';
+
+  @override
+  String get coachSuggestBudget => 'What’s my realistic retirement budget?';
+
+  @override
+  String get coachSuggestBudgetGap => 'How much am I short per month?';
+
+  @override
+  String get coachSuggestMortgage => 'Can I afford to buy a property?';
+
+  @override
+  String get coachSuggestMortgageCapacity => 'What’s my borrowing capacity?';
 }

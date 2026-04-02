@@ -9608,5 +9608,9 @@
   "cashModeTitle": "Voice intensity",
   "cashModeSubtitle": "How the coach speaks to you",
   "intensityAdjustedUp": "OK, I’ve turned it up a notch.",
-  "intensityAdjustedDown": "OK, I’ve toned it down a notch."
+  "intensityAdjustedDown": "OK, I’ve toned it down a notch.",
+  "coachSuggestBudget": "What’s my realistic retirement budget?",
+  "coachSuggestBudgetGap": "How much am I short per month?",
+  "coachSuggestMortgage": "Can I afford to buy a property?",
+  "coachSuggestMortgageCapacity": "What’s my borrowing capacity?"
 }

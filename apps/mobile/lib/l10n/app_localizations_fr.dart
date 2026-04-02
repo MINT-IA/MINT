@@ -20834,4 +20834,18 @@ class SFr extends S {
 
   @override
   String get intensityAdjustedDown => 'OK, je baisse d’un cran.';
+
+  @override
+  String get coachSuggestBudget =>
+      'Quel est mon budget réaliste à la retraite ?';
+
+  @override
+  String get coachSuggestBudgetGap => 'Il me manque combien par mois ?';
+
+  @override
+  String get coachSuggestMortgage =>
+      'Est-ce que je peux me permettre un achat ?';
+
+  @override
+  String get coachSuggestMortgageCapacity => 'Quelle capacité d’emprunt j’ai ?';
 }
