@@ -11,7 +11,10 @@ GET  /api/v1/life-events/succession/checklist    — Succession checklist templa
 Sprint S10 + W15 (donation + housing sale wiring).
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.life_events import (
     DivorceSimulationRequest,
     DivorceSimulationResponse,
@@ -286,8 +289,11 @@ def get_succession_checklist() -> LifeEventChecklistResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/donation/simulate", response_model=DonationSimulationResponse)
+@limiter.limit("10/minute")
 def simulate_donation(
-    request: DonationSimulationRequest,
+    request: Request,
+    body: DonationSimulationRequest,
+    _user: User = Depends(require_current_user),
 ) -> DonationSimulationResponse:
     """Simulate tax impact of a donation (CC art. 239-252).
 
@@ -295,18 +301,18 @@ def simulate_donation(
     on the fly from the provided inputs.
     """
     input_data = DonationInput(
-        montant=request.montant,
-        donateur_age=request.donateurAge,
-        lien_parente=request.lienParente,
-        canton=request.canton,
-        type_donation=request.typeDonation,
-        valeur_immobiliere=request.valeurImmobiliere,
-        avancement_hoirie=request.avancementHoirie,
-        nb_enfants=request.nbEnfants,
-        fortune_totale_donateur=request.fortuneTotaleDonateur,
-        regime_matrimonial=request.regimeMatrimonial,
-        has_spouse=request.hasSpouse,
-        has_parents=request.hasParents,
+        montant=body.montant,
+        donateur_age=body.donateurAge,
+        lien_parente=body.lienParente,
+        canton=body.canton,
+        type_donation=body.typeDonation,
+        valeur_immobiliere=body.valeurImmobiliere,
+        avancement_hoirie=body.avancementHoirie,
+        nb_enfants=body.nbEnfants,
+        fortune_totale_donateur=body.fortuneTotaleDonateur,
+        regime_matrimonial=body.regimeMatrimonial,
+        has_spouse=body.hasSpouse,
+        has_parents=body.hasParents,
     )
 
     result = _donation_svc.calculate(input_data)
@@ -333,8 +339,11 @@ def simulate_donation(
 # ---------------------------------------------------------------------------
 
 @router.post("/housing-sale/simulate", response_model=HousingSaleSimulationResponse)
+@limiter.limit("10/minute")
 def simulate_housing_sale(
-    request: HousingSaleSimulationRequest,
+    request: Request,
+    body: HousingSaleSimulationRequest,
+    _user: User = Depends(require_current_user),
 ) -> HousingSaleSimulationResponse:
     """Simulate capital gains tax on property sale (LIFD art. 12).
 
@@ -342,19 +351,19 @@ def simulate_housing_sale(
     on the fly from the provided inputs.
     """
     input_data = HousingSaleInput(
-        prix_achat=request.prixAchat,
-        prix_vente=request.prixVente,
-        annee_achat=request.anneeAchat,
-        annee_vente=request.anneeVente,
-        investissements_valorisants=request.investissementsValorisants,
-        frais_acquisition=request.fraisAcquisition,
-        canton=request.canton,
-        residence_principale=request.residencePrincipale,
-        epl_lpp_utilise=request.eplLppUtilise,
-        epl_3a_utilise=request.epl3aUtilise,
-        hypotheque_restante=request.hypothequeRestante,
-        projet_remploi=request.projetRemploi,
-        prix_remploi=request.prixRemploi,
+        prix_achat=body.prixAchat,
+        prix_vente=body.prixVente,
+        annee_achat=body.anneeAchat,
+        annee_vente=body.anneeVente,
+        investissements_valorisants=body.investissementsValorisants,
+        frais_acquisition=body.fraisAcquisition,
+        canton=body.canton,
+        residence_principale=body.residencePrincipale,
+        epl_lpp_utilise=body.eplLppUtilise,
+        epl_3a_utilise=body.epl3aUtilise,
+        hypotheque_restante=body.hypothequeRestante,
+        projet_remploi=body.projetRemploi,
+        prix_remploi=body.prixRemploi,
     )
 
     result = _housing_sale_svc.calculate(input_data)
