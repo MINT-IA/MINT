@@ -412,53 +412,6 @@ class _PulseScreenState extends State<PulseScreen> {
     return _goalATypeToGoal(profile.goalA.type);
   }
 
-  Widget _buildCapNarrativeCard(
-    BuildContext context,
-    CapDecision cap,
-    String? recentAction,
-    S l,
-  ) {
-    final kindLabel = switch (cap.kind) {
-      CapKind.complete => l.capKindComplete,
-      CapKind.correct => l.capKindCorrect,
-      CapKind.optimize => l.capKindOptimize,
-      CapKind.secure => l.capKindSecure,
-      CapKind.prepare => l.capKindPrepare,
-      CapKind.alert => l.capKindAlert,
-    };
-
-    return MintNarrativeCard(
-      headline: cap.headline,
-      body: cap.whyNow,
-      ctaLabel: cap.ctaLabel,
-      tone: MintSurfaceTone.sauge,
-      badge: recentAction ?? kindLabel,
-      leading: cap.expectedImpact != null
-          ? Row(
-              children: [
-                Icon(
-                  Icons.trending_up_rounded,
-                  size: 16,
-                  color: MintColors.success.withValues(alpha: 0.8),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    cap.expectedImpact!,
-                    style: MintTextStyles.bodySmall(
-                      color: MintColors.success,
-                    ).copyWith(fontWeight: FontWeight.w600),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            )
-          : null,
-      onTap: () => _handleCapTap(context, cap),
-    );
-  }
-
   _ActiveGoal _intentTagToGoal(String tag) {
     final lower = tag.toLowerCase();
     if (lower.contains('budget') || lower.contains('dette') ||

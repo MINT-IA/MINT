@@ -214,28 +214,6 @@ class CapCard extends StatelessWidget {
     }
   }
 
-  // ── COMPUTED ──────────────────────────────────────────────
-
-  String _kindLabel(BuildContext context) {
-    final l = S.of(context)!;
-    return switch (cap.kind) {
-      CapKind.complete => l.capKindComplete,
-      CapKind.correct => l.capKindCorrect,
-      CapKind.optimize => l.capKindOptimize,
-      CapKind.secure => l.capKindSecure,
-      CapKind.prepare => l.capKindPrepare,
-      CapKind.alert => l.capKindAlert,
-    };
-  }
-
-  Color get _kindColor => switch (cap.kind) {
-        CapKind.complete => MintColors.info,
-        CapKind.correct => MintColors.warning,
-        CapKind.optimize => MintColors.success,
-        CapKind.secure => MintColors.error,
-        CapKind.prepare => MintColors.primary,
-        CapKind.alert => MintColors.warning,
-      };
 }
 
 /// Bridge for passing coach prompt from CapCard to CoachChatScreen.
