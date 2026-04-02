@@ -122,6 +122,17 @@ class ProfileScreen extends StatelessWidget {
                   // Voice intensity
                   _VoiceIntensitySection(),
 
+                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+
+                  // Data transparency
+                  _buildFactFindSection(
+                    title: l.dataTransparencyTitle,
+                    status: '',
+                    isComplete: true,
+                    icon: Icons.visibility_outlined,
+                    onTap: () => context.push('/profile/data-transparency'),
+                  ),
+
                   // ══════════════════════════════════════════
                   //  SECTION: Compte
                   // ══════════════════════════════════════════

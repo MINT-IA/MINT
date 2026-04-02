@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -1344,16 +1345,41 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             index == 0 &&
             msg.isAssistant &&
             !(_isStreaming && msg == _messages.last);
-        final Widget wrappedChild = showIntensity
+
+        // Show transparency badge under the first assistant response in session.
+        final bool isFirstAssistantInSession = msg.isAssistant &&
+            !(_isStreaming && msg == _messages.last) &&
+            index == _messages.indexWhere((m) => m.isAssistant);
+
+        final Widget wrappedChild = (showIntensity || isFirstAssistantInSession)
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   child,
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 42),
-                    child: _buildIntensityChips(),
-                  ),
+                  if (isFirstAssistantInSession) ...[
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 42),
+                      child: Text(
+                        msg.tier == ChatTier.slm
+                            ? S.of(context)!.coachTransparencySLM
+                            : S.of(context)!.coachTransparencyBYOK,
+                        style: MintTextStyles.micro(
+                          color: MintColors.textMuted.withValues(alpha: 0.5),
+                        ).copyWith(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (showIntensity) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 42),
+                      child: _buildIntensityChips(),
+                    ),
+                  ],
                 ],
               )
             : child;

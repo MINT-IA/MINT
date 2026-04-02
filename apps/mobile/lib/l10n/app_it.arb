@@ -9718,5 +9718,23 @@
     }
   },
   "landingCoupleAction": "Scopri la modalità coppia",
-  "landingCoupleGeneric": "Le coppie sposate perdono fino a CHF 8'000/anno in ottimizzazioni mancate."
+  "landingCoupleGeneric": "Le coppie sposate perdono fino a CHF 8'000/anno in ottimizzazioni mancate.",
+  "landingTransparency": "Cosa succede quando inserisci il tuo stipendio: il calcolo avviene sul tuo telefono. Niente viene inviato. Niente viene salvato. Quando chiudi questa pagina, i numeri scompaiono.",
+  "bankImportTransparency": "Il tuo estratto conto viene inviato criptato al nostro server svizzero per l'analisi. Le transazioni vengono categorizzate, poi il file originale viene eliminato. Solo i riepiloghi per categoria vengono conservati nel tuo profilo.",
+  "coachTransparencySLM": "Risposta generata sul tuo telefono. Niente inviato a un server.",
+  "coachTransparencyBYOK": "Risposta tramite la tua API Claude. Il tuo stipendio esatto NON viene inviato — solo età, cantone e archetipo sono condivisi.",
+  "dataTransparencyTitle": "Come MINT usa i tuoi dati",
+  "dataTransparencySalary": "Quando inserisci il tuo stipendio",
+  "dataTransparencySalaryDetail": "Salvato solo sul tuo telefono. Mai inviato.",
+  "dataTransparencyScan": "Quando scansioni un documento",
+  "dataTransparencyScanDetail": "Inviato criptato al nostro server svizzero. Analizzato ed eliminato. Solo il risultato viene conservato.",
+  "dataTransparencyCoach": "Quando parli con il coach",
+  "dataTransparencyCoachDetail": "SLM locale (niente inviato) o API Claude (a tua scelta). Il tuo stipendio esatto non viene mai condiviso.",
+  "dataTransparencyImport": "Quando importi un estratto conto",
+  "dataTransparencyImportDetail": "Inviato criptato. Categorizzato. File originale eliminato. Solo i riepiloghi vengono conservati.",
+  "dataTransparencyDelete": "Quando elimini il tuo account",
+  "dataTransparencyDeleteDetail": "Tutto viene eliminato: database, archiviazione locale, embeddings. Non resta nulla.",
+  "dataTransparencyLocal": "Locale",
+  "dataTransparencyServer": "Server (criptato)",
+  "dataTransparencyThirdParty": "Terze parti (con il tuo consenso)"
 }

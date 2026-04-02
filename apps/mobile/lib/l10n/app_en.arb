@@ -9718,5 +9718,23 @@
     }
   },
   "landingCoupleAction": "Discover couple mode",
-  "landingCoupleGeneric": "Married couples lose up to CHF 8,000/year in missed optimizations."
+  "landingCoupleGeneric": "Married couples lose up to CHF 8,000/year in missed optimizations.",
+  "landingTransparency": "What happens when you type your salary: the calculation runs on your phone. Nothing is sent. Nothing is stored. When you close this page, the numbers disappear.",
+  "bankImportTransparency": "Your statement is sent encrypted to our Swiss server for analysis. Transactions are categorized, then the raw file is deleted. Only category summaries are kept in your profile.",
+  "coachTransparencySLM": "Response generated on your phone. Nothing sent to a server.",
+  "coachTransparencyBYOK": "Response via your Claude API. Your exact salary is NOT sent — only your age, canton and archetype are shared.",
+  "dataTransparencyTitle": "How MINT uses your data",
+  "dataTransparencySalary": "When you enter your salary",
+  "dataTransparencySalaryDetail": "Stored only on your phone. Never sent.",
+  "dataTransparencyScan": "When you scan a document",
+  "dataTransparencyScanDetail": "Sent encrypted to our Swiss server. Parsed and deleted. Only the result is kept.",
+  "dataTransparencyCoach": "When you talk to the coach",
+  "dataTransparencyCoachDetail": "Local SLM (nothing sent) or Claude API (your choice). Your exact salary is never shared.",
+  "dataTransparencyImport": "When you import a statement",
+  "dataTransparencyImportDetail": "Sent encrypted. Categorized. Raw file deleted. Only summaries are kept.",
+  "dataTransparencyDelete": "When you delete your account",
+  "dataTransparencyDeleteDetail": "Everything is purged: database, local storage, embeddings. Nothing remains.",
+  "dataTransparencyLocal": "Local",
+  "dataTransparencyServer": "Server (encrypted)",
+  "dataTransparencyThirdParty": "Third party (with your consent)"
 }

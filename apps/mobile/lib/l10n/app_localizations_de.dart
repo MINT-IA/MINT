@@ -21155,4 +21155,68 @@ class SDe extends S {
   @override
   String get landingCoupleGeneric =>
       'Verheiratete Paare verlieren bis zu CHF 8\'000/Jahr an verpassten Optimierungen.';
+
+  @override
+  String get landingTransparency =>
+      'Was passiert, wenn du dein Gehalt eingibst: Die Berechnung läuft auf deinem Telefon. Nichts wird gesendet. Nichts wird gespeichert. Wenn du diese Seite schliesst, verschwinden die Zahlen.';
+
+  @override
+  String get bankImportTransparency =>
+      'Dein Kontoauszug wird verschlüsselt an unseren Schweizer Server zur Analyse gesendet. Transaktionen werden kategorisiert, dann wird die Rohdatei gelöscht. Nur Kategorie-Zusammenfassungen bleiben in deinem Profil.';
+
+  @override
+  String get coachTransparencySLM =>
+      'Antwort auf deinem Telefon generiert. Nichts an einen Server gesendet.';
+
+  @override
+  String get coachTransparencyBYOK =>
+      'Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.';
+
+  @override
+  String get dataTransparencyTitle => 'Wie MINT deine Daten verwendet';
+
+  @override
+  String get dataTransparencySalary => 'Wenn du dein Gehalt eingibst';
+
+  @override
+  String get dataTransparencySalaryDetail =>
+      'Nur auf deinem Telefon gespeichert. Nie gesendet.';
+
+  @override
+  String get dataTransparencyScan => 'Wenn du ein Dokument scannst';
+
+  @override
+  String get dataTransparencyScanDetail =>
+      'Verschlüsselt an unseren Schweizer Server gesendet. Analysiert und gelöscht. Nur das Ergebnis wird gespeichert.';
+
+  @override
+  String get dataTransparencyCoach => 'Wenn du mit dem Coach sprichst';
+
+  @override
+  String get dataTransparencyCoachDetail =>
+      'Lokales SLM (nichts gesendet) oder Claude-API (deine Wahl). Dein genaues Gehalt wird nie geteilt.';
+
+  @override
+  String get dataTransparencyImport => 'Wenn du einen Kontoauszug importierst';
+
+  @override
+  String get dataTransparencyImportDetail =>
+      'Verschlüsselt gesendet. Kategorisiert. Rohdatei gelöscht. Nur Zusammenfassungen bleiben.';
+
+  @override
+  String get dataTransparencyDelete => 'Wenn du dein Konto löschst';
+
+  @override
+  String get dataTransparencyDeleteDetail =>
+      'Alles wird gelöscht: Datenbank, lokaler Speicher, Embeddings. Nichts bleibt.';
+
+  @override
+  String get dataTransparencyLocal => 'Lokal';
+
+  @override
+  String get dataTransparencyServer => 'Server (verschlüsselt)';
+
+  @override
+  String get dataTransparencyThirdParty =>
+      'Drittanbieter (mit deiner Zustimmung)';
 }

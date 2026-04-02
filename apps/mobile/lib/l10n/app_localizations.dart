@@ -37106,6 +37106,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les couples mariés perdent jusqu\'à CHF 8\'000/an en optimisations manquées.'**
   String get landingCoupleGeneric;
+
+  /// No description provided for @landingTransparency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui se passe quand tu tapes ton salaire : le calcul est fait sur ton téléphone. Rien n\'est envoyé. Rien n\'est stocké. Quand tu fermes cette page, les chiffres disparaissent.'**
+  String get landingTransparency;
+
+  /// No description provided for @bankImportTransparency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton relevé est envoyé à notre serveur suisse de manière chiffrée pour analyse. Les transactions sont catégorisées, puis le fichier brut est supprimé. Seuls les résumés par catégorie sont conservés dans ton profil.'**
+  String get bankImportTransparency;
+
+  /// No description provided for @coachTransparencySLM.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse générée sur ton téléphone. Rien n\'est envoyé à un serveur.'**
+  String get coachTransparencySLM;
+
+  /// No description provided for @coachTransparencyBYOK.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse via ton API Claude. Ton salaire exact n\'est PAS envoyé — seuls ton âge, canton et archétype sont partagés.'**
+  String get coachTransparencyBYOK;
+
+  /// No description provided for @dataTransparencyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment MINT utilise tes données'**
+  String get dataTransparencyTitle;
+
+  /// No description provided for @dataTransparencySalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand tu entres ton salaire'**
+  String get dataTransparencySalary;
+
+  /// No description provided for @dataTransparencySalaryDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stocké uniquement sur ton téléphone. Jamais envoyé.'**
+  String get dataTransparencySalaryDetail;
+
+  /// No description provided for @dataTransparencyScan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand tu scannes un document'**
+  String get dataTransparencyScan;
+
+  /// No description provided for @dataTransparencyScanDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyé chiffré à notre serveur suisse. Parsé et supprimé. Seul le résultat est conservé.'**
+  String get dataTransparencyScanDetail;
+
+  /// No description provided for @dataTransparencyCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand tu parles au coach'**
+  String get dataTransparencyCoach;
+
+  /// No description provided for @dataTransparencyCoachDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'SLM local (rien envoyé) ou API Claude (ton choix). Ton salaire exact n\'est jamais partagé.'**
+  String get dataTransparencyCoachDetail;
+
+  /// No description provided for @dataTransparencyImport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand tu importes un relevé'**
+  String get dataTransparencyImport;
+
+  /// No description provided for @dataTransparencyImportDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyé chiffré. Catégorisé. Fichier brut supprimé. Seuls les résumés sont conservés.'**
+  String get dataTransparencyImportDetail;
+
+  /// No description provided for @dataTransparencyDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand tu supprimes ton compte'**
+  String get dataTransparencyDelete;
+
+  /// No description provided for @dataTransparencyDeleteDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est purgé : base de données, stockage local, embeddings. Rien ne reste.'**
+  String get dataTransparencyDeleteDetail;
+
+  /// No description provided for @dataTransparencyLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Local'**
+  String get dataTransparencyLocal;
+
+  /// No description provided for @dataTransparencyServer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Serveur (chiffré)'**
+  String get dataTransparencyServer;
+
+  /// No description provided for @dataTransparencyThirdParty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tiers (avec ton accord)'**
+  String get dataTransparencyThirdParty;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

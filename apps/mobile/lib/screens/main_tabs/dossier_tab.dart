@@ -201,6 +201,15 @@ class _DossierTabState extends State<DossierTab> {
                       },
                     ),
                     _DossierRow(
+                      icon: Icons.visibility_outlined,
+                      title: l.dataTransparencyTitle,
+                      subtitle: l.dossierConsentsSubtitle,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        this.context.push('/profile/data-transparency');
+                      },
+                    ),
+                    _DossierRow(
                       icon: Icons.tune_outlined,
                       title: l.dossierCoachingTitle,
                       subtitle: l.dossierCoachingSubtitle,

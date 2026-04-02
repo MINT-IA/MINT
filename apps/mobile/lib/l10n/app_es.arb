@@ -9718,5 +9718,23 @@
     }
   },
   "landingCoupleAction": "Descubrir el modo pareja",
-  "landingCoupleGeneric": "Las parejas casadas pierden hasta CHF 8.000/año en optimizaciones perdidas."
+  "landingCoupleGeneric": "Las parejas casadas pierden hasta CHF 8.000/año en optimizaciones perdidas.",
+  "landingTransparency": "Lo que pasa cuando escribes tu salario: el cálculo se hace en tu teléfono. Nada se envía. Nada se almacena. Cuando cierras esta página, los números desaparecen.",
+  "bankImportTransparency": "Tu extracto se envía cifrado a nuestro servidor suizo para su análisis. Las transacciones se categorizan y luego el archivo original se elimina. Solo los resúmenes por categoría se conservan en tu perfil.",
+  "coachTransparencySLM": "Respuesta generada en tu teléfono. Nada enviado a un servidor.",
+  "coachTransparencyBYOK": "Respuesta a través de tu API Claude. Tu salario exacto NO se envía — solo tu edad, cantón y arquetipo se comparten.",
+  "dataTransparencyTitle": "Cómo MINT usa tus datos",
+  "dataTransparencySalary": "Cuando introduces tu salario",
+  "dataTransparencySalaryDetail": "Almacenado solo en tu teléfono. Nunca enviado.",
+  "dataTransparencyScan": "Cuando escaneas un documento",
+  "dataTransparencyScanDetail": "Enviado cifrado a nuestro servidor suizo. Analizado y eliminado. Solo se conserva el resultado.",
+  "dataTransparencyCoach": "Cuando hablas con el coach",
+  "dataTransparencyCoachDetail": "SLM local (nada enviado) o API Claude (tu elección). Tu salario exacto nunca se comparte.",
+  "dataTransparencyImport": "Cuando importas un extracto",
+  "dataTransparencyImportDetail": "Enviado cifrado. Categorizado. Archivo original eliminado. Solo se conservan los resúmenes.",
+  "dataTransparencyDelete": "Cuando eliminas tu cuenta",
+  "dataTransparencyDeleteDetail": "Todo se elimina: base de datos, almacenamiento local, embeddings. No queda nada.",
+  "dataTransparencyLocal": "Local",
+  "dataTransparencyServer": "Servidor (cifrado)",
+  "dataTransparencyThirdParty": "Terceros (con tu consentimiento)"
 }

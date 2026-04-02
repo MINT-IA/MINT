@@ -426,24 +426,12 @@ class _LandingScreenState extends State<LandingScreen>
           ),
           const SizedBox(height: MintSpacing.lg),
 
-          // Privacy badge
-          Row(
-            children: [
-              Icon(
-                Icons.shield_outlined,
-                size: 14,
-                color: MintColors.textMuted.withValues(alpha: 0.6),
-              ),
-              const SizedBox(width: MintSpacing.xs),
-              Expanded(
-                child: Text(
-                  l10n.landingPrivacyBadge,
-                  style: MintTextStyles.micro(
-                    color: MintColors.textMuted.withValues(alpha: 0.6),
-                  ),
-                ),
-              ),
-            ],
+          // Transparency disclosure
+          Text(
+            l10n.landingTransparency,
+            style: MintTextStyles.bodySmall(
+              color: MintColors.textMuted,
+            ).copyWith(fontStyle: FontStyle.italic),
           ),
           const SizedBox(height: MintSpacing.lg),
 

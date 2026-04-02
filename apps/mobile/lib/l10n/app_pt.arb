@@ -9718,5 +9718,23 @@
     }
   },
   "landingCoupleAction": "Descobrir o modo casal",
-  "landingCoupleGeneric": "Os casais casados perdem até CHF 8.000/ano em otimizações perdidas."
+  "landingCoupleGeneric": "Os casais casados perdem até CHF 8.000/ano em otimizações perdidas.",
+  "landingTransparency": "O que acontece quando digitas o teu salário: o cálculo é feito no teu telemóvel. Nada é enviado. Nada é guardado. Quando fechas esta página, os números desaparecem.",
+  "bankImportTransparency": "O teu extrato é enviado encriptado para o nosso servidor suíço para análise. As transações são categorizadas e depois o ficheiro original é eliminado. Apenas os resumos por categoria são mantidos no teu perfil.",
+  "coachTransparencySLM": "Resposta gerada no teu telemóvel. Nada enviado para um servidor.",
+  "coachTransparencyBYOK": "Resposta via a tua API Claude. O teu salário exato NÃO é enviado — apenas a tua idade, cantão e arquétipo são partilhados.",
+  "dataTransparencyTitle": "Como o MINT usa os teus dados",
+  "dataTransparencySalary": "Quando introduzes o teu salário",
+  "dataTransparencySalaryDetail": "Guardado apenas no teu telemóvel. Nunca enviado.",
+  "dataTransparencyScan": "Quando digitalizas um documento",
+  "dataTransparencyScanDetail": "Enviado encriptado para o nosso servidor suíço. Analisado e eliminado. Apenas o resultado é mantido.",
+  "dataTransparencyCoach": "Quando falas com o coach",
+  "dataTransparencyCoachDetail": "SLM local (nada enviado) ou API Claude (a tua escolha). O teu salário exato nunca é partilhado.",
+  "dataTransparencyImport": "Quando importas um extrato",
+  "dataTransparencyImportDetail": "Enviado encriptado. Categorizado. Ficheiro original eliminado. Apenas os resumos são mantidos.",
+  "dataTransparencyDelete": "Quando eliminas a tua conta",
+  "dataTransparencyDeleteDetail": "Tudo é eliminado: base de dados, armazenamento local, embeddings. Nada resta.",
+  "dataTransparencyLocal": "Local",
+  "dataTransparencyServer": "Servidor (encriptado)",
+  "dataTransparencyThirdParty": "Terceiros (com o teu consentimento)"
 }

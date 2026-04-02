@@ -9718,5 +9718,23 @@
     }
   },
   "landingCoupleAction": "Paar-Modus entdecken",
-  "landingCoupleGeneric": "Verheiratete Paare verlieren bis zu CHF 8'000/Jahr an verpassten Optimierungen."
+  "landingCoupleGeneric": "Verheiratete Paare verlieren bis zu CHF 8'000/Jahr an verpassten Optimierungen.",
+  "landingTransparency": "Was passiert, wenn du dein Gehalt eingibst: Die Berechnung läuft auf deinem Telefon. Nichts wird gesendet. Nichts wird gespeichert. Wenn du diese Seite schliesst, verschwinden die Zahlen.",
+  "bankImportTransparency": "Dein Kontoauszug wird verschlüsselt an unseren Schweizer Server zur Analyse gesendet. Transaktionen werden kategorisiert, dann wird die Rohdatei gelöscht. Nur Kategorie-Zusammenfassungen bleiben in deinem Profil.",
+  "coachTransparencySLM": "Antwort auf deinem Telefon generiert. Nichts an einen Server gesendet.",
+  "coachTransparencyBYOK": "Antwort über deine Claude-API. Dein genaues Gehalt wird NICHT gesendet — nur Alter, Kanton und Archetyp werden geteilt.",
+  "dataTransparencyTitle": "Wie MINT deine Daten verwendet",
+  "dataTransparencySalary": "Wenn du dein Gehalt eingibst",
+  "dataTransparencySalaryDetail": "Nur auf deinem Telefon gespeichert. Nie gesendet.",
+  "dataTransparencyScan": "Wenn du ein Dokument scannst",
+  "dataTransparencyScanDetail": "Verschlüsselt an unseren Schweizer Server gesendet. Analysiert und gelöscht. Nur das Ergebnis wird gespeichert.",
+  "dataTransparencyCoach": "Wenn du mit dem Coach sprichst",
+  "dataTransparencyCoachDetail": "Lokales SLM (nichts gesendet) oder Claude-API (deine Wahl). Dein genaues Gehalt wird nie geteilt.",
+  "dataTransparencyImport": "Wenn du einen Kontoauszug importierst",
+  "dataTransparencyImportDetail": "Verschlüsselt gesendet. Kategorisiert. Rohdatei gelöscht. Nur Zusammenfassungen bleiben.",
+  "dataTransparencyDelete": "Wenn du dein Konto löschst",
+  "dataTransparencyDeleteDetail": "Alles wird gelöscht: Datenbank, lokaler Speicher, Embeddings. Nichts bleibt.",
+  "dataTransparencyLocal": "Lokal",
+  "dataTransparencyServer": "Server (verschlüsselt)",
+  "dataTransparencyThirdParty": "Drittanbieter (mit deiner Zustimmung)"
 }
