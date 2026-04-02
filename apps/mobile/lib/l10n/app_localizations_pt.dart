@@ -20939,4 +20939,13 @@ class SPt extends S {
   @override
   String get disclaimerFull =>
       'Ferramenta educativa simplificada. Não constitui aconselhamento financeiro personalizado (LSFin). Fontes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta um especialista qualificado.';
+
+  @override
+  String get chiffreChocSilenceQuestion => 'Este é o teu número. O que achas?';
+
+  @override
+  String get chiffreChocSilenceHint => 'Diz o que te vem à mente...';
+
+  @override
+  String get chiffreChocSkipToHome => 'Ir para o dashboard';
 }

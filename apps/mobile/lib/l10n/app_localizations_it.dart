@@ -20990,4 +20990,14 @@ class SIt extends S {
   @override
   String get disclaimerFull =>
       'Strumento educativo semplificato. Non costituisce consulenza finanziaria personalizzata (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta uno specialista qualificato.';
+
+  @override
+  String get chiffreChocSilenceQuestion =>
+      'Questo è il tuo numero. Cosa ne pensi?';
+
+  @override
+  String get chiffreChocSilenceHint => 'Dì quello che ti viene in mente...';
+
+  @override
+  String get chiffreChocSkipToHome => 'Vai alla dashboard';
 }

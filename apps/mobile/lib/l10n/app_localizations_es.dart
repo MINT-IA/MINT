@@ -20937,4 +20937,13 @@ class SEs extends S {
   @override
   String get disclaimerFull =>
       'Herramienta educativa simplificada. No constituye asesoramiento financiero personalizado (LSFin). Fuentes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta a un especialista calificado.';
+
+  @override
+  String get chiffreChocSilenceQuestion => 'Este es tu número. ¿Qué piensas?';
+
+  @override
+  String get chiffreChocSilenceHint => 'Di lo que se te ocurra...';
+
+  @override
+  String get chiffreChocSkipToHome => 'Ir al dashboard';
 }

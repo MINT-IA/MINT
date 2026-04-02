@@ -10113,5 +10113,8 @@
   "dataOriginModify": "Modifier",
   "disclaimerShort": "Outil éducatif, pas un conseil financier.",
   "disclaimerLearnMore": "En savoir plus",
-  "disclaimerFull": "Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté."
+  "disclaimerFull": "Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.",
+  "chiffreChocSilenceQuestion": "C'est ton chiffre. Qu'est-ce que tu en penses\u00a0?",
+  "chiffreChocSilenceHint": "Dis ce qui te vient...",
+  "chiffreChocSkipToHome": "Passer au dashboard"
 }
