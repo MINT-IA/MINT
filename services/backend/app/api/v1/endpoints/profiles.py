@@ -68,6 +68,7 @@ def get_my_profile(
         pillar3aAnnual=data.get("pillar3aAnnual"),
         wealthEstimate=data.get("wealthEstimate"),
         gender=data.get("gender"),
+        targetRetirementAge=data.get("targetRetirementAge"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 
@@ -133,6 +134,7 @@ def create_profile(
         pillar3aAnnual=profile_create.pillar3aAnnual,
         wealthEstimate=profile_create.wealthEstimate,
         gender=profile_create.gender,
+        targetRetirementAge=profile_create.targetRetirementAge,
         createdAt=now,
     )
 
@@ -189,6 +191,7 @@ def get_profile(
         pillar3aAnnual=data.get("pillar3aAnnual"),
         wealthEstimate=data.get("wealthEstimate"),
         gender=data.get("gender"),
+        targetRetirementAge=data.get("targetRetirementAge"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 
@@ -220,6 +223,16 @@ def update_profile(
     # Update data
     data = db_profile.data
     update_data = profile_update.model_dump(exclude_unset=True)
+
+    # Cascade clear: when household becomes single, remove spouse-specific data
+    if "householdType" in update_data and update_data["householdType"] == "single":
+        for spouse_key in [
+            "spouseSalaryGrossAnnual",
+            "spouseEmploymentStatus",
+            "spouseAvsContributionYears",
+            "householdGrossIncome",
+        ]:
+            data.pop(spouse_key, None)
 
     for key, value in update_data.items():
         data[key] = value
@@ -258,6 +271,7 @@ def update_profile(
         pillar3aAnnual=data.get("pillar3aAnnual"),
         wealthEstimate=data.get("wealthEstimate"),
         gender=data.get("gender"),
+        targetRetirementAge=data.get("targetRetirementAge"),
         createdAt=datetime.fromisoformat(data["createdAt"]),
     )
 

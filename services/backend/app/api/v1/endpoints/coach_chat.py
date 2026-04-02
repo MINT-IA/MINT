@@ -51,7 +51,8 @@ from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import build_system_prompt
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES, get_llm_tools
-from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
+from app.services.rules_engine import get_3a_ceiling
 from app.services.coach.structured_reasoning import StructuredReasoningService
 from pydantic import BaseModel as _BaseModel
 
@@ -281,7 +282,7 @@ _PROFILE_SAFE_FIELDS = {
     "lpp_certificate_year", "avs_rente", "monthly_retirement_income",
     "data_source",
     # Fields consumed by RAG retriever for personalization:
-    "civil_status", "employment_status",
+    "civil_status", "employment_status", "has_2nd_pillar",
     # Couple optimization (pre-computed by Flutter CoupleOptimizer):
     "couple_optimization",
     # C2: Couple context fields (numeric, privacy-safe)
@@ -642,7 +643,9 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
 
     lines = ["Analyse inter-piliers :"]
     if annual_3a is not None:
-        ceiling = PILIER_3A_PLAFOND_AVEC_LPP
+        ceiling = get_3a_ceiling(
+            ctx.get("employment_status"), ctx.get("has_2nd_pillar"),
+        )
         remaining = max(0, ceiling - float(annual_3a))
         lines.append(f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}")
         if remaining > 0:
