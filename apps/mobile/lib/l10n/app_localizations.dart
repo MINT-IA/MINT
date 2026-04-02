@@ -36944,6 +36944,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Capital projeté à la retraite'**
   String get coachSilentOpenerRetirementCapital;
+
+  /// No description provided for @confidenceLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes chiffres sont très approximatifs. Ajoute ton certificat LPP pour +25 %.'**
+  String get confidenceLow;
+
+  /// No description provided for @confidenceMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bon début. Scanne ton extrait AVS pour confirmer tes années de cotisation.'**
+  String get confidenceMedium;
+
+  /// No description provided for @confidenceAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner mon certificat LPP (+25 % de précision)'**
+  String get confidenceAction;
+
+  /// No description provided for @confidenceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiabilité de ta projection : {score} %'**
+  String confidenceLabel(int score);
+
+  /// No description provided for @day1NotifTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'On a calculé quelque chose'**
+  String get day1NotifTitle;
+
+  /// No description provided for @day1NotifBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvre MINT — on a trouvé quelque chose d\'intéressant sur tes impôts.'**
+  String get day1NotifBody;
+
+  /// No description provided for @day7NotifTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu laisses de l\'argent au fisc'**
+  String get day7NotifTitle;
+
+  /// No description provided for @day7NotifBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque mois sans 3a, tu laisses CHF {amount} au fisc. On en parle ?'**
+  String day7NotifBody(String amount);
+
+  /// No description provided for @day30NotifTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta projection peut être 25 % plus précise'**
+  String get day30NotifTitle;
+
+  /// No description provided for @day30NotifBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.'**
+  String get day30NotifBody;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

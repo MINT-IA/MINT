@@ -9670,5 +9670,29 @@
   "coachOptInDecline": "No, vengo cuando quiera",
   "coachSilentOpenerReplacementRate": "Tasa de reemplazo en la jubilaci\u00f3n",
   "coachSilentOpenerFitnessScore": "Puntuaci\u00f3n de salud financiera",
-  "coachSilentOpenerRetirementCapital": "Capital proyectado a la jubilaci\u00f3n"
+  "coachSilentOpenerRetirementCapital": "Capital proyectado a la jubilaci\u00f3n",
+  "confidenceLow": "Tus números son muy aproximados. Añade tu certificado LPP para +25%.",
+  "confidenceMedium": "Buen comienzo. Escanea tu extracto AVS para confirmar tus años de cotización.",
+  "confidenceAction": "Escanear mi certificado LPP (+25% de precisión)",
+  "confidenceLabel": "Fiabilidad de tu proyección: {score}%",
+  "@confidenceLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "day1NotifTitle": "Hemos calculado algo",
+  "day1NotifBody": "Abre MINT — encontramos algo interesante sobre tus impuestos.",
+  "day7NotifTitle": "Estás dejando dinero al fisco",
+  "day7NotifBody": "Cada mes sin 3a, dejas CHF {amount} al fisco. ¿Hablamos?",
+  "@day7NotifBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "day30NotifTitle": "Tu proyección puede ser 25% más precisa",
+  "day30NotifBody": "Escanea tu certificado LPP — tarda 30 segundos y lo cambia todo."
 }

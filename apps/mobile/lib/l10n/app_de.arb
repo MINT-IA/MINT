@@ -9670,5 +9670,29 @@
   "coachOptInDecline": "Nein, ich komme wenn ich will",
   "coachSilentOpenerReplacementRate": "Ersatzrate bei Pensionierung",
   "coachSilentOpenerFitnessScore": "Finanzieller Fitness-Score",
-  "coachSilentOpenerRetirementCapital": "Projiziertes Pensionierungskapital"
+  "coachSilentOpenerRetirementCapital": "Projiziertes Pensionierungskapital",
+  "confidenceLow": "Deine Zahlen sind sehr ungefähr. Füge dein BVG-Zertifikat hinzu für +25%.",
+  "confidenceMedium": "Guter Anfang. Scanne deinen AHV-Auszug um deine Beitragsjahre zu bestätigen.",
+  "confidenceAction": "Mein BVG-Zertifikat scannen (+25% Genauigkeit)",
+  "confidenceLabel": "Zuverlässigkeit deiner Projektion: {score}%",
+  "@confidenceLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "day1NotifTitle": "Wir haben etwas berechnet",
+  "day1NotifBody": "Öffne MINT — wir haben etwas Interessantes zu deinen Steuern gefunden.",
+  "day7NotifTitle": "Du lässt Geld beim Finanzamt liegen",
+  "day7NotifBody": "Jeden Monat ohne 3a lässt du CHF {amount} beim Finanzamt. Sollen wir reden?",
+  "@day7NotifBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "day30NotifTitle": "Deine Projektion kann 25% genauer werden",
+  "day30NotifBody": "Scanne dein BVG-Zertifikat — dauert 30 Sekunden und ändert alles."
 }

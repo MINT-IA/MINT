@@ -21049,4 +21049,43 @@ class SDe extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projiziertes Pensionierungskapital';
+
+  @override
+  String get confidenceLow =>
+      'Deine Zahlen sind sehr ungefähr. Füge dein BVG-Zertifikat hinzu für +25%.';
+
+  @override
+  String get confidenceMedium =>
+      'Guter Anfang. Scanne deinen AHV-Auszug um deine Beitragsjahre zu bestätigen.';
+
+  @override
+  String get confidenceAction =>
+      'Mein BVG-Zertifikat scannen (+25% Genauigkeit)';
+
+  @override
+  String confidenceLabel(int score) {
+    return 'Zuverlässigkeit deiner Projektion: $score%';
+  }
+
+  @override
+  String get day1NotifTitle => 'Wir haben etwas berechnet';
+
+  @override
+  String get day1NotifBody =>
+      'Öffne MINT — wir haben etwas Interessantes zu deinen Steuern gefunden.';
+
+  @override
+  String get day7NotifTitle => 'Du lässt Geld beim Finanzamt liegen';
+
+  @override
+  String day7NotifBody(String amount) {
+    return 'Jeden Monat ohne 3a lässt du CHF $amount beim Finanzamt. Sollen wir reden?';
+  }
+
+  @override
+  String get day30NotifTitle => 'Deine Projektion kann 25% genauer werden';
+
+  @override
+  String get day30NotifBody =>
+      'Scanne dein BVG-Zertifikat — dauert 30 Sekunden und ändert alles.';
 }

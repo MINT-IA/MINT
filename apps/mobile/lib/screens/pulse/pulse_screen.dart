@@ -354,6 +354,15 @@ class _PulseScreenState extends State<PulseScreen> {
                   ),
                 ],
 
+                // ── 2c. CONFIDENCE SCORE NUDGE (replaces progress bar) ──
+                if ((mintState?.confidenceScore ?? 0) < 70) ...[
+                  const SizedBox(height: MintSpacing.md),
+                  _ConfidenceNudge(
+                    confidence: mintState?.confidenceScore ?? 0,
+                    l: l,
+                  ),
+                ],
+
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── 3. CAP DU JOUR ──
@@ -1538,6 +1547,79 @@ class _BudgetLine extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
       ],
+    );
+  }
+}
+
+// ── CONFIDENCE NUDGE (replaces legacy progress bar) ──
+//
+// Shows confidence score + enrichment CTA when projection reliability < 70%.
+// Data source: MintUserState.confidenceScore (from ConfidenceScorer).
+
+class _ConfidenceNudge extends StatelessWidget {
+  final double confidence;
+  final S l;
+
+  const _ConfidenceNudge({
+    required this.confidence,
+    required this.l,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MintSurface(
+      child: Padding(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Confidence label with score
+            Text(
+              l.confidenceLabel(confidence.toInt()),
+              style: MintTextStyles.labelLarge(
+                color: confidence < 40
+                    ? MintColors.warning
+                    : MintColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            // Progress bar showing confidence level
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: (confidence / 100).clamp(0.0, 1.0),
+                minHeight: 6,
+                backgroundColor: MintColors.border.withValues(alpha: 0.3),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  confidence < 40 ? MintColors.warning : MintColors.accent,
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            // Contextual message
+            Text(
+              confidence < 40 ? l.confidenceLow : l.confidenceMedium,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            // CTA to scan document
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => context.push('/scan'),
+                child: Text(
+                  l.confidenceAction,
+                  style: MintTextStyles.labelMedium(
+                    color: MintColors.primary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
