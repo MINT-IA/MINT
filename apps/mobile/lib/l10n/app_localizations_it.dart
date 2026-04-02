@@ -21234,4 +21234,33 @@ class SIt extends S {
   @override
   String get retraiteHubYoungDisclaimer =>
       'È un bene interessarsene presto. Gli strumenti avanzati appariranno quando saranno rilevanti per te.';
+
+  @override
+  String get chocQuestionCompoundGrowth =>
+      'Sapevi che il tempo contava così tanto?';
+
+  @override
+  String chocQuestionTaxSaving(String amount) {
+    return 'CHF $amount di tasse in meno. Vale 10 minuti?';
+  }
+
+  @override
+  String chocQuestionRetirementGap(String amount) {
+    return 'CHF $amount in meno al mese. Ci avevi pensato?';
+  }
+
+  @override
+  String chocQuestionRetirementIncome(String percent) {
+    return '$percent %, ti basta?';
+  }
+
+  @override
+  String chocQuestionLiquidity(String months) {
+    return 'Meno di $months mesi di riserva. Ne parliamo?';
+  }
+
+  @override
+  String chocQuestionHourlyRate(String rate) {
+    return 'CHF $rate all\'ora. È quello che vali?';
+  }
 }

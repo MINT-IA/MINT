@@ -84,6 +84,11 @@ class _LandingScreenState extends State<LandingScreen>
 
   void _onCtaTap() async {
     _analytics.trackCTAClick('cta_commencer_clicked', screenName: '/');
+    if (_canCalculate) {
+      _onCalculate();
+      return;
+    }
+    // No data filled — old behavior
     final isCompleted = await ReportPersistenceService.isCompleted();
     final isMiniCompleted =
         await ReportPersistenceService.isMiniOnboardingCompleted();
@@ -522,6 +527,7 @@ class _LandingScreenState extends State<LandingScreen>
         'replacementPercent': replacementPercent,
         'canton': _canton!,
         'grossSalary': _grossSalary!,
+        'birthYear': _birthYear!,
       },
     );
   }

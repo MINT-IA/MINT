@@ -9737,5 +9737,11 @@
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Server (encrypted)",
   "dataTransparencyThirdParty": "Third party (with your consent)",
-  "retraiteHubYoungDisclaimer": "Good thinking to look into this early. Advanced tools will appear when they become relevant for you."
+  "retraiteHubYoungDisclaimer": "Good thinking to look into this early. Advanced tools will appear when they become relevant for you.",
+  "chocQuestionCompoundGrowth": "Did you know time mattered this much?",
+  "chocQuestionTaxSaving": "CHF {amount} less in taxes. Worth 10 minutes?",
+  "chocQuestionRetirementGap": "CHF {amount} less per month. Had you thought about it?",
+  "chocQuestionRetirementIncome": "{percent}% — is that enough for you?",
+  "chocQuestionLiquidity": "Less than {months} months of reserves. Shall we talk about it?",
+  "chocQuestionHourlyRate": "CHF {rate} per hour. Is that what you're worth?"
 }

@@ -10201,5 +10201,46 @@
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Serveur (chiffré)",
   "dataTransparencyThirdParty": "Tiers (avec ton accord)",
-  "retraiteHubYoungDisclaimer": "C'est bien de s'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi."
+  "retraiteHubYoungDisclaimer": "C'est bien de s'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi.",
+  "chocQuestionCompoundGrowth": "Tu savais que le temps comptait autant\u00a0?",
+  "chocQuestionTaxSaving": "CHF {amount} d'impôts en moins. Ça vaut 10 minutes\u00a0?",
+  "@chocQuestionTaxSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "chocQuestionRetirementGap": "CHF {amount} de moins par mois. Tu y avais pensé\u00a0?",
+  "@chocQuestionRetirementGap": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "chocQuestionRetirementIncome": "{percent}\u00a0%, ça te suffit\u00a0?",
+  "@chocQuestionRetirementIncome": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "chocQuestionLiquidity": "Moins de {months} mois de réserve. On en parle\u00a0?",
+  "@chocQuestionLiquidity": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "chocQuestionHourlyRate": "CHF {rate} de l'heure. C'est ce que tu vaux\u00a0?",
+  "@chocQuestionHourlyRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  }
 }

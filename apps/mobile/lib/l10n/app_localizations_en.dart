@@ -21066,4 +21066,33 @@ class SEn extends S {
   @override
   String get retraiteHubYoungDisclaimer =>
       'Good thinking to look into this early. Advanced tools will appear when they become relevant for you.';
+
+  @override
+  String get chocQuestionCompoundGrowth =>
+      'Did you know time mattered this much?';
+
+  @override
+  String chocQuestionTaxSaving(String amount) {
+    return 'CHF $amount less in taxes. Worth 10 minutes?';
+  }
+
+  @override
+  String chocQuestionRetirementGap(String amount) {
+    return 'CHF $amount less per month. Had you thought about it?';
+  }
+
+  @override
+  String chocQuestionRetirementIncome(String percent) {
+    return '$percent% — is that enough for you?';
+  }
+
+  @override
+  String chocQuestionLiquidity(String months) {
+    return 'Less than $months months of reserves. Shall we talk about it?';
+  }
+
+  @override
+  String chocQuestionHourlyRate(String rate) {
+    return 'CHF $rate per hour. Is that what you\'re worth?';
+  }
 }

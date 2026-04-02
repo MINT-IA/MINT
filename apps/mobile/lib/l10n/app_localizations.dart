@@ -37220,6 +37220,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'C\'est bien de s\'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi.'**
   String get retraiteHubYoungDisclaimer;
+
+  /// No description provided for @chocQuestionCompoundGrowth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu savais que le temps comptait autant ?'**
+  String get chocQuestionCompoundGrowth;
+
+  /// No description provided for @chocQuestionTaxSaving.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {amount} d\'impôts en moins. Ça vaut 10 minutes ?'**
+  String chocQuestionTaxSaving(String amount);
+
+  /// No description provided for @chocQuestionRetirementGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {amount} de moins par mois. Tu y avais pensé ?'**
+  String chocQuestionRetirementGap(String amount);
+
+  /// No description provided for @chocQuestionRetirementIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} %, ça te suffit ?'**
+  String chocQuestionRetirementIncome(String percent);
+
+  /// No description provided for @chocQuestionLiquidity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moins de {months} mois de réserve. On en parle ?'**
+  String chocQuestionLiquidity(String months);
+
+  /// No description provided for @chocQuestionHourlyRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF {rate} de l\'heure. C\'est ce que tu vaux ?'**
+  String chocQuestionHourlyRate(String rate);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

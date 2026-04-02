@@ -21223,4 +21223,33 @@ class SDe extends S {
   @override
   String get retraiteHubYoungDisclaimer =>
       'Gut, dass du dich früh damit beschäftigst. Die erweiterten Tools erscheinen, wenn sie für dich relevant werden.';
+
+  @override
+  String get chocQuestionCompoundGrowth =>
+      'Wusstest du, dass Zeit so viel ausmacht?';
+
+  @override
+  String chocQuestionTaxSaving(String amount) {
+    return 'CHF $amount weniger Steuern. Lohnen sich 10 Minuten?';
+  }
+
+  @override
+  String chocQuestionRetirementGap(String amount) {
+    return 'CHF $amount weniger pro Monat. Hattest du daran gedacht?';
+  }
+
+  @override
+  String chocQuestionRetirementIncome(String percent) {
+    return '$percent % — reicht dir das?';
+  }
+
+  @override
+  String chocQuestionLiquidity(String months) {
+    return 'Weniger als $months Monate Reserve. Reden wir darüber?';
+  }
+
+  @override
+  String chocQuestionHourlyRate(String rate) {
+    return 'CHF $rate pro Stunde. Bist du das wert?';
+  }
 }

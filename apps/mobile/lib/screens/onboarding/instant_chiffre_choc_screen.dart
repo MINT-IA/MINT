@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/minimal_profile_models.dart';
+import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -9,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/widgets/glossary_term.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Instant chiffre choc screen — shown from landing without account.
 ///
@@ -38,6 +42,9 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
   double _monthlyTotal = 0;
   int _replacementPercent = 0;
   String _canton = '';
+  double _grossSalary = 0;
+  int? _birthYear;
+  ChiffreChoc? _choc;
 
   bool _didInit = false;
 
@@ -71,6 +78,24 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
       _monthlyTotal = (extra['monthlyTotal'] as num?)?.toDouble() ?? 0;
       _replacementPercent = extra['replacementPercent'] as int? ?? 0;
       _canton = extra['canton'] as String? ?? '';
+      _grossSalary = (extra['grossSalary'] as num?)?.toDouble() ?? 0;
+      _birthYear = extra['birthYear'] as int?;
+    }
+
+    // Call ChiffreChocSelector for age-appropriate chiffre choc
+    if (_birthYear != null && _grossSalary > 0 && _canton.isNotEmpty) {
+      final currentYear = DateTime.now().year;
+      final age = currentYear - _birthYear!;
+      try {
+        final profile = MinimalProfileService.compute(
+          age: age,
+          grossSalary: _grossSalary,
+          canton: _canton,
+        );
+        _choc = ChiffreChocSelector.select(profile);
+      } catch (_) {
+        // Fallback: _choc stays null, use legacy display
+      }
     }
 
     AnalyticsService().trackScreenView('/chiffre-choc-instant');
@@ -116,15 +141,51 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
     };
   }
 
-  void _navigateToRegister() {
+  Future<void> _navigateToRegister() async {
     final userFeeling = _responseController.text.trim();
     if (userFeeling.isEmpty) return;
-    context.go(
-      Uri(
-        path: '/auth/register',
-        queryParameters: {'prompt': userFeeling},
-      ).toString(),
+
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('onboarding_emotion', userFeeling);
+    if (_birthYear != null) {
+      await prefs.setInt('onboarding_birth_year', _birthYear!);
+    }
+    await prefs.setDouble('onboarding_gross_salary', _grossSalary);
+    await prefs.setString('onboarding_canton', _canton);
+    await prefs.setString(
+      'onboarding_choc_type',
+      _choc?.type.name ?? 'retirementIncome',
     );
+    await prefs.setDouble('onboarding_choc_value', _choc?.rawValue ?? 0);
+
+    if (mounted) context.go('/auth/register');
+  }
+
+  Color _colorForChoc(ChiffreChoc choc) {
+    return switch (choc.colorKey) {
+      'error' => MintColors.error,
+      'warning' => MintColors.warning,
+      'success' => MintColors.success,
+      _ => MintColors.primary,
+    };
+  }
+
+  String _questionForChoc(ChiffreChoc choc, S l10n) {
+    return switch (choc.type) {
+      ChiffreChocType.compoundGrowth => l10n.chocQuestionCompoundGrowth,
+      ChiffreChocType.taxSaving3a => l10n.chocQuestionTaxSaving(choc.value),
+      ChiffreChocType.retirementGap => l10n.chocQuestionRetirementGap(choc.value),
+      ChiffreChocType.retirementIncome => l10n.chocQuestionRetirementIncome(
+        '${(choc.rawValue > 0 ? ((choc.rawValue / (_grossSalary / 12)) * 100).round() : _replacementPercent)}',
+      ),
+      ChiffreChocType.liquidityAlert => l10n.chocQuestionLiquidity(
+        choc.rawValue.toStringAsFixed(0),
+      ),
+      ChiffreChocType.hourlyRate => l10n.chocQuestionHourlyRate(
+        'CHF\u00a0${choc.rawValue.round()}',
+      ),
+    };
   }
 
   @override
@@ -137,8 +198,8 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    final formattedTotal = _formatChf(_monthlyTotal);
-    final subtitle = '$_replacementPercent\u00a0% de ton revenu actuel';
+    final formattedTotal = _choc != null ? _choc!.value : _formatChf(_monthlyTotal);
+    final subtitle = _choc != null ? _choc!.title : '$_replacementPercent\u00a0% de ton revenu actuel';
 
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
@@ -181,11 +242,13 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                           child: MintHeroNumber(
                             value: formattedTotal,
                             caption: subtitle,
-                            color: _replacementPercent < 60
-                                ? MintColors.warning
-                                : MintColors.primary,
+                            color: _choc != null
+                                ? _colorForChoc(_choc!)
+                                : (_replacementPercent < 60
+                                    ? MintColors.warning
+                                    : MintColors.primary),
                             semanticsLabel:
-                                '$formattedTotal par mois \u00e0 la retraite',
+                                '$formattedTotal — $subtitle',
                           ),
                         ),
                       ),
@@ -272,7 +335,9 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                     duration: const Duration(milliseconds: 800),
                     curve: Curves.easeIn,
                     child: Text(
-                      l10n.chiffreChocSilenceQuestion,
+                      _choc != null
+                          ? _questionForChoc(_choc!, l10n)
+                          : l10n.chiffreChocSilenceQuestion,
                       style: MintTextStyles.bodyMedium(
                         color: MintColors.textSecondary,
                       ),

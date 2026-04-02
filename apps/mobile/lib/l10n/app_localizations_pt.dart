@@ -21183,4 +21183,33 @@ class SPt extends S {
   @override
   String get retraiteHubYoungDisclaimer =>
       'É bom interessar-se cedo. As ferramentas avançadas aparecerão quando forem relevantes para ti.';
+
+  @override
+  String get chocQuestionCompoundGrowth =>
+      'Sabias que o tempo importava tanto?';
+
+  @override
+  String chocQuestionTaxSaving(String amount) {
+    return 'CHF $amount menos de impostos. Vale 10 minutos?';
+  }
+
+  @override
+  String chocQuestionRetirementGap(String amount) {
+    return 'CHF $amount a menos por mês. Já tinhas pensado nisso?';
+  }
+
+  @override
+  String chocQuestionRetirementIncome(String percent) {
+    return '$percent %, chega-te?';
+  }
+
+  @override
+  String chocQuestionLiquidity(String months) {
+    return 'Menos de $months meses de reserva. Falamos disso?';
+  }
+
+  @override
+  String chocQuestionHourlyRate(String rate) {
+    return 'CHF $rate por hora. É o que vales?';
+  }
 }

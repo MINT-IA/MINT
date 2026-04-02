@@ -21180,4 +21180,33 @@ class SEs extends S {
   @override
   String get retraiteHubYoungDisclaimer =>
       'Está bien interesarse temprano. Las herramientas avanzadas aparecerán cuando sean relevantes para ti.';
+
+  @override
+  String get chocQuestionCompoundGrowth =>
+      '¿Sabías que el tiempo importaba tanto?';
+
+  @override
+  String chocQuestionTaxSaving(String amount) {
+    return 'CHF $amount menos de impuestos. ¿Vale 10 minutos?';
+  }
+
+  @override
+  String chocQuestionRetirementGap(String amount) {
+    return 'CHF $amount menos al mes. ¿Lo habías pensado?';
+  }
+
+  @override
+  String chocQuestionRetirementIncome(String percent) {
+    return '$percent %, ¿te basta?';
+  }
+
+  @override
+  String chocQuestionLiquidity(String months) {
+    return 'Menos de $months meses de reserva. ¿Hablamos?';
+  }
+
+  @override
+  String chocQuestionHourlyRate(String rate) {
+    return 'CHF $rate por hora. ¿Es lo que vales?';
+  }
 }

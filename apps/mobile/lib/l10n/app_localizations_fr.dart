@@ -21176,4 +21176,33 @@ class SFr extends S {
   @override
   String get retraiteHubYoungDisclaimer =>
       'C\'est bien de s\'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi.';
+
+  @override
+  String get chocQuestionCompoundGrowth =>
+      'Tu savais que le temps comptait autant ?';
+
+  @override
+  String chocQuestionTaxSaving(String amount) {
+    return 'CHF $amount d\'impôts en moins. Ça vaut 10 minutes ?';
+  }
+
+  @override
+  String chocQuestionRetirementGap(String amount) {
+    return 'CHF $amount de moins par mois. Tu y avais pensé ?';
+  }
+
+  @override
+  String chocQuestionRetirementIncome(String percent) {
+    return '$percent %, ça te suffit ?';
+  }
+
+  @override
+  String chocQuestionLiquidity(String months) {
+    return 'Moins de $months mois de réserve. On en parle ?';
+  }
+
+  @override
+  String chocQuestionHourlyRate(String rate) {
+    return 'CHF $rate de l\'heure. C\'est ce que tu vaux ?';
+  }
 }
