@@ -184,3 +184,135 @@ class LifeEventChecklistResponse(BaseModel):
 
     items: List[LifeEventChecklistItem] = Field(..., description="Checklist items")
     disclaimer: str = Field(..., description="Legal disclaimer")
+
+
+# ---------------------------------------------------------------------------
+# Donation Schemas
+# ---------------------------------------------------------------------------
+
+class DonationSimulationRequest(BaseModel):
+    """Request model for donation simulation."""
+
+    montant: float = Field(
+        ..., description="Donation amount (CHF)", ge=0, le=10_000_000
+    )
+    donateurAge: int = Field(
+        50, description="Donor age", ge=18, le=120
+    )
+    lienParente: str = Field(
+        ..., description="Relationship: conjoint, descendant, parent, fratrie, concubin, tiers"
+    )
+    canton: str = Field(
+        "GE", description="Canton code (2-letter)", min_length=2, max_length=2
+    )
+    typeDonation: str = Field(
+        "especes", description="Type: especes, immobilier, titres"
+    )
+    valeurImmobiliere: float = Field(
+        0.0, description="Property value if real estate (CHF)", ge=0
+    )
+    avancementHoirie: bool = Field(
+        True, description="Advance on inheritance (default for descendants)"
+    )
+    nbEnfants: int = Field(
+        0, description="Number of donor's children", ge=0, le=20
+    )
+    fortuneTotaleDonateur: float = Field(
+        0.0, description="Total estate of donor (CHF)", ge=0
+    )
+    regimeMatrimonial: str = Field(
+        "participation_acquets", description="Matrimonial regime"
+    )
+    hasSpouse: bool = Field(
+        False, description="Whether donor has a spouse"
+    )
+    hasParents: bool = Field(
+        False, description="Whether donor's parents are alive"
+    )
+
+
+class DonationSimulationResponse(BaseModel):
+    """Response model for donation simulation."""
+
+    montantDonation: float = Field(..., description="Donation amount (CHF)")
+    tauxImposition: float = Field(..., description="Tax rate")
+    impotDonation: float = Field(..., description="Tax amount (CHF)")
+    reserveHereditaireTotale: float = Field(..., description="Total reserved shares (CHF)")
+    quotiteDisponible: float = Field(..., description="Freely disposable share (CHF)")
+    donationDepasseQuotite: bool = Field(..., description="Whether donation exceeds quotite")
+    montantDepassement: float = Field(..., description="Excess amount (CHF)")
+    impactSuccession: str = Field(..., description="Impact on future succession")
+    checklist: List[str] = Field(default_factory=list, description="Action items")
+    alerts: List[str] = Field(default_factory=list, description="Warning messages")
+    disclaimer: str = Field(..., description="Legal disclaimer")
+    sources: List[str] = Field(default_factory=list, description="Legal references")
+    chiffreChoc: dict = Field(default_factory=dict, description="Impact number")
+
+
+# ---------------------------------------------------------------------------
+# Housing Sale Schemas
+# ---------------------------------------------------------------------------
+
+class HousingSaleSimulationRequest(BaseModel):
+    """Request model for housing sale simulation."""
+
+    prixAchat: float = Field(
+        ..., description="Purchase price (CHF)", ge=0
+    )
+    prixVente: float = Field(
+        ..., description="Sale price (CHF)", ge=0
+    )
+    anneeAchat: int = Field(
+        ..., description="Year of purchase", ge=1900, le=2100
+    )
+    anneeVente: int = Field(
+        2025, description="Year of sale", ge=1900, le=2100
+    )
+    investissementsValorisants: float = Field(
+        0.0, description="Value-adding renovations (CHF)", ge=0
+    )
+    fraisAcquisition: float = Field(
+        0.0, description="Notary fees at purchase (CHF)", ge=0
+    )
+    canton: str = Field(
+        "GE", description="Canton code (2-letter)", min_length=2, max_length=2
+    )
+    residencePrincipale: bool = Field(
+        True, description="Primary residence?"
+    )
+    eplLppUtilise: float = Field(
+        0.0, description="LPP EPL used for purchase (CHF)", ge=0
+    )
+    epl3aUtilise: float = Field(
+        0.0, description="3a EPL used for purchase (CHF)", ge=0
+    )
+    hypothequeRestante: float = Field(
+        0.0, description="Remaining mortgage balance (CHF)", ge=0
+    )
+    projetRemploi: bool = Field(
+        False, description="Plans to buy replacement property within 2 years?"
+    )
+    prixRemploi: float = Field(
+        0.0, description="Price of replacement property (CHF)", ge=0
+    )
+
+
+class HousingSaleSimulationResponse(BaseModel):
+    """Response model for housing sale simulation."""
+
+    plusValueBrute: float = Field(..., description="Gross capital gain (CHF)")
+    plusValueImposable: float = Field(..., description="Taxable capital gain (CHF)")
+    dureeDetention: int = Field(..., description="Years of ownership")
+    tauxImpositionPlusValue: float = Field(..., description="Tax rate")
+    impotPlusValue: float = Field(..., description="Tax on capital gain (CHF)")
+    remploiReport: float = Field(..., description="Tax deferred via reinvestment (CHF)")
+    impotEffectif: float = Field(..., description="Actual tax due (CHF)")
+    remboursementEplLpp: float = Field(..., description="EPL LPP to repay (CHF)")
+    remboursementEpl3a: float = Field(..., description="EPL 3a to repay (CHF)")
+    soldeHypotheque: float = Field(..., description="Mortgage payoff (CHF)")
+    produitNet: float = Field(..., description="Net proceeds (CHF)")
+    checklist: List[str] = Field(default_factory=list, description="Action items")
+    alerts: List[str] = Field(default_factory=list, description="Warning messages")
+    disclaimer: str = Field(..., description="Legal disclaimer")
+    sources: List[str] = Field(default_factory=list, description="Legal references")
+    chiffreChoc: dict = Field(default_factory=dict, description="Impact number")
