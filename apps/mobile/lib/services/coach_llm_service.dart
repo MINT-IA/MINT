@@ -262,6 +262,7 @@ typedef OrchestratorChatFn = Future<CoachResponse> Function({
   LlmConfig? byokConfig,
   String? memoryBlock,
   String language,
+  int cashLevel,
 });
 
 /// Service de chat LLM pour le Coach MINT
@@ -292,6 +293,7 @@ class CoachLlmService {
     String? memoryBlock,
     Map<String, dynamic>? enrichedContext,
     String language = 'fr',
+    int cashLevel = 3,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
@@ -311,6 +313,7 @@ class CoachLlmService {
       byokConfig: config.hasApiKey ? config : null,
       memoryBlock: memoryBlock,
       language: language,
+      cashLevel: cashLevel,
     );
 
     // suggestedActions are resolved at the screen layer (CoachChatScreen)

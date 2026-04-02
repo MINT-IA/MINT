@@ -572,6 +572,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         history: _messages,
         config: config,
         memoryBlock: memoryBlock,
+        cashLevel: _cashLevel,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;

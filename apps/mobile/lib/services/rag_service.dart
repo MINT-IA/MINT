@@ -192,6 +192,7 @@ class RagService {
     Map<String, dynamic>? profileContext,
     String language = 'fr',
     List<Map<String, dynamic>>? tools,
+    int cashLevel = 3,
   }) async {
     final uri = Uri.parse('$baseUrl/rag/query');
 
@@ -200,6 +201,7 @@ class RagService {
       'api_key': apiKey,
       'provider': provider,
       'language': language,
+      'cash_level': cashLevel.clamp(1, 5),
     };
 
     if (model != null) body['model'] = model;
