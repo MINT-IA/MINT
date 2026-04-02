@@ -36818,6 +36818,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.'**
   String get disclaimerFull;
+
+  /// No description provided for @chiffreChocSilenceQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est ton chiffre. Qu\'est-ce que tu en penses ?'**
+  String get chiffreChocSilenceQuestion;
+
+  /// No description provided for @chiffreChocSilenceHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dis ce qui te vient...'**
+  String get chiffreChocSilenceHint;
+
+  /// No description provided for @chiffreChocSkipToHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer au dashboard'**
+  String get chiffreChocSkipToHome;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

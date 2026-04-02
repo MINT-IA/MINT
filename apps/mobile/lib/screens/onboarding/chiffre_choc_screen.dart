@@ -46,6 +46,11 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
   ChiffreChoc? _chiffreChoc;
   bool _avantApresExpanded = false;
 
+  // ── Moment de silence state ──
+  bool _showQuestion = false;
+  bool _showInput = false;
+  final TextEditingController _responseController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -159,6 +164,14 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
     _animController.forward(from: 0);
 
+    // ── Moment de silence: timed reveal ──
+    Future.delayed(const Duration(milliseconds: 3900), () {
+      if (mounted) setState(() => _showQuestion = true);
+    });
+    Future.delayed(const Duration(milliseconds: 4700), () {
+      if (mounted) setState(() => _showInput = true);
+    });
+
     // Analytics: chiffre choc viewed with type and severity
     if (_chiffreChoc != null && _profile != null) {
       AnalyticsService().trackEvent(
@@ -215,8 +228,20 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     };
   }
 
+  void _navigateToCoachWithResponse() {
+    final userFeeling = _responseController.text.trim();
+    if (userFeeling.isEmpty) return;
+
+    context.push(
+      Uri(path: '/coach/chat', queryParameters: {
+        'prompt': userFeeling,
+      }).toString(),
+    );
+  }
+
   @override
   void dispose() {
+    _responseController.dispose();
     _animController.dispose();
     super.dispose();
   }
@@ -379,49 +404,83 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 ),
               )),
 
-              const Spacer(flex: 4),
+              const Spacer(flex: 2),
 
-              // ── Primary CTA — pill (StadiumBorder) ──
-              MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
-                button: true,
-                label: l10n.chiffreChocAction,
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () {
-                      final route = switch (choc.type) {
-                        ChiffreChocType.liquidityAlert => '/budget',
-                        ChiffreChocType.retirementGap => '/coach/cockpit',
-                        ChiffreChocType.taxSaving3a => '/pilier-3a',
-                        ChiffreChocType.retirementIncome => '/coach/cockpit',
-                        ChiffreChocType.compoundGrowth => '/pilier-3a',
-                        ChiffreChocType.hourlyRate => '/budget',
-                      };
-                      AnalyticsService().trackCTAClick(
-                        'chiffre_choc_action',
-                        screenName: 'chiffre_choc',
-                        data: {
-                          'choc_type': choc.type.name,
-                          'target_route': route,
-                        },
-                      );
-                      context.go(route);
-                    },
-                    style: FilledButton.styleFrom(
-                      backgroundColor: MintColors.primary,
-                      foregroundColor: MintColors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      shape: const StadiumBorder(),
-                    ),
-                    child: Text(
-                      l10n.chiffreChocAction,
-                      style: MintTextStyles.titleMedium(
-                        color: MintColors.white,
+              // ── Phase 3: Silence question (fade-in after 3s) ──
+              AnimatedOpacity(
+                opacity: _showQuestion ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeIn,
+                child: Text(
+                  l10n.chiffreChocSilenceQuestion,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+
+              const SizedBox(height: MintSpacing.lg),
+
+              // ── Phase 4: Input field (fade-in 800ms after question) ──
+              AnimatedOpacity(
+                opacity: _showInput ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeIn,
+                child: IgnorePointer(
+                  ignoring: !_showInput,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: _responseController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: l10n.chiffreChocSilenceHint,
+                          hintStyle: MintTextStyles.bodySmall(
+                            color: MintColors.textMuted,
+                          ),
+                          suffixIcon: IconButton(
+                            onPressed: _navigateToCoachWithResponse,
+                            icon: const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: MintColors.primary,
+                            ),
+                          ),
+                          filled: true,
+                          fillColor: MintColors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: MintColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: MintColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: const BorderSide(color: MintColors.primary),
+                          ),
+                        ),
                       ),
-                    ),
+
+                      const SizedBox(height: MintSpacing.sm),
+
+                      // ── Skip to dashboard (discreet) ──
+                      TextButton(
+                        onPressed: () => context.go('/home'),
+                        child: Text(
+                          l10n.chiffreChocSkipToHome,
+                          style: MintTextStyles.labelSmall(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              )),
+              ),
+
               const SizedBox(height: MintSpacing.md),
 
               // ── Disclaimer (micro pattern) ──

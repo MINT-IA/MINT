@@ -9649,5 +9649,8 @@
   "dataOriginModify": "Edit",
   "disclaimerShort": "Educational tool, not financial advice.",
   "disclaimerLearnMore": "Learn more",
-  "disclaimerFull": "Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance."
+  "disclaimerFull": "Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance.",
+  "chiffreChocSilenceQuestion": "That's your number. What do you think?",
+  "chiffreChocSilenceHint": "Say what comes to mind...",
+  "chiffreChocSkipToHome": "Go to dashboard"
 }

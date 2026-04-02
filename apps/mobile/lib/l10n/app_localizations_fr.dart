@@ -20931,4 +20931,14 @@ class SFr extends S {
   @override
   String get disclaimerFull =>
       'Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.';
+
+  @override
+  String get chiffreChocSilenceQuestion =>
+      'C\'est ton chiffre. Qu\'est-ce que tu en penses ?';
+
+  @override
+  String get chiffreChocSilenceHint => 'Dis ce qui te vient...';
+
+  @override
+  String get chiffreChocSkipToHome => 'Passer au dashboard';
 }

@@ -9649,5 +9649,8 @@
   "dataOriginModify": "Modificar",
   "disclaimerShort": "Herramienta educativa, no es asesoramiento financiero.",
   "disclaimerLearnMore": "Más información",
-  "disclaimerFull": "Herramienta educativa simplificada. No constituye asesoramiento financiero personalizado (LSFin). Fuentes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta a un especialista calificado."
+  "disclaimerFull": "Herramienta educativa simplificada. No constituye asesoramiento financiero personalizado (LSFin). Fuentes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta a un especialista calificado.",
+  "chiffreChocSilenceQuestion": "Este es tu número. ¿Qué piensas?",
+  "chiffreChocSilenceHint": "Di lo que se te ocurra...",
+  "chiffreChocSkipToHome": "Ir al dashboard"
 }

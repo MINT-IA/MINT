@@ -20979,4 +20979,13 @@ class SDe extends S {
   @override
   String get disclaimerFull =>
       'Vereinfachtes Bildungstool. Stellt keine persönliche Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7. Konsultiere eine qualifizierte Fachperson für individuelle Beratung.';
+
+  @override
+  String get chiffreChocSilenceQuestion => 'Das ist deine Zahl. Was denkst du?';
+
+  @override
+  String get chiffreChocSilenceHint => 'Sag, was dir einfällt...';
+
+  @override
+  String get chiffreChocSkipToHome => 'Zum Dashboard';
 }

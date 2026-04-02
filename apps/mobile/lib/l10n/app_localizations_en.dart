@@ -20824,4 +20824,14 @@ class SEn extends S {
   @override
   String get disclaimerFull =>
       'Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance.';
+
+  @override
+  String get chiffreChocSilenceQuestion =>
+      'That\'s your number. What do you think?';
+
+  @override
+  String get chiffreChocSilenceHint => 'Say what comes to mind...';
+
+  @override
+  String get chiffreChocSkipToHome => 'Go to dashboard';
 }
