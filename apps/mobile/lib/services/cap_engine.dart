@@ -248,6 +248,28 @@ class CapEngine {
       }
     }
 
+    // ── 6b. Spending anomaly ──
+    if (memory.hasSpendingAnomaly) {
+      candidates.add(CapDecision(
+        id: 'spending_anomaly',
+        kind: CapKind.alert,
+        priorityScore: _score(
+          impact: 0.7,
+          urgency: 0.85,
+          confidencePenalty: 1.0,
+          readiness: 1.0,
+          recency: _recencyModifier('spending_anomaly', memory, now),
+        ),
+        headline: memory.lastAnomalyInsight ?? 'Dépense inhabituelle détectée',
+        whyNow: 'Une transaction récente sort de tes habitudes. '
+            'Vérifie si c\u2019est intentionnel.',
+        ctaLabel: 'Voir le détail',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/budget',
+        sourceCards: const [],
+      ));
+    }
+
     // ── 7. Replacement rate warning (45+) ──
     if (profile.age >= 45 && profile.salaireBrutMensuel > 0) {
       final rateCards =
@@ -890,6 +912,7 @@ class CapEngine {
       GoalAType.debtFree => {
           'debt_correct',
           'budget_deficit',
+          'spending_anomaly',
         },
       GoalAType.custom => <String>{},
     };

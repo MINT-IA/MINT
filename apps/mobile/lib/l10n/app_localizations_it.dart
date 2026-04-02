@@ -10931,6 +10931,9 @@ class SIt extends S {
   String get capKindPrepare => 'Preparare';
 
   @override
+  String get capKindAlert => 'Avviso';
+
+  @override
   String get proofSheetSources => 'Fonti';
 
   @override

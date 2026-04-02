@@ -10911,6 +10911,9 @@ class SPt extends S {
   String get capKindPrepare => 'Preparar';
 
   @override
+  String get capKindAlert => 'Alerta';
+
+  @override
   String get proofSheetSources => 'Fontes';
 
   @override

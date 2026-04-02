@@ -10920,6 +10920,9 @@ class SFr extends S {
   String get capKindPrepare => 'Préparer';
 
   @override
+  String get capKindAlert => 'Alerte';
+
+  @override
   String get proofSheetSources => 'Sources';
 
   @override

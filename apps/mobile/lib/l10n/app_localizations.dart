@@ -19363,6 +19363,12 @@ abstract class S {
   /// **'Préparer'**
   String get capKindPrepare;
 
+  /// No description provided for @capKindAlert.
+  ///
+  /// In fr, this message translates to:
+  /// **'Alerte'**
+  String get capKindAlert;
+
   /// No description provided for @proofSheetSources.
   ///
   /// In fr, this message translates to:

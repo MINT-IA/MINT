@@ -5447,6 +5447,7 @@
   "capKindOptimize": "Optimiser",
   "capKindSecure": "Sécuriser",
   "capKindPrepare": "Préparer",
+  "capKindAlert": "Alerte",
   "proofSheetSources": "Sources",
   "pulseFeedbackRecalculated": "Impact recalculé",
   "pulseFeedbackAddedRecently": "Ajouté récemment",

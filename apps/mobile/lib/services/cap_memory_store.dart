@@ -63,6 +63,12 @@ class CapMemory {
   /// See RFC_AGENT_LOOP_STATEFUL.md §6.3.
   final Map<String, int> stepProposals;
 
+  /// Whether a spending anomaly was detected in recent transactions.
+  final bool hasSpendingAnomaly;
+
+  /// Human-readable insight about the last detected anomaly.
+  final String? lastAnomalyInsight;
+
   const CapMemory({
     this.lastCapServed,
     this.lastCapDate,
@@ -76,6 +82,8 @@ class CapMemory {
     this.lastCompletedCapHeadline,
     this.lastCompletedCapCtaLabel,
     this.stepProposals = const {},
+    this.hasSpendingAnomaly = false,
+    this.lastAnomalyInsight,
   });
 
   /// Get the proposal count for a step in a specific run.
@@ -114,6 +122,8 @@ class CapMemory {
     Object? lastCompletedCapHeadline = _undefined,
     Object? lastCompletedCapCtaLabel = _undefined,
     Map<String, int>? stepProposals,
+    bool? hasSpendingAnomaly,
+    Object? lastAnomalyInsight = _undefined,
   }) {
     return CapMemory(
       lastCapServed: lastCapServed == _undefined
@@ -144,6 +154,10 @@ class CapMemory {
           ? this.lastCompletedCapCtaLabel
           : lastCompletedCapCtaLabel as String?,
       stepProposals: stepProposals ?? this.stepProposals,
+      hasSpendingAnomaly: hasSpendingAnomaly ?? this.hasSpendingAnomaly,
+      lastAnomalyInsight: lastAnomalyInsight == _undefined
+          ? this.lastAnomalyInsight
+          : lastAnomalyInsight as String?,
     );
   }
 
@@ -166,6 +180,9 @@ class CapMemory {
         if (lastCompletedCapCtaLabel != null)
           'lastCompletedCapCtaLabel': lastCompletedCapCtaLabel,
         if (stepProposals.isNotEmpty) 'stepProposals': stepProposals,
+        'hasSpendingAnomaly': hasSpendingAnomaly,
+        if (lastAnomalyInsight != null)
+          'lastAnomalyInsight': lastAnomalyInsight,
       };
 
   factory CapMemory.fromJson(Map<String, dynamic> json) => CapMemory(
@@ -195,6 +212,8 @@ class CapMemory {
                   (k, v) => MapEntry(k, (v as num).toInt()),
                 ) ??
                 const {},
+        hasSpendingAnomaly: json['hasSpendingAnomaly'] as bool? ?? false,
+        lastAnomalyInsight: json['lastAnomalyInsight'] as String?,
       );
 }
 

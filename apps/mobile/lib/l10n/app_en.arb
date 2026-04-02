@@ -5145,6 +5145,7 @@
   "capKindOptimize": "Optimize",
   "capKindSecure": "Secure",
   "capKindPrepare": "Prepare",
+  "capKindAlert": "Alert",
   "proofSheetSources": "Sources",
   "pulseFeedbackRecalculated": "Impact recalculated",
   "pulseFeedbackAddedRecently": "Added recently",

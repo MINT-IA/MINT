@@ -10938,6 +10938,9 @@ class SDe extends S {
   String get capKindPrepare => 'Vorbereiten';
 
   @override
+  String get capKindAlert => 'Warnung';
+
+  @override
   String get proofSheetSources => 'Quellen';
 
   @override
