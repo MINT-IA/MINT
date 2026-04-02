@@ -188,7 +188,7 @@
   "bankImportVariable": "Despesas variaveis",
   "bankImportSavingsRate": "Taxa de poupanca",
   "bankImportButton": "Importar para o meu orcamento",
-  "bankImportPrivacy": "Os teus extratos sao analisados localmente. As transacoes nunca sao armazenadas nos nossos servidores.",
+  "bankImportPrivacy": "O teu extrato é enviado de forma segura ao nosso servidor para análise. Os dados brutos são eliminados após o processamento — apenas os resumos por categoria são conservados.",
   "bankImportSuccess": "Orcamento atualizado com sucesso",
   "bankImportCategoryLogement": "Alojamento",
   "bankImportCategoryAlimentation": "Alimentacao",

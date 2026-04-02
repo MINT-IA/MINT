@@ -102,6 +102,10 @@ async def import_bank_statement(
             },
         )
 
+    # PRIVACY: The uploaded file is NOT persisted — only the ParseResult is returned.
+    # Raw bytes (content) are garbage-collected after the request completes.
+    # Only category_summary aggregates are sent back to the client.
+
     # Build response
     transactions = [
         TransactionSchema(

@@ -546,7 +546,7 @@ class SIt extends S {
 
   @override
   String get bankImportPrivacy =>
-      'I tuoi estratti conto vengono analizzati localmente. Le transazioni non vengono mai memorizzate sui nostri server.';
+      'Il tuo estratto conto viene inviato in modo sicuro al nostro server per l\'analisi. I dati grezzi vengono eliminati dopo l\'elaborazione — vengono conservati solo i riepiloghi per categoria.';
 
   @override
   String get bankImportSuccess => 'Budget aggiornato con successo';

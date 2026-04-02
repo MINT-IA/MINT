@@ -188,7 +188,7 @@
   "bankImportVariable": "Gastos variables",
   "bankImportSavingsRate": "Tasa de ahorro",
   "bankImportButton": "Importar a mi presupuesto",
-  "bankImportPrivacy": "Tus extractos se analizan localmente. Las transacciones nunca se almacenan en nuestros servidores.",
+  "bankImportPrivacy": "Tu extracto se envía de forma segura a nuestro servidor para su análisis. Los datos brutos se eliminan tras el procesamiento — solo se conservan los resúmenes por categoría.",
   "bankImportSuccess": "Presupuesto actualizado con exito",
   "bankImportCategoryLogement": "Vivienda",
   "bankImportCategoryAlimentation": "Alimentacion",

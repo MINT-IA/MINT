@@ -213,7 +213,7 @@
   "bankImportVariable": "Dépenses variables",
   "bankImportSavingsRate": "Taux d'épargne",
   "bankImportButton": "Importer dans mon budget",
-  "bankImportPrivacy": "Tes relevés sont analysés localement. Les transactions ne sont jamais stockées sur nos serveurs.",
+  "bankImportPrivacy": "Ton relevé est envoyé de manière sécurisée à notre serveur pour analyse. Les données brutes sont supprimées après traitement\u00a0— seuls les résumés par catégorie sont conservés.",
   "bankImportSuccess": "Budget mis à jour avec succès",
   "bankImportCategoryLogement": "Logement",
   "bankImportCategoryAlimentation": "Alimentation",

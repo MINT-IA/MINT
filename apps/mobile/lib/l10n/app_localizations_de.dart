@@ -547,7 +547,7 @@ class SDe extends S {
 
   @override
   String get bankImportPrivacy =>
-      'Deine Kontoauszüge werden lokal analysiert. Transaktionen werden niemals auf unseren Servern gespeichert.';
+      'Dein Kontoauszug wird sicher an unseren Server zur Analyse gesendet. Die Rohdaten werden nach der Verarbeitung gelöscht — nur Kategorie-Zusammenfassungen werden gespeichert.';
 
   @override
   String get bankImportSuccess => 'Budget erfolgreich aktualisiert';

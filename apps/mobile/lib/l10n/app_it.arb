@@ -188,7 +188,7 @@
   "bankImportVariable": "Spese variabili",
   "bankImportSavingsRate": "Tasso di risparmio",
   "bankImportButton": "Importa nel mio budget",
-  "bankImportPrivacy": "I tuoi estratti conto vengono analizzati localmente. Le transazioni non vengono mai memorizzate sui nostri server.",
+  "bankImportPrivacy": "Il tuo estratto conto viene inviato in modo sicuro al nostro server per l'analisi. I dati grezzi vengono eliminati dopo l'elaborazione — vengono conservati solo i riepiloghi per categoria.",
   "bankImportSuccess": "Budget aggiornato con successo",
   "bankImportCategoryLogement": "Alloggio",
   "bankImportCategoryAlimentation": "Alimentazione",

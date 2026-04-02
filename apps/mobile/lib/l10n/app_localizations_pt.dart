@@ -543,7 +543,7 @@ class SPt extends S {
 
   @override
   String get bankImportPrivacy =>
-      'Os teus extratos sao analisados localmente. As transacoes nunca sao armazenadas nos nossos servidores.';
+      'O teu extrato é enviado de forma segura ao nosso servidor para análise. Os dados brutos são eliminados após o processamento — apenas os resumos por categoria são conservados.';
 
   @override
   String get bankImportSuccess => 'Orcamento atualizado com sucesso';

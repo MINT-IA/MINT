@@ -1098,7 +1098,7 @@ abstract class S {
   /// No description provided for @bankImportPrivacy.
   ///
   /// In fr, this message translates to:
-  /// **'Tes relevés sont analysés localement. Les transactions ne sont jamais stockées sur nos serveurs.'**
+  /// **'Ton relevé est envoyé de manière sécurisée à notre serveur pour analyse. Les données brutes sont supprimées après traitement — seuls les résumés par catégorie sont conservés.'**
   String get bankImportPrivacy;
 
   /// No description provided for @bankImportSuccess.
