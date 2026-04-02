@@ -31731,7 +31731,7 @@ abstract class S {
   /// No description provided for @onboardingSmartSeeResult.
   ///
   /// In fr, this message translates to:
-  /// **'Voir mon résultat'**
+  /// **'Calculer ma retraite'**
   String get onboardingSmartSeeResult;
 
   /// No description provided for @onboardingSmartSubtitle.
@@ -36686,6 +36686,138 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Quelle capacité d’emprunt j’ai ?'**
   String get coachSuggestMortgageCapacity;
+
+  /// No description provided for @jargonReplacementRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement (part de ton salaire maintenue à la retraite)'**
+  String get jargonReplacementRate;
+
+  /// No description provided for @jargonLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'LPP (prévoyance professionnelle)'**
+  String get jargonLpp;
+
+  /// No description provided for @jargon3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'3a (épargne retraite privée)'**
+  String get jargon3a;
+
+  /// No description provided for @jargonAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS (assurance vieillesse)'**
+  String get jargonAvs;
+
+  /// No description provided for @jargonRamd.
+  ///
+  /// In fr, this message translates to:
+  /// **'RAMD (revenu annuel moyen déterminant)'**
+  String get jargonRamd;
+
+  /// No description provided for @jargonReplacementRateTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le taux de remplacement mesure la part de ton revenu actuel que tu conserveras à la retraite. Exemple : 65 % signifie que tu toucheras 65 % de ton salaire actuel.'**
+  String get jargonReplacementRateTooltip;
+
+  /// No description provided for @jargonLppTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'La LPP (Loi sur la prévoyance professionnelle) est le 2e pilier. Ton employeur et toi cotisez ensemble pour ta retraite.'**
+  String get jargonLppTooltip;
+
+  /// No description provided for @jargon3aTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le pilier 3a est une épargne retraite volontaire avec avantage fiscal. Le plafond est de 7 258 CHF/an (salarié avec LPP).'**
+  String get jargon3aTooltip;
+
+  /// No description provided for @jargonAvsTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’AVS (assurance-vieillesse et survivants) est le 1er pilier. Elle garantit un revenu de base à la retraite.'**
+  String get jargonAvsTooltip;
+
+  /// No description provided for @jargonRamdTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le RAMD détermine le montant de ta rente AVS. Il est calculé à partir de tes revenus soumis à cotisation.'**
+  String get jargonRamdTooltip;
+
+  /// No description provided for @confidenceDetailsTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basé sur : âge, revenu, canton, statut civil, nationalité, LPP et 3a déclarés. Plus tu fournis de données, plus la projection est fiable.'**
+  String get confidenceDetailsTooltip;
+
+  /// No description provided for @replacementRateContextGood.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est un bon niveau — au-dessus de 80 %.'**
+  String get replacementRateContextGood;
+
+  /// No description provided for @replacementRateContextAverage.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est dans la moyenne suisse. Des optimisations sont possibles.'**
+  String get replacementRateContextAverage;
+
+  /// No description provided for @replacementRateContextLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est en dessous de la moyenne. Voyons comment améliorer ça.'**
+  String get replacementRateContextLow;
+
+  /// No description provided for @dataOriginTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculé avec'**
+  String get dataOriginTitle;
+
+  /// No description provided for @dataOriginAge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Âge : {age} ans'**
+  String dataOriginAge(int age);
+
+  /// No description provided for @dataOriginRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu : CHF {revenu}/an'**
+  String dataOriginRevenu(String revenu);
+
+  /// No description provided for @dataOriginCanton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton : {canton}'**
+  String dataOriginCanton(String canton);
+
+  /// No description provided for @dataOriginModify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get dataOriginModify;
+
+  /// No description provided for @disclaimerShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif, pas un conseil financier.'**
+  String get disclaimerShort;
+
+  /// No description provided for @disclaimerLearnMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'En savoir plus'**
+  String get disclaimerLearnMore;
+
+  /// No description provided for @disclaimerFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.'**
+  String get disclaimerFull;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

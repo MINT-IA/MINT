@@ -8684,7 +8684,7 @@
   "onboardingSmartNationalityLabel": "La tua nazionalità",
   "onboardingSmartSalaryLabel": "Il tuo stipendio annuo lordo",
   "onboardingSmartSalaryPerYear": "CHF/anno",
-  "onboardingSmartSeeResult": "Vedi il mio risultato",
+  "onboardingSmartSeeResult": "Calcolare la mia pensione",
   "onboardingSmartSubtitle": "Poche informazioni bastano per una prima panoramica personalizzata.",
   "onboardingSmartTitle": "Scopri la tua situazione pensionistica in 30 secondi",
   "opener3aDeadline": "Restano {days} giorni per versare fino a {plafond} CHF nel tuo 3a.",
@@ -9612,5 +9612,42 @@
   "coachSuggestBudget": "Qual è il mio budget realistico per la pensione?",
   "coachSuggestBudgetGap": "Quanto mi manca al mese?",
   "coachSuggestMortgage": "Posso permettermi un acquisto immobiliare?",
-  "coachSuggestMortgageCapacity": "Qual è la mia capacità di credito?"
+  "coachSuggestMortgageCapacity": "Qual è la mia capacità di credito?",
+  "jargonReplacementRate": "Tasso di sostituzione (parte del tuo stipendio mantenuta in pensione)",
+  "jargonLpp": "LPP (previdenza professionale)",
+  "jargon3a": "3a (risparmio pensionistico privato)",
+  "jargonAvs": "AVS (assicurazione vecchiaia)",
+  "jargonRamd": "RAMD (reddito annuo medio determinante)",
+  "jargonReplacementRateTooltip": "Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.",
+  "jargonLppTooltip": "La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.",
+  "jargon3aTooltip": "Il pilastro 3a è un risparmio pensionistico volontario con vantaggi fiscali. Il tetto è di CHF 7'258/anno (dipendenti con LPP).",
+  "jargonAvsTooltip": "L'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Garantisce un reddito di base in pensione.",
+  "jargonRamdTooltip": "Il RAMD determina l'importo della tua rendita AVS. È calcolato in base ai redditi soggetti a contribuzione.",
+  "confidenceDetailsTooltip": "Basato su: età, reddito, cantone, stato civile, nazionalità, LPP e 3a dichiarati. Più dati fornisci, più accurata è la proiezione.",
+  "replacementRateContextGood": "È un buon livello — sopra l'80%.",
+  "replacementRateContextAverage": "È nella media svizzera. Sono possibili ottimizzazioni.",
+  "replacementRateContextLow": "È sotto la media. Vediamo come migliorarlo.",
+  "dataOriginTitle": "Calcolato con",
+  "dataOriginAge": "Età: {age} anni",
+  "@dataOriginAge": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "dataOriginRevenu": "Reddito: CHF {revenu}/anno",
+  "@dataOriginRevenu": {
+    "placeholders": {
+      "revenu": { "type": "String" }
+    }
+  },
+  "dataOriginCanton": "Cantone: {canton}",
+  "@dataOriginCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "dataOriginModify": "Modifica",
+  "disclaimerShort": "Strumento educativo, non consulenza finanziaria.",
+  "disclaimerLearnMore": "Per saperne di più",
+  "disclaimerFull": "Strumento educativo semplificato. Non costituisce consulenza finanziaria personalizzata (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta uno specialista qualificato."
 }

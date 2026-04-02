@@ -295,11 +295,29 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
               '${rate.toStringAsFixed(0)}% de ton revenu actuel',
               style: MintTextStyles.labelMedium(color: _zoneColor).copyWith(fontWeight: FontWeight.w600),
             ),
-            Text(
-              'Taux de remplacement',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+            Tooltip(
+              message: S.of(context)?.jargonReplacementRateTooltip ?? '',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    S.of(context)?.jargonReplacementRate ?? 'Taux de remplacement',
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.info_outline, size: 12, color: MintColors.textMuted),
+                ],
+              ),
             ),
           ],
+        ),
+        // Context line for replacement rate
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            _replacementRateContext(rate, context),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+          ),
         ),
       ],
     );
@@ -318,11 +336,12 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     final total = avs + lpp + troisA + autre;
     if (total <= 0) return const SizedBox.shrink();
 
+    final l = S.of(context);
     final segments = <_PillarSegment>[
-      _PillarSegment('AVS', avs, MintColors.retirementAvs),
-      _PillarSegment('LPP', lpp, MintColors.retirementLpp),
-      _PillarSegment('3a', troisA, MintColors.retirement3a),
-      if (autre > 0) _PillarSegment('Autre', autre, MintColors.purple),
+      _PillarSegment(l?.jargonAvs ?? 'AVS', 'AVS', avs, MintColors.retirementAvs, l?.jargonAvsTooltip),
+      _PillarSegment(l?.jargonLpp ?? 'LPP', 'LPP', lpp, MintColors.retirementLpp, l?.jargonLppTooltip),
+      _PillarSegment(l?.jargon3a ?? '3a', '3a', troisA, MintColors.retirement3a, l?.jargon3aTooltip),
+      if (autre > 0) _PillarSegment('Autre', 'Autre', autre, MintColors.purple, null),
     ];
 
     return Column(
@@ -343,7 +362,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                     alignment: Alignment.center,
                     child: fraction > 0.12
                         ? Text(
-                            s.label,
+                            s.shortLabel,
                             style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                           )
                         : null,
@@ -359,7 +378,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: segments.map((s) {
             final monthly = s.value / 12;
-            return Row(
+            final legendWidget = Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
@@ -377,6 +396,10 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                 ),
               ],
             );
+            if (s.tooltip != null) {
+              return Tooltip(message: s.tooltip!, child: legendWidget);
+            }
+            return legendWidget;
           }).toList(),
         ),
       ],
@@ -465,7 +488,9 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     return Semantics(
       label: 'Score de confiance',
       button: true,
-      child: GestureDetector(
+      child: Tooltip(
+        message: S.of(context)?.confidenceDetailsTooltip ?? '',
+        child: GestureDetector(
         onTap: widget.onConfidenceTap,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -497,7 +522,20 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         ),
       ),
     ),
+    ),
     );
+  }
+
+  // ── Replacement rate context (FIX 4) ─────────────────────
+  String _replacementRateContext(double rate, BuildContext context) {
+    final l = S.of(context);
+    if (rate >= 80) {
+      return l?.replacementRateContextGood ?? '';
+    } else if (rate >= 60) {
+      return l?.replacementRateContextAverage ?? '';
+    } else {
+      return l?.replacementRateContextLow ?? '';
+    }
   }
 
   // ── Coach one-liner ─────────────────────────────────────
@@ -690,7 +728,9 @@ class _SparklinePainter extends CustomPainter {
 
 class _PillarSegment {
   final String label;
+  final String shortLabel;
   final double value;
   final Color color;
-  const _PillarSegment(this.label, this.value, this.color);
+  final String? tooltip;
+  const _PillarSegment(this.label, this.shortLabel, this.value, this.color, [this.tooltip]);
 }

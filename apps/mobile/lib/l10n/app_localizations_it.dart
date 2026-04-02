@@ -18039,7 +18039,7 @@ class SIt extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/anno';
 
   @override
-  String get onboardingSmartSeeResult => 'Vedi il mio risultato';
+  String get onboardingSmartSeeResult => 'Calcolare la mia pensione';
 
   @override
   String get onboardingSmartSubtitle =>
@@ -20907,4 +20907,87 @@ class SIt extends S {
   @override
   String get coachSuggestMortgageCapacity =>
       'Qual è la mia capacità di credito?';
+
+  @override
+  String get jargonReplacementRate =>
+      'Tasso di sostituzione (parte del tuo stipendio mantenuta in pensione)';
+
+  @override
+  String get jargonLpp => 'LPP (previdenza professionale)';
+
+  @override
+  String get jargon3a => '3a (risparmio pensionistico privato)';
+
+  @override
+  String get jargonAvs => 'AVS (assicurazione vecchiaia)';
+
+  @override
+  String get jargonRamd => 'RAMD (reddito annuo medio determinante)';
+
+  @override
+  String get jargonReplacementRateTooltip =>
+      'Il tasso di sostituzione misura la quota del tuo reddito attuale che manterrai in pensione. Esempio: 65% significa che riceverai il 65% del tuo stipendio attuale.';
+
+  @override
+  String get jargonLppTooltip =>
+      'La LPP (Legge sulla previdenza professionale) è il 2° pilastro. Tu e il tuo datore di lavoro contribuite insieme per la tua pensione.';
+
+  @override
+  String get jargon3aTooltip =>
+      'Il pilastro 3a è un risparmio pensionistico volontario con vantaggi fiscali. Il tetto è di CHF 7\'258/anno (dipendenti con LPP).';
+
+  @override
+  String get jargonAvsTooltip =>
+      'L\'AVS (Assicurazione vecchiaia e superstiti) è il 1° pilastro. Garantisce un reddito di base in pensione.';
+
+  @override
+  String get jargonRamdTooltip =>
+      'Il RAMD determina l\'importo della tua rendita AVS. È calcolato in base ai redditi soggetti a contribuzione.';
+
+  @override
+  String get confidenceDetailsTooltip =>
+      'Basato su: età, reddito, cantone, stato civile, nazionalità, LPP e 3a dichiarati. Più dati fornisci, più accurata è la proiezione.';
+
+  @override
+  String get replacementRateContextGood => 'È un buon livello — sopra l\'80%.';
+
+  @override
+  String get replacementRateContextAverage =>
+      'È nella media svizzera. Sono possibili ottimizzazioni.';
+
+  @override
+  String get replacementRateContextLow =>
+      'È sotto la media. Vediamo come migliorarlo.';
+
+  @override
+  String get dataOriginTitle => 'Calcolato con';
+
+  @override
+  String dataOriginAge(int age) {
+    return 'Età: $age anni';
+  }
+
+  @override
+  String dataOriginRevenu(String revenu) {
+    return 'Reddito: CHF $revenu/anno';
+  }
+
+  @override
+  String dataOriginCanton(String canton) {
+    return 'Cantone: $canton';
+  }
+
+  @override
+  String get dataOriginModify => 'Modifica';
+
+  @override
+  String get disclaimerShort =>
+      'Strumento educativo, non consulenza finanziaria.';
+
+  @override
+  String get disclaimerLearnMore => 'Per saperne di più';
+
+  @override
+  String get disclaimerFull =>
+      'Strumento educativo semplificato. Non costituisce consulenza finanziaria personalizzata (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta uno specialista qualificato.';
 }

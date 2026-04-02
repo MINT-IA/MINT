@@ -18030,7 +18030,7 @@ class SDe extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/Jahr';
 
   @override
-  String get onboardingSmartSeeResult => 'Mein Ergebnis ansehen';
+  String get onboardingSmartSeeResult => 'Meine Rente berechnen';
 
   @override
   String get onboardingSmartSubtitle =>
@@ -20895,4 +20895,88 @@ class SDe extends S {
   @override
   String get coachSuggestMortgageCapacity =>
       'Wie hoch ist meine Kreditkapazität?';
+
+  @override
+  String get jargonReplacementRate =>
+      'Ersatzquote (Anteil deines Lohns, der im Ruhestand erhalten bleibt)';
+
+  @override
+  String get jargonLpp => 'BVG (berufliche Vorsorge)';
+
+  @override
+  String get jargon3a => '3a (private Altersvorsorge)';
+
+  @override
+  String get jargonAvs => 'AHV (Altersversicherung)';
+
+  @override
+  String get jargonRamd =>
+      'RAMD (massgebendes durchschnittliches Jahreseinkommen)';
+
+  @override
+  String get jargonReplacementRateTooltip =>
+      'Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.';
+
+  @override
+  String get jargonLppTooltip =>
+      'Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.';
+
+  @override
+  String get jargon3aTooltip =>
+      'Die Säule 3a ist freiwilliges Alterssparen mit Steuervorteil. Die Obergrenze beträgt CHF 7\'258/Jahr (Angestellte mit BVG).';
+
+  @override
+  String get jargonAvsTooltip =>
+      'Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie garantiert ein Grundeinkommen im Ruhestand.';
+
+  @override
+  String get jargonRamdTooltip =>
+      'Das RAMD bestimmt die Höhe deiner AHV-Rente. Es wird aus deinen beitragspflichtigen Einkommen berechnet.';
+
+  @override
+  String get confidenceDetailsTooltip =>
+      'Basierend auf: Alter, Einkommen, Kanton, Zivilstand, Nationalität, deklarierte BVG und 3a. Je mehr Daten du angibst, desto genauer die Projektion.';
+
+  @override
+  String get replacementRateContextGood =>
+      'Das ist ein gutes Niveau — über 80%.';
+
+  @override
+  String get replacementRateContextAverage =>
+      'Das entspricht dem Schweizer Durchschnitt. Optimierungen sind möglich.';
+
+  @override
+  String get replacementRateContextLow =>
+      'Das liegt unter dem Durchschnitt. Schauen wir, wie du das verbessern kannst.';
+
+  @override
+  String get dataOriginTitle => 'Berechnet mit';
+
+  @override
+  String dataOriginAge(int age) {
+    return 'Alter: $age Jahre';
+  }
+
+  @override
+  String dataOriginRevenu(String revenu) {
+    return 'Einkommen: CHF $revenu/Jahr';
+  }
+
+  @override
+  String dataOriginCanton(String canton) {
+    return 'Kanton: $canton';
+  }
+
+  @override
+  String get dataOriginModify => 'Bearbeiten';
+
+  @override
+  String get disclaimerShort => 'Bildungstool, keine Finanzberatung.';
+
+  @override
+  String get disclaimerLearnMore => 'Mehr erfahren';
+
+  @override
+  String get disclaimerFull =>
+      'Vereinfachtes Bildungstool. Stellt keine persönliche Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7. Konsultiere eine qualifizierte Fachperson für individuelle Beratung.';
 }

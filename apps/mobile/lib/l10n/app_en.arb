@@ -8684,7 +8684,7 @@
   "onboardingSmartNationalityLabel": "Your nationality",
   "onboardingSmartSalaryLabel": "Your gross annual salary",
   "onboardingSmartSalaryPerYear": "CHF/year",
-  "onboardingSmartSeeResult": "See my result",
+  "onboardingSmartSeeResult": "Calculate my retirement",
   "onboardingSmartSubtitle": "A few details are enough for a first personalised overview.",
   "onboardingSmartTitle": "Discover your retirement situation in 30 seconds",
   "opener3aDeadline": "{days} days left to contribute up to {plafond} CHF to your 3a.",
@@ -9612,5 +9612,42 @@
   "coachSuggestBudget": "What’s my realistic retirement budget?",
   "coachSuggestBudgetGap": "How much am I short per month?",
   "coachSuggestMortgage": "Can I afford to buy a property?",
-  "coachSuggestMortgageCapacity": "What’s my borrowing capacity?"
+  "coachSuggestMortgageCapacity": "What’s my borrowing capacity?",
+  "jargonReplacementRate": "Replacement rate (share of your salary maintained in retirement)",
+  "jargonLpp": "LPP (occupational pension)",
+  "jargon3a": "3a (private retirement savings)",
+  "jargonAvs": "AVS (old-age insurance)",
+  "jargonRamd": "RAMD (average annual determining income)",
+  "jargonReplacementRateTooltip": "The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.",
+  "jargonLppTooltip": "The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.",
+  "jargon3aTooltip": "Pillar 3a is voluntary retirement savings with tax benefits. The ceiling is CHF 7,258/year (employed with LPP).",
+  "jargonAvsTooltip": "AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It guarantees a basic retirement income.",
+  "jargonRamdTooltip": "The RAMD determines your AVS pension amount. It is calculated from your contribution-liable income.",
+  "confidenceDetailsTooltip": "Based on: age, income, canton, civil status, nationality, declared LPP and 3a. The more data you provide, the more accurate the projection.",
+  "replacementRateContextGood": "That’s a good level — above 80%.",
+  "replacementRateContextAverage": "That’s around the Swiss average. Optimizations are possible.",
+  "replacementRateContextLow": "That’s below average. Let’s see how to improve it.",
+  "dataOriginTitle": "Calculated with",
+  "dataOriginAge": "Age: {age} years",
+  "@dataOriginAge": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "dataOriginRevenu": "Income: CHF {revenu}/year",
+  "@dataOriginRevenu": {
+    "placeholders": {
+      "revenu": { "type": "String" }
+    }
+  },
+  "dataOriginCanton": "Canton: {canton}",
+  "@dataOriginCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "dataOriginModify": "Edit",
+  "disclaimerShort": "Educational tool, not financial advice.",
+  "disclaimerLearnMore": "Learn more",
+  "disclaimerFull": "Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance."
 }

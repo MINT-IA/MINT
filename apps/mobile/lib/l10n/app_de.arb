@@ -8684,7 +8684,7 @@
   "onboardingSmartNationalityLabel": "Deine Staatsangehörigkeit",
   "onboardingSmartSalaryLabel": "Dein Brutto-Jahresgehalt",
   "onboardingSmartSalaryPerYear": "CHF/Jahr",
-  "onboardingSmartSeeResult": "Mein Ergebnis ansehen",
+  "onboardingSmartSeeResult": "Meine Rente berechnen",
   "onboardingSmartSubtitle": "Ein paar Angaben genügen für eine erste personalisierte Übersicht.",
   "onboardingSmartTitle": "Entdecke deine Vorsorgelage in 30 Sekunden",
   "opener3aDeadline": "Noch {days} Tage, um bis zu {plafond} CHF in die Säule 3a einzuzahlen.",
@@ -9612,5 +9612,42 @@
   "coachSuggestBudget": "Was ist mein realistisches Budget bei der Pensionierung?",
   "coachSuggestBudgetGap": "Wie viel fehlt mir pro Monat?",
   "coachSuggestMortgage": "Kann ich mir einen Kauf leisten?",
-  "coachSuggestMortgageCapacity": "Wie hoch ist meine Kreditkapazität?"
+  "coachSuggestMortgageCapacity": "Wie hoch ist meine Kreditkapazität?",
+  "jargonReplacementRate": "Ersatzquote (Anteil deines Lohns, der im Ruhestand erhalten bleibt)",
+  "jargonLpp": "BVG (berufliche Vorsorge)",
+  "jargon3a": "3a (private Altersvorsorge)",
+  "jargonAvs": "AHV (Altersversicherung)",
+  "jargonRamd": "RAMD (massgebendes durchschnittliches Jahreseinkommen)",
+  "jargonReplacementRateTooltip": "Die Ersatzquote misst, welchen Anteil deines aktuellen Einkommens du im Ruhestand behältst. Beispiel: 65% bedeutet, du erhältst 65% deines aktuellen Lohns.",
+  "jargonLppTooltip": "Das BVG (Bundesgesetz über die berufliche Vorsorge) ist die 2. Säule. Du und dein Arbeitgeber zahlen gemeinsam für deine Pension ein.",
+  "jargon3aTooltip": "Die Säule 3a ist freiwilliges Alterssparen mit Steuervorteil. Die Obergrenze beträgt CHF 7'258/Jahr (Angestellte mit BVG).",
+  "jargonAvsTooltip": "Die AHV (Alters- und Hinterlassenenversicherung) ist die 1. Säule. Sie garantiert ein Grundeinkommen im Ruhestand.",
+  "jargonRamdTooltip": "Das RAMD bestimmt die Höhe deiner AHV-Rente. Es wird aus deinen beitragspflichtigen Einkommen berechnet.",
+  "confidenceDetailsTooltip": "Basierend auf: Alter, Einkommen, Kanton, Zivilstand, Nationalität, deklarierte BVG und 3a. Je mehr Daten du angibst, desto genauer die Projektion.",
+  "replacementRateContextGood": "Das ist ein gutes Niveau — über 80%.",
+  "replacementRateContextAverage": "Das entspricht dem Schweizer Durchschnitt. Optimierungen sind möglich.",
+  "replacementRateContextLow": "Das liegt unter dem Durchschnitt. Schauen wir, wie du das verbessern kannst.",
+  "dataOriginTitle": "Berechnet mit",
+  "dataOriginAge": "Alter: {age} Jahre",
+  "@dataOriginAge": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "dataOriginRevenu": "Einkommen: CHF {revenu}/Jahr",
+  "@dataOriginRevenu": {
+    "placeholders": {
+      "revenu": { "type": "String" }
+    }
+  },
+  "dataOriginCanton": "Kanton: {canton}",
+  "@dataOriginCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "dataOriginModify": "Bearbeiten",
+  "disclaimerShort": "Bildungstool, keine Finanzberatung.",
+  "disclaimerLearnMore": "Mehr erfahren",
+  "disclaimerFull": "Vereinfachtes Bildungstool. Stellt keine persönliche Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7. Konsultiere eine qualifizierte Fachperson für individuelle Beratung."
 }
