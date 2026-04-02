@@ -1,7 +1,10 @@
-from pydantic import BaseModel, Field, UUID4, ConfigDict
+import logging
+from pydantic import BaseModel, Field, UUID4, ConfigDict, model_validator
 from enum import Enum
 from typing import Optional
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 class HouseholdType(str, Enum):
@@ -56,6 +59,33 @@ class ProfileBase(BaseModel):
     pillar3aAnnual: Optional[float] = Field(None, ge=0, le=36_288)  # Max indépendant sans LPP
     wealthEstimate: Optional[float] = Field(None, ge=0, le=1_000_000_000)
 
+    # ⭐ Retraite flexible (LAVS art. 40, LPP art. 13)
+    targetRetirementAge: Optional[int] = Field(
+        None, ge=58, le=70,
+        description="Age cible de retraite (defaut: age legal)",
+    )
+
+    @model_validator(mode='after')
+    def validate_employment_lpp_consistency(self):
+        """Warn if employee above LPP threshold claims no 2nd pillar.
+
+        LPP art. 7: salaried workers earning > 22'680 CHF/year are
+        mandatorily insured. We log a warning but don't reject — the
+        user may not know their LPP status.
+        """
+        if (
+            self.employmentStatus in ("salarie", "employee")
+            and self.incomeGrossYearly is not None
+            and self.incomeGrossYearly > 22_680
+            and self.has2ndPillar is False
+        ):
+            logger.warning(
+                "Employment/LPP inconsistency: salaried with gross %.0f > 22'680 "
+                "but has2ndPillar=False. LPP affiliation is mandatory (LPP art. 7).",
+                self.incomeGrossYearly,
+            )
+        return self
+
 
 class ProfileCreate(ProfileBase):
     pass
@@ -102,6 +132,10 @@ class ProfileUpdate(BaseModel):
     isChurchMember: Optional[bool] = None
     pillar3aAnnual: Optional[float] = Field(None, ge=0, le=36_288)
     wealthEstimate: Optional[float] = Field(None, ge=0, le=1_000_000_000)
+    targetRetirementAge: Optional[int] = Field(
+        None, ge=58, le=70,
+        description="Age cible de retraite (defaut: age legal)",
+    )
 
 
 class Profile(ProfileBase):

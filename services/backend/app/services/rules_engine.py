@@ -11,6 +11,7 @@ from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
     MARRIED_CAPITAL_TAX_DISCOUNT,
     PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     calculate_progressive_capital_tax,
     get_ai_rente_monthly,
@@ -392,13 +393,39 @@ def calculate_marginal_tax_rate(
     return max(0.10, min(0.45, round(combined, 4)))
 
 
+def get_3a_ceiling(
+    employment_status: Optional[str] = None,
+    has_2nd_pillar: Optional[bool] = None,
+) -> float:
+    """Return the applicable 3a annual contribution ceiling.
+
+    OPP3 art. 7:
+    - Salarié affilié LPP (petit 3a): 7'258 CHF
+    - Indépendant sans LPP (grand 3a): 36'288 CHF (20% du revenu net, max)
+
+    Args:
+        employment_status: 'salarie', 'independant', 'employee', 'self_employed', etc.
+        has_2nd_pillar: Whether the person is affiliated to a LPP pension fund.
+
+    Returns:
+        Annual 3a ceiling in CHF.
+    """
+    _status = (employment_status or "").lower().strip()
+    is_independent = _status in ("independant", "self_employed")
+    if is_independent and not has_2nd_pillar:
+        return PILIER_3A_PLAFOND_SANS_LPP
+    return PILIER_3A_PLAFOND_AVEC_LPP
+
+
 def calculate_tax_potential(
-    canton: str, income_gross: float, household_type: str = "single"
+    canton: str, income_gross: float, household_type: str = "single",
+    employment_status: Optional[str] = None,
+    has_2nd_pillar: Optional[bool] = None,
 ) -> str:
     """Estimate potential tax savings (3a only) for MVP display."""
-    # Logic: 3a Max (7258) * Marginal Rate
+    ceiling = get_3a_ceiling(employment_status, has_2nd_pillar)
     marginal_rate = calculate_marginal_tax_rate(canton, income_gross, household_type)
-    saving = PILIER_3A_PLAFOND_AVEC_LPP * marginal_rate
+    saving = ceiling * marginal_rate
     # Format as range "~1100-1400" to be safe/realistic relative to user expectation
     low = int(saving * 0.9 / 100) * 100
     high = int(saving * 1.1 / 100) * 100
@@ -646,6 +673,11 @@ def generate_recommendations(
         potential_recos.append(_create_budget_control_recommendation(profile))
 
     # 3. Prévoyance (Priorité 1-2 si revenus corrects)
+    # SALARY CONVENTION:
+    # - incomeGrossYearly: annual GROSS salary (includes 13th month if applicable)
+    # - incomeNetMonthly: monthly NET salary (after deductions)
+    # - Conversion: net ≈ gross / 12 × 0.85 (approximate)
+    # - If both provided, incomeNetMonthly takes priority
     estimated_net = profile.incomeNetMonthly or (
         (profile.incomeGrossYearly / 12 * 0.85) if profile.incomeGrossYearly else 0
     )
@@ -672,7 +704,7 @@ def generate_recommendations(
 def _create_3a_optimizer_recommendation(
     profile: Profile, reference_date: Optional[datetime] = None
 ) -> Recommendation:
-    annual_contribution = PILIER_3A_PLAFOND_AVEC_LPP
+    annual_contribution = get_3a_ceiling(profile.employmentStatus, profile.has2ndPillar)
     household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
     marginal_rate = calculate_marginal_tax_rate(
         profile.canton or "ZH",
@@ -680,7 +712,8 @@ def _create_3a_optimizer_recommendation(
         household_type,
     )
     now = reference_date or datetime.now(timezone.utc)
-    years = max(5, 65 - (now.year - (profile.birthYear or 1990)))
+    retirement_age = getattr(profile, 'targetRetirementAge', None) or 65
+    years = max(5, retirement_age - (now.year - (profile.birthYear or 1990)))
     calc = calculate_pillar3a_tax_benefit(annual_contribution, marginal_rate, years)
     return Recommendation(
         id=uuid.uuid4(),
