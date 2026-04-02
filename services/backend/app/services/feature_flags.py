@@ -6,6 +6,8 @@ Source of truth for client feature toggles.
 import os
 from typing import Dict
 
+from fastapi import HTTPException, status
+
 
 def _env_bool(key: str, default: bool) -> bool:
     """Read a boolean from an environment variable with a safe default."""
@@ -43,6 +45,20 @@ class FeatureFlags:
 
     # Admin screens: observability, analytics (off by default)
     enable_admin_screens: bool = False
+
+    @classmethod
+    def require_flag(cls, flag_name: str) -> None:
+        """Raise HTTP 403 if the given feature flag is disabled.
+
+        Usage in endpoints:
+            FeatureFlags.require_flag("enable_blink_production")
+        """
+        flags = cls.get_flags()
+        if not flags.get(flag_name, False):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Feature '{flag_name}' is not enabled",
+            )
 
     @classmethod
     def get_flags(cls) -> Dict[str, bool]:

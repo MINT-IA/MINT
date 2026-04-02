@@ -53,6 +53,7 @@ from app.api.v1.endpoints import (
     regulatory,
     bank_import,
     budget,
+    admin,
 )
 
 api_router = APIRouter()
@@ -193,4 +194,7 @@ api_router.include_router(
 )
 api_router.include_router(
     budget.router, prefix="/budget", tags=["Budget Anomaly Detection"]
+)
+api_router.include_router(
+    admin.router, prefix="/admin", tags=["Admin"]
 )

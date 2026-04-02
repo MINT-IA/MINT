@@ -35,6 +35,7 @@ from app.services.coach.claude_coach_service import (
     INTENSITY_MAP,
     LLM_ANTI_PATTERNS,
 )
+from app.services.feature_flags import FeatureFlags
 
 logger = logging.getLogger(__name__)
 
@@ -295,6 +296,7 @@ async def rag_ingest(request: Request, body: RAGIngestRequest, _user: User = Dep
     Ingests markdown files from the specified directory into the vector store.
     Only admin users (email ending with @mint.ch) can use this endpoint.
     """
+    FeatureFlags.require_flag("enable_admin_screens")
     # Admin gate: only @mint.ch emails can ingest
     if not _user.email or not _user.email.endswith("@mint.ch"):
         raise HTTPException(

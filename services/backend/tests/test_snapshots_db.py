@@ -238,14 +238,20 @@ class TestOpenBankingConsentDB:
 
     @pytest.fixture(autouse=True)
     def _enable_open_banking(self):
-        """Enable the OPEN_BANKING_ENABLED feature gate for these tests."""
+        """Enable OPEN_BANKING_ENABLED + FF_ENABLE_BLINK_PRODUCTION for these tests."""
         original = os.environ.get("OPEN_BANKING_ENABLED")
+        original_ff = os.environ.get("FF_ENABLE_BLINK_PRODUCTION")
         os.environ["OPEN_BANKING_ENABLED"] = "true"
+        os.environ["FF_ENABLE_BLINK_PRODUCTION"] = "true"
         yield
         if original is None:
             os.environ.pop("OPEN_BANKING_ENABLED", None)
         else:
             os.environ["OPEN_BANKING_ENABLED"] = original
+        if original_ff is None:
+            os.environ.pop("FF_ENABLE_BLINK_PRODUCTION", None)
+        else:
+            os.environ["FF_ENABLE_BLINK_PRODUCTION"] = original_ff
 
     def test_open_banking_consent_creates_in_db(self, client):
         """POST /open-banking/consent creates a consent and returns it."""

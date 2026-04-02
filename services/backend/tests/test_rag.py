@@ -38,10 +38,16 @@ def _fake_user():
 def client():
     """Test client for FastAPI app with auth override."""
     from app.core.auth import require_current_user
+    original_ff = os.environ.get("FF_ENABLE_ADMIN_SCREENS")
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     app.dependency_overrides[require_current_user] = _fake_user
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)
+    if original_ff is None:
+        os.environ.pop("FF_ENABLE_ADMIN_SCREENS", None)
+    else:
+        os.environ["FF_ENABLE_ADMIN_SCREENS"] = original_ff
 
 
 @pytest.fixture
