@@ -786,9 +786,9 @@ void main() {
       expect(result.marriagePenalty, isNull);
     });
 
-    test('G9.2 conjoint salary 0 → returns empty, no crash', () {
-      // Conjoint with zero salary is unusable for tax comparisons.
-      // The guard in optimize() must catch this and return empty.
+    test('G9.2 conjoint salary 0 → AVS cap still computed (W16 fix)', () {
+      // W16: Conjoint with zero salary should still trigger AVS cap analysis
+      // and marriage penalty when the main user has income.
       const conjointZeroSalary = ConjointProfile(
         birthYear: 1982,
         salaireBrutMensuel: 0,
@@ -797,12 +797,10 @@ void main() {
         mainUser: julienProfile(),
         conjoint: conjointZeroSalary,
       );
-      expect(result.hasResults, isFalse,
-          reason: 'Conjoint salary=0 → no usable income → empty result');
-      expect(result.lppBuybackOrder, isNull);
-      expect(result.pillar3aOrder, isNull);
-      expect(result.avsCap, isNull);
-      expect(result.marriagePenalty, isNull);
+      expect(result.hasResults, isTrue,
+          reason: 'Conjoint salary=0 → AVS cap still applies');
+      expect(result.avsCap, isNotNull,
+          reason: 'AVS couple cap applies regardless of conjoint salary');
     });
   });
 

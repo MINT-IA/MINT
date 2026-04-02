@@ -98,6 +98,9 @@ class LppCalculator {
 
     for (int a = currentAge; a < retirementAge && a < 70; a++) {
       balance *= (1 + caisseReturn);
+      // LPP bonifications start at age 25 (LPP art. 7).
+      // Before 25, only the return on existing capital applies.
+      if (a < 25) continue;
       final bonifRate =
           bonificationRateOverride ?? getLppBonificationRate(a);
       balance += salaireBase * bonifRate;
@@ -135,6 +138,8 @@ class LppCalculator {
     double? salaireAssureOverride,
   }) {
     double newBalance = currentBalance * (1 + monthlyReturn);
+    // LPP bonifications start at age 25 (LPP art. 7)
+    if (age < 25) return newBalance < 0 ? 0 : newBalance;
     if (salaireAssureOverride == null && grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
       return newBalance;
     }
