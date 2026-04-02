@@ -10072,5 +10072,9 @@
   "cashModeTitle": "Intensité vocale",
   "cashModeSubtitle": "Comment le coach s’adresse à toi",
   "intensityAdjustedUp": "OK, je monte d’un cran.",
-  "intensityAdjustedDown": "OK, je baisse d’un cran."
+  "intensityAdjustedDown": "OK, je baisse d’un cran.",
+  "coachSuggestBudget": "Quel est mon budget réaliste à la retraite\u00a0?",
+  "coachSuggestBudgetGap": "Il me manque combien par mois\u00a0?",
+  "coachSuggestMortgage": "Est-ce que je peux me permettre un achat\u00a0?",
+  "coachSuggestMortgageCapacity": "Quelle capacité d’emprunt j’ai\u00a0?"
 }

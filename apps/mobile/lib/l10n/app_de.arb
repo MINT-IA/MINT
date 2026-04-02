@@ -9608,5 +9608,9 @@
   "cashModeTitle": "Sprachintensität",
   "cashModeSubtitle": "Wie der Coach mit dir spricht",
   "intensityAdjustedUp": "OK, ich lege einen Zahn zu.",
-  "intensityAdjustedDown": "OK, ich nehme es etwas zurück."
+  "intensityAdjustedDown": "OK, ich nehme es etwas zurück.",
+  "coachSuggestBudget": "Was ist mein realistisches Budget bei der Pensionierung?",
+  "coachSuggestBudgetGap": "Wie viel fehlt mir pro Monat?",
+  "coachSuggestMortgage": "Kann ich mir einen Kauf leisten?",
+  "coachSuggestMortgageCapacity": "Wie hoch ist meine Kreditkapazität?"
 }

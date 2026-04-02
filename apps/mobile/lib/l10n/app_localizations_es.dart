@@ -20839,4 +20839,18 @@ class SEs extends S {
 
   @override
   String get intensityAdjustedDown => 'OK, bajo un punto.';
+
+  @override
+  String get coachSuggestBudget =>
+      '¿Cuál es mi presupuesto realista para la jubilación?';
+
+  @override
+  String get coachSuggestBudgetGap => '¿Cuánto me falta por mes?';
+
+  @override
+  String get coachSuggestMortgage => '¿Puedo permitirme comprar una propiedad?';
+
+  @override
+  String get coachSuggestMortgageCapacity =>
+      '¿Cuál es mi capacidad de endeudamiento?';
 }
