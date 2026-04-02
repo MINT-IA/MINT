@@ -12,8 +12,10 @@ No PII (IBAN, account numbers) is logged or stored.
 
 import logging
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, Request, UploadFile
 
+from app.core.auth import User, require_current_user
+from app.core.rate_limit import limiter
 from app.schemas.bank_import import BankImportErrorResponse, BankImportResponse, TransactionSchema
 from app.services.bank_import_service import parse_bank_statement
 
@@ -32,7 +34,9 @@ ALLOWED_EXTENSIONS = {".csv", ".xml"}
     response_model=BankImportResponse,
     responses={
         400: {"model": BankImportErrorResponse, "description": "Unsupported format or parse error"},
+        401: {"description": "Authentication required"},
         413: {"description": "File too large"},
+        429: {"description": "Rate limit exceeded"},
     },
     summary="Import a bank statement (CSV or XML)",
     description=(
@@ -42,8 +46,11 @@ ALLOWED_EXTENSIONS = {".csv", ".xml"}
         "Returns auto-detected bank, categorized transactions, and summary."
     ),
 )
+@limiter.limit("10/minute")
 async def import_bank_statement(
+    request: Request,
     file: UploadFile = File(..., description="Bank statement file (.csv or .xml)"),
+    _user: User = Depends(require_current_user),
 ) -> BankImportResponse:
     """Parse and categorize a bank statement file."""
     # Validate filename extension

@@ -17,6 +17,34 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
+try:
+    from defusedxml.ElementTree import fromstring as _defused_fromstring
+except ImportError:
+    _defused_fromstring = None
+
+from xml.etree.ElementTree import fromstring as _stdlib_fromstring
+
+
+def safe_fromstring(text):
+    """XXE-safe XML parser with defense-in-depth.
+
+    1. Rejects any XML containing <!DOCTYPE or <!ENTITY (no legitimate
+       ISO 20022 file uses DTD). This blocks XXE even without defusedxml.
+    2. Uses defusedxml if available for additional protection.
+    3. Falls back to stdlib parser for clean XML.
+    """
+    if isinstance(text, str):
+        text_bytes = text.encode()
+    else:
+        text_bytes = text
+    upper = text_bytes.upper()
+    if b"<!ENTITY" in upper or b"<!DOCTYPE" in upper:
+        raise ValueError("XML with DTD/entities rejected for security")
+    if _defused_fromstring is not None:
+        return _defused_fromstring(text)
+    return _stdlib_fromstring(text)
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -205,6 +233,17 @@ CATEGORY_PATTERNS: list[tuple[re.Pattern, str, Optional[str]]] = [
 ]
 
 
+def _sanitize_csv_field(value: str) -> str:
+    """Prevent formula injection in CSV/spreadsheet fields.
+
+    Strips leading characters that could be interpreted as formulas
+    by spreadsheet applications (=, +, -, @, tab, CR).
+    """
+    if value and value[0] in ("=", "+", "-", "@", "\t", "\r"):
+        return "'" + value
+    return value
+
+
 def categorize_transaction(description: str) -> tuple[str, Optional[str]]:
     """
     Categorize a transaction based on Swiss merchant/keyword patterns.
@@ -371,7 +410,8 @@ def parse_csv(
             if date is None:
                 continue
 
-            description = row[desc_col].strip() if desc_col < len(row) else ""
+            raw_desc = row[desc_col].strip() if desc_col < len(row) else ""
+            description = _sanitize_csv_field(raw_desc)
             amount = _parse_amount(row[amount_col])
             if amount is None:
                 # Try credit/debit split (PostFinance style)
@@ -450,8 +490,8 @@ def parse_iso20022_xml(content: str) -> ParseResult:
     detected_format = BankFormat.CAMT_053
 
     try:
-        root = ET.fromstring(content)
-    except ET.ParseError as e:
+        root = safe_fromstring(content)
+    except (ET.ParseError, ValueError) as e:
         return ParseResult(
             bank_name=bank_name,
             format=detected_format,
@@ -520,7 +560,7 @@ def parse_iso20022_xml(content: str) -> ParseResult:
                     if elem is not None:
                         elem = elem.find(f"{{{ns}}}{part}") if ns else elem.find(part)
                 if elem is not None and elem.text:
-                    description = elem.text.strip()
+                    description = _sanitize_csv_field(elem.text.strip())
                     break
 
             category, subcategory = categorize_transaction(description)

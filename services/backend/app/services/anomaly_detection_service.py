@@ -55,28 +55,43 @@ class AnomalyDetectionService:
         if len(transactions) < 10:
             return []
 
+        # Separate expenses from incomes — anomaly detection on expenses only
+        # for the global MAD pass (incomes like salary are expected to be large
+        # and should not trigger spending anomalies).
+        # If all amounts are positive (unsigned convention), fall back to all.
+        has_negative = any(t["amount"] < 0 for t in transactions)
+        if has_negative:
+            global_indices = [
+                i for i, t in enumerate(transactions) if t["amount"] < 0
+            ]
+        else:
+            global_indices = list(range(len(transactions)))
+
+        global_amounts = [abs(transactions[i]["amount"]) for i in global_indices]
         amounts = [abs(t["amount"]) for t in transactions]
         anomalies: list[dict] = []
         seen_indices: set[int] = set()
 
         # --- Global detection: Modified Z-score (MAD-based) ---
         # More robust than standard Z-score for outlier detection
-        if len(amounts) >= 20:
-            mad = AnomalyDetectionService._median_absolute_deviation(amounts)
-            med = median(amounts)
+        # Only applied to expenses when sign convention is used
+        if len(global_amounts) >= 20:
+            mad = AnomalyDetectionService._median_absolute_deviation(global_amounts)
+            med = median(global_amounts)
 
             if mad > 0:
                 # Modified Z-score: 0.6745 is the 0.75th quantile of N(0,1)
                 # which makes MAD consistent with std for normal distributions
                 consistency_constant = 0.6745
-                for i, amt in enumerate(amounts):
+                for idx in global_indices:
+                    amt = abs(transactions[idx]["amount"])
                     modified_z = consistency_constant * (amt - med) / mad
                     if abs(modified_z) > mad_threshold:
-                        entry = transactions[i].copy()
+                        entry = transactions[idx].copy()
                         entry["anomaly_score"] = float(abs(modified_z))
                         entry["anomaly_type"] = "global"
                         anomalies.append(entry)
-                        seen_indices.add(i)
+                        seen_indices.add(idx)
 
         # --- Per-category Z-score ---
         categories: dict[str, list[tuple[int, float]]] = {}

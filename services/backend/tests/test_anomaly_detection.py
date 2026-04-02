@@ -14,12 +14,8 @@ Covers:
 import random
 
 import pytest
-from fastapi.testclient import TestClient
 
-from app.main import app
 from app.services.anomaly_detection_service import AnomalyDetectionService
-
-client = TestClient(app)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
@@ -249,7 +245,7 @@ class TestInsightGeneration:
 class TestBudgetAnomaliesEndpoint:
     """Integration tests for POST /api/v1/budget/anomalies."""
 
-    def test_endpoint_returns_anomalies(self):
+    def test_endpoint_returns_anomalies(self, client):
         """POST with mixed data returns anomaly response."""
         normal = _make_normal_transactions(100, base=50, spread=10)
         anomalous = _make_anomalous_transactions(5, amount=500)
@@ -268,7 +264,7 @@ class TestBudgetAnomaliesEndpoint:
         assert data["anomalyCount"] > 0
         assert "disclaimer" in data
 
-    def test_endpoint_few_transactions(self):
+    def test_endpoint_few_transactions(self, client):
         """POST with < 10 transactions returns 0 anomalies."""
         tx = _make_normal_transactions(5)
 
@@ -282,7 +278,7 @@ class TestBudgetAnomaliesEndpoint:
         assert data["anomalyCount"] == 0
         assert data["anomalies"] == []
 
-    def test_endpoint_has_insights(self):
+    def test_endpoint_has_insights(self, client):
         """Each anomaly in response should have an insight string."""
         normal = _make_normal_transactions(100, base=50, spread=5)
         anomalous = _make_anomalous_transactions(3, amount=500)
@@ -299,7 +295,7 @@ class TestBudgetAnomaliesEndpoint:
             assert a["insight"] is not None
             assert len(a["insight"]) > 10
 
-    def test_endpoint_camel_case_aliases(self):
+    def test_endpoint_camel_case_aliases(self, client):
         """Response should use camelCase field names."""
         tx = _make_normal_transactions(50)
         tx.append({"amount": 999, "category": "food"})

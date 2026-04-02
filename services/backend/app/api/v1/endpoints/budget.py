@@ -6,10 +6,12 @@ POST /api/v1/budget/anomalies  — Detect spending anomalies in transactions
 
 from typing import List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 
+from app.core.auth import User, require_current_user
+from app.core.rate_limit import limiter
 from app.services.anomaly_detection_service import AnomalyDetectionService
 
 router = APIRouter()
@@ -37,13 +39,15 @@ class AnomalyRequest(BaseModel):
     )
 
     transactions: List[TransactionItem] = Field(
-        ..., description="List of transactions to analyse"
+        ..., description="List of transactions to analyse", max_length=5000
     )
     mad_threshold: float = Field(
-        3.5, description="Modified Z-score threshold for global detection"
+        3.5, description="Modified Z-score threshold for global detection",
+        gt=0.1, lt=10.0,
     )
     zscore_threshold: float = Field(
-        2.5, description="Z-score threshold for per-category detection"
+        2.5, description="Z-score threshold for per-category detection",
+        gt=0.1, lt=10.0,
     )
 
 
@@ -82,7 +86,12 @@ class AnomalyResponse(BaseModel):
 
 
 @router.post("/anomalies", response_model=AnomalyResponse)
-def detect_anomalies(request: AnomalyRequest) -> AnomalyResponse:
+@limiter.limit("30/minute")
+def detect_anomalies(
+    http_request: Request,
+    request: AnomalyRequest,
+    _user: User = Depends(require_current_user),
+) -> AnomalyResponse:
     """Detect spending anomalies using statistical methods.
 
     Returns transactions flagged as unusual based on global (Modified Z-score)
