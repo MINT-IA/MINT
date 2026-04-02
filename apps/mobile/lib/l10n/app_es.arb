@@ -9694,5 +9694,6 @@
     }
   },
   "day30NotifTitle": "Tu proyección puede ser 25% más precisa",
-  "day30NotifBody": "Escanea tu certificado LPP — tarda 30 segundos y lo cambia todo."
+  "day30NotifBody": "Escanea tu certificado LPP — tarda 30 segundos y lo cambia todo.",
+  "actionInsightFallback": "Completa tu perfil para ver el impacto exacto"
 }

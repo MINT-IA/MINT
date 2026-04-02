@@ -21088,4 +21088,8 @@ class SDe extends S {
   @override
   String get day30NotifBody =>
       'Scanne dein BVG-Zertifikat — dauert 30 Sekunden und ändert alles.';
+
+  @override
+  String get actionInsightFallback =>
+      'Vervollständige dein Profil um den genauen Einfluss zu sehen';
 }

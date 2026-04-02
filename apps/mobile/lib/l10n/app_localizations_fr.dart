@@ -21042,4 +21042,8 @@ class SFr extends S {
   @override
   String get day30NotifBody =>
       'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.';
+
+  @override
+  String get actionInsightFallback =>
+      'Complète ton profil pour voir l\'impact exact';
 }

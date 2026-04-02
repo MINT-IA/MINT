@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/action_insight_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -13,6 +19,24 @@ class RetraiteHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+
+    // Resolve cap for action insight — graceful degradation.
+    CapDecision? cap;
+    try {
+      final profileProvider = context.watch<CoachProfileProvider>();
+      if (profileProvider.hasProfile) {
+        final profile = profileProvider.profile!;
+        cap = CapEngine.compute(
+          profile: profile,
+          now: DateTime.now(),
+          l: l,
+          memory: const CapMemory(),
+        );
+      }
+    } catch (_) {
+      // Provider not in tree — no action insight shown.
+    }
+
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
@@ -27,6 +51,21 @@ class RetraiteHubScreen extends StatelessWidget {
           vertical: MintSpacing.md,
         ),
         children: [
+          // ── ACTION INSIGHT (retirement-specific) ──
+          if (cap != null && cap.ctaRoute != null)
+            MintEntrance(child: ActionInsightWidget(
+              contextLine: cap.whyNow,
+              actionLine: cap.ctaLabel,
+              impactLine: cap.expectedImpact,
+              route: cap.ctaRoute,
+            ))
+          else
+            ActionInsightWidget(
+              contextLine: '',
+              actionLine: l.actionInsightFallback,
+              route: '/onboarding/quick',
+            ),
+          const SizedBox(height: MintSpacing.md),
           MintEntrance(child: Text(
             l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),

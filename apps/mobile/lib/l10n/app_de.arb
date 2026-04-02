@@ -9694,5 +9694,6 @@
     }
   },
   "day30NotifTitle": "Deine Projektion kann 25% genauer werden",
-  "day30NotifBody": "Scanne dein BVG-Zertifikat — dauert 30 Sekunden und ändert alles."
+  "day30NotifBody": "Scanne dein BVG-Zertifikat — dauert 30 Sekunden und ändert alles.",
+  "actionInsightFallback": "Vervollständige dein Profil um den genauen Einfluss zu sehen"
 }

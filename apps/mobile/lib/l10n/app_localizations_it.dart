@@ -21100,4 +21100,8 @@ class SIt extends S {
   @override
   String get day30NotifBody =>
       'Scansiona il tuo certificato LPP — ci vogliono 30 secondi e cambia tutto.';
+
+  @override
+  String get actionInsightFallback =>
+      'Completa il tuo profilo per vedere l\'impatto esatto';
 }

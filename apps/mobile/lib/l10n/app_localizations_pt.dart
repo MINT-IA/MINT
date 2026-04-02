@@ -21048,4 +21048,8 @@ class SPt extends S {
   @override
   String get day30NotifBody =>
       'Digitaliza o teu certificado LPP — demora 30 segundos e muda tudo.';
+
+  @override
+  String get actionInsightFallback =>
+      'Completa o teu perfil para ver o impacto exato';
 }
