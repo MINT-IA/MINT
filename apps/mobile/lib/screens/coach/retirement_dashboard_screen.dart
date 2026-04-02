@@ -1053,7 +1053,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           ),
           const SizedBox(height: 6),
           GestureDetector(
-            onTap: () => context.push('/dossier'),
+            onTap: () => context.push('/profile'),
             child: Text(
               l.dataOriginModify,
               style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
