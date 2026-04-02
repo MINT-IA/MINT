@@ -20985,4 +20985,28 @@ class SPt extends S {
 
   @override
   String get instantChiffreChocComeBack => 'Volta quando quiseres';
+
+  @override
+  String get coachSilentOpenerQuestion => 'Queres falar sobre isto?';
+
+  @override
+  String get coachProactiveOptIn =>
+      'A propósito — queres que te sinalize as coisas importantes quando abres a app? Ou preferes que falemos só quando te apetecer?';
+
+  @override
+  String get coachOptInAccept => 'Sim, sinaliza-me';
+
+  @override
+  String get coachOptInDecline => 'Não, venho quando quiser';
+
+  @override
+  String get coachSilentOpenerReplacementRate =>
+      'Taxa de substituição na reforma';
+
+  @override
+  String get coachSilentOpenerFitnessScore => 'Pontuação de saúde financeira';
+
+  @override
+  String get coachSilentOpenerRetirementCapital =>
+      'Capital projetado na reforma';
 }

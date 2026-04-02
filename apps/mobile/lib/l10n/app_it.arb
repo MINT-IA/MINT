@@ -9663,5 +9663,12 @@
   "landingVzComparison": "Quello che VZ fattura CHF 1\u2019200, tu lo hai in 30 secondi.",
   "instantChiffreChocConfidence": "Stima \u00b115\u00a0% \u2014 crea un conto per maggiore precisione",
   "instantChiffreChocNothingStored": "Nessun conto. Nulla salvato.",
-  "instantChiffreChocComeBack": "Torna quando vuoi"
+  "instantChiffreChocComeBack": "Torna quando vuoi",
+  "coachSilentOpenerQuestion": "Vuoi parlarne?",
+  "coachProactiveOptIn": "A proposito \u2014 vuoi che ti segnali le cose importanti quando apri l'app? O preferisci che parliamo solo quando ne hai voglia?",
+  "coachOptInAccept": "S\u00ec, segnalami",
+  "coachOptInDecline": "No, vengo quando voglio",
+  "coachSilentOpenerReplacementRate": "Tasso di sostituzione alla pensione",
+  "coachSilentOpenerFitnessScore": "Punteggio di salute finanziaria",
+  "coachSilentOpenerRetirementCapital": "Capitale proiettato alla pensione"
 }

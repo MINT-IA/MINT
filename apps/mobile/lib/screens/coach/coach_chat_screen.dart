@@ -18,6 +18,7 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
@@ -115,8 +116,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   final Set<int> _answeredInputIndices = {};
 
   /// Voice intensity level (1-5). Persisted in SharedPreferences.
-  /// 1 = Tranquille, 2 = Clair, 3 = Direct, 4 = Cash, 5 = Brut
-  int _cashLevel = 3;
+  /// 1 = Tranquille, 2 = Clair (default), 3 = Direct, 4 = Cash, 5 = Brut
+  int _cashLevel = 2;
+
+  /// Whether the silent opener is currently displayed (no messages yet).
+  bool _showSilentOpener = false;
+
+  /// SharedPreferences keys for proactive opt-in tracking.
+  static const String _conversationCountKey = 'mint_coach_conversation_count';
+  static const String _proactiveOptInKey = 'mint_coach_proactive_optin';
+  static const String _proactiveOptInAskedKey = 'mint_coach_proactive_optin_asked';
+
+  /// Whether the proactive opt-in question has been shown this session.
+  bool _optInShownThisSession = false;
 
   /// Whether the user has already chosen an intensity (hides picker chips).
   bool _intensityChosen = false;
@@ -233,37 +245,96 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  GREETING
+  //  SILENT OPENER — coach shows a NUMBER, not a greeting
   // ════════════════════════════════════════════════════════════
 
   void _addInitialGreeting() {
     assert(_profile != null);
-    final p = _profile!;
 
-    // SILENT greeting: no CapEngine, no score, no retirement mention.
-    // The user guides the direction. Silence is premium.
-    final name = p.firstName;
-    final greeting = name != null && name.isNotEmpty
-        ? '$name, on commence par quoi\u00a0?'
-        : 'On commence par quoi\u00a0?';
+    // Show silent opener (key number) instead of a proactive message.
+    // The opener disappears as soon as the user types.
+    setState(() {
+      _showSilentOpener = true;
+    });
 
-    // Emotional suggestions based on age/situation + life event trigger
-    final personalizedPrompts = ResponseCardService.suggestedPrompts(p, l: S.of(context)!);
-    final suggestions = personalizedPrompts.isNotEmpty
-        ? [...personalizedPrompts.take(2), 'Il m\u2019arrive quelque chose']
-        : [
-            'Par o\u00f9 commencer\u00a0?',
-            'C\u2019est quoi tout \u00e7a\u00a0?',
-            'Il m\u2019arrive quelque chose',
-          ];
+    // Track analytics: silent opener shown
+    AnalyticsService().trackEvent('coach_silent_opener_shown', data: {
+      'engaged': false,
+    });
 
-    _messages.add(ChatMessage(
-      role: 'assistant',
-      content: greeting,
-      timestamp: DateTime.now(),
-      suggestedActions: suggestions,
-      tier: ChatTier.none,
-    ));
+    // Increment conversation count for opt-in tracking.
+    _incrementConversationCount();
+  }
+
+  /// Increment the conversation count in SharedPreferences.
+  Future<void> _incrementConversationCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final count = prefs.getInt(_conversationCountKey) ?? 0;
+      await prefs.setInt(_conversationCountKey, count + 1);
+    } catch (_) {
+      // Best-effort persistence.
+    }
+  }
+
+  /// Compute the key financial number to display in the silent opener.
+  /// Returns (formattedNumber, headline) or null if no data available.
+  ({String number, String headline})? _computeKeyNumber() {
+    if (_profile == null) return null;
+    final s = S.of(context)!;
+
+    // Priority 1: replacement rate (most impactful)
+    try {
+      final proj = ForecasterService.project(
+        profile: _profile!,
+        targetDate: _profile!.goalA.targetDate,
+      );
+      final taux = proj.tauxRemplacementBase;
+      if (taux.isFinite && taux > 0) {
+        return (
+          number: '${taux.round()}\u00a0%',
+          headline: s.coachSilentOpenerReplacementRate,
+        );
+      }
+    } catch (_) {}
+
+    // Priority 2: financial fitness score
+    try {
+      final score = FinancialFitnessService.calculate(profile: _profile!);
+      final g = score.global;
+      if (g > 0) {
+        return (
+          number: '$g/100',
+          headline: s.coachSilentOpenerFitnessScore,
+        );
+      }
+    } catch (_) {}
+
+    // Priority 3: projected capital
+    try {
+      final proj = ForecasterService.project(
+        profile: _profile!,
+        targetDate: _profile!.goalA.targetDate,
+      );
+      final cap = proj.base.capitalFinal;
+      if (cap.isFinite && cap > 0) {
+        final formatted = _formatChf(cap);
+        return (
+          number: formatted,
+          headline: s.coachSilentOpenerRetirementCapital,
+        );
+      }
+    } catch (_) {}
+
+    return null;
+  }
+
+  /// Format a CHF amount for display (e.g. "1'234'567").
+  String _formatChf(double amount) {
+    final rounded = amount.round();
+    final digits = rounded.toString();
+    return digits.replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
   }
 
   // ════════════════════════════════════════════════════════════
@@ -387,6 +458,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+
+    // Dismiss silent opener when user types their first message.
+    if (_showSilentOpener) {
+      setState(() {
+        _showSilentOpener = false;
+      });
+      // Track analytics: user engaged with the silent opener
+      AnalyticsService().trackEvent('coach_silent_opener_shown', data: {
+        'engaged': true,
+      });
+    }
 
     // Check for voice intensity adjustment commands before sending to LLM.
     if (_handleVoiceIntensityCommand(text.trim())) {
@@ -565,6 +647,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Wire S58: extract and persist insight from SLM exchange.
     _extractAndSaveInsight(userMessage, finalText);
+
+    // Check if we should propose proactive opt-in.
+    _maybeShowProactiveOptIn();
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
@@ -610,6 +695,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
       _extractAndSaveInsight(text, response.message);
+
+      // Check if we should propose proactive opt-in.
+      _maybeShowProactiveOptIn();
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
@@ -687,6 +775,66 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Fire-and-forget — never block the UI.
     CoachMemoryService.saveInsight(insight).catchError((_) {});
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  PROACTIVE OPT-IN (after 3rd conversation)
+  // ════════════════════════════════════════════════════════════
+
+  /// Check if we should propose proactive opt-in at end of conversation.
+  /// Called after each assistant response when user has sent messages.
+  Future<void> _maybeShowProactiveOptIn() async {
+    if (_optInShownThisSession) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Already asked and declined? Never ask again.
+      final alreadyAsked = prefs.getBool(_proactiveOptInAskedKey) ?? false;
+      if (alreadyAsked) return;
+      // Already opted in? No need to ask.
+      final optedIn = prefs.getBool(_proactiveOptInKey) ?? false;
+      if (optedIn) return;
+      // Only ask after 3rd conversation.
+      final count = prefs.getInt(_conversationCountKey) ?? 0;
+      if (count < 3) return;
+      // Only ask if user has sent at least 2 messages this session.
+      final userMsgCount = _messages.where((m) => m.isUser).length;
+      if (userMsgCount < 2) return;
+
+      _optInShownThisSession = true;
+      if (!mounted) return;
+
+      final s = S.of(context)!;
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: s.coachProactiveOptIn,
+          timestamp: DateTime.now(),
+          suggestedActions: [s.coachOptInAccept, s.coachOptInDecline],
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+    } catch (_) {
+      // Best-effort — don't block chat.
+    }
+  }
+
+  /// Handle the user's response to the proactive opt-in question.
+  Future<void> _handleOptInResponse(bool accepted) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_proactiveOptInAskedKey, true);
+      if (accepted) {
+        await prefs.setBool(_proactiveOptInKey, true);
+      }
+      // Track analytics
+      AnalyticsService().trackEvent('coach_proactive_optin', data: {
+        'accepted': accepted,
+        'conversationCount': prefs.getInt(_conversationCountKey) ?? 0,
+      });
+    } catch (_) {
+      // Best-effort.
+    }
   }
 
   // ════════════════════════════════════════════════════════════
@@ -979,6 +1127,46 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Handle action tap from suggested action chips.
   void _handleActionTap(String action) {
+    final s = S.of(context)!;
+
+    // Handle proactive opt-in responses.
+    if (action == s.coachOptInAccept) {
+      _handleOptInResponse(true);
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: action,
+          timestamp: DateTime.now(),
+        ));
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: 'Parfait, je te signalerai ce qui compte.',
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+      return;
+    }
+    if (action == s.coachOptInDecline) {
+      _handleOptInResponse(false);
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: action,
+          timestamp: DateTime.now(),
+        ));
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: 'Compris. Je serai l\u00e0 quand tu viendras.',
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+      return;
+    }
+
     final isLifeEvent = action.toLowerCase().contains('il m') &&
         action.toLowerCase().contains('arrive');
     if (isLifeEvent) {
@@ -1019,7 +1207,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             onExport: _exportConversation,
             onSettings: () => context.push('/profile/byok'),
           ),
-          Expanded(child: _buildMessageList()),
+          Expanded(
+            child: _showSilentOpener
+                ? _buildSilentOpener()
+                : _buildMessageList(),
+          ),
           if (_isLoading) const CoachLoadingIndicator(),
           CoachInputBar(
             controller: _controller,
@@ -1029,6 +1221,75 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             onLightningMenu: _showLightningMenu,
           ),
         ],
+      ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  SILENT OPENER WIDGET — a key number, not a greeting
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildSilentOpener() {
+    final s = S.of(context)!;
+    final keyData = _computeKeyNumber();
+
+    // If no financial data available, show a minimal empty state.
+    if (keyData == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          child: Text(
+            s.coachSilentOpenerQuestion,
+            style: TextStyle(
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textSecondary.withValues(alpha: 0.7),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // The number, big, alone
+            Text(
+              keyData.number,
+              style: const TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.w700,
+                color: MintColors.primary,
+                height: 1.1,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Short context headline
+            Text(
+              keyData.headline,
+              style: const TextStyle(
+                fontSize: 15,
+                color: MintColors.textSecondary,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            // "Tu veux en parler ?"
+            Text(
+              s.coachSilentOpenerQuestion,
+              style: TextStyle(
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+                color: MintColors.textSecondary.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1121,11 +1382,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Build inline intensity picker chips.
   Widget _buildIntensityChips() {
     final s = S.of(context)!;
+    // Level 5 (Brut) is excluded from first-chat chips — accessible via settings only.
     final chips = <MapEntry<int, String>>[
       MapEntry(1, s.intensityTranquille),
+      MapEntry(2, s.intensityClair),
       MapEntry(3, s.intensityDirect),
       MapEntry(4, s.intensityCash),
-      MapEntry(5, s.intensityBrut),
     ];
 
     return Wrap(

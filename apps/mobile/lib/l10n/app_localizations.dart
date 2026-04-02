@@ -36902,6 +36902,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Reviens quand tu veux'**
   String get instantChiffreChocComeBack;
+
+  /// No description provided for @coachSilentOpenerQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu veux en parler ?'**
+  String get coachSilentOpenerQuestion;
+
+  /// No description provided for @coachProactiveOptIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Au fait — tu veux que je te signale les choses importantes quand tu ouvres l\'app ? Ou tu préfères qu\'on se parle seulement quand tu en as envie ?'**
+  String get coachProactiveOptIn;
+
+  /// No description provided for @coachOptInAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, signale-moi'**
+  String get coachOptInAccept;
+
+  /// No description provided for @coachOptInDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, je viens quand je veux'**
+  String get coachOptInDecline;
+
+  /// No description provided for @coachSilentOpenerReplacementRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taux de remplacement à la retraite'**
+  String get coachSilentOpenerReplacementRate;
+
+  /// No description provided for @coachSilentOpenerFitnessScore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Score de santé financière'**
+  String get coachSilentOpenerFitnessScore;
+
+  /// No description provided for @coachSilentOpenerRetirementCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital projeté à la retraite'**
+  String get coachSilentOpenerRetirementCapital;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

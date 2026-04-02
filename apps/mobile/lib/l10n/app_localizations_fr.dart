@@ -20979,4 +20979,28 @@ class SFr extends S {
 
   @override
   String get instantChiffreChocComeBack => 'Reviens quand tu veux';
+
+  @override
+  String get coachSilentOpenerQuestion => 'Tu veux en parler ?';
+
+  @override
+  String get coachProactiveOptIn =>
+      'Au fait — tu veux que je te signale les choses importantes quand tu ouvres l\'app ? Ou tu préfères qu\'on se parle seulement quand tu en as envie ?';
+
+  @override
+  String get coachOptInAccept => 'Oui, signale-moi';
+
+  @override
+  String get coachOptInDecline => 'Non, je viens quand je veux';
+
+  @override
+  String get coachSilentOpenerReplacementRate =>
+      'Taux de remplacement à la retraite';
+
+  @override
+  String get coachSilentOpenerFitnessScore => 'Score de santé financière';
+
+  @override
+  String get coachSilentOpenerRetirementCapital =>
+      'Capital projeté à la retraite';
 }
