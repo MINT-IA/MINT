@@ -1,4 +1,5 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 // ALL AVS calculations MUST use AvsCalculator from financial_core.
 // See ADR-20260223-unified-financial-engine.md
@@ -131,7 +132,7 @@ class AvsCalculator {
   /// gapFactor in computeMonthlyRente already handles contribution years.
   static double renteFromRAMD(double grossAnnualSalary) {
     if (grossAnnualSalary <= 0) return 0;
-    const table = avsEchelle44;
+    final table = RegulatorySyncService.getEchelle44();
     if (grossAnnualSalary <= table.first[0]) return table.first[1];
     if (grossAnnualSalary >= table.last[0]) return table.last[1];
     for (int i = 0; i < table.length - 1; i++) {
