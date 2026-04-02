@@ -543,7 +543,7 @@ class SEs extends S {
 
   @override
   String get bankImportPrivacy =>
-      'Tus extractos se analizan localmente. Las transacciones nunca se almacenan en nuestros servidores.';
+      'Tu extracto se envía de forma segura a nuestro servidor para su análisis. Los datos brutos se eliminan tras el procesamiento — solo se conservan los resúmenes por categoría.';
 
   @override
   String get bankImportSuccess => 'Presupuesto actualizado con exito';

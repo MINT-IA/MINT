@@ -356,7 +356,7 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byIcon(Icons.lock_outline), findsOneWidget);
-      expect(find.textContaining('localement'), findsOneWidget);
+      expect(find.textContaining('sécurisée'), findsOneWidget);
     });
   });
 

@@ -544,7 +544,7 @@ class SFr extends S {
 
   @override
   String get bankImportPrivacy =>
-      'Tes relevés sont analysés localement. Les transactions ne sont jamais stockées sur nos serveurs.';
+      'Ton relevé est envoyé de manière sécurisée à notre serveur pour analyse. Les données brutes sont supprimées après traitement — seuls les résumés par catégorie sont conservés.';
 
   @override
   String get bankImportSuccess => 'Budget mis à jour avec succès';

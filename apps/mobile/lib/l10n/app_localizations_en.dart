@@ -541,7 +541,7 @@ class SEn extends S {
 
   @override
   String get bankImportPrivacy =>
-      'Your statements are analysed locally. Transactions are never stored on our servers.';
+      'Your statement is securely sent to our server for analysis. Raw data is deleted after processing — only category summaries are kept.';
 
   @override
   String get bankImportSuccess => 'Budget updated successfully';

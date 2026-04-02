@@ -188,7 +188,7 @@
   "bankImportVariable": "Variable Ausgaben",
   "bankImportSavingsRate": "Sparquote",
   "bankImportButton": "In mein Budget importieren",
-  "bankImportPrivacy": "Deine Kontoauszüge werden lokal analysiert. Transaktionen werden niemals auf unseren Servern gespeichert.",
+  "bankImportPrivacy": "Dein Kontoauszug wird sicher an unseren Server zur Analyse gesendet. Die Rohdaten werden nach der Verarbeitung gelöscht — nur Kategorie-Zusammenfassungen werden gespeichert.",
   "bankImportSuccess": "Budget erfolgreich aktualisiert",
   "bankImportCategoryLogement": "Wohnen",
   "bankImportCategoryAlimentation": "Lebensmittel",

@@ -188,7 +188,7 @@
   "bankImportVariable": "Variable expenses",
   "bankImportSavingsRate": "Savings rate",
   "bankImportButton": "Import into my budget",
-  "bankImportPrivacy": "Your statements are analysed locally. Transactions are never stored on our servers.",
+  "bankImportPrivacy": "Your statement is securely sent to our server for analysis. Raw data is deleted after processing — only category summaries are kept.",
   "bankImportSuccess": "Budget updated successfully",
   "bankImportCategoryLogement": "Housing",
   "bankImportCategoryAlimentation": "Groceries",
