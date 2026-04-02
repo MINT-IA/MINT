@@ -1,13 +1,18 @@
-/// In-memory snapshot service — captures financial health at key moments.
+/// Snapshot service — captures financial health at key moments.
 ///
 /// Sprint S33 — Arbitrage Phase 2 + Snapshots.
+/// W15: Wired to backend persistence + auto-trigger on check-in.
 ///
-/// Stores snapshots in memory (no backend dependency for now).
+/// Stores snapshots in a local cache AND syncs to backend via ApiService.
 /// Each snapshot captures a point-in-time view of the user's financial state,
-/// triggered by wizard completion, life event, or annual refresh.
+/// triggered by wizard completion, life event, check-in, or document scan.
 ///
-/// Future: snapshots will be persisted to local storage and synced to backend.
+/// Backend: POST /snapshots, GET /snapshots
 library;
+
+import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 
 /// A point-in-time capture of the user's financial health indicators.
 class FinancialSnapshot {
@@ -58,21 +63,60 @@ class FinancialSnapshot {
     required this.confidenceScore,
     required this.enrichmentCount,
   });
+
+  /// Serialize to JSON for backend API.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'createdAt': createdAt.toIso8601String(),
+        'trigger': trigger,
+        'age': age,
+        'grossIncome': grossIncome,
+        'canton': canton,
+        'replacementRatio': replacementRatio,
+        'monthsLiquidity': monthsLiquidity,
+        'taxSavingPotential': taxSavingPotential,
+        'confidenceScore': confidenceScore,
+        'enrichmentCount': enrichmentCount,
+      };
+
+  /// Deserialize from backend JSON response (camelCase keys).
+  factory FinancialSnapshot.fromJson(Map<String, dynamic> json) {
+    return FinancialSnapshot(
+      id: json['id'] as String? ?? '',
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
+          DateTime.now(),
+      trigger: json['trigger'] as String? ?? 'unknown',
+      age: (json['age'] as num?)?.toInt() ?? 0,
+      grossIncome: (json['grossIncome'] as num?)?.toDouble() ?? 0.0,
+      canton: json['canton'] as String? ?? 'VD',
+      replacementRatio:
+          (json['replacementRatio'] as num?)?.toDouble() ?? 0.0,
+      monthsLiquidity:
+          (json['monthsLiquidity'] as num?)?.toDouble() ?? 0.0,
+      taxSavingPotential:
+          (json['taxSavingPotential'] as num?)?.toDouble() ?? 0.0,
+      confidenceScore:
+          (json['confidenceScore'] as num?)?.toDouble() ?? 0.0,
+      enrichmentCount:
+          (json['enrichmentCount'] as num?)?.toInt() ?? 0,
+    );
+  }
 }
 
-/// In-memory storage for financial snapshots.
+/// Financial snapshot storage with backend sync.
 ///
-/// Provides static methods to create, retrieve, and analyze snapshots
-/// without any backend or persistent storage dependency.
+/// Local cache + fire-and-forget backend persistence.
+/// Loads from backend at startup, syncs on create.
 class SnapshotService {
   SnapshotService._();
 
-  static final List<FinancialSnapshot> _snapshots = [];
+  static List<FinancialSnapshot> _snapshots = [];
 
   static int _counter = 0;
 
   /// Create and store a new financial snapshot.
   ///
+  /// Stores locally AND syncs to backend (fire-and-forget).
   /// Returns the created snapshot with a generated ID and timestamp.
   static FinancialSnapshot createSnapshot({
     required String trigger,
@@ -100,7 +144,84 @@ class SnapshotService {
       enrichmentCount: enrichmentCount,
     );
     _snapshots.add(snapshot);
+
+    // Sync to backend (fire-and-forget — local cache is primary)
+    _syncToBackend(snapshot);
+
     return snapshot;
+  }
+
+  /// Fire-and-forget backend sync for a single snapshot.
+  static Future<void> _syncToBackend(FinancialSnapshot snapshot) async {
+    try {
+      final userId = await AuthService.getUserId();
+      if (userId == null) {
+        debugPrint('[Snapshot] No auth user — skipping backend sync');
+        return;
+      }
+      // Backend expects: trigger, profileData, userId (camelCase aliases)
+      await ApiService.post('/snapshots', {
+        'userId': userId,
+        'trigger': _normalizeBackendTrigger(snapshot.trigger),
+        'profileData': {
+          'age': snapshot.age,
+          'gross_income': snapshot.grossIncome,
+          'canton': snapshot.canton,
+          'replacement_ratio': snapshot.replacementRatio,
+          'months_liquidity': snapshot.monthsLiquidity,
+          'tax_saving_potential': snapshot.taxSavingPotential,
+          'confidence_score': snapshot.confidenceScore,
+          'enrichment_count': snapshot.enrichmentCount,
+        },
+      });
+      debugPrint('[Snapshot] Synced to backend: ${snapshot.id}');
+    } catch (e) {
+      debugPrint('[Snapshot] Backend sync failed: $e');
+    }
+  }
+
+  /// Map Flutter trigger names to backend VALID_TRIGGERS.
+  /// Backend accepts: quarterly, life_event, profile_update, check_in
+  static String _normalizeBackendTrigger(String trigger) {
+    if (trigger.startsWith('life_event')) return 'life_event';
+    if (trigger == 'check_in' || trigger == 'monthly_check_in') {
+      return 'check_in';
+    }
+    if (trigger == 'document_scan' || trigger == 'lpp_certificate') {
+      return 'profile_update';
+    }
+    if (trigger == 'wizard_complete' || trigger == 'annual_refresh') {
+      return 'profile_update';
+    }
+    // Fallback to profile_update for unknown triggers
+    const validTriggers = {
+      'quarterly',
+      'life_event',
+      'profile_update',
+      'check_in',
+    };
+    return validTriggers.contains(trigger) ? trigger : 'profile_update';
+  }
+
+  /// Load snapshots from backend at startup.
+  ///
+  /// Replaces local cache with backend data. Fire-and-forget — if it fails,
+  /// the local cache remains empty (will populate on next createSnapshot).
+  static Future<void> loadFromBackend() async {
+    try {
+      final data = await ApiService.get('/snapshots?limit=50');
+      final snapshotsList = data['snapshots'] as List<dynamic>?;
+      if (snapshotsList != null) {
+        _snapshots = snapshotsList
+            .map((s) =>
+                FinancialSnapshot.fromJson(s as Map<String, dynamic>))
+            .toList();
+        debugPrint(
+            '[Snapshot] Loaded ${_snapshots.length} snapshots from backend');
+      }
+    } catch (e) {
+      debugPrint('[Snapshot] Load from backend failed: $e');
+    }
   }
 
   /// Retrieve the most recent snapshots, ordered by creation date descending.
@@ -139,4 +260,8 @@ class SnapshotService {
       return (date: s.createdAt, value: value);
     }).toList();
   }
+
+  // TODO(P2): Implement snapshot timeline screen (/financial-timeline)
+  // Backend supports GET /snapshots with date range
+  // Display: line chart of patrimoine net, replacement rate, confidence over time
 }
