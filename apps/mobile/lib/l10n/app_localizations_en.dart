@@ -20894,4 +20894,42 @@ class SEn extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projected retirement capital';
+
+  @override
+  String get confidenceLow =>
+      'Your numbers are very approximate. Add your LPP certificate for +25%.';
+
+  @override
+  String get confidenceMedium =>
+      'Good start. Scan your AVS statement to confirm your contribution years.';
+
+  @override
+  String get confidenceAction => 'Scan my LPP certificate (+25% accuracy)';
+
+  @override
+  String confidenceLabel(int score) {
+    return 'Projection reliability: $score%';
+  }
+
+  @override
+  String get day1NotifTitle => 'We calculated something';
+
+  @override
+  String get day1NotifBody =>
+      'Open MINT — we found something interesting about your taxes.';
+
+  @override
+  String get day7NotifTitle => 'You\'re leaving money with the taxman';
+
+  @override
+  String day7NotifBody(String amount) {
+    return 'Every month without 3a, you leave CHF $amount with the taxman. Shall we talk?';
+  }
+
+  @override
+  String get day30NotifTitle => 'Your projection can be 25% more accurate';
+
+  @override
+  String get day30NotifBody =>
+      'Scan your LPP certificate — it takes 30 seconds and changes everything.';
 }

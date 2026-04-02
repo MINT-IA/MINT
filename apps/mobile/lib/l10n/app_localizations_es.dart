@@ -21007,4 +21007,43 @@ class SEs extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capital proyectado a la jubilación';
+
+  @override
+  String get confidenceLow =>
+      'Tus números son muy aproximados. Añade tu certificado LPP para +25%.';
+
+  @override
+  String get confidenceMedium =>
+      'Buen comienzo. Escanea tu extracto AVS para confirmar tus años de cotización.';
+
+  @override
+  String get confidenceAction =>
+      'Escanear mi certificado LPP (+25% de precisión)';
+
+  @override
+  String confidenceLabel(int score) {
+    return 'Fiabilidad de tu proyección: $score%';
+  }
+
+  @override
+  String get day1NotifTitle => 'Hemos calculado algo';
+
+  @override
+  String get day1NotifBody =>
+      'Abre MINT — encontramos algo interesante sobre tus impuestos.';
+
+  @override
+  String get day7NotifTitle => 'Estás dejando dinero al fisco';
+
+  @override
+  String day7NotifBody(String amount) {
+    return 'Cada mes sin 3a, dejas CHF $amount al fisco. ¿Hablamos?';
+  }
+
+  @override
+  String get day30NotifTitle => 'Tu proyección puede ser 25% más precisa';
+
+  @override
+  String get day30NotifBody =>
+      'Escanea tu certificado LPP — tarda 30 segundos y lo cambia todo.';
 }

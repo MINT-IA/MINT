@@ -46,6 +46,12 @@ class NotificationStrings {
   final String taxDeadlineBodyLastWeek;
   final String streakProtectionTitle;
   final String streakProtectionBody;
+  final String day1NotifTitle;
+  final String day1NotifBody;
+  final String day7NotifTitle;
+  final String day7NotifBody; // contains {amount} placeholder
+  final String day30NotifTitle;
+  final String day30NotifBody;
 
   const NotificationStrings({
     required this.channelDescription,
@@ -64,6 +70,12 @@ class NotificationStrings {
     required this.taxDeadlineBodyLastWeek,
     required this.streakProtectionTitle,
     required this.streakProtectionBody,
+    required this.day1NotifTitle,
+    required this.day1NotifBody,
+    required this.day7NotifTitle,
+    required this.day7NotifBody,
+    required this.day30NotifTitle,
+    required this.day30NotifBody,
   });
 
   /// Create from [S] (AppLocalizations) at call site where context exists.
@@ -88,6 +100,12 @@ class NotificationStrings {
         taxDeadlineBodyLastWeek: l.notifTaxDeadlineBodyLastWeek,
         streakProtectionTitle: l.notifStreakProtectionTitle,
         streakProtectionBody: l.notifStreakProtectionBody('{streak}'),
+        day1NotifTitle: l.day1NotifTitle,
+        day1NotifBody: l.day1NotifBody,
+        day7NotifTitle: l.day7NotifTitle,
+        day7NotifBody: l.day7NotifBody('{amount}'),
+        day30NotifTitle: l.day30NotifTitle,
+        day30NotifBody: l.day30NotifBody,
       );
 
   /// French defaults (fallback when no context available).
@@ -116,6 +134,15 @@ class NotificationStrings {
     streakProtectionTitle: 'Protège ta série',
     streakProtectionBody:
         'Tu es à {streak} mois consécutifs — ne casse pas ta série !',
+    day1NotifTitle: 'On a calculé quelque chose',
+    day1NotifBody:
+        'Ouvre MINT — on a trouvé quelque chose d\'intéressant sur tes impôts.',
+    day7NotifTitle: 'Tu laisses de l\'argent au fisc',
+    day7NotifBody:
+        'Chaque mois sans 3a, tu laisses CHF {amount} au fisc. On en parle\u00a0?',
+    day30NotifTitle: 'Ta projection peut être 25\u00a0% plus précise',
+    day30NotifBody:
+        'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.',
   );
 }
 
@@ -140,6 +167,9 @@ class NotificationService {
   static const _idStreakProtection = 2000;
   static const _id3aDeadlineBase = 3000;
   static const _idTaxDeadlineBase = 4000;
+  static const _idRetentionDay1 = 9001;
+  static const _idRetentionDay7 = 9007;
+  static const _idRetentionDay30 = 9030;
 
   // ── Init ──────────────────────────────────────────────────
 
@@ -495,6 +525,95 @@ class NotificationService {
         payload: '/coach/checkin',
       );
     }
+  }
+
+  // ── Retention notifications (post-onboarding) ─────────────
+
+  /// Schedule the 3 retention notifications after onboarding completes.
+  ///
+  /// J+1: Curiosity (no loss framing — trust not yet established)
+  /// J+7: Loss framing (3a tax saving)
+  /// J+30: Scan nudge (LPP certificate)
+  ///
+  /// [taxSaving3a] — monthly tax saving from 3a contribution.
+  /// If null or 0, the J+7 notification is skipped (no data to show).
+  /// [strings] — i18n notification text, resolved at call site.
+  Future<void> scheduleRetentionNotifications({
+    double? taxSaving3a,
+    NotificationStrings? strings,
+  }) async {
+    if (kIsWeb || _plugin == null) return;
+    if (!_isInitialized) await init();
+
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) return;
+
+    await requestPermission();
+
+    final s = strings ?? NotificationStrings.french;
+    final now = tz.TZDateTime.now(tz.local);
+
+    // J+1: Curiosity
+    final day1 = now.add(const Duration(hours: 24));
+    _scheduleNotification(
+      id: _idRetentionDay1,
+      title: s.day1NotifTitle,
+      body: s.day1NotifBody,
+      scheduledDate: tz.TZDateTime(
+        tz.local,
+        day1.year,
+        day1.month,
+        day1.day,
+        10, // 10:00 local
+      ),
+      payload: '/coach/chat',
+    );
+
+    // J+7: Loss framing (only if we have a real 3a tax saving figure)
+    if (taxSaving3a != null && taxSaving3a > 0) {
+      final day7 = now.add(const Duration(days: 7));
+      _scheduleNotification(
+        id: _idRetentionDay7,
+        title: s.day7NotifTitle,
+        body: s.day7NotifBody.replaceAll(
+          '{amount}',
+          taxSaving3a.toStringAsFixed(0),
+        ),
+        scheduledDate: tz.TZDateTime(
+          tz.local,
+          day7.year,
+          day7.month,
+          day7.day,
+          10,
+        ),
+        payload: '/coach/chat',
+      );
+    }
+
+    // J+30: Scan nudge
+    final day30 = now.add(const Duration(days: 30));
+    _scheduleNotification(
+      id: _idRetentionDay30,
+      title: s.day30NotifTitle,
+      body: s.day30NotifBody,
+      scheduledDate: tz.TZDateTime(
+        tz.local,
+        day30.year,
+        day30.month,
+        day30.day,
+        10,
+      ),
+      payload: '/scan',
+    );
+
+    // Persist onboarding date for recovery
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      '_retention_onboarding_date',
+      DateTime.now().toIso8601String(),
+    );
   }
 
   // ── Core scheduling helper ────────────────────────────────

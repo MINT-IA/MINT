@@ -21003,4 +21003,43 @@ class SFr extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capital projeté à la retraite';
+
+  @override
+  String get confidenceLow =>
+      'Tes chiffres sont très approximatifs. Ajoute ton certificat LPP pour +25 %.';
+
+  @override
+  String get confidenceMedium =>
+      'Bon début. Scanne ton extrait AVS pour confirmer tes années de cotisation.';
+
+  @override
+  String get confidenceAction =>
+      'Scanner mon certificat LPP (+25 % de précision)';
+
+  @override
+  String confidenceLabel(int score) {
+    return 'Fiabilité de ta projection : $score %';
+  }
+
+  @override
+  String get day1NotifTitle => 'On a calculé quelque chose';
+
+  @override
+  String get day1NotifBody =>
+      'Ouvre MINT — on a trouvé quelque chose d\'intéressant sur tes impôts.';
+
+  @override
+  String get day7NotifTitle => 'Tu laisses de l\'argent au fisc';
+
+  @override
+  String day7NotifBody(String amount) {
+    return 'Chaque mois sans 3a, tu laisses CHF $amount au fisc. On en parle ?';
+  }
+
+  @override
+  String get day30NotifTitle => 'Ta projection peut être 25 % plus précise';
+
+  @override
+  String get day30NotifBody =>
+      'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.';
 }

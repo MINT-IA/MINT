@@ -9670,5 +9670,29 @@
   "coachOptInDecline": "N\u00e3o, venho quando quiser",
   "coachSilentOpenerReplacementRate": "Taxa de substitui\u00e7\u00e3o na reforma",
   "coachSilentOpenerFitnessScore": "Pontua\u00e7\u00e3o de sa\u00fade financeira",
-  "coachSilentOpenerRetirementCapital": "Capital projetado na reforma"
+  "coachSilentOpenerRetirementCapital": "Capital projetado na reforma",
+  "confidenceLow": "Os teus números são muito aproximados. Adiciona o teu certificado LPP para +25%.",
+  "confidenceMedium": "Bom começo. Digitaliza o teu extrato AVS para confirmar os teus anos de contribuição.",
+  "confidenceAction": "Digitalizar o meu certificado LPP (+25% de precisão)",
+  "confidenceLabel": "Fiabilidade da tua projeção: {score}%",
+  "@confidenceLabel": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "day1NotifTitle": "Calculámos algo",
+  "day1NotifBody": "Abre o MINT — encontrámos algo interessante sobre os teus impostos.",
+  "day7NotifTitle": "Estás a deixar dinheiro ao fisco",
+  "day7NotifBody": "Cada mês sem 3a, deixas CHF {amount} ao fisco. Falamos?",
+  "@day7NotifBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "day30NotifTitle": "A tua projeção pode ser 25% mais precisa",
+  "day30NotifBody": "Digitaliza o teu certificado LPP — demora 30 segundos e muda tudo."
 }

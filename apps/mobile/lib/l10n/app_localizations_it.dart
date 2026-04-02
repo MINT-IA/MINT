@@ -21061,4 +21061,43 @@ class SIt extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capitale proiettato alla pensione';
+
+  @override
+  String get confidenceLow =>
+      'I tuoi numeri sono molto approssimativi. Aggiungi il tuo certificato LPP per +25%.';
+
+  @override
+  String get confidenceMedium =>
+      'Buon inizio. Scansiona il tuo estratto AVS per confermare i tuoi anni di contribuzione.';
+
+  @override
+  String get confidenceAction =>
+      'Scansiona il mio certificato LPP (+25% di precisione)';
+
+  @override
+  String confidenceLabel(int score) {
+    return 'Affidabilità della tua proiezione: $score%';
+  }
+
+  @override
+  String get day1NotifTitle => 'Abbiamo calcolato qualcosa';
+
+  @override
+  String get day1NotifBody =>
+      'Apri MINT — abbiamo trovato qualcosa di interessante sulle tue tasse.';
+
+  @override
+  String get day7NotifTitle => 'Stai lasciando soldi al fisco';
+
+  @override
+  String day7NotifBody(String amount) {
+    return 'Ogni mese senza 3a, lasci CHF $amount al fisco. Ne parliamo?';
+  }
+
+  @override
+  String get day30NotifTitle => 'La tua proiezione può essere 25% più precisa';
+
+  @override
+  String get day30NotifBody =>
+      'Scansiona il tuo certificato LPP — ci vogliono 30 secondi e cambia tutto.';
 }

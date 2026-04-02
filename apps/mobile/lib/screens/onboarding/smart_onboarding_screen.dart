@@ -15,6 +15,7 @@ import 'package:mint_mobile/screens/onboarding/steps/step_questions.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_stress_selector.dart';
 import 'package:mint_mobile/screens/onboarding/steps/step_top_actions.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
+import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/smart_onboarding_draft_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -339,6 +340,17 @@ class _SmartOnboardingScreenState extends State<SmartOnboardingScreen> {
         ),
       );
     }
+
+    // Schedule retention notifications (J+1, J+7, J+30) after onboarding.
+    // Monthly 3a tax saving = annual / 12 (for loss-framing notification).
+    final taxSaving3a = _viewModel.profile?.taxSaving3a;
+    final monthly3aSaving =
+        taxSaving3a != null && taxSaving3a > 0 ? taxSaving3a / 12 : null;
+    final l = S.of(context);
+    NotificationService().scheduleRetentionNotifications(
+      taxSaving3a: monthly3aSaving,
+      strings: l != null ? NotificationStrings.fromL10n(l) : null,
+    );
   }
 
   @override

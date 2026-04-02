@@ -21009,4 +21009,43 @@ class SPt extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capital projetado na reforma';
+
+  @override
+  String get confidenceLow =>
+      'Os teus números são muito aproximados. Adiciona o teu certificado LPP para +25%.';
+
+  @override
+  String get confidenceMedium =>
+      'Bom começo. Digitaliza o teu extrato AVS para confirmar os teus anos de contribuição.';
+
+  @override
+  String get confidenceAction =>
+      'Digitalizar o meu certificado LPP (+25% de precisão)';
+
+  @override
+  String confidenceLabel(int score) {
+    return 'Fiabilidade da tua projeção: $score%';
+  }
+
+  @override
+  String get day1NotifTitle => 'Calculámos algo';
+
+  @override
+  String get day1NotifBody =>
+      'Abre o MINT — encontrámos algo interessante sobre os teus impostos.';
+
+  @override
+  String get day7NotifTitle => 'Estás a deixar dinheiro ao fisco';
+
+  @override
+  String day7NotifBody(String amount) {
+    return 'Cada mês sem 3a, deixas CHF $amount ao fisco. Falamos?';
+  }
+
+  @override
+  String get day30NotifTitle => 'A tua projeção pode ser 25% mais precisa';
+
+  @override
+  String get day30NotifBody =>
+      'Digitaliza o teu certificado LPP — demora 30 segundos e muda tudo.';
 }
