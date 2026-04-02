@@ -101,6 +101,12 @@ class CoachChatRequest(CoachChatBaseModel):
         default="fr",
         description="Langue de la reponse: 'fr', 'de', 'en', 'it'.",
     )
+    cash_level: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+        description="Voice intensity 1-5 (1=factual, 5=brut).",
+    )
 
 
 # ===========================================================================

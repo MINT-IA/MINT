@@ -31,6 +31,10 @@ from app.schemas.rag import (
     RAGVisionResponse,
     VISION_PROVIDERS,
 )
+from app.services.coach.claude_coach_service import (
+    INTENSITY_MAP,
+    LLM_ANTI_PATTERNS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -142,6 +146,23 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
     # nLPD: only pass user_id (for user-doc retrieval) if consent granted
     effective_user_id = _user.id if (_user and has_byok_consent) else None
 
+    # Build voice intensity block and append to the guardrails system prompt.
+    # This ensures the RAG response adopts the MINT voice at the requested
+    # intensity while preserving all compliance guardrails.
+    clamped_level = max(1, min(5, body.cash_level))
+    intensity_instruction = INTENSITY_MAP.get(clamped_level, INTENSITY_MAP[3])
+    anti_patterns_text = "\n".join(f"- {ap}" for ap in LLM_ANTI_PATTERNS)
+    voice_block = (
+        f"\n\n## VOIX — Intensité {clamped_level}/5\n{intensity_instruction}\n"
+        f"\nANTI-PATTERNS (ne fais JAMAIS) :\n{anti_patterns_text}\n"
+    )
+    # Build the full guardrails prompt and append voice block.
+    guardrails_prompt = orchestrator.guardrails.build_system_prompt(
+        body.language.value,
+        profile_context=profile_ctx if has_byok_consent else None,
+    )
+    enriched_prompt = guardrails_prompt + voice_block
+
     try:
         result = await orchestrator.query(
             question=body.question,
@@ -151,6 +172,7 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
             profile_context=profile_ctx if has_byok_consent else None,
             language=body.language.value,
             user_id=effective_user_id,
+            system_prompt=enriched_prompt,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")

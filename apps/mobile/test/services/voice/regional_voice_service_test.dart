@@ -620,11 +620,11 @@ void main() {
       expect(vd.cantonNote, isNot(equals(ge.cantonNote)));
     });
 
-    test('canton without specific note returns empty cantonNote', () {
-      // BL has no specific note in deutschschweiz
+    test('BL returns canton-specific note for Basel-Landschaft', () {
       final flavor = RegionalVoiceService.forCanton('BL');
-      expect(flavor.cantonNote, isEmpty);
-      // But still has regional content
+      expect(flavor.cantonNote, isNotEmpty);
+      expect(flavor.cantonNote, contains('Basel-Landschaft'));
+      // Still has regional content
       expect(flavor.promptAddition, isNotEmpty);
       expect(flavor.region, SwissRegion.deutschschweiz);
     });

@@ -72,6 +72,12 @@ class RAGQueryRequest(BaseModel):
         RAGLanguage.fr,
         description="Response language",
     )
+    cash_level: int = Field(
+        default=3,
+        ge=1,
+        le=5,
+        description="Voice intensity 1-5 (1=factual, 5=brut)",
+    )
 
 
 class RAGSource(BaseModel):

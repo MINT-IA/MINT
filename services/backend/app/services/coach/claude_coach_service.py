@@ -70,6 +70,8 @@ _CANTON_TO_PRIMARY = {
     "LU": "ZH", "AG": "ZH", "SG": "ZH", "TG": "ZH", "SO": "ZH",
     "SH": "ZH", "AR": "ZH", "AI": "ZH", "OW": "ZH", "NW": "ZH",
     "GL": "ZH", "SZ": "ZH", "UR": "ZH", "ZG": "ZH",
+    "BL": "ZH",  # Basel-Landschaft → Deutschschweiz
+    "BS": "ZH",  # Basel-Stadt → Deutschschweiz
     "GR": "TI",  # Italian-speaking part
 }
 
@@ -252,6 +254,7 @@ _LANGUAGE_NAMES = {
 def build_system_prompt(
     ctx: Optional[CoachContext] = None,
     language: str = "fr",
+    cash_level: int = 3,
 ) -> str:
     """Build the full system prompt for the Claude coach.
 
@@ -273,6 +276,15 @@ def build_system_prompt(
         plan_awareness=_PLAN_AWARENESS,
         routing_rules=_TOOL_ROUTING_RULES,
     )
+
+    # Voice intensity injection (cash_level 1-5)
+    clamped = max(1, min(5, cash_level))
+    intensity_instruction = INTENSITY_MAP.get(clamped, INTENSITY_MAP[3])
+    base += f"\n\n## VOIX — Intensité {clamped}/5\n{intensity_instruction}\n"
+
+    # LLM anti-patterns injection
+    anti_patterns_text = "\n".join(f"- {ap}" for ap in LLM_ANTI_PATTERNS)
+    base += f"\nANTI-PATTERNS (ne fais JAMAIS) :\n{anti_patterns_text}\n"
 
     # FIX-081: Append response language instruction for non-French users.
     # The base prompt remains in French (Claude understands it well) but the

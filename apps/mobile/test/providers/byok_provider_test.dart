@@ -21,6 +21,7 @@ class FakeRagService extends RagService {
     Map<String, dynamic>? profileContext,
     String language = 'fr',
     List<Map<String, dynamic>>? tools,
+    int cashLevel = 3,
   }) async {
     if (shouldThrowRagApiException) {
       throw RagApiException(

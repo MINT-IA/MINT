@@ -309,6 +309,11 @@ class RegionalVoiceService {
         return 'Kanton\u00a0: Aargau. Le canton des navetteurs \u2014 '
             'entre Z\u00fcrich, B\u00e2le et Berne, l\u2019Argovien '
             'optimise ses trajets comme ses imp\u00f4ts.';
+      case 'BL':
+        return 'Kanton\u00a0: Basel-Landschaft. Baselbieter '
+            'Eigenst\u00e4ndigkeit, Kirschbl\u00fcte im Fr\u00fchling, '
+            'Regio-Identit\u00e4t. Le Balbiennois a sa fiert\u00e9 propre '
+            '\u2014 ni B\u00e2le-Ville, ni Argovie.';
       default:
         return '';
     }
