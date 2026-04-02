@@ -8684,7 +8684,7 @@
   "onboardingSmartNationalityLabel": "A tua nacionalidade",
   "onboardingSmartSalaryLabel": "O teu salário bruto anual",
   "onboardingSmartSalaryPerYear": "CHF/ano",
-  "onboardingSmartSeeResult": "Ver o meu resultado",
+  "onboardingSmartSeeResult": "Calcular minha aposentadoria",
   "onboardingSmartSubtitle": "Algumas informações bastam para uma primeira visão personalizada.",
   "onboardingSmartTitle": "Descobre a tua situação de reforma em 30 segundos",
   "opener3aDeadline": "Restam {days} dias para depositar até {plafond} CHF no teu 3a.",
@@ -9612,5 +9612,42 @@
   "coachSuggestBudget": "Qual é o meu orçamento realista para a reforma?",
   "coachSuggestBudgetGap": "Quanto me falta por mês?",
   "coachSuggestMortgage": "Posso comprar um imóvel?",
-  "coachSuggestMortgageCapacity": "Qual é a minha capacidade de empréstimo?"
+  "coachSuggestMortgageCapacity": "Qual é a minha capacidade de empréstimo?",
+  "jargonReplacementRate": "Taxa de substituição (parte do teu salário mantida na reforma)",
+  "jargonLpp": "LPP (previdência profissional)",
+  "jargon3a": "3a (poupança privada para a reforma)",
+  "jargonAvs": "AVS (seguro de velhice)",
+  "jargonRamd": "RAMD (rendimento anual médio determinante)",
+  "jargonReplacementRateTooltip": "A taxa de substituição mede a parte do teu rendimento atual que manterás na reforma. Exemplo: 65% significa que receberás 65% do teu salário atual.",
+  "jargonLppTooltip": "A LPP (Lei sobre a Previdência Profissional) é o 2.º pilar. Tu e o teu empregador contribuem juntos para a tua reforma.",
+  "jargon3aTooltip": "O pilar 3a é uma poupança voluntária para a reforma com vantagens fiscais. O limite é de CHF 7'258/ano (assalariados com LPP).",
+  "jargonAvsTooltip": "O AVS (Seguro de Velhice e Sobreviventes) é o 1.º pilar. Garante um rendimento básico na reforma.",
+  "jargonRamdTooltip": "O RAMD determina o montante da tua pensão AVS. É calculado a partir dos teus rendimentos sujeitos a contribuição.",
+  "confidenceDetailsTooltip": "Baseado em: idade, rendimento, cantão, estado civil, nacionalidade, LPP e 3a declarados. Quanto mais dados forneceres, mais precisa é a projeção.",
+  "replacementRateContextGood": "É um bom nível — acima de 80%.",
+  "replacementRateContextAverage": "Está na média suíça. Otimizações são possíveis.",
+  "replacementRateContextLow": "Está abaixo da média. Vejamos como melhorar.",
+  "dataOriginTitle": "Calculado com",
+  "dataOriginAge": "Idade: {age} anos",
+  "@dataOriginAge": {
+    "placeholders": {
+      "age": { "type": "int" }
+    }
+  },
+  "dataOriginRevenu": "Rendimento: CHF {revenu}/ano",
+  "@dataOriginRevenu": {
+    "placeholders": {
+      "revenu": { "type": "String" }
+    }
+  },
+  "dataOriginCanton": "Cantão: {canton}",
+  "@dataOriginCanton": {
+    "placeholders": {
+      "canton": { "type": "String" }
+    }
+  },
+  "dataOriginModify": "Editar",
+  "disclaimerShort": "Ferramenta educativa, não é aconselhamento financeiro.",
+  "disclaimerLearnMore": "Saber mais",
+  "disclaimerFull": "Ferramenta educativa simplificada. Não constitui aconselhamento financeiro personalizado (LSFin). Fontes: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta um especialista qualificado."
 }

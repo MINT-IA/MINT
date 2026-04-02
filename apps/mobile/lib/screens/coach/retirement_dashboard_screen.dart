@@ -437,12 +437,26 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                 // Position 1: Hero — Replacement rate arc (the single moment hero)
                 MintEntrance(child: Center(
-                  child: MintProgressArc(
-                    value: proj.tauxRemplacementBase,
-                    maxValue: 100,
-                    label: '${proj.tauxRemplacementBase.round()}\u00a0%',
-                    subtitle: l.dashboardMetricReplacementRate,
-                    size: 200,
+                  child: Column(
+                    children: [
+                      MintProgressArc(
+                        value: proj.tauxRemplacementBase,
+                        maxValue: 100,
+                        label: '${proj.tauxRemplacementBase.round()}\u00a0%',
+                        subtitle: l.jargonReplacementRate,
+                        size: 200,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        proj.tauxRemplacementBase >= 80
+                            ? l.replacementRateContextGood
+                            : proj.tauxRemplacementBase >= 60
+                                ? l.replacementRateContextAverage
+                                : l.replacementRateContextLow,
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 )),
                 const SizedBox(height: MintSpacing.md),
@@ -494,18 +508,18 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   child: Column(
                     children: [
                       MintSignalRow(
-                        label: 'AVS',
+                        label: l.jargonAvs,
                         value: 'CHF\u00a0${avs.round()}',
                         valueColor: MintColors.retirementAvs,
                       ),
                       MintSignalRow(
-                        label: 'LPP',
+                        label: l.jargonLpp,
                         value: 'CHF\u00a0${lpp.round()}',
                         valueColor: MintColors.retirementLpp,
                       ),
                       if (troisA > 0)
                         MintSignalRow(
-                          label: '3a',
+                          label: l.jargon3a,
                           value: 'CHF\u00a0${troisA.round()}',
                           valueColor: MintColors.retirement3a,
                         ),
@@ -540,6 +554,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 // Position 5: Related sections (hub)
                 _buildRelatedSections(l),
                 const SizedBox(height: MintSpacing.xl),
+
+                // Position 5b: Data origin (calculated with)
+                _buildDataOrigin(profile, l),
+                const SizedBox(height: MintSpacing.md),
 
                 // Position 6: Footer — disclaimer
                 _buildDisclaimer(),
@@ -995,11 +1013,95 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
+  Widget _buildDataOrigin(CoachProfile profile, S l) {
+    final revenuAnnuel = profile.revenuBrutAnnuel;
+    final revenuFormatted = formatChf(revenuAnnuel);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.primary.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.dataOriginTitle,
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              Text(
+                l.dataOriginAge(profile.age),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+              ),
+              if (revenuAnnuel > 0)
+                Text(
+                  l.dataOriginRevenu(revenuFormatted),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                ),
+              if (profile.canton.isNotEmpty)
+                Text(
+                  l.dataOriginCanton(profile.canton),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          GestureDetector(
+            onTap: () => context.push('/dossier'),
+            child: Text(
+              l.dataOriginModify,
+              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDisclaimer() {
-    return Text(
-      S.of(context)!.dashboardDisclaimer,
-      textAlign: TextAlign.center,
-      style: MintTextStyles.micro(),
+    final l = S.of(context)!;
+    return Column(
+      children: [
+        Text(
+          l.disclaimerShort,
+          textAlign: TextAlign.center,
+          style: MintTextStyles.micro(),
+        ),
+        const SizedBox(height: 2),
+        GestureDetector(
+          onTap: () => _showDisclaimerFull(context),
+          child: Text(
+            l.disclaimerLearnMore,
+            textAlign: TextAlign.center,
+            style: MintTextStyles.micro(color: MintColors.primary).copyWith(
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDisclaimerFull(BuildContext context) {
+    final l = S.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          l.disclaimerFull,
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+        ),
+      ),
     );
   }
 }

@@ -17902,7 +17902,7 @@ class SEn extends S {
   String get onboardingSmartSalaryPerYear => 'CHF/year';
 
   @override
-  String get onboardingSmartSeeResult => 'See my result';
+  String get onboardingSmartSeeResult => 'Calculate my retirement';
 
   @override
   String get onboardingSmartSubtitle =>
@@ -20742,4 +20742,86 @@ class SEn extends S {
 
   @override
   String get coachSuggestMortgageCapacity => 'What’s my borrowing capacity?';
+
+  @override
+  String get jargonReplacementRate =>
+      'Replacement rate (share of your salary maintained in retirement)';
+
+  @override
+  String get jargonLpp => 'LPP (occupational pension)';
+
+  @override
+  String get jargon3a => '3a (private retirement savings)';
+
+  @override
+  String get jargonAvs => 'AVS (old-age insurance)';
+
+  @override
+  String get jargonRamd => 'RAMD (average annual determining income)';
+
+  @override
+  String get jargonReplacementRateTooltip =>
+      'The replacement rate measures the share of your current income you will keep in retirement. Example: 65% means you will receive 65% of your current salary.';
+
+  @override
+  String get jargonLppTooltip =>
+      'The LPP (Occupational Pensions Act) is the 2nd pillar. You and your employer contribute together toward your retirement.';
+
+  @override
+  String get jargon3aTooltip =>
+      'Pillar 3a is voluntary retirement savings with tax benefits. The ceiling is CHF 7,258/year (employed with LPP).';
+
+  @override
+  String get jargonAvsTooltip =>
+      'AVS (Old-age and Survivors’ Insurance) is the 1st pillar. It guarantees a basic retirement income.';
+
+  @override
+  String get jargonRamdTooltip =>
+      'The RAMD determines your AVS pension amount. It is calculated from your contribution-liable income.';
+
+  @override
+  String get confidenceDetailsTooltip =>
+      'Based on: age, income, canton, civil status, nationality, declared LPP and 3a. The more data you provide, the more accurate the projection.';
+
+  @override
+  String get replacementRateContextGood => 'That’s a good level — above 80%.';
+
+  @override
+  String get replacementRateContextAverage =>
+      'That’s around the Swiss average. Optimizations are possible.';
+
+  @override
+  String get replacementRateContextLow =>
+      'That’s below average. Let’s see how to improve it.';
+
+  @override
+  String get dataOriginTitle => 'Calculated with';
+
+  @override
+  String dataOriginAge(int age) {
+    return 'Age: $age years';
+  }
+
+  @override
+  String dataOriginRevenu(String revenu) {
+    return 'Income: CHF $revenu/year';
+  }
+
+  @override
+  String dataOriginCanton(String canton) {
+    return 'Canton: $canton';
+  }
+
+  @override
+  String get dataOriginModify => 'Edit';
+
+  @override
+  String get disclaimerShort => 'Educational tool, not financial advice.';
+
+  @override
+  String get disclaimerLearnMore => 'Learn more';
+
+  @override
+  String get disclaimerFull =>
+      'Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance.';
 }
