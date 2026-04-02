@@ -328,6 +328,16 @@ class ContextInjectorService {
       budgetBlock = lines.join('\n');
     }
 
+    // ── Onboarding payload (one-shot) ────────────────────────
+    // Inject chiffre choc + emotion from onboarding so the coach
+    // can react to the user's first impression. Cleared after read.
+    String onboardingBlock = '';
+    try {
+      onboardingBlock = await _buildOnboardingBlock(sp);
+    } catch (_) {
+      // Graceful degradation: coach works without onboarding context.
+    }
+
     // Build the complete memory block
     final memoryBlock = _buildMemoryBlock(
       lifecycleBlock: lifecycleBlock,
@@ -341,6 +351,7 @@ class ContextInjectorService {
       recentInsightsBlock: recentInsightsBlock,
       budgetBlock: budgetBlock,
       enrichmentBlock: enrichmentBlock,
+      onboardingBlock: onboardingBlock,
     );
 
     return EnrichedContext(
@@ -401,6 +412,44 @@ class ContextInjectorService {
     }
 
     return lines.join('\n');
+  }
+
+  /// Build the one-shot onboarding context block.
+  ///
+  /// Reads chiffre choc type/value and user emotion from [prefs].
+  /// Returns an empty string when no onboarding data is present,
+  /// ensuring zero impact on existing behavior.
+  static Future<String> _buildOnboardingBlock(SharedPreferences prefs) async {
+    final chocType = prefs.getString('onboarding_choc_type');
+    if (chocType == null) return '';
+
+    final chocValue = prefs.getDouble('onboarding_choc_value');
+    final emotion = prefs.getString('onboarding_emotion');
+    final birthYear = prefs.getInt('onboarding_birth_year');
+
+    final buf = StringBuffer();
+    buf.writeln('--- CONTEXTE ONBOARDING ---');
+    buf.writeln('Chiffre choc montr\u00e9\u00a0: $chocType '
+        '(valeur\u00a0: ${chocValue?.toStringAsFixed(0) ?? "??"})');
+    if (emotion != null && emotion.isNotEmpty) {
+      buf.writeln('R\u00e9action utilisateur\u00a0: "$emotion"');
+    }
+    if (birthYear != null) {
+      final age = DateTime.now().year - birthYear;
+      buf.writeln('\u00c2ge\u00a0: $age ans');
+    }
+    buf.writeln('INSTRUCTION\u00a0: R\u00e9agis au chiffre choc et \u00e0 '
+        'l\'\u00e9motion. Propose 3 actions concr\u00e8tes avec des chiffres. '
+        'Ne redemande PAS les informations d\u00e9j\u00e0 connues.');
+    buf.writeln('--- FIN ONBOARDING ---');
+
+    // Clear one-shot onboarding data after reading.
+    // Permanent profile data (birth_year, salary, canton) is NOT cleared.
+    await prefs.remove('onboarding_choc_type');
+    await prefs.remove('onboarding_choc_value');
+    await prefs.remove('onboarding_emotion');
+
+    return buf.toString().trim();
   }
 
   /// Map enrichment category to the best route for data capture.
@@ -692,6 +741,7 @@ class ContextInjectorService {
     String recentInsightsBlock = '',
     String budgetBlock = '',
     String enrichmentBlock = '',
+    String onboardingBlock = '',
   }) {
     final parts = <String>[];
 
@@ -704,6 +754,12 @@ class ContextInjectorService {
     parts.add('Tu es un outil éducatif\u00a0: ne constitue pas un conseil financier '
         '(LSFin). Propose toujours des actions concrètes et des étapes '
         'que l\'utilisateur peut entreprendre.');
+
+    // Onboarding context (one-shot — chiffre choc + emotion)
+    if (onboardingBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(onboardingBlock);
+    }
 
     // Lifecycle context
     if (lifecycleBlock.isNotEmpty) {

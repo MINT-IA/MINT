@@ -140,6 +140,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// SharedPreferences key for voice intensity level.
   static const String _cashLevelKey = 'mint_coach_cash_level';
 
+  /// Onboarding emotion payload (one-shot, cleared after reading).
+  /// The choc type/value are read by ContextInjectorService from prefs.
+  String? _onboardingEmotion;
+
   @override
   void initState() {
     super.initState();
@@ -151,6 +155,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _loadExistingConversation(widget.conversationId!);
     }
     _loadCashLevel();
+    _loadOnboardingPayload();
   }
 
   /// Load voice intensity from SharedPreferences.
@@ -182,6 +187,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       await prefs.setInt(_cashLevelKey, level);
     } catch (_) {
       // Best-effort persistence.
+    }
+  }
+
+  /// Load onboarding payload from SharedPreferences (one-shot).
+  ///
+  /// Reads the emotion, choc type, and choc value set during onboarding,
+  /// then clears them so they are only injected once. Permanent profile
+  /// data (birth_year, salary, canton) is NOT cleared.
+  Future<void> _loadOnboardingPayload() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final emotion = prefs.getString('onboarding_emotion');
+
+      if (emotion != null && emotion.isNotEmpty) {
+        if (mounted) {
+          setState(() {
+            _onboardingEmotion = emotion;
+          });
+        }
+        // One-shot data (emotion, choc_type, choc_value) is cleared
+        // by ContextInjectorService._buildOnboardingBlock after reading.
+      }
+    } catch (_) {
+      // Graceful degradation: coach works without onboarding payload.
     }
   }
 
@@ -222,6 +251,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         if (prompt != null && prompt.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _sendMessage(prompt);
+          });
+        } else if (_onboardingEmotion != null && _onboardingEmotion!.isNotEmpty) {
+          // Auto-send onboarding emotion as first message when no explicit prompt.
+          final emotion = _onboardingEmotion!;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _sendMessage(emotion);
           });
         }
       }
