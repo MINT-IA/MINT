@@ -21046,4 +21046,8 @@ class SEs extends S {
   @override
   String get day30NotifBody =>
       'Escanea tu certificado LPP — tarda 30 segundos y lo cambia todo.';
+
+  @override
+  String get actionInsightFallback =>
+      'Completa tu perfil para ver el impacto exacto';
 }

@@ -7,6 +7,10 @@
 // consistency with PulseScreen. Falls back to plan.available when not.
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/widgets/action_insight_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -167,6 +171,36 @@ class _BudgetScreenState extends State<BudgetScreen>
     ScreenCompletionTracker.markCompletedWithReturn('budget', screenReturn);
   }
 
+  Widget _buildActionInsight(S l) {
+    CapDecision? cap;
+    try {
+      final profileProvider = context.read<CoachProfileProvider>();
+      if (profileProvider.hasProfile) {
+        cap = CapEngine.compute(
+          profile: profileProvider.profile!,
+          now: DateTime.now(),
+          l: l,
+          memory: const CapMemory(),
+        );
+      }
+    } catch (_) {
+      // Provider not in tree — graceful degradation.
+    }
+    if (cap != null && cap.ctaRoute != null) {
+      return ActionInsightWidget(
+        contextLine: cap.whyNow,
+        actionLine: cap.ctaLabel,
+        impactLine: cap.expectedImpact,
+        route: cap.ctaRoute,
+      );
+    }
+    return ActionInsightWidget(
+      contextLine: '',
+      actionLine: l.actionInsightFallback,
+      route: '/onboarding/quick',
+    );
+  }
+
   Widget _staggeredEntry({required int index, required Widget child}) {
     const totalSlots = 6;
     return AnimatedBuilder(
@@ -288,6 +322,13 @@ class _BudgetScreenState extends State<BudgetScreen>
                 // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
                 _staggeredEntry(
                     index: 0, child: _buildHeader(plan, l, heroFree)),
+                const SizedBox(height: MintSpacing.md),
+
+                // ── ABOVE FOLD: Section 2b — Action insight ──
+                _staggeredEntry(
+                  index: 0,
+                  child: _buildActionInsight(l),
+                ),
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── ABOVE FOLD: Section 3 — Spending meter ──

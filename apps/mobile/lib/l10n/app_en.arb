@@ -9694,5 +9694,6 @@
     }
   },
   "day30NotifTitle": "Your projection can be 25% more accurate",
-  "day30NotifBody": "Scan your LPP certificate — it takes 30 seconds and changes everything."
+  "day30NotifBody": "Scan your LPP certificate — it takes 30 seconds and changes everything.",
+  "actionInsightFallback": "Complete your profile to see the exact impact"
 }

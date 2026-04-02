@@ -10158,5 +10158,6 @@
     }
   },
   "day30NotifTitle": "Ta projection peut être 25\u00a0% plus précise",
-  "day30NotifBody": "Scanne ton certificat LPP — ça prend 30 secondes et ça change tout."
+  "day30NotifBody": "Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.",
+  "actionInsightFallback": "Complète ton profil pour voir l'impact exact"
 }

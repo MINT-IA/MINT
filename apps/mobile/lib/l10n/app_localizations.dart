@@ -37004,6 +37004,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.'**
   String get day30NotifBody;
+
+  /// No description provided for @actionInsightFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complète ton profil pour voir l\'impact exact'**
+  String get actionInsightFallback;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

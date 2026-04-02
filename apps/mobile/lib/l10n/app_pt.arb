@@ -9694,5 +9694,6 @@
     }
   },
   "day30NotifTitle": "A tua projeção pode ser 25% mais precisa",
-  "day30NotifBody": "Digitaliza o teu certificado LPP — demora 30 segundos e muda tudo."
+  "day30NotifBody": "Digitaliza o teu certificado LPP — demora 30 segundos e muda tudo.",
+  "actionInsightFallback": "Completa o teu perfil para ver o impacto exato"
 }

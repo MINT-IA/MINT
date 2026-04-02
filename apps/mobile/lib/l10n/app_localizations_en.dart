@@ -20932,4 +20932,8 @@ class SEn extends S {
   @override
   String get day30NotifBody =>
       'Scan your LPP certificate — it takes 30 seconds and changes everything.';
+
+  @override
+  String get actionInsightFallback =>
+      'Complete your profile to see the exact impact';
 }

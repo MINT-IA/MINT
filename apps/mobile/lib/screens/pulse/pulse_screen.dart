@@ -25,6 +25,7 @@ import 'package:mint_mobile/widgets/pulse/pulse_disclaimer.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/widgets/action_insight_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -360,6 +361,26 @@ class _PulseScreenState extends State<PulseScreen> {
                   _ConfidenceNudge(
                     confidence: mintState?.confidenceScore ?? 0,
                     l: l,
+                  ),
+                ],
+
+                // ── 2d. ACTION INSIGHT (concrete CTA from Cap) ──
+                if (cap != null) ...[
+                  const SizedBox(height: MintSpacing.md),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child:
+                    ActionInsightWidget(
+                      contextLine: cap.whyNow,
+                      actionLine: cap.ctaLabel,
+                      impactLine: cap.expectedImpact,
+                      route: cap.ctaRoute,
+                    ),
+                  ),
+                ] else ...[
+                  const SizedBox(height: MintSpacing.md),
+                  ActionInsightWidget(
+                    contextLine: '',
+                    actionLine: l.actionInsightFallback,
+                    route: '/onboarding/quick',
                   ),
                 ],
 
