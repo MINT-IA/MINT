@@ -21172,4 +21172,8 @@ class SFr extends S {
 
   @override
   String get dataTransparencyThirdParty => 'Tiers (avec ton accord)';
+
+  @override
+  String get retraiteHubYoungDisclaimer =>
+      'C\'est bien de s\'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi.';
 }

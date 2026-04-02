@@ -9736,5 +9736,6 @@
   "dataTransparencyDeleteDetail": "Everything is purged: database, local storage, embeddings. Nothing remains.",
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Server (encrypted)",
-  "dataTransparencyThirdParty": "Third party (with your consent)"
+  "dataTransparencyThirdParty": "Third party (with your consent)",
+  "retraiteHubYoungDisclaimer": "Good thinking to look into this early. Advanced tools will appear when they become relevant for you."
 }

@@ -21062,4 +21062,8 @@ class SEn extends S {
 
   @override
   String get dataTransparencyThirdParty => 'Third party (with your consent)';
+
+  @override
+  String get retraiteHubYoungDisclaimer =>
+      'Good thinking to look into this early. Advanced tools will appear when they become relevant for you.';
 }

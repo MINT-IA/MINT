@@ -21176,4 +21176,8 @@ class SEs extends S {
 
   @override
   String get dataTransparencyThirdParty => 'Terceros (con tu consentimiento)';
+
+  @override
+  String get retraiteHubYoungDisclaimer =>
+      'Está bien interesarse temprano. Las herramientas avanzadas aparecerán cuando sean relevantes para ti.';
 }

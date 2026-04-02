@@ -9736,5 +9736,6 @@
   "dataTransparencyDeleteDetail": "Alles wird gelöscht: Datenbank, lokaler Speicher, Embeddings. Nichts bleibt.",
   "dataTransparencyLocal": "Lokal",
   "dataTransparencyServer": "Server (verschlüsselt)",
-  "dataTransparencyThirdParty": "Drittanbieter (mit deiner Zustimmung)"
+  "dataTransparencyThirdParty": "Drittanbieter (mit deiner Zustimmung)",
+  "retraiteHubYoungDisclaimer": "Gut, dass du dich früh damit beschäftigst. Die erweiterten Tools erscheinen, wenn sie für dich relevant werden."
 }

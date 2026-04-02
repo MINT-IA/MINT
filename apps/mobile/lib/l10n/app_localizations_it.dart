@@ -21230,4 +21230,8 @@ class SIt extends S {
 
   @override
   String get dataTransparencyThirdParty => 'Terze parti (con il tuo consenso)';
+
+  @override
+  String get retraiteHubYoungDisclaimer =>
+      'È un bene interessarsene presto. Gli strumenti avanzati appariranno quando saranno rilevanti per te.';
 }

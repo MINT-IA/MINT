@@ -9736,5 +9736,6 @@
   "dataTransparencyDeleteDetail": "Tudo é eliminado: base de dados, armazenamento local, embeddings. Nada resta.",
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Servidor (encriptado)",
-  "dataTransparencyThirdParty": "Terceiros (com o teu consentimento)"
+  "dataTransparencyThirdParty": "Terceiros (com o teu consentimento)",
+  "retraiteHubYoungDisclaimer": "É bom interessar-se cedo. As ferramentas avançadas aparecerão quando forem relevantes para ti."
 }

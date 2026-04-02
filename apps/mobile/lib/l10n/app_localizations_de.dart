@@ -21219,4 +21219,8 @@ class SDe extends S {
   @override
   String get dataTransparencyThirdParty =>
       'Drittanbieter (mit deiner Zustimmung)';
+
+  @override
+  String get retraiteHubYoungDisclaimer =>
+      'Gut, dass du dich früh damit beschäftigst. Die erweiterten Tools erscheinen, wenn sie für dich relevant werden.';
 }

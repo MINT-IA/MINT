@@ -21179,4 +21179,8 @@ class SPt extends S {
   @override
   String get dataTransparencyThirdParty =>
       'Terceiros (com o teu consentimento)';
+
+  @override
+  String get retraiteHubYoungDisclaimer =>
+      'É bom interessar-se cedo. As ferramentas avançadas aparecerão quando forem relevantes para ti.';
 }

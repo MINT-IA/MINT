@@ -10200,5 +10200,6 @@
   "dataTransparencyDeleteDetail": "Tout est purgé\u00a0: base de données, stockage local, embeddings. Rien ne reste.",
   "dataTransparencyLocal": "Local",
   "dataTransparencyServer": "Serveur (chiffré)",
-  "dataTransparencyThirdParty": "Tiers (avec ton accord)"
+  "dataTransparencyThirdParty": "Tiers (avec ton accord)",
+  "retraiteHubYoungDisclaimer": "C'est bien de s'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi."
 }

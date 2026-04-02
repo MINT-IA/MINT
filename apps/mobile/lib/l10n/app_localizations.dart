@@ -37214,6 +37214,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tiers (avec ton accord)'**
   String get dataTransparencyThirdParty;
+
+  /// No description provided for @retraiteHubYoungDisclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est bien de s\'y intéresser tôt. Les outils avancés apparaîtront quand ils seront pertinents pour toi.'**
+  String get retraiteHubYoungDisclaimer;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
