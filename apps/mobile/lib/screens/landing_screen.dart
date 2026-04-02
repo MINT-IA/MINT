@@ -14,6 +14,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -122,6 +123,8 @@ class _LandingScreenState extends State<LandingScreen>
                         _buildHiddenNumber(),
                         const SizedBox(height: MintSpacing.xxxl),
                         _buildQuickCalc(),
+                        const SizedBox(height: MintSpacing.xl),
+                        _buildCouplePreview(),
                         const SizedBox(height: MintSpacing.xxl),
                         _buildCta(),
                         const SizedBox(height: MintSpacing.xxl),
@@ -666,6 +669,112 @@ class _LandingScreenState extends State<LandingScreen>
           ),
         );
       },
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Section 4: Couple preview — personalized or generic teaser
+  // ---------------------------------------------------------------------------
+  Widget _buildCouplePreview() {
+    final l10n = S.of(context)!;
+
+    if (_grossSalary != null && _canton != null) {
+      // Simplified marriage penalty estimate using RetirementTaxCalculator:
+      // Compare joint filing vs two singles for a dual-income estimate.
+      // We assume a fictional partner earning 60% of the user's salary.
+      final userIncome = _grossSalary!;
+      final conjointIncome = userIncome * 0.6;
+      final combined = userIncome + conjointIncome;
+
+      final taxMarried = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+        revenuAnnuelImposable: combined,
+        canton: _canton!,
+        etatCivil: 'marie',
+        nombreEnfants: 0,
+      ) * 12;
+
+      final taxUserSingle = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+        revenuAnnuelImposable: userIncome,
+        canton: _canton!,
+        etatCivil: 'celibataire',
+        nombreEnfants: 0,
+      ) * 12;
+
+      final taxConjointSingle = RetirementTaxCalculator.estimateMonthlyIncomeTax(
+        revenuAnnuelImposable: conjointIncome,
+        canton: _canton!,
+        etatCivil: 'celibataire',
+        nombreEnfants: 0,
+      ) * 12;
+
+      final penalty = (taxMarried - (taxUserSingle + taxConjointSingle))
+          .clamp(0, double.infinity)
+          .round();
+
+      final penaltyStr = penalty >= 1000
+          ? "${penalty ~/ 1000}\u2019${(penalty % 1000).toString().padLeft(3, '0')}"
+          : '$penalty';
+
+      return MintSurface(
+        tone: MintSurfaceTone.peche,
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.landingCoupleTitle,
+              style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            if (penalty > 0)
+              Text(
+                l10n.landingCouplePersonalized(penaltyStr),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              )
+            else
+              Text(
+                l10n.landingCoupleGeneric,
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
+            const SizedBox(height: MintSpacing.md),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () => context.push('/auth/register?intent=couple'),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: MintColors.primary),
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm),
+                ),
+                child: Text(
+                  l10n.landingCoupleAction,
+                  style: MintTextStyles.bodySmall(color: MintColors.primary),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Generic teaser when no salary entered yet
+    return MintSurface(
+      tone: MintSurfaceTone.peche,
+      padding: const EdgeInsets.all(MintSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.landingCoupleTitle,
+            style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          Text(
+            l10n.landingCoupleGeneric,
+            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          ),
+        ],
+      ),
     );
   }
 

@@ -21050,4 +21050,67 @@ class SEs extends S {
   @override
   String get actionInsightFallback =>
       'Completa tu perfil para ver el impacto exacto';
+
+  @override
+  String get glossaryLpp =>
+      'El 2° pilar. Dinero que tú y tu empleador aportáis cada mes para tu jubilación. Obligatorio desde CHF 22.680 de salario.';
+
+  @override
+  String get glossaryAvs =>
+      'El 1er pilar. La pensión básica que todos reciben al jubilarse en Suiza. Máximo CHF 2.520/mes para persona sola.';
+
+  @override
+  String get glossary3a =>
+      'El 3er pilar. Tu ahorro personal para la jubilación, voluntario y deducible de impuestos. Máximo CHF 7.258/año si tienes un 2° pilar.';
+
+  @override
+  String get glossaryRamd =>
+      'Ingreso Anual Medio Determinante. El promedio de tus salarios anuales durante toda tu carrera. Esta cifra determina tu pensión AVS.';
+
+  @override
+  String get glossaryTauxConversion =>
+      'El porcentaje aplicado a tu capital LPP para calcular tu pensión anual. Tasa mínima legal: 6.8%. Cuanto más alta, mayor tu pensión.';
+
+  @override
+  String get glossaryRachat =>
+      'Un pago voluntario en tu 2° pilar para cubrir una brecha. Totalmente deducible de impuestos. Límite: tu brecha máxima.';
+
+  @override
+  String get glossaryLacune =>
+      'La diferencia entre lo que tienes en tu 2° pilar y lo que tendrías si hubieras cotizado al máximo desde el inicio. Eso es lo que puedes recomprar.';
+
+  @override
+  String get glossaryTauxRemplacement =>
+      'El porcentaje de tu último salario que recibirás al jubilarte. En Suiza, el objetivo es 60-80%.';
+
+  @override
+  String get glossaryRente =>
+      'Un ingreso mensual de por vida tras la jubilación. Seguridad máxima pero monto fijo. La alternativa es el capital.';
+
+  @override
+  String get glossaryCapital =>
+      'Recibir tu 2° pilar de una vez en lugar de una pensión mensual. Más libertad, pero gestionas el riesgo tú mismo.';
+
+  @override
+  String get glossaryCoordination =>
+      'La parte de tu salario NO asegurada por el 2° pilar (CHF 26.460 en 2025). Por eso solo una parte de tu salario está cubierta.';
+
+  @override
+  String get glossarySurobligatoire =>
+      'La parte de tu 2° pilar por encima del mínimo legal. Tasa de conversión a menudo más baja (4-5%), pero condiciones de retiro más flexibles.';
+
+  @override
+  String get landingCoupleTitle => '¿En pareja? MINT optimiza para dos.';
+
+  @override
+  String landingCouplePersonalized(String penalty) {
+    return 'Con tu ingreso, la penalización por matrimonio estimada es de CHF $penalty/año. Existen 3 palancas para reducirla.';
+  }
+
+  @override
+  String get landingCoupleAction => 'Descubrir el modo pareja';
+
+  @override
+  String get landingCoupleGeneric =>
+      'Las parejas casadas pierden hasta CHF 8.000/año en optimizaciones perdidas.';
 }

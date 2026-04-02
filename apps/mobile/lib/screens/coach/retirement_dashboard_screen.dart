@@ -32,6 +32,7 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/glossary_term.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -526,7 +527,27 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ],
                   ),
                 )),
-                const SizedBox(height: MintSpacing.xl),
+                // Glossary shortcuts for pillar terms
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: MintSpacing.sm,
+                    bottom: MintSpacing.xl,
+                  ),
+                  child: Wrap(
+                    spacing: MintSpacing.md,
+                    runSpacing: MintSpacing.sm,
+                    children: [
+                      GlossaryTerm(
+                        term: 'Taux de conversion',
+                        style: MintTextStyles.labelSmall(color: MintColors.primary),
+                      ),
+                      GlossaryTerm(
+                        term: 'Taux de remplacement',
+                        style: MintTextStyles.labelSmall(color: MintColors.primary),
+                      ),
+                    ],
+                  ),
+                ),
 
                 // Position 2c: Confidence notice (premium)
                 if (isApproximate)

@@ -20936,4 +20936,67 @@ class SEn extends S {
   @override
   String get actionInsightFallback =>
       'Complete your profile to see the exact impact';
+
+  @override
+  String get glossaryLpp =>
+      'The 2nd pillar. Money you and your employer set aside monthly for retirement. Mandatory from CHF 22,680 salary.';
+
+  @override
+  String get glossaryAvs =>
+      'The 1st pillar. The basic pension everyone receives at retirement in Switzerland. Maximum CHF 2,520/month for a single person.';
+
+  @override
+  String get glossary3a =>
+      'The 3rd pillar. Your personal, voluntary retirement savings — tax-deductible. Maximum CHF 7,258/year if you have a 2nd pillar.';
+
+  @override
+  String get glossaryRamd =>
+      'Determining Average Annual Income. The average of your annual salaries over your entire career. This figure determines your AVS pension.';
+
+  @override
+  String get glossaryTauxConversion =>
+      'The percentage applied to your LPP capital to calculate your annual pension. Legal minimum: 6.8%. The higher it is, the more pension you get.';
+
+  @override
+  String get glossaryRachat =>
+      'A voluntary payment into your 2nd pillar to fill a gap. Fully tax-deductible. Limited to your maximum gap.';
+
+  @override
+  String get glossaryLacune =>
+      'The difference between what you have in your 2nd pillar and what you would have if you had contributed the maximum since the start. That\'s what you can buy back.';
+
+  @override
+  String get glossaryTauxRemplacement =>
+      'The percentage of your last salary you\'ll receive at retirement. In Switzerland, the target is 60-80%.';
+
+  @override
+  String get glossaryRente =>
+      'A monthly income paid for life after retirement. Maximum security but fixed amount. The alternative is taking your capital.';
+
+  @override
+  String get glossaryCapital =>
+      'Receiving your 2nd pillar as a lump sum instead of a monthly pension. More freedom, but you manage the risk yourself.';
+
+  @override
+  String get glossaryCoordination =>
+      'The part of your salary NOT covered by the 2nd pillar (CHF 26,460 in 2025). That\'s why only part of your salary is insured.';
+
+  @override
+  String get glossarySurobligatoire =>
+      'The part of your 2nd pillar above the legal minimum. Conversion rate often lower (4-5%), but more flexible withdrawal conditions.';
+
+  @override
+  String get landingCoupleTitle => 'In a couple? MINT optimizes for two.';
+
+  @override
+  String landingCouplePersonalized(String penalty) {
+    return 'With your income, the estimated marriage penalty is CHF $penalty/year. 3 levers exist to reduce it.';
+  }
+
+  @override
+  String get landingCoupleAction => 'Discover couple mode';
+
+  @override
+  String get landingCoupleGeneric =>
+      'Married couples lose up to CHF 8,000/year in missed optimizations.';
 }

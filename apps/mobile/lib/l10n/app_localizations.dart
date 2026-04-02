@@ -37010,6 +37010,102 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Complète ton profil pour voir l\'impact exact'**
   String get actionInsightFallback;
+
+  /// No description provided for @glossaryLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le 2e pilier. L\'argent que ton employeur et toi mettez de côté chaque mois pour ta retraite. C\'est obligatoire dès CHF 22\'680 de salaire.'**
+  String get glossaryLpp;
+
+  /// No description provided for @glossaryAvs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le 1er pilier. La rente de base que tout le monde touche à la retraite en Suisse. Maximum CHF 2\'520/mois pour une personne seule.'**
+  String get glossaryAvs;
+
+  /// No description provided for @glossary3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le 3e pilier. Ton épargne retraite personnelle, volontaire et déductible des impôts. Maximum CHF 7\'258/an si tu as un 2e pilier.'**
+  String get glossary3a;
+
+  /// No description provided for @glossaryRamd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu Annuel Moyen Déterminant. La moyenne de tes salaires annuels sur toute ta carrière. C\'est ce chiffre qui détermine ta rente AVS.'**
+  String get glossaryRamd;
+
+  /// No description provided for @glossaryTauxConversion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le pourcentage appliqué à ton capital LPP pour calculer ta rente annuelle. Taux minimum légal : 6.8 %. Plus il est haut, plus ta rente est élevée.'**
+  String get glossaryTauxConversion;
+
+  /// No description provided for @glossaryRachat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un versement volontaire dans ton 2e pilier pour combler une lacune. Entièrement déductible des impôts. Limite : ta lacune maximale.'**
+  String get glossaryRachat;
+
+  /// No description provided for @glossaryLacune.
+  ///
+  /// In fr, this message translates to:
+  /// **'La différence entre ce que tu as dans ton 2e pilier et ce que tu aurais si tu avais cotisé au maximum depuis le début. C\'est ce que tu peux racheter.'**
+  String get glossaryLacune;
+
+  /// No description provided for @glossaryTauxRemplacement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le pourcentage de ton dernier salaire que tu toucheras à la retraite. En Suisse, la cible est 60-80 %.'**
+  String get glossaryTauxRemplacement;
+
+  /// No description provided for @glossaryRente.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un revenu mensuel versé à vie après la retraite. Sécurité maximale mais montant fixe. L\'alternative, c\'est le capital.'**
+  String get glossaryRente;
+
+  /// No description provided for @glossaryCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir son 2e pilier en une fois au lieu d\'une rente mensuelle. Plus de liberté, mais tu gères le risque toi-même.'**
+  String get glossaryCapital;
+
+  /// No description provided for @glossaryCoordination.
+  ///
+  /// In fr, this message translates to:
+  /// **'La partie de ton salaire NON assurée par le 2e pilier (CHF 26\'460 en 2025). C\'est pour ça que seule une partie de ton salaire est couverte.'**
+  String get glossaryCoordination;
+
+  /// No description provided for @glossarySurobligatoire.
+  ///
+  /// In fr, this message translates to:
+  /// **'La partie de ton 2e pilier au-dessus du minimum légal. Taux de conversion souvent plus bas (4-5 %), mais conditions de retrait plus flexibles.'**
+  String get glossarySurobligatoire;
+
+  /// No description provided for @landingCoupleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'En couple ? MINT optimise à deux.'**
+  String get landingCoupleTitle;
+
+  /// No description provided for @landingCouplePersonalized.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec ton revenu, la pénalité mariage estimée est de CHF {penalty}/an. 3 leviers existent pour la réduire.'**
+  String landingCouplePersonalized(String penalty);
+
+  /// No description provided for @landingCoupleAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le mode couple'**
+  String get landingCoupleAction;
+
+  /// No description provided for @landingCoupleGeneric.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les couples mariés perdent jusqu\'à CHF 8\'000/an en optimisations manquées.'**
+  String get landingCoupleGeneric;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
