@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -16,16 +18,19 @@ void main() {
   });
 
   Widget buildExploreTab() {
-    return const MaterialApp(
-      locale: Locale('fr'),
-      localizationsDelegates: [
-        S.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: S.supportedLocales,
-      home: Scaffold(body: ExploreTab()),
+    return ChangeNotifierProvider<CoachProfileProvider>(
+      create: (_) => CoachProfileProvider(),
+      child: const MaterialApp(
+        locale: Locale('fr'),
+        localizationsDelegates: [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: S.supportedLocales,
+        home: Scaffold(body: ExploreTab()),
+      ),
     );
   }
 

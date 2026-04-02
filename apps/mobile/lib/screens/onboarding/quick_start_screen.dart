@@ -156,16 +156,20 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final extra = GoRouterState.of(context).extra;
-    if (extra is Map<String, dynamic>) {
-      final by = extra['birthYear'] as int?;
-      final gs = (extra['grossSalary'] as num?)?.toDouble();
-      final ct = extra['canton'] as String?;
-      setState(() {
-        if (by != null) _birthYear = by;
-        if (gs != null && gs > 0) _salary = gs;
-        if (ct != null && ct.isNotEmpty) _canton = ct;
-      });
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        final by = extra['birthYear'] as int?;
+        final gs = (extra['grossSalary'] as num?)?.toDouble();
+        final ct = extra['canton'] as String?;
+        setState(() {
+          if (by != null) _birthYear = by;
+          if (gs != null && gs > 0) _salary = gs;
+          if (ct != null && ct.isNotEmpty) _canton = ct;
+        });
+      }
+    } catch (_) {
+      // GoRouterState not available (e.g., in tests without GoRouter)
     }
   }
 

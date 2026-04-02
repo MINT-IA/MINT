@@ -48,11 +48,11 @@ void main() {
       expect(find.byType(FilledButton), findsOneWidget);
     });
 
-    testWidgets('default age is 45', (tester) async {
+    testWidgets('default age is 30', (tester) async {
       await tester.pumpWidget(buildQuickStart());
       await tester.pump();
-      // The picker should have "45 ans" visible
-      expect(find.textContaining('45'), findsWidgets);
+      // Default is now DateTime.now().year - 30 = age 30
+      expect(find.textContaining('30'), findsWidgets);
     });
   });
 
