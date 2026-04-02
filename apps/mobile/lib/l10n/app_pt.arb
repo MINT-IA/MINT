@@ -7102,6 +7102,7 @@
   "capKindOptimize": "Otimizar",
   "capKindSecure": "Proteger",
   "capKindPrepare": "Preparar",
+  "capKindAlert": "Alerta",
   "proofSheetSources": "Fontes"
 ,
   "pulseFeedbackRecalculated": "Impacto recalculado",

@@ -43,6 +43,12 @@ class CapMemory {
   /// Used by feedback pill to show "Impact recalculé" accurately.
   final DateTime? lastCompletedDate;
 
+  /// Whether a spending anomaly was detected in recent transactions.
+  final bool hasSpendingAnomaly;
+
+  /// Human-readable insight about the last detected anomaly.
+  final String? lastAnomalyInsight;
+
   const CapMemory({
     this.lastCapServed,
     this.lastCapDate,
@@ -52,6 +58,8 @@ class CapMemory {
     this.declaredGoals = const [],
     this.recentFrictionContext,
     this.lastCompletedDate,
+    this.hasSpendingAnomaly = false,
+    this.lastAnomalyInsight,
   });
 
   /// Copy with explicit null clearing support.
@@ -67,6 +75,8 @@ class CapMemory {
     List<String>? declaredGoals,
     Object? recentFrictionContext = _undefined,
     Object? lastCompletedDate = _undefined,
+    bool? hasSpendingAnomaly,
+    Object? lastAnomalyInsight = _undefined,
   }) {
     return CapMemory(
       lastCapServed: lastCapServed == _undefined
@@ -87,6 +97,10 @@ class CapMemory {
       lastCompletedDate: lastCompletedDate == _undefined
           ? this.lastCompletedDate
           : lastCompletedDate as DateTime?,
+      hasSpendingAnomaly: hasSpendingAnomaly ?? this.hasSpendingAnomaly,
+      lastAnomalyInsight: lastAnomalyInsight == _undefined
+          ? this.lastAnomalyInsight
+          : lastAnomalyInsight as String?,
     );
   }
 
@@ -102,6 +116,9 @@ class CapMemory {
           'recentFrictionContext': recentFrictionContext,
         if (lastCompletedDate != null)
           'lastCompletedDate': lastCompletedDate!.toIso8601String(),
+        'hasSpendingAnomaly': hasSpendingAnomaly,
+        if (lastAnomalyInsight != null)
+          'lastAnomalyInsight': lastAnomalyInsight,
       };
 
   factory CapMemory.fromJson(Map<String, dynamic> json) => CapMemory(
@@ -123,6 +140,8 @@ class CapMemory {
         lastCompletedDate: json['lastCompletedDate'] != null
             ? DateTime.tryParse(json['lastCompletedDate'] as String)
             : null,
+        hasSpendingAnomaly: json['hasSpendingAnomaly'] as bool? ?? false,
+        lastAnomalyInsight: json['lastAnomalyInsight'] as String?,
       );
 }
 

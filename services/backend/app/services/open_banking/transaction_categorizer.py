@@ -31,7 +31,6 @@ CATEGORY_RULES: dict[str, List[str]] = {
     ],
     "telecom": [
         "swisscom", "sunrise", "salt", "wingo", "yallo", "m-budget mobile",
-        "digitec", "galaxus",
     ],
     "assurances": [
         "css", "helsana", "swica", "concordia", "visana", "sanitas",
@@ -50,6 +49,12 @@ CATEGORY_RULES: dict[str, List[str]] = {
     "loisirs": [
         "spotify", "netflix", "apple", "google play", "cinema", "kino",
         "fitness", "pathe", "blue cinema", "disney",
+    ],
+    "finances": [
+        "twint", "paypal", "revolut",
+    ],
+    "shopping": [
+        "amazon", "aliexpress", "galaxus", "digitec", "zalando",
     ],
     "impots": [
         "administration fiscale", "steuerverwaltung", "impot", "steuer",

@@ -259,6 +259,7 @@ class CapCard extends StatelessWidget {
       CapKind.optimize => l.capKindOptimize,
       CapKind.secure => l.capKindSecure,
       CapKind.prepare => l.capKindPrepare,
+      CapKind.alert => l.capKindAlert,
     };
   }
 
@@ -268,6 +269,7 @@ class CapCard extends StatelessWidget {
         CapKind.optimize => MintColors.success,
         CapKind.secure => MintColors.error,
         CapKind.prepare => MintColors.primary,
+        CapKind.alert => MintColors.warning,
       };
 }
 

@@ -7444,6 +7444,7 @@
   "capKindOptimize": "Optimieren",
   "capKindSecure": "Absichern",
   "capKindPrepare": "Vorbereiten",
+  "capKindAlert": "Warnung",
   "proofSheetSources": "Quellen"
 ,
   "pulseFeedbackRecalculated": "Auswirkung neu berechnet",

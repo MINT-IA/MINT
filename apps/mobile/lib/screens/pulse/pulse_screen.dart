@@ -312,6 +312,7 @@ class _PulseScreenState extends State<PulseScreen> {
       CapKind.optimize => l.capKindOptimize,
       CapKind.secure => l.capKindSecure,
       CapKind.prepare => l.capKindPrepare,
+      CapKind.alert => l.capKindAlert,
     };
 
     return MintNarrativeCard(

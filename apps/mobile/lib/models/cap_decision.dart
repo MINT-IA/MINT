@@ -20,6 +20,9 @@ enum CapKind {
 
   /// A life event or horizon justifies preparation.
   prepare,
+
+  /// An anomaly or unusual pattern detected — needs attention.
+  alert,
 }
 
 /// How the CTA should be executed.

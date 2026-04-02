@@ -16168,6 +16168,9 @@ class SEn extends S {
   String get capKindPrepare => 'Prepare';
 
   @override
+  String get capKindAlert => 'Alert';
+
+  @override
   String get proofSheetSources => 'Sources';
 
   @override

@@ -14,6 +14,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show NavigationShellState;
+import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
@@ -182,6 +183,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       canton: _canton,
     );
 
+    // Best-effort backend sync — non-blocking for onboarding
+    _syncToBackend();
+
     _analytics.trackCTAClick('quick_start_coach',
         screenName: '/onboarding/quick');
 
@@ -205,6 +209,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       canton: _canton,
     );
 
+    // Best-effort backend sync — non-blocking for onboarding
+    _syncToBackend();
+
     _analytics.trackCTAClick('quick_start_explore',
         screenName: '/onboarding/quick');
 
@@ -212,6 +219,17 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
       context.go('/home');
       NavigationShellState.switchTab(0); // Aujourd'hui tab
     }
+  }
+
+  /// Best-effort backend sync — fire-and-forget, non-blocking for onboarding.
+  void _syncToBackend() {
+    final birthYear = DateTime.now().year - _age;
+    ApiService.post('/sync/claim-local-data', {
+      'birth_year': birthYear,
+      'canton': _canton,
+      'gross_salary_annual': _salary,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    }).catchError((Object _) => <String, dynamic>{});
   }
 
   // ── Build ──
