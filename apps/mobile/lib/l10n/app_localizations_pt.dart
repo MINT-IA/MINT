@@ -21212,4 +21212,89 @@ class SPt extends S {
   String chocQuestionHourlyRate(String rate) {
     return 'CHF $rate por hora. É o que vales?';
   }
+
+  @override
+  String get drawerMyProfile => 'O meu perfil';
+
+  @override
+  String get drawerMyReport => 'O meu balanço';
+
+  @override
+  String get drawerCouple => 'Casal';
+
+  @override
+  String get drawerDocuments => 'Os meus documentos';
+
+  @override
+  String get drawerCoachHistory => 'Histórico do coach';
+
+  @override
+  String get drawerSettings => 'Definições';
+
+  @override
+  String get drawerApiKey => 'Chave API (BYOK)';
+
+  @override
+  String get drawerPrivacy => 'Privacidade';
+
+  @override
+  String get drawerLanguage => 'Idioma';
+
+  @override
+  String get drawerDataTransparency => 'Transparência de dados';
+
+  @override
+  String get drawerLogout => 'Terminar sessão';
+
+  @override
+  String get drawerNoProfile => 'Perfil não configurado';
+
+  @override
+  String get drawerDefaultName => 'O meu perfil';
+
+  @override
+  String get mintHomeRetirementIn => 'Reforma em';
+
+  @override
+  String mintHomeYearsMonths(String years, String months) {
+    return '$years anos, $months meses';
+  }
+
+  @override
+  String get mintHomeEstimatedIncome => 'Rendimento estimado à chegada';
+
+  @override
+  String mintHomeDeltaSince(String date) {
+    return 'desde $date';
+  }
+
+  @override
+  String get mintHomeNoActionProjection => 'Se não fizeres nada';
+
+  @override
+  String get mintHomeIn30Days => 'em 30 dias';
+
+  @override
+  String get mintHomeIn6Months => 'em 6 meses';
+
+  @override
+  String get mintHomeAlternativeRoute => 'Rota alternativa';
+
+  @override
+  String get mintHomeConfidence => 'Confiança';
+
+  @override
+  String get mintHomeTalkAboutIt => 'Falamos sobre isso ?';
+
+  @override
+  String get mintHomeSimulate => 'Simular';
+
+  @override
+  String get mintHomeSignal => 'Sinal';
+
+  @override
+  String get mintHomeAskQuestion => 'Faz a tua pergunta...';
+
+  @override
+  String get mintHomeWhatscoming => 'O que vem aí';
 }

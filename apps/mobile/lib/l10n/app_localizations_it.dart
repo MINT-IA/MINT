@@ -21263,4 +21263,89 @@ class SIt extends S {
   String chocQuestionHourlyRate(String rate) {
     return 'CHF $rate all\'ora. È quello che vali?';
   }
+
+  @override
+  String get drawerMyProfile => 'Il mio profilo';
+
+  @override
+  String get drawerMyReport => 'Il mio bilancio';
+
+  @override
+  String get drawerCouple => 'Coppia';
+
+  @override
+  String get drawerDocuments => 'I miei documenti';
+
+  @override
+  String get drawerCoachHistory => 'Cronologia coach';
+
+  @override
+  String get drawerSettings => 'Impostazioni';
+
+  @override
+  String get drawerApiKey => 'Chiave API (BYOK)';
+
+  @override
+  String get drawerPrivacy => 'Privacy';
+
+  @override
+  String get drawerLanguage => 'Lingua';
+
+  @override
+  String get drawerDataTransparency => 'Trasparenza dei dati';
+
+  @override
+  String get drawerLogout => 'Disconnetti';
+
+  @override
+  String get drawerNoProfile => 'Profilo non configurato';
+
+  @override
+  String get drawerDefaultName => 'Il mio profilo';
+
+  @override
+  String get mintHomeRetirementIn => 'Pensionamento tra';
+
+  @override
+  String mintHomeYearsMonths(String years, String months) {
+    return '$years anni, $months mesi';
+  }
+
+  @override
+  String get mintHomeEstimatedIncome => 'Reddito stimato all\'arrivo';
+
+  @override
+  String mintHomeDeltaSince(String date) {
+    return 'dal $date';
+  }
+
+  @override
+  String get mintHomeNoActionProjection => 'Se non fai nulla';
+
+  @override
+  String get mintHomeIn30Days => 'tra 30 giorni';
+
+  @override
+  String get mintHomeIn6Months => 'tra 6 mesi';
+
+  @override
+  String get mintHomeAlternativeRoute => 'Percorso alternativo';
+
+  @override
+  String get mintHomeConfidence => 'Fiducia';
+
+  @override
+  String get mintHomeTalkAboutIt => 'Ne parliamo ?';
+
+  @override
+  String get mintHomeSimulate => 'Simulare';
+
+  @override
+  String get mintHomeSignal => 'Segnale';
+
+  @override
+  String get mintHomeAskQuestion => 'Fai la tua domanda...';
+
+  @override
+  String get mintHomeWhatscoming => 'Cosa sta arrivando';
 }

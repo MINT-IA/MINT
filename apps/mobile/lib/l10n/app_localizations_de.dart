@@ -21252,4 +21252,89 @@ class SDe extends S {
   String chocQuestionHourlyRate(String rate) {
     return 'CHF $rate pro Stunde. Bist du das wert?';
   }
+
+  @override
+  String get drawerMyProfile => 'Mein Profil';
+
+  @override
+  String get drawerMyReport => 'Meine Bilanz';
+
+  @override
+  String get drawerCouple => 'Paar';
+
+  @override
+  String get drawerDocuments => 'Meine Dokumente';
+
+  @override
+  String get drawerCoachHistory => 'Coach-Verlauf';
+
+  @override
+  String get drawerSettings => 'Einstellungen';
+
+  @override
+  String get drawerApiKey => 'API-Schlüssel (BYOK)';
+
+  @override
+  String get drawerPrivacy => 'Datenschutz';
+
+  @override
+  String get drawerLanguage => 'Sprache';
+
+  @override
+  String get drawerDataTransparency => 'Datentransparenz';
+
+  @override
+  String get drawerLogout => 'Abmelden';
+
+  @override
+  String get drawerNoProfile => 'Profil nicht eingerichtet';
+
+  @override
+  String get drawerDefaultName => 'Mein Profil';
+
+  @override
+  String get mintHomeRetirementIn => 'Pensionierung in';
+
+  @override
+  String mintHomeYearsMonths(String years, String months) {
+    return '$years Jahren, $months Monaten';
+  }
+
+  @override
+  String get mintHomeEstimatedIncome => 'Geschätztes Einkommen bei Ankunft';
+
+  @override
+  String mintHomeDeltaSince(String date) {
+    return 'seit dem $date';
+  }
+
+  @override
+  String get mintHomeNoActionProjection => 'Wenn du nichts tust';
+
+  @override
+  String get mintHomeIn30Days => 'in 30 Tagen';
+
+  @override
+  String get mintHomeIn6Months => 'in 6 Monaten';
+
+  @override
+  String get mintHomeAlternativeRoute => 'Alternative Route';
+
+  @override
+  String get mintHomeConfidence => 'Vertrauen';
+
+  @override
+  String get mintHomeTalkAboutIt => 'Reden wir darüber ?';
+
+  @override
+  String get mintHomeSimulate => 'Simulieren';
+
+  @override
+  String get mintHomeSignal => 'Signal';
+
+  @override
+  String get mintHomeAskQuestion => 'Stelle deine Frage...';
+
+  @override
+  String get mintHomeWhatscoming => 'Was kommt';
 }

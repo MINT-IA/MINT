@@ -37256,6 +37256,168 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CHF {rate} de l\'heure. C\'est ce que tu vaux ?'**
   String chocQuestionHourlyRate(String rate);
+
+  /// No description provided for @drawerMyProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get drawerMyProfile;
+
+  /// No description provided for @drawerMyReport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon bilan'**
+  String get drawerMyReport;
+
+  /// No description provided for @drawerCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couple'**
+  String get drawerCouple;
+
+  /// No description provided for @drawerDocuments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes documents'**
+  String get drawerDocuments;
+
+  /// No description provided for @drawerCoachHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique coach'**
+  String get drawerCoachHistory;
+
+  /// No description provided for @drawerSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get drawerSettings;
+
+  /// No description provided for @drawerApiKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clé API (BYOK)'**
+  String get drawerApiKey;
+
+  /// No description provided for @drawerPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get drawerPrivacy;
+
+  /// No description provided for @drawerLanguage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue'**
+  String get drawerLanguage;
+
+  /// No description provided for @drawerDataTransparency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transparence des données'**
+  String get drawerDataTransparency;
+
+  /// No description provided for @drawerLogout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get drawerLogout;
+
+  /// No description provided for @drawerNoProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil non configuré'**
+  String get drawerNoProfile;
+
+  /// No description provided for @drawerDefaultName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get drawerDefaultName;
+
+  /// No description provided for @mintHomeRetirementIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite dans'**
+  String get mintHomeRetirementIn;
+
+  /// No description provided for @mintHomeYearsMonths.
+  ///
+  /// In fr, this message translates to:
+  /// **'{years} ans, {months} mois'**
+  String mintHomeYearsMonths(String years, String months);
+
+  /// No description provided for @mintHomeEstimatedIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu estimé à l\'arrivée'**
+  String get mintHomeEstimatedIncome;
+
+  /// No description provided for @mintHomeDeltaSince.
+  ///
+  /// In fr, this message translates to:
+  /// **'depuis le {date}'**
+  String mintHomeDeltaSince(String date);
+
+  /// No description provided for @mintHomeNoActionProjection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu ne fais rien'**
+  String get mintHomeNoActionProjection;
+
+  /// No description provided for @mintHomeIn30Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'dans 30 jours'**
+  String get mintHomeIn30Days;
+
+  /// No description provided for @mintHomeIn6Months.
+  ///
+  /// In fr, this message translates to:
+  /// **'dans 6 mois'**
+  String get mintHomeIn6Months;
+
+  /// No description provided for @mintHomeAlternativeRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Itinéraire alternatif'**
+  String get mintHomeAlternativeRoute;
+
+  /// No description provided for @mintHomeConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance'**
+  String get mintHomeConfidence;
+
+  /// No description provided for @mintHomeTalkAboutIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'On en parle ?'**
+  String get mintHomeTalkAboutIt;
+
+  /// No description provided for @mintHomeSimulate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler'**
+  String get mintHomeSimulate;
+
+  /// No description provided for @mintHomeSignal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signal'**
+  String get mintHomeSignal;
+
+  /// No description provided for @mintHomeAskQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose ta question...'**
+  String get mintHomeAskQuestion;
+
+  /// No description provided for @mintHomeWhatscoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui arrive'**
+  String get mintHomeWhatscoming;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

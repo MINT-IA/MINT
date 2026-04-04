@@ -21095,4 +21095,89 @@ class SEn extends S {
   String chocQuestionHourlyRate(String rate) {
     return 'CHF $rate per hour. Is that what you\'re worth?';
   }
+
+  @override
+  String get drawerMyProfile => 'My profile';
+
+  @override
+  String get drawerMyReport => 'My report';
+
+  @override
+  String get drawerCouple => 'Couple';
+
+  @override
+  String get drawerDocuments => 'My documents';
+
+  @override
+  String get drawerCoachHistory => 'Coach history';
+
+  @override
+  String get drawerSettings => 'Settings';
+
+  @override
+  String get drawerApiKey => 'API key (BYOK)';
+
+  @override
+  String get drawerPrivacy => 'Privacy';
+
+  @override
+  String get drawerLanguage => 'Language';
+
+  @override
+  String get drawerDataTransparency => 'Data transparency';
+
+  @override
+  String get drawerLogout => 'Log out';
+
+  @override
+  String get drawerNoProfile => 'Profile not set up';
+
+  @override
+  String get drawerDefaultName => 'My profile';
+
+  @override
+  String get mintHomeRetirementIn => 'Retirement in';
+
+  @override
+  String mintHomeYearsMonths(String years, String months) {
+    return '$years years, $months months';
+  }
+
+  @override
+  String get mintHomeEstimatedIncome => 'Estimated income at arrival';
+
+  @override
+  String mintHomeDeltaSince(String date) {
+    return 'since $date';
+  }
+
+  @override
+  String get mintHomeNoActionProjection => 'If you do nothing';
+
+  @override
+  String get mintHomeIn30Days => 'in 30 days';
+
+  @override
+  String get mintHomeIn6Months => 'in 6 months';
+
+  @override
+  String get mintHomeAlternativeRoute => 'Alternative route';
+
+  @override
+  String get mintHomeConfidence => 'Confidence';
+
+  @override
+  String get mintHomeTalkAboutIt => 'Let\'s talk about it?';
+
+  @override
+  String get mintHomeSimulate => 'Simulate';
+
+  @override
+  String get mintHomeSignal => 'Signal';
+
+  @override
+  String get mintHomeAskQuestion => 'Ask your question...';
+
+  @override
+  String get mintHomeWhatscoming => 'What\'s coming';
 }

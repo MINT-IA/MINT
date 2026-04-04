@@ -10242,5 +10242,49 @@
         "type": "String"
       }
     }
-  }
+  },
+  "drawerMyProfile": "Mon profil",
+  "drawerMyReport": "Mon bilan",
+  "drawerCouple": "Couple",
+  "drawerDocuments": "Mes documents",
+  "drawerCoachHistory": "Historique coach",
+  "drawerSettings": "Paramètres",
+  "drawerApiKey": "Clé API (BYOK)",
+  "drawerPrivacy": "Confidentialité",
+  "drawerLanguage": "Langue",
+  "drawerDataTransparency": "Transparence des données",
+  "drawerLogout": "Se déconnecter",
+  "drawerNoProfile": "Profil non configuré",
+  "drawerDefaultName": "Mon profil",
+  "mintHomeRetirementIn": "Retraite dans",
+  "mintHomeYearsMonths": "{years} ans, {months} mois",
+  "@mintHomeYearsMonths": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      },
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "mintHomeEstimatedIncome": "Revenu estimé à l'arrivée",
+  "mintHomeDeltaSince": "depuis le {date}",
+  "@mintHomeDeltaSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "mintHomeNoActionProjection": "Si tu ne fais rien",
+  "mintHomeIn30Days": "dans 30\u00a0jours",
+  "mintHomeIn6Months": "dans 6\u00a0mois",
+  "mintHomeAlternativeRoute": "Itinéraire alternatif",
+  "mintHomeConfidence": "Confiance",
+  "mintHomeTalkAboutIt": "On en parle\u00a0?",
+  "mintHomeSimulate": "Simuler",
+  "mintHomeSignal": "Signal",
+  "mintHomeAskQuestion": "Pose ta question...",
+  "mintHomeWhatscoming": "Ce qui arrive"
 }

@@ -21205,4 +21205,89 @@ class SFr extends S {
   String chocQuestionHourlyRate(String rate) {
     return 'CHF $rate de l\'heure. C\'est ce que tu vaux ?';
   }
+
+  @override
+  String get drawerMyProfile => 'Mon profil';
+
+  @override
+  String get drawerMyReport => 'Mon bilan';
+
+  @override
+  String get drawerCouple => 'Couple';
+
+  @override
+  String get drawerDocuments => 'Mes documents';
+
+  @override
+  String get drawerCoachHistory => 'Historique coach';
+
+  @override
+  String get drawerSettings => 'Paramètres';
+
+  @override
+  String get drawerApiKey => 'Clé API (BYOK)';
+
+  @override
+  String get drawerPrivacy => 'Confidentialité';
+
+  @override
+  String get drawerLanguage => 'Langue';
+
+  @override
+  String get drawerDataTransparency => 'Transparence des données';
+
+  @override
+  String get drawerLogout => 'Se déconnecter';
+
+  @override
+  String get drawerNoProfile => 'Profil non configuré';
+
+  @override
+  String get drawerDefaultName => 'Mon profil';
+
+  @override
+  String get mintHomeRetirementIn => 'Retraite dans';
+
+  @override
+  String mintHomeYearsMonths(String years, String months) {
+    return '$years ans, $months mois';
+  }
+
+  @override
+  String get mintHomeEstimatedIncome => 'Revenu estimé à l\'arrivée';
+
+  @override
+  String mintHomeDeltaSince(String date) {
+    return 'depuis le $date';
+  }
+
+  @override
+  String get mintHomeNoActionProjection => 'Si tu ne fais rien';
+
+  @override
+  String get mintHomeIn30Days => 'dans 30 jours';
+
+  @override
+  String get mintHomeIn6Months => 'dans 6 mois';
+
+  @override
+  String get mintHomeAlternativeRoute => 'Itinéraire alternatif';
+
+  @override
+  String get mintHomeConfidence => 'Confiance';
+
+  @override
+  String get mintHomeTalkAboutIt => 'On en parle ?';
+
+  @override
+  String get mintHomeSimulate => 'Simuler';
+
+  @override
+  String get mintHomeSignal => 'Signal';
+
+  @override
+  String get mintHomeAskQuestion => 'Pose ta question...';
+
+  @override
+  String get mintHomeWhatscoming => 'Ce qui arrive';
 }
