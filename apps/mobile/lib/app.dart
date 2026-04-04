@@ -24,7 +24,6 @@ import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/data_transparency_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
-import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
@@ -35,7 +34,6 @@ import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
-import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -100,11 +98,8 @@ import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
-import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
-import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
-import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -330,21 +325,10 @@ final _router = GoRouter(
     GoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
     GoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
 
-    GoRoute(
-      path: '/coach/cockpit',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CockpitDetailScreen(),
-    ),
-    GoRoute(
-      path: '/coach/checkin',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachCheckinScreen(),
-    ),
-    GoRoute(
-      path: '/coach/refresh',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AnnualRefreshScreen(),
-    ),
+    // Wire Spec V2 P4: archived routes — redirect to shell tabs
+    GoRoute(path: '/coach/cockpit', redirect: (_, __) => '/home?tab=0'),
+    GoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
+    GoRoute(path: '/coach/refresh', redirect: (_, __) => '/home?tab=0'),
     GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
@@ -833,16 +817,9 @@ final _router = GoRouter(
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    GoRoute(
-      path: '/ask-mint',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AskMintScreen(),
-    ),
-    GoRoute(
-      path: '/tools',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ToolsLibraryScreen(),
-    ),
+    // Wire Spec V2 P4: archived routes — redirect to shell tabs
+    GoRoute(path: '/ask-mint', redirect: (_, __) => '/home?tab=1'),
+    GoRoute(path: '/tools', redirect: (_, __) => '/home?tab=2'),
     GoRoute(
       path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,

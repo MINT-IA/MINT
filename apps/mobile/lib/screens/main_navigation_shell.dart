@@ -9,7 +9,6 @@ import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
     show NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/main_tabs/dossier_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';
 import 'package:mint_mobile/widgets/profile_drawer.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
