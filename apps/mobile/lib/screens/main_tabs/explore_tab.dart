@@ -18,8 +18,95 @@ import 'package:provider/provider.dart';
 /// Hubs reordered dynamically by lifecycle phase (W17-P1).
 /// Default order (no profile / acceleration phase):
 ///   Fiscalite, Logement, Retraite, Patrimoine, Famille, Travail, Sante
-class ExploreTab extends StatelessWidget {
+///
+/// Search bar (W17-P3.3): keyword-based client-side search across
+/// all tools, screens, and hubs.
+class ExploreTab extends StatefulWidget {
   const ExploreTab({super.key});
+
+  @override
+  State<ExploreTab> createState() => _ExploreTabState();
+}
+
+/// A searchable entry in the explore index.
+class _SearchEntry {
+  final String label;
+  final String route;
+  final List<String> keywords;
+
+  const _SearchEntry(this.label, this.route, this.keywords);
+
+  /// Case- and accent-insensitive match against query.
+  bool matches(String normalizedQuery) {
+    if (_normalize(label).contains(normalizedQuery)) return true;
+    for (final kw in keywords) {
+      if (_normalize(kw).contains(normalizedQuery)) return true;
+    }
+    return false;
+  }
+
+  static String _normalize(String s) {
+    return s
+        .toLowerCase()
+        .replaceAll(RegExp('[éèêë]'), 'e')
+        .replaceAll(RegExp('[àâä]'), 'a')
+        .replaceAll(RegExp('[ùûü]'), 'u')
+        .replaceAll(RegExp('[ôö]'), 'o')
+        .replaceAll(RegExp('[îï]'), 'i')
+        .replaceAll('ç', 'c');
+  }
+}
+
+class _ExploreTabState extends State<ExploreTab> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  /// Static search index — all major tools, screens, and hubs.
+  static const List<_SearchEntry> _searchIndex = [
+    // Retraite
+    _SearchEntry('Retraite', '/retraite', ['retirement', 'pension', 'AVS', 'LPP']),
+    _SearchEntry('Rente vs Capital', '/rente-vs-capital', ['rente', 'capital', 'choix']),
+    _SearchEntry('Rachat LPP', '/rachat-lpp', ['rachat', 'buyback', '2e pilier']),
+    _SearchEntry('EPL', '/epl', ['retrait', 'anticipé', 'pilier']),
+    _SearchEntry('Décaissement', '/decaissement', ['withdrawal', 'retrait']),
+    _SearchEntry('Succession', '/succession', ['héritage', 'estate']),
+    _SearchEntry('Libre passage', '/libre-passage', ['transfer', 'caisse']),
+    // Fiscalité
+    _SearchEntry('Pilier 3a', '/pilier-3a', ['3a', 'épargne', 'fiscal']),
+    _SearchEntry('Comparateur 3a', '/3a-deep/comparator', ['provider', 'banque']),
+    _SearchEntry('Rendement réel 3a', '/3a-deep/real-return', ['rendement', 'return']),
+    _SearchEntry('3a échelonné', '/3a-deep/staggered-withdrawal', ['retrait', 'échelonné']),
+    _SearchEntry('3a rétroactif', '/3a-retroactif', ['rétroactif', 'retroactive']),
+    _SearchEntry('Fiscal', '/fiscal', ['impôt', 'tax', 'cantonal']),
+    // Logement
+    _SearchEntry('Hypothèque', '/hypotheque', ['mortgage', 'maison', 'achat']),
+    _SearchEntry('Amortissement', '/mortgage/amortization', ['amortir', 'rembourser']),
+    _SearchEntry('Valeur locative', '/mortgage/imputed-rental', ['locative', 'imputed']),
+    _SearchEntry('SARON vs Fixe', '/mortgage/saron-vs-fixed', ['taux', 'rate', 'SARON']),
+    // Famille
+    _SearchEntry('Divorce', '/divorce', ['séparation', 'splitting']),
+    _SearchEntry('Mariage', '/mariage', ['wedding', 'couple']),
+    _SearchEntry('Naissance', '/naissance', ['bébé', 'enfant', 'baby']),
+    _SearchEntry('Concubinage', '/concubinage', ['union libre']),
+    // Emploi
+    _SearchEntry('Chômage', '/unemployment', ['perte', 'emploi', 'job']),
+    _SearchEntry('Premier emploi', '/first-job', ['stage', 'apprenti']),
+    _SearchEntry('Expatriation', '/expatriation', ['expat', 'étranger']),
+    // Indépendants
+    _SearchEntry('Indépendant', '/segments/independant', ['self-employed', 'freelance']),
+    // Santé
+    _SearchEntry('Invalidité', '/invalidite', ['disability', 'AI']),
+    _SearchEntry('LAMal', '/assurances/lamal', ['franchise', 'assurance']),
+    // Budget
+    _SearchEntry('Budget', '/budget', ['dépenses', 'revenu', 'expenses']),
+    _SearchEntry('Dettes', '/check/debt', ['dette', 'crédit', 'debt']),
+  ];
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   /// Hub display order by lifecycle phase.
   /// Keys match _hubConfigs entries below.
@@ -118,6 +205,13 @@ class ExploreTab extends StatelessWidget {
       ),
     };
 
+    final normalizedQuery = _searchQuery.isNotEmpty
+        ? _SearchEntry._normalize(_searchQuery)
+        : '';
+    final searchResults = normalizedQuery.isNotEmpty
+        ? _searchIndex.where((e) => e.matches(normalizedQuery)).toList()
+        : <_SearchEntry>[];
+
     return CustomScrollView(
       slivers: [
         SliverAppBar(
@@ -133,28 +227,108 @@ class ExploreTab extends StatelessWidget {
           ),
           centerTitle: false,
         ),
+        // Search bar
         SliverToBoxAdapter(
           child: Container(
             color: MintColors.porcelaine,
-            padding: const EdgeInsets.symmetric(
-              horizontal: MintSpacing.lg,
+            padding: const EdgeInsets.fromLTRB(
+              MintSpacing.lg,
+              MintSpacing.md,
+              MintSpacing.lg,
+              0,
             ),
-            child: Column(
-              children: [
-                const SizedBox(height: MintSpacing.md),
-                for (int i = 0; i < orderedHubKeys.length; i++) ...[
-                  if (i > 0) const SizedBox(height: MintSpacing.xl),
-                  _buildHubCard(
-                    context,
-                    hubConfigs[orderedHubKeys[i]]!,
-                    delay: Duration(milliseconds: i * 100),
-                  ),
-                ],
-                const SizedBox(height: MintSpacing.xxl),
-              ],
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: l.explorerSearchHint,
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: MintColors.textSecondary,
+                ),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.close,
+                          color: MintColors.textSecondary,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _searchQuery = '');
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: MintColors.background,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onChanged: (query) =>
+                  setState(() => _searchQuery = query),
             ),
           ),
         ),
+        // Search results OR hub grid
+        if (_searchQuery.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Container(
+              color: MintColors.porcelaine,
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.lg,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: MintSpacing.md),
+                  if (searchResults.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: MintSpacing.xl,
+                      ),
+                      child: Center(
+                        child: Text(
+                          l.explorerSearchNoResults,
+                          style: MintTextStyles.bodyMedium(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    for (final entry in searchResults)
+                      _buildSearchResultTile(context, entry),
+                  const SizedBox(height: MintSpacing.xxl),
+                ],
+              ),
+            ),
+          )
+        else
+          SliverToBoxAdapter(
+            child: Container(
+              color: MintColors.porcelaine,
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.lg,
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: MintSpacing.md),
+                  for (int i = 0; i < orderedHubKeys.length; i++) ...[
+                    if (i > 0) const SizedBox(height: MintSpacing.xl),
+                    _buildHubCard(
+                      context,
+                      hubConfigs[orderedHubKeys[i]]!,
+                      delay: Duration(milliseconds: i * 100),
+                    ),
+                  ],
+                  const SizedBox(height: MintSpacing.xxl),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -173,6 +347,32 @@ class ExploreTab extends StatelessWidget {
         tone: config.tone,
         icon: config.icon,
         onTap: () => context.push(config.route),
+      ),
+    );
+  }
+
+  /// Build a single search result tile.
+  Widget _buildSearchResultTile(BuildContext context, _SearchEntry entry) {
+    return Semantics(
+      button: true,
+      label: entry.label,
+      child: ListTile(
+        leading: const Icon(
+          Icons.arrow_forward_rounded,
+          color: MintColors.textSecondary,
+          size: 20,
+        ),
+        title: Text(
+          entry.label,
+          style: MintTextStyles.bodyLarge(),
+        ),
+        contentPadding: EdgeInsets.zero,
+        shape: Border(
+          bottom: BorderSide(
+            color: MintColors.textMuted.withValues(alpha: 0.15),
+          ),
+        ),
+        onTap: () => context.push(entry.route),
       ),
     );
   }

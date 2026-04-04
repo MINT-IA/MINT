@@ -21372,4 +21372,37 @@ class SIt extends S {
 
   @override
   String get promiseCtaFree => 'Solo i numeri';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'Stai lasciando $savings CHF di risparmio fiscale sul tavolo.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Le banche rifiuteranno. Ecco 2 opzioni.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100 % capitale = 0 rendita garantita. Sicuro?';
+
+  @override
+  String get coachInterruptEplBlock => 'Attenzione: blocco EPL per 3 anni.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Deficit di $deficit CHF/mese. Diamo un’occhiata?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'Vedi il calcolo';
+
+  @override
+  String get coachInterruptLater => 'Più tardi';
+
+  @override
+  String get explorerSearchHint => 'Cerca in MINT...';
+
+  @override
+  String get explorerSearchNoResults => 'Nessun risultato';
 }

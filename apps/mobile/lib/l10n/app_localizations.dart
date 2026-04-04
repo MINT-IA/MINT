@@ -37460,6 +37460,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Juste les chiffres'**
   String get promiseCtaFree;
+
+  /// No description provided for @coachInterrupt3aUnderMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu laisses {savings} CHF d’économie d’impôts sur la table.'**
+  String coachInterrupt3aUnderMax(String savings);
+
+  /// No description provided for @coachInterruptMortgageOverThird.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les banques refuseront. Voici 2 pistes.'**
+  String get coachInterruptMortgageOverThird;
+
+  /// No description provided for @coachInterruptFullCapitalRisk.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 % capital = 0 rente garantie. Sûr ?'**
+  String get coachInterruptFullCapitalRisk;
+
+  /// No description provided for @coachInterruptEplBlock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention : blocage EPL pendant 3 ans.'**
+  String get coachInterruptEplBlock;
+
+  /// No description provided for @coachInterruptBudgetDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déficit de {deficit} CHF/mois. On regarde ?'**
+  String coachInterruptBudgetDeficit(String deficit);
+
+  /// No description provided for @coachInterruptSeeCalc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le calcul'**
+  String get coachInterruptSeeCalc;
+
+  /// No description provided for @coachInterruptLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get coachInterruptLater;
+
+  /// No description provided for @explorerSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans MINT...'**
+  String get explorerSearchHint;
+
+  /// No description provided for @explorerSearchNoResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat'**
+  String get explorerSearchNoResults;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

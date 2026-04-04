@@ -21318,4 +21318,37 @@ class SEs extends S {
 
   @override
   String get promiseCtaFree => 'Solo los números';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'Estás dejando $savings CHF de ahorro fiscal sobre la mesa.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Los bancos rechazarán. Aquí tienes 2 opciones.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100 % capital = 0 renta garantizada. ¿Seguro?';
+
+  @override
+  String get coachInterruptEplBlock => 'Atención: bloqueo EPL durante 3 años.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Déficit de $deficit CHF/mes. ¿Lo miramos?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'Ver el cálculo';
+
+  @override
+  String get coachInterruptLater => 'Más tarde';
+
+  @override
+  String get explorerSearchHint => 'Buscar en MINT...';
+
+  @override
+  String get explorerSearchNoResults => 'Sin resultados';
 }

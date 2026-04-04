@@ -9777,5 +9777,16 @@
   "promiseBodySenior": "Pensione. Tasse. Patrimonio.\nI tuoi numeri, le tue decisioni.",
   "promiseFooter": "Gratuito. I tuoi dati restano sul tuo telefono.",
   "promiseCtaRegister": "Andiamo",
-  "promiseCtaFree": "Solo i numeri"
+  "promiseCtaFree": "Solo i numeri",
+  "coachInterrupt3aUnderMax": "Stai lasciando {savings} CHF di risparmio fiscale sul tavolo.",
+  "@coachInterrupt3aUnderMax": {"placeholders": {"savings": {"type": "String"}}},
+  "coachInterruptMortgageOverThird": "Le banche rifiuteranno. Ecco 2\u00a0opzioni.",
+  "coachInterruptFullCapitalRisk": "100\u00a0% capitale = 0 rendita garantita. Sicuro?",
+  "coachInterruptEplBlock": "Attenzione: blocco EPL per 3\u00a0anni.",
+  "coachInterruptBudgetDeficit": "Deficit di {deficit} CHF/mese. Diamo un\u2019occhiata?",
+  "@coachInterruptBudgetDeficit": {"placeholders": {"deficit": {"type": "String"}}},
+  "coachInterruptSeeCalc": "Vedi il calcolo",
+  "coachInterruptLater": "Pi\u00f9 tardi",
+  "explorerSearchHint": "Cerca in MINT...",
+  "explorerSearchNoResults": "Nessun risultato"
 }

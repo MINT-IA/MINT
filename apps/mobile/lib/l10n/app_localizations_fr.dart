@@ -21314,4 +21314,37 @@ class SFr extends S {
 
   @override
   String get promiseCtaFree => 'Juste les chiffres';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'Tu laisses $savings CHF d’économie d’impôts sur la table.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Les banques refuseront. Voici 2 pistes.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100 % capital = 0 rente garantie. Sûr ?';
+
+  @override
+  String get coachInterruptEplBlock => 'Attention : blocage EPL pendant 3 ans.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Déficit de $deficit CHF/mois. On regarde ?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'Voir le calcul';
+
+  @override
+  String get coachInterruptLater => 'Plus tard';
+
+  @override
+  String get explorerSearchHint => 'Chercher dans MINT...';
+
+  @override
+  String get explorerSearchNoResults => 'Aucun résultat';
 }

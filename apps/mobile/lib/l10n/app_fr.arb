@@ -10293,5 +10293,16 @@
   "promiseBodySenior": "Retraite. Impôts. Patrimoine.\nTes chiffres, tes décisions.",
   "promiseFooter": "Gratuit. Tes données restent sur ton téléphone.",
   "promiseCtaRegister": "Allons-y",
-  "promiseCtaFree": "Juste les chiffres"
+  "promiseCtaFree": "Juste les chiffres",
+  "coachInterrupt3aUnderMax": "Tu laisses {savings} CHF d\u2019\u00e9conomie d\u2019imp\u00f4ts sur la table.",
+  "@coachInterrupt3aUnderMax": {"placeholders": {"savings": {"type": "String"}}},
+  "coachInterruptMortgageOverThird": "Les banques refuseront. Voici 2\u00a0pistes.",
+  "coachInterruptFullCapitalRisk": "100\u00a0% capital = 0 rente garantie. S\u00fbr\u00a0?",
+  "coachInterruptEplBlock": "Attention\u00a0: blocage EPL pendant 3\u00a0ans.",
+  "coachInterruptBudgetDeficit": "D\u00e9ficit de {deficit} CHF/mois. On regarde\u00a0?",
+  "@coachInterruptBudgetDeficit": {"placeholders": {"deficit": {"type": "String"}}},
+  "coachInterruptSeeCalc": "Voir le calcul",
+  "coachInterruptLater": "Plus tard",
+  "explorerSearchHint": "Chercher dans MINT...",
+  "explorerSearchNoResults": "Aucun résultat"
 }

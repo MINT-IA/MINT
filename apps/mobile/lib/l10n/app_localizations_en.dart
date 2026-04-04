@@ -21204,4 +21204,37 @@ class SEn extends S {
 
   @override
   String get promiseCtaFree => 'Just the numbers';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'You’re leaving $savings CHF of tax savings on the table.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Banks will refuse. Here are 2 options.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100% capital = 0 guaranteed pension. Sure?';
+
+  @override
+  String get coachInterruptEplBlock => 'Warning: EPL lock-in for 3 years.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Deficit of $deficit CHF/month. Shall we look?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'See the calculation';
+
+  @override
+  String get coachInterruptLater => 'Later';
+
+  @override
+  String get explorerSearchHint => 'Search in MINT...';
+
+  @override
+  String get explorerSearchNoResults => 'No results';
 }

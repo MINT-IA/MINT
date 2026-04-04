@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
+import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -684,11 +685,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       );
     }
 
-    final finalText = compliance.useFallback
+    final complianceText = compliance.useFallback
         ? S.of(context)!.coachComplianceError
         : (compliance.sanitizedText.isNotEmpty
             ? compliance.sanitizedText
             : rawText);
+
+    // Wire Spec V2 §3.6: parse tool call markers from response.
+    final parseResult = ToolCallParser.parse(complianceText);
+    final finalText = parseResult.cleanText.isNotEmpty
+        ? parseResult.cleanText
+        : complianceText;
 
     final suggestedActions = compliance.useFallback
         ? null
@@ -711,6 +718,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isStreaming = false;
     });
     _scrollToBottom();
+
+    // Wire Spec V2 §3.6: execute parsed tool calls.
+    _executeToolCalls(parseResult.toolCalls);
 
     // Wire S58: extract and persist insight from SLM exchange.
     _extractAndSaveInsight(userMessage, finalText);
@@ -740,15 +750,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ? ResponseCardService.generateForChat(_profile!, text, l: S.of(context)!)
           : <ResponseCard>[];
 
+      // Wire Spec V2 §3.6: parse tool call markers from response.
+      final parseResult = ToolCallParser.parse(response.message);
+      final cleanMessage = parseResult.cleanText.isNotEmpty
+          ? parseResult.cleanText
+          : response.message;
+
       // Use LLM-provided suggestions if available, otherwise infer from
       // both the user message and the coach response.
       final suggestedActions = response.suggestedActions ??
-          _inferSuggestedActions(text, response.message);
+          _inferSuggestedActions(text, cleanMessage);
 
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: response.message,
+          content: cleanMessage,
           timestamp: DateTime.now(),
           suggestedActions: suggestedActions,
           sources: response.sources,
@@ -760,8 +776,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       });
       _scrollToBottom();
 
+      // Wire Spec V2 §3.6: execute parsed tool calls.
+      _executeToolCalls(parseResult.toolCalls);
+
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
-      _extractAndSaveInsight(text, response.message);
+      _extractAndSaveInsight(text, cleanMessage);
 
       // Check if we should propose proactive opt-in.
       _maybeShowProactiveOptIn();
@@ -797,6 +816,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
         _isLoading = false;
       });
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  TOOL CALL EXECUTION (Wire Spec V2 §3.6)
+  // ════════════════════════════════════════════════════════════
+
+  /// Execute parsed tool calls from coach response.
+  ///
+  /// V1: Only ROUTE_TO_SCREEN is executed. Other tools are logged
+  /// for future implementation. Navigation is deferred to the next
+  /// frame so the message bubble renders first.
+  void _executeToolCalls(List<ParsedToolCall> toolCalls) {
+    if (toolCalls.isEmpty) return;
+    for (final call in toolCalls) {
+      switch (call.toolName) {
+        case 'ROUTE_TO_SCREEN':
+          final route = call.arguments['route'] as String?;
+          if (route != null && ToolCallParser.isValidRoute(route)) {
+            // Schedule navigation after the message is displayed.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) context.push(route);
+            });
+          } else {
+            debugPrint(
+              '[CoachChat] ROUTE_TO_SCREEN rejected: $route (not in whitelist)',
+            );
+          }
+          break;
+        default:
+          debugPrint(
+            '[CoachChat] Tool call not yet handled: ${call.toolName}',
+          );
+      }
     }
   }
 

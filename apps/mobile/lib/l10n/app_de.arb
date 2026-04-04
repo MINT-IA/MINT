@@ -9777,5 +9777,16 @@
   "promiseBodySenior": "Pension. Steuern. Vermögen.\nDeine Zahlen, deine Entscheide.",
   "promiseFooter": "Gratis. Deine Daten bleiben auf deinem Handy.",
   "promiseCtaRegister": "Los geht's",
-  "promiseCtaFree": "Nur die Zahlen"
+  "promiseCtaFree": "Nur die Zahlen",
+  "coachInterrupt3aUnderMax": "Du verschenkst {savings} CHF Steuerersparnis.",
+  "@coachInterrupt3aUnderMax": {"placeholders": {"savings": {"type": "String"}}},
+  "coachInterruptMortgageOverThird": "Die Bank wird ablehnen. Hier sind 2\u00a0Optionen.",
+  "coachInterruptFullCapitalRisk": "100\u00a0% Kapital = 0 garantierte Rente. Sicher?",
+  "coachInterruptEplBlock": "Achtung: WEF-Sperre f\u00fcr 3\u00a0Jahre.",
+  "coachInterruptBudgetDeficit": "Defizit von {deficit} CHF/Monat. Schauen wir?",
+  "@coachInterruptBudgetDeficit": {"placeholders": {"deficit": {"type": "String"}}},
+  "coachInterruptSeeCalc": "Berechnung ansehen",
+  "coachInterruptLater": "Sp\u00e4ter",
+  "explorerSearchHint": "In MINT suchen...",
+  "explorerSearchNoResults": "Keine Ergebnisse"
 }

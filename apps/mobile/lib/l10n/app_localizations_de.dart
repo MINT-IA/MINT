@@ -21361,4 +21361,37 @@ class SDe extends S {
 
   @override
   String get promiseCtaFree => 'Nur die Zahlen';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'Du verschenkst $savings CHF Steuerersparnis.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Die Bank wird ablehnen. Hier sind 2 Optionen.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100 % Kapital = 0 garantierte Rente. Sicher?';
+
+  @override
+  String get coachInterruptEplBlock => 'Achtung: WEF-Sperre für 3 Jahre.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Defizit von $deficit CHF/Monat. Schauen wir?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'Berechnung ansehen';
+
+  @override
+  String get coachInterruptLater => 'Später';
+
+  @override
+  String get explorerSearchHint => 'In MINT suchen...';
+
+  @override
+  String get explorerSearchNoResults => 'Keine Ergebnisse';
 }

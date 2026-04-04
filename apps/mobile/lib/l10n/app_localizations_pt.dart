@@ -21321,4 +21321,37 @@ class SPt extends S {
 
   @override
   String get promiseCtaFree => 'Só os números';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'Estás a deixar $savings CHF de poupança fiscal na mesa.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Os bancos vão recusar. Aqui tens 2 opções.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100 % capital = 0 renda garantida. Tens a certeza?';
+
+  @override
+  String get coachInterruptEplBlock => 'Atenção: bloqueio EPL durante 3 anos.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Défice de $deficit CHF/mês. Vamos ver?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'Ver o cálculo';
+
+  @override
+  String get coachInterruptLater => 'Mais tarde';
+
+  @override
+  String get explorerSearchHint => 'Pesquisar no MINT...';
+
+  @override
+  String get explorerSearchNoResults => 'Sem resultados';
 }
