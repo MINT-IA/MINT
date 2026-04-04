@@ -9788,5 +9788,20 @@
   "coachInterruptSeeCalc": "See the calculation",
   "coachInterruptLater": "Later",
   "explorerSearchHint": "Search in MINT...",
-  "explorerSearchNoResults": "No results"
+  "explorerSearchNoResults": "No results",
+  "mintHomeRadarTitle": "What's coming",
+  "mintHomeRadarIn": "In {months}\u00a0months",
+  "@mintHomeRadarIn": {"placeholders": {"months": {"type": "String"}}},
+  "mintHomeRadarPrepare": "Prepare",
+  "mintHomeRadarMilestone50": "Your LPP contribution rises to 18%.",
+  "mintHomeRadarMilestone55": "Early retirement possible from age 58.",
+  "mintHomeRadarMilestone60": "5 years to retirement. Final stretch.",
+  "mintHomeRadarMilestone65": "Your retirement year.",
+  "mintHomeRadar3aDeadline": "3a deadline {year}",
+  "@mintHomeRadar3aDeadline": {"placeholders": {"year": {"type": "String"}}},
+  "mintHomeRadarDaysLeft": "{days}\u00a0days left",
+  "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
+  "scanInsightConfidenceDelta": "Confidence: {before}% \u2192 {after}% (+{delta}\u00a0points)",
+  "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
+  "scanInsightCta": "Let's see what changed?"
 }

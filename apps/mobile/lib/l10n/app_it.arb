@@ -9788,5 +9788,20 @@
   "coachInterruptSeeCalc": "Vedi il calcolo",
   "coachInterruptLater": "Pi\u00f9 tardi",
   "explorerSearchHint": "Cerca in MINT...",
-  "explorerSearchNoResults": "Nessun risultato"
+  "explorerSearchNoResults": "Nessun risultato",
+  "mintHomeRadarTitle": "Cosa arriva",
+  "mintHomeRadarIn": "Tra {months}\u00a0mesi",
+  "@mintHomeRadarIn": {"placeholders": {"months": {"type": "String"}}},
+  "mintHomeRadarPrepare": "Preparare",
+  "mintHomeRadarMilestone50": "Il tuo contributo LPP sale al 18\u00a0%.",
+  "mintHomeRadarMilestone55": "Pensionamento anticipato possibile dai 58 anni.",
+  "mintHomeRadarMilestone60": "5 anni alla pensione. Ultimo tratto.",
+  "mintHomeRadarMilestone65": "L'anno del tuo pensionamento.",
+  "mintHomeRadar3aDeadline": "Scadenza 3a {year}",
+  "@mintHomeRadar3aDeadline": {"placeholders": {"year": {"type": "String"}}},
+  "mintHomeRadarDaysLeft": "{days}\u00a0giorni rimasti",
+  "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
+  "scanInsightConfidenceDelta": "Fiducia: {before}\u00a0% \u2192 {after}\u00a0% (+{delta}\u00a0punti)",
+  "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
+  "scanInsightCta": "Vediamo cosa \u00e8 cambiato?"
 }

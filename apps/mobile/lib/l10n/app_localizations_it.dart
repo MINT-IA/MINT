@@ -21405,4 +21405,46 @@ class SIt extends S {
 
   @override
   String get explorerSearchNoResults => 'Nessun risultato';
+
+  @override
+  String get mintHomeRadarTitle => 'Cosa arriva';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'Tra $months mesi';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Preparare';
+
+  @override
+  String get mintHomeRadarMilestone50 => 'Il tuo contributo LPP sale al 18 %.';
+
+  @override
+  String get mintHomeRadarMilestone55 =>
+      'Pensionamento anticipato possibile dai 58 anni.';
+
+  @override
+  String get mintHomeRadarMilestone60 => '5 anni alla pensione. Ultimo tratto.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'L\'anno del tuo pensionamento.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return 'Scadenza 3a $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days giorni rimasti';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Fiducia: $before % → $after % (+$delta punti)';
+  }
+
+  @override
+  String get scanInsightCta => 'Vediamo cosa è cambiato?';
 }

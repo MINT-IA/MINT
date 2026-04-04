@@ -21394,4 +21394,46 @@ class SDe extends S {
 
   @override
   String get explorerSearchNoResults => 'Keine Ergebnisse';
+
+  @override
+  String get mintHomeRadarTitle => 'Was kommt';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'In $months Monaten';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Vorbereiten';
+
+  @override
+  String get mintHomeRadarMilestone50 => 'Dein BVG-Beitrag steigt auf 18 %.';
+
+  @override
+  String get mintHomeRadarMilestone55 => 'Frühpensionierung ab 58 möglich.';
+
+  @override
+  String get mintHomeRadarMilestone60 =>
+      '5 Jahre bis zur Pension. Letzte Etappe.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'Dein Pensionierungsjahr.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return '3a-Frist $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days Tage übrig';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Vertrauen: $before % → $after % (+$delta Punkte)';
+  }
+
+  @override
+  String get scanInsightCta => 'Schauen wir, was sich geändert hat?';
 }

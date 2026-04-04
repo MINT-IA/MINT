@@ -21237,4 +21237,47 @@ class SEn extends S {
 
   @override
   String get explorerSearchNoResults => 'No results';
+
+  @override
+  String get mintHomeRadarTitle => 'What\'s coming';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'In $months months';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Prepare';
+
+  @override
+  String get mintHomeRadarMilestone50 => 'Your LPP contribution rises to 18%.';
+
+  @override
+  String get mintHomeRadarMilestone55 =>
+      'Early retirement possible from age 58.';
+
+  @override
+  String get mintHomeRadarMilestone60 =>
+      '5 years to retirement. Final stretch.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'Your retirement year.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return '3a deadline $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days days left';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Confidence: $before% → $after% (+$delta points)';
+  }
+
+  @override
+  String get scanInsightCta => 'Let\'s see what changed?';
 }

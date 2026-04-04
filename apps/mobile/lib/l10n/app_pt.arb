@@ -9788,5 +9788,20 @@
   "coachInterruptSeeCalc": "Ver o c\u00e1lculo",
   "coachInterruptLater": "Mais tarde",
   "explorerSearchHint": "Pesquisar no MINT...",
-  "explorerSearchNoResults": "Sem resultados"
+  "explorerSearchNoResults": "Sem resultados",
+  "mintHomeRadarTitle": "O que vem a\u00ed",
+  "mintHomeRadarIn": "Em {months}\u00a0meses",
+  "@mintHomeRadarIn": {"placeholders": {"months": {"type": "String"}}},
+  "mintHomeRadarPrepare": "Preparar",
+  "mintHomeRadarMilestone50": "A tua bonifica\u00e7\u00e3o LPP sobe para 18\u00a0%.",
+  "mintHomeRadarMilestone55": "Reforma antecipada poss\u00edvel a partir dos 58.",
+  "mintHomeRadarMilestone60": "5 anos para a reforma. Reta final.",
+  "mintHomeRadarMilestone65": "O ano da tua reforma.",
+  "mintHomeRadar3aDeadline": "Prazo 3a {year}",
+  "@mintHomeRadar3aDeadline": {"placeholders": {"year": {"type": "String"}}},
+  "mintHomeRadarDaysLeft": "{days}\u00a0dias restantes",
+  "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
+  "scanInsightConfidenceDelta": "Confian\u00e7a: {before}\u00a0% \u2192 {after}\u00a0% (+{delta}\u00a0pontos)",
+  "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
+  "scanInsightCta": "Vamos ver o que mudou?"
 }

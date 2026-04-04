@@ -9788,5 +9788,20 @@
   "coachInterruptSeeCalc": "Berechnung ansehen",
   "coachInterruptLater": "Sp\u00e4ter",
   "explorerSearchHint": "In MINT suchen...",
-  "explorerSearchNoResults": "Keine Ergebnisse"
+  "explorerSearchNoResults": "Keine Ergebnisse",
+  "mintHomeRadarTitle": "Was kommt",
+  "mintHomeRadarIn": "In {months}\u00a0Monaten",
+  "@mintHomeRadarIn": {"placeholders": {"months": {"type": "String"}}},
+  "mintHomeRadarPrepare": "Vorbereiten",
+  "mintHomeRadarMilestone50": "Dein BVG-Beitrag steigt auf 18\u00a0%.",
+  "mintHomeRadarMilestone55": "Fr\u00fchpensionierung ab 58 m\u00f6glich.",
+  "mintHomeRadarMilestone60": "5 Jahre bis zur Pension. Letzte Etappe.",
+  "mintHomeRadarMilestone65": "Dein Pensionierungsjahr.",
+  "mintHomeRadar3aDeadline": "3a-Frist {year}",
+  "@mintHomeRadar3aDeadline": {"placeholders": {"year": {"type": "String"}}},
+  "mintHomeRadarDaysLeft": "{days}\u00a0Tage \u00fcbrig",
+  "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
+  "scanInsightConfidenceDelta": "Vertrauen: {before}\u00a0% \u2192 {after}\u00a0% (+{delta}\u00a0Punkte)",
+  "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
+  "scanInsightCta": "Schauen wir, was sich ge\u00e4ndert hat?"
 }

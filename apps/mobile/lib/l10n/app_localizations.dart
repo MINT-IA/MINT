@@ -37514,6 +37514,72 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Aucun résultat'**
   String get explorerSearchNoResults;
+
+  /// No description provided for @mintHomeRadarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui arrive'**
+  String get mintHomeRadarTitle;
+
+  /// No description provided for @mintHomeRadarIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans {months} mois'**
+  String mintHomeRadarIn(String months);
+
+  /// No description provided for @mintHomeRadarPrepare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer'**
+  String get mintHomeRadarPrepare;
+
+  /// No description provided for @mintHomeRadarMilestone50.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta bonification LPP passe à 18 %.'**
+  String get mintHomeRadarMilestone50;
+
+  /// No description provided for @mintHomeRadarMilestone55.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite anticipée possible dès 58 ans.'**
+  String get mintHomeRadarMilestone55;
+
+  /// No description provided for @mintHomeRadarMilestone60.
+  ///
+  /// In fr, this message translates to:
+  /// **'5 ans avant la retraite. Dernière ligne droite.'**
+  String get mintHomeRadarMilestone60;
+
+  /// No description provided for @mintHomeRadarMilestone65.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'année de ta retraite.'**
+  String get mintHomeRadarMilestone65;
+
+  /// No description provided for @mintHomeRadar3aDeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deadline 3a {year}'**
+  String mintHomeRadar3aDeadline(String year);
+
+  /// No description provided for @mintHomeRadarDaysLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours restants'**
+  String mintHomeRadarDaysLeft(String days);
+
+  /// No description provided for @scanInsightConfidenceDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance : {before} % → {after} % (+{delta} points)'**
+  String scanInsightConfidenceDelta(String before, String after, String delta);
+
+  /// No description provided for @scanInsightCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'On regarde ce que ça change ?'**
+  String get scanInsightCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -21351,4 +21351,47 @@ class SEs extends S {
 
   @override
   String get explorerSearchNoResults => 'Sin resultados';
+
+  @override
+  String get mintHomeRadarTitle => 'Lo que viene';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'En $months meses';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Preparar';
+
+  @override
+  String get mintHomeRadarMilestone50 => 'Tu bonificación LPP sube al 18 %.';
+
+  @override
+  String get mintHomeRadarMilestone55 =>
+      'Jubilación anticipada posible desde los 58.';
+
+  @override
+  String get mintHomeRadarMilestone60 =>
+      '5 años para la jubilación. Recta final.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'Tu año de jubilación.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return 'Plazo 3a $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days días restantes';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Confianza: $before % → $after % (+$delta puntos)';
+  }
+
+  @override
+  String get scanInsightCta => '¿Vemos qué cambió?';
 }

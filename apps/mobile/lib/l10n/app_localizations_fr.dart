@@ -21347,4 +21347,47 @@ class SFr extends S {
 
   @override
   String get explorerSearchNoResults => 'Aucun résultat';
+
+  @override
+  String get mintHomeRadarTitle => 'Ce qui arrive';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'Dans $months mois';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Préparer';
+
+  @override
+  String get mintHomeRadarMilestone50 => 'Ta bonification LPP passe à 18 %.';
+
+  @override
+  String get mintHomeRadarMilestone55 =>
+      'Retraite anticipée possible dès 58 ans.';
+
+  @override
+  String get mintHomeRadarMilestone60 =>
+      '5 ans avant la retraite. Dernière ligne droite.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'L\'année de ta retraite.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return 'Deadline 3a $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days jours restants';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Confiance : $before % → $after % (+$delta points)';
+  }
+
+  @override
+  String get scanInsightCta => 'On regarde ce que ça change ?';
 }

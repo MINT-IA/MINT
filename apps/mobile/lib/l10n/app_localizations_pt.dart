@@ -21354,4 +21354,47 @@ class SPt extends S {
 
   @override
   String get explorerSearchNoResults => 'Sem resultados';
+
+  @override
+  String get mintHomeRadarTitle => 'O que vem aí';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'Em $months meses';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Preparar';
+
+  @override
+  String get mintHomeRadarMilestone50 =>
+      'A tua bonificação LPP sobe para 18 %.';
+
+  @override
+  String get mintHomeRadarMilestone55 =>
+      'Reforma antecipada possível a partir dos 58.';
+
+  @override
+  String get mintHomeRadarMilestone60 => '5 anos para a reforma. Reta final.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'O ano da tua reforma.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return 'Prazo 3a $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days dias restantes';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Confiança: $before % → $after % (+$delta pontos)';
+  }
+
+  @override
+  String get scanInsightCta => 'Vamos ver o que mudou?';
 }

@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
@@ -129,6 +130,16 @@ class MintHomeScreen extends StatelessWidget {
                       ),
                     ),
 
+                  // ── Section 3b: Radar Anticipatoire ──
+                  if (_shouldShowRadar(context, mintState))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: MintSpacing.xl),
+                      child: _RadarAnticipateCard(
+                        profile: mintState.profile,
+                        onSwitchToCoach: onSwitchToCoach,
+                      ),
+                    ),
+
                   // ── Section 4: Coach Input Bar ──
                   _CoachInputBar(
                     onSwitchToCoach: onSwitchToCoach,
@@ -160,6 +171,18 @@ class MintHomeScreen extends StatelessWidget {
 
   bool _hasSignal(MintUserState state) {
     return state.hasPendingTrigger || state.hasNudges;
+  }
+
+  /// Show radar only for returning users with a valid birth year.
+  bool _shouldShowRadar(BuildContext context, MintUserState state) {
+    if (state.profile.birthYear <= 0) return false;
+    try {
+      final activity = context.read<UserActivityProvider>();
+      return activity.exploredSimulators.isNotEmpty ||
+          activity.exploredLifeEvents.isNotEmpty;
+    } catch (_) {
+      return true;
+    }
   }
 }
 
@@ -609,6 +632,173 @@ class _SignalProactifCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SECTION 3b — Radar Anticipatoire
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// A simple data class for upcoming financial events.
+class _UpcomingEvent {
+  final String title;
+  final String description;
+  final int monthsAway;
+  final String? route;
+
+  const _UpcomingEvent({
+    required this.title,
+    required this.description,
+    required this.monthsAway,
+    this.route,
+  });
+}
+
+/// Shows the single most imminent financial event computed from profile data.
+class _RadarAnticipateCard extends StatelessWidget {
+  final CoachProfile profile;
+  final void Function(CoachEntryPayload?)? onSwitchToCoach;
+
+  const _RadarAnticipateCard({
+    required this.profile,
+    this.onSwitchToCoach,
+  });
+
+  List<_UpcomingEvent> _computeEvents(S l10n) {
+    final events = <_UpcomingEvent>[];
+    final now = DateTime.now();
+    final age = profile.age;
+    if (age <= 0) return events;
+
+    final retirementAge = profile.effectiveRetirementAge;
+
+    // ── Next age milestone ──
+    const milestones = [25, 35, 45, 50, 55, 60, 65];
+    for (final m in milestones) {
+      if (age < m && m <= retirementAge) {
+        final yearsUntil = m - age;
+        final monthsUntil = yearsUntil * 12 - now.month;
+        final description = switch (m) {
+          50 => l10n.mintHomeRadarMilestone50,
+          55 => l10n.mintHomeRadarMilestone55,
+          60 => l10n.mintHomeRadarMilestone60,
+          65 => l10n.mintHomeRadarMilestone65,
+          _ => '',
+        };
+        if (description.isNotEmpty) {
+          events.add(_UpcomingEvent(
+            title: '$m ans',
+            description: description,
+            monthsAway: monthsUntil.clamp(1, 9999),
+            route: m >= 55 ? '/retraite' : null,
+          ));
+        }
+        break; // Only show next milestone
+      }
+    }
+
+    // ── 3a deadline (Dec 31) ──
+    final daysUntil3a = DateTime(now.year, 12, 31).difference(now).inDays;
+    if (daysUntil3a > 0 && daysUntil3a < 300) {
+      events.add(_UpcomingEvent(
+        title: l10n.mintHomeRadar3aDeadline(now.year.toString()),
+        description: l10n.mintHomeRadarDaysLeft(daysUntil3a.toString()),
+        monthsAway: (daysUntil3a / 30).round().clamp(1, 12),
+        route: '/pilier-3a',
+      ));
+    }
+
+    events.sort((a, b) => a.monthsAway.compareTo(b.monthsAway));
+    return events;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final events = _computeEvents(l10n);
+    if (events.isEmpty) return const SizedBox.shrink();
+
+    // Show only the closest event.
+    final event = events.first;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: MintColors.info.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(
+              Icons.radar_rounded,
+              size: 20,
+              color: MintColors.info,
+            ),
+          ),
+          const SizedBox(width: MintSpacing.sm + 4),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.mintHomeRadarTitle.toUpperCase(),
+                  style: MintTextStyles.labelMedium(
+                    color: MintColors.textMuted,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  event.title,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textPrimary,
+                  ).copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '${l10n.mintHomeRadarIn(event.monthsAway.toString())} — ${event.description}',
+                  style: MintTextStyles.labelSmall(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          if (event.route != null)
+            GestureDetector(
+              onTap: () {
+                if (event.route != null) {
+                  GoRouter.of(context).push(event.route!);
+                }
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MintSpacing.sm + 2,
+                  vertical: MintSpacing.xs + 2,
+                ),
+                decoration: BoxDecoration(
+                  color: MintColors.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: MintColors.lightBorder),
+                ),
+                child: Text(
+                  l10n.mintHomeRadarPrepare,
+                  style: MintTextStyles.labelMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
