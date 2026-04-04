@@ -9770,5 +9770,12 @@
   "mintHomeSimulate": "Simulieren",
   "mintHomeSignal": "Signal",
   "mintHomeAskQuestion": "Stelle deine Frage...",
-  "mintHomeWhatscoming": "Was kommt"
+  "mintHomeWhatscoming": "Was kommt",
+  "promiseHeadline": "MINT bleibt bei dir.",
+  "promiseBodyYoung": "Dein erster Job. Deine erste Wohnung. Deine Steuern.\nBei jedem Schritt erklären wir dir alles.",
+  "promiseBodyMid": "Kaufen? Sparen? Investieren?\nWir entwirren das gemeinsam.",
+  "promiseBodySenior": "Pension. Steuern. Vermögen.\nDeine Zahlen, deine Entscheide.",
+  "promiseFooter": "Gratis. Deine Daten bleiben auf deinem Handy.",
+  "promiseCtaRegister": "Los geht's",
+  "promiseCtaFree": "Nur die Zahlen"
 }

@@ -21180,4 +21180,28 @@ class SEn extends S {
 
   @override
   String get mintHomeWhatscoming => 'What\'s coming';
+
+  @override
+  String get promiseHeadline => 'MINT stays with you.';
+
+  @override
+  String get promiseBodyYoung =>
+      'Your first job. Your first flat. Your taxes.\nEvery step, we explain.';
+
+  @override
+  String get promiseBodyMid =>
+      'Buy? Save? Invest?\nWe untangle it all together.';
+
+  @override
+  String get promiseBodySenior =>
+      'Retirement. Taxes. Assets.\nYour numbers, your decisions.';
+
+  @override
+  String get promiseFooter => 'Free. Your data stays on your phone.';
+
+  @override
+  String get promiseCtaRegister => 'Let\'s go';
+
+  @override
+  String get promiseCtaFree => 'Just the numbers';
 }

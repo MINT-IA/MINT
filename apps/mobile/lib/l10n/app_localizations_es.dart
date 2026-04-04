@@ -21294,4 +21294,28 @@ class SEs extends S {
 
   @override
   String get mintHomeWhatscoming => 'Lo que viene';
+
+  @override
+  String get promiseHeadline => 'MINT se queda contigo.';
+
+  @override
+  String get promiseBodyYoung =>
+      'Tu primer trabajo. Tu primer piso. Tus impuestos.\nCada paso, te lo explicamos.';
+
+  @override
+  String get promiseBodyMid =>
+      '¿Comprar? ¿Ahorrar? ¿Invertir?\nLo desenredamos juntos.';
+
+  @override
+  String get promiseBodySenior =>
+      'Jubilación. Impuestos. Patrimonio.\nTus cifras, tus decisiones.';
+
+  @override
+  String get promiseFooter => 'Gratis. Tus datos se quedan en tu teléfono.';
+
+  @override
+  String get promiseCtaRegister => 'Vamos';
+
+  @override
+  String get promiseCtaFree => 'Solo los números';
 }

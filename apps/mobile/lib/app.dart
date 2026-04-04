@@ -113,6 +113,8 @@ import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/instant_chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/promise_screen.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -899,6 +901,11 @@ final _router = GoRouter(
       builder: (context, state) => const ChiffreChocScreen(),
     ),
     GoRoute(
+      path: '/onboarding/promise',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PromiseScreen(),
+    ),
+    GoRoute(
       path: '/chiffre-choc-instant',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const InstantChiffreChocScreen(),
@@ -1083,6 +1090,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) {
           final provider = SlmProvider();
           provider.init();
+          return provider;
+        }),
+        ChangeNotifierProvider(create: (_) {
+          final provider = OnboardingProvider();
+          provider.load();
           return provider;
         }),
       ],

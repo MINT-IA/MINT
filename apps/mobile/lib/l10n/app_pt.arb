@@ -9770,5 +9770,12 @@
   "mintHomeSimulate": "Simular",
   "mintHomeSignal": "Sinal",
   "mintHomeAskQuestion": "Faz a tua pergunta...",
-  "mintHomeWhatscoming": "O que vem aí"
+  "mintHomeWhatscoming": "O que vem aí",
+  "promiseHeadline": "O MINT fica contigo.",
+  "promiseBodyYoung": "O teu primeiro emprego. O teu primeiro apartamento. Os teus impostos.\nA cada passo, explicamos tudo.",
+  "promiseBodyMid": "Comprar? Poupar? Investir?\nDesembaraçamos tudo juntos.",
+  "promiseBodySenior": "Reforma. Impostos. Património.\nOs teus números, as tuas decisões.",
+  "promiseFooter": "Grátis. Os teus dados ficam no teu telemóvel.",
+  "promiseCtaRegister": "Vamos lá",
+  "promiseCtaFree": "Só os números"
 }

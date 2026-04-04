@@ -21297,4 +21297,28 @@ class SPt extends S {
 
   @override
   String get mintHomeWhatscoming => 'O que vem aí';
+
+  @override
+  String get promiseHeadline => 'O MINT fica contigo.';
+
+  @override
+  String get promiseBodyYoung =>
+      'O teu primeiro emprego. O teu primeiro apartamento. Os teus impostos.\nA cada passo, explicamos tudo.';
+
+  @override
+  String get promiseBodyMid =>
+      'Comprar? Poupar? Investir?\nDesembaraçamos tudo juntos.';
+
+  @override
+  String get promiseBodySenior =>
+      'Reforma. Impostos. Património.\nOs teus números, as tuas decisões.';
+
+  @override
+  String get promiseFooter => 'Grátis. Os teus dados ficam no teu telemóvel.';
+
+  @override
+  String get promiseCtaRegister => 'Vamos lá';
+
+  @override
+  String get promiseCtaFree => 'Só os números';
 }

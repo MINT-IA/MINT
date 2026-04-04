@@ -21348,4 +21348,28 @@ class SIt extends S {
 
   @override
   String get mintHomeWhatscoming => 'Cosa sta arrivando';
+
+  @override
+  String get promiseHeadline => 'MINT resta con te.';
+
+  @override
+  String get promiseBodyYoung =>
+      'Il tuo primo lavoro. Il tuo primo appartamento. Le tue tasse.\nOgni passo, ti spieghiamo tutto.';
+
+  @override
+  String get promiseBodyMid =>
+      'Comprare? Risparmiare? Investire?\nSbrogliamo tutto insieme.';
+
+  @override
+  String get promiseBodySenior =>
+      'Pensione. Tasse. Patrimonio.\nI tuoi numeri, le tue decisioni.';
+
+  @override
+  String get promiseFooter => 'Gratuito. I tuoi dati restano sul tuo telefono.';
+
+  @override
+  String get promiseCtaRegister => 'Andiamo';
+
+  @override
+  String get promiseCtaFree => 'Solo i numeri';
 }

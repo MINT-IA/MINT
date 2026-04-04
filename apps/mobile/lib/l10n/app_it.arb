@@ -9770,5 +9770,12 @@
   "mintHomeSimulate": "Simulare",
   "mintHomeSignal": "Segnale",
   "mintHomeAskQuestion": "Fai la tua domanda...",
-  "mintHomeWhatscoming": "Cosa sta arrivando"
+  "mintHomeWhatscoming": "Cosa sta arrivando",
+  "promiseHeadline": "MINT resta con te.",
+  "promiseBodyYoung": "Il tuo primo lavoro. Il tuo primo appartamento. Le tue tasse.\nOgni passo, ti spieghiamo tutto.",
+  "promiseBodyMid": "Comprare? Risparmiare? Investire?\nSbrogliamo tutto insieme.",
+  "promiseBodySenior": "Pensione. Tasse. Patrimonio.\nI tuoi numeri, le tue decisioni.",
+  "promiseFooter": "Gratuito. I tuoi dati restano sul tuo telefono.",
+  "promiseCtaRegister": "Andiamo",
+  "promiseCtaFree": "Solo i numeri"
 }

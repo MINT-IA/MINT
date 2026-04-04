@@ -10286,5 +10286,12 @@
   "mintHomeSimulate": "Simuler",
   "mintHomeSignal": "Signal",
   "mintHomeAskQuestion": "Pose ta question...",
-  "mintHomeWhatscoming": "Ce qui arrive"
+  "mintHomeWhatscoming": "Ce qui arrive",
+  "promiseHeadline": "MINT reste avec toi.",
+  "promiseBodyYoung": "Ton premier job. Ton premier appart. Tes impôts.\nChaque étape, on t'explique.",
+  "promiseBodyMid": "Acheter\u00a0? Économiser\u00a0? Investir\u00a0?\nOn démêle tout ça ensemble.",
+  "promiseBodySenior": "Retraite. Impôts. Patrimoine.\nTes chiffres, tes décisions.",
+  "promiseFooter": "Gratuit. Tes données restent sur ton téléphone.",
+  "promiseCtaRegister": "Allons-y",
+  "promiseCtaFree": "Juste les chiffres"
 }

@@ -21290,4 +21290,28 @@ class SFr extends S {
 
   @override
   String get mintHomeWhatscoming => 'Ce qui arrive';
+
+  @override
+  String get promiseHeadline => 'MINT reste avec toi.';
+
+  @override
+  String get promiseBodyYoung =>
+      'Ton premier job. Ton premier appart. Tes impôts.\nChaque étape, on t\'explique.';
+
+  @override
+  String get promiseBodyMid =>
+      'Acheter ? Économiser ? Investir ?\nOn démêle tout ça ensemble.';
+
+  @override
+  String get promiseBodySenior =>
+      'Retraite. Impôts. Patrimoine.\nTes chiffres, tes décisions.';
+
+  @override
+  String get promiseFooter => 'Gratuit. Tes données restent sur ton téléphone.';
+
+  @override
+  String get promiseCtaRegister => 'Allons-y';
+
+  @override
+  String get promiseCtaFree => 'Juste les chiffres';
 }

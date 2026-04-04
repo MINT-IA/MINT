@@ -21337,4 +21337,28 @@ class SDe extends S {
 
   @override
   String get mintHomeWhatscoming => 'Was kommt';
+
+  @override
+  String get promiseHeadline => 'MINT bleibt bei dir.';
+
+  @override
+  String get promiseBodyYoung =>
+      'Dein erster Job. Deine erste Wohnung. Deine Steuern.\nBei jedem Schritt erklären wir dir alles.';
+
+  @override
+  String get promiseBodyMid =>
+      'Kaufen? Sparen? Investieren?\nWir entwirren das gemeinsam.';
+
+  @override
+  String get promiseBodySenior =>
+      'Pension. Steuern. Vermögen.\nDeine Zahlen, deine Entscheide.';
+
+  @override
+  String get promiseFooter => 'Gratis. Deine Daten bleiben auf deinem Handy.';
+
+  @override
+  String get promiseCtaRegister => 'Los geht\'s';
+
+  @override
+  String get promiseCtaFree => 'Nur die Zahlen';
 }

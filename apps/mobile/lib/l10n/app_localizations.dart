@@ -37418,6 +37418,48 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ce qui arrive'**
   String get mintHomeWhatscoming;
+
+  /// No description provided for @promiseHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT reste avec toi.'**
+  String get promiseHeadline;
+
+  /// No description provided for @promiseBodyYoung.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton premier job. Ton premier appart. Tes impôts.\nChaque étape, on t\'explique.'**
+  String get promiseBodyYoung;
+
+  /// No description provided for @promiseBodyMid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter ? Économiser ? Investir ?\nOn démêle tout ça ensemble.'**
+  String get promiseBodyMid;
+
+  /// No description provided for @promiseBodySenior.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite. Impôts. Patrimoine.\nTes chiffres, tes décisions.'**
+  String get promiseBodySenior;
+
+  /// No description provided for @promiseFooter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gratuit. Tes données restent sur ton téléphone.'**
+  String get promiseFooter;
+
+  /// No description provided for @promiseCtaRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allons-y'**
+  String get promiseCtaRegister;
+
+  /// No description provided for @promiseCtaFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juste les chiffres'**
+  String get promiseCtaFree;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

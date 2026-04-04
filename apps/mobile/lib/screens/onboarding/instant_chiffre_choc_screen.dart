@@ -12,7 +12,8 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/widgets/glossary_term.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Instant chiffre choc screen — shown from landing without account.
 ///
@@ -141,25 +142,39 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
     };
   }
 
-  Future<void> _navigateToRegister() async {
+  Future<void> _navigateToPromise() async {
     final userFeeling = _responseController.text.trim();
     if (userFeeling.isEmpty) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final onboarding = context.read<OnboardingProvider>();
 
-    await prefs.setString('onboarding_emotion', userFeeling);
+    // Store emotion via OnboardingProvider (sole writer)
+    await onboarding.setEmotion(userFeeling);
     if (_birthYear != null) {
-      await prefs.setInt('onboarding_birth_year', _birthYear!);
+      await onboarding.setBirthYear(_birthYear!);
     }
-    await prefs.setDouble('onboarding_gross_salary', _grossSalary);
-    await prefs.setString('onboarding_canton', _canton);
-    await prefs.setString(
-      'onboarding_choc_type',
-      _choc?.type.name ?? 'retirementIncome',
-    );
-    await prefs.setDouble('onboarding_choc_value', _choc?.rawValue ?? 0);
+    await onboarding.setGrossSalary(_grossSalary);
+    await onboarding.setCanton(_canton);
 
-    if (mounted) context.go('/auth/register');
+    // Store chiffre choc data
+    final onboardingType = _mapChocType(
+      _choc?.type ?? ChiffreChocType.retirementIncome,
+    );
+    await onboarding.setChoc(onboardingType, _choc?.rawValue ?? 0);
+
+    // Navigate to promise screen instead of register
+    if (mounted) context.go('/onboarding/promise');
+  }
+
+  OnboardingChocType _mapChocType(ChiffreChocType type) {
+    return switch (type) {
+      ChiffreChocType.compoundGrowth => OnboardingChocType.compoundGrowth,
+      ChiffreChocType.taxSaving3a => OnboardingChocType.taxSaving3a,
+      ChiffreChocType.retirementGap => OnboardingChocType.retirementGap,
+      ChiffreChocType.retirementIncome => OnboardingChocType.retirementIncome,
+      ChiffreChocType.liquidityAlert => OnboardingChocType.liquidityAlert,
+      ChiffreChocType.hourlyRate => OnboardingChocType.hourlyRate,
+    };
   }
 
   Color _colorForChoc(ChiffreChoc choc) {
@@ -366,7 +381,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                                 color: MintColors.textMuted,
                               ),
                               suffixIcon: IconButton(
-                                onPressed: _navigateToRegister,
+                                onPressed: _navigateToPromise,
                                 icon: const Icon(
                                   Icons.arrow_forward_rounded,
                                   color: MintColors.primary,
