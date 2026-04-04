@@ -34,6 +34,7 @@ import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
 import 'package:mint_mobile/widgets/coach/coach_rich_widgets.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -77,11 +78,17 @@ class CoachChatScreen extends StatefulWidget {
   /// When true, hides the back button (used when embedded as a tab).
   final bool isEmbeddedInTab;
 
+  /// Optional structured entry payload for contextual coach sessions.
+  /// When present, overrides initialPrompt with topic-specific context.
+  /// Wire Spec V2 §3.6 — CoachEntryPayload carries source + topic + data.
+  final CoachEntryPayload? entryPayload;
+
   const CoachChatScreen({
     super.key,
     this.initialPrompt,
     this.conversationId,
     this.isEmbeddedInTab = false,
+    this.entryPayload,
   });
 
   @override
@@ -143,6 +150,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Onboarding emotion payload (one-shot, cleared after reading).
   /// The choc type/value are read by ContextInjectorService from prefs.
   String? _onboardingEmotion;
+
+  /// Extra context from CoachEntryPayload, injected into the system prompt.
+  /// One-shot: cleared after first use.
+  String? _entryPayloadContext;
 
   @override
   void initState() {
@@ -246,9 +257,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           _addInitialGreeting();
         }
         if (mounted) setState(() {});
-        // Auto-send initial prompt if provided (contextual routing)
-        final prompt = widget.initialPrompt;
-        if (prompt != null && prompt.isNotEmpty) {
+        // Wire Spec V2: structured entry payload takes priority
+        if (widget.entryPayload != null) {
+          final payload = widget.entryPayload!;
+          if (payload.userMessage != null) {
+            // User typed a free-form message — send it directly
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _sendMessage(payload.userMessage!);
+            });
+          } else if (payload.topic != null) {
+            // Topic-based entry — inject context into system prompt.
+            // The topic context is injected via the memory block,
+            // not as a user message.
+            _entryPayloadContext = payload.toContextInjection();
+          }
+        } else if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
+          // Legacy: auto-send initial prompt (contextual routing)
+          final prompt = widget.initialPrompt!;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _sendMessage(prompt);
           });
@@ -550,6 +575,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (_) {
       // Graceful degradation: chat works without memory block.
+    }
+
+    // Wire Spec V2: append entry payload context if present (one-shot).
+    if (_entryPayloadContext != null) {
+      memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
+      _entryPayloadContext = null; // one-shot: clear after first use
     }
 
     // Try SLM streaming first.

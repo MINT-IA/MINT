@@ -28,6 +28,7 @@ import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
@@ -346,6 +347,12 @@ final _router = GoRouter(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
+        // Wire Spec V2: structured payload via route extra
+        final entryPayload = state.extra is CoachEntryPayload
+            ? state.extra as CoachEntryPayload
+            : null;
+
+        // Legacy: query parameter support (backward compat)
         final rawPrompt = state.uri.queryParameters['prompt'];
         final prompt = (rawPrompt != null && rawPrompt.length <= 500)
             ? rawPrompt
@@ -358,6 +365,7 @@ final _router = GoRouter(
         return CoachChatScreen(
           initialPrompt: prompt,
           conversationId: conversationId,
+          entryPayload: entryPayload,
         );
       },
     ),
