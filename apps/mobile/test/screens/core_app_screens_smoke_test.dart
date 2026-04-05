@@ -28,6 +28,7 @@ import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -76,6 +77,8 @@ void main() {
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
         ChangeNotifierProvider<MintStateProvider>(
             create: (_) => MintStateProvider()),
+        ChangeNotifierProvider<CoachEntryPayloadProvider>(
+            create: (_) => CoachEntryPayloadProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
@@ -204,6 +207,10 @@ void main() {
             ChangeNotifierProvider<UserActivityProvider>(
                 create: (_) => UserActivityProvider()),
             ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
+            ChangeNotifierProvider<MintStateProvider>(
+                create: (_) => MintStateProvider()),
+            ChangeNotifierProvider<CoachEntryPayloadProvider>(
+                create: (_) => CoachEntryPayloadProvider()),
           ],
           child: MaterialApp.router(
             locale: const Locale('fr'),
@@ -490,26 +497,25 @@ void main() {
       expect(find.byType(MainNavigationShell), findsOneWidget);
     });
 
-    testWidgets('shows bottom navigation with 4 tabs', (tester) async {
+    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // S52: 4-tab layout — Aujourd'hui, MINT (Coach), Explorer, Dossier
+      // Wire Spec V2: 3-tab layout — Aujourd'hui, MINT (Coach), Explorer
+      // Dossier moved to ProfileDrawer (tab=3 opens drawer)
       expect(find.textContaining('ujourd'), findsWidgets);
       expect(find.text('Mint'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
-      expect(find.text('Dossier'), findsOneWidget);
     });
 
     testWidgets('shows tab icons', (tester) async {
       await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
       await tester.pump(const Duration(seconds: 1));
 
-      // S52: 4 tabs — today (active), coach, explore, dossier
+      // Wire Spec V2: 3 tabs — today (active), coach, explore
       expect(find.byIcon(Icons.today), findsOneWidget); // Active
       expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
       expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.folder_outlined), findsOneWidget);
     });
   });
 }

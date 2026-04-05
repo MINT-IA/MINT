@@ -110,7 +110,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                   final isSelected = age == _selected;
                   return Center(
                     child: Text(
-                      S.of(context)!.ageYears(age),
+                      S.of(context)!.ageYears(age.toString()),
                       style: MintTextStyles.headlineMedium(
                         color: isSelected
                             ? MintColors.textPrimary

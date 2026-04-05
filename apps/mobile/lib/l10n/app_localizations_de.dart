@@ -12987,7 +12987,7 @@ class SDe extends S {
   String get pulseLabelMonthlyFree => 'Monatliche freie Marge';
 
   @override
-  String ageYears(int age) {
+  String ageYears(String age) {
     return '$age Jahre';
   }
 
@@ -21252,4 +21252,219 @@ class SDe extends S {
   String chocQuestionHourlyRate(String rate) {
     return 'CHF $rate pro Stunde. Bist du das wert?';
   }
+
+  @override
+  String get drawerMyProfile => 'Mein Profil';
+
+  @override
+  String get drawerMyReport => 'Meine Bilanz';
+
+  @override
+  String get drawerCouple => 'Paar';
+
+  @override
+  String get drawerDocuments => 'Meine Dokumente';
+
+  @override
+  String get drawerCoachHistory => 'Coach-Verlauf';
+
+  @override
+  String get drawerSettings => 'Einstellungen';
+
+  @override
+  String get drawerApiKey => 'API-Schlüssel (BYOK)';
+
+  @override
+  String get drawerPrivacy => 'Datenschutz';
+
+  @override
+  String get drawerLanguage => 'Sprache';
+
+  @override
+  String get drawerDataTransparency => 'Datentransparenz';
+
+  @override
+  String get drawerLogout => 'Abmelden';
+
+  @override
+  String get drawerNoProfile => 'Profil nicht eingerichtet';
+
+  @override
+  String get drawerDefaultName => 'Mein Profil';
+
+  @override
+  String get mintHomeRetirementIn => 'Pensionierung in';
+
+  @override
+  String mintHomeYearsMonths(String years, String months) {
+    return '$years Jahren, $months Monaten';
+  }
+
+  @override
+  String get mintHomeEstimatedIncome => 'Geschätztes Einkommen bei Ankunft';
+
+  @override
+  String mintHomeDeltaSince(String date) {
+    return 'seit dem $date';
+  }
+
+  @override
+  String get mintHomeNoActionProjection => 'Wenn du nichts tust';
+
+  @override
+  String get mintHomeIn30Days => 'in 30 Tagen';
+
+  @override
+  String get mintHomeIn6Months => 'in 6 Monaten';
+
+  @override
+  String get mintHomeAlternativeRoute => 'Alternative Route';
+
+  @override
+  String get mintHomeConfidence => 'Vertrauen';
+
+  @override
+  String get mintHomeTalkAboutIt => 'Reden wir darüber ?';
+
+  @override
+  String get mintHomeSimulate => 'Simulieren';
+
+  @override
+  String get mintHomeSignal => 'Signal';
+
+  @override
+  String get mintHomeAskQuestion => 'Stelle deine Frage...';
+
+  @override
+  String get mintHomeWhatscoming => 'Was kommt';
+
+  @override
+  String get promiseHeadline => 'MINT bleibt bei dir.';
+
+  @override
+  String get promiseBodyYoung =>
+      'Dein erster Job. Deine erste Wohnung. Deine Steuern.\nBei jedem Schritt erklären wir dir alles.';
+
+  @override
+  String get promiseBodyMid =>
+      'Kaufen? Sparen? Investieren?\nWir entwirren das gemeinsam.';
+
+  @override
+  String get promiseBodySenior =>
+      'Pension. Steuern. Vermögen.\nDeine Zahlen, deine Entscheide.';
+
+  @override
+  String get promiseFooter => 'Gratis. Deine Daten bleiben auf deinem Handy.';
+
+  @override
+  String get promiseCtaRegister => 'Los geht\'s';
+
+  @override
+  String get promiseCtaFree => 'Nur die Zahlen';
+
+  @override
+  String coachInterrupt3aUnderMax(String savings) {
+    return 'Du verschenkst $savings CHF Steuerersparnis.';
+  }
+
+  @override
+  String get coachInterruptMortgageOverThird =>
+      'Die Bank wird ablehnen. Hier sind 2 Optionen.';
+
+  @override
+  String get coachInterruptFullCapitalRisk =>
+      '100 % Kapital = 0 garantierte Rente. Sicher?';
+
+  @override
+  String get coachInterruptEplBlock => 'Achtung: WEF-Sperre für 3 Jahre.';
+
+  @override
+  String coachInterruptBudgetDeficit(String deficit) {
+    return 'Defizit von $deficit CHF/Monat. Schauen wir?';
+  }
+
+  @override
+  String get coachInterruptSeeCalc => 'Berechnung ansehen';
+
+  @override
+  String get coachInterruptLater => 'Später';
+
+  @override
+  String get explorerSearchHint => 'In MINT suchen...';
+
+  @override
+  String get explorerSearchNoResults => 'Keine Ergebnisse';
+
+  @override
+  String get mintHomeRadarTitle => 'Was kommt';
+
+  @override
+  String mintHomeRadarIn(String months) {
+    return 'In $months Monaten';
+  }
+
+  @override
+  String get mintHomeRadarPrepare => 'Vorbereiten';
+
+  @override
+  String get mintHomeRadarMilestone50 => 'Dein BVG-Beitrag steigt auf 18 %.';
+
+  @override
+  String get mintHomeRadarMilestone55 => 'Frühpensionierung ab 58 möglich.';
+
+  @override
+  String get mintHomeRadarMilestone60 =>
+      '5 Jahre bis zur Pension. Letzte Etappe.';
+
+  @override
+  String get mintHomeRadarMilestone65 => 'Dein Pensionierungsjahr.';
+
+  @override
+  String mintHomeRadar3aDeadline(String year) {
+    return '3a-Frist $year';
+  }
+
+  @override
+  String mintHomeRadarDaysLeft(String days) {
+    return '$days Tage übrig';
+  }
+
+  @override
+  String scanInsightConfidenceDelta(String before, String after, String delta) {
+    return 'Vertrauen: $before % → $after % (+$delta Punkte)';
+  }
+
+  @override
+  String get scanInsightCta => 'Schauen wir, was sich geändert hat?';
+
+  @override
+  String get perMonth => '/Mt.';
+
+  @override
+  String deltaChfPerMonth(String sign, String value) {
+    return '$sign$value CHF/Mt.';
+  }
+
+  @override
+  String get intensityConfirmation1 =>
+      'Verstanden. Ich werde sanft und schrittweise vorgehen.';
+
+  @override
+  String get intensityConfirmation2 =>
+      'Verstanden. Klar und ruhig, ohne unnötigen Fachjargon.';
+
+  @override
+  String get intensityConfirmation3 => 'OK. Direkt auf den Punkt, ohne Umwege.';
+
+  @override
+  String get intensityConfirmation4 =>
+      'Notiert. Ich sage dir die Dinge direkt, ohne Beschönigung.';
+
+  @override
+  String get intensityConfirmation5 =>
+      'Notiert. Rohmodus: Ich nehme kein Blatt vor den Mund.';
+
+  @override
+  String get coachProactiveDecline =>
+      'Verstanden. Ich bin da, wenn du bereit bist.';
 }

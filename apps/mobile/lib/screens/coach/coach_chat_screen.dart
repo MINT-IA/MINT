@@ -19,6 +19,7 @@ import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
+import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -34,6 +35,7 @@ import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
 import 'package:mint_mobile/widgets/coach/coach_rich_widgets.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -77,11 +79,17 @@ class CoachChatScreen extends StatefulWidget {
   /// When true, hides the back button (used when embedded as a tab).
   final bool isEmbeddedInTab;
 
+  /// Optional structured entry payload for contextual coach sessions.
+  /// When present, overrides initialPrompt with topic-specific context.
+  /// Wire Spec V2 §3.6 — CoachEntryPayload carries source + topic + data.
+  final CoachEntryPayload? entryPayload;
+
   const CoachChatScreen({
     super.key,
     this.initialPrompt,
     this.conversationId,
     this.isEmbeddedInTab = false,
+    this.entryPayload,
   });
 
   @override
@@ -143,6 +151,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Onboarding emotion payload (one-shot, cleared after reading).
   /// The choc type/value are read by ContextInjectorService from prefs.
   String? _onboardingEmotion;
+
+  /// Extra context from CoachEntryPayload, injected into the system prompt.
+  /// One-shot: cleared after first use.
+  String? _entryPayloadContext;
 
   @override
   void initState() {
@@ -246,9 +258,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           _addInitialGreeting();
         }
         if (mounted) setState(() {});
-        // Auto-send initial prompt if provided (contextual routing)
-        final prompt = widget.initialPrompt;
-        if (prompt != null && prompt.isNotEmpty) {
+        // Wire Spec V2: structured entry payload takes priority
+        if (widget.entryPayload != null) {
+          final payload = widget.entryPayload!;
+          if (payload.userMessage != null) {
+            // User typed a free-form message — send it directly
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _sendMessage(payload.userMessage!);
+            });
+          } else if (payload.topic != null) {
+            // Topic-based entry — inject context into system prompt.
+            // The topic context is injected via the memory block,
+            // not as a user message.
+            _entryPayloadContext = payload.toContextInjection();
+          }
+        } else if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
+          // Legacy: auto-send initial prompt (contextual routing)
+          final prompt = widget.initialPrompt!;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _sendMessage(prompt);
           });
@@ -406,30 +432,26 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _saveCashLevel(level);
 
     // Add adapted confirmation message.
+    final l10n = S.of(context)!;
     final String confirmation;
     switch (level) {
       case 1:
-        confirmation =
-            'Bien re\u00e7u. Je serai doux et progressif.';
+        confirmation = l10n.intensityConfirmation1;
         break;
       case 2:
-        confirmation =
-            'Compris. Clair et pos\u00e9, sans jargon inutile.';
+        confirmation = l10n.intensityConfirmation2;
         break;
       case 3:
-        confirmation =
-            'OK. Je vais droit au but, sans d\u00e9tour.';
+        confirmation = l10n.intensityConfirmation3;
         break;
       case 4:
-        confirmation =
-            'Re\u00e7u. Je te dis les choses cash, pas de pincettes.';
+        confirmation = l10n.intensityConfirmation4;
         break;
       case 5:
-        confirmation =
-            'Not\u00e9. Mode brut\u00a0: je ne m\u00e2che pas mes mots.';
+        confirmation = l10n.intensityConfirmation5;
         break;
       default:
-        confirmation = S.of(context)!.intensityDirect;
+        confirmation = l10n.intensityDirect;
     }
 
     setState(() {
@@ -552,6 +574,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Graceful degradation: chat works without memory block.
     }
 
+    // Wire Spec V2: append entry payload context if present (one-shot).
+    if (_entryPayloadContext != null) {
+      memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
+      _entryPayloadContext = null; // one-shot: clear after first use
+    }
+
     // Try SLM streaming first.
     final ctx = _buildCoachContext(_profile!);
     final stream = CoachOrchestrator.streamChat(
@@ -653,11 +681,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       );
     }
 
-    final finalText = compliance.useFallback
+    final complianceText = compliance.useFallback
         ? S.of(context)!.coachComplianceError
         : (compliance.sanitizedText.isNotEmpty
             ? compliance.sanitizedText
             : rawText);
+
+    // Wire Spec V2 §3.6: parse tool call markers from response.
+    final parseResult = ToolCallParser.parse(complianceText);
+    final finalText = parseResult.cleanText.isNotEmpty
+        ? parseResult.cleanText
+        : complianceText;
 
     final suggestedActions = compliance.useFallback
         ? null
@@ -681,6 +715,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     });
     _scrollToBottom();
 
+    // Wire Spec V2 §3.6: execute parsed tool calls.
+    _executeToolCalls(parseResult.toolCalls);
+
     // Wire S58: extract and persist insight from SLM exchange.
     _extractAndSaveInsight(userMessage, finalText);
 
@@ -693,6 +730,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       {String? memoryBlock}) async {
     try {
       final config = _buildConfig();
+      // Capture l10n before await to avoid using BuildContext across async gap.
+      final l10n = S.of(context)!;
       final response = await CoachLlmService.chat(
         userMessage: text,
         profile: _profile!,
@@ -706,18 +745,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text, l: S.of(context)!)
+          ? ResponseCardService.generateForChat(_profile!, text, l: l10n)
           : <ResponseCard>[];
+
+      // Wire Spec V2 §3.6: parse tool call markers from response.
+      final parseResult = ToolCallParser.parse(response.message);
+      final cleanMessage = parseResult.cleanText.isNotEmpty
+          ? parseResult.cleanText
+          : response.message;
 
       // Use LLM-provided suggestions if available, otherwise infer from
       // both the user message and the coach response.
       final suggestedActions = response.suggestedActions ??
-          _inferSuggestedActions(text, response.message);
+          _inferSuggestedActions(text, cleanMessage);
 
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: response.message,
+          content: cleanMessage,
           timestamp: DateTime.now(),
           suggestedActions: suggestedActions,
           sources: response.sources,
@@ -729,8 +774,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       });
       _scrollToBottom();
 
+      // Wire Spec V2 §3.6: execute parsed tool calls.
+      _executeToolCalls(parseResult.toolCalls);
+
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
-      _extractAndSaveInsight(text, response.message);
+      _extractAndSaveInsight(text, cleanMessage);
 
       // Check if we should propose proactive opt-in.
       _maybeShowProactiveOptIn();
@@ -770,6 +818,50 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
+  //  TOOL CALL EXECUTION (Wire Spec V2 §3.6)
+  // ════════════════════════════════════════════════════════════
+
+  /// Execute parsed tool calls from coach response.
+  ///
+  /// V1: Only ROUTE_TO_SCREEN is executed. Other tools are logged
+  /// for future implementation. Navigation is deferred to the next
+  /// frame so the message bubble renders first.
+  /// Max tool calls executed per response to prevent LLM flooding.
+  static const _maxToolCallsPerResponse = 5;
+
+  void _executeToolCalls(List<ParsedToolCall> toolCalls) {
+    if (toolCalls.isEmpty) return;
+    // Cap tool calls to prevent navigation flooding from malformed LLM output.
+    final capped = toolCalls.take(_maxToolCallsPerResponse);
+    if (toolCalls.length > _maxToolCallsPerResponse) {
+      debugPrint(
+        '[CoachChat] Tool calls capped: ${toolCalls.length} → $_maxToolCallsPerResponse',
+      );
+    }
+    for (final call in capped) {
+      switch (call.toolName) {
+        case 'ROUTE_TO_SCREEN':
+          final route = call.arguments['route'] as String?;
+          if (route != null && ToolCallParser.isValidRoute(route)) {
+            // Schedule navigation after the message is displayed.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) context.push(route);
+            });
+          } else {
+            debugPrint(
+              '[CoachChat] ROUTE_TO_SCREEN rejected: $route (not in whitelist)',
+            );
+          }
+          break;
+        default:
+          debugPrint(
+            '[CoachChat] Tool call not yet handled: ${call.toolName}',
+          );
+      }
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
   //  INSIGHT EXTRACTION (S58 — AI Memory wiring)
   // ════════════════════════════════════════════════════════════
 
@@ -802,7 +894,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         : coachResponse;
 
     final insight = CoachInsight(
-      id: '${DateTime.now().millisecondsSinceEpoch}_${topic}',
+      id: '${DateTime.now().millisecondsSinceEpoch}_$topic',
       createdAt: DateTime.now(),
       topic: topic,
       summary: summary,
@@ -1194,7 +1286,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: 'Compris. Je serai l\u00e0 quand tu viendras.',
+          content: S.of(context)!.coachProactiveDecline,
           timestamp: DateTime.now(),
           tier: ChatTier.none,
         ));

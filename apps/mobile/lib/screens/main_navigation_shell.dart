@@ -6,33 +6,37 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
-    show PulseScreen, NavigationShellState;
+    show NavigationShellState;
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
-import 'package:mint_mobile/screens/main_tabs/dossier_tab.dart';
+import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';
+import 'package:mint_mobile/widgets/profile_drawer.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/session_snapshot_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
 
-/// Shell principal de navigation MINT — S52 UX Cohesion
+/// Shell principal de navigation MINT — Wire Spec V2
 ///
-/// Architecture 4 tabs (NAVIGATION_GRAAL_V10.md) :
-/// - AUJOURD'HUI : Où j'en suis (1 phrase + 1 chiffre + 1 action + 2 signaux)
+/// Architecture 3 tabs + drawer (WIRE_SPEC_V2.md) :
+/// - MINT HOME   : Chiffre choc + leviers + cursor (MintHomeScreen)
 /// - COACH       : Aide-moi à décider (chat + voice + response cards)
 /// - EXPLORER    : Navigation autonome (7 hubs thématiques)
-/// - DOSSIER     : Mes données (profil + documents + couple + réglages)
+/// - DOSSIER     : Accessible via endDrawer (ProfileDrawer), not a tab
 ///
-/// Pas de FAB global — Capture est contextuel (bottom sheet depuis Aujourd'hui/Coach).
+/// Pas de FAB global — Capture est contextuel (bottom sheet depuis Home/Coach).
 ///
 /// Deep-link support via query param:
-///   /home?tab=0  → Aujourd'hui
+///   /home?tab=0  → MINT Home
 ///   /home?tab=1  → Coach
 ///   /home?tab=2  → Explorer
-///   /home?tab=3  → Dossier
+///   /home?tab=3  → Opens ProfileDrawer (backward compat)
 /// Convenience aliases: /app/today, /app/coach, /app/explore, /app/dossier
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
@@ -51,18 +55,17 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   /// Timestamp when the app was last paused (backgrounded).
   DateTime? _lastPauseTime;
 
-  static const List<Widget> _tabs = [
-    PulseScreen(),    // 0: Aujourd'hui
-    MintCoachTab(),   // 1: Coach
-    ExploreTab(),     // 2: Explorer
-    DossierTab(),     // 3: Dossier
+  // Wire Spec V2: 3 tabs + drawer (not const because MintHomeScreen needs callback)
+  late final List<Widget> _tabs = [
+    MintHomeScreen(onSwitchToCoach: _switchToCoachWithPayload),  // 0: MINT Home
+    const MintCoachTab(),   // 1: Coach
+    const ExploreTab(),     // 2: Explorer
   ];
 
   static const List<String> _tabNames = [
-    'today',
+    'home',
     'coach',
     'explore',
-    'dossier',
   ];
 
   @override
@@ -106,6 +109,21 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         // No GoRouter in tree (unit tests).
       }
     }
+  }
+
+  /// Wire Spec V2: Switch to coach tab with a structured payload.
+  /// Called from MintHomeScreen when user taps chiffre, lever, chip, or input bar.
+  void _switchToCoachWithPayload(CoachEntryPayload? payload) {
+    if (!mounted) return;
+    // Store payload in provider so MintCoachTab can forward it to CoachChatScreen.
+    if (payload != null) {
+      context.read<CoachEntryPayloadProvider>().setPayload(payload);
+    }
+    setState(() => _currentIndex = 1); // Switch to coach tab
+    _analytics.trackScreenView('/coach');
+    try {
+      GoRouter.of(context).go('/home?tab=1');
+    } catch (_) {}
   }
 
   @override
@@ -159,16 +177,34 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   }
 
   /// Persist a lightweight snapshot of key metrics on app pause.
+  ///
+  /// Wire Spec V2 §3.4: Uses MintUserState (pre-computed by MintStateEngine)
+  /// when available, so monthlyRetirementIncome and friScore are real values.
+  /// Falls back to confidence-only snapshot when state is not yet computed.
   void _saveSessionSnapshot() {
     try {
+      // Prefer MintUserState which already has all metrics computed.
+      final mintState = context.read<MintStateProvider>().state;
+      if (mintState != null) {
+        SessionSnapshotService.save(SessionSnapshot(
+          confidenceScore: mintState.confidenceScore,
+          monthlyRetirementIncome:
+              mintState.budgetGap?.totalRevenusMensuel ?? 0,
+          fhsScore: mintState.friScore ?? 0,
+          savedAt: DateTime.now(),
+        ));
+        return;
+      }
+
+      // Fallback: state not computed yet — save confidence only.
       final coachProvider = context.read<CoachProfileProvider>();
       if (!coachProvider.hasProfile) return;
       final profile = coachProvider.profile!;
       final confidence = ConfidenceScorer.score(profile);
       SessionSnapshotService.save(SessionSnapshot(
         confidenceScore: confidence.score,
-        monthlyRetirementIncome: 0, // Computed lazily on resume
-        fhsScore: 0, // FHS tracked separately via FhsDailyScore
+        monthlyRetirementIncome: 0,
+        fhsScore: 0,
         savedAt: DateTime.now(),
       ));
     } catch (_) {}
@@ -198,11 +234,18 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         if (!coachProvider.hasProfile) return;
         final profile = coachProvider.profile!;
         final currentConfidence = ConfidenceScorer.score(profile).score;
+
+        // Read real values from MintStateProvider (not hardcoded zeros).
+        final mintState = context.read<MintStateProvider>().state;
+        final currentRetirement =
+            mintState?.budgetGap?.totalRevenusMensuel ?? 0.0;
+        final currentFhs = mintState?.friScore ?? 0.0;
+
         final delta = SessionSnapshotService.computeDelta(
           previous: previous,
           currentConfidence: currentConfidence,
-          currentMonthlyRetirement: 0,
-          currentFhs: 0,
+          currentMonthlyRetirement: currentRetirement,
+          currentFhs: currentFhs,
         );
 
         if (!mounted) return;
@@ -254,7 +297,19 @@ class _MainNavigationShellState extends State<MainNavigationShell>
             GoRouterState.of(context).uri.queryParameters['tab'];
         if (rawTab != null) {
           final tabIndex = int.tryParse(rawTab) ?? 0;
-          if (tabIndex >= 0 && tabIndex < _tabs.length) {
+          // Wire Spec V2: tab=3 (old Dossier) opens drawer instead
+          if (tabIndex == 3) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                try {
+                  Scaffold.of(context).openEndDrawer();
+                } catch (_) {
+                  // Scaffold not yet in tree (e.g. first build or test harness).
+                }
+              }
+            });
+            // Stay on current tab, don't set _currentIndex to 3
+          } else if (tabIndex >= 0 && tabIndex < _tabs.length) {
             _currentIndex = tabIndex;
           }
         }
@@ -313,7 +368,16 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           GoRouterState.of(context).uri.queryParameters['tab'];
       if (rawTab != null) {
         final tabIndex = int.tryParse(rawTab) ?? 0;
-        if (tabIndex >= 0 && tabIndex < _tabs.length && tabIndex != _currentIndex) {
+        // Wire Spec V2: tab=3 (old Dossier) opens drawer instead
+        if (tabIndex == 3) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              try {
+                Scaffold.of(context).openEndDrawer();
+              } catch (_) {}
+            }
+          });
+        } else if (tabIndex >= 0 && tabIndex < _tabs.length && tabIndex != _currentIndex) {
           // Schedule the state update to avoid calling setState during build.
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && _currentIndex != tabIndex) {
@@ -329,6 +393,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
     return PopScope(
       canPop: false,
       child: Scaffold(
+        endDrawer: const ProfileDrawer(),
         body: IndexedStack(
           index: _currentIndex,
           children: _tabs,
@@ -379,14 +444,6 @@ class _MainNavigationShellState extends State<MainNavigationShell>
                 activeIcon: Icons.explore,
                 label: l.tabExplore,
                 onTap: () => _onTap(2),
-              ),
-              _NavItem(
-                index: 3,
-                currentIndex: _currentIndex,
-                icon: Icons.folder_outlined,
-                activeIcon: Icons.folder,
-                label: l.tabDossier,
-                onTap: () => _onTap(3),
               ),
             ],
           ),

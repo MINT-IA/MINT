@@ -43,6 +43,7 @@ import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/nudge/nudge_persistence.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
+import 'package:mint_mobile/services/session_snapshot_service.dart';
 
 /// Minimum confidence score required to run retirement projections.
 ///
@@ -239,7 +240,31 @@ class MintStateEngine {
       pendingTrigger = null;
     }
 
-    // ── 9. Assemble ────────────────────────────────────────────────────────
+    // ── 9. Session delta (Wire Spec V2 §3.4) ────────────────────────────
+    // Load the previous snapshot and compute delta for "since last visit"
+    // display on MintHomeScreen. Never crashes on snapshot failure.
+    SessionDelta? sessionDelta;
+    try {
+      final previousSnapshot = await SessionSnapshotService.load();
+      if (previousSnapshot != null) {
+        // Monthly retirement income from budgetGap (total revenus at retirement).
+        // Falls back to 0 when projections are not yet available.
+        final currentRetirementIncome =
+            budgetGap?.totalRevenusMensuel ?? 0.0;
+        final currentFhs = friScore ?? 0.0;
+
+        sessionDelta = SessionSnapshotService.computeDelta(
+          previous: previousSnapshot,
+          currentConfidence: confidenceScore,
+          currentMonthlyRetirement: currentRetirementIncome,
+          currentFhs: currentFhs,
+        );
+      }
+    } catch (_) {
+      // Never crash on snapshot failure.
+    }
+
+    // ── 10. Assemble ───────────────────────────────────────────────────────
     return MintUserState(
       profile: profile,
       lifecyclePhase: lifecyclePhase,
@@ -255,6 +280,7 @@ class MintStateEngine {
       capMemory: capMemory,
       activeNudges: activeNudges,
       pendingTrigger: pendingTrigger,
+      sessionDelta: sessionDelta,
       computedAt: currentTime,
     );
   }

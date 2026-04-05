@@ -23033,7 +23033,7 @@ abstract class S {
   ///
   /// In fr, this message translates to:
   /// **'{age} ans'**
-  String ageYears(int age);
+  String ageYears(String age);
 
   /// No description provided for @agent3aFormTitle.
   ///
@@ -37256,6 +37256,378 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'CHF {rate} de l\'heure. C\'est ce que tu vaux ?'**
   String chocQuestionHourlyRate(String rate);
+
+  /// No description provided for @drawerMyProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get drawerMyProfile;
+
+  /// No description provided for @drawerMyReport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon bilan'**
+  String get drawerMyReport;
+
+  /// No description provided for @drawerCouple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couple'**
+  String get drawerCouple;
+
+  /// No description provided for @drawerDocuments.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mes documents'**
+  String get drawerDocuments;
+
+  /// No description provided for @drawerCoachHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique coach'**
+  String get drawerCoachHistory;
+
+  /// No description provided for @drawerSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paramètres'**
+  String get drawerSettings;
+
+  /// No description provided for @drawerApiKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clé API (BYOK)'**
+  String get drawerApiKey;
+
+  /// No description provided for @drawerPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confidentialité'**
+  String get drawerPrivacy;
+
+  /// No description provided for @drawerLanguage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue'**
+  String get drawerLanguage;
+
+  /// No description provided for @drawerDataTransparency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transparence des données'**
+  String get drawerDataTransparency;
+
+  /// No description provided for @drawerLogout.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se déconnecter'**
+  String get drawerLogout;
+
+  /// No description provided for @drawerNoProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil non configuré'**
+  String get drawerNoProfile;
+
+  /// No description provided for @drawerDefaultName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon profil'**
+  String get drawerDefaultName;
+
+  /// No description provided for @mintHomeRetirementIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite dans'**
+  String get mintHomeRetirementIn;
+
+  /// No description provided for @mintHomeYearsMonths.
+  ///
+  /// In fr, this message translates to:
+  /// **'{years} ans, {months} mois'**
+  String mintHomeYearsMonths(String years, String months);
+
+  /// No description provided for @mintHomeEstimatedIncome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenu estimé à l\'arrivée'**
+  String get mintHomeEstimatedIncome;
+
+  /// No description provided for @mintHomeDeltaSince.
+  ///
+  /// In fr, this message translates to:
+  /// **'depuis le {date}'**
+  String mintHomeDeltaSince(String date);
+
+  /// No description provided for @mintHomeNoActionProjection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si tu ne fais rien'**
+  String get mintHomeNoActionProjection;
+
+  /// No description provided for @mintHomeIn30Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'dans 30 jours'**
+  String get mintHomeIn30Days;
+
+  /// No description provided for @mintHomeIn6Months.
+  ///
+  /// In fr, this message translates to:
+  /// **'dans 6 mois'**
+  String get mintHomeIn6Months;
+
+  /// No description provided for @mintHomeAlternativeRoute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Itinéraire alternatif'**
+  String get mintHomeAlternativeRoute;
+
+  /// No description provided for @mintHomeConfidence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance'**
+  String get mintHomeConfidence;
+
+  /// No description provided for @mintHomeTalkAboutIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'On en parle ?'**
+  String get mintHomeTalkAboutIt;
+
+  /// No description provided for @mintHomeSimulate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Simuler'**
+  String get mintHomeSimulate;
+
+  /// No description provided for @mintHomeSignal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signal'**
+  String get mintHomeSignal;
+
+  /// No description provided for @mintHomeAskQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose ta question...'**
+  String get mintHomeAskQuestion;
+
+  /// No description provided for @mintHomeWhatscoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui arrive'**
+  String get mintHomeWhatscoming;
+
+  /// No description provided for @promiseHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT reste avec toi.'**
+  String get promiseHeadline;
+
+  /// No description provided for @promiseBodyYoung.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton premier job. Ton premier appart. Tes impôts.\nChaque étape, on t\'explique.'**
+  String get promiseBodyYoung;
+
+  /// No description provided for @promiseBodyMid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acheter ? Économiser ? Investir ?\nOn démêle tout ça ensemble.'**
+  String get promiseBodyMid;
+
+  /// No description provided for @promiseBodySenior.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite. Impôts. Patrimoine.\nTes chiffres, tes décisions.'**
+  String get promiseBodySenior;
+
+  /// No description provided for @promiseFooter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gratuit. Tes données restent sur ton téléphone.'**
+  String get promiseFooter;
+
+  /// No description provided for @promiseCtaRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allons-y'**
+  String get promiseCtaRegister;
+
+  /// No description provided for @promiseCtaFree.
+  ///
+  /// In fr, this message translates to:
+  /// **'Juste les chiffres'**
+  String get promiseCtaFree;
+
+  /// No description provided for @coachInterrupt3aUnderMax.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu laisses {savings} CHF d’économie d’impôts sur la table.'**
+  String coachInterrupt3aUnderMax(String savings);
+
+  /// No description provided for @coachInterruptMortgageOverThird.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les banques refuseront. Voici 2 pistes.'**
+  String get coachInterruptMortgageOverThird;
+
+  /// No description provided for @coachInterruptFullCapitalRisk.
+  ///
+  /// In fr, this message translates to:
+  /// **'100 % capital = 0 rente garantie. Sûr ?'**
+  String get coachInterruptFullCapitalRisk;
+
+  /// No description provided for @coachInterruptEplBlock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attention : blocage EPL pendant 3 ans.'**
+  String get coachInterruptEplBlock;
+
+  /// No description provided for @coachInterruptBudgetDeficit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déficit de {deficit} CHF/mois. On regarde ?'**
+  String coachInterruptBudgetDeficit(String deficit);
+
+  /// No description provided for @coachInterruptSeeCalc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le calcul'**
+  String get coachInterruptSeeCalc;
+
+  /// No description provided for @coachInterruptLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get coachInterruptLater;
+
+  /// No description provided for @explorerSearchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans MINT...'**
+  String get explorerSearchHint;
+
+  /// No description provided for @explorerSearchNoResults.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat'**
+  String get explorerSearchNoResults;
+
+  /// No description provided for @mintHomeRadarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui arrive'**
+  String get mintHomeRadarTitle;
+
+  /// No description provided for @mintHomeRadarIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans {months} mois'**
+  String mintHomeRadarIn(String months);
+
+  /// No description provided for @mintHomeRadarPrepare.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparer'**
+  String get mintHomeRadarPrepare;
+
+  /// No description provided for @mintHomeRadarMilestone50.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta bonification LPP passe à 18 %.'**
+  String get mintHomeRadarMilestone50;
+
+  /// No description provided for @mintHomeRadarMilestone55.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite anticipée possible dès 58 ans.'**
+  String get mintHomeRadarMilestone55;
+
+  /// No description provided for @mintHomeRadarMilestone60.
+  ///
+  /// In fr, this message translates to:
+  /// **'5 ans avant la retraite. Dernière ligne droite.'**
+  String get mintHomeRadarMilestone60;
+
+  /// No description provided for @mintHomeRadarMilestone65.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'année de ta retraite.'**
+  String get mintHomeRadarMilestone65;
+
+  /// No description provided for @mintHomeRadar3aDeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deadline 3a {year}'**
+  String mintHomeRadar3aDeadline(String year);
+
+  /// No description provided for @mintHomeRadarDaysLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'{days} jours restants'**
+  String mintHomeRadarDaysLeft(String days);
+
+  /// No description provided for @scanInsightConfidenceDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confiance : {before} % → {after} % (+{delta} points)'**
+  String scanInsightConfidenceDelta(String before, String after, String delta);
+
+  /// No description provided for @scanInsightCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'On regarde ce que ça change ?'**
+  String get scanInsightCta;
+
+  /// No description provided for @perMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'/mois'**
+  String get perMonth;
+
+  /// No description provided for @deltaChfPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{sign}{value} CHF/mois'**
+  String deltaChfPerMonth(String sign, String value);
+
+  /// No description provided for @intensityConfirmation1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien reçu. Je serai doux et progressif.'**
+  String get intensityConfirmation1;
+
+  /// No description provided for @intensityConfirmation2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris. Clair et posé, sans jargon inutile.'**
+  String get intensityConfirmation2;
+
+  /// No description provided for @intensityConfirmation3.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK. Je vais droit au but, sans détour.'**
+  String get intensityConfirmation3;
+
+  /// No description provided for @intensityConfirmation4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçu. Je te dis les choses cash, pas de pincettes.'**
+  String get intensityConfirmation4;
+
+  /// No description provided for @intensityConfirmation5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Noté. Mode brut : je ne mâche pas mes mots.'**
+  String get intensityConfirmation5;
+
+  /// No description provided for @coachProactiveDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris. Je serai là quand tu viendras.'**
+  String get coachProactiveDecline;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -9,8 +9,9 @@
 
 **MINT** — Swiss financial education app (Flutter + FastAPI).
 **Mission**: "Juste quand il faut: une explication, une action, un rappel."
-**Target V1**: 45-60 yo Swiss residents preparing retirement (couple focus). Secondary: 22-45 yo.
-**Design for ALL ages**: UX, copy, and features MUST work for 22-65+. Never design screens, landing pages, or flows that exclude an age group. Segment by life event, not demographics.
+**Target**: ALL active Swiss residents (22-65+). No primary/secondary segmentation.
+**Segmentation**: By life event and lifecycle phase, NEVER by age or demographics. A 25-year-old buying a house and a 55-year-old planning retirement are equally important users.
+**Design for ALL**: UX, copy, and features MUST work for 22-65+. Never design screens, landing pages, or flows that exclude an age group or suggest MINT is "a retirement app".
 **Model**: Read-only, education-first. No money movement. No investment advice.
 
 ---
@@ -49,7 +50,7 @@ legal/                    # CGU, Privacy, Disclaimer, Mentions légales
 
 > **ADR**: `decisions/ADR-20260223-unified-financial-engine.md`
 
-**All AVS, LPP, and tax calculations MUST use these centralized calculators.**
+**All financial calculations MUST use these centralized calculators.**
 
 | Calculator | Key Methods | Source |
 |-----------|-------------|--------|
@@ -58,12 +59,14 @@ legal/                    # CGU, Privacy, Disclaimer, Mentions légales
 | `tax_calculator.dart` | `capitalWithdrawalTax()`, `progressiveTax()`, `estimateMonthlyIncomeTax()` | LIFD art. 38 |
 | `confidence_scorer.dart` | `EnhancedConfidence` — 4-axis: completeness × accuracy × freshness × understanding | Profile completeness |
 | `arbitrage_engine.dart` | `compareLumpSumVsAnnuity()`, `compareHousingOptions()` | Side-by-side scenarios |
-| `monte_carlo_service.dart` | `runSimulation()` — 1000+ stochastic projections | Retirement probability |
-| `withdrawal_sequencing_service.dart` | `optimizeWithdrawalOrder()` — LIFO/FIFO tax optimization | Withdrawal planning |
+| `monte_carlo_service.dart` | `runSimulation()` — 1000+ stochastic projections | Financial planning probability |
+| `withdrawal_sequencing_service.dart` | `optimizeWithdrawalOrder()` — LIFO/FIFO tax optimization | Capital planning |
 | `tornado_sensitivity_service.dart` | `computeSensitivity()` — what-if ±1-5% analysis | Sensitivity charts |
 
+These calculators serve ALL life events — not just retirement. A 28-year-old buying property uses `tax_calculator`, `arbitrage_engine`, and `confidence_scorer` exactly like a 58-year-old planning retirement.
+
 **Consumers** (must import `financial_core.dart`, never reimplement):
-`retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`
+`retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`, `budget_service`
 
 ---
 
@@ -136,9 +139,10 @@ feature/* ──PR──> dev ──PR──> staging ──PR──> main
 
 ### Financial Archetypes (8 types)
 
-> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md`
+> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md` (legacy name — applies to ALL projections, not just retirement)
 
 Every projection MUST account for archetype. NEVER assume "Swiss native salarié".
+Archetypes affect ALL domains: tax, housing, 3a, LPP, family — not just retirement.
 
 | Archetype | Detection | Key difference |
 |-----------|-----------|----------------|
@@ -168,11 +172,13 @@ Crise:         debtCrisis
 - Data sources: estimated(0.25), userInput(0.60), crossValidated(0.70), certificate(0.95), openBanking(1.00)
 - Understanding axis: financial literacy engagement (beginner/intermediate/advanced + coach session bonus)
 
-### Capital vs Rente Taxation (CRITICAL)
+### Key Tax Rules (CRITICAL)
 - **Rente LPP** = revenu imposable annuel (LIFD art. 22)
-- **Capital retiré** = taxé séparément au retrait (LIFD art. 38)
+- **Capital retiré (2e/3a pilier)** = taxé séparément au retrait (LIFD art. 38) — applies at ANY age (EPL, retirement, departure)
 - **SWR withdrawals** = consommation de patrimoine, PAS un revenu imposable
 - **NEVER double-tax**: retrait tax + income tax on SWR
+- **EPL (propriété)** = retrait anticipé du 2e pilier pour achat immobilier — taxé comme capital (LIFD art. 38), même logique
+- **3a retrait** = taxé comme capital, même barème progressif — pertinent dès le premier emploi
 
 ---
 
@@ -239,15 +245,17 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - **Run `flutter gen-l10n`** after modifying ARB files
 - **French diacritics mandatory**: é, è, ê, ô, ù, ç, à — ASCII "e" for accented = bug
 
-### Navigation Architecture (target — S52+)
+### Navigation Architecture (Wire Spec V2 — current)
 - **Full spec**: `docs/NAVIGATION_GRAAL_V10.md`
 - **Philosophy**: Coach-first, UI-assisted. AI-as-layer, NOT chatbot-first.
-- **Shell**: 4 tabs — Aujourd'hui | Coach | Explorer | Dossier
+- **Shell**: 3 tabs + drawer — Aujourd'hui | Coach | Explorer + ProfileDrawer (endDrawer)
+- **Deep-link compat**: `/home?tab=3` opens ProfileDrawer (backward compat for old Dossier tab)
 - **Capture**: Contextual bottom sheet (scan, import, add data) — NOT a global FAB
 - **Explorer**: 7 hubs (Retraite, Famille, Travail & Statut, Logement, Fiscalité, Patrimoine & Succession, Santé & Protection)
 - **Screen types**: Destination (user mental map), Flow (triggered by intent), Tool (opened contextually), Alias (legacy compat)
 - **Internal taxonomies** (`arbitrage`, `lpp-deep`, `3a-deep`, `segments`) are NOT visible in user navigation
 - **All 67 canonical routes remain as deep links** — restructuring is UX surface, not route deletion
+- **Archived routes** (Wire Spec V2 P4): `/ask-mint`, `/tools`, `/coach/cockpit`, `/coach/checkin`, `/coach/refresh` → redirect to `/home?tab=N`
 
 ### UX Principles (from `rules.md`)
 - Progressive disclosure — no bank connection upfront
@@ -270,6 +278,7 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 ## 8. GOLDEN TEST COUPLE: Julien + Lauren
 
 > Source of truth: `test/golden/` (xlsx + PDF certificats + JPEG)
+> This couple tests MULTIPLE life events, not just retirement: housing (EPL), tax optimization (3a), couple dynamics (married caps), archetype differences (swiss_native vs expat_us/FATCA).
 
 | | Julien | Lauren |
 |--|--------|--------|
@@ -289,6 +298,13 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 | AVS couple (marié, cap 150%) | **3'780 CHF/mois** (LAVS art. 35) |
 | Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
 
+**Multi-domain test coverage** (not just retirement):
+- **Tax**: capital withdrawal tax comparison, income tax estimation, FATCA implications (Lauren)
+- **Housing**: EPL eligibility (min 20k), mortgage capacity (1/3 rule with combined income)
+- **3a**: annual max (7'258 salarié LPP), retrait anticipé scenarios
+- **Couple**: married AVS cap 150%, splitting rules, concubinage comparison
+- **Archetype**: swiss_native vs expat_us — different projections, different risks
+
 > Note : le taux de 65.5% utilise le revenu net combiné du couple (Julien + Lauren).
 > Le code peut produire un résultat différent selon la projection LPP utilisée
 > (formule légale standard vs certificat CPE Plan Maxi).
@@ -305,13 +321,14 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 6. **Promise returns** — use scenarios + disclaimers
 7. **Commit non-sprint files** — surgical `git add`
 8. **Assume Swiss native** — always check archetype
-9. **Projection without confidence score** — always include uncertainty band
+9. **Projection without confidence score** — always include uncertainty band (ALL projections, not just retirement)
 10. **Double-tax capital** — capital taxed at withdrawal (LIFD art. 38), SWR ≠ income
 11. **Duplicate calculation logic** — NEVER create `_calculate*()` in services. Use `financial_core/`.
 12. **Ignore future AVS years** — `AvsCalculator` adds future years. Don't use raw `contributionYears / 44`.
 13. **Apply married AVS cap to concubins** — LAVS art. 35 cap (150%) = married only.
 14. **Hardcode strings** — ALL user-facing text in ARB files via `AppLocalizations`
 15. **Hardcode colors** — NEVER `Color(0xFF...)`, always `MintColors.*`
+16. **Frame MINT as retirement app** — MINT covers ALL life events (housing, family, tax, career, debt). Retirement is ONE of 18 life events, not the primary use case. Every screen, prompt, and feature MUST serve 22-65+ equally.
 
 ---
 

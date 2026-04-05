@@ -24,17 +24,16 @@ import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/data_transparency_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
-import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
-import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -99,11 +98,8 @@ import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
-import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
-import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
-import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -112,6 +108,9 @@ import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/instant_chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/promise_screen.dart';
+import 'package:mint_mobile/providers/onboarding_provider.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -327,25 +326,20 @@ final _router = GoRouter(
     GoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
     GoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
 
-    GoRoute(
-      path: '/coach/cockpit',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CockpitDetailScreen(),
-    ),
-    GoRoute(
-      path: '/coach/checkin',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachCheckinScreen(),
-    ),
-    GoRoute(
-      path: '/coach/refresh',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AnnualRefreshScreen(),
-    ),
+    // Wire Spec V2 P4: archived routes — redirect to shell tabs
+    GoRoute(path: '/coach/cockpit', redirect: (_, __) => '/home?tab=0'),
+    GoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
+    GoRoute(path: '/coach/refresh', redirect: (_, __) => '/home?tab=0'),
     GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
+        // Wire Spec V2: structured payload via route extra
+        final entryPayload = state.extra is CoachEntryPayload
+            ? state.extra as CoachEntryPayload
+            : null;
+
+        // Legacy: query parameter support (backward compat)
         final rawPrompt = state.uri.queryParameters['prompt'];
         final prompt = (rawPrompt != null && rawPrompt.length <= 500)
             ? rawPrompt
@@ -358,6 +352,7 @@ final _router = GoRouter(
         return CoachChatScreen(
           initialPrompt: prompt,
           conversationId: conversationId,
+          entryPayload: entryPayload,
         );
       },
     ),
@@ -674,7 +669,9 @@ final _router = GoRouter(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final extra = state.extra is Map<String, dynamic>
+            ? state.extra as Map<String, dynamic>
+            : <String, dynamic>{};
         return FinancialReportScreenV2(wizardAnswers: extra);
       },
     ),
@@ -823,16 +820,9 @@ final _router = GoRouter(
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    GoRoute(
-      path: '/ask-mint',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AskMintScreen(),
-    ),
-    GoRoute(
-      path: '/tools',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ToolsLibraryScreen(),
-    ),
+    // Wire Spec V2 P4: archived routes — redirect to shell tabs
+    GoRoute(path: '/ask-mint', redirect: (_, __) => '/home?tab=1'),
+    GoRoute(path: '/tools', redirect: (_, __) => '/home?tab=2'),
     GoRoute(
       path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,
@@ -889,6 +879,11 @@ final _router = GoRouter(
       path: '/onboarding/chiffre-choc',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ChiffreChocScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/promise',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PromiseScreen(),
     ),
     GoRoute(
       path: '/chiffre-choc-instant',
@@ -1077,6 +1072,12 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.init();
           return provider;
         }),
+        ChangeNotifierProvider(create: (_) {
+          final provider = OnboardingProvider();
+          provider.load();
+          return provider;
+        }),
+        ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
       ],
       child: Builder(
         builder: (context) {

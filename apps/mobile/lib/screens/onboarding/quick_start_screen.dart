@@ -16,8 +16,6 @@ import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
-    show NavigationShellState;
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -50,7 +48,8 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   double _salary = 60000;
   String _canton = 'ZH';
   bool _saving = false;
-  bool _consentGranted = false;
+  // Consent is requested and tracked via _checkAndRequestConsent() below.
+  // The consent state is recorded in SharedPreferences, not held in widget state.
 
   @override
   void initState() {
@@ -76,7 +75,6 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     final prefs = await SharedPreferences.getInstance();
     final alreadyConsented = prefs.getBool('onboarding_data_consent') ?? false;
     if (alreadyConsented) {
-      if (mounted) setState(() => _consentGranted = true);
       _analytics.trackScreenView('/onboarding/quick');
       return;
     }
@@ -102,7 +100,6 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     );
     if (accepted == true) {
       await prefs.setBool('onboarding_data_consent', true);
-      if (mounted) setState(() => _consentGranted = true);
       _analytics.trackScreenView('/onboarding/quick');
     } else {
       // User declined — go back to landing
@@ -278,76 +275,6 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     if (mounted) {
       context.go('/home?tab=0');
     }
-  }
-
-  void _onCantonSelected(String code) {
-    setState(() {
-      _canton = code;
-    });
-    // Canton selected = go directly to chat (no result screen)
-    Future.delayed(const Duration(milliseconds: 250), () {
-      if (mounted) _onCtaCoach();
-    });
-  }
-
-  Future<void> _onCtaCoach() async {
-    if (_saving) return;
-    setState(() => _saving = true);
-
-    final provider = context.read<CoachProfileProvider>();
-    provider.updateFromSmartFlow(
-      age: _age,
-      grossSalary: _salary,
-      canton: _canton,
-    );
-
-    // Best-effort backend sync — non-blocking for onboarding
-    _syncToBackend();
-
-    _analytics.trackCTAClick('quick_start_coach',
-        screenName: '/onboarding/quick');
-
-    if (mounted) {
-      context.go('/home');
-      // Wait for shell to mount before switching tab
-      Future.delayed(const Duration(milliseconds: 300), () {
-        NavigationShellState.switchTab(1); // Coach tab
-      });
-    }
-  }
-
-  Future<void> _onCtaExplore() async {
-    if (_saving) return;
-    setState(() => _saving = true);
-
-    final provider = context.read<CoachProfileProvider>();
-    provider.updateFromSmartFlow(
-      age: _age,
-      grossSalary: _salary,
-      canton: _canton,
-    );
-
-    // Best-effort backend sync — non-blocking for onboarding
-    _syncToBackend();
-
-    _analytics.trackCTAClick('quick_start_explore',
-        screenName: '/onboarding/quick');
-
-    if (mounted) {
-      context.go('/home');
-      NavigationShellState.switchTab(0); // Aujourd'hui tab
-    }
-  }
-
-  /// Best-effort backend sync — fire-and-forget, non-blocking for onboarding.
-  void _syncToBackend() {
-    final birthYear = DateTime.now().year - _age;
-    ApiService.post('/sync/claim-local-data', {
-      'birth_year': birthYear,
-      'canton': _canton,
-      'gross_salary_annual': _salary,
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    }).catchError((Object _) => <String, dynamic>{});
   }
 
   // ── Build ──

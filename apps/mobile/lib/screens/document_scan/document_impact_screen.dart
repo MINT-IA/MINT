@@ -161,12 +161,20 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                     MintEntrance(delay: const Duration(milliseconds: 100), child: _buildConfidenceCircle()),
                     const SizedBox(height: MintSpacing.lg),
                     MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDeltaBadge()),
+                    if (_deltaPoints > 5) ...[
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(delay: const Duration(milliseconds: 250), child: _buildConfidenceDeltaText()),
+                    ],
                     const SizedBox(height: MintSpacing.xl),
                     MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChiffreChoc()),
                     const SizedBox(height: MintSpacing.lg),
                     MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFieldList()),
                     const SizedBox(height: MintSpacing.xl),
                     _buildCtaButton(context),
+                    if (_deltaPoints > 5) ...[
+                      const SizedBox(height: MintSpacing.sm),
+                      _buildCoachCta(context),
+                    ],
                     const SizedBox(height: MintSpacing.md),
                     _buildDisclaimer(),
                     const SizedBox(height: MintSpacing.xxl + 12),
@@ -500,6 +508,53 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           ),
         ),
       ),
+      ),
+    );
+  }
+
+  // ── Confidence delta text ─────────────────────────────────
+
+  Widget _buildConfidenceDeltaText() {
+    return Opacity(
+      opacity: _badgeFadeIn.value,
+      child: Text(
+        S.of(context)!.scanInsightConfidenceDelta(
+          widget.previousConfidence.toString(),
+          _newConfidence.toString(),
+          _deltaPoints.toString(),
+        ),
+        textAlign: TextAlign.center,
+        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+      ),
+    );
+  }
+
+  // ── Coach CTA ───────────────────────────────────────────
+
+  Widget _buildCoachCta(BuildContext context) {
+    return Opacity(
+      opacity: _ctaFadeIn.value,
+      child: SizedBox(
+        width: double.infinity,
+        height: 48,
+        child: OutlinedButton.icon(
+          onPressed: () {
+            // Navigate to coach tab to discuss the impact.
+            context.go('/home?tab=1');
+          },
+          icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
+          label: Text(
+            S.of(context)!.scanInsightCta,
+            style: MintTextStyles.bodyMedium(color: MintColors.primary),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: MintColors.primary,
+            side: const BorderSide(color: MintColors.border),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
       ),
     );
   }
