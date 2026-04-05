@@ -13,21 +13,20 @@ import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/backend_coach_service.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
+import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
+import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
-import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
-import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -342,11 +341,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       debugPrint('[CoachChat] SLM stream timed out with partial content');
     }
 
+    // Extract tool call markers from SLM output before compliance validation.
+    // ToolCallParser strips [TOOL_NAME:{...}] markers and returns clean text.
+    final parseResult = ToolCallParser.parse(rawText);
+    final parsedText = parseResult.cleanText.isNotEmpty
+        ? parseResult.cleanText
+        : rawText;
+
+    // Normalize SLM ParsedToolCall list → RagToolCall list (capped at 5).
+    // T-02-05: ChatToolDispatcher validates and caps before storing.
+    final richCalls =
+        ChatToolDispatcher.normalize(parseResult.toolCalls);
+
     // Validate through ComplianceGuard.
     ComplianceResult compliance;
     try {
       compliance = ComplianceGuard.validate(
-        rawText,
+        parsedText,
         context: ctx,
         componentType: ComponentType.general,
       );
@@ -355,7 +366,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // since SLM can generate them despite system prompt.
       compliance = ComplianceResult(
         isCompliant: true,
-        sanitizedText: ComplianceGuard.sanitizeBannedTerms(rawText),
+        sanitizedText: ComplianceGuard.sanitizeBannedTerms(parsedText),
       );
     }
 
@@ -363,7 +374,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ? S.of(context)!.coachComplianceError
         : (compliance.sanitizedText.isNotEmpty
             ? compliance.sanitizedText
-            : rawText);
+            : parsedText);
 
     final suggestedActions =
         compliance.useFallback ? null : _inferSuggestedActions(userMessage);
@@ -382,6 +393,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         responseCards: cards,
         tier: ChatTier.slm,
         userQuery: userMessage,
+        richToolCalls: richCalls,
       );
       _isStreaming = false;
     });
@@ -411,26 +423,41 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       if (!mounted) return true;
 
-      // Build widgetCall map from Claude tool_use response
-      Map<String, dynamic>? widgetCallMap;
-      if (response.widget != null) {
-        widgetCallMap = {
-          'tool': response.widget!.tool,
-          'params': response.widget!.params,
-        };
+      // Convert backend widget_call to richToolCalls via ChatToolDispatcher.
+      // Also parse any text-marker tool calls embedded in the reply text.
+      final parseResult = ToolCallParser.parse(response.reply);
+      final cleanReply = parseResult.cleanText.isNotEmpty
+          ? parseResult.cleanText
+          : response.reply;
+
+      // Combine: text-marker calls + backend widget call (if any)
+      final allRawCalls = parseResult.toolCalls.isNotEmpty
+          ? parseResult.toolCalls
+          : <ParsedToolCall>[];
+      var richCalls = ChatToolDispatcher.normalize(allRawCalls);
+
+      // If backend returned a WidgetCall and no text-marker calls,
+      // convert it to a RagToolCall so it flows through WidgetRenderer.
+      if (richCalls.isEmpty && response.widget != null) {
+        richCalls = ChatToolDispatcher.filterRag([
+          RagToolCall(
+            name: response.widget!.tool,
+            input: response.widget!.params,
+          ),
+        ]);
       }
 
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: response.reply,
+          content: cleanReply,
           timestamp: DateTime.now(),
           suggestedActions: _inferSuggestedActions(text),
           responseCards: cards,
           tier: ChatTier.byok,
           disclaimers: [response.disclaimer],
           userQuery: text,
-          widgetCall: widgetCallMap,
+          richToolCalls: richCalls,
         ));
         _isLoading = false;
       });
@@ -462,10 +489,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ? ResponseCardService.generateForChat(_profile!, text)
           : <ResponseCard>[];
 
+      // Extract text-marker tool calls from BYOK response text.
+      // T-02-06: ChatToolDispatcher normalizes and caps (same pipeline as SLM).
+      final parseResult = ToolCallParser.parse(response.message);
+      final cleanMessage = parseResult.cleanText.isNotEmpty
+          ? parseResult.cleanText
+          : response.message;
+      final richCalls =
+          ChatToolDispatcher.normalize(parseResult.toolCalls);
+
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: response.message,
+          content: cleanMessage,
           timestamp: DateTime.now(),
           suggestedActions: response.suggestedActions,
           sources: response.sources,
@@ -473,6 +509,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           responseCards: cards,
           tier: tier,
           userQuery: text,
+          richToolCalls: richCalls,
         ));
         _isLoading = false;
       });
@@ -698,211 +735,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  RICH INLINE WIDGETS — S56
+  //  RICH INLINE WIDGETS
   // ════════════════════════════════════════════════════════════
-
-  /// Build an optional rich inline widget based on the user's message
-  /// and profile data. Returns null if no widget is appropriate or if
-  /// required data is missing.
-  Widget? _buildRichWidget(String userMessage, CoachProfile profile) {
-    final lower = userMessage.toLowerCase();
-
-    // --- Rente vs Capital ---
-    if ((lower.contains('rente') && lower.contains('capital')) ||
-        lower.contains('rente ou capital') ||
-        lower.contains('capital ou rente')) {
-      return _buildRenteVsCapitalWidget(profile);
-    }
-
-    // --- Retirement projection ---
-    if (lower.contains('retraite') ||
-        lower.contains('pension') ||
-        lower.contains('combien a la retraite') ||
-        lower.contains('combien à la retraite')) {
-      return _buildRetirementComparisonWidget(profile);
-    }
-
-    // --- Financial fitness score ---
-    if (lower.contains('score') ||
-        lower.contains('fitness') ||
-        lower.contains('forme financ') ||
-        lower.contains('fri')) {
-      return _buildFitnessGaugeWidget(profile);
-    }
-
-    // --- Tax / 3a ---
-    if (lower.contains('impot') ||
-        lower.contains('impôt') ||
-        lower.contains('fiscal') ||
-        lower.contains('3a') ||
-        lower.contains('déduction')) {
-      return _buildTaxFactWidget(profile);
-    }
-
-    // --- Budget ---
-    if (lower.contains('budget') ||
-        lower.contains('dépense') ||
-        lower.contains('depense') ||
-        lower.contains('épargne') ||
-        lower.contains('epargne')) {
-      return _buildBudgetComparisonWidget(profile);
-    }
-
-    return null;
-  }
-
-  /// Retirement comparison: current monthly income vs projected retirement income.
-  Widget? _buildRetirementComparisonWidget(CoachProfile profile) {
-    try {
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton,
-        age: profile.age,
-      );
-      final netMensuel = breakdown.monthlyNetPayslip;
-      if (netMensuel <= 0) return null;
-
-      final proj = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      final revenuRetraite = proj.base.revenuAnnuelRetraite / 12;
-      final taux = proj.tauxRemplacementBase;
-
-      return ChatComparisonCard(
-        title: 'Revenus\u00a0: aujourd\u2019hui vs retraite',
-        leftLabel: 'Aujourd\u2019hui',
-        leftValue: formatChfWithPrefix(netMensuel),
-        rightLabel: 'Retraite (sc. base)',
-        rightValue: formatChfWithPrefix(revenuRetraite),
-        leftAmount: netMensuel,
-        rightAmount: revenuRetraite,
-        narrative: 'Taux de remplacement\u00a0: '
-            '${(taux * 100).toStringAsFixed(0)}\u00a0% '
-            'de ton revenu actuel.',
-        onTap: () => context.push('/retraite'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// FRI gauge widget.
-  Widget? _buildFitnessGaugeWidget(CoachProfile profile) {
-    try {
-      final score = FinancialFitnessService.calculate(profile: profile);
-      return ChatGaugeCard(
-        title: 'Forme financi\u00e8re',
-        value: score.global.toDouble(),
-        maxValue: 100,
-        valueLabel: '${score.global}',
-        subtitle: score.level.shortLabel,
-        narrative: score.coachMessage,
-        onTap: () => context.push('/confidence'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Rente vs Capital comparison widget.
-  Widget? _buildRenteVsCapitalWidget(CoachProfile profile) {
-    try {
-      final proj = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      final capitalTotal = proj.base.capitalFinal;
-      if (capitalTotal <= 0) return null;
-
-      // Rente: use LPP conversion rate on the LPP portion
-      final lppPortion = proj.base.decomposition['lpp'] ?? 0;
-      final tauxConversion = profile.prevoyance.tauxConversion;
-      final renteMensuelle = (lppPortion * tauxConversion) / 12;
-
-      return ChatChoiceComparison(
-        title: 'Rente vs Capital (sc. base)',
-        leftTitle: 'Rente LPP',
-        leftValue: '${formatChf(renteMensuelle)}/mois',
-        leftDescription: 'Revenu garanti \u00e0 vie, imposable',
-        rightTitle: 'Capital',
-        rightValue: formatChfWithPrefix(capitalTotal),
-        rightDescription: 'Tax\u00e9 au retrait, flexibilit\u00e9',
-        onTap: () => context.push('/rente-vs-capital'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Tax savings fact card (3a deduction).
-  Widget? _buildTaxFactWidget(CoachProfile profile) {
-    try {
-      // Max 3a deduction for salaried with LPP
-      const max3a = 7258.0;
-
-      // Estimate marginal tax savings
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton,
-        age: profile.age,
-      );
-      final netAnnuel = breakdown.netPayslip;
-      // Approximate marginal rate (25-35% depending on canton/income)
-      final marginalRate = netAnnuel > 100000 ? 0.32 : 0.25;
-      final economieFiscale = max3a * marginalRate;
-
-      return ChatFactCard(
-        eyebrow: '\u00c9conomie fiscale 3a',
-        value: '${formatChf(economieFiscale)}\u00a0CHF/an',
-        description: 'En versant le maximum 3a '
-            '(${formatChf(max3a)}\u00a0CHF), '
-            'tu pourrais r\u00e9duire tes imp\u00f4ts d\u2019environ '
-            'ce montant chaque ann\u00e9e.',
-        accentColor: MintColors.success,
-        onTap: () => context.push('/pilier-3a'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Budget comparison: income vs expenses.
-  Widget? _buildBudgetComparisonWidget(CoachProfile profile) {
-    try {
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton,
-        age: profile.age,
-      );
-      final netMensuel = breakdown.monthlyNetPayslip;
-      if (netMensuel <= 0) return null;
-
-      final depenses = profile.totalDepensesMensuelles;
-      if (depenses <= 0) return null;
-
-      final epargne = netMensuel - depenses;
-      final tauxEpargne = epargne / netMensuel;
-
-      return ChatComparisonCard(
-        title: 'Budget mensuel',
-        leftLabel: 'Revenu net',
-        leftValue: formatChfWithPrefix(netMensuel),
-        rightLabel: 'D\u00e9penses',
-        rightValue: formatChfWithPrefix(depenses),
-        leftAmount: netMensuel,
-        rightAmount: depenses,
-        narrative: epargne > 0
-            ? '\u00c9pargne\u00a0: ${formatChf(epargne)}\u00a0CHF/mois '
-                '(${(tauxEpargne * 100).toStringAsFixed(0)}\u00a0% du net)'
-            : 'Tes d\u00e9penses d\u00e9passent ton revenu net. '
-                'Le coach peut t\u2019aider \u00e0 identifier des leviers.',
-        onTap: () => context.push('/budget'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
+  //
+  // S57: Keyword-based widget rendering removed.
+  // All inline widgets are now driven by ChatMessage.richToolCalls,
+  // populated by ChatToolDispatcher.normalize() in both SLM and BYOK paths.
+  // See widget_renderer.dart for the rendering logic.
 
   /// Map suggested action labels to direct navigation routes.
   /// Returns null if the action should be sent as a chat message instead.
@@ -1248,9 +1087,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final isStreamingThis =
         _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm;
     final isInputAnswered = _answeredInputIndices.contains(messageIndex);
-    final isAskUserInput =
-        msg.widgetCall != null &&
-        (msg.widgetCall!['tool'] as String?) == 'ask_user_input';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
@@ -1337,25 +1173,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               child: _buildTierBadge(msg.tier),
             ),
           ],
-          // Rich widget or input request from Claude tool calling (S56)
-          if (!isStreamingThis &&
-              msg.widgetCall != null &&
-              !(isAskUserInput && isInputAnswered)) ...[
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 42, right: 16),
-              child: WidgetRenderer.build(
-                context,
-                WidgetCall(
-                  tool: msg.widgetCall!['tool'] as String? ?? '',
-                  params: Map<String, dynamic>.from(
-                      msg.widgetCall!['params'] as Map? ?? {}),
+          // Rich inline widgets from tool calls (S57 — ChatToolDispatcher).
+          // Renders each RagToolCall via WidgetRenderer.build().
+          // ask_user_input is hidden once the user has answered.
+          if (!isStreamingThis && msg.richToolCalls.isNotEmpty) ...[
+            for (final call in msg.richToolCalls)
+              if (!(call.name == 'ask_user_input' && isInputAnswered)) ...[
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.only(left: 42, right: 16),
+                  child: WidgetRenderer.build(
+                    context,
+                    call,
+                    onInputSubmitted: (field, value) {
+                      _handleInputSubmitted(messageIndex, field, value);
+                    },
+                  ) ?? const SizedBox.shrink(),
                 ),
-                onInputSubmitted: (field, value) {
-                  _handleInputSubmitted(messageIndex, field, value);
-                },
-              ) ?? const SizedBox.shrink(),
-            ),
+              ],
           ],
           // Sources
           if (msg.sources.isNotEmpty) ...[
@@ -1381,21 +1216,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               child: ResponseCardStrip(cards: msg.responseCards),
             ),
           ],
-          // Rich inline widget (S56 — data-driven visual cards)
-          if (!isStreamingThis &&
-              msg.userQuery != null &&
-              _profile != null) ...[
-            Builder(builder: (context) {
-              final richWidget =
-                  _buildRichWidget(msg.userQuery!, _profile!);
-              if (richWidget == null) return const SizedBox.shrink();
-              return Padding(
-                padding: const EdgeInsets.only(
-                    left: 42, right: 16, top: 10),
-                child: richWidget,
-              );
-            }),
-          ],
+          // Note: keyword-based _buildRichWidget removed in S57.
+          // Inline widgets are now exclusively driven by richToolCalls.
           // Suggested actions
           if (!isStreamingThis &&
               msg.suggestedActions != null &&

@@ -123,6 +123,15 @@ class ChatMessage {
   /// Rendered inline in the chat below the text response.
   final Map<String, dynamic>? widgetCall;
 
+  /// Tool calls from the LLM response, normalized to [RagToolCall] format.
+  ///
+  /// Populated by ChatToolDispatcher.normalize() (SLM path) or
+  /// ChatToolDispatcher.filterRag() (BYOK path) — both paths use the same
+  /// list to drive WidgetRenderer.build() calls in the message bubble.
+  ///
+  /// Empty list means no tool calls (no inline widgets rendered).
+  final List<RagToolCall> richToolCalls;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -134,7 +143,10 @@ class ChatMessage {
     this.responseCards = const [],
     this.userQuery,
     this.widgetCall,
+    this.richToolCalls = const [],
   });
+
+  bool get hasRichToolCalls => richToolCalls.isNotEmpty;
 
   bool get isUser => role == 'user';
   bool get isAssistant => role == 'assistant';
