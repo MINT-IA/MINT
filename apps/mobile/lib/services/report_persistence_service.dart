@@ -63,6 +63,12 @@ class ReportPersistenceService {
       'mini_onboarding_cohort_metrics_v1';
   static const String _selectedIntentKey = 'selected_onboarding_intent_v1';
 
+  // ── Premier Eclairage persistence keys (D-09) ──
+  static const String _hasSeenPremierEclairageKey =
+      'has_seen_premier_eclairage_v1';
+  static const String _premierEclairageSnapshotKey =
+      'premier_eclairage_snapshot_v1';
+
   static Future<void>? _metricLock;
 
   /// Marque le mini-onboarding comme complété (3 questions essentielles)
@@ -197,6 +203,45 @@ class ReportPersistenceService {
       _metricLock = null;
       completer.complete();
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  PREMIER ECLAIRAGE PERSISTENCE (D-09)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Saves a premier eclairage snapshot to SharedPreferences.
+  ///
+  /// [data] MUST contain only display fields:
+  ///   value (formatted string), title, subtitle, colorKey, suggestedRoute.
+  /// NEVER store raw salary, IBAN, or PII — per T-03-02 threat mitigation.
+  static Future<void> savePremierEclairageSnapshot(
+      Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_premierEclairageSnapshotKey, json.encode(data));
+  }
+
+  /// Loads the premier eclairage snapshot. Returns null if not set or on error.
+  static Future<Map<String, dynamic>?> loadPremierEclairageSnapshot() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_premierEclairageSnapshotKey);
+    if (raw == null) return null;
+    try {
+      return Map<String, dynamic>.from(json.decode(raw) as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Returns true if the user has already seen their premier eclairage card.
+  static Future<bool> hasSeenPremierEclairage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_hasSeenPremierEclairageKey) ?? false;
+  }
+
+  /// Marks the premier eclairage card as seen (one-shot flag per D-09).
+  static Future<void> markPremierEclairageSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hasSeenPremierEclairageKey, true);
   }
 
   /// Efface les metriques onboarding (control + challenge).
@@ -667,5 +712,7 @@ class ReportPersistenceService {
     await prefs.remove(_contributionsKey);
     await prefs.remove(_onboarding30PlanKey);
     await prefs.remove(_coachNarrativeModeKey);
+    await prefs.remove(_hasSeenPremierEclairageKey);
+    await prefs.remove(_premierEclairageSnapshotKey);
   }
 }
