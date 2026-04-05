@@ -40,8 +40,10 @@ Plans:
   2. A RouteSuggestionCard appears in chat when the LLM calls route_to_screen — tapping it navigates to the suggested screen
   3. CoachRichWidgetBuilder renders widgets based on LLM tool decisions, not keyword matching — verified by disabling keyword fallback and confirming output is unchanged
   4. ChatToolDispatcher exists as a distinct class, parses tool markers from every CoachResponse, and dispatches to the appropriate UI handler
-**Plans**: TBD
-**UI hint**: yes
+**Plans:** 2 plans
+Plans:
+- [ ] 02-01-PLAN.md — Create ChatToolDispatcher class + add route_to_screen to WidgetRenderer
+- [ ] 02-02-PLAN.md — Wire dispatcher into CoachChatScreen, remove legacy dispatch + keyword builder
 
 ### Phase 3: Onboarding Pipeline
 **Goal**: A user who selects an intent chip on the onboarding screen receives a personalized premier eclairage with a concrete Swiss-specific number within 3 minutes, and lands on a contextual home screen — not a generic dashboard
@@ -124,7 +126,7 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Pre-Refactor Cleanup | 0/3 | Gap closure planned | - |
-| 2. Tool Dispatch | 0/? | Not started | - |
+| 2. Tool Dispatch | 0/2 | Planned | - |
 | 3. Onboarding Pipeline | 0/? | Not started | - |
 | 4. Plan Generation | 0/? | Not started | - |
 | 5. Suivi & Check-in | 0/? | Not started | - |
