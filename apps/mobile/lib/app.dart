@@ -125,6 +125,7 @@ import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart'
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
@@ -1037,6 +1038,17 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.loadFromWizard();
           return provider;
         }),
+        ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>(
+          create: (_) {
+            final provider = FinancialPlanProvider();
+            provider.loadFromPersistence();
+            return provider;
+          },
+          update: (_, coachProvider, planProvider) {
+            planProvider!.attachProfileProvider(coachProvider);
+            return planProvider;
+          },
+        ),
         ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
           create: (_) => BudgetProvider(),
           update: (_, coachProvider, budgetProvider) {

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
+import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
+import 'package:provider/provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  WIDGET RENDERER — S56 (restored + adapted for RagToolCall)
@@ -58,6 +61,8 @@ class WidgetRenderer {
         return _buildInputRequest(context, call.input, onInputSubmitted);
       case 'route_to_screen':
         return _buildRouteSuggestion(context, call.input);
+      case 'generate_financial_plan':
+        return _buildPlanPreviewCard(context, call.input);
       default:
         return null;
     }
@@ -384,5 +389,58 @@ class WidgetRenderer {
     final rounded = value.round();
     return rounded.toString().replaceAllMapped(
         RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  PLAN PREVIEW CARD — generate_financial_plan tool (T-04-04)
+  // ────────────────────────────────────────────────────────────
+
+  /// Build a [PlanPreviewCard] for the `generate_financial_plan` tool call.
+  ///
+  /// T-04-04: Numbers come from the PERSISTED plan (calculator-backed via
+  /// [FinancialPlanProvider]), NOT from [call.input] (LLM output).
+  /// Only [coachNarrative] may be sourced from [call.input['narrative']].
+  ///
+  /// If no persisted plan is available yet (race condition on first generation),
+  /// falls back to constructing from [call.input] fields as a preview.
+  static Widget _buildPlanPreviewCard(
+    BuildContext context,
+    Map<String, dynamic> p,
+  ) {
+    // Prefer persisted, calculator-backed plan (T-04-04)
+    final planProvider =
+        Provider.of<FinancialPlanProvider>(context, listen: false);
+
+    if (planProvider.hasPlan) {
+      final plan = planProvider.currentPlan!;
+      // Only coachNarrative may come from LLM call.input
+      final narrative = p['narrative'] as String?;
+      if (narrative != null && narrative.isNotEmpty) {
+        return PlanPreviewCard.fromPlan(
+          plan.copyWith(coachNarrative: narrative),
+        );
+      }
+      return PlanPreviewCard.fromPlan(plan);
+    }
+
+    // Fallback: construct from call.input when persisted plan not yet available
+    // (e.g. race condition on first generation). Numbers from LLM output are
+    // clearly labeled as "preview" via a short narrative prefix.
+    final fallbackMonthly =
+        (p['monthly_target'] as num?)?.toDouble() ?? 0.0;
+    final fallbackGoal = p['goal_description'] as String? ?? '';
+    final fallbackNarrative =
+        p['narrative'] as String? ?? 'Plan en cours de calcul\u2026';
+
+    return PlanPreviewCard(
+      goalDescription: fallbackGoal,
+      monthlyTarget: fallbackMonthly,
+      milestones: const [],
+      coachNarrative: fallbackNarrative,
+      disclaimer:
+          'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
+      projectedMid: fallbackMonthly * 12,
+      confidenceLevel: 0,
+    );
   }
 }
