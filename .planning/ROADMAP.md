@@ -56,9 +56,9 @@ Plans:
   4. Post-onboarding landing screen content reflects the selected intent (not generic) — a firstJob intent lands differently than a housingPurchase intent
 **Plans:** 3 plans
 Plans:
-- [ ] 03-01-PLAN.md — Create IntentRouter mapping + extend ReportPersistenceService with PremierEclairage persistence
-- [ ] 03-02-PLAN.md — Rewire IntentScreen._onChipTap to use IntentRouter, compute premier eclairage, seed CapMemory
-- [ ] 03-03-PLAN.md — Build PremierEclairageCard widget, insert into MintHomeScreen, add intent-aware coach opener + i18n
+- [x] 03-01-PLAN.md — Create IntentRouter mapping + extend ReportPersistenceService with PremierEclairage persistence
+- [x] 03-02-PLAN.md — Rewire IntentScreen._onChipTap to use IntentRouter, compute premier eclairage, seed CapMemory
+- [x] 03-03-PLAN.md — Build PremierEclairageCard widget, insert into MintHomeScreen, add intent-aware coach opener + i18n
 
 ### Phase 4: Plan Generation
 **Goal**: The coach generates a persistent, chiffered financial plan from the user's declared goal — visible outside chat history and adaptive to profile changes
