@@ -8258,5 +8258,7 @@
   "settingsAboutSubtitle": "Version, rechtliche Hinweise, Kontakt",
   "pulseLabelMonthlyGap": "Monatliche L\u00fccke zu schliessen",
   "pulseLabelRetirementFree": "Freie Marge im Ruhestand",
-  "pulseLabelMonthlyFree": "Monatliche freie Marge"
+  "pulseLabelMonthlyFree": "Monatliche freie Marge",
+  "routeSuggestionPartialData": "Unvollst\u00e4ndige Daten \u2014 Ergebnisse werden gesch\u00e4tzt",
+  "routeSuggestionCta": "Anzeigen"
 }

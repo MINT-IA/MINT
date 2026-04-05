@@ -8043,5 +8043,7 @@
   "settingsAboutSubtitle": "Versi\u00f3n, avisos legales, contacto",
   "pulseLabelMonthlyGap": "Brecha mensual a cubrir",
   "pulseLabelRetirementFree": "Margen libre en la jubilaci\u00f3n",
-  "pulseLabelMonthlyFree": "Margen libre mensual"
+  "pulseLabelMonthlyFree": "Margen libre mensual",
+  "routeSuggestionPartialData": "Datos incompletos \u2014 los resultados ser\u00e1n estimados",
+  "routeSuggestionCta": "Ver"
 }

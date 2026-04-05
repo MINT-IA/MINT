@@ -2021,7 +2021,10 @@ class SPt extends S {
 
   @override
   String coaching3aDeadlineMessage(
-      String remaining, String plafond, String impact) {
+    String remaining,
+    String plafond,
+    String impact,
+  ) {
     return 'Resta-te $remaining de margem no teu teto 3a ($plafond). Uma contribuicao antes de 31 de dezembro poderia reduzir a tua carga fiscal em cerca de $impact.';
   }
 
@@ -2033,7 +2036,10 @@ class SPt extends S {
 
   @override
   String coaching3aMissingMessage(
-      String plafond, String impact, String canton) {
+    String plafond,
+    String impact,
+    String canton,
+  ) {
     return 'Abrir um 3º pilar permitiria deduzir ate $plafond do teu rendimento tributavel por ano. A poupanca fiscal estimada e de $impact por ano no cantao de $canton.';
   }
 
@@ -2045,7 +2051,11 @@ class SPt extends S {
 
   @override
   String coaching3aNotMaxedMessage(
-      String current, String plafond, String remaining, String impact) {
+    String current,
+    String plafond,
+    String remaining,
+    String impact,
+  ) {
     return 'A tua contribuicao 3a atual e de $current num teto de $plafond. Contribuir com o restante $remaining poderia representar uma poupanca fiscal de cerca de $impact.';
   }
 
@@ -4234,7 +4244,11 @@ class SPt extends S {
 
   @override
   String agirScenarioBriefSummary(
-      String years, String baseCapital, String replacement, String gapCapital) {
+    String years,
+    String baseCapital,
+    String replacement,
+    String gapCapital,
+  ) {
     return 'Dans ~$years ans, ton scénario Base vise $baseCapital (~$replacement% de remplacement). L\'écart Prudent vs Optimiste est $gapCapital.';
   }
 
@@ -4325,8 +4339,12 @@ class SPt extends S {
   String get profileStateMissing => 'Profil non renseigne';
 
   @override
-  String profileCoachKnowledgeSummary(String profileState, String precision,
-      String checkins, String scorePart) {
+  String profileCoachKnowledgeSummary(
+    String profileState,
+    String precision,
+    String checkins,
+    String scorePart,
+  ) {
     return '$profileState • Precision $precision% • Check-ins: $checkins$scorePart';
   }
 
@@ -7014,7 +7032,10 @@ class SPt extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob vale mais $annualDelta/ano em renda vitalícia, ou seja, $monthlyDelta/mês PARA A VIDA após a reforma.';
   }
 
@@ -9884,7 +9905,10 @@ class SPt extends S {
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulation incluant l\'intérêt de la caisse ($fundRate %) et l\'économie d\'impôt lissée sur $staggeringYears ans pour un revenu imposable de CHF $taxableIncome. Le rendement réel est calculé sur ton effort net réel.';
   }
 
@@ -10077,7 +10101,10 @@ class SPt extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Perdes $amount/mês para a vida. Mas ganhas $years ano$plural de liberdade.';
   }
 
@@ -10175,7 +10202,10 @@ class SPt extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Comparaison forfait fiscal. Imposition ordinaire : $ordinary. Forfait fiscal : $forfait. Économie : $savings.';
   }
 
@@ -11105,24 +11135,21 @@ class SPt extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'janeiro',
-        '2': 'fevereiro',
-        '3': 'março',
-        '4': 'abril',
-        '5': 'maio',
-        '6': 'junho',
-        '7': 'julho',
-        '8': 'agosto',
-        '9': 'setembro',
-        '10': 'outubro',
-        '11': 'novembro',
-        '12': 'dezembro',
-        'other': 'mês',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'janeiro',
+      '2': 'fevereiro',
+      '3': 'março',
+      '4': 'abril',
+      '5': 'maio',
+      '6': 'junho',
+      '7': 'julho',
+      '8': 'agosto',
+      '9': 'setembro',
+      '10': 'outubro',
+      '11': 'novembro',
+      '12': 'dezembro',
+      'other': 'mês',
+    });
     return '$_temp0';
   }
 
@@ -12752,7 +12779,9 @@ class SPt extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Os bancos suíços calculam com uma taxa teórica de 5 % (diretiva ASB), mesmo que a taxa real do mercado seja muito mais baixa. É um teste de resistência: verificam que poderias assumir os encargos se as taxas subissem. Os teus encargos teóricos: $chargesTheoriques/mês. À taxa de mercado (~1,5 %): $chargesReelles/mês.';
   }
 
@@ -18285,4 +18314,11 @@ class SPt extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margem livre mensal';
+
+  @override
+  String get routeSuggestionPartialData =>
+      'Dados incompletos — os resultados serão estimados';
+
+  @override
+  String get routeSuggestionCta => 'Ver';
 }

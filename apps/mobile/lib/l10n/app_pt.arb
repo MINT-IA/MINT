@@ -7960,5 +7960,7 @@
   "settingsAboutSubtitle": "Vers\u00e3o, avisos legais, contacto",
   "pulseLabelMonthlyGap": "Lacuna mensal a preencher",
   "pulseLabelRetirementFree": "Margem livre na reforma",
-  "pulseLabelMonthlyFree": "Margem livre mensal"
+  "pulseLabelMonthlyFree": "Margem livre mensal",
+  "routeSuggestionPartialData": "Dados incompletos \u2014 os resultados ser\u00e3o estimados",
+  "routeSuggestionCta": "Ver"
 }

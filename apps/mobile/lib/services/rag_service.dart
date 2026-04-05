@@ -2,6 +2,21 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 
+/// A tool call returned by the LLM (e.g. route_to_screen).
+class RagToolCall {
+  final String name;
+  final Map<String, dynamic> input;
+
+  const RagToolCall({required this.name, required this.input});
+
+  factory RagToolCall.fromJson(Map<String, dynamic> json) {
+    return RagToolCall(
+      name: json['name'] as String? ?? '',
+      input: (json['input'] as Map<String, dynamic>?) ?? {},
+    );
+  }
+}
+
 /// Response from the RAG query endpoint
 class RagResponse {
   final String answer;

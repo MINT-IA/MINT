@@ -8582,5 +8582,7 @@
   "settingsAboutSubtitle": "Version, mentions l\u00e9gales, contact",
   "pulseLabelMonthlyGap": "\u00c9cart mensuel \u00e0 combler",
   "pulseLabelRetirementFree": "Marge libre \u00e0 la retraite",
-  "pulseLabelMonthlyFree": "Marge libre mensuelle"
+  "pulseLabelMonthlyFree": "Marge libre mensuelle",
+  "routeSuggestionPartialData": "Donn\u00e9es incompl\u00e8tes \u2014 les r\u00e9sultats seront estim\u00e9s",
+  "routeSuggestionCta": "Voir"
 }

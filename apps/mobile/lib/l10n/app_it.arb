@@ -7960,5 +7960,7 @@
   "settingsAboutSubtitle": "Versione, note legali, contatto",
   "pulseLabelMonthlyGap": "Divario mensile da colmare",
   "pulseLabelRetirementFree": "Margine libero in pensione",
-  "pulseLabelMonthlyFree": "Margine libero mensile"
+  "pulseLabelMonthlyFree": "Margine libero mensile",
+  "routeSuggestionPartialData": "Dati incompleti \u2014 i risultati saranno stimati",
+  "routeSuggestionCta": "Vedi"
 }

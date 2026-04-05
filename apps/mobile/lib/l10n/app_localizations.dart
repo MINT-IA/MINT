@@ -67,7 +67,7 @@ import 'app_localizations_pt.dart';
 /// property.
 abstract class S {
   S(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -89,11 +89,11 @@ abstract class S {
   /// of delegates is preferred or required.
   static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
       <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
@@ -102,7 +102,7 @@ abstract class S {
     Locale('en'),
     Locale('es'),
     Locale('it'),
-    Locale('pt')
+    Locale('pt'),
   ];
 
   /// No description provided for @appTitle.
@@ -3770,7 +3770,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Il vous reste {remaining} de marge sur votre plafond 3a ({plafond}). Un versement avant le 31 décembre pourrait réduire votre charge fiscale d\'environ {impact}.'**
   String coaching3aDeadlineMessage(
-      String remaining, String plafond, String impact);
+    String remaining,
+    String plafond,
+    String impact,
+  );
 
   /// No description provided for @coaching3aDeadlineAction.
   ///
@@ -3807,7 +3810,11 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Votre versement 3a actuel est de {current} sur un plafond de {plafond}. Verser le solde de {remaining} pourrait représenter une économie fiscale d\'environ {impact}.'**
   String coaching3aNotMaxedMessage(
-      String current, String plafond, String remaining, String impact);
+    String current,
+    String plafond,
+    String remaining,
+    String impact,
+  );
 
   /// No description provided for @coaching3aNotMaxedAction.
   ///
@@ -7750,7 +7757,11 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Dans ~{years} ans, ton scénario Base vise {baseCapital} (~{replacement}% de remplacement). L\'écart Prudent vs Optimiste est {gapCapital}.'**
   String agirScenarioBriefSummary(
-      String years, String baseCapital, String replacement, String gapCapital);
+    String years,
+    String baseCapital,
+    String replacement,
+    String gapCapital,
+  );
 
   /// No description provided for @agirScenarioBriefCta.
   ///
@@ -7901,7 +7912,11 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{profileState} • Precision {precision}% • Check-ins: {checkins}{scorePart}'**
   String profileCoachKnowledgeSummary(
-      String profileState, String precision, String checkins, String scorePart);
+    String profileState,
+    String precision,
+    String checkins,
+    String scorePart,
+  );
 
   /// No description provided for @profileChipEntered.
   ///
@@ -12678,7 +12693,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{betterJob} vaut {annualDelta}/an de plus en rente viagère, soit {monthlyDelta}/mois À VIE après la retraite.'**
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta);
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  );
 
   /// No description provided for @jobCompareLifetime20Years.
   ///
@@ -17755,7 +17773,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Simulation incluant l\'intérêt de la caisse ({fundRate} %) et l\'économie d\'impôt lissée sur {staggeringYears} ans pour un revenu imposable de CHF {taxableIncome}. Le rendement réel est calculé sur ton effort net réel.'**
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome);
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  );
 
   /// No description provided for @simRealInterestTitle.
   ///
@@ -18236,7 +18257,10 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Comparaison forfait fiscal. Imposition ordinaire : {ordinary}. Forfait fiscal : {forfait}. Économie : {savings}.'**
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings);
+    String ordinary,
+    String forfait,
+    String savings,
+  );
 
   /// No description provided for @forfaitFiscalOrdinaryLabel.
   ///
@@ -22701,7 +22725,9 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : {chargesTheoriques}/mois. Au taux réel (~1,5 %) : {chargesReelles}/mois.'**
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles);
+    String chargesTheoriques,
+    String chargesReelles,
+  );
 
   /// No description provided for @affordabilityInsightEquityTitle.
   ///
@@ -32524,6 +32550,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marge libre mensuelle'**
   String get pulseLabelMonthlyFree;
+
+  /// No description provided for @routeSuggestionPartialData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données incomplètes — les résultats seront estimés'**
+  String get routeSuggestionPartialData;
+
+  /// No description provided for @routeSuggestionCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get routeSuggestionCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
@@ -32536,13 +32574,13 @@ class _SDelegate extends LocalizationsDelegate<S> {
 
   @override
   bool isSupported(Locale locale) => <String>[
-        'de',
-        'en',
-        'es',
-        'fr',
-        'it',
-        'pt'
-      ].contains(locale.languageCode);
+    'de',
+    'en',
+    'es',
+    'fr',
+    'it',
+    'pt',
+  ].contains(locale.languageCode);
 
   @override
   bool shouldReload(_SDelegate old) => false;
@@ -32566,8 +32604,9 @@ S lookupS(Locale locale) {
   }
 
   throw FlutterError(
-      'S.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'S.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
 }

@@ -8288,5 +8288,7 @@
   "settingsAboutSubtitle": "Version, legal notices, contact",
   "pulseLabelMonthlyGap": "Monthly gap to close",
   "pulseLabelRetirementFree": "Free margin at retirement",
-  "pulseLabelMonthlyFree": "Monthly free margin"
+  "pulseLabelMonthlyFree": "Monthly free margin",
+  "routeSuggestionPartialData": "Incomplete data \u2014 results will be estimated",
+  "routeSuggestionCta": "View"
 }

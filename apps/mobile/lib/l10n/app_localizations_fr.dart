@@ -2020,7 +2020,10 @@ class SFr extends S {
 
   @override
   String coaching3aDeadlineMessage(
-      String remaining, String plafond, String impact) {
+    String remaining,
+    String plafond,
+    String impact,
+  ) {
     return 'Il vous reste $remaining de marge sur votre plafond 3a ($plafond). Un versement avant le 31 décembre pourrait réduire votre charge fiscale d\'environ $impact.';
   }
 
@@ -2032,7 +2035,10 @@ class SFr extends S {
 
   @override
   String coaching3aMissingMessage(
-      String plafond, String impact, String canton) {
+    String plafond,
+    String impact,
+    String canton,
+  ) {
     return 'Ouvrir un 3e pilier vous permettrait de déduire jusqu\'à $plafond de votre revenu imposable chaque année. L\'économie fiscale estimée est de $impact par an dans le canton de $canton.';
   }
 
@@ -2044,7 +2050,11 @@ class SFr extends S {
 
   @override
   String coaching3aNotMaxedMessage(
-      String current, String plafond, String remaining, String impact) {
+    String current,
+    String plafond,
+    String remaining,
+    String impact,
+  ) {
     return 'Votre versement 3a actuel est de $current sur un plafond de $plafond. Verser le solde de $remaining pourrait représenter une économie fiscale d\'environ $impact.';
   }
 
@@ -4236,7 +4246,11 @@ class SFr extends S {
 
   @override
   String agirScenarioBriefSummary(
-      String years, String baseCapital, String replacement, String gapCapital) {
+    String years,
+    String baseCapital,
+    String replacement,
+    String gapCapital,
+  ) {
     return 'Dans ~$years ans, ton scénario Base vise $baseCapital (~$replacement% de remplacement). L\'écart Prudent vs Optimiste est $gapCapital.';
   }
 
@@ -4327,8 +4341,12 @@ class SFr extends S {
   String get profileStateMissing => 'Profil non renseigne';
 
   @override
-  String profileCoachKnowledgeSummary(String profileState, String precision,
-      String checkins, String scorePart) {
+  String profileCoachKnowledgeSummary(
+    String profileState,
+    String precision,
+    String checkins,
+    String scorePart,
+  ) {
     return '$profileState • Precision $precision% • Check-ins: $checkins$scorePart';
   }
 
@@ -7006,7 +7024,10 @@ class SFr extends S {
 
   @override
   String jobCompareRetirementBody(
-      String betterJob, String annualDelta, String monthlyDelta) {
+    String betterJob,
+    String annualDelta,
+    String monthlyDelta,
+  ) {
     return '$betterJob vaut $annualDelta/an de plus en rente viagère, soit $monthlyDelta/mois À VIE après la retraite.';
   }
 
@@ -9879,7 +9900,10 @@ class SFr extends S {
 
   @override
   String simLppBuybackDisclaimer(
-      String fundRate, int staggeringYears, String taxableIncome) {
+    String fundRate,
+    int staggeringYears,
+    String taxableIncome,
+  ) {
     return 'Simulation incluant l\'intérêt de la caisse ($fundRate %) et l\'économie d\'impôt lissée sur $staggeringYears ans pour un revenu imposable de CHF $taxableIncome. Le rendement réel est calculé sur ton effort net réel.';
   }
 
@@ -10073,7 +10097,10 @@ class SFr extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-      String amount, int years, String plural) {
+    String amount,
+    int years,
+    String plural,
+  ) {
     return 'Tu perds $amount/mois à vie. Mais tu gagnes $years an$plural de liberté.';
   }
 
@@ -10171,7 +10198,10 @@ class SFr extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-      String ordinary, String forfait, String savings) {
+    String ordinary,
+    String forfait,
+    String savings,
+  ) {
     return 'Comparaison forfait fiscal. Imposition ordinaire : $ordinary. Forfait fiscal : $forfait. Économie : $savings.';
   }
 
@@ -11153,24 +11183,21 @@ class SFr extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(
-      month,
-      {
-        '1': 'janvier',
-        '2': 'février',
-        '3': 'mars',
-        '4': 'avril',
-        '5': 'mai',
-        '6': 'juin',
-        '7': 'juillet',
-        '8': 'août',
-        '9': 'septembre',
-        '10': 'octobre',
-        '11': 'novembre',
-        '12': 'décembre',
-        'other': 'mois',
-      },
-    );
+    String _temp0 = intl.Intl.selectLogic(month, {
+      '1': 'janvier',
+      '2': 'février',
+      '3': 'mars',
+      '4': 'avril',
+      '5': 'mai',
+      '6': 'juin',
+      '7': 'juillet',
+      '8': 'août',
+      '9': 'septembre',
+      '10': 'octobre',
+      '11': 'novembre',
+      '12': 'décembre',
+      'other': 'mois',
+    });
     return '$_temp0';
   }
 
@@ -12799,7 +12826,9 @@ class SFr extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-      String chargesTheoriques, String chargesReelles) {
+    String chargesTheoriques,
+    String chargesReelles,
+  ) {
     return 'Les banques suisses calculent avec un taux théorique de 5 % (directive ASB), même si le taux réel du marché est bien plus bas. C\'est un test de résistance : elles vérifient que tu pourrais assumer les charges si les taux remontaient. Tes charges théoriques : $chargesTheoriques/mois. Au taux réel (~1,5 %) : $chargesReelles/mois.';
   }
 
@@ -18334,4 +18363,11 @@ class SFr extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Marge libre mensuelle';
+
+  @override
+  String get routeSuggestionPartialData =>
+      'Données incomplètes — les résultats seront estimés';
+
+  @override
+  String get routeSuggestionCta => 'Voir';
 }
