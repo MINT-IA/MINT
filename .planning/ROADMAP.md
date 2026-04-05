@@ -25,7 +25,10 @@ This milestone transforms MINT's disconnected components into a seamless user jo
   1. A grep for each of the three duplicate service pairs returns exactly one canonical import path across the entire codebase
   2. Every one of the 67 canonical routes is either live (has a screen), redirected (explicit alias), or archived (explicit comment) — no silent dead ends
   3. Dead screens (no route pointing to them) are removed; flutter analyze still reports 0 errors after removal
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 01-01-PLAN.md — Resolve 3 duplicate service pairs (delete non-canonical copies)
+- [ ] 01-02-PLAN.md — Audit route table, fix stale comment, delete dead screens
 
 ### Phase 2: Tool Dispatch
 **Goal**: Coach tool calls (show_fact_card, route_to_screen, show_score_gauge, etc.) reach the Flutter UI and render the appropriate inline widgets
@@ -68,9 +71,9 @@ This milestone transforms MINT's disconnected components into a seamless user jo
 **Requirements**: SUI-01, SUI-02, SUI-03, SUI-04, SUI-05
 **Success Criteria** (what must be TRUE):
   1. A proactive nudge (local notification) appears when a monthly check-in is due — not only available on demand
-  2. The check-in flow is conversational: the coach asks "combien as-tu versé ce mois?" and the user answers in chat — no standalone form screen
+  2. The check-in flow is conversational: the coach asks "combien as-tu verse ce mois?" and the user answers in chat — no standalone form screen
   3. PlanRealityCard is visible on the Aujourd'hui tab showing plan vs. actual progress
-  4. Coach references a past check-in by amount ("le mois dernier tu avais versé X") — confirming cross-session memory is active
+  4. Coach references a past check-in by amount ("le mois dernier tu avais verse X") — confirming cross-session memory is active
   5. The user's streak count is visible somewhere in the UI (not just tracked in background)
 **Plans**: TBD
 **UI hint**: yes
@@ -119,7 +122,7 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Pre-Refactor Cleanup | 0/? | Not started | - |
+| 1. Pre-Refactor Cleanup | 0/2 | Planning complete | - |
 | 2. Tool Dispatch | 0/? | Not started | - |
 | 3. Onboarding Pipeline | 0/? | Not started | - |
 | 4. Plan Generation | 0/? | Not started | - |
