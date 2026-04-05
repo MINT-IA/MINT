@@ -40,7 +40,6 @@ Declared values — all multiples of 4, mapped to `MintSpacing.*` constants (lib
 | lg | 24px | `MintSpacing.lg` | Section padding, card margin on home screen |
 | xl | 32px | `MintSpacing.xl` | Between major home screen sections |
 | 2xl | 48px | `MintSpacing.xxl` | Top/bottom breathing room on Aujourd'hui tab |
-| page | 32px | `MintSpacing.page` | Horizontal padding on tablet |
 
 **Exceptions:**
 
@@ -54,21 +53,16 @@ Declared values — all multiples of 4, mapped to `MintSpacing.*` constants (lib
 
 ## Typography
 
-All tokens map to `MintTextStyles.*` (lib/theme/mint_text_styles.dart). Use exactly 4 type roles in this phase:
+All tokens map to `MintTextStyles.*` (lib/theme/mint_text_styles.dart). Use exactly 4 type roles in this phase. Two weights only: w400 (regular) and w600 (semibold).
 
 | Role | Font | Size | Weight | Line Height | Dart Constant | Usage in Phase 5 |
 |------|------|------|--------|-------------|---------------|------------------|
 | Body | Inter | 16px | 400 | 1.5 | `MintTextStyles.bodyLarge` | Coach messages, check-in question text |
-| Label | Inter | 14px | 400 | 1.5 | `MintTextStyles.bodyMedium` | PlanRealityCard section labels, progress bar captions |
+| Label | Inter | 14px | 400 | 1.5 | `MintTextStyles.bodyMedium` | PlanRealityCard section labels, progress bar captions, badge labels, disclaimers |
 | Title | Inter | 16px | 600 | 1.3 | `MintTextStyles.titleMedium` | Card header ("Mon plan", streak count) |
 | Heading | Montserrat | 22px | 600 | 1.2 | `MintTextStyles.headlineMedium` | Section headers on Aujourd'hui if needed |
 
-**Supporting micro-type:**
-
-- `MintTextStyles.labelSmall` (Inter 11px w500 1.3): badge labels, disclaimer, "X mois → badge" countdown
-- `MintTextStyles.micro` (Inter 10px w400i 1.3): compound impact disclaimer on PlanRealityCard
-
-**Rule:** Max 4 type sizes visible simultaneously on any single screen view. Outfit font is deprecated — do not use.
+**Rule:** Max 4 type sizes visible simultaneously on any single screen view. Badge labels and disclaimer text use `Label` (14px w400) — no sub-roles. Outfit font is deprecated — do not use.
 
 **Source:** docs/DESIGN_SYSTEM.md §3.1, existing PlanRealityCard + StreakBadgeWidget
 
