@@ -18,21 +18,6 @@ class RagToolCall {
 }
 
 /// Response from the RAG query endpoint
-/// A tool call returned by the LLM (e.g. route_to_screen).
-class RagToolCall {
-  final String name;
-  final Map<String, dynamic> input;
-
-  const RagToolCall({required this.name, required this.input});
-
-  factory RagToolCall.fromJson(Map<String, dynamic> json) {
-    return RagToolCall(
-      name: json['name'] as String? ?? '',
-      input: (json['input'] as Map<String, dynamic>?) ?? {},
-    );
-  }
-}
-
 class RagResponse {
   final String answer;
   final List<RagSource> sources;

@@ -21,7 +21,6 @@ class CoachMessageBubble extends StatelessWidget {
   final int messageIndex;
   final bool isStreaming;
   final bool isInputAnswered;
-  final Widget? richWidget;
   final void Function(int messageIndex, String field, String value)?
       onInputSubmitted;
   final void Function(String action)? onActionTap;
@@ -32,7 +31,6 @@ class CoachMessageBubble extends StatelessWidget {
     required this.messageIndex,
     this.isStreaming = false,
     this.isInputAnswered = false,
-    this.richWidget,
     this.onInputSubmitted,
     this.onActionTap,
   });
@@ -147,13 +145,6 @@ class CoachMessageBubble extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 42),
               child: ResponseCardStrip(cards: msg.responseCards),
-            ),
-          ],
-          // Rich inline widget (S56 — data-driven visual cards)
-          if (!isStreamingThis && richWidget != null) ...[
-            Padding(
-              padding: const EdgeInsets.only(left: 42, right: 16, top: 10),
-              child: richWidget!,
             ),
           ],
           // Suggested actions

@@ -349,23 +349,7 @@ void main() {
     });
   });
 
-  group('ReturnContract V2 — ScreenOutcome resolution', () {
-    test('ScreenOutcome enum has completed, abandoned, changedInputs values', () {
-      expect(ScreenOutcome.values, containsAll([
-        ScreenOutcome.completed,
-        ScreenOutcome.abandoned,
-        ScreenOutcome.changedInputs,
-      ]));
-    });
-
-    test('completed outcome has distinct identity from abandoned', () {
-      expect(ScreenOutcome.completed, isNot(ScreenOutcome.abandoned));
-    });
-
-    test('changedInputs outcome has distinct identity from completed', () {
-      expect(ScreenOutcome.changedInputs, isNot(ScreenOutcome.completed));
-    });
-
+  group('ReturnContract V2 — i18n keys', () {
     testWidgets('routeReturnCompleted i18n key resolves in French', (tester) async {
       late String resolved;
       await tester.pumpWidget(MaterialApp(

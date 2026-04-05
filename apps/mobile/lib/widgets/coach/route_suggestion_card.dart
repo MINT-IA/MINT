@@ -68,7 +68,7 @@ class RouteSuggestionCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(MintSpacing.xs),
               ),
               child: Text(
-                s?.routeSuggestionPartialData ??
+                s?.routeSuggestionPartialWarning ??
                     'Donn\u00e9es incompl\u00e8tes \u2014 les r\u00e9sultats seront estim\u00e9s',
                 style: MintTextStyles.labelSmall(color: MintColors.warning),
               ),
