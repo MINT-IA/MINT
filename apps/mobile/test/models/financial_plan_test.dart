@@ -172,7 +172,7 @@ void main() {
           avoirLppTotal: lpp,
           totalEpargne3a: epargne3a,
         ),
-        goalA: const GoalA(
+        goalA: GoalA(
           type: GoalAType.achatImmo,
           targetDate: DateTime(2028, 6, 1),
           label: 'Acheter un appartement',
