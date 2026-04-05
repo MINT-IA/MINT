@@ -10330,5 +10330,15 @@
   "intensityConfirmation3": "OK. Je vais droit au but, sans détour.",
   "intensityConfirmation4": "Reçu. Je te dis les choses cash, pas de pincettes.",
   "intensityConfirmation5": "Noté. Mode brut\u00a0: je ne mâche pas mes mots.",
-  "coachProactiveDecline": "Compris. Je serai là quand tu viendras."
+  "coachProactiveDecline": "Compris. Je serai là quand tu viendras.",
+  "intentScreenTitle": "Qu'est-ce qui t'amène\u00a0?",
+  "intentScreenSubtitle": "Choisis ce qui ressemble le plus à ta situation. On commence là.",
+  "intentScreenMicrocopy": "Tu pourras reformuler ensuite avec tes mots.",
+  "intentChip3a": "On m'a proposé un 3a",
+  "intentChipBilan": "Je veux voir où j'en suis",
+  "intentChipPrevoyance": "Je comprends mal ma prévoyance",
+  "intentChipFiscalite": "Je veux payer moins bêtement",
+  "intentChipProjet": "J'ai un projet",
+  "intentChipChangement": "Ma situation change",
+  "intentChipAutre": "Autre…"
 }

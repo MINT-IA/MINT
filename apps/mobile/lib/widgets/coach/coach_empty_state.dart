@@ -60,7 +60,7 @@ class CoachEmptyState extends StatelessWidget {
               ),
               const SizedBox(height: MintSpacing.lg),
               FilledButton(
-                onPressed: () => context.go('/onboarding/quick'),
+                onPressed: () => context.go('/onboarding/intent'),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   shape: RoundedRectangleBorder(

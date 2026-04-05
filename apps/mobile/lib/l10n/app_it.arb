@@ -9814,5 +9814,15 @@
   "intensityConfirmation3": "OK. Dritto al punto, senza giri di parole.",
   "intensityConfirmation4": "Ricevuto. Ti dico le cose senza mezzi termini.",
   "intensityConfirmation5": "Notato. Modalità diretta: non uso mezzi termini.",
-  "coachProactiveDecline": "Capito. Sarò qui quando sarai pronto."
+  "coachProactiveDecline": "Capito. Sarò qui quando sarai pronto.",
+  "intentScreenTitle": "Cosa ti porta qui?",
+  "intentScreenSubtitle": "Scegli la situazione che ti assomiglia di più. Partiamo da lì.",
+  "intentScreenMicrocopy": "Potrai riformulare con le tue parole in seguito.",
+  "intentChip3a": "Mi hanno proposto un 3a",
+  "intentChipBilan": "Voglio vedere a che punto sono",
+  "intentChipPrevoyance": "Non capisco bene la mia previdenza",
+  "intentChipFiscalite": "Voglio smettere di pagare tasse inutilmente",
+  "intentChipProjet": "Ho un progetto in mente",
+  "intentChipChangement": "La mia situazione sta cambiando",
+  "intentChipAutre": "Altro…"
 }

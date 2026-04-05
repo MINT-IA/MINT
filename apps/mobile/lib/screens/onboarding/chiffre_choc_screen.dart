@@ -79,7 +79,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     final extra = GoRouterState.of(context).extra;
     if (extra is! Map<String, dynamic>) {
       // No valid data — redirect to onboarding instead of infinite spinner
-      if (mounted) context.go('/onboarding/quick');
+      if (mounted) context.go('/onboarding/intent');
       return;
     }
 

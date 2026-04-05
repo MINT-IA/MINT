@@ -9814,5 +9814,15 @@
   "intensityConfirmation3": "OK. Direkt auf den Punkt, ohne Umwege.",
   "intensityConfirmation4": "Notiert. Ich sage dir die Dinge direkt, ohne Beschönigung.",
   "intensityConfirmation5": "Notiert. Rohmodus: Ich nehme kein Blatt vor den Mund.",
-  "coachProactiveDecline": "Verstanden. Ich bin da, wenn du bereit bist."
+  "coachProactiveDecline": "Verstanden. Ich bin da, wenn du bereit bist.",
+  "intentScreenTitle": "Was führt dich hierher?",
+  "intentScreenSubtitle": "Wähle, was am besten zu deiner Situation passt. Wir fangen dort an.",
+  "intentScreenMicrocopy": "Du kannst später jederzeit in deinen eigenen Worten formulieren.",
+  "intentChip3a": "Man hat mir eine 3a-Lösung vorgeschlagen",
+  "intentChipBilan": "Ich will wissen, wo ich stehe",
+  "intentChipPrevoyance": "Ich verstehe meine Vorsorge nicht richtig",
+  "intentChipFiscalite": "Ich will weniger unnötig Steuern zahlen",
+  "intentChipProjet": "Ich habe ein Projekt im Kopf",
+  "intentChipChangement": "Meine Situation verändert sich",
+  "intentChipAutre": "Etwas anderes…"
 }

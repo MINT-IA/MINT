@@ -21424,4 +21424,36 @@ class SEs extends S {
   @override
   String get coachProactiveDecline =>
       'Entendido. Estaré aquí cuando estés listo.';
+
+  @override
+  String get intentScreenTitle => '¿Qué te trae por aquí?';
+
+  @override
+  String get intentScreenSubtitle =>
+      'Elige lo que más se parezca a tu situación. Empezamos por ahí.';
+
+  @override
+  String get intentScreenMicrocopy =>
+      'Después podrás reformularlo con tus propias palabras.';
+
+  @override
+  String get intentChip3a => 'Me han propuesto un 3a';
+
+  @override
+  String get intentChipBilan => 'Quiero ver dónde estoy';
+
+  @override
+  String get intentChipPrevoyance => 'No entiendo bien mi previsión';
+
+  @override
+  String get intentChipFiscalite => 'Quiero dejar de pagar impuestos de más';
+
+  @override
+  String get intentChipProjet => 'Tengo un proyecto';
+
+  @override
+  String get intentChipChangement => 'Mi situación está cambiando';
+
+  @override
+  String get intentChipAutre => 'Otra cosa…';
 }

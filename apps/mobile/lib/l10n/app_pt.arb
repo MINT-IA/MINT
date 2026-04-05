@@ -9814,5 +9814,15 @@
   "intensityConfirmation3": "OK. Direto ao ponto, sem rodeios.",
   "intensityConfirmation4": "Recebido. Digo-te as coisas sem rodeios.",
   "intensityConfirmation5": "Anotado. Modo direto: não meço palavras.",
-  "coachProactiveDecline": "Entendido. Estarei aqui quando estiveres pronto."
+  "coachProactiveDecline": "Entendido. Estarei aqui quando estiveres pronto.",
+  "intentScreenTitle": "O que te traz aqui?",
+  "intentScreenSubtitle": "Escolhe o que mais se parece com a tua situação. Começamos por aí.",
+  "intentScreenMicrocopy": "Podes reformular com as tuas próprias palavras depois.",
+  "intentChip3a": "Propuseram-me um 3a",
+  "intentChipBilan": "Quero ver onde estou",
+  "intentChipPrevoyance": "Não percebo bem a minha previdência",
+  "intentChipFiscalite": "Quero deixar de pagar impostos à toa",
+  "intentChipProjet": "Tenho um projeto em mente",
+  "intentChipChangement": "A minha situação está a mudar",
+  "intentChipAutre": "Outra coisa…"
 }

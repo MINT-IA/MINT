@@ -21309,4 +21309,36 @@ class SEn extends S {
   @override
   String get coachProactiveDecline =>
       'Got it. I\'ll be here when you\'re ready.';
+
+  @override
+  String get intentScreenTitle => 'What brings you here?';
+
+  @override
+  String get intentScreenSubtitle =>
+      'Pick whatever feels closest to your situation. We\'ll start there.';
+
+  @override
+  String get intentScreenMicrocopy =>
+      'You can always rephrase in your own words later.';
+
+  @override
+  String get intentChip3a => 'I was offered a 3a plan';
+
+  @override
+  String get intentChipBilan => 'I want to see where I stand';
+
+  @override
+  String get intentChipPrevoyance => 'I don\'t really get my pension setup';
+
+  @override
+  String get intentChipFiscalite => 'I want to stop wasting money on taxes';
+
+  @override
+  String get intentChipProjet => 'I have a project in mind';
+
+  @override
+  String get intentChipChangement => 'My situation is changing';
+
+  @override
+  String get intentChipAutre => 'Something else…';
 }

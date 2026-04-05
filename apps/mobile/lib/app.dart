@@ -104,6 +104,7 @@ import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/instant_chiffre_choc_screen.dart';
@@ -868,6 +869,11 @@ final _router = GoRouter(
 
     // ── ONBOARDING ───────────────────────────────────────────
     GoRoute(
+      path: '/onboarding/intent',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const IntentScreen(),
+    ),
+    GoRoute(
       path: '/onboarding/quick',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -933,7 +939,7 @@ final _router = GoRouter(
     ),
 
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
-    GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/intent'),
     GoRoute(
       path: '/expert-tier',
       parentNavigatorKey: _rootNavigatorKey,
@@ -957,12 +963,13 @@ final _router = GoRouter(
     GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
     GoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
-      if (section == null || section.isEmpty) return '/onboarding/quick';
+      if (section == null || section.isEmpty) return '/onboarding/intent';
+      // Section-specific edits still go to quick (profile completion).
       return '/onboarding/quick?section=$section';
     }),
     GoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
-    GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/intent'),
+    GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/intent'),
     GoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
   ],
 );

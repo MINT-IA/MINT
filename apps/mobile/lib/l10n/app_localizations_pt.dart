@@ -21427,4 +21427,36 @@ class SPt extends S {
   @override
   String get coachProactiveDecline =>
       'Entendido. Estarei aqui quando estiveres pronto.';
+
+  @override
+  String get intentScreenTitle => 'O que te traz aqui?';
+
+  @override
+  String get intentScreenSubtitle =>
+      'Escolhe o que mais se parece com a tua situação. Começamos por aí.';
+
+  @override
+  String get intentScreenMicrocopy =>
+      'Podes reformular com as tuas próprias palavras depois.';
+
+  @override
+  String get intentChip3a => 'Propuseram-me um 3a';
+
+  @override
+  String get intentChipBilan => 'Quero ver onde estou';
+
+  @override
+  String get intentChipPrevoyance => 'Não percebo bem a minha previdência';
+
+  @override
+  String get intentChipFiscalite => 'Quero deixar de pagar impostos à toa';
+
+  @override
+  String get intentChipProjet => 'Tenho um projeto em mente';
+
+  @override
+  String get intentChipChangement => 'A minha situação está a mudar';
+
+  @override
+  String get intentChipAutre => 'Outra coisa…';
 }

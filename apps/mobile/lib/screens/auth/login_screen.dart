@@ -218,7 +218,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: authProvider.isLoading
                         ? null
                         : () {
-                            context.go('/onboarding/quick');
+                            context.go('/onboarding/intent');
                           },
                     child: Text(l10n.authContinueLocal),
                   ),
