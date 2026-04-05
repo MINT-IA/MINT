@@ -96,7 +96,7 @@ class _LandingScreenState extends State<LandingScreen>
       if (isCompleted || isMiniCompleted) {
         context.go('/home');
       } else {
-        context.go('/onboarding/quick');
+        context.go('/onboarding/intent');
       }
     }
   }

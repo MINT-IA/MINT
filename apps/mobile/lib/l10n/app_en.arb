@@ -9814,5 +9814,15 @@
   "intensityConfirmation3": "OK. Straight to the point, no detours.",
   "intensityConfirmation4": "Noted. I'll tell you straight, no sugarcoating.",
   "intensityConfirmation5": "Noted. Raw mode: I don't mince words.",
-  "coachProactiveDecline": "Got it. I'll be here when you're ready."
+  "coachProactiveDecline": "Got it. I'll be here when you're ready.",
+  "intentScreenTitle": "What brings you here?",
+  "intentScreenSubtitle": "Pick whatever feels closest to your situation. We'll start there.",
+  "intentScreenMicrocopy": "You can always rephrase in your own words later.",
+  "intentChip3a": "I was offered a 3a plan",
+  "intentChipBilan": "I want to see where I stand",
+  "intentChipPrevoyance": "I don't really get my pension setup",
+  "intentChipFiscalite": "I want to stop wasting money on taxes",
+  "intentChipProjet": "I have a project in mind",
+  "intentChipChangement": "My situation is changing",
+  "intentChipAutre": "Something else…"
 }

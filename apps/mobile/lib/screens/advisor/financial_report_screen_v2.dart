@@ -72,7 +72,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           title: S.of(context)!.financialReportEmptyTitle,
           subtitle: S.of(context)!.financialReportEmptySubtitle,
           ctaLabel: S.of(context)!.financialReportEmptyCta,
-          onCta: () => context.go('/onboarding/quick'),
+          onCta: () => context.go('/onboarding/intent'),
         ),
       );
     }

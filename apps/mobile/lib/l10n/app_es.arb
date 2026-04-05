@@ -9814,5 +9814,15 @@
   "intensityConfirmation3": "OK. Directo al grano, sin rodeos.",
   "intensityConfirmation4": "Recibido. Te digo las cosas sin rodeos.",
   "intensityConfirmation5": "Anotado. Modo directo: no me ando con rodeos.",
-  "coachProactiveDecline": "Entendido. Estaré aquí cuando estés listo."
+  "coachProactiveDecline": "Entendido. Estaré aquí cuando estés listo.",
+  "intentScreenTitle": "¿Qué te trae por aquí?",
+  "intentScreenSubtitle": "Elige lo que más se parezca a tu situación. Empezamos por ahí.",
+  "intentScreenMicrocopy": "Después podrás reformularlo con tus propias palabras.",
+  "intentChip3a": "Me han propuesto un 3a",
+  "intentChipBilan": "Quiero ver dónde estoy",
+  "intentChipPrevoyance": "No entiendo bien mi previsión",
+  "intentChipFiscalite": "Quiero dejar de pagar impuestos de más",
+  "intentChipProjet": "Tengo un proyecto",
+  "intentChipChangement": "Mi situación está cambiando",
+  "intentChipAutre": "Otra cosa\u2026"
 }

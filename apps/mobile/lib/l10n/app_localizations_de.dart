@@ -21467,4 +21467,37 @@ class SDe extends S {
   @override
   String get coachProactiveDecline =>
       'Verstanden. Ich bin da, wenn du bereit bist.';
+
+  @override
+  String get intentScreenTitle => 'Was führt dich hierher?';
+
+  @override
+  String get intentScreenSubtitle =>
+      'Wähle, was am besten zu deiner Situation passt. Wir fangen dort an.';
+
+  @override
+  String get intentScreenMicrocopy =>
+      'Du kannst später jederzeit in deinen eigenen Worten formulieren.';
+
+  @override
+  String get intentChip3a => 'Man hat mir eine 3a-Lösung vorgeschlagen';
+
+  @override
+  String get intentChipBilan => 'Ich will wissen, wo ich stehe';
+
+  @override
+  String get intentChipPrevoyance =>
+      'Ich verstehe meine Vorsorge nicht richtig';
+
+  @override
+  String get intentChipFiscalite => 'Ich will weniger unnötig Steuern zahlen';
+
+  @override
+  String get intentChipProjet => 'Ich habe ein Projekt im Kopf';
+
+  @override
+  String get intentChipChangement => 'Meine Situation verändert sich';
+
+  @override
+  String get intentChipAutre => 'Etwas anderes…';
 }

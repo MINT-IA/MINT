@@ -61,6 +61,7 @@ class ReportPersistenceService {
       'mini_onboarding_metrics_challenge_v1';
   static const String _onboardingCohortMetricsKey =
       'mini_onboarding_cohort_metrics_v1';
+  static const String _selectedIntentKey = 'selected_onboarding_intent_v1';
 
   static Future<void>? _metricLock;
 
@@ -74,6 +75,18 @@ class ReportPersistenceService {
   static Future<bool> isMiniOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_miniOnboardingKey) ?? false;
+  }
+
+  /// Persiste l'intent choisi sur l'écran d'intent (onboarding V2).
+  static Future<void> setSelectedOnboardingIntent(String intent) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_selectedIntentKey, intent);
+  }
+
+  /// Retourne l'intent choisi lors de l'onboarding, ou null.
+  static Future<String?> getSelectedOnboardingIntent() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_selectedIntentKey);
   }
 
   /// Retourne une variante A/B persistente pour le mini-onboarding.
@@ -650,6 +663,7 @@ class ReportPersistenceService {
     await prefs.remove(_onboardingMetricsControlKey);
     await prefs.remove(_onboardingMetricsChallengeKey);
     await prefs.remove(_onboardingCohortMetricsKey);
+    await prefs.remove(_selectedIntentKey);
     await prefs.remove(_contributionsKey);
     await prefs.remove(_onboarding30PlanKey);
     await prefs.remove(_coachNarrativeModeKey);

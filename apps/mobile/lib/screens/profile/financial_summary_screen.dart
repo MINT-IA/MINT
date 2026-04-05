@@ -85,7 +85,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         title: S.of(context)!.financialSummaryNoProfile,
         subtitle: '', // No subtitle in original
         ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
-        onCta: () => context.push('/onboarding/quick'),
+        onCta: () => context.push('/onboarding/intent'),
       ),
     );
   }

@@ -44,6 +44,9 @@ enum CoachEntrySource {
   /// User tapped "En parler" in the scan impact screen.
   scanInsight,
 
+  /// User selected an intent chip on the onboarding intent screen.
+  onboardingIntent,
+
   /// Generic/unknown entry (backward compat).
   direct,
 }

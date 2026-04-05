@@ -21420,4 +21420,36 @@ class SFr extends S {
 
   @override
   String get coachProactiveDecline => 'Compris. Je serai là quand tu viendras.';
+
+  @override
+  String get intentScreenTitle => 'Qu\'est-ce qui t\'amène ?';
+
+  @override
+  String get intentScreenSubtitle =>
+      'Choisis ce qui ressemble le plus à ta situation. On commence là.';
+
+  @override
+  String get intentScreenMicrocopy =>
+      'Tu pourras reformuler ensuite avec tes mots.';
+
+  @override
+  String get intentChip3a => 'On m\'a proposé un 3a';
+
+  @override
+  String get intentChipBilan => 'Je veux voir où j\'en suis';
+
+  @override
+  String get intentChipPrevoyance => 'Je comprends mal ma prévoyance';
+
+  @override
+  String get intentChipFiscalite => 'Je veux payer moins bêtement';
+
+  @override
+  String get intentChipProjet => 'J\'ai un projet';
+
+  @override
+  String get intentChipChangement => 'Ma situation change';
+
+  @override
+  String get intentChipAutre => 'Autre…';
 }

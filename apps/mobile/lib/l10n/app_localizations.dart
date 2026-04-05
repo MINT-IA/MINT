@@ -37628,6 +37628,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Compris. Je serai là quand tu viendras.'**
   String get coachProactiveDecline;
+
+  /// No description provided for @intentScreenTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qu\'est-ce qui t\'amène ?'**
+  String get intentScreenTitle;
+
+  /// No description provided for @intentScreenSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ce qui ressemble le plus à ta situation. On commence là.'**
+  String get intentScreenSubtitle;
+
+  /// No description provided for @intentScreenMicrocopy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pourras reformuler ensuite avec tes mots.'**
+  String get intentScreenMicrocopy;
+
+  /// No description provided for @intentChip3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'On m\'a proposé un 3a'**
+  String get intentChip3a;
+
+  /// No description provided for @intentChipBilan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux voir où j\'en suis'**
+  String get intentChipBilan;
+
+  /// No description provided for @intentChipPrevoyance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je comprends mal ma prévoyance'**
+  String get intentChipPrevoyance;
+
+  /// No description provided for @intentChipFiscalite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux payer moins bêtement'**
+  String get intentChipFiscalite;
+
+  /// No description provided for @intentChipProjet.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai un projet'**
+  String get intentChipProjet;
+
+  /// No description provided for @intentChipChangement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma situation change'**
+  String get intentChipChangement;
+
+  /// No description provided for @intentChipAutre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autre…'**
+  String get intentChipAutre;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -21477,4 +21477,37 @@ class SIt extends S {
 
   @override
   String get coachProactiveDecline => 'Capito. Sarò qui quando sarai pronto.';
+
+  @override
+  String get intentScreenTitle => 'Cosa ti porta qui?';
+
+  @override
+  String get intentScreenSubtitle =>
+      'Scegli la situazione che ti assomiglia di più. Partiamo da lì.';
+
+  @override
+  String get intentScreenMicrocopy =>
+      'Potrai riformulare con le tue parole in seguito.';
+
+  @override
+  String get intentChip3a => 'Mi hanno proposto un 3a';
+
+  @override
+  String get intentChipBilan => 'Voglio vedere a che punto sono';
+
+  @override
+  String get intentChipPrevoyance => 'Non capisco bene la mia previdenza';
+
+  @override
+  String get intentChipFiscalite =>
+      'Voglio smettere di pagare tasse inutilmente';
+
+  @override
+  String get intentChipProjet => 'Ho un progetto in mente';
+
+  @override
+  String get intentChipChangement => 'La mia situazione sta cambiando';
+
+  @override
+  String get intentChipAutre => 'Altro…';
 }
