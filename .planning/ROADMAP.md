@@ -29,7 +29,7 @@ This milestone transforms MINT's disconnected components into a seamless user jo
 Plans:
 - [x] 01-01-PLAN.md — Resolve 3 duplicate service pairs (delete non-canonical copies)
 - [x] 01-02-PLAN.md — Audit route table, fix stale comment, delete dead screens
-- [ ] 01-03-PLAN.md — Gap closure: delete 2 remaining non-canonical service copies + fix test imports
+- [x] 01-03-PLAN.md — Gap closure: delete 2 remaining non-canonical service copies + fix test imports
 
 ### Phase 2: Tool Dispatch
 **Goal**: Coach tool calls (show_fact_card, route_to_screen, show_score_gauge, etc.) reach the Flutter UI and render the appropriate inline widgets
