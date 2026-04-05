@@ -9803,5 +9803,16 @@
   "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
   "scanInsightConfidenceDelta": "Vertrauen: {before}\u00a0% \u2192 {after}\u00a0% (+{delta}\u00a0Punkte)",
   "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
-  "scanInsightCta": "Schauen wir, was sich ge\u00e4ndert hat?"
+  "scanInsightCta": "Schauen wir, was sich ge\u00e4ndert hat?",
+  "perMonth": "/Mt.",
+  "deltaChfPerMonth": "{sign}{value} CHF/Mt.",
+  "@deltaChfPerMonth": {"placeholders": {"sign": {"type": "String"}, "value": {"type": "String"}}},
+  "ageYears": "{age} Jahre",
+  "@ageYears": {"placeholders": {"age": {"type": "String"}}},
+  "intensityConfirmation1": "Verstanden. Ich werde sanft und schrittweise vorgehen.",
+  "intensityConfirmation2": "Verstanden. Klar und ruhig, ohne unnötigen Fachjargon.",
+  "intensityConfirmation3": "OK. Direkt auf den Punkt, ohne Umwege.",
+  "intensityConfirmation4": "Notiert. Ich sage dir die Dinge direkt, ohne Beschönigung.",
+  "intensityConfirmation5": "Notiert. Rohmodus: Ich nehme kein Blatt vor den Mund.",
+  "coachProactiveDecline": "Verstanden. Ich bin da, wenn du bereit bist."
 }

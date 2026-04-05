@@ -10,16 +10,18 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // ────────────────────────────────────────────────────────────
-//  NAVIGATION SHELL TESTS — S52 (4 tabs: Aujourd'hui, Coach, Explorer, Dossier)
+//  NAVIGATION SHELL TESTS — Wire Spec V2 (3 tabs + drawer)
 // ────────────────────────────────────────────────────────────
 
 void main() {
@@ -70,6 +72,10 @@ void main() {
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
         ChangeNotifierProvider<MintStateProvider>(
             create: (_) => MintStateProvider()),
+        ChangeNotifierProvider<SubscriptionProvider>(
+            create: (_) => SubscriptionProvider()),
+        ChangeNotifierProvider<CoachEntryPayloadProvider>(
+            create: (_) => CoachEntryPayloadProvider()),
       ],
       child: const MaterialApp(
         locale: Locale('fr'),
@@ -85,7 +91,7 @@ void main() {
     );
   }
 
-  group('MainNavigationShell (S52 — 4 tabs)', () {
+  group('MainNavigationShell (Wire Spec V2 — 3 tabs + drawer)', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
@@ -94,15 +100,15 @@ void main() {
       expect(find.byType(Scaffold), findsWidgets);
     });
 
-    testWidgets('renders 4 tab items in bottom navigation', (tester) async {
+    testWidgets('renders 3 tab items in bottom navigation', (tester) async {
       await tester.pumpWidget(buildTestableShell());
       await tester.pump(const Duration(seconds: 2));
 
-      // S52: 4 tabs — Aujourd'hui, MINT (Coach), Explorer, Dossier
+      // Wire Spec V2: 3 tabs — Aujourd'hui, MINT (Coach), Explorer
+      // Dossier is now a drawer (ProfileDrawer), not a tab.
       expect(find.text('Aujourd\'hui'), findsOneWidget);
       expect(find.text('Mint'), findsOneWidget);
       expect(find.text('Explorer'), findsOneWidget);
-      expect(find.text('Dossier'), findsOneWidget);
     });
 
     testWidgets('old tab labels are removed', (tester) async {
@@ -114,7 +120,9 @@ void main() {
       expect(find.text('Coach'), findsNothing,
           reason: 'Old tab label Coach replaced by Mint');
       expect(find.text('Moi'), findsNothing,
-          reason: 'Old tab label Moi replaced by Dossier');
+          reason: 'Old tab label Moi removed');
+      expect(find.text('Dossier'), findsNothing,
+          reason: 'Dossier is now a drawer, not a tab');
     });
 
     testWidgets('tapping each tab switches content', (tester) async {
@@ -131,11 +139,6 @@ void main() {
 
       // Tap Tab 2 (Explorer)
       await tester.tap(find.text('Explorer'));
-      await tester.pump(const Duration(seconds: 2));
-      expect(find.byType(Scaffold), findsWidgets);
-
-      // Tap Tab 3 (Dossier)
-      await tester.tap(find.text('Dossier'));
       await tester.pump(const Duration(seconds: 2));
       expect(find.byType(Scaffold), findsWidgets);
     });

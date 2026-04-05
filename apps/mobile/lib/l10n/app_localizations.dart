@@ -23033,7 +23033,7 @@ abstract class S {
   ///
   /// In fr, this message translates to:
   /// **'{age} ans'**
-  String ageYears(int age);
+  String ageYears(String age);
 
   /// No description provided for @agent3aFormTitle.
   ///
@@ -37580,6 +37580,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'On regarde ce que ça change ?'**
   String get scanInsightCta;
+
+  /// No description provided for @perMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'/mois'**
+  String get perMonth;
+
+  /// No description provided for @deltaChfPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'{sign}{value} CHF/mois'**
+  String deltaChfPerMonth(String sign, String value);
+
+  /// No description provided for @intensityConfirmation1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien reçu. Je serai doux et progressif.'**
+  String get intensityConfirmation1;
+
+  /// No description provided for @intensityConfirmation2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris. Clair et posé, sans jargon inutile.'**
+  String get intensityConfirmation2;
+
+  /// No description provided for @intensityConfirmation3.
+  ///
+  /// In fr, this message translates to:
+  /// **'OK. Je vais droit au but, sans détour.'**
+  String get intensityConfirmation3;
+
+  /// No description provided for @intensityConfirmation4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçu. Je te dis les choses cash, pas de pincettes.'**
+  String get intensityConfirmation4;
+
+  /// No description provided for @intensityConfirmation5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Noté. Mode brut : je ne mâche pas mes mots.'**
+  String get intensityConfirmation5;
+
+  /// No description provided for @coachProactiveDecline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris. Je serai là quand tu viendras.'**
+  String get coachProactiveDecline;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

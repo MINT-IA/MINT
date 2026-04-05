@@ -540,7 +540,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: OutlinedButton.icon(
           onPressed: () {
             // Navigate to coach tab to discuss the impact.
-            context.go('/coach');
+            context.go('/home?tab=1');
           },
           icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
           label: Text(

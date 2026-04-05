@@ -155,7 +155,7 @@ class ProfileDrawer extends StatelessWidget {
     }
 
     final age = profile.age;
-    final ageDisplay = age > 0 ? '$age ans' : '';
+    final ageDisplay = age > 0 ? l10n.ageYears(age.toString()) : '';
     final cantonDisplay = profile.canton;
     final separator =
         ageDisplay.isNotEmpty && cantonDisplay.isNotEmpty ? ' \u2022 ' : '';

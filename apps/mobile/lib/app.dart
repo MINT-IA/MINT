@@ -110,6 +110,7 @@ import 'package:mint_mobile/screens/onboarding/instant_chiffre_choc_screen.dart'
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/screens/onboarding/promise_screen.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -668,7 +669,9 @@ final _router = GoRouter(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>? ?? {};
+        final extra = state.extra is Map<String, dynamic>
+            ? state.extra as Map<String, dynamic>
+            : <String, dynamic>{};
         return FinancialReportScreenV2(wizardAnswers: extra);
       },
     ),
@@ -1074,6 +1077,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.load();
           return provider;
         }),
+        ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
       ],
       child: Builder(
         builder: (context) {

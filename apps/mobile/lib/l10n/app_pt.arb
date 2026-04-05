@@ -9803,5 +9803,16 @@
   "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
   "scanInsightConfidenceDelta": "Confian\u00e7a: {before}\u00a0% \u2192 {after}\u00a0% (+{delta}\u00a0pontos)",
   "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
-  "scanInsightCta": "Vamos ver o que mudou?"
+  "scanInsightCta": "Vamos ver o que mudou?",
+  "perMonth": "/mês",
+  "deltaChfPerMonth": "{sign}{value} CHF/mês",
+  "@deltaChfPerMonth": {"placeholders": {"sign": {"type": "String"}, "value": {"type": "String"}}},
+  "ageYears": "{age} anos",
+  "@ageYears": {"placeholders": {"age": {"type": "String"}}},
+  "intensityConfirmation1": "Recebido. Serei suave e progressivo.",
+  "intensityConfirmation2": "Entendido. Claro e calmo, sem jargão desnecessário.",
+  "intensityConfirmation3": "OK. Direto ao ponto, sem rodeios.",
+  "intensityConfirmation4": "Recebido. Digo-te as coisas sem rodeios.",
+  "intensityConfirmation5": "Anotado. Modo direto: não meço palavras.",
+  "coachProactiveDecline": "Entendido. Estarei aqui quando estiveres pronto."
 }

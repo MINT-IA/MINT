@@ -10319,5 +10319,16 @@
   "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
   "scanInsightConfidenceDelta": "Confiance\u00a0: {before}\u00a0% → {after}\u00a0% (+{delta}\u00a0points)",
   "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
-  "scanInsightCta": "On regarde ce que ça change\u00a0?"
+  "scanInsightCta": "On regarde ce que ça change\u00a0?",
+  "perMonth": "/mois",
+  "deltaChfPerMonth": "{sign}{value} CHF/mois",
+  "@deltaChfPerMonth": {"placeholders": {"sign": {"type": "String"}, "value": {"type": "String"}}},
+  "ageYears": "{age} ans",
+  "@ageYears": {"placeholders": {"age": {"type": "String"}}},
+  "intensityConfirmation1": "Bien reçu. Je serai doux et progressif.",
+  "intensityConfirmation2": "Compris. Clair et posé, sans jargon inutile.",
+  "intensityConfirmation3": "OK. Je vais droit au but, sans détour.",
+  "intensityConfirmation4": "Reçu. Je te dis les choses cash, pas de pincettes.",
+  "intensityConfirmation5": "Noté. Mode brut\u00a0: je ne mâche pas mes mots.",
+  "coachProactiveDecline": "Compris. Je serai là quand tu viendras."
 }

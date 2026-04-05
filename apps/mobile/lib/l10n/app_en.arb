@@ -9803,5 +9803,16 @@
   "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
   "scanInsightConfidenceDelta": "Confidence: {before}% \u2192 {after}% (+{delta}\u00a0points)",
   "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
-  "scanInsightCta": "Let's see what changed?"
+  "scanInsightCta": "Let's see what changed?",
+  "perMonth": "/mo",
+  "deltaChfPerMonth": "{sign}{value} CHF/mo",
+  "@deltaChfPerMonth": {"placeholders": {"sign": {"type": "String"}, "value": {"type": "String"}}},
+  "ageYears": "{age} years",
+  "@ageYears": {"placeholders": {"age": {"type": "String"}}},
+  "intensityConfirmation1": "Got it. I'll be gentle and gradual.",
+  "intensityConfirmation2": "Understood. Clear and calm, no unnecessary jargon.",
+  "intensityConfirmation3": "OK. Straight to the point, no detours.",
+  "intensityConfirmation4": "Noted. I'll tell you straight, no sugarcoating.",
+  "intensityConfirmation5": "Noted. Raw mode: I don't mince words.",
+  "coachProactiveDecline": "Got it. I'll be here when you're ready."
 }

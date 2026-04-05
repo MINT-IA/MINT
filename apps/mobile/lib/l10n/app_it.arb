@@ -9803,5 +9803,16 @@
   "@mintHomeRadarDaysLeft": {"placeholders": {"days": {"type": "String"}}},
   "scanInsightConfidenceDelta": "Fiducia: {before}\u00a0% \u2192 {after}\u00a0% (+{delta}\u00a0punti)",
   "@scanInsightConfidenceDelta": {"placeholders": {"before": {"type": "String"}, "after": {"type": "String"}, "delta": {"type": "String"}}},
-  "scanInsightCta": "Vediamo cosa \u00e8 cambiato?"
+  "scanInsightCta": "Vediamo cosa \u00e8 cambiato?",
+  "perMonth": "/mese",
+  "deltaChfPerMonth": "{sign}{value} CHF/mese",
+  "@deltaChfPerMonth": {"placeholders": {"sign": {"type": "String"}, "value": {"type": "String"}}},
+  "ageYears": "{age} anni",
+  "@ageYears": {"placeholders": {"age": {"type": "String"}}},
+  "intensityConfirmation1": "Ricevuto. Sarò dolce e progressivo.",
+  "intensityConfirmation2": "Capito. Chiaro e calmo, senza gergo inutile.",
+  "intensityConfirmation3": "OK. Dritto al punto, senza giri di parole.",
+  "intensityConfirmation4": "Ricevuto. Ti dico le cose senza mezzi termini.",
+  "intensityConfirmation5": "Notato. Modalità diretta: non uso mezzi termini.",
+  "coachProactiveDecline": "Capito. Sarò qui quando sarai pronto."
 }

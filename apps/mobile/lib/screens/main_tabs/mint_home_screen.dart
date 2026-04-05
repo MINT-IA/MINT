@@ -62,7 +62,34 @@ class MintHomeScreen extends StatelessWidget {
               ),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  const SizedBox(height: MintSpacing.lg),
+                  const SizedBox(height: MintSpacing.sm),
+
+                  // ── Profile access button ──
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                      onTap: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: MintColors.surface,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: MintColors.lightBorder,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.person_outline_rounded,
+                          size: 20,
+                          color: MintColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: MintSpacing.md),
 
                   // ── Section 1: Chiffre Vivant GPS Card ──
                   _ChiffreVivantCard(
@@ -296,7 +323,7 @@ class _ChiffreVivantCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
-                      '/mois',
+                      l10n.perMonth,
                       style: MintTextStyles.bodyLarge(
                         color: MintColors.textMuted,
                       ),
@@ -339,8 +366,9 @@ class _DeltaChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
     final sign = delta.retirementIncomeDelta >= 0 ? '+' : '';
-    final deltaText = '$sign${delta.retirementIncomeDelta.round()} CHF/mois';
+    final deltaText = l10n.deltaChfPerMonth(sign, delta.retirementIncomeDelta.round().toString());
 
     final causeColor = switch (delta.cause) {
       'user_action' => MintColors.saugeClaire,
@@ -689,7 +717,7 @@ class _RadarAnticipateCard extends StatelessWidget {
         };
         if (description.isNotEmpty) {
           events.add(_UpcomingEvent(
-            title: '$m ans',
+            title: l10n.ageYears(m.toString()),
             description: description,
             monthsAway: monthsUntil.clamp(1, 9999),
             route: m >= 55 ? '/retraite' : null,

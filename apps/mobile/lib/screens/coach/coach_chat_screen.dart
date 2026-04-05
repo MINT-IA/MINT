@@ -432,30 +432,26 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _saveCashLevel(level);
 
     // Add adapted confirmation message.
+    final l10n = S.of(context)!;
     final String confirmation;
     switch (level) {
       case 1:
-        confirmation =
-            'Bien re\u00e7u. Je serai doux et progressif.';
+        confirmation = l10n.intensityConfirmation1;
         break;
       case 2:
-        confirmation =
-            'Compris. Clair et pos\u00e9, sans jargon inutile.';
+        confirmation = l10n.intensityConfirmation2;
         break;
       case 3:
-        confirmation =
-            'OK. Je vais droit au but, sans d\u00e9tour.';
+        confirmation = l10n.intensityConfirmation3;
         break;
       case 4:
-        confirmation =
-            'Re\u00e7u. Je te dis les choses cash, pas de pincettes.';
+        confirmation = l10n.intensityConfirmation4;
         break;
       case 5:
-        confirmation =
-            'Not\u00e9. Mode brut\u00a0: je ne m\u00e2che pas mes mots.';
+        confirmation = l10n.intensityConfirmation5;
         break;
       default:
-        confirmation = S.of(context)!.intensityDirect;
+        confirmation = l10n.intensityDirect;
     }
 
     setState(() {
@@ -734,6 +730,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       {String? memoryBlock}) async {
     try {
       final config = _buildConfig();
+      // Capture l10n before await to avoid using BuildContext across async gap.
+      final l10n = S.of(context)!;
       final response = await CoachLlmService.chat(
         userMessage: text,
         profile: _profile!,
@@ -747,7 +745,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text, l: S.of(context)!)
+          ? ResponseCardService.generateForChat(_profile!, text, l: l10n)
           : <ResponseCard>[];
 
       // Wire Spec V2 §3.6: parse tool call markers from response.
@@ -828,9 +826,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// V1: Only ROUTE_TO_SCREEN is executed. Other tools are logged
   /// for future implementation. Navigation is deferred to the next
   /// frame so the message bubble renders first.
+  /// Max tool calls executed per response to prevent LLM flooding.
+  static const _maxToolCallsPerResponse = 5;
+
   void _executeToolCalls(List<ParsedToolCall> toolCalls) {
     if (toolCalls.isEmpty) return;
-    for (final call in toolCalls) {
+    // Cap tool calls to prevent navigation flooding from malformed LLM output.
+    final capped = toolCalls.take(_maxToolCallsPerResponse);
+    if (toolCalls.length > _maxToolCallsPerResponse) {
+      debugPrint(
+        '[CoachChat] Tool calls capped: ${toolCalls.length} → $_maxToolCallsPerResponse',
+      );
+    }
+    for (final call in capped) {
       switch (call.toolName) {
         case 'ROUTE_TO_SCREEN':
           final route = call.arguments['route'] as String?;
@@ -886,7 +894,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         : coachResponse;
 
     final insight = CoachInsight(
-      id: '${DateTime.now().millisecondsSinceEpoch}_${topic}',
+      id: '${DateTime.now().millisecondsSinceEpoch}_$topic',
       createdAt: DateTime.now(),
       topic: topic,
       summary: summary,
@@ -1278,7 +1286,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: 'Compris. Je serai l\u00e0 quand tu viendras.',
+          content: S.of(context)!.coachProactiveDecline,
           timestamp: DateTime.now(),
           tier: ChatTier.none,
         ));

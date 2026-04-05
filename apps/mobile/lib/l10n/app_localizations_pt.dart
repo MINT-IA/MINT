@@ -12954,7 +12954,7 @@ class SPt extends S {
   String get pulseLabelMonthlyFree => 'Margem livre mensal';
 
   @override
-  String ageYears(int age) {
+  String ageYears(String age) {
     return '$age anos';
   }
 
@@ -21397,4 +21397,34 @@ class SPt extends S {
 
   @override
   String get scanInsightCta => 'Vamos ver o que mudou?';
+
+  @override
+  String get perMonth => '/mês';
+
+  @override
+  String deltaChfPerMonth(String sign, String value) {
+    return '$sign$value CHF/mês';
+  }
+
+  @override
+  String get intensityConfirmation1 => 'Recebido. Serei suave e progressivo.';
+
+  @override
+  String get intensityConfirmation2 =>
+      'Entendido. Claro e calmo, sem jargão desnecessário.';
+
+  @override
+  String get intensityConfirmation3 => 'OK. Direto ao ponto, sem rodeios.';
+
+  @override
+  String get intensityConfirmation4 =>
+      'Recebido. Digo-te as coisas sem rodeios.';
+
+  @override
+  String get intensityConfirmation5 =>
+      'Anotado. Modo direto: não meço palavras.';
+
+  @override
+  String get coachProactiveDecline =>
+      'Entendido. Estarei aqui quando estiveres pronto.';
 }

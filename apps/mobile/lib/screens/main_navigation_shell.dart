@@ -12,6 +12,7 @@ import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';
 import 'package:mint_mobile/widgets/profile_drawer.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/session_snapshot_service.dart';
@@ -114,11 +115,12 @@ class _MainNavigationShellState extends State<MainNavigationShell>
   /// Called from MintHomeScreen when user taps chiffre, lever, chip, or input bar.
   void _switchToCoachWithPayload(CoachEntryPayload? payload) {
     if (!mounted) return;
+    // Store payload in provider so MintCoachTab can forward it to CoachChatScreen.
+    if (payload != null) {
+      context.read<CoachEntryPayloadProvider>().setPayload(payload);
+    }
     setState(() => _currentIndex = 1); // Switch to coach tab
     _analytics.trackScreenView('/coach');
-    // TODO: Pass payload to CoachChatScreen via a shared state mechanism
-    // (e.g., a ValueNotifier or Provider). For now, the tab switch works
-    // and the payload will be consumed in a future iteration.
     try {
       GoRouter.of(context).go('/home?tab=1');
     } catch (_) {}
@@ -232,11 +234,18 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         if (!coachProvider.hasProfile) return;
         final profile = coachProvider.profile!;
         final currentConfidence = ConfidenceScorer.score(profile).score;
+
+        // Read real values from MintStateProvider (not hardcoded zeros).
+        final mintState = context.read<MintStateProvider>().state;
+        final currentRetirement =
+            mintState?.budgetGap?.totalRevenusMensuel ?? 0.0;
+        final currentFhs = mintState?.friScore ?? 0.0;
+
         final delta = SessionSnapshotService.computeDelta(
           previous: previous,
           currentConfidence: currentConfidence,
-          currentMonthlyRetirement: 0,
-          currentFhs: 0,
+          currentMonthlyRetirement: currentRetirement,
+          currentFhs: currentFhs,
         );
 
         if (!mounted) return;
@@ -292,7 +301,11 @@ class _MainNavigationShellState extends State<MainNavigationShell>
           if (tabIndex == 3) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
-                Scaffold.of(context).openEndDrawer();
+                try {
+                  Scaffold.of(context).openEndDrawer();
+                } catch (_) {
+                  // Scaffold not yet in tree (e.g. first build or test harness).
+                }
               }
             });
             // Stay on current tab, don't set _currentIndex to 3
