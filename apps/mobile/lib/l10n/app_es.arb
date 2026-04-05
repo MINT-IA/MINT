@@ -9866,5 +9866,38 @@
       "days": {"type": "int"},
       "months": {"type": "int"}
     }
-  }
+  },
+  "firstCheckInCardTitle": "Tu primer check-in",
+  "firstCheckInCardBody": "Haz tu primer check-in mensual para ver tu progreso aqu\u00ed.",
+  "checkInCtaButton": "Hacer mi check-in mensual",
+  "checkInCoachOpener": "\u00a1Hola! Es momento del check-in. \u00bfCu\u00e1nto has aportado este mes a {contribution}?",
+  "@checkInCoachOpener": {
+    "placeholders": {
+      "contribution": {"type": "String"}
+    }
+  },
+  "checkInCoachFollowUp": "\u00bfY para {nextContribution}?",
+  "@checkInCoachFollowUp": {
+    "placeholders": {
+      "nextContribution": {"type": "String"}
+    }
+  },
+  "checkInCoachMemory": "El mes pasado aportaste {amount}\u00a0CHF — \u00bfsigues con el mismo ritmo?",
+  "@checkInCoachMemory": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "checkInCoachSummary": "Perfecto, {summary}. \u00a1Anotado!",
+  "@checkInCoachSummary": {
+    "placeholders": {
+      "summary": {"type": "String"}
+    }
+  },
+  "checkInErrorNoPlan": "A\u00fan no tienes un plan activo. Habla con tu coach para crear uno.",
+  "checkInErrorSaveFailed": "No se pudo guardar tu check-in. Int\u00e9ntalo de nuevo en un momento.",
+  "adherenceBadgeOnTrack": "En camino",
+  "adherenceBadgeProgress": "Puede mejorar",
+  "adherenceBadgeOffTrack": "Necesita trabajo",
+  "checkInTotalLabel": "Total aportado"
 }

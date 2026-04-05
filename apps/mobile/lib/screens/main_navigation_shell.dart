@@ -84,7 +84,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       try {
         final profileReady = context.read<CoachProfileProvider>().hasProfile;
         if (profileReady) {
-          GoRouter.of(context).go(pendingRoute);
+          _handlePendingRoute(pendingRoute);
         } else {
           // Profile not loaded yet — store route and navigate when ready.
           // The didChangeDependencies will pick it up on next profile update.
@@ -108,6 +108,34 @@ class _MainNavigationShellState extends State<MainNavigationShell>
         // No GoRouter in tree (unit tests).
       }
     }
+  }
+
+  /// T-05-07 (Tampering mitigation): Handle a pending deep link route.
+  ///
+  /// Parses the `?intent` query parameter before routing. Known intents
+  /// are handled explicitly (e.g. monthlyCheckIn → coach with payload).
+  /// Unknown intents fall through to default GoRouter navigation.
+  /// No arbitrary code execution from query params.
+  void _handlePendingRoute(String pendingRoute) {
+    if (!mounted) return;
+    final uri = Uri.tryParse(pendingRoute);
+
+    if (uri != null && uri.queryParameters.containsKey('intent')) {
+      final intent = uri.queryParameters['intent'];
+      // T-05-07: Only handle known intent values
+      if (intent == 'monthlyCheckIn') {
+        _switchToCoachWithPayload(
+          const CoachEntryPayload(
+            source: CoachEntrySource.notification,
+            topic: 'monthlyCheckIn',
+          ),
+        );
+        return;
+      }
+    }
+
+    // Default: route normally via GoRouter
+    GoRouter.of(context).go(pendingRoute);
   }
 
   /// Wire Spec V2: Switch to coach tab with a structured payload.
@@ -147,7 +175,7 @@ class _MainNavigationShellState extends State<MainNavigationShell>
       if (pendingRoute != null && pendingRoute.isNotEmpty && mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            GoRouter.of(context).go(pendingRoute);
+            _handlePendingRoute(pendingRoute);
           }
         });
       }

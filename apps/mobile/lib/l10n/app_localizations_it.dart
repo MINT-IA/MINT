@@ -21606,4 +21606,76 @@ class SIt extends S {
   String planCard_recalculatePrompt(String goalDescription) {
     return 'Ricalcola il mio piano : $goalDescription';
   }
+
+  @override
+  String get checkInNotificationTitle => 'Il tuo check-in mensile ti aspetta';
+
+  @override
+  String get checkInNotificationBody =>
+      '2 minuti per vedere i tuoi progressi. Fai il check-in !';
+
+  @override
+  String get checkInReminderTitle =>
+      'Non hai ancora fatto il tuo check-in mensile.';
+
+  @override
+  String get checkInReminderBody => 'Bastano 2 minuti !';
+
+  @override
+  String get streakAtRiskTitle => 'La tua serie è a rischio !';
+
+  @override
+  String streakAtRiskBody(int days, int months) {
+    return 'Ti restano $days giorni per mantenere la tua serie di $months mesi.';
+  }
+
+  @override
+  String get firstCheckInCardTitle => 'Il tuo primo check-in';
+
+  @override
+  String get firstCheckInCardBody =>
+      'Fai il tuo primo check-in mensile per vedere i tuoi progressi qui.';
+
+  @override
+  String get checkInCtaButton => 'Fare il mio check-in mensile';
+
+  @override
+  String checkInCoachOpener(String contribution) {
+    return 'Ciao! È il momento del check-in. Quanto hai versato questo mese su $contribution?';
+  }
+
+  @override
+  String checkInCoachFollowUp(String nextContribution) {
+    return 'E per $nextContribution?';
+  }
+
+  @override
+  String checkInCoachMemory(String amount) {
+    return 'Il mese scorso hai versato $amount CHF — continui così?';
+  }
+
+  @override
+  String checkInCoachSummary(String summary) {
+    return 'Perfetto, $summary. Annotato!';
+  }
+
+  @override
+  String get checkInErrorNoPlan =>
+      'Non hai ancora un piano attivo. Parla con il tuo coach per crearne uno.';
+
+  @override
+  String get checkInErrorSaveFailed =>
+      'Impossibile salvare il check-in. Riprova tra un momento.';
+
+  @override
+  String get adherenceBadgeOnTrack => 'In linea';
+
+  @override
+  String get adherenceBadgeProgress => 'Può migliorare';
+
+  @override
+  String get adherenceBadgeOffTrack => 'Da rafforzare';
+
+  @override
+  String get checkInTotalLabel => 'Totale versato';
 }

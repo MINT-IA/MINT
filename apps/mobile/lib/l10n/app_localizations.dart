@@ -37844,6 +37844,120 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Recalcule mon plan : {goalDescription}'**
   String planCard_recalculatePrompt(String goalDescription);
+
+  /// No description provided for @checkInNotificationTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton point du mois t\'attend'**
+  String get checkInNotificationTitle;
+
+  /// No description provided for @checkInNotificationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'2 minutes pour voir ta progression. Fais ton check-in !'**
+  String get checkInNotificationBody;
+
+  /// No description provided for @checkInReminderTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'as pas encore fait ton point du mois.'**
+  String get checkInReminderTitle;
+
+  /// No description provided for @checkInReminderBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'2 minutes suffisent !'**
+  String get checkInReminderBody;
+
+  /// No description provided for @streakAtRiskTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta série est en jeu !'**
+  String get streakAtRiskTitle;
+
+  /// No description provided for @streakAtRiskBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te reste {days} jours pour maintenir ta série de {months} mois.'**
+  String streakAtRiskBody(int days, int months);
+
+  /// No description provided for @firstCheckInCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton premier point'**
+  String get firstCheckInCardTitle;
+
+  /// No description provided for @firstCheckInCardBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fais ton premier point du mois pour voir ta progression ici.'**
+  String get firstCheckInCardBody;
+
+  /// No description provided for @checkInCtaButton.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faire mon point du mois'**
+  String get checkInCtaButton;
+
+  /// No description provided for @checkInCoachOpener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut ! C\'est le moment de faire le point. Combien as-tu versé ce mois sur ton {contribution} ?'**
+  String checkInCoachOpener(String contribution);
+
+  /// No description provided for @checkInCoachFollowUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Et sur ton {nextContribution} ?'**
+  String checkInCoachFollowUp(String nextContribution);
+
+  /// No description provided for @checkInCoachMemory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mois dernier tu avais versé {amount} CHF — tu continues sur cette lancée ?'**
+  String checkInCoachMemory(String amount);
+
+  /// No description provided for @checkInCoachSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parfait, {summary}. C\'est noté !'**
+  String checkInCoachSummary(String summary);
+
+  /// No description provided for @checkInErrorNoPlan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu n\'as pas encore de plan actif. Parle à ton coach pour en créer un.'**
+  String get checkInErrorNoPlan;
+
+  /// No description provided for @checkInErrorSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible d\'enregistrer ton check-in. Réessaie dans un instant.'**
+  String get checkInErrorSaveFailed;
+
+  /// No description provided for @adherenceBadgeOnTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'En bonne voie'**
+  String get adherenceBadgeOnTrack;
+
+  /// No description provided for @adherenceBadgeProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Peut progresser'**
+  String get adherenceBadgeProgress;
+
+  /// No description provided for @adherenceBadgeOffTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'À renforcer'**
+  String get adherenceBadgeOffTrack;
+
+  /// No description provided for @checkInTotalLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total versé'**
+  String get checkInTotalLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

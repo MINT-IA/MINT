@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
+import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
@@ -63,6 +66,8 @@ class WidgetRenderer {
         return _buildRouteSuggestion(context, call.input);
       case 'generate_financial_plan':
         return _buildPlanPreviewCard(context, call.input);
+      case 'record_check_in':
+        return _buildCheckInSummaryCard(context, call.input);
       default:
         return null;
     }
@@ -441,6 +446,58 @@ class WidgetRenderer {
           'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
       projectedMid: fallbackMonthly * 12,
       confidenceLevel: 0,
+    );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  CHECK-IN SUMMARY — record_check_in tool (T-05-01)
+  // ────────────────────────────────────────────────────────────
+
+  /// Build a [CheckInSummaryCard] for the `record_check_in` tool call.
+  ///
+  /// T-05-04 (Tampering mitigation): Validates all required fields before
+  /// creating MonthlyCheckIn. Returns null on invalid input — no card,
+  /// no persistence.
+  ///
+  /// Persists the check-in to [CoachProfileProvider] BEFORE displaying
+  /// the card (T-05-04: persist before display).
+  static Widget? _buildCheckInSummaryCard(
+    BuildContext context,
+    Map<String, dynamic> input,
+  ) {
+    final month = input['month'] as String?;
+    final versementsRaw = input['versements'] as Map<String, dynamic>?;
+    final summaryMessage = input['summary_message'] as String?;
+
+    // T-05-04: Validate all required fields and numeric types
+    if (month == null || versementsRaw == null || summaryMessage == null) {
+      return null;
+    }
+
+    // T-05-04: Validate versements are numeric map
+    Map<String, double> versements;
+    try {
+      versements = versementsRaw.map(
+        (k, v) => MapEntry(k, (v as num).toDouble()),
+      );
+    } catch (_) {
+      // Non-numeric versements value — reject the tool call
+      return null;
+    }
+
+    // Persist check-in to CoachProfile BEFORE displaying card (T-05-04)
+    final provider = context.read<CoachProfileProvider>();
+    final checkIn = MonthlyCheckIn(
+      month: DateTime.tryParse('$month-01') ?? DateTime.now(),
+      versements: versements,
+      completedAt: DateTime.now(),
+    );
+    provider.addCheckIn(checkIn);
+
+    return CheckInSummaryCard(
+      summaryMessage: summaryMessage,
+      versements: versements,
+      month: month,
     );
   }
 }

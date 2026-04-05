@@ -21552,4 +21552,75 @@ class SEs extends S {
   String planCard_recalculatePrompt(String goalDescription) {
     return 'Recalcula mi plan : $goalDescription';
   }
+
+  @override
+  String get checkInNotificationTitle => 'Tu resumen mensual te espera';
+
+  @override
+  String get checkInNotificationBody =>
+      '2 minutos para ver tu progreso. ¡Haz tu check-in !';
+
+  @override
+  String get checkInReminderTitle => 'Todavía no has hecho tu resumen mensual.';
+
+  @override
+  String get checkInReminderBody => '¡Con 2 minutos es suficiente !';
+
+  @override
+  String get streakAtRiskTitle => '¡Tu racha está en riesgo !';
+
+  @override
+  String streakAtRiskBody(int days, int months) {
+    return 'Te quedan $days días para mantener tu racha de $months meses.';
+  }
+
+  @override
+  String get firstCheckInCardTitle => 'Tu primer check-in';
+
+  @override
+  String get firstCheckInCardBody =>
+      'Haz tu primer check-in mensual para ver tu progreso aquí.';
+
+  @override
+  String get checkInCtaButton => 'Hacer mi check-in mensual';
+
+  @override
+  String checkInCoachOpener(String contribution) {
+    return '¡Hola! Es momento del check-in. ¿Cuánto has aportado este mes a $contribution?';
+  }
+
+  @override
+  String checkInCoachFollowUp(String nextContribution) {
+    return '¿Y para $nextContribution?';
+  }
+
+  @override
+  String checkInCoachMemory(String amount) {
+    return 'El mes pasado aportaste $amount CHF — ¿sigues con el mismo ritmo?';
+  }
+
+  @override
+  String checkInCoachSummary(String summary) {
+    return 'Perfecto, $summary. ¡Anotado!';
+  }
+
+  @override
+  String get checkInErrorNoPlan =>
+      'Aún no tienes un plan activo. Habla con tu coach para crear uno.';
+
+  @override
+  String get checkInErrorSaveFailed =>
+      'No se pudo guardar tu check-in. Inténtalo de nuevo en un momento.';
+
+  @override
+  String get adherenceBadgeOnTrack => 'En camino';
+
+  @override
+  String get adherenceBadgeProgress => 'Puede mejorar';
+
+  @override
+  String get adherenceBadgeOffTrack => 'Necesita trabajo';
+
+  @override
+  String get checkInTotalLabel => 'Total aportado';
 }

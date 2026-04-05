@@ -10382,5 +10382,38 @@
       "days": {"type": "int"},
       "months": {"type": "int"}
     }
-  }
+  },
+  "firstCheckInCardTitle": "Ton premier point",
+  "firstCheckInCardBody": "Fais ton premier point du mois pour voir ta progression ici.",
+  "checkInCtaButton": "Faire mon point du mois",
+  "checkInCoachOpener": "Salut\u00a0! C'est le moment de faire le point. Combien as-tu vers\u00e9 ce mois sur ton {contribution}\u00a0?",
+  "@checkInCoachOpener": {
+    "placeholders": {
+      "contribution": {"type": "String"}
+    }
+  },
+  "checkInCoachFollowUp": "Et sur ton {nextContribution}\u00a0?",
+  "@checkInCoachFollowUp": {
+    "placeholders": {
+      "nextContribution": {"type": "String"}
+    }
+  },
+  "checkInCoachMemory": "Le mois dernier tu avais vers\u00e9 {amount}\u00a0CHF — tu continues sur cette lanc\u00e9e\u00a0?",
+  "@checkInCoachMemory": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "checkInCoachSummary": "Parfait, {summary}. C'est not\u00e9\u00a0!",
+  "@checkInCoachSummary": {
+    "placeholders": {
+      "summary": {"type": "String"}
+    }
+  },
+  "checkInErrorNoPlan": "Tu n'as pas encore de plan actif. Parle \u00e0 ton coach pour en cr\u00e9er un.",
+  "checkInErrorSaveFailed": "Impossible d'enregistrer ton check-in. R\u00e9essaie dans un instant.",
+  "adherenceBadgeOnTrack": "En bonne voie",
+  "adherenceBadgeProgress": "Peut progresser",
+  "adherenceBadgeOffTrack": "\u00c0 renforcer",
+  "checkInTotalLabel": "Total vers\u00e9"
 }
