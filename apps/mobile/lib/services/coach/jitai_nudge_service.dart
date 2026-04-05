@@ -128,7 +128,7 @@ class JitaiNudgeService {
     _checkContractAnniversary(nudges, profile, today, l);
     _checkLppBonificationChange(nudges, profile, today, l);
     await _checkWeeklyCheckIn(nudges, today, sp, l);
-    _checkStreakAtRisk(nudges, currentStreak, engagedYesterday, today, l);
+    _checkStreakAtRisk(nudges, currentStreak, engagedYesterday, today, l, profile: profile);
     _checkGoalDeadlineApproaching(nudges, goals, today, l);
     _checkFhsDropped(nudges, fhsScore, sp, today, l);
 
@@ -445,26 +445,58 @@ class JitaiNudgeService {
     }
   }
 
-  /// Streak at risk: yesterday missed, streak > 3.
+  /// Streak at risk: either (a) engagement streak > 3 && missed yesterday,
+  /// or (b) no monthly check-in for current month AND day >= 28.
   static void _checkStreakAtRisk(
     List<JitaiNudge> nudges,
     int? currentStreak,
     bool? engagedYesterday,
     DateTime now,
-    S? l,
-  ) {
-    if (currentStreak == null || engagedYesterday == null) return;
-    if (currentStreak > 3 && !engagedYesterday) {
-      nudges.add(JitaiNudge(
-        type: NudgeType.streakAtRisk,
-        title: l?.nudgeStreakRiskTitle ?? 'Ta série est en danger\u00a0!',
-        message: 'Tu as une série de $currentStreak\u00a0jours. '
-            'Une petite action aujourd\'hui suffit pour la maintenir.', // Dynamic with streak count — not extracted
-        actionRoute: '/home?tab=1',
-        actionLabel: l?.nudgeStreakRiskAction ?? 'Continuer ma série',
-        triggeredAt: now,
-        priority: NudgePriority.high,
-      ));
+    S? l, {
+    CoachProfile? profile,
+  }) {
+    // (a) Original engagement streak logic
+    if (currentStreak != null && engagedYesterday != null) {
+      if (currentStreak > 3 && !engagedYesterday) {
+        nudges.add(JitaiNudge(
+          type: NudgeType.streakAtRisk,
+          title: l?.nudgeStreakRiskTitle ?? 'Ta série est en danger\u00a0!',
+          message: 'Tu as une série de $currentStreak\u00a0jours. '
+              'Une petite action aujourd\'hui suffit pour la maintenir.', // Dynamic with streak count — not extracted
+          actionRoute: '/home?tab=1',
+          actionLabel: l?.nudgeStreakRiskAction ?? 'Continuer ma série',
+          triggeredAt: now,
+          priority: NudgePriority.high,
+        ));
+        return; // Don't double-fire
+      }
+    }
+
+    // (b) Monthly check-in streak: day >= 28 and no check-in for current month
+    if (profile != null && now.day >= 28) {
+      final currentMonth = DateTime(now.year, now.month);
+      final hasCheckInThisMonth = profile.checkIns.any(
+        (c) =>
+            c.month.year == currentMonth.year &&
+            c.month.month == currentMonth.month,
+      );
+      if (!hasCheckInThisMonth) {
+        final lastDayOfMonth =
+            DateTime(now.year, now.month + 1, 0).day;
+        final daysLeft = lastDayOfMonth - now.day;
+        final totalCheckIns = profile.checkIns.length;
+        nudges.add(JitaiNudge(
+          type: NudgeType.streakAtRisk,
+          title: l?.streakAtRiskTitle ?? 'Ta s\u00e9rie est en jeu\u00a0!',
+          message: l?.streakAtRiskBody(daysLeft, totalCheckIns) ??
+              'Il te reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''} '
+                  'pour maintenir ta s\u00e9rie de $totalCheckIns\u00a0mois.',
+          actionRoute: '/home?tab=1&intent=monthlyCheckIn',
+          actionLabel: l?.nudgeStreakRiskAction ?? 'Faire mon point du mois',
+          triggeredAt: now,
+          priority: NudgePriority.high,
+        ));
+      }
     }
   }
 

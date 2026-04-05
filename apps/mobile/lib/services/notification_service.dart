@@ -52,6 +52,10 @@ class NotificationStrings {
   final String day7NotifBody; // contains {amount} placeholder
   final String day30NotifTitle;
   final String day30NotifBody;
+  final String checkInNotificationTitle;
+  final String checkInNotificationBody;
+  final String checkInReminderTitle;
+  final String checkInReminderBody;
 
   const NotificationStrings({
     required this.channelDescription,
@@ -76,6 +80,10 @@ class NotificationStrings {
     required this.day7NotifBody,
     required this.day30NotifTitle,
     required this.day30NotifBody,
+    required this.checkInNotificationTitle,
+    required this.checkInNotificationBody,
+    required this.checkInReminderTitle,
+    required this.checkInReminderBody,
   });
 
   /// Create from [S] (AppLocalizations) at call site where context exists.
@@ -106,6 +114,10 @@ class NotificationStrings {
         day7NotifBody: l.day7NotifBody('{amount}'),
         day30NotifTitle: l.day30NotifTitle,
         day30NotifBody: l.day30NotifBody,
+        checkInNotificationTitle: l.checkInNotificationTitle,
+        checkInNotificationBody: l.checkInNotificationBody,
+        checkInReminderTitle: l.checkInReminderTitle,
+        checkInReminderBody: l.checkInReminderBody,
       );
 
   /// French defaults (fallback when no context available).
@@ -143,6 +155,11 @@ class NotificationStrings {
     day30NotifTitle: 'Ta projection peut être 25\u00a0% plus précise',
     day30NotifBody:
         'Scanne ton certificat LPP — ça prend 30 secondes et ça change tout.',
+    checkInNotificationTitle: "Ton point du mois t'attend",
+    checkInNotificationBody:
+        'Fais ton check-in\u00a0! 2 minutes pour voir ta progression.',
+    checkInReminderTitle: "Tu n'as pas encore fait ton point du mois.",
+    checkInReminderBody: '2 minutes suffisent\u00a0!',
   );
 }
 
@@ -164,6 +181,7 @@ class NotificationService {
 
   // ── Notification IDs (ranges to avoid collisions) ────────
   static const _idCheckinMonthly = 1000;
+  static const _idCheckinReminder5d = 1001;
   static const _idStreakProtection = 2000;
   static const _id3aDeadlineBase = 3000;
   static const _idTaxDeadlineBase = 4000;
@@ -317,6 +335,48 @@ class NotificationService {
     }));
   }
 
+  /// Schedule a 5-day reminder if the user hasn't checked in yet this month.
+  ///
+  /// Called when the app opens or after a check-in is completed (to cancel it).
+  /// [hasCheckedInThisMonth] — true if CoachProfile.checkIns contains current month.
+  /// [strings] — i18n notification text; falls back to French defaults.
+  Future<void> scheduleCheckinReminder({
+    required bool hasCheckedInThisMonth,
+    NotificationStrings? strings,
+  }) async {
+    if (kIsWeb || _plugin == null) return;
+    if (!_isInitialized) await init();
+
+    // Cancel any existing reminder first
+    await _plugin!.cancel(_idCheckinReminder5d);
+
+    if (hasCheckedInThisMonth) return; // Already checked in — no reminder needed
+
+    final s = strings ?? NotificationStrings.french;
+    final now = DateTime.now();
+    // Reminder fires on the 6th at 10:00 (5 days after the 1st)
+    final reminderDate = DateTime(now.year, now.month, 6, 10, 0);
+
+    // Only schedule if we haven't passed the 6th yet
+    if (now.isBefore(reminderDate)) {
+      final tzReminderDate = tz.TZDateTime(
+        tz.local,
+        reminderDate.year,
+        reminderDate.month,
+        reminderDate.day,
+        reminderDate.hour,
+        reminderDate.minute,
+      );
+      await _scheduleNotification(
+        id: _idCheckinReminder5d,
+        title: s.checkInReminderTitle,
+        body: s.checkInReminderBody,
+        scheduledDate: tzReminderDate,
+        payload: '/home?tab=1&intent=monthlyCheckIn',
+      );
+    }
+  }
+
   /// Weekly recap notification: fires every Monday at 10:00.
   void _scheduleWeeklyRecap(tz.TZDateTime now, NotificationStrings s) {
     // FIX-W11: Correct Monday calculation — always schedule for NEXT Monday
@@ -367,10 +427,10 @@ class NotificationService {
     if (nextFirst.isAfter(now)) {
       _scheduleNotification(
         id: _idCheckinMonthly,
-        title: s.checkinTitle,
-        body: s.checkinBody,
+        title: s.checkInNotificationTitle,
+        body: s.checkInNotificationBody,
         scheduledDate: nextFirst,
-        payload: '/coach/checkin',
+        payload: '/home?tab=1&intent=monthlyCheckIn',
         matchDateComponents: DateTimeComponents.dayOfMonthAndTime,
       );
     }

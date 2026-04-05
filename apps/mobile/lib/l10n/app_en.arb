@@ -9854,5 +9854,17 @@
   "planCard_disclaimer": "Educational tool — does not constitute financial advice (LSFin). Sources\u00a0: LIFD art.\u00a038, LPP art.\u00a014.",
   "planCard_errorBody": "Unable to generate the plan. Try again by describing your goal to the coach.",
   "planCard_recalculatePrompt": "Recalculate my plan\u00a0: {goalDescription}",
-  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}}
+  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}},
+  "checkInNotificationTitle": "Your monthly check-in is waiting",
+  "checkInNotificationBody": "2 minutes to see your progress. Do your check-in\u00a0!",
+  "checkInReminderTitle": "You haven't done your monthly check-in yet.",
+  "checkInReminderBody": "2 minutes is all it takes\u00a0!",
+  "streakAtRiskTitle": "Your streak is at risk\u00a0!",
+  "streakAtRiskBody": "You have {days} days left to keep your {months}-month streak.",
+  "@streakAtRiskBody": {
+    "placeholders": {
+      "days": {"type": "int"},
+      "months": {"type": "int"}
+    }
+  }
 }

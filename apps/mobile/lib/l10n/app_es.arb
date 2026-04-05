@@ -9854,5 +9854,17 @@
   "planCard_disclaimer": "Herramienta educativa — no constituye un consejo financiero (LSFin). Fuentes\u00a0: LIFD art.\u00a038, LPP art.\u00a014.",
   "planCard_errorBody": "No se puede generar el plan. Inténtalo de nuevo describiendo tu objetivo al coach.",
   "planCard_recalculatePrompt": "Recalcula mi plan\u00a0: {goalDescription}",
-  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}}
+  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}},
+  "checkInNotificationTitle": "Tu resumen mensual te espera",
+  "checkInNotificationBody": "2 minutos para ver tu progreso. \u00a1Haz tu check-in\u00a0!",
+  "checkInReminderTitle": "Todav\u00eda no has hecho tu resumen mensual.",
+  "checkInReminderBody": "\u00a1Con 2 minutos es suficiente\u00a0!",
+  "streakAtRiskTitle": "\u00a1Tu racha est\u00e1 en riesgo\u00a0!",
+  "streakAtRiskBody": "Te quedan {days} d\u00edas para mantener tu racha de {months} meses.",
+  "@streakAtRiskBody": {
+    "placeholders": {
+      "days": {"type": "int"},
+      "months": {"type": "int"}
+    }
+  }
 }

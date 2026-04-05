@@ -9854,5 +9854,17 @@
   "planCard_disclaimer": "Bildungstool — stellt keine Finanzberatung dar (LSFin). Quellen\u00a0: LIFD Art.\u00a038, BVG Art.\u00a014.",
   "planCard_errorBody": "Der Plan konnte nicht erstellt werden. Versuche es erneut, indem du dein Ziel dem Coach beschreibst.",
   "planCard_recalculatePrompt": "Berechne meinen Plan neu\u00a0: {goalDescription}",
-  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}}
+  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}},
+  "checkInNotificationTitle": "Dein Monatscheck wartet",
+  "checkInNotificationBody": "2 Minuten um deinen Fortschritt zu sehen. Mach deinen Check-in\u00a0!",
+  "checkInReminderTitle": "Du hast deinen Monatscheck noch nicht gemacht.",
+  "checkInReminderBody": "2 Minuten gen\u00fcgen\u00a0!",
+  "streakAtRiskTitle": "Deine Serie ist in Gefahr\u00a0!",
+  "streakAtRiskBody": "Dir bleiben noch {days} Tage, um deine Serie von {months} Monaten aufrechtzuerhalten.",
+  "@streakAtRiskBody": {
+    "placeholders": {
+      "days": {"type": "int"},
+      "months": {"type": "int"}
+    }
+  }
 }
