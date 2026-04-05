@@ -14,7 +14,6 @@ import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const _snapshotKey = 'premier_eclairage_snapshot_v1';
-const _hasSeen = 'has_seen_premier_eclairage_v1';
 
 Map<String, dynamic> _normalSnapshot({String? confidenceMode}) => {
       'value': '7\'258 CHF',
