@@ -68,8 +68,11 @@ Plans:
   1. Telling the coach "j'veux acheter un appartement dans 3 ans" produces a plan with a monthly savings amount, intermediate milestone targets, and a projected outcome — all with numbers
   2. The generated plan is accessible from the Aujourd'hui tab or profile drawer without scrolling through chat history
   3. When the user's salary changes in their profile, the plan's monthly amount updates to reflect the new figure
-**Plans**: TBD
-**UI hint**: yes
+**Plans:** 3 plans
+Plans:
+- [ ] 04-01-PLAN.md — FinancialPlan model, persistence service, provider with staleness detection, i18n keys
+- [ ] 04-02-PLAN.md — PlanGenerationService (calculator-backed), PlanPreviewCard (inline chat), WidgetRenderer dispatch, app.dart provider registration
+- [ ] 04-03-PLAN.md — FinancialPlanCard on MintHomeScreen with expand/collapse detail and stale state + human verification
 
 ### Phase 5: Suivi & Check-in
 **Goal**: Users are proactively nudged to check in monthly, check-ins feel conversational rather than form-like, and progress against the plan is visible on Aujourd'hui
@@ -131,7 +134,7 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 | 1. Pre-Refactor Cleanup | 0/3 | Gap closure planned | - |
 | 2. Tool Dispatch | 0/2 | Planned | - |
 | 3. Onboarding Pipeline | 0/3 | Planned | - |
-| 4. Plan Generation | 0/? | Not started | - |
+| 4. Plan Generation | 0/3 | Planned | - |
 | 5. Suivi & Check-in | 0/? | Not started | - |
 | 6. Calculator Wiring | 0/? | Not started | - |
 | 7. Life Event Journeys | 0/? | Not started | - |
