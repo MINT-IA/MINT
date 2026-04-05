@@ -21,6 +21,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -28,6 +29,7 @@ import 'package:mint_mobile/services/session_snapshot_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 
 /// The new Tab 0 — "Aujourd'hui".
@@ -171,6 +173,32 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                   ),
 
                   const SizedBox(height: MintSpacing.xl),
+
+                  // ── Section 1b: Financial Plan Card (visible when a plan exists) ──
+                  Builder(
+                    builder: (ctx) {
+                      final planProvider =
+                          ctx.watch<FinancialPlanProvider>();
+                      if (!planProvider.hasPlan) return const SizedBox.shrink();
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: MintSpacing.xl),
+                        child: FinancialPlanCard(
+                          plan: planProvider.currentPlan!,
+                          isStale: planProvider.isPlanStale,
+                          onRecalculate: (recalculatePrompt) {
+                            widget.onSwitchToCoach?.call(
+                              CoachEntryPayload(
+                                source: CoachEntrySource.homeChip,
+                                topic: 'recalculatePlan',
+                                userMessage: recalculatePrompt,
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
 
                   // ── Section 2: Itinéraire Alternatif ──
                   if (_shouldShowLever(context, mintState))
