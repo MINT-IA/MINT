@@ -174,7 +174,10 @@ async function main() {
       '- You used vague language ("appropriate handling", "standard patterns") instead of specific code',
       '- Your last iteration had fewer steps than your first',
       '',
-      'Context exhaustion = lost work. Every tool call costs ~0.5-1%. Finish and report.'
+      'Context exhaustion = lost work. Every tool call costs ~0.5-1%. Finish and report.',
+      '',
+      '💡 HANDOFF: Tell the user to open a new chat with this starter:',
+      '"On continue [chantier]. Lis docs/MINT_IDENTITY.md et MEMORY.md. Session précédente: [résumé]. Prochaine étape: [action]."'
     ].join('\n');
   } else {
     message = [
