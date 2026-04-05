@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mint_mobile/services/memory/goal_tracker_service.dart';
+import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  GoalTrackerService (memory layer) TESTS — S58 / AI Memory
