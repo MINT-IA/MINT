@@ -10340,5 +10340,19 @@
   "intentChipFiscalite": "Je veux payer moins bêtement",
   "intentChipProjet": "J'ai un projet",
   "intentChipChangement": "Ma situation change",
-  "intentChipAutre": "Autre…"
+  "intentChipAutre": "Autre…",
+  "premierEclairageCardDismiss": "Fermer",
+  "premierEclairageCardCta": "Comprendre",
+  "premierEclairageCardCtaPersonalize": "Personnaliser",
+  "premierEclairageCardEstimate": "Estimation moyenne suisse",
+  "premierEclairageCardSessionHint": "Affiché une seule fois",
+  "premierEclairageCardErrorTitle": "Calcul non disponible",
+  "premierEclairageCardErrorBody": "Complète ton profil pour voir ton premier aperçu.",
+  "coachOpenerIntent3a": "Tu t'intéresses au pilier\u00a03a\u00a0— voici ce que MINT a trouvé pour toi.",
+  "coachOpenerIntentBilan": "Tu veux faire le bilan de ta situation\u00a0— voici ton premier éclairage.",
+  "coachOpenerIntentPrevoyance": "Tu penses à ta prévoyance\u00a0— voici ce que MINT a trouvé pour toi.",
+  "coachOpenerIntentFiscalite": "Tu t'intéresses à tes impôts\u00a0— voici ce que MINT a trouvé pour toi.",
+  "coachOpenerIntentProjet": "Tu as un projet immobilier\u00a0— voici ce que MINT a trouvé pour toi.",
+  "coachOpenerIntentChangement": "Tu vis un changement de vie\u00a0— voici ce que MINT a trouvé pour toi.",
+  "coachOpenerIntentAutre": "Bienvenue\u00a0— voici comment MINT peut t'aider."
 }

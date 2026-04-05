@@ -9824,5 +9824,19 @@
   "intentChipFiscalite": "Ich will weniger unnötig Steuern zahlen",
   "intentChipProjet": "Ich habe ein Projekt im Kopf",
   "intentChipChangement": "Meine Situation verändert sich",
-  "intentChipAutre": "Etwas anderes…"
+  "intentChipAutre": "Etwas anderes…",
+  "premierEclairageCardDismiss": "Schliessen",
+  "premierEclairageCardCta": "Verstehen",
+  "premierEclairageCardCtaPersonalize": "Personalisieren",
+  "premierEclairageCardEstimate": "Schweizer Durchschnittsschätzung",
+  "premierEclairageCardSessionHint": "Einmal angezeigt",
+  "premierEclairageCardErrorTitle": "Berechnung nicht verfügbar",
+  "premierEclairageCardErrorBody": "Vervollständige dein Profil, um deine erste Einschätzung zu sehen.",
+  "coachOpenerIntent3a": "Du interessierst dich für die Säule\u00a03a\u00a0— hier ist, was MINT für dich gefunden hat.",
+  "coachOpenerIntentBilan": "Du willst eine Bestandsaufnahme deiner Situation\u00a0— hier ist deine erste Einschätzung.",
+  "coachOpenerIntentPrevoyance": "Du denkst über deine Vorsorge nach\u00a0— hier ist, was MINT für dich gefunden hat.",
+  "coachOpenerIntentFiscalite": "Du interessierst dich für deine Steuern\u00a0— hier ist, was MINT für dich gefunden hat.",
+  "coachOpenerIntentProjet": "Du hast ein Immobilienprojekt\u00a0— hier ist, was MINT für dich gefunden hat.",
+  "coachOpenerIntentChangement": "Du erlebst eine Lebensveränderung\u00a0— hier ist, was MINT für dich gefunden hat.",
+  "coachOpenerIntentAutre": "Willkommen\u00a0— so kann MINT dir helfen."
 }

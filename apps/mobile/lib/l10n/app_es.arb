@@ -9824,5 +9824,19 @@
   "intentChipFiscalite": "Quiero dejar de pagar impuestos de más",
   "intentChipProjet": "Tengo un proyecto",
   "intentChipChangement": "Mi situación está cambiando",
-  "intentChipAutre": "Otra cosa\u2026"
+  "intentChipAutre": "Otra cosa\u2026",
+  "premierEclairageCardDismiss": "Cerrar",
+  "premierEclairageCardCta": "Entender",
+  "premierEclairageCardCtaPersonalize": "Personalizar",
+  "premierEclairageCardEstimate": "Estimación media suiza",
+  "premierEclairageCardSessionHint": "Mostrado una sola vez",
+  "premierEclairageCardErrorTitle": "Cálculo no disponible",
+  "premierEclairageCardErrorBody": "Completa tu perfil para ver tu primer análisis.",
+  "coachOpenerIntent3a": "Te interesa el pilar\u00a03a\u00a0— esto es lo que MINT ha encontrado para ti.",
+  "coachOpenerIntentBilan": "Quieres hacer un balance de tu situación\u00a0— aquí está tu primer análisis.",
+  "coachOpenerIntentPrevoyance": "Estás pensando en tu previsión\u00a0— esto es lo que MINT ha encontrado para ti.",
+  "coachOpenerIntentFiscalite": "Te interesan tus impuestos\u00a0— esto es lo que MINT ha encontrado para ti.",
+  "coachOpenerIntentProjet": "Tienes un proyecto inmobiliario\u00a0— esto es lo que MINT ha encontrado para ti.",
+  "coachOpenerIntentChangement": "Estás viviendo un cambio de vida\u00a0— esto es lo que MINT ha encontrado para ti.",
+  "coachOpenerIntentAutre": "Bienvenido\u00a0— así es como MINT puede ayudarte."
 }

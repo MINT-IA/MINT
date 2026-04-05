@@ -9824,5 +9824,19 @@
   "intentChipFiscalite": "I want to stop wasting money on taxes",
   "intentChipProjet": "I have a project in mind",
   "intentChipChangement": "My situation is changing",
-  "intentChipAutre": "Something else…"
+  "intentChipAutre": "Something else…",
+  "premierEclairageCardDismiss": "Close",
+  "premierEclairageCardCta": "Understand",
+  "premierEclairageCardCtaPersonalize": "Personalise",
+  "premierEclairageCardEstimate": "Swiss average estimate",
+  "premierEclairageCardSessionHint": "Shown once",
+  "premierEclairageCardErrorTitle": "Calculation unavailable",
+  "premierEclairageCardErrorBody": "Complete your profile to see your first insight.",
+  "coachOpenerIntent3a": "You're looking into pillar\u00a03a\u00a0— here's what MINT found for you.",
+  "coachOpenerIntentBilan": "You want to take stock of your situation\u00a0— here's your first insight.",
+  "coachOpenerIntentPrevoyance": "You're thinking about your pension\u00a0— here's what MINT found for you.",
+  "coachOpenerIntentFiscalite": "You're interested in your taxes\u00a0— here's what MINT found for you.",
+  "coachOpenerIntentProjet": "You have a property project\u00a0— here's what MINT found for you.",
+  "coachOpenerIntentChangement": "You're going through a life change\u00a0— here's what MINT found for you.",
+  "coachOpenerIntentAutre": "Welcome\u00a0— here's how MINT can help you."
 }

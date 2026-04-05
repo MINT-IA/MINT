@@ -9824,5 +9824,19 @@
   "intentChipFiscalite": "Quero deixar de pagar impostos à toa",
   "intentChipProjet": "Tenho um projeto em mente",
   "intentChipChangement": "A minha situação está a mudar",
-  "intentChipAutre": "Outra coisa…"
+  "intentChipAutre": "Outra coisa…",
+  "premierEclairageCardDismiss": "Fechar",
+  "premierEclairageCardCta": "Compreender",
+  "premierEclairageCardCtaPersonalize": "Personalizar",
+  "premierEclairageCardEstimate": "Estimativa média suíça",
+  "premierEclairageCardSessionHint": "Mostrado uma única vez",
+  "premierEclairageCardErrorTitle": "Cálculo não disponível",
+  "premierEclairageCardErrorBody": "Completa o teu perfil para ver o teu primeiro resumo.",
+  "coachOpenerIntent3a": "Estás interessado no pilar\u00a03a\u00a0— aqui está o que o MINT encontrou para ti.",
+  "coachOpenerIntentBilan": "Queres fazer um balanço da tua situação\u00a0— aqui está o teu primeiro resumo.",
+  "coachOpenerIntentPrevoyance": "Estás a pensar na tua previdência\u00a0— aqui está o que o MINT encontrou para ti.",
+  "coachOpenerIntentFiscalite": "Estás interessado nos teus impostos\u00a0— aqui está o que o MINT encontrou para ti.",
+  "coachOpenerIntentProjet": "Tens um projeto imobiliário\u00a0— aqui está o que o MINT encontrou para ti.",
+  "coachOpenerIntentChangement": "Estás a viver uma mudança de vida\u00a0— aqui está o que o MINT encontrou para ti.",
+  "coachOpenerIntentAutre": "Bem-vindo\u00a0— é assim que o MINT te pode ajudar."
 }
