@@ -6,7 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -39,8 +41,15 @@ void main() {
       ],
     );
 
-    return ChangeNotifierProvider<CoachEntryPayloadProvider>.value(
-      value: payloadProvider,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CoachEntryPayloadProvider>.value(
+          value: payloadProvider,
+        ),
+        ChangeNotifierProvider<CoachProfileProvider>(
+          create: (_) => CoachProfileProvider(),
+        ),
+      ],
       child: MaterialApp.router(
         locale: const Locale('fr'),
         localizationsDelegates: const [
@@ -101,7 +110,7 @@ void main() {
   });
 
   group('IntentScreen — chip tap', () {
-    testWidgets('tapping 3a chip persists intent and marks onboarding done',
+    testWidgets('tapping 3a chip persists chipKey and marks onboarding done',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pump();
@@ -115,10 +124,11 @@ void main() {
 
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
-      expect(intent, contains('3a'));
+      // Must store the ARB chipKey, not the resolved French label.
+      expect(intent, equals('intentChip3a'));
     });
 
-    testWidgets('tapping Autre persists and marks onboarding done',
+    testWidgets('tapping Autre persists chipKey and marks onboarding done',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pump();
@@ -137,7 +147,8 @@ void main() {
 
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
-      expect(intent, contains('Autre'));
+      // Stores ARB chipKey 'intentChipAutre', not the localized 'Autre…'
+      expect(intent, equals('intentChipAutre'));
     });
 
     testWidgets('tapping chip sets payload in provider', (tester) async {
@@ -150,11 +161,10 @@ void main() {
       await tester.tap(find.textContaining('prévoyance'));
       await tester.pumpAndSettle();
 
-      // After navigation, payload may have been consumed by route change.
-      // Verify via persistence as reliable proxy.
+      // After navigation, verify via persistence — chipKey stored, not label.
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
-      expect(intent, contains('prévoyance'));
+      expect(intent, equals('intentChipPrevoyance'));
     });
 
     testWidgets('tapping chip navigates to /home', (tester) async {
@@ -171,6 +181,84 @@ void main() {
 
       // Should have navigated away from IntentScreen.
       expect(find.text('home'), findsOneWidget);
+    });
+  });
+
+  // ────────────────────────────────────────────────────────────
+  //  NEW TESTS: Rewired _onChipTap pipeline (Plan 03-02)
+  // ────────────────────────────────────────────────────────────
+
+  group('IntentScreen — rewired onChipTap pipeline', () {
+    testWidgets('chip tap persists chipKey, not the localized label',
+        (tester) async {
+      await tester.pumpWidget(buildIntentScreen());
+      await tester.pump();
+
+      // Tap the first chip (3a)
+      await tester.tap(find.textContaining('3a'));
+      await tester.pumpAndSettle();
+
+      final stored =
+          await ReportPersistenceService.getSelectedOnboardingIntent();
+      // Must be the ARB key, not the French string "Pilier 3a" or similar.
+      expect(stored, equals('intentChip3a'));
+      expect(stored, isNot(contains(' '))); // chipKey has no spaces
+    });
+
+    testWidgets('chip tap writes goalIntentTag to CapMemoryStore.declaredGoals',
+        (tester) async {
+      await tester.pumpWidget(buildIntentScreen());
+      await tester.pump();
+
+      // Scroll to and tap 'projet' chip → maps to housing_purchase
+      await tester.scrollUntilVisible(
+        find.textContaining('projet'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await tester.tap(find.textContaining('projet'));
+      await tester.pumpAndSettle();
+
+      final memory = await CapMemoryStore.load();
+      expect(memory.declaredGoals, contains('housing_purchase'));
+    });
+
+    testWidgets('chip tap navigates to /home?tab=0 (Aujourd\'hui, not Coach)',
+        (tester) async {
+      await tester.pumpWidget(buildIntentScreen());
+      await tester.pump();
+
+      await tester.tap(find.textContaining('3a'));
+      await tester.pumpAndSettle();
+
+      // Should have navigated to /home (tab=0 — Aujourd'hui).
+      // We verify we left the IntentScreen and arrived at the home stub.
+      expect(find.byType(IntentScreen), findsNothing);
+      expect(find.text('home'), findsOneWidget);
+    });
+
+    testWidgets(
+        'chip tap computes and persists premier eclairage snapshot with required keys',
+        (tester) async {
+      await tester.pumpWidget(buildIntentScreen());
+      await tester.pump();
+
+      await tester.tap(find.textContaining('3a'));
+      await tester.pumpAndSettle();
+
+      final snapshot =
+          await ReportPersistenceService.loadPremierEclairageSnapshot();
+      expect(snapshot, isNotNull);
+      // Must contain display fields only — no PII (T-03-02).
+      expect(snapshot!.containsKey('value'), isTrue);
+      expect(snapshot.containsKey('title'), isTrue);
+      expect(snapshot.containsKey('suggestedRoute'), isTrue);
+      expect(snapshot.containsKey('colorKey'), isTrue);
+      expect(snapshot.containsKey('confidenceMode'), isTrue);
+      // PII guard: salary and financial amounts must NOT be in the snapshot.
+      expect(snapshot.containsKey('salary'), isFalse);
+      expect(snapshot.containsKey('grossAnnualSalary'), isFalse);
+      expect(snapshot.containsKey('iban'), isFalse);
     });
   });
 
