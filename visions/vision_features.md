@@ -1,7 +1,12 @@
 # Vision: Features — MINT
 
+> **⚠️ OBSOLETE (2026-04-05) — TO REWRITE**
+> Ce document contient des idées de features utiles mais son positionnement est obsolète.
+> **Source of truth pour l'identité : `docs/MINT_IDENTITY.md`**
+> Mission : "Mint te dit ce que personne n'a intérêt à te dire."
+
 ## 1. Life Timeline (Home = Timeline + Proposition de valeur)
-**"Juste quand il faut: une explication, une action, un rappel."**
+**Service loop interne : "Juste quand il faut: une explication, une action, un rappel."**
 
 L’accueil est une timeline de moments financiers qui déclenchent des micro-décisions.
 Chaque carte respecte “1 écran = 1 intention”: une seule question, une seule action principale, et un suivi sous forme de rappel.

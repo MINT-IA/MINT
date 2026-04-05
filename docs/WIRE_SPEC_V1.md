@@ -1,5 +1,7 @@
 # MINT — WIRE SPEC V1 : Le document de construction
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > **Ce document n'est PAS un flowchart.** C'est une spec d'ingénierie.
 > Chaque flèche = un appel de fonction. Chaque boîte = un état avec ses données.
 > Chaque transition = un fichier source, une ligne, un objet typé.

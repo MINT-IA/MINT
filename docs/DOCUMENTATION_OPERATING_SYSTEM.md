@@ -24,12 +24,13 @@ Objectif:
 ## 2. Hiérarchie documentaire
 
 Ordre de priorité:
-1. `rules.md`
-2. `CLAUDE.md`
-3. `docs/MINT_UX_GRAAL_MASTERPLAN.md`
-4. documents spécialisés de référence
-5. documents historiques / archives / transition
-6. code
+1. `rules.md` — Non-negotiable technical + ethical rules
+2. `CLAUDE.md` — Project context, constants, compliance
+3. `docs/MINT_IDENTITY.md` — **Identity, positioning, mission, tone, compliance messaging.** Source of truth for WHO Mint is and HOW Mint speaks. All agents MUST read before any user-facing work.
+4. `docs/MINT_UX_GRAAL_MASTERPLAN.md` — UX/product umbrella
+5. documents spécialisés de référence
+6. documents historiques / archives / transition
+7. code
 
 Règle:
 - si un document de niveau inférieur contredit un document de niveau supérieur, le document inférieur doit être corrigé ou reclassé.
@@ -88,7 +89,7 @@ Lire:
 - `CLAUDE.md`
 - `docs/MINT_UX_GRAAL_MASTERPLAN.md`
 - `docs/ROADMAP_V2.md` (sprint status + actual codebase state)
-- puis au besoin `docs/VISION_UNIFIEE_V1.md` comme archive stratégique
+- puis au besoin `docs/archive/VISION_UNIFIEE_V1.md` comme archive stratégique
 
 ### Tâche: comprendre ce qui est implémenté vs planifié
 Lire:
@@ -120,7 +121,7 @@ Lire:
 - `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` — current (source of truth for RoutePlanner/ScreenRegistry)
 
 ### Documents historiques / de transition
-- `docs/VISION_UNIFIEE_V1.md` — archive stratégique, ne gouverne plus
+- `docs/archive/VISION_UNIFIEE_V1.md` — archive stratégique, ne gouverne plus
 - `docs/SPRINT_TRACKER.md` — historique S0-S50, dernière entrée S50
 - `docs/archive/*` — archives, ne pas lire sauf investigation historique
 

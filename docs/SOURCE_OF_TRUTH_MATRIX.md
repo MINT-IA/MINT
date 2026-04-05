@@ -3,6 +3,9 @@
 > Dernière mise à jour : 2026-03-27
 > Statut : **AUTORITATIF** — Ce document définit quel moteur fait foi, dans quel contexte.
 > En cas de divergence code/doc : ce document prime. Si le code contredit, corriger le code.
+>
+> **⚠️ LEGACY NOTE (2026-04-05):** "chiffre choc" est un legacy term technique.
+> Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`). Migration code à planifier.
 
 ---
 

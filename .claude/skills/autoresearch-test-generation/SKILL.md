@@ -4,10 +4,10 @@ description: "Autonomous test factory. Finds untested code → generates edge-ca
 compatibility: Requires Flutter SDK
 metadata:
   author: mint-team
-  version: "2.0"
+  version: "3.0"
 ---
 
-# Autoresearch Test Generation v2 — Karpathy Test Factory
+# Autoresearch Test Generation v3 — Karpathy Test Factory
 
 > "Untested code is broken code you haven't found yet."
 
@@ -18,6 +18,30 @@ metadata:
 - **Time budget**: 5 min max per file. If tests won't compile in 5 min → discard → next file.
 - **Single target**: ONE file per iteration. Generate 5-10 tests → run → keep/discard → next.
 - **NEVER modifies `lib/`**. Tests only. Bug found → log it for `/autoresearch-quality`.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Mutable / Immutable
 
@@ -95,6 +119,28 @@ After EVERY test batch, before reporting it as committed:
 **If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop. If test won't compile after 3 attempts → discard and move to next file.
 
 Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Tests pass" | Fresh test command output: 0 failures | Previous run, "should pass", partial run |
+| "No regressions" | Full suite run: same or fewer failures | Running only the new test file |
+| "Tests added" | Test count delta > 0, verified by grep | "I wrote 5 tests" without running them |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | All new tests green + full suite green | New tests green, suite not checked |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

@@ -1,5 +1,7 @@
 # MINT Voice System
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > **Statut** : Référence éditoriale. Tout texte visible par l'utilisateur passe ce filtre.
 > **Gouvernance** : Complète DESIGN_SYSTEM.md §6. En cas de doute sur le ton, ce document tranche.
 > **Source de vérité** : oui, pour le ton, la microcopy et les tournures autorisées/interdites.

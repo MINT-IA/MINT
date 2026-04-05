@@ -1,5 +1,7 @@
 # MINT Design System v2
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > **Statut** : Document cible. Migration en cours depuis le code existant.
 > **Gouvernance** : Ce document décrit la direction visuelle cible pour MINT.
 > CLAUDE.md §7 pointe ici pour les détails. En cas de divergence entre ce document
@@ -80,7 +82,7 @@ répondent à un changement de situation (déménagement, emploi, naissance).
 
 - **Progressive disclosure** : révéler les champs un par un ou par étape
 - **Preview live** si possible (chiffre qui change en temps réel)
-- **Pas de chiffre-choc obligatoire** — le focus est la complétion
+- **Pas de premier éclairage obligatoire** — le focus est la complétion
 - **Validation inline** (pas de page d'erreur séparée)
 - **1 CTA** "Continuer" en bas, sticky
 
@@ -92,7 +94,7 @@ mise à jour de données, même s'ils contiennent du contenu éducatif. Le résu
 > Login, Register, Forgot Password, Verify Email, Profile, BYOK Settings,
 > SLM Settings, Consent Dashboard, Admin Observability, Admin Analytics
 
-- **Fonctionnel avant tout** — pas besoin de chiffre-choc
+- **Fonctionnel avant tout** — pas besoin de premier éclairage
 - **Layout standard** Material 3
 - **Whitespace normal** (`spacingLg`)
 - **i18n et accessibilité** obligatoires comme partout
@@ -561,7 +563,7 @@ Chaque écran passe la checklist §8. Ordre de priorité :
 | Cat. | Écran | Priorité |
 |------|-------|----------|
 | **A** | pulse_screen | Tier 1 |
-| **A** | chiffre_choc_screen | Tier 1 |
+| **A** | premier_eclairage_screen (legacy: chiffre_choc_screen) | Tier 1 |
 | **A** | retirement_dashboard_screen | Tier 2 |
 | **A** | score_reveal_screen | Tier 5 |
 | **A** | financial_report_screen_v2 | Tier 6 |

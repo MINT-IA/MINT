@@ -1,5 +1,7 @@
 # W17 — "MINT POUR TOUS" — Orchestration corrigée
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+>
 > **Corrigé post-audit** : P2 supprimé (Pulse déjà adaptatif depuis 2026-03-22).
 > 5 prompts au lieu de 6. Waves restructurées.
 

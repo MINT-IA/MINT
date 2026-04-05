@@ -20860,7 +20860,7 @@ class SEn extends S {
 
   @override
   String get landingVzComparison =>
-      'What VZ charges CHF 1,200 for, you get in 30 seconds.';
+      '30 seconds to your first number. No appointment, no fees.';
 
   @override
   String get instantChiffreChocConfidence =>

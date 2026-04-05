@@ -21026,7 +21026,7 @@ class SIt extends S {
 
   @override
   String get landingVzComparison =>
-      'Quello che VZ fattura CHF 1’200, tu lo hai in 30 secondi.';
+      '30 secondi per il tuo primo numero. Senza appuntamento, senza costi.';
 
   @override
   String get instantChiffreChocConfidence =>

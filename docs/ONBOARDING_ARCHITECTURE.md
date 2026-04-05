@@ -3,6 +3,11 @@
 > Dernière mise à jour : 2026-03-27
 > Statut : **AUTORITATIF** — Ce document décrit l'architecture réelle de l'onboarding.
 > Remplace les sections onboarding de `ONBOARDING_ARBITRAGE_ENGINE.md` (archive).
+>
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise le terme "chiffre choc" qui est un legacy term technique.
+> Le concept canonique est désormais **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`).
+> Le premier éclairage n'est pas nécessairement un nombre — c'est un insight personnalisé
+> (nombre, angle mort, implication cachée, ou question à poser). Migration code à planifier.
 
 ---
 

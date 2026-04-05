@@ -21014,7 +21014,7 @@ class SDe extends S {
 
   @override
   String get landingVzComparison =>
-      'Wofür VZ CHF 1’200 verlangt, bekommst du in 30 Sekunden.';
+      '30 Sekunden bis zu deiner ersten Zahl. Kein Termin, keine Kosten.';
 
   @override
   String get instantChiffreChocConfidence =>

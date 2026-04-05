@@ -20972,7 +20972,7 @@ class SEs extends S {
 
   @override
   String get landingVzComparison =>
-      'Lo que VZ cobra CHF 1.200, tú lo tienes en 30 segundos.';
+      '30 segundos para tu primer número. Sin cita, sin costes.';
 
   @override
   String get instantChiffreChocConfidence =>

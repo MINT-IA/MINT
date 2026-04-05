@@ -153,29 +153,45 @@ async function main() {
     return;
   }
 
-  // Build warning message
+  // Estimate remaining iterations (~3% context per iteration)
+  const estIterations = Math.max(1, Math.floor(remaining / 3));
+
+  // Build warning message with behavioral tier instructions (GSD context-budget.md)
   let message;
   if (severity === 'CRITICAL') {
     message = [
-      `⚠️ CONTEXT CRITICAL — ${remaining.toFixed(0)}% remaining (tier: ${tier.label})`,
+      `⚠️ CONTEXT CRITICAL — ${remaining.toFixed(0)}% usable remaining (tier: ${tier.label}, ~${estIterations} iterations left)`,
       '',
-      'MINT autoresearch protocol:',
-      '1. STOP starting new iterations',
-      '2. Complete current iteration ONLY if near-done',
+      'STOP PROTOCOL (non-negotiable):',
+      '1. STOP starting new iterations immediately',
+      '2. Complete current iteration ONLY if near-done (< 2 steps left)',
       '3. Write experiment log + final report NOW',
-      '4. Commit current progress',
+      '4. Commit all current progress',
+      '5. Do NOT read new files unless absolutely required for the report',
       '',
-      'Context exhaustion = lost work. Finish and report.'
+      'Degradation check — if ANY of these are true, you are already too late:',
+      '- You skipped verification steps you would normally follow',
+      '- You used vague language ("appropriate handling", "standard patterns") instead of specific code',
+      '- Your last iteration had fewer steps than your first',
+      '',
+      'Context exhaustion = lost work. Every tool call costs ~0.5-1%. Finish and report.'
     ].join('\n');
   } else {
     message = [
-      `⚠️ CONTEXT WARNING — ${remaining.toFixed(0)}% remaining (tier: ${tier.label})`,
+      `⚠️ CONTEXT WARNING — ${remaining.toFixed(0)}% usable remaining (tier: ${tier.label}, ~${estIterations} iterations left)`,
       '',
-      'MINT autoresearch protocol:',
-      '- Avoid starting complex new iterations',
-      '- Prefer targeted fixes over exploratory reads',
-      '- Plan your remaining budget: ~' + Math.max(1, Math.floor(remaining / 3)) + ' iterations left',
-      '- Consider writing final report soon'
+      'Behavioral adjustment (GSD DEGRADING tier):',
+      '- Do NOT start exploratory reads or broad searches',
+      '- Prefer targeted, single-file reads over multi-file exploration',
+      '- Each iteration: diagnose → fix → verify → commit (no detours)',
+      '- Plan your exit: at ~5 iterations left, write final report',
+      '',
+      'Degradation warning signs — STOP and assess if you notice:',
+      '- Silent partial completion: claiming done but skipping verify steps',
+      '- Increasing vagueness: "should work" instead of pasting test output',
+      '- Skipped steps: iteration has 6 steps but you only report 4',
+      '',
+      'If ANY warning sign is present → write report NOW, do not start new iterations.'
     ].join('\n');
   }
 

@@ -121,7 +121,7 @@ tester.view.devicePixelRatio = 2.0;
 - `lib/services/financial_core/` — All calculators
 - `lib/screens/main_navigation_shell.dart` — Tab navigation (feature flag: `FeatureFlags.useNewDashboard`)
 
-**Target dashboard components**: ConfidenceBar, HeroRetirementCard (stacked bar AVS+LPP+3a+Libre), BudgetGapWaterfall, Top3ArbitragesCards (with chiffre choc each), CoupleTimelineChart (phases), PersonalizedChecklist (temporal), MintScoreGauge.
+**Target dashboard components**: ConfidenceBar, HeroRetirementCard (stacked bar AVS+LPP+3a+Libre), BudgetGapWaterfall, Top3ArbitragesCards (with premier éclairage each), CoupleTimelineChart (phases), PersonalizedChecklist (temporal), MintScoreGauge.
 
 ### Golden Test Couple
 Julien (50, CH, 100k, swiss_native) + Lauren (45, US/FATCA, 60k, expat_us). File: `test/golden/julien_lauren.xlsx`.

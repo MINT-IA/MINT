@@ -1,4 +1,7 @@
 # MINT — Autoresearch Agents
+
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 ## Recherche Autonome Continue pour un Coach Financier AI Suisse
 
 **Date** : Mars 2026

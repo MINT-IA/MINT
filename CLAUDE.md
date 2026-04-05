@@ -1,5 +1,7 @@
 # CLAUDE.md — MINT Project Context (auto-loaded)
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Loaded automatically at every session start. Single source of truth for all agents.
 > For conflict resolution: `rules.md` (tier 1) > this file (tier 2). See § HIERARCHY.
 
@@ -7,12 +9,16 @@
 
 ## 1. IDENTITY
 
-**MINT** — Swiss financial education app (Flutter + FastAPI).
-**Mission**: "Juste quand il faut: une explication, une action, un rappel."
-**Target**: ALL active Swiss residents (22-65+). No primary/secondary segmentation.
-**Segmentation**: By life event and lifecycle phase, NEVER by age or demographics. A 25-year-old buying a house and a 55-year-old planning retirement are equally important users.
-**Design for ALL**: UX, copy, and features MUST work for 22-65+. Never design screens, landing pages, or flows that exclude an age group or suggest MINT is "a retirement app".
-**Model**: Read-only, education-first. No money movement. No investment advice.
+> **Source of truth for identity & positioning: `docs/MINT_IDENTITY.md`**
+
+**MINT** — Swiss financial protection & education app (Flutter + FastAPI).
+**Mission**: "Mint te dit ce que personne n'a intérêt à te dire."
+**Positioning**: Protection-first. Mint rend visible ce que l'utilisateur n'a pas vu. Mint traduit les implications. Mint laisse les faits conclure. See `docs/MINT_IDENTITY.md` for the full doctrine, 4-layer engine, and compliance messaging framework.
+**Service loop** (internal, NOT the tagline): "Juste quand il faut: une explication, une action, un rappel."
+**Target**: ALL Swiss residents (18-99). No primary/secondary segmentation.
+**Segmentation**: By life event and lifecycle phase, NEVER by age or demographics. A 25-year-old starting their first job and a 55-year-old planning retirement are equally important users.
+**Design for ALL**: UX, copy, and features MUST work for 18-99. Never design screens, landing pages, or flows that exclude an age group or suggest MINT is "a retirement app" or any single-topic app.
+**Model**: Read-only, protection-first, education-first. No money movement. No investment advice. No product recommendations. No ranking.
 
 ---
 
@@ -201,7 +207,7 @@ Crise:         debtCrisis
 ### Required in Every Calculator/Service Output
 - `disclaimer` — "outil éducatif", "ne constitue pas un conseil", "LSFin"
 - `sources` — Legal references (LPP art. X, LIFD art. Y)
-- `chiffre_choc` — One impactful number with explanatory text
+- `premier_eclairage` — First personalized insight (number, blind spot, implication, or question to ask). Replaces legacy `chiffre_choc`.
 - `alertes` — Warnings when thresholds are crossed
 
 ### Swiss Law References
@@ -261,7 +267,7 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - Progressive disclosure — no bank connection upfront
 - 1 screen = 1 intention
 - Each recommendation → 1-3 concrete next actions
-- Onboarding minimal: 3 questions + revenu before first chiffre choc
+- Onboarding minimal: intent + 3 inputs (age, revenu, canton) before first premier éclairage
 - Precision progressive: ask data when it matters, not during onboarding
 - Score FRI: never "bon/mauvais", always "progression personnelle"
 
@@ -395,14 +401,15 @@ If code contradicts 1-9: fix the code OR write an ADR.
 | Document | Purpose |
 |----------|---------|
 | `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
+| `docs/MINT_IDENTITY.md` | **Identity, mission, positioning, 5 principles, 4-layer engine, compliance messaging** |
 | `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy |
 | `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
 | `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
 | `DefinitionOfDone.md` | Sprint completion criteria |
 | `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
-| `docs/VISION_UNIFIEE_V1.md` | Historical strategic vision; useful principles, obsolete IA |
+| `docs/archive/VISION_UNIFIEE_V1.md` | Historical strategic vision (ARCHIVED); useful principles, obsolete IA |
 | `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
-| `docs/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs |
+| `docs/archive/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs (ARCHIVED) |
 | `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
 | `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
 | `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |

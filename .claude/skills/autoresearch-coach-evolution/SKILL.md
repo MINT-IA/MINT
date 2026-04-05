@@ -4,10 +4,10 @@ description: "Autonomous coaching content optimizer. Scores text MECHANICALLY (g
 compatibility: Requires Flutter SDK
 metadata:
   author: mint-team
-  version: "3.0"
+  version: "4.0"
 ---
 
-# Autoresearch Coach Evolution v3 — Karpathy Content Optimizer
+# Autoresearch Coach Evolution v4 — Karpathy Content Optimizer
 
 > "Coaching content must fight drop-off. Pattern: concret → émotionnel → actionnable."
 
@@ -18,6 +18,30 @@ metadata:
 - **Threshold**: +5 minimum improvement. Below → discard all variants, move on.
 - **Single target**: ONE coaching text per iteration.
 - **Guard**: `flutter gen-l10n` must succeed. `flutter test` every 5 optimizations.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Mechanical Scoring (immutable eval — agent CANNOT modify these rules)
 
@@ -164,6 +188,28 @@ After EVERY optimization, before reporting it as kept:
 **If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop and retry with a different variant. If stuck 3x on same text → log as `discard` and move to next target.
 
 Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Score improved" | Delta >= +5, measured by grep/wc | "Reads better", LLM self-evaluation |
+| "Compliance clean" | 0 banned terms in fresh grep | Previous check, "should pass" |
+| "gen-l10n succeeds" | Fresh `flutter gen-l10n` output: exit 0 | Previous run, assumed OK |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Score + compliance + gen-l10n all green | Green from previous iteration |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

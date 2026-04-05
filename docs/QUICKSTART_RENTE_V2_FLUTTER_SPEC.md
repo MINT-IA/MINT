@@ -1,5 +1,7 @@
 # Quick Start + Rente ou Capital V2 — Flutter Spec
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Statut: spec d'implémentation exécutable
 > Rôle: transformer 2 écrans stratégiques en surfaces manifestes MINT
 > Source de vérité: oui, pour l'implémentation Flutter de ces 2 refontes

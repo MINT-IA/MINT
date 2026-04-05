@@ -3,6 +3,9 @@
 > **V2** — Intègre : Wire Spec V1 + contre-audit (7 corrections) + itération créative
 > (7 idées enrichies) + audit expert final (8 corrections de précision).
 >
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term technique.
+> Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`). Migration code à planifier.
+>
 > **Ce document n'est PAS un flowchart.** C'est une spec d'ingénierie.
 > Chaque flèche = un appel de fonction. Chaque boîte = un état avec ses données.
 > Chaque transition = un fichier source, une ligne, un objet typé.

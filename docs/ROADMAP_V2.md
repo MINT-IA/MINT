@@ -3,6 +3,10 @@
 > Date: March 2026 | Version: 3.0 | Production: v1.0.0
 > Updated: 29 March 2026 — All 4 phases audited, 102+ bugs fixed, all features wired E2E
 > Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)
+>
+> **⚠️ LEGACY NOTE (2026-04-05):** This document uses "chiffre choc" as a legacy term.
+> Canonical concept: **"premier éclairage"** (see `docs/MINT_IDENTITY.md`).
+> Mission updated: "Mint te dit ce que personne n'a intérêt à te dire."
 > Execution method: Autoresearch Dev Agents (`visions/MINT_Autoresearch_Dev_Agents.md`)
 >
 > **PRODUCTION STATUS**: 13,040 tests green | 0 flutter analyze warnings | 6 languages synced | 8 archetypes | 134 routes | 123 screens

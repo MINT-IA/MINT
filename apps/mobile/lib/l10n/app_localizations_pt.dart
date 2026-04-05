@@ -20974,7 +20974,7 @@ class SPt extends S {
 
   @override
   String get landingVzComparison =>
-      'O que a VZ cobra CHF 1.200, tu tens em 30 segundos.';
+      '30 segundos para o teu primeiro número. Sem marcação, sem custos.';
 
   @override
   String get instantChiffreChocConfidence =>
