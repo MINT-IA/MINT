@@ -36,6 +36,7 @@ import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -156,6 +157,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// One-shot: cleared after first use.
   String? _entryPayloadContext;
 
+  /// ARB chip key from onboarding intent selection (e.g. 'intentChip3a').
+  /// Set in _loadOnboardingPayload. Consumed once in _addInitialGreeting.
+  String? _pendingIntentChipKey;
+
+  /// Intent-specific opener text for the silent opener (D-06).
+  /// Non-null only on the first session after intent selection.
+  String? _intentOpenerText;
+
   @override
   void initState() {
     super.initState();
@@ -207,6 +216,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Reads the emotion, choc type, and choc value set during onboarding,
   /// then clears them so they are only injected once. Permanent profile
   /// data (birth_year, salary, canton) is NOT cleared.
+  ///
+  /// Also loads the selected intent chip key for the first-session opener (D-06).
   Future<void> _loadOnboardingPayload() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -220,6 +231,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         }
         // One-shot data (emotion, choc_type, choc_value) is cleared
         // by ContextInjectorService._buildOnboardingBlock after reading.
+      }
+
+      // Load onboarding intent for first-session opener (D-06).
+      final selectedIntent =
+          await ReportPersistenceService.getSelectedOnboardingIntent();
+      final hasSeen =
+          await ReportPersistenceService.hasSeenPremierEclairage();
+      if (selectedIntent != null && !hasSeen && mounted) {
+        setState(() {
+          _pendingIntentChipKey = selectedIntent;
+        });
       }
     } catch (_) {
       // Graceful degradation: coach works without onboarding payload.
@@ -312,6 +334,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   void _addInitialGreeting() {
     assert(_profile != null);
+
+    // Intent-aware opener (D-06): resolve chip-specific text on first session.
+    if (_pendingIntentChipKey != null) {
+      final l10n = S.of(context);
+      if (l10n != null) {
+        final resolved = resolveIntentOpener(_pendingIntentChipKey!, l10n);
+        if (resolved != null) {
+          _intentOpenerText = resolved;
+        }
+      }
+      _pendingIntentChipKey = null; // consume once
+    }
 
     // Show silent opener (key number) instead of a proactive message.
     // The opener disappears as soon as the user types.
@@ -1317,6 +1351,40 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Widget _buildSilentOpener() {
     final s = S.of(context)!;
+
+    // D-06: intent-aware opener on first session.
+    if (_intentOpenerText != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _intentOpenerText!,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                s.coachSilentOpenerQuestion,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                  color: MintColors.textSecondary.withValues(alpha: 0.6),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final keyData = _computeKeyNumber();
 
     // If no financial data available, show a minimal empty state.
@@ -1524,4 +1592,31 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }).toList(),
     );
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  INTENT OPENER RESOLVER — top-level for testability (D-06, D-07)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Maps an onboarding chip key to an intent-specific coach opener string.
+///
+/// Returns null when:
+///   - [chipKey] is unrecognised (graceful degradation → generic opener)
+///
+/// Kept as a top-level function so tests can call it directly without
+/// needing to mount the full CoachChatScreen widget tree.
+///
+/// Each of the 7 intent keys must produce a **distinct** non-null string.
+/// Unknown keys must return null (D-07).
+String? resolveIntentOpener(String chipKey, S l10n) {
+  final openers = <String, String>{
+    'intentChip3a': l10n.coachOpenerIntent3a,
+    'intentChipBilan': l10n.coachOpenerIntentBilan,
+    'intentChipPrevoyance': l10n.coachOpenerIntentPrevoyance,
+    'intentChipFiscalite': l10n.coachOpenerIntentFiscalite,
+    'intentChipProjet': l10n.coachOpenerIntentProjet,
+    'intentChipChangement': l10n.coachOpenerIntentChangement,
+    'intentChipAutre': l10n.coachOpenerIntentAutre,
+  };
+  return openers[chipKey];
 }
