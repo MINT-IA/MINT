@@ -57,17 +57,21 @@ Exceptions:
 
 All styles from `MintTextStyles` in `lib/theme/mint_text_styles.dart`. Roles declared for this phase only.
 
+**Weight contract:** exactly 2 weights — w400 (regular) for all body text, labels, microcopy, and chips; w700 (bold) for all headings, display numbers, and CTA labels.
+
+**Size contract:** exactly 4 sizes — 14px, 16px, 20px, 32px.
+
 | Role | MintTextStyles method | Size | Weight | Font | Line Height |
 |------|-----------------------|------|--------|------|-------------|
 | Premier eclairage number | `displayMedium()` | 32px | w700 | Montserrat | 1.15 |
-| Card title (PremierEclairageCard) | `headlineSmall()` | 20px | w600 | Montserrat | 1.2 |
-| Card body / explanation text | `bodyMedium()` | 14px | w400 | Inter | 1.5 |
-| CTA label ("Comprendre") | `titleMedium()` | 16px | w600 | Inter | 1.3 |
+| IntentScreen title | `headlineLarge()` | 32px | w700 | Montserrat | 1.15 |
+| Card title (PremierEclairageCard) | `headlineSmall()` | 20px | w700 | Montserrat | 1.2 |
+| CTA label ("Comprendre") | `titleMedium()` | 16px | w700 | Inter | 1.3 |
 | Intent chip label | `bodyLarge()` | 16px | w400 | Inter | 1.5 |
-| Screen title (IntentScreen) | `headlineLarge()` | 26px | w700 | Montserrat | 1.15 |
-| Microcopy / disclaimer | `bodySmall()` | 13px | w500 | Inter | 1.4 |
+| Card body / explanation text | `bodyMedium()` | 14px | w400 | Inter | 1.5 |
+| Microcopy / disclaimer | `bodySmall()` | 14px | w400 | Inter | 1.4 |
 
-Rationale: `displayMedium` for the premier eclairage number creates the "moment of revelation" without competing with the home screen's own data hierarchy. `displayLarge` (48px) is reserved for full hero/pulse screens per the design system rule ("one dominant number per screen").
+Rationale: `displayMedium` for the premier eclairage number creates the "moment of revelation" without competing with the home screen's own data hierarchy. `displayLarge` (48px) is reserved for full hero/pulse screens per the design system rule ("one dominant number per screen"). IntentScreen title uses the same 32px/w700 token as the display number — both are dominant single-screen headings. Microcopy uses 14px (same size as body) to stay within the 4-size limit, differentiated from body by color (`MintColors.textMuted`) rather than size.
 
 ---
 
@@ -169,7 +173,7 @@ When `selectedOnboardingIntent` is non-null, replace generic `_computeKeyNumber(
 
 When profile has no salary/age/canton, `PremierEclairageCard` shows:
 - Number: Swiss-average value formatted with `displayMedium` + `MintColors.textMuted` (not `textPrimary` — signals estimate)
-- Add label beneath number: "Estimation moyenne suisse" in `labelSmall`, `MintColors.warning`
+- Add label beneath number: "Estimation moyenne suisse" in `bodySmall` (14px/w400), `MintColors.warning`
 - CTA: "Personnaliser" → navigates to QuickStartScreen instead of calculator
 
 ---
@@ -283,3 +287,4 @@ No new packages are added in this phase. All widgets use existing Flutter + proj
 | CTA wording "Comprendre" | 03-CONTEXT.md D-04 (matched existing pattern) |
 | Font usage rules | CLAUDE.md §7 (Montserrat headings, Inter body) |
 | i18n requirement | CLAUDE.md §7 (ALL strings in ARB, 6 languages) |
+| Typography fix (4 sizes, 2 weights) | gsd-ui-checker blocking findings (2026-04-05 revision) |
