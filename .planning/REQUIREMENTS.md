@@ -102,37 +102,37 @@ Deferred to next milestone. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLN-01 | Phase 0 | Pending |
-| CLN-02 | Phase 0 | Pending |
-| CLN-03 | Phase 0 | Pending |
-| TDP-01 | Phase 1 | Pending |
-| TDP-02 | Phase 1 | Pending |
-| TDP-03 | Phase 1 | Pending |
-| TDP-04 | Phase 1 | Pending |
-| ONB-01 | Phase 2 | Pending |
-| ONB-02 | Phase 2 | Pending |
-| ONB-03 | Phase 2 | Pending |
-| ONB-04 | Phase 2 | Pending |
-| PLN-01 | Phase 3 | Pending |
-| PLN-02 | Phase 3 | Pending |
-| PLN-03 | Phase 3 | Pending |
-| PLN-04 | Phase 3 | Pending |
-| SUI-01 | Phase 4 | Pending |
-| SUI-02 | Phase 4 | Pending |
-| SUI-03 | Phase 4 | Pending |
-| SUI-04 | Phase 4 | Pending |
-| SUI-05 | Phase 4 | Pending |
-| CAL-01 | Phase 5 | Pending |
-| CAL-02 | Phase 5 | Pending |
-| CAL-03 | Phase 5 | Pending |
-| LEJ-01 | Phase 6 | Pending |
-| LEJ-02 | Phase 6 | Pending |
-| LEJ-03 | Phase 6 | Pending |
-| LEJ-04 | Phase 6 | Pending |
-| UXP-01 | Phase 7 | Pending |
-| UXP-02 | Phase 7 | Pending |
-| UXP-03 | Phase 7 | Pending |
-| UXP-04 | Phase 7 | Pending |
+| CLN-01 | Phase 1 | Pending |
+| CLN-02 | Phase 1 | Pending |
+| CLN-03 | Phase 1 | Pending |
+| TDP-01 | Phase 2 | Pending |
+| TDP-02 | Phase 2 | Pending |
+| TDP-03 | Phase 2 | Pending |
+| TDP-04 | Phase 2 | Pending |
+| ONB-01 | Phase 3 | Pending |
+| ONB-02 | Phase 3 | Pending |
+| ONB-03 | Phase 3 | Pending |
+| ONB-04 | Phase 3 | Pending |
+| PLN-01 | Phase 4 | Pending |
+| PLN-02 | Phase 4 | Pending |
+| PLN-03 | Phase 4 | Pending |
+| PLN-04 | Phase 4 | Pending |
+| SUI-01 | Phase 5 | Pending |
+| SUI-02 | Phase 5 | Pending |
+| SUI-03 | Phase 5 | Pending |
+| SUI-04 | Phase 5 | Pending |
+| SUI-05 | Phase 5 | Pending |
+| CAL-01 | Phase 6 | Pending |
+| CAL-02 | Phase 6 | Pending |
+| CAL-03 | Phase 6 | Pending |
+| LEJ-01 | Phase 7 | Pending |
+| LEJ-02 | Phase 7 | Pending |
+| LEJ-03 | Phase 7 | Pending |
+| LEJ-04 | Phase 7 | Pending |
+| UXP-01 | Phase 8 | Pending |
+| UXP-02 | Phase 8 | Pending |
+| UXP-03 | Phase 8 | Pending |
+| UXP-04 | Phase 8 | Pending |
 
 **Coverage:**
 - v1 requirements: 30 total
@@ -141,4 +141,4 @@ Deferred to next milestone. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-04-05*
-*Last updated: 2026-04-05 after initial definition*
+*Last updated: 2026-04-05 — traceability updated to match ROADMAP.md phase numbering (Phases 1-8)*
