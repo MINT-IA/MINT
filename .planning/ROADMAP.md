@@ -43,7 +43,7 @@ Plans:
 **Plans:** 2 plans
 Plans:
 - [x] 02-01-PLAN.md — Create ChatToolDispatcher class + add route_to_screen to WidgetRenderer
-- [ ] 02-02-PLAN.md — Wire dispatcher into CoachChatScreen, remove legacy dispatch + keyword builder
+- [x] 02-02-PLAN.md — Wire dispatcher into CoachChatScreen, remove legacy dispatch + keyword builder
 
 ### Phase 3: Onboarding Pipeline
 **Goal**: A user who selects an intent chip on the onboarding screen receives a personalized premier eclairage with a concrete Swiss-specific number within 3 minutes, and lands on a contextual home screen — not a generic dashboard
