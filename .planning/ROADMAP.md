@@ -70,8 +70,8 @@ Plans:
   3. When the user's salary changes in their profile, the plan's monthly amount updates to reflect the new figure
 **Plans:** 3 plans
 Plans:
-- [ ] 04-01-PLAN.md — FinancialPlan model, persistence service, provider with staleness detection, i18n keys
-- [ ] 04-02-PLAN.md — PlanGenerationService (calculator-backed), PlanPreviewCard (inline chat), WidgetRenderer dispatch, app.dart provider registration
+- [x] 04-01-PLAN.md — FinancialPlan model, persistence service, provider with staleness detection, i18n keys
+- [x] 04-02-PLAN.md — PlanGenerationService (calculator-backed), PlanPreviewCard (inline chat), WidgetRenderer dispatch, app.dart provider registration
 - [ ] 04-03-PLAN.md — FinancialPlanCard on MintHomeScreen with expand/collapse detail and stale state + human verification
 
 ### Phase 5: Suivi & Check-in
