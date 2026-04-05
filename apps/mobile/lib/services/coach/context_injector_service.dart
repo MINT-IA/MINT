@@ -338,6 +338,14 @@ class ContextInjectorService {
       // Graceful degradation: coach works without onboarding context.
     }
 
+    // ── Check-in summary (SUI-04) ─────────────────────────────
+    // Inject last check-in amount so coach can reference it naturally.
+    // T-05-06: Only total CHF included (no contribution breakdown).
+    String checkInBlock = '';
+    if (profile != null) {
+      checkInBlock = ConversationMemoryService.buildCheckInSummary(profile);
+    }
+
     // Build the complete memory block
     final memoryBlock = _buildMemoryBlock(
       lifecycleBlock: lifecycleBlock,
@@ -352,6 +360,7 @@ class ContextInjectorService {
       budgetBlock: budgetBlock,
       enrichmentBlock: enrichmentBlock,
       onboardingBlock: onboardingBlock,
+      checkInBlock: checkInBlock,
     );
 
     return EnrichedContext(
@@ -742,6 +751,7 @@ class ContextInjectorService {
     String budgetBlock = '',
     String enrichmentBlock = '',
     String onboardingBlock = '',
+    String checkInBlock = '',
   }) {
     final parts = <String>[];
 
@@ -789,6 +799,12 @@ class ContextInjectorService {
     if (budgetBlock.isNotEmpty) {
       parts.add('');
       parts.add(budgetBlock);
+    }
+
+    // Check-in summary (SUI-04) — last monthly check-in amount for coach context
+    if (checkInBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(checkInBlock);
     }
 
     // EVI-ranked enrichment priorities (coach should propose these)

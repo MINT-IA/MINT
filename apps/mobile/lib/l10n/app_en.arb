@@ -9866,5 +9866,38 @@
       "days": {"type": "int"},
       "months": {"type": "int"}
     }
-  }
+  },
+  "firstCheckInCardTitle": "Your first check-in",
+  "firstCheckInCardBody": "Do your first monthly check-in to see your progress here.",
+  "checkInCtaButton": "Do my monthly check-in",
+  "checkInCoachOpener": "Hi! Time to check in. How much did you contribute this month to {contribution}?",
+  "@checkInCoachOpener": {
+    "placeholders": {
+      "contribution": {"type": "String"}
+    }
+  },
+  "checkInCoachFollowUp": "And for {nextContribution}?",
+  "@checkInCoachFollowUp": {
+    "placeholders": {
+      "nextContribution": {"type": "String"}
+    }
+  },
+  "checkInCoachMemory": "Last month you contributed {amount}\u00a0CHF — keeping up the momentum?",
+  "@checkInCoachMemory": {
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
+  },
+  "checkInCoachSummary": "Great, {summary}. Noted!",
+  "@checkInCoachSummary": {
+    "placeholders": {
+      "summary": {"type": "String"}
+    }
+  },
+  "checkInErrorNoPlan": "You don't have an active plan yet. Talk to your coach to create one.",
+  "checkInErrorSaveFailed": "Unable to save your check-in. Please try again in a moment.",
+  "adherenceBadgeOnTrack": "On track",
+  "adherenceBadgeProgress": "Can improve",
+  "adherenceBadgeOffTrack": "Needs work",
+  "checkInTotalLabel": "Total contributed"
 }

@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -170,6 +171,29 @@ class ConversationMemoryService {
     final fullText = parts.join(' ');
     // Trim to 500 chars max
     return fullText.length > 500 ? '${fullText.substring(0, 497)}...' : fullText;
+  }
+
+  /// Build a 1-line summary of the last check-in for LLM context injection.
+  ///
+  /// T-05-06 (Info Disclosure mitigation): Only includes total CHF amount
+  /// (integer), no contribution_id or detailed breakdown — minimizes PII
+  /// surface in LLM context.
+  ///
+  /// Returns empty string if no check-ins exist.
+  static String buildCheckInSummary(CoachProfile profile) {
+    if (profile.checkIns.isEmpty) return '';
+    final sorted = profile.checkIns.toList()
+      ..sort((a, b) => b.month.compareTo(a.month));
+    final last = sorted.first;
+    final total = last.totalVersements.round();
+    // Month names in French (non-breaking space before colon per MINT voice)
+    const months = [
+      '', 'janvier', 'f\u00e9vrier', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'ao\u00fbt', 'septembre', 'octobre', 'novembre', 'd\u00e9cembre',
+    ];
+    final monthName = months[last.month.month];
+    final year = last.month.year;
+    return 'Dernier check-in ($monthName $year)\u00a0: $total\u00a0CHF vers\u00e9s au total.';
   }
 
   /// Sanitize a conversation title to prevent prompt injection and PII leaks.
