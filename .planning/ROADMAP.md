@@ -54,8 +54,11 @@ Plans:
   2. IntentScreen selection triggers CapSequenceEngine to generate a relevant first journey sequence — verified by checking CapMemoryStore.activeGoal is set after chip tap
   3. JourneyTrigger connects the selected intent to the correct calculator or insight flow — verified by tracing the complete code path from intent tap to coach first response
   4. Post-onboarding landing screen content reflects the selected intent (not generic) — a firstJob intent lands differently than a housingPurchase intent
-**Plans**: TBD
-**UI hint**: yes
+**Plans:** 3 plans
+Plans:
+- [ ] 03-01-PLAN.md — Create IntentRouter mapping + extend ReportPersistenceService with PremierEclairage persistence
+- [ ] 03-02-PLAN.md — Rewire IntentScreen._onChipTap to use IntentRouter, compute premier eclairage, seed CapMemory
+- [ ] 03-03-PLAN.md — Build PremierEclairageCard widget, insert into MintHomeScreen, add intent-aware coach opener + i18n
 
 ### Phase 4: Plan Generation
 **Goal**: The coach generates a persistent, chiffered financial plan from the user's declared goal — visible outside chat history and adaptive to profile changes
@@ -127,7 +130,7 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 |-------|----------------|--------|-----------|
 | 1. Pre-Refactor Cleanup | 0/3 | Gap closure planned | - |
 | 2. Tool Dispatch | 0/2 | Planned | - |
-| 3. Onboarding Pipeline | 0/? | Not started | - |
+| 3. Onboarding Pipeline | 0/3 | Planned | - |
 | 4. Plan Generation | 0/? | Not started | - |
 | 5. Suivi & Check-in | 0/? | Not started | - |
 | 6. Calculator Wiring | 0/? | Not started | - |
