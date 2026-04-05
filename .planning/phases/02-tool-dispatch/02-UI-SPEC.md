@@ -47,7 +47,6 @@ All values sourced from `MintSpacing` in `apps/mobile/lib/theme/mint_spacing.dar
 Exceptions:
 - Touch targets for tappable cards (RouteSuggestionCard, FactCard CTA): minimum 44px height per iOS HIG accessibility requirement.
 - Coach avatar dot: 24px diameter (established pattern in `CoachMessageBubble`).
-- Bottom spacing below each message bubble: 20px (established pattern in `CoachMessageBubble`).
 
 ---
 
@@ -61,10 +60,10 @@ Phase 2 surfaces in-chat widgets only. Four roles apply:
 |------|------|--------|-------------|------|-------|
 | Body | 16px (bodyLarge) | 400 (regular) | 1.5 | Inter | Coach message text, FactCard body, RouteSuggestionCard context message |
 | Label | 14px (bodyMedium) | 400 (regular) | 1.5 | Inter | Secondary body in widget cards, score gauge sub-labels |
-| Heading | 18px (titleLarge) | 600 (semibold) | 1.3 | Inter | Card section titles, RouteSuggestionCard heading |
+| Heading | 18px (titleLarge) | 700 (bold) | 1.3 | Inter | Card section titles, RouteSuggestionCard heading |
 | Display | 28px (displaySmall) | 700 (bold) | 1.15 | Montserrat | ScoreGauge dominant number, FactCard hero figure |
 
-Weight contract: exactly 2 weights used in this phase — **400 (regular)** and **600/700 (semibold/bold)**. No other weights.
+Weight contract: exactly 2 weights used in this phase — **400 (regular)** for Body and Label, **700 (bold)** for Heading and Display. No other weights.
 
 ---
 
