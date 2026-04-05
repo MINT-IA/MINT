@@ -8043,5 +8043,17 @@
   "settingsAboutSubtitle": "Versi\u00f3n, avisos legales, contacto",
   "pulseLabelMonthlyGap": "Brecha mensual a cubrir",
   "pulseLabelRetirementFree": "Margen libre en la jubilaci\u00f3n",
-  "pulseLabelMonthlyFree": "Margen libre mensual"
+  "pulseLabelMonthlyFree": "Margen libre mensual",
+  "planCard_ctaDetail": "Ver detalles",
+  "planCard_ctaRecalculate": "Recalcular",
+  "planCard_staleBadge": "Perfil modificado \u2014 recalcular",
+  "planCard_goalPrefix": "Mi plan:",
+  "planCard_targetDate": "Objetivo: {date}",
+  "planCard_milestonesHeading": "Hitos trimestrales",
+  "planCard_progressCaption": "{percent}\u00a0% alcanzado",
+  "planCard_confidenceBands": "Bajo: {low} CHF  |  Medio: {mid} CHF  |  Alto: {high} CHF",
+  "planCard_ctaHide": "Ocultar detalles",
+  "planCard_disclaimer": "Herramienta educativa \u2014 no constituye asesoramiento financiero. Fuentes: LIFD art. 38, LPP art. 14.",
+  "planCard_errorBody": "No se pudo generar el plan. Intenta describir tu objetivo al coach de nuevo.",
+  "planCard_recalculatePrompt": "Recalcular mi plan: {goalDescription}"
 }

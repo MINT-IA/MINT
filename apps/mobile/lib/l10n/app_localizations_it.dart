@@ -18355,4 +18355,50 @@ class SIt extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margine libero mensile';
+
+  @override
+  String get planCard_ctaDetail => 'Vedi dettagli';
+
+  @override
+  String get planCard_ctaRecalculate => 'Ricalcola';
+
+  @override
+  String get planCard_staleBadge => 'Profilo modificato — ricalcola';
+
+  @override
+  String get planCard_goalPrefix => 'Il mio piano:';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Obiettivo: $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Traguardi trimestrali';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent % raggiunto';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Basso: $low CHF  |  Medio: $mid CHF  |  Alto: $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Nascondi dettagli';
+
+  @override
+  String get planCard_disclaimer =>
+      'Strumento educativo — non costituisce consulenza finanziaria (LSerFi). Fonti: LIFD art. 38, LPP art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'Impossibile generare il piano. Riprova descrivendo il tuo obiettivo al coach.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Ricalcola il mio piano: $goalDescription';
+  }
 }

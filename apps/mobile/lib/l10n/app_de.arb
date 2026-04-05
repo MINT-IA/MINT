@@ -8258,5 +8258,17 @@
   "settingsAboutSubtitle": "Version, rechtliche Hinweise, Kontakt",
   "pulseLabelMonthlyGap": "Monatliche L\u00fccke zu schliessen",
   "pulseLabelRetirementFree": "Freie Marge im Ruhestand",
-  "pulseLabelMonthlyFree": "Monatliche freie Marge"
+  "pulseLabelMonthlyFree": "Monatliche freie Marge",
+  "planCard_ctaDetail": "Details anzeigen",
+  "planCard_ctaRecalculate": "Neu berechnen",
+  "planCard_staleBadge": "Profil ge\u00e4ndert \u2014 neu berechnen",
+  "planCard_goalPrefix": "Mein Plan:",
+  "planCard_targetDate": "Ziel: {date}",
+  "planCard_milestonesHeading": "Vierteljahres-Meilensteine",
+  "planCard_progressCaption": "{percent}\u00a0% erreicht",
+  "planCard_confidenceBands": "Tief: {low} CHF  |  Mittel: {mid} CHF  |  Hoch: {high} CHF",
+  "planCard_ctaHide": "Details ausblenden",
+  "planCard_disclaimer": "Bildungstool \u2014 keine Finanzberatung (FIDLEG). Quellen: DBG Art. 38, BVG Art. 14.",
+  "planCard_errorBody": "Der Plan konnte nicht erstellt werden. Beschreibe dem Coach dein Ziel erneut.",
+  "planCard_recalculatePrompt": "Meinen Plan neu berechnen: {goalDescription}"
 }

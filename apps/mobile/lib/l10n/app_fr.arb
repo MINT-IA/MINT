@@ -8582,5 +8582,55 @@
   "settingsAboutSubtitle": "Version, mentions l\u00e9gales, contact",
   "pulseLabelMonthlyGap": "\u00c9cart mensuel \u00e0 combler",
   "pulseLabelRetirementFree": "Marge libre \u00e0 la retraite",
-  "pulseLabelMonthlyFree": "Marge libre mensuelle"
+  "pulseLabelMonthlyFree": "Marge libre mensuelle",
+  "planCard_ctaDetail": "Voir le d\u00e9tail",
+  "planCard_ctaRecalculate": "Recalculer",
+  "planCard_staleBadge": "Profil modifi\u00e9 \u2014 recalculer",
+  "planCard_goalPrefix": "Mon plan\u00a0:",
+  "planCard_targetDate": "Objectif\u00a0: {date}",
+  "@planCard_targetDate": {
+    "description": "Target date label on the plan card",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "planCard_milestonesHeading": "Jalons trimestriels",
+  "planCard_progressCaption": "{percent}\u00a0% atteint",
+  "@planCard_progressCaption": {
+    "description": "Progress percentage caption on plan card",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "planCard_confidenceBands": "Bas\u00a0: {low} CHF  |  Moyen\u00a0: {mid} CHF  |  Haut\u00a0: {high} CHF",
+  "@planCard_confidenceBands": {
+    "description": "Confidence band range on plan card",
+    "placeholders": {
+      "low": {
+        "type": "String"
+      },
+      "mid": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
+    }
+  },
+  "planCard_ctaHide": "Masquer le d\u00e9tail",
+  "planCard_disclaimer": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin). Sources\u00a0: LIFD art.\u00a038, LPP art.\u00a014.",
+  "planCard_errorBody": "Impossible de g\u00e9n\u00e9rer le plan. R\u00e9essaie en d\u00e9crivant ton objectif au coach.",
+  "planCard_recalculatePrompt": "Recalcule mon plan\u00a0: {goalDescription}",
+  "@planCard_recalculatePrompt": {
+    "description": "Prompt sent to coach to recalculate the plan",
+    "placeholders": {
+      "goalDescription": {
+        "type": "String"
+      }
+    }
+  }
 }

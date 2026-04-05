@@ -7960,5 +7960,17 @@
   "settingsAboutSubtitle": "Versione, note legali, contatto",
   "pulseLabelMonthlyGap": "Divario mensile da colmare",
   "pulseLabelRetirementFree": "Margine libero in pensione",
-  "pulseLabelMonthlyFree": "Margine libero mensile"
+  "pulseLabelMonthlyFree": "Margine libero mensile",
+  "planCard_ctaDetail": "Vedi dettagli",
+  "planCard_ctaRecalculate": "Ricalcola",
+  "planCard_staleBadge": "Profilo modificato \u2014 ricalcola",
+  "planCard_goalPrefix": "Il mio piano:",
+  "planCard_targetDate": "Obiettivo: {date}",
+  "planCard_milestonesHeading": "Traguardi trimestrali",
+  "planCard_progressCaption": "{percent}\u00a0% raggiunto",
+  "planCard_confidenceBands": "Basso: {low} CHF  |  Medio: {mid} CHF  |  Alto: {high} CHF",
+  "planCard_ctaHide": "Nascondi dettagli",
+  "planCard_disclaimer": "Strumento educativo \u2014 non costituisce consulenza finanziaria (LSerFi). Fonti: LIFD art. 38, LPP art. 14.",
+  "planCard_errorBody": "Impossibile generare il piano. Riprova descrivendo il tuo obiettivo al coach.",
+  "planCard_recalculatePrompt": "Ricalcola il mio piano: {goalDescription}"
 }

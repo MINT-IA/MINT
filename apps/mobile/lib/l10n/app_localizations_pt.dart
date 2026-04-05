@@ -18285,4 +18285,50 @@ class SPt extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margem livre mensal';
+
+  @override
+  String get planCard_ctaDetail => 'Ver detalhes';
+
+  @override
+  String get planCard_ctaRecalculate => 'Recalcular';
+
+  @override
+  String get planCard_staleBadge => 'Perfil alterado — recalcular';
+
+  @override
+  String get planCard_goalPrefix => 'Meu plano:';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Objetivo: $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Marcos trimestrais';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent % atingido';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Baixo: $low CHF  |  Médio: $mid CHF  |  Alto: $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Ocultar detalhes';
+
+  @override
+  String get planCard_disclaimer =>
+      'Ferramenta educativa — não constitui aconselhamento financeiro. Fontes: LIFD art. 38, LPP art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'Não foi possível gerar o plano. Tente descrever o seu objetivo ao coach novamente.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Recalcular o meu plano: $goalDescription';
+  }
 }

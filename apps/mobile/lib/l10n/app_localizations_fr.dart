@@ -18334,4 +18334,50 @@ class SFr extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Marge libre mensuelle';
+
+  @override
+  String get planCard_ctaDetail => 'Voir le détail';
+
+  @override
+  String get planCard_ctaRecalculate => 'Recalculer';
+
+  @override
+  String get planCard_staleBadge => 'Profil modifié — recalculer';
+
+  @override
+  String get planCard_goalPrefix => 'Mon plan :';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Objectif : $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Jalons trimestriels';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent % atteint';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Bas : $low CHF  |  Moyen : $mid CHF  |  Haut : $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Masquer le détail';
+
+  @override
+  String get planCard_disclaimer =>
+      'Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LIFD art. 38, LPP art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'Impossible de générer le plan. Réessaie en décrivant ton objectif au coach.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Recalcule mon plan : $goalDescription';
+  }
 }

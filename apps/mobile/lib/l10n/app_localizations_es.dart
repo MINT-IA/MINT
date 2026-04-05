@@ -18338,4 +18338,50 @@ class SEs extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Margen libre mensual';
+
+  @override
+  String get planCard_ctaDetail => 'Ver detalles';
+
+  @override
+  String get planCard_ctaRecalculate => 'Recalcular';
+
+  @override
+  String get planCard_staleBadge => 'Perfil modificado — recalcular';
+
+  @override
+  String get planCard_goalPrefix => 'Mi plan:';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Objetivo: $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Hitos trimestrales';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent % alcanzado';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Bajo: $low CHF  |  Medio: $mid CHF  |  Alto: $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Ocultar detalles';
+
+  @override
+  String get planCard_disclaimer =>
+      'Herramienta educativa — no constituye asesoramiento financiero. Fuentes: LIFD art. 38, LPP art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'No se pudo generar el plan. Intenta describir tu objetivo al coach de nuevo.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Recalcular mi plan: $goalDescription';
+  }
 }

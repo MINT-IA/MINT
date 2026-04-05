@@ -7960,5 +7960,17 @@
   "settingsAboutSubtitle": "Vers\u00e3o, avisos legais, contacto",
   "pulseLabelMonthlyGap": "Lacuna mensal a preencher",
   "pulseLabelRetirementFree": "Margem livre na reforma",
-  "pulseLabelMonthlyFree": "Margem livre mensal"
+  "pulseLabelMonthlyFree": "Margem livre mensal",
+  "planCard_ctaDetail": "Ver detalhes",
+  "planCard_ctaRecalculate": "Recalcular",
+  "planCard_staleBadge": "Perfil alterado \u2014 recalcular",
+  "planCard_goalPrefix": "Meu plano:",
+  "planCard_targetDate": "Objetivo: {date}",
+  "planCard_milestonesHeading": "Marcos trimestrais",
+  "planCard_progressCaption": "{percent}\u00a0% atingido",
+  "planCard_confidenceBands": "Baixo: {low} CHF  |  M\u00e9dio: {mid} CHF  |  Alto: {high} CHF",
+  "planCard_ctaHide": "Ocultar detalhes",
+  "planCard_disclaimer": "Ferramenta educativa \u2014 n\u00e3o constitui aconselhamento financeiro. Fontes: LIFD art. 38, LPP art. 14.",
+  "planCard_errorBody": "N\u00e3o foi poss\u00edvel gerar o plano. Tente descrever o seu objetivo ao coach novamente.",
+  "planCard_recalculatePrompt": "Recalcular o meu plano: {goalDescription}"
 }

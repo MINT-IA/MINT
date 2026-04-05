@@ -32524,6 +32524,78 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Marge libre mensuelle'**
   String get pulseLabelMonthlyFree;
+
+  /// No description provided for @planCard_ctaDetail.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le détail'**
+  String get planCard_ctaDetail;
+
+  /// No description provided for @planCard_ctaRecalculate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recalculer'**
+  String get planCard_ctaRecalculate;
+
+  /// No description provided for @planCard_staleBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil modifié — recalculer'**
+  String get planCard_staleBadge;
+
+  /// No description provided for @planCard_goalPrefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon plan :'**
+  String get planCard_goalPrefix;
+
+  /// Target date label on the plan card
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif : {date}'**
+  String planCard_targetDate(String date);
+
+  /// No description provided for @planCard_milestonesHeading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jalons trimestriels'**
+  String get planCard_milestonesHeading;
+
+  /// Progress percentage caption on plan card
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % atteint'**
+  String planCard_progressCaption(String percent);
+
+  /// Confidence band range on plan card
+  ///
+  /// In fr, this message translates to:
+  /// **'Bas : {low} CHF  |  Moyen : {mid} CHF  |  Haut : {high} CHF'**
+  String planCard_confidenceBands(String low, String mid, String high);
+
+  /// No description provided for @planCard_ctaHide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer le détail'**
+  String get planCard_ctaHide;
+
+  /// No description provided for @planCard_disclaimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LIFD art. 38, LPP art. 14.'**
+  String get planCard_disclaimer;
+
+  /// No description provided for @planCard_errorBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de générer le plan. Réessaie en décrivant ton objectif au coach.'**
+  String get planCard_errorBody;
+
+  /// Prompt sent to coach to recalculate the plan
+  ///
+  /// In fr, this message translates to:
+  /// **'Recalcule mon plan : {goalDescription}'**
+  String planCard_recalculatePrompt(String goalDescription);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

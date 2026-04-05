@@ -18249,4 +18249,50 @@ class SEn extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Monthly free margin';
+
+  @override
+  String get planCard_ctaDetail => 'View details';
+
+  @override
+  String get planCard_ctaRecalculate => 'Recalculate';
+
+  @override
+  String get planCard_staleBadge => 'Profile changed — recalculate';
+
+  @override
+  String get planCard_goalPrefix => 'My plan:';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Target: $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Quarterly milestones';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent% reached';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Low: $low CHF  |  Mid: $mid CHF  |  High: $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Hide details';
+
+  @override
+  String get planCard_disclaimer =>
+      'Educational tool — not financial advice (FinSA). Sources: LIFD art. 38, LPP art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'Could not generate the plan. Try describing your goal to the coach again.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Recalculate my plan: $goalDescription';
+  }
 }

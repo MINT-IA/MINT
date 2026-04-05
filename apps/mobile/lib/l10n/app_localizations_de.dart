@@ -18360,4 +18360,50 @@ class SDe extends S {
 
   @override
   String get pulseLabelMonthlyFree => 'Monatliche freie Marge';
+
+  @override
+  String get planCard_ctaDetail => 'Details anzeigen';
+
+  @override
+  String get planCard_ctaRecalculate => 'Neu berechnen';
+
+  @override
+  String get planCard_staleBadge => 'Profil geändert — neu berechnen';
+
+  @override
+  String get planCard_goalPrefix => 'Mein Plan:';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Ziel: $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Vierteljahres-Meilensteine';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent % erreicht';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Tief: $low CHF  |  Mittel: $mid CHF  |  Hoch: $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Details ausblenden';
+
+  @override
+  String get planCard_disclaimer =>
+      'Bildungstool — keine Finanzberatung (FIDLEG). Quellen: DBG Art. 38, BVG Art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'Der Plan konnte nicht erstellt werden. Beschreibe dem Coach dein Ziel erneut.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Meinen Plan neu berechnen: $goalDescription';
+  }
 }

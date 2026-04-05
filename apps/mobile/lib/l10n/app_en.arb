@@ -8288,5 +8288,17 @@
   "settingsAboutSubtitle": "Version, legal notices, contact",
   "pulseLabelMonthlyGap": "Monthly gap to close",
   "pulseLabelRetirementFree": "Free margin at retirement",
-  "pulseLabelMonthlyFree": "Monthly free margin"
+  "pulseLabelMonthlyFree": "Monthly free margin",
+  "planCard_ctaDetail": "View details",
+  "planCard_ctaRecalculate": "Recalculate",
+  "planCard_staleBadge": "Profile changed \u2014 recalculate",
+  "planCard_goalPrefix": "My plan:",
+  "planCard_targetDate": "Target: {date}",
+  "planCard_milestonesHeading": "Quarterly milestones",
+  "planCard_progressCaption": "{percent}% reached",
+  "planCard_confidenceBands": "Low: {low} CHF  |  Mid: {mid} CHF  |  High: {high} CHF",
+  "planCard_ctaHide": "Hide details",
+  "planCard_disclaimer": "Educational tool \u2014 not financial advice (FinSA). Sources: LIFD art. 38, LPP art. 14.",
+  "planCard_errorBody": "Could not generate the plan. Try describing your goal to the coach again.",
+  "planCard_recalculatePrompt": "Recalculate my plan: {goalDescription}"
 }
