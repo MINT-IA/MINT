@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
@@ -8,7 +7,7 @@ import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
 // ────────────────────────────────────────────────────────────
-//  WIDGET RENDERER — S56 (restored + adapted)
+//  WIDGET RENDERER — S56 (restored + adapted for RagToolCall)
 // ────────────────────────────────────────────────────────────
 //
 //  Transforms a RagToolCall (from Claude tool_use) into a Flutter
@@ -92,12 +91,11 @@ class WidgetRenderer {
 
   static Widget _buildRetirementComparison(
       BuildContext context, Map<String, dynamic> p) {
-    final l = S.of(context);
     return ChatComparisonCard(
-      title: l?.widgetRetirementTitle ?? 'Ton aper\u00e7u retraite',
-      leftLabel: l?.widgetRetirementToday ?? 'Aujourd\u2019hui',
+      title: 'Ton aper\u00e7u retraite',
+      leftLabel: 'Aujourd\u2019hui',
       leftValue: 'CHF\u00a0${_fmt(p['today_monthly'])}/mois',
-      rightLabel: l?.widgetRetirementFuture ?? '\u00c0 la retraite',
+      rightLabel: '\u00c0 la retraite',
       rightValue: 'CHF\u00a0${_fmt(p['retirement_monthly'])}/mois',
       leftAmount: (p['today_monthly'] as num?)?.toDouble() ?? 0,
       rightAmount: (p['retirement_monthly'] as num?)?.toDouble() ?? 0,
@@ -108,12 +106,11 @@ class WidgetRenderer {
 
   static Widget _buildBudgetOverview(
       BuildContext context, Map<String, dynamic> p) {
-    final l = S.of(context);
     return ChatComparisonCard(
-      title: l?.widgetBudgetTitle ?? 'Ton budget',
-      leftLabel: l?.widgetBudgetIncome ?? 'Revenus',
+      title: 'Ton budget',
+      leftLabel: 'Revenus',
       leftValue: 'CHF\u00a0${_fmt(p['income_monthly'])}/mois',
-      rightLabel: l?.widgetBudgetExpenses ?? 'D\u00e9penses',
+      rightLabel: 'D\u00e9penses',
       rightValue: 'CHF\u00a0${_fmt(p['expenses_monthly'])}/mois',
       leftAmount: (p['income_monthly'] as num?)?.toDouble() ?? 0,
       rightAmount: (p['expenses_monthly'] as num?)?.toDouble() ?? 0,
@@ -125,7 +122,7 @@ class WidgetRenderer {
   static Widget _buildScoreGauge(
       BuildContext context, Map<String, dynamic> p) {
     return ChatGaugeCard(
-      title: p['title'] as String? ?? S.of(context)?.widgetScoreFallback ?? 'Score',
+      title: p['title'] as String? ?? 'Score',
       value: (p['value'] as num?)?.toDouble() ?? 0,
       maxValue: (p['max_value'] as num?)?.toDouble() ?? 100,
       valueLabel: p['label'] as String? ?? '\u2014',
@@ -166,13 +163,12 @@ class WidgetRenderer {
     final p3a = (p['pillar_3a_monthly'] as num?)?.toDouble() ?? 0;
     final total = avs + lpp + p3a;
 
-    final l = S.of(context);
     return ChatComparisonCard(
-      title: l?.widgetPillarTitle ?? 'Tes 3 piliers',
-      leftLabel: l?.widgetPillarAvsLpp ?? 'AVS + LPP',
+      title: 'Tes 3 piliers',
+      leftLabel: 'AVS + LPP',
       leftValue: 'CHF\u00a0${_fmt(avs + lpp)}/mois',
-      rightLabel: l?.widgetPillar3a ?? '3e pilier',
-      rightValue: p3a > 0 ? 'CHF\u00a0${_fmt(p3a)}/mois' : (l?.widgetPillarNotDeclared ?? 'Non d\u00e9clar\u00e9'),
+      rightLabel: '3e pilier',
+      rightValue: p3a > 0 ? 'CHF\u00a0${_fmt(p3a)}/mois' : 'Non d\u00e9clar\u00e9',
       leftAmount: avs + lpp,
       rightAmount: p3a > 0 ? p3a : total * 0.1,
       narrative: p['narrative'] as String?,
@@ -214,22 +210,20 @@ class WidgetRenderer {
     final leverNow = p['lever_now'] as String?;
     final leverLater = p['lever_later'] as String?;
 
-    final l = S.of(context);
-
     if (retirementFree != null) {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ChatComparisonCard(
-            title: l?.budgetSnapshotTitle ?? 'Ton budget vivant',
-            leftLabel: l?.budgetSnapshotPresentLabel ?? 'Libre aujourd\u2019hui',
+            title: 'Ton budget vivant',
+            leftLabel: 'Libre aujourd\u2019hui',
             leftValue: 'CHF\u00a0${_fmt(presentFree)}/mois',
-            rightLabel: l?.budgetSnapshotRetirementLabel ?? 'Libre retraite',
+            rightLabel: 'Libre retraite',
             rightValue: 'CHF\u00a0${_fmt(retirementFree)}/mois',
             leftAmount: presentFree,
             rightAmount: retirementFree,
             narrative: gap != null
-                ? '${l?.budgetSnapshotGapLabel ?? "\u00c9cart"}\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
+                ? '\u00c9cart\u00a0: CHF\u00a0${_fmt(gap.abs())}/mois'
                 : narrative,
             onTap: () => context.push('/retraite'),
           ),
@@ -237,18 +231,18 @@ class WidgetRenderer {
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ChatFactCard(
-                eyebrow: l?.budgetSnapshotConfidenceLabel ?? 'Fiabilit\u00e9',
+                eyebrow: 'Fiabilit\u00e9',
                 value: '$confidence\u00a0%',
                 description: confidence < 50
-                    ? (l?.budgetSnapshotConfidenceLow ?? 'Ajoute des donn\u00e9es pour affiner.')
-                    : (l?.budgetSnapshotConfidenceOk ?? 'Estimation cr\u00e9dible.'),
+                    ? 'Ajoute des donn\u00e9es pour affiner.'
+                    : 'Estimation cr\u00e9dible.',
               ),
             ),
           if (leverNow != null || leverLater != null)
             Padding(
               padding: const EdgeInsets.only(top: 8),
               child: ChatFactCard(
-                eyebrow: l?.budgetSnapshotLeverLabel ?? 'Levier',
+                eyebrow: 'Levier',
                 value: leverNow ?? leverLater ?? '',
                 description: leverLater != null && leverNow != null
                     ? leverLater
@@ -260,9 +254,9 @@ class WidgetRenderer {
     }
 
     return ChatFactCard(
-      eyebrow: l?.widgetBudgetLabel ?? 'Budget',
+      eyebrow: 'Budget',
       value: 'CHF\u00a0${_fmt(presentFree)}/mois',
-      description: narrative ?? (l?.budgetSnapshotFreeLabel ?? 'Ton libre mensuel'),
+      description: narrative ?? 'Ton libre mensuel',
       onTap: () => context.push('/budget'),
     );
   }
@@ -300,7 +294,7 @@ class WidgetRenderer {
       case 'salary':
       case 'salaireBrut':
         return ChatAmountInput(
-          label: message ?? S.of(context)?.onboardingSmartSalaryLabel ?? S.of(context)?.widgetInputSalaryFallback ?? 'Salary',
+          label: message ?? 'Ton revenu brut annuel',
           onSubmitted: (amount) {
             onInputSubmitted?.call('salaireBrut', '${amount.round()}');
           },
@@ -308,7 +302,7 @@ class WidgetRenderer {
 
       case 'avoirLpp':
         return ChatAmountInput(
-          label: message ?? S.of(context)?.widgetInputLppLabel ?? 'Avoir LPP (CHF)',
+          label: message ?? 'Avoir LPP (CHF)',
           onSubmitted: (amount) {
             onInputSubmitted?.call('avoirLpp', '${amount.round()}');
           },
@@ -316,7 +310,7 @@ class WidgetRenderer {
 
       case 'epargne3a':
         return ChatAmountInput(
-          label: message ?? S.of(context)?.widgetInput3aLabel ?? '\u00c9pargne 3a (CHF)',
+          label: message ?? '\u00c9pargne 3a (CHF)',
           onSubmitted: (amount) {
             onInputSubmitted?.call('epargne3a', '${amount.round()}');
           },

@@ -23,8 +23,8 @@ class ChatToolDispatcher {
 
   /// Maximum number of tool calls allowed per LLM response.
   ///
-  /// Mirrors the cap in CoachChatScreen._executeToolCalls (D-02).
   /// Prevents LLM flooding the message bubble with excessive widgets.
+  /// T-02-07 DoS mitigation — caps both SLM and BYOK paths.
   static const _maxToolCallsPerResponse = 5;
 
   /// Normalizes a list of [ParsedToolCall] (SLM text-marker path) to

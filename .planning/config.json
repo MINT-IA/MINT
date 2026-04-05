@@ -1,5 +1,20 @@
 {
   "workflow": {
+    "research": true,
+    "plan_check": true,
+    "verifier": true,
+    "nyquist_validation": true,
+    "ui_phase": true,
+    "ui_safety_gate": false,
+    "skip_discuss_autonomous": true,
+    "context_warnings": false,
+    "research_questions": false,
+    "use_worktrees": true,
+    "discuss_mode": "assumptions",
     "_auto_chain_active": false
+  },
+  "model_profile": "balanced",
+  "git": {
+    "branching_strategy": "none"
   }
 }

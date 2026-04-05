@@ -42,7 +42,7 @@ Plans:
   4. ChatToolDispatcher exists as a distinct class, parses tool markers from every CoachResponse, and dispatches to the appropriate UI handler
 **Plans:** 2 plans
 Plans:
-- [ ] 02-01-PLAN.md — Create ChatToolDispatcher class + add route_to_screen to WidgetRenderer
+- [x] 02-01-PLAN.md — Create ChatToolDispatcher class + add route_to_screen to WidgetRenderer
 - [ ] 02-02-PLAN.md — Wire dispatcher into CoachChatScreen, remove legacy dispatch + keyword builder
 
 ### Phase 3: Onboarding Pipeline
