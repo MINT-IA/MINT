@@ -57,15 +57,14 @@ Exceptions:
 
 All styles use `MintTextStyles.*` — do not call `GoogleFonts.montserrat/inter` directly.
 
+Exactly 4 sizes. Exactly 2 weights. Hierarchy expressed via size and color — not additional weights.
+
 | Role | Dart method | Size | Font | Weight | Line Height | Phase 4 usage |
 |------|-------------|------|------|--------|-------------|---------------|
 | Hero number | `MintTextStyles.displayMedium()` | 32px | Montserrat | w700 | 1.15 | Monthly target CHF amount on FinancialPlanCard |
-| Section heading | `MintTextStyles.headlineMedium()` | 22px | Montserrat | w600 | 1.2 | Not used in this phase |
-| Card label | `MintTextStyles.titleMedium()` | 16px | Inter | w600 | 1.3 | "Mon plan", goal description heading |
-| Body text | `MintTextStyles.bodyLarge()` | 16px | Inter | w400 | 1.5 | Coach narrative text in PlanPreviewCard |
-| Secondary body | `MintTextStyles.bodyMedium()` | 14px | Inter | w400 | 1.5 | Milestone labels, target date label |
-| Caption / meta | `MintTextStyles.bodySmall()` | 13px | Inter | w500 | 1.4 | "Généré le…", stale badge text |
-| Disclaimer | `MintTextStyles.micro()` | 10px | Inter | w400i | 1.3 | LSFin disclaimer in PlanPreviewCard footer |
+| Card label / body | `MintTextStyles.titleMedium()` / `MintTextStyles.bodyLarge()` | 16px | Inter | w400 | 1.5 | "Mon plan", goal description heading, coach narrative text in PlanPreviewCard |
+| Secondary body | `MintTextStyles.bodyMedium()` | 14px | Inter | w400 | 1.5 | Milestone labels, target date label, "Jalons" heading, milestone percentage labels, stale badge text |
+| Disclaimer | `MintTextStyles.micro()` | 10px | Inter | w400i | 1.3 | LSFin disclaimer in PlanPreviewCard footer, confidence bands row |
 
 Rule: Maximum 4 type sizes visible simultaneously on a single card surface.
 
@@ -94,7 +93,7 @@ All values reference `MintColors.*` — NEVER hardcode hex. See `lib/theme/color
 Accent (`MintColors.primary`) is reserved for:
 1. "Voir le détail" — outline button CTA on FinancialPlanCard
 2. "Recalculer" — text button in stale state
-3. Milestone percentage labels (bold, not buttons)
+3. Milestone percentage labels (size/color contrast only — no weight distinction)
 
 Accent is NOT used on: card backgrounds, section headers, progress bars, narrative text.
 
@@ -125,15 +124,15 @@ Container:
   padding: MintSpacing.md (16px) all sides
 
 Layout (top to bottom):
-  Row: [goal label (titleMedium, textSecondary)] [stale badge if stale]
+  Row: [goal label (titleMedium w400, textSecondary)] [stale badge if stale]
   SizedBox: MintSpacing.xs (4px)
-  Text: monthly target CHF (displayMedium, textPrimary) — e.g. "850 CHF / mois"
+  Text: monthly target CHF (displayMedium w700, textPrimary) — e.g. "850 CHF / mois"
   SizedBox: MintSpacing.sm (8px)
-  Text: target date (bodyMedium, textMuted) — e.g. "Objectif: avril 2028"
+  Text: target date (bodyMedium w400, textMuted) — e.g. "Objectif: avril 2028"
   SizedBox: MintSpacing.md (16px)
   LinearProgressIndicator: height 6px, value 0.0 (no check-ins yet)
   SizedBox: MintSpacing.sm (8px)
-  Row: [caption "0% atteint"] [Spacer] [TextButton "Voir le détail"]
+  Row: [caption "0% atteint" (bodyMedium w400, textMuted)] [Spacer] [TextButton "Voir le détail"]
 ```
 
 Stale state: amber badge ("Profil modifié — recalculer") replaces goal label suffix. "Recalculer" replaces "Voir le détail" as the CTA.
@@ -149,22 +148,22 @@ Container:
   padding: MintSpacing.md (16px)
 
 Layout (top to bottom):
-  Text: goal description (titleMedium, textPrimary) — e.g. "Acheter un appartement en 2028"
+  Text: goal description (titleMedium w400, textPrimary) — e.g. "Acheter un appartement en 2028"
   SizedBox: MintSpacing.sm (8px)
-  Text: monthly target (displayMedium, textPrimary) — e.g. "850 CHF / mois"
+  Text: monthly target (displayMedium w700, textPrimary) — e.g. "850 CHF / mois"
   SizedBox: MintSpacing.md (16px)
   Divider: MintColors.border at 0.5 alpha
   SizedBox: MintSpacing.sm (8px)
-  Text: "Jalons" label (bodySmall, textMuted, w600)
+  Text: "Jalons" label (bodyMedium w400, textMuted)
   SizedBox: MintSpacing.xs (4px)
-  ListView: 4 milestone rows (date + target CHF + description) — bodyMedium, textSecondary
+  ListView: 4 milestone rows (date + target CHF + description) — bodyMedium w400, textSecondary
   SizedBox: MintSpacing.md (16px)
-  Text: coach narrative (bodyLarge, textSecondary) — 2-3 sentences max
+  Text: coach narrative (bodyLarge w400, textSecondary) — 2-3 sentences max
   SizedBox: MintSpacing.md (16px)
-  Text: disclaimer (micro, textMuted, italic) — "Outil éducatif — ne constitue pas un conseil. Sources: LIFD art. 38, LPP art. 14."
+  Text: disclaimer (micro w400i, textMuted) — "Outil éducatif — ne constitue pas un conseil. Sources: LIFD art. 38, LPP art. 14."
 ```
 
-Monte Carlo confidence: show low/mid/high as 3 small text values below the monthly amount — bodySmall, using `MintColors.trajectoryPrudent` / `MintColors.trajectoryBase` / `MintColors.trajectoryOptimiste`.
+Monte Carlo confidence: show low/mid/high as 3 small text values below the monthly amount — micro style (10px w400i), using `MintColors.trajectoryPrudent` / `MintColors.trajectoryBase` / `MintColors.trajectoryOptimiste`.
 
 ### Plan Detail View (expandable section — Claude's Discretion choice)
 
@@ -174,12 +173,12 @@ Implement as an expandable section within MintHomeScreen (not a new route), usin
 When expanded, insert below FinancialPlanCard:
   Container: same card style as FinancialPlanCard
   Layout:
-    Text: "Jalons trimestriels" (titleMedium, textSecondary)
-    4 milestone rows: [Q date (bodyMedium, textMuted)] [CHF target (bodyMedium, textPrimary, w600)] [description (bodySmall, textMuted)]
+    Text: "Jalons trimestriels" (titleMedium w400, textSecondary)
+    4 milestone rows: [Q date (bodyMedium w400, textMuted)] [CHF target (bodyMedium w400, textPrimary)] [description (bodyMedium w400, textMuted)]
     SizedBox: MintSpacing.md
-    Text: confidence bands row (bodySmall): "Bas: X CHF | Moyen: Y CHF | Haut: Z CHF"
+    Text: confidence bands row (micro w400i): "Bas: X CHF | Moyen: Y CHF | Haut: Z CHF"
     SizedBox: MintSpacing.sm
-    Text: disclaimer (micro, textMuted, italic)
+    Text: disclaimer (micro w400i, textMuted)
 ```
 
 ---
@@ -279,7 +278,7 @@ This phase is Flutter (Dart) — shadcn registry is not applicable. No third-par
 |---------|--------|-------|
 | Design system (fonts, colors, spacing) | `lib/theme/colors.dart`, `mint_text_styles.dart`, `mint_spacing.dart` | All tokens already exist in codebase |
 | Screen category rules | `docs/DESIGN_SYSTEM.md` §2 | FinancialPlanCard = category A insertion, PlanPreviewCard = Coach Screens rules |
-| Typography sizes and weights | `docs/DESIGN_SYSTEM.md` §3.1 | Exact values taken from token table |
+| Typography sizes and weights | `docs/DESIGN_SYSTEM.md` §3.1 | Revised to 4 sizes (32, 16, 14, 10) and 2 weights (w700 + w400) per checker feedback |
 | Spacing values | `docs/DESIGN_SYSTEM.md` §3.3 | MintSpacing.* verified against mint_spacing.dart |
 | Component structure (card) | `plan_reality_card.dart` (existing Phase 5 card) | FinancialPlanCard follows same elevation-0 + radius-16 pattern |
 | Color usage rules | `docs/DESIGN_SYSTEM.md` §3.2 | No new colors introduced — all reuse existing MintColors tokens |

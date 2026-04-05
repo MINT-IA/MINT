@@ -9838,5 +9838,21 @@
   "coachOpenerIntentFiscalite": "Estás interessado nos teus impostos\u00a0— aqui está o que o MINT encontrou para ti.",
   "coachOpenerIntentProjet": "Tens um projeto imobiliário\u00a0— aqui está o que o MINT encontrou para ti.",
   "coachOpenerIntentChangement": "Estás a viver uma mudança de vida\u00a0— aqui está o que o MINT encontrou para ti.",
-  "coachOpenerIntentAutre": "Bem-vindo\u00a0— é assim que o MINT te pode ajudar."
+  "coachOpenerIntentAutre": "Bem-vindo\u00a0— é assim que o MINT te pode ajudar.",
+  "planCard_ctaDetail": "Ver detalhe",
+  "planCard_ctaRecalculate": "Recalcular",
+  "planCard_staleBadge": "Perfil modificado — recalcular",
+  "planCard_goalPrefix": "O meu plano\u00a0:",
+  "planCard_targetDate": "Objetivo\u00a0: {date}",
+  "@planCard_targetDate": {"placeholders": {"date": {"type": "String"}}},
+  "planCard_milestonesHeading": "Marcos trimestrais",
+  "planCard_progressCaption": "{percent}\u00a0% atingido",
+  "@planCard_progressCaption": {"placeholders": {"percent": {"type": "String"}}},
+  "planCard_confidenceBands": "Baixo\u00a0: {low} CHF  |  Médio\u00a0: {mid} CHF  |  Alto\u00a0: {high} CHF",
+  "@planCard_confidenceBands": {"placeholders": {"low": {"type": "String"}, "mid": {"type": "String"}, "high": {"type": "String"}}},
+  "planCard_ctaHide": "Ocultar detalhe",
+  "planCard_disclaimer": "Ferramenta educativa — não constitui aconselhamento financeiro (LSFin). Fontes\u00a0: LIFD art.\u00a038, LPP art.\u00a014.",
+  "planCard_errorBody": "Impossível gerar o plano. Tenta novamente descrevendo o teu objetivo ao coach.",
+  "planCard_recalculatePrompt": "Recalcula o meu plano\u00a0: {goalDescription}",
+  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}}
 }

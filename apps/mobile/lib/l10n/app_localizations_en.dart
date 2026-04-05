@@ -3300,10 +3300,7 @@ class SEn extends S {
 
   @override
   String jobCompareRetirementBody(
-    String betterJob,
-    String annualDelta,
-    String monthlyDelta,
-  ) {
+      String betterJob, String annualDelta, String monthlyDelta) {
     return '$betterJob is worth $annualDelta/year more in life annuity, i.e. $monthlyDelta/month FOR LIFE after retirement.';
   }
 
@@ -5351,10 +5348,7 @@ class SEn extends S {
 
   @override
   String simLppBuybackDisclaimer(
-    String fundRate,
-    int staggeringYears,
-    String taxableIncome,
-  ) {
+      String fundRate, int staggeringYears, String taxableIncome) {
     return 'Simulation including fund interest ($fundRate%) and tax savings staggered over $staggeringYears years for a taxable income of CHF $taxableIncome. Real return is calculated on your actual net effort.';
   }
 
@@ -5545,10 +5539,7 @@ class SEn extends S {
 
   @override
   String earlyRetirementNarrativeEarly(
-    String amount,
-    int years,
-    String plural,
-  ) {
+      String amount, int years, String plural) {
     return 'You lose $amount/month for life. But you gain $years year$plural of freedom.';
   }
 
@@ -5646,10 +5637,7 @@ class SEn extends S {
 
   @override
   String forfaitFiscalSemanticsLabel(
-    String ordinary,
-    String forfait,
-    String savings,
-  ) {
+      String ordinary, String forfait, String savings) {
     return 'Lump-sum tax comparison. Ordinary taxation: $ordinary. Lump-sum tax: $forfait. Savings: $savings.';
   }
 
@@ -6529,21 +6517,24 @@ class SEn extends S {
 
   @override
   String conversationMonth(String month) {
-    String _temp0 = intl.Intl.selectLogic(month, {
-      '1': 'January',
-      '2': 'February',
-      '3': 'March',
-      '4': 'April',
-      '5': 'May',
-      '6': 'June',
-      '7': 'July',
-      '8': 'August',
-      '9': 'September',
-      '10': 'October',
-      '11': 'November',
-      '12': 'December',
-      'other': 'month',
-    });
+    String _temp0 = intl.Intl.selectLogic(
+      month,
+      {
+        '1': 'January',
+        '2': 'February',
+        '3': 'March',
+        '4': 'April',
+        '5': 'May',
+        '6': 'June',
+        '7': 'July',
+        '8': 'August',
+        '9': 'September',
+        '10': 'October',
+        '11': 'November',
+        '12': 'December',
+        'other': 'month',
+      },
+    );
     return '$_temp0';
   }
 
@@ -7844,9 +7835,7 @@ class SEn extends S {
 
   @override
   String affordabilityInsightRevenueBody(
-    String chargesTheoriques,
-    String chargesReelles,
-  ) {
+      String chargesTheoriques, String chargesReelles) {
     return 'Swiss banks use a theoretical 5% interest rate (ASB directive), even though the actual market rate is much lower. It\'s a stress test: they check you could handle the charges if rates rose. Your theoretical charges: $chargesTheoriques/mo. At market rate (~1.5%): $chargesReelles/mo.';
   }
 
@@ -13100,16 +13089,15 @@ class SEn extends S {
 
   @override
   String agentLetterAvsExtractBody(
-    String name,
-    String ssn,
-    String address,
-    String postalCity,
-    String avsOrg,
-    String avsAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-  ) {
+      String name,
+      String ssn,
+      String address,
+      String postalCity,
+      String avsOrg,
+      String avsAddress,
+      String date,
+      String dateFormatted,
+      String subject) {
     return '$name\n$ssn\n$address\n$postalCity\n\n$avsOrg\n$avsAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI kindly request that you send me an extract of my individual AVS account (CI) in order to verify my contribution record and identify any gaps.\n\nThank you in advance for your diligence.\n\nYours faithfully,\n\n$name';
   }
 
@@ -13138,32 +13126,30 @@ class SEn extends S {
 
   @override
   String agentLetterLppTransferBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisseSource,
-    String caisseCurrentAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String toComplete,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisseSource,
+      String caisseCurrentAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String toComplete) {
     return '$name\n$address\n$postalCity\n\n$caisseSource\n$caisseCurrentAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nDue to the termination of my employment / my departure from Switzerland (delete as applicable), I kindly request that you transfer my vested benefits.\n\nAmount to transfer: the full amount of my vested benefits at the date of departure.\n\nDestination institution:\nName: $toComplete\nIBAN or account number: $toComplete\nAddress: $toComplete\n\nDeparture date: $toComplete\n\nThank you for your diligence and please confirm the successful completion of this transfer.\n\nYours faithfully,\n\n$name';
   }
 
   @override
   String agentLetterPensionFundBody(
-    String name,
-    String address,
-    String postalCity,
-    String caisse,
-    String caisseAddress,
-    String date,
-    String dateFormatted,
-    String subject,
-    String year,
-    String policeNumber,
-  ) {
+      String name,
+      String address,
+      String postalCity,
+      String caisse,
+      String caisseAddress,
+      String date,
+      String dateFormatted,
+      String subject,
+      String year,
+      String policeNumber) {
     return '$name\n$address\n$postalCity\n\n$caisse\n$caisseAddress\n$postalCity\n\n$date, $dateFormatted\n\nSubject: $subject\n\nDear Sir/Madam,\n\nI hereby wish to submit the following requests regarding my occupational pension file:\n\n1. Updated pension certificate $year (retirement assets, covered benefits, applicable conversion rate)\n\n2. Confirmation of my buyback capacity (maximum amount pursuant to Art. 79b LPP)\n\n3. Early retirement simulation (projection of assets and pension at 63 and 64, if applicable)\n\nThank you in advance for your diligence. I remain at your disposal for any further information.\n\nYours faithfully,\n\n$name\n$policeNumber';
   }
 
@@ -15137,10 +15123,7 @@ class SEn extends S {
 
   @override
   String disabilityGapAct3Detail(
-    String aiAmount,
-    String lppAmount,
-    String totalAmount,
-  ) {
+      String aiAmount, String lppAmount, String totalAmount) {
     return 'DI $aiAmount + LPP $lppAmount = $totalAmount CHF/month';
   }
 
@@ -18830,9 +18813,7 @@ class SEn extends S {
 
   @override
   String rcReplacementRateExplanation(
-    String totalMonthly,
-    String currentMonthly,
-  ) {
+      String totalMonthly, String currentMonthly) {
     return 'Estimated retirement income: $totalMonthly CHF/month vs $currentMonthly CHF/month today';
   }
 
@@ -19250,13 +19231,8 @@ class SEn extends S {
   String get scoreGaugeSectionPrevoyance => 'Pension';
 
   @override
-  String scoreGaugeSemanticsLabel(
-    String score,
-    String level,
-    String budget,
-    String prevoyance,
-    String patrimoine,
-  ) {
+  String scoreGaugeSemanticsLabel(String score, String level, String budget,
+      String prevoyance, String patrimoine) {
     return 'Financial fitness score. $score out of 100. Level $level. Budget $budget, Pension $prevoyance, Assets $patrimoine.';
   }
 
@@ -19345,11 +19321,7 @@ class SEn extends S {
 
   @override
   String semanticsBenchmarkMetric(
-    String label,
-    String status,
-    String low,
-    String high,
-  ) {
+      String label, String status, String low, String high) {
     return '$label: $status. Typical range $low to $high';
   }
 
@@ -21419,4 +21391,50 @@ class SEn extends S {
   @override
   String get coachOpenerIntentAutre =>
       'Welcome — here\'s how MINT can help you.';
+
+  @override
+  String get planCard_ctaDetail => 'View details';
+
+  @override
+  String get planCard_ctaRecalculate => 'Recalculate';
+
+  @override
+  String get planCard_staleBadge => 'Profile updated — recalculate';
+
+  @override
+  String get planCard_goalPrefix => 'My plan :';
+
+  @override
+  String planCard_targetDate(String date) {
+    return 'Target : $date';
+  }
+
+  @override
+  String get planCard_milestonesHeading => 'Quarterly milestones';
+
+  @override
+  String planCard_progressCaption(String percent) {
+    return '$percent % reached';
+  }
+
+  @override
+  String planCard_confidenceBands(String low, String mid, String high) {
+    return 'Low : $low CHF  |  Mid : $mid CHF  |  High : $high CHF';
+  }
+
+  @override
+  String get planCard_ctaHide => 'Hide details';
+
+  @override
+  String get planCard_disclaimer =>
+      'Educational tool — does not constitute financial advice (LSFin). Sources : LIFD art. 38, LPP art. 14.';
+
+  @override
+  String get planCard_errorBody =>
+      'Unable to generate the plan. Try again by describing your goal to the coach.';
+
+  @override
+  String planCard_recalculatePrompt(String goalDescription) {
+    return 'Recalculate my plan : $goalDescription';
+  }
 }

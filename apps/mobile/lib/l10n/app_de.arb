@@ -9838,5 +9838,21 @@
   "coachOpenerIntentFiscalite": "Du interessierst dich für deine Steuern\u00a0— hier ist, was MINT für dich gefunden hat.",
   "coachOpenerIntentProjet": "Du hast ein Immobilienprojekt\u00a0— hier ist, was MINT für dich gefunden hat.",
   "coachOpenerIntentChangement": "Du erlebst eine Lebensveränderung\u00a0— hier ist, was MINT für dich gefunden hat.",
-  "coachOpenerIntentAutre": "Willkommen\u00a0— so kann MINT dir helfen."
+  "coachOpenerIntentAutre": "Willkommen\u00a0— so kann MINT dir helfen.",
+  "planCard_ctaDetail": "Details anzeigen",
+  "planCard_ctaRecalculate": "Neu berechnen",
+  "planCard_staleBadge": "Profil geändert — neu berechnen",
+  "planCard_goalPrefix": "Mein Plan\u00a0:",
+  "planCard_targetDate": "Ziel\u00a0: {date}",
+  "@planCard_targetDate": {"placeholders": {"date": {"type": "String"}}},
+  "planCard_milestonesHeading": "Quartals-Meilensteine",
+  "planCard_progressCaption": "{percent}\u00a0% erreicht",
+  "@planCard_progressCaption": {"placeholders": {"percent": {"type": "String"}}},
+  "planCard_confidenceBands": "Tief\u00a0: {low} CHF  |  Mittel\u00a0: {mid} CHF  |  Hoch\u00a0: {high} CHF",
+  "@planCard_confidenceBands": {"placeholders": {"low": {"type": "String"}, "mid": {"type": "String"}, "high": {"type": "String"}}},
+  "planCard_ctaHide": "Details ausblenden",
+  "planCard_disclaimer": "Bildungstool — stellt keine Finanzberatung dar (LSFin). Quellen\u00a0: LIFD Art.\u00a038, BVG Art.\u00a014.",
+  "planCard_errorBody": "Der Plan konnte nicht erstellt werden. Versuche es erneut, indem du dein Ziel dem Coach beschreibst.",
+  "planCard_recalculatePrompt": "Berechne meinen Plan neu\u00a0: {goalDescription}",
+  "@planCard_recalculatePrompt": {"placeholders": {"goalDescription": {"type": "String"}}}
 }
