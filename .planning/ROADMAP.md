@@ -86,7 +86,7 @@ Plans:
   5. The user's streak count is visible somewhere in the UI (not just tracked in background)
 **Plans:** 2 plans
 Plans:
-- [ ] 05-01-PLAN.md — Backend record_check_in tool, amount parser with tests, notification scheduling
+- [x] 05-01-PLAN.md — Backend record_check_in tool, amount parser with tests, notification scheduling
 - [ ] 05-02-PLAN.md — WidgetRenderer check-in dispatch, MintHomeScreen PlanRealityCard + StreakBadge, ConversationMemory enrichment
 
 ### Phase 6: Calculator Wiring
