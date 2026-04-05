@@ -1,5 +1,7 @@
 # BLUEPRINT : MINT Coach AI Layer — Mission Document
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
 > **Companions**: `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (couche orchestration), `MINT_UX_GRAAL_MASTERPLAN.md` (vision umbrella).
 > **Note statut (2026-03-21)**: Partiellement à jour. Les fichiers `coach_dashboard_screen.dart` et `coach_agir_screen.dart` référencés dans §CONVENTIONS ont été remplacés par `CoachChatScreen` + `MainNavigationShell`. Les services listés comme "NOUVEAUX" ont été implémentés. Voir `docs/DOC_STATUS_MATRIX.md` pour le détail.
@@ -307,7 +309,7 @@ if (_tips != null && _tips!.isNotEmpty) {
 
 ## TACHE T3 — Chiffre Choc Emotionnel
 
-### Fichier : `lib/widgets/coach/chiffre_choc_card.dart` (MODIFIER)
+### Fichier : `lib/widgets/coach/chiffre_choc_card.dart` (MODIFIER) — legacy name, canonical: `premier_eclairage_card`
 
 ### Specification
 

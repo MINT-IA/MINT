@@ -1,5 +1,7 @@
 # MINT — Carte de navigation réelle (tracée depuis le code)
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+>
 > Chaque flèche = un `context.go()` ou `context.push()` vérifié dans le code.
 > Les conditions sont les vrais `if` du code, pas de la fiction.
 

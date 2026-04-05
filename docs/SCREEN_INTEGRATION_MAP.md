@@ -4,6 +4,9 @@
 > Pour chaque écran existant : son sort dans la nouvelle architecture (3 tabs + drawer),
 > comment le coach interagit avec lui, et les câbles à connecter.
 >
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term technique.
+> Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`). Migration code à planifier.
+>
 > **Légende statut** :
 > - **KEEP** = reste tel quel, accessible via Explorer ou route directe
 > - **MOVE** = change de place dans la navigation (ex: de tab à drawer)

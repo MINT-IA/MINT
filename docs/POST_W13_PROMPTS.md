@@ -1,5 +1,7 @@
 # Post-W13 — 8 Prompts (3 fixes + 5 features)
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Ce document contient les 8 prompts pour :
 > - Fermer les 3 items W13 restants (1 NOT FIXED + 2 PARTIAL)
 > - Implémenter 5 nouvelles features (voix, intensité, CSV/XML, anomalies, registry)

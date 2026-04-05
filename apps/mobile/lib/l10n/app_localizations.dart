@@ -36882,7 +36882,7 @@ abstract class S {
   /// No description provided for @landingVzComparison.
   ///
   /// In fr, this message translates to:
-  /// **'Ce que VZ facture 1’200 CHF, tu l\'as en 30 secondes.'**
+  /// **'30 secondes pour ton premier chiffre. Pas de rendez-vous, pas de frais.'**
   String get landingVzComparison;
 
   /// No description provided for @instantChiffreChocConfidence.

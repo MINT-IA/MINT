@@ -133,7 +133,7 @@ Every calculation function must:
 **Needed**: Unified `/retirement/dashboard` endpoint that returns:
 - Income breakdown (AVS + LPP + 3a + Libre per source)
 - Budget gap (income - tax - expenses)
-- Top 3 arbitrage chiffres chocs
+- Top 3 arbitrage premiers éclairages
 - Confidence score + enrichment prompts
 - Couple phases (if applicable)
 - Timeline/checklist items

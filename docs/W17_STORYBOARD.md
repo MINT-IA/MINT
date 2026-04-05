@@ -1,5 +1,7 @@
 # Wave 17 — AUDIT + STORYBOARD : Le flux réel vs le flux cible
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+>
 > Ce document est un AUDIT du code actuel + un STORYBOARD du flux cible.
 > Chaque écran référence les fichiers, les lignes, les câbles coupés.
 > Pas de fiction. Que du code.

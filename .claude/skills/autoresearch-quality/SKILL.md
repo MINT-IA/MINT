@@ -4,10 +4,10 @@ description: "Autonomous bug hunter. Runs flutter test → reads failure → fix
 compatibility: Requires Flutter SDK
 metadata:
   author: mint-team
-  version: "5.0"
+  version: "6.0"
 ---
 
-# Autoresearch Quality v5 — Karpathy Bug Hunter
+# Autoresearch Quality v6 — Karpathy Bug Hunter
 
 > "The test suite is the spec. A failing test is a bug. Fix the code, not the test."
 
@@ -17,6 +17,30 @@ metadata:
 - **Time budget**: 5 min max per fix attempt. If stuck > 5 min → revert → next bug.
 - **Single target**: ONE bug per iteration. Fix → verify → commit → next.
 - **Gate**: Phase 1 Chat AI blocked until tests green + analyze clean.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Mutable / Immutable
 
@@ -104,6 +128,52 @@ The most frequent MINT bugs are invisible to `flutter test`:
 - Flag reset: is every boolean guard (`_isNavigating`, `_finalReturnEmitted`) reset in ALL paths (success + error + unmount)?
 
 Severity: CRITICAL (wrong calc, runtime path) → fix now. HIGH (race, joint) → fix if budget. MEDIUM+ → log only.
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY fix, before reporting it as done:
+
+1. **RUN** the verification command fresh. Not from memory. Not from earlier.
+2. **PASTE** the exact terminal output in your experiment log. "Should pass" is FORBIDDEN.
+3. **READ** the output yourself. Confirm it proves your claim (fewer failures, no regressions).
+4. If output contradicts your claim → the claim is wrong. Fix or revert.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The test was wrong" | Tests are spec. Fix the code, not the test (unless genuinely outdated). |
+| "It only fails intermittently" | Flaky = broken. Find the race condition. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop and retry with a different approach. If stuck 3x on same bug → log as `skip` and move to next target.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Tests pass" | Fresh test command output: 0 failures | Previous run, "should pass", partial run |
+| "No regressions" | Full suite run: same or fewer failures | Running only the changed test file |
+| "Bug fixed" | Original symptom verified gone in fresh run | "Code looks right", assumed fixed |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Verify + analyze both green, this iteration | Green from 3 iterations ago |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

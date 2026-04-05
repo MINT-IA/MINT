@@ -4,10 +4,10 @@ description: "Autonomous prompt optimizer for MINT coach AI. Modifies ONE aspect
 compatibility: Requires Flutter SDK
 metadata:
   author: mint-team
-  version: "2.0"
+  version: "3.0"
 ---
 
-# Autoresearch Prompt Lab v2 — Karpathy Prompt Optimizer
+# Autoresearch Prompt Lab v3 — Karpathy Prompt Optimizer
 
 > "The coach prompt is the product. Every word shapes trust, compliance, and action."
 
@@ -18,6 +18,30 @@ metadata:
 - **Time budget**: 5 min per modification. Score → modify ONE thing → re-score → keep/discard.
 - **Single change**: ONE aspect per iteration. Never rewrite entire prompts.
 - **Threshold**: keep only if delta >= +3 points. Below → discard.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Mutable / Immutable
 
@@ -107,6 +131,52 @@ echo "$PROMPT" | grep -oiE "disclaimer|avertissement|outil éducatif|ne constitu
 - **Fallback templates must work WITHOUT LLM** — they are the offline safety net
 - **NEVER make prompts longer without measurable improvement**
 - **NEVER add if/else logic in prompts** — keep declarative
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY prompt modification, before reporting it as kept:
+
+1. **RUN** the mechanical scoring commands fresh on the modified prompt. Paste exact breakdown.
+2. **COMPARE** numerically: new_composite - old_composite >= +3? If not → DISCARD.
+3. **RUN** compliance check: `grep -oiE "garanti|certain|..." <prompt>` — must return 0.
+4. Every 5 modifications → `flutter test 2>&1 | tail -5`. Paste output.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The prompt feels more natural now" | Score mechanically. Feelings are not data. |
+| "Compliance is implied" | Explicit > implicit. Add the guardrail phrase and verify. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If compliance regressed → DISCARD immediately, no exceptions. Return to the Loop.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Compliance passes" | Fresh compliance check: 0 banned terms | Previous check, "should pass" |
+| "Score improved" | Delta >= +3, measured mechanically | "Looks better", LLM self-evaluation |
+| "No regressions" | Full eval fixtures re-scored, all pass | Running only one fixture |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Compliance + score + tests all green, this iteration | Green from previous iteration |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

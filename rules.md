@@ -75,7 +75,7 @@ feature/* ──PR──> dev ──PR──> staging ──PR──> main
 - Progressive disclosure: on n'impose pas la connexion bancaire au début.
 - 1 écran = 1 intention.
 - Chaque recommandation se termine par 1–3 actions concrètes (next actions).
-- Onboarding minimal : 3 questions max avant le premier chiffre choc.
+- Onboarding minimal : intent + 3 inputs (âge, revenu, canton) avant le premier éclairage.
 - Précision progressive : demander les données au moment où elles comptent, pas pendant l'onboarding.
 - Score FRI : jamais "bon/mauvais", toujours "progression personnelle".
 

@@ -20967,7 +20967,7 @@ class SFr extends S {
 
   @override
   String get landingVzComparison =>
-      'Ce que VZ facture 1’200 CHF, tu l\'as en 30 secondes.';
+      '30 secondes pour ton premier chiffre. Pas de rendez-vous, pas de frais.';
 
   @override
   String get instantChiffreChocConfidence =>

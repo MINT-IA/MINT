@@ -372,4 +372,4 @@ Si tu estimes que tes droits n'ont pas ete respectes, tu peux deposer une reclam
 
 *Cette politique est redigee en francais. En cas de divergence avec une traduction, la version francaise fait foi.*
 
-*MINT — "Juste quand il faut : une explication, une action, un rappel."*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

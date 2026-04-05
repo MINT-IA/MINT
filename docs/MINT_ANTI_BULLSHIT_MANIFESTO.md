@@ -50,7 +50,7 @@ MINT ne doit jamais donner l'impression:
 
 ## 4. Les 5 questions obligatoires avant tout feedback
 
-Avant d'afficher un cap, un CTA, une suggestion coach, un delta, un chiffre choc ou un next step, il faut pouvoir repondre oui a ces 5 questions:
+Avant d'afficher un cap, un CTA, une suggestion coach, un delta, un premier éclairage ou un next step, il faut pouvoir repondre oui a ces 5 questions:
 
 1. Est-ce que ce feedback est coherent avec les donnees connues ?
 2. Est-ce qu'il est coherent avec la phase de vie / cohorte / parcours en cours ?

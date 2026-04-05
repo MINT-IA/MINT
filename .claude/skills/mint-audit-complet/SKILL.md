@@ -252,7 +252,7 @@ U14 — Material 3:
 grep -rn "useMaterial3" apps/mobile/lib/ --include="*.dart"
 PASS si Material 3 activé dans le theme.
 
-U15 — Charte L6 chiffre-choc:
+U15 — Charte L6 premier éclairage:
 Vérifier visuellement 5 écrans principaux: retirement, lpp, avs, arbitrage, profile — chacun commence par un hero number.
 
 Format: GATE U1: [PASS|FAIL] — description courte

@@ -1,5 +1,7 @@
 # NAVIGATION GRAAL V10 — MINT
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Statut : cible produit / UX / information architecture
 > Horizon : 2026-2027
 > Portée : mobile app MINT
