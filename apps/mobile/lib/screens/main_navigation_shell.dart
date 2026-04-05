@@ -5,8 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart'
-    show NavigationShellState;
+import 'package:mint_mobile/services/navigation_shell_state.dart';
 import 'package:mint_mobile/screens/main_tabs/mint_coach_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/explore_tab.dart';
 import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';

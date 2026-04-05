@@ -12,7 +12,6 @@ import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 
@@ -449,44 +448,7 @@ void main() {
   });
 
   // ===========================================================================
-  // 7. ASK MINT SCREEN
-  // ===========================================================================
-
-  group('AskMintScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const AskMintScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(AskMintScreen), findsOneWidget);
-    });
-
-    testWidgets('displays Ask MINT title', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const AskMintScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Ask MINT'), findsOneWidget);
-    });
-
-    testWidgets('shows configure CTA when BYOK not set', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const AskMintScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // By default ByokProvider is not configured, so show the configure CTA
-      expect(find.textContaining('Configure'), findsWidgets);
-      expect(find.textContaining('API'), findsWidgets);
-    });
-
-    testWidgets('shows privacy note for API key', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const AskMintScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('localement'), findsWidgets);
-      expect(find.byIcon(Icons.lock_outline), findsWidgets);
-    });
-  });
-
-  // ===========================================================================
-  // 8. MAIN NAVIGATION SHELL
+  // 7. MAIN NAVIGATION SHELL
   // ===========================================================================
 
   group('MainNavigationShell', () {
