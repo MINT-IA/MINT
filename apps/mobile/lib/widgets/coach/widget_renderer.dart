@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
+import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
 // ────────────────────────────────────────────────────────────
 //  WIDGET RENDERER — S56 (restored + adapted)
@@ -55,9 +57,37 @@ class WidgetRenderer {
         return _buildComparisonCard(context, call.input);
       case 'ask_user_input':
         return _buildInputRequest(context, call.input, onInputSubmitted);
+      case 'route_to_screen':
+        return _buildRouteSuggestion(context, call.input);
       default:
         return null;
     }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  ROUTE SUGGESTION — route_to_screen tool (T-02-03)
+  // ────────────────────────────────────────────────────────────
+
+  /// Build a [RouteSuggestionCard] when Claude suggests navigating to a screen.
+  ///
+  /// The coach proposes; the user decides. No automatic push happens here.
+  /// Route validation via [ToolCallParser.isValidRoute] whitelist (T-02-03).
+  /// Invalid routes return [SizedBox.shrink()] — silently dropped.
+  static Widget _buildRouteSuggestion(
+      BuildContext context, Map<String, dynamic> p) {
+    final route = p['route'] as String? ?? '';
+    final contextMessage = p['context_message'] as String? ??
+        p['narrative'] as String? ??
+        '';
+    final prefill = p['prefill'] as Map<String, dynamic>?;
+    final isPartial = p['is_partial'] as bool? ?? false;
+    if (!ToolCallParser.isValidRoute(route)) return const SizedBox.shrink();
+    return RouteSuggestionCard(
+      contextMessage: contextMessage,
+      route: route,
+      prefill: prefill,
+      isPartial: isPartial,
+    );
   }
 
   static Widget _buildRetirementComparison(
