@@ -242,7 +242,7 @@ final _router = GoRouter(
       builder: (context, state) => const VerifyEmailScreen(),
     ),
 
-    // ── Main Shell (4 tabs: Aujourd'hui, Coach, Explorer, Dossier) ──
+    // ── Main Shell (3 tabs: Aujourd'hui, Coach, Explorer + ProfileDrawer) ──
     GoRoute(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
