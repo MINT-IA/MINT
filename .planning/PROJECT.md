@@ -43,7 +43,7 @@ A user opens MINT and within 3 minutes receives a personalized, surprising insig
 - [ ] User Journey Map defining end-to-end flows
 - [ ] Navigation simplified from 67 routes to coherent paths
 - [ ] Onboarding -> first insight pipeline under 3 minutes
-- [ ] Duplicate screens and dead routes eliminated
+- [x] Duplicate screens and dead routes eliminated — Validated in Phase 01: pre-refactor-cleanup
 - [ ] Calculators wired into user-facing journeys (not showcase)
 
 ### Out of Scope
@@ -106,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after milestone v1.0 initialization*
+*Last updated: 2026-04-05 after Phase 01 (pre-refactor-cleanup) completion*
