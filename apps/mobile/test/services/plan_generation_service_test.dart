@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ────────────────────────────────────────────────────────────────────────────
 //  PlanGenerationService Tests
@@ -41,12 +41,20 @@ CoachProfile _profileComplete() => CoachProfile(
     );
 
 void main() {
+  setUpAll(() async {
+    TestWidgetsFlutterBinding.ensureInitialized();
+    // Mock SharedPreferences for platform channel
+    SharedPreferences.setMockInitialValues({});
+  });
+
   group('PlanGenerationService', () {
     // Test 1: housing goal — monthlyTarget = goalAmount / monthsRemaining
     test('Test 1: housing goal returns monthlyTarget ~2361 CHF for 85000/36',
         () async {
       final profile = _profileSalaryOnly();
-      final targetDate = DateTime.now().add(const Duration(days: 36 * 30));
+      // Use exact month offset so the service computes exactly 36 months
+      final now = DateTime.now();
+      final targetDate = DateTime(now.year + 3, now.month, now.day);
 
       final plan = await PlanGenerationService.generate(
         goalDescription: 'Constituer un apport pour mon appartement',
@@ -56,7 +64,7 @@ void main() {
         goalAmount: 85000,
       );
 
-      // Allow ±5 CHF tolerance for rounding
+      // 36 months exactly → 85000 / 36 ≈ 2361.11 CHF
       expect(plan.monthlyTarget, closeTo(85000 / 36, 5),
           reason: 'Housing goal: 85000 / 36 months');
     });
@@ -75,18 +83,19 @@ void main() {
 
       expect(plan.milestones, hasLength(4));
 
-      // Verify percentages (25/50/75/100 via target amounts)
-      final totalAmount = plan.monthlyTarget *
-          targetDate.difference(DateTime.now()).inDays /
-          30.0;
+      // Milestones are generated from effectiveGoalAmount (default 30000 for
+      // goal_emergency_fund), not from monthlyTarget * months.
+      // Verify the 4 milestones are at 25/50/75/100% of the goal amount.
+      const goalAmount = 30000.0; // default for goal_emergency_fund
+      const tolerance = goalAmount * 0.01; // 1% tolerance
       expect(plan.milestones[0].targetAmount,
-          closeTo(totalAmount * 0.25, totalAmount * 0.01));
+          closeTo(goalAmount * 0.25, tolerance));
       expect(plan.milestones[1].targetAmount,
-          closeTo(totalAmount * 0.50, totalAmount * 0.01));
+          closeTo(goalAmount * 0.50, tolerance));
       expect(plan.milestones[2].targetAmount,
-          closeTo(totalAmount * 0.75, totalAmount * 0.01));
+          closeTo(goalAmount * 0.75, tolerance));
       expect(plan.milestones[3].targetAmount,
-          closeTo(totalAmount * 1.00, totalAmount * 0.01));
+          closeTo(goalAmount * 1.00, tolerance));
     });
 
     // Test 3: goalCategory matches input
