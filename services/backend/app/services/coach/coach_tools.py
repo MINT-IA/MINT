@@ -556,6 +556,44 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
     # ─────────────────────────────────────────────────────────────────
+    # record_check_in — WRITE: record monthly contributions check-in
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "record_check_in",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Record the user's monthly check-in contributions. "
+            "Use ONLY after the user has answered all contribution questions for the current month. "
+            "Displays a summary card in chat and persists data to the user's profile. "
+            "Never call this tool preemptively — wait for the user to provide actual amounts."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "string",
+                    "description": "ISO month string YYYY-MM (e.g. '2026-04')",
+                },
+                "versements": {
+                    "type": "object",
+                    "description": (
+                        "Map of contribution_id to amount in CHF "
+                        "(e.g. {'3a_julien': 500.0, 'epargne_libre': 200.0})"
+                    ),
+                },
+                "summary_message": {
+                    "type": "string",
+                    "description": (
+                        "Coach summary to display to user "
+                        "(e.g. 'Parfait, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!')"
+                    ),
+                },
+            },
+            "required": ["month", "versements", "summary_message"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
     # generate_document — WRITE: pre-filled document generation (Flutter-bound)
     # ─────────────────────────────────────────────────────────────────
     {

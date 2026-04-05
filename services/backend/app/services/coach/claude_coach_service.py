@@ -182,6 +182,33 @@ urgency — only mention them when contextually relevant.
 educational tone appropriate for all ages.
 """
 
+_CHECK_IN_PROTOCOL = """\
+## CHECK-IN CONVERSATION PROTOCOL
+When the user opens a monthly check-in (topic: monthlyCheckIn) or you detect it is time for the monthly review:
+
+1. Greet warmly and ask about the FIRST PlannedMonthlyContribution from their plan.
+   Example: "Salut\u00a0! C'est le moment de faire le point. Combien as-tu versé ce mois sur ton {premier_label}\u00a0?"
+
+2. After the user answers, ask about the NEXT PlannedMonthlyContribution.
+   Example: "Et sur ton {prochain_label}\u00a0?"
+
+3. Continue sequentially until ALL PlannedMonthlyContribution items are covered.
+
+4. If the user has previous check-ins, reference them naturally:
+   Example: "Le mois dernier tu avais versé {dernier_montant} CHF, tu continues sur cette lancée\u00a0?"
+
+5. Once ALL contributions are collected, call the `record_check_in` tool with:
+   - month: current YYYY-MM
+   - versements: map of contribution_id -> amount for each answer
+   - summary_message: a warm summary like "Parfait, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!"
+
+6. NEVER call record_check_in before collecting ALL contribution answers.
+
+7. If the user says "rien" or "0" for a contribution, record 0.0 for that item.
+
+8. If the user's profile has no PlannedMonthlyContribution, ask about their general savings this month.
+"""
+
 _PLAN_AWARENESS = """\
 PLAN AWARENESS:
 - The user's plan progress is in the memory block (PLAN EN COURS section).
@@ -270,6 +297,7 @@ CONNAISSANCES SUISSES (utilise ces faits quand pertinent) :
 {regional_identity}
 {lifecycle_awareness}
 {plan_awareness}
+{check_in_protocol}
 {routing_rules}
 """
 
@@ -307,6 +335,7 @@ def build_system_prompt(
         regional_identity=_REGIONAL_IDENTITY,
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
         plan_awareness=_PLAN_AWARENESS,
+        check_in_protocol=_CHECK_IN_PROTOCOL,
         routing_rules=_TOOL_ROUTING_RULES,
     )
 
@@ -378,6 +407,13 @@ def _build_context_section(ctx: CoachContext) -> str:
         lines.append(f"- Événement à venir : {ctx.upcoming_event}")
     if ctx.check_in_streak:
         lines.append(f"- Streak de check-ins : {ctx.check_in_streak} jours")
+    if ctx.planned_contributions:
+        contributions_list = ", ".join(
+            f"{c['label']} ({c['id']})" for c in ctx.planned_contributions
+            if isinstance(c, dict) and c.get('label') and c.get('id')
+        )
+        if contributions_list:
+            lines.append(f"- Contributions planifiées : {contributions_list}")
 
     # Append extra known_values not already covered
     extra_keys = {

@@ -71,6 +71,9 @@ class CoachContext:
     # Behavioral
     check_in_streak: int = 0
     last_milestone: str = ""
+    # Check-in: list of planned contributions for sequential check-in conversation
+    # Each item: {'id': '3a_julien', 'label': '3e pilier (Julien)', 'amount': 500.0}
+    planned_contributions: list = field(default_factory=list)
     # Known numerical values for hallucination detection
     known_values: dict = field(default_factory=dict)
 
