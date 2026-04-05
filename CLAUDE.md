@@ -13,12 +13,16 @@
 
 **MINT** — Swiss financial protection & education app (Flutter + FastAPI).
 **Mission**: "Mint te dit ce que personne n'a intérêt à te dire."
-**Positioning**: Protection-first. Mint rend visible ce que l'utilisateur n'a pas vu. Mint traduit les implications. Mint laisse les faits conclure. See `docs/MINT_IDENTITY.md` for the full doctrine, 4-layer engine, and compliance messaging framework.
+**Positioning**: Protection-first. MINT is NOT a retirement app, NOT a calculator, NOT a dashboard. MINT is a calm, intimate, reliable intelligence in your pocket that protects users against poorly aligned financial products and decisions.
+**Doctrine**: "Mint n'accuse pas. Mint éclaire. Mint ne juge pas l'émetteur. Mint explicite le contrat. Mint ne dit pas 'c'est nul'. Mint dit 'voici ce que cela implique pour toi'."
+**4-layer insight engine**: (1) Factual extraction → (2) Human translation → (3) Personal perspective → (4) Questions to ask before signing. See `docs/MINT_IDENTITY.md` for full spec.
+**5 principles**: (1) Speak human — no jargon without translation. (2) Reduce shame — never make user feel behind. (3) Dialogue, not lecture. (4) Immediate grip — always a danger avoided, a trap illuminated, a next step. (5) Gentle but sharp — never aggressive, never soft.
 **Service loop** (internal, NOT the tagline): "Juste quand il faut: une explication, une action, un rappel."
 **Target**: ALL Swiss residents (18-99). No primary/secondary segmentation.
 **Segmentation**: By life event and lifecycle phase, NEVER by age or demographics. A 25-year-old starting their first job and a 55-year-old planning retirement are equally important users.
 **Design for ALL**: UX, copy, and features MUST work for 18-99. Never design screens, landing pages, or flows that exclude an age group or suggest MINT is "a retirement app" or any single-topic app.
 **Model**: Read-only, protection-first, education-first. No money movement. No investment advice. No product recommendations. No ranking.
+**NEVER**: frame MINT as a retirement app, use "chiffre choc" (legacy term → "premier éclairage"), default to retirement projections, compare named competitors, recommend specific products.
 
 ---
 
