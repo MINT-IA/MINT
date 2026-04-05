@@ -8,45 +8,29 @@ import 'golden_test_helpers.dart';
 void main() {
   setUp(() async {
     await setupGoldenEnvironment();
+    // Dismiss consent banner
+    SharedPreferences.setMockInitialValues({
+      'analytics_consent_given': true,
+    });
   });
 
   group('Landing Screen Golden Tests', () {
-    // First test warms up Google Fonts cache. Fonts are downloaded once
-    // and cached for subsequent tests in this process.
+    // Warmup: preloads Google Fonts via real HTTP.
+    // This test has no assertions — it exists to cache fonts for subsequent tests.
+    // It may fail due to async font timers; that's expected.
     testWidgets('warmup — preload fonts (no assertions)', (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const LandingScreen()),
-        );
-        // Wait for Google Fonts HTTP download to complete
-        await Future.delayed(const Duration(seconds: 5));
-      });
-      await tester.pump();
-      // No assertions — just warming up the font cache
+      await pumpGoldenWidget(tester, buildGoldenWidget(const LandingScreen()),
+          warmup: kFontWarmupDuration);
     });
 
-    testWidgets('landing — top of page (hero + translator cards)',
-        (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+    testWidgets('landing — top of page', (tester) async {
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      // Dismiss consent banner by pre-setting SharedPreferences
-      SharedPreferences.setMockInitialValues({
-        'analytics_consent_given': true,
-      });
-
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const LandingScreen()),
-        );
-        await Future.delayed(const Duration(seconds: 3));
-      });
-      await tester.pump();
+      await pumpGoldenWidget(tester, buildGoldenWidget(const LandingScreen()));
 
       await expectLater(
         find.byType(LandingScreen),
@@ -54,24 +38,12 @@ void main() {
       );
     });
 
-    testWidgets('landing — scrolled to quick calc + CTA', (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+    testWidgets('landing — scrolled to quick calc', (tester) async {
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      SharedPreferences.setMockInitialValues({
-        'analytics_consent_given': true,
-      });
+      await pumpGoldenWidget(tester, buildGoldenWidget(const LandingScreen()));
 
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const LandingScreen()),
-        );
-        await Future.delayed(const Duration(seconds: 3));
-      });
-      await tester.pump();
-
-      // Scroll down to see quick calc section
       await tester.drag(
         find.byType(SingleChildScrollView),
         const Offset(0, -500),
@@ -84,25 +56,12 @@ void main() {
       );
     });
 
-    testWidgets('landing — scrolled to bottom (CTA + trust bar)',
-        (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+    testWidgets('landing — bottom (CTA + trust bar)', (tester) async {
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      SharedPreferences.setMockInitialValues({
-        'analytics_consent_given': true,
-      });
+      await pumpGoldenWidget(tester, buildGoldenWidget(const LandingScreen()));
 
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const LandingScreen()),
-        );
-        await Future.delayed(const Duration(seconds: 3));
-      });
-      await tester.pump();
-
-      // Scroll to bottom
       await tester.drag(
         find.byType(SingleChildScrollView),
         const Offset(0, -1200),

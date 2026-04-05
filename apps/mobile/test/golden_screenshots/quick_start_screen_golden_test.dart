@@ -8,39 +8,27 @@ import 'golden_test_helpers.dart';
 void main() {
   setUp(() async {
     await setupGoldenEnvironment();
+    SharedPreferences.setMockInitialValues({
+      'nLPD_consent_given': true,
+      'analytics_consent_given': true,
+    });
   });
 
   group('Quick Start Screen Golden Tests', () {
-    testWidgets('warmup — preload fonts', (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+    testWidgets('warmup — preload fonts (no assertions)', (tester) async {
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      SharedPreferences.setMockInitialValues({'nLPD_consent_given': true});
-
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const QuickStartScreen()),
-        );
-        await Future.delayed(const Duration(seconds: 5));
-      });
-      await tester.pump();
+      await pumpGoldenWidget(tester, buildGoldenWidget(const QuickStartScreen()),
+          warmup: kFontWarmupDuration);
     });
 
-    testWidgets('quick start — default state (new user)', (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+    testWidgets('quick start — top (form fields)', (tester) async {
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      SharedPreferences.setMockInitialValues({'nLPD_consent_given': true});
-
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const QuickStartScreen()),
-        );
-        await Future.delayed(const Duration(seconds: 3));
-      });
-      await tester.pump();
+      await pumpGoldenWidget(
+          tester, buildGoldenWidget(const QuickStartScreen()));
 
       await expectLater(
         find.byType(QuickStartScreen),
@@ -49,23 +37,16 @@ void main() {
     });
 
     testWidgets('quick start — scrolled to preview + CTA', (tester) async {
-      tester.view.physicalSize = kGoldenDeviceSize * 3.0;
-      tester.view.devicePixelRatio = 3.0;
+      setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
-      SharedPreferences.setMockInitialValues({'nLPD_consent_given': true});
-
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          buildGoldenWidget(const QuickStartScreen()),
-        );
-        await Future.delayed(const Duration(seconds: 3));
-      });
-      await tester.pump();
+      await pumpGoldenWidget(
+          tester, buildGoldenWidget(const QuickStartScreen()));
 
       final scrollable = find.byType(SingleChildScrollView);
       if (scrollable.evaluate().isNotEmpty) {
-        await tester.drag(scrollable, const Offset(0, -400));
+        await tester.drag(scrollable, const Offset(0, -400),
+            warnIfMissed: false);
         await tester.pump(const Duration(milliseconds: 300));
       }
 
