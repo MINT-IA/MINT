@@ -94,6 +94,30 @@ grep -A 20 "CoachContext\|buildCoachContext" apps/mobile/lib/ -r --include="*.da
   | grep -i "salaire\|salary\|savings\|dette\|debt\|npa\|postal\|employer\|employeur\|iban"
 ```
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY PII fix, before reporting it as done:
+
+1. **RUN** `grep -rn "<original_pattern>" <file>` to confirm the PII is gone. Paste output (must be empty).
+2. **RUN** `flutter test 2>&1 | tail -10` if Dart file changed. Paste output.
+3. **RUN** the scan phase command for the fixed category. Confirm hit count decreased.
+4. If pattern still matches → the fix is incomplete. Do not claim otherwise.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the grep. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "This data isn't really PII" | If it can identify a user, it's PII. Period. |
+| "It's only in debug logs" | Debug logs reach crash reporters. Redact it. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If grep still matches the PII pattern → the fix is incomplete. If `flutter test` broke → revert and try a different anonymization approach.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

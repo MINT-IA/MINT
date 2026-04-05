@@ -106,6 +106,28 @@ After generating, run `/autoresearch-test-generation` to fill gaps.
 - Count `test(` and `testWidgets(` calls (not `group(`)
 - Exclude `integration_test/`
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+This skill is audit-only, but audit accuracy is equally critical:
+
+1. **RUN** each count command fresh. Do not estimate or recall from memory.
+2. **PASTE** the exact terminal output for every count in your report. "About N tests" is FORBIDDEN.
+3. **CROSS-CHECK**: for each file in test_gaps.json, verify the test count by running `grep -c "test(" <file>`.
+4. If a count looks wrong → re-run the command. Do not guess.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should be about N tests" | RUN the count. Paste exact number. |
+| "The file is well-covered by integration tests" | Count UNIT tests. Integration is not unit. |
+| "10 tests per service is arbitrary" | 10 is the CLAUDE.md requirement. Not negotiable. |
+| "I already counted earlier" | Files may have changed. Count AGAIN. |
+
+**If a count looks wrong:** Re-run the command. If `test_gaps.json` contains a file that no longer exists → remove it. If a test count disagrees between grep and manual read → trust the manual read and investigate.
+
+An inaccurate audit is worse than no audit — it creates false confidence.
+
 ## Final Report
 
 ```

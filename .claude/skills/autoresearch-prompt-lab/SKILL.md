@@ -108,6 +108,30 @@ echo "$PROMPT" | grep -oiE "disclaimer|avertissement|outil éducatif|ne constitu
 - **NEVER make prompts longer without measurable improvement**
 - **NEVER add if/else logic in prompts** — keep declarative
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY prompt modification, before reporting it as kept:
+
+1. **RUN** the mechanical scoring commands fresh on the modified prompt. Paste exact breakdown.
+2. **COMPARE** numerically: new_composite - old_composite >= +3? If not → DISCARD.
+3. **RUN** compliance check: `grep -oiE "garanti|certain|..." <prompt>` — must return 0.
+4. Every 5 modifications → `flutter test 2>&1 | tail -5`. Paste output.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The prompt feels more natural now" | Score mechanically. Feelings are not data. |
+| "Compliance is implied" | Explicit > implicit. Add the guardrail phrase and verify. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If compliance regressed → DISCARD immediately, no exceptions. Return to the Loop.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

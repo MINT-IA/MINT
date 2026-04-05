@@ -91,6 +91,30 @@ metadata:
 - **NEVER test unrealistic profiles** (negative age, salary > 10M)
 - If calculator fix **contradicts CLAUDE.md § 5** → STOP, alert human
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY scenario, before reporting it as done:
+
+1. **RUN** `flutter test test/services/financial_core/ 2>&1 | tail -20` fresh.
+2. **PASTE** the exact terminal output in your experiment log. "Should pass" is FORBIDDEN.
+3. **READ** the output. Confirm: new test appears, all tests green, no regressions.
+4. If output contradicts your claim → the claim is wrong. Fix or revert.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The official value must be approximate" | Official values are exact. Your formula is wrong. |
+| "It's only off by a few francs" | ±0.5% tolerance is the rule. Measure it, don't eyeball it. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop and retry with a different formula. If stuck 3x on same scenario → log as `skip` and move to next target.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

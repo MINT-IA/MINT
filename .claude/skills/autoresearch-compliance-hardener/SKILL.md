@@ -83,6 +83,30 @@ metadata:
 - **NEVER hardcode exceptions** for specific phrases (slippery slope)
 - Test in **multiple languages** — Swiss app must be compliant in fr, en, de, es, it, pt
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY adversarial batch, before reporting guard status:
+
+1. **RUN** `flutter test test/services/compliance 2>&1 | tail -20` fresh.
+2. **PASTE** the exact terminal output. "Should pass" is FORBIDDEN.
+3. **READ** the output. Confirm: all N tests passed, no regressions, no skips.
+4. If guard was fixed → run FULL suite `flutter test 2>&1 | tail -10`. Paste that too.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The guardrail would catch this in practice" | Prove it. Write the adversarial test. |
+| "This edge case is unrealistic" | Regulators test unrealistic cases. So do we. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If guard fix broke other tests → revert immediately. CRITICAL flaw → STOP SESSION. Alert human.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

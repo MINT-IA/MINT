@@ -72,6 +72,30 @@ grep -Pn '[^\u00a0][!?:;%]' lib/l10n/app_fr.arb | grep -v '"@\|//\|http\|mailto'
 6. **Do NOT i18n**: variable names, routes, enums, SharedPreferences keys, analytics, debug strings
 7. **Preserve formatting**: handle `\n`, interpolation properly
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY extraction batch, before reporting it as committed:
+
+1. **RUN** `flutter gen-l10n 2>&1` fresh. Paste exact output. Must show 0 errors.
+2. **RUN** the hardcoded string count command. Paste the number. Must be lower than before.
+3. **VERIFY** ARB parity: `wc -l lib/l10n/app_*.arb` — all 6 files within 5 lines of each other.
+4. Every 2 batches → `flutter test 2>&1 | tail -10`. Paste output. Zero regressions.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "This string is only debug/internal" | If it renders in a widget, it needs i18n. Verify with grep. |
+| "I'll add the other 5 languages later" | ALL 6 now. No exceptions. Check parity. |
+
+**If verification FAILS:** Do NOT commit. If `flutter gen-l10n` fails → `git checkout -- lib/l10n/app_*.arb` → fix ARB syntax → retry. If string count did not decrease → the extraction is incomplete. Revert and investigate.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

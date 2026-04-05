@@ -57,17 +57,24 @@ voice=$(echo "$TEXT" | grep -oiE "tu |pourrait|envisager|une option|un·e spéci
 # TOTAL = concrete + jargon_free + brevity + actions + emotion + voice (max 100)
 ```
 
-## Lifecycle Phase Adjustment
+## Context-Based Weight Adjustment
 
-| Phase | Age | Adjustment |
-|-------|-----|------------|
-| Démarrage | 22-28 | Standard weights |
-| Construction | 28-35 | Standard weights |
-| Accélération | 35-45 | Concreteness weight ×1.25 |
-| Consolidation | 45-55 | Concreteness weight ×1.25 |
-| Transition | 55-65 | Actionability weight ×1.25 |
-| Retraite | 65-80 | Jargon-free weight ×1.5, brevity weight ×1.5 |
-| Transmission | 75-99 | Jargon-free weight ×1.5, brevity weight ×1.5 |
+> Segmentation by life event and literacy level — NEVER by age (CLAUDE.md §1).
+
+| Context | Trigger (life event or literacy) | Adjustment |
+|---------|----------------------------------|------------|
+| First financial event | `firstJob`, first `housingPurchase` | Standard weights |
+| Building phase | `marriage`, `birth`, `housingPurchase`, `concubinage` | Concreteness weight ×1.25 |
+| Complexity peak | `selfEmployment`, `inheritance`, `divorce`, `countryMove` | Concreteness ×1.25, Guardrail ×1.25 |
+| Transition event | `retirement`, `jobLoss`, `disability`, `housingSale` | Actionability weight ×1.25 |
+| Mobility event | `cantonMove`, `countryMove` | Standard weights (concreteness ×1.1 for tax implications) |
+| Legacy event | `donation`, `deathOfRelative` | Jargon-free ×1.5, brevity ×1.5 |
+| Career change | `newJob` | Standard weights |
+| Literacy: beginner | `literacy_level = beginner` | Jargon-free weight ×1.5 |
+| Literacy: advanced | `literacy_level = advanced` | Concreteness weight ×1.5 |
+| Crisis mode | `debtCrisis`, Safe Mode active | Brevity ×1.5, Actionability ×1.5, emotion = empathy only |
+
+**Precedence (when multiple events):** Crisis mode > Complexity peak > Transition > Building > Mobility > Standard. Apply the HIGHEST-priority context's weights. Do NOT stack multipliers.
 
 ## The Loop
 
@@ -133,6 +140,30 @@ voice=$(echo "$TEXT" | grep -oiE "tu |pourrait|envisager|une option|un·e spéci
 - **NBSP before double punctuation** — `\u00a0` before `!?:;%`
 - **Preserve placeholders** — {amount}, {name} must survive
 - **Keep under 100 words** when possible
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY optimization, before reporting it as kept:
+
+1. **RUN** the mechanical scoring commands fresh on the NEW text. Not from memory.
+2. **PASTE** the exact score breakdown (concrete, jargon, brevity, actions, emotion, voice) in your log.
+3. **COMPARE** numerically: new_score - old_score >= +5? If not → DISCARD. No exceptions.
+4. **RUN** `flutter gen-l10n` if ARB changed. Paste output. Every 5 optimizations → `flutter test`.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The text reads better now" | Score it mechanically. Feelings are not data. |
+| "The LLM would prefer this version" | LLM opinion is not a metric. grep/wc only. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop and retry with a different variant. If stuck 3x on same text → log as `discard` and move to next target.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
 
 ## Experiment Log (append-only)
 

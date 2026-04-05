@@ -84,6 +84,30 @@ grep -rn "Navigator.push\|Navigator.of" lib/widgets/ lib/screens/ | wc -l   # Na
 - **Defer bulk i18n** to `/autoresearch-i18n` — only flag, don't fix here
 - **NEVER fix >1 file without verifying** between fixes
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY file fix, before reporting it as done:
+
+1. **RUN** `flutter analyze 2>&1 | tail -10` AND `flutter test 2>&1 | tail -10` fresh.
+2. **RUN** detection commands on the fixed file. Confirm violation count = 0 for that file.
+3. **PASTE** all outputs in your experiment log. "Should pass" is FORBIDDEN.
+4. If violations remain in the file → the fix is incomplete. Do not move to next file.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "This color is close enough to MintColors" | Close is not correct. Use the exact token from colors.dart. |
+| "The old Navigator.push works fine" | Consistency is a feature. GoRouter everywhere (except dialogs). |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If fix caused cascading issues → revert ALL and skip this file. Return to the Loop.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

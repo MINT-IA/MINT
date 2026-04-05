@@ -262,6 +262,30 @@ class NewLifeEventScreen extends StatelessWidget {
 - **Defer bulk i18n** to `/autoresearch-i18n` if >10 strings needed
 - **Defer bulk Colors fixes** to `/autoresearch-ux-polish` if >5 files affected
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY navigation fix, before reporting it as done:
+
+1. **RUN** `flutter analyze 2>&1 | tail -10` AND `flutter test 2>&1 | tail -10` fresh.
+2. **RUN** the detection command for the fixed category. Confirm count decreased.
+3. **PASTE** all three outputs in your experiment log. "Should pass" is FORBIDDEN.
+4. If count did NOT decrease → the fix is incomplete or wrong. Investigate.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "Navigator.push works fine here" | GoRouter is the rule. No exceptions except dialogs (see Safe List). |
+| "This screen is rarely used" | Every screen must be properly routed. Frequency is irrelevant. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If fix caused cascading issues → revert ALL and skip this issue. Return to the Loop.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```

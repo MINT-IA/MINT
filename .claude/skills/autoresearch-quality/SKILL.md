@@ -105,6 +105,30 @@ The most frequent MINT bugs are invisible to `flutter test`:
 
 Severity: CRITICAL (wrong calc, runtime path) → fix now. HIGH (race, joint) → fix if budget. MEDIUM+ → log only.
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY fix, before reporting it as done:
+
+1. **RUN** the verification command fresh. Not from memory. Not from earlier.
+2. **PASTE** the exact terminal output in your experiment log. "Should pass" is FORBIDDEN.
+3. **READ** the output yourself. Confirm it proves your claim (fewer failures, no regressions).
+4. If output contradicts your claim → the claim is wrong. Fix or revert.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The test was wrong" | Tests are spec. Fix the code, not the test (unless genuinely outdated). |
+| "It only fails intermittently" | Flaky = broken. Find the race condition. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop and retry with a different approach. If stuck 3x on same bug → log as `skip` and move to next target.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 After EACH iteration, report in this format:

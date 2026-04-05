@@ -72,6 +72,30 @@ metadata:
 6. **No flaky tests**: no timers, no network, no randomness
 7. **Golden profiles use exact CLAUDE.md § 8 values**
 
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY test batch, before reporting it as committed:
+
+1. **RUN** `flutter test test/path/to/new_test.dart 2>&1 | tail -20` fresh.
+2. **PASTE** the exact terminal output. "Should pass" is FORBIDDEN.
+3. **READ** the output. Confirm: N tests ran, all passed, no regressions.
+4. Every 3 batches → full suite `flutter test 2>&1 | tail -10`. Paste that too.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The test would be redundant" | Redundant tests catch different bugs. Write it. |
+| "This code is too simple to test" | Simple code has simple tests. Write them. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop. If test won't compile after 3 attempts → discard and move to next file.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
 ## Experiment Log (append-only)
 
 ```
