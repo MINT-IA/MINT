@@ -451,21 +451,16 @@ Existing tests for underlying services (PlanTrackingService, StreakService, Noti
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Backend tool list for `record_check_in`**
-   - What we know: `generate_financial_plan` is handled Flutter-side in widget_renderer.dart but is NOT in coach_tools.py (it was never defined there; Claude emits it via system prompt instruction)
-   - What's unclear: Should `record_check_in` be added to coach_tools.py as a formal tool, or instructed via system prompt like `generate_financial_plan`?
-   - Recommendation: Add it as a formal tool in coach_tools.py for type safety and to appear in Claude's tool list. This matches how other structured output tools work.
+   - RESOLVED: Add `record_check_in` as a formal tool in `coach_tools.py` for type safety and to appear in Claude's tool list. Additionally, update `claude_coach_service.py` system prompt with sequential check-in conversation instructions referencing the user's PlannedMonthlyContribution list.
 
 2. **CoachProfileProvider binding in MintHomeScreen**
-   - What we know: MintHomeScreen currently watches `MintStateProvider` and `FinancialPlanProvider`. It does NOT watch `CoachProfileProvider`.
-   - What's unclear: Adding a third provider watch adds rebuild complexity.
-   - Recommendation: Read `CoachProfileProvider` via `context.watch` inside a `Builder` widget (the established pattern), same as `FinancialPlanProvider` in Section 1b.
+   - RESOLVED: Read `CoachProfileProvider` via `context.watch` inside a `Builder` widget (the established pattern), same as `FinancialPlanProvider` in Section 1b.
 
 3. **`_computeMonthsToRetirement` helper**
-   - What we know: `PlanTrackingService.compoundProjectedImpact()` requires `monthsToRetirement`. `CoachProfile` has `birthYear` (int) but not `birthDate`. Reference age is 65 (men) per AVS constants.
-   - Recommendation: Compute inline as `(profile.birthYear + 65 - DateTime.now().year) * 12`. This is an approximation acceptable for the educational disclaimer already in PlanRealityCard.
+   - RESOLVED: Compute inline as `(profile.birthYear + 65 - DateTime.now().year) * 12`. This is an approximation acceptable for the educational disclaimer already in PlanRealityCard.
 
 ---
 
