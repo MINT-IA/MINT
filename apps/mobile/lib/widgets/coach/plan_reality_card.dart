@@ -16,14 +16,19 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PlanRealityCard extends StatelessWidget {
   final PlanStatus status;
-  final double compoundImpact;
+  final double? compoundImpact;
   final int monthsToRetirement;
+
+  /// Optional streak badge rendered in the card header Row (right side).
+  /// Pass [StreakBadgeWidget] here to show streak count inside the card.
+  final Widget? streakBadge;
 
   const PlanRealityCard({
     super.key,
     required this.status,
-    required this.compoundImpact,
+    this.compoundImpact,
     required this.monthsToRetirement,
+    this.streakBadge,
   });
 
   @override
@@ -49,7 +54,7 @@ class PlanRealityCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header + badge
+            // Header + adherence badge + optional streak badge (inside card)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -71,6 +76,10 @@ class PlanRealityCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (streakBadge != null) ...[
+              const SizedBox(height: 12),
+              streakBadge!,
+            ],
             const SizedBox(height: 16),
 
             // Adherence progress bar
@@ -128,7 +137,7 @@ class PlanRealityCard extends StatelessWidget {
             ],
 
             // Compound impact
-            if (compoundImpact > 0) ...[
+            if (compoundImpact != null && compoundImpact! > 0) ...[
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
@@ -145,7 +154,7 @@ class PlanRealityCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      formatChf(compoundImpact),
+                      formatChf(compoundImpact!),
                       style: MintTextStyles.headlineSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),

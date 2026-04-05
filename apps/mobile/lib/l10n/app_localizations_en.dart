@@ -21437,4 +21437,76 @@ class SEn extends S {
   String planCard_recalculatePrompt(String goalDescription) {
     return 'Recalculate my plan : $goalDescription';
   }
+
+  @override
+  String get checkInNotificationTitle => 'Your monthly check-in is waiting';
+
+  @override
+  String get checkInNotificationBody =>
+      '2 minutes to see your progress. Do your check-in !';
+
+  @override
+  String get checkInReminderTitle =>
+      'You haven\'t done your monthly check-in yet.';
+
+  @override
+  String get checkInReminderBody => '2 minutes is all it takes !';
+
+  @override
+  String get streakAtRiskTitle => 'Your streak is at risk !';
+
+  @override
+  String streakAtRiskBody(int days, int months) {
+    return 'You have $days days left to keep your $months-month streak.';
+  }
+
+  @override
+  String get firstCheckInCardTitle => 'Your first check-in';
+
+  @override
+  String get firstCheckInCardBody =>
+      'Do your first monthly check-in to see your progress here.';
+
+  @override
+  String get checkInCtaButton => 'Do my monthly check-in';
+
+  @override
+  String checkInCoachOpener(String contribution) {
+    return 'Hi! Time to check in. How much did you contribute this month to $contribution?';
+  }
+
+  @override
+  String checkInCoachFollowUp(String nextContribution) {
+    return 'And for $nextContribution?';
+  }
+
+  @override
+  String checkInCoachMemory(String amount) {
+    return 'Last month you contributed $amount CHF — keeping up the momentum?';
+  }
+
+  @override
+  String checkInCoachSummary(String summary) {
+    return 'Great, $summary. Noted!';
+  }
+
+  @override
+  String get checkInErrorNoPlan =>
+      'You don\'t have an active plan yet. Talk to your coach to create one.';
+
+  @override
+  String get checkInErrorSaveFailed =>
+      'Unable to save your check-in. Please try again in a moment.';
+
+  @override
+  String get adherenceBadgeOnTrack => 'On track';
+
+  @override
+  String get adherenceBadgeProgress => 'Can improve';
+
+  @override
+  String get adherenceBadgeOffTrack => 'Needs work';
+
+  @override
+  String get checkInTotalLabel => 'Total contributed';
 }

@@ -21,14 +21,20 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/session_snapshot_service.dart';
+import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
+import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
+import 'package:mint_mobile/widgets/coach/streak_badge.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 
@@ -195,6 +201,72 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                               ),
                             );
                           },
+                        ),
+                      );
+                    },
+                  ),
+
+                  // ── Section 1c: Plan Reality + Streak (check-in section) ──
+                  Builder(
+                    builder: (ctx) {
+                      final profileProvider =
+                          ctx.watch<CoachProfileProvider>();
+                      final profile = profileProvider.profile;
+                      if (profile == null) return const SizedBox.shrink();
+
+                      // Empty state: show CTA when user has a plan but no check-ins
+                      if (profile.checkIns.isEmpty ||
+                          profile.plannedContributions.isEmpty) {
+                        final planProvider =
+                            ctx.watch<FinancialPlanProvider>();
+                        if (!planProvider.hasPlan) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding:
+                              const EdgeInsets.only(bottom: MintSpacing.xl),
+                          child: FirstCheckInCtaCard(
+                            onTap: () => widget.onSwitchToCoach?.call(
+                              const CoachEntryPayload(
+                                source: CoachEntrySource.homeChip,
+                                topic: 'monthlyCheckIn',
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+
+                      // Active state: PlanRealityCard with streak badge INSIDE header
+                      final status = PlanTrackingService.evaluate(
+                        checkIns: profile.checkIns,
+                        contributions: profile.plannedContributions,
+                      );
+                      final streak = StreakService.compute(profile);
+                      final birthYear =
+                          profile.birthYear;
+                      final monthsToRetirement =
+                          ((birthYear + 65) - DateTime.now().year) * 12;
+                      final impact = PlanTrackingService.compoundProjectedImpact(
+                        status: status,
+                        monthsToRetirement:
+                            monthsToRetirement > 0 ? monthsToRetirement : 12,
+                      );
+
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: MintSpacing.xl),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          child: PlanRealityCard(
+                            key: ValueKey(profile.checkIns.length),
+                            status: status,
+                            compoundImpact: impact,
+                            monthsToRetirement:
+                                monthsToRetirement > 0
+                                    ? monthsToRetirement
+                                    : 12,
+                            streakBadge: StreakBadgeWidget(streak: streak),
+                          ),
                         ),
                       );
                     },
