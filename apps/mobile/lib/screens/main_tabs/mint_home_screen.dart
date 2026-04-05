@@ -23,21 +23,60 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/session_snapshot_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 
 /// The new Tab 0 — "Aujourd'hui".
 ///
 /// Reads reactively from [MintStateProvider] via `context.watch`.
 /// When [MintUserState] is null (loading), shows a centered spinner.
-class MintHomeScreen extends StatelessWidget {
+///
+/// Section 0 (first visit only): [PremierEclairageCard] — shown when the user
+/// has selected an intent chip but has not yet seen their premier éclairage.
+class MintHomeScreen extends StatefulWidget {
   /// Callback to switch the parent [MainNavigationShell] to the coach tab.
   /// Receives the [CoachEntryPayload] to pass as context.
   final void Function(CoachEntryPayload? payload)? onSwitchToCoach;
 
   const MintHomeScreen({super.key, this.onSwitchToCoach});
+
+  @override
+  State<MintHomeScreen> createState() => _MintHomeScreenState();
+}
+
+class _MintHomeScreenState extends State<MintHomeScreen> {
+  bool _hasSeenPremierEclairage = true; // optimistic: hidden until loaded
+  String? _selectedIntent;
+  bool _hasExploredSimulators = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPremierEclairageState();
+  }
+
+  Future<void> _loadPremierEclairageState() async {
+    final hasSeen = await ReportPersistenceService.hasSeenPremierEclairage();
+    final intent = await ReportPersistenceService.getSelectedOnboardingIntent();
+    if (mounted) {
+      final activityProvider = context.read<UserActivityProvider>();
+      setState(() {
+        _hasSeenPremierEclairage = hasSeen;
+        _selectedIntent = intent;
+        _hasExploredSimulators =
+            activityProvider.exploredSimulators.isNotEmpty;
+      });
+    }
+  }
+
+  bool get _shouldShowPremierEclairage =>
+      !_hasSeenPremierEclairage &&
+      _selectedIntent != null &&
+      !_hasExploredSimulators;
 
   @override
   Widget build(BuildContext context) {
@@ -91,10 +130,31 @@ class MintHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: MintSpacing.md),
 
+                  // ── Section 0: Premier Éclairage (first visit only) ──
+                  if (_shouldShowPremierEclairage)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: MintSpacing.xl),
+                      child: PremierEclairageCard(
+                        onDismiss: () async {
+                          await ReportPersistenceService.markPremierEclairageSeen();
+                          if (mounted) {
+                            setState(() => _hasSeenPremierEclairage = true);
+                          }
+                        },
+                        onNavigate: (route) {
+                          ReportPersistenceService.markPremierEclairageSeen();
+                          if (mounted) {
+                            setState(() => _hasSeenPremierEclairage = true);
+                            context.go(route);
+                          }
+                        },
+                      ),
+                    ),
+
                   // ── Section 1: Chiffre Vivant GPS Card ──
                   _ChiffreVivantCard(
                     mintState: mintState,
-                    onTap: () => onSwitchToCoach?.call(
+                    onTap: () => widget.onSwitchToCoach?.call(
                       CoachEntryPayload(
                         source: CoachEntrySource.homeChiffre,
                         topic: 'retirementGap',
@@ -124,7 +184,7 @@ class MintHomeScreen extends StatelessWidget {
                             GoRouter.of(context).push(route);
                           }
                         },
-                        onTalk: () => onSwitchToCoach?.call(
+                        onTalk: () => widget.onSwitchToCoach?.call(
                           CoachEntryPayload(
                             source: CoachEntrySource.homeLever,
                             topic: mintState.currentCap?.id,
@@ -145,7 +205,7 @@ class MintHomeScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: MintSpacing.xl),
                       child: _SignalProactifCard(
                         mintState: mintState,
-                        onTap: () => onSwitchToCoach?.call(
+                        onTap: () => widget.onSwitchToCoach?.call(
                           CoachEntryPayload(
                             source: CoachEntrySource.signal,
                             topic: mintState.pendingTrigger?.intentTag ??
@@ -163,13 +223,13 @@ class MintHomeScreen extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: MintSpacing.xl),
                       child: _RadarAnticipateCard(
                         profile: mintState.profile,
-                        onSwitchToCoach: onSwitchToCoach,
+                        onSwitchToCoach: widget.onSwitchToCoach,
                       ),
                     ),
 
                   // ── Section 4: Coach Input Bar ──
                   _CoachInputBar(
-                    onSwitchToCoach: onSwitchToCoach,
+                    onSwitchToCoach: widget.onSwitchToCoach,
                   ),
 
                   const SizedBox(height: MintSpacing.xxl),
