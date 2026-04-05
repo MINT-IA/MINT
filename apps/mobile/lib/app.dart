@@ -296,6 +296,13 @@ final _router = GoRouter(
     GoRoute(path: '/retirement', redirect: (_, __) => '/retraite'),
     GoRoute(path: '/retirement/projection', redirect: (_, __) => '/retraite'),
 
+    // Intent router redirects (Phase 3 — map intent suggestedRoutes to existing screens)
+    GoRoute(path: '/bilan-retraite', redirect: (_, __) => '/retraite'),
+    GoRoute(path: '/prevoyance-overview', redirect: (_, __) => '/explore/retraite'),
+    GoRoute(path: '/fiscalite-overview', redirect: (_, __) => '/explore/fiscalite'),
+    GoRoute(path: '/achat-immobilier', redirect: (_, __) => '/hypotheque'),
+    GoRoute(path: '/life-events', redirect: (_, __) => '/home?tab=1'),
+
     GoRoute(
       path: '/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
