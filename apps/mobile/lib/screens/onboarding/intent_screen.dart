@@ -4,8 +4,16 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/models/coach_profile.dart' show CoachCivilStatus;
+import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/cap_sequence_engine.dart';
+import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/coach/intent_router.dart';
+import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -15,8 +23,9 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 /// Intent-based onboarding screen.
 ///
 /// Replaces the old form-based Quick Start / Smart Onboarding.
-/// Shows 7 situational chips — user taps one, opens coach chat
-/// with the chip text as `userMessage` via [CoachEntryPayload].
+/// Shows 7 situational chips — user taps one, triggers the full onboarding
+/// pipeline: intent routing, premier eclairage computation, CapMemory seeding,
+/// and navigation to /home?tab=0 (Aujourd'hui).
 ///
 /// No data collection. No formulaire. The coach handles everything.
 ///
@@ -28,25 +37,44 @@ class IntentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
 
-    // Ordered list of chips: label + userMessage for coach.
+    // Ordered list of chips: chipKey (ARB identifier) + label + userMessage.
     // "Autre…" sends null userMessage → coach shows silent opener.
     final chips = <_IntentChip>[
-      _IntentChip(label: l10n.intentChip3a, message: l10n.intentChip3a),
-      _IntentChip(label: l10n.intentChipBilan, message: l10n.intentChipBilan),
       _IntentChip(
+        chipKey: 'intentChip3a',
+        label: l10n.intentChip3a,
+        message: l10n.intentChip3a,
+      ),
+      _IntentChip(
+        chipKey: 'intentChipBilan',
+        label: l10n.intentChipBilan,
+        message: l10n.intentChipBilan,
+      ),
+      _IntentChip(
+        chipKey: 'intentChipPrevoyance',
         label: l10n.intentChipPrevoyance,
         message: l10n.intentChipPrevoyance,
       ),
       _IntentChip(
+        chipKey: 'intentChipFiscalite',
         label: l10n.intentChipFiscalite,
         message: l10n.intentChipFiscalite,
       ),
-      _IntentChip(label: l10n.intentChipProjet, message: l10n.intentChipProjet),
       _IntentChip(
+        chipKey: 'intentChipProjet',
+        label: l10n.intentChipProjet,
+        message: l10n.intentChipProjet,
+      ),
+      _IntentChip(
+        chipKey: 'intentChipChangement',
         label: l10n.intentChipChangement,
         message: l10n.intentChipChangement,
       ),
-      _IntentChip(label: l10n.intentChipAutre, message: null),
+      _IntentChip(
+        chipKey: 'intentChipAutre',
+        label: l10n.intentChipAutre,
+        message: null,
+      ),
     ];
 
     return Scaffold(
@@ -123,26 +151,131 @@ class IntentScreen extends StatelessWidget {
   }
 
   Future<void> _onChipTap(BuildContext context, _IntentChip chip) async {
+    final l10n = S.of(context)!;
+
     AnalyticsService().trackCTAClick(
       'intent_chip_tapped',
       screenName: '/onboarding/intent',
-      data: {'label': chip.label},
+      data: {'chipKey': chip.chipKey, 'label': chip.label},
     );
 
-    // Persist that onboarding intent was completed + which intent was chosen.
+    // Capture context-dependent values BEFORE any async gap (use_build_context_synchronously).
+    final profile = _buildMinimalProfile(context);
+    final coachProfile = context.read<CoachProfileProvider>().profile;
+
+    // 1. Persist onboarding state — store chipKey, NOT the resolved label (D-03 + Pitfall 2).
     await ReportPersistenceService.setMiniOnboardingCompleted(true);
-    await ReportPersistenceService.setSelectedOnboardingIntent(chip.label);
+    await ReportPersistenceService.setSelectedOnboardingIntent(chip.chipKey);
+
+    // 2. Resolve intent mapping.
+    final mapping = IntentRouter.forChipKey(chip.chipKey);
+
+    if (mapping != null) {
+      // profile and coachProfile already captured above.
+
+      // 4. Compute premier eclairage.
+      final choc = ChiffreChocSelector.select(
+        profile,
+        stressType: mapping.stressType,
+      );
+
+      // 5. Persist premier eclairage snapshot — display fields ONLY, no PII (T-03-02).
+      await ReportPersistenceService.savePremierEclairageSnapshot({
+        'value': choc.value,
+        'title': choc.title,
+        'subtitle': choc.subtitle,
+        'colorKey': choc.colorKey,
+        'suggestedRoute': mapping.suggestedRoute,
+        'confidenceMode': choc.confidenceMode.name,
+      });
+
+      // 6. Seed CapMemoryStore with goalIntentTag (D-05).
+      final memory = await CapMemoryStore.load();
+      final updated = memory.copyWith(
+        declaredGoals: [mapping.goalIntentTag],
+      );
+      await CapMemoryStore.save(updated);
+
+      // 7. Seed CapSequenceEngine (D-05) — pure function, result used by Aujourd'hui lever.
+      //    Requires CoachProfile — captured before async gap, may be null for fresh installs.
+      if (coachProfile != null) {
+        CapSequenceEngine.build(
+          profile: coachProfile,
+          memory: updated,
+          goalIntentTag: mapping.goalIntentTag,
+          l: l10n,
+        );
+      }
+    }
 
     if (!context.mounted) return;
 
-    // Build payload: userMessage for named intents, null for "Autre…".
+    // 8. Build coach payload (preserved from current behavior).
     final payload = CoachEntryPayload(
       source: CoachEntrySource.onboardingIntent,
       userMessage: chip.message,
     );
-
     context.read<CoachEntryPayloadProvider>().setPayload(payload);
-    context.go('/home?tab=1');
+
+    // 9. Navigate to Aujourd'hui tab (D-03: tab=0, NOT tab=1).
+    context.go('/home?tab=0');
+  }
+
+  /// Build a [MinimalProfileResult] from available [CoachProfileProvider] data.
+  ///
+  /// If the user has completed QuickStart, the profile data drives the calculation.
+  /// If no profile is available (fresh install), zero values produce a pedagogical
+  /// chiffre choc per D-08 (ChiffreChocSelector handles the fallback internally).
+  MinimalProfileResult _buildMinimalProfile(BuildContext context) {
+    final coachProfile =
+        context.read<CoachProfileProvider>().profile;
+
+    if (coachProfile != null && coachProfile.salaireBrutMensuel > 0) {
+      // Map etatCivil to MinimalProfileService householdType string.
+      final householdType = switch (coachProfile.etatCivil) {
+        CoachCivilStatus.marie || CoachCivilStatus.concubinage => 'couple',
+        _ => 'single',
+      };
+
+      return MinimalProfileService.compute(
+        age: coachProfile.age,
+        grossSalary: coachProfile.revenuBrutAnnuel,
+        canton: coachProfile.canton,
+        employmentStatus: coachProfile.employmentStatus,
+        householdType: householdType,
+      );
+    }
+
+    // Zero-valued profile — ChiffreChocSelector pedagogical fallback (D-08).
+    return const MinimalProfileResult(
+      avsMonthlyRente: 0,
+      lppAnnualRente: 0,
+      lppMonthlyRente: 0,
+      totalMonthlyRetirement: 0,
+      grossMonthlySalary: 0,
+      replacementRate: 0,
+      retirementGapMonthly: 0,
+      taxSaving3a: 0,
+      marginalTaxRate: 0,
+      currentSavings: 0,
+      estimatedMonthlyExpenses: 0,
+      monthlyDebtImpact: 0,
+      liquidityMonths: 0,
+      canton: 'VD',
+      age: 35,
+      grossAnnualSalary: 0,
+      householdType: 'single',
+      isPropertyOwner: false,
+      existing3a: 0,
+      existingLpp: 0,
+      estimatedFields: [
+        'householdType',
+        'isPropertyOwner',
+        'currentSavings',
+        'existing3a',
+        'existingLpp',
+      ],
+    );
   }
 }
 
@@ -151,12 +284,22 @@ class IntentScreen extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _IntentChip {
+  /// ARB identifier key (e.g. 'intentChip3a'). Persisted to SharedPreferences.
+  ///
+  /// IMPORTANT: This is the chipKey, NOT the resolved localized string.
+  /// Always pass chipKey to persistence and routing — never chip.label.
+  final String chipKey;
+
   final String label;
 
   /// The message sent to the coach. Null for "Autre…" (silent opener).
   final String? message;
 
-  const _IntentChip({required this.label, this.message});
+  const _IntentChip({
+    required this.chipKey,
+    required this.label,
+    this.message,
+  });
 }
 
 // ---------------------------------------------------------------------------
