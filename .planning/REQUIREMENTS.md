@@ -25,9 +25,9 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [ ] **DOC-05**: Cross-field coherence checks validate obligatoire + surobligatoire ~ total (catches 10x hallucination errors)
 - [ ] **DOC-06**: Extracted fields auto-populate CoachProfile via ProfileEnrichmentDiff (never direct writes) with user confirmation
 - [ ] **DOC-07**: Immediate premier eclairage generated from newly extracted data after document processing
-- [ ] **DOC-08**: Original document image deleted immediately after extraction (nLPD compliance) -- audit log retained
+- [x] **DOC-08**: Original document image deleted immediately after extraction (nLPD compliance) -- audit log retained
 - [ ] **DOC-09**: LLM extraction includes mandatory `source_text` field for traceability -- extraction without source_text is rejected
-- [ ] **DOC-10**: Pre-extraction validation rejects non-financial documents with friendly error message
+- [x] **DOC-10**: Pre-extraction validation rejects non-financial documents with friendly error message
 
 ### Moteur d'Anticipation
 
@@ -78,7 +78,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [ ] **COMP-01**: ComplianceGuard validates ALL new output channels: alerts (ANT), narrative refs (BIO), coach openers (CTX), extraction insights (DOC)
 - [ ] **COMP-02**: No stale data as truth: every reference to user data is dated or conditioned -- projections disclose data age
 - [ ] **COMP-03**: FinancialBiography data never leaves device -- AnonymizedBiographySummary only in LLM prompts
-- [ ] **COMP-04**: Document images deleted in `finally` blocks (not just happy path) -- deletion audit log retained 2 years
+- [x] **COMP-04**: Document images deleted in `finally` blocks (not just happy path) -- deletion audit log retained 2 years
 - [ ] **COMP-05**: All new user-facing strings in 6 ARB files via AppLocalizations -- zero hardcoded strings
 
 ## v3.0 Requirements (Deferred)
@@ -128,9 +128,9 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | DOC-05 | Phase 2 | Pending |
 | DOC-06 | Phase 2 | Pending |
 | DOC-07 | Phase 2 | Pending |
-| DOC-08 | Phase 2 | Pending |
+| DOC-08 | Phase 2 | Complete |
 | DOC-09 | Phase 2 | Pending |
-| DOC-10 | Phase 2 | Pending |
+| DOC-10 | Phase 2 | Complete |
 | ANT-01 | Phase 4 | Pending |
 | ANT-02 | Phase 4 | Pending |
 | ANT-03 | Phase 4 | Pending |
@@ -166,7 +166,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | COMP-01 | Phase 6 | Pending |
 | COMP-02 | Phase 3 | Pending |
 | COMP-03 | Phase 3 | Pending |
-| COMP-04 | Phase 2 | Pending |
+| COMP-04 | Phase 2 | Complete |
 | COMP-05 | Phase 6 | Pending |
 
 **Coverage:**

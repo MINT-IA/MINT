@@ -45,7 +45,7 @@ Plans:
   5. A premier eclairage is generated from the newly extracted data within seconds of document processing
 **Plans**: 4 plans
 Plans:
-- [ ] 02-01-PLAN.md -- Backend safety: audit log model, document classification, finally-block deletion (DOC-08, DOC-10, COMP-04)
+- [x] 02-01-PLAN.md -- Backend safety: audit log model, document classification, finally-block deletion (DOC-08, DOC-10, COMP-04)
 - [ ] 02-02-PLAN.md -- Backend intelligence: LPP plan type detection, cross-field coherence, source_text enforcement (DOC-04, DOC-05, DOC-09)
 - [ ] 02-03-PLAN.md -- Frontend enhancement: i18n keys, capture screen pre-validation, per-field confidence thresholds, review screen warnings (DOC-01, DOC-02, DOC-03, DOC-06)
 - [ ] 02-04-PLAN.md -- Premier eclairage generation + document impact screen + full pipeline checkpoint (DOC-07)
