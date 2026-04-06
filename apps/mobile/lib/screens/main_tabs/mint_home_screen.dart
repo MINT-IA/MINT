@@ -22,6 +22,9 @@ import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/providers/anticipation_provider.dart';
+import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/services/anticipation/anticipation_signal.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -39,6 +42,7 @@ import 'package:mint_mobile/widgets/coach/animated_progress_bar.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
 import 'package:mint_mobile/widgets/coach/streak_badge.dart';
+import 'package:mint_mobile/widgets/home/anticipation_signal_card.dart';
 import 'package:mint_mobile/widgets/home/confidence_score_card.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
@@ -72,6 +76,17 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
   void initState() {
     super.initState();
     _loadPremierEclairageState();
+    // Evaluate anticipation triggers once per session (CTX-02)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profile = context.read<CoachProfileProvider>().profile;
+      final facts = context.read<BiographyProvider>().facts;
+      if (profile != null) {
+        context.read<AnticipationProvider>().evaluateOnSessionStart(
+              profile: profile,
+              facts: facts,
+            );
+      }
+    });
   }
 
   Future<void> _loadPremierEclairageState() async {
@@ -186,6 +201,45 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                   ),
 
                   const SizedBox(height: MintSpacing.xl),
+
+                  // ── Section 1a: Anticipation Signals (max 2 cards) ──
+                  Builder(
+                    builder: (ctx) {
+                      final anticipation =
+                          ctx.watch<AnticipationProvider>();
+                      if (!anticipation.hasSignals) {
+                        return const SizedBox.shrink();
+                      }
+                      return Column(
+                        children: [
+                          ...anticipation.visibleSignals.map(
+                            (signal) => Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: MintSpacing.md,
+                              ),
+                              child: MintEntrance(
+                                delay: const Duration(milliseconds: 200),
+                                child: AnticipationSignalCard(
+                                  signal: signal,
+                                  onDismiss: () =>
+                                      anticipation.dismissSignal(signal),
+                                  onSnooze: () =>
+                                      anticipation.snoozeSignal(signal),
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (anticipation.hasOverflow)
+                            _AnticipationOverflow(
+                              signals: anticipation.overflowSignals,
+                              onDismiss: anticipation.dismissSignal,
+                              onSnooze: anticipation.snoozeSignal,
+                            ),
+                          const SizedBox(height: MintSpacing.xl),
+                        ],
+                      );
+                    },
+                  ),
 
                   // ── Section 1b: Financial Plan Card (visible when a plan exists) ──
                   Builder(
@@ -1514,5 +1568,46 @@ class _JourneyStepsCard extends StatelessWidget {
       'capStepNewJob05Title' => l.capStepNewJob05Title,
       _ => key, // Fallback: show key (should never happen in production)
     };
+  }
+}
+
+// ────────────────────────────────────────────────────────────
+//  Anticipation Overflow — expandable section for extra signals
+// ────────────────────────────────────────────────────────────
+
+class _AnticipationOverflow extends StatelessWidget {
+  final List<AnticipationSignal> signals;
+  final void Function(AnticipationSignal) onDismiss;
+  final void Function(AnticipationSignal) onSnooze;
+
+  const _AnticipationOverflow({
+    required this.signals,
+    required this.onDismiss,
+    required this.onSnooze,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final l = S.of(context)!;
+    return ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      childrenPadding: EdgeInsets.zero,
+      title: Text(
+        l.anticipationOverflowTitle(signals.length.toString()),
+        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+      ),
+      children: signals
+          .map(
+            (signal) => Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+              child: AnticipationSignalCard(
+                signal: signal,
+                onDismiss: () => onDismiss(signal),
+                onSnooze: () => onSnooze(signal),
+              ),
+            ),
+          )
+          .toList(),
+    );
   }
 }

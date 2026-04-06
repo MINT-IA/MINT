@@ -25,6 +25,9 @@ import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/providers/anticipation_provider.dart';
+import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
@@ -78,6 +81,12 @@ void main() {
             create: (_) => MintStateProvider()),
         ChangeNotifierProvider<CoachEntryPayloadProvider>(
             create: (_) => CoachEntryPayloadProvider()),
+        ChangeNotifierProvider<FinancialPlanProvider>(
+            create: (_) => FinancialPlanProvider()),
+        ChangeNotifierProvider<BiographyProvider>(
+            create: (_) => BiographyProvider()),
+        ChangeNotifierProvider<AnticipationProvider>(
+            create: (_) => AnticipationProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),
