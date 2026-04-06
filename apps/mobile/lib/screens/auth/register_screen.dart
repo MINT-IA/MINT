@@ -108,7 +108,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (redirect != null && redirect.startsWith('/')) {
           context.go(Uri.decodeComponent(redirect));
         } else {
-          context.go('/home');
+          // Post-auth routing: new users -> onboarding, returning -> home
+          final completed = await ReportPersistenceService.isMiniOnboardingCompleted();
+          if (!mounted) return;
+          if (completed) {
+            context.go('/home');
+          } else {
+            context.go('/onboarding/intent');
+          }
         }
       }
     }

@@ -11,6 +11,7 @@ import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
@@ -200,6 +201,12 @@ final _router = GoRouter(
     GoRoute(
       path: '/auth/verify-email',
       builder: (context, state) => const VerifyEmailScreen(),
+    ),
+    GoRoute(
+      path: '/auth/verify',
+      builder: (context, state) => _MagicLinkVerifyScreen(
+        token: state.uri.queryParameters['token'],
+      ),
     ),
 
     // ── Main Shell (4 tabs: Aujourd'hui, Coach, Explorer, Dossier) ──
@@ -1128,6 +1135,107 @@ ThemeData _buildPremiumTheme() {
       thickness: 1,
     ),
   );
+}
+
+/// Deep link handler for magic link authentication.
+/// Extracts token from URL, verifies it, and routes to onboarding or home.
+class _MagicLinkVerifyScreen extends StatefulWidget {
+  final String? token;
+  const _MagicLinkVerifyScreen({this.token});
+
+  @override
+  State<_MagicLinkVerifyScreen> createState() => _MagicLinkVerifyScreenState();
+}
+
+class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
+  bool _isVerifying = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _verifyToken();
+  }
+
+  Future<void> _verifyToken() async {
+    if (widget.token == null || widget.token!.isEmpty) {
+      setState(() {
+        _isVerifying = false;
+        _errorMessage = 'Lien invalide';
+      });
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    final success = await authProvider.verifyMagicLink(widget.token!);
+
+    if (!mounted) return;
+
+    if (success) {
+      // Post-auth routing: check onboarding status
+      final completed =
+          await ReportPersistenceService.isMiniOnboardingCompleted();
+      if (!mounted) return;
+      if (completed) {
+        context.go('/home');
+      } else {
+        context.go('/onboarding/intent');
+      }
+    } else {
+      setState(() {
+        _isVerifying = false;
+        _errorMessage = 'Ce lien est invalide ou a expiré';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: _isVerifying
+              ? const Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(height: 24),
+                    Text(
+                      'Vérification en cours...',
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
+                    ),
+                  ],
+                )
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline,
+                        size: 64, color: Colors.red),
+                    const SizedBox(height: 24),
+                    Text(
+                      _errorMessage ?? 'Erreur de vérification',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 16, color: Colors.black87),
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: () => _verifyToken(),
+                      child: const Text('Réessayer'),
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton(
+                      onPressed: () => context.go('/auth/login'),
+                      child: const Text('Retour à la connexion'),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
 }
 
 class _MintErrorScreen extends StatelessWidget {

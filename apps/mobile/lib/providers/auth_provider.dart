@@ -233,6 +233,87 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Send a magic link to the given email address.
+  Future<bool> sendMagicLink(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await ApiService.sendMagicLink(email);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Verify a magic link token and complete authentication.
+  Future<bool> verifyMagicLink(String token) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await ApiService.verifyMagicLink(token);
+
+      // Backend returns camelCase: { accessToken, tokenType }
+      final accessToken = (response['accessToken'] ?? response['access_token']) as String;
+
+      // Get user info from the JWT to populate auth state.
+      // For now, store the token and fetch user info separately.
+      await AuthService.saveToken(
+        accessToken,
+        '', // userId will be populated from /me endpoint
+        '', // email will be populated from /me endpoint
+      );
+
+      // Fetch user info with the new token
+      try {
+        final userInfo = await ApiService.getMe();
+        final userId = userInfo['id']?.toString() ?? '';
+        final userEmail = userInfo['email']?.toString() ?? '';
+        final displayName = userInfo['display_name'] as String?;
+
+        await AuthService.saveToken(
+          accessToken,
+          userId,
+          userEmail,
+          displayName: displayName,
+        );
+
+        _userId = userId;
+        _email = userEmail;
+        _displayName = displayName;
+      } catch (_) {
+        // Best-effort: token is valid even if /me fails
+      }
+
+      _isLoggedIn = true;
+      _requiresEmailVerification = false;
+      _error = null;
+      _isLoading = false;
+
+      if (_userId != null) {
+        ConversationStore.setCurrentUserId(_userId);
+        await _migrateLocalDataIfNeeded();
+        await _hydrateProfileFromBackend();
+      }
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> deleteAccount() async {
     _isLoading = true;
     _error = null;

@@ -449,6 +449,42 @@ class ApiService {
     );
   }
 
+  /// Send a magic link to the given email address.
+  /// Returns: { message: "..." }
+  static Future<Map<String, dynamic>> sendMagicLink(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/magic-link/send'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Failed to send magic link'),
+      statusCode: response.statusCode,
+    );
+  }
+
+  /// Verify a magic link token and return JWT.
+  /// Returns: { accessToken: "...", tokenType: "bearer" }
+  static Future<Map<String, dynamic>> verifyMagicLink(String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/magic-link/verify'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token}),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Magic link verification failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
   /// Get current user info
   /// Returns: { id, email, display_name?, created_at }
   static Future<Map<String, dynamic>> getMe() async {
