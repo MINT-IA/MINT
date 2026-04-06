@@ -106,6 +106,8 @@ import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
+import 'package:mint_mobile/screens/onboarding/promise_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -843,6 +845,16 @@ final _router = GoRouter(
       path: '/onboarding/chiffre-choc',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ChiffreChocScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/intent',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const IntentScreen(),
+    ),
+    GoRoute(
+      path: '/onboarding/promise',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PromiseScreen(),
     ),
     GoRoute(
       path: '/data-block/:type',
