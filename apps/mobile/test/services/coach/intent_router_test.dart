@@ -90,8 +90,8 @@ void main() {
       }
     });
 
-    test('allChipKeys returns exactly 7 entries', () {
-      expect(IntentRouter.allChipKeys.length, equals(7));
+    test('allChipKeys returns exactly 9 entries', () {
+      expect(IntentRouter.allChipKeys.length, equals(9));
     });
 
     test('allChipKeys contains all expected chip identifiers', () {
@@ -103,6 +103,26 @@ void main() {
       expect(keys, contains('intentChipProjet'));
       expect(keys, contains('intentChipChangement'));
       expect(keys, contains('intentChipAutre'));
+      expect(keys, contains('intentChipPremierEmploi'));
+      expect(keys, contains('intentChipNouvelEmploi'));
+    });
+
+    test('forChipKey returns IntentMapping for intentChipPremierEmploi', () {
+      final mapping = IntentRouter.forChipKey('intentChipPremierEmploi');
+      expect(mapping, isNotNull);
+      expect(mapping!.goalIntentTag, equals('first_job'));
+      expect(mapping.stressType, equals('stress_budget'));
+      expect(mapping.suggestedRoute, equals('/premier-emploi'));
+      expect(mapping.lifeEventFamily, equals('professionnel'));
+    });
+
+    test('forChipKey returns IntentMapping for intentChipNouvelEmploi', () {
+      final mapping = IntentRouter.forChipKey('intentChipNouvelEmploi');
+      expect(mapping, isNotNull);
+      expect(mapping!.goalIntentTag, equals('new_job'));
+      expect(mapping.stressType, equals('stress_budget'));
+      expect(mapping.suggestedRoute, equals('/rente-vs-capital'));
+      expect(mapping.lifeEventFamily, equals('professionnel'));
     });
 
     test('IntentMapping fields are non-empty strings', () {

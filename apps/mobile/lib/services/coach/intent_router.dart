@@ -26,7 +26,7 @@ class IntentMapping {
   });
 }
 
-/// Static routing table from 7 onboarding chip ARB keys to intent metadata.
+/// Static routing table from 9 onboarding chip ARB keys to intent metadata.
 ///
 /// Never instantiate — use static accessors only.
 class IntentRouter {
@@ -69,6 +69,18 @@ class IntentRouter {
       suggestedRoute: '/life-events',
       lifeEventFamily: 'professionnel',
     ),
+    'intentChipPremierEmploi': IntentMapping(
+      goalIntentTag: 'first_job',
+      stressType: 'stress_budget',
+      suggestedRoute: '/premier-emploi',
+      lifeEventFamily: 'professionnel',
+    ),
+    'intentChipNouvelEmploi': IntentMapping(
+      goalIntentTag: 'new_job',
+      stressType: 'stress_budget',
+      suggestedRoute: '/rente-vs-capital',
+      lifeEventFamily: 'professionnel',
+    ),
     'intentChipAutre': IntentMapping(
       goalIntentTag: 'retirement_choice',
       stressType: 'stress_retraite',
@@ -83,6 +95,6 @@ class IntentRouter {
   /// not the resolved localized label.
   static IntentMapping? forChipKey(String chipKey) => _map[chipKey];
 
-  /// Returns all registered chip key identifiers (exactly 7).
+  /// Returns all registered chip key identifiers (exactly 9).
   static List<String> get allChipKeys => _map.keys.toList();
 }
