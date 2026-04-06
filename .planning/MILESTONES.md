@@ -1,6 +1,6 @@
 # Milestones
 
-## v1.0 MVP Pipeline (Shipped: 2026-04-06)
+## v1.0 MVP Pipeline — Largely shipped — 2 functional gaps open
 
 **Phases completed:** 8 phases, 20 plans, 34 tasks
 
