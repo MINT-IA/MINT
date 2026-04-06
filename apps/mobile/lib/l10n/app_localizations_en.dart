@@ -21636,4 +21636,19 @@ class SEn extends S {
 
   @override
   String get homeSignalEmptyState => 'Everything is up to date for now.';
+
+  @override
+  String get explorerBlockedSheetTitle => 'You\'re missing a few details';
+
+  @override
+  String explorerBlockedSheetBody(String field) {
+    return 'To access this hub, add $field to your profile.';
+  }
+
+  @override
+  String get explorerBlockedSheetCta => 'Complete my profile';
+
+  @override
+  String get explorerPartialTooltip =>
+      'Some data is missing — approximate estimate';
 }

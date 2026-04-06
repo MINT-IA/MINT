@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -9,6 +10,26 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:provider/provider.dart';
+
+// ── ReadinessGate types ─────────────────────────────────────────
+
+/// Readiness level for an Explorer hub card.
+enum _HubReadinessLevel { ready, partial, blocked }
+
+/// Result of a readiness evaluation for a hub.
+class _HubReadinessResult {
+  final _HubReadinessLevel level;
+  final List<String> missingFields;
+
+  const _HubReadinessResult({
+    required this.level,
+    required this.missingFields,
+  });
+
+  const _HubReadinessResult.ready()
+      : level = _HubReadinessLevel.ready,
+        missingFields = const [];
+}
 
 /// Tab 2 — Explorer
 ///
@@ -140,6 +161,203 @@ class _ExploreTabState extends State<ExploreTab> {
       'fiscalite', 'logement', 'travail',
     ],
   };
+
+  // ── ReadinessGate hub requirements ─────────────────────────
+
+  /// Hub required fields: critical (block hub) and optional (partial state).
+  static const Map<String, Map<String, List<String>>> _hubFieldRequirements = {
+    'retraite': {
+      'critical': ['salaireBrutMensuel', 'birthYear', 'canton'],
+      'optional': [],
+    },
+    'fiscalite': {
+      'critical': ['salaireBrutMensuel', 'canton'],
+      'optional': [],
+    },
+    'logement': {
+      'critical': ['salaireBrutMensuel'],
+      'optional': [],
+    },
+    'famille': {
+      'critical': [],
+      'optional': ['etatCivil'],
+    },
+    'travail': {
+      'critical': [],
+      'optional': ['employmentStatus'],
+    },
+    'patrimoine': {
+      'critical': [],
+      'optional': ['epargne'],
+    },
+    'sante': {
+      'critical': [],
+      'optional': [],
+    },
+  };
+
+  /// Evaluate readiness level for a hub given the current profile.
+  _HubReadinessResult _evaluateHub(String hubKey, CoachProfile profile) {
+    final requirements = _hubFieldRequirements[hubKey];
+    if (requirements == null) return const _HubReadinessResult.ready();
+
+    final criticalFields = requirements['critical'] ?? [];
+    final optionalFields = requirements['optional'] ?? [];
+
+    final missingCritical = criticalFields
+        .where((f) => !_isFieldPresent(f, profile))
+        .toList();
+    final missingOptional = optionalFields
+        .where((f) => !_isFieldPresent(f, profile))
+        .toList();
+
+    if (missingCritical.isNotEmpty) {
+      return _HubReadinessResult(
+        level: _HubReadinessLevel.blocked,
+        missingFields: missingCritical,
+      );
+    }
+    if (missingOptional.isNotEmpty) {
+      return _HubReadinessResult(
+        level: _HubReadinessLevel.partial,
+        missingFields: missingOptional,
+      );
+    }
+    return const _HubReadinessResult.ready();
+  }
+
+  /// Check if a named profile field has a meaningful value.
+  bool _isFieldPresent(String field, CoachProfile profile) {
+    switch (field) {
+      case 'salaireBrutMensuel':
+        return profile.salaireBrutMensuel > 0;
+      case 'birthYear':
+        // 1990 is the placeholder default; birth before 1921 unlikely
+        return profile.birthYear != 1990 && profile.birthYear > 1920;
+      case 'canton':
+        // VD is the default when canton has not been explicitly set
+        return profile.canton.isNotEmpty && profile.canton != 'VD';
+      case 'etatCivil':
+        // Always has a default value (celibataire) — treat as present
+        return true;
+      case 'employmentStatus':
+        return profile.employmentStatus.isNotEmpty;
+      case 'epargne':
+        return profile.patrimoine.epargneLiquide > 0;
+      default:
+        return true;
+    }
+  }
+
+  /// Map a field key to a user-friendly French label.
+  String _fieldLabel(String field) {
+    switch (field) {
+      case 'salaireBrutMensuel':
+        return 'Ton salaire';
+      case 'birthYear':
+        return 'Ton \u00e2ge';
+      case 'canton':
+        return 'Ton canton';
+      case 'etatCivil':
+        return 'Ton \u00e9tat civil';
+      case 'employmentStatus':
+        return 'Ton statut professionnel';
+      case 'epargne':
+        return 'Ton \u00e9pargne';
+      default:
+        return field;
+    }
+  }
+
+  /// Show bottom sheet listing missing fields and CTA to complete profile.
+  void _showBlockedSheet(
+    BuildContext context,
+    String hubTitle,
+    List<String> missingFields,
+    S l,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: MintColors.background,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => DraggableScrollableSheet(
+        initialChildSize: 0.4,
+        minChildSize: 0.3,
+        maxChildSize: 0.7,
+        expand: false,
+        builder: (ctx, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          child: Padding(
+            padding: const EdgeInsets.all(MintSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Drag handle
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: MintSpacing.md),
+                    decoration: BoxDecoration(
+                      color: MintColors.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  l.explorerBlockedSheetTitle,
+                  style: MintTextStyles.headlineMedium(),
+                ),
+                const SizedBox(height: MintSpacing.md),
+                for (final field in missingFields)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.circle,
+                          size: 6,
+                          color: MintColors.warning,
+                        ),
+                        const SizedBox(width: MintSpacing.sm),
+                        Text(
+                          _fieldLabel(field),
+                          style: MintTextStyles.bodyLarge(),
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: MintSpacing.lg),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: MintColors.primary,
+                      foregroundColor: MintColors.background,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: MintSpacing.md,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      context.push('/onboarding/quick?section=profile');
+                    },
+                    child: Text(l.explorerBlockedSheetCta),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -322,6 +540,10 @@ class _ExploreTabState extends State<ExploreTab> {
                       context,
                       hubConfigs[orderedHubKeys[i]]!,
                       delay: Duration(milliseconds: i * 100),
+                      readiness: profile != null
+                          ? _evaluateHub(orderedHubKeys[i], profile)
+                          : const _HubReadinessResult.ready(),
+                      l: l,
                     ),
                   ],
                   const SizedBox(height: MintSpacing.xxl),
@@ -333,11 +555,13 @@ class _ExploreTabState extends State<ExploreTab> {
     );
   }
 
-  /// Build a single hub card with entrance animation.
+  /// Build a single hub card with entrance animation and readiness state.
   Widget _buildHubCard(
     BuildContext context,
     _HubConfig config, {
     required Duration delay,
+    required _HubReadinessResult readiness,
+    required S l,
   }) {
     return MintEntrance(
       delay: delay,
@@ -346,7 +570,21 @@ class _ExploreTabState extends State<ExploreTab> {
         narrative: config.narrative,
         tone: config.tone,
         icon: config.icon,
-        onTap: () => context.push(config.route),
+        readinessLevel: readiness.level,
+        missingFields: readiness.missingFields,
+        partialTooltip: l.explorerPartialTooltip,
+        onTap: () {
+          if (readiness.level == _HubReadinessLevel.blocked) {
+            _showBlockedSheet(
+              context,
+              config.title,
+              readiness.missingFields,
+              l,
+            );
+          } else {
+            context.push(config.route);
+          }
+        },
       ),
     );
   }
@@ -397,11 +635,19 @@ class _HubConfig {
 
 /// Premium hub card — warm coloured surface, narrative text,
 /// generous breathing room. Cleo "goal card" aesthetic.
+///
+/// Renders 3 visual states based on [readinessLevel]:
+/// - ready: full opacity (1.0), normal colors, active tap → push route
+/// - partial: opacity 0.85, warning dot indicator (top-right of icon), active tap
+/// - blocked: opacity 0.55, muted icon, locked label, tap → enrichment sheet
 class _ExploreHubCard extends StatelessWidget {
   final String title;
   final String narrative;
   final MintSurfaceTone tone;
   final IconData icon;
+  final _HubReadinessLevel readinessLevel;
+  final List<String> missingFields;
+  final String partialTooltip;
   final VoidCallback onTap;
 
   const _ExploreHubCard({
@@ -409,57 +655,126 @@ class _ExploreHubCard extends StatelessWidget {
     required this.narrative,
     required this.tone,
     required this.icon,
+    required this.readinessLevel,
+    required this.missingFields,
+    required this.partialTooltip,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final isBlocked = readinessLevel == _HubReadinessLevel.blocked;
+    final isPartial = readinessLevel == _HubReadinessLevel.partial;
+
+    final double opacity = isBlocked ? 0.55 : (isPartial ? 0.85 : 1.0);
+    final Color iconColor =
+        isBlocked ? MintColors.textMuted : MintColors.textSecondary;
+
+    final semanticsLabel = isBlocked
+        ? 'Hub $title \u2014 compl\u00e8te ton profil pour y acc\u00e9der'
+        : title;
+
     return Semantics(
-      label: title,
+      label: semanticsLabel,
       button: true,
-      child: GestureDetector(
-        onTap: onTap,
-        child: MintSurface(
-          tone: tone,
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    icon,
+      child: Opacity(
+        opacity: opacity,
+        child: GestureDetector(
+          onTap: onTap,
+          onLongPress: isPartial
+              ? () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        partialTooltip,
+                        style: MintTextStyles.bodySmall(
+                          color: MintColors.background,
+                        ),
+                      ),
+                      duration: const Duration(seconds: 2),
+                      backgroundColor: MintColors.primary.withValues(alpha: 0.9),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  );
+                }
+              : null,
+          child: MintSurface(
+            tone: tone,
+            padding: const EdgeInsets.all(MintSpacing.lg),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    // Icon with partial indicator dot
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(
+                          icon,
+                          color: iconColor,
+                          size: 22,
+                        ),
+                        if (isPartial)
+                          Positioned(
+                            top: -2,
+                            right: -2,
+                            child: Semantics(
+                              label: 'Donn\u00e9es partielles',
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: MintColors.warning,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      color: MintColors.textMuted.withValues(alpha: 0.5),
+                      size: 18,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: MintSpacing.lg),
+                Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    style: MintTextStyles.headlineMedium(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: MintSpacing.sm),
+                Text(
+                  narrative,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
-                    size: 22,
                   ),
-                  const Spacer(),
-                  Icon(
-                    Icons.arrow_forward_rounded,
-                    color: MintColors.textMuted.withValues(alpha: 0.5),
-                    size: 18,
-                  ),
-                ],
-              ),
-              const SizedBox(height: MintSpacing.lg),
-              Semantics(
-                header: true,
-                child: Text(
-                  title,
-                  style: MintTextStyles.headlineMedium(),
-                  maxLines: 1,
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                narrative,
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textSecondary,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
+                // Blocked state label
+                if (isBlocked) ...[
+                  const SizedBox(height: MintSpacing.sm),
+                  Text(
+                    'Compl\u00e8te ton profil',
+                    style: MintTextStyles.bodySmall(
+                      color: MintColors.textMuted,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),

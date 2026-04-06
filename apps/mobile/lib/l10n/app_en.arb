@@ -9938,5 +9938,16 @@
   "confidenceEnrichmentPrefix": "To go further\u00a0:",
   "confidenceLoadError": "Unable to calculate precision. Try again in a moment.",
   "confidenceLoadErrorRetry": "Retry",
-  "homeSignalEmptyState": "Everything is up to date for now."
+  "homeSignalEmptyState": "Everything is up to date for now.",
+  "explorerBlockedSheetTitle": "You're missing a few details",
+  "explorerBlockedSheetBody": "To access this hub, add {field} to your profile.",
+  "@explorerBlockedSheetBody": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "explorerBlockedSheetCta": "Complete my profile",
+  "explorerPartialTooltip": "Some data is missing\u00a0\u2014 approximate estimate"
 }

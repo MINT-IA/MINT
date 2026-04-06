@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/theme/mint_motion.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -144,6 +145,37 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// Redirect-loop guard counter (P0-1). Tracks consecutive auth redirects.
 int _authRedirectCount = 0;
+
+// ── UXP-04: Fade transition helper ────────────────────────────
+/// Creates a [CustomTransitionPage] with a fade transition using
+/// [MintMotion] tokens. Respects reduced-motion accessibility preference.
+///
+/// Used for onboarding journey routes only (intent, chat).
+/// All other routes retain default Material slide behaviour.
+CustomTransitionPage<void> _fadeTransitionPage({
+  required LocalKey key,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: key,
+    child: child,
+    transitionDuration: MintMotion.page,           // 350ms in
+    reverseTransitionDuration: MintMotion.standard, // 300ms out
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      // Respect reduced-motion accessibility preference
+      if (MediaQuery.of(context).disableAnimations) {
+        return child;
+      }
+      return FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: MintMotion.curveEnter, // Curves.easeOutQuart
+        ),
+        child: child,
+      );
+    },
+  );
+}
 
 // ════════════════════════════════════════════════════════════
 //  ROUTER — S49 Phase 2: Simplified navigation
@@ -339,10 +371,11 @@ final _router = GoRouter(
     GoRoute(path: '/coach/cockpit', redirect: (_, __) => '/home?tab=0'),
     GoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
     GoRoute(path: '/coach/refresh', redirect: (_, __) => '/home?tab=0'),
+    // UXP-04: fade transition for coach chat (onboarding journey destination)
     GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         // Wire Spec V2: structured payload via route extra
         final entryPayload = state.extra is CoachEntryPayload
             ? state.extra as CoachEntryPayload
@@ -358,10 +391,13 @@ final _router = GoRouter(
                 RegExp(r'^[a-zA-Z0-9\-]{1,64}$').hasMatch(rawConvId))
             ? rawConvId
             : null;
-        return CoachChatScreen(
-          initialPrompt: prompt,
-          conversationId: conversationId,
-          entryPayload: entryPayload,
+        return _fadeTransitionPage(
+          key: state.pageKey,
+          child: CoachChatScreen(
+            initialPrompt: prompt,
+            conversationId: conversationId,
+            entryPayload: entryPayload,
+          ),
         );
       },
     ),
@@ -876,10 +912,14 @@ final _router = GoRouter(
     ),
 
     // ── ONBOARDING ───────────────────────────────────────────
+    // UXP-04: fade transition for onboarding journey entry point
     GoRoute(
       path: '/onboarding/intent',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const IntentScreen(),
+      pageBuilder: (context, state) => _fadeTransitionPage(
+        key: state.pageKey,
+        child: const IntentScreen(),
+      ),
     ),
     GoRoute(
       path: '/onboarding/quick',

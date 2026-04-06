@@ -9938,5 +9938,16 @@
   "confidenceEnrichmentPrefix": "Para ir m\u00e1s lejos\u00a0:",
   "confidenceLoadError": "No se puede calcular la precisi\u00f3n. Int\u00e9ntalo de nuevo en un momento.",
   "confidenceLoadErrorRetry": "Reintentar",
-  "homeSignalEmptyState": "Todo est\u00e1 al d\u00eda por ahora."
+  "homeSignalEmptyState": "Todo est\u00e1 al d\u00eda por ahora.",
+  "explorerBlockedSheetTitle": "Te faltan algunos datos",
+  "explorerBlockedSheetBody": "Para ver este hub, a\u00f1ade {field} a tu perfil.",
+  "@explorerBlockedSheetBody": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "explorerBlockedSheetCta": "Completar mi perfil",
+  "explorerPartialTooltip": "Faltan algunos datos\u00a0\u2014 estimaci\u00f3n aproximada"
 }

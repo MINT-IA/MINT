@@ -21807,4 +21807,19 @@ class SIt extends S {
 
   @override
   String get homeSignalEmptyState => 'Tutto è aggiornato per ora.';
+
+  @override
+  String get explorerBlockedSheetTitle => 'Mancano alcune informazioni';
+
+  @override
+  String explorerBlockedSheetBody(String field) {
+    return 'Per vedere questo hub, aggiungi $field al tuo profilo.';
+  }
+
+  @override
+  String get explorerBlockedSheetCta => 'Completa il mio profilo';
+
+  @override
+  String get explorerPartialTooltip =>
+      'Alcuni dati mancano — stima approssimativa';
 }

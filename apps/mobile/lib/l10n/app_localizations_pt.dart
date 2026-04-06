@@ -21754,4 +21754,19 @@ class SPt extends S {
 
   @override
   String get homeSignalEmptyState => 'Tudo está atualizado por agora.';
+
+  @override
+  String get explorerBlockedSheetTitle => 'Faltam algumas informações';
+
+  @override
+  String explorerBlockedSheetBody(String field) {
+    return 'Para ver este hub, adiciona $field ao teu perfil.';
+  }
+
+  @override
+  String get explorerBlockedSheetCta => 'Completar o meu perfil';
+
+  @override
+  String get explorerPartialTooltip =>
+      'Alguns dados em falta — estimativa aproximada';
 }
