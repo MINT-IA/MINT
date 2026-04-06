@@ -1,6 +1,6 @@
 # Milestones
 
-## v1.0 MVP Pipeline — Largely shipped — 2 functional gaps open
+## v1.0 MVP Pipeline — Complete (31/31 requirements, all gaps resolved)
 
 **Phases completed:** 8 phases, 20 plans, 34 tasks
 
