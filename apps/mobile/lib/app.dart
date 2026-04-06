@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/theme/mint_motion.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -22,28 +21,28 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
-import 'package:mint_mobile/screens/profile/data_transparency_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
+import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
-import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/disability/disability_insurance_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_self_employed_screen.dart';
 import 'package:mint_mobile/screens/job_comparison_screen.dart';
 import 'package:mint_mobile/screens/divorce_simulator_screen.dart';
 import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
+import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
+import 'package:mint_mobile/screens/about_screen.dart';
+import 'package:mint_mobile/screens/ask_mint_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
-import 'package:mint_mobile/screens/import/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
-import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
@@ -71,10 +70,6 @@ import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
 import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
-import 'package:mint_mobile/screens/expert/expert_tier_screen.dart';
-import 'package:mint_mobile/screens/coach/weekly_recap_screen.dart';
-import 'package:mint_mobile/screens/b2b/b2b_hub_screen.dart';
-import 'package:mint_mobile/screens/institutional/pension_fund_connect_screen.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
@@ -99,20 +94,18 @@ import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
+import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
+import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
+import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
-import 'package:mint_mobile/screens/onboarding/instant_chiffre_choc_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
-import 'package:mint_mobile/screens/onboarding/promise_screen.dart';
-import 'package:mint_mobile/providers/onboarding_provider.dart';
-import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -126,8 +119,6 @@ import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart'
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
-import 'package:mint_mobile/providers/financial_plan_provider.dart';
-import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
@@ -142,40 +133,6 @@ import 'package:mint_mobile/screens/explore/patrimoine_hub_screen.dart';
 import 'package:mint_mobile/screens/explore/sante_hub_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
-
-/// Redirect-loop guard counter (P0-1). Tracks consecutive auth redirects.
-int _authRedirectCount = 0;
-
-// ── UXP-04: Fade transition helper ────────────────────────────
-/// Creates a [CustomTransitionPage] with a fade transition using
-/// [MintMotion] tokens. Respects reduced-motion accessibility preference.
-///
-/// Used for onboarding journey routes only (intent, chat).
-/// All other routes retain default Material slide behaviour.
-CustomTransitionPage<void> _fadeTransitionPage({
-  required LocalKey key,
-  required Widget child,
-}) {
-  return CustomTransitionPage<void>(
-    key: key,
-    child: child,
-    transitionDuration: MintMotion.page,           // 350ms in
-    reverseTransitionDuration: MintMotion.standard, // 300ms out
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      // Respect reduced-motion accessibility preference
-      if (MediaQuery.of(context).disableAnimations) {
-        return child;
-      }
-      return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: MintMotion.curveEnter, // Curves.easeOutQuart
-        ),
-        child: child,
-      );
-    },
-  );
-}
 
 // ════════════════════════════════════════════════════════════
 //  ROUTER — S49 Phase 2: Simplified navigation
@@ -197,57 +154,25 @@ final _router = GoRouter(
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
-    final path = state.uri.path;
-
-    // ── Redirect-loop guard (P0-1) ──
-    // Reset counter when we reach a non-auth destination (loop resolved).
-    if (!path.startsWith('/auth/')) {
-      _authRedirectCount = 0;
-    }
-
-    // Break infinite redirect chains (e.g. /scan→register→verify→login→scan).
-    if (_authRedirectCount > 3) {
-      _authRedirectCount = 0;
-      return '/auth/login';
-    }
-
-    // Detect verify-email ↔ login ping-pong cycle.
-    if (path == '/auth/verify-email' || path == '/auth/login') {
-      final from = state.uri.queryParameters['redirect'] ?? '';
-      if ((path == '/auth/verify-email' && from.startsWith('/auth/login')) ||
-          (path == '/auth/login' && from.startsWith('/auth/verify-email'))) {
-        _authRedirectCount = 0;
-        return '/auth/login';
-      }
-    }
-
     final auth = context.read<AuthProvider>();
     final isLoggedIn = auth.isLoggedIn;
+    final path = state.uri.path;
 
-    // ── P0-1 to P0-6: Global auth guard ──
-    // ALL routes require authentication EXCEPT explicit public routes.
-    // This prevents unauthenticated access to /home, /documents, /profile,
-    // /portfolio, /rapport, /confidence, /timeline, and all other app screens.
-    const publicPrefixes = [
-      '/',             // landing
-      '/auth/',        // login, register, forgot-password, verify-email
-      '/onboarding/',  // quick-start, chiffre-choc (pre-auth flow)
-    ];
-    const publicExact = [
-      '/',
-      '/chiffre-choc-instant',
+    // Routes that REQUIRE auth (data-writing operations)
+    const protectedPrefixes = [
+      '/scan',        // document scanning
+      '/coach/chat',  // AI coach (token consumption)
+      '/couple',      // household/couple features
+      '/byok',        // API key management
+      '/bank-import', // bank statement import
     ];
 
-    final isPublic = publicExact.contains(path) ||
-        publicPrefixes.any((p) => p != '/' && path.startsWith(p));
+    // Check if current path is protected
+    final isProtected = protectedPrefixes.any((p) => path.startsWith(p));
 
-    // If NOT public and not logged in, redirect to register with return URL
-    if (!isPublic && !isLoggedIn) {
-      // P0-2: Validate redirect path — must start with / and NOT with //
-      // to prevent open-redirect / phishing via crafted URLs.
-      final safePath = (path.startsWith('/') && !path.startsWith('//')) ? path : '/';
-      _authRedirectCount++;
-      return '/auth/register?redirect=${Uri.encodeComponent(safePath)}';
+    // If protected and not logged in, redirect to register with return URL
+    if (isProtected && !isLoggedIn) {
+      return '/auth/register?redirect=${Uri.encodeComponent(path)}';
     }
 
     return null; // No redirect needed
@@ -275,7 +200,7 @@ final _router = GoRouter(
       builder: (context, state) => const VerifyEmailScreen(),
     ),
 
-    // ── Main Shell (3 tabs: Aujourd'hui, Coach, Explorer + ProfileDrawer) ──
+    // ── Main Shell (4 tabs: Aujourd'hui, Coach, Explorer, Dossier) ──
     GoRoute(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
@@ -329,13 +254,6 @@ final _router = GoRouter(
     GoRoute(path: '/retirement', redirect: (_, __) => '/retraite'),
     GoRoute(path: '/retirement/projection', redirect: (_, __) => '/retraite'),
 
-    // Intent router redirects (Phase 3 — map intent suggestedRoutes to existing screens)
-    GoRoute(path: '/bilan-retraite', redirect: (_, __) => '/retraite'),
-    GoRoute(path: '/prevoyance-overview', redirect: (_, __) => '/explore/retraite'),
-    GoRoute(path: '/fiscalite-overview', redirect: (_, __) => '/explore/fiscalite'),
-    GoRoute(path: '/achat-immobilier', redirect: (_, __) => '/hypotheque'),
-    GoRoute(path: '/life-events', redirect: (_, __) => '/home?tab=1'),
-
     GoRoute(
       path: '/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
@@ -367,37 +285,30 @@ final _router = GoRouter(
     GoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
     GoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
 
-    // Wire Spec V2 P4: archived routes — redirect to shell tabs
-    GoRoute(path: '/coach/cockpit', redirect: (_, __) => '/home?tab=0'),
-    GoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
-    GoRoute(path: '/coach/refresh', redirect: (_, __) => '/home?tab=0'),
-    // UXP-04: fade transition for coach chat (onboarding journey destination)
+    GoRoute(
+      path: '/coach/cockpit',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CockpitDetailScreen(),
+    ),
+    GoRoute(
+      path: '/coach/checkin',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const CoachCheckinScreen(),
+    ),
+    GoRoute(
+      path: '/coach/refresh',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AnnualRefreshScreen(),
+    ),
     GoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) {
-        // Wire Spec V2: structured payload via route extra
-        final entryPayload = state.extra is CoachEntryPayload
-            ? state.extra as CoachEntryPayload
-            : null;
-
-        // Legacy: query parameter support (backward compat)
-        final rawPrompt = state.uri.queryParameters['prompt'];
-        final prompt = (rawPrompt != null && rawPrompt.length <= 500)
-            ? rawPrompt
-            : null;
-        final rawConvId = state.uri.queryParameters['conversationId'];
-        final conversationId = (rawConvId != null &&
-                RegExp(r'^[a-zA-Z0-9\-]{1,64}$').hasMatch(rawConvId))
-            ? rawConvId
-            : null;
-        return _fadeTransitionPage(
-          key: state.pageKey,
-          child: CoachChatScreen(
-            initialPrompt: prompt,
-            conversationId: conversationId,
-            entryPayload: entryPayload,
-          ),
+      builder: (context, state) {
+        final prompt = state.uri.queryParameters['prompt'];
+        final conversationId = state.uri.queryParameters['conversationId'];
+        return CoachChatScreen(
+          initialPrompt: prompt,
+          conversationId: conversationId,
         );
       },
     ),
@@ -462,7 +373,6 @@ final _router = GoRouter(
       builder: (context, state) => const AffordabilityScreen(),
     ),
     GoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
-    GoRoute(path: '/life-event/housing-purchase', redirect: (_, __) => '/hypotheque'),
 
     GoRoute(
       path: '/mortgage/amortization',
@@ -488,7 +398,6 @@ final _router = GoRouter(
     // ── BUDGET & DETTE ───────────────────────────────────────
     GoRoute(
       path: '/budget',
-      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BudgetContainerScreen(),
     ),
     GoRoute(
@@ -644,11 +553,9 @@ final _router = GoRouter(
       builder: (context, state) {
         final result = state.extra as ExtractionResult?;
         if (result == null) {
-          // Recovery: redirect to scan instead of dead-end
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) context.go('/scan');
-          });
-          return const SizedBox.shrink();
+          return const Scaffold(
+            body: Center(child: Text('Document non disponible')),
+          );
         }
         return ExtractionReviewScreen(result: result);
       },
@@ -661,11 +568,9 @@ final _router = GoRouter(
         if (extra == null ||
             extra['result'] is! ExtractionResult ||
             extra['previousConfidence'] is! int) {
-          // Recovery: redirect to scan instead of dead-end
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (context.mounted) context.go('/scan');
-          });
-          return const SizedBox.shrink();
+          return const Scaffold(
+            body: Center(child: Text('Document non disponible')),
+          );
         }
         return DocumentImpactScreen(
           result: extra['result'] as ExtractionResult,
@@ -714,9 +619,7 @@ final _router = GoRouter(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
-        final extra = state.extra is Map<String, dynamic>
-            ? state.extra as Map<String, dynamic>
-            : <String, dynamic>{};
+        final extra = state.extra as Map<String, dynamic>? ?? {};
         return FinancialReportScreenV2(wizardAnswers: extra);
       },
     ),
@@ -754,10 +657,6 @@ final _router = GoRouter(
         GoRoute(
           path: 'bilan',
           builder: (context, state) => const FinancialSummaryScreen(),
-        ),
-        GoRoute(
-          path: 'data-transparency',
-          builder: (context, state) => const DataTransparencyScreen(),
         ),
       ],
     ),
@@ -853,8 +752,7 @@ final _router = GoRouter(
     // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
     GoRoute(
       path: '/weekly-recap',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const WeeklyRecapScreen(),
+      redirect: (_, __) => '/home',
     ),
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
@@ -864,10 +762,31 @@ final _router = GoRouter(
       builder: (context, state) => const CantonalBenchmarkScreen(),
     ),
 
+    // ── SETTINGS ────────────────────────────────────────────
+    GoRoute(
+      path: '/settings/langue',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const LangueSettingsScreen(),
+    ),
+
+    // ── ABOUT ────────────────────────────────────────────────
+    GoRoute(
+      path: '/about',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AboutScreen(),
+    ),
+
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    // Wire Spec V2 P4: archived routes — redirect to shell tabs
-    GoRoute(path: '/ask-mint', redirect: (_, __) => '/home?tab=1'),
-    GoRoute(path: '/tools', redirect: (_, __) => '/home?tab=2'),
+    GoRoute(
+      path: '/ask-mint',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const AskMintScreen(),
+    ),
+    GoRoute(
+      path: '/tools',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ToolsLibraryScreen(),
+    ),
     GoRoute(
       path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,
@@ -912,15 +831,6 @@ final _router = GoRouter(
     ),
 
     // ── ONBOARDING ───────────────────────────────────────────
-    // UXP-04: fade transition for onboarding journey entry point
-    GoRoute(
-      path: '/onboarding/intent',
-      parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) => _fadeTransitionPage(
-        key: state.pageKey,
-        child: const IntentScreen(),
-      ),
-    ),
     GoRoute(
       path: '/onboarding/quick',
       parentNavigatorKey: _rootNavigatorKey,
@@ -933,16 +843,6 @@ final _router = GoRouter(
       path: '/onboarding/chiffre-choc',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ChiffreChocScreen(),
-    ),
-    GoRoute(
-      path: '/onboarding/promise',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PromiseScreen(),
-    ),
-    GoRoute(
-      path: '/chiffre-choc-instant',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const InstantChiffreChocScreen(),
     ),
     GoRoute(
       path: '/data-block/:type',
@@ -980,44 +880,18 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BankImportScreen(),
     ),
-    GoRoute(
-      path: '/bank-import-v2',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const BankImportV2Screen(),
-    ),
 
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
-    GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/intent'),
-    GoRoute(
-      path: '/expert-tier',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) =>
-          FeatureFlags.enableExpertTier ? null : '/',
-      builder: (context, state) => const ExpertTierScreen(),
-    ),
-    GoRoute(
-      path: '/b2b',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (_, __) => FeatureFlags.enableAdminScreens ? null : '/',
-      builder: (context, state) => const B2bHubScreen(),
-    ),
-    GoRoute(
-      path: '/pension-fund-connect',
-      parentNavigatorKey: _rootNavigatorKey,
-      redirect: (context, state) =>
-          FeatureFlags.enablePensionFundConnect ? null : '/',
-      builder: (context, state) => const PensionFundConnectScreen(),
-    ),
+    GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
     GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
     GoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
-      if (section == null || section.isEmpty) return '/onboarding/intent';
-      // Section-specific edits still go to quick (profile completion).
+      if (section == null || section.isEmpty) return '/onboarding/quick';
       return '/onboarding/quick?section=$section';
     }),
     GoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/intent'),
-    GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/intent'),
+    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
+    GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
     GoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
   ],
 );
@@ -1050,11 +924,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // F5: Proactively refresh auth token on app resume to prevent
-      // stale-token 401s on the first API call after backgrounding.
-      ApiService.refreshTokenIfNeeded();
-    }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       if (SlmEngine.instance.isAvailable) {
@@ -1067,42 +936,9 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) {
-          final provider = AuthProvider();
-          provider.checkAuth();
-          return provider;
-        }),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) {
-          final provider = CoachProfileProvider();
-          provider.loadFromWizard();
-          return provider;
-        }),
-        ChangeNotifierProxyProvider<CoachProfileProvider, FinancialPlanProvider>(
-          create: (_) {
-            final provider = FinancialPlanProvider();
-            provider.loadFromPersistence();
-            return provider;
-          },
-          update: (_, coachProvider, planProvider) {
-            planProvider!.attachProfileProvider(coachProvider);
-            return planProvider;
-          },
-        ),
-        ChangeNotifierProxyProvider<CoachProfileProvider, BudgetProvider>(
-          create: (_) => BudgetProvider(),
-          update: (_, coachProvider, budgetProvider) {
-            if (coachProvider.hasProfile &&
-                coachProvider.profileUpdatedSinceBudget) {
-              final profile = coachProvider.profile!;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                budgetProvider?.refreshFromProfile(profile);
-                coachProvider.markBudgetSynced();
-              });
-            }
-            return budgetProvider!;
-          },
-        ),
+        ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {
           final provider = ByokProvider();
           provider.loadSavedKey();
@@ -1111,18 +947,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => DocumentProvider()),
         ChangeNotifierProvider(create: (_) => SubscriptionProvider()),
         ChangeNotifierProvider(create: (_) => HouseholdProvider()),
-        ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
-          create: (_) => MintStateProvider(),
-          update: (_, coachProvider, mintState) {
-            if (coachProvider.hasProfile && coachProvider.profileUpdatedSinceBudget) {
-              final profile = coachProvider.profile!;
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                mintState?.recompute(profile);
-              });
-            }
-            return mintState!;
-          },
-        ),
+        ChangeNotifierProvider(create: (_) {
+          final provider = CoachProfileProvider();
+          provider.loadFromWizard();
+          return provider;
+        }),
         ChangeNotifierProvider(create: (_) {
           final provider = LocaleProvider();
           provider.load();
@@ -1138,12 +967,6 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.init();
           return provider;
         }),
-        ChangeNotifierProvider(create: (_) {
-          final provider = OnboardingProvider();
-          provider.load();
-          return provider;
-        }),
-        ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
       ],
       child: Builder(
         builder: (context) {
@@ -1173,9 +996,9 @@ ThemeData _buildPremiumTheme() {
     scaffoldBackgroundColor: MintColors.background,
     colorScheme: const ColorScheme.light(
       primary: MintColors.primary,
-      onPrimary: MintColors.white,
+      onPrimary: Colors.white,
       secondary: MintColors.accent,
-      onSecondary: MintColors.white,
+      onSecondary: Colors.white,
       surface: MintColors.appleSurface,
       onSurface: MintColors.textPrimary,
       error: MintColors.error,
@@ -1219,7 +1042,7 @@ ThemeData _buildPremiumTheme() {
       ),
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: MintColors.white,
+      backgroundColor: Colors.white,
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: false,
@@ -1244,7 +1067,7 @@ ThemeData _buildPremiumTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         backgroundColor: MintColors.primary,
-        foregroundColor: MintColors.white,
+        foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
@@ -1304,8 +1127,8 @@ class _MintErrorScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Page introuvable'),
-        backgroundColor: MintColors.white,
-        foregroundColor: MintColors.textPrimary,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
         elevation: 0,
       ),
       body: Center(
@@ -1315,12 +1138,12 @@ class _MintErrorScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.explore_off_outlined,
-                  size: 64, color: MintColors.greyApple),
+                  size: 64, color: Colors.grey),
               const SizedBox(height: 24),
               const Text(
                 'Cette page n\'existe pas ou a été déplacée.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, color: MintColors.textPrimary),
+                style: TextStyle(fontSize: 16, color: Colors.black87),
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
