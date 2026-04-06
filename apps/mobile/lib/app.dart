@@ -126,6 +126,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
@@ -1009,6 +1010,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         }),
         ChangeNotifierProvider(create: (_) => BiographyProvider()),
         ChangeNotifierProvider(create: (_) => AnticipationProvider()),
+        ChangeNotifierProvider(create: (_) => ContextualCardProvider()),
       ],
       child: Builder(
         builder: (context) {

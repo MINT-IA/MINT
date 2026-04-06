@@ -16,6 +16,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/providers/anticipation_provider.dart';
+import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
@@ -83,6 +84,7 @@ Widget _buildRouterHarness({required String initialLocation}) {
       ChangeNotifierProvider<FinancialPlanProvider>(create: (_) => FinancialPlanProvider()),
       ChangeNotifierProvider<BiographyProvider>(create: (_) => BiographyProvider()),
       ChangeNotifierProvider<AnticipationProvider>(create: (_) => AnticipationProvider()),
+      ChangeNotifierProvider<ContextualCardProvider>(create: (_) => ContextualCardProvider()),
     ],
     child: MaterialApp.router(
       locale: const Locale('fr'),
