@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-04-06T14:15:45.634Z"
+status: verifying
+stopped_at: Completed 02-04-PLAN.md (checkpoint deferred)
+last_updated: "2026-04-06T14:35:33.138Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 8
-  percent: 89
+  completed_plans: 9
+  percent: 100
 ---
 
 # GSD State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 
 Phase: 02 (Intelligence Documentaire) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
@@ -71,6 +71,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 02]: Default plan type on error: surobligatoire (safest middle ground)
 - [Phase 02]: Per-field thresholds: salary >= 0.90, LPP capital >= 0.95 (replaces global 0.80)
 - [Phase 02]: DocumentServiceException propagated for 422 to distinguish non-financial rejection from general errors
+- [Phase 02]: generate_document_insight() in documents.py (colocation); fallback uses field summary; premier eclairage replaces chiffre choc on impact screen
 
 ### Pending Todos
 
@@ -84,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T14:15:45.631Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-04-06T14:35:33.135Z
+Stopped at: Completed 02-04-PLAN.md (checkpoint deferred)
 Resume file: None

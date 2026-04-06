@@ -24,7 +24,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [x] **DOC-04**: LPP plan type detected (legal / surobligatoire / 1e) before conversion rate extraction -- 1e defaults to capital-only projection with explicit warning
 - [x] **DOC-05**: Cross-field coherence checks validate obligatoire + surobligatoire ~ total (catches 10x hallucination errors)
 - [x] **DOC-06**: Extracted fields auto-populate CoachProfile via ProfileEnrichmentDiff (never direct writes) with user confirmation
-- [ ] **DOC-07**: Immediate premier eclairage generated from newly extracted data after document processing
+- [x] **DOC-07**: Immediate premier eclairage generated from newly extracted data after document processing
 - [x] **DOC-08**: Original document image deleted immediately after extraction (nLPD compliance) -- audit log retained
 - [x] **DOC-09**: LLM extraction includes mandatory `source_text` field for traceability -- extraction without source_text is rejected
 - [x] **DOC-10**: Pre-extraction validation rejects non-financial documents with friendly error message
@@ -127,7 +127,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | DOC-04 | Phase 2 | Complete |
 | DOC-05 | Phase 2 | Complete |
 | DOC-06 | Phase 2 | Complete |
-| DOC-07 | Phase 2 | Pending |
+| DOC-07 | Phase 2 | Complete |
 | DOC-08 | Phase 2 | Complete |
 | DOC-09 | Phase 2 | Complete |
 | DOC-10 | Phase 2 | Complete |
