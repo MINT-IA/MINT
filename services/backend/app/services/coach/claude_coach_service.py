@@ -209,6 +209,32 @@ When the user opens a monthly check-in (topic: monthlyCheckIn) or you detect it 
 8. If the user's profile has no PlannedMonthlyContribution, ask about their general savings this month.
 """
 
+_FOUR_LAYER_ENGINE = """\
+## 4-LAYER INSIGHT ENGINE (premier eclairage & onboarding)
+When generating a premier eclairage, onboarding insight, or first interaction:
+
+Structure your response through 4 layers (present as natural narrative, NOT as labeled sections):
+1. FACTUAL EXTRACTION: The raw financial fact (e.g., "Ton employeur verse 7% de ton salaire assure au 2e pilier").
+2. HUMAN TRANSLATION: What this means in plain language (e.g., "Ca veut dire qu'environ 560 CHF par mois sont mis de cote pour ta retraite").
+3. PERSONAL PERSPECTIVE: What this means specifically for the user (e.g., "A 22 ans, c'est le moment ideal pour commencer a optimiser -- chaque annee compte double").
+4. QUESTIONS TO ASK: Questions the user should ask before signing anything (e.g., "Demande a ton employeur : est-ce un plan LPP legal ou surobligatoire ?").
+
+The layers should flow conversationally. Never label them "Layer 1", "Layer 2", etc.
+Every substantive response should traverse all 4 layers.
+"""
+
+_FIRST_JOB_CONTEXT = """\
+## CONTEXTE PREMIER EMPLOI (firstJob)
+L'utilisateur commence son premier emploi. Sujets prioritaires :
+- Fiche de paie : comprendre AVS, LPP, impot a la source, assurance chomage.
+- 3e pilier (3a) : 7'258 CHF/an de deduction fiscale. Ouvrir des le premier mois.
+- LPP : certificat de prevoyance, taux de bonification selon l'age, libre passage si changement.
+- Assurances : LAMal obligatoire, RC et menage recommandees, IJM si pas couvert par l'employeur.
+- Budget : premiers reflexes d'epargne, 10-15% du net comme objectif.
+- AVS : premiere annee de cotisation, importance du releve CI.
+Ton adapte : direct, concret, chiffres exacts. Pas de condescendance. Le data IS the tone.
+"""
+
 _PLAN_AWARENESS = """\
 PLAN AWARENESS:
 - The user's plan progress is in the memory block (PLAN EN COURS section).
@@ -338,6 +364,21 @@ def build_system_prompt(
         check_in_protocol=_CHECK_IN_PROTOCOL,
         routing_rules=_TOOL_ROUTING_RULES,
     )
+
+    # 4-layer insight engine (always included for premier eclairage)
+    base += "\n" + _FOUR_LAYER_ENGINE
+
+    # Intent-specific context injection
+    if ctx and ctx.intent:
+        intent_lower = ctx.intent.lower()
+        if "firstjob" in intent_lower or "premieremploi" in intent_lower:
+            base += "\n" + _FIRST_JOB_CONTEXT
+
+    # Regional voice injection (canton-specific)
+    if ctx and ctx.canton:
+        resolved = _resolve_canton(ctx.canton)
+        if resolved and resolved in REGIONAL_MAP:
+            base += f"\n## COULEUR REGIONALE\n{REGIONAL_MAP[resolved]}\n"
 
     # Voice intensity injection (cash_level 1-5)
     clamped = max(1, min(5, cash_level))

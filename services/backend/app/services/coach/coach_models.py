@@ -76,6 +76,8 @@ class CoachContext:
     planned_contributions: list = field(default_factory=list)
     # Known numerical values for hallucination detection
     known_values: dict = field(default_factory=dict)
+    # Onboarding intent (e.g., 'firstJob', 'intentChip3a', etc.)
+    intent: str = ""
 
 
 @dataclass

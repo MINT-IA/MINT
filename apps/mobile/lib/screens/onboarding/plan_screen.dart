@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -83,6 +86,14 @@ class _PlanScreenState extends State<PlanScreen> {
     await ReportPersistenceService.setMiniOnboardingCompleted(true);
 
     if (!mounted) return;
+
+    // Set coach entry payload for personalized check-in on arrival.
+    const payload = CoachEntryPayload(
+      source: CoachEntrySource.onboardingIntent,
+      userMessage: null, // Coach initiates with check-in greeting
+    );
+    context.read<CoachEntryPayloadProvider>().setPayload(payload);
+
     // Navigate to Coach tab.
     context.go('/home?tab=1');
   }
