@@ -28,12 +28,14 @@ class MintColors {
   static const Color textMuted = Color(0xFF737378);
   
   // Accents
-  // WCAG AA contrast fix: old #24B14D (2.81:1) → #1A8A3A (~4.8:1 on white)
-  static const Color success = Color(0xFF1A8A3A);
-  // WCAG AA contrast fix: old #FF9F0A (2.06:1) → #D97706 (~4.7:1 on white)
-  static const Color warning = Color(0xFFD97706);
-  static const Color error = Color(0xFFFF453A);
-  static const Color info = Color(0xFF007AFF); // Apple Blue for neutral info
+  // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)
+  static const Color success = Color(0xFF157B35);
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color warning = Color(0xFFB45309);
+  // WCAG AA contrast fix: old #FF453A (3.41:1) → #D32F2F (4.98:1 on white)
+  static const Color error = Color(0xFFD32F2F);
+  // WCAG AA contrast fix: old #007AFF (4.02:1) → #0062CC (5.80:1 on white)
+  static const Color info = Color(0xFF0062CC);
   
   // Borders
   static const Color border = Color(0xFFD2D2D7);
@@ -56,20 +58,22 @@ class MintColors {
   static const Color corailDiscret = Color(0xFFE6855E);
 
   // Trajectory colors (MINT Coach)
-  // WCAG AA contrast fix: old #24B14D (2.81:1) → #1A8A3A (~4.8:1 on white)
-  static const Color trajectoryOptimiste = Color(0xFF1A8A3A);
-  static const Color trajectoryBase = Color(0xFF007AFF);
-  // WCAG AA contrast fix: old #FF9F0A (2.06:1) → #D97706 (~4.7:1 on white)
-  static const Color trajectoryPrudent = Color(0xFFD97706);
+  // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)
+  static const Color trajectoryOptimiste = Color(0xFF157B35);
+  // WCAG AA contrast fix: old #007AFF (4.02:1) → #0062CC (5.80:1 on white)
+  static const Color trajectoryBase = Color(0xFF0062CC);
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color trajectoryPrudent = Color(0xFFB45309);
 
   // Score gradient (MINT Coach)
-  // WCAG AA contrast fix: old #24B14D (2.81:1) → #1A8A3A (~4.8:1 on white)
-  static const Color scoreExcellent = Color(0xFF1A8A3A);
+  // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)
+  static const Color scoreExcellent = Color(0xFF157B35);
   // WCAG AA contrast fix: old #8BC34A (2.86:1) → #5A8C2F (~4.6:1 on white)
   static const Color scoreBon = Color(0xFF5A8C2F);
-  // WCAG AA contrast fix: old #FF9F0A (2.06:1) → #D97706 (~4.7:1 on white)
-  static const Color scoreAttention = Color(0xFFD97706);
-  static const Color scoreCritique = Color(0xFFFF453A);
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color scoreAttention = Color(0xFFB45309);
+  // WCAG AA contrast fix: old #FF453A (3.41:1) → #D32F2F (4.98:1 on white)
+  static const Color scoreCritique = Color(0xFFD32F2F);
   // Score aliases (used by coach widgets)
   static const Color scoreGreen = scoreExcellent;
   static const Color scoreRed = scoreCritique;
@@ -112,7 +116,8 @@ class MintColors {
   // Tool library category accents
   static const Color categoryGreen = Color(0xFF059669); // Savings, legal, tax
   static const Color categoryBlue = Color(0xFF2563EB); // Emploi, banque, hypothèque
-  static const Color categoryAmber = Color(0xFFD97706); // Budget, dettes
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color categoryAmber = Color(0xFFB45309); // Budget, dettes
   static const Color categoryPurple = Color(0xFF7C3AED); // 3a advanced, marriage
   static const Color categoryMagenta = Color(0xFFDB2777); // Family/marriage
   static const Color categoryMisc = Color(0xFFA2845E); // Default/miscellaneous

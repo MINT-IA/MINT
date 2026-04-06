@@ -116,51 +116,43 @@ void main() {
       );
     });
 
-    test('error color on white background >= 3.0:1 (used as status accent, large text)', () {
-      // error (#FF453A) is Apple system red -- used as accent for error states,
-      // typically paired with icons or bold text (large text context).
+    test('error on white >= 4.5:1 (WCAG AA normal text)', () {
       final ratio = contrastRatio(MintColors.error, MintColors.white);
       expect(
         ratio,
-        greaterThanOrEqualTo(3.0),
+        greaterThanOrEqualTo(4.5),
         reason:
-            'Error (#FF453A) on white should have >= 3.0:1 for large text, got ${ratio.toStringAsFixed(2)}:1',
+            'Error (#D32F2F) on white should have >= 4.5:1 for normal text, got ${ratio.toStringAsFixed(2)}:1',
       );
     });
 
-    test('success text on white background >= 4.3:1 (near AA, used in bold/large)', () {
-      // success (#1A8A3A) measures 4.43:1 -- just under strict 4.5 threshold.
-      // Used in bold text contexts (score labels, status indicators) where
-      // WCAG AA large text threshold (3.0:1) applies. Passes AA large.
+    test('success on white >= 4.5:1 (WCAG AA normal text)', () {
       final ratio = contrastRatio(MintColors.success, MintColors.white);
       expect(
         ratio,
-        greaterThanOrEqualTo(4.3),
+        greaterThanOrEqualTo(4.5),
         reason:
-            'Success (#1A8A3A) on white should have >= 4.3:1 (near-AA), got ${ratio.toStringAsFixed(2)}:1',
+            'Success (#157B35) on white should have >= 4.5:1 for normal text, got ${ratio.toStringAsFixed(2)}:1',
       );
     });
 
-    test('warning color on white background >= 3.0:1 (status accent, large text)', () {
-      // warning (#D97706) is used as status indicator, typically in bold/large text.
+    test('warning on white >= 4.5:1 (WCAG AA normal text)', () {
       final ratio = contrastRatio(MintColors.warning, MintColors.white);
       expect(
         ratio,
-        greaterThanOrEqualTo(3.0),
+        greaterThanOrEqualTo(4.5),
         reason:
-            'Warning (#D97706) on white should have >= 3.0:1 for large text, got ${ratio.toStringAsFixed(2)}:1',
+            'Warning (#D97706) on white should have >= 4.5:1 for normal text, got ${ratio.toStringAsFixed(2)}:1',
       );
     });
 
-    test('info (Apple Blue) on white background >= 3.0:1 (link/CTA, large text)', () {
-      // info (#007AFF) is Apple system blue -- used for links and interactive CTAs
-      // which are typically displayed as bold or large text.
+    test('info on white >= 4.5:1 (WCAG AA normal text)', () {
       final ratio = contrastRatio(MintColors.info, MintColors.white);
       expect(
         ratio,
-        greaterThanOrEqualTo(3.0),
+        greaterThanOrEqualTo(4.5),
         reason:
-            'Info (#007AFF) on white should have >= 3.0:1 for large text, got ${ratio.toStringAsFixed(2)}:1',
+            'Info (#0062CC) on white should have >= 4.5:1 for normal text, got ${ratio.toStringAsFixed(2)}:1',
       );
     });
 
