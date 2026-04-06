@@ -89,6 +89,26 @@ class DocumentScanResponse(BaseModel):
     message: str = "Scan data synced to profile"
 
 
+class DocumentClassificationResult(BaseModel):
+    """Result of pre-extraction document classification (DOC-10).
+
+    Determines whether an uploaded image is a Swiss financial document
+    before running full extraction.
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    is_financial: bool = Field(..., description="Whether document is a Swiss financial document")
+    detected_type: Optional[str] = Field(None, description="Detected document type if financial")
+    confidence: ConfidenceLevel = ConfidenceLevel.medium
+    rejection_reason: Optional[str] = Field(
+        None,
+        description="Reason for rejection (set when is_financial=False)",
+    )
+
+
 class VisionExtractionRequest(BaseModel):
     """Request to extract data from a document image using Claude Vision."""
     model_config = ConfigDict(

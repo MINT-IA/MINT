@@ -18,6 +18,7 @@ from anthropic import Anthropic
 from app.core.config import settings
 from app.schemas.document_scan import (
     DocumentType,
+    DocumentClassificationResult,
     ExtractedFieldConfirmation,
     ConfidenceLevel,
     VisionExtractionResponse,
@@ -289,3 +290,112 @@ def _compute_overall_confidence(fields: list[ExtractedFieldConfirmation]) -> flo
     weights = {"high": 1.0, "medium": 0.6, "low": 0.25}
     total = sum(weights.get(f.confidence.value, 0.5) for f in fields)
     return round(total / len(fields), 2)
+
+
+# ═══════════════════════════════════════════════════════════
+#  PRE-EXTRACTION CLASSIFICATION (DOC-10)
+# ═══════════════════════════════════════════════════════════
+
+_CLASSIFICATION_PROMPT = """Is this a Swiss financial document? Supported types: LPP certificate, salary certificate, 3a attestation, insurance policy, AVS extract, tax declaration, payslip, lease contract, mortgage attestation, LAMal statement.
+
+Respond ONLY with valid JSON:
+{"is_financial": true, "detected_type": "lpp_certificate", "confidence": "high"}
+
+If the image is NOT a Swiss financial document (e.g. receipt, selfie, landscape photo), respond:
+{"is_financial": false, "detected_type": "description_of_what_it_is", "confidence": "high"}"""
+
+
+def classify_document(image_base64: str) -> DocumentClassificationResult:
+    """Classify whether an image is a Swiss financial document before extraction.
+
+    Uses Claude Vision with a lightweight classification prompt (NOT full extraction).
+    Fails open on API errors: returns is_financial=True so legitimate users are not blocked.
+
+    Args:
+        image_base64: Base64-encoded image data.
+
+    Returns:
+        DocumentClassificationResult with is_financial, detected_type, confidence.
+    """
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        # Fail open — don't block user if API key missing
+        logger.warning("ANTHROPIC_API_KEY not configured for classification, failing open")
+        return DocumentClassificationResult(
+            is_financial=True,
+            confidence=ConfidenceLevel.low,
+        )
+
+    # Determine media type from base64 header
+    media_type = "image/jpeg"
+    if image_base64.startswith("iVBOR"):
+        media_type = "image/png"
+
+    try:
+        client = Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=settings.COACH_MODEL,
+            max_tokens=200,
+            timeout=15.0,  # Lightweight call — shorter timeout
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": media_type,
+                                "data": image_base64,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "text": _CLASSIFICATION_PROMPT,
+                        },
+                    ],
+                }
+            ],
+        )
+
+        raw_text = response.content[0].text
+        parsed = json.loads(raw_text)
+
+        is_financial = bool(parsed.get("is_financial", False))
+        detected_type = parsed.get("detected_type")
+        confidence_str = parsed.get("confidence", "medium")
+
+        # Map confidence string to enum
+        try:
+            confidence = ConfidenceLevel(confidence_str)
+        except ValueError:
+            confidence = ConfidenceLevel.medium
+
+        rejection_reason = None
+        if not is_financial:
+            rejection_reason = (
+                f"Document identifie comme '{detected_type}' — "
+                "pas un document financier suisse reconnu."
+            )
+
+        return DocumentClassificationResult(
+            is_financial=is_financial,
+            detected_type=detected_type,
+            confidence=confidence,
+            rejection_reason=rejection_reason,
+        )
+
+    except json.JSONDecodeError as e:
+        # Malformed JSON — fail open
+        logger.warning("Classification returned non-JSON: %s", e)
+        return DocumentClassificationResult(
+            is_financial=True,
+            confidence=ConfidenceLevel.low,
+        )
+    except Exception as e:
+        # API error — fail open (T-02-05)
+        logger.warning("Document classification failed, failing open: %s", e)
+        return DocumentClassificationResult(
+            is_financial=True,
+            confidence=ConfidenceLevel.low,
+        )
