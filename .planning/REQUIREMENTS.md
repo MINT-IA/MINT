@@ -64,9 +64,9 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 
 - [x] **QA-01**: 9 personas (Lea, Marc, Sophie, Thomas, Anna, Pierre, Julia, Laurent, Nadia) each complete golden path integration tests
 - [x] **QA-02**: Each persona includes >= 1 error recovery scenario with defined UX (blurry doc, wrong income, FATCA missing, etc.)
-- [ ] **QA-03**: Golden Screenshots (Niveau 1): pixel diff > 1.5% = red in CI, 2 phone sizes x FR + 1 DE golden per phase, updated only with PR justification
-- [ ] **QA-04**: Patrol Integration Tests (Niveau 2): real navigation on emulator (iOS 17 iPhone 15 + Android API 34 Pixel 7), screenshot at each key step, visual checklist per screenshot
-- [ ] **QA-05**: Patrol runs at end of phase (both platforms), dev->staging (iOS only), staging->main (both platforms -- full regression)
+- [x] **QA-03**: Golden Screenshots (Niveau 1): pixel diff > 1.5% = red in CI, 2 phone sizes x FR + 1 DE golden per phase, updated only with PR justification
+- [x] **QA-04**: Patrol Integration Tests (Niveau 2): real navigation on emulator (iOS 17 iPhone 15 + Android API 34 Pixel 7), screenshot at each key step, visual checklist per screenshot
+- [x] **QA-05**: Patrol runs at end of phase (both platforms), dev->staging (iOS only), staging->main (both platforms -- full regression)
 - [x] **QA-06**: Coach compliance test suite: zero banned terms, ComplianceGuard 100%, no PII in system prompt, confidence score > 0
 - [x] **QA-07**: DE + IT financial terminology accuracy >= 85% in coach responses -- below threshold triggers language-specific prompt tuning
 - [x] **QA-08**: Accessibility: WCAG 2.1 AA on all new screens (VoiceOver + TalkBack, contrast >= 4.5:1, tap targets >= 44pt, font scaling 200%)
@@ -155,9 +155,9 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | CTX-06 | Phase 5 | Complete |
 | QA-01 | Phase 6 | Complete |
 | QA-02 | Phase 6 | Complete |
-| QA-03 | Phase 6 | Pending |
-| QA-04 | Phase 6 | Pending |
-| QA-05 | Phase 6 | Pending |
+| QA-03 | Phase 6 | Complete |
+| QA-04 | Phase 6 | Complete |
+| QA-05 | Phase 6 | Complete |
 | QA-06 | Phase 6 | Complete |
 | QA-07 | Phase 6 | Complete |
 | QA-08 | Phase 6 | Complete |
