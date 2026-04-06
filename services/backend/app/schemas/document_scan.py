@@ -38,6 +38,18 @@ class ConfidenceLevel(str, Enum):
     low = "low"
 
 
+class LppPlanType(str, Enum):
+    """LPP plan type classification (DOC-04).
+
+    - legal: minimum LPP (taux conversion 6.8%)
+    - surobligatoire: enveloping plan (higher contributions, may have lower conversion)
+    - plan_1e: individual investment plan (NO guaranteed conversion rate)
+    """
+    legal = "legal"
+    surobligatoire = "surobligatoire"
+    plan_1e = "1e"
+
+
 class ExtractedFieldConfirmation(BaseModel):
     """A single confirmed extracted field."""
     model_config = ConfigDict(
@@ -146,4 +158,16 @@ class VisionExtractionResponse(BaseModel):
     raw_analysis: Optional[str] = Field(
         None,
         description="Claude's natural language analysis of the document",
+    )
+    plan_type: Optional[str] = Field(
+        None,
+        description="LPP plan type: legal, surobligatoire, 1e (DOC-04)",
+    )
+    plan_type_warning: Optional[str] = Field(
+        None,
+        description="Warning message for 1e plans (no guaranteed conversion rate)",
+    )
+    coherence_warnings: List[str] = Field(
+        default_factory=list,
+        description="Cross-field coherence warnings (DOC-05)",
     )

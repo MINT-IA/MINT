@@ -21,6 +21,7 @@ from app.schemas.document_scan import (
     DocumentClassificationResult,
     ExtractedFieldConfirmation,
     ConfidenceLevel,
+    LppPlanType,
     VisionExtractionResponse,
 )
 
@@ -115,6 +116,166 @@ DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
 }
 
 
+# ═══════════════════════════════════════════════════════════
+#  LPP PLAN TYPE DETECTION (DOC-04)
+# ═══════════════════════════════════════════════════════════
+
+_PLAN_TYPE_PROMPT = (
+    "Avant d'extraire les champs financiers, identifie le type de plan LPP: "
+    "legal (minimum LPP, taux 6.8%), surobligatoire (plan enveloppant), "
+    "ou 1e (investissement individuel, PAS de taux garanti). "
+    "Indices 1e: mention 'plan 1e', pas de taux fixe, "
+    "'strategies d'investissement', suroblig >> oblig avec choix de fonds. "
+    'JSON: {"plan_type": "legal|surobligatoire|1e", "confidence": "high|medium|low"}'
+)
+
+_1E_WARNING = (
+    "Plan 1e detecte. Pas de taux de conversion garanti "
+    "-- projection en capital uniquement."
+)
+
+
+def detect_lpp_plan_type(
+    image_base64: str,
+) -> tuple:
+    """Detect LPP plan type before extraction (DOC-04).
+
+    Sends a lightweight Claude Vision call focused on plan type classification.
+    On error, defaults to surobligatoire (safest middle ground).
+
+    Args:
+        image_base64: Base64-encoded document image.
+
+    Returns:
+        Tuple of (LppPlanType, ConfidenceLevel).
+    """
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        logger.warning("No API key for plan type detection, defaulting to surobligatoire")
+        return (LppPlanType.surobligatoire, ConfidenceLevel.low)
+
+    media_type = "image/jpeg"
+    if image_base64.startswith("iVBOR"):
+        media_type = "image/png"
+
+    try:
+        client = Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=settings.COACH_MODEL,
+            max_tokens=200,
+            timeout=15.0,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "type": "base64",
+                                "media_type": media_type,
+                                "data": image_base64,
+                            },
+                        },
+                        {
+                            "type": "text",
+                            "text": _PLAN_TYPE_PROMPT,
+                        },
+                    ],
+                }
+            ],
+        )
+
+        raw_text = response.content[0].text
+        parsed = json.loads(raw_text)
+
+        plan_type_str = parsed.get("plan_type", "surobligatoire")
+        confidence_str = parsed.get("confidence", "medium")
+
+        # Map to enum
+        try:
+            plan_type = LppPlanType(plan_type_str)
+        except ValueError:
+            plan_type = LppPlanType.surobligatoire
+
+        try:
+            confidence = ConfidenceLevel(confidence_str)
+        except ValueError:
+            confidence = ConfidenceLevel.medium
+
+        return (plan_type, confidence)
+
+    except Exception as e:
+        logger.warning("Plan type detection failed, defaulting to surobligatoire: %s", e)
+        return (LppPlanType.surobligatoire, ConfidenceLevel.low)
+
+
+# ═══════════════════════════════════════════════════════════
+#  CROSS-FIELD COHERENCE VALIDATION (DOC-05)
+# ═══════════════════════════════════════════════════════════
+
+
+def validate_lpp_coherence(
+    fields: TList[ExtractedFieldConfirmation],
+) -> TList[str]:
+    """Validate cross-field coherence for LPP certificates (DOC-05).
+
+    Checks that avoirLppObligatoire + avoirLppSurobligatoire ~ avoirLppTotal
+    within 5% tolerance. Detects 10x hallucination errors.
+
+    Args:
+        fields: List of extracted field confirmations.
+
+    Returns:
+        List of warning messages (empty if coherent).
+    """
+    warnings: TList[str] = []
+
+    # Find the three relevant fields
+    field_map = {f.field_name: f for f in fields}
+    oblig_f = field_map.get("avoirLppObligatoire")
+    suroblig_f = field_map.get("avoirLppSurobligatoire")
+    total_f = field_map.get("avoirLppTotal")
+
+    # Can't validate if any field missing
+    if not all([oblig_f, suroblig_f, total_f]):
+        return warnings
+
+    oblig = float(oblig_f.value) if isinstance(oblig_f.value, (int, float)) else None
+    suroblig = float(suroblig_f.value) if isinstance(suroblig_f.value, (int, float)) else None
+    total = float(total_f.value) if isinstance(total_f.value, (int, float)) else None
+
+    if oblig is None or suroblig is None or total is None:
+        return warnings
+
+    expected = oblig + suroblig
+
+    if total == 0 and expected == 0:
+        return warnings
+
+    # 10x error detection
+    if expected > 0 and (total > 5 * expected or total < 0.2 * expected):
+        warnings.append(
+            "Possible erreur 10x detectee. Le total semble disproportionne."
+        )
+
+    # 5% tolerance check
+    if total > 0:
+        deviation = abs(expected - total) / total
+        if deviation > 0.05:
+            warnings.append(
+                f"Les montants obligatoire ({oblig:,.0f}) et surobligatoire "
+                f"({suroblig:,.0f}) ne correspondent pas au total ({total:,.0f}). "
+                "Verifie les valeurs."
+            )
+
+    # Downgrade confidence if coherence fails
+    if warnings:
+        for f in [oblig_f, suroblig_f, total_f]:
+            f.confidence = ConfidenceLevel.low
+
+    return warnings
+
+
 def _build_extraction_prompt(doc_type: DocumentType, canton: Optional[str], lang: Optional[str]) -> str:
     """Build the system prompt for Claude Vision extraction."""
     fields = DOCUMENT_FIELDS.get(doc_type, [])
@@ -176,8 +337,28 @@ def extract_with_vision(
     if not api_key:
         raise ValueError("ANTHROPIC_API_KEY not configured")
 
+    # DOC-04: Detect LPP plan type BEFORE extraction
+    detected_plan_type = None
+    plan_type_warning = None
+    if doc_type == DocumentType.lpp_certificate:
+        detected_plan_type, _pt_confidence = detect_lpp_plan_type(image_base64)
+        if detected_plan_type == LppPlanType.plan_1e:
+            plan_type_warning = _1E_WARNING
+
     client = Anthropic(api_key=api_key)
-    system_prompt = _build_extraction_prompt(doc_type, canton, language_hint)
+
+    # DOC-04: For 1e plans, remove tauxConversion from extraction fields
+    if detected_plan_type == LppPlanType.plan_1e:
+        # Build prompt without tauxConversion for 1e plans
+        original_fields = DOCUMENT_FIELDS.get(doc_type, [])
+        filtered_fields = [f for f in original_fields if f["name"] != "tauxConversion"]
+        # Temporarily override for prompt building
+        _saved = DOCUMENT_FIELDS.get(doc_type)
+        DOCUMENT_FIELDS[doc_type] = filtered_fields
+        system_prompt = _build_extraction_prompt(doc_type, canton, language_hint)
+        DOCUMENT_FIELDS[doc_type] = _saved
+    else:
+        system_prompt = _build_extraction_prompt(doc_type, canton, language_hint)
 
     # Determine media type from base64 header
     media_type = "image/jpeg"
@@ -219,15 +400,32 @@ def extract_with_vision(
 
         fields = []
         for f in parsed.get("fields", []):
+            raw_source_text = f.get("source_text")
+            field_confidence = ConfidenceLevel(f.get("confidence", "medium"))
+
+            # DOC-09: Source text enforcement
+            if not raw_source_text or not raw_source_text.strip():
+                logger.warning(
+                    "Field %s missing source_text -- forced to low confidence",
+                    f["name"],
+                )
+                raw_source_text = "[non fourni par l'extraction]"
+                field_confidence = ConfidenceLevel.low
+
             fields.append(ExtractedFieldConfirmation(
                 field_name=f["name"],
                 value=f["value"],
-                confidence=ConfidenceLevel(f.get("confidence", "medium")),
-                source_text=f.get("source_text"),
+                confidence=field_confidence,
+                source_text=raw_source_text,
             ))
 
         # Validate against known ranges
         valid_fields = _validate_fields(fields, doc_type)
+
+        # DOC-05: Cross-field coherence for LPP certificates
+        coherence_warnings: TList[str] = []
+        if doc_type == DocumentType.lpp_certificate:
+            coherence_warnings = validate_lpp_coherence(valid_fields)
 
         overall = _compute_overall_confidence(valid_fields)
 
@@ -237,6 +435,9 @@ def extract_with_vision(
             overall_confidence=overall,
             extraction_method="claude_vision",
             raw_analysis=parsed.get("analysis"),
+            plan_type=detected_plan_type.value if detected_plan_type else None,
+            plan_type_warning=plan_type_warning,
+            coherence_warnings=coherence_warnings,
         )
 
     except json.JSONDecodeError as e:
