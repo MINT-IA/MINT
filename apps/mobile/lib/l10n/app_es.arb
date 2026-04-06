@@ -9929,5 +9929,14 @@
   "capStepNewJob04Title": "Optimiza tu 3a",
   "capStepNewJob04Desc": "Aprovecha el cambio para revisar tu estrategia 3a",
   "capStepNewJob05Title": "Habla con un especialista",
-  "capStepNewJob05Desc": "Haz tus preguntas a un profesional"
+  "capStepNewJob05Desc": "Haz tus preguntas a un profesional",
+  "confidenceScoreCardTitle": "Precisi\u00f3n de tu proyecci\u00f3n",
+  "confidenceZoneGood": "Buena estimaci\u00f3n",
+  "confidenceZonePartial": "Estimaci\u00f3n amplia",
+  "confidenceZoneLow": "Estamos adivinando mucho",
+  "confidenceZonePerfect": "Tu proyecci\u00f3n es muy precisa\u00a0\u2014 nada que a\u00f1adir por ahora.",
+  "confidenceEnrichmentPrefix": "Para ir m\u00e1s lejos\u00a0:",
+  "confidenceLoadError": "No se puede calcular la precisi\u00f3n. Int\u00e9ntalo de nuevo en un momento.",
+  "confidenceLoadErrorRetry": "Reintentar",
+  "homeSignalEmptyState": "Todo est\u00e1 al d\u00eda por ahora."
 }

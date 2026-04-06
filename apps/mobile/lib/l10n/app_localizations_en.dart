@@ -21607,4 +21607,33 @@ class SEn extends S {
 
   @override
   String get capStepNewJob05Desc => 'Ask your questions to a professional';
+
+  @override
+  String get confidenceScoreCardTitle => 'Your projection precision';
+
+  @override
+  String get confidenceZoneGood => 'Good estimate';
+
+  @override
+  String get confidenceZonePartial => 'Broad estimate';
+
+  @override
+  String get confidenceZoneLow => 'We’re guessing a lot';
+
+  @override
+  String get confidenceZonePerfect =>
+      'Your projection is very precise — nothing to add for now.';
+
+  @override
+  String get confidenceEnrichmentPrefix => 'To go further :';
+
+  @override
+  String get confidenceLoadError =>
+      'Unable to calculate precision. Try again in a moment.';
+
+  @override
+  String get confidenceLoadErrorRetry => 'Retry';
+
+  @override
+  String get homeSignalEmptyState => 'Everything is up to date for now.';
 }

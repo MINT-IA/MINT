@@ -21725,4 +21725,33 @@ class SPt extends S {
 
   @override
   String get capStepNewJob05Desc => 'Faz as tuas perguntas a um profissional';
+
+  @override
+  String get confidenceScoreCardTitle => 'Precisão da tua projeção';
+
+  @override
+  String get confidenceZoneGood => 'Boa estimativa';
+
+  @override
+  String get confidenceZonePartial => 'Estimativa ampla';
+
+  @override
+  String get confidenceZoneLow => 'Estamos a adivinhar muito';
+
+  @override
+  String get confidenceZonePerfect =>
+      'A tua projeção é muito precisa — nada a acrescentar por agora.';
+
+  @override
+  String get confidenceEnrichmentPrefix => 'Para ir mais longe :';
+
+  @override
+  String get confidenceLoadError =>
+      'Impossível calcular a precisão. Tenta novamente dentro de um momento.';
+
+  @override
+  String get confidenceLoadErrorRetry => 'Tentar novamente';
+
+  @override
+  String get homeSignalEmptyState => 'Tudo está atualizado por agora.';
 }

@@ -21721,4 +21721,33 @@ class SFr extends S {
   @override
   String get capStepNewJob05Desc =>
       'Pose tes questions à un·e professionnel·le';
+
+  @override
+  String get confidenceScoreCardTitle => 'Ta précision de projection';
+
+  @override
+  String get confidenceZoneGood => 'Bonne estimation';
+
+  @override
+  String get confidenceZonePartial => 'Estimation large';
+
+  @override
+  String get confidenceZoneLow => 'On devine beaucoup';
+
+  @override
+  String get confidenceZonePerfect =>
+      'Ta projection est très précise — rien à ajouter pour l’instant.';
+
+  @override
+  String get confidenceEnrichmentPrefix => 'Pour aller plus loin :';
+
+  @override
+  String get confidenceLoadError =>
+      'Impossible de calculer la précision. Réessaie dans un instant.';
+
+  @override
+  String get confidenceLoadErrorRetry => 'Réessayer';
+
+  @override
+  String get homeSignalEmptyState => 'Tout est à jour pour l’instant.';
 }

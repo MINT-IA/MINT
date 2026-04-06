@@ -21766,4 +21766,33 @@ class SDe extends S {
 
   @override
   String get capStepNewJob05Desc => 'Stelle deine Fragen an einen Profi';
+
+  @override
+  String get confidenceScoreCardTitle => 'Genauigkeit deiner Projektion';
+
+  @override
+  String get confidenceZoneGood => 'Gute Schätzung';
+
+  @override
+  String get confidenceZonePartial => 'Breite Schätzung';
+
+  @override
+  String get confidenceZoneLow => 'Wir raten noch viel';
+
+  @override
+  String get confidenceZonePerfect =>
+      'Deine Projektion ist sehr präzise — nichts hinzuzufügen.';
+
+  @override
+  String get confidenceEnrichmentPrefix => 'Um weiterzukommen :';
+
+  @override
+  String get confidenceLoadError =>
+      'Genauigkeit kann nicht berechnet werden. Versuch es gleich nochmal.';
+
+  @override
+  String get confidenceLoadErrorRetry => 'Erneut versuchen';
+
+  @override
+  String get homeSignalEmptyState => 'Alles ist aktuell für den Moment.';
 }

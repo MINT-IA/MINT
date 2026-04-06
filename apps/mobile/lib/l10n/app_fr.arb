@@ -10445,5 +10445,14 @@
   "capStepNewJob04Title": "Optimise ton 3a",
   "capStepNewJob04Desc": "Profite du changement pour revoir ta strat\u00e9gie 3a",
   "capStepNewJob05Title": "Parle \u00e0 un\u00b7e sp\u00e9cialiste",
-  "capStepNewJob05Desc": "Pose tes questions \u00e0 un\u00b7e professionnel\u00b7le"
+  "capStepNewJob05Desc": "Pose tes questions \u00e0 un\u00b7e professionnel\u00b7le",
+  "confidenceScoreCardTitle": "Ta pr\u00e9cision de projection",
+  "confidenceZoneGood": "Bonne estimation",
+  "confidenceZonePartial": "Estimation large",
+  "confidenceZoneLow": "On devine beaucoup",
+  "confidenceZonePerfect": "Ta projection est tr\u00e8s pr\u00e9cise\u00a0\u2014 rien \u00e0 ajouter pour l\u2019instant.",
+  "confidenceEnrichmentPrefix": "Pour aller plus loin\u00a0:",
+  "confidenceLoadError": "Impossible de calculer la pr\u00e9cision. R\u00e9essaie dans un instant.",
+  "confidenceLoadErrorRetry": "R\u00e9essayer",
+  "homeSignalEmptyState": "Tout est \u00e0 jour pour l\u2019instant."
 }

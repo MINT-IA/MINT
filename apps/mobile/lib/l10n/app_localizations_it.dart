@@ -21778,4 +21778,33 @@ class SIt extends S {
 
   @override
   String get capStepNewJob05Desc => 'Fai le tue domande a un professionista';
+
+  @override
+  String get confidenceScoreCardTitle => 'Precisione della tua proiezione';
+
+  @override
+  String get confidenceZoneGood => 'Buona stima';
+
+  @override
+  String get confidenceZonePartial => 'Stima ampia';
+
+  @override
+  String get confidenceZoneLow => 'Stiamo indovinando molto';
+
+  @override
+  String get confidenceZonePerfect =>
+      'La tua proiezione è molto precisa — niente da aggiungere per ora.';
+
+  @override
+  String get confidenceEnrichmentPrefix => 'Per andare oltre :';
+
+  @override
+  String get confidenceLoadError =>
+      'Impossibile calcolare la precisione. Riprova tra un momento.';
+
+  @override
+  String get confidenceLoadErrorRetry => 'Riprova';
+
+  @override
+  String get homeSignalEmptyState => 'Tutto è aggiornato per ora.';
 }

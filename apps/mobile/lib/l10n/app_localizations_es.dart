@@ -21723,4 +21723,33 @@ class SEs extends S {
 
   @override
   String get capStepNewJob05Desc => 'Haz tus preguntas a un profesional';
+
+  @override
+  String get confidenceScoreCardTitle => 'Precisión de tu proyección';
+
+  @override
+  String get confidenceZoneGood => 'Buena estimación';
+
+  @override
+  String get confidenceZonePartial => 'Estimación amplia';
+
+  @override
+  String get confidenceZoneLow => 'Estamos adivinando mucho';
+
+  @override
+  String get confidenceZonePerfect =>
+      'Tu proyección es muy precisa — nada que añadir por ahora.';
+
+  @override
+  String get confidenceEnrichmentPrefix => 'Para ir más lejos :';
+
+  @override
+  String get confidenceLoadError =>
+      'No se puede calcular la precisión. Inténtalo de nuevo en un momento.';
+
+  @override
+  String get confidenceLoadErrorRetry => 'Reintentar';
+
+  @override
+  String get homeSignalEmptyState => 'Todo está al día por ahora.';
 }

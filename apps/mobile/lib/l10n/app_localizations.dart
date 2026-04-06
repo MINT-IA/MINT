@@ -38138,6 +38138,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Pose tes questions à un·e professionnel·le'**
   String get capStepNewJob05Desc;
+
+  /// No description provided for @confidenceScoreCardTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta précision de projection'**
+  String get confidenceScoreCardTitle;
+
+  /// No description provided for @confidenceZoneGood.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonne estimation'**
+  String get confidenceZoneGood;
+
+  /// No description provided for @confidenceZonePartial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation large'**
+  String get confidenceZonePartial;
+
+  /// No description provided for @confidenceZoneLow.
+  ///
+  /// In fr, this message translates to:
+  /// **'On devine beaucoup'**
+  String get confidenceZoneLow;
+
+  /// No description provided for @confidenceZonePerfect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta projection est très précise — rien à ajouter pour l’instant.'**
+  String get confidenceZonePerfect;
+
+  /// No description provided for @confidenceEnrichmentPrefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour aller plus loin :'**
+  String get confidenceEnrichmentPrefix;
+
+  /// No description provided for @confidenceLoadError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de calculer la précision. Réessaie dans un instant.'**
+  String get confidenceLoadError;
+
+  /// No description provided for @confidenceLoadErrorRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get confidenceLoadErrorRetry;
+
+  /// No description provided for @homeSignalEmptyState.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est à jour pour l’instant.'**
+  String get homeSignalEmptyState;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

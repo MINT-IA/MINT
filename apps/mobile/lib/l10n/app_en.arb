@@ -9929,5 +9929,14 @@
   "capStepNewJob04Title": "Optimize your 3a",
   "capStepNewJob04Desc": "Use the change to review your 3a strategy",
   "capStepNewJob05Title": "Talk to a specialist",
-  "capStepNewJob05Desc": "Ask your questions to a professional"
+  "capStepNewJob05Desc": "Ask your questions to a professional",
+  "confidenceScoreCardTitle": "Your projection precision",
+  "confidenceZoneGood": "Good estimate",
+  "confidenceZonePartial": "Broad estimate",
+  "confidenceZoneLow": "We\u2019re guessing a lot",
+  "confidenceZonePerfect": "Your projection is very precise\u00a0\u2014 nothing to add for now.",
+  "confidenceEnrichmentPrefix": "To go further\u00a0:",
+  "confidenceLoadError": "Unable to calculate precision. Try again in a moment.",
+  "confidenceLoadErrorRetry": "Retry",
+  "homeSignalEmptyState": "Everything is up to date for now."
 }
