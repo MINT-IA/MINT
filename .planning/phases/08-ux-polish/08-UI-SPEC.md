@@ -5,6 +5,8 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-04-06
+revised: 2026-04-06
+revision_note: "Fixed 3 checker BLOCKs: copywriting error path, typography weight collapse, spacing non-standard value"
 ---
 
 # Phase 8 — UI Design Contract: UX Polish
@@ -55,15 +57,17 @@ Exceptions:
 
 Source: `DESIGN_SYSTEM.md §3.1` — `lib/theme/mint_text_styles.dart`
 
+**Rule: exactly 2 weights — 400 (body, labels) and 700 (headings, display, emphasis).**
+
 | Role | Token | Font | Size | Weight | Line Height | Dart Constant |
 |------|-------|------|------|--------|-------------|---------------|
 | Body | `bodyLarge` | Inter | 16px | 400 | 1.5 | `MintTextStyles.bodyLarge()` |
-| Label | `bodySmall` | Inter | 13px | 500 | 1.4 | `MintTextStyles.bodySmall()` |
-| Heading | `headlineMedium` | Montserrat | 22px | 600 | 1.2 | `MintTextStyles.headlineMedium()` |
+| Label | `bodySmall` | Inter | 13px | 400 | 1.4 | `MintTextStyles.bodySmall()` |
+| Heading | `headlineMedium` | Montserrat | 22px | 700 | 1.2 | `MintTextStyles.headlineMedium()` |
 | Display | `displayMedium` | Montserrat | 32px | 700 | 1.15 | `MintTextStyles.displayMedium()` |
 
 **Phase 8 specific typography rules:**
-- ConfidenceScore widget: percentage value uses `bodySmall` at weight 700 with semantic color (`_barColor`) — as per existing `ConfidenceBar` implementation
+- ConfidenceScore widget: percentage value uses `bodySmall` at weight 700 with semantic color (`_barColor`) — this is the sole exception where an inline `fontWeight: FontWeight.w700` override is applied on top of `bodySmall` (weight 400 base). Acceptable: it is a data-display emphasis, not a new weight token.
 - Explorer hub locked state label: "Complète ton profil" uses `bodySmall()` at `MintColors.textMuted`
 - AnimatedSwitcher crossfade child: no typography change — uses whatever card below it declares
 
@@ -220,9 +224,9 @@ MintEntrance(
       Text "Ta précision de projection"  ← bodySmall, textSecondary
       SizedBox(height: 4)
       ConfidenceBar(score: score, showLabel: false, enrichmentActions: [topAction])
-    SizedBox(width: 12)
+    SizedBox(width: MintSpacing.sm)   // 8px — fixes Dimension 5 BLOCK
     Column:
-      Text "XX%"  ← bodySmall weight 700, semantic color
+      Text "XX%"  ← bodySmall weight 700 (inline override for emphasis), semantic color
       Text zoneLabel  ← micro, semantic color
 ```
 
@@ -290,9 +294,15 @@ MintEntrance(
 | Explorer blocked tap title | "Il te manque quelques infos" | i18n key: `explorerBlockedSheetTitle` |
 | Explorer blocked tap body | "Pour voir ce hub, ajoute [champ manquant] à ton profil." | i18n key: `explorerBlockedSheetBody` |
 | Explorer blocked CTA | "Compléter mon profil" | i18n key: `explorerBlockedSheetCta` |
-| Explorer partial indicator tooltip | "Certaines données manquent — estimation approximative" | i18n key: `explorerPartialTooltip` — shown on long-press |
+| Explorer partial indicator tooltip | "Certaines données manquent\u00a0— estimation approximative" | i18n key: `explorerPartialTooltip` — shown on long-press |
 | Signal card empty state | "Tout est à jour pour l'instant." | i18n key: `homeSignalEmptyState` — shown if no signal card |
-| Error state (ConfidenceScore load fail) | "Impossible de calculer la précision." | i18n key: `confidenceLoadError` — shown inline, no separate screen |
+| Error state (ConfidenceScore load fail) | "Impossible de calculer la précision. Réessaie dans un instant." | i18n key: `confidenceLoadError` — shown inline with a "Réessayer" tap action that re-calls the score provider |
+
+**Error state interaction contract (ConfidenceScore load fail):**
+- Inline error replaces the `ConfidenceBar` area — no separate screen or dialog
+- "Réessayer" is a `TextButton` (accent color `MintColors.primary`) rendered below the error message
+- Tap on "Réessayer" calls `context.read<ConfidenceScoreProvider>().reload()` (or equivalent provider refresh method)
+- No retry limit — user may tap as many times as needed
 
 **Destructive actions:** None in Phase 8.
 
@@ -320,7 +330,8 @@ Run `flutter gen-l10n` after modifying ARB files.
 | `confidenceZoneLow` | `"On devine beaucoup"` |
 | `confidenceZonePerfect` | `"Ta projection est très précise\u00a0— rien à ajouter pour l'instant."` |
 | `confidenceEnrichmentPrefix` | `"Pour aller plus loin\u00a0:"` |
-| `confidenceLoadError` | `"Impossible de calculer la précision."` |
+| `confidenceLoadError` | `"Impossible de calculer la précision. Réessaie dans un instant."` |
+| `confidenceLoadErrorRetry` | `"Réessayer"` |
 | `explorerBlockedSheetTitle` | `"Il te manque quelques infos"` |
 | `explorerBlockedSheetBody` | `"Pour voir ce hub, ajoute {field} à ton profil."` |
 | `explorerBlockedSheetCta` | `"Compléter mon profil"` |
