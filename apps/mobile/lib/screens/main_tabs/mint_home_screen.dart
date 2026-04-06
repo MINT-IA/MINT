@@ -32,11 +32,15 @@ import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/theme/mint_motion.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
 import 'package:mint_mobile/widgets/coach/streak_badge.dart';
+import 'package:mint_mobile/widgets/home/confidence_score_card.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// The new Tab 0 — "Aujourd'hui".
 ///
@@ -206,6 +210,30 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                     },
                   ),
 
+                  // ── Section 1b2: Confidence Score ──
+                  Builder(
+                    builder: (ctx) {
+                      final profile =
+                          ctx.watch<CoachProfileProvider>().profile;
+                      if (profile == null) return const SizedBox.shrink();
+                      final enhanced =
+                          ConfidenceScorer.scoreEnhanced(profile);
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: MintSpacing.xl),
+                        child: MintEntrance(
+                          delay: const Duration(milliseconds: 150),
+                          child: ConfidenceScoreCard(
+                            score: enhanced.combined,
+                            enrichmentPrompts: enhanced.axisPrompts,
+                            onEnrichmentTap: () => context
+                                .push('/onboarding/quick?section=profile'),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
                   // ── Section 1c: Plan Reality + Streak (check-in section) ──
                   Builder(
                     builder: (ctx) {
@@ -299,33 +327,63 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                       ),
                     ),
 
-                  // ── Section 3: Signal Proactif ──
-                  if (_hasSignal(mintState))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: MintSpacing.xl),
-                      child: _SignalProactifCard(
-                        mintState: mintState,
-                        onTap: () => widget.onSwitchToCoach?.call(
-                          CoachEntryPayload(
-                            source: CoachEntrySource.signal,
-                            topic: mintState.pendingTrigger?.intentTag ??
-                                (mintState.activeNudges.isNotEmpty
-                                    ? mintState.activeNudges.first.intentTag
-                                    : null),
-                          ),
-                        ),
-                      ),
-                    ),
+                  // ── Section 3: Signal Proactif + Radar (animated swap) ──
+                  Builder(
+                    builder: (ctx) {
+                      final l = S.of(ctx)!;
+                      final disableAnimations =
+                          MediaQuery.of(ctx).disableAnimations;
 
-                  // ── Section 3b: Radar Anticipatoire ──
-                  if (_shouldShowRadar(context, mintState))
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: MintSpacing.xl),
-                      child: _RadarAnticipateCard(
-                        profile: mintState.profile,
-                        onSwitchToCoach: widget.onSwitchToCoach,
-                      ),
-                    ),
+                      // Determine current signal card
+                      Widget? signalCard;
+                      if (_hasSignal(mintState)) {
+                        signalCard = _SignalProactifCard(
+                          key: const ValueKey('signal_proactif'),
+                          mintState: mintState,
+                          onTap: () => widget.onSwitchToCoach?.call(
+                            CoachEntryPayload(
+                              source: CoachEntrySource.signal,
+                              topic: mintState.pendingTrigger?.intentTag ??
+                                  (mintState.activeNudges.isNotEmpty
+                                      ? mintState.activeNudges.first.intentTag
+                                      : null),
+                            ),
+                          ),
+                        );
+                      } else if (_shouldShowRadar(ctx, mintState)) {
+                        signalCard = _RadarAnticipateCard(
+                          key: const ValueKey('radar_anticipate'),
+                          profile: mintState.profile,
+                          onSwitchToCoach: widget.onSwitchToCoach,
+                        );
+                      }
+
+                      return Padding(
+                        padding:
+                            const EdgeInsets.only(bottom: MintSpacing.xl),
+                        child: AnimatedSwitcher(
+                          duration: disableAnimations
+                              ? Duration.zero
+                              : MintMotion.standard,
+                          reverseDuration: disableAnimations
+                              ? Duration.zero
+                              : MintMotion.fast,
+                          switchInCurve: MintMotion.curveEnter,
+                          switchOutCurve: MintMotion.curveExit,
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(
+                            opacity: animation,
+                            child: child,
+                          ),
+                          child: signalCard ??
+                              _EmptySignalState(
+                                key: const ValueKey('empty_signal'),
+                                label: l.homeSignalEmptyState,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
 
                   // ── Section 4: Coach Input Bar ──
                   _CoachInputBar(
@@ -370,6 +428,28 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
     } catch (_) {
       return true;
     }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  EMPTY SIGNAL STATE — shown when no signal card is active
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class _EmptySignalState extends StatelessWidget {
+  final String label;
+
+  const _EmptySignalState({super.key, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Text(
+        label,
+        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }
 
@@ -727,6 +807,7 @@ class _SignalProactifCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _SignalProactifCard({
+    super.key,
     required this.mintState,
     required this.onTap,
   });
@@ -850,6 +931,7 @@ class _RadarAnticipateCard extends StatelessWidget {
   final void Function(CoachEntryPayload?)? onSwitchToCoach;
 
   const _RadarAnticipateCard({
+    super.key,
     required this.profile,
     this.onSwitchToCoach,
   });
