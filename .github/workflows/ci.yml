@@ -121,11 +121,15 @@ jobs:
 
   # ─── Flutter Analysis & Tests (3-shard parallel) ────────────
   #
-  # Sharding strategy: split ~345 test files across 3 parallel runners.
+  # Sharding strategy: split ~365 test files across 3 parallel runners.
   # Each shard runs `flutter test` on a disjoint subset of test directories.
   #   - services: test/services/ + test/simulators/ + test/financial_core/ + test/domain/ + test/b2b/  (~200 files)
   #   - widgets:  test/widgets/ + test/models/ + test/providers/                                       (~85 files)
-  #   - screens:  test/screens/ + test/golden/ + test/auth/ + test/modules/                            (~34 files)
+  #   - screens:  test/screens/ + test/golden/ + test/auth/ + test/modules/
+  #               + test/journeys/ + test/accessibility/ + test/i18n/ + test/golden_screenshots/        (~55 files)
+  #
+  # NOTE: test/patrol/ is intentionally excluded — requires emulator infrastructure.
+  # See .github/workflows/patrol.md for manual gate policy.
   #
   # `flutter analyze` runs only in the services shard to avoid redundant work.
   # All shards exclude test/_archive/ (legacy suite).
@@ -148,7 +152,7 @@ jobs:
             test_dirs: "test/widgets/ test/models/ test/providers/"
             run_analyze: false
           - shard: screens
-            test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/"
+            test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/ test/journeys/ test/accessibility/ test/i18n/ test/golden_screenshots/"
             run_analyze: false
     defaults:
       run:
