@@ -38,9 +38,9 @@ created: 2026-04-06
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 06-01-01 | 01 | 1 | CAL-01 | — | N/A | widget | `flutter test test/screens/calculator_prefill_test.dart` | ❌ W0 | ⬜ pending |
-| 06-01-02 | 01 | 1 | CAL-02 | — | N/A | unit | `flutter test test/services/route_planner_test.dart` | ❌ W0 | ⬜ pending |
-| 06-02-01 | 02 | 2 | CAL-03 | — | N/A | unit | `flutter test test/services/calculator_writeback_test.dart` | ❌ W0 | ⬜ pending |
+| 06-01-01 | 01 | 1 | CAL-02 | — | N/A | widget | `flutter test test/widgets/coach/widget_renderer_test.dart` | ✅ exists (extend) | ⬜ pending |
+| 06-01-02 | 01 | 1 | CAL-02 | — | N/A | unit | `flutter test test/services/coach/chat_tool_dispatcher_test.dart` | ✅ exists (extend) | ⬜ pending |
+| 06-02-01 | 02 | 2 | CAL-03 | — | N/A | unit | `flutter test test/screens/calculator_prefill_writeback_test.dart` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -48,9 +48,9 @@ created: 2026-04-06
 
 ## Wave 0 Requirements
 
-- [ ] `test/screens/calculator_prefill_test.dart` — stubs for CAL-01 prefill verification
-- [ ] `test/services/route_planner_test.dart` — stubs for CAL-02 GoRouter extras
-- [ ] `test/services/calculator_writeback_test.dart` — stubs for CAL-03 write-back
+- [ ] `test/widgets/coach/widget_renderer_test.dart` — extends existing tests with prefill merge + RoutePlanner fallback coverage (CAL-01, CAL-02)
+- [ ] `test/services/coach/chat_tool_dispatcher_test.dart` — extends existing tests with prefill dispatch verification (CAL-02)
+- [ ] `test/screens/calculator_prefill_writeback_test.dart` — new file covering prefill consumption + write-back across screens (CAL-01, CAL-03)
 
 ---
 

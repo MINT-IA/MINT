@@ -437,16 +437,16 @@ SmartDefaultIndicator(
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Intent-to-route resolution in ChatToolDispatcher**
+1. **Intent-to-route resolution in ChatToolDispatcher** (RESOLVED)
    - What we know: `ChatToolDispatcher.resolveRoute()` reads `input['route']` directly — not `input['intent']`. The comment says "intent-to-route resolution is deferred to Phase 6 (Open Question #1 in RESEARCH.md)".
-   - What's unclear: Should Phase 6 add `RoutePlanner.plan(intent)` call in `WidgetRenderer._buildRouteSuggestion()`, or should it only add Flutter-side prefill injection while keeping current routing?
+   - Resolution: WidgetRenderer._buildRouteSuggestion() calls RoutePlanner.plan(intent) as fallback when backend prefill is absent. Backend prefill wins on conflict. Implemented in Plan 06-01 Task 1.
    - Recommendation: Add Flutter-side prefill injection: when `WidgetRenderer._buildRouteSuggestion()` has an intent from the tool call and a CoachProfile is available, call `RoutePlanner.plan(intent)` to get the `RouteDecision.prefill` map as fallback. Merge with any backend-provided prefill (backend wins on conflict).
 
-2. **Write-back: CoachProfile field availability**
+2. **Write-back: CoachProfile field availability** (RESOLVED)
    - What we know: `CoachProfile` has `prevoyance.copyWith()` for LPP fields. But not all calculator outputs map cleanly to CoachProfile fields — e.g., `/pilier-3a` outputs "optimal 3a contribution" which is a computed recommendation, not a profile field.
-   - What's unclear: Which write-back outputs go to CoachProfile model fields vs. a separate "simulation results" store?
+   - Resolution: Only write back fields that exist in CoachProfile model. For mortgage, add mortgageCapacity + estimatedMonthlyPayment to PatrimoineProfile. For 3a, skip recommendations (display-only). Implemented in Plan 06-02 Task 2.
    - Recommendation: Only write back values that enrich the user's actual financial picture (e.g., projected LPP capital updates `prevoyance.avoirLppTotal` if more accurate than current estimate). Do not store calculator recommendations — those are display-only.
 
 ---
