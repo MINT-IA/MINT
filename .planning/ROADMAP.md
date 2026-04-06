@@ -87,7 +87,7 @@ Plans:
 **Plans:** 2 plans
 Plans:
 - [x] 05-01-PLAN.md — Backend record_check_in tool, amount parser with tests, notification scheduling
-- [ ] 05-02-PLAN.md — WidgetRenderer check-in dispatch, MintHomeScreen PlanRealityCard + StreakBadge, ConversationMemory enrichment
+- [x] 05-02-PLAN.md — WidgetRenderer check-in dispatch, MintHomeScreen PlanRealityCard + StreakBadge, ConversationMemory enrichment
 
 ### Phase 6: Calculator Wiring
 **Goal**: Every calculator screen opened via a coach suggestion arrives pre-filled with data MINT already knows — users are never asked to re-enter information the app has
@@ -97,8 +97,10 @@ Plans:
   1. Opening /rente-vs-capital via a coach suggestion shows Julien's 70,377 CHF LPP capital pre-filled — user does not have to type it
   2. A RouteSuggestionCard tap passes prefill data through GoRouter extras to the calculator constructor — verified by inspecting the GoRouter handler in app.dart
   3. When a calculator produces a result, the relevant field (e.g., projected LPP capital) is written back to CoachProfile — verified by checking CoachProfile state before and after a simulation run
-**Plans**: TBD
-**UI hint**: yes
+**Plans:** 2 plans
+Plans:
+- [ ] 06-01-PLAN.md — Add prefill field to backend route_to_screen schema + wire Flutter-side RoutePlanner prefill injection
+- [ ] 06-02-PLAN.md — Add _applyPrefill() + _writeBackResult() to all 6 calculator screens, i18n keys, tests
 
 ### Phase 7: Life Event Journeys
 **Goal**: Three complete user journeys — firstJob, housingPurchase, newJob — are verified end-to-end on device, with integration tests that fail if any link in the chain breaks
@@ -138,6 +140,6 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 | 3. Onboarding Pipeline | 0/3 | Planned | - |
 | 4. Plan Generation | 0/3 | Planned | - |
 | 5. Suivi & Check-in | 0/2 | Planned | - |
-| 6. Calculator Wiring | 0/? | Not started | - |
+| 6. Calculator Wiring | 0/2 | Planned | - |
 | 7. Life Event Journeys | 0/? | Not started | - |
 | 8. UX Polish | 0/? | Not started | - |
