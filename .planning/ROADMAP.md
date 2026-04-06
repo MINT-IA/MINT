@@ -1,150 +1,103 @@
-# Roadmap: MINT v1.0 UX Journey
+# Roadmap: MINT v2.0 Mint Systeme Vivant
 
 ## Overview
 
-This milestone transforms MINT's disconnected components into a seamless user journey. All required infrastructure already exists — the work is three wiring gaps and their downstream payoffs. Phases are ordered by dependency: cleanup unblocks everything, tool dispatch unblocks onboarding, onboarding unblocks plan generation, plan generation unblocks suivi, and the three verified life event journeys prove the whole pipeline works end-to-end. UX polish completes the milestone.
+Transform MINT from a well-wired but passive app into a living financial intelligence system. Six phases build sequentially on a data dependency chain: first the golden path baseline works flawlessly, then documents flow in and enrich the profile, then biography captures the narrative, then anticipation rules fire on that data, then the Aujourd'hui surface integrates everything into ranked cards, and finally 9-persona QA gates the release. Each phase delivers a coherent, independently verifiable capability.
 
 ## Phases
 
-- [ ] **Phase 1: Pre-Refactor Cleanup** - Eliminate duplicate services and orphan routes before any wiring begins
-- [ ] **Phase 2: Tool Dispatch** - Wire coach tool calls to the Flutter UI so LLM outputs reach the user
-- [ ] **Phase 3: Onboarding Pipeline** - Connect intent selection to journey engine and deliver first premier eclairage in under 3 minutes
-- [ ] **Phase 4: Plan Generation** - Coach produces persistent, chiffered financial plans from user goals
-- [ ] **Phase 5: Suivi & Check-in** - Monthly check-ins, progress visualization, and cross-session memory
-- [ ] **Phase 6: Calculator Wiring** - Profile pre-fill across all calculator entry screens
-- [ ] **Phase 7: Life Event Journeys** - Three verified end-to-end journeys (firstJob, housingPurchase, newJob)
-- [ ] **Phase 8: UX Polish** - Signal card animations, confidence score visibility, ReadinessGate-aware Explorer
+- [ ] **Phase 1: Le Parcours Parfait** - Lea golden path end-to-end flawless (landing to check-in)
+- [ ] **Phase 2: Intelligence Documentaire** - Photo/PDF upload to LLM extraction to profile enrichment to instant insight
+- [ ] **Phase 3: Memoire Narrative** - Local-only encrypted financial biography with anonymized coach integration
+- [ ] **Phase 4: Moteur d'Anticipation** - Rule-based proactive alerts (fiscal, profile, legislative triggers)
+- [ ] **Phase 5: Interface Contextuelle** - Smart Aujourd'hui cards ranked by relevance (max 5 cards)
+- [ ] **Phase 6: QA Profond** - 9 personas, error recovery, accessibility, multilingual validation, release gate
 
 ## Phase Details
 
-### Phase 1: Pre-Refactor Cleanup
-**Goal**: The codebase has no duplicate service copies, no orphan routes, and a verified route table — safe to build on
+### Phase 1: Le Parcours Parfait
+**Goal**: A new user (Lea: 22, VD, firstJob) flows from landing to first check-in prompt without friction, dead ends, or broken states
 **Depends on**: Nothing (first phase)
-**Requirements**: CLN-01, CLN-02, CLN-03
+**Requirements**: PATH-01, PATH-02, PATH-03, PATH-04, PATH-05, PATH-06
 **Success Criteria** (what must be TRUE):
-  1. A grep for each of the three duplicate service pairs returns exactly one canonical import path across the entire codebase
-  2. Every one of the 67 canonical routes is either live (has a screen), redirected (explicit alias), or archived (explicit comment) — no silent dead ends
-  3. Dead screens (no route pointing to them) are removed; flutter analyze still reports 0 errors after removal
-**Plans:** 3 plans
-Plans:
-- [x] 01-01-PLAN.md — Resolve 3 duplicate service pairs (delete non-canonical copies)
-- [x] 01-02-PLAN.md — Audit route table, fix stale comment, delete dead screens
-- [x] 01-03-PLAN.md — Gap closure: delete 2 remaining non-canonical service copies + fix test imports
+  1. Lea (22, VD, firstJob) completes the full path from landing through auth, onboarding, premier eclairage, plan generation, to check-in prompt without manual intervention
+  2. Every screen in the path handles loading, error, and empty states gracefully (no blank screens, no unhandled exceptions)
+  3. Coach responses for firstJob intent use VD regional voice and pass the 4-layer insight engine (factual, human, personal, questions)
+  4. An integration test covers the full Lea journey and fails CI if any link in the chain breaks
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 2: Tool Dispatch
-**Goal**: Coach tool calls (show_fact_card, route_to_screen, show_score_gauge, etc.) reach the Flutter UI and render the appropriate inline widgets
+### Phase 2: Intelligence Documentaire
+**Goal**: Users can photograph or upload a Swiss financial document and see their profile instantly enriched with extracted data they confirm
 **Depends on**: Phase 1
-**Requirements**: TDP-01, TDP-02, TDP-03, TDP-04
+**Requirements**: DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, DOC-07, DOC-08, DOC-09, DOC-10, COMP-04
 **Success Criteria** (what must be TRUE):
-  1. Asking "comment fonctionne mon LPP?" in coach chat produces an inline FactCard widget in the message bubble — not a text-only response
-  2. A RouteSuggestionCard appears in chat when the LLM calls route_to_screen — tapping it navigates to the suggested screen
-  3. CoachRichWidgetBuilder renders widgets based on LLM tool decisions, not keyword matching — verified by disabling keyword fallback and confirming output is unchanged
-  4. ChatToolDispatcher exists as a distinct class, parses tool markers from every CoachResponse, and dispatches to the appropriate UI handler
-**Plans:** 2 plans
-Plans:
-- [x] 02-01-PLAN.md — Create ChatToolDispatcher class + add route_to_screen to WidgetRenderer
-- [x] 02-02-PLAN.md — Wire dispatcher into CoachChatScreen, remove legacy dispatch + keyword builder
+  1. User can capture a document via camera, gallery, or PDF upload and see structured fields extracted with per-field confidence badges
+  2. LPP plan type (legal / surobligatoire / 1e) is detected before conversion rate extraction -- 1e plans show capital-only projection with explicit warning
+  3. Extracted fields flow into CoachProfile via ProfileEnrichmentDiff with user confirmation screen -- never direct writes
+  4. Original document image is deleted immediately after extraction (including error paths via finally blocks), with audit log retained
+  5. A premier eclairage is generated from the newly extracted data within seconds of document processing
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 3: Onboarding Pipeline
-**Goal**: A user who selects an intent chip on the onboarding screen receives a personalized premier eclairage with a concrete Swiss-specific number within 3 minutes, and lands on a contextual home screen — not a generic dashboard
+### Phase 3: Memoire Narrative
+**Goal**: MINT remembers the user's financial story over time and the coach references it naturally without exposing private data
 **Depends on**: Phase 2
-**Requirements**: ONB-01, ONB-02, ONB-03, ONB-04
+**Requirements**: BIO-01, BIO-02, BIO-03, BIO-04, BIO-05, BIO-06, BIO-07, BIO-08, COMP-02, COMP-03
 **Success Criteria** (what must be TRUE):
-  1. From cold launch, a user selects an intent chip and sees a personalized premier eclairage (containing at least one Swiss-specific number relevant to their intent) within 3 minutes — verified on device
-  2. IntentScreen selection triggers CapSequenceEngine to generate a relevant first journey sequence — verified by checking CapMemoryStore.activeGoal is set after chip tap
-  3. JourneyTrigger connects the selected intent to the correct calculator or insight flow — verified by tracing the complete code path from intent tap to coach first response
-  4. Post-onboarding landing screen content reflects the selected intent (not generic) — a firstJob intent lands differently than a housingPurchase intent
-**Plans:** 3 plans
-Plans:
-- [x] 03-01-PLAN.md — Create IntentRouter mapping + extend ReportPersistenceService with PremierEclairage persistence
-- [x] 03-02-PLAN.md — Rewire IntentScreen._onChipTap to use IntentRouter, compute premier eclairage, seed CapMemory
-- [x] 03-03-PLAN.md — Build PremierEclairageCard widget, insert into MintHomeScreen, add intent-aware coach opener + i18n
+  1. Financial events (document scans, life events, decisions) are recorded in an encrypted local-only store and never sent to external APIs
+  2. Coach references biography naturally ("Ton salaire a augmente a un peu moins de 100k") using only AnonymizedBiographySummary (max 2K tokens, no PII)
+  3. User can view, edit, and delete each stored fact with its source and date via the privacy control screen ("Ce que MINT sait de toi")
+  4. Stale data (annual fields > 12 months, volatile fields > 3 months) is flagged, excluded from projections, and triggers a coach prompt for document refresh
+  5. Every reference to user data in projections and coach responses is dated or conditioned -- no stale data presented as current fact
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 4: Plan Generation
-**Goal**: The coach generates a persistent, chiffered financial plan from the user's declared goal — visible outside chat history and adaptive to profile changes
+### Phase 4: Moteur d'Anticipation
+**Goal**: MINT proactively surfaces timely financial signals before the user thinks to ask
 **Depends on**: Phase 3
-**Requirements**: PLN-01, PLN-02, PLN-03, PLN-04
+**Requirements**: ANT-01, ANT-02, ANT-03, ANT-04, ANT-05, ANT-06, ANT-07, ANT-08
 **Success Criteria** (what must be TRUE):
-  1. Telling the coach "j'veux acheter un appartement dans 3 ans" produces a plan with a monthly savings amount, intermediate milestone targets, and a projected outcome — all with numbers
-  2. The generated plan is accessible from the Aujourd'hui tab or profile drawer without scrolling through chat history
-  3. When the user's salary changes in their profile, the plan's monthly amount updates to reflect the new figure
-**Plans:** 3 plans
-Plans:
-- [x] 04-01-PLAN.md — FinancialPlan model, persistence service, provider with staleness detection, i18n keys
-- [x] 04-02-PLAN.md — PlanGenerationService (calculator-backed), PlanPreviewCard (inline chat), WidgetRenderer dispatch, app.dart provider registration
-- [ ] 04-03-PLAN.md — FinancialPlanCard on MintHomeScreen with expand/collapse detail and stale state + human verification
+  1. Swiss fiscal calendar triggers fire correctly for 3a deadline (Dec 31), cantonal tax deadlines, and LPP rachat windows
+  2. Profile-driven triggers detect salary increase (3a max recalculation) and age milestone (LPP bonification rate change) automatically
+  3. All alerts use the AlertTemplate enum (Educational format) and pass ComplianceGuard.validateAlert() before display -- zero banned terms, zero imperatives
+  4. Frequency cap enforced: max 2 anticipation signals per user per week, with dismissal/snooze logic per trigger type
+  5. Triggers are deterministic rule-based (zero LLM cost) with LLM used only for optional narrative enrichment
+**Plans**: TBD
 
-### Phase 5: Suivi & Check-in
-**Goal**: Users are proactively nudged to check in monthly, check-ins feel conversational rather than form-like, and progress against the plan is visible on Aujourd'hui
+### Phase 5: Interface Contextuelle
+**Goal**: The Aujourd'hui tab shows a living, ranked set of cards that reflect what matters most to the user right now
 **Depends on**: Phase 4
-**Requirements**: SUI-01, SUI-02, SUI-03, SUI-04, SUI-05
+**Requirements**: CTX-01, CTX-02, CTX-03, CTX-04, CTX-05, CTX-06
 **Success Criteria** (what must be TRUE):
-  1. A proactive nudge (local notification) appears when a monthly check-in is due — not only available on demand
-  2. The check-in flow is conversational: the coach asks "combien as-tu verse ce mois?" and the user answers in chat — no standalone form screen
-  3. PlanRealityCard is visible on the Aujourd'hui tab showing plan vs. actual progress
-  4. Coach references a past check-in by amount ("le mois dernier tu avais verse X") — confirming cross-session memory is active
-  5. The user's streak count is visible somewhere in the UI (not just tracked in background)
-**Plans:** 2 plans
-Plans:
-- [x] 05-01-PLAN.md — Backend record_check_in tool, amount parser with tests, notification scheduling
-- [x] 05-02-PLAN.md — WidgetRenderer check-in dispatch, MintHomeScreen PlanRealityCard + StreakBadge, ConversationMemory enrichment
+  1. Aujourd'hui displays max 5 cards (hero stat, anticipation signal, progress, action opportunity, expandable overflow) ranked by priority_score = timeliness x relevance x confidence
+  2. Card ranking is deterministic per session (computed at app launch, not on scroll) and completed actions demote their triggering card
+  3. Coach opener is biography-aware and LSFin compliant, ending with user-initiated action (never imperatives)
+  4. Each card deep-links to the relevant simulator or tool, and the 3-tab shell + ProfileDrawer remain unchanged
+**Plans**: TBD
+**UI hint**: yes
 
-### Phase 6: Calculator Wiring
-**Goal**: Every calculator screen opened via a coach suggestion arrives pre-filled with data MINT already knows — users are never asked to re-enter information the app has
-**Depends on**: Phase 2
-**Requirements**: CAL-01, CAL-02, CAL-03
+### Phase 6: QA Profond
+**Goal**: All v2.0 capabilities are validated across 9 personas, hostile scenarios, accessibility standards, and multilingual accuracy before release
+**Depends on**: Phase 5
+**Requirements**: QA-01, QA-02, QA-03, QA-04, QA-05, QA-06, QA-07, QA-08, QA-09, QA-10, COMP-01, COMP-05
 **Success Criteria** (what must be TRUE):
-  1. Opening /rente-vs-capital via a coach suggestion shows Julien's 70,377 CHF LPP capital pre-filled — user does not have to type it
-  2. A RouteSuggestionCard tap passes prefill data through GoRouter extras to the calculator constructor — verified by inspecting the GoRouter handler in app.dart
-  3. When a calculator produces a result, the relevant field (e.g., projected LPP capital) is written back to CoachProfile — verified by checking CoachProfile state before and after a simulation run
-**Plans:** 2 plans
-Plans:
-- [x] 06-01-PLAN.md — Add prefill field to backend route_to_screen schema + wire Flutter-side RoutePlanner prefill injection
-- [x] 06-02-PLAN.md — Add _applyPrefill() + _writeBackResult() to all 6 calculator screens, i18n keys, tests
-
-### Phase 7: Life Event Journeys
-**Goal**: Three complete user journeys — firstJob, housingPurchase, newJob — are verified end-to-end on device, with integration tests that fail if any link in the chain breaks
-**Depends on**: Phase 3, Phase 5, Phase 6
-**Requirements**: LEJ-01, LEJ-02, LEJ-03, LEJ-04
-**Success Criteria** (what must be TRUE):
-  1. firstJob journey works end-to-end: intent → relevant calculators pre-filled → premier eclairage with LPP/3a numbers → plan with monthly target → suivi entry point — verified on device with a fresh profile
-  2. housingPurchase journey works end-to-end: intent → EPL/mortgage calculator pre-filled → savings plan → monthly check-in prompt — verified on device
-  3. newJob journey works end-to-end: intent → salary comparison → LPP transfer check → 3a optimization step — verified on device
-  4. Each journey has an integration test that traces the full flow and fails if any step produces no output or a broken navigation
-**Plans:** 3 plans
-Plans:
-- [x] 07-01-PLAN.md — Wire firstJob + newJob IntentRouter mappings, CapSequence definitions, IntentScreen chips, i18n keys
-- [x] 07-02-PLAN.md — Integration tests for all 3 journeys (firstJob, housingPurchase, newJob)
-- [x] 07-03-PLAN.md — Gap closure: fix 2 broken GoRouter intentTags + firstJob premier eclairage stressType mismatch
-
-### Phase 8: UX Polish
-**Goal**: The Aujourd'hui tab animates naturally, ConfidenceScore is visible and actionable, Explorer reflects profile readiness, and navigation transitions feel guided
-**Depends on**: Phase 7
-**Requirements**: UXP-01, UXP-02, UXP-03, UXP-04
-**Success Criteria** (what must be TRUE):
-  1. When a signal card on Aujourd'hui is dismissed or replaced, the transition uses AnimatedSwitcher crossfade — no hard refresh or flash
-  2. ConfidenceScore is visible on Aujourd'hui with an explanation of which single action would improve it most — not hidden in a settings screen
-  3. Explorer hubs show a visual state reflecting profile completeness (greyed/locked items when required fields are missing) — a profile with no salary sees different hub states than a complete profile
-  4. Screens in the onboarding journey path (/onboarding/intent, /coach, /onboarding/premier-eclairage) use CustomTransitionPage fade — not the default Material slide push
-**Plans:** 2 plans
-Plans:
-- [x] 08-01-PLAN.md — AnimatedSwitcher on signal card slot + ConfidenceScoreCard widget on Aujourd'hui
-- [x] 08-02-PLAN.md — Explorer hub ReadinessGate visual states + CustomTransitionPage fade on onboarding routes
+  1. All 9 personas (Lea, Marc, Sophie, Thomas, Anna, Pierre, Julia, Laurent, Nadia) complete golden path integration tests including at least 1 error recovery scenario each
+  2. Golden Screenshots (pixel diff > 1.5% = red in CI) and Patrol integration tests (iOS 17 + Android API 34) pass on both platforms
+  3. ComplianceGuard achieves 100% coverage on all new output channels (alerts, narrative refs, coach openers, extraction insights) with zero banned terms and zero PII in system prompts
+  4. WCAG 2.1 AA met on all new screens (VoiceOver + TalkBack, contrast >= 4.5:1, tap targets >= 44pt, font scaling 200%)
+  5. All new user-facing strings exist in 6 ARB files via AppLocalizations -- zero hardcoded strings, DE + IT financial terminology accuracy >= 85%
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
-
-Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in parallel with Phases 4-5. Execution still follows numeric order for simplicity.
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Pre-Refactor Cleanup | 0/3 | Gap closure planned | - |
-| 2. Tool Dispatch | 0/2 | Planned | - |
-| 3. Onboarding Pipeline | 0/3 | Planned | - |
-| 4. Plan Generation | 0/3 | Planned | - |
-| 5. Suivi & Check-in | 0/2 | Planned | - |
-| 6. Calculator Wiring | 0/2 | Planned | - |
-| 7. Life Event Journeys | 0/3 | Gap closure planned | - |
-| 8. UX Polish | 0/2 | Planned | - |
+| 1. Le Parcours Parfait | 0/TBD | Not started | - |
+| 2. Intelligence Documentaire | 0/TBD | Not started | - |
+| 3. Memoire Narrative | 0/TBD | Not started | - |
+| 4. Moteur d'Anticipation | 0/TBD | Not started | - |
+| 5. Interface Contextuelle | 0/TBD | Not started | - |
+| 6. QA Profond | 0/TBD | Not started | - |
