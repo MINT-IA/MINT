@@ -117,6 +117,12 @@ class ProfileDrawer extends StatelessWidget {
               title: l10n.drawerDataTransparency,
               onTap: () => _navigate(context, '/profile/data-transparency'),
             ),
+            _buildSection(
+              context,
+              icon: Icons.shield_outlined,
+              title: l10n.drawerPrivacyControl,
+              onTap: () => _navigate(context, '/profile/privacy-control'),
+            ),
 
             const SizedBox(height: MintSpacing.xl),
 
