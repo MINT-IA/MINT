@@ -1,5 +1,11 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' as sqflite;
+
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -40,7 +46,6 @@ abstract class BiographyDatabase {
 /// the shared instance. For testing, use [BiographyRepository.withDatabase()].
 class BiographyRepository {
   /// Database filename for sqflite_sqlcipher (used in production init).
-  // ignore: unused_field
   static const _dbName = 'mint_biography.db';
   static const _keyAlias = 'mint_biography_key';
   static const _tableName = 'biography_facts';
@@ -71,13 +76,23 @@ class BiographyRepository {
       debugPrint('[Biography] Generated new encryption key');
     }
 
-    // Open encrypted database
-    // NOTE: sqflite_sqlcipher import is deferred to avoid test failures
-    // on platforms without native SQLite. Use withDatabase() for tests.
-    throw UnimplementedError(
-      'Production database initialization requires sqflite_sqlcipher. '
-      'Call BiographyRepository.withDatabase() for tests.',
+    // Open encrypted database via sqflite_sqlcipher (AES-256-CBC).
+    // For tests without native SQLite, use withDatabase() instead.
+    final dir = await getApplicationDocumentsDirectory();
+    final dbPath = p.join(dir.path, _dbName);
+    final sqlDb = await sqflite.openDatabase(
+      dbPath,
+      password: key,
+      version: 1,
+      onCreate: (db, version) async {
+        // Table creation handled by _createTables() below
+      },
     );
+    final db = _SqfliteDatabase(sqlDb);
+    final repo = BiographyRepository._(db);
+    await repo._createTables();
+    _instance = repo;
+    return repo;
   }
 
   /// Create a repository with an injected database (for testing).
@@ -94,14 +109,12 @@ class BiographyRepository {
     _instance = null;
   }
 
-  /// Generate a 32-byte hex encryption key.
+  /// Generate a 32-byte hex encryption key using cryptographic RNG.
   static String _generateKey() {
-    // Use Dart's secure random via UUID-like generation
-    final now = DateTime.now().microsecondsSinceEpoch;
-    // In production, this would use dart:math Random.secure()
-    // For now, a deterministic fallback that will be replaced
-    // when sqflite_sqlcipher is fully wired.
-    return now.toRadixString(16).padLeft(64, 'a');
+    final random = Random.secure();
+    return List.generate(32, (_) => random.nextInt(256))
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join();
   }
 
   // ── Schema ──────────────────────────────────────────────────
@@ -261,4 +274,34 @@ class BiographyRepository {
     await _db.close();
     _instance = null;
   }
+}
+
+/// Adapter bridging sqflite_sqlcipher [sqflite.Database] to [BiographyDatabase].
+class _SqfliteDatabase implements BiographyDatabase {
+  final sqflite.Database _db;
+  _SqfliteDatabase(this._db);
+
+  @override
+  Future<void> execute(String sql, [List<Object?>? arguments]) =>
+      _db.execute(sql, arguments);
+
+  @override
+  Future<List<Map<String, Object?>>> rawQuery(String sql,
+          [List<Object?>? arguments]) =>
+      _db.rawQuery(sql, arguments ?? []);
+
+  @override
+  Future<int> rawInsert(String sql, [List<Object?>? arguments]) =>
+      _db.rawInsert(sql, arguments ?? []);
+
+  @override
+  Future<int> rawUpdate(String sql, [List<Object?>? arguments]) =>
+      _db.rawUpdate(sql, arguments ?? []);
+
+  @override
+  Future<int> rawDelete(String sql, [List<Object?>? arguments]) =>
+      _db.rawDelete(sql, arguments ?? []);
+
+  @override
+  Future<void> close() => _db.close();
 }
