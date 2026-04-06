@@ -14,7 +14,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [x] **PATH-03**: Onboarding collects intent + 3 inputs (age, revenu, canton) and delivers premier eclairage within 5 minutes total
 - [x] **PATH-04**: Coach responses for firstJob intent are contextual, use VD regional voice (septante/nonante), and pass 4-layer insight engine
 - [x] **PATH-05**: Every screen in Lea's path has loading states, error states, empty states, and smooth transitions
-- [ ] **PATH-06**: Integration test covers full Lea journey and fails if any link breaks
+- [x] **PATH-06**: Integration test covers full Lea journey and fails if any link breaks
 
 ### Intelligence Documentaire
 
@@ -120,7 +120,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | PATH-03 | Phase 1 | Complete |
 | PATH-04 | Phase 1 | Complete |
 | PATH-05 | Phase 1 | Complete |
-| PATH-06 | Phase 1 | Pending |
+| PATH-06 | Phase 1 | Complete |
 | DOC-01 | Phase 2 | Pending |
 | DOC-02 | Phase 2 | Pending |
 | DOC-03 | Phase 2 | Pending |
