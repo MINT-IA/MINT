@@ -112,6 +112,20 @@ class ChiffreChocSelector {
         // Couple: no couple data at onboarding — fall through
         return null;
 
+      case 'stress_prevoyance':
+        // First job / prevoyance: show 3a tax saving or compound growth
+        if (profile.taxSaving3a > 500) {
+          return _buildTaxSaving3aChoc(profile);
+        }
+        if (profile.age < 35) {
+          return _buildCompoundGrowthChoc(profile);
+        }
+        // Fallback: retirement income if data exists
+        if (profile.grossMonthlySalary > 0) {
+          return _buildRetirementIncomeChoc(profile);
+        }
+        return null;
+
       default:
         return null;
     }

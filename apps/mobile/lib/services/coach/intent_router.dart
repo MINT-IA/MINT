@@ -71,8 +71,8 @@ class IntentRouter {
     ),
     'intentChipPremierEmploi': IntentMapping(
       goalIntentTag: 'first_job',
-      stressType: 'stress_budget',
-      suggestedRoute: '/premier-emploi',
+      stressType: 'stress_prevoyance',
+      suggestedRoute: '/first-job',
       lifeEventFamily: 'professionnel',
     ),
     'intentChipNouvelEmploi': IntentMapping(

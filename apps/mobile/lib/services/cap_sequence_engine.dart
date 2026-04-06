@@ -429,7 +429,7 @@ class CapSequenceEngine {
             : hasMortgage
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/location-vs-propriete',
+        intentTag: '/arbitrage/location-vs-propriete',
         impactEstimate: null,
       ),
       CapStep(
@@ -480,7 +480,7 @@ class CapSequenceEngine {
             : hasSalary
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/premier-emploi',
+        intentTag: '/first-job',
         impactEstimate: null,
       ),
       CapStep(
