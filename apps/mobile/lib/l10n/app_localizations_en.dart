@@ -21745,4 +21745,42 @@ class SEn extends S {
 
   @override
   String get coachErrorInline => 'The coach is not available right now.';
+
+  @override
+  String get planHeadline => 'Your plan in 4 steps';
+
+  @override
+  String get planSubtitle => 'Here\'s where to start.';
+
+  @override
+  String get planStepSalaryTitle => 'Understand your first salary';
+
+  @override
+  String get planStepSalaryBody =>
+      'Decode your payslip: AVS, LPP, withholding tax. Every line has an impact.';
+
+  @override
+  String get planStep3aTitle => 'Set up your 3a';
+
+  @override
+  String get planStep3aBody =>
+      'CHF 7,258/year in tax deductions. The earlier you start, the bigger the effect.';
+
+  @override
+  String get planStepInsuranceTitle => 'Check your insurance coverage';
+
+  @override
+  String get planStepInsuranceBody =>
+      'LAMal, liability, household: the basics to verify before signing anything.';
+
+  @override
+  String get planStepAvsTitle => 'Know your AVS rights';
+
+  @override
+  String get planStepAvsBody =>
+      'Every year of contributions counts. Check your CI statement to avoid gaps.';
+
+  @override
+  String get coachCheckInWelcome =>
+      'Hi! I\'m here. Let\'s look at what matters to you together.';
 }

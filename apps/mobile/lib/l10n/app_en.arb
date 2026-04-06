@@ -10091,5 +10091,16 @@
   "quickStartHeadline": "Three questions, one first number.",
   "chiffreChocContinue": "Continue",
   "planCta": "See my plan",
-  "coachErrorInline": "The coach is not available right now."
+  "coachErrorInline": "The coach is not available right now.",
+  "planHeadline": "Your plan in 4 steps",
+  "planSubtitle": "Here's where to start.",
+  "planStepSalaryTitle": "Understand your first salary",
+  "planStepSalaryBody": "Decode your payslip: AVS, LPP, withholding tax. Every line has an impact.",
+  "planStep3aTitle": "Set up your 3a",
+  "planStep3aBody": "CHF 7,258/year in tax deductions. The earlier you start, the bigger the effect.",
+  "planStepInsuranceTitle": "Check your insurance coverage",
+  "planStepInsuranceBody": "LAMal, liability, household: the basics to verify before signing anything.",
+  "planStepAvsTitle": "Know your AVS rights",
+  "planStepAvsBody": "Every year of contributions counts. Check your CI statement to avoid gaps.",
+  "coachCheckInWelcome": "Hi! I'm here. Let's look at what matters to you together."
 }

@@ -17,7 +17,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/common/mint_loading_state.dart';
+import 'package:mint_mobile/widgets/common/mint_error_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -44,10 +45,14 @@ class QuickStartScreen extends StatefulWidget {
 class _QuickStartScreenState extends State<QuickStartScreen> {
   final _analytics = AnalyticsService();
   final _nameController = TextEditingController();
+  final _salaryController = TextEditingController(text: '60000');
   int _birthYear = DateTime.now().year - 30;
   double _salary = 60000;
   String _canton = 'ZH';
   bool _saving = false;
+  bool _loading = false;
+  String? _error;
+  String? _intent; // From onboarding pipeline
   // Consent is requested and tracked via _checkAndRequestConsent() below.
   // The consent state is recorded in SharedPreferences, not held in widget state.
 
@@ -159,10 +164,15 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         final by = extra['birthYear'] as int?;
         final gs = (extra['grossSalary'] as num?)?.toDouble();
         final ct = extra['canton'] as String?;
+        final intent = extra['intent'] as String?;
         setState(() {
           if (by != null) _birthYear = by;
-          if (gs != null && gs > 0) _salary = gs;
+          if (gs != null && gs > 0) {
+            _salary = gs;
+            _salaryController.text = gs.round().toString();
+          }
           if (ct != null && ct.isNotEmpty) _canton = ct;
+          if (intent != null) _intent = intent;
         });
       }
     } catch (_) {
@@ -193,6 +203,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _salaryController.dispose();
     super.dispose();
   }
 
@@ -232,9 +243,16 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     return {'total': total, 'current': current, 'ratio': ratio};
   }
 
+  /// Whether the CTA should be enabled (all 3 fields valid).
+  bool get _isFormValid => _age >= 18 && _age <= 99 && _salary > 0 && _canton.isNotEmpty;
+
   Future<void> _onContinue() async {
-    if (_saving) return;
-    setState(() => _saving = true);
+    if (_saving || _loading) return;
+    setState(() {
+      _saving = true;
+      _loading = true;
+      _error = null;
+    });
 
     final provider = context.read<CoachProfileProvider>();
     provider.updateFromSmartFlow(
@@ -247,10 +265,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     );
 
     _analytics.trackCTAClick('quick_start_completed',
-        screenName: '/onboarding/quick');
+        screenName: '/onboarding/quick-start');
 
-    // P1-Onboarding: Best-effort backend profile sync if user is authenticated.
-    // Fire-and-forget — navigation proceeds regardless of outcome.
+    // Best-effort backend profile sync if user is authenticated.
     try {
       final auth = context.read<AuthProvider>();
       if (auth.isLoggedIn) {
@@ -273,7 +290,16 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
     }
 
     if (mounted) {
-      context.go('/home?tab=0');
+      setState(() {
+        _loading = false;
+        _saving = false;
+      });
+      context.go('/onboarding/chiffre-choc', extra: {
+        'age': _age,
+        'grossSalary': _salary,
+        'canton': _canton,
+        'intent': _intent,
+      });
     }
   }
 
@@ -282,6 +308,28 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+
+    // Loading overlay while computing/navigating.
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: MintColors.white,
+        body: MintLoadingState(message: l.loadingPremierEclairage),
+      );
+    }
+
+    // Error state with retry.
+    if (_error != null) {
+      return Scaffold(
+        backgroundColor: MintColors.white,
+        body: MintErrorState(
+          title: l.errorGenericTitle,
+          body: l.errorGenericBody,
+          retryLabel: l.errorRetry,
+          onRetry: () => setState(() => _error = null),
+        ),
+      );
+    }
+
     final est = _estimate();
     final total = est['total']!;
     final current = est['current']!;
@@ -324,9 +372,9 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header
+                    // Header — quickStartHeadline for golden path
                     Text(
-                      l.quickStartTitle,
+                      l.quickStartHeadline,
                       style: MintTextStyles.headlineLarge(),
                     ),
                     const SizedBox(height: 6),
@@ -441,18 +489,54 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                     ),
                     const SizedBox(height: MintSpacing.md),
 
-                    // ── Revenu brut annuel slider ──
-                    MintPremiumSlider(
+                    // ── Revenu brut annuel (tap-to-type) ──
+                    Text(
+                      l.quickStartSalary,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Semantics(
                       label: l.quickStartSalary,
-                      value: _salary,
-                      min: 0,
-                      max: 500000,
-                      divisions: 100,
-                      formatValue: (v) => v == 0
-                          ? l.quickStartNoIncome
-                          : l.quickStartSalaryValue(
-                              formatChfWithPrefix(v)),
-                      onChanged: (v) => setState(() => _salary = v),
+                      textField: true,
+                      child: TextField(
+                        controller: _salaryController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: false),
+                        decoration: InputDecoration(
+                          hintText: '60000',
+                          suffixText: 'CHF/an',
+                          suffixStyle: MintTextStyles.bodyMedium(
+                            color: MintColors.textMuted,
+                          ),
+                          hintStyle: MintTextStyles.bodyMedium(
+                            color: MintColors.textMuted,
+                          ),
+                          filled: true,
+                          fillColor: MintColors.surface,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: MintColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: MintColors.border),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                        ),
+                        style: MintTextStyles.bodyMedium(
+                          color: MintColors.textPrimary,
+                        ),
+                        onChanged: (value) {
+                          final parsed = double.tryParse(value.replaceAll(RegExp(r'[^0-9]'), ''));
+                          if (parsed != null) {
+                            setState(() => _salary = parsed);
+                          }
+                        },
+                      ),
                     ),
                     const SizedBox(height: MintSpacing.md),
 
@@ -518,7 +602,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                   button: true,
                   label: l.quickStartCta,
                   child: FilledButton(
-                    onPressed: _saving ? null : _onContinue,
+                    onPressed: (_saving || !_isFormValid) ? null : _onContinue,
                     style: FilledButton.styleFrom(
                       backgroundColor: MintColors.primary,
                       shape: RoundedRectangleBorder(
@@ -535,7 +619,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                             ),
                           )
                         : Text(
-                            l.quickStartCta,
+                            l.chiffreChocContinue,
                             style: MintTextStyles.titleMedium(
                               color: MintColors.white,
                             ),

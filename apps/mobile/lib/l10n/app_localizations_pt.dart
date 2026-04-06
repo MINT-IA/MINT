@@ -21863,4 +21863,42 @@ class SPt extends S {
 
   @override
   String get coachErrorInline => 'O coach não está disponível de momento.';
+
+  @override
+  String get planHeadline => 'O teu plano em 4 passos';
+
+  @override
+  String get planSubtitle => 'Aqui é por onde começar.';
+
+  @override
+  String get planStepSalaryTitle => 'Compreender o teu primeiro salário';
+
+  @override
+  String get planStepSalaryBody =>
+      'Decifra o teu recibo de vencimento: AVS, LPP, imposto na fonte. Cada linha tem um impacto.';
+
+  @override
+  String get planStep3aTitle => 'Configurar o teu 3a';
+
+  @override
+  String get planStep3aBody =>
+      'CHF 7’258/ano em deduções fiscais. Quanto mais cedo começares, maior o efeito.';
+
+  @override
+  String get planStepInsuranceTitle => 'Verificar a tua cobertura de seguro';
+
+  @override
+  String get planStepInsuranceBody =>
+      'LAMal, RC, lar: o básico a verificar antes de assinar qualquer coisa.';
+
+  @override
+  String get planStepAvsTitle => 'Conhecer os teus direitos AVS';
+
+  @override
+  String get planStepAvsBody =>
+      'Cada ano de contribuição conta. Verifica o teu extrato CI para evitar lacunas.';
+
+  @override
+  String get coachCheckInWelcome =>
+      'Olá! Estou aqui. Vamos ver juntos o que importa para ti?';
 }

@@ -10607,5 +10607,16 @@
   "quickStartHeadline": "Trois questions, un premier chiffre.",
   "chiffreChocContinue": "Continuer",
   "planCta": "Voir mon plan",
-  "coachErrorInline": "Le coach n'est pas disponible pour le moment."
+  "coachErrorInline": "Le coach n'est pas disponible pour le moment.",
+  "planHeadline": "Ton plan en 4 gestes",
+  "planSubtitle": "Voici par o\u00f9 commencer.",
+  "planStepSalaryTitle": "Comprendre ton premier salaire",
+  "planStepSalaryBody": "D\u00e9crypte ta fiche de paie\u00a0: AVS, LPP, imp\u00f4t \u00e0 la source. Chaque ligne a un impact.",
+  "planStep3aTitle": "Configurer ton 3a",
+  "planStep3aBody": "7\u2019258\u00a0CHF/an de d\u00e9duction fiscale. Plus t\u00f4t tu commences, plus l\u2019effet est massif.",
+  "planStepInsuranceTitle": "V\u00e9rifier ta couverture assurance",
+  "planStepInsuranceBody": "LAMal, RC, m\u00e9nage\u00a0: les bases \u00e0 v\u00e9rifier avant de signer quoi que ce soit.",
+  "planStepAvsTitle": "Conna\u00eetre tes droits AVS",
+  "planStepAvsBody": "Chaque ann\u00e9e de cotisation compte. V\u00e9rifie ton relev\u00e9 CI pour \u00e9viter les lacunes.",
+  "coachCheckInWelcome": "Salut\u00a0! Je suis l\u00e0. On regarde ensemble ce qui compte pour toi\u00a0?"
 }

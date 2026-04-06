@@ -21915,4 +21915,43 @@ class SIt extends S {
 
   @override
   String get coachErrorInline => 'Il coach non è disponibile al momento.';
+
+  @override
+  String get planHeadline => 'Il tuo piano in 4 passi';
+
+  @override
+  String get planSubtitle => 'Ecco da dove iniziare.';
+
+  @override
+  String get planStepSalaryTitle => 'Capire il tuo primo stipendio';
+
+  @override
+  String get planStepSalaryBody =>
+      'Decifra la tua busta paga: AVS, LPP, imposta alla fonte. Ogni riga ha un impatto.';
+
+  @override
+  String get planStep3aTitle => 'Configurare il tuo 3a';
+
+  @override
+  String get planStep3aBody =>
+      'CHF 7’258/anno di deduzioni fiscali. Prima inizi, più grande è l’effetto.';
+
+  @override
+  String get planStepInsuranceTitle =>
+      'Verificare la tua copertura assicurativa';
+
+  @override
+  String get planStepInsuranceBody =>
+      'LAMal, RC, economia domestica: le basi da verificare prima di firmare qualsiasi cosa.';
+
+  @override
+  String get planStepAvsTitle => 'Conoscere i tuoi diritti AVS';
+
+  @override
+  String get planStepAvsBody =>
+      'Ogni anno di contributi conta. Verifica il tuo estratto CI per evitare lacune.';
+
+  @override
+  String get coachCheckInWelcome =>
+      'Ciao! Sono qui. Guardiamo insieme cosa conta per te?';
 }

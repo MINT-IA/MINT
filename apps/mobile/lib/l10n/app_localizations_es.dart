@@ -21860,4 +21860,42 @@ class SEs extends S {
 
   @override
   String get coachErrorInline => 'El coach no está disponible en este momento.';
+
+  @override
+  String get planHeadline => 'Tu plan en 4 pasos';
+
+  @override
+  String get planSubtitle => 'Aquí es donde empezar.';
+
+  @override
+  String get planStepSalaryTitle => 'Entender tu primer salario';
+
+  @override
+  String get planStepSalaryBody =>
+      'Descifra tu nómina: AVS, LPP, impuesto en la fuente. Cada línea tiene un impacto.';
+
+  @override
+  String get planStep3aTitle => 'Configurar tu 3a';
+
+  @override
+  String get planStep3aBody =>
+      'CHF 7.258/año en deducciones fiscales. Cuanto antes empieces, mayor es el efecto.';
+
+  @override
+  String get planStepInsuranceTitle => 'Verificar tu cobertura de seguro';
+
+  @override
+  String get planStepInsuranceBody =>
+      'LAMal, RC, hogar: lo básico a verificar antes de firmar nada.';
+
+  @override
+  String get planStepAvsTitle => 'Conocer tus derechos AVS';
+
+  @override
+  String get planStepAvsBody =>
+      'Cada año de cotización cuenta. Verifica tu extracto CI para evitar lagunas.';
+
+  @override
+  String get coachCheckInWelcome =>
+      '¡Hola! Estoy aquí. ¿Miramos juntos lo que importa para ti?';
 }

@@ -38390,6 +38390,72 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le coach n\'est pas disponible pour le moment.'**
   String get coachErrorInline;
+
+  /// No description provided for @planHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton plan en 4 gestes'**
+  String get planHeadline;
+
+  /// No description provided for @planSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici par où commencer.'**
+  String get planSubtitle;
+
+  /// No description provided for @planStepSalaryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ton premier salaire'**
+  String get planStepSalaryTitle;
+
+  /// No description provided for @planStepSalaryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décrypte ta fiche de paie : AVS, LPP, impôt à la source. Chaque ligne a un impact.'**
+  String get planStepSalaryBody;
+
+  /// No description provided for @planStep3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Configurer ton 3a'**
+  String get planStep3aTitle;
+
+  /// No description provided for @planStep3aBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'7’258 CHF/an de déduction fiscale. Plus tôt tu commences, plus l’effet est massif.'**
+  String get planStep3aBody;
+
+  /// No description provided for @planStepInsuranceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier ta couverture assurance'**
+  String get planStepInsuranceTitle;
+
+  /// No description provided for @planStepInsuranceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'LAMal, RC, ménage : les bases à vérifier avant de signer quoi que ce soit.'**
+  String get planStepInsuranceBody;
+
+  /// No description provided for @planStepAvsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connaître tes droits AVS'**
+  String get planStepAvsTitle;
+
+  /// No description provided for @planStepAvsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chaque année de cotisation compte. Vérifie ton relevé CI pour éviter les lacunes.'**
+  String get planStepAvsBody;
+
+  /// No description provided for @coachCheckInWelcome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?'**
+  String get coachCheckInWelcome;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

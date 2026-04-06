@@ -10091,5 +10091,16 @@
   "quickStartHeadline": "Drei Fragen, eine erste Zahl.",
   "chiffreChocContinue": "Weiter",
   "planCta": "Meinen Plan ansehen",
-  "coachErrorInline": "Der Coach ist gerade nicht verfügbar."
+  "coachErrorInline": "Der Coach ist gerade nicht verf\u00fcgbar.",
+  "planHeadline": "Dein Plan in 4 Schritten",
+  "planSubtitle": "Hier f\u00e4ngst du an.",
+  "planStepSalaryTitle": "Deinen ersten Lohn verstehen",
+  "planStepSalaryBody": "Lohnabrechnung entschl\u00fcsseln: AHV, BVG, Quellensteuer. Jede Zeile hat eine Auswirkung.",
+  "planStep3aTitle": "Deine S\u00e4ule 3a einrichten",
+  "planStep3aBody": "CHF 7\u2019258/Jahr Steuerabzug. Je fr\u00fcher du anf\u00e4ngst, desto gr\u00f6sser der Effekt.",
+  "planStepInsuranceTitle": "Deinen Versicherungsschutz pr\u00fcfen",
+  "planStepInsuranceBody": "KVG, Haftpflicht, Haushalt: die Basics pr\u00fcfen, bevor du etwas unterschreibst.",
+  "planStepAvsTitle": "Deine AHV-Rechte kennen",
+  "planStepAvsBody": "Jedes Beitragsjahr z\u00e4hlt. Pr\u00fcfe deinen IK-Auszug, um L\u00fccken zu vermeiden.",
+  "coachCheckInWelcome": "Hallo! Ich bin da. Schauen wir zusammen, was f\u00fcr dich z\u00e4hlt."
 }

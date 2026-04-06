@@ -10091,5 +10091,16 @@
   "quickStartHeadline": "Três perguntas, um primeiro número.",
   "chiffreChocContinue": "Continuar",
   "planCta": "Ver o meu plano",
-  "coachErrorInline": "O coach não está disponível de momento."
+  "coachErrorInline": "O coach n\u00e3o est\u00e1 dispon\u00edvel de momento.",
+  "planHeadline": "O teu plano em 4 passos",
+  "planSubtitle": "Aqui \u00e9 por onde come\u00e7ar.",
+  "planStepSalaryTitle": "Compreender o teu primeiro sal\u00e1rio",
+  "planStepSalaryBody": "Decifra o teu recibo de vencimento: AVS, LPP, imposto na fonte. Cada linha tem um impacto.",
+  "planStep3aTitle": "Configurar o teu 3a",
+  "planStep3aBody": "CHF 7\u2019258/ano em dedu\u00e7\u00f5es fiscais. Quanto mais cedo come\u00e7ares, maior o efeito.",
+  "planStepInsuranceTitle": "Verificar a tua cobertura de seguro",
+  "planStepInsuranceBody": "LAMal, RC, lar: o b\u00e1sico a verificar antes de assinar qualquer coisa.",
+  "planStepAvsTitle": "Conhecer os teus direitos AVS",
+  "planStepAvsBody": "Cada ano de contribui\u00e7\u00e3o conta. Verifica o teu extrato CI para evitar lacunas.",
+  "coachCheckInWelcome": "Ol\u00e1! Estou aqui. Vamos ver juntos o que importa para ti?"
 }

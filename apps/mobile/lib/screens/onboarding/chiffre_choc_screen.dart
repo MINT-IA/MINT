@@ -239,6 +239,12 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     );
   }
 
+  /// Navigate to the plan screen (onboarding pipeline continuation).
+  void _navigateToPlan() {
+    final extra = GoRouterState.of(context).extra;
+    context.go('/onboarding/plan', extra: extra);
+  }
+
   @override
   void dispose() {
     _responseController.dispose();
@@ -466,13 +472,23 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
                       const SizedBox(height: MintSpacing.sm),
 
-                      // ── Skip to dashboard (discreet) ──
-                      TextButton(
-                        onPressed: () => context.go('/home'),
-                        child: Text(
-                          l10n.chiffreChocSkipToHome,
-                          style: MintTextStyles.labelSmall(
-                            color: MintColors.textMuted,
+                      // ── Continue to plan (primary CTA) ──
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: FilledButton(
+                          onPressed: _navigateToPlan,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: MintColors.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            l10n.chiffreChocContinue,
+                            style: MintTextStyles.titleMedium(
+                              color: MintColors.white,
+                            ),
                           ),
                         ),
                       ),

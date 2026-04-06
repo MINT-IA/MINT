@@ -20,6 +20,14 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
+/// Whether the intent screen was reached from the onboarding golden path
+/// (post-auth). When true, navigates to quick-start instead of computing
+/// premier eclairage and going to /home.
+bool _isFromOnboarding(Map<String, dynamic>? extra) {
+  if (extra == null) return true; // Default: onboarding path
+  return extra['fromOnboarding'] as bool? ?? true;
+}
+
 /// Intent-based onboarding screen.
 ///
 /// Replaces the old form-based Quick Start / Smart Onboarding.
@@ -36,6 +44,14 @@ class IntentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
+
+    // Detect onboarding context from route extra.
+    Map<String, dynamic>? routeExtra;
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) routeExtra = extra;
+    } catch (_) {}
+    final fromOnboarding = _isFromOnboarding(routeExtra);
 
     // Ordered list of chips: chipKey (ARB identifier) + label + userMessage.
     // "Autre…" sends null userMessage → coach shows silent opener.
@@ -131,6 +147,7 @@ class IntentScreen extends StatelessWidget {
                             onTap: () => _onChipTap(
                               context,
                               chip,
+                              fromOnboarding: fromOnboarding,
                             ),
                           );
                         },
@@ -160,7 +177,11 @@ class IntentScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _onChipTap(BuildContext context, _IntentChip chip) async {
+  Future<void> _onChipTap(
+    BuildContext context,
+    _IntentChip chip, {
+    required bool fromOnboarding,
+  }) async {
     final l10n = S.of(context)!;
 
     AnalyticsService().trackCTAClick(
@@ -169,27 +190,33 @@ class IntentScreen extends StatelessWidget {
       data: {'chipKey': chip.chipKey, 'label': chip.label},
     );
 
-    // Capture context-dependent values BEFORE any async gap (use_build_context_synchronously).
+    // Persist selected intent (but NOT onboarding completion — that moves to
+    // plan_screen per Research Pitfall 3).
+    await ReportPersistenceService.setSelectedOnboardingIntent(chip.chipKey);
+
+    // ── Golden path: navigate to quick-start for data collection ──
+    if (fromOnboarding) {
+      if (!context.mounted) return;
+      context.go('/onboarding/quick-start', extra: {'intent': chip.chipKey});
+      return;
+    }
+
+    // ── Non-onboarding path (settings, re-selection): legacy behavior ──
+    // Capture context-dependent values BEFORE any async gap.
     final profile = _buildMinimalProfile(context);
     final coachProfile = context.read<CoachProfileProvider>().profile;
 
-    // 1. Persist onboarding state — store chipKey, NOT the resolved label (D-03 + Pitfall 2).
-    await ReportPersistenceService.setMiniOnboardingCompleted(true);
-    await ReportPersistenceService.setSelectedOnboardingIntent(chip.chipKey);
-
-    // 2. Resolve intent mapping.
+    // Resolve intent mapping.
     final mapping = IntentRouter.forChipKey(chip.chipKey);
 
     if (mapping != null) {
-      // profile and coachProfile already captured above.
-
-      // 4. Compute premier eclairage.
+      // Compute premier eclairage.
       final choc = ChiffreChocSelector.select(
         profile,
         stressType: mapping.stressType,
       );
 
-      // 5. Persist premier eclairage snapshot — display fields ONLY, no PII (T-03-02).
+      // Persist premier eclairage snapshot — display fields ONLY, no PII.
       await ReportPersistenceService.savePremierEclairageSnapshot({
         'value': choc.value,
         'title': choc.title,
@@ -199,15 +226,14 @@ class IntentScreen extends StatelessWidget {
         'confidenceMode': choc.confidenceMode.name,
       });
 
-      // 6. Seed CapMemoryStore with goalIntentTag (D-05).
+      // Seed CapMemoryStore with goalIntentTag.
       final memory = await CapMemoryStore.load();
       final updated = memory.copyWith(
         declaredGoals: [mapping.goalIntentTag],
       );
       await CapMemoryStore.save(updated);
 
-      // 7. Seed CapSequenceEngine (D-05) — pure function, result used by Aujourd'hui lever.
-      //    Requires CoachProfile — captured before async gap, may be null for fresh installs.
+      // Seed CapSequenceEngine — requires CoachProfile.
       if (coachProfile != null) {
         CapSequenceEngine.build(
           profile: coachProfile,
@@ -220,14 +246,14 @@ class IntentScreen extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    // 8. Build coach payload (preserved from current behavior).
+    // Build coach payload (preserved from current behavior).
     final payload = CoachEntryPayload(
       source: CoachEntrySource.onboardingIntent,
       userMessage: chip.message,
     );
     context.read<CoachEntryPayloadProvider>().setPayload(payload);
 
-    // 9. Navigate to Aujourd'hui tab (D-03: tab=0, NOT tab=1).
+    // Navigate to Aujourd'hui tab.
     context.go('/home?tab=0');
   }
 

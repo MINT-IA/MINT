@@ -21859,4 +21859,42 @@ class SFr extends S {
   @override
   String get coachErrorInline =>
       'Le coach n\'est pas disponible pour le moment.';
+
+  @override
+  String get planHeadline => 'Ton plan en 4 gestes';
+
+  @override
+  String get planSubtitle => 'Voici par où commencer.';
+
+  @override
+  String get planStepSalaryTitle => 'Comprendre ton premier salaire';
+
+  @override
+  String get planStepSalaryBody =>
+      'Décrypte ta fiche de paie : AVS, LPP, impôt à la source. Chaque ligne a un impact.';
+
+  @override
+  String get planStep3aTitle => 'Configurer ton 3a';
+
+  @override
+  String get planStep3aBody =>
+      '7’258 CHF/an de déduction fiscale. Plus tôt tu commences, plus l’effet est massif.';
+
+  @override
+  String get planStepInsuranceTitle => 'Vérifier ta couverture assurance';
+
+  @override
+  String get planStepInsuranceBody =>
+      'LAMal, RC, ménage : les bases à vérifier avant de signer quoi que ce soit.';
+
+  @override
+  String get planStepAvsTitle => 'Connaître tes droits AVS';
+
+  @override
+  String get planStepAvsBody =>
+      'Chaque année de cotisation compte. Vérifie ton relevé CI pour éviter les lacunes.';
+
+  @override
+  String get coachCheckInWelcome =>
+      'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?';
 }

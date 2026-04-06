@@ -21905,4 +21905,42 @@ class SDe extends S {
 
   @override
   String get coachErrorInline => 'Der Coach ist gerade nicht verfügbar.';
+
+  @override
+  String get planHeadline => 'Dein Plan in 4 Schritten';
+
+  @override
+  String get planSubtitle => 'Hier fängst du an.';
+
+  @override
+  String get planStepSalaryTitle => 'Deinen ersten Lohn verstehen';
+
+  @override
+  String get planStepSalaryBody =>
+      'Lohnabrechnung entschlüsseln: AHV, BVG, Quellensteuer. Jede Zeile hat eine Auswirkung.';
+
+  @override
+  String get planStep3aTitle => 'Deine Säule 3a einrichten';
+
+  @override
+  String get planStep3aBody =>
+      'CHF 7’258/Jahr Steuerabzug. Je früher du anfängst, desto grösser der Effekt.';
+
+  @override
+  String get planStepInsuranceTitle => 'Deinen Versicherungsschutz prüfen';
+
+  @override
+  String get planStepInsuranceBody =>
+      'KVG, Haftpflicht, Haushalt: die Basics prüfen, bevor du etwas unterschreibst.';
+
+  @override
+  String get planStepAvsTitle => 'Deine AHV-Rechte kennen';
+
+  @override
+  String get planStepAvsBody =>
+      'Jedes Beitragsjahr zählt. Prüfe deinen IK-Auszug, um Lücken zu vermeiden.';
+
+  @override
+  String get coachCheckInWelcome =>
+      'Hallo! Ich bin da. Schauen wir zusammen, was für dich zählt.';
 }
