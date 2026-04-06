@@ -24,7 +24,12 @@ Transform MINT from a well-wired but passive app into a living financial intelli
   2. Every screen in the path handles loading, error, and empty states gracefully (no blank screens, no unhandled exceptions)
   3. Coach responses for firstJob intent use VD regional voice and pass the 4-layer insight engine (factual, human, personal, questions)
   4. An integration test covers the full Lea journey and fails CI if any link in the chain breaks
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 01-01-PLAN.md -- State widgets (MintLoadingState, MintErrorState) + landing page refinement + i18n keys
+- [ ] 01-02-PLAN.md -- Magic link auth backend + login screen redesign + post-auth routing
+- [ ] 01-03-PLAN.md -- Onboarding pipeline wiring (intent -> quick_start -> chiffre_choc -> plan -> coach) + 4-layer engine
+- [ ] 01-04-PLAN.md -- Lea golden path integration test
 **UI hint**: yes
 
 ### Phase 2: Intelligence Documentaire
@@ -95,7 +100,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Le Parcours Parfait | 0/TBD | Not started | - |
+| 1. Le Parcours Parfait | 0/4 | Planned | - |
 | 2. Intelligence Documentaire | 0/TBD | Not started | - |
 | 3. Memoire Narrative | 0/TBD | Not started | - |
 | 4. Moteur d'Anticipation | 0/TBD | Not started | - |
