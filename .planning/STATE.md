@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-04-06T13:59:14.264Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-04-06T14:05:45.740Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 9
-  completed_plans: 6
-  percent: 67
+  completed_plans: 7
+  percent: 78
 ---
 
 # GSD State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 ## Current Position
 
 Phase: 02 (Intelligence Documentaire) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-04-06
 
@@ -66,6 +66,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 02-intelligence-documentaire]: Fail-open classification: API errors return is_financial=True to avoid blocking users (T-02-05)
 - [Phase 02-intelligence-documentaire]: SHA-256 user_id hashing in audit logs for nLPD privacy compliance
 - [Phase 02-intelligence-documentaire]: Module-import pattern for classify_document enables clean test mocking
+- [Phase 02]: 1e plans suppress tauxConversion from extraction prompt to prevent hallucinated conversion rates
+- [Phase 02]: Missing source_text degrades to low confidence rather than rejecting (DOC-09 user-friendly)
+- [Phase 02]: Default plan type on error: surobligatoire (safest middle ground)
 
 ### Pending Todos
 
@@ -79,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T13:59:14.261Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-04-06T14:05:45.737Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
