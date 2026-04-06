@@ -46,7 +46,7 @@ Declared values — from `apps/mobile/lib/theme/mint_spacing.dart` (source of tr
 Exceptions:
 - Snackbar bottom offset: `MintSpacing.md` (16px) from bottom safe area edge — default Material 3 snackbar position, no override needed
 - Touch targets for "Calculer" / "Simuler" CTA buttons: minimum 48px height to meet WCAG 2.5.5 (44px + 4px vertical padding minimum)
-- `SmartDefaultIndicator` badge internal padding: 7px horizontal, 3px vertical (existing component — do not change)
+- `SmartDefaultIndicator` badge padding is governed by its existing implementation — this phase does not override it.
 
 ---
 
@@ -59,13 +59,15 @@ All roles map to existing `MintTextStyles` static methods. Do not create new sty
 | Display (result number) | 32px | 700 | 1.15 | `displayMedium()` | Montserrat |
 | Heading (screen title) | 26px | 700 | 1.15 | `headlineLarge()` | Montserrat |
 | Body (field labels, descriptions) | 14px | 400 | 1.5 | `bodyMedium()` | Inter |
-| Label (badges, hints, captions) | 13px | 500 | 1.4 | `bodySmall()` | Inter |
+| Label (badges, hints, captions) | 13px | 400 | 1.4 | `bodySmall()` | Inter |
+
+Declared weights: **w400** (body and label) + **w700** (display and heading).
 
 Notes:
 - Calculator result numbers use `displayMedium` (32px, Montserrat w700) — this is the "Simulator Screen" category rule from `docs/DESIGN_SYSTEM.md §2B`
 - "Profil mis à jour" snackbar text uses `bodyMedium` (14px, Inter w400)
-- `SmartDefaultIndicator` badge uses existing `labelSmall` (11px, Inter w500) — do not override
-- Prefill source explanation in bottom sheet uses `bodyMedium` (14px) for body text and `labelSmall` (11px) for metadata — existing `SmartDefaultIndicator` pattern, no new styling needed
+- `SmartDefaultIndicator` badge uses existing `labelSmall` style — do not override
+- Prefill source explanation in bottom sheet uses `bodyMedium` (14px) for body text and `labelSmall` for metadata — existing `SmartDefaultIndicator` pattern, no new styling needed
 - Disclaimer footer uses `micro()` (10px italic, Inter w400)
 
 ---
