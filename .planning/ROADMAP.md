@@ -66,7 +66,7 @@ Plans:
 - [x] 03-01-PLAN.md -- BiographyFact model + encrypted BiographyRepository + FreshnessDecayService + BiographyProvider (BIO-01, BIO-02, BIO-06)
 - [x] 03-02-PLAN.md -- AnonymizedBiographySummary + coach context integration + backend BIOGRAPHY AWARENESS guardrails (BIO-03, BIO-04, BIO-07, BIO-08, COMP-02, COMP-03)
 - [x] 03-03-PLAN.md -- Privacy control screen + FactCard/FactEditSheet widgets + GoRouter route + i18n (BIO-05)
-- [ ] 03-04-PLAN.md -- Gap closure: wire sqflite_sqlcipher production DB + register BiographyProvider in MultiProvider (BIO-01, BIO-02, BIO-05)
+- [x] 03-04-PLAN.md -- Gap closure: wire sqflite_sqlcipher production DB + register BiographyProvider in MultiProvider (BIO-01, BIO-02, BIO-05)
 **UI hint**: yes
 
 ### Phase 4: Moteur d'Anticipation
