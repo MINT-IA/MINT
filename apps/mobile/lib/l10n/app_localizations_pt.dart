@@ -21935,4 +21935,20 @@ class SPt extends S {
 
   @override
   String get docReviewConfirm => 'Confirmar e enriquecer o meu perfil';
+
+  @override
+  String get docImpactPremierEclairageTitle => 'O que o Mint vê';
+
+  @override
+  String get docImpactQuestionsTitle => 'Perguntas a fazer';
+
+  @override
+  String get docImpactContinuer => 'Continuar';
+
+  @override
+  String get docImpactPremierEclairageLoading => 'A analisar…';
+
+  @override
+  String get docImpactPremierEclairageError =>
+      'Enriquecimento guardado. A análise detalhada estará disponível em breve.';
 }

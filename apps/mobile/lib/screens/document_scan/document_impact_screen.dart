@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
+import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -55,6 +55,11 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   late int _newConfidence;
   late int _deltaPoints;
 
+  // Premier eclairage state
+  Map<String, dynamic>? _premierEclairage;
+  bool _premierEclairageLoading = true;
+  bool _premierEclairageFailed = false;
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +69,40 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         (widget.previousConfidence + _deltaPoints).clamp(0, 100);
 
     _initAnimations();
+    _fetchPremierEclairage();
+  }
+
+  Future<void> _fetchPremierEclairage() async {
+    try {
+      final fields = widget.result.fields.map((f) => <String, dynamic>{
+        'fieldName': f.fieldName,
+        'value': f.value,
+        'confidence': f.confidenceLevel.name,
+        'sourceText': f.sourceText,
+      }).toList();
+
+      final result = await DocumentService.fetchPremierEclairage(
+        documentType: widget.result.documentType.backendValue,
+        extractedFields: fields,
+        overallConfidence: widget.result.overallConfidence,
+        planType: widget.result.planType,
+        planTypeWarning: widget.result.planTypeWarning,
+        canton: null, // Canton from profile context if available
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _premierEclairage = result;
+        _premierEclairageLoading = false;
+        _premierEclairageFailed = result == null;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _premierEclairageLoading = false;
+        _premierEclairageFailed = true;
+      });
+    }
   }
 
   void _initAnimations() {
@@ -144,7 +183,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: AnimatedBuilder(
         animation: Listenable.merge([_masterController, _pulseController]),
         builder: (context, _) {
@@ -166,7 +205,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                       MintEntrance(delay: const Duration(milliseconds: 250), child: _buildConfidenceDeltaText()),
                     ],
                     const SizedBox(height: MintSpacing.xl),
-                    MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChiffreChoc()),
+                    MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPremierEclairageSection()),
                     const SizedBox(height: MintSpacing.lg),
                     MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFieldList()),
                     const SizedBox(height: MintSpacing.xl),
@@ -285,9 +324,9 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     );
   }
 
-  // ── Chiffre choc (recalculated with real values) ─────────
+  // ── Premier Eclairage (4-layer insight from document) ─────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairageSection() {
     return Opacity(
       opacity: _badgeFadeIn.value,
       child: Container(
@@ -306,102 +345,146 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
           border: Border.all(color: MintColors.lightBorder),
         ),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              S.of(context)!.docImpactChiffreChocTitle,
-              style: MintTextStyles.bodySmall().copyWith(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
+            Center(
+              child: Text(
+                S.of(context)!.docImpactPremierEclairageTitle,
+                style: MintTextStyles.bodySmall().copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
-            const SizedBox(height: MintSpacing.md - 4),
-            // Example: show LPP total from extraction if available
-            _buildChiffreChocContent(),
+            const SizedBox(height: MintSpacing.md),
+            _buildPremierEclairageContent(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildChiffreChocContent() {
-    // Find key fields for the chiffre choc
-    final lppTotal = _findField('lpp_total');
-    final oblig = _findField('lpp_obligatoire');
-    final suroblig = _findField('lpp_surobligatoire');
-    final convRate = _findField('conversion_rate_suroblig');
-
-    if (lppTotal != null && oblig != null) {
-      final total = lppTotal.value as double;
-      final obligVal = oblig.value as double;
-      final surobligVal =
-          suroblig != null ? suroblig.value as double : total - obligVal;
-      final rentableAt68 = obligVal * lppTauxConversionMinDecimal;
-      final surobligRate = convRate != null ? convRate.value as double : null;
-      final renteSuroblig = surobligRate != null
-          ? surobligVal * (surobligRate / 100)
-          : null;
-
-      return Column(
-        children: [
-          Text(
-            'CHF ${_formatChf(total)}',
-            style: MintTextStyles.displaySmall(),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            S.of(context)!.docImpactLppRealAmount(_formatChf(obligVal)),
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodyMedium(),
-          ),
-          const SizedBox(height: MintSpacing.md - 4),
-          Text(
-            S.of(context)!.docImpactRenteOblig(_formatChf(rentableAt68)),
-            style: MintTextStyles.bodySmall(
-              color: MintColors.info,
-            ).copyWith(fontWeight: FontWeight.w600),
-          ),
-          if (surobligVal > 0) ...[
-            const SizedBox(height: MintSpacing.xs),
+  Widget _buildPremierEclairageContent() {
+    // Loading state
+    if (_premierEclairageLoading) {
+      return Center(
+        child: Column(
+          children: [
+            const SizedBox(
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: MintColors.primary,
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
             Text(
-              renteSuroblig != null
-                  ? S.of(context)!.docImpactSurobligWithRate(_formatChf(surobligVal), surobligRate!.toStringAsFixed(1), _formatChf(renteSuroblig))
-                  : S.of(context)!.docImpactSurobligNoRate(_formatChf(surobligVal)),
-              textAlign: TextAlign.center,
-              style: MintTextStyles.labelMedium().copyWith(height: 1.4),
+              S.of(context)!.docImpactPremierEclairageLoading,
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
             ),
           ],
-        ],
+        ),
       );
     }
 
-    // Fallback for AVS or other doc types
-    // AVS parser produces 'annees_cotisation', backend contract uses that name
-    final avsYears = _findField('annees_cotisation') ?? _findField('avs_contribution_years');
-    if (avsYears != null) {
-      final years = (avsYears.value as double).round();
-      const maxYears = 44;
-      final completionPct = ((years / maxYears) * 100).round();
-      return Column(
-        children: [
-          Text(
-            S.of(context)!.docImpactAvsYears(years),
-            style: MintTextStyles.displaySmall(),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            S.of(context)!.docImpactAvsCompletion(maxYears, completionPct),
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodyMedium(),
-          ),
-        ],
-      );
+    // Failed state -- graceful degradation with field summary
+    if (_premierEclairageFailed || _premierEclairage == null) {
+      return _buildFallbackContent();
     }
 
-    return Text(
-      S.of(context)!.docImpactGenericMessage,
-      textAlign: TextAlign.center,
-      style: MintTextStyles.bodyMedium(),
+    // Success: display 4-layer insight
+    final humanTranslation = _premierEclairage!['humanTranslation'] as String? ?? '';
+    final personalPerspective = _premierEclairage!['personalPerspective'] as String? ?? '';
+    final questionsToAsk = (_premierEclairage!['questionsToAsk'] as List<dynamic>?)
+        ?.map((q) => q.toString())
+        .toList() ?? [];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Layer 2: Human translation
+        if (humanTranslation.isNotEmpty) ...[
+          Text(
+            humanTranslation,
+            style: MintTextStyles.bodyLarge(color: MintColors.textSecondary),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+        ],
+        // Layer 3: Personal perspective
+        if (personalPerspective.isNotEmpty) ...[
+          Text(
+            personalPerspective,
+            style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+          ),
+          const SizedBox(height: MintSpacing.lg),
+        ],
+        // Layer 4: Questions to ask
+        if (questionsToAsk.isNotEmpty) ...[
+          Text(
+            S.of(context)!.docImpactQuestionsTitle,
+            style: MintTextStyles.bodyMedium().copyWith(
+              fontWeight: FontWeight.w700,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: MintSpacing.sm),
+          ...questionsToAsk.map((q) => Padding(
+            padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '\u2022 ',
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                ),
+                Expanded(
+                  child: Text(
+                    q,
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                  ),
+                ),
+              ],
+            ),
+          )),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFallbackContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          S.of(context)!.docImpactFallback,
+          style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: MintSpacing.md),
+        // Show extracted field summary cards
+        ...widget.result.fields.take(5).map((f) => Padding(
+          padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  f.label,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                ),
+              ),
+              Text(
+                _formatShortValue(f),
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        )),
+      ],
     );
   }
 
@@ -573,14 +656,6 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   }
 
   // ── Helpers ──────────────────────────────────────────────
-
-  ExtractedField? _findField(String name) {
-    try {
-      return widget.result.fields.firstWhere((f) => f.fieldName == name);
-    } catch (_) {
-      return null;
-    }
-  }
 
   String _formatChf(double amount) {
     final intPart = amount.truncate();

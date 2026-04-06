@@ -10628,5 +10628,10 @@
   "docFieldVerify": "V\u00e9rifie cette valeur",
   "docSourcePrefix": "Source\u00a0: ",
   "docImpactFallback": "Ton profil a \u00e9t\u00e9 enrichi",
-  "docReviewConfirm": "Confirmer et enrichir mon profil"
+  "docReviewConfirm": "Confirmer et enrichir mon profil",
+  "docImpactPremierEclairageTitle": "Ce que Mint voit",
+  "docImpactQuestionsTitle": "Questions \u00e0 poser",
+  "docImpactContinuer": "Continuer",
+  "docImpactPremierEclairageLoading": "Analyse en cours\u2026",
+  "docImpactPremierEclairageError": "Enrichissement enregistr\u00e9. L'analyse d\u00e9taill\u00e9e sera disponible prochainement."
 }

@@ -21988,4 +21988,20 @@ class SIt extends S {
 
   @override
   String get docReviewConfirm => 'Confermare e arricchire il mio profilo';
+
+  @override
+  String get docImpactPremierEclairageTitle => 'Cosa vede Mint';
+
+  @override
+  String get docImpactQuestionsTitle => 'Domande da porre';
+
+  @override
+  String get docImpactContinuer => 'Continua';
+
+  @override
+  String get docImpactPremierEclairageLoading => 'Analisi in corso…';
+
+  @override
+  String get docImpactPremierEclairageError =>
+      'Arricchimento salvato. L\'analisi dettagliata sarà disponibile a breve.';
 }

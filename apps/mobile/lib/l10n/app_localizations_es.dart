@@ -21932,4 +21932,20 @@ class SEs extends S {
 
   @override
   String get docReviewConfirm => 'Confirmar y enriquecer mi perfil';
+
+  @override
+  String get docImpactPremierEclairageTitle => 'Lo que Mint ve';
+
+  @override
+  String get docImpactQuestionsTitle => 'Preguntas a hacer';
+
+  @override
+  String get docImpactContinuer => 'Continuar';
+
+  @override
+  String get docImpactPremierEclairageLoading => 'Analizando…';
+
+  @override
+  String get docImpactPremierEclairageError =>
+      'Enriquecimiento guardado. El análisis detallado estará disponible pronto.';
 }

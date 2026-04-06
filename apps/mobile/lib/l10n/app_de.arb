@@ -10112,5 +10112,10 @@
   "docFieldVerify": "Pr\u00fcfe diesen Wert",
   "docSourcePrefix": "Quelle: ",
   "docImpactFallback": "Dein Profil wurde angereichert",
-  "docReviewConfirm": "Best\u00e4tigen und Profil anreichern"
+  "docReviewConfirm": "Best\u00e4tigen und Profil anreichern",
+  "docImpactPremierEclairageTitle": "Was Mint sieht",
+  "docImpactQuestionsTitle": "Fragen zu stellen",
+  "docImpactContinuer": "Weiter",
+  "docImpactPremierEclairageLoading": "Analyse l\u00e4uft\u2026",
+  "docImpactPremierEclairageError": "Anreicherung gespeichert. Die detaillierte Analyse wird bald verf\u00fcgbar sein."
 }

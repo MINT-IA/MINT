@@ -21932,4 +21932,20 @@ class SFr extends S {
 
   @override
   String get docReviewConfirm => 'Confirmer et enrichir mon profil';
+
+  @override
+  String get docImpactPremierEclairageTitle => 'Ce que Mint voit';
+
+  @override
+  String get docImpactQuestionsTitle => 'Questions à poser';
+
+  @override
+  String get docImpactContinuer => 'Continuer';
+
+  @override
+  String get docImpactPremierEclairageLoading => 'Analyse en cours…';
+
+  @override
+  String get docImpactPremierEclairageError =>
+      'Enrichissement enregistré. L\'analyse détaillée sera disponible prochainement.';
 }

@@ -21978,4 +21978,20 @@ class SDe extends S {
 
   @override
   String get docReviewConfirm => 'Bestätigen und Profil anreichern';
+
+  @override
+  String get docImpactPremierEclairageTitle => 'Was Mint sieht';
+
+  @override
+  String get docImpactQuestionsTitle => 'Fragen zu stellen';
+
+  @override
+  String get docImpactContinuer => 'Weiter';
+
+  @override
+  String get docImpactPremierEclairageLoading => 'Analyse läuft…';
+
+  @override
+  String get docImpactPremierEclairageError =>
+      'Anreicherung gespeichert. Die detaillierte Analyse wird bald verfügbar sein.';
 }

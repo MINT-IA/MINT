@@ -1150,6 +1150,45 @@ class DocumentService {
       return null;
     }
   }
+  /// Fetch premier eclairage (4-layer insight) for extracted document data.
+  /// Returns parsed JSON response or null on failure.
+  static Future<Map<String, dynamic>?> fetchPremierEclairage({
+    required String documentType,
+    required List<Map<String, dynamic>> extractedFields,
+    required double overallConfidence,
+    String? planType,
+    String? planTypeWarning,
+    String? canton,
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/v1/documents/premier-eclairage'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'extractedFields': extractedFields,
+          'overallConfidence': overallConfidence,
+          if (planType != null) 'planType': planType,
+          if (planTypeWarning != null) 'planTypeWarning': planTypeWarning,
+          if (canton != null) 'canton': canton,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 /// Custom exception for DocumentService errors.

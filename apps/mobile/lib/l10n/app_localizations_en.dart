@@ -21817,4 +21817,20 @@ class SEn extends S {
 
   @override
   String get docReviewConfirm => 'Confirm and enrich my profile';
+
+  @override
+  String get docImpactPremierEclairageTitle => 'What Mint sees';
+
+  @override
+  String get docImpactQuestionsTitle => 'Questions to ask';
+
+  @override
+  String get docImpactContinuer => 'Continue';
+
+  @override
+  String get docImpactPremierEclairageLoading => 'Analysing…';
+
+  @override
+  String get docImpactPremierEclairageError =>
+      'Enrichment saved. Detailed analysis will be available soon.';
 }

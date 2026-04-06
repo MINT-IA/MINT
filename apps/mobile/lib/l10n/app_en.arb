@@ -10112,5 +10112,10 @@
   "docFieldVerify": "Check this value",
   "docSourcePrefix": "Source: ",
   "docImpactFallback": "Your profile has been enriched",
-  "docReviewConfirm": "Confirm and enrich my profile"
+  "docReviewConfirm": "Confirm and enrich my profile",
+  "docImpactPremierEclairageTitle": "What Mint sees",
+  "docImpactQuestionsTitle": "Questions to ask",
+  "docImpactContinuer": "Continue",
+  "docImpactPremierEclairageLoading": "Analysing\u2026",
+  "docImpactPremierEclairageError": "Enrichment saved. Detailed analysis will be available soon."
 }

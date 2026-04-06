@@ -38516,6 +38516,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Confirmer et enrichir mon profil'**
   String get docReviewConfirm;
+
+  /// No description provided for @docImpactPremierEclairageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que Mint voit'**
+  String get docImpactPremierEclairageTitle;
+
+  /// No description provided for @docImpactQuestionsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Questions à poser'**
+  String get docImpactQuestionsTitle;
+
+  /// No description provided for @docImpactContinuer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get docImpactContinuer;
+
+  /// No description provided for @docImpactPremierEclairageLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse en cours…'**
+  String get docImpactPremierEclairageLoading;
+
+  /// No description provided for @docImpactPremierEclairageError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichissement enregistré. L\'analyse détaillée sera disponible prochainement.'**
+  String get docImpactPremierEclairageError;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
