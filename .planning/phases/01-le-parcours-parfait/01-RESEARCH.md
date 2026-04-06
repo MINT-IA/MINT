@@ -18,7 +18,7 @@ The biggest risk is the **magic link auth** requirement (PATH-02). Neither the F
 ### Locked Decisions
 - Landing entry point: refine existing `promise_screen.dart` as the landing page with value prop + CTA (no new screen)
 - Auth method priority: magic link primary (email-only, zero password friction), Apple Sign-In secondary (iOS), email+password as fallback -- per PATH-02
-- Auth->onboarding transition: auto-redirect after auth success -- check `hasCompletedOnboarding` flag in CoachProfileProvider -> route to `intent_screen` or `home`
+- Auth->onboarding transition: auto-redirect after auth success -- check `isMiniOnboardingCompleted` flag in ReportPersistenceService -> route to `intent_screen` or `home` (NOTE: CONTEXT.md used `hasCompletedOnboarding` aspirationally but the actual codebase flag is `ReportPersistenceService.isMiniOnboardingCompleted()`)
 - Magic link delay handling: inline "Pas recu ? Renvoyer" with 30s countdown timer, then reveal email+password fallback option
 - Screen sequence: `intent_screen` (life event selection) -> `quick_start_screen` (age, revenu, canton) -> `chiffre_choc_screen` (premier eclairage) -- reuse existing 3 screens
 - Input collection: single `quick_start_screen` with 3 modern inputs -- CupertinoPicker for age, tap-to-type for revenu, canton dropdown -- per feedback on modern inputs (no sliders)
@@ -100,17 +100,17 @@ None -- discussion stayed within phase scope
 ### Current Navigation Flow (BROKEN for Lea's path)
 
 ```
-Current: LandingScreen (/) → /auth/register → /home?tab=0
-                                                  ↑ direct to home, skipping onboarding
+Current: LandingScreen (/) -> /auth/register -> /home?tab=0
+                                                  ^ direct to home, skipping onboarding
 
-IntentScreen: /onboarding/intent → computes premier eclairage locally → /home?tab=0
-                                                                         ↑ skips quick_start AND chiffre_choc screen
+IntentScreen: /onboarding/intent -> computes premier eclairage locally -> /home?tab=0
+                                                                         ^ skips quick_start AND chiffre_choc screen
 ```
 
 **Problem**: `intent_screen.dart` currently does ALL computation inline (`_onChipTap`) and navigates directly to `/home?tab=0`. It never routes through `quick_start_screen` or `chiffre_choc_screen`. The "golden path" per CONTEXT.md requires:
 
 ```
-Target: / (landing) → /auth/login (magic link) → /onboarding/intent → /onboarding/quick-start → /onboarding/chiffre-choc → /plan → /home?tab=1 (coach check-in)
+Target: / (landing) -> /auth/login (magic link) -> /onboarding/intent -> /onboarding/quick-start -> /onboarding/chiffre-choc -> /plan -> /home?tab=1 (coach check-in)
 ```
 
 ### Pattern 1: Linear Onboarding Pipeline
@@ -121,10 +121,10 @@ Target: / (landing) → /auth/login (magic link) → /onboarding/intent → /onb
 
 **Implementation approach:**
 ```
-intent_screen → go('/onboarding/quick-start', extra: {intent: chipKey})
-quick_start_screen → go('/onboarding/chiffre-choc', extra: {age, salary, canton, intent})
-chiffre_choc_screen → go('/plan', extra: {profile, insight})
-plan_screen → go('/home?tab=1')
+intent_screen -> go('/onboarding/quick-start', extra: {intent: chipKey})
+quick_start_screen -> go('/onboarding/chiffre-choc', extra: {age, salary, canton, intent})
+chiffre_choc_screen -> go('/plan', extra: {profile, insight})
+plan_screen -> go('/home?tab=1')
 ```
 
 Each transition passes data forward via GoRouter `extra`. No global state mutation until the end of the pipeline (when CoachProfileProvider is updated). [VERIFIED: this is consistent with how `chiffre_choc_screen` already receives data via `GoRouterState.of(context).extra`]
@@ -282,7 +282,7 @@ final canton = extra['canton'] as String? ?? 'ZH';
 |--------------|------------------|--------------|--------|
 | `chiffre_choc` (legacy term) | `premier_eclairage` | 2026-04-05 (MINT_IDENTITY.md) | All new code must use `premier_eclairage` -- existing `chiffre_choc_screen.dart` filename is kept for backward compat but new strings use the new term |
 | Slider inputs | CupertinoPicker / tap-to-type | CLAUDE.md feedback | `quick_start_screen` still uses `MintPremiumSlider` import -- must be replaced with CupertinoPicker |
-| Intent → home directly | Intent → quick_start → chiffre_choc → plan → coach | Phase 1 | Current `intent_screen._onChipTap` must be refactored |
+| Intent -> home directly | Intent -> quick_start -> chiffre_choc -> plan -> coach | Phase 1 | Current `intent_screen._onChipTap` must be refactored |
 
 ## Assumptions Log
 
@@ -294,27 +294,26 @@ final canton = extra['canton'] as String? ?? 'ZH';
 | A4 | Email sending service is not yet configured in the backend | Architecture Patterns | If there's already an email service (for verification emails), it can be reused |
 | A5 | The plan generation screen (Screen 6 in UI-SPEC) does not exist yet and must be created | Architecture Patterns | If a similar screen exists, it may only need adaptation |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Email sending infrastructure**
-   - What we know: Backend auth has email verification flow (`email_verified` field on User model), but no email sending code was found in the codebase
-   - What's unclear: Is there an existing email service (SMTP, Resend, SendGrid) configured anywhere?
-   - Recommendation: Check Railway environment variables for email service credentials; if none exist, add Resend as the simplest option
+1. **Email sending infrastructure** -- RESOLVED
+   - Decision: Use **Resend** as email sending service. No existing email sending code found in codebase (email_verified field exists on User model but no sending mechanism). Resend is the simplest option for transactional magic link emails.
+   - Implementation: Plan 01-02 Task 1 creates `magic_link_service.py` with Resend API integration. If `RESEND_API_KEY` is not set, service logs warning and skips email send (dev mode fallback). User setup documented in Plan 01-02 frontmatter.
 
-2. **Apple Sign-In entitlements**
-   - What we know: No Apple Sign-In code exists in the codebase
-   - What's unclear: Is the Apple Developer account configured with Sign in with Apple capability?
-   - Recommendation: This can be deferred to a later plan within the phase if Apple Developer setup is not ready; email+password fallback covers PATH-02 minimally
+2. **Apple Sign-In entitlements** -- RESOLVED
+   - Decision: Apple Sign-In is implemented in **Plan 01-05** (Wave 2, depends on Plan 01-02). It is NOT deferred -- it is a locked PATH-02 requirement.
+   - Implementation: Plan 01-05 adds `sign_in_with_apple` package, configures iOS entitlements, creates `AppleSignInService`, adds backend `/auth/apple/verify` endpoint. Includes a `checkpoint:human-verify` task for iOS testing since Apple Sign-In requires real device/simulator with Apple ID.
+   - User setup: Apple Developer account must have "Sign in with Apple" capability enabled on the App ID.
 
-3. **Plan generation screen**
-   - What we know: UI-SPEC defines Screen 6 as a plan summary for firstJob
-   - What's unclear: Does a financial plan generation service exist, or does the coach generate the plan on-the-fly via chat?
-   - Recommendation: Claude's discretion per CONTEXT.md; simplest approach is a locally-generated plan card list based on firstJob checklist (backend `/api/v1/first-job/checklist` exists)
+3. **Plan generation screen** -- RESOLVED
+   - Decision: **Locally-generated plan card list** based on firstJob intent. The screen does NOT call a dedicated backend endpoint for plan generation -- it uses a hardcoded checklist structure per intent type.
+   - Rationale: Backend `/api/v1/first-job/checklist` may or may not exist; generating plan steps locally (per Claude's discretion in CONTEXT.md) avoids a backend dependency. If the endpoint exists, the executor may use it instead.
+   - Implementation: Plan 01-03 Task 2 creates `plan_screen.dart` with locally-defined step cards for firstJob: "Comprendre ton premier salaire", "Configurer ton 3a", "Verifier ta couverture assurance", "Connaitre tes droits AVS".
 
-4. **4-layer insight engine implementation**
-   - What we know: Defined in `docs/MINT_IDENTITY.md`; coach system prompt does not currently enforce 4-layer format
-   - What's unclear: Should the 4-layer structure be visible to the user as sections, or is it a behind-the-scenes prompt structure?
-   - Recommendation: Add 4-layer formatting instructions to the system prompt for premier eclairage generation; display as natural narrative to user (not as 4 labeled sections)
+4. **4-layer insight engine implementation** -- RESOLVED
+   - Decision: 4-layer structure is a **behind-the-scenes prompt instruction**, NOT visible to the user as labeled sections. The coach presents 4-layer content as **natural narrative** -- the user experiences a flowing response, not "Layer 1: ..., Layer 2: ...".
+   - Rationale: Per MINT voice system (calme, precis, fin, rassurant), labeled sections feel clinical. Natural narrative matches the intimate, conversational tone.
+   - Implementation: Plan 01-03 Task 2 adds 4-layer formatting instructions to `claude_coach_service.py` system prompt with explicit "Present as natural narrative, NOT as labeled sections" directive.
 
 ## Validation Architecture
 
@@ -334,7 +333,7 @@ final canton = extra['canton'] as String? ?? 'ZH';
 | PATH-01 | Full golden path completion | integration | `flutter test test/journeys/lea_golden_path_test.dart` | Wave 0 |
 | PATH-02 | Magic link + Apple + password auth | unit | `flutter test test/auth/magic_link_test.dart` | Wave 0 |
 | PATH-03 | 3 inputs collected, premier eclairage within 5min | unit + timing | `flutter test test/services/onboarding_edge_cases_test.dart` | Partial (exists but needs Lea scenario) |
-| PATH-04 | VD regional voice + 4-layer engine | unit | `pytest tests/test_coach_regional_voice.py` | Wave 0 |
+| PATH-04 | VD regional voice + 4-layer engine | unit | `pytest tests/test_coach_firstjob.py` | Wave 0 |
 | PATH-05 | Loading/error/empty states on all screens | widget | `flutter test test/widgets/state_widgets_test.dart` | Wave 0 |
 | PATH-06 | Integration test fails CI if chain breaks | integration | `flutter test test/journeys/lea_golden_path_test.dart` | Wave 0 (same as PATH-01) |
 
@@ -347,7 +346,7 @@ final canton = extra['canton'] as String? ?? 'ZH';
 - [ ] `test/journeys/lea_golden_path_test.dart` -- covers PATH-01, PATH-06
 - [ ] `test/auth/magic_link_test.dart` -- covers PATH-02
 - [ ] `test/widgets/state_widgets_test.dart` -- covers PATH-05 (MintLoadingState, MintErrorState)
-- [ ] `tests/test_coach_premier_eclairage.py` (backend) -- covers PATH-04 (4-layer engine + VD voice)
+- [ ] `tests/test_coach_firstjob.py` (backend) -- covers PATH-04 (4-layer engine + VD voice + firstJob context)
 
 ## Security Domain
 
