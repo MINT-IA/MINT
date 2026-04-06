@@ -111,12 +111,14 @@ Plans:
   3. ComplianceGuard achieves 100% coverage on all new output channels (alerts, narrative refs, coach openers, extraction insights) with zero banned terms and zero PII in system prompts
   4. WCAG 2.1 AA met on all new screens (VoiceOver + TalkBack, contrast >= 4.5:1, tap targets >= 44pt, font scaling 200%)
   5. All new user-facing strings exist in 6 ARB files via AppLocalizations -- zero hardcoded strings, DE + IT financial terminology accuracy >= 85%
-**Plans**: 4 plans
+**Plans**: 6 plans
 Plans:
 - [x] 06-01-PLAN.md -- 8 persona golden path tests + DocumentFactory (QA-01, QA-02, QA-09)
 - [x] 06-02-PLAN.md -- Golden screenshot regression tests + Patrol integration scripts (QA-03, QA-04, QA-05)
 - [x] 06-03-PLAN.md -- ComplianceGuard channel coverage + DE/IT terminology validation (QA-06, QA-07, QA-10, COMP-01)
 - [x] 06-04-PLAN.md -- WCAG 2.1 AA accessibility audit + hardcoded string detection (QA-08, COMP-05)
+- [ ] 06-05-PLAN.md -- Gap closure: CI shard integration + golden comparator + Patrol gate doc (QA-03, QA-04, QA-05, QA-10)
+- [ ] 06-06-PLAN.md -- Gap closure: WCAG status color fixes + QA-09 requirement update (QA-08, QA-09)
 
 ## Progress
 
@@ -130,4 +132,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Memoire Narrative | 4/4 | Planned | - |
 | 4. Moteur d'Anticipation | 3/3 | Complete | - |
 | 5. Interface Contextuelle | 2/2 | Planned | - |
-| 6. QA Profond | 0/4 | Planned | - |
+| 6. QA Profond | 4/6 | Planned | - |
