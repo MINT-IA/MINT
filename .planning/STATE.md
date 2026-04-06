@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-04-06T19:24:19.426Z"
+status: executing
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-04-06T20:06:09.224Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 18
-  completed_plans: 18
-  percent: 100
+  total_plans: 22
+  completed_plans: 19
+  percent: 86
 ---
 
 # GSD State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-06)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight -- then knows exactly what to do next.
-**Current focus:** Phase 05 — Interface Contextuelle
+**Current focus:** Phase 06 — QA Profond
 
 ## Current Position
 
-Phase: 05 (Interface Contextuelle) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
+Phase: 06 (QA Profond) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
 Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 16
+- Total plans completed: 18
 - Average duration: --
 - Total execution time: --
 
@@ -92,6 +92,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 04-moteur-danticipation]: ARB key resolver pattern: explicit switch on signal.titleKey dispatches to correct S method with params
 - [Phase 05]: Sealed class card hierarchy with 5 subtypes for exhaustive pattern matching; pure static detector pattern for all contextual services
 - [Phase 05]: CoachOpenerService uses 5-priority fallback chain with ComplianceGuard validation; ContextualCardProvider evaluates after AnticipationProvider; MintHomeScreen uses sealed class switch dispatch for card widgets
+- [Phase 06]: Sophie stress_patrimoine rawValue can be 0 at onboarding (no patrimoine data) -- expected behavior
 
 ### Pending Todos
 
@@ -105,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T19:24:19.424Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-04-06T20:06:09.220Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
