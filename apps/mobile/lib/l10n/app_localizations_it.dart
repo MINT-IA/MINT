@@ -21704,4 +21704,78 @@ class SIt extends S {
   @override
   String get calculatorNoPrefillBody =>
       'Inserisci i valori per eseguire il calcolo. MINT li precompilerà automaticamente la prossima volta.';
+
+  @override
+  String get intentChipPremierEmploi => 'Il mio primo impiego';
+
+  @override
+  String get intentChipNouvelEmploi => 'Cambio lavoro';
+
+  @override
+  String get capStepFirstJob01Title => 'Il tuo salario';
+
+  @override
+  String get capStepFirstJob01Desc =>
+      'Inserisci il tuo primo stipendio lordo mensile';
+
+  @override
+  String get capStepFirstJob02Title => 'Comprendi la tua busta paga';
+
+  @override
+  String get capStepFirstJob02Desc =>
+      'AVS, LPP, imposte — tutto ciò che viene detratto dal lordo';
+
+  @override
+  String get capStepFirstJob03Title => 'Il tuo 2° pilastro (LPP)';
+
+  @override
+  String get capStepFirstJob03Desc =>
+      'Scopri quanto il tuo datore di lavoro contribuisce per te';
+
+  @override
+  String get capStepFirstJob04Title => 'Il 3° pilastro (3a)';
+
+  @override
+  String get capStepFirstJob04Desc =>
+      '7\'258 CHF/anno di risparmio fiscale — dal tuo primo impiego';
+
+  @override
+  String get capStepFirstJob05Title => 'Parla con uno specialista';
+
+  @override
+  String get capStepFirstJob05Desc => 'Fai le tue domande a un professionista';
+
+  @override
+  String get capStepNewJob01Title => 'Il tuo nuovo salario';
+
+  @override
+  String get capStepNewJob01Desc =>
+      'Inserisci il tuo stipendio lordo mensile attuale o futuro';
+
+  @override
+  String get capStepNewJob02Title => 'Confronta le tue condizioni';
+
+  @override
+  String get capStepNewJob02Desc =>
+      'Impatto del cambiamento sulla pensione e tasse';
+
+  @override
+  String get capStepNewJob03Title => 'Trasferimento LPP';
+
+  @override
+  String get capStepNewJob03Desc =>
+      'Verifica il trasferimento del 2° pilastro e le opzioni di riscatto';
+
+  @override
+  String get capStepNewJob04Title => 'Ottimizza il tuo 3a';
+
+  @override
+  String get capStepNewJob04Desc =>
+      'Approfitta del cambiamento per rivedere la tua strategia 3a';
+
+  @override
+  String get capStepNewJob05Title => 'Parla con uno specialista';
+
+  @override
+  String get capStepNewJob05Desc => 'Fai le tue domande a un professionista';
 }

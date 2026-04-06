@@ -21646,4 +21646,79 @@ class SFr extends S {
   @override
   String get calculatorNoPrefillBody =>
       'Saisis les valeurs pour lancer le calcul. MINT complétera automatiquement les prochaines fois.';
+
+  @override
+  String get intentChipPremierEmploi => 'Mon premier emploi';
+
+  @override
+  String get intentChipNouvelEmploi => 'Je change de travail';
+
+  @override
+  String get capStepFirstJob01Title => 'Ton salaire';
+
+  @override
+  String get capStepFirstJob01Desc => 'Entre ton premier salaire brut mensuel';
+
+  @override
+  String get capStepFirstJob02Title => 'Comprendre ta fiche de paie';
+
+  @override
+  String get capStepFirstJob02Desc =>
+      'Déductions AVS, LPP, impôts — tout ce qui sort de ton brut';
+
+  @override
+  String get capStepFirstJob03Title => 'Ton 2e pilier (LPP)';
+
+  @override
+  String get capStepFirstJob03Desc =>
+      'Découvre combien ton employeur cotise pour toi';
+
+  @override
+  String get capStepFirstJob04Title => 'Le 3e pilier (3a)';
+
+  @override
+  String get capStepFirstJob04Desc =>
+      '7 258 CHF/an d’économies d’impôts — dès ton premier emploi';
+
+  @override
+  String get capStepFirstJob05Title => 'Parle à un·e spécialiste';
+
+  @override
+  String get capStepFirstJob05Desc =>
+      'Pose tes questions à un·e professionnel·le';
+
+  @override
+  String get capStepNewJob01Title => 'Ton nouveau salaire';
+
+  @override
+  String get capStepNewJob01Desc =>
+      'Entre ton salaire brut mensuel actuel ou futur';
+
+  @override
+  String get capStepNewJob02Title => 'Compare tes conditions';
+
+  @override
+  String get capStepNewJob02Desc =>
+      'Impact du changement sur ta retraite et tes impôts';
+
+  @override
+  String get capStepNewJob03Title => 'Transfert LPP';
+
+  @override
+  String get capStepNewJob03Desc =>
+      'Vérifie le transfert de ton 2e pilier et les options de rachat';
+
+  @override
+  String get capStepNewJob04Title => 'Optimise ton 3a';
+
+  @override
+  String get capStepNewJob04Desc =>
+      'Profite du changement pour revoir ta stratégie 3a';
+
+  @override
+  String get capStepNewJob05Title => 'Parle à un·e spécialiste';
+
+  @override
+  String get capStepNewJob05Desc =>
+      'Pose tes questions à un·e professionnel·le';
 }

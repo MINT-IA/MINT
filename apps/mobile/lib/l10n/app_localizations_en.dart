@@ -21535,4 +21535,76 @@ class SEn extends S {
   @override
   String get calculatorNoPrefillBody =>
       'Enter values to run the calculation. MINT will auto-fill next time.';
+
+  @override
+  String get intentChipPremierEmploi => 'My first job';
+
+  @override
+  String get intentChipNouvelEmploi => 'I\'m changing jobs';
+
+  @override
+  String get capStepFirstJob01Title => 'Your salary';
+
+  @override
+  String get capStepFirstJob01Desc => 'Enter your first gross monthly salary';
+
+  @override
+  String get capStepFirstJob02Title => 'Understand your payslip';
+
+  @override
+  String get capStepFirstJob02Desc =>
+      'AVS, LPP, tax deductions — everything taken from your gross';
+
+  @override
+  String get capStepFirstJob03Title => 'Your 2nd pillar (LPP)';
+
+  @override
+  String get capStepFirstJob03Desc =>
+      'Discover how much your employer contributes for you';
+
+  @override
+  String get capStepFirstJob04Title => 'The 3rd pillar (3a)';
+
+  @override
+  String get capStepFirstJob04Desc =>
+      '7,258 CHF/year in tax savings — from your very first job';
+
+  @override
+  String get capStepFirstJob05Title => 'Talk to a specialist';
+
+  @override
+  String get capStepFirstJob05Desc => 'Ask your questions to a professional';
+
+  @override
+  String get capStepNewJob01Title => 'Your new salary';
+
+  @override
+  String get capStepNewJob01Desc =>
+      'Enter your current or future gross monthly salary';
+
+  @override
+  String get capStepNewJob02Title => 'Compare your conditions';
+
+  @override
+  String get capStepNewJob02Desc =>
+      'Impact of the change on your retirement and taxes';
+
+  @override
+  String get capStepNewJob03Title => 'LPP transfer';
+
+  @override
+  String get capStepNewJob03Desc =>
+      'Check your 2nd pillar transfer and buyback options';
+
+  @override
+  String get capStepNewJob04Title => 'Optimize your 3a';
+
+  @override
+  String get capStepNewJob04Desc => 'Use the change to review your 3a strategy';
+
+  @override
+  String get capStepNewJob05Title => 'Talk to a specialist';
+
+  @override
+  String get capStepNewJob05Desc => 'Ask your questions to a professional';
 }

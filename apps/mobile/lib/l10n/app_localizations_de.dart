@@ -21693,4 +21693,77 @@ class SDe extends S {
   @override
   String get calculatorNoPrefillBody =>
       'Gib die Werte ein. MINT fuellt sie naechstes Mal automatisch aus.';
+
+  @override
+  String get intentChipPremierEmploi => 'Mein erster Job';
+
+  @override
+  String get intentChipNouvelEmploi => 'Ich wechsle den Job';
+
+  @override
+  String get capStepFirstJob01Title => 'Dein Gehalt';
+
+  @override
+  String get capStepFirstJob01Desc => 'Gib dein erstes Bruttomonatsgehalt ein';
+
+  @override
+  String get capStepFirstJob02Title => 'Verstehe deine Lohnabrechnung';
+
+  @override
+  String get capStepFirstJob02Desc =>
+      'AHV, BVG, Steuerabzuege — alles was vom Brutto abgeht';
+
+  @override
+  String get capStepFirstJob03Title => 'Deine 2. Saeule (BVG)';
+
+  @override
+  String get capStepFirstJob03Desc =>
+      'Erfahre wie viel dein Arbeitgeber fuer dich einzahlt';
+
+  @override
+  String get capStepFirstJob04Title => 'Die 3. Saeule (3a)';
+
+  @override
+  String get capStepFirstJob04Desc =>
+      '7\'258 CHF/Jahr Steuerersparnis — ab deinem ersten Job';
+
+  @override
+  String get capStepFirstJob05Title => 'Sprich mit einem Spezialisten';
+
+  @override
+  String get capStepFirstJob05Desc => 'Stelle deine Fragen an einen Profi';
+
+  @override
+  String get capStepNewJob01Title => 'Dein neues Gehalt';
+
+  @override
+  String get capStepNewJob01Desc =>
+      'Gib dein aktuelles oder zukuenftiges Bruttomonatsgehalt ein';
+
+  @override
+  String get capStepNewJob02Title => 'Vergleiche deine Konditionen';
+
+  @override
+  String get capStepNewJob02Desc =>
+      'Auswirkung des Wechsels auf Rente und Steuern';
+
+  @override
+  String get capStepNewJob03Title => 'BVG-Transfer';
+
+  @override
+  String get capStepNewJob03Desc =>
+      'Pruefe den Transfer deiner 2. Saeule und Einkaufsmoeglichkeiten';
+
+  @override
+  String get capStepNewJob04Title => 'Optimiere deine 3a';
+
+  @override
+  String get capStepNewJob04Desc =>
+      'Nutze den Wechsel um deine 3a-Strategie zu ueberpruefen';
+
+  @override
+  String get capStepNewJob05Title => 'Sprich mit einem Spezialisten';
+
+  @override
+  String get capStepNewJob05Desc => 'Stelle deine Fragen an einen Profi';
 }

@@ -71,6 +71,16 @@ class IntentScreen extends StatelessWidget {
         message: l10n.intentChipChangement,
       ),
       _IntentChip(
+        chipKey: 'intentChipPremierEmploi',
+        label: l10n.intentChipPremierEmploi,
+        message: l10n.intentChipPremierEmploi,
+      ),
+      _IntentChip(
+        chipKey: 'intentChipNouvelEmploi',
+        label: l10n.intentChipNouvelEmploi,
+        message: l10n.intentChipNouvelEmploi,
+      ),
+      _IntentChip(
         chipKey: 'intentChipAutre',
         label: l10n.intentChipAutre,
         message: null,

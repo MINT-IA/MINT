@@ -38006,6 +38006,138 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Saisis les valeurs pour lancer le calcul. MINT complétera automatiquement les prochaines fois.'**
   String get calculatorNoPrefillBody;
+
+  /// No description provided for @intentChipPremierEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon premier emploi'**
+  String get intentChipPremierEmploi;
+
+  /// No description provided for @intentChipNouvelEmploi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je change de travail'**
+  String get intentChipNouvelEmploi;
+
+  /// No description provided for @capStepFirstJob01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire'**
+  String get capStepFirstJob01Title;
+
+  /// No description provided for @capStepFirstJob01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre ton premier salaire brut mensuel'**
+  String get capStepFirstJob01Desc;
+
+  /// No description provided for @capStepFirstJob02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comprendre ta fiche de paie'**
+  String get capStepFirstJob02Title;
+
+  /// No description provided for @capStepFirstJob02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déductions AVS, LPP, impôts — tout ce qui sort de ton brut'**
+  String get capStepFirstJob02Desc;
+
+  /// No description provided for @capStepFirstJob03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 2e pilier (LPP)'**
+  String get capStepFirstJob03Title;
+
+  /// No description provided for @capStepFirstJob03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découvre combien ton employeur cotise pour toi'**
+  String get capStepFirstJob03Desc;
+
+  /// No description provided for @capStepFirstJob04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le 3e pilier (3a)'**
+  String get capStepFirstJob04Title;
+
+  /// No description provided for @capStepFirstJob04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 258 CHF/an d’économies d’impôts — dès ton premier emploi'**
+  String get capStepFirstJob04Desc;
+
+  /// No description provided for @capStepFirstJob05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parle à un·e spécialiste'**
+  String get capStepFirstJob05Title;
+
+  /// No description provided for @capStepFirstJob05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose tes questions à un·e professionnel·le'**
+  String get capStepFirstJob05Desc;
+
+  /// No description provided for @capStepNewJob01Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton nouveau salaire'**
+  String get capStepNewJob01Title;
+
+  /// No description provided for @capStepNewJob01Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre ton salaire brut mensuel actuel ou futur'**
+  String get capStepNewJob01Desc;
+
+  /// No description provided for @capStepNewJob02Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compare tes conditions'**
+  String get capStepNewJob02Title;
+
+  /// No description provided for @capStepNewJob02Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impact du changement sur ta retraite et tes impôts'**
+  String get capStepNewJob02Desc;
+
+  /// No description provided for @capStepNewJob03Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transfert LPP'**
+  String get capStepNewJob03Title;
+
+  /// No description provided for @capStepNewJob03Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie le transfert de ton 2e pilier et les options de rachat'**
+  String get capStepNewJob03Desc;
+
+  /// No description provided for @capStepNewJob04Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Optimise ton 3a'**
+  String get capStepNewJob04Title;
+
+  /// No description provided for @capStepNewJob04Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profite du changement pour revoir ta stratégie 3a'**
+  String get capStepNewJob04Desc;
+
+  /// No description provided for @capStepNewJob05Title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parle à un·e spécialiste'**
+  String get capStepNewJob05Title;
+
+  /// No description provided for @capStepNewJob05Desc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pose tes questions à un·e professionnel·le'**
+  String get capStepNewJob05Desc;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
