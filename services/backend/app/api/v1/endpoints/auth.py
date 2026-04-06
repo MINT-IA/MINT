@@ -55,6 +55,10 @@ from app.schemas.auth import (
     AuthAdminPurgeUnverifiedResponse,
     AuthAdminOnboardingQualityResponse,
     AuthAdminOnboardingCohortsResponse,
+    MagicLinkSendRequest,
+    MagicLinkSendResponse,
+    MagicLinkVerifyRequest,
+    MagicLinkVerifyResponse,
 )
 from app.services.auth_service import (
     hash_password,
@@ -1129,4 +1133,85 @@ def delete_account(
         deleted_profiles=deleted_profiles,
         deleted_sessions=deleted_sessions,
         anonymized_analytics_events=anonymized_analytics_events,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Magic Link Authentication (passwordless)
+# ---------------------------------------------------------------------------
+
+@router.post("/magic-link/send", response_model=MagicLinkSendResponse)
+@limiter.limit("5/minute")
+def magic_link_send(
+    request: Request,
+    body: MagicLinkSendRequest,
+    db: Session = Depends(get_db),
+) -> MagicLinkSendResponse:
+    """
+    Send a magic link to the given email address.
+
+    Always returns 200 regardless of whether the email exists in the DB
+    (prevents user enumeration — T-01-04).
+
+    Rate limited to 5 requests/minute per IP (T-01-05).
+    """
+    from app.services.magic_link_service import MagicLinkService
+
+    service = MagicLinkService(db)
+    token = service.generate_token(body.email)
+    service.send_magic_link_email(body.email, token)
+
+    log_audit_event(
+        db,
+        event_type="auth.magic_link_send",
+        status="success",
+        source="api",
+        actor_email=body.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+
+    return MagicLinkSendResponse(
+        message="Si un compte existe avec cet email, un lien de connexion a été envoyé."
+    )
+
+
+@router.post("/magic-link/verify", response_model=MagicLinkVerifyResponse)
+@limiter.limit("5/minute")
+def magic_link_verify(
+    request: Request,
+    body: MagicLinkVerifyRequest,
+    db: Session = Depends(get_db),
+) -> MagicLinkVerifyResponse:
+    """
+    Verify a magic link token and return a JWT access token.
+
+    Token must be valid, not expired (15 min), and not already used (single-use).
+    If the email has no account, one is auto-created (frictionless onboarding — T-01-06).
+
+    Rate limited to 5 requests/minute per IP (T-01-02).
+    """
+    from app.services.magic_link_service import MagicLinkService
+
+    service = MagicLinkService(db)
+    user = service.verify_token(body.token)
+
+    # Create JWT
+    token = create_access_token(user.id, user.email)
+
+    log_audit_event(
+        db,
+        event_type="auth.magic_link_verify",
+        status="success",
+        source="api",
+        user_id=user.id,
+        actor_email=user.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
+
+    return MagicLinkVerifyResponse(
+        access_token=token,
+        token_type="bearer",
     )

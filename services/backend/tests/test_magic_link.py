@@ -95,9 +95,10 @@ class TestMagicLinkServiceGenerateToken:
             MagicLinkTokenModel.token_hash == token_hash
         ).first()
         assert record is not None
-        assert record.expires_at > datetime.now(timezone.utc)
+        expires_at = record.expires_at.replace(tzinfo=timezone.utc) if record.expires_at.tzinfo is None else record.expires_at
+        assert expires_at > datetime.now(timezone.utc)
         # Expiry should be ~15 minutes from now
-        delta = record.expires_at - datetime.now(timezone.utc)
+        delta = expires_at - datetime.now(timezone.utc)
         assert timedelta(minutes=14) < delta < timedelta(minutes=16)
 
 
@@ -207,8 +208,9 @@ class TestMagicLinkEndpoints:
             )
         assert response.status_code == 200
         data = response.json()
-        assert "access_token" in data
-        assert data["token_type"] == "bearer"
+        # Response uses camelCase aliases from Pydantic alias_generator
+        assert "accessToken" in data
+        assert data["tokenType"] == "bearer"
 
     def test_send_endpoint_unknown_email_still_200(self, client):
         """No information disclosure -- same response for known/unknown emails."""

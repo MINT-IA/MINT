@@ -30,6 +30,7 @@ from app.models.document import DocumentModel
 from app.models.scenario import ScenarioModel
 from app.models.banking_consent import BankingConsentModel
 from app.models.external_data_source import ExternalDataSourceModel
+from app.models.magic_link_token import MagicLinkTokenModel
 
 __all__ = [
     "User",
@@ -54,4 +55,5 @@ __all__ = [
     "ScenarioModel",
     "BankingConsentModel",
     "ExternalDataSourceModel",
+    "MagicLinkTokenModel",
 ]

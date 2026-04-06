@@ -5,6 +5,7 @@ Authentication schemas for user registration, login, and tokens.
 from datetime import datetime
 from typing import Optional, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic.alias_generators import to_camel
 
 
 class UserRegister(BaseModel):
@@ -185,3 +186,36 @@ class UserResponse(BaseModel):
     email_verified: bool
     display_name: Optional[str]
     created_at: datetime
+
+
+# ---------------------------------------------------------------------------
+# Magic Link schemas
+# ---------------------------------------------------------------------------
+
+class MagicLinkSendRequest(BaseModel):
+    """Schema for requesting a magic link email."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    email: EmailStr
+
+
+class MagicLinkSendResponse(BaseModel):
+    """Schema for magic link send response."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    message: str
+
+
+class MagicLinkVerifyRequest(BaseModel):
+    """Schema for verifying a magic link token."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    token: str
+
+
+class MagicLinkVerifyResponse(BaseModel):
+    """Schema for magic link verify response (JWT)."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    access_token: str
+    token_type: str = "bearer"
