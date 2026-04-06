@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-04-06T16:28:34.819Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-04-06T16:35:37.433Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 16
-  completed_plans: 14
-  percent: 88
+  completed_plans: 15
+  percent: 94
 ---
 
 # GSD State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 ## Current Position
 
 Phase: 04 (Moteur d'Anticipation) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-06
 
@@ -84,6 +84,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 04-moteur-danticipation]: AnticipationEngine follows NudgeEngine pure-static pattern (private ctor, static evaluate, injectable DateTime)
 - [Phase 04-moteur-danticipation]: Cantonal tax deadlines: 26 cantons, TI/NW/OW=April 30, others=March 31, fallback for unknown
 - [Phase 04-moteur-danticipation]: Salary increase dual threshold: >5% OR >2000 CHF; userEdit source filtered (correction vs real)
+- [Phase 04-moteur-danticipation]: validateAlert() skips layers 3-4 (hallucination/disclaimer): alerts are template-based, not LLM-generated
+- [Phase 04-moteur-danticipation]: Priority formula: timeliness*0.5 + userRelevance*0.3 + confidence*0.2 with 90-day horizon and default confidence 0.8
+- [Phase 04-moteur-danticipation]: Per-trigger dismiss cooldowns (30-365d) and snooze durations (7-30d) via SharedPreferences ISO8601 timestamps
 
 ### Pending Todos
 
@@ -97,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T16:28:34.803Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-04-06T16:35:37.430Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None

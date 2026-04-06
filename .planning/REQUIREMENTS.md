@@ -34,10 +34,10 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [x] **ANT-01**: Swiss fiscal calendar triggers fire for 3a deadline (Dec 31), cantonal tax declaration deadlines, and LPP rachat windows
 - [x] **ANT-02**: Profile-driven triggers detect salary increase -> 3a max recalculation, age milestone -> LPP bonification rate change
 - [x] **ANT-03**: All alerts use AlertTemplate enum (Educational: title + fact + source + simulatorLink) -- never personalized imperatives
-- [ ] **ANT-04**: ComplianceGuard.validateAlert() validates every alert before display -- blocks "tu devrais", benefit claims, banned terms
-- [ ] **ANT-05**: Frequency cap: max 2 anticipation signals per user per week on Aujourd'hui
-- [ ] **ANT-06**: Card ranking: priority_score = timeliness x user_relevance x confidence -- top 2 as cards, rest in expandable section
-- [ ] **ANT-07**: Dismissal UX: each signal card has "Got it" or "Remind me later" -- snooze logic per trigger type
+- [x] **ANT-04**: ComplianceGuard.validateAlert() validates every alert before display -- blocks "tu devrais", benefit claims, banned terms
+- [x] **ANT-05**: Frequency cap: max 2 anticipation signals per user per week on Aujourd'hui
+- [x] **ANT-06**: Card ranking: priority_score = timeliness x user_relevance x confidence -- top 2 as cards, rest in expandable section
+- [x] **ANT-07**: Dismissal UX: each signal card has "Got it" or "Remind me later" -- snooze logic per trigger type
 - [x] **ANT-08**: Triggers are rule-based (zero LLM cost, deterministic) -- LLM used only for optional narrative enrichment
 
 ### Memoire Narrative
@@ -134,10 +134,10 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | ANT-01 | Phase 4 | Complete |
 | ANT-02 | Phase 4 | Complete |
 | ANT-03 | Phase 4 | Complete |
-| ANT-04 | Phase 4 | Pending |
-| ANT-05 | Phase 4 | Pending |
-| ANT-06 | Phase 4 | Pending |
-| ANT-07 | Phase 4 | Pending |
+| ANT-04 | Phase 4 | Complete |
+| ANT-05 | Phase 4 | Complete |
+| ANT-06 | Phase 4 | Complete |
+| ANT-07 | Phase 4 | Complete |
 | ANT-08 | Phase 4 | Complete |
 | BIO-01 | Phase 3 | Complete |
 | BIO-02 | Phase 3 | Complete |
