@@ -115,7 +115,7 @@ Plans:
 Plans:
 - [x] 07-01-PLAN.md — Wire firstJob + newJob IntentRouter mappings, CapSequence definitions, IntentScreen chips, i18n keys
 - [x] 07-02-PLAN.md — Integration tests for all 3 journeys (firstJob, housingPurchase, newJob)
-- [ ] 07-03-PLAN.md — Gap closure: fix 2 broken GoRouter intentTags + firstJob premier eclairage stressType mismatch
+- [x] 07-03-PLAN.md — Gap closure: fix 2 broken GoRouter intentTags + firstJob premier eclairage stressType mismatch
 
 ### Phase 8: UX Polish
 **Goal**: The Aujourd'hui tab animates naturally, ConfidenceScore is visible and actionable, Explorer reflects profile readiness, and navigation transitions feel guided
@@ -126,8 +126,10 @@ Plans:
   2. ConfidenceScore is visible on Aujourd'hui with an explanation of which single action would improve it most — not hidden in a settings screen
   3. Explorer hubs show a visual state reflecting profile completeness (greyed/locked items when required fields are missing) — a profile with no salary sees different hub states than a complete profile
   4. Screens in the onboarding journey path (/onboarding/intent, /coach, /onboarding/premier-eclairage) use CustomTransitionPage fade — not the default Material slide push
-**Plans**: TBD
-**UI hint**: yes
+**Plans:** 2 plans
+Plans:
+- [ ] 08-01-PLAN.md — AnimatedSwitcher on signal card slot + ConfidenceScoreCard widget on Aujourd'hui
+- [ ] 08-02-PLAN.md — Explorer hub ReadinessGate visual states + CustomTransitionPage fade on onboarding routes
 
 ## Progress
 
@@ -145,4 +147,4 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 | 5. Suivi & Check-in | 0/2 | Planned | - |
 | 6. Calculator Wiring | 0/2 | Planned | - |
 | 7. Life Event Journeys | 0/3 | Gap closure planned | - |
-| 8. UX Polish | 0/? | Not started | - |
+| 8. UX Polish | 0/2 | Planned | - |
