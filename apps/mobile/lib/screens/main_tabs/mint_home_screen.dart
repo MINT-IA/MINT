@@ -18,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/cap_sequence.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
@@ -34,6 +35,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/mint_motion.dart';
+import 'package:mint_mobile/widgets/coach/animated_progress_bar.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
 import 'package:mint_mobile/widgets/coach/streak_badge.dart';
@@ -41,6 +43,7 @@ import 'package:mint_mobile/widgets/home/confidence_score_card.dart';
 import 'package:mint_mobile/widgets/home/financial_plan_card.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// The new Tab 0 — "Aujourd'hui".
 ///
@@ -295,6 +298,28 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                     : 12,
                             streakBadge: StreakBadgeWidget(streak: streak),
                           ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // -- Section 1d: Journey Steps (active CapSequence) --
+                  Builder(
+                    builder: (ctx) {
+                      final seq = mintState.capSequencePlan;
+                      if (seq == null || seq.isComplete || seq.currentStep == null) {
+                        return const SizedBox.shrink();
+                      }
+                      // Only show when at least 1 step is incomplete
+                      final hasIncomplete = seq.steps.any(
+                        (s) => s.status != CapStepStatus.completed,
+                      );
+                      if (!hasIncomplete) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: MintSpacing.xl),
+                        child: MintEntrance(
+                          delay: const Duration(milliseconds: 200),
+                          child: _JourneyStepsCard(sequence: seq),
                         ),
                       );
                     },
@@ -1279,5 +1304,215 @@ class _SuggestionChip extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  SECTION 1d — Journey Steps Card (active CapSequence)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Compact card showing the user's current and next cap sequence step.
+///
+/// Only shown when [sequence] is not complete and has a current step.
+/// Shows:
+///   - Header: title + progress fraction + animated progress bar
+///   - Current step row: play icon + title + CTA chip (navigates to intentTag)
+///   - Next step row (optional): circle icon + muted "Ensuite : title"
+class _JourneyStepsCard extends StatelessWidget {
+  final CapSequence sequence;
+
+  const _JourneyStepsCard({
+    super.key,
+    required this.sequence,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (sequence.isComplete || sequence.currentStep == null) {
+      return const SizedBox.shrink();
+    }
+
+    final l = S.of(context)!;
+    final current = sequence.currentStep!;
+    final next = sequence.nextStep;
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: false,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // ── Header: title + fraction ──
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.homeJourneyTitle,
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+              Text(
+                '${sequence.completedCount}/${sequence.totalCount}',
+                style:
+                    MintTextStyles.labelSmall(color: MintColors.textSecondary),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.xs),
+
+          // ── Progress bar ──
+          AnimatedProgressBar(
+            progress: sequence.progressPercent,
+            color: MintColors.primary,
+          ),
+          const SizedBox(height: MintSpacing.md),
+
+          // ── Current step row ──
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Play icon
+              Container(
+                width: 18,
+                height: 18,
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: MintColors.primary,
+                ),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  size: 12,
+                  color: MintColors.white,
+                ),
+              ),
+              const SizedBox(width: MintSpacing.sm),
+              Expanded(
+                child: Text(
+                  _resolveTitle(l, current.titleKey),
+                  style: MintTextStyles.titleMedium(
+                    color: MintColors.textPrimary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: MintSpacing.xs),
+              // CTA chip
+              GestureDetector(
+                onTap: current.intentTag != null
+                    ? () => context.go(current.intentTag!)
+                    : null,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: MintSpacing.sm,
+                    vertical: MintSpacing.xs,
+                  ),
+                  decoration: BoxDecoration(
+                    color: MintColors.primary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    l.homeJourneyNextStep,
+                    style: MintTextStyles.labelSmall(color: MintColors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // ── Next step row (muted) ──
+          if (next != null) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Empty circle icon
+                Container(
+                  width: 18,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: MintColors.border,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: RichText(
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${l.homeJourneyUpcoming}\u00a0:\u00a0',
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                        TextSpan(
+                          text: _resolveTitle(l, next.titleKey),
+                          style: MintTextStyles.bodySmall(
+                            color: MintColors.textMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Resolve an ARB key string to a translated title.
+  ///
+  /// Covers all cap step title keys from Retirement, Budget, Housing,
+  /// FirstJob, and NewJob sequences.
+  String _resolveTitle(S l, String key) {
+    return switch (key) {
+      'capStepRetirement01Title' => l.capStepRetirement01Title,
+      'capStepRetirement02Title' => l.capStepRetirement02Title,
+      'capStepRetirement03Title' => l.capStepRetirement03Title,
+      'capStepRetirement04Title' => l.capStepRetirement04Title,
+      'capStepRetirement05Title' => l.capStepRetirement05Title,
+      'capStepRetirement06Title' => l.capStepRetirement06Title,
+      'capStepRetirement07Title' => l.capStepRetirement07Title,
+      'capStepRetirement08Title' => l.capStepRetirement08Title,
+      'capStepRetirement09Title' => l.capStepRetirement09Title,
+      'capStepRetirement10Title' => l.capStepRetirement10Title,
+      'capStepBudget01Title' => l.capStepBudget01Title,
+      'capStepBudget02Title' => l.capStepBudget02Title,
+      'capStepBudget03Title' => l.capStepBudget03Title,
+      'capStepBudget04Title' => l.capStepBudget04Title,
+      'capStepBudget05Title' => l.capStepBudget05Title,
+      'capStepBudget06Title' => l.capStepBudget06Title,
+      'capStepHousing01Title' => l.capStepHousing01Title,
+      'capStepHousing02Title' => l.capStepHousing02Title,
+      'capStepHousing03Title' => l.capStepHousing03Title,
+      'capStepHousing04Title' => l.capStepHousing04Title,
+      'capStepHousing05Title' => l.capStepHousing05Title,
+      'capStepHousing06Title' => l.capStepHousing06Title,
+      'capStepHousing07Title' => l.capStepHousing07Title,
+      'capStepFirstJob01Title' => l.capStepFirstJob01Title,
+      'capStepFirstJob02Title' => l.capStepFirstJob02Title,
+      'capStepFirstJob03Title' => l.capStepFirstJob03Title,
+      'capStepFirstJob04Title' => l.capStepFirstJob04Title,
+      'capStepFirstJob05Title' => l.capStepFirstJob05Title,
+      'capStepNewJob01Title' => l.capStepNewJob01Title,
+      'capStepNewJob02Title' => l.capStepNewJob02Title,
+      'capStepNewJob03Title' => l.capStepNewJob03Title,
+      'capStepNewJob04Title' => l.capStepNewJob04Title,
+      'capStepNewJob05Title' => l.capStepNewJob05Title,
+      _ => key, // Fallback: show key (should never happen in production)
+    };
   }
 }
