@@ -9899,5 +9899,13 @@
   "adherenceBadgeOnTrack": "On track",
   "adherenceBadgeProgress": "Can improve",
   "adherenceBadgeOffTrack": "Needs work",
-  "checkInTotalLabel": "Total contributed"
+  "checkInTotalLabel": "Total contributed",
+  "profileUpdatedSnackbar": "Profile updated",
+  "profileUpdateErrorSnackbar": "Profile update failed. Try again from your profile.",
+  "prefillBadgeTitle": "Pre-filled value",
+  "prefillBadgeSourceLabel": "Source",
+  "prefillSourceEstimated": "Estimate from your MINT profile",
+  "prefillSourceUserInput": "Value you declared to MINT",
+  "prefillBadgePrecise": "Refine this number",
+  "calculatorNoPrefillBody": "Enter values to run the calculation. MINT will auto-fill next time."
 }

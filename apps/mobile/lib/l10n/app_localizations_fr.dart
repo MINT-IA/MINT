@@ -21620,4 +21620,30 @@ class SFr extends S {
 
   @override
   String get checkInTotalLabel => 'Total versé';
+
+  @override
+  String get profileUpdatedSnackbar => 'Profil mis à jour';
+
+  @override
+  String get profileUpdateErrorSnackbar =>
+      'Mise à jour du profil impossible. Réessaie depuis ton profil.';
+
+  @override
+  String get prefillBadgeTitle => 'Valeur pré-remplie';
+
+  @override
+  String get prefillBadgeSourceLabel => 'Source';
+
+  @override
+  String get prefillSourceEstimated => 'Estimation depuis ton profil MINT';
+
+  @override
+  String get prefillSourceUserInput => 'Valeur que tu as déclarée à MINT';
+
+  @override
+  String get prefillBadgePrecise => 'Préciser ce chiffre';
+
+  @override
+  String get calculatorNoPrefillBody =>
+      'Saisis les valeurs pour lancer le calcul. MINT complétera automatiquement les prochaines fois.';
 }

@@ -271,6 +271,54 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     }
   }
 
+  /// Write computed results back to CoachProfile.
+  /// Only called after user has interacted (_hasUserInteracted == true).
+  /// Guard prevents infinite recalculation loop with _didAutoFill.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    if (_result == null) return;
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    try {
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          projectedRenteLpp: _result!.renteNetMensuelle > 0
+              ? _result!.renteNetMensuelle * 12
+              : null,
+          projectedCapital65: _result!.capitalProjecte > 0
+              ? _result!.capitalProjecte
+              : null,
+        ),
+        targetRetirementAge: _ageRetraiteSlider.value.round(),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
   /// Apply prefill values from a coach suggestion (GoRouter extra['prefill']).
   /// Called after _autoFillFromProfile() to ensure coach values override estimates.
   void _applyPrefill(Map<String, dynamic> prefill) {
@@ -347,6 +395,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   void _userRecalculate() {
     _hasUserInteracted = true;
     _recalculate();
+    // Write-back is deferred until after async recalculation completes.
+    // Call _writeBackResult after a brief delay to let result settle.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _writeBackResult();
+    });
   }
 
   Future<void> _recalculateAsync() async {

@@ -21667,4 +21667,30 @@ class SDe extends S {
 
   @override
   String get checkInTotalLabel => 'Gesamtbetrag';
+
+  @override
+  String get profileUpdatedSnackbar => 'Profil aktualisiert';
+
+  @override
+  String get profileUpdateErrorSnackbar =>
+      'Profilaktualisierung fehlgeschlagen. Versuche es erneut.';
+
+  @override
+  String get prefillBadgeTitle => 'Vorausgefuellter Wert';
+
+  @override
+  String get prefillBadgeSourceLabel => 'Quelle';
+
+  @override
+  String get prefillSourceEstimated => 'Schaetzung aus deinem MINT-Profil';
+
+  @override
+  String get prefillSourceUserInput => 'Wert, den du MINT mitgeteilt hast';
+
+  @override
+  String get prefillBadgePrecise => 'Diese Zahl praezisieren';
+
+  @override
+  String get calculatorNoPrefillBody =>
+      'Gib die Werte ein. MINT fuellt sie naechstes Mal automatisch aus.';
 }

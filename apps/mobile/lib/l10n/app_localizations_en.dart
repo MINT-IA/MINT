@@ -21509,4 +21509,30 @@ class SEn extends S {
 
   @override
   String get checkInTotalLabel => 'Total contributed';
+
+  @override
+  String get profileUpdatedSnackbar => 'Profile updated';
+
+  @override
+  String get profileUpdateErrorSnackbar =>
+      'Profile update failed. Try again from your profile.';
+
+  @override
+  String get prefillBadgeTitle => 'Pre-filled value';
+
+  @override
+  String get prefillBadgeSourceLabel => 'Source';
+
+  @override
+  String get prefillSourceEstimated => 'Estimate from your MINT profile';
+
+  @override
+  String get prefillSourceUserInput => 'Value you declared to MINT';
+
+  @override
+  String get prefillBadgePrecise => 'Refine this number';
+
+  @override
+  String get calculatorNoPrefillBody =>
+      'Enter values to run the calculation. MINT will auto-fill next time.';
 }

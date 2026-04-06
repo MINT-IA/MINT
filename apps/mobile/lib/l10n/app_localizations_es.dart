@@ -21623,4 +21623,30 @@ class SEs extends S {
 
   @override
   String get checkInTotalLabel => 'Total aportado';
+
+  @override
+  String get profileUpdatedSnackbar => 'Perfil actualizado';
+
+  @override
+  String get profileUpdateErrorSnackbar =>
+      'Error al actualizar el perfil. Inténtalo desde tu perfil.';
+
+  @override
+  String get prefillBadgeTitle => 'Valor prerrellenado';
+
+  @override
+  String get prefillBadgeSourceLabel => 'Fuente';
+
+  @override
+  String get prefillSourceEstimated => 'Estimación desde tu perfil MINT';
+
+  @override
+  String get prefillSourceUserInput => 'Valor que declaraste a MINT';
+
+  @override
+  String get prefillBadgePrecise => 'Refinar este número';
+
+  @override
+  String get calculatorNoPrefillBody =>
+      'Introduce los valores para ejecutar el cálculo. MINT lo rellenará automáticamente la próxima vez.';
 }

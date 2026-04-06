@@ -21626,4 +21626,30 @@ class SPt extends S {
 
   @override
   String get checkInTotalLabel => 'Total contribuído';
+
+  @override
+  String get profileUpdatedSnackbar => 'Perfil atualizado';
+
+  @override
+  String get profileUpdateErrorSnackbar =>
+      'Falha ao atualizar o perfil. Tenta novamente a partir do teu perfil.';
+
+  @override
+  String get prefillBadgeTitle => 'Valor pré-preenchido';
+
+  @override
+  String get prefillBadgeSourceLabel => 'Fonte';
+
+  @override
+  String get prefillSourceEstimated => 'Estimativa do teu perfil MINT';
+
+  @override
+  String get prefillSourceUserInput => 'Valor que declaraste ao MINT';
+
+  @override
+  String get prefillBadgePrecise => 'Refinar este número';
+
+  @override
+  String get calculatorNoPrefillBody =>
+      'Introduz os valores para executar o cálculo. O MINT preenchê-os automaticamente da próxima vez.';
 }

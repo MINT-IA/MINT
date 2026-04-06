@@ -440,6 +440,60 @@ class PrevoyanceProfile {
     );
   }
 
+  PrevoyanceProfile copyWith({
+    int? anneesContribuees,
+    int? lacunesAVS,
+    double? renteAVSEstimeeMensuelle,
+    String? nomCaisse,
+    double? avoirLppTotal,
+    double? avoirLppObligatoire,
+    double? avoirLppSurobligatoire,
+    double? rachatMaximum,
+    double? rachatEffectue,
+    double? tauxConversion,
+    double? tauxConversionSuroblig,
+    double? rendementCaisse,
+    double? salaireAssure,
+    double? ramd,
+    int? bonificationsEducatives,
+    double? projectedRenteLpp,
+    double? projectedCapital65,
+    double? disabilityCoverage,
+    double? deathCoverage,
+    int? nombre3a,
+    double? totalEpargne3a,
+    List<Compte3a>? comptes3a,
+    bool? canContribute3a,
+    List<LibrePassageCompte>? librePassage,
+  }) {
+    return PrevoyanceProfile(
+      anneesContribuees: anneesContribuees ?? this.anneesContribuees,
+      lacunesAVS: lacunesAVS ?? this.lacunesAVS,
+      renteAVSEstimeeMensuelle: renteAVSEstimeeMensuelle ?? this.renteAVSEstimeeMensuelle,
+      nomCaisse: nomCaisse ?? this.nomCaisse,
+      avoirLppTotal: avoirLppTotal ?? this.avoirLppTotal,
+      avoirLppObligatoire: avoirLppObligatoire ?? this.avoirLppObligatoire,
+      avoirLppSurobligatoire: avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
+      rachatMaximum: rachatMaximum ?? this.rachatMaximum,
+      rachatEffectue: rachatEffectue ?? this.rachatEffectue,
+      tauxConversion: tauxConversion ?? this.tauxConversion,
+      tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
+      rendementCaisse: rendementCaisse ?? this.rendementCaisse,
+      salaireAssure: salaireAssure ?? this.salaireAssure,
+      ramd: ramd ?? this.ramd,
+      bonificationsEducatives: bonificationsEducatives ?? this.bonificationsEducatives,
+      projectedRenteLpp: projectedRenteLpp ?? this.projectedRenteLpp,
+      projectedCapital65: projectedCapital65 ?? this.projectedCapital65,
+      disabilityCoverage: disabilityCoverage ?? this.disabilityCoverage,
+      deathCoverage: deathCoverage ?? this.deathCoverage,
+      nombre3a: nombre3a ?? this.nombre3a,
+      totalEpargne3a: totalEpargne3a ?? this.totalEpargne3a,
+      comptes3a: comptes3a ?? this.comptes3a,
+      canContribute3a: canContribute3a ?? this.canContribute3a,
+      librePassage: librePassage ?? this.librePassage,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'anneesContribuees': anneesContribuees,
         'lacunesAVS': lacunesAVS,
@@ -622,6 +676,10 @@ class PatrimoineProfile {
   // S45: Immobilier enrichi
   final String? propertyDescription; // "Appt 4.5p, Sion (VS)"
 
+  // CAL-03: Calculator write-back fields (from /hypotheque calculator)
+  final double? mortgageCapacity; // Computed max mortgage capacity from calculator
+  final double? estimatedMonthlyPayment; // Computed monthly payment from calculator
+
   const PatrimoineProfile({
     this.epargneLiquide = 0,
     this.investissements = 0,
@@ -633,6 +691,8 @@ class PatrimoineProfile {
     this.mortgageRate,
     this.monthlyRent,
     this.propertyDescription,
+    this.mortgageCapacity,
+    this.estimatedMonthlyPayment,
   });
 
   /// Valeur immobilière effective (propertyMarketValue si renseigné, sinon legacy immobilier).
@@ -671,6 +731,8 @@ class PatrimoineProfile {
       mortgageRate: (json['mortgageRate'] as num?)?.toDouble(),
       monthlyRent: (json['monthlyRent'] as num?)?.toDouble(),
       propertyDescription: json['propertyDescription'] as String?,
+      mortgageCapacity: (json['mortgageCapacity'] as num?)?.toDouble(),
+      estimatedMonthlyPayment: (json['estimatedMonthlyPayment'] as num?)?.toDouble(),
     );
   }
 
@@ -685,6 +747,8 @@ class PatrimoineProfile {
     double? mortgageRate,
     double? monthlyRent,
     String? propertyDescription,
+    double? mortgageCapacity,
+    double? estimatedMonthlyPayment,
   }) {
     return PatrimoineProfile(
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
@@ -699,6 +763,8 @@ class PatrimoineProfile {
       mortgageRate: mortgageRate ?? this.mortgageRate,
       monthlyRent: monthlyRent ?? this.monthlyRent,
       propertyDescription: propertyDescription ?? this.propertyDescription,
+      mortgageCapacity: mortgageCapacity ?? this.mortgageCapacity,
+      estimatedMonthlyPayment: estimatedMonthlyPayment ?? this.estimatedMonthlyPayment,
     );
   }
 
@@ -713,6 +779,8 @@ class PatrimoineProfile {
         'mortgageRate': mortgageRate,
         'monthlyRent': monthlyRent,
         'propertyDescription': propertyDescription,
+        'mortgageCapacity': mortgageCapacity,
+        'estimatedMonthlyPayment': estimatedMonthlyPayment,
       };
 
   @override
@@ -729,7 +797,9 @@ class PatrimoineProfile {
           mortgageBalance == other.mortgageBalance &&
           mortgageRate == other.mortgageRate &&
           monthlyRent == other.monthlyRent &&
-          propertyDescription == other.propertyDescription;
+          propertyDescription == other.propertyDescription &&
+          mortgageCapacity == other.mortgageCapacity &&
+          estimatedMonthlyPayment == other.estimatedMonthlyPayment;
 
   @override
   int get hashCode => Object.hashAll([
@@ -743,6 +813,8 @@ class PatrimoineProfile {
         mortgageRate,
         monthlyRent,
         propertyDescription,
+        mortgageCapacity,
+        estimatedMonthlyPayment,
       ]);
 }
 

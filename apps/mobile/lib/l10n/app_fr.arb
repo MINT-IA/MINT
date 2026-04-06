@@ -10415,5 +10415,13 @@
   "adherenceBadgeOnTrack": "En bonne voie",
   "adherenceBadgeProgress": "Peut progresser",
   "adherenceBadgeOffTrack": "\u00c0 renforcer",
-  "checkInTotalLabel": "Total vers\u00e9"
+  "checkInTotalLabel": "Total vers\u00e9",
+  "profileUpdatedSnackbar": "Profil mis\u00a0\u00e0 jour",
+  "profileUpdateErrorSnackbar": "Mise \u00e0 jour du profil impossible. R\u00e9essaie depuis ton profil.",
+  "prefillBadgeTitle": "Valeur pr\u00e9-remplie",
+  "prefillBadgeSourceLabel": "Source",
+  "prefillSourceEstimated": "Estimation depuis ton profil MINT",
+  "prefillSourceUserInput": "Valeur que tu as d\u00e9clar\u00e9e \u00e0 MINT",
+  "prefillBadgePrecise": "Pr\u00e9ciser ce chiffre",
+  "calculatorNoPrefillBody": "Saisis les valeurs pour lancer le calcul. MINT compl\u00e9tera automatiquement les prochaines fois."
 }

@@ -21678,4 +21678,30 @@ class SIt extends S {
 
   @override
   String get checkInTotalLabel => 'Totale versato';
+
+  @override
+  String get profileUpdatedSnackbar => 'Profilo aggiornato';
+
+  @override
+  String get profileUpdateErrorSnackbar =>
+      'Aggiornamento profilo non riuscito. Riprova dal tuo profilo.';
+
+  @override
+  String get prefillBadgeTitle => 'Valore precompilato';
+
+  @override
+  String get prefillBadgeSourceLabel => 'Fonte';
+
+  @override
+  String get prefillSourceEstimated => 'Stima dal tuo profilo MINT';
+
+  @override
+  String get prefillSourceUserInput => 'Valore che hai dichiarato a MINT';
+
+  @override
+  String get prefillBadgePrecise => 'Precisare questo numero';
+
+  @override
+  String get calculatorNoPrefillBody =>
+      'Inserisci i valori per eseguire il calcolo. MINT li precompilerà automaticamente la prossima volta.';
 }

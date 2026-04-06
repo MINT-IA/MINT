@@ -213,6 +213,50 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     _heroController.forward(from: 0);
     setState(() {});
     _emitScreenReturn();
+    _writeBackResult();
+  }
+
+  /// Write back rachat simulation results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          rachatEffectue: profile.prevoyance.rachatEffectue,
+          projectedRenteLpp: result.delta > 0
+              ? null // Not projecting rente here, just marking interaction
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
   }
 
   void _emitScreenReturn() {

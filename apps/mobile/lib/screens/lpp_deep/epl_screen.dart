@@ -89,6 +89,48 @@ class _EplScreenState extends State<EplScreen> {
     }
   }
 
+  /// Write back EPL computed results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          avoirLppTotal: result.montantSouhaiteApplicable > 0
+              ? (_avoirTotal - result.montantSouhaiteApplicable).clamp(0, double.infinity)
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
   /// Apply prefill values from preceding sequence step.
   /// Mapping: montant_bien_cible → target property price (informational),
   /// montant_necessaire → fonds propres requis (can inform withdrawal amount).
@@ -340,7 +382,10 @@ class _EplScreenState extends State<EplScreen> {
             max: 500000,
             divisions: 96,
             format: 'CHF ${formatChf(_montantSouhaite)}',
-            onChanged: (v) => setState(() { _hasUserInteracted = true; _montantSouhaite = v; }),
+            onChanged: (v) {
+              setState(() { _hasUserInteracted = true; _montantSouhaite = v; });
+              WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+            },
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 

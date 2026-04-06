@@ -238,6 +238,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       );
     });
     if (!_hasUserInteracted) return;
+    _writeBackResult();
     if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final screenReturn = ScreenReturn.completed(
       route: '/pilier-3a',
@@ -248,6 +249,50 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       'simulator_3a',
       screenReturn,
     );
+  }
+
+  /// Write computed 3a simulation results back to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    final result = _result;
+    if (result == null) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      // Write back optimal 3a contribution to profile
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
+              ? profile.prevoyance.totalEpargne3a
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
   }
 
   @override

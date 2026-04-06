@@ -37958,6 +37958,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Total versé'**
   String get checkInTotalLabel;
+
+  /// No description provided for @profileUpdatedSnackbar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Profil mis à jour'**
+  String get profileUpdatedSnackbar;
+
+  /// No description provided for @profileUpdateErrorSnackbar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour du profil impossible. Réessaie depuis ton profil.'**
+  String get profileUpdateErrorSnackbar;
+
+  /// No description provided for @prefillBadgeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur pré-remplie'**
+  String get prefillBadgeTitle;
+
+  /// No description provided for @prefillBadgeSourceLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source'**
+  String get prefillBadgeSourceLabel;
+
+  /// No description provided for @prefillSourceEstimated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation depuis ton profil MINT'**
+  String get prefillSourceEstimated;
+
+  /// No description provided for @prefillSourceUserInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Valeur que tu as déclarée à MINT'**
+  String get prefillSourceUserInput;
+
+  /// No description provided for @prefillBadgePrecise.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préciser ce chiffre'**
+  String get prefillBadgePrecise;
+
+  /// No description provided for @calculatorNoPrefillBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisis les valeurs pour lancer le calcul. MINT complétera automatiquement les prochaines fois.'**
+  String get calculatorNoPrefillBody;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

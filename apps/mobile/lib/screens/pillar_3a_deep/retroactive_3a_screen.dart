@@ -43,6 +43,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   bool _hasLpp = true;
   bool _showEmptyState = false;
   final Set<String> _prefilledFields = {};
+  bool _hasUserInteracted = false;
 
   static const _taxRates = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50];
 
@@ -140,6 +141,51 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
       if (changed) setState(() {});
     } catch (_) {
       // Provider not available
+    }
+  }
+
+  /// Write back retroactive 3a calculation results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
+              ? profile.prevoyance.totalEpargne3a
+              : null,
+          projectedRenteLpp: result.economiesFiscales > 0
+              ? result.economiesFiscales
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
     }
   }
 
@@ -313,7 +359,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 return ChoiceChip(
                   label: Text('$year'),
                   selected: isSelected,
-                  onSelected: (_) => setState(() => _gapYears = year),
+                  onSelected: (_) {
+                    setState(() { _hasUserInteracted = true; _gapYears = year; });
+                    WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                  },
                   selectedColor: MintColors.primary.withValues(alpha: 0.15),
                   backgroundColor: MintColors.surface,
                   labelStyle: MintTextStyles.bodySmall(
@@ -369,7 +418,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                             ))
                         .toList(),
                     onChanged: (v) {
-                      if (v != null) setState(() => _tauxMarginal = v);
+                      if (v != null) {
+                        setState(() { _hasUserInteracted = true; _tauxMarginal = v; });
+                        WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                      }
                     },
                   ),
                 ),

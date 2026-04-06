@@ -131,6 +131,51 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
     if (changed) setState(() {});
   }
 
+  /// Write computed mortgage capacity back to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    try {
+      final result = _result;
+      final updated = profile.copyWith(
+        patrimoine: profile.patrimoine.copyWith(
+          mortgageCapacity: result.prixMaxAccessible > 0
+              ? result.prixMaxAccessible
+              : null,
+          estimatedMonthlyPayment: result.chargesTheoriquesMensuelles > 0
+              ? result.chargesTheoriquesMensuelles
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
   void _emitFinalReturn() {
     if (_finalReturnEmitted) return;
     if (_seqRunId == null || _seqStepId == null) return;
@@ -352,7 +397,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                                           ))
                                       .toList(),
                                   onChanged: (v) {
-                                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
+                                    if (v != null) {
+                                      setState(() { _hasUserInteracted = true; _canton = v; });
+                                      WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                                    }
                                   },
                                 ),
                               ),
@@ -367,7 +415,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                         label: l.affordabilityGrossIncome,
                         value: _revenuBrut,
                         fieldKey: 'revenu_brut',
-                        onChanged: (v) => setState(() { _hasUserInteracted = true; _revenuBrut = v; }),
+                        onChanged: (v) {
+                          setState(() { _hasUserInteracted = true; _revenuBrut = v; });
+                          WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                        },
                         min: 50000,
                         max: 300000,
                       ),
