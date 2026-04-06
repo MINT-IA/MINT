@@ -6,6 +6,7 @@ import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
+import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
@@ -442,19 +443,20 @@ class WidgetRenderer {
   /// [FinancialPlanProvider]), NOT from [call.input] (LLM output).
   /// Only [coachNarrative] may be sourced from [call.input['narrative']].
   ///
-  /// If no persisted plan is available yet (race condition on first generation),
-  /// falls back to constructing from [call.input] fields as a preview.
+  /// If no persisted plan exists yet, triggers [PlanGenerationService.generate()]
+  /// asynchronously via Future.microtask, persists via [FinancialPlanProvider.setPlan()],
+  /// and shows a fallback preview card while generation is in progress.
+  /// The chat rebuilds automatically when the provider notifies listeners.
   static Widget _buildPlanPreviewCard(
     BuildContext context,
     Map<String, dynamic> p,
   ) {
-    // Prefer persisted, calculator-backed plan (T-04-04)
     final planProvider =
         Provider.of<FinancialPlanProvider>(context, listen: false);
 
+    // ── 1. If a calculator-backed plan already exists, use it (T-04-04) ──
     if (planProvider.hasPlan) {
       final plan = planProvider.currentPlan!;
-      // Only coachNarrative may come from LLM call.input
       final narrative = p['narrative'] as String?;
       if (narrative != null && narrative.isNotEmpty) {
         return PlanPreviewCard.fromPlan(
@@ -464,23 +466,50 @@ class WidgetRenderer {
       return PlanPreviewCard.fromPlan(plan);
     }
 
-    // Fallback: construct from call.input when persisted plan not yet available
-    // (e.g. race condition on first generation). Numbers from LLM output are
-    // clearly labeled as "preview" via a short narrative prefix.
-    final fallbackMonthly =
-        (p['monthly_target'] as num?)?.toDouble() ?? 0.0;
-    final fallbackGoal = p['goal_description'] as String? ?? '';
-    final fallbackNarrative =
+    // ── 2. No plan yet — trigger generation via PlanGenerationService ──
+    final goal = p['goal'] as String? ?? p['goal_description'] as String? ?? '';
+    final narrative =
         p['narrative'] as String? ?? 'Plan en cours de calcul\u2026';
+    final monthlyAmount =
+        (p['monthly_amount'] as num?)?.toDouble() ??
+        (p['monthly_target'] as num?)?.toDouble() ??
+        0.0;
 
+    // Fire-and-forget: generate plan and persist. Provider will notify
+    // listeners, causing the chat to rebuild with the real plan.
+    try {
+      final profileProvider = context.read<CoachProfileProvider>();
+      final profile = profileProvider.profile;
+      if (profile != null) {
+        Future.microtask(() async {
+          try {
+            final plan = await PlanGenerationService.generate(
+              goalDescription: goal,
+              goalCategory: 'goal_general',
+              targetDate: DateTime.now().add(const Duration(days: 365)),
+              profile: profile,
+              coachNarrative: narrative,
+              goalAmount: monthlyAmount > 0 ? monthlyAmount * 12 : null,
+            );
+            planProvider.setPlan(plan);
+          } catch (_) {
+            // Generation failed — fallback card remains visible
+          }
+        });
+      }
+    } catch (_) {
+      // Profile provider not available — show fallback
+    }
+
+    // ── 3. Show fallback preview while generation is in progress ──
     return PlanPreviewCard(
-      goalDescription: fallbackGoal,
-      monthlyTarget: fallbackMonthly,
+      goalDescription: goal,
+      monthlyTarget: monthlyAmount,
       milestones: const [],
-      coachNarrative: fallbackNarrative,
+      coachNarrative: narrative,
       disclaimer:
-          'Outil éducatif — ne constitue pas un conseil financier (LSFin).',
-      projectedMid: fallbackMonthly * 12,
+          'Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier (LSFin).',
+      projectedMid: monthlyAmount * 12,
       confidenceLevel: 0,
     );
   }
