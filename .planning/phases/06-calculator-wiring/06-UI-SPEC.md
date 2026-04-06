@@ -68,7 +68,7 @@ Notes:
 - "Profil mis à jour" snackbar text uses `bodyMedium` (14px, Inter w400)
 - `SmartDefaultIndicator` badge uses existing `labelSmall` style — do not override
 - Prefill source explanation in bottom sheet uses `bodyMedium` (14px) for body text and `labelSmall` for metadata — existing `SmartDefaultIndicator` pattern, no new styling needed
-- Disclaimer footer uses `micro()` (10px italic, Inter w400)
+- Disclaimer footer uses existing `micro()` from `MintTextStyles` — this phase does not declare it as a new size
 
 ---
 
