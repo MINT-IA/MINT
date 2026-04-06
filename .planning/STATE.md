@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-04-06T15:43:48.716Z"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-04-06T16:28:34.819Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
+  total_plans: 16
+  completed_plans: 14
+  percent: 88
 ---
 
 # GSD State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-06)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight -- then knows exactly what to do next.
-**Current focus:** Phase 03 — Memoire Narrative
+**Current focus:** Phase 04 — Moteur d'Anticipation
 
 ## Current Position
 
-Phase: 03 (Memoire Narrative) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 04 (Moteur d'Anticipation) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 9
+- Total plans completed: 13
 - Average duration: --
 - Total execution time: --
 
@@ -81,6 +81,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 03-memoire-narrative]: hardDeleteFact for privacy screen delete (nLPD: user explicitly wants MINT to forget)
 - [Phase 03-04]: Lazy repository init in BiographyProvider avoids async constructor requirement for MultiProvider registration
 - [Phase 03-04]: _SqfliteDatabase adapter bridges sqflite.Database to abstract BiographyDatabase interface
+- [Phase 04-moteur-danticipation]: AnticipationEngine follows NudgeEngine pure-static pattern (private ctor, static evaluate, injectable DateTime)
+- [Phase 04-moteur-danticipation]: Cantonal tax deadlines: 26 cantons, TI/NW/OW=April 30, others=March 31, fallback for unknown
+- [Phase 04-moteur-danticipation]: Salary increase dual threshold: >5% OR >2000 CHF; userEdit source filtered (correction vs real)
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T15:43:48.713Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-04-06T16:28:34.803Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
