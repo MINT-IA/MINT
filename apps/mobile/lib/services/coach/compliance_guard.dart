@@ -203,6 +203,57 @@ class ComplianceGuard {
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // Alert validation (layers 1-2 only)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Validate alert template text (non-LLM, deterministic).
+  ///
+  /// Runs banned-term + prescriptive checks only (layers 1-2).
+  /// Skips hallucination detection and disclaimer injection
+  /// (alerts include source refs per ANT-03 and are template-based,
+  /// not LLM-generated).
+  static ComplianceResult validateAlert(String alertText) {
+    final violations = <String>[];
+
+    // Pre-check: empty alert
+    if (alertText.trim().isEmpty) {
+      return const ComplianceResult(
+        isCompliant: false,
+        sanitizedText: '',
+        violations: ['Alerte vide'],
+        useFallback: true,
+      );
+    }
+
+    var text = alertText;
+
+    // Layer 1: Banned terms
+    final bannedFound = _checkBannedTerms(text);
+    if (bannedFound.isNotEmpty) {
+      violations.addAll(bannedFound.map((t) => "Terme interdit: '$t'"));
+      text = _sanitizeBannedTerms(text);
+    }
+
+    // Layer 2: Prescriptive language
+    final prescriptiveFound = _checkPrescriptive(text);
+    if (prescriptiveFound.isNotEmpty) {
+      violations.addAll(
+        prescriptiveFound.map((p) => "Langage prescriptif: '$p'"),
+      );
+    }
+
+    // Layers 3-4 intentionally skipped: alerts are template-based,
+    // not LLM-generated. No hallucination detection, no disclaimer injection.
+
+    return ComplianceResult(
+      isCompliant: violations.isEmpty,
+      sanitizedText: violations.isEmpty ? text : '',
+      violations: violations,
+      useFallback: violations.isNotEmpty,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // Main validation
   // ═══════════════════════════════════════════════════════════════
 
