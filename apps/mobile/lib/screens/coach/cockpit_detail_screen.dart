@@ -139,8 +139,10 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
         _baselineProjection = null;
       }
 
-      // Monte Carlo + Tornado (State A only, confidence >= 70%)
-      _computeMonteCarloAndTornado(_profile!);
+      // Monte Carlo + Tornado (State A only, confidence >= 70%) — async
+      _computeMonteCarloAndTornado(_profile!).then((_) {
+        if (mounted) setState(() {});
+      });
 
       // FRI + Plan tracking
       _computeFri(_profile!);
@@ -164,7 +166,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   //  MONTE CARLO + TORNADO COMPUTATION
   // ────────────────────────────────────────────────────────────
 
-  void _computeMonteCarloAndTornado(CoachProfile profile) {
+  Future<void> _computeMonteCarloAndTornado(CoachProfile profile) async {
     // Only compute for confidence >= 70%
     if (_confidenceScore < 70) {
       _monteCarloResult = null;
@@ -173,7 +175,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
     }
 
     try {
-      _monteCarloResult = MonteCarloProjectionService.simulate(
+      _monteCarloResult = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: profile.effectiveRetirementAge,
       );

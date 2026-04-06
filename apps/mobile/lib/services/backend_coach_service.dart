@@ -91,7 +91,7 @@ class BackendCoachService {
         // BudgetSnapshot context (optional — null if engine not yet available)
         if (budgetSnapshot != null) ...{
           'presentFree': budgetSnapshot.present.monthlyFree,
-          'retirementFree': budgetSnapshot.retirement?.monthlyFree,
+          'retirementFree': budgetSnapshot.retirement?.monthlyNet,
           'gap': budgetSnapshot.gap?.monthlyGap,
           'budgetConfidenceScore': budgetSnapshot.confidenceScore,
         },
