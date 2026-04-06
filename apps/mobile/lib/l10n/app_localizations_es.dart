@@ -22083,4 +22083,102 @@ class SEs extends S {
   String anticipationOverflowTitle(String count) {
     return '$count señales más';
   }
+
+  @override
+  String get ctxCoachOpenerFallback =>
+      'Bienvenido. Aquí tienes tu resumen financiero.';
+
+  @override
+  String ctxCoachOpenerSalary(String month) {
+    return 'Tu salario ha cambiado desde $month. Esto es lo que significa.';
+  }
+
+  @override
+  String ctxCoachOpenerDocument(String type) {
+    return 'Tu certificado $type afina tus proyecciones. Aquí está tu panel.';
+  }
+
+  @override
+  String ctxCoachOpener3aGap(String gap) {
+    return 'Podrías optimizar $gap CHF este año. ¿Lo miramos juntos?';
+  }
+
+  @override
+  String get ctxCoachOpenerProfile =>
+      'Unos datos más y MINT se vuelve realmente preciso.';
+
+  @override
+  String get ctxHeroStatLabel => 'Tu ingreso proyectado en la jubilación';
+
+  @override
+  String ctxHeroStatNarrative(String percent) {
+    return 'Es decir, $percent % de tu ingreso actual.';
+  }
+
+  @override
+  String get ctxHeroStat3aLabel =>
+      'Estás dejando dinero sobre la mesa en el pilar 3a';
+
+  @override
+  String ctxHeroStat3aNarrative(String monthly) {
+    return 'Son $monthly CHF/mes que podrías deducir.';
+  }
+
+  @override
+  String get ctxProgressTitle => 'Tu perfil se va precisando';
+
+  @override
+  String ctxProgressBody(String percent) {
+    return '$percent % de tus datos están al día.';
+  }
+
+  @override
+  String get ctxProgressBioTitle => 'Memoria financiera activa';
+
+  @override
+  String ctxProgressBioBody(String count) {
+    return 'MINT conoce $count elementos de tu historial financiero.';
+  }
+
+  @override
+  String get ctxActionScanTitle => 'Escanear un documento';
+
+  @override
+  String get ctxActionScanBody =>
+      'Un certificado LPP o de salario afina tus proyecciones.';
+
+  @override
+  String get ctxActionProfileTitle => 'Completar tu perfil';
+
+  @override
+  String get ctxActionProfileBody =>
+      'Unos datos más para proyecciones fiables.';
+
+  @override
+  String get ctxSeeMore => 'Ver más';
+
+  @override
+  String get ctxSeeLess => 'Ver menos';
+
+  @override
+  String ctxOverflowCount(String count) {
+    return '$count elemento(s) adicional(es)';
+  }
+
+  @override
+  String get ctxEmptyHeading => 'Nada nuevo por ahora';
+
+  @override
+  String get ctxEmptyBody =>
+      'Sigue enriqueciendo tu perfil para que MINT pueda orientarte en el momento adecuado.';
+
+  @override
+  String get ctxEmptyCta => 'Escanear un documento';
+
+  @override
+  String get ctxHeroStatProfileLabel => 'Tu perfil MINT';
+
+  @override
+  String get ctxHeroStatProfileNarrative =>
+      'Cuanto más completo tu perfil, más preciso será MINT.';
 }

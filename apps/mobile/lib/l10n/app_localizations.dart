@@ -38762,6 +38762,156 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{count} autres signaux'**
   String anticipationOverflowTitle(String count);
+
+  /// No description provided for @ctxCoachOpenerFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue. Voici ton aperçu financier.'**
+  String get ctxCoachOpenerFallback;
+
+  /// No description provided for @ctxCoachOpenerSalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire a progressé depuis {month}. Voici ce que cela change.'**
+  String ctxCoachOpenerSalary(String month);
+
+  /// No description provided for @ctxCoachOpenerDocument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton certificat {type} affine tes projections. Voici ton tableau de bord.'**
+  String ctxCoachOpenerDocument(String type);
+
+  /// No description provided for @ctxCoachOpener3aGap.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pourrais optimiser {gap} CHF cette année. On regarde ensemble ?'**
+  String ctxCoachOpener3aGap(String gap);
+
+  /// No description provided for @ctxCoachOpenerProfile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques données de plus et MINT devient vraiment précis.'**
+  String get ctxCoachOpenerProfile;
+
+  /// No description provided for @ctxHeroStatLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton revenu projeté à la retraite'**
+  String get ctxHeroStatLabel;
+
+  /// No description provided for @ctxHeroStatNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soit {percent} % de ton revenu actuel.'**
+  String ctxHeroStatNarrative(String percent);
+
+  /// No description provided for @ctxHeroStat3aLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu laisses de l\'argent sur la table en 3a'**
+  String get ctxHeroStat3aLabel;
+
+  /// No description provided for @ctxHeroStat3aNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Soit {monthly} CHF/mois que tu pourrais déduire.'**
+  String ctxHeroStat3aNarrative(String monthly);
+
+  /// No description provided for @ctxProgressTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil se précise'**
+  String get ctxProgressTitle;
+
+  /// No description provided for @ctxProgressBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{percent} % de tes données sont à jour.'**
+  String ctxProgressBody(String percent);
+
+  /// No description provided for @ctxProgressBioTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mémoire financière active'**
+  String get ctxProgressBioTitle;
+
+  /// No description provided for @ctxProgressBioBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT connaît {count} éléments de ton histoire financière.'**
+  String ctxProgressBioBody(String count);
+
+  /// No description provided for @ctxActionScanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un document'**
+  String get ctxActionScanTitle;
+
+  /// No description provided for @ctxActionScanBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un certificat LPP ou de salaire affine tes projections.'**
+  String get ctxActionScanBody;
+
+  /// No description provided for @ctxActionProfileTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter ton profil'**
+  String get ctxActionProfileTitle;
+
+  /// No description provided for @ctxActionProfileBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelques informations de plus pour des projections fiables.'**
+  String get ctxActionProfileBody;
+
+  /// No description provided for @ctxSeeMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir plus'**
+  String get ctxSeeMore;
+
+  /// No description provided for @ctxSeeLess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir moins'**
+  String get ctxSeeLess;
+
+  /// No description provided for @ctxOverflowCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} élément(s) supplémentaire(s)'**
+  String ctxOverflowCount(String count);
+
+  /// No description provided for @ctxEmptyHeading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien de nouveau pour l\'instant'**
+  String get ctxEmptyHeading;
+
+  /// No description provided for @ctxEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continue à enrichir ton profil pour que MINT puisse t\'éclairer au bon moment.'**
+  String get ctxEmptyBody;
+
+  /// No description provided for @ctxEmptyCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner un document'**
+  String get ctxEmptyCta;
+
+  /// No description provided for @ctxHeroStatProfileLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil MINT'**
+  String get ctxHeroStatProfileLabel;
+
+  /// No description provided for @ctxHeroStatProfileNarrative.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus ton profil est complet, plus MINT est précis.'**
+  String get ctxHeroStatProfileNarrative;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

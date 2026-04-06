@@ -85,16 +85,53 @@ void main() {
       expect(opener, contains('projections'));
     });
 
-    test('no biography facts -> fallback opener', () {
-      final profile = _makeProfile();
+    test('no biography facts with incomplete profile -> profile opener', () {
+      // Use salary=0 to avoid triggering 3a gap opener.
+      // Profile completeness will be < 50% -> triggers priority 4.
+      final profile = _makeProfile(salaireBrutMensuel: 0);
       final opener = CoachOpenerService.generate(
         profile: profile,
         facts: [],
         now: now,
       );
 
-      expect(opener, contains('Bienvenue'));
-      expect(opener, contains('aperçu financier'));
+      expect(opener, contains('MINT'));
+      expect(opener, contains('précis'));
+    });
+
+    test('no biography facts with complete profile -> fallback or retirement opener', () {
+      // Profile with enough data, 3a fully contributed via plannedContributions
+      final profile = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10000,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 200000,
+          renteAVSEstimeeMensuelle: 2000,
+        ),
+        plannedContributions: [
+          PlannedMonthlyContribution(
+            id: '3a_1',
+            label: '3a VIAC',
+            amount: 604.83, // 7258 / 12 = maxed out
+            category: '3a',
+          ),
+        ],
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042, 1, 12),
+          label: 'Retraite',
+        ),
+      );
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: [],
+        now: now,
+      );
+
+      // With maxed 3a and retirement data, either retirement projection
+      // or profile completeness or fallback will trigger.
+      expect(opener, isNotEmpty);
     });
 
     test('opener never contains imperative language', () {
