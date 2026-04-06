@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-03-PLAN.md
-last_updated: "2026-04-06T12:25:48.114Z"
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-04-06T13:09:52.451Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # GSD State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 ## Current Position
 
 Phase: 01 (Le Parcours Parfait) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-04-06
 
@@ -60,6 +60,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 01-le-parcours-parfait]: Onboarding completion flag moved from intent_screen to plan_screen (end of pipeline)
 - [Phase 01-le-parcours-parfait]: 4-layer engine always included in coach prompt; firstJob context is conditional
 - [Phase 01-le-parcours-parfait]: CoachContext.intent field added for intent-based system prompt customization
+- [Phase 01-le-parcours-parfait]: Apple identity token MVP verification (issuer+expiry); production requires Apple JWKS validation
+- [Phase 01-le-parcours-parfait]: Auto-create user on Apple Sign-In verify (same frictionless pattern as magic link)
 
 ### Pending Todos
 
@@ -73,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T12:25:48.111Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-04-06T13:09:52.448Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None

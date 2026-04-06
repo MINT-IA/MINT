@@ -30,7 +30,7 @@ Plans:
 - [x] 01-02-PLAN.md -- Magic link auth backend + login screen redesign + post-auth routing
 - [x] 01-03-PLAN.md -- Onboarding pipeline wiring (intent -> quick_start -> chiffre_choc -> plan -> coach) + 4-layer engine
 - [ ] 01-04-PLAN.md -- Lea golden path integration test
-- [ ] 01-05-PLAN.md -- Apple Sign-In (iOS secondary auth method)
+- [x] 01-05-PLAN.md -- Apple Sign-In (iOS secondary auth method)
 **UI hint**: yes
 
 ### Phase 2: Intelligence Documentaire
