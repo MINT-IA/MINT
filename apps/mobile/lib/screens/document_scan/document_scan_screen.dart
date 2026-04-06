@@ -645,6 +645,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         warnings: const [],
         disclaimer: visionDisclaimer,
         sources: const ['Claude Vision API'],
+        planType: response['planType'] as String?,
+        planTypeWarning: response['planTypeWarning'] as String?,
+        coherenceWarnings: (response['coherenceWarnings'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ?? const [],
       );
     } on DocumentServiceException catch (e) {
       // 422: non-financial document detected by backend (DOC-10)

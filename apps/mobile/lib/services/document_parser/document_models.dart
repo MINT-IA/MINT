@@ -250,6 +250,15 @@ class ExtractionResult {
   /// Legal sources referenced.
   final List<String> sources;
 
+  /// LPP plan type detected by backend (legal, surobligatoire, 1e).
+  final String? planType;
+
+  /// Warning text when plan type is 1e (no guaranteed conversion rate).
+  final String? planTypeWarning;
+
+  /// Cross-field coherence warnings from backend validation.
+  final List<String> coherenceWarnings;
+
   const ExtractionResult({
     required this.documentType,
     required this.fields,
@@ -258,6 +267,9 @@ class ExtractionResult {
     required this.warnings,
     required this.disclaimer,
     required this.sources,
+    this.planType,
+    this.planTypeWarning,
+    this.coherenceWarnings = const [],
   });
 
   /// Fields that need user review (confidence < 80%).

@@ -34,6 +34,25 @@ class ExtractionReviewScreen extends StatefulWidget {
 }
 
 class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
+  /// Per-field confidence thresholds (DOC-03).
+  /// Salary fields require >= 0.90, LPP capital fields require >= 0.95.
+  static const _fieldThresholds = <String, double>{
+    'salaireBrutAnnuel': 0.90,
+    'salaireBrutMensuel': 0.90,
+    'avoirLppTotal': 0.95,
+    'avoirLppObligatoire': 0.95,
+    'avoirLppSurobligatoire': 0.95,
+    'tauxConversion': 0.95,
+    'rachatMaximum': 0.90,
+    'salaireAssure': 0.90,
+    // Default for unlisted fields: 0.80
+  };
+
+  /// Get the confidence threshold for a specific field.
+  static double _thresholdFor(String fieldName) {
+    return _fieldThresholds[fieldName] ?? 0.80;
+  }
+
   late List<ExtractedField> _fields;
   late double _overallConfidence;
 
@@ -62,6 +81,14 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 const SizedBox(height: 8),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildOverallConfidenceBadge()),
                 const SizedBox(height: 20),
+                if (widget.result.planTypeWarning != null) ...[
+                  _buildLpp1eWarning(),
+                  const SizedBox(height: 8),
+                ],
+                if (widget.result.coherenceWarnings.isNotEmpty) ...[
+                  _buildCoherenceWarnings(),
+                  const SizedBox(height: 8),
+                ],
                 if (widget.result.warnings.isNotEmpty) ...[
                   _buildWarnings(),
                   const SizedBox(height: 20),
@@ -196,95 +223,179 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
     );
   }
 
+  // ── LPP 1e plan type warning (DOC-04) ────────────────────
+
+  Widget _buildLpp1eWarning() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              S.of(context)!.docLpp1eWarning,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Cross-field coherence warnings (DOC-05) ─────────────
+
+  Widget _buildCoherenceWarnings() {
+    return Column(
+      children: widget.result.coherenceWarnings.map((w) {
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: MintColors.warning.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  w,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+
   // ── Field card ───────────────────────────────────────────
 
   Widget _buildFieldCard(ExtractedField field) {
     final confidencePct = (field.confidence * 100).round();
+    final threshold = _thresholdFor(field.fieldName);
+    final bool isAboveThreshold = field.confidence >= threshold;
+    final bool isMedium = !isAboveThreshold && field.confidence >= 0.70;
+    final bool isLow = !isAboveThreshold && !isMedium;
+
     final Color badgeColor;
     final IconData statusIcon;
 
-    switch (field.confidenceLevel) {
-      case ConfidenceLevel.high:
-        badgeColor = MintColors.success;
-        statusIcon = Icons.check_circle;
-      case ConfidenceLevel.medium:
-        badgeColor = MintColors.warning;
-        statusIcon = Icons.warning_amber;
-      case ConfidenceLevel.low:
-        badgeColor = MintColors.error;
-        statusIcon = Icons.error_outline;
+    if (isAboveThreshold) {
+      badgeColor = MintColors.success;
+      statusIcon = Icons.check_circle;
+    } else if (isMedium) {
+      badgeColor = MintColors.warning;
+      statusIcon = Icons.warning_amber_outlined;
+    } else {
+      badgeColor = MintColors.error;
+      statusIcon = Icons.error_outline;
     }
 
-    return MintSurface(
-      padding: const EdgeInsets.all(16),
-      radius: 14,
-      elevated: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: label + confidence badge
-          Row(
-            children: [
-              Icon(statusIcon, size: 18, color: badgeColor),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  field.label,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
-                ),
-              ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: badgeColor.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '$confidencePct%',
-                  style: MintTextStyles.micro(color: badgeColor).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
+    // Don't display backend fallback source text
+    final hasSourceText = field.sourceText.isNotEmpty &&
+        field.sourceText != '[non fourni par l\'extraction]';
 
-          // Value row
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  _formatValue(field),
-                  style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
-                ),
-              ),
-              // Edit button
-              IconButton(
-                onPressed: () => _editField(field),
-                icon: const Icon(Icons.edit_outlined, size: 20),
-                color: MintColors.textMuted,
-                tooltip: S.of(context)!.extractionReviewEditTooltip,
-                style: IconButton.styleFrom(
-                  backgroundColor: MintColors.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: isLow
+            ? Border.all(color: MintColors.error.withValues(alpha: 0.3), width: 1.5)
+            : null,
+      ),
+      child: MintSurface(
+        padding: const EdgeInsets.all(16),
+        radius: 14,
+        elevated: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row: label + confidence badge
+            Row(
+              children: [
+                Icon(statusIcon, size: 18, color: badgeColor),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    field.label,
+                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: badgeColor.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '$confidencePct%',
+                    style: MintTextStyles.micro(color: badgeColor).copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // Value row
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _formatValue(field),
+                    style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
+                  ),
+                ),
+                // Edit button
+                IconButton(
+                  onPressed: () => _editField(field),
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  color: MintColors.textMuted,
+                  tooltip: S.of(context)!.extractionReviewEditTooltip,
+                  style: IconButton.styleFrom(
+                    backgroundColor: MintColors.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            // Red field: verification prompt (DOC-03)
+            if (isLow) ...[
+              const SizedBox(height: 6),
+              Text(
+                S.of(context)!.docFieldVerify,
+                style: MintTextStyles.bodyMedium(color: MintColors.error),
               ),
             ],
-          ),
 
-          // Source text (small, muted)
-          if (field.sourceText.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(
-              S.of(context)!.extractionReviewSourcePrefix(_truncateSource(field.sourceText)),
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            // Source text display (DOC-09)
+            if (hasSourceText) ...[
+              const SizedBox(height: 6),
+              Text(
+                '${S.of(context)!.docSourcePrefix}${_truncateSource(field.sourceText)}',
+                style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.italic),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -294,7 +405,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
   Widget _buildConfirmButton() {
     return Semantics(
       button: true,
-      label: S.of(context)!.extractionReviewConfirmAll,
+      label: S.of(context)!.docReviewConfirm,
       child: SizedBox(
         width: double.infinity,
         height: 56,
@@ -302,7 +413,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           onPressed: _onConfirmAll,
         icon: const Icon(Icons.check_circle_outline, size: 22),
         label: Text(
-          S.of(context)!.extractionReviewConfirmAll,
+          S.of(context)!.docReviewConfirm,
           style: MintTextStyles.titleMedium(color: MintColors.white),
         ),
         style: FilledButton.styleFrom(
@@ -501,6 +612,9 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       warnings: widget.result.warnings,
       disclaimer: widget.result.disclaimer,
       sources: widget.result.sources,
+      planType: widget.result.planType,
+      planTypeWarning: widget.result.planTypeWarning,
+      coherenceWarnings: widget.result.coherenceWarnings,
     );
 
     // ── Persist extraction data to CoachProfile ──
