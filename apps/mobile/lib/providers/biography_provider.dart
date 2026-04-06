@@ -22,14 +22,22 @@ import 'package:mint_mobile/services/biography/freshness_decay_service.dart';
 /// Wraps [BiographyRepository] with cached state and
 /// freshness-aware filtered views.
 class BiographyProvider extends ChangeNotifier {
-  final BiographyRepository _repository;
+  BiographyRepository? _repository;
 
   List<BiographyFact> _facts = [];
   bool _isLoading = false;
   String? _error;
 
-  BiographyProvider({required BiographyRepository repository})
+  /// Create with an existing repository (for testing or pre-initialized).
+  /// If [repository] is null, lazily initializes via [BiographyRepository.instance()].
+  BiographyProvider({BiographyRepository? repository})
       : _repository = repository;
+
+  /// Lazily initialize the repository if not yet set.
+  Future<BiographyRepository> _getRepository() async {
+    _repository ??= await BiographyRepository.instance();
+    return _repository!;
+  }
 
   // ── Getters ──────────────────────────────────────────────────
 
@@ -112,7 +120,8 @@ class BiographyProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _facts = await _repository.getActiveFacts();
+      final repo = await _getRepository();
+      _facts = await repo.getActiveFacts();
     } catch (e) {
       _error = 'Failed to load biography: $e';
       debugPrint('[BiographyProvider] $e');
@@ -125,7 +134,8 @@ class BiographyProvider extends ChangeNotifier {
   /// Add a new fact to the biography.
   Future<void> addFact(BiographyFact fact) async {
     try {
-      await _repository.insertFact(fact);
+      final repo = await _getRepository();
+      await repo.insertFact(fact);
       await loadFacts();
     } catch (e) {
       _error = 'Failed to add fact: $e';
@@ -137,7 +147,8 @@ class BiographyProvider extends ChangeNotifier {
   /// Update a fact's value (sets source to userEdit automatically).
   Future<void> updateFactValue(String id, String newValue) async {
     try {
-      await _repository.updateFact(id, newValue);
+      final repo = await _getRepository();
+      await repo.updateFact(id, newValue);
       await loadFacts();
     } catch (e) {
       _error = 'Failed to update fact: $e';
@@ -149,7 +160,8 @@ class BiographyProvider extends ChangeNotifier {
   /// Soft-delete a fact (remains in DB but hidden from active queries).
   Future<void> deleteFact(String id) async {
     try {
-      await _repository.softDeleteFact(id);
+      final repo = await _getRepository();
+      await repo.softDeleteFact(id);
       await loadFacts();
     } catch (e) {
       _error = 'Failed to delete fact: $e';
@@ -161,7 +173,8 @@ class BiographyProvider extends ChangeNotifier {
   /// Permanently delete a fact (GDPR/nLPD privacy screen).
   Future<void> hardDeleteFact(String id) async {
     try {
-      await _repository.hardDeleteFact(id);
+      final repo = await _getRepository();
+      await repo.hardDeleteFact(id);
       await loadFacts();
     } catch (e) {
       _error = 'Failed to hard-delete fact: $e';
