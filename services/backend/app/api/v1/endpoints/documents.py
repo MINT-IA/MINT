@@ -12,11 +12,12 @@ are kept in the database.
 """
 
 import hashlib
+import json
 import logging
 import os
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.orm import Session
@@ -27,9 +28,15 @@ from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.document import DocumentModel
 from app.models.user import User
+from anthropic import Anthropic
+
+from app.core.config import settings
 from app.schemas.document_scan import (
     DocumentScanConfirmation,
     DocumentScanResponse,
+    ExtractedFieldConfirmation,
+    PremierEclairageRequest,
+    PremierEclairageResponse,
     VisionExtractionRequest,
     VisionExtractionResponse,
 )
@@ -174,8 +181,183 @@ def _index_in_rag(doc_id: str, extracted_fields: dict, document_type: str) -> bo
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# Premier Eclairage — 4-layer insight engine for documents (DOC-07)
+# ──────────────────────────────────────────────────────────────────────────────
+
+_DOCUMENT_SOURCES_MAP = {
+    "lpp_certificate": ["LPP art. 14-16 (taux de conversion, bonifications)", "OPP2 (prevoyance professionnelle)"],
+    "avs_extract": ["LAVS art. 21-40 (rentes de vieillesse)", "RAVS (reglement AVS)"],
+    "tax_declaration": ["LIFD art. 38 (impot sur le capital)", "LHID (harmonisation fiscale)"],
+    "salary_certificate": ["LAVS art. 5 (cotisations)", "LPP art. 7-8 (salaire coordonne)"],
+    "payslip": ["LAVS art. 5 (cotisations)", "CO art. 322 (obligations de l'employeur)"],
+    "lpp_plan": ["LPP art. 14-16", "OPP2 art. 5 (EPL)"],
+    "pillar_3a_attestation": ["OPP3 art. 1-7 (3e pilier)", "LIFD art. 33 (deductions)"],
+    "insurance_contract": ["LAMal (assurance maladie)", "LCA (contrat d'assurance)"],
+}
+
+_DISCLAIMER_TEXT = (
+    "Outil educatif. Ne constitue pas un conseil financier au sens de la LSFin. "
+    "Pour une analyse adaptee a ta situation, consulte un\u00b7e specialiste."
+)
+
+_PREMIER_ECLAIRAGE_SYSTEM_PROMPT = """\
+Tu es Mint, l'intelligence financiere suisse. Tu viens d'analyser un {document_type} \
+pour un utilisateur{canton_clause}.
+
+MOTEUR 4 COUCHES — reponds en JSON strict avec ces 4 cles :
+1. "factual_extraction": Resume les faits cles extraits du document (montants, taux, dates). 2-3 phrases max.
+2. "human_translation": Explique en langage simple ce que ces chiffres signifient, sans jargon. 2-3 phrases max.
+3. "personal_perspective": Ce que cela implique concretement pour cet utilisateur (points forts, points d'attention, opportunites manquees). 2-3 phrases max.
+4. "questions_to_ask": Liste de 2-3 questions pertinentes que l'utilisateur devrait poser a sa caisse ou son employeur.
+
+DOCTRINE : Mint eclaire, Mint ne juge pas. Mint explicite le contrat. Mint dit 'voici ce que cela implique pour toi'.
+INTERDICTIONS : Pas de 'garanti', 'optimal', 'meilleur', 'sans risque'. Pas de conseil produit. Conditionnel ('pourrait', 'envisager').
+FORMAT : Reponds UNIQUEMENT en JSON valide, sans texte autour. Les valeurs sont des strings sauf questions_to_ask qui est une liste de strings.
+{plan_1e_context}
+DONNEES EXTRAITES DU DOCUMENT :
+{fields_context}
+"""
+
+
+def _build_fields_context(extracted_fields: List[ExtractedFieldConfirmation]) -> str:
+    """Build a text summary of extracted fields for the prompt."""
+    lines = []
+    for f in extracted_fields:
+        lines.append(f"- {f.field_name}: {f.value}")
+    return "\n".join(lines) if lines else "(aucun champ extrait)"
+
+
+def _build_fallback_response(
+    extracted_fields: List[ExtractedFieldConfirmation],
+    document_type: str,
+) -> PremierEclairageResponse:
+    """Build a graceful fallback response when Claude API fails."""
+    field_summary = ", ".join(
+        f"{f.field_name}: {f.value}" for f in extracted_fields[:5]
+    )
+    if not field_summary:
+        field_summary = "Aucun champ extrait"
+
+    sources = _DOCUMENT_SOURCES_MAP.get(document_type, ["Droit suisse applicable"])
+
+    return PremierEclairageResponse(
+        factual_extraction=f"Donnees extraites de ton document : {field_summary}.",
+        human_translation="Ton profil a ete enrichi avec les informations de ce document.",
+        personal_perspective="Consulte l'onglet Explorer pour voir comment ces donnees impactent ta situation.",
+        questions_to_ask=["Verifie que les montants correspondent a ton dernier releve."],
+        disclaimer=_DISCLAIMER_TEXT,
+        sources=sources,
+    )
+
+
+def generate_document_insight(
+    document_type,
+    extracted_fields: List[ExtractedFieldConfirmation],
+    canton: Optional[str] = None,
+    plan_type: Optional[str] = None,
+) -> PremierEclairageResponse:
+    """Generate a 4-layer premier eclairage from extracted document data.
+
+    Uses Claude API with the MINT 4-layer insight engine pattern.
+    Falls back to a safe summary if the API call fails.
+
+    Args:
+        document_type: Type of document (DocumentType enum or string).
+        extracted_fields: List of extracted field confirmations.
+        canton: User's canton for regional context.
+        plan_type: LPP plan type (legal, surobligatoire, 1e).
+
+    Returns:
+        PremierEclairageResponse with all 4 layers, disclaimer, and sources.
+    """
+    doc_type_str = document_type.value if hasattr(document_type, "value") else str(document_type)
+
+    # Check API key availability
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        logger.warning("No ANTHROPIC_API_KEY for premier eclairage, returning fallback")
+        return _build_fallback_response(extracted_fields, doc_type_str)
+
+    # Build prompt context
+    canton_clause = f" du canton {canton}" if canton else ""
+    plan_1e_context = ""
+    if plan_type and plan_type.lower() in ("1e", "plan_1e"):
+        plan_1e_context = (
+            "ATTENTION : Plan 1e detecte. Pas de taux de conversion garanti. "
+            "Projections en capital uniquement. Ne mentionne pas de rente mensuelle estimee.\n"
+        )
+
+    fields_context = _build_fields_context(extracted_fields)
+
+    system_prompt = _PREMIER_ECLAIRAGE_SYSTEM_PROMPT.format(
+        document_type=doc_type_str,
+        canton_clause=canton_clause,
+        plan_1e_context=plan_1e_context,
+        fields_context=fields_context,
+    )
+
+    try:
+        client = Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=settings.COACH_MODEL,
+            max_tokens=800,
+            timeout=30.0,
+            messages=[
+                {
+                    "role": "user",
+                    "content": system_prompt,
+                }
+            ],
+        )
+
+        raw_text = response.content[0].text
+        parsed = json.loads(raw_text)
+
+        sources = _DOCUMENT_SOURCES_MAP.get(doc_type_str, ["Droit suisse applicable"])
+
+        return PremierEclairageResponse(
+            factual_extraction=parsed.get("factual_extraction", ""),
+            human_translation=parsed.get("human_translation", ""),
+            personal_perspective=parsed.get("personal_perspective", ""),
+            questions_to_ask=parsed.get("questions_to_ask", []),
+            disclaimer=_DISCLAIMER_TEXT,
+            sources=sources,
+        )
+
+    except Exception as e:
+        logger.warning("Premier eclairage generation failed: %s", e)
+        return _build_fallback_response(extracted_fields, doc_type_str)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Endpoints
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+@router.post("/premier-eclairage", response_model=PremierEclairageResponse)
+@limiter.limit("5/minute")
+async def document_premier_eclairage(
+    body: PremierEclairageRequest,
+    request: Request,
+    _user: User = Depends(require_current_user),
+):
+    """Generate a 4-layer premier eclairage from extracted document data (DOC-07).
+
+    Called after document extraction and user confirmation to produce a
+    personalized insight using the MINT 4-layer insight engine:
+    1. Factual extraction (what the document says)
+    2. Human translation (plain language)
+    3. Personal perspective (what it means for the user)
+    4. Questions to ask (before signing/acting)
+
+    Rate limited to 5/minute (heavier than extraction).
+    """
+    return generate_document_insight(
+        document_type=body.document_type,
+        extracted_fields=body.extracted_fields,
+        canton=body.canton,
+        plan_type=body.plan_type,
+    )
 
 
 @router.post("/upload", response_model=DocumentUploadResponse)

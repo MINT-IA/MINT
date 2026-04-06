@@ -144,6 +144,79 @@ class VisionExtractionRequest(BaseModel):
     )
 
 
+class PremierEclairageRequest(BaseModel):
+    """Request for document-specific premier eclairage generation (DOC-07).
+
+    After document extraction, sends extracted fields to generate a
+    personalized 4-layer insight using the MINT insight engine.
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    document_type: DocumentType
+    extracted_fields: List[ExtractedFieldConfirmation]
+    overall_confidence: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Overall extraction confidence (0-1)",
+    )
+    plan_type: Optional[str] = Field(
+        None,
+        description="LPP plan type: legal, surobligatoire, 1e",
+    )
+    plan_type_warning: Optional[str] = Field(
+        None,
+        description="Warning for 1e plans",
+    )
+    canton: Optional[str] = Field(
+        None,
+        description="User's canton for regional context",
+    )
+
+
+class PremierEclairageResponse(BaseModel):
+    """Response with 4-layer premier eclairage from document data (DOC-07).
+
+    Structure follows the MINT 4-layer insight engine:
+    1. Factual extraction (what the document says)
+    2. Human translation (what it means in plain language)
+    3. Personal perspective (what it implies for YOU)
+    4. Questions to ask (before signing/acting)
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    factual_extraction: str = Field(
+        ...,
+        description="Layer 1: key facts extracted from the document",
+    )
+    human_translation: str = Field(
+        ...,
+        description="Layer 2: plain language explanation, no jargon",
+    )
+    personal_perspective: str = Field(
+        ...,
+        description="Layer 3: what this implies for the user personally",
+    )
+    questions_to_ask: List[str] = Field(
+        ...,
+        description="Layer 4: questions to ask before signing/acting",
+    )
+    disclaimer: str = Field(
+        ...,
+        description="Mandatory LSFin disclaimer",
+    )
+    sources: List[str] = Field(
+        ...,
+        description="Legal references (LPP art. X, LIFD art. Y, etc.)",
+    )
+
+
 class VisionExtractionResponse(BaseModel):
     """Response from Claude Vision document extraction."""
     model_config = ConfigDict(

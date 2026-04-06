@@ -96,7 +96,7 @@ _MOCK_CLAUDE_JSON = json.dumps({
 class TestGenerateDocumentInsight:
     """Tests for the generate_document_insight() function."""
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_lpp_extraction_returns_all_4_layers(self, mock_anthropic_cls, mock_settings):
         """Test 1: LPP extraction data returns PremierEclairageResponse with all 4 layers."""
@@ -120,7 +120,7 @@ class TestGenerateDocumentInsight:
         assert result.personal_perspective
         assert len(result.questions_to_ask) >= 1
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_salary_returns_income_mention(self, mock_anthropic_cls, mock_settings):
         """Test 2: Salary certificate data returns insight mentioning salary/income."""
@@ -146,7 +146,7 @@ class TestGenerateDocumentInsight:
 
         assert "salaire" in result.factual_extraction.lower() or "122" in result.factual_extraction
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_1e_plan_includes_capital_warning_context(self, mock_anthropic_cls, mock_settings):
         """Test 3: 1e plan type includes capital-only warning context in prompt."""
@@ -171,7 +171,7 @@ class TestGenerateDocumentInsight:
         prompt_text = str(messages)
         assert "1e" in prompt_text.lower()
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_returns_disclaimer_with_lsfin(self, mock_anthropic_cls, mock_settings):
         """Test 4: Response includes disclaimer field with LSFin mention."""
@@ -191,7 +191,7 @@ class TestGenerateDocumentInsight:
 
         assert "LSFin" in result.disclaimer or "lsfin" in result.disclaimer.lower()
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_returns_sources_with_legal_refs(self, mock_anthropic_cls, mock_settings):
         """Test 5: Response includes sources field with legal references."""
@@ -213,7 +213,7 @@ class TestGenerateDocumentInsight:
         sources_text = " ".join(result.sources).lower()
         assert "lpp" in sources_text or "art" in sources_text
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_fallback_on_claude_failure(self, mock_anthropic_cls, mock_settings):
         """Test 7: Empty/failed Claude response returns graceful fallback insight."""
@@ -236,7 +236,7 @@ class TestGenerateDocumentInsight:
         assert result.factual_extraction  # Should have field summary
         assert result.disclaimer  # Always present
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_response_has_human_translation_personal_perspective_questions(
         self, mock_anthropic_cls, mock_settings
@@ -261,7 +261,7 @@ class TestGenerateDocumentInsight:
         assert hasattr(result, "questions_to_ask")
         assert isinstance(result.questions_to_ask, list)
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_prompt_includes_doctrine(self, mock_anthropic_cls, mock_settings):
         """Test 9: Prompt includes 'Mint eclaire, Mint ne juge pas' doctrine."""
@@ -284,7 +284,7 @@ class TestGenerateDocumentInsight:
         prompt_text = str(messages)
         assert "eclaire" in prompt_text.lower()
 
-    @patch("app.core.config.settings")
+    @patch("app.api.v1.endpoints.documents.settings")
     @patch("app.api.v1.endpoints.documents.Anthropic")
     def test_no_banned_terms_in_response(self, mock_anthropic_cls, mock_settings):
         """Test 10: Response complies with ComplianceGuard (no banned terms)."""
@@ -313,7 +313,7 @@ class TestGenerateDocumentInsight:
 
     def test_no_api_key_returns_fallback(self):
         """Test: Without API key, generate_document_insight returns fallback."""
-        with patch("app.core.config.settings") as mock_settings:
+        with patch("app.api.v1.endpoints.documents.settings") as mock_settings:
             mock_settings.ANTHROPIC_API_KEY = ""
             mock_settings.COACH_MODEL = "claude-sonnet-4-20250514"
 
