@@ -83,7 +83,7 @@ Plans:
 Plans:
 - [x] 04-01-PLAN.md -- AnticipationEngine core: trigger enum, signal model, 5 trigger types, cantonal deadlines, tests (ANT-01, ANT-02, ANT-03, ANT-08)
 - [x] 04-02-PLAN.md -- ComplianceGuard.validateAlert() + AnticipationPersistence (dismiss/snooze/weekly cap) + AnticipationRanking (ANT-04, ANT-05, ANT-06, ANT-07)
-- [ ] 04-03-PLAN.md -- UI wiring: AnticipationProvider + signal card widget + MintHomeScreen integration + i18n 6 languages (all ANT requirements)
+- [x] 04-03-PLAN.md -- UI wiring: AnticipationProvider + signal card widget + MintHomeScreen integration + i18n 6 languages (all ANT requirements)
 **UI hint**: yes
 
 ### Phase 5: Interface Contextuelle
