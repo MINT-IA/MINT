@@ -21795,4 +21795,19 @@ class SDe extends S {
 
   @override
   String get homeSignalEmptyState => 'Alles ist aktuell für den Moment.';
+
+  @override
+  String get explorerBlockedSheetTitle => 'Es fehlen noch ein paar Angaben';
+
+  @override
+  String explorerBlockedSheetBody(String field) {
+    return 'Um diesen Hub zu sehen, füge $field zu deinem Profil hinzu.';
+  }
+
+  @override
+  String get explorerBlockedSheetCta => 'Profil ergänzen';
+
+  @override
+  String get explorerPartialTooltip =>
+      'Einige Daten fehlen — ungefähre Schätzung';
 }

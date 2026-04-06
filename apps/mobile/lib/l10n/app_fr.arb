@@ -10454,5 +10454,16 @@
   "confidenceEnrichmentPrefix": "Pour aller plus loin\u00a0:",
   "confidenceLoadError": "Impossible de calculer la pr\u00e9cision. R\u00e9essaie dans un instant.",
   "confidenceLoadErrorRetry": "R\u00e9essayer",
-  "homeSignalEmptyState": "Tout est \u00e0 jour pour l\u2019instant."
+  "homeSignalEmptyState": "Tout est \u00e0 jour pour l\u2019instant.",
+  "explorerBlockedSheetTitle": "Il te manque quelques infos",
+  "explorerBlockedSheetBody": "Pour voir ce hub, ajoute {field} \u00e0 ton profil.",
+  "@explorerBlockedSheetBody": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "explorerBlockedSheetCta": "Compl\u00e9ter mon profil",
+  "explorerPartialTooltip": "Certaines donn\u00e9es manquent\u00a0\u2014 estimation approximative"
 }

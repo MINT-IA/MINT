@@ -21750,4 +21750,19 @@ class SFr extends S {
 
   @override
   String get homeSignalEmptyState => 'Tout est à jour pour l’instant.';
+
+  @override
+  String get explorerBlockedSheetTitle => 'Il te manque quelques infos';
+
+  @override
+  String explorerBlockedSheetBody(String field) {
+    return 'Pour voir ce hub, ajoute $field à ton profil.';
+  }
+
+  @override
+  String get explorerBlockedSheetCta => 'Compléter mon profil';
+
+  @override
+  String get explorerPartialTooltip =>
+      'Certaines données manquent — estimation approximative';
 }

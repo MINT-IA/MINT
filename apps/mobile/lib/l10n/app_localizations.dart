@@ -38192,6 +38192,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Tout est à jour pour l’instant.'**
   String get homeSignalEmptyState;
+
+  /// No description provided for @explorerBlockedSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te manque quelques infos'**
+  String get explorerBlockedSheetTitle;
+
+  /// No description provided for @explorerBlockedSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour voir ce hub, ajoute {field} à ton profil.'**
+  String explorerBlockedSheetBody(String field);
+
+  /// No description provided for @explorerBlockedSheetCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compléter mon profil'**
+  String get explorerBlockedSheetCta;
+
+  /// No description provided for @explorerPartialTooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certaines données manquent — estimation approximative'**
+  String get explorerPartialTooltip;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -21752,4 +21752,19 @@ class SEs extends S {
 
   @override
   String get homeSignalEmptyState => 'Todo está al día por ahora.';
+
+  @override
+  String get explorerBlockedSheetTitle => 'Te faltan algunos datos';
+
+  @override
+  String explorerBlockedSheetBody(String field) {
+    return 'Para ver este hub, añade $field a tu perfil.';
+  }
+
+  @override
+  String get explorerBlockedSheetCta => 'Completar mi perfil';
+
+  @override
+  String get explorerPartialTooltip =>
+      'Faltan algunos datos — estimación aproximada';
 }

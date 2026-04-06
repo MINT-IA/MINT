@@ -9938,5 +9938,16 @@
   "confidenceEnrichmentPrefix": "Um weiterzukommen\u00a0:",
   "confidenceLoadError": "Genauigkeit kann nicht berechnet werden. Versuch es gleich nochmal.",
   "confidenceLoadErrorRetry": "Erneut versuchen",
-  "homeSignalEmptyState": "Alles ist aktuell f\u00fcr den Moment."
+  "homeSignalEmptyState": "Alles ist aktuell f\u00fcr den Moment.",
+  "explorerBlockedSheetTitle": "Es fehlen noch ein paar Angaben",
+  "explorerBlockedSheetBody": "Um diesen Hub zu sehen, f\u00fcge {field} zu deinem Profil hinzu.",
+  "@explorerBlockedSheetBody": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "explorerBlockedSheetCta": "Profil erg\u00e4nzen",
+  "explorerPartialTooltip": "Einige Daten fehlen\u00a0\u2014 ungef\u00e4hre Sch\u00e4tzung"
 }
