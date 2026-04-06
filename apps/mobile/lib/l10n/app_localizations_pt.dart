@@ -22027,4 +22027,63 @@ class SPt extends S {
 
   @override
   String get drawerPrivacyControl => 'O que o MINT sabe sobre ti';
+
+  @override
+  String anticipation3aDeadlineTitle(String days) {
+    return 'Prazo 3a: $days dias restantes';
+  }
+
+  @override
+  String anticipation3aDeadlineFact(String limit, String year) {
+    return 'Ainda podes contribuir até $limit CHF para o teu 3º pilar antes de 31 de dezembro de $year. Cada ano não utilizado é perdido.';
+  }
+
+  @override
+  String anticipationTaxDeadlineTitle(String canton) {
+    return 'Declaração fiscal $canton';
+  }
+
+  @override
+  String anticipationTaxDeadlineFact(String canton, String deadline) {
+    return 'O prazo de entrega para o cantão de $canton é $deadline. Verifica se é possível um prolongamento.';
+  }
+
+  @override
+  String get anticipationLppRachatTitle => 'Janela de resgate LPP';
+
+  @override
+  String get anticipationLppRachatFact =>
+      'Um resgate do 2º pilar antes de 31 de dezembro é dedutível do teu rendimento tributável este ano.';
+
+  @override
+  String get anticipationSalaryIncreaseTitle => 'O teu salário aumentou';
+
+  @override
+  String anticipationSalaryIncreaseFact(String newMax) {
+    return 'Com um rendimento mais elevado, o teu teto 3a mantém-se em $newMax CHF. Ajustaste as tuas contribuições?';
+  }
+
+  @override
+  String anticipationAgeMilestoneTitle(String age) {
+    return 'Nova taxa LPP aos $age anos';
+  }
+
+  @override
+  String anticipationAgeMilestoneFact(String oldRate, String newRate) {
+    return 'A tua bonificação de velhice passa de $oldRate% para $newRate%. O teu empregador contribui mais para a tua previdência.';
+  }
+
+  @override
+  String get anticipationGotIt => 'Entendido';
+
+  @override
+  String get anticipationRemindLater => 'Mais tarde';
+
+  @override
+  String get anticipationLearnMore => 'Saber mais';
+
+  @override
+  String anticipationOverflowTitle(String count) {
+    return '$count outros sinais';
+  }
 }

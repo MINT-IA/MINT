@@ -38678,6 +38678,90 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ce que MINT sait de toi'**
   String get drawerPrivacyControl;
+
+  /// No description provided for @anticipation3aDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Délai 3a : {days} jours restants'**
+  String anticipation3aDeadlineTitle(String days);
+
+  /// No description provided for @anticipation3aDeadlineFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu peux encore verser jusqu\'à {limit} CHF sur ton 3e pilier avant le 31 décembre {year}. Chaque année non utilisée est perdue.'**
+  String anticipation3aDeadlineFact(String limit, String year);
+
+  /// No description provided for @anticipationTaxDeadlineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale {canton}'**
+  String anticipationTaxDeadlineTitle(String canton);
+
+  /// No description provided for @anticipationTaxDeadlineFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le délai de dépôt pour le canton de {canton} est le {deadline}. Pense à vérifier si une prolongation est possible.'**
+  String anticipationTaxDeadlineFact(String canton, String deadline);
+
+  /// No description provided for @anticipationLppRachatTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fenêtre de rachat LPP'**
+  String get anticipationLppRachatTitle;
+
+  /// No description provided for @anticipationLppRachatFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un rachat de 2e pilier avant le 31 décembre est déductible de ton revenu imposable cette année.'**
+  String get anticipationLppRachatFact;
+
+  /// No description provided for @anticipationSalaryIncreaseTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire a augmenté'**
+  String get anticipationSalaryIncreaseTitle;
+
+  /// No description provided for @anticipationSalaryIncreaseFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec un revenu plus élevé, ton plafond 3a reste à {newMax} CHF. As-tu ajusté tes versements ?'**
+  String anticipationSalaryIncreaseFact(String newMax);
+
+  /// No description provided for @anticipationAgeMilestoneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau taux LPP à {age} ans'**
+  String anticipationAgeMilestoneTitle(String age);
+
+  /// No description provided for @anticipationAgeMilestoneFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta bonification de vieillesse passe de {oldRate} % à {newRate} %. Ton employeur cotise davantage pour ta retraite.'**
+  String anticipationAgeMilestoneFact(String oldRate, String newRate);
+
+  /// No description provided for @anticipationGotIt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get anticipationGotIt;
+
+  /// No description provided for @anticipationRemindLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get anticipationRemindLater;
+
+  /// No description provided for @anticipationLearnMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'En savoir plus'**
+  String get anticipationLearnMore;
+
+  /// No description provided for @anticipationOverflowTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} autres signaux'**
+  String anticipationOverflowTitle(String count);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

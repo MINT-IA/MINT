@@ -22070,4 +22070,63 @@ class SDe extends S {
 
   @override
   String get drawerPrivacyControl => 'Was MINT über dich weiss';
+
+  @override
+  String anticipation3aDeadlineTitle(String days) {
+    return '3a-Frist: noch $days Tage';
+  }
+
+  @override
+  String anticipation3aDeadlineFact(String limit, String year) {
+    return 'Du kannst noch bis zu $limit CHF in deine Säule 3a einzahlen, bevor der 31. Dezember $year kommt. Jedes ungenutzte Jahr ist verloren.';
+  }
+
+  @override
+  String anticipationTaxDeadlineTitle(String canton) {
+    return 'Steuererklärung $canton';
+  }
+
+  @override
+  String anticipationTaxDeadlineFact(String canton, String deadline) {
+    return 'Die Einreichungsfrist für den Kanton $canton ist der $deadline. Prüfe, ob eine Verlängerung möglich ist.';
+  }
+
+  @override
+  String get anticipationLppRachatTitle => 'BVG-Einkaufsfenster';
+
+  @override
+  String get anticipationLppRachatFact =>
+      'Ein Einkauf in die 2. Säule vor dem 31. Dezember ist von deinem steuerbaren Einkommen abziehbar.';
+
+  @override
+  String get anticipationSalaryIncreaseTitle => 'Dein Lohn ist gestiegen';
+
+  @override
+  String anticipationSalaryIncreaseFact(String newMax) {
+    return 'Mit einem höheren Einkommen bleibt dein 3a-Plafond bei $newMax CHF. Hast du deine Einzahlungen angepasst?';
+  }
+
+  @override
+  String anticipationAgeMilestoneTitle(String age) {
+    return 'Neuer BVG-Satz ab $age Jahren';
+  }
+
+  @override
+  String anticipationAgeMilestoneFact(String oldRate, String newRate) {
+    return 'Deine Altersgutschrift steigt von $oldRate% auf $newRate%. Dein Arbeitgeber zahlt jetzt mehr in deine Vorsorge ein.';
+  }
+
+  @override
+  String get anticipationGotIt => 'Verstanden';
+
+  @override
+  String get anticipationRemindLater => 'Später';
+
+  @override
+  String get anticipationLearnMore => 'Mehr erfahren';
+
+  @override
+  String anticipationOverflowTitle(String count) {
+    return '$count weitere Signale';
+  }
 }

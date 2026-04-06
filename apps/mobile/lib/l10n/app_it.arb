@@ -10160,5 +10160,19 @@
   "privacyControlDeleteConfirm": "Elimina",
   "privacyControlSave": "Salva",
   "privacyControlEditSourceNote": "Fonte: modifica manuale",
-  "drawerPrivacyControl": "Cosa MINT sa di te"
+  "drawerPrivacyControl": "Cosa MINT sa di te",
+  "anticipation3aDeadlineTitle": "Scadenza 3a: {days} giorni rimasti",
+  "anticipation3aDeadlineFact": "Puoi ancora versare fino a {limit} CHF nel tuo 3\u00b0 pilastro prima del 31 dicembre {year}. Ogni anno non utilizzato \u00e8 perso.",
+  "anticipationTaxDeadlineTitle": "Dichiarazione fiscale {canton}",
+  "anticipationTaxDeadlineFact": "Il termine per la presentazione nel cantone di {canton} \u00e8 il {deadline}. Verifica se \u00e8 possibile una proroga.",
+  "anticipationLppRachatTitle": "Finestra di riscatto LPP",
+  "anticipationLppRachatFact": "Un riscatto del 2\u00b0 pilastro entro il 31 dicembre \u00e8 deducibile dal reddito imponibile di quest'anno.",
+  "anticipationSalaryIncreaseTitle": "Il tuo salario \u00e8 aumentato",
+  "anticipationSalaryIncreaseFact": "Con un reddito pi\u00f9 alto, il tuo tetto 3a resta a {newMax} CHF. Hai adeguato i tuoi versamenti?",
+  "anticipationAgeMilestoneTitle": "Nuova aliquota LPP a {age} anni",
+  "anticipationAgeMilestoneFact": "Il tuo accredito di vecchiaia passa dal {oldRate}% al {newRate}%. Il tuo datore di lavoro contribuisce di pi\u00f9 alla tua previdenza.",
+  "anticipationGotIt": "Capito",
+  "anticipationRemindLater": "Pi\u00f9 tardi",
+  "anticipationLearnMore": "Scopri di pi\u00f9",
+  "anticipationOverflowTitle": "{count} altri segnali"
 }

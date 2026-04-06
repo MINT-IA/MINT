@@ -10160,5 +10160,19 @@
   "privacyControlDeleteConfirm": "L\u00f6schen",
   "privacyControlSave": "Speichern",
   "privacyControlEditSourceNote": "Quelle: manuelle \u00c4nderung",
-  "drawerPrivacyControl": "Was MINT \u00fcber dich weiss"
+  "drawerPrivacyControl": "Was MINT \u00fcber dich weiss",
+  "anticipation3aDeadlineTitle": "3a-Frist: noch {days} Tage",
+  "anticipation3aDeadlineFact": "Du kannst noch bis zu {limit} CHF in deine S\u00e4ule 3a einzahlen, bevor der 31. Dezember {year} kommt. Jedes ungenutzte Jahr ist verloren.",
+  "anticipationTaxDeadlineTitle": "Steuererkl\u00e4rung {canton}",
+  "anticipationTaxDeadlineFact": "Die Einreichungsfrist f\u00fcr den Kanton {canton} ist der {deadline}. Pr\u00fcfe, ob eine Verl\u00e4ngerung m\u00f6glich ist.",
+  "anticipationLppRachatTitle": "BVG-Einkaufsfenster",
+  "anticipationLppRachatFact": "Ein Einkauf in die 2. S\u00e4ule vor dem 31. Dezember ist von deinem steuerbaren Einkommen abziehbar.",
+  "anticipationSalaryIncreaseTitle": "Dein Lohn ist gestiegen",
+  "anticipationSalaryIncreaseFact": "Mit einem h\u00f6heren Einkommen bleibt dein 3a-Plafond bei {newMax} CHF. Hast du deine Einzahlungen angepasst?",
+  "anticipationAgeMilestoneTitle": "Neuer BVG-Satz ab {age} Jahren",
+  "anticipationAgeMilestoneFact": "Deine Altersgutschrift steigt von {oldRate}% auf {newRate}%. Dein Arbeitgeber zahlt jetzt mehr in deine Vorsorge ein.",
+  "anticipationGotIt": "Verstanden",
+  "anticipationRemindLater": "Sp\u00e4ter",
+  "anticipationLearnMore": "Mehr erfahren",
+  "anticipationOverflowTitle": "{count} weitere Signale"
 }

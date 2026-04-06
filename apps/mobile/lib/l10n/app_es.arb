@@ -10160,5 +10160,19 @@
   "privacyControlDeleteConfirm": "Eliminar",
   "privacyControlSave": "Guardar",
   "privacyControlEditSourceNote": "Fuente: modificaci\u00f3n manual",
-  "drawerPrivacyControl": "Lo que MINT sabe de ti"
+  "drawerPrivacyControl": "Lo que MINT sabe de ti",
+  "anticipation3aDeadlineTitle": "Plazo 3a: quedan {days} d\u00edas",
+  "anticipation3aDeadlineFact": "A\u00fan puedes aportar hasta {limit} CHF a tu 3er pilar antes del 31 de diciembre de {year}. Cada a\u00f1o no utilizado se pierde.",
+  "anticipationTaxDeadlineTitle": "Declaraci\u00f3n fiscal {canton}",
+  "anticipationTaxDeadlineFact": "El plazo de presentaci\u00f3n para el cant\u00f3n de {canton} es el {deadline}. Comprueba si es posible una pr\u00f3rroga.",
+  "anticipationLppRachatTitle": "Ventana de rescate LPP",
+  "anticipationLppRachatFact": "Un rescate del 2\u00ba pilar antes del 31 de diciembre es deducible de tu renta imponible este a\u00f1o.",
+  "anticipationSalaryIncreaseTitle": "Tu salario ha aumentado",
+  "anticipationSalaryIncreaseFact": "Con unos ingresos m\u00e1s altos, tu techo 3a se mantiene en {newMax} CHF. \u00bfHas ajustado tus aportaciones?",
+  "anticipationAgeMilestoneTitle": "Nueva tasa LPP a los {age} a\u00f1os",
+  "anticipationAgeMilestoneFact": "Tu bonificaci\u00f3n por edad pasa del {oldRate}% al {newRate}%. Tu empleador cotiza m\u00e1s a tu previsi\u00f3n.",
+  "anticipationGotIt": "Entendido",
+  "anticipationRemindLater": "M\u00e1s tarde",
+  "anticipationLearnMore": "Saber m\u00e1s",
+  "anticipationOverflowTitle": "{count} se\u00f1ales m\u00e1s"
 }

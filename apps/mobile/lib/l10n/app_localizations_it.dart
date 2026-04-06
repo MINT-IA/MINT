@@ -22080,4 +22080,63 @@ class SIt extends S {
 
   @override
   String get drawerPrivacyControl => 'Cosa MINT sa di te';
+
+  @override
+  String anticipation3aDeadlineTitle(String days) {
+    return 'Scadenza 3a: $days giorni rimasti';
+  }
+
+  @override
+  String anticipation3aDeadlineFact(String limit, String year) {
+    return 'Puoi ancora versare fino a $limit CHF nel tuo 3° pilastro prima del 31 dicembre $year. Ogni anno non utilizzato è perso.';
+  }
+
+  @override
+  String anticipationTaxDeadlineTitle(String canton) {
+    return 'Dichiarazione fiscale $canton';
+  }
+
+  @override
+  String anticipationTaxDeadlineFact(String canton, String deadline) {
+    return 'Il termine per la presentazione nel cantone di $canton è il $deadline. Verifica se è possibile una proroga.';
+  }
+
+  @override
+  String get anticipationLppRachatTitle => 'Finestra di riscatto LPP';
+
+  @override
+  String get anticipationLppRachatFact =>
+      'Un riscatto del 2° pilastro entro il 31 dicembre è deducibile dal reddito imponibile di quest\'anno.';
+
+  @override
+  String get anticipationSalaryIncreaseTitle => 'Il tuo salario è aumentato';
+
+  @override
+  String anticipationSalaryIncreaseFact(String newMax) {
+    return 'Con un reddito più alto, il tuo tetto 3a resta a $newMax CHF. Hai adeguato i tuoi versamenti?';
+  }
+
+  @override
+  String anticipationAgeMilestoneTitle(String age) {
+    return 'Nuova aliquota LPP a $age anni';
+  }
+
+  @override
+  String anticipationAgeMilestoneFact(String oldRate, String newRate) {
+    return 'Il tuo accredito di vecchiaia passa dal $oldRate% al $newRate%. Il tuo datore di lavoro contribuisce di più alla tua previdenza.';
+  }
+
+  @override
+  String get anticipationGotIt => 'Capito';
+
+  @override
+  String get anticipationRemindLater => 'Più tardi';
+
+  @override
+  String get anticipationLearnMore => 'Scopri di più';
+
+  @override
+  String anticipationOverflowTitle(String count) {
+    return '$count altri segnali';
+  }
 }

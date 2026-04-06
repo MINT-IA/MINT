@@ -21909,4 +21909,63 @@ class SEn extends S {
 
   @override
   String get drawerPrivacyControl => 'What MINT knows about you';
+
+  @override
+  String anticipation3aDeadlineTitle(String days) {
+    return '3a deadline: $days days left';
+  }
+
+  @override
+  String anticipation3aDeadlineFact(String limit, String year) {
+    return 'You can still contribute up to $limit CHF to your 3rd pillar before December 31, $year. Each unused year is lost.';
+  }
+
+  @override
+  String anticipationTaxDeadlineTitle(String canton) {
+    return 'Tax return $canton';
+  }
+
+  @override
+  String anticipationTaxDeadlineFact(String canton, String deadline) {
+    return 'The filing deadline for canton $canton is $deadline. Check whether an extension is possible.';
+  }
+
+  @override
+  String get anticipationLppRachatTitle => 'LPP buyback window';
+
+  @override
+  String get anticipationLppRachatFact =>
+      'A 2nd pillar buyback before December 31 is deductible from your taxable income this year.';
+
+  @override
+  String get anticipationSalaryIncreaseTitle => 'Your salary has increased';
+
+  @override
+  String anticipationSalaryIncreaseFact(String newMax) {
+    return 'With a higher income, your 3a ceiling remains at $newMax CHF. Have you adjusted your contributions?';
+  }
+
+  @override
+  String anticipationAgeMilestoneTitle(String age) {
+    return 'New LPP rate at $age';
+  }
+
+  @override
+  String anticipationAgeMilestoneFact(String oldRate, String newRate) {
+    return 'Your old-age credit increases from $oldRate% to $newRate%. Your employer now contributes more to your pension.';
+  }
+
+  @override
+  String get anticipationGotIt => 'Got it';
+
+  @override
+  String get anticipationRemindLater => 'Later';
+
+  @override
+  String get anticipationLearnMore => 'Learn more';
+
+  @override
+  String anticipationOverflowTitle(String count) {
+    return '$count more signals';
+  }
 }
