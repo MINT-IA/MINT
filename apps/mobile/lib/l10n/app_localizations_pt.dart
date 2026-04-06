@@ -21901,4 +21901,38 @@ class SPt extends S {
   @override
   String get coachCheckInWelcome =>
       'Olá! Estou aqui. Vamos ver juntos o que importa para ti?';
+
+  @override
+  String get docNotFinancial =>
+      'Este documento não parece ser um documento financeiro suíço.';
+
+  @override
+  String get docNotFinancialHint =>
+      'Tenta com um certificado LPP, de salário, 3a ou uma apólice de seguro.';
+
+  @override
+  String get docFileTooLarge => 'Ficheiro demasiado grande. Máximo 10 MB.';
+
+  @override
+  String get docWrongFormat => 'Formato não suportado. Usa uma foto ou um PDF.';
+
+  @override
+  String get docLpp1eWarning =>
+      'Plano 1e detetado. Sem taxa de conversão garantida — projeção apenas em capital.';
+
+  @override
+  String get docCoherenceWarning =>
+      'Os montantes obrigatório e suplementar não correspondem ao total. Verifica os valores.';
+
+  @override
+  String get docFieldVerify => 'Verifica este valor';
+
+  @override
+  String get docSourcePrefix => 'Fonte: ';
+
+  @override
+  String get docImpactFallback => 'O teu perfil foi enriquecido';
+
+  @override
+  String get docReviewConfirm => 'Confirmar e enriquecer o meu perfil';
 }

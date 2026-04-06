@@ -21898,4 +21898,38 @@ class SEs extends S {
   @override
   String get coachCheckInWelcome =>
       '¡Hola! Estoy aquí. ¿Miramos juntos lo que importa para ti?';
+
+  @override
+  String get docNotFinancial =>
+      'Este documento no parece ser un documento financiero suizo.';
+
+  @override
+  String get docNotFinancialHint =>
+      'Prueba con un certificado LPP, de salario, 3a o una póliza de seguro.';
+
+  @override
+  String get docFileTooLarge => 'Archivo demasiado grande. Máximo 10 MB.';
+
+  @override
+  String get docWrongFormat => 'Formato no soportado. Usa una foto o un PDF.';
+
+  @override
+  String get docLpp1eWarning =>
+      'Plan 1e detectado. Sin tasa de conversión garantizada — proyección solo en capital.';
+
+  @override
+  String get docCoherenceWarning =>
+      'Los montos obligatorio y suplementario no corresponden al total. Verifica los valores.';
+
+  @override
+  String get docFieldVerify => 'Verifica este valor';
+
+  @override
+  String get docSourcePrefix => 'Fuente: ';
+
+  @override
+  String get docImpactFallback => 'Tu perfil ha sido enriquecido';
+
+  @override
+  String get docReviewConfirm => 'Confirmar y enriquecer mi perfil';
 }

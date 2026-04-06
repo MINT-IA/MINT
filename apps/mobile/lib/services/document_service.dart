@@ -1138,8 +1138,15 @@ class DocumentService {
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
+      if (response.statusCode == 422) {
+        throw const DocumentServiceException(
+          code: 'not_financial',
+          message: 'Document classified as non-financial',
+        );
+      }
       return null;
-    } catch (_) {
+    } catch (e) {
+      if (e is DocumentServiceException) rethrow;
       return null;
     }
   }

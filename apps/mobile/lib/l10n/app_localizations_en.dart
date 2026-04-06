@@ -21783,4 +21783,38 @@ class SEn extends S {
   @override
   String get coachCheckInWelcome =>
       'Hi! I\'m here. Let\'s look at what matters to you together.';
+
+  @override
+  String get docNotFinancial =>
+      'This document doesn\'t appear to be a Swiss financial document.';
+
+  @override
+  String get docNotFinancialHint =>
+      'Try with an LPP certificate, salary certificate, 3a statement, or insurance policy.';
+
+  @override
+  String get docFileTooLarge => 'File too large. Maximum 10 MB.';
+
+  @override
+  String get docWrongFormat => 'Unsupported format. Use a photo or a PDF.';
+
+  @override
+  String get docLpp1eWarning =>
+      '1e plan detected. No guaranteed conversion rate — capital projection only.';
+
+  @override
+  String get docCoherenceWarning =>
+      'The mandatory and supplementary amounts don\'t match the total. Check the values.';
+
+  @override
+  String get docFieldVerify => 'Check this value';
+
+  @override
+  String get docSourcePrefix => 'Source: ';
+
+  @override
+  String get docImpactFallback => 'Your profile has been enriched';
+
+  @override
+  String get docReviewConfirm => 'Confirm and enrich my profile';
 }

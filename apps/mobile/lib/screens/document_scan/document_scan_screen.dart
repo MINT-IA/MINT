@@ -62,9 +62,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     DocumentType.avsExtract,
   };
 
+  /// Maximum file size: 10 MB.
+  static const _maxFileSizeBytes = 10 * 1024 * 1024;
+
+  /// Accepted file extensions for image/PDF capture.
+  static const _acceptedExtensions = {'jpg', 'jpeg', 'png', 'heic', 'pdf'};
+
   final _imagePicker = ImagePicker();
   DocumentType _selectedType = DocumentType.lppCertificate;
   bool _isProcessing = false;
+  String? _preValidationError;
+  String? _preValidationHint;
 
   @override
   void initState() {
@@ -102,6 +110,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDocumentDescription()),
                 const SizedBox(height: 32),
                 MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCaptureButtons()),
+                if (_preValidationError != null) ...[
+                  const SizedBox(height: 12),
+                  _buildPreValidationError(),
+                ],
                 const SizedBox(height: 12),
                 MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPasteTextButton()),
                 if (kDebugMode) ...[
@@ -356,6 +368,43 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
+  Widget _buildPreValidationError() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: MintColors.warning.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _preValidationError!,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                ),
+                if (_preValidationHint != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _preValidationHint!,
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPrivacyNote() {
     return MintSurface(
       tone: MintSurfaceTone.porcelaine,
@@ -465,7 +514,36 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _processImageFile(XFile file) async {
-    setState(() => _isProcessing = true);
+    // Client-side file validation: size and format checks.
+    if (!kIsWeb) {
+      final fileObj = File(file.path);
+      if (fileObj.existsSync()) {
+        final fileSize = fileObj.lengthSync();
+        if (fileSize > _maxFileSizeBytes) {
+          if (!mounted) return;
+          setState(() {
+            _preValidationError = S.of(context)!.docFileTooLarge;
+            _preValidationHint = null;
+          });
+          return;
+        }
+      }
+      final ext = file.path.split('.').last.toLowerCase();
+      if (!_acceptedExtensions.contains(ext)) {
+        if (!mounted) return;
+        setState(() {
+          _preValidationError = S.of(context)!.docWrongFormat;
+          _preValidationHint = null;
+        });
+        return;
+      }
+    }
+
+    setState(() {
+      _isProcessing = true;
+      _preValidationError = null;
+      _preValidationHint = null;
+    });
 
     try {
       // Strategy: Claude Vision (backend) FIRST, MLKit OCR as fallback.
@@ -475,6 +553,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         await context.push('/scan/review', extra: visionResult);
         return;
       }
+
+      // If 422 rejection was shown, don't fall through to OCR
+      if (_preValidationError != null) return;
 
       // Fallback: local MLKit OCR (for offline or when Vision fails)
       String extractedText = '';
@@ -565,6 +646,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         disclaimer: visionDisclaimer,
         sources: const ['Claude Vision API'],
       );
+    } on DocumentServiceException catch (e) {
+      // 422: non-financial document detected by backend (DOC-10)
+      if (e.code == 'not_financial' && mounted) {
+        setState(() {
+          _isProcessing = false;
+          _preValidationError = S.of(context)!.docNotFinancial;
+          _preValidationHint = S.of(context)!.docNotFinancialHint;
+        });
+      }
+      return null;
     } catch (_) {
       return null; // Graceful fallback to OCR
     }

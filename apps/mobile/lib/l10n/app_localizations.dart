@@ -38456,6 +38456,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?'**
   String get coachCheckInWelcome;
+
+  /// No description provided for @docNotFinancial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document ne semble pas être un document financier suisse.'**
+  String get docNotFinancial;
+
+  /// No description provided for @docNotFinancialHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essaie avec un certificat LPP, de salaire, 3a, ou une police d’assurance.'**
+  String get docNotFinancialHint;
+
+  /// No description provided for @docFileTooLarge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier trop volumineux. Maximum 10 Mo.'**
+  String get docFileTooLarge;
+
+  /// No description provided for @docWrongFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format non supporté. Utilise une photo ou un PDF.'**
+  String get docWrongFormat;
+
+  /// No description provided for @docLpp1eWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan 1e détecté. Pas de taux de conversion garanti — projection en capital uniquement.'**
+  String get docLpp1eWarning;
+
+  /// No description provided for @docCoherenceWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les montants obligatoire et surobligatoire ne correspondent pas au total. Vérifie les valeurs.'**
+  String get docCoherenceWarning;
+
+  /// No description provided for @docFieldVerify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie cette valeur'**
+  String get docFieldVerify;
+
+  /// No description provided for @docSourcePrefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : '**
+  String get docSourcePrefix;
+
+  /// No description provided for @docImpactFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton profil a été enrichi'**
+  String get docImpactFallback;
+
+  /// No description provided for @docReviewConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer et enrichir mon profil'**
+  String get docReviewConfirm;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

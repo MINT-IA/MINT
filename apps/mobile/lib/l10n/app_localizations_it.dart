@@ -21954,4 +21954,38 @@ class SIt extends S {
   @override
   String get coachCheckInWelcome =>
       'Ciao! Sono qui. Guardiamo insieme cosa conta per te?';
+
+  @override
+  String get docNotFinancial =>
+      'Questo documento non sembra essere un documento finanziario svizzero.';
+
+  @override
+  String get docNotFinancialHint =>
+      'Prova con un certificato LPP, di salario, 3a o una polizza assicurativa.';
+
+  @override
+  String get docFileTooLarge => 'File troppo grande. Massimo 10 MB.';
+
+  @override
+  String get docWrongFormat => 'Formato non supportato. Usa una foto o un PDF.';
+
+  @override
+  String get docLpp1eWarning =>
+      'Piano 1e rilevato. Nessun tasso di conversione garantito — proiezione solo in capitale.';
+
+  @override
+  String get docCoherenceWarning =>
+      'Gli importi obbligatorio e sovraobbligatorio non corrispondono al totale. Verifica i valori.';
+
+  @override
+  String get docFieldVerify => 'Verifica questo valore';
+
+  @override
+  String get docSourcePrefix => 'Fonte: ';
+
+  @override
+  String get docImpactFallback => 'Il tuo profilo è stato arricchito';
+
+  @override
+  String get docReviewConfirm => 'Confermare e arricchire il mio profilo';
 }

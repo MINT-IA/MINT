@@ -10102,5 +10102,15 @@
   "planStepInsuranceBody": "KVG, Haftpflicht, Haushalt: die Basics pr\u00fcfen, bevor du etwas unterschreibst.",
   "planStepAvsTitle": "Deine AHV-Rechte kennen",
   "planStepAvsBody": "Jedes Beitragsjahr z\u00e4hlt. Pr\u00fcfe deinen IK-Auszug, um L\u00fccken zu vermeiden.",
-  "coachCheckInWelcome": "Hallo! Ich bin da. Schauen wir zusammen, was f\u00fcr dich z\u00e4hlt."
+  "coachCheckInWelcome": "Hallo! Ich bin da. Schauen wir zusammen, was f\u00fcr dich z\u00e4hlt.",
+  "docNotFinancial": "Dieses Dokument scheint kein Schweizer Finanzdokument zu sein.",
+  "docNotFinancialHint": "Versuche es mit einem BVG-Ausweis, Lohnausweis, 3a-Bescheinigung oder einer Versicherungspolice.",
+  "docFileTooLarge": "Datei zu gross. Maximum 10\u00a0MB.",
+  "docWrongFormat": "Nicht unterst\u00fctztes Format. Verwende ein Foto oder ein PDF.",
+  "docLpp1eWarning": "1e-Plan erkannt. Kein garantierter Umwandlungssatz \u2014 nur Kapitalprojektion.",
+  "docCoherenceWarning": "Die obligatorischen und \u00fcberobligatorischen Betr\u00e4ge stimmen nicht mit dem Total \u00fcberein. Pr\u00fcfe die Werte.",
+  "docFieldVerify": "Pr\u00fcfe diesen Wert",
+  "docSourcePrefix": "Quelle: ",
+  "docImpactFallback": "Dein Profil wurde angereichert",
+  "docReviewConfirm": "Best\u00e4tigen und Profil anreichern"
 }

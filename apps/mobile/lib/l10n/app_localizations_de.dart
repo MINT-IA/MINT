@@ -21943,4 +21943,39 @@ class SDe extends S {
   @override
   String get coachCheckInWelcome =>
       'Hallo! Ich bin da. Schauen wir zusammen, was für dich zählt.';
+
+  @override
+  String get docNotFinancial =>
+      'Dieses Dokument scheint kein Schweizer Finanzdokument zu sein.';
+
+  @override
+  String get docNotFinancialHint =>
+      'Versuche es mit einem BVG-Ausweis, Lohnausweis, 3a-Bescheinigung oder einer Versicherungspolice.';
+
+  @override
+  String get docFileTooLarge => 'Datei zu gross. Maximum 10 MB.';
+
+  @override
+  String get docWrongFormat =>
+      'Nicht unterstütztes Format. Verwende ein Foto oder ein PDF.';
+
+  @override
+  String get docLpp1eWarning =>
+      '1e-Plan erkannt. Kein garantierter Umwandlungssatz — nur Kapitalprojektion.';
+
+  @override
+  String get docCoherenceWarning =>
+      'Die obligatorischen und überobligatorischen Beträge stimmen nicht mit dem Total überein. Prüfe die Werte.';
+
+  @override
+  String get docFieldVerify => 'Prüfe diesen Wert';
+
+  @override
+  String get docSourcePrefix => 'Quelle: ';
+
+  @override
+  String get docImpactFallback => 'Dein Profil wurde angereichert';
+
+  @override
+  String get docReviewConfirm => 'Bestätigen und Profil anreichern';
 }

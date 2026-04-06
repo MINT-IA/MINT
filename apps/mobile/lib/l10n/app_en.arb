@@ -10102,5 +10102,15 @@
   "planStepInsuranceBody": "LAMal, liability, household: the basics to verify before signing anything.",
   "planStepAvsTitle": "Know your AVS rights",
   "planStepAvsBody": "Every year of contributions counts. Check your CI statement to avoid gaps.",
-  "coachCheckInWelcome": "Hi! I'm here. Let's look at what matters to you together."
+  "coachCheckInWelcome": "Hi! I'm here. Let's look at what matters to you together.",
+  "docNotFinancial": "This document doesn't appear to be a Swiss financial document.",
+  "docNotFinancialHint": "Try with an LPP certificate, salary certificate, 3a statement, or insurance policy.",
+  "docFileTooLarge": "File too large. Maximum 10\u00a0MB.",
+  "docWrongFormat": "Unsupported format. Use a photo or a PDF.",
+  "docLpp1eWarning": "1e plan detected. No guaranteed conversion rate \u2014 capital projection only.",
+  "docCoherenceWarning": "The mandatory and supplementary amounts don't match the total. Check the values.",
+  "docFieldVerify": "Check this value",
+  "docSourcePrefix": "Source: ",
+  "docImpactFallback": "Your profile has been enriched",
+  "docReviewConfirm": "Confirm and enrich my profile"
 }

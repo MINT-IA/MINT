@@ -10102,5 +10102,15 @@
   "planStepInsuranceBody": "LAMal, RC, economia domestica: le basi da verificare prima di firmare qualsiasi cosa.",
   "planStepAvsTitle": "Conoscere i tuoi diritti AVS",
   "planStepAvsBody": "Ogni anno di contributi conta. Verifica il tuo estratto CI per evitare lacune.",
-  "coachCheckInWelcome": "Ciao! Sono qui. Guardiamo insieme cosa conta per te?"
+  "coachCheckInWelcome": "Ciao! Sono qui. Guardiamo insieme cosa conta per te?",
+  "docNotFinancial": "Questo documento non sembra essere un documento finanziario svizzero.",
+  "docNotFinancialHint": "Prova con un certificato LPP, di salario, 3a o una polizza assicurativa.",
+  "docFileTooLarge": "File troppo grande. Massimo 10\u00a0MB.",
+  "docWrongFormat": "Formato non supportato. Usa una foto o un PDF.",
+  "docLpp1eWarning": "Piano 1e rilevato. Nessun tasso di conversione garantito \u2014 proiezione solo in capitale.",
+  "docCoherenceWarning": "Gli importi obbligatorio e sovraobbligatorio non corrispondono al totale. Verifica i valori.",
+  "docFieldVerify": "Verifica questo valore",
+  "docSourcePrefix": "Fonte: ",
+  "docImpactFallback": "Il tuo profilo \u00e8 stato arricchito",
+  "docReviewConfirm": "Confermare e arricchire il mio profilo"
 }

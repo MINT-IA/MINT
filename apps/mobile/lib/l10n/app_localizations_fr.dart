@@ -21897,4 +21897,39 @@ class SFr extends S {
   @override
   String get coachCheckInWelcome =>
       'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?';
+
+  @override
+  String get docNotFinancial =>
+      'Ce document ne semble pas être un document financier suisse.';
+
+  @override
+  String get docNotFinancialHint =>
+      'Essaie avec un certificat LPP, de salaire, 3a, ou une police d’assurance.';
+
+  @override
+  String get docFileTooLarge => 'Fichier trop volumineux. Maximum 10 Mo.';
+
+  @override
+  String get docWrongFormat =>
+      'Format non supporté. Utilise une photo ou un PDF.';
+
+  @override
+  String get docLpp1eWarning =>
+      'Plan 1e détecté. Pas de taux de conversion garanti — projection en capital uniquement.';
+
+  @override
+  String get docCoherenceWarning =>
+      'Les montants obligatoire et surobligatoire ne correspondent pas au total. Vérifie les valeurs.';
+
+  @override
+  String get docFieldVerify => 'Vérifie cette valeur';
+
+  @override
+  String get docSourcePrefix => 'Source : ';
+
+  @override
+  String get docImpactFallback => 'Ton profil a été enrichi';
+
+  @override
+  String get docReviewConfirm => 'Confirmer et enrichir mon profil';
 }

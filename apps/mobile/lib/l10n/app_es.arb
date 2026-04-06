@@ -10102,5 +10102,15 @@
   "planStepInsuranceBody": "LAMal, RC, hogar: lo b\u00e1sico a verificar antes de firmar nada.",
   "planStepAvsTitle": "Conocer tus derechos AVS",
   "planStepAvsBody": "Cada a\u00f1o de cotizaci\u00f3n cuenta. Verifica tu extracto CI para evitar lagunas.",
-  "coachCheckInWelcome": "\u00a1Hola! Estoy aqu\u00ed. \u00bfMiramos juntos lo que importa para ti?"
+  "coachCheckInWelcome": "\u00a1Hola! Estoy aqu\u00ed. \u00bfMiramos juntos lo que importa para ti?",
+  "docNotFinancial": "Este documento no parece ser un documento financiero suizo.",
+  "docNotFinancialHint": "Prueba con un certificado LPP, de salario, 3a o una p\u00f3liza de seguro.",
+  "docFileTooLarge": "Archivo demasiado grande. M\u00e1ximo 10\u00a0MB.",
+  "docWrongFormat": "Formato no soportado. Usa una foto o un PDF.",
+  "docLpp1eWarning": "Plan 1e detectado. Sin tasa de conversi\u00f3n garantizada \u2014 proyecci\u00f3n solo en capital.",
+  "docCoherenceWarning": "Los montos obligatorio y suplementario no corresponden al total. Verifica los valores.",
+  "docFieldVerify": "Verifica este valor",
+  "docSourcePrefix": "Fuente: ",
+  "docImpactFallback": "Tu perfil ha sido enriquecido",
+  "docReviewConfirm": "Confirmar y enriquecer mi perfil"
 }
