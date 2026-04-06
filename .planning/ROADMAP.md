@@ -116,7 +116,7 @@ Plans:
 - [x] 06-01-PLAN.md -- 8 persona golden path tests + DocumentFactory (QA-01, QA-02, QA-09)
 - [ ] 06-02-PLAN.md -- Golden screenshot regression tests + Patrol integration scripts (QA-03, QA-04, QA-05)
 - [x] 06-03-PLAN.md -- ComplianceGuard channel coverage + DE/IT terminology validation (QA-06, QA-07, QA-10, COMP-01)
-- [ ] 06-04-PLAN.md -- WCAG 2.1 AA accessibility audit + hardcoded string detection (QA-08, COMP-05)
+- [x] 06-04-PLAN.md -- WCAG 2.1 AA accessibility audit + hardcoded string detection (QA-08, COMP-05)
 
 ## Progress
 

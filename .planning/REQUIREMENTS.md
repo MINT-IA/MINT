@@ -69,7 +69,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [ ] **QA-05**: Patrol runs at end of phase (both platforms), dev->staging (iOS only), staging->main (both platforms -- full regression)
 - [x] **QA-06**: Coach compliance test suite: zero banned terms, ComplianceGuard 100%, no PII in system prompt, confidence score > 0
 - [x] **QA-07**: DE + IT financial terminology accuracy >= 85% in coach responses -- below threshold triggers language-specific prompt tuning
-- [ ] **QA-08**: Accessibility: WCAG 2.1 AA on all new screens (VoiceOver + TalkBack, contrast >= 4.5:1, tap targets >= 44pt, font scaling 200%)
+- [x] **QA-08**: Accessibility: WCAG 2.1 AA on all new screens (VoiceOver + TalkBack, contrast >= 4.5:1, tap targets >= 44pt, font scaling 200%)
 - [x] **QA-09**: Document Factory generates realistic Swiss test documents (SVG templates with persona-specific values, exportable as PDF)
 - [x] **QA-10**: Cross-cutting: every phase includes ComplianceGuard validation, flutter analyze 0 errors, flutter test + pytest pass
 
@@ -79,7 +79,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [x] **COMP-02**: No stale data as truth: every reference to user data is dated or conditioned -- projections disclose data age
 - [x] **COMP-03**: FinancialBiography data never leaves device -- AnonymizedBiographySummary only in LLM prompts
 - [x] **COMP-04**: Document images deleted in `finally` blocks (not just happy path) -- deletion audit log retained 2 years
-- [ ] **COMP-05**: All new user-facing strings in 6 ARB files via AppLocalizations -- zero hardcoded strings
+- [x] **COMP-05**: All new user-facing strings in 6 ARB files via AppLocalizations -- zero hardcoded strings
 
 ## v3.0 Requirements (Deferred)
 
@@ -160,14 +160,14 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | QA-05 | Phase 6 | Pending |
 | QA-06 | Phase 6 | Complete |
 | QA-07 | Phase 6 | Complete |
-| QA-08 | Phase 6 | Pending |
+| QA-08 | Phase 6 | Complete |
 | QA-09 | Phase 6 | Complete |
 | QA-10 | Phase 6 | Complete |
 | COMP-01 | Phase 6 | Complete |
 | COMP-02 | Phase 3 | Complete |
 | COMP-03 | Phase 3 | Complete |
 | COMP-04 | Phase 2 | Complete |
-| COMP-05 | Phase 6 | Pending |
+| COMP-05 | Phase 6 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 53 total
