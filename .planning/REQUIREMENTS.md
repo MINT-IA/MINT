@@ -70,7 +70,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [x] **QA-06**: Coach compliance test suite: zero banned terms, ComplianceGuard 100%, no PII in system prompt, confidence score > 0
 - [x] **QA-07**: DE + IT financial terminology accuracy >= 85% in coach responses -- below threshold triggers language-specific prompt tuning
 - [x] **QA-08**: Accessibility: WCAG 2.1 AA on all new screens (VoiceOver + TalkBack, contrast >= 4.5:1, tap targets >= 44pt, font scaling 200%)
-- [x] **QA-09**: Document Factory generates realistic Swiss test documents (SVG templates with persona-specific values, exportable as PDF)
+- [x] **QA-09**: DocumentFactory generates deterministic Swiss test document data (structured field maps for 4 document types: certificat_lpp, certificat_salaire, attestation_3a, police_assurance) with persona-specific values for golden path test fixtures
 - [x] **QA-10**: Cross-cutting: every phase includes ComplianceGuard validation, flutter analyze 0 errors, flutter test + pytest pass
 
 ### Compliance (Cross-Cutting)
