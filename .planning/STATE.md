@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-04-06T15:10:43.277Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-04-06T15:19:05.823Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 12
-  completed_plans: 10
-  percent: 83
+  completed_plans: 11
+  percent: 92
 ---
 
 # GSD State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 ## Current Position
 
 Phase: 03 (Memoire Narrative) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-06
 
@@ -74,6 +74,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 02]: generate_document_insight() in documents.py (colocation); fallback uses field summary; premier eclairage replaces chiffre choc on impact screen
 - [Phase 03-memoire-narrative]: Abstract BiographyDatabase interface for testability without native sqflite in flutter test
 - [Phase 03-memoire-narrative]: Freshness decay uses updatedAt (when MINT confirmed) not sourceDate (document date)
+- [Phase 03-02]: Whitelist anonymization: every FactType has explicit rounding rule; unknown types return [donnee confidentielle]
+- [Phase 03-02]: Biography block positioned after budgetBlock before checkInBlock in memory hierarchy
+- [Phase 03-02]: Backend BIOGRAPHY AWARENESS injected after anti-patterns, before language instruction in coach prompt
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T15:10:43.274Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-04-06T15:19:05.821Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None

@@ -44,12 +44,12 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 
 - [x] **BIO-01**: FinancialBiography stores facts, decisions, events with causal/temporal links -- local-only, never sent to external APIs
 - [x] **BIO-02**: Biography encrypted at rest (AES-256 via flutter_secure_storage key + sqflite)
-- [ ] **BIO-03**: Coach receives AnonymizedBiographySummary only (max 2K tokens) -- no names, exact salary, employer, IBAN, identifiable dates
-- [ ] **BIO-04**: Coach references biography naturally ("Ton salaire a augmente a un peu moins de 100k") -- never cites upload dates, filenames, or exact amounts
+- [x] **BIO-03**: Coach receives AnonymizedBiographySummary only (max 2K tokens) -- no names, exact salary, employer, IBAN, identifiable dates
+- [x] **BIO-04**: Coach references biography naturally ("Ton salaire a augmente a un peu moins de 100k") -- never cites upload dates, filenames, or exact amounts
 - [ ] **BIO-05**: Privacy control screen ("Ce que MINT sait de toi") lets user view, edit, delete each fact with source and date
 - [x] **BIO-06**: Data freshness decay model: annual fields decay after 12 months, volatile fields after 3 months -- stale fields flagged and excluded from projections
-- [ ] **BIO-07**: Coach guardrails for caisse data: always dates the source, uses conditional language, never presents extracted data as current fact
-- [ ] **BIO-08**: When data freshness-adjusted weight drops below 0.60, coach proactively prompts for document refresh
+- [x] **BIO-07**: Coach guardrails for caisse data: always dates the source, uses conditional language, never presents extracted data as current fact
+- [x] **BIO-08**: When data freshness-adjusted weight drops below 0.60, coach proactively prompts for document refresh
 
 ### Interface Contextuelle
 
@@ -76,8 +76,8 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 ### Compliance (Cross-Cutting)
 
 - [ ] **COMP-01**: ComplianceGuard validates ALL new output channels: alerts (ANT), narrative refs (BIO), coach openers (CTX), extraction insights (DOC)
-- [ ] **COMP-02**: No stale data as truth: every reference to user data is dated or conditioned -- projections disclose data age
-- [ ] **COMP-03**: FinancialBiography data never leaves device -- AnonymizedBiographySummary only in LLM prompts
+- [x] **COMP-02**: No stale data as truth: every reference to user data is dated or conditioned -- projections disclose data age
+- [x] **COMP-03**: FinancialBiography data never leaves device -- AnonymizedBiographySummary only in LLM prompts
 - [x] **COMP-04**: Document images deleted in `finally` blocks (not just happy path) -- deletion audit log retained 2 years
 - [ ] **COMP-05**: All new user-facing strings in 6 ARB files via AppLocalizations -- zero hardcoded strings
 
@@ -141,12 +141,12 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | ANT-08 | Phase 4 | Pending |
 | BIO-01 | Phase 3 | Complete |
 | BIO-02 | Phase 3 | Complete |
-| BIO-03 | Phase 3 | Pending |
-| BIO-04 | Phase 3 | Pending |
+| BIO-03 | Phase 3 | Complete |
+| BIO-04 | Phase 3 | Complete |
 | BIO-05 | Phase 3 | Pending |
 | BIO-06 | Phase 3 | Complete |
-| BIO-07 | Phase 3 | Pending |
-| BIO-08 | Phase 3 | Pending |
+| BIO-07 | Phase 3 | Complete |
+| BIO-08 | Phase 3 | Complete |
 | CTX-01 | Phase 5 | Pending |
 | CTX-02 | Phase 5 | Pending |
 | CTX-03 | Phase 5 | Pending |
@@ -164,8 +164,8 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | QA-09 | Phase 6 | Pending |
 | QA-10 | Phase 6 | Pending |
 | COMP-01 | Phase 6 | Pending |
-| COMP-02 | Phase 3 | Pending |
-| COMP-03 | Phase 3 | Pending |
+| COMP-02 | Phase 3 | Complete |
+| COMP-03 | Phase 3 | Complete |
 | COMP-04 | Phase 2 | Complete |
 | COMP-05 | Phase 6 | Pending |
 
