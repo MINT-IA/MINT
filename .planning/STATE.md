@@ -1,34 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-04-06T07:54:31.151Z"
-last_activity: 2026-04-06
+milestone: v2.0
+milestone_name: Mint Système Vivant
+status: defining_requirements
+stopped_at: null
+last_updated: "2026-04-06T12:00:00.000Z"
+last_activity: "2026-04-06 — Milestone v2.0 started"
 progress:
-  total_phases: 8
-  completed_phases: 7
-  total_plans: 20
-  completed_plans: 19
-  percent: 95
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # GSD State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-05)
+See: .planning/PROJECT.md (updated 2026-04-06)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** Phase 08 — UX Polish
+**Current focus:** Defining requirements for v2.0
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
-Status: Executing Phase 08
-Last activity: 2026-04-06 - Completed quick task 260406-en2: Update MILESTONES.md and v1.0-MILESTONE-AUDIT.md: fix requirement count and status wording
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-06 — Milestone v2.0 started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -36,20 +36,9 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 15
+- Total plans completed: 0
 - Average duration: —
 - Total execution time: —
-
-**By Phase:**
-
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 01 | 3 | - | - |
-| 02 | 2 | - | - |
-| 03 | 3 | - | - |
-| 04 | 2 | - | - |
-| 07 | 3 | - | - |
-| 08 | 2 | - | - |
 
 *Updated after each plan completion*
 
@@ -61,6 +50,8 @@ Progress: [░░░░░░░░░░] 0%
 - Assembly milestone: ~500 lines of new code total; most components exist, 3 wires missing
 - Phase 6 (Calculator Wiring) depends on Phase 2 only — can be planned after Phase 2 ships
 - Codebase map: .planning/codebase/ (bootstrap snapshot — verify before acting)
+- [Phase quick-260406-ey9]: Use 12% flat tax heuristic for RetirementBudget.monthlyTax
+- [Phase quick-260406-ey9]: Make _computeMonteCarloAndTornado async with .then(setState) pattern
 
 ### Pending Todos
 
@@ -83,6 +74,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-05T14:35:27.868Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-tool-dispatch/02-CONTEXT.md
+Last session: 2026-04-06T08:55:05.534Z
+Stopped at: Completed quick-260406-ey9-01-PLAN.md
+Resume file: None

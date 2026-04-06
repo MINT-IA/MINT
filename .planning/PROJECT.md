@@ -8,16 +8,18 @@ Swiss financial protection & education app (Flutter + FastAPI) that tells users 
 
 A user opens MINT and within 3 minutes receives a personalized, surprising insight about their financial situation that they couldn't have found elsewhere — then knows exactly what to do next.
 
-## Current Milestone: v1.0 UX Journey
+## Current Milestone: v2.0 Mint Système Vivant
 
-**Goal:** Transform disconnected components into a seamless user journey — from first launch to first personalized insight in under 3 minutes, with zero friction and zero noise.
+**Goal:** Transform MINT from a well-wired but passive app into a living financial intelligence system that ingests documents, anticipates life events, remembers the user's financial narrative, and proactively coaches — while respecting LSFin/nLPD at every layer.
 
 **Target features:**
-- User Journey Map (end-to-end flows for 3+ life events)
-- Navigation overhaul (simplify 67 routes into logical journeys)
-- Onboarding -> first insight -> next action pipeline (< 3 min)
-- Remove duplicates, dead screens, generic LLM noise
-- Real wiring: calculators feed the journey, not the showcase
+- Le Parcours Parfait: Léa golden path end-to-end (landing → insight → plan → check-in)
+- Intelligence Documentaire: Photo/PDF upload → LLM extraction → profile enrichment → instant insight
+- Moteur d'Anticipation: Rule-based proactive alerts (fiscal deadlines, profile changes, legislative)
+- Mémoire Narrative: FinancialBiography (local-only graph of facts, decisions, events)
+- Interface Contextuelle: Smart Aujourd'hui cards ranked by relevance
+- QA Profond: 9 personas, error recovery, accessibility, multilingual validation
+- Connexions Externes: bLink sandbox + pension/tax adapter stubs
 
 ## Requirements
 
@@ -38,35 +40,41 @@ A user opens MINT and within 3 minutes receives a personalized, surprising insig
 
 ### Active
 
-<!-- v1.0 UX Journey milestone scope. -->
+<!-- v2.0 Mint Système Vivant milestone scope. -->
 
-- [ ] User Journey Map defining end-to-end flows
-- [ ] Navigation simplified from 67 routes to coherent paths
-- [ ] Onboarding -> first insight pipeline under 3 minutes
-- [x] Duplicate screens and dead routes eliminated — Validated in Phase 01: pre-refactor-cleanup
-- [ ] Calculators wired into user-facing journeys (not showcase)
+- [ ] Léa golden path: landing → onboarding → premier éclairage → plan → check-in (flawless)
+- [ ] Document intelligence: photo/PDF upload → LLM extraction → profile enrichment → instant insight
+- [ ] Anticipation engine: rule-based proactive alerts (fiscal, profile, legislative triggers)
+- [ ] Financial biography: local-only narrative memory with anonymized coach integration
+- [ ] Contextual Aujourd'hui: smart card ranking by relevance (max 5 cards)
+- [ ] QA profond: 9 personas with error recovery, accessibility (WCAG 2.1 AA), multilingual validation
+- [ ] External connections: bLink sandbox + pension/tax adapter stubs
 
 ### Out of Scope
 
-<!-- Explicit boundaries for v1.0. -->
+<!-- Explicit boundaries for v2.0. -->
 
-- Coach personality improvements — already good (regional, multi-ton), next milestone
-- New calculators or financial features — existing 8 are sufficient
-- Backend API changes — focus is frontend UX assembly
-- B2B / institutional features — Phase 4 roadmap
+- bLink production (requires SFTI membership + per-bank contracts) — v3.0+
+- Background processing / WorkManager for anticipation — v3.0
+- Cloud sync for FinancialBiography (requires E2E encryption) — v3.0
+- Email forwarding adapter — v3.0
 - Voice AI — Phase 3 roadmap
+- Multi-LLM routing — Phase 3 roadmap
+- B2B / institutional features — Phase 4 roadmap
 - Money movement / investment advice — never (compliance)
+- Product recommendations / ranking — never (compliance)
 
 ## Context
 
-- **Brownfield**: 6 sprints shipped, 14 audit waves, ~450 findings addressed
-- **Core problem**: Components work individually but aren't connected ("facade sans cablage")
-- **Navigation**: 67 canonical routes exist but form a labyrinth, not a journey
-- **Post-onboarding gap**: User completes intent screen... then what?
-- **Retirement bias**: Historically over-indexed on retirement; corrected in identity pivot but UX still reflects old framing
-- **LLM genericism**: Coach responses feel verbose, statistical, not deep or surprising
-- **Wire Spec V2**: Existing navigation spec (NAVIGATION_GRAAL_V10.md) as starting point
-- **Codebase map**: .planning/codebase/ (7 docs, snapshot — verify before acting)
+- **Post v1.0**: 8 phases shipped (cleanup → tool dispatch → onboarding → plan gen → suivi → calc wiring → journeys → UX polish). Journey pipeline works end-to-end.
+- **Core shift**: v1.0 wired the house; v2.0 makes it alive. MINT still waits for user — v2.0 makes MINT come to the user.
+- **Document intelligence**: Screenshots/photos are the most natural input ("balance-moi le print screen"). Primary input method ahead of PDF.
+- **Compliance evolution**: New output channels (alerts, narratives, openers) all need ComplianceGuard validation.
+- **Privacy**: Document originals deleted after extraction (nLPD). FinancialBiography local-only. AnonymizedBiographySummary for coach.
+- **Data freshness**: Every extracted field carries extractedAt + decay model. Stale data = conservative fallback.
+- **LPP plan types**: Must detect légal vs surobligatoire vs 1e — applying 6.8% to 1e capital = massive overestimate.
+- **9 personas**: Incremental QA from Léa (Phase 1) to full 9-persona coverage (Phase 6).
+- **Codebase map**: .planning/codebase/ (snapshot — verify before acting)
 
 ## Constraints
 
@@ -86,7 +94,11 @@ A user opens MINT and within 3 minutes receives a personalized, surprising insig
 | Protection-first identity | Not retirement app, not calculator, not dashboard | Good |
 | financial_core/ as single source | All calcs centralized, consumers import only | Good |
 | Intent-based onboarding | Ask what user cares about, not demographics | Pending |
-| UX Journey before Coach depth | Fix the house before decorating rooms | Pending |
+| UX Journey before Coach depth | Fix the house before decorating rooms | ✓ Good |
+| DataIngestionService adapter pattern | Unified pipeline for all input channels (doc, bank, pension) | — Pending |
+| FinancialBiography local-only | Privacy-first: never sent to external APIs | — Pending |
+| Rule-based anticipation triggers | Zero LLM cost, deterministic, instant | — Pending |
+| bLink sandbox only for v2.0 | Production requires SFTI + per-bank contracts (18-24 months) | — Pending |
 
 ## Evolution
 
@@ -106,4 +118,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-05 after Phase 01 (pre-refactor-cleanup) completion*
+*Last updated: 2026-04-06 after milestone v2.0 initialization*
