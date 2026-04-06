@@ -111,8 +111,8 @@ void main() {
       final mapping = IntentRouter.forChipKey('intentChipPremierEmploi');
       expect(mapping, isNotNull);
       expect(mapping!.goalIntentTag, equals('first_job'));
-      expect(mapping.stressType, equals('stress_budget'));
-      expect(mapping.suggestedRoute, equals('/premier-emploi'));
+      expect(mapping.stressType, equals('stress_prevoyance'));
+      expect(mapping.suggestedRoute, equals('/first-job'));
       expect(mapping.lifeEventFamily, equals('professionnel'));
     });
 
