@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-04-05)
 Phase: 08
 Plan: Not started
 Status: Executing Phase 08
-Last activity: 2026-04-06 - Completed quick task 260406-dz8: Register generate_financial_plan tool in coach_tools.py and wire widget_renderer.dart
+Last activity: 2026-04-06 - Completed quick task 260406-e7x: Add plannedContributions to JSON body in BackendCoachService and wire through backend pipeline
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -77,6 +77,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260406-dz8 | Register generate_financial_plan tool in coach_tools.py and wire widget_renderer.dart | 2026-04-06 | 23d84718 | [260406-dz8-register-generate-financial-plan-tool-in](./quick/260406-dz8-register-generate-financial-plan-tool-in/) |
+| 260406-e7x | Add plannedContributions to JSON body in BackendCoachService and wire through backend pipeline | 2026-04-06 | 71080916 | [260406-e7x-add-plannedcontributions-to-json-body-in](./quick/260406-e7x-add-plannedcontributions-to-json-body-in/) |
 
 ## Session Continuity
 
