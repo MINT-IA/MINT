@@ -130,6 +130,37 @@ class TestRouteToScreenTool:
         required = tool["input_schema"]["required"]
         assert len(required) == 3
 
+    def test_route_to_screen_has_optional_prefill_property(self):
+        """prefill must be in properties but NOT in required — it is optional."""
+        tool = _find_tool("route_to_screen")
+        props = tool["input_schema"]["properties"]
+        required = tool["input_schema"]["required"]
+        # prefill must exist as a property
+        assert "prefill" in props, "prefill property missing from route_to_screen schema"
+        # prefill must be of type "object"
+        assert props["prefill"]["type"] == "object", (
+            "prefill property must be type 'object'"
+        )
+        # prefill must NOT be in required — it is optional
+        assert "prefill" not in required, (
+            "prefill must be optional (not in required list)"
+        )
+        # prefill must allow additional properties (open-ended key-value map)
+        assert props["prefill"].get("additionalProperties") is True, (
+            "prefill must have additionalProperties: true for open-ended maps"
+        )
+
+    def test_route_to_screen_prefill_description_mentions_profile_fields(self):
+        """prefill description must mention CoachProfile field names."""
+        tool = _find_tool("route_to_screen")
+        desc = tool["input_schema"]["properties"]["prefill"]["description"]
+        # Must mention at least one known CoachProfile field key
+        profile_fields = ["avoirLppTotal", "salaireBrutMensuel", "canton"]
+        has_field = any(f in desc for f in profile_fields)
+        assert has_field, (
+            f"prefill description should mention CoachProfile fields, got: {desc}"
+        )
+
     def test_route_to_screen_intent_description_lists_tags(self):
         """Intent description must mention that tags are registered."""
         tool = _find_tool("route_to_screen")

@@ -4,6 +4,8 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
+import 'package:mint_mobile/services/navigation/route_planner.dart';
+import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
@@ -82,19 +84,53 @@ class WidgetRenderer {
   /// The coach proposes; the user decides. No automatic push happens here.
   /// Route validation via [ToolCallParser.isValidRoute] whitelist (T-02-03).
   /// Invalid routes return [SizedBox.shrink()] — silently dropped.
+  ///
+  /// Prefill merge strategy (T-06-01):
+  ///   1. Read backend prefill from tool call input (LLM-provided).
+  ///   2. Ask [RoutePlanner] for Flutter-side prefill from [CoachProfile].
+  ///   3. Merge: RoutePlanner values as base, backend values win on conflict.
+  ///   4. Result → [RouteSuggestionCard.prefill] → GoRouter extra on tap.
   static Widget _buildRouteSuggestion(
       BuildContext context, Map<String, dynamic> p) {
     final route = p['route'] as String? ?? '';
     final contextMessage = p['context_message'] as String? ??
         p['narrative'] as String? ??
         '';
-    final prefill = p['prefill'] as Map<String, dynamic>?;
-    final isPartial = p['is_partial'] as bool? ?? false;
+    final backendPrefill = p['prefill'] as Map<String, dynamic>?;
     if (!ToolCallParser.isValidRoute(route)) return const SizedBox.shrink();
+
+    // Flutter-side prefill fallback via RoutePlanner
+    Map<String, dynamic>? mergedPrefill = backendPrefill;
+    try {
+      final profileProvider = context.read<CoachProfileProvider>();
+      final profile = profileProvider.profile;
+      if (profile != null) {
+        final intent = p['intent'] as String?;
+        if (intent != null) {
+          final planner = RoutePlanner(
+            registry: const MintScreenRegistry(),
+            profile: profile,
+          );
+          final decision = planner.plan(intent);
+          if (decision.prefill != null && decision.prefill!.isNotEmpty) {
+            // Merge: backend prefill wins on conflict
+            mergedPrefill = {
+              ...decision.prefill!,
+              if (backendPrefill != null) ...backendPrefill,
+            };
+          }
+        }
+      }
+    } catch (_) {
+      // Profile or RoutePlanner not available — use backend prefill only
+    }
+
+    final isPartial = mergedPrefill == null || mergedPrefill.isEmpty;
+
     return RouteSuggestionCard(
       contextMessage: contextMessage,
       route: route,
-      prefill: prefill,
+      prefill: mergedPrefill,
       isPartial: isPartial,
     );
   }

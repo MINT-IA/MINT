@@ -10,14 +10,20 @@
 //  5.  context_message is passed through to RouteSuggestionCard
 //  6.  Empty route string returns SizedBox.shrink()
 //  7.  narrative field also accepted as contextMessage fallback
+//  8.  Backend prefill present, no profile → backend prefill passed through
+//  9.  Profile with data + intent → RoutePlanner prefill merged
+//  10. Backend prefill wins over RoutePlanner on key conflict
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
@@ -54,6 +60,60 @@ Widget _buildTestApp(Widget Function(BuildContext) builder) {
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: const [Locale('fr')],
+  );
+}
+
+/// A test-only provider subclass that exposes a direct profile setter.
+///
+/// Avoids SharedPreferences / SecureStorage setup in widget tests.
+class _TestCoachProfileProvider extends CoachProfileProvider {
+  CoachProfile? _testProfile;
+
+  void setTestProfile(CoachProfile p) {
+    _testProfile = p;
+    notifyListeners();
+  }
+
+  @override
+  CoachProfile? get profile => _testProfile;
+}
+
+/// Wraps a widget with a [_TestCoachProfileProvider] pre-loaded with [profile].
+Widget _buildTestAppWithProfile(
+  Widget Function(BuildContext) builder,
+  CoachProfile profile,
+) {
+  final provider = _TestCoachProfileProvider()..setTestProfile(profile);
+
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => Scaffold(body: builder(context)),
+      ),
+      GoRoute(
+        path: '/rente-vs-capital',
+        builder: (context, state) => const Scaffold(body: Text('Rente')),
+      ),
+      GoRoute(
+        path: '/rachat-lpp',
+        builder: (context, state) => const Scaffold(body: Text('Rachat')),
+      ),
+    ],
+  );
+
+  return ChangeNotifierProvider<CoachProfileProvider>.value(
+    value: provider,
+    child: MaterialApp.router(
+      routerConfig: router,
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('fr')],
+    ),
   );
 }
 
@@ -221,6 +281,144 @@ void main() {
         find.byType(RouteSuggestionCard),
       );
       expect(card.isPartial, isTrue);
+    });
+  });
+
+  group('WidgetRenderer.build — prefill pipeline (T-06-01)', () {
+    testWidgets(
+        'backend prefill preserved when no CoachProfileProvider in context',
+        (tester) async {
+      // No Provider in context — catch block fires, backend prefill kept.
+      late Widget? rendered;
+      await tester.pumpWidget(_buildTestApp((context) {
+        rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'route_to_screen',
+            input: {
+              'route': '/rachat-lpp',
+              'prefill': {'avoirLpp': 70377, 'salaireBrut': 91967},
+            },
+          ),
+        );
+        return rendered ?? const SizedBox();
+      }));
+      await tester.pump();
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+      final card = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      expect(card.prefill, {'avoirLpp': 70377, 'salaireBrut': 91967});
+    });
+
+    testWidgets(
+        'isPartial true when mergedPrefill is null (no backend prefill, no profile)',
+        (tester) async {
+      late Widget? rendered;
+      await tester.pumpWidget(_buildTestApp((context) {
+        rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'route_to_screen',
+            input: {
+              'route': '/rente-vs-capital',
+              // No prefill key, no intent key
+              'context_message': 'Test',
+            },
+          ),
+        );
+        return rendered ?? const SizedBox();
+      }));
+      await tester.pump();
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+      final card = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      expect(card.isPartial, isTrue);
+    });
+
+    testWidgets(
+        'RoutePlanner prefill injected when profile has required fields',
+        (tester) async {
+      // Build a minimal CoachProfile with fields that `lpp_buyback` entry needs.
+      // lpp_buyback requiredFields: ['salaireBrut', 'age', 'canton']
+      // RoutePlanner._resolveProfileValue('salaireBrut') → salaireBrutMensuel
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 45, // age = 45
+        canton: 'VS',
+        salaireBrutMensuel: 7500,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2040),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
+      );
+
+      late Widget? rendered;
+      await tester.pumpWidget(_buildTestAppWithProfile((context) {
+        rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'route_to_screen',
+            input: {
+              'route': '/rachat-lpp',
+              'intent': 'lpp_buyback',
+              // No backend prefill — Flutter-side RoutePlanner should supply it
+            },
+          ),
+        );
+        return rendered ?? const SizedBox();
+      }, profile));
+      await tester.pump();
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+      final card = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      // RoutePlanner should have populated at least the 'salaireBrut' key
+      expect(card.prefill, isNotNull);
+      expect(card.prefill, isA<Map<String, dynamic>>());
+    });
+
+    testWidgets(
+        'backend prefill wins over RoutePlanner prefill on same key',
+        (tester) async {
+      // Backend sends avoirLpp = 99999 — should override RoutePlanner's value.
+      final profile = CoachProfile(
+        birthYear: DateTime.now().year - 45,
+        canton: 'VS',
+        salaireBrutMensuel: 7500,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2040),
+          label: 'Retraite',
+        ),
+        prevoyance: const PrevoyanceProfile(avoirLppTotal: 70000),
+      );
+
+      late Widget? rendered;
+      await tester.pumpWidget(_buildTestAppWithProfile((context) {
+        rendered = WidgetRenderer.build(
+          context,
+          const RagToolCall(
+            name: 'route_to_screen',
+            input: {
+              'route': '/rachat-lpp',
+              'intent': 'lpp_buyback',
+              'prefill': {'avoirLpp': 99999}, // backend value — must win
+            },
+          ),
+        );
+        return rendered ?? const SizedBox();
+      }, profile));
+      await tester.pump();
+      expect(find.byType(RouteSuggestionCard), findsOneWidget);
+      final card = tester.widget<RouteSuggestionCard>(
+        find.byType(RouteSuggestionCard),
+      );
+      expect(card.prefill, isNotNull);
+      // Backend value MUST override RoutePlanner value for this key
+      expect(card.prefill!['avoirLpp'], 99999);
     });
   });
 }

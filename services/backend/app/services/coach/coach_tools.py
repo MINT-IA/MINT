@@ -309,6 +309,18 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "Never use banned terms (garanti, optimal, tu devrais)."
                     ),
                 },
+                "prefill": {
+                    "type": "object",
+                    "description": (
+                        "Optional key-value map of profile fields to pre-populate the "
+                        "target screen. Keys match CoachProfile field names: "
+                        "avoirLppTotal, salaireBrutMensuel, tauxConversion, ageRetraite, "
+                        "canton, epargneLiquide, rachatMaximum. "
+                        "Only include fields with confirmed values from the user's profile "
+                        "context. Omit entirely if no values are known."
+                    ),
+                    "additionalProperties": True,
+                },
             },
             "required": ["intent", "confidence", "context_message"],
         },
