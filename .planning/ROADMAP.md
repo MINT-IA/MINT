@@ -61,7 +61,11 @@ Plans:
   3. User can view, edit, and delete each stored fact with its source and date via the privacy control screen ("Ce que MINT sait de toi")
   4. Stale data (annual fields > 12 months, volatile fields > 3 months) is flagged, excluded from projections, and triggers a coach prompt for document refresh
   5. Every reference to user data in projections and coach responses is dated or conditioned -- no stale data presented as current fact
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 03-01-PLAN.md -- BiographyFact model + encrypted BiographyRepository + FreshnessDecayService + BiographyProvider (BIO-01, BIO-02, BIO-06)
+- [ ] 03-02-PLAN.md -- AnonymizedBiographySummary + coach context integration + backend BIOGRAPHY AWARENESS guardrails (BIO-03, BIO-04, BIO-07, BIO-08, COMP-02, COMP-03)
+- [ ] 03-03-PLAN.md -- Privacy control screen + FactCard/FactEditSheet widgets + GoRouter route + i18n (BIO-05)
 **UI hint**: yes
 
 ### Phase 4: Moteur d'Anticipation
@@ -108,7 +112,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 |-------|----------------|--------|-----------|
 | 1. Le Parcours Parfait | 5/5 | Planned | - |
 | 2. Intelligence Documentaire | 0/4 | Planned | - |
-| 3. Memoire Narrative | 0/TBD | Not started | - |
+| 3. Memoire Narrative | 0/3 | Planned | - |
 | 4. Moteur d'Anticipation | 0/TBD | Not started | - |
 | 5. Interface Contextuelle | 0/TBD | Not started | - |
 | 6. QA Profond | 0/TBD | Not started | - |
