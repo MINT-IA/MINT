@@ -10591,5 +10591,21 @@
   "aboutScreenCgu": "Conditions générales",
   "aboutScreenPrivacy": "Politique de confidentialité",
   "aboutScreenDisclaimer": "Avertissement",
-  "aboutScreenMentionsLegales": "Mentions légales"
+  "aboutScreenMentionsLegales": "Mentions légales",
+  "loadingDefault": "Un instant\u00a0...",
+  "loadingPremierEclairage": "On calcule ton premier éclairage\u00a0...",
+  "errorGenericTitle": "Quelque chose n'a pas marché",
+  "errorGenericBody": "Vérifie ta connexion et réessaie.",
+  "errorRetry": "Réessayer",
+  "emptyStateDefault": "Rien ici pour l'instant",
+  "emptyStateDefaultBody": "C'est normal, on commence tout juste.",
+  "promiseCta": "Commencer",
+  "authSendLink": "Recevoir un lien magique",
+  "authLinkSent": "Lien envoyé\u00a0! Vérifie tes e-mails.",
+  "authResend": "Renvoyer le lien",
+  "authPasswordFallback": "Se connecter avec un mot de passe",
+  "quickStartHeadline": "Trois questions, un premier chiffre.",
+  "chiffreChocContinue": "Continuer",
+  "planCta": "Voir mon plan",
+  "coachErrorInline": "Le coach n'est pas disponible pour le moment."
 }

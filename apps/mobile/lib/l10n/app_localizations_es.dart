@@ -21812,4 +21812,52 @@ class SEs extends S {
 
   @override
   String get aboutScreenMentionsLegales => 'Aviso legal';
+
+  @override
+  String get loadingDefault => 'Un momento...';
+
+  @override
+  String get loadingPremierEclairage => 'Calculando tu primera perspectiva...';
+
+  @override
+  String get errorGenericTitle => 'Algo salió mal';
+
+  @override
+  String get errorGenericBody => 'Verifica tu conexión e inténtalo de nuevo.';
+
+  @override
+  String get errorRetry => 'Reintentar';
+
+  @override
+  String get emptyStateDefault => 'Nada aquí por ahora';
+
+  @override
+  String get emptyStateDefaultBody => 'Es normal, apenas estamos empezando.';
+
+  @override
+  String get promiseCta => 'Comenzar';
+
+  @override
+  String get authSendLink => 'Enviar enlace mágico';
+
+  @override
+  String get authLinkSent => '¡Enlace enviado! Revisa tu correo.';
+
+  @override
+  String get authResend => 'Reenviar el enlace';
+
+  @override
+  String get authPasswordFallback => 'Iniciar sesión con contraseña';
+
+  @override
+  String get quickStartHeadline => 'Tres preguntas, un primer número.';
+
+  @override
+  String get chiffreChocContinue => 'Continuar';
+
+  @override
+  String get planCta => 'Ver mi plan';
+
+  @override
+  String get coachErrorInline => 'El coach no está disponible en este momento.';
 }

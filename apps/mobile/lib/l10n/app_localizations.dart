@@ -38294,6 +38294,102 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Mentions légales'**
   String get aboutScreenMentionsLegales;
+
+  /// No description provided for @loadingDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un instant ...'**
+  String get loadingDefault;
+
+  /// No description provided for @loadingPremierEclairage.
+  ///
+  /// In fr, this message translates to:
+  /// **'On calcule ton premier éclairage ...'**
+  String get loadingPremierEclairage;
+
+  /// No description provided for @errorGenericTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelque chose n\'a pas marché'**
+  String get errorGenericTitle;
+
+  /// No description provided for @errorGenericBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifie ta connexion et réessaie.'**
+  String get errorGenericBody;
+
+  /// No description provided for @errorRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get errorRetry;
+
+  /// No description provided for @emptyStateDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ici pour l\'instant'**
+  String get emptyStateDefault;
+
+  /// No description provided for @emptyStateDefaultBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est normal, on commence tout juste.'**
+  String get emptyStateDefaultBody;
+
+  /// No description provided for @promiseCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get promiseCta;
+
+  /// No description provided for @authSendLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir un lien magique'**
+  String get authSendLink;
+
+  /// No description provided for @authLinkSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien envoyé ! Vérifie tes e-mails.'**
+  String get authLinkSent;
+
+  /// No description provided for @authResend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le lien'**
+  String get authResend;
+
+  /// No description provided for @authPasswordFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se connecter avec un mot de passe'**
+  String get authPasswordFallback;
+
+  /// No description provided for @quickStartHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trois questions, un premier chiffre.'**
+  String get quickStartHeadline;
+
+  /// No description provided for @chiffreChocContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get chiffreChocContinue;
+
+  /// No description provided for @planCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mon plan'**
+  String get planCta;
+
+  /// No description provided for @coachErrorInline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le coach n\'est pas disponible pour le moment.'**
+  String get coachErrorInline;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

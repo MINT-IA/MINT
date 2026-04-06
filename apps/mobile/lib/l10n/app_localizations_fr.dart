@@ -21810,4 +21810,53 @@ class SFr extends S {
 
   @override
   String get aboutScreenMentionsLegales => 'Mentions légales';
+
+  @override
+  String get loadingDefault => 'Un instant ...';
+
+  @override
+  String get loadingPremierEclairage => 'On calcule ton premier éclairage ...';
+
+  @override
+  String get errorGenericTitle => 'Quelque chose n\'a pas marché';
+
+  @override
+  String get errorGenericBody => 'Vérifie ta connexion et réessaie.';
+
+  @override
+  String get errorRetry => 'Réessayer';
+
+  @override
+  String get emptyStateDefault => 'Rien ici pour l\'instant';
+
+  @override
+  String get emptyStateDefaultBody => 'C\'est normal, on commence tout juste.';
+
+  @override
+  String get promiseCta => 'Commencer';
+
+  @override
+  String get authSendLink => 'Recevoir un lien magique';
+
+  @override
+  String get authLinkSent => 'Lien envoyé ! Vérifie tes e-mails.';
+
+  @override
+  String get authResend => 'Renvoyer le lien';
+
+  @override
+  String get authPasswordFallback => 'Se connecter avec un mot de passe';
+
+  @override
+  String get quickStartHeadline => 'Trois questions, un premier chiffre.';
+
+  @override
+  String get chiffreChocContinue => 'Continuer';
+
+  @override
+  String get planCta => 'Voir mon plan';
+
+  @override
+  String get coachErrorInline =>
+      'Le coach n\'est pas disponible pour le moment.';
 }

@@ -28,7 +28,7 @@ class MintLoadingState extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(color: MintColors.primary),
+              const CircularProgressIndicator(color: MintColors.primary),
               if (message != null) ...[
                 const SizedBox(height: 16),
                 Text(

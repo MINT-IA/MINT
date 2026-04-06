@@ -1,14 +1,12 @@
-/// The Promise Screen — shown after the chiffre choc.
+/// The Promise Screen — the golden path landing page.
 ///
-/// Wire Spec V2 §3.2 state [S4]: Adapts text by lifecycle phase.
-/// Two exit paths:
-///   [Allons-y] → /auth/register?redirect=/home
-///   [Juste les chiffres] → /home?mode=libre (mode libre)
+/// Wire Spec V2 §3.2 state [S1]: Value proposition + single CTA.
+/// Single exit: [Commencer] -> /login
 ///
 /// Text adapts based on birthYear from OnboardingProvider:
-///   18-24: "Ton premier job. Ton premier appart. Tes impôts."
-///   25-34: "Acheter ? Économiser ? On démêle tout ça ensemble."
-///   35+:   "Retraite. Impôts. Patrimoine. Tes chiffres, tes décisions."
+///   18-24: "Ton premier job. Ton premier appart. Tes impots."
+///   25-34: "Acheter ? Economiser ? On demele tout ca ensemble."
+///   35+:   "Retraite. Impots. Patrimoine. Tes chiffres, tes decisions."
 library;
 
 import 'package:flutter/material.dart';
@@ -41,7 +39,7 @@ class PromiseScreen extends StatelessWidget {
             children: [
               const Spacer(flex: 3),
 
-              // ── Headline ──
+              // -- Headline --
               Text(
                 l10n.promiseHeadline,
                 style: MintTextStyles.headlineLarge(),
@@ -49,7 +47,7 @@ class PromiseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // ── Adapted body text ──
+              // -- Adapted body text --
               Text(
                 _bodyText(l10n, bracket),
                 style: MintTextStyles.bodyLarge(
@@ -60,7 +58,7 @@ class PromiseScreen extends StatelessWidget {
 
               const Spacer(flex: 2),
 
-              // ── Footer ──
+              // -- Footer --
               Text(
                 l10n.promiseFooter,
                 style: MintTextStyles.bodySmall(
@@ -70,13 +68,12 @@ class PromiseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // ── CTA: Allons-y (primary) ──
+              // -- CTA: Commencer (primary) --
               SizedBox(
                 width: double.infinity,
-                height: 52,
+                height: 48,
                 child: FilledButton(
-                  onPressed: () =>
-                      context.go('/auth/register?redirect=/home'),
+                  onPressed: () => context.go('/login'),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     foregroundColor: MintColors.white,
@@ -87,24 +84,7 @@ class PromiseScreen extends StatelessWidget {
                       color: MintColors.white,
                     ),
                   ),
-                  child: Text(l10n.promiseCtaRegister),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // ── CTA: Juste les chiffres (text only) ──
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: TextButton(
-                  onPressed: () => context.go('/home?mode=libre'),
-                  style: TextButton.styleFrom(
-                    foregroundColor: MintColors.textSecondary,
-                    textStyle: MintTextStyles.bodyLarge(
-                      color: MintColors.textSecondary,
-                    ),
-                  ),
-                  child: Text(l10n.promiseCtaFree),
+                  child: Text(l10n.promiseCta),
                 ),
               ),
               const SizedBox(height: 32),
@@ -115,7 +95,7 @@ class PromiseScreen extends StatelessWidget {
     );
   }
 
-  // ── Helpers ──
+  // -- Helpers --
 
   static _LifecycleBracket _bracketFrom(int? birthYear) {
     if (birthYear == null) return _LifecycleBracket.senior;

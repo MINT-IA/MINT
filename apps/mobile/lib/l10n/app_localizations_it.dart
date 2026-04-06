@@ -21867,4 +21867,52 @@ class SIt extends S {
 
   @override
   String get aboutScreenMentionsLegales => 'Note legali';
+
+  @override
+  String get loadingDefault => 'Un momento...';
+
+  @override
+  String get loadingPremierEclairage => 'Calcoliamo la tua prima intuizione...';
+
+  @override
+  String get errorGenericTitle => 'Qualcosa è andato storto';
+
+  @override
+  String get errorGenericBody => 'Verifica la connessione e riprova.';
+
+  @override
+  String get errorRetry => 'Riprova';
+
+  @override
+  String get emptyStateDefault => 'Niente qui per ora';
+
+  @override
+  String get emptyStateDefaultBody => 'È normale, stiamo appena iniziando.';
+
+  @override
+  String get promiseCta => 'Inizia';
+
+  @override
+  String get authSendLink => 'Invia un link magico';
+
+  @override
+  String get authLinkSent => 'Link inviato! Controlla le tue e-mail.';
+
+  @override
+  String get authResend => 'Reinvia il link';
+
+  @override
+  String get authPasswordFallback => 'Accedi con password';
+
+  @override
+  String get quickStartHeadline => 'Tre domande, un primo numero.';
+
+  @override
+  String get chiffreChocContinue => 'Continua';
+
+  @override
+  String get planCta => 'Vedi il mio piano';
+
+  @override
+  String get coachErrorInline => 'Il coach non è disponibile al momento.';
 }

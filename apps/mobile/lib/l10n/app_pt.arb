@@ -10075,5 +10075,21 @@
   "aboutScreenCgu": "Condições gerais",
   "aboutScreenPrivacy": "Política de privacidade",
   "aboutScreenDisclaimer": "Aviso legal",
-  "aboutScreenMentionsLegales": "Avisos legais"
+  "aboutScreenMentionsLegales": "Avisos legais",
+  "loadingDefault": "Um momento...",
+  "loadingPremierEclairage": "Calculando a sua primeira perspetiva...",
+  "errorGenericTitle": "Algo correu mal",
+  "errorGenericBody": "Verifica a tua ligação e tenta novamente.",
+  "errorRetry": "Tentar novamente",
+  "emptyStateDefault": "Nada aqui por agora",
+  "emptyStateDefaultBody": "É normal, estamos apenas a começar.",
+  "promiseCta": "Começar",
+  "authSendLink": "Enviar ligação mágica",
+  "authLinkSent": "Ligação enviada! Verifica o teu e-mail.",
+  "authResend": "Reenviar a ligação",
+  "authPasswordFallback": "Entrar com palavra-passe",
+  "quickStartHeadline": "Três perguntas, um primeiro número.",
+  "chiffreChocContinue": "Continuar",
+  "planCta": "Ver o meu plano",
+  "coachErrorInline": "O coach não está disponível de momento."
 }

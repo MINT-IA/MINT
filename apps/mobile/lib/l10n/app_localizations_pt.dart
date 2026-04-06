@@ -21814,4 +21814,53 @@ class SPt extends S {
 
   @override
   String get aboutScreenMentionsLegales => 'Avisos legais';
+
+  @override
+  String get loadingDefault => 'Um momento...';
+
+  @override
+  String get loadingPremierEclairage =>
+      'Calculando a sua primeira perspetiva...';
+
+  @override
+  String get errorGenericTitle => 'Algo correu mal';
+
+  @override
+  String get errorGenericBody => 'Verifica a tua ligação e tenta novamente.';
+
+  @override
+  String get errorRetry => 'Tentar novamente';
+
+  @override
+  String get emptyStateDefault => 'Nada aqui por agora';
+
+  @override
+  String get emptyStateDefaultBody => 'É normal, estamos apenas a começar.';
+
+  @override
+  String get promiseCta => 'Começar';
+
+  @override
+  String get authSendLink => 'Enviar ligação mágica';
+
+  @override
+  String get authLinkSent => 'Ligação enviada! Verifica o teu e-mail.';
+
+  @override
+  String get authResend => 'Reenviar a ligação';
+
+  @override
+  String get authPasswordFallback => 'Entrar com palavra-passe';
+
+  @override
+  String get quickStartHeadline => 'Três perguntas, um primeiro número.';
+
+  @override
+  String get chiffreChocContinue => 'Continuar';
+
+  @override
+  String get planCta => 'Ver o meu plano';
+
+  @override
+  String get coachErrorInline => 'O coach não está disponível de momento.';
 }

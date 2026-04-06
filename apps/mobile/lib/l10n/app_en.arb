@@ -10075,5 +10075,21 @@
   "aboutScreenCgu": "Terms of Service",
   "aboutScreenPrivacy": "Privacy Policy",
   "aboutScreenDisclaimer": "Disclaimer",
-  "aboutScreenMentionsLegales": "Legal Notice"
+  "aboutScreenMentionsLegales": "Legal Notice",
+  "loadingDefault": "One moment...",
+  "loadingPremierEclairage": "Calculating your first insight...",
+  "errorGenericTitle": "Something went wrong",
+  "errorGenericBody": "Check your connection and try again.",
+  "errorRetry": "Try again",
+  "emptyStateDefault": "Nothing here yet",
+  "emptyStateDefaultBody": "That's normal, we're just getting started.",
+  "promiseCta": "Get started",
+  "authSendLink": "Send a magic link",
+  "authLinkSent": "Link sent! Check your emails.",
+  "authResend": "Resend the link",
+  "authPasswordFallback": "Sign in with a password",
+  "quickStartHeadline": "Three questions, one first number.",
+  "chiffreChocContinue": "Continue",
+  "planCta": "See my plan",
+  "coachErrorInline": "The coach is not available right now."
 }

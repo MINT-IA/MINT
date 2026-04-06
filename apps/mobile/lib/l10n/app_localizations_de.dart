@@ -21854,4 +21854,55 @@ class SDe extends S {
 
   @override
   String get aboutScreenMentionsLegales => 'Impressum';
+
+  @override
+  String get loadingDefault => 'Einen Moment...';
+
+  @override
+  String get loadingPremierEclairage =>
+      'Wir berechnen deine erste Erkenntnis...';
+
+  @override
+  String get errorGenericTitle => 'Etwas ist schiefgelaufen';
+
+  @override
+  String get errorGenericBody =>
+      'Prüfe deine Verbindung und versuche es erneut.';
+
+  @override
+  String get errorRetry => 'Erneut versuchen';
+
+  @override
+  String get emptyStateDefault => 'Noch nichts hier';
+
+  @override
+  String get emptyStateDefaultBody =>
+      'Das ist normal, wir fangen gerade erst an.';
+
+  @override
+  String get promiseCta => 'Loslegen';
+
+  @override
+  String get authSendLink => 'Magischen Link senden';
+
+  @override
+  String get authLinkSent => 'Link gesendet! Prüfe deine E-Mails.';
+
+  @override
+  String get authResend => 'Link erneut senden';
+
+  @override
+  String get authPasswordFallback => 'Mit Passwort anmelden';
+
+  @override
+  String get quickStartHeadline => 'Drei Fragen, eine erste Zahl.';
+
+  @override
+  String get chiffreChocContinue => 'Weiter';
+
+  @override
+  String get planCta => 'Meinen Plan ansehen';
+
+  @override
+  String get coachErrorInline => 'Der Coach ist gerade nicht verfügbar.';
 }

@@ -21696,4 +21696,53 @@ class SEn extends S {
 
   @override
   String get aboutScreenMentionsLegales => 'Legal Notice';
+
+  @override
+  String get loadingDefault => 'One moment...';
+
+  @override
+  String get loadingPremierEclairage => 'Calculating your first insight...';
+
+  @override
+  String get errorGenericTitle => 'Something went wrong';
+
+  @override
+  String get errorGenericBody => 'Check your connection and try again.';
+
+  @override
+  String get errorRetry => 'Try again';
+
+  @override
+  String get emptyStateDefault => 'Nothing here yet';
+
+  @override
+  String get emptyStateDefaultBody =>
+      'That\'s normal, we\'re just getting started.';
+
+  @override
+  String get promiseCta => 'Get started';
+
+  @override
+  String get authSendLink => 'Send a magic link';
+
+  @override
+  String get authLinkSent => 'Link sent! Check your emails.';
+
+  @override
+  String get authResend => 'Resend the link';
+
+  @override
+  String get authPasswordFallback => 'Sign in with a password';
+
+  @override
+  String get quickStartHeadline => 'Three questions, one first number.';
+
+  @override
+  String get chiffreChocContinue => 'Continue';
+
+  @override
+  String get planCta => 'See my plan';
+
+  @override
+  String get coachErrorInline => 'The coach is not available right now.';
 }
