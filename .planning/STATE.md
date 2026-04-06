@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-04-06T15:19:05.823Z"
+status: verifying
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-04-06T15:30:24.900Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 11
-  percent: 92
+  completed_plans: 12
+  percent: 100
 ---
 
 # GSD State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 
 Phase: 03 (Memoire Narrative) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
@@ -77,6 +77,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 03-02]: Whitelist anonymization: every FactType has explicit rounding rule; unknown types return [donnee confidentielle]
 - [Phase 03-02]: Biography block positioned after budgetBlock before checkInBlock in memory hierarchy
 - [Phase 03-02]: Backend BIOGRAPHY AWARENESS injected after anti-patterns, before language instruction in coach prompt
+- [Phase 03-memoire-narrative]: Post-frame callback for loadFacts() to avoid notifyListeners during build phase
+- [Phase 03-memoire-narrative]: hardDeleteFact for privacy screen delete (nLPD: user explicitly wants MINT to forget)
 
 ### Pending Todos
 
@@ -90,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T15:19:05.821Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-04-06T15:30:24.898Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None
