@@ -296,6 +296,8 @@ _PROFILE_SAFE_FIELDS = {
     "avs_annual_estimate", "avs_contribution_years",
     "marital_status", "months_to_retirement", "number_of_children",
     "years_since_last_buyback",
+    # Planned contributions (consumed by claude_coach_service system prompt)
+    "planned_contributions",
 }
 
 
@@ -318,6 +320,21 @@ def _sanitize_profile_context(profile_context: Optional[dict]) -> dict:
         if isinstance(v, str):
             for pattern in _INJECTION_PATTERNS:
                 v = pattern.sub("[FILTERED]", v)
+        # Sanitize list-of-dict values (e.g., planned_contributions)
+        elif isinstance(v, list):
+            sanitized_list = []
+            for item in v:
+                if isinstance(item, dict):
+                    sanitized_item = {}
+                    for ik, iv in item.items():
+                        if isinstance(iv, str):
+                            for pattern in _INJECTION_PATTERNS:
+                                iv = pattern.sub("[FILTERED]", iv)
+                        sanitized_item[ik] = iv
+                    sanitized_list.append(sanitized_item)
+                else:
+                    sanitized_list.append(item)
+            v = sanitized_list
         safe[k] = v
     return safe
 
