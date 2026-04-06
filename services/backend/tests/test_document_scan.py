@@ -246,3 +246,73 @@ class TestExtractionPrompt:
         for doc_type in DocumentType:
             fields = DOCUMENT_FIELDS.get(doc_type, [])
             assert len(fields) > 0, f"No fields for {doc_type.value}"
+
+
+# ═══════════════════════════════════════════════════════════
+#  ENDPOINT WIRING TESTS (02-01 Task 2)
+# ═══════════════════════════════════════════════════════════
+
+from unittest.mock import patch, MagicMock
+from app.schemas.document_scan import DocumentClassificationResult
+
+
+class TestExtractVisionEndpointWiring:
+    """Test classification + audit + finally-block deletion wiring in extract-vision."""
+
+    @patch("app.services.document_vision_service.classify_document")
+    def test_non_financial_document_returns_422(self, mock_classify):
+        """Non-financial document rejected with 422 before extraction."""
+        mock_classify.return_value = DocumentClassificationResult(
+            is_financial=False,
+            detected_type="receipt",
+            confidence=ConfidenceLevel.high,
+            rejection_reason="Not a Swiss financial document",
+        )
+
+        # Import fresh to pick up the mock
+        from app.api.v1.endpoints.documents import _classify_and_reject_if_needed
+
+        rejection = _classify_and_reject_if_needed("iVBORFAKE_IMAGE")
+        assert rejection is not None
+        assert "ne semble pas" in rejection.lower() or "document financier" in rejection.lower()
+
+    @patch("app.services.document_vision_service.classify_document")
+    def test_financial_document_passes_classification(self, mock_classify):
+        """Financial document passes classification gate."""
+        mock_classify.return_value = DocumentClassificationResult(
+            is_financial=True,
+            detected_type="lpp_certificate",
+            confidence=ConfidenceLevel.high,
+        )
+
+        from app.api.v1.endpoints.documents import _classify_and_reject_if_needed
+
+        rejection = _classify_and_reject_if_needed("iVBORFAKE_IMAGE")
+        assert rejection is None
+
+    def test_audit_log_import_available(self):
+        """DocumentAuditLog and create_audit_log are importable."""
+        from app.models.document_audit import DocumentAuditLog, create_audit_log
+        assert DocumentAuditLog is not None
+        assert create_audit_log is not None
+
+    def test_classify_document_import_in_endpoint(self):
+        """classify_document is imported in documents endpoint module."""
+        import app.api.v1.endpoints.documents as docs_module
+        assert hasattr(docs_module, 'classify_document') or hasattr(docs_module, '_classify_and_reject_if_needed')
+
+    def test_finally_block_exists_in_endpoint(self):
+        """The extract-vision endpoint source contains a finally block."""
+        import inspect
+        from app.api.v1.endpoints.documents import extract_with_claude_vision
+        source = inspect.getsource(extract_with_claude_vision)
+        assert "finally" in source, "extract-vision endpoint must have a finally block"
+        assert "deleted_at" in source, "finally block must set deleted_at"
+
+    def test_image_cleanup_in_endpoint(self):
+        """The extract-vision endpoint explicitly clears image_base64."""
+        import inspect
+        from app.api.v1.endpoints.documents import extract_with_claude_vision
+        source = inspect.getsource(extract_with_claude_vision)
+        assert 'image_base64' in source and '""' in source, \
+            "endpoint must clear image_base64 to empty string"

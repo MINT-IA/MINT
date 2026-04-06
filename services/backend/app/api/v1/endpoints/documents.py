@@ -11,10 +11,12 @@ Privacy: raw file bytes are never stored permanently. Only extracted fields
 are kept in the database.
 """
 
+import hashlib
 import logging
 import os
 import uuid
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.orm import Session
@@ -713,22 +715,43 @@ async def confirm_document_scan(
     )
 
 
+def _classify_and_reject_if_needed(image_base64: str) -> Optional[str]:
+    """Pre-extraction classification gate (DOC-10).
+
+    Returns a rejection message if the document is not financial,
+    or None if classification passes (extraction should proceed).
+    """
+    from app.services import document_vision_service as dvs
+
+    classification = dvs.classify_document(image_base64)
+    if not classification.is_financial:
+        return (
+            "Ce document ne semble pas etre un document financier suisse. "
+            "Essaie avec un certificat LPP, de salaire, 3a, ou une police d'assurance."
+        )
+    return None
+
+
 @router.post("/extract-vision", response_model=VisionExtractionResponse)
 @limiter.limit("10/minute")
 async def extract_with_claude_vision(
     body: VisionExtractionRequest,
     request: Request,
     current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ):
     """Extract structured data from a document image using Claude Vision.
 
-    Replaces MLKit OCR with Claude Vision for better accuracy on
-    Swiss financial documents (LPP certs, tax declarations, etc.).
+    Hardened pipeline (02-01):
+    1. Pre-extraction classification — rejects non-financial documents (DOC-10)
+    2. Audit log creation — metadata only, no image data (DOC-08)
+    3. Finally-block deletion — image cleared even on error (COMP-04)
 
     Privacy: image is sent to Claude API for processing but NOT stored.
     Only extracted structured fields are returned.
     """
     from app.services.document_vision_service import extract_with_vision
+    from app.models.document_audit import DocumentAuditLog, create_audit_log
 
     logger.info(
         "Vision extraction: user=%s type=%s canton=%s",
@@ -737,6 +760,21 @@ async def extract_with_claude_vision(
         body.canton,
     )
 
+    # ── Step 1: Pre-extraction classification (DOC-10) ──
+    rejection_message = _classify_and_reject_if_needed(body.image_base64)
+    if rejection_message:
+        raise HTTPException(status_code=422, detail=rejection_message)
+
+    # ── Step 2: Create audit log (DOC-08) ──
+    audit_log = create_audit_log(
+        user_id=str(current_user.id),
+        document_type=body.document_type.value,
+        extraction_method="claude_vision",
+    )
+    audit_log.classification_result = "financial"
+    db.add(audit_log)
+
+    # ── Step 3: Extract with finally-block cleanup (COMP-04) ──
     try:
         result = extract_with_vision(
             image_base64=body.image_base64,
@@ -744,15 +782,28 @@ async def extract_with_claude_vision(
             canton=body.canton,
             language_hint=body.language_hint,
         )
+        audit_log.field_count = len(result.extracted_fields)
+        audit_log.overall_confidence = result.overall_confidence
         return result
     except ValueError as e:
+        audit_log.error_message = str(e)[:500]
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
+        audit_log.error_message = str(e)[:500]
         logger.error("Vision extraction failed: %s", e)
         raise HTTPException(
             status_code=502,
             detail="Document extraction failed. Please try again.",
         )
+    finally:
+        # COMP-04: Always record deletion time and clear image from memory
+        audit_log.deleted_at = datetime.now(timezone.utc)
+        body.image_base64 = ""  # Explicit in-memory cleanup
+        try:
+            db.commit()  # Persist audit log
+        except Exception as commit_err:
+            logger.error("Failed to commit audit log: %s", commit_err)
+            db.rollback()
 
 
 def _estimate_scan_confidence_delta(body: DocumentScanConfirmation) -> float:
