@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-04-06T12:00:24.290Z"
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-04-06T12:10:40.899Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 5
-  completed_plans: 1
-  percent: 20
+  completed_plans: 2
+  percent: 40
 ---
 
 # GSD State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 ## Current Position
 
 Phase: 01 (Le Parcours Parfait) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-06
 
@@ -54,6 +54,9 @@ Progress: [░░░░░░░░░░] 0%
 - Research: document pipeline is 80% built, mostly wiring needed; FinancialBiography is net-new
 - [Phase 01-le-parcours-parfait]: State widgets follow MintEmptyState API pattern (Center > Padding > Column) for consistency
 - [Phase 01-le-parcours-parfait]: promise_screen simplified to single CTA (Commencer -> /login) per UI-SPEC Screen 1
+- [Phase 01-le-parcours-parfait]: Magic link tokens stored as SHA-256 hash following PasswordResetTokenModel pattern
+- [Phase 01-le-parcours-parfait]: Post-auth routing uses ReportPersistenceService.isMiniOnboardingCompleted (not hasCompletedOnboarding)
+- [Phase 01-le-parcours-parfait]: Resend API for magic link email with graceful dev-mode fallback
 
 ### Pending Todos
 
@@ -67,6 +70,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T12:00:24.287Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-04-06T12:10:40.897Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
