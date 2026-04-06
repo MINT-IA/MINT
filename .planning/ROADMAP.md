@@ -111,10 +111,11 @@ Plans:
   2. housingPurchase journey works end-to-end: intent → EPL/mortgage calculator pre-filled → savings plan → monthly check-in prompt — verified on device
   3. newJob journey works end-to-end: intent → salary comparison → LPP transfer check → 3a optimization step — verified on device
   4. Each journey has an integration test that traces the full flow and fails if any step produces no output or a broken navigation
-**Plans:** 2 plans
+**Plans:** 3 plans
 Plans:
-- [ ] 07-01-PLAN.md — Wire firstJob + newJob IntentRouter mappings, CapSequence definitions, IntentScreen chips, i18n keys
-- [ ] 07-02-PLAN.md — Integration tests for all 3 journeys (firstJob, housingPurchase, newJob)
+- [x] 07-01-PLAN.md — Wire firstJob + newJob IntentRouter mappings, CapSequence definitions, IntentScreen chips, i18n keys
+- [x] 07-02-PLAN.md — Integration tests for all 3 journeys (firstJob, housingPurchase, newJob)
+- [ ] 07-03-PLAN.md — Gap closure: fix 2 broken GoRouter intentTags + firstJob premier eclairage stressType mismatch
 
 ### Phase 8: UX Polish
 **Goal**: The Aujourd'hui tab animates naturally, ConfidenceScore is visible and actionable, Explorer reflects profile readiness, and navigation transitions feel guided
@@ -143,5 +144,5 @@ Note: Phase 6 depends on Phase 2 only (not Phase 5), so it can be planned in par
 | 4. Plan Generation | 0/3 | Planned | - |
 | 5. Suivi & Check-in | 0/2 | Planned | - |
 | 6. Calculator Wiring | 0/2 | Planned | - |
-| 7. Life Event Journeys | 0/2 | Planned | - |
+| 7. Life Event Journeys | 0/3 | Gap closure planned | - |
 | 8. UX Polish | 0/? | Not started | - |
