@@ -53,11 +53,11 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 
 ### Interface Contextuelle
 
-- [ ] **CTX-01**: Aujourd'hui displays max 5 cards: hero stat + narrative, anticipation signal, progress/milestone, action opportunity, expandable "See more"
-- [ ] **CTX-02**: Card ranking updates once per session (app launch), not on scroll -- deterministic per session
+- [x] **CTX-01**: Aujourd'hui displays max 5 cards: hero stat + narrative, anticipation signal, progress/milestone, action opportunity, expandable "See more"
+- [x] **CTX-02**: Card ranking updates once per session (app launch), not on scroll -- deterministic per session
 - [ ] **CTX-03**: Coach opener is biography-aware and LSFin compliant -- ends with user-initiated action, never imperatives
 - [ ] **CTX-04**: Each card deep-links to relevant simulator or tool
-- [ ] **CTX-05**: Completed action demotes its triggering card in priority ranking
+- [x] **CTX-05**: Completed action demotes its triggering card in priority ranking
 - [ ] **CTX-06**: 3-tab shell (Aujourd'hui, Coach, Explorer) + ProfileDrawer remain unchanged -- no tab removal
 
 ### QA & Visual
@@ -147,11 +147,11 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | BIO-06 | Phase 3 | Complete |
 | BIO-07 | Phase 3 | Complete |
 | BIO-08 | Phase 3 | Complete |
-| CTX-01 | Phase 5 | Pending |
-| CTX-02 | Phase 5 | Pending |
+| CTX-01 | Phase 5 | Complete |
+| CTX-02 | Phase 5 | Complete |
 | CTX-03 | Phase 5 | Pending |
 | CTX-04 | Phase 5 | Pending |
-| CTX-05 | Phase 5 | Pending |
+| CTX-05 | Phase 5 | Complete |
 | CTX-06 | Phase 5 | Pending |
 | QA-01 | Phase 6 | Pending |
 | QA-02 | Phase 6 | Pending |

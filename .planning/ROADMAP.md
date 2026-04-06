@@ -97,7 +97,7 @@ Plans:
   4. Each card deep-links to the relevant simulator or tool, and the 3-tab shell + ProfileDrawer remain unchanged
 **Plans**: 2 plans
 Plans:
-- [ ] 05-01-PLAN.md -- ContextualCard model + ContextualRankingService + detectors + 4 card widgets (CTX-01, CTX-02, CTX-05)
+- [x] 05-01-PLAN.md -- ContextualCard model + ContextualRankingService + detectors + 4 card widgets (CTX-01, CTX-02, CTX-05)
 - [ ] 05-02-PLAN.md -- CoachOpenerService + ContextualCardProvider + MintHomeScreen rewire + i18n 6 languages (CTX-03, CTX-04, CTX-06)
 **UI hint**: yes
 
