@@ -44,7 +44,7 @@ Declared values (multiples of 4, from `lib/theme/mint_spacing.dart`):
 
 Exceptions:
 - Touch targets on CTA buttons: minimum 48px height (accessibility, WCAG 2.1 AA -- PATH-05 / QA-08)
-- Magic link resend countdown area: 44px touch target for "Renvoyer" link
+- Magic link resend countdown area: 48px touch target for "Renvoyer" link (WCAG 2.1 AA minimum is 44px -- using 48px to stay on-grid)
 
 ---
 
