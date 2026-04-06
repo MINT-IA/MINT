@@ -50,20 +50,29 @@ Exceptions:
 
 ## Typography
 
-All values from `docs/DESIGN_SYSTEM.md` section 3.1. Phase 1 uses exactly 5 of the 10 tokens:
+Exactly 4 sizes and 2 weights. All values derived from `docs/DESIGN_SYSTEM.md` section 3.1, consolidated for Phase 1 clarity.
 
 | Role | Token | Font | Size | Weight | Line Height | Phase 1 Usage |
 |------|-------|------|------|--------|-------------|---------------|
-| Display | `displayLarge` | Montserrat | 48px | w800 | 1.1 | Premier eclairage chiffre on chiffre_choc_screen |
-| Heading | `headlineLarge` | Montserrat | 26px | w700 | 1.15 | Screen titles: promise, intent, quick_start |
-| Section | `headlineMedium` | Montserrat | 22px | w600 | 1.2 | Section headings, empty state titles |
-| Body | `bodyLarge` | Inter | 16px | w400 | 1.5 | Body copy on all screens, coach messages, value props |
-| Secondary | `bodyMedium` | Inter | 14px | w400 | 1.5 | Secondary descriptions, error explanations, field hints |
+| Display | `displayLarge` | Montserrat | 48px | w700 | 1.1 | Premier eclairage chiffre on chiffre_choc_screen |
+| Heading | `headlineLarge` | Montserrat | 26px | w700 | 1.15 | Screen titles, section headings, empty state titles |
+| Body | `bodyLarge` | Inter | 16px | w400 | 1.5 | Body copy, coach messages, value props, field labels |
+| Secondary | `bodyMedium` | Inter | 14px | w400 | 1.5 | Descriptions, error explanations, field hints, countdown timer, disclaimers |
 
-Additional tokens used sparingly:
-- `bodySmall` (Inter 13px w500, 1.4) for field labels and hint text in quick_start inputs
-- `labelSmall` (Inter 11px w500, 1.3) for magic link countdown timer text
-- `micro` (Inter 10px w400 italic, 1.3) for disclaimer on chiffre_choc_screen
+Consolidation notes (from 8 sizes to 4):
+- `headlineMedium` (22px) merged into `headlineLarge` (26px) -- section headings use 26px
+- `bodySmall` (13px) merged into `bodyMedium` (14px) -- field labels and hint text use 14px
+- `labelSmall` (11px) merged into `bodyMedium` (14px) -- countdown timer text uses 14px
+- `micro` (10px) merged into `bodyMedium` (14px) -- disclaimer uses 14px italic style variant
+
+Weight consolidation (from 5 to 2):
+- w800 removed -- display uses w700 (bold is sufficient for 48px impact)
+- w600 removed -- section headings use w700 via headlineLarge
+- w500 removed -- labels and hints use w400 via bodyMedium
+
+Style variants (using the 2 declared weights only):
+- Disclaimer text: bodyMedium (14px, w400) with italic `fontStyle: FontStyle.italic`
+- Muted labels: bodyMedium (14px, w400) with `MintColors.textMuted` color
 
 Text colors (3 only):
 - `MintColors.textPrimary` (#1D1D1F) for headings, chiffres, primary body
@@ -107,7 +116,7 @@ Premium palette used:
 
 | # | Screen | File | Category | Key Visual Rule |
 |---|--------|------|----------|-----------------|
-| 1 | Landing | `promise_screen.dart` | Shell/Marketing | 1 headline + 1 body + 1 CTA "Commencer", lifecycle-adapted text |
+| 1 | Landing | `promise_screen.dart` | Shell/Marketing | Primary visual anchor: lifecycle-adapted headline (headlineLarge, 26px, w700) centered in lower third. 1 body + 1 CTA "Commencer" below. |
 | 2 | Auth | `login_screen.dart` | Utility (E) | Magic link input + CTA, Apple Sign-In button, email+password fallback |
 | 3 | Intent | `intent_screen.dart` | Form (D) | Life event card grid, single selection, sticky "Continuer" CTA |
 | 4 | Quick Start | `quick_start_screen.dart` | Form (D) | 3 inputs (CupertinoPicker age, tap-to-type revenu, canton dropdown), sticky CTA |
@@ -122,7 +131,7 @@ Premium palette used:
 | Widget | File | Behavior |
 |--------|------|----------|
 | `MintLoadingState` | `widgets/common/mint_loading_state.dart` | Centered CircularProgressIndicator (MintColors.primary) + optional message text (bodyMedium, textSecondary). No skeleton screens in Phase 1. |
-| `MintErrorState` | `widgets/common/mint_error_state.dart` | Icon (Icons.error_outline, 48px, MintColors.error) + title (headlineMedium) + body (bodyMedium, textSecondary) + "Reessayer" button (primary CTA). |
+| `MintErrorState` | `widgets/common/mint_error_state.dart` | Icon (Icons.error_outline, 48px, MintColors.error) + title (headlineLarge) + body (bodyMedium, textSecondary) + "Reessayer" button (primary CTA). |
 | `MintEmptyState` | `widgets/common/mint_empty_state.dart` | Already exists. Icon (48px, greyApple) + title + subtitle + optional CTA. No changes needed. |
 
 All 3 widgets accept i18n strings via parameters (no hardcoded text).
@@ -134,6 +143,7 @@ All 3 widgets accept i18n strings via parameters (no hardcoded text).
 ### Screen 1: Landing (promise_screen)
 
 - **Entry**: App cold start for unauthenticated user
+- **Visual anchor**: Lifecycle-adapted headline (headlineLarge, 26px, w700, textPrimary) is the primary visual element -- centered in the lower third of the screen
 - **Layout**: Centered column, `Spacer(flex: 3)` top, headline + body + CTA bottom third
 - **CTA**: Single primary button "Commencer" (full-width, 48px height, radiusMd 12px, MintColors.primary fill, white text)
 - **Exit**: Tap CTA navigates to `/login` via GoRouter
@@ -149,7 +159,7 @@ All 3 widgets accept i18n strings via parameters (no hardcoded text).
 - **Fallback reveal**: Below magic link area, "Ou se connecter avec un mot de passe" text link reveals email+password fields
 - **Apple Sign-In**: iOS only, Apple-standard black button, positioned below magic link
 - **Loading state**: MintLoadingState while sending magic link
-- **Error state**: Inline error text below email field (bodySmall, error color), not a full MintErrorState
+- **Error state**: Inline error text below email field (bodyMedium, error color), not a full MintErrorState
 - **Exit**: Auth success checks `hasCompletedOnboarding` -- routes to `/onboarding/intent` or `/home`
 
 ### Screen 3: Intent (intent_screen)
@@ -165,10 +175,10 @@ All 3 widgets accept i18n strings via parameters (no hardcoded text).
 
 - **Entry**: From intent_screen with life event context
 - **Layout**: Form category (D) -- headline + 3 inputs + live preview area + sticky CTA
-- **Input 1 - Age**: CupertinoPicker (no slider), label "Ton age" (bodySmall), value display (headlineMedium)
+- **Input 1 - Age**: CupertinoPicker (no slider), label "Ton age" (bodyMedium), value display (headlineLarge)
 - **Input 2 - Revenu**: Tap-to-type numeric field with CHF suffix, keyboard type numberWithOptions, label "Ton revenu annuel brut"
 - **Input 3 - Canton**: Dropdown/bottom sheet with 26 cantons, label "Ton canton", search enabled
-- **Validation**: Inline per-field (red bodySmall below field). Age 18-99, Revenu > 0, Canton required.
+- **Validation**: Inline per-field (bodyMedium, error color, below field). Age 18-99, Revenu > 0, Canton required.
 - **CTA**: "Voir mon premier eclairage" sticky bottom, disabled until all 3 valid
 - **Loading state**: MintLoadingState replaces content after CTA tap while backend generates premier eclairage
 - **Error state**: MintErrorState with "Reessayer" if backend call fails
@@ -179,11 +189,11 @@ All 3 widgets accept i18n strings via parameters (no hardcoded text).
 
 - **Entry**: From quick_start with generated insight data
 - **Layout**: Hero category (A) -- porcelaine background, 1 dominant chiffre, max 2 sections above fold
-- **Hero chiffre**: displayLarge (48px, w800, textPrimary), centered, with animated count-up (500ms ease-out)
+- **Hero chiffre**: displayLarge (48px, w700, textPrimary), centered, with animated count-up (500ms ease-out)
 - **Context line**: bodyLarge (textSecondary) below chiffre, 1-2 sentences from 4-layer engine Layer 2 (human translation)
 - **Personal perspective**: bodyLarge, section below fold, Layer 3 content
 - **Questions to ask**: bodyMedium list, Layer 4 content, each prefixed with bullet
-- **Disclaimer**: micro italic, bottom, "Outil educatif -- ne constitue pas un conseil" + legal ref
+- **Disclaimer**: bodyMedium italic, bottom, "Outil educatif -- ne constitue pas un conseil" + legal ref
 - **CTA**: "Continuer" (primary), auto-navigate after 5s viewing OR manual tap
 - **Loading state**: MintLoadingState if data not yet ready (edge case -- usually pre-loaded)
 - **Error state**: MintErrorState with "Reessayer" (triggers re-generation)
@@ -194,8 +204,8 @@ All 3 widgets accept i18n strings via parameters (no hardcoded text).
 - **Entry**: Post-premier eclairage
 - **Layout**: Hero category (A) -- firstJob financial plan summary
 - **Content**: Plan steps as a vertical list of cards (surface background, radiusLg 16px, shadowSubtle)
-- **Each card**: titleMedium heading + bodyMedium description + optional info icon linking to educational insert
-- **CTA**: "Parler au coach" or equivalent non-cliche phrasing (primary button)
+- **Each card**: headlineLarge heading + bodyMedium description + optional info icon linking to educational insert
+- **CTA**: "On en parle ?" (primary button)
 - **Loading state**: MintLoadingState while plan generates
 - **Error state**: MintErrorState
 - **Exit**: Navigates to `/home?tab=1` (Coach tab) with check-in prompt seeded
