@@ -43,7 +43,12 @@ Plans:
   3. Extracted fields flow into CoachProfile via ProfileEnrichmentDiff with user confirmation screen -- never direct writes
   4. Original document image is deleted immediately after extraction (including error paths via finally blocks), with audit log retained
   5. A premier eclairage is generated from the newly extracted data within seconds of document processing
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 02-01-PLAN.md -- Backend safety: audit log model, document classification, finally-block deletion (DOC-08, DOC-10, COMP-04)
+- [ ] 02-02-PLAN.md -- Backend intelligence: LPP plan type detection, cross-field coherence, source_text enforcement (DOC-04, DOC-05, DOC-09)
+- [ ] 02-03-PLAN.md -- Frontend enhancement: i18n keys, capture screen pre-validation, per-field confidence thresholds, review screen warnings (DOC-01, DOC-02, DOC-03, DOC-06)
+- [ ] 02-04-PLAN.md -- Premier eclairage generation + document impact screen + full pipeline checkpoint (DOC-07)
 **UI hint**: yes
 
 ### Phase 3: Memoire Narrative
@@ -101,8 +106,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Le Parcours Parfait | 0/5 | Planned | - |
-| 2. Intelligence Documentaire | 0/TBD | Not started | - |
+| 1. Le Parcours Parfait | 5/5 | Planned | - |
+| 2. Intelligence Documentaire | 0/4 | Planned | - |
 | 3. Memoire Narrative | 0/TBD | Not started | - |
 | 4. Moteur d'Anticipation | 0/TBD | Not started | - |
 | 5. Interface Contextuelle | 0/TBD | Not started | - |
