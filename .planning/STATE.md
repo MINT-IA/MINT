@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-04-06T14:05:45.740Z"
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-04-06T14:15:45.634Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 9
-  completed_plans: 7
-  percent: 78
+  completed_plans: 8
+  percent: 89
 ---
 
 # GSD State
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-06)
 ## Current Position
 
 Phase: 02 (Intelligence Documentaire) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-04-06
 
@@ -69,6 +69,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 02]: 1e plans suppress tauxConversion from extraction prompt to prevent hallucinated conversion rates
 - [Phase 02]: Missing source_text degrades to low confidence rather than rejecting (DOC-09 user-friendly)
 - [Phase 02]: Default plan type on error: surobligatoire (safest middle ground)
+- [Phase 02]: Per-field thresholds: salary >= 0.90, LPP capital >= 0.95 (replaces global 0.80)
+- [Phase 02]: DocumentServiceException propagated for 422 to distinguish non-financial rejection from general errors
 
 ### Pending Todos
 
@@ -82,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T14:05:45.737Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-04-06T14:15:45.631Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None

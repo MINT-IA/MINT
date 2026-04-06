@@ -18,12 +18,12 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 
 ### Intelligence Documentaire
 
-- [ ] **DOC-01**: User can capture a financial document via camera, gallery (screenshot), or PDF upload
-- [ ] **DOC-02**: LLM Vision (Claude) extracts structured fields from Swiss financial documents (certificat LPP, certificat de salaire, attestation 3a, police d'assurance)
-- [ ] **DOC-03**: Per-field confidence thresholds enforced (salary >= 0.90, LPP capital >= 0.95) -- below threshold triggers in-app verification screen
+- [x] **DOC-01**: User can capture a financial document via camera, gallery (screenshot), or PDF upload
+- [x] **DOC-02**: LLM Vision (Claude) extracts structured fields from Swiss financial documents (certificat LPP, certificat de salaire, attestation 3a, police d'assurance)
+- [x] **DOC-03**: Per-field confidence thresholds enforced (salary >= 0.90, LPP capital >= 0.95) -- below threshold triggers in-app verification screen
 - [x] **DOC-04**: LPP plan type detected (legal / surobligatoire / 1e) before conversion rate extraction -- 1e defaults to capital-only projection with explicit warning
 - [x] **DOC-05**: Cross-field coherence checks validate obligatoire + surobligatoire ~ total (catches 10x hallucination errors)
-- [ ] **DOC-06**: Extracted fields auto-populate CoachProfile via ProfileEnrichmentDiff (never direct writes) with user confirmation
+- [x] **DOC-06**: Extracted fields auto-populate CoachProfile via ProfileEnrichmentDiff (never direct writes) with user confirmation
 - [ ] **DOC-07**: Immediate premier eclairage generated from newly extracted data after document processing
 - [x] **DOC-08**: Original document image deleted immediately after extraction (nLPD compliance) -- audit log retained
 - [x] **DOC-09**: LLM extraction includes mandatory `source_text` field for traceability -- extraction without source_text is rejected
@@ -121,12 +121,12 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | PATH-04 | Phase 1 | Complete |
 | PATH-05 | Phase 1 | Complete |
 | PATH-06 | Phase 1 | Complete |
-| DOC-01 | Phase 2 | Pending |
-| DOC-02 | Phase 2 | Pending |
-| DOC-03 | Phase 2 | Pending |
+| DOC-01 | Phase 2 | Complete |
+| DOC-02 | Phase 2 | Complete |
+| DOC-03 | Phase 2 | Complete |
 | DOC-04 | Phase 2 | Complete |
 | DOC-05 | Phase 2 | Complete |
-| DOC-06 | Phase 2 | Pending |
+| DOC-06 | Phase 2 | Complete |
 | DOC-07 | Phase 2 | Pending |
 | DOC-08 | Phase 2 | Complete |
 | DOC-09 | Phase 2 | Complete |
