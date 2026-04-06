@@ -18,17 +18,14 @@ import 'package:mint_mobile/services/forecaster_service.dart';
 /// - confidence < 45 (data too sparse for defensible projection)
 /// - profile lacks minimum retirement data (salary)
 ///
-/// The `monthlyCharges` is an educational estimate:
-/// current charges * 0.80 heuristic (V1). This is conservative —
-/// retirement typically reduces work-related expenses but may
-/// increase health/leisure costs. Certificate data would refine this.
+/// The model returns gross monthly income, estimated tax (12% heuristic),
+/// and net monthly income at retirement.
 abstract final class RetirementBudgetService {
   /// Minimum confidence to produce a retirement budget.
   static const int minConfidence = 45;
 
   /// Heuristic reduction factor for retirement charges (V1).
-  /// Conservative: assumes 80% of current charges persist.
-  /// Source: CSIAS guidelines for post-retirement budget estimation.
+  // TODO(P2): re-enable when BudgetSnapshot tracks retirement charges
   static const double chargesReductionFactor = 0.80;
 
   /// Default retirement withdrawal period in months (20 years).
@@ -68,25 +65,17 @@ abstract final class RetirementBudgetService {
     final libreAnnual = (decomposition['libre'] ?? 0.0);
     final otherMonthly = libreAnnual / 12;
 
-    // --- Retirement charges (heuristic V1) ---
-    // Use current profile charges * reduction factor.
-    // This is an educational estimate — not a precise projection.
-    final currentCharges = profile.totalDepensesMensuelles;
-    final monthlyCharges = currentCharges > 0
-        ? currentCharges * chargesReductionFactor
-        : 0.0;
-
-    // --- Monthly free at retirement ---
+    // --- Monthly income, tax, and net at retirement ---
     final totalIncome = avsMonthly + lppMonthly + pillar3aMonthly + otherMonthly;
-    final monthlyFree = totalIncome - monthlyCharges;
+    // Tax estimation: retirement rente income tax ~12% (conservative for most cantons).
+    // Educational estimate — not a precise projection.
+    final estimatedTax = totalIncome * 0.12;
+    final monthlyNet = totalIncome - estimatedTax;
 
     return RetirementBudget(
-      avsMonthly: avsMonthly,
-      lppMonthly: lppMonthly,
-      pillar3aMonthly: pillar3aMonthly,
-      otherMonthly: otherMonthly,
-      monthlyCharges: monthlyCharges,
-      monthlyFree: monthlyFree,
+      monthlyIncome: totalIncome,
+      monthlyTax: estimatedTax,
+      monthlyNet: monthlyNet,
     );
   }
 }

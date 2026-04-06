@@ -10,8 +10,8 @@ import 'package:mint_mobile/services/retirement_budget_service.dart';
 /// - Returns null when confidence < 45
 /// - Returns null when salary is zero
 /// - Computes a simple budget with AVS + LPP + 3a
-/// - monthlyFree = total income - charges
-/// - Charges use 0.80 heuristic on current expenses
+/// - monthlyNet = monthlyIncome - monthlyTax
+/// - Tax estimation applies 12% heuristic
 /// - Remains prudent when certificate absent
 void main() {
   // ── Helper to build a profile ──
@@ -125,14 +125,16 @@ void main() {
         confidenceScore: 70,
       );
 
+      // totalIncome = (30000 + 34000 + 4800 + 3600) / 12 = 6033.33
+      // monthlyTax = 6033.33 * 0.12 = 724.0
+      // monthlyNet = 6033.33 - 724.0 = 5309.33
       expect(result, isNotNull);
-      expect(result!.avsMonthly, closeTo(2500.0, 0.01)); // 30000/12
-      expect(result.lppMonthly, closeTo(2833.33, 0.01)); // 34000/12
-      expect(result.pillar3aMonthly, closeTo(400.0, 0.01)); // 4800/12
-      expect(result.otherMonthly, closeTo(300.0, 0.01)); // 3600/12
+      expect(result!.monthlyIncome, closeTo(6033.33, 0.01));
+      expect(result.monthlyTax, closeTo(724.0, 1.0));
+      expect(result.monthlyNet, closeTo(5309.33, 1.0));
     });
 
-    test('monthlyFree = total income - charges', () {
+    test('monthlyNet = monthlyIncome - monthlyTax', () {
       final result = RetirementBudgetService.compute(
         profile: makeProfile(
           depenses: const DepensesProfile(
@@ -152,26 +154,21 @@ void main() {
       expect(result, isNotNull);
 
       // Total income = (30000 + 24000 + 3600 + 2400) / 12 = 5000
-      final totalIncome = result!.avsMonthly +
-          result.lppMonthly +
-          result.pillar3aMonthly +
-          result.otherMonthly;
-      expect(totalIncome, closeTo(5000.0, 0.01));
+      expect(result!.monthlyIncome, closeTo(5000.0, 0.01));
 
-      // Charges = (1800 + 400) * 0.80 = 1760
-      expect(result.monthlyCharges, closeTo(1760.0, 0.01));
+      // Tax = 5000 * 0.12 = 600
+      expect(result.monthlyTax, closeTo(600.0, 0.01));
 
-      // Free = 5000 - 1760 = 3240
-      expect(result.monthlyFree, closeTo(3240.0, 0.01));
+      // Net = 5000 - 600 = 4400
+      expect(result.monthlyNet, closeTo(4400.0, 0.01));
     });
 
-    test('applies 0.80 heuristic on current charges', () {
-      const currentCharges = 3000.0;
+    test('tax estimation applies 12% heuristic', () {
       final result = RetirementBudgetService.compute(
         profile: makeProfile(
           depenses: const DepensesProfile(
-            loyer: 1800, // currentCharges * 0.6
-            assuranceMaladie: 1200, // currentCharges * 0.4
+            loyer: 1800,
+            assuranceMaladie: 1200,
           ),
         ),
         projection: makeProjection(),
@@ -179,7 +176,7 @@ void main() {
       );
 
       expect(result, isNotNull);
-      expect(result!.monthlyCharges, closeTo(currentCharges * 0.80, 0.01));
+      expect(result!.monthlyTax, closeTo(result.monthlyIncome * 0.12, 0.01));
     });
 
     test('confidence at threshold 45 still computes', () {
@@ -200,7 +197,9 @@ void main() {
       expect(result, isNull);
     });
 
-    test('zero current charges produces zero retirement charges', () {
+    test('zero income components produce zero tax', () {
+      // With default decomposition (avs=30000, lppUser=34000, threeA=4800, libre=3600)
+      // income > 0, so tax is proportional to income
       final result = RetirementBudgetService.compute(
         profile: makeProfile(
           depenses: const DepensesProfile(),
@@ -210,23 +209,25 @@ void main() {
       );
 
       expect(result, isNotNull);
-      expect(result!.monthlyCharges, equals(0.0));
+      expect(result!.monthlyTax, closeTo(result.monthlyIncome * 0.12, 0.01));
     });
 
-    test('includes conjoint LPP in total', () {
+    test('includes conjoint LPP in total income', () {
       final result = RetirementBudgetService.compute(
         profile: makeProfile(),
         projection: makeProjection(
           avs: 30000,
           lppUser: 20000,
           lppConjoint: 10000,
+          threeA: 4800,
+          libre: 3600,
         ),
         confidenceScore: 70,
       );
 
       expect(result, isNotNull);
-      // lppMonthly = (20000 + 10000) / 12 = 2500
-      expect(result!.lppMonthly, closeTo(2500.0, 0.01));
+      // totalIncome = (30000 + 20000 + 10000 + 4800 + 3600) / 12 = 5700.0
+      expect(result!.monthlyIncome, closeTo(5700.0, 0.01));
     });
   });
 }
