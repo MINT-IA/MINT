@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 02-04-PLAN.md (checkpoint deferred)
-last_updated: "2026-04-06T14:35:33.138Z"
+status: executing
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-04-06T15:10:43.277Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 12
+  completed_plans: 10
+  percent: 83
 ---
 
 # GSD State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-06)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight -- then knows exactly what to do next.
-**Current focus:** Phase 02 — Intelligence Documentaire
+**Current focus:** Phase 03 — Memoire Narrative
 
 ## Current Position
 
-Phase: 02 (Intelligence Documentaire) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
+Phase: 03 (Memoire Narrative) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 5
+- Total plans completed: 9
 - Average duration: --
 - Total execution time: --
 
@@ -72,6 +72,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 02]: Per-field thresholds: salary >= 0.90, LPP capital >= 0.95 (replaces global 0.80)
 - [Phase 02]: DocumentServiceException propagated for 422 to distinguish non-financial rejection from general errors
 - [Phase 02]: generate_document_insight() in documents.py (colocation); fallback uses field summary; premier eclairage replaces chiffre choc on impact screen
+- [Phase 03-memoire-narrative]: Abstract BiographyDatabase interface for testability without native sqflite in flutter test
+- [Phase 03-memoire-narrative]: Freshness decay uses updatedAt (when MINT confirmed) not sourceDate (document date)
 
 ### Pending Todos
 
@@ -85,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T14:35:33.135Z
-Stopped at: Completed 02-04-PLAN.md (checkpoint deferred)
+Last session: 2026-04-06T15:10:43.274Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None

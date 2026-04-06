@@ -42,12 +42,12 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 
 ### Memoire Narrative
 
-- [ ] **BIO-01**: FinancialBiography stores facts, decisions, events with causal/temporal links -- local-only, never sent to external APIs
-- [ ] **BIO-02**: Biography encrypted at rest (AES-256 via flutter_secure_storage key + sqflite)
+- [x] **BIO-01**: FinancialBiography stores facts, decisions, events with causal/temporal links -- local-only, never sent to external APIs
+- [x] **BIO-02**: Biography encrypted at rest (AES-256 via flutter_secure_storage key + sqflite)
 - [ ] **BIO-03**: Coach receives AnonymizedBiographySummary only (max 2K tokens) -- no names, exact salary, employer, IBAN, identifiable dates
 - [ ] **BIO-04**: Coach references biography naturally ("Ton salaire a augmente a un peu moins de 100k") -- never cites upload dates, filenames, or exact amounts
 - [ ] **BIO-05**: Privacy control screen ("Ce que MINT sait de toi") lets user view, edit, delete each fact with source and date
-- [ ] **BIO-06**: Data freshness decay model: annual fields decay after 12 months, volatile fields after 3 months -- stale fields flagged and excluded from projections
+- [x] **BIO-06**: Data freshness decay model: annual fields decay after 12 months, volatile fields after 3 months -- stale fields flagged and excluded from projections
 - [ ] **BIO-07**: Coach guardrails for caisse data: always dates the source, uses conditional language, never presents extracted data as current fact
 - [ ] **BIO-08**: When data freshness-adjusted weight drops below 0.60, coach proactively prompts for document refresh
 
@@ -139,12 +139,12 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | ANT-06 | Phase 4 | Pending |
 | ANT-07 | Phase 4 | Pending |
 | ANT-08 | Phase 4 | Pending |
-| BIO-01 | Phase 3 | Pending |
-| BIO-02 | Phase 3 | Pending |
+| BIO-01 | Phase 3 | Complete |
+| BIO-02 | Phase 3 | Complete |
 | BIO-03 | Phase 3 | Pending |
 | BIO-04 | Phase 3 | Pending |
 | BIO-05 | Phase 3 | Pending |
-| BIO-06 | Phase 3 | Pending |
+| BIO-06 | Phase 3 | Complete |
 | BIO-07 | Phase 3 | Pending |
 | BIO-08 | Phase 3 | Pending |
 | CTX-01 | Phase 5 | Pending |
