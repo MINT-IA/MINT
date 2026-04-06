@@ -606,6 +606,68 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
     # ─────────────────────────────────────────────────────────────────
+    # generate_financial_plan — WRITE: calculator-backed plan generation (Flutter-bound)
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "generate_financial_plan",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Generate a personalized financial plan based on the user's goal. "
+            "The plan is computed by Flutter-side calculators (financial_core), "
+            "NOT by the LLM. Only the narrative field may come from the coach. "
+            "Use when the user asks for a plan, a roadmap, or a strategy to "
+            "reach a financial goal. This tool is forwarded to Flutter for "
+            "execution — the backend does NOT generate the plan itself."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "goal": {
+                    "type": "string",
+                    "description": (
+                        "Human-readable description of the financial goal "
+                        "(e.g. 'Acheter un appartement \u00e0 Sion', "
+                        "'Optimiser mon 3e pilier', 'Constituer un fonds d\u2019urgence')."
+                    ),
+                },
+                "monthly_amount": {
+                    "type": "number",
+                    "description": (
+                        "Suggested monthly contribution in CHF. This is a coaching "
+                        "suggestion \u2014 the actual plan amount is computed by calculators."
+                    ),
+                },
+                "milestones": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": (
+                        "List of milestone descriptions for the plan "
+                        "(e.g. ['Ouvrir un compte 3a', 'Premier versement', "
+                        "'Atteindre 7258 CHF/an'])."
+                    ),
+                },
+                "projected_outcome": {
+                    "type": "string",
+                    "description": (
+                        "Brief projected outcome description using conditional "
+                        "language. Must include a disclaimer that this is "
+                        "educational, not a guarantee."
+                    ),
+                },
+                "narrative": {
+                    "type": "string",
+                    "description": (
+                        "Coach narrative explaining the plan in human terms. "
+                        "Must be educational and non-prescriptive. "
+                        "Use conditional language ('pourrait', 'dans ce sc\u00e9nario')."
+                    ),
+                },
+            },
+            "required": ["goal", "narrative"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
     # generate_document — WRITE: pre-filled document generation (Flutter-bound)
     # ─────────────────────────────────────────────────────────────────
     {

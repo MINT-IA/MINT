@@ -306,3 +306,68 @@ class TestOtherTools:
     def test_ask_user_input_requires_field_key(self):
         tool = _find_tool("ask_user_input")
         assert "field_key" in tool["input_schema"]["required"]
+
+
+# ===========================================================================
+# TestGenerateFinancialPlanTool — generate_financial_plan tool definition
+# ===========================================================================
+
+class TestGenerateFinancialPlanTool:
+    """Validate the generate_financial_plan tool definition."""
+
+    def test_generate_financial_plan_exists(self):
+        tool = _find_tool("generate_financial_plan")
+        assert tool is not None, "generate_financial_plan not found in COACH_TOOLS"
+
+    def test_generate_financial_plan_category_is_write(self):
+        tool = _find_tool("generate_financial_plan")
+        assert tool["category"] == "write"
+
+    def test_generate_financial_plan_has_goal_property(self):
+        tool = _find_tool("generate_financial_plan")
+        props = tool["input_schema"]["properties"]
+        assert "goal" in props
+        assert props["goal"]["type"] == "string"
+
+    def test_generate_financial_plan_has_monthly_amount_property(self):
+        tool = _find_tool("generate_financial_plan")
+        props = tool["input_schema"]["properties"]
+        assert "monthly_amount" in props
+        assert props["monthly_amount"]["type"] == "number"
+
+    def test_generate_financial_plan_has_milestones_property(self):
+        tool = _find_tool("generate_financial_plan")
+        props = tool["input_schema"]["properties"]
+        assert "milestones" in props
+        assert props["milestones"]["type"] == "array"
+
+    def test_generate_financial_plan_has_projected_outcome_property(self):
+        tool = _find_tool("generate_financial_plan")
+        props = tool["input_schema"]["properties"]
+        assert "projected_outcome" in props
+        assert props["projected_outcome"]["type"] == "string"
+
+    def test_generate_financial_plan_has_narrative_property(self):
+        tool = _find_tool("generate_financial_plan")
+        props = tool["input_schema"]["properties"]
+        assert "narrative" in props
+        assert props["narrative"]["type"] == "string"
+
+    def test_generate_financial_plan_required_fields(self):
+        tool = _find_tool("generate_financial_plan")
+        required = tool["input_schema"]["required"]
+        assert "goal" in required
+        assert "narrative" in required
+
+    def test_generate_financial_plan_not_internal(self):
+        """generate_financial_plan is Flutter-bound, NOT in INTERNAL_TOOL_NAMES."""
+        from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES
+        assert "generate_financial_plan" not in INTERNAL_TOOL_NAMES
+
+    def test_generate_financial_plan_description_no_banned_terms(self):
+        tool = _find_tool("generate_financial_plan")
+        desc = tool["description"].lower()
+        for term in BANNED_TERMS:
+            assert term.lower() not in desc, (
+                f"Banned term '{term}' found in generate_financial_plan description"
+            )
