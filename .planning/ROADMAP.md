@@ -26,7 +26,7 @@ Transform MINT from a well-wired but passive app into a living financial intelli
   4. An integration test covers the full Lea journey and fails CI if any link in the chain breaks
 **Plans**: 5 plans
 Plans:
-- [ ] 01-01-PLAN.md -- State widgets (MintLoadingState, MintErrorState) + landing page refinement + i18n keys
+- [x] 01-01-PLAN.md -- State widgets (MintLoadingState, MintErrorState) + landing page refinement + i18n keys
 - [ ] 01-02-PLAN.md -- Magic link auth backend + login screen redesign + post-auth routing
 - [ ] 01-03-PLAN.md -- Onboarding pipeline wiring (intent -> quick_start -> chiffre_choc -> plan -> coach) + 4-layer engine
 - [ ] 01-04-PLAN.md -- Lea golden path integration test

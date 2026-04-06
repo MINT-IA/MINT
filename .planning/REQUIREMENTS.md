@@ -13,7 +13,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 - [ ] **PATH-02**: User can authenticate via magic link (primary) or Apple Sign-In (secondary), with email+password as fallback
 - [ ] **PATH-03**: Onboarding collects intent + 3 inputs (age, revenu, canton) and delivers premier eclairage within 5 minutes total
 - [ ] **PATH-04**: Coach responses for firstJob intent are contextual, use VD regional voice (septante/nonante), and pass 4-layer insight engine
-- [ ] **PATH-05**: Every screen in Lea's path has loading states, error states, empty states, and smooth transitions
+- [x] **PATH-05**: Every screen in Lea's path has loading states, error states, empty states, and smooth transitions
 - [ ] **PATH-06**: Integration test covers full Lea journey and fails if any link breaks
 
 ### Intelligence Documentaire
@@ -119,7 +119,7 @@ Requirements for milestone v2.0. Each maps to roadmap phases.
 | PATH-02 | Phase 1 | Pending |
 | PATH-03 | Phase 1 | Pending |
 | PATH-04 | Phase 1 | Pending |
-| PATH-05 | Phase 1 | Pending |
+| PATH-05 | Phase 1 | Complete |
 | PATH-06 | Phase 1 | Pending |
 | DOC-01 | Phase 2 | Pending |
 | DOC-02 | Phase 2 | Pending |

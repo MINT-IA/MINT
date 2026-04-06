@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.0
-milestone_name: Mint Systeme Vivant
-status: ready_to_plan
-stopped_at: null
-last_updated: "2026-04-06T14:00:00.000Z"
-last_activity: "2026-04-06 — Roadmap created (6 phases, 53 requirements mapped)"
+milestone_name: milestone
+status: executing
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-04-06T12:00:24.290Z"
+last_activity: 2026-04-06
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_plans: 5
+  completed_plans: 1
+  percent: 20
 ---
 
 # GSD State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-06)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight -- then knows exactly what to do next.
-**Current focus:** Phase 1 - Le Parcours Parfait
+**Current focus:** Phase 01 — Le Parcours Parfait
 
 ## Current Position
 
-Phase: 1 of 6 (Le Parcours Parfait)
-Plan: Not yet planned
-Status: Ready to plan
-Last activity: 2026-04-06 -- Roadmap created (6 phases, 53 requirements mapped)
+Phase: 01 (Le Parcours Parfait) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-04-06
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,8 @@ Progress: [░░░░░░░░░░] 0%
 - Phase ordering follows ProfileEnrichmentDiff data dependency: document pipeline must establish the pattern first
 - QA Profond is the release gate (Phase 6) -- no feature ships without 9-persona validation
 - Research: document pipeline is 80% built, mostly wiring needed; FinancialBiography is net-new
+- [Phase 01-le-parcours-parfait]: State widgets follow MintEmptyState API pattern (Center > Padding > Column) for consistency
+- [Phase 01-le-parcours-parfait]: promise_screen simplified to single CTA (Commencer -> /login) per UI-SPEC Screen 1
 
 ### Pending Todos
 
@@ -65,6 +67,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06
-Stopped at: Roadmap created, ready to plan Phase 1
+Last session: 2026-04-06T12:00:24.287Z
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None
