@@ -104,7 +104,7 @@ void main() {
         scrollable: find.byType(Scrollable).first,
       );
       expect(find.textContaining('projet'), findsOneWidget);
-      expect(find.textContaining('change'), findsOneWidget);
+      expect(find.textContaining('situation change'), findsOneWidget);
       expect(find.textContaining('Autre'), findsOneWidget);
     });
   });

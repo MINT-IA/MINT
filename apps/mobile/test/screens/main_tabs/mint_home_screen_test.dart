@@ -28,6 +28,8 @@ import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
@@ -100,6 +102,12 @@ Widget buildTestWidget({
       ),
       ChangeNotifierProvider<UserActivityProvider>.value(
         value: activityProvider,
+      ),
+      ChangeNotifierProvider<FinancialPlanProvider>(
+        create: (_) => FinancialPlanProvider(),
+      ),
+      ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
       ),
     ],
     child: MaterialApp(
