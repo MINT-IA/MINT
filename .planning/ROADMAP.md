@@ -98,7 +98,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 05-01-PLAN.md -- ContextualCard model + ContextualRankingService + detectors + 4 card widgets (CTX-01, CTX-02, CTX-05)
-- [ ] 05-02-PLAN.md -- CoachOpenerService + ContextualCardProvider + MintHomeScreen rewire + i18n 6 languages (CTX-03, CTX-04, CTX-06)
+- [x] 05-02-PLAN.md -- CoachOpenerService + ContextualCardProvider + MintHomeScreen rewire + i18n 6 languages (CTX-03, CTX-04, CTX-06)
 **UI hint**: yes
 
 ### Phase 6: QA Profond
