@@ -38546,6 +38546,138 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Enrichissement enregistré. L\'analyse détaillée sera disponible prochainement.'**
   String get docImpactPremierEclairageError;
+
+  /// No description provided for @privacyControlTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que MINT sait de toi'**
+  String get privacyControlTitle;
+
+  /// No description provided for @privacyControlEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune donnée pour l\'instant'**
+  String get privacyControlEmpty;
+
+  /// No description provided for @privacyControlEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne un document ou discute avec le coach pour que MINT commence à te connaître.'**
+  String get privacyControlEmptyBody;
+
+  /// No description provided for @privacyControlError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger tes données. Réessaie dans quelques instants.'**
+  String get privacyControlError;
+
+  /// No description provided for @privacyControlSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} données | {percent} % à jour'**
+  String privacyControlSummary(int count, int percent);
+
+  /// No description provided for @privacyControlSectionFinancial.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données financières'**
+  String get privacyControlSectionFinancial;
+
+  /// No description provided for @privacyControlSectionLifeEvents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Événements de vie'**
+  String get privacyControlSectionLifeEvents;
+
+  /// No description provided for @privacyControlSectionDecisions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décisions'**
+  String get privacyControlSectionDecisions;
+
+  /// No description provided for @privacyControlSourceDocument.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extrait de document'**
+  String get privacyControlSourceDocument;
+
+  /// No description provided for @privacyControlSourceUserInput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisie manuelle'**
+  String get privacyControlSourceUserInput;
+
+  /// No description provided for @privacyControlSourceUserEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modification manuelle'**
+  String get privacyControlSourceUserEdit;
+
+  /// No description provided for @privacyControlSourceCoach.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversation avec le coach'**
+  String get privacyControlSourceCoach;
+
+  /// No description provided for @privacyControlFresh.
+  ///
+  /// In fr, this message translates to:
+  /// **'À jour'**
+  String get privacyControlFresh;
+
+  /// No description provided for @privacyControlAging.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données datant de {months} mois'**
+  String privacyControlAging(int months);
+
+  /// No description provided for @privacyControlStale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données obsolètes — {months} mois'**
+  String privacyControlStale(int months);
+
+  /// No description provided for @privacyControlDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer cette donnée ?'**
+  String get privacyControlDeleteTitle;
+
+  /// No description provided for @privacyControlDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette action est irréversible. MINT oubliera {factLabel}.'**
+  String privacyControlDeleteBody(String factLabel);
+
+  /// No description provided for @privacyControlDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get privacyControlDeleteCancel;
+
+  /// No description provided for @privacyControlDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get privacyControlDeleteConfirm;
+
+  /// No description provided for @privacyControlSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get privacyControlSave;
+
+  /// No description provided for @privacyControlEditSourceNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : modification manuelle'**
+  String get privacyControlEditSourceNote;
+
+  /// No description provided for @drawerPrivacyControl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que MINT sait de toi'**
+  String get drawerPrivacyControl;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

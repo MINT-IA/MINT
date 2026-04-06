@@ -21994,4 +21994,80 @@ class SDe extends S {
   @override
   String get docImpactPremierEclairageError =>
       'Anreicherung gespeichert. Die detaillierte Analyse wird bald verfügbar sein.';
+
+  @override
+  String get privacyControlTitle => 'Was MINT über dich weiss';
+
+  @override
+  String get privacyControlEmpty => 'Noch keine Daten';
+
+  @override
+  String get privacyControlEmptyBody =>
+      'Scanne ein Dokument oder chatte mit dem Coach, damit MINT dich kennenlernen kann.';
+
+  @override
+  String get privacyControlError =>
+      'Daten konnten nicht geladen werden. Versuche es in wenigen Augenblicken erneut.';
+
+  @override
+  String privacyControlSummary(int count, int percent) {
+    return '$count Daten | $percent % aktuell';
+  }
+
+  @override
+  String get privacyControlSectionFinancial => 'Finanzdaten';
+
+  @override
+  String get privacyControlSectionLifeEvents => 'Lebensereignisse';
+
+  @override
+  String get privacyControlSectionDecisions => 'Entscheidungen';
+
+  @override
+  String get privacyControlSourceDocument => 'Aus Dokument extrahiert';
+
+  @override
+  String get privacyControlSourceUserInput => 'Manuelle Eingabe';
+
+  @override
+  String get privacyControlSourceUserEdit => 'Manuelle Änderung';
+
+  @override
+  String get privacyControlSourceCoach => 'Coach-Gespräch';
+
+  @override
+  String get privacyControlFresh => 'Aktuell';
+
+  @override
+  String privacyControlAging(int months) {
+    return 'Daten von vor $months Monaten';
+  }
+
+  @override
+  String privacyControlStale(int months) {
+    return 'Veraltete Daten — $months Monate';
+  }
+
+  @override
+  String get privacyControlDeleteTitle => 'Diese Daten löschen?';
+
+  @override
+  String privacyControlDeleteBody(String factLabel) {
+    return 'Diese Aktion ist unwiderruflich. MINT wird $factLabel vergessen.';
+  }
+
+  @override
+  String get privacyControlDeleteCancel => 'Abbrechen';
+
+  @override
+  String get privacyControlDeleteConfirm => 'Löschen';
+
+  @override
+  String get privacyControlSave => 'Speichern';
+
+  @override
+  String get privacyControlEditSourceNote => 'Quelle: manuelle Änderung';
+
+  @override
+  String get drawerPrivacyControl => 'Was MINT über dich weiss';
 }

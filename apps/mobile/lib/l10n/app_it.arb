@@ -10117,5 +10117,48 @@
   "docImpactQuestionsTitle": "Domande da porre",
   "docImpactContinuer": "Continua",
   "docImpactPremierEclairageLoading": "Analisi in corso\u2026",
-  "docImpactPremierEclairageError": "Arricchimento salvato. L'analisi dettagliata sar\u00e0 disponibile a breve."
+  "docImpactPremierEclairageError": "Arricchimento salvato. L'analisi dettagliata sar\u00e0 disponibile a breve.",
+  "privacyControlTitle": "Cosa MINT sa di te",
+  "privacyControlEmpty": "Nessun dato per ora",
+  "privacyControlEmptyBody": "Scansiona un documento o parla con il coach perch\u00e9 MINT inizi a conoscerti.",
+  "privacyControlError": "Impossibile caricare i tuoi dati. Riprova tra qualche istante.",
+  "privacyControlSummary": "{count} dati | {percent}\u00a0% aggiornati",
+  "@privacyControlSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "percent": {"type": "int"}
+    }
+  },
+  "privacyControlSectionFinancial": "Dati finanziari",
+  "privacyControlSectionLifeEvents": "Eventi di vita",
+  "privacyControlSectionDecisions": "Decisioni",
+  "privacyControlSourceDocument": "Estratto da documento",
+  "privacyControlSourceUserInput": "Inserimento manuale",
+  "privacyControlSourceUserEdit": "Modifica manuale",
+  "privacyControlSourceCoach": "Conversazione con il coach",
+  "privacyControlFresh": "Aggiornato",
+  "privacyControlAging": "Dati di {months} mesi fa",
+  "@privacyControlAging": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlStale": "Dati obsoleti \u2014 {months} mesi",
+  "@privacyControlStale": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlDeleteTitle": "Eliminare questo dato?",
+  "privacyControlDeleteBody": "Questa azione \u00e8 irreversibile. MINT dimenticher\u00e0 {factLabel}.",
+  "@privacyControlDeleteBody": {
+    "placeholders": {
+      "factLabel": {"type": "String"}
+    }
+  },
+  "privacyControlDeleteCancel": "Annulla",
+  "privacyControlDeleteConfirm": "Elimina",
+  "privacyControlSave": "Salva",
+  "privacyControlEditSourceNote": "Fonte: modifica manuale",
+  "drawerPrivacyControl": "Cosa MINT sa di te"
 }

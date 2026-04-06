@@ -10117,5 +10117,48 @@
   "docImpactQuestionsTitle": "Fragen zu stellen",
   "docImpactContinuer": "Weiter",
   "docImpactPremierEclairageLoading": "Analyse l\u00e4uft\u2026",
-  "docImpactPremierEclairageError": "Anreicherung gespeichert. Die detaillierte Analyse wird bald verf\u00fcgbar sein."
+  "docImpactPremierEclairageError": "Anreicherung gespeichert. Die detaillierte Analyse wird bald verf\u00fcgbar sein.",
+  "privacyControlTitle": "Was MINT \u00fcber dich weiss",
+  "privacyControlEmpty": "Noch keine Daten",
+  "privacyControlEmptyBody": "Scanne ein Dokument oder chatte mit dem Coach, damit MINT dich kennenlernen kann.",
+  "privacyControlError": "Daten konnten nicht geladen werden. Versuche es in wenigen Augenblicken erneut.",
+  "privacyControlSummary": "{count} Daten | {percent}\u00a0% aktuell",
+  "@privacyControlSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "percent": {"type": "int"}
+    }
+  },
+  "privacyControlSectionFinancial": "Finanzdaten",
+  "privacyControlSectionLifeEvents": "Lebensereignisse",
+  "privacyControlSectionDecisions": "Entscheidungen",
+  "privacyControlSourceDocument": "Aus Dokument extrahiert",
+  "privacyControlSourceUserInput": "Manuelle Eingabe",
+  "privacyControlSourceUserEdit": "Manuelle \u00c4nderung",
+  "privacyControlSourceCoach": "Coach-Gespr\u00e4ch",
+  "privacyControlFresh": "Aktuell",
+  "privacyControlAging": "Daten von vor {months} Monaten",
+  "@privacyControlAging": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlStale": "Veraltete Daten \u2014 {months} Monate",
+  "@privacyControlStale": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlDeleteTitle": "Diese Daten l\u00f6schen?",
+  "privacyControlDeleteBody": "Diese Aktion ist unwiderruflich. MINT wird {factLabel} vergessen.",
+  "@privacyControlDeleteBody": {
+    "placeholders": {
+      "factLabel": {"type": "String"}
+    }
+  },
+  "privacyControlDeleteCancel": "Abbrechen",
+  "privacyControlDeleteConfirm": "L\u00f6schen",
+  "privacyControlSave": "Speichern",
+  "privacyControlEditSourceNote": "Quelle: manuelle \u00c4nderung",
+  "drawerPrivacyControl": "Was MINT \u00fcber dich weiss"
 }

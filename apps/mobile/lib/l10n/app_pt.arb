@@ -10117,5 +10117,48 @@
   "docImpactQuestionsTitle": "Perguntas a fazer",
   "docImpactContinuer": "Continuar",
   "docImpactPremierEclairageLoading": "A analisar\u2026",
-  "docImpactPremierEclairageError": "Enriquecimento guardado. A an\u00e1lise detalhada estar\u00e1 dispon\u00edvel em breve."
+  "docImpactPremierEclairageError": "Enriquecimento guardado. A an\u00e1lise detalhada estar\u00e1 dispon\u00edvel em breve.",
+  "privacyControlTitle": "O que o MINT sabe sobre ti",
+  "privacyControlEmpty": "Nenhum dado por enquanto",
+  "privacyControlEmptyBody": "Digitaliza um documento ou conversa com o coach para que o MINT comece a conhecer-te.",
+  "privacyControlError": "N\u00e3o foi poss\u00edvel carregar os teus dados. Tenta novamente dentro de instantes.",
+  "privacyControlSummary": "{count} dados | {percent}\u00a0% atualizados",
+  "@privacyControlSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "percent": {"type": "int"}
+    }
+  },
+  "privacyControlSectionFinancial": "Dados financeiros",
+  "privacyControlSectionLifeEvents": "Eventos de vida",
+  "privacyControlSectionDecisions": "Decis\u00f5es",
+  "privacyControlSourceDocument": "Extra\u00eddo de documento",
+  "privacyControlSourceUserInput": "Entrada manual",
+  "privacyControlSourceUserEdit": "Modifica\u00e7\u00e3o manual",
+  "privacyControlSourceCoach": "Conversa com o coach",
+  "privacyControlFresh": "Atualizado",
+  "privacyControlAging": "Dados de h\u00e1 {months} meses",
+  "@privacyControlAging": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlStale": "Dados obsoletos \u2014 {months} meses",
+  "@privacyControlStale": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlDeleteTitle": "Eliminar este dado?",
+  "privacyControlDeleteBody": "Esta a\u00e7\u00e3o \u00e9 irrevers\u00edvel. O MINT esquecer\u00e1 {factLabel}.",
+  "@privacyControlDeleteBody": {
+    "placeholders": {
+      "factLabel": {"type": "String"}
+    }
+  },
+  "privacyControlDeleteCancel": "Cancelar",
+  "privacyControlDeleteConfirm": "Eliminar",
+  "privacyControlSave": "Guardar",
+  "privacyControlEditSourceNote": "Fonte: modifica\u00e7\u00e3o manual",
+  "drawerPrivacyControl": "O que o MINT sabe sobre ti"
 }

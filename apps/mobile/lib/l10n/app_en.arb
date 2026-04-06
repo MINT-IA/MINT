@@ -10117,5 +10117,48 @@
   "docImpactQuestionsTitle": "Questions to ask",
   "docImpactContinuer": "Continue",
   "docImpactPremierEclairageLoading": "Analysing\u2026",
-  "docImpactPremierEclairageError": "Enrichment saved. Detailed analysis will be available soon."
+  "docImpactPremierEclairageError": "Enrichment saved. Detailed analysis will be available soon.",
+  "privacyControlTitle": "What MINT knows about you",
+  "privacyControlEmpty": "No data yet",
+  "privacyControlEmptyBody": "Scan a document or chat with the coach so MINT can start getting to know you.",
+  "privacyControlError": "Unable to load your data. Try again in a moment.",
+  "privacyControlSummary": "{count} data points | {percent}\u00a0% up to date",
+  "@privacyControlSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "percent": {"type": "int"}
+    }
+  },
+  "privacyControlSectionFinancial": "Financial data",
+  "privacyControlSectionLifeEvents": "Life events",
+  "privacyControlSectionDecisions": "Decisions",
+  "privacyControlSourceDocument": "Extracted from document",
+  "privacyControlSourceUserInput": "Manual entry",
+  "privacyControlSourceUserEdit": "Manual edit",
+  "privacyControlSourceCoach": "Coach conversation",
+  "privacyControlFresh": "Up to date",
+  "privacyControlAging": "Data from {months} months ago",
+  "@privacyControlAging": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlStale": "Outdated data \u2014 {months} months",
+  "@privacyControlStale": {
+    "placeholders": {
+      "months": {"type": "int"}
+    }
+  },
+  "privacyControlDeleteTitle": "Delete this data?",
+  "privacyControlDeleteBody": "This action is irreversible. MINT will forget {factLabel}.",
+  "@privacyControlDeleteBody": {
+    "placeholders": {
+      "factLabel": {"type": "String"}
+    }
+  },
+  "privacyControlDeleteCancel": "Cancel",
+  "privacyControlDeleteConfirm": "Delete",
+  "privacyControlSave": "Save",
+  "privacyControlEditSourceNote": "Source: manual edit",
+  "drawerPrivacyControl": "What MINT knows about you"
 }

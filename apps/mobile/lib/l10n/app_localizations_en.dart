@@ -21833,4 +21833,80 @@ class SEn extends S {
   @override
   String get docImpactPremierEclairageError =>
       'Enrichment saved. Detailed analysis will be available soon.';
+
+  @override
+  String get privacyControlTitle => 'What MINT knows about you';
+
+  @override
+  String get privacyControlEmpty => 'No data yet';
+
+  @override
+  String get privacyControlEmptyBody =>
+      'Scan a document or chat with the coach so MINT can start getting to know you.';
+
+  @override
+  String get privacyControlError =>
+      'Unable to load your data. Try again in a moment.';
+
+  @override
+  String privacyControlSummary(int count, int percent) {
+    return '$count data points | $percent % up to date';
+  }
+
+  @override
+  String get privacyControlSectionFinancial => 'Financial data';
+
+  @override
+  String get privacyControlSectionLifeEvents => 'Life events';
+
+  @override
+  String get privacyControlSectionDecisions => 'Decisions';
+
+  @override
+  String get privacyControlSourceDocument => 'Extracted from document';
+
+  @override
+  String get privacyControlSourceUserInput => 'Manual entry';
+
+  @override
+  String get privacyControlSourceUserEdit => 'Manual edit';
+
+  @override
+  String get privacyControlSourceCoach => 'Coach conversation';
+
+  @override
+  String get privacyControlFresh => 'Up to date';
+
+  @override
+  String privacyControlAging(int months) {
+    return 'Data from $months months ago';
+  }
+
+  @override
+  String privacyControlStale(int months) {
+    return 'Outdated data — $months months';
+  }
+
+  @override
+  String get privacyControlDeleteTitle => 'Delete this data?';
+
+  @override
+  String privacyControlDeleteBody(String factLabel) {
+    return 'This action is irreversible. MINT will forget $factLabel.';
+  }
+
+  @override
+  String get privacyControlDeleteCancel => 'Cancel';
+
+  @override
+  String get privacyControlDeleteConfirm => 'Delete';
+
+  @override
+  String get privacyControlSave => 'Save';
+
+  @override
+  String get privacyControlEditSourceNote => 'Source: manual edit';
+
+  @override
+  String get drawerPrivacyControl => 'What MINT knows about you';
 }
