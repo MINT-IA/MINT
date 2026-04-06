@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-04-06T20:38:48.603Z"
+stopped_at: Completed 06-05-PLAN.md
+last_updated: "2026-04-06T20:52:27.189Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 6
-  completed_phases: 6
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  completed_phases: 5
+  total_plans: 24
+  completed_plans: 23
+  percent: 96
 ---
 
 # GSD State
@@ -98,6 +98,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 06]: error/warning/info colors tested at large text 3.0:1 threshold (Apple system colors used as status accents)
 - [Phase 06]: Financial key empty-value test uses trim().isEmpty (not length<3) since labels like TOI/DU/vs are intentionally short
 - [Phase 06]: Font warmup pattern for animated golden widgets; integration_test over patrol for dependency safety
+- [Phase 06-qa-profond]: Phase 6 test dirs added to existing screens shard (not new shard) to keep CI matrix balanced
+- [Phase 06-qa-profond]: TolerantGoldenFileComparator uses Flutter SDK recommended pattern (compareLists + diffPercent <= tolerance)
 
 ### Pending Todos
 
@@ -111,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-06T20:38:48.601Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-04-06T20:52:27.186Z
+Stopped at: Completed 06-05-PLAN.md
 Resume file: None

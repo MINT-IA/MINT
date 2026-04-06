@@ -117,7 +117,7 @@ Plans:
 - [x] 06-02-PLAN.md -- Golden screenshot regression tests + Patrol integration scripts (QA-03, QA-04, QA-05)
 - [x] 06-03-PLAN.md -- ComplianceGuard channel coverage + DE/IT terminology validation (QA-06, QA-07, QA-10, COMP-01)
 - [x] 06-04-PLAN.md -- WCAG 2.1 AA accessibility audit + hardcoded string detection (QA-08, COMP-05)
-- [ ] 06-05-PLAN.md -- Gap closure: CI shard integration + golden comparator + Patrol gate doc (QA-03, QA-04, QA-05, QA-10)
+- [x] 06-05-PLAN.md -- Gap closure: CI shard integration + golden comparator + Patrol gate doc (QA-03, QA-04, QA-05, QA-10)
 - [ ] 06-06-PLAN.md -- Gap closure: WCAG status color fixes + QA-09 requirement update (QA-08, QA-09)
 
 ## Progress
@@ -132,4 +132,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 3. Memoire Narrative | 4/4 | Planned | - |
 | 4. Moteur d'Anticipation | 3/3 | Complete | - |
 | 5. Interface Contextuelle | 2/2 | Planned | - |
-| 6. QA Profond | 4/6 | Planned | - |
+| 6. QA Profond | 5/6 | In Progress|  |
