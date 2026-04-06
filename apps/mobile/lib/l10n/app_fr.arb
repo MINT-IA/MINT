@@ -10465,5 +10465,8 @@
     }
   },
   "explorerBlockedSheetCta": "Compl\u00e9ter mon profil",
-  "explorerPartialTooltip": "Certaines donn\u00e9es manquent\u00a0\u2014 estimation approximative"
+  "explorerPartialTooltip": "Certaines donn\u00e9es manquent\u00a0\u2014 estimation approximative",
+  "homeJourneyTitle": "Ton parcours",
+  "homeJourneyNextStep": "Prochaine\u00a0\u00e9tape",
+  "homeJourneyUpcoming": "Ensuite"
 }

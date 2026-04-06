@@ -21822,4 +21822,13 @@ class SIt extends S {
   @override
   String get explorerPartialTooltip =>
       'Alcuni dati mancano — stima approssimativa';
+
+  @override
+  String get homeJourneyTitle => 'Il tuo percorso';
+
+  @override
+  String get homeJourneyNextStep => 'Prossimo passo';
+
+  @override
+  String get homeJourneyUpcoming => 'Poi';
 }

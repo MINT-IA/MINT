@@ -38216,6 +38216,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Certaines données manquent — estimation approximative'**
   String get explorerPartialTooltip;
+
+  /// No description provided for @homeJourneyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton parcours'**
+  String get homeJourneyTitle;
+
+  /// No description provided for @homeJourneyNextStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochaine étape'**
+  String get homeJourneyNextStep;
+
+  /// No description provided for @homeJourneyUpcoming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ensuite'**
+  String get homeJourneyUpcoming;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

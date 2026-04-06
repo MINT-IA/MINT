@@ -21651,4 +21651,13 @@ class SEn extends S {
   @override
   String get explorerPartialTooltip =>
       'Some data is missing — approximate estimate';
+
+  @override
+  String get homeJourneyTitle => 'Your journey';
+
+  @override
+  String get homeJourneyNextStep => 'Next step';
+
+  @override
+  String get homeJourneyUpcoming => 'Then';
 }

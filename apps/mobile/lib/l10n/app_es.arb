@@ -9949,5 +9949,8 @@
     }
   },
   "explorerBlockedSheetCta": "Completar mi perfil",
-  "explorerPartialTooltip": "Faltan algunos datos\u00a0\u2014 estimaci\u00f3n aproximada"
+  "explorerPartialTooltip": "Faltan algunos datos\u00a0\u2014 estimaci\u00f3n aproximada",
+  "homeJourneyTitle": "Tu recorrido",
+  "homeJourneyNextStep": "Siguiente paso",
+  "homeJourneyUpcoming": "Luego"
 }

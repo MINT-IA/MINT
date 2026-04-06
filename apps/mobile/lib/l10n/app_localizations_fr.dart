@@ -21765,4 +21765,13 @@ class SFr extends S {
   @override
   String get explorerPartialTooltip =>
       'Certaines données manquent — estimation approximative';
+
+  @override
+  String get homeJourneyTitle => 'Ton parcours';
+
+  @override
+  String get homeJourneyNextStep => 'Prochaine étape';
+
+  @override
+  String get homeJourneyUpcoming => 'Ensuite';
 }

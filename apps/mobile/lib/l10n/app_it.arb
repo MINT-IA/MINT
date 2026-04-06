@@ -9949,5 +9949,8 @@
     }
   },
   "explorerBlockedSheetCta": "Completa il mio profilo",
-  "explorerPartialTooltip": "Alcuni dati mancano\u00a0\u2014 stima approssimativa"
+  "explorerPartialTooltip": "Alcuni dati mancano\u00a0\u2014 stima approssimativa",
+  "homeJourneyTitle": "Il tuo percorso",
+  "homeJourneyNextStep": "Prossimo passo",
+  "homeJourneyUpcoming": "Poi"
 }

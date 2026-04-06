@@ -9949,5 +9949,8 @@
     }
   },
   "explorerBlockedSheetCta": "Complete my profile",
-  "explorerPartialTooltip": "Some data is missing\u00a0\u2014 approximate estimate"
+  "explorerPartialTooltip": "Some data is missing\u00a0\u2014 approximate estimate",
+  "homeJourneyTitle": "Your journey",
+  "homeJourneyNextStep": "Next step",
+  "homeJourneyUpcoming": "Then"
 }

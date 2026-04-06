@@ -21767,4 +21767,13 @@ class SEs extends S {
   @override
   String get explorerPartialTooltip =>
       'Faltan algunos datos — estimación aproximada';
+
+  @override
+  String get homeJourneyTitle => 'Tu recorrido';
+
+  @override
+  String get homeJourneyNextStep => 'Siguiente paso';
+
+  @override
+  String get homeJourneyUpcoming => 'Luego';
 }

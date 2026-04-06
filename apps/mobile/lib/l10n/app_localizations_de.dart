@@ -21810,4 +21810,13 @@ class SDe extends S {
   @override
   String get explorerPartialTooltip =>
       'Einige Daten fehlen — ungefähre Schätzung';
+
+  @override
+  String get homeJourneyTitle => 'Dein Weg';
+
+  @override
+  String get homeJourneyNextStep => 'Naechster Schritt';
+
+  @override
+  String get homeJourneyUpcoming => 'Danach';
 }

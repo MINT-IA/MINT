@@ -21769,4 +21769,13 @@ class SPt extends S {
   @override
   String get explorerPartialTooltip =>
       'Alguns dados em falta — estimativa aproximada';
+
+  @override
+  String get homeJourneyTitle => 'O teu percurso';
+
+  @override
+  String get homeJourneyNextStep => 'Proximo passo';
+
+  @override
+  String get homeJourneyUpcoming => 'Depois';
 }
