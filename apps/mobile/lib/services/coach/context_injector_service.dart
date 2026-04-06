@@ -23,6 +23,9 @@ import 'package:mint_mobile/services/voice/regional_voice_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
+import 'package:mint_mobile/services/biography/anonymized_biography_service.dart';
+import 'package:mint_mobile/services/biography/biography_repository.dart';
+import 'package:mint_mobile/services/biography/biography_refresh_detector.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -328,6 +331,30 @@ class ContextInjectorService {
       budgetBlock = lines.join('\n');
     }
 
+    // ── Biography (Phase 3 — Memoire Narrative) ────────────────
+    // Inject anonymized financial biography so Claude can reference
+    // the user's story naturally. NEVER raw facts — only
+    // AnonymizedBiographySummary enters the prompt (COMP-03).
+    String biographyBlock = '';
+    if (profile != null) {
+      try {
+        final repo = await BiographyRepository.instance();
+        final facts = await repo.getActiveFacts();
+        if (facts.isNotEmpty) {
+          biographyBlock = AnonymizedBiographySummary.build(facts);
+          // Check for stale data needing refresh (BIO-08)
+          final staleFields =
+              BiographyRefreshDetector.detectStaleFields(facts);
+          if (staleFields.isNotEmpty) {
+            biographyBlock +=
+                '\n${BiographyRefreshDetector.buildRefreshNudge(staleFields)}';
+          }
+        }
+      } catch (_) {
+        // Graceful degradation: coach works without biography context.
+      }
+    }
+
     // ── Onboarding payload (one-shot) ────────────────────────
     // Inject chiffre choc + emotion from onboarding so the coach
     // can react to the user's first impression. Cleared after read.
@@ -358,6 +385,7 @@ class ContextInjectorService {
       planBlock: planBlock,
       recentInsightsBlock: recentInsightsBlock,
       budgetBlock: budgetBlock,
+      biographyBlock: biographyBlock,
       enrichmentBlock: enrichmentBlock,
       onboardingBlock: onboardingBlock,
       checkInBlock: checkInBlock,
@@ -749,6 +777,7 @@ class ContextInjectorService {
     String planBlock = '',
     String recentInsightsBlock = '',
     String budgetBlock = '',
+    String biographyBlock = '',
     String enrichmentBlock = '',
     String onboardingBlock = '',
     String checkInBlock = '',
@@ -799,6 +828,12 @@ class ContextInjectorService {
     if (budgetBlock.isNotEmpty) {
       parts.add('');
       parts.add(budgetBlock);
+    }
+
+    // Financial biography (Memoire Narrative Phase 3)
+    if (biographyBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(biographyBlock);
     }
 
     // Check-in summary (SUI-04) — last monthly check-in amount for coach context
