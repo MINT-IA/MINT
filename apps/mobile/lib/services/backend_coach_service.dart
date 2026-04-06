@@ -95,6 +95,14 @@ class BackendCoachService {
           'gap': budgetSnapshot.gap?.monthlyGap,
           'budgetConfidenceScore': budgetSnapshot.confidenceScore,
         },
+        'planned_contributions': profile.plannedContributions
+            .map((c) => {
+                  'id': c.id,
+                  'label': c.label,
+                  'amount': c.amount,
+                  'category': c.category,
+                })
+            .toList(),
       };
 
       final response = await http
