@@ -219,3 +219,25 @@ class MagicLinkVerifyResponse(BaseModel):
 
     access_token: str
     token_type: str = "bearer"
+
+
+# ---------------------------------------------------------------------------
+# Apple Sign-In schemas
+# ---------------------------------------------------------------------------
+
+class AppleVerifyRequest(BaseModel):
+    """Schema for verifying an Apple identity token."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    identity_token: str
+    nonce: Optional[str] = None
+
+
+class AppleVerifyResponse(BaseModel):
+    """Schema for Apple verify response (JWT + user info)."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    access_token: str
+    token_type: str = "bearer"
+    user_id: str
+    email: str

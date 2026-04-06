@@ -37,6 +37,8 @@ dependencies:
   flutter_gemma: ^0.11.16
   flutter_tts: ^4.2.0
   speech_to_text: ^7.0.0
+  sign_in_with_apple: ^6.1.0
+  crypto: ^3.0.3
 
 dev_dependencies:
   flutter_test:

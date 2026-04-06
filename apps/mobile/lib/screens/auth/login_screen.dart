@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/services/apple_sign_in_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -27,6 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _showPasswordFallback = false;
   bool _magicLinkSent = false;
+  bool _appleSignInLoading = false;
+  String? _appleSignInError;
   int _countdownSeconds = 0;
   Timer? _countdownTimer;
 
@@ -84,6 +90,26 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       });
     });
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    setState(() => _appleSignInLoading = true);
+    try {
+      final jwt = await AppleSignInService.signIn();
+      if (jwt != null && mounted) {
+        await _navigatePostAuth();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _appleSignInError = e.toString().replaceAll('Exception: ', '');
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _appleSignInLoading = false);
+      }
+    }
   }
 
   Future<void> _handlePasswordLogin() async {
@@ -269,6 +295,49 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               ),
                             ),
+                        ],
+
+                        const SizedBox(height: MintSpacing.md),
+
+                        // ── Apple Sign-In (iOS only) ──
+                        if (!kIsWeb && Platform.isIOS) ...[
+                          Center(
+                            child: Text(
+                              'ou',
+                              style: MintTextStyles.bodyMedium(
+                                color: MintColors.textMuted,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: MintSpacing.md),
+                          SizedBox(
+                            height: 48,
+                            child: _appleSignInLoading
+                                ? const Center(
+                                    child: SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    ),
+                                  )
+                                : SignInWithAppleButton(
+                                    onPressed: _handleAppleSignIn,
+                                    style: SignInWithAppleButtonStyle.black,
+                                  ),
+                          ),
+                        ],
+
+                        // Apple Sign-In error
+                        if (_appleSignInError != null) ...[
+                          const SizedBox(height: MintSpacing.sm),
+                          Text(
+                            _appleSignInError!,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.error,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ],
 
                         const SizedBox(height: MintSpacing.lg),

@@ -485,6 +485,30 @@ class ApiService {
     );
   }
 
+  /// Verify an Apple identity token with the backend.
+  /// Returns: { accessToken, tokenType, userId, email }
+  static Future<Map<String, dynamic>> postAppleVerify({
+    required String identityToken,
+    required String nonce,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/apple/verify'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'identityToken': identityToken,
+        'nonce': nonce,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Apple Sign-In verification failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
   /// Get current user info
   /// Returns: { id, email, display_name?, created_at }
   static Future<Map<String, dynamic>> getMe() async {
