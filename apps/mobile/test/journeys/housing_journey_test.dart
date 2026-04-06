@@ -223,7 +223,7 @@ void main() {
       expect(routes, contains('/rachat-lpp'));
     });
 
-    test('Step D — steps contain /location-vs-propriete route (compare)', () {
+    test('Step D — steps contain /arbitrage/location-vs-propriete route (compare)', () {
       final seq = CapSequenceEngine.build(
         profile: _julienProfile(),
         memory: emptyMemory,
@@ -233,7 +233,7 @@ void main() {
 
       final routes =
           seq.steps.map((s) => s.intentTag).whereType<String>().toList();
-      expect(routes, contains('/location-vs-propriete'));
+      expect(routes, contains('/arbitrage/location-vs-propriete'));
     });
 
     test(

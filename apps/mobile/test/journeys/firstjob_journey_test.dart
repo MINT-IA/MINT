@@ -88,14 +88,14 @@ void main() {
       expect(mapping, isNotNull);
       expect(mapping!.goalIntentTag, equals('first_job'));
       expect(mapping.lifeEventFamily, equals('professionnel'));
-      expect(mapping.stressType, equals('stress_budget'));
+      expect(mapping.stressType, equals('stress_prevoyance'));
     });
 
-    test('Step B — suggestedRoute points to /premier-emploi', () {
+    test('Step B — suggestedRoute points to /first-job', () {
       final mapping = IntentRouter.forChipKey('intentChipPremierEmploi');
 
       expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/premier-emploi'));
+      expect(mapping!.suggestedRoute, equals('/first-job'));
     });
 
     test('Step C — CapSequence has exactly 5 steps', () {
@@ -188,7 +188,7 @@ void main() {
     });
 
     test(
-        'Step E — step routes contain /premier-emploi (fj_02), /rachat-lpp (fj_03), /pilier-3a (fj_04)',
+        'Step E — step routes contain /first-job (fj_02), /rachat-lpp (fj_03), /pilier-3a (fj_04)',
         () {
       final seq = CapSequenceEngine.build(
         profile: _julienProfile(),
@@ -199,7 +199,7 @@ void main() {
 
       final routes =
           seq.steps.map((s) => s.intentTag).whereType<String>().toList();
-      expect(routes, contains('/premier-emploi'));
+      expect(routes, contains('/first-job'));
       expect(routes, contains('/rachat-lpp'));
       expect(routes, contains('/pilier-3a'));
     });
@@ -209,7 +209,7 @@ void main() {
       final mapping = IntentRouter.forChipKey('intentChipPremierEmploi');
 
       expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/premier-emploi'));
+      expect(mapping!.suggestedRoute, equals('/first-job'));
     });
 
     test('goalId is first_job', () {
