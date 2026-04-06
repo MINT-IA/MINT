@@ -79,7 +79,12 @@ Plans:
   3. All alerts use the AlertTemplate enum (Educational format) and pass ComplianceGuard.validateAlert() before display -- zero banned terms, zero imperatives
   4. Frequency cap enforced: max 2 anticipation signals per user per week, with dismissal/snooze logic per trigger type
   5. Triggers are deterministic rule-based (zero LLM cost) with LLM used only for optional narrative enrichment
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 04-01-PLAN.md -- AnticipationEngine core: trigger enum, signal model, 5 trigger types, cantonal deadlines, tests (ANT-01, ANT-02, ANT-03, ANT-08)
+- [ ] 04-02-PLAN.md -- ComplianceGuard.validateAlert() + AnticipationPersistence (dismiss/snooze/weekly cap) + AnticipationRanking (ANT-04, ANT-05, ANT-06, ANT-07)
+- [ ] 04-03-PLAN.md -- UI wiring: AnticipationProvider + signal card widget + MintHomeScreen integration + i18n 6 languages (all ANT requirements)
+**UI hint**: yes
 
 ### Phase 5: Interface Contextuelle
 **Goal**: The Aujourd'hui tab shows a living, ranked set of cards that reflect what matters most to the user right now
@@ -114,6 +119,6 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | 1. Le Parcours Parfait | 5/5 | Planned | - |
 | 2. Intelligence Documentaire | 0/4 | Planned | - |
 | 3. Memoire Narrative | 0/4 | Planned | - |
-| 4. Moteur d'Anticipation | 0/TBD | Not started | - |
+| 4. Moteur d'Anticipation | 0/3 | Planned | - |
 | 5. Interface Contextuelle | 0/TBD | Not started | - |
 | 6. QA Profond | 0/TBD | Not started | - |
