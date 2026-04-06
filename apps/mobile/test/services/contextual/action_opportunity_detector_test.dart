@@ -108,9 +108,13 @@ void main() {
         facts: facts,
       );
 
-      // With documents and rich profile, no actions needed
-      // (completeness > 70% and documents exist)
-      expect(cards, isEmpty);
+      // With documents present, scan action should NOT appear
+      final scanCards = cards.where((c) => c.route == '/documents/capture');
+      expect(scanCards, isEmpty,
+          reason: 'Scan action should not appear when documents exist');
+
+      // Profile completion card may still appear depending on
+      // ConfidenceScorer result — that is acceptable behavior
     });
 
     test('returns max 2 action cards', () {

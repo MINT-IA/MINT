@@ -64,9 +64,10 @@ void main() {
       final profileWithContribution = profile.copyWith(
         plannedContributions: [
           PlannedMonthlyContribution(
+            id: '3a_test',
+            label: '3a Test',
             amount: 7258 / 12,
             category: '3a',
-            startDate: DateTime(2025, 1, 1),
           ),
         ],
       );

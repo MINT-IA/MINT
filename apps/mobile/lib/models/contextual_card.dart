@@ -102,8 +102,8 @@ final class ContextualProgressCard extends ContextualCard {
     required this.description,
     required this.percent,
     required this.route,
-    required double priorityScore,
-  }) : super(priorityScore: priorityScore);
+    required super.priorityScore,
+  });
 }
 
 /// Action opportunity card with chevron deep-link.
@@ -127,8 +127,8 @@ final class ContextualActionCard extends ContextualCard {
     required this.body,
     required this.route,
     required this.icon,
-    required double priorityScore,
-  }) : super(priorityScore: priorityScore);
+    required super.priorityScore,
+  });
 }
 
 /// Overflow container for cards beyond the visible 4 slots.
