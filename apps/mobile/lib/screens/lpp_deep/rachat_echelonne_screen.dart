@@ -19,6 +19,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
@@ -85,6 +86,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
 
   bool _prefilled = false;
   bool _hasUserInteracted = false;
+  final Set<String> _prefilledFields = {};
 
   String? _seqRunId;
   String? _seqStepId;
@@ -104,6 +106,8 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         if (extra is Map<String, dynamic>) {
           _seqRunId = extra['runId'] as String?;
           _seqStepId = extra['stepId'] as String?;
+          final prefill = extra['prefill'] as Map<String, dynamic>?;
+          if (prefill != null) _applyPrefill(prefill);
         }
       } catch (_) {}
       if (_seqRunId == null) {
@@ -167,6 +171,35 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     }
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     _civilStatus = isMarried ? 'married' : 'single';
+  }
+
+  /// Apply prefill values from GoRouter coach suggestion.
+  /// Called AFTER _prefillFromProfile() so coach values override profile estimates.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      _revenu = salaireBrut.toDouble() * 13;
+      _prefilledFields.add('revenu');
+      changed = true;
+    }
+
+    final rachatMaximum = prefill['rachatMaximum'];
+    if (rachatMaximum is num && rachatMaximum > 0) {
+      _rachatMax = rachatMaximum.toDouble();
+      _prefilledFields.add('rachat_max');
+      changed = true;
+    }
+
+    final avoirLpp = prefill['avoirLpp'];
+    if (avoirLpp is num && avoirLpp > 0) {
+      _avoirActuel = avoirLpp.toDouble();
+      _prefilledFields.add('avoir_lpp');
+      changed = true;
+    }
+
+    if (changed) setState(() {});
   }
 
   @override
@@ -354,9 +387,23 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         children: [
           _buildSectionHeader(Icons.account_balance, l.rachatEchelonneSituationLpp),
           const SizedBox(height: MintSpacing.lg),
-          _buildSliderRow(label: l.rachatEchelonneAvoirActuel, value: _avoirActuel, min: 0, max: 500000, divisions: 100, format: 'CHF ${formatChf(_avoirActuel)}', onChanged: (v) { _avoirActuel = v; _onInputChanged(); }),
+          _buildSliderRowWithBadge(
+            label: l.rachatEchelonneAvoirActuel,
+            value: _avoirActuel,
+            fieldKey: 'avoir_lpp',
+            min: 0, max: 500000, divisions: 100,
+            format: 'CHF ${formatChf(_avoirActuel)}',
+            onChanged: (v) { _avoirActuel = v; _onInputChanged(); },
+          ),
           const SizedBox(height: MintSpacing.sm + 4),
-          _buildSliderRow(label: l.rachatEchelonneRachatMax, value: _rachatMax, min: 0, max: 500000, divisions: 100, format: 'CHF ${formatChf(_rachatMax)}', onChanged: (v) { _rachatMax = v; _onInputChanged(); }),
+          _buildSliderRowWithBadge(
+            label: l.rachatEchelonneRachatMax,
+            value: _rachatMax,
+            fieldKey: 'rachat_max',
+            min: 0, max: 500000, divisions: 100,
+            format: 'CHF ${formatChf(_rachatMax)}',
+            onChanged: (v) { _rachatMax = v; _onInputChanged(); },
+          ),
         ],
       ),
     );
@@ -617,6 +664,50 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       divisions: divisions,
       formatValue: (_) => format,
       onChanged: onChanged,
+    );
+  }
+
+  /// Wraps _buildSliderRow with an optional SmartDefaultIndicator badge.
+  Widget _buildSliderRowWithBadge({
+    required String label,
+    required double value,
+    required String fieldKey,
+    required double min,
+    required double max,
+    required int divisions,
+    required String format,
+    required ValueChanged<double> onChanged,
+  }) {
+    final isPrefilled = _prefilledFields.contains(fieldKey);
+    if (!isPrefilled) {
+      return _buildSliderRow(
+        label: label, value: value, min: min, max: max,
+        divisions: divisions, format: format, onChanged: onChanged,
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(label,
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+            SmartDefaultIndicator(
+              source: 'Depuis ton profil MINT',
+              confidence: 0.60,
+            ),
+          ],
+        ),
+        MintPremiumSlider(
+          label: label,
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          formatValue: (_) => format,
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 

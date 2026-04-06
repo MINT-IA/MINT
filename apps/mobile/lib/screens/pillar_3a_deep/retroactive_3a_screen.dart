@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
@@ -41,6 +42,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
   bool _showEmptyState = false;
+  final Set<String> _prefilledFields = {};
 
   static const _taxRates = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50];
 
@@ -55,7 +57,51 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeFromProfile();
+      _readSequenceContext();
     });
+  }
+
+  /// Read GoRouter extra for prefill from a coach suggestion.
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
+      }
+    } catch (_) {}
+  }
+
+  /// Apply prefill values from GoRouter coach suggestion.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly → annual (13 months)
+      final annualSalary = salaireBrut.toDouble() * 13;
+      try {
+        final profile = context.read<CoachProfileProvider>().profile;
+        final cantonCode = profile?.canton ?? '';
+        final rate = RetirementTaxCalculator.estimateMarginalRate(
+          annualSalary,
+          cantonCode,
+        );
+        final closest = _taxRates.reduce((a, b) =>
+            (a - rate).abs() < (b - rate).abs() ? a : b);
+        _tauxMarginal = closest;
+        _prefilledFields.add('taux_marginal');
+        changed = true;
+      } catch (_) {}
+    }
+
+    final canton = prefill['canton'];
+    if (canton is String && canton.isNotEmpty) {
+      _prefilledFields.add('canton');
+      changed = true;
+    }
+
+    if (changed) setState(() {});
   }
 
   void _initializeFromProfile() {
@@ -290,9 +336,19 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                S.of(context)!.retroactive3aTauxMarginal,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    S.of(context)!.retroactive3aTauxMarginal,
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                  ),
+                  if (_prefilledFields.contains('taux_marginal'))
+                    SmartDefaultIndicator(
+                      source: 'Depuis ton profil MINT',
+                      confidence: 0.60,
+                    ),
+                ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),

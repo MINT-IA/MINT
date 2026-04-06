@@ -17,6 +17,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -52,6 +53,8 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   bool _isPreFilled = false;
   /// Canton used for estimated marginal rate display.
   String _profileCanton = '';
+  /// Fields pre-filled from GoRouter coach suggestion.
+  final Set<String> _prefilledFields = {};
 
   @override
   void initState() {
@@ -74,8 +77,42 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {}
+  }
+
+  /// Apply prefill values from GoRouter coach suggestion.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly → annual (13 months)
+      final annualSalary = salaireBrut.toDouble() * 13;
+      // Re-derive marginal rate if canton is available
+      if (_profileCanton.isNotEmpty) {
+        _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
+          annualSalary,
+          _profileCanton,
+        );
+      }
+      _prefilledFields.add('salaire_brut');
+      changed = true;
+    }
+
+    final canton = prefill['canton'];
+    if (canton is String && canton.isNotEmpty) {
+      _profileCanton = canton.toUpperCase();
+      _prefilledFields.add('canton');
+      changed = true;
+    }
+
+    if (changed) {
+      setState(() {});
+      _calculate();
+    }
   }
 
   void _emitFinalReturn() {
@@ -319,6 +356,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                 style: MintTextStyles.labelSmall(color: MintColors.success)
                     ,
               ),
+              if (_prefilledFields.isNotEmpty)
+                SmartDefaultIndicator(
+                  source: 'Depuis ton profil MINT',
+                  confidence: 0.60,
+                ),
             ],
           ),
         ],

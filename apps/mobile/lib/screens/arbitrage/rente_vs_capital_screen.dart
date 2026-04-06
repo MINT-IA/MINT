@@ -98,6 +98,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
 
+  // ── GoRouter prefill from coach suggestion ──
+  Map<String, dynamic>? _goRouterPrefill;
+  final Set<String> _prefilledFields = {};
+
   // ── F2-6: Gate ScreenReturn behind user interaction ──
   bool _hasUserInteracted = false;
 
@@ -122,6 +126,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         if (extra is Map<String, dynamic>) {
           _seqRunId = extra['runId'] as String?;
           _seqStepId = extra['stepId'] as String?;
+          final prefill = extra['prefill'] as Map<String, dynamic>?;
+          if (prefill != null) {
+            _goRouterPrefill = prefill;
+          }
         }
       } catch (_) {}
     });
@@ -254,6 +262,55 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     if (changed) {
       _dataSources = Map.from(sources);
       _hasEstimatedValues = hasEstimates;
+      _recalculate();
+    }
+
+    // Apply GoRouter coach prefill AFTER profile auto-fill so coach values win.
+    if (_goRouterPrefill != null) {
+      _applyPrefill(_goRouterPrefill!);
+    }
+  }
+
+  /// Apply prefill values from a coach suggestion (GoRouter extra['prefill']).
+  /// Called after _autoFillFromProfile() to ensure coach values override estimates.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final avoirLpp = prefill['avoirLpp'];
+    if (avoirLpp is num && avoirLpp > 0) {
+      _lppTotalCtrl.text = avoirLpp.toDouble().clamp(0, 5000000).round().toString();
+      _prefilledFields.add('lpp_total');
+      changed = true;
+    }
+
+    final tauxConversion = prefill['tauxConversion'];
+    if (tauxConversion is num && tauxConversion > 0) {
+      final tc = tauxConversion.toDouble().clamp(0.01, 0.10);
+      _tcObligCtrl.text = (tc * 100).toStringAsFixed(1);
+      _prefilledFields.add('lpp_obligatoire');
+      changed = true;
+    }
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // salaireBrut from prefill is monthly — multiply by nombreDeMois
+      const nombreDeMois = 13;
+      final annualSalary = salaireBrut.toDouble() * nombreDeMois;
+      _salaryCtrl.text = annualSalary.round().toString();
+      _prefilledFields.add('salaire_brut');
+      changed = true;
+    }
+
+    final ageRetraite = prefill['ageRetraite'];
+    if (ageRetraite is num) {
+      final age = ageRetraite.toDouble().clamp(58.0, 70.0);
+      _ageRetraiteSlider.value = age;
+      _prefilledFields.add('ageRetraite');
+      changed = true;
+    }
+
+    if (changed) {
+      setState(() {});
       _recalculate();
     }
   }
@@ -994,12 +1051,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     String? fieldName,
     bool isPercent = false,
   }) {
+    final isPrefilled = fieldName != null && _prefilledFields.contains(fieldName);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Expanded(child: Text(label, style: _labelStyle)),
+            if (isPrefilled)
+              SmartDefaultIndicator(
+                source: 'Depuis ton profil MINT',
+                confidence: 0.60,
+              ),
             if (fieldName != null)
               FieldHelpTooltip(fieldName: fieldName),
           ],

@@ -9,10 +9,13 @@ import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
@@ -36,14 +39,53 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
   String? _seqRunId;
   String? _seqStepId;
   bool _finalReturnEmitted = false;
+  final Set<String> _prefilledFields = {};
 
   @override
   void initState() {
     super.initState();
     ReportPersistenceService.markSimulatorExplored('mortgage');
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
       _readSequenceContext();
     });
+  }
+
+  /// Auto-fill from CoachProfile — replaces hardcoded defaults (120000, 200000).
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      bool changed = false;
+      final revenuAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
+      if (revenuAnnuel > 0) {
+        _revenuBrut = revenuAnnuel;
+        _prefilledFields.add('revenu_brut');
+        changed = true;
+      }
+      final avoirLpp = profile.prevoyance.avoirLppTotal;
+      if (avoirLpp != null && avoirLpp > 0) {
+        _avoirLpp = avoirLpp;
+        _prefilledFields.add('avoir_lpp');
+        changed = true;
+      }
+      final epargne = profile.patrimoine.epargneLiquide;
+      if (epargne > 0) {
+        _epargneDispo = epargne;
+        _prefilledFields.add('epargne_dispo');
+        changed = true;
+      }
+      final canton = profile.canton;
+      if (canton.isNotEmpty) {
+        _canton = canton.toUpperCase();
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // CoachProfileProvider not available — keep hardcoded defaults.
+    }
   }
 
   void _readSequenceContext() {
@@ -52,10 +94,41 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {
       // Not navigated via GoRouter or no extra — stay Tier B.
     }
+  }
+
+  /// Apply prefill from GoRouter coach suggestion (overrides profile auto-fill).
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly value — multiply by 13 for annual
+      _revenuBrut = salaireBrut.toDouble() * 13;
+      _prefilledFields.add('revenu_brut');
+      changed = true;
+    }
+
+    final epargne = prefill['epargne'];
+    if (epargne is num && epargne >= 0) {
+      _epargneDispo = epargne.toDouble();
+      _prefilledFields.add('epargne_dispo');
+      changed = true;
+    }
+
+    final avoirLpp = prefill['avoirLpp'];
+    if (avoirLpp is num && avoirLpp >= 0) {
+      _avoirLpp = avoirLpp.toDouble();
+      _prefilledFields.add('avoir_lpp');
+      changed = true;
+    }
+
+    if (changed) setState(() {});
   }
 
   void _emitFinalReturn() {
@@ -290,10 +363,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       const SizedBox(height: MintSpacing.lg),
 
                       // Revenu brut annuel
-                      MintAmountField(
+                      _buildAmountFieldWithBadge(
                         label: l.affordabilityGrossIncome,
                         value: _revenuBrut,
-                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                        fieldKey: 'revenu_brut',
                         onChanged: (v) => setState(() { _hasUserInteracted = true; _revenuBrut = v; }),
                         min: 50000,
                         max: 300000,
@@ -359,10 +432,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                           max: 300000,
                         ),
                         const SizedBox(height: MintSpacing.md),
-                        MintAmountField(
+                        _buildAmountFieldWithBadge(
                           label: l.affordabilityPillarLpp,
                           value: _avoirLpp,
-                          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                          fieldKey: 'avoir_lpp',
                           onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirLpp = v; }),
                           min: 0,
                           max: 500000,
@@ -413,6 +486,46 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
         ],
       ),
     ));
+  }
+
+  /// Builds a MintAmountField with an optional SmartDefaultIndicator badge
+  /// shown above the field when the field key is in _prefilledFields.
+  Widget _buildAmountFieldWithBadge({
+    required String label,
+    required double value,
+    required String fieldKey,
+    required ValueChanged<double> onChanged,
+    double? min,
+    double? max,
+  }) {
+    final isPrefilled = _prefilledFields.contains(fieldKey);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isPrefilled) ...[
+          Row(
+            children: [
+              Text(label,
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary)),
+              SmartDefaultIndicator(
+                source: 'Depuis ton profil MINT',
+                confidence: 0.60,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+        ],
+        MintAmountField(
+          label: isPrefilled ? label : label,
+          value: value,
+          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+          onChanged: onChanged,
+          min: min,
+          max: max,
+        ),
+      ],
+    );
   }
 
   Widget _buildInsightCard(AffordabilityResult result, S l) {
