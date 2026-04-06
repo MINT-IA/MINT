@@ -7,7 +7,7 @@
 // Run with --update-goldens to refresh baselines:
 //   flutter test test/golden_screenshots/golden_screenshot_test.dart --update-goldens
 //
-// See README.md for update protocol and 1.5% threshold policy.
+// 1.5% pixel diff tolerance enforced via TolerantGoldenFileComparator.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -30,6 +30,7 @@ import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 
 import 'golden_test_helpers.dart';
+import 'tolerant_comparator.dart';
 
 // ---------------------------------------------------------------------------
 // Phone size definitions
@@ -97,6 +98,11 @@ Widget _buildDeWidget(
 }
 
 void main() {
+  // Enforce 1.5% pixel diff tolerance for cross-platform rendering variations.
+  goldenFileComparator = TolerantGoldenFileComparator(
+    Uri.parse('test/golden_screenshots/golden_screenshot_test.dart'),
+  );
+
   setUp(() async {
     await setupGoldenEnvironment();
     SharedPreferences.setMockInitialValues({
