@@ -95,7 +95,10 @@ Plans:
   2. Card ranking is deterministic per session (computed at app launch, not on scroll) and completed actions demote their triggering card
   3. Coach opener is biography-aware and LSFin compliant, ending with user-initiated action (never imperatives)
   4. Each card deep-links to the relevant simulator or tool, and the 3-tab shell + ProfileDrawer remain unchanged
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 05-01-PLAN.md -- ContextualCard model + ContextualRankingService + detectors + 4 card widgets (CTX-01, CTX-02, CTX-05)
+- [ ] 05-02-PLAN.md -- CoachOpenerService + ContextualCardProvider + MintHomeScreen rewire + i18n 6 languages (CTX-03, CTX-04, CTX-06)
 **UI hint**: yes
 
 ### Phase 6: QA Profond
@@ -117,8 +120,8 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Le Parcours Parfait | 5/5 | Planned | - |
-| 2. Intelligence Documentaire | 0/4 | Planned | - |
-| 3. Memoire Narrative | 0/4 | Planned | - |
-| 4. Moteur d'Anticipation | 2/3 | In Progress|  |
-| 5. Interface Contextuelle | 0/TBD | Not started | - |
+| 2. Intelligence Documentaire | 4/4 | Planned | - |
+| 3. Memoire Narrative | 4/4 | Planned | - |
+| 4. Moteur d'Anticipation | 3/3 | Complete | - |
+| 5. Interface Contextuelle | 0/2 | Planned | - |
 | 6. QA Profond | 0/TBD | Not started | - |
