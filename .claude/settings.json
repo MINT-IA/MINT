@@ -156,7 +156,9 @@
       "Grep",
       "Agent",
       "Task",
-      "Skill"
+      "Skill",
+      "WebFetch",
+      "WebSearch"
     ],
     "deny": [
       "Bash(rm -rf /:*)",

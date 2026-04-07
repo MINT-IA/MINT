@@ -6,14 +6,14 @@
     "nyquist_validation": true,
     "ui_phase": true,
     "ui_safety_gate": false,
-    "skip_discuss_autonomous": true,
+    "skip_discuss_autonomous": false,
     "context_warnings": false,
-    "research_questions": false,
-    "use_worktrees": true,
+    "research_questions": true,
+    "use_worktrees": false,
     "discuss_mode": "assumptions",
     "_auto_chain_active": false
   },
-  "model_profile": "balanced",
+  "model_profile": "quality",
   "git": {
     "branching_strategy": "none"
   }
