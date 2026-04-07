@@ -1,34 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: milestone
-status: verifying
-stopped_at: Completed 06-06-PLAN.md
-last_updated: "2026-04-07T04:34:19.242Z"
+milestone: v2.1
+milestone_name: Stabilisation v2.0
+status: defining_requirements
+stopped_at: ""
+last_updated: "2026-04-07T00:00:00.000Z"
 last_activity: 2026-04-07
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 24
-  completed_plans: 24
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # GSD State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-06)
+See: .planning/PROJECT.md (updated 2026-04-07)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight -- then knows exactly what to do next.
-**Current focus:** Phase 06 — QA Profond
+**Current focus:** v2.1 Stabilisation — defining requirements
 
 ## Current Position
 
-Phase: 06
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-07
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-07 — Milestone v2.1 started
 
 Progress: [░░░░░░░░░░] 0%
 

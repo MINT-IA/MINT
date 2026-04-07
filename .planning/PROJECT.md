@@ -8,18 +8,20 @@ Swiss financial protection & education app (Flutter + FastAPI) that tells users 
 
 A user opens MINT and within 3 minutes receives a personalized, surprising insight about their financial situation that they couldn't have found elsewhere — then knows exactly what to do next.
 
-## Current Milestone: v2.0 Mint Système Vivant
+## Current Milestone: v2.1 Stabilisation v2.0
 
-**Goal:** Transform MINT from a well-wired but passive app into a living financial intelligence system that ingests documents, anticipates life events, remembers the user's financial narrative, and proactively coaches — while respecting LSFin/nLPD at every layer.
+**Goal:** Stabilize v2.0 before TestFlight — close the coach tool-call choreography end-to-end, refresh Phase 1 tests broken by the magic-link redesign, clean lints on production code, and bring CI on `dev` fully green. No new features.
 
 **Target features:**
-- Le Parcours Parfait: Léa golden path end-to-end (landing → insight → plan → check-in)
-- Intelligence Documentaire: Photo/PDF upload → LLM extraction → profile enrichment → instant insight
-- Moteur d'Anticipation: Rule-based proactive alerts (fiscal deadlines, profile changes, legislative)
-- Mémoire Narrative: FinancialBiography (local-only graph of facts, decisions, events)
-- Interface Contextuelle: Smart Aujourd'hui cards ranked by relevance
-- QA Profond: 9 personas, error recovery, accessibility, multilingual validation
-- Connexions Externes: bLink sandbox + pension/tax adapter stubs
+- Coach tool-call choreography wired end-to-end (route_to_screen, generate_document, generate_financial_plan, record_check_in) — emit → orchestrate → render → user-visible
+- Phase 1 test refresh: align auth and intent screen tests with magic-link-first redesign
+- IntentScreen async-gap fix (BuildContext after await)
+- Backend ruff zero errors (43 → 0)
+- Flutter analyze warnings on production code fixed
+- CI dev branch green on all jobs (Backend, Flutter widgets/services/screens, CI Gate)
+- Coach end-to-end test covering tool call → render → user-visible widget for the 4 tools
+
+**Why this milestone:** External audit revealed "façade sans câblage" (LE piège #1 of agent-driven dev): components exist individually but coach tools are silently dropped because the renderer expects fields the orchestrator doesn't pass. Plus Phase 1 redesign left tests asserting deleted UI. Must close before TestFlight.
 
 ## Requirements
 
@@ -40,15 +42,34 @@ A user opens MINT and within 3 minutes receives a personalized, surprising insig
 
 ### Active
 
-<!-- v2.0 Mint Système Vivant milestone scope. -->
+<!-- v2.1 Stabilisation v2.0 milestone scope. -->
 
-- [ ] Léa golden path: landing → onboarding → premier éclairage → plan → check-in (flawless)
-- [ ] Document intelligence: photo/PDF upload → LLM extraction → profile enrichment → instant insight
-- [ ] Anticipation engine: rule-based proactive alerts (fiscal, profile, legislative triggers)
-- [ ] Financial biography: local-only narrative memory with anonymized coach integration
-- [ ] Contextual Aujourd'hui: smart card ranking by relevance (max 5 cards)
-- [ ] QA profond: 9 personas with error recovery, accessibility (WCAG 2.1 AA), multilingual validation
-- [ ] External connections: bLink sandbox + pension/tax adapter stubs
+- [ ] **STAB-01**: route_to_screen tool call rendered end-to-end (intent → route → user-visible screen)
+- [ ] **STAB-02**: generate_document tool call rendered visible (case in widget_renderer)
+- [ ] **STAB-03**: generate_financial_plan exposed in coach_orchestrator BYOK + toolCalls re-exposed in CoachLlmService.chat()
+- [ ] **STAB-04**: record_check_in exposed in coach_orchestrator BYOK + toolCalls re-exposed
+- [ ] **STAB-05**: auth_screens_smoke_test.dart aligned with login_screen.dart magic-link redesign
+- [ ] **STAB-06**: intent_screen_test.dart aligned with Phase 1 rewiring (setOnboardingCompleted moved to plan_screen)
+- [ ] **STAB-07**: IntentScreen async-gap fix (BuildContext captured before await, line 195)
+- [ ] **STAB-08**: Backend ruff zero errors (43 → 0)
+- [ ] **STAB-09**: Flutter analyze warnings on production code fixed (test/style lints acceptable)
+- [ ] **STAB-10**: CI dev branch green on all jobs (Backend, Flutter widgets/services/screens, CI Gate)
+- [ ] **STAB-11**: Coach end-to-end test covers tool call → render → user-visible widget for the 4 tools
+- [ ] **STAB-12**: Coach surface audit — every tool traced end-to-end (definition → render → visible)
+- [ ] **STAB-13**: Provider/Service consumer audit — flag dead/orphan, delete or wire each
+- [ ] **STAB-14**: Route reachability audit — every GoRouter `path:` reachable from current shell, or deleted
+- [ ] **STAB-15**: Backend → mobile contract audit — flag fields backend sends that mobile silently drops
+- [ ] **STAB-16**: Try/except black-hole audit — fix every silently-swallowed error on non-best-effort paths
+- [ ] **STAB-17**: Tap-to-render audit — manually walk every interactive element on 3 tabs + drawer (TestFlight gate)
+
+<!-- v2.0 features all shipped — pending validation through TestFlight after v2.1. -->
+- [x] Léa golden path: landing → onboarding → premier éclairage → plan → check-in (shipped, awaiting device validation)
+- [x] Document intelligence: photo/PDF upload → LLM extraction → profile enrichment → instant insight (shipped)
+- [x] Anticipation engine: rule-based proactive alerts (shipped)
+- [x] Financial biography: local-only narrative memory (shipped)
+- [x] Contextual Aujourd'hui: smart card ranking (shipped)
+- [x] QA profond: 9 personas + accessibility + multilingual (shipped)
+- [x] External connections: bLink sandbox + pension/tax stubs (shipped)
 
 ### Out of Scope
 
@@ -118,4 +139,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-06 after milestone v2.0 initialization*
+*Last updated: 2026-04-07 after milestone v2.1 initialization*
