@@ -39,7 +39,7 @@
 
 ### CI Green
 
-- [ ] **STAB-10**: CI `dev` branch passes green on all jobs (Backend, Flutter widgets shard, Flutter services shard, Flutter screens shard, CI Gate). `golden_screenshots/` remains intentionally excluded from CI (cross-platform fragile).
+- [x] **STAB-10**: CI `dev` branch passes green on all jobs (Backend, Flutter widgets shard, Flutter services shard, Flutter screens shard, CI Gate). `golden_screenshots/` remains intentionally excluded from CI (cross-platform fragile).
 
 ## v2 Requirements
 
@@ -68,14 +68,14 @@
 | STAB-07 | Phase 7 | Pending |
 | STAB-08 | Phase 7 | Complete |
 | STAB-09 | Phase 7 | Complete |
-| STAB-10 | Phase 7 | Pending |
+| STAB-10 | Phase 7 | Complete |
 | STAB-11 | Phase 7 | Complete |
 | STAB-12 | Phase 7 | Complete |
 | STAB-13 | Phase 7 | Complete |
 | STAB-14 | Phase 7 | Complete |
 | STAB-15 | Phase 7 | Complete |
 | STAB-16 | Phase 7 | Complete |
-| STAB-17 | Phase 7 | Pending |
+| STAB-17 | Phase 7 | Scaffold ready, manual walkthrough pending |
 
 **Coverage:**
 - v1 requirements: 17 total
