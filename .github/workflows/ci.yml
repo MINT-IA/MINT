@@ -35,10 +35,33 @@ jobs:
             flutter:
               - 'apps/mobile/**'
 
+  # ─── Contracts drift guard (VoiceCursorContract codegen) ─────
+  # Regenerates Dart + Python contract consumers from tools/contracts/voice_cursor.json
+  # and fails the build if anything drifted. Runs BEFORE backend/flutter for fail-fast.
+  contracts-drift:
+    name: Contracts drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Regenerate contract consumers
+        run: bash tools/contracts/regenerate.sh
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code \
+              tools/contracts/ \
+              apps/mobile/lib/services/voice/voice_cursor_contract.g.dart \
+              services/backend/app/schemas/voice_cursor.py; then
+            echo "::error::Contracts drift detected — run 'bash tools/contracts/regenerate.sh' and commit."
+            exit 1
+          fi
+
   # ─── Backend Tests ───────────────────────────────────────────
   backend:
     name: Backend tests
-    needs: changes
+    needs: [changes, contracts-drift]
     if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -144,7 +167,7 @@ jobs:
   #
   flutter:
     name: Flutter ${{ matrix.shard }}
-    needs: changes
+    needs: [changes, contracts-drift]
     if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
