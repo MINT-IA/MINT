@@ -297,9 +297,9 @@ class TestAgentLoopToolFiltering:
         executed_tools: list = []
         original = _execute_internal_tool
 
-        def _capturing(tool_call, memory_block):
+        def _capturing(tool_call, memory_block, profile_context=None):
             executed_tools.append(tool_call["name"])
-            return original(tool_call, memory_block)
+            return original(tool_call, memory_block, profile_context)
 
         with patch("app.api.v1.endpoints.coach_chat._execute_internal_tool", side_effect=_capturing):
             result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))

@@ -1323,16 +1323,6 @@ class MintScreenRegistry extends ScreenRegistry {
     preferFromChat: false,
   );
 
-  static const ScreenEntry _coachWeeklyRecap = ScreenEntry(
-    route: '/weekly-recap',
-    intentTag: 'coach_weekly_recap',
-    behavior: ScreenBehavior.conversationPure,
-    requiredFields: [],
-    optionalFields: [],
-    preferFromChat: false,
-    prefillFromProfile: false,
-  );
-
   static const ScreenEntry _educationHub = ScreenEntry(
     route: '/education/hub',
     intentTag: 'education_hub',
@@ -1599,7 +1589,6 @@ class MintScreenRegistry extends ScreenRegistry {
     _exploreSante,
     _coachCheckin,
     _coachHistory,
-    _coachWeeklyRecap,
     _educationHub,
     _educationTheme,
     _scoreReveal,
