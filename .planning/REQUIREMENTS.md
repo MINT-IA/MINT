@@ -19,11 +19,11 @@
 
 > **Goal:** Find every "component exists but isn't actually wired into the user-visible path" bug in the codebase, not just the 4 known coach tools. This is the recurring failure mode of agent-driven dev (cf. `feedback_facade_sans_cablage.md`). v2.1 is the right moment to pay this debt before TestFlight.
 
-- [ ] **STAB-12**: **Coach surface audit** — for every tool defined in `coach_tools.py` (backend) and every `case` in `widget_renderer.dart` (mobile), trace the complete chain: definition → LLM exposure → orchestrator dispatch → renderer case → bubble display → user-visible. Produce `.planning/phases/07-*/AUDIT_COACH_WIRING.md` listing each tool with PASS/BROKEN/MISSING per stage. Every BROKEN/MISSING becomes a fix task in this phase.
-- [ ] **STAB-13**: **Provider/Service consumer audit** — for every Provider registered in `app.dart` and every service in `lib/services/`, grep its consumers. Flag any provider/service with zero non-test consumers (dead) or whose only consumers are dialogs/screens never reachable from the current 3-tab navigation (orphan). Produce `.planning/phases/07-*/AUDIT_DEAD_CODE.md`. Delete or wire each finding.
-- [ ] **STAB-14**: **Route reachability audit** — for every `path:` in `app.dart` GoRouter, verify at least one non-test caller (`context.go`, `context.push`, `context.pushNamed`) reaches it from the current tab/drawer surface. Flag orphans. Produce `.planning/phases/07-*/AUDIT_ORPHAN_ROUTES.md`. Either wire entry points or delete the routes.
-- [ ] **STAB-15**: **Backend → mobile contract audit** — for each backend Pydantic schema sent to the mobile, verify the mobile model parses every field and uses every non-cosmetic field somewhere. Flag fields the backend sends that the mobile silently drops (the `route_to_screen` symptom: `intent + confidence + context_message` sent, mobile ignores). Produce `.planning/phases/07-*/AUDIT_CONTRACT_DRIFT.md`. Fix each.
-- [ ] **STAB-16**: **Try/except black-hole audit** — grep every `try:` in `services/backend/app/` and every `try {` / `catch` in `apps/mobile/lib/`. For each, read what the except/catch DOES. Any handler that swallows silently (logs only, returns null/empty, or `pass`) on a non-best-effort path is a finding. Produce `.planning/phases/07-*/AUDIT_SWALLOWED_ERRORS.md`. Fix each (rethrow, surface to user, or document why best-effort is intentional).
+- [x] **STAB-12**: **Coach surface audit** — for every tool defined in `coach_tools.py` (backend) and every `case` in `widget_renderer.dart` (mobile), trace the complete chain: definition → LLM exposure → orchestrator dispatch → renderer case → bubble display → user-visible. Produce `.planning/phases/07-*/AUDIT_COACH_WIRING.md` listing each tool with PASS/BROKEN/MISSING per stage. Every BROKEN/MISSING becomes a fix task in this phase.
+- [x] **STAB-13**: **Provider/Service consumer audit** — for every Provider registered in `app.dart` and every service in `lib/services/`, grep its consumers. Flag any provider/service with zero non-test consumers (dead) or whose only consumers are dialogs/screens never reachable from the current 3-tab navigation (orphan). Produce `.planning/phases/07-*/AUDIT_DEAD_CODE.md`. Delete or wire each finding.
+- [x] **STAB-14**: **Route reachability audit** — for every `path:` in `app.dart` GoRouter, verify at least one non-test caller (`context.go`, `context.push`, `context.pushNamed`) reaches it from the current tab/drawer surface. Flag orphans. Produce `.planning/phases/07-*/AUDIT_ORPHAN_ROUTES.md`. Either wire entry points or delete the routes.
+- [x] **STAB-15**: **Backend → mobile contract audit** — for each backend Pydantic schema sent to the mobile, verify the mobile model parses every field and uses every non-cosmetic field somewhere. Flag fields the backend sends that the mobile silently drops (the `route_to_screen` symptom: `intent + confidence + context_message` sent, mobile ignores). Produce `.planning/phases/07-*/AUDIT_CONTRACT_DRIFT.md`. Fix each.
+- [x] **STAB-16**: **Try/except black-hole audit** — grep every `try:` in `services/backend/app/` and every `try {` / `catch` in `apps/mobile/lib/`. For each, read what the except/catch DOES. Any handler that swallows silently (logs only, returns null/empty, or `pass`) on a non-best-effort path is a finding. Produce `.planning/phases/07-*/AUDIT_SWALLOWED_ERRORS.md`. Fix each (rethrow, surface to user, or document why best-effort is intentional).
 - [ ] **STAB-17**: **Tap-to-render audit** — manually walk every interactive element on each of the 3 tabs + ProfileDrawer (every chip, button, card, list item). For each, document: expected outcome, actual outcome, gap. This is the *last* gate before TestFlight. Produce `.planning/phases/07-*/AUDIT_TAP_RENDER.md`. Every gap becomes a P0/P1 fix.
 
 ### Phase 1 Test Refresh
@@ -70,11 +70,11 @@
 | STAB-09 | Phase 7 | Pending |
 | STAB-10 | Phase 7 | Pending |
 | STAB-11 | Phase 7 | Pending |
-| STAB-12 | Phase 7 | Pending |
-| STAB-13 | Phase 7 | Pending |
-| STAB-14 | Phase 7 | Pending |
-| STAB-15 | Phase 7 | Pending |
-| STAB-16 | Phase 7 | Pending |
+| STAB-12 | Phase 7 | Complete |
+| STAB-13 | Phase 7 | Complete |
+| STAB-14 | Phase 7 | Complete |
+| STAB-15 | Phase 7 | Complete |
+| STAB-16 | Phase 7 | Complete |
 | STAB-17 | Phase 7 | Pending |
 
 **Coverage:**
