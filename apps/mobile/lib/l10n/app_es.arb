@@ -10199,5 +10199,9 @@
   "ctxEmptyBody": "Sigue enriqueciendo tu perfil para que MINT pueda orientarte en el momento adecuado.",
   "ctxEmptyCta": "Escanear un documento",
   "ctxHeroStatProfileLabel": "Tu perfil MINT",
-  "ctxHeroStatProfileNarrative": "Cuanto m\u00e1s completo tu perfil, m\u00e1s preciso ser\u00e1 MINT."
+  "ctxHeroStatProfileNarrative": "Cuanto m\u00e1s completo tu perfil, m\u00e1s preciso ser\u00e1 MINT.",
+  "voiceCursorPreferenceLabel": "Tono",
+  "voiceCursorPreferenceSoft": "Suave",
+  "voiceCursorPreferenceDirect": "Directo",
+  "voiceCursorPreferenceUnfiltered": "Sin filtro"
 }

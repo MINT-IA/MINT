@@ -22064,4 +22064,16 @@ class SEn extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'The more complete your profile, the more accurate MINT becomes.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Tone';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Soft';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Direct';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Unfiltered';
 }

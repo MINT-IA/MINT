@@ -22226,4 +22226,16 @@ class SDe extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'Je vollständiger dein Profil, desto präziser wird MINT.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Tonfall';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Sanft';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Direkt';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Ungefiltert';
 }

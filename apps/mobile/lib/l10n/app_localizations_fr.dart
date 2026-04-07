@@ -22177,4 +22177,16 @@ class SFr extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'Plus ton profil est complet, plus MINT est précis.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Ton';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Doux';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Direct';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Sans filtre';
 }

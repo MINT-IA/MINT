@@ -10731,5 +10731,13 @@
   "ctxEmptyBody": "Continue à enrichir ton profil pour que MINT puisse t'éclairer au bon moment.",
   "ctxEmptyCta": "Scanner un document",
   "ctxHeroStatProfileLabel": "Ton profil MINT",
-  "ctxHeroStatProfileNarrative": "Plus ton profil est complet, plus MINT est précis."
+  "ctxHeroStatProfileNarrative": "Plus ton profil est complet, plus MINT est précis.",
+  "voiceCursorPreferenceLabel": "Ton",
+  "@voiceCursorPreferenceLabel": {"description": "Header for the user-facing tone setting (Phase 12). Never 'Niveau' or 'Intensité' — those words sound judgmental."},
+  "voiceCursorPreferenceSoft": "Doux",
+  "@voiceCursorPreferenceSoft": {"description": "Softest tone option. Calm, no shame for choosing it."},
+  "voiceCursorPreferenceDirect": "Direct",
+  "@voiceCursorPreferenceDirect": {"description": "Default tone option."},
+  "voiceCursorPreferenceUnfiltered": "Sans filtre",
+  "@voiceCursorPreferenceUnfiltered": {"description": "Most direct tone option. Calm, no shame for choosing it."}
 }

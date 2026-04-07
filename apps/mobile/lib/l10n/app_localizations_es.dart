@@ -22180,4 +22180,16 @@ class SEs extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'Cuanto más completo tu perfil, más preciso será MINT.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Tono';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Suave';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Directo';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Sin filtro';
 }

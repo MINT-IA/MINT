@@ -22236,4 +22236,16 @@ class SIt extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'Più completo è il tuo profilo, più preciso diventa MINT.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Tono';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Dolce';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Diretto';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Senza filtro';
 }

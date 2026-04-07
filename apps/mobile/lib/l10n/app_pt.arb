@@ -10199,5 +10199,9 @@
   "ctxEmptyBody": "Continua a enriquecer o teu perfil para que o MINT te possa orientar no momento certo.",
   "ctxEmptyCta": "Digitalizar um documento",
   "ctxHeroStatProfileLabel": "O teu perfil MINT",
-  "ctxHeroStatProfileNarrative": "Quanto mais completo o teu perfil, mais preciso ser\u00e1 o MINT."
+  "ctxHeroStatProfileNarrative": "Quanto mais completo o teu perfil, mais preciso ser\u00e1 o MINT.",
+  "voiceCursorPreferenceLabel": "Tom",
+  "voiceCursorPreferenceSoft": "Suave",
+  "voiceCursorPreferenceDirect": "Direto",
+  "voiceCursorPreferenceUnfiltered": "Sem filtro"
 }

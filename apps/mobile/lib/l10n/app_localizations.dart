@@ -38906,6 +38906,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Plus ton profil est complet, plus MINT est précis.'**
   String get ctxHeroStatProfileNarrative;
+
+  /// Header for the user-facing tone setting (Phase 12). Never 'Niveau' or 'Intensité' — those words sound judgmental.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton'**
+  String get voiceCursorPreferenceLabel;
+
+  /// Softest tone option. Calm, no shame for choosing it.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doux'**
+  String get voiceCursorPreferenceSoft;
+
+  /// Default tone option.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct'**
+  String get voiceCursorPreferenceDirect;
+
+  /// Most direct tone option. Calm, no shame for choosing it.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans filtre'**
+  String get voiceCursorPreferenceUnfiltered;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

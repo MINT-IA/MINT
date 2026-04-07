@@ -22183,4 +22183,16 @@ class SPt extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'Quanto mais completo o teu perfil, mais preciso será o MINT.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Tom';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Suave';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Direto';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Sem filtro';
 }

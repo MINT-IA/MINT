@@ -10199,5 +10199,9 @@
   "ctxEmptyBody": "Keep enriching your profile so MINT can guide you at the right moment.",
   "ctxEmptyCta": "Scan a document",
   "ctxHeroStatProfileLabel": "Your MINT profile",
-  "ctxHeroStatProfileNarrative": "The more complete your profile, the more accurate MINT becomes."
+  "ctxHeroStatProfileNarrative": "The more complete your profile, the more accurate MINT becomes.",
+  "voiceCursorPreferenceLabel": "Tone",
+  "voiceCursorPreferenceSoft": "Soft",
+  "voiceCursorPreferenceDirect": "Direct",
+  "voiceCursorPreferenceUnfiltered": "Unfiltered"
 }
