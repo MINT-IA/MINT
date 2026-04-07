@@ -393,7 +393,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                     style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
                   ),
                   if (_prefilledFields.contains('taux_marginal'))
-                    SmartDefaultIndicator(
+                    const SmartDefaultIndicator(
                       source: 'Depuis ton profil MINT',
                       confidence: 0.60,
                     ),

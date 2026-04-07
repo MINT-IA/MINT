@@ -402,7 +402,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                     ,
               ),
               if (_prefilledFields.isNotEmpty)
-                SmartDefaultIndicator(
+                const SmartDefaultIndicator(
                   source: 'Depuis ton profil MINT',
                   confidence: 0.60,
                 ),

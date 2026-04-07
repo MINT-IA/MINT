@@ -1112,7 +1112,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           children: [
             Expanded(child: Text(label, style: _labelStyle)),
             if (isPrefilled)
-              SmartDefaultIndicator(
+              const SmartDefaultIndicator(
                 source: 'Depuis ton profil MINT',
                 confidence: 0.60,
               ),

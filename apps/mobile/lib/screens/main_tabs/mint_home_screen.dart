@@ -814,7 +814,6 @@ class _JourneyStepsCard extends StatelessWidget {
   final CapSequence sequence;
 
   const _JourneyStepsCard({
-    super.key,
     required this.sequence,
   });
 

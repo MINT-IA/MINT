@@ -559,7 +559,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
               Text(label,
                   style: MintTextStyles.bodySmall(
                       color: MintColors.textSecondary)),
-              SmartDefaultIndicator(
+              const SmartDefaultIndicator(
                 source: 'Depuis ton profil MINT',
                 confidence: 0.60,
               ),

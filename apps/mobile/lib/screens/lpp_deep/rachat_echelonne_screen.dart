@@ -736,7 +736,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           children: [
             Text(label,
                 style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
-            SmartDefaultIndicator(
+            const SmartDefaultIndicator(
               source: 'Depuis ton profil MINT',
               confidence: 0.60,
             ),
