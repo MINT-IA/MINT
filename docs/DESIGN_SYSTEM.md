@@ -660,3 +660,28 @@ Chaque écran passe la checklist §8. Ordre de priorité :
 | **C** | ijm_screen (indép) | Tier 6 |
 | **B** | pillar_3a_indep_screen | Tier 6 |
 | **C** | lpp_volontaire_screen (indép) | Tier 6 |
+
+---
+
+## AAA Tokens (S0–S5 only — AESTH-04)
+
+Added by Phase 2 plan 02-02 (`feature/v2.2-p0a-code-unblockers`). These 6 tokens are the strict-AAA information-bearing text surface for screens S0–S5 (Landing, Aujourd'hui home, coach bubble, response card, MintAlertObject). Every token is unit-tested at ≥ 7:1 (WCAG 2.1 strict AAA normal text) against both legitimate S0–S5 backgrounds: `#FFFFFF` and `#FCFBF8` (craie).
+
+| Token | Hex | Measured vs `#FFFFFF` | Measured vs `#FCFBF8` | Usage |
+|---|---|---|---|---|
+| `textSecondaryAaa` | `#555560` | 7.36:1 | 7.11:1 | Body secondary text, metadata, timestamps, hypothesis footer |
+| `textMutedAaa` | `#525256` | 7.78:1 | 7.52:1 | Micro-labels, input hints, disabled state text, footer legal |
+| `successAaa` | `#0F5E28` | 7.92:1 | 7.65:1 | Premier éclairage positive confirmation, save toast, completed-action |
+| `warningAaa` | `#8C3F06` | 7.42:1 | 7.17:1 | Single desaturated amber — verifiable fact requiring attention |
+| `errorAaa` | `#8B1D1D` | 9.17:1 | 8.86:1 | Form validation, MintAlertObject G3 rupture grammaticale |
+| `infoAaa` | `#004FA3` | 7.93:1 | 7.67:1 | Hypothesis footer links, "voir détail" tap targets |
+
+**Deviation note** — `textSecondaryAaa` was darkened from the REQ-locked `#595960` (which measured 6.95:1 / 6.71:1, failing strict AAA on craie) to `#555560` via the plan's auto-darkening protocol (2-point HSL value increments, iteration 2). All other tokens land at the REQ-locked hex.
+
+**Rules**
+- These tokens are S0–S5 ONLY. Legacy `textSecondary`/`textMuted`/`success`/`warning`/`error`/`info` remain in use for every other surface.
+- Application happens in Phase 7 LAND-05 + Phase 8b AESTH-05. Plan 02-02 only adds the tokens + the contrast unit test (`apps/mobile/test/theme/aaa_tokens_contrast_test.dart`).
+- No `// RESTRICTED: large text only` escape hatch is allowed — every token is strict normal-text AAA on every legitimate background.
+- Drift guard: `apps/mobile/test/theme/aaa_tokens_contrast_test.dart` asserts the exact hex values. Editing any AAA token = red test.
+
+**Brand sign-off**: Julien (6 AAA tokens approved 2026-04-07).
