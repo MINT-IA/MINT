@@ -25,7 +25,6 @@ import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
-import 'package:mint_mobile/screens/tools_library_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
@@ -96,7 +95,6 @@ import 'package:mint_mobile/screens/timeline_screen.dart';
 import 'package:mint_mobile/screens/coach/retirement_dashboard_screen.dart';
 import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart';
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
-import 'package:mint_mobile/screens/coach/coach_checkin_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
@@ -308,11 +306,8 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CockpitDetailScreen(),
     ),
-    GoRoute(
-      path: '/coach/checkin',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CoachCheckinScreen(),
-    ),
+    // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to Coach tab.
+    GoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
     GoRoute(
       path: '/coach/refresh',
       parentNavigatorKey: _rootNavigatorKey,
@@ -804,11 +799,8 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AskMintScreen(),
     ),
-    GoRoute(
-      path: '/tools',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ToolsLibraryScreen(),
-    ),
+    // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to Coach tab.
+    GoRoute(path: '/tools', redirect: (_, __) => '/home?tab=1'),
     GoRoute(
       path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,
