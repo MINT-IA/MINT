@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists Smart Onboarding draft locally only after explicit consent.
@@ -30,7 +31,10 @@ class SmartOnboardingDraftService {
     if (raw == null || raw.isEmpty) return {};
     try {
       return Map<String, dynamic>.from(jsonDecode(raw) as Map);
-    } catch (_) {
+    } catch (e) {
+      // STAB-16 (07-04): corrupt draft — log and return empty so onboarding
+      // restarts from scratch rather than silently losing partial state.
+      debugPrint('[smart_onboarding_draft_service] loadDraft failed: $e');
       return {};
     }
   }

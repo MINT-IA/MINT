@@ -138,8 +138,11 @@ class WidgetRenderer {
           }
         }
       }
-    } catch (_) {
-      // Profile or RoutePlanner not available — use backend prefill only
+    } catch (e) {
+      // STAB-16 (07-04): Profile or RoutePlanner unavailable — fall back to
+      // backend prefill only. Logged so silent provider-absent regressions
+      // surface during QA.
+      debugPrint('[widget_renderer] route prefill fallback: $e');
     }
 
     final isPartial = mergedPrefill == null || mergedPrefill.isEmpty;
@@ -508,13 +511,16 @@ class WidgetRenderer {
               goalAmount: monthlyAmount > 0 ? monthlyAmount * 12 : null,
             );
             planProvider.setPlan(plan);
-          } catch (_) {
-            // Generation failed — fallback card remains visible
+          } catch (e) {
+            // STAB-16 (07-04): plan generation failed — fallback card remains.
+            debugPrint('[widget_renderer] plan generation failed: $e');
           }
         });
       }
-    } catch (_) {
-      // Profile provider not available — show fallback
+    } catch (e) {
+      // STAB-16 (07-04): CoachProfileProvider unavailable in tree — show
+      // fallback card. Logged to surface provider-registration regressions.
+      debugPrint('[widget_renderer] plan preview: profile unavailable: $e');
     }
 
     // ── 3. Show fallback preview while generation is in progress ──

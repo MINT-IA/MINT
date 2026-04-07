@@ -8,6 +8,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
 // ════════════════════════════════════════════════════════════════
@@ -294,7 +296,10 @@ class SequenceRun {
       return SequenceRun.fromJson(
         jsonDecode(raw) as Map<String, dynamic>,
       );
-    } catch (_) {
+    } catch (e) {
+      // STAB-16 (07-04): corrupt sequence state — log and return null so the
+      // caller can reset to a fresh run rather than silently losing history.
+      debugPrint('[sequence_run] deserialize failed: $e');
       return null;
     }
   }

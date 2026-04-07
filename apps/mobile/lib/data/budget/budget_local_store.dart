@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/budget/budget_inputs.dart';
 
@@ -58,7 +59,10 @@ class BudgetLocalStore {
         emergencyFundMonths:
             (map['emergency_fund_months'] as num?)?.toDouble() ?? 0,
       );
-    } catch (_) {
+    } catch (e) {
+      // STAB-16 (07-04): corrupt prefs entry — log so the forensics are
+      // visible, return null so the caller re-initialises from defaults.
+      debugPrint('[budget_local_store] load failed (corrupt prefs?): $e');
       return null;
     }
   }
