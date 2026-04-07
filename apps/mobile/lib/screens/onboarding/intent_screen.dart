@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
-import 'package:mint_mobile/models/coach_profile.dart' show CoachCivilStatus;
+import 'package:mint_mobile/models/coach_profile.dart'
+    show CoachCivilStatus, CoachProfile;
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -184,6 +185,13 @@ class IntentScreen extends StatelessWidget {
   }) async {
     final l10n = S.of(context)!;
 
+    // Capture ALL BuildContext-dependent values BEFORE the first await
+    // (STAB-07 / D-16: no use_build_context_synchronously across async gaps).
+    final router = GoRouter.of(context);
+    final coachProfile = context.read<CoachProfileProvider>().profile;
+    final payloadProvider = context.read<CoachEntryPayloadProvider>();
+    final profile = _buildMinimalProfileFor(coachProfile);
+
     AnalyticsService().trackCTAClick(
       'intent_chip_tapped',
       screenName: '/onboarding/intent',
@@ -197,14 +205,11 @@ class IntentScreen extends StatelessWidget {
     // ── Golden path: navigate to quick-start for data collection ──
     if (fromOnboarding) {
       if (!context.mounted) return;
-      context.go('/onboarding/quick-start', extra: {'intent': chip.chipKey});
+      router.go('/onboarding/quick-start', extra: {'intent': chip.chipKey});
       return;
     }
 
     // ── Non-onboarding path (settings, re-selection): legacy behavior ──
-    // Capture context-dependent values BEFORE any async gap.
-    final profile = _buildMinimalProfile(context);
-    final coachProfile = context.read<CoachProfileProvider>().profile;
 
     // Resolve intent mapping.
     final mapping = IntentRouter.forChipKey(chip.chipKey);
@@ -251,21 +256,17 @@ class IntentScreen extends StatelessWidget {
       source: CoachEntrySource.onboardingIntent,
       userMessage: chip.message,
     );
-    context.read<CoachEntryPayloadProvider>().setPayload(payload);
+    payloadProvider.setPayload(payload);
 
     // Navigate to Aujourd'hui tab.
-    context.go('/home?tab=0');
+    router.go('/home?tab=0');
   }
 
-  /// Build a [MinimalProfileResult] from available [CoachProfileProvider] data.
+  /// Build a [MinimalProfileResult] from an already-captured [CoachProfile].
   ///
-  /// If the user has completed QuickStart, the profile data drives the calculation.
-  /// If no profile is available (fresh install), zero values produce a pedagogical
-  /// chiffre choc per D-08 (ChiffreChocSelector handles the fallback internally).
-  MinimalProfileResult _buildMinimalProfile(BuildContext context) {
-    final coachProfile =
-        context.read<CoachProfileProvider>().profile;
-
+  /// Accepting the profile directly (instead of reading from BuildContext)
+  /// keeps the call-site free of post-await BuildContext usage (STAB-07).
+  MinimalProfileResult _buildMinimalProfileFor(CoachProfile? coachProfile) {
     if (coachProfile != null && coachProfile.salaireBrutMensuel > 0) {
       // Map etatCivil to MinimalProfileService householdType string.
       final householdType = switch (coachProfile.etatCivil) {
