@@ -8,20 +8,13 @@ Swiss financial protection & education app (Flutter + FastAPI) that tells users 
 
 A user opens MINT and within 3 minutes receives a personalized, surprising insight about their financial situation that they couldn't have found elsewhere — then knows exactly what to do next.
 
-## Current Milestone: v2.1 Stabilisation v2.0
+## Current State
 
-**Goal:** Stabilize v2.0 before TestFlight — close the coach tool-call choreography end-to-end, refresh Phase 1 tests broken by the magic-link redesign, clean lints on production code, and bring CI on `dev` fully green. No new features.
+**Last shipped:** v2.1 Stabilisation v2.0 (2026-04-07) — 16/17 STAB requirements DONE, coach tool choreography wired E2E, 6-axis façade-sans-câblage audit + fixes complete, CI dev green, lints clean.
 
-**Target features:**
-- Coach tool-call choreography wired end-to-end (route_to_screen, generate_document, generate_financial_plan, record_check_in) — emit → orchestrate → render → user-visible
-- Phase 1 test refresh: align auth and intent screen tests with magic-link-first redesign
-- IntentScreen async-gap fix (BuildContext after await)
-- Backend ruff zero errors (43 → 0)
-- Flutter analyze warnings on production code fixed
-- CI dev branch green on all jobs (Backend, Flutter widgets/services/screens, CI Gate)
-- Coach end-to-end test covering tool call → render → user-visible widget for the 4 tools
+**TestFlight gate (carried into v2.2 Phase 0):** STAB-17 manual tap-to-render walkthrough — see `.planning/backlog/STAB-carryover.md`.
 
-**Why this milestone:** External audit revealed "façade sans câblage" (LE piège #1 of agent-driven dev): components exist individually but coach tools are silently dropped because the renderer expects fields the orchestrator doesn't pass. Plus Phase 1 redesign left tests asserting deleted UI. Must close before TestFlight.
+**Next milestone:** v2.2 La Beauté de Mint (Design v0.2.3) — start with `/gsd-new-milestone --reset-phase-numbers`. Source of truth: `visions/MINT_DESIGN_BRIEF_v0.2.3.md` + `.planning/MILESTONE-CONTEXT.md`.
 
 ## Requirements
 

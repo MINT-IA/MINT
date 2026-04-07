@@ -1,5 +1,30 @@
 # Milestones
 
+## v2.1 Stabilisation v2.0 (Shipped: 2026-04-07)
+
+**Phases completed:** 1 phase (Phase 7), 6 plans, 16/17 STAB requirements DONE
+
+**Goal:** Stabilize v2.0 before TestFlight — close the coach tool-call choreography end-to-end, run the 6-axis façade-sans-câblage audit, refresh Phase 1 tests, clean lints, bring CI green. No new features.
+
+**Key accomplishments:**
+
+- 4 coach tools (route_to_screen, generate_document, generate_financial_plan, record_check_in) wired end-to-end on both BYOK and RAG paths, guarded by a 4/4 integration test (`coach_tool_choreography_test.dart`) and re-exposing `toolCalls` through `CoachLlmService.chat`
+- 6-axis façade-sans-câblage audit completed (coach wiring, dead code, orphan routes, contract drift, swallowed errors, tap-render) — root cause `RAGQueryRequest`/`Response` tool-field drift identified and fixed, unblocking the entire `/rag/query` transport for all 7 user-visible tools
+- Audit fix sweep: 11 dead services deleted (pulse_hero_engine, recommendations, retirement_budget, scenario_narrator, timeline, fiscal_intelligence, wizard_conditions, +4 dead), 4 P0 providers registered in production `app.dart`, 5 orphan renderer cases removed, 3 backend + 5 mobile black-hole catches surfaced via debug logs
+- Phase 1 test refresh aligned `auth_screens_smoke_test.dart` and `intent_screen_test.dart` with the magic-link redesign and the plan_screen ownership move; IntentScreen async-gap fix (BuildContext after await) at line 195
+- Lint hygiene: backend ruff 43 → 0 errors, `flutter analyze lib/` warnings → 0
+- CI on `dev` brought fully green across Backend / Flutter widgets / services / screens / CI Gate jobs
+- AUDIT_TAP_RENDER scaffold delivered: every primary-depth `onTap`/`onPressed`/`onChanged`/`onSubmit` enumerated across 3 tabs + drawer, ready for Julien's manual walkthrough
+
+**Known carryover (see `.planning/backlog/STAB-carryover.md`):**
+
+- ⚠ **STAB-17 — Manual tap-to-render walkthrough**: scaffold ready in `AUDIT_TAP_RENDER.md`, requires real-device interaction. **Explicitly carried into v2.2 as a Phase 0 manual gate blocking TestFlight.** v2.1 ships without it because the human-only nature of the audit is incompatible with closing v2.1, but TestFlight remains gated on its completion.
+- 12 orphan GoRouter routes (deferred to v3.0 cleanup, enumerated in AUDIT_ORPHAN_ROUTES.md)
+- ~65 NEEDS-VERIFY try/except blocks (best-effort by grep pattern, address opportunistically)
+- 1 stale test in `chat_tool_dispatcher_test.dart` (asserts `null`, now returns `/rente-vs-capital` after STAB-01)
+
+---
+
 ## v2.0 Mint Systeme Vivant (Shipped: 2026-04-07)
 
 **Phases completed:** 6 phases, 24 plans, 47 tasks
