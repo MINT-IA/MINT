@@ -7,6 +7,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/document_service.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -622,6 +624,11 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       context,
       listen: false,
     );
+    // Capture BiographyProvider BEFORE async gaps (use_build_context_synchronously)
+    final biographyProvider = Provider.of<BiographyProvider>(
+      context,
+      listen: false,
+    );
 
     // Get the CURRENT confidence score BEFORE injection
     int previousConfidence = 42; // fallback if no profile
@@ -655,6 +662,33 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       default:
         break;
     }
+
+    // ── Persist confirmed fields as BiographyFacts (BIO-01) ──
+    // Only high-confidence fields (>= 0.80) become biography entries.
+    // Maps profileField string to FactType enum.
+    final now = DateTime.now();
+    for (final field in _fields) {
+      if (field.confidence < 0.80) continue;
+      final factType = _mapProfileFieldToFactType(field.profileField);
+      if (factType == null) continue;
+      try {
+        await biographyProvider.addFact(BiographyFact(
+          id: '${now.millisecondsSinceEpoch}-${field.profileField}',
+          factType: factType,
+          fieldPath: field.profileField,
+          value: field.value,
+          source: FactSource.document,
+          sourceDate: now,
+          createdAt: now,
+          updatedAt: now,
+          freshnessCategory: _freshnessCategoryFor(factType),
+        ));
+      } catch (_) {
+        // Biography write is best-effort; never block confirmation UX
+      }
+    }
+
+    if (!mounted) return;
 
     // ── Sync to backend (offline-first: failure never blocks UX) ──
     final syncFields = _fields.map((f) {
@@ -709,6 +743,59 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           duration: const Duration(seconds: 4),
         ),
       );
+    }
+  }
+
+  /// Maps a CoachProfile field path to its FactType for biography storage.
+  /// Returns null if the field doesn't map to a known FactType.
+  FactType? _mapProfileFieldToFactType(String? profileField) {
+    if (profileField == null) return null;
+    if (profileField.contains('salaire') || profileField.contains('Salary') || profileField.contains('salary')) {
+      return FactType.salary;
+    }
+    if (profileField.contains('avoirLpp') || profileField.contains('lppCapital') || profileField.contains('Lpp')) {
+      return FactType.lppCapital;
+    }
+    if (profileField.contains('rachatMax') || profileField.contains('Rachat')) {
+      return FactType.lppRachatMax;
+    }
+    if (profileField.contains('3a') || profileField.contains('threeA') || profileField.contains('pillar3a')) {
+      return FactType.threeACapital;
+    }
+    if (profileField.contains('avs') || profileField.contains('Avs') || profileField.contains('AVS')) {
+      return FactType.avsContributionYears;
+    }
+    if (profileField.contains('tax') || profileField.contains('impot') || profileField.contains('Tax')) {
+      return FactType.taxRate;
+    }
+    if (profileField.contains('mortgage') || profileField.contains('hypotheque')) {
+      return FactType.mortgageDebt;
+    }
+    if (profileField.contains('canton')) {
+      return FactType.canton;
+    }
+    return null;
+  }
+
+  /// Returns the freshness category for a given FactType.
+  /// Volatile: 3-month decay. Annual: 12-month decay.
+  String _freshnessCategoryFor(FactType type) {
+    switch (type) {
+      case FactType.taxRate:
+        return 'volatile';
+      case FactType.salary:
+      case FactType.lppCapital:
+      case FactType.lppRachatMax:
+      case FactType.threeACapital:
+      case FactType.avsContributionYears:
+      case FactType.mortgageDebt:
+      case FactType.canton:
+      case FactType.civilStatus:
+      case FactType.employmentStatus:
+      case FactType.lifeEvent:
+      case FactType.userDecision:
+      case FactType.coachPreference:
+        return 'annual';
     }
   }
 }

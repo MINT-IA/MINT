@@ -351,13 +351,39 @@ async def document_premier_eclairage(
     4. Questions to ask (before signing/acting)
 
     Rate limited to 5/minute (heavier than extraction).
+    All LLM-generated text is validated through ComplianceGuard (COMP-01).
     """
-    return generate_document_insight(
+    response = generate_document_insight(
         document_type=body.document_type,
         extracted_fields=body.extracted_fields,
         canton=body.canton,
         plan_type=body.plan_type,
     )
+
+    # ── COMP-01: Validate LLM output through ComplianceGuard before return ──
+    # Checks each text field for banned terms, prescriptive language, etc.
+    from app.services.coach.compliance_guard import ComplianceGuard, ComponentType
+    guard = ComplianceGuard()
+    user_id_hash = hashlib.sha256(str(_user.id).encode()).hexdigest()[:16]
+
+    for field_name in ("factual_extraction", "human_translation", "personal_perspective"):
+        original = getattr(response, field_name, "")
+        if not original:
+            continue
+        result = guard.validate(
+            llm_output=original,
+            component_type=ComponentType.general,
+            user_id=user_id_hash,
+        )
+        if not result.is_compliant:
+            logger.warning(
+                "ComplianceGuard rejected document insight field=%s violations=%s user=%s",
+                field_name, result.violations, user_id_hash,
+            )
+            # Replace with sanitized text or fallback
+            setattr(response, field_name, result.sanitized_text or original)
+
+    return response
 
 
 @router.post("/upload", response_model=DocumentUploadResponse)
