@@ -283,16 +283,22 @@ class TestAgentLoopToolFiltering:
         assert len(result["tool_calls"]) == 1
         assert result["tool_calls"][0]["name"] == "show_budget_snapshot"
 
-    def test_write_tools_forwarded_to_flutter_not_executed(self):
-        """set_goal, mark_step_completed, save_insight are forwarded to Flutter, not executed (Test 12)."""
+    def test_write_tools_handled_internally_not_forwarded(self):
+        """set_goal, mark_step_completed, save_insight are now internal ack tools (07-04 STAB-12).
+
+        Updated 07-06: prior to 07-04 these were Flutter-side write tools. Commit
+        860f8a9a marked them internal so the backend returns an ack string and the
+        loop continues. They are no longer forwarded to Flutter.
+        """
         write_tools = [
             {"name": "set_goal", "input": {"goal_intent_tag": "retirement_choice"}},
             {"name": "mark_step_completed", "input": {"step_id": "open_3a", "outcome": "completed"}},
             {"name": "save_insight", "input": {"topic": "lpp", "summary": "rachat planifié", "type": "decision"}},
         ]
-        # No internal tools → loop exits after 1 call
+        # Internal tools → loop iterates again with the ack results
         orch = _make_mock_orchestrator(
-            _make_orchestrator_result(answer="Actions enregistrées.", tool_calls=write_tools)
+            _make_orchestrator_result(answer="J'enregistre.", tool_calls=write_tools),
+            _make_orchestrator_result(answer="Actions enregistrées."),
         )
         executed_tools: list = []
         original = _execute_internal_tool
@@ -304,17 +310,17 @@ class TestAgentLoopToolFiltering:
         with patch("app.api.v1.endpoints.coach_chat._execute_internal_tool", side_effect=_capturing):
             result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
 
-        # Write tools must NOT have been executed by the backend
-        assert "set_goal" not in executed_tools
-        assert "mark_step_completed" not in executed_tools
-        assert "save_insight" not in executed_tools
-        # Write tools must reach Flutter
+        # All three are now executed internally as ack tools
+        assert "set_goal" in executed_tools
+        assert "mark_step_completed" in executed_tools
+        assert "save_insight" in executed_tools
+        # And NOT forwarded to Flutter
         names = [tc["name"] for tc in (result["tool_calls"] or [])]
-        assert "set_goal" in names
-        assert "mark_step_completed" in names
-        assert "save_insight" in names
-        # No re-call needed
-        assert orch.query.call_count == 1
+        assert "set_goal" not in names
+        assert "mark_step_completed" not in names
+        assert "save_insight" not in names
+        # Loop re-called the orchestrator after the ack
+        assert orch.query.call_count == 2
 
     def test_external_tools_accumulated_across_iterations(self):
         """External tools from multiple iterations are all collected."""

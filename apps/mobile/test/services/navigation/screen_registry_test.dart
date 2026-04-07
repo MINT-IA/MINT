@@ -48,8 +48,9 @@ void main() {
       }
     });
 
-    test('total entry count covers all registered surfaces (= 111)', () {
-      expect(MintScreenRegistry.entries.length, equals(111));
+    test('total entry count covers all registered surfaces (= 110)', () {
+      // 07-06: dropped _coachWeeklyRecap (route /weekly-recap deleted in 07-04)
+      expect(MintScreenRegistry.entries.length, equals(110));
     });
 
     test('all routes are unique (no duplicate routes)', () {
