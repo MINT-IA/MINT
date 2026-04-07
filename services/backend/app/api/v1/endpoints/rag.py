@@ -174,6 +174,7 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
             language=body.language.value,
             user_id=effective_user_id,
             system_prompt=enriched_prompt,
+            tools=body.tools,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
@@ -196,6 +197,7 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
         sources=[RAGSource(**s) for s in result.get("sources", [])],
         disclaimers=result.get("disclaimers", []),
         tokens_used=result.get("tokens_used", 0),
+        tool_calls=result.get("tool_calls"),
     )
 
 
