@@ -473,8 +473,12 @@ class CoachOrchestrator {
   //  INTERNAL — BYOK tier (chat)
   // ══════════════════════════════════════════════════════════════
 
-  /// Coach tools in Anthropic format for route_to_screen + generate_document.
-  /// Passed to the backend so Claude can return tool_use blocks.
+  /// Coach tools in Anthropic format for the BYOK path.
+  ///
+  /// STAB-03 / STAB-04 / D-04: list expanded to 4 tools so Claude can call
+  /// generate_financial_plan and record_check_in in addition to the original
+  /// route_to_screen + generate_document. Structured tool_use blocks flow
+  /// back through CoachResponse.toolCalls → richToolCalls → WidgetRenderer.
   static const List<Map<String, dynamic>> _coachTools = [
     {
       'name': 'route_to_screen',
@@ -527,6 +531,65 @@ class CoachOrchestrator {
           },
         },
         'required': ['document_type', 'context'],
+      },
+    },
+    {
+      'name': 'generate_financial_plan',
+      'description':
+          'Generate a personalized financial plan preview card in the chat. '
+              'Use when the user asks for "un plan", "quoi faire", or a concrete '
+              'multi-step action list. The card shows a goal, a monthly target, '
+              'milestones, and a coach narrative. Read-only — no money movement.',
+      'input_schema': {
+        'type': 'object',
+        'properties': {
+          'goal': {
+            'type': 'string',
+            'description':
+                'Short goal description (e.g. "Preparer la retraite", "Acheter un appartement").',
+          },
+          'monthly_amount': {
+            'type': 'number',
+            'description':
+                'Monthly target amount in CHF. Optional — omit if unknown.',
+          },
+          'narrative': {
+            'type': 'string',
+            'description':
+                'Coach narrative (1-2 sentences) explaining why this plan.',
+          },
+        },
+        'required': ['goal', 'narrative'],
+      },
+    },
+    {
+      'name': 'record_check_in',
+      'description':
+          'Record a monthly check-in (3a/LPP deposits) and display a summary card. '
+              'Use when the user confirms they made their monthly contributions. '
+              'The card is persisted to the user profile. Read-only posture — '
+              'MINT never moves money, only records what the user reports.',
+      'input_schema': {
+        'type': 'object',
+        'properties': {
+          'month': {
+            'type': 'string',
+            'description':
+                'Month of the check-in in YYYY-MM format (e.g. "2026-04").',
+          },
+          'versements': {
+            'type': 'object',
+            'description':
+                'Map of contribution category → amount in CHF '
+                    '(e.g. {"3a": 604.0, "lpp": 250.0}).',
+          },
+          'summary_message': {
+            'type': 'string',
+            'description':
+                'One-sentence coach summary of what the user accomplished.',
+          },
+        },
+        'required': ['month', 'versements', 'summary_message'],
       },
     },
   ];

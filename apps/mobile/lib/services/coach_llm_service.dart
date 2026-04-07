@@ -318,6 +318,12 @@ class CoachLlmService {
 
     // suggestedActions are resolved at the screen layer (CoachChatScreen)
     // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
+    //
+    // STAB-03 / STAB-04: re-expose `toolCalls` on the return so the chat
+    // screen can dispatch structured tool_use blocks (generate_financial_plan,
+    // record_check_in, route_to_screen, generate_document) to WidgetRenderer.
+    // Before this fix, the orchestrator populated toolCalls but this rebuild
+    // silently dropped them — the canonical "facade sans cablage" symptom.
     return CoachResponse(
       message: orchestratorResponse.message,
       suggestedActions: null,
@@ -325,6 +331,7 @@ class CoachLlmService {
       sources: orchestratorResponse.sources,
       disclaimers: orchestratorResponse.disclaimers,
       wasFiltered: orchestratorResponse.wasFiltered,
+      toolCalls: orchestratorResponse.toolCalls,
     );
   }
 

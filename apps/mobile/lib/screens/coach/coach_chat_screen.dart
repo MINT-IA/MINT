@@ -795,7 +795,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           _inferSuggestedActions(text, cleanMessage);
 
       // T-02-06: normalize and cap tool calls via ChatToolDispatcher.
-      final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
+      // STAB-03 / STAB-04: merge structured toolCalls from the orchestrator
+      // (BYOK path — Claude tool_use blocks re-exposed by CoachLlmService.chat)
+      // with marker-parsed toolCalls (SLM / legacy text path). Both feed
+      // WidgetRenderer via CoachMessageBubble.richToolCalls.
+      final markerCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
+      final structuredCalls = ChatToolDispatcher.filterRag(response.toolCalls);
+      final richCalls = <RagToolCall>[
+        ...structuredCalls,
+        ...markerCalls,
+      ].take(5).toList();
 
       setState(() {
         _messages.add(ChatMessage(
