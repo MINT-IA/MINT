@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Stabilisation v2.0
-status: roadmap_defined
+status: phase_planned
 stopped_at: ""
 last_updated: "2026-04-07T00:00:00.000Z"
 last_activity: 2026-04-07
 progress:
   total_phases: 1
   completed_phases: 0
-  total_plans: 0
+  total_plans: 6
   completed_plans: 0
   percent: 0
 ---
@@ -26,8 +26,8 @@ See: .planning/PROJECT.md (updated 2026-04-07)
 ## Current Position
 
 Phase: 7 — Stabilisation v2.0
-Plan: — (awaiting `/gsd-plan-phase 7`)
-Status: Roadmap defined
+Plan: 6 plans created (waves 1-3), awaiting /gsd-execute-phase 7
+Status: Phase 7 planned (6 plans)
 Last activity: 2026-04-07 — Roadmap created for v2.1 (Phase 7)
 
 Progress: [░░░░░░░░░░] 0%
@@ -55,7 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 
 ### Pending Todos
 
-- Run `/gsd-plan-phase 7` to decompose Phase 7 into plans (coach wiring, façade audit, test refresh, lint cleanup, CI gate)
+- Run /gsd-execute-phase 7 to start Wave 1 (plans 07-01, 07-02, 07-03 in parallel)
 
 ### Blockers/Concerns
 

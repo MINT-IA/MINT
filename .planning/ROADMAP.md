@@ -41,7 +41,13 @@
   3. CI on `dev` branch is green on every job (Backend, Flutter widgets shard, Flutter services shard, Flutter screens shard, CI Gate); `golden_screenshots/` remains intentionally excluded.
   4. Backend `ruff` reports zero errors and `flutter analyze` reports zero warnings on `lib/` (test/style infos in `test/` acceptable).
   5. `AUDIT_TAP_RENDER.md` documents every interactive element on the 3 tabs (Aujourd'hui, Coach, Explorer) plus ProfileDrawer with an explicit PASS or FAIL verdict, expected outcome, and actual outcome — and zero FAIL entries remain unaddressed.
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 07-01-PLAN.md — Façade audit (5 mechanical audits, parallelizable) — STAB-12..16
+- [ ] 07-02-PLAN.md — Coach tool wiring + E2E test — STAB-01..04, STAB-11
+- [ ] 07-03-PLAN.md — Phase 1 test refresh + IntentScreen async-gap fix — STAB-05..07
+- [ ] 07-04-PLAN.md — Audit fix sweep — STAB-12..16 fix actions
+- [ ] 07-05-PLAN.md — Lint & hygiene (ruff + flutter analyze) — STAB-08..09
+- [ ] 07-06-PLAN.md — CI green + tap-to-render gate — STAB-10, STAB-17
 **UI hint**: yes
 
 ### 📋 v3.0 (Planned)
