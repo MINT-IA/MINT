@@ -1,7 +1,7 @@
 // lea_golden_path_test.dart
 //
 // Integration test: Lea golden path — full onboarding pipeline.
-// Traces: intent -> quick_start -> chiffre_choc -> plan -> coach.
+// Traces: intent -> quick_start -> premier_eclairage -> plan -> coach.
 //
 // Lea persona: 22 ans, VD (Lausanne), firstJob, 55'000 CHF/an.
 // Service-level tests (not widget E2E) — consistent with project convention.
@@ -15,7 +15,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -117,7 +117,7 @@ void main() {
         canton: leaCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_prevoyance',
       );
@@ -127,14 +127,14 @@ void main() {
       expect(choc.rawValue, isNonZero);
     });
 
-    test('Lea chiffre choc has valid label and subtitle', () {
+    test('Lea premier éclairage has valid label and subtitle', () {
       final profile = MinimalProfileService.compute(
         age: leaAge,
         grossSalary: leaSalary,
         canton: leaCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_prevoyance',
       );
@@ -202,7 +202,7 @@ void main() {
         isFalse,
       );
 
-      // Step 2: Quick start + chiffre choc (no flag set)
+      // Step 2: Quick start + premier éclairage (no flag set)
       MinimalProfileService.compute(
         age: leaAge,
         grossSalary: leaSalary,

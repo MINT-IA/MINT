@@ -85,7 +85,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
                   const SizedBox(height: 16),
                   _buildComparison(),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -225,7 +225,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

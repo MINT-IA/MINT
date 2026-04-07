@@ -87,7 +87,7 @@ class LppRescueWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -247,7 +247,7 @@ class LppRescueWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     // Estimation pédagogique : surcoût institutionnel ~1.5 % du solde sur 5 ans
     // (taux technique bas + frais de gestion suppl.). Source : CHS PP rapports.
     final estimatedLoss = (lppBalance * 0.015).clamp(500.0, 15000.0);

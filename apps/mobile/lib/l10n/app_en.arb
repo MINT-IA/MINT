@@ -709,8 +709,8 @@
   "budgetExampleLeisure": "leisure",
   "budgetExampleSavings": "Savings",
   "budgetExampleProjects": "projects",
-  "budgetChiffreChoc503020": "By saving CHF {monthly}/month, you accumulate CHF {total} in 10 years.",
-  "@budgetChiffreChoc503020": {
+  "budgetPremierEclairage503020": "By saving CHF {monthly}/month, you accumulate CHF {total} in 10 years.",
+  "@budgetPremierEclairage503020": {
     "placeholders": {
       "monthly": {
         "type": "String"
@@ -901,8 +901,8 @@
       }
     }
   },
-  "naissanceChiffreChocText": "Your {type} leave represents {amount} in APG over {weeks} weeks",
-  "@naissanceChiffreChocText": {
+  "naissancePremierEclairageText": "Your {type} leave represents {amount} in APG over {weeks} weeks",
+  "@naissancePremierEclairageText": {
     "placeholders": {
       "type": {
         "type": "String"
@@ -1030,8 +1030,8 @@
   "mariageCommunauteDesc": "Everything is pooled: own property and acquired assets. Full equal sharing in case of dissolution.",
   "mariagePatrimoine1": "Person 1 wealth",
   "mariagePatrimoine2": "Person 2 wealth",
-  "mariageChiffreChocDefault": "Under the default regime, this share of your acquired assets would go to your spouse in case of dissolution",
-  "mariageChiffreChocCommunaute": "In community of property, this amount would be shared with your spouse",
+  "mariagePremierEclairageDefault": "Under the default regime, this share of your acquired assets would go to your spouse in case of dissolution",
+  "mariagePremierEclairageCommunaute": "In community of property, this amount would be shared with your spouse",
   "mariageProtectionIntro": "What happens if one of you dies? Compare legal protection between married couples and cohabitants.",
   "mariageLppRenteLabel": "Monthly LPP pension of the deceased",
   "mariageAvsSurvivor": "AVS survivor pension",
@@ -1433,8 +1433,8 @@
   "independantJourJSubtitle": "What changes in 1 day when you become self-employed",
   "independantJourJEmployee": "Employee",
   "independantJourJSelfEmployed": "Self-employed",
-  "independantJourJChiffreChoc": "You lose ~{amount}/month in invisible protection.\nYou didn't leave a job. You left a protection system.",
-  "@independantJourJChiffreChoc": {
+  "independantJourJPremierEclairage": "You lose ~{amount}/month in invisible protection.\nYou didn't leave a job. You left a protection system.",
+  "@independantJourJPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -3238,9 +3238,9 @@
   "decesProchAction3": "Check LPP and 3a beneficiaries with the pension funds",
   "decesProchDisclaimer": "Educational tool — does not constitute legal or tax advice (FinSA). Each succession is unique: consult a notary or specialist. Sources: CC art. 457-640, OPP2 art. 48, OPP3 art. 2.",
   "demenagementTitre": "Cantonal move",
-  "demenagementChiffreChocSousTitre": "estimated annual savings (or additional cost)",
-  "demenagementChiffreChocDetail": "Moving from {depart} to {arrivee} (taxes + health insurance)",
-  "@demenagementChiffreChocDetail": {
+  "demenagementPremierEclairageSousTitre": "estimated annual savings (or additional cost)",
+  "demenagementPremierEclairageDetail": "Moving from {depart} to {arrivee} (taxes + health insurance)",
+  "@demenagementPremierEclairageDetail": {
     "placeholders": {
       "depart": {
         "type": "String"
@@ -3317,7 +3317,7 @@
   "docImpactSubtitle": "Values from your {docType} have been integrated into your projections.",
   "docImpactConfidenceLabel": "% confidence",
   "docImpactDeltaPoints": "+{points} confidence points",
-  "docImpactChiffreChocTitle": "Recalculated key figure",
+  "docImpactPremierEclairageTitle": "Recalculated key figure",
   "docImpactLppRealAmount": "in real LPP assets (of which {oblig} mandatory)",
   "docImpactRenteOblig": "Mandatory annuity at 6.8%: CHF {amount}/year",
   "docImpactSurobligWithRate": "Supra-mandatory part (CHF {suroblig}) at {rate}% = CHF {rente}/year",
@@ -3486,10 +3486,10 @@
   "budgetCtaPlan": "Plan",
   "budgetCtaDiscover": "Discover",
   "budgetDisclaimerBased": "• Amounts are based on declared information.",
-  "chiffreChocDisclaimer": "Educational tool — not financial advice (FinSA). Sources: OASI art. 34, LPP art. 14-16, OPP3 art. 7.",
-  "chiffreChocAction": "What can I do?",
-  "chiffreChocConfidence": "Estimate based on {count} data points. The more you provide, the more reliable.",
-  "@chiffreChocConfidence": {
+  "premierEclairageDisclaimer": "Educational tool — not financial advice (FinSA). Sources: OASI art. 34, LPP art. 14-16, OPP3 art. 7.",
+  "premierEclairageAction": "What can I do?",
+  "premierEclairageConfidence": "Estimate based on {count} data points. The more you provide, the more reliable.",
+  "@premierEclairageConfidence": {
     "placeholders": {
       "count": {
         "type": "String"
@@ -3730,23 +3730,23 @@
   "santeHubToolAssuranceInvalidite": "Disability insurance",
   "santeHubToolInvaliditeIndependant": "Self-employed disability",
   "budgetErrorRetry": "Something went wrong. Try again?",
-  "budgetChiffreChocCaption": "What's left after all your fixed charges",
+  "budgetPremierEclairageCaption": "What's left after all your fixed charges",
   "budgetMethodTitle": "Understanding this budget",
   "budgetMethodBody": "This budget separates your fixed charges (rent, health insurance, taxes) from your disposable income. The 50/30/20 rule suggests: 50% for needs, 30% for wants, 20% for savings. It's a guide, not an obligation.",
   "budgetMethodSource": "Source: 50/30/20 method (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Educational estimate. Not financial advice (FinSA art. 3).",
-  "chiffreChocIfYouAct": "If you act",
-  "chiffreChocIfYouDontAct": "If you don't act",
-  "chiffreChocAvantApresGapAct": "A LPP buyback or 3a contributions could halve this gap.",
-  "chiffreChocAvantApresGapNoAct": "The gap widens every year. At retirement, it's too late.",
-  "chiffreChocAvantApresLiquidityAct": "Saving CHF 500/month rebuilds 3 months of reserves in 6 months.",
-  "chiffreChocAvantApresLiquidityNoAct": "An emergency without reserves means consumer debt.",
-  "chiffreChocAvantApresTaxAct": "Each year without 3a is a tax deduction lost.",
-  "chiffreChocAvantApresTaxNoAct": "Without 3a, you pay full tax rate and don't prepare for retirement.",
-  "chiffreChocAvantApresIncomeAct": "A few adjustments can improve your projection.",
-  "chiffreChocAvantApresIncomeNoAct": "Your situation stays stable, but without room for growth.",
-  "chiffreChocConfidenceSimple": "Based on {count} data points. Add more to refine.",
-  "@chiffreChocConfidenceSimple": {
+  "premierEclairageIfYouAct": "If you act",
+  "premierEclairageIfYouDontAct": "If you don't act",
+  "premierEclairageAvantApresGapAct": "A LPP buyback or 3a contributions could halve this gap.",
+  "premierEclairageAvantApresGapNoAct": "The gap widens every year. At retirement, it's too late.",
+  "premierEclairageAvantApresLiquidityAct": "Saving CHF 500/month rebuilds 3 months of reserves in 6 months.",
+  "premierEclairageAvantApresLiquidityNoAct": "An emergency without reserves means consumer debt.",
+  "premierEclairageAvantApresTaxAct": "Each year without 3a is a tax deduction lost.",
+  "premierEclairageAvantApresTaxNoAct": "Without 3a, you pay full tax rate and don't prepare for retirement.",
+  "premierEclairageAvantApresIncomeAct": "A few adjustments can improve your projection.",
+  "premierEclairageAvantApresIncomeNoAct": "Your situation stays stable, but without room for growth.",
+  "premierEclairageConfidenceSimple": "Based on {count} data points. Add more to refine.",
+  "@premierEclairageConfidenceSimple": {
     "description": "Simplified confidence indicator. Tone: inviting, not jargon.",
     "placeholders": {
       "count": {
@@ -3791,9 +3791,9 @@
       }
     }
   },
-  "chiffreChocBack": "Back",
-  "chiffreChocShowComparison": "Show comparison",
-  "chiffreChocHideComparison": "Hide comparison",
+  "premierEclairageBack": "Back",
+  "premierEclairageShowComparison": "Show comparison",
+  "premierEclairageHideComparison": "Hide comparison",
   "dashboardNextActionsTitle": "Your next actions",
   "dashboardExploreAlsoTitle": "Explore more",
   "dashboardImproveAccuracyTitle": "Improve your accuracy",
@@ -4235,16 +4235,16 @@
       }
     }
   },
-  "expatAvsChiffreChoc": "-{amount}/year on your AVS pension",
-  "@expatAvsChiffreChoc": {
+  "expatAvsPremierEclairage": "-{amount}/year on your AVS pension",
+  "@expatAvsPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
       }
     }
   },
-  "expatDepartChiffreChoc": "{amount} of capital to secure before departure",
-  "@expatDepartChiffreChoc": {
+  "expatDepartPremierEclairage": "{amount} of capital to secure before departure",
+  "@expatDepartPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4323,7 +4323,7 @@
   "sim3aDebtStrategyTitle": "Strategy locked",
   "sim3aDebtStrategyMessage": "3a investment strategies are disabled while you have active debts. Repaying your debts yields a higher return than any investment.",
   "realReturnTitle": "Real return 3a",
-  "realReturnChiffreChocLabel": "Equivalent rate on net effort",
+  "realReturnPremierEclairageLabel": "Equivalent rate on net effort",
   "realReturnVsNominal": "vs {rate}% net 3a rate (gross − fees)",
   "@realReturnVsNominal": {
     "placeholders": {
@@ -4763,8 +4763,8 @@
   "avsCotisationsRevenuLabel": "Your annual net income",
   "avsCotisationsSliderMin": "CHF 0",
   "avsCotisationsSliderMax250k": "CHF 250,000",
-  "avsCotisationsChiffreChocCaption": "As self-employed, you pay {amount}/yr more than an employee",
-  "@avsCotisationsChiffreChocCaption": {
+  "avsCotisationsPremierEclairageCaption": "As self-employed, you pay {amount}/yr more than an employee",
+  "@avsCotisationsPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4814,8 +4814,8 @@
   "ijmDelaiCarence": "Waiting period",
   "ijmDelaiCarenceDesc": "Period during which you receive no benefits",
   "ijmJours": "days",
-  "ijmChiffreChocCaption": "Without IJM insurance, you lose {amount} during the {jours}-day waiting period",
-  "@ijmChiffreChocCaption": {
+  "ijmPremierEclairageCaption": "Without IJM insurance, you lose {amount} during the {jours}-day waiting period",
+  "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4870,9 +4870,9 @@
   "pillar3aIndepRevenuLabel": "Annual net income",
   "pillar3aIndepSliderMax300k": "CHF 300,000",
   "pillar3aIndepTauxLabel": "Marginal tax rate",
-  "pillar3aIndepChiffreChocCaption": "annual tax savings thanks to the 3rd pillar",
-  "pillar3aIndepChiffreChocAvantageSalarie": "You save {amount}/yr more in taxes than an employee thanks to the big 3a",
-  "@pillar3aIndepChiffreChocAvantageSalarie": {
+  "pillar3aIndepPremierEclairageCaption": "annual tax savings thanks to the 3rd pillar",
+  "pillar3aIndepPremierEclairageAvantageSalarie": "You save {amount}/yr more in taxes than an employee thanks to the big 3a",
+  "@pillar3aIndepPremierEclairageAvantageSalarie": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4927,8 +4927,8 @@
   "lppVolontaireAgeMin": "25 yrs",
   "lppVolontaireAgeMax": "65 yrs",
   "lppVolontaireTauxMarginal": "Marginal tax rate",
-  "lppVolontaireChiffreChocCaption": "Without voluntary LPP, you lose {amount}/yr in retirement capitalization",
-  "@lppVolontaireChiffreChocCaption": {
+  "lppVolontairePremierEclairageCaption": "Without voluntary LPP, you lose {amount}/yr in retirement capitalization",
+  "@lppVolontairePremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5068,15 +5068,15 @@
   "librePassageCentrale2eSubtitle": "Search for forgotten vested benefits",
   "librePassagePrivacyNote": "Your data stays on your device. No information is transmitted to third parties. Compliant with nDPA.",
   "providerComparatorAppBarTitle": "3a Comparator",
-  "providerComparatorChiffreChocLabel": "Difference over {duree} years",
-  "@providerComparatorChiffreChocLabel": {
+  "providerComparatorPremierEclairageLabel": "Difference over {duree} years",
+  "@providerComparatorPremierEclairageLabel": {
     "placeholders": {
       "duree": {
         "type": "int"
       }
     }
   },
-  "providerComparatorChiffreChocSubtitle": "between the highest and lowest performing provider",
+  "providerComparatorPremierEclairageSubtitle": "between the highest and lowest performing provider",
   "providerComparatorSectionParametres": "Parameters",
   "providerComparatorLabelAge": "Age",
   "providerComparatorLabelAgeFormat": "{age} yrs",
@@ -5867,7 +5867,7 @@
   "fhsBreakdownRisque": "Risk",
   "avsGapLifetimeLoss": "Over 20 years of retirement, that's {amount} less — permanently.",
   "avsGapCalculation": "Calculation: monthly pension × 13 months/year (13th AVS pension from Dec. 2026)",
-  "chiffreChocRenteCalculation": "(calculation: monthly pension × 13 months/year, 13th pension included).",
+  "premierEclairageRenteCalculation": "(calculation: monthly pension × 13 months/year, 13th pension included).",
   "coachBriefingFallbackGreeting": "Hello",
   "coachBriefingBadgeLlm": "AI Coach",
   "coachBriefingBadge": "Coach",
@@ -5895,17 +5895,17 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions — results not guaranteed.",
+  "premierEclairageSectionDisclaimer": "Educational simulation only. Does not constitute investment or retirement advice (FinSA). Adjustable assumptions — results not guaranteed.",
   "concubinageTabProtection": "Protection",
-  "concubinageHeroChiffreChoc": "CHF {montant} of exposed assets",
-  "@concubinageHeroChiffreChoc": {
+  "concubinageHeroPremierEclairage": "CHF {montant} of exposed assets",
+  "@concubinageHeroPremierEclairage": {
     "placeholders": {
       "montant": {
         "type": "String"
       }
     }
   },
-  "concubinageHeroChiffreChocDesc": "In cohabitation, your partner is not a legal heir. Without a will, this entire amount is lost to them.",
+  "concubinageHeroPremierEclairageDesc": "In cohabitation, your partner is not a legal heir. Without a will, this entire amount is lost to them.",
   "concubinageEducationalAvs": "In Switzerland, the 150% cap on couple AVS pensions (OASI art. 35) only applies to married couples. Cohabiting partners each receive their full individual pension — a real advantage when both have contributed the maximum.",
   "concubinageEducationalLpp": "The LPP survivor pension (60% of the deceased’s pension, LPP art. 19) is reserved for spouses. In cohabitation, only the pension fund rules may provide a death benefit — and you must apply for it.",
   "concubinageEducationalSuccession": "A married spouse is exempt from inheritance tax in most cantons (CC art. 462). A cohabiting partner pays tax at the third-party rate, often between 20% and 40%.",
@@ -6462,7 +6462,7 @@
       }
     }
   },
-  "@firstJobBudgetChiffreChoc": {
+  "@firstJobBudgetPremierEclairage": {
     "placeholders": {
       "annual": {
         "type": "String"
@@ -8168,7 +8168,7 @@
   "financialReportEmptyTitle": "Your financial report",
   "firstJobBudgetAlimentation": "Food",
   "firstJobBudgetBesoins": "Needs",
-  "firstJobBudgetChiffreChoc": "If you save {annual} CHF/year from now, you will have ~{future} CHF at 65.",
+  "firstJobBudgetPremierEclairage": "If you save {annual} CHF/year from now, you will have ~{future} CHF at 65.",
   "firstJobBudgetEnvies": "Wants",
   "firstJobBudgetEpargne": "Savings & 3a",
   "firstJobBudgetEpargneCourt": "Savings",
@@ -9656,9 +9656,9 @@
   "disclaimerShort": "Educational tool, not financial advice.",
   "disclaimerLearnMore": "Learn more",
   "disclaimerFull": "Simplified educational tool. Does not constitute personal financial advice (FinSA). Sources: OASI art. 21-29, BVG art. 14, BVV3 art. 7. Consult a qualified specialist for personalized guidance.",
-  "chiffreChocSilenceQuestion": "That's your number. What do you think?",
-  "chiffreChocSilenceHint": "Say what comes to mind...",
-  "chiffreChocSkipToHome": "Go to dashboard",
+  "premierEclairageSilenceQuestion": "That's your number. What do you think?",
+  "premierEclairageSilenceHint": "Say what comes to mind...",
+  "premierEclairageSkipToHome": "Go to dashboard",
   "landingQuickCalcTitle": "Your number in 30 seconds",
   "landingQuickCalcSubtitle": "No account. Nothing stored. Ephemeral calculation.",
   "landingBirthYear": "Birth year",
@@ -9667,9 +9667,9 @@
   "landingCalculate": "See my number",
   "landingPrivacyBadge": "No account required. Calculated on your phone. Nothing stored.",
   "landingVzComparison": "30 seconds to your first number. No appointment, no fees.",
-  "instantChiffreChocConfidence": "Estimate ±15% — create an account for more accuracy",
-  "instantChiffreChocNothingStored": "No account. Nothing stored.",
-  "instantChiffreChocComeBack": "Come back anytime",
+  "instantPremierEclairageConfidence": "Estimate ±15% — create an account for more accuracy",
+  "instantPremierEclairageNothingStored": "No account. Nothing stored.",
+  "instantPremierEclairageComeBack": "Come back anytime",
   "coachSilentOpenerQuestion": "Want to talk about it?",
   "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
   "coachOptInAccept": "Yes, flag for me",
@@ -10089,7 +10089,7 @@
   "authResend": "Resend the link",
   "authPasswordFallback": "Sign in with a password",
   "quickStartHeadline": "Three questions, one first number.",
-  "chiffreChocContinue": "Continue",
+  "premierEclairageContinue": "Continue",
   "planCta": "See my plan",
   "coachErrorInline": "The coach is not available right now.",
   "planHeadline": "Your plan in 4 steps",

@@ -48,7 +48,7 @@ void main() {
     await tester.pump(const Duration(seconds: 2)); // advance animations
 
     // 4. Verify Header — hero uses MintHeroNumber with CHF amount
-    // Caption is i18n budgetChiffreChocCaption (not "Disponible ce mois")
+    // Caption is i18n budgetPremierEclairageCaption (not "Disponible ce mois")
     expect(find.textContaining('3500'), findsWidgets);
 
     // 5. Verify tap-to-type envelope fields (replaced MintPremiumSlider)

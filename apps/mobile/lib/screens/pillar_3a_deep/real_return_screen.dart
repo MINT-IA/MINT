@@ -146,7 +146,7 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChoc(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairage(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
@@ -177,10 +177,10 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(RealReturnResult result) {
+  Widget _buildPremierEclairage(RealReturnResult result) {
     final l = S.of(context)!;
     return MintResultHeroCard(
-      eyebrow: l.realReturnChiffreChocLabel,
+      eyebrow: l.realReturnPremierEclairageLabel,
       primaryValue: '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
       primaryLabel: l.realReturnPrimaryLabel,
       secondaryValue: '${result.rendementNominal.toStringAsFixed(1)}\u00a0%',

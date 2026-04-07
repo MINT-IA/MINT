@@ -36,13 +36,13 @@ class Budget503020Widget extends StatelessWidget {
   final List<BudgetCategory> categories;
 
   /// Optional highlight: chiffre-choc showing annual savings.
-  final String? chiffreChoc;
+  final String? premierEclairage;
 
   const Budget503020Widget({
     super.key,
     required this.netSalary,
     required this.categories,
-    this.chiffreChoc,
+    this.premierEclairage,
   });
 
   @override
@@ -80,7 +80,7 @@ class Budget503020Widget extends StatelessWidget {
             ...categories.map(_buildCategoryCard),
 
             // ── Chiffre-choc ──
-            if (chiffreChoc != null) ...[
+            if (premierEclairage != null) ...[
               const SizedBox(height: 12),
               Container(
                 width: double.infinity,
@@ -92,7 +92,7 @@ class Budget503020Widget extends StatelessWidget {
                       color: MintColors.primary.withValues(alpha: 0.15)),
                 ),
                 child: Text(
-                  chiffreChoc!,
+                  premierEclairage!,
                   style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),

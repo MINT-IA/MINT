@@ -1,7 +1,7 @@
 /// Coach Orchestrator — Sprint S44 (Intelligence Branchement).
 ///
 /// Single entry-point for ALL coach AI generation:
-///   - Dashboard narrative (greeting, scoreSummary, tip, chiffreChoc)
+///   - Dashboard narrative (greeting, scoreSummary, tip, premierEclairage)
 ///   - Chat responses (BYOK / mock fallback)
 ///
 /// Priority chain (privacy-first):
@@ -878,8 +878,8 @@ class CoachOrchestrator {
         return 'score_summary';
       case ComponentType.tip:
         return 'tip';
-      case ComponentType.chiffreChoc:
-        return 'chiffre_choc';
+      case ComponentType.premierEclairage:
+        return 'premier_eclairage';
       case ComponentType.scenario:
         return 'scenario';
       case ComponentType.enrichmentGuide:
@@ -906,8 +906,8 @@ class CoachOrchestrator {
         return 'Génère un résumé du score FRI ${ctx.friTotal.toStringAsFixed(0)}/100.';
       case ComponentType.tip:
         return 'Génère un tip éducatif personnalisé.';
-      case ComponentType.chiffreChoc:
-        return 'Commente le chiffre choc de manière éducative.';
+      case ComponentType.premierEclairage:
+        return 'Commente le premier éclairage de manière éducative.';
       case ComponentType.scenario:
         return 'Narre le scénario de projection.';
       case ComponentType.enrichmentGuide:
@@ -938,8 +938,8 @@ class CoachOrchestrator {
         return FallbackTemplates.scoreSummary(ctx);
       case ComponentType.tip:
         return _contextualTip(ctx);
-      case ComponentType.chiffreChoc:
-        return FallbackTemplates.chiffreChocReframe(ctx);
+      case ComponentType.premierEclairage:
+        return FallbackTemplates.premierEclairageReframe(ctx);
       case ComponentType.enrichmentGuide:
         return FallbackTemplates.enrichmentGuide(ctx, 'general');
       case ComponentType.scenario:

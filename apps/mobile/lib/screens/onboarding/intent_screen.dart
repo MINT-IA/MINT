@@ -12,7 +12,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -216,7 +216,7 @@ class IntentScreen extends StatelessWidget {
 
     if (mapping != null) {
       // Compute premier eclairage.
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: mapping.stressType,
       );
@@ -283,7 +283,7 @@ class IntentScreen extends StatelessWidget {
       );
     }
 
-    // Zero-valued profile — ChiffreChocSelector pedagogical fallback (D-08).
+    // Zero-valued profile — PremierEclairageSelector pedagogical fallback (D-08).
     return const MinimalProfileResult(
       avsMonthlyRente: 0,
       lppAnnualRente: 0,

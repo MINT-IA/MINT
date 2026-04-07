@@ -101,7 +101,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
-          MintEntrance(child: _buildChiffreChocCard(s, result)),
+          MintEntrance(child: _buildPremierEclairageCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Pie chart
@@ -141,8 +141,8 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(S s, EplCombinedResult result) {
-    final color = result.chiffreChocPositif
+  Widget _buildPremierEclairageCard(S s, EplCombinedResult result) {
+    final color = result.premierEclairagePositif
         ? MintColors.success
         : MintColors.warning;
 
@@ -165,7 +165,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              result.chiffreChocTexte,
+              result.premierEclairageTexte,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
             ),

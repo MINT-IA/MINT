@@ -394,15 +394,15 @@ class ArbitrageEngine {
     final moreIncome =
         renteTotalValue > capitalCumulativeWithdrawals ? 'rente' : 'capital';
 
-    String chiffreChoc;
+    String premierEclairage;
     if (capitalResidual > 10000 && moreIncome == 'rente') {
       // Typical case: rente gives more income, but capital preserves wealth
-      chiffreChoc =
+      premierEclairage =
           'La rente te verse ~${chf.formatChfWithPrefix(incomeGap)} de revenu net '
           'de plus sur $horizon ans. Mais avec le capital, tu conserves '
           '~${chf.formatChfWithPrefix(capitalResidual)} de patrimoine transmissible.';
     } else {
-      chiffreChoc =
+      premierEclairage =
           'Sur $horizon ans, l\'option $betterOption genere '
           '~${chf.formatChfWithPrefix(delta)} de valeur economique nette supplementaire.';
     }
@@ -418,7 +418,7 @@ class ArbitrageEngine {
     return ArbitrageResult(
       options: options,
       breakevenYear: breakevenYear,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       displaySummary: displaySummary,
       hypotheses: [
         'Ce que ton capital rapporte : ${(rendementCapital * 100).toStringAsFixed(1)} % par an',
@@ -572,7 +572,7 @@ class ArbitrageEngine {
       cumulativeTaxImpact: trajectoryLibre.last.cumulativeTaxDelta,
     ));
 
-    // Find best and worst terminal values for chiffre choc
+    // Find best and worst terminal values for premier éclairage
     double maxTerminal = double.negativeInfinity;
     double minTerminal = double.infinity;
     for (final o in options) {
@@ -585,7 +585,7 @@ class ArbitrageEngine {
     }
     final ecart = maxTerminal - minTerminal;
 
-    final chiffreChoc =
+    final premierEclairage =
         'Dans ce scenario simule, l\'ecart entre les options atteint '
         '${chf.formatChfWithPrefix(ecart)} sur $anneesAvantRetraite ans.';
 
@@ -830,7 +830,7 @@ class ArbitrageEngine {
     return ArbitrageResult(
       options: options,
       breakevenYear: null,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       displaySummary: displaySummary,
       hypotheses: [
         'Montant disponible : ${chf.formatChfWithPrefix(montantDisponible)}/an',
@@ -1016,7 +1016,7 @@ class ArbitrageEngine {
     final delta = (optionA.terminalValue - optionB.terminalValue).abs();
     final betterLabel =
         optionA.terminalValue > optionB.terminalValue ? 'louer' : 'acheter';
-    final chiffreChoc = 'Dans ce scenario simule, $betterLabel genere '
+    final premierEclairage = 'Dans ce scenario simule, $betterLabel genere '
         '~${chf.formatChfWithPrefix(delta)} de patrimoine net supplementaire sur '
         '$horizonAnnees ans.';
 
@@ -1096,7 +1096,7 @@ class ArbitrageEngine {
     return ArbitrageResult(
       options: options,
       breakevenYear: breakevenYear,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       displaySummary: displaySummary,
       hypotheses: [
         'Rendement marche : ${(rendementMarche * 100).toStringAsFixed(1)} % par an',
@@ -1236,7 +1236,7 @@ class ArbitrageEngine {
     final breakevenYear = _findBreakevenYear(rachatSnapshots, marcheSnapshots);
 
     final delta = (netCapitalLpp - balanceMarche).abs();
-    final chiffreChoc =
+    final premierEclairage =
         'Economie d\'impot au rachat : ${chf.formatChfWithPrefix(taxSavingRachat)}. '
         'Ecart final simule : ${chf.formatChfWithPrefix(delta)} sur $anneesAvantRetraite ans.';
 
@@ -1368,7 +1368,7 @@ class ArbitrageEngine {
     return ArbitrageResult(
       options: options,
       breakevenYear: breakevenYear,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       displaySummary: displaySummary,
       hypotheses: [
         'Montant : ${chf.formatChfWithPrefix(montant)}',
@@ -1422,7 +1422,7 @@ class ArbitrageEngine {
       return ArbitrageResult(
         options: const [],
         breakevenYear: null,
-        chiffreChoc: 'Ajoute au moins un avoir pour voir la comparaison.',
+        premierEclairage: 'Ajoute au moins un avoir pour voir la comparaison.',
         displaySummary: '',
         hypotheses: const [],
         disclaimer:
@@ -1562,7 +1562,7 @@ class ArbitrageEngine {
     final options = [optionA, optionB];
     final taxSaved = taxToutEnUn - totalTaxEtale;
 
-    final chiffreChoc = taxSaved > 0
+    final premierEclairage = taxSaved > 0
         ? 'Tu economiserais ~${chf.formatChfWithPrefix(taxSaved)} d\'impot en etalant tes retraits.'
         : 'Dans ce cas, l\'ecart d\'impot est de ${chf.formatChfWithPrefix(taxSaved.abs())}.';
 
@@ -1612,7 +1612,7 @@ class ArbitrageEngine {
     return ArbitrageResult(
       options: options,
       breakevenYear: null,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       displaySummary: displaySummary,
       hypotheses: [
         'Capital total : ${chf.formatChfWithPrefix(totalCapital)}',

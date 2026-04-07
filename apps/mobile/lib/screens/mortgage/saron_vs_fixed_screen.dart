@@ -90,7 +90,7 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairageCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
@@ -120,14 +120,14 @@ class _SaronVsFixedScreenState extends State<SaronVsFixedScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(SaronVsFixedResult result) {
+  Widget _buildPremierEclairageCard(SaronVsFixedResult result) {
     return MintResultHeroCard(
       eyebrow: S.of(context)!.saronEyebrow,
       primaryValue: 'CHF\u00a0${formatChf(result.economieSaronStable.abs())}',
       primaryLabel: result.economieSaronStable >= 0
           ? S.of(context)!.saronSavingsLabel
           : S.of(context)!.saronCostLabel,
-      narrative: result.chiffreChocTexte,
+      narrative: result.premierEclairageTexte,
       accentColor: result.economieSaronStable >= 0
           ? MintColors.success
           : MintColors.error,

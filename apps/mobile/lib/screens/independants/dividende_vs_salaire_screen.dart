@@ -71,7 +71,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  MintEntrance(child: _buildChiffreChoc()),
+                  MintEntrance(child: _buildPremierEclairage()),
                   const SizedBox(height: 24),
                   if (_result!.requalificationRisk) ...[
                     MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRequalificationAlert()),
@@ -210,9 +210,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     final saving = r.economie;
 

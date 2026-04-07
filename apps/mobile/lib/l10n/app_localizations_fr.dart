@@ -1704,7 +1704,7 @@ class SFr extends S {
   String get budgetExampleProjects => 'projets';
 
   @override
-  String budgetChiffreChoc503020(String monthly, String total) {
+  String budgetPremierEclairage503020(String monthly, String total) {
     return 'En épargnant CHF $monthly/mois, tu accumules CHF $total en 10 ans.';
   }
 
@@ -2151,7 +2151,7 @@ class SFr extends S {
   }
 
   @override
-  String naissanceChiffreChocText(String type, String amount, int weeks) {
+  String naissancePremierEclairageText(String type, String amount, int weeks) {
     return 'Ton congé $type représente $amount d\'APG sur $weeks semaines';
   }
 
@@ -2370,11 +2370,11 @@ class SFr extends S {
   String get mariagePatrimoine2 => 'Patrimoine Personne 2';
 
   @override
-  String get mariageChiffreChocDefault =>
+  String get mariagePremierEclairageDefault =>
       'En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution';
 
   @override
-  String get mariageChiffreChocCommunaute =>
+  String get mariagePremierEclairageCommunaute =>
       'En communauté de biens, ce montant serait partagé avec ton conjoint';
 
   @override
@@ -3370,7 +3370,7 @@ class SFr extends S {
   String get independantJourJSelfEmployed => 'Indépendant·e';
 
   @override
-  String independantJourJChiffreChoc(String amount) {
+  String independantJourJPremierEclairage(String amount) {
     return 'Tu perds ~$amount/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.';
   }
 
@@ -6871,11 +6871,11 @@ class SFr extends S {
   String get demenagementTitre => 'Déménagement cantonal';
 
   @override
-  String get demenagementChiffreChocSousTitre =>
+  String get demenagementPremierEclairageSousTitre =>
       'économie (ou surcoût) annuel estimé';
 
   @override
-  String demenagementChiffreChocDetail(String depart, String arrivee) {
+  String demenagementPremierEclairageDetail(String depart, String arrivee) {
     return 'En déménageant de $depart vers $arrivee (impôts + LAMal)';
   }
 
@@ -7121,7 +7121,7 @@ class SFr extends S {
   }
 
   @override
-  String get docImpactChiffreChocTitle => 'Chiffre choc recalculé';
+  String get docImpactPremierEclairageTitle => 'Ce que Mint voit';
 
   @override
   String docImpactLppRealAmount(String oblig) {
@@ -7604,14 +7604,14 @@ class SFr extends S {
       '• Les montants sont basés sur les informations déclarées.';
 
   @override
-  String get chiffreChocDisclaimer =>
+  String get premierEclairageDisclaimer =>
       'Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
 
   @override
-  String get chiffreChocAction => 'Qu\'est-ce que je peux faire ?';
+  String get premierEclairageAction => 'Qu\'est-ce que je peux faire ?';
 
   @override
-  String chiffreChocConfidence(String count) {
+  String premierEclairageConfidence(String count) {
     return 'Estimation basée sur $count informations. Plus tu précises, plus c\'est fiable.';
   }
 
@@ -8257,7 +8257,7 @@ class SFr extends S {
   String get budgetErrorRetry => 'Le calcul a buté. Réessaie ?';
 
   @override
-  String get budgetChiffreChocCaption =>
+  String get budgetPremierEclairageCaption =>
       'Soit ce qu\'il te reste après toutes tes charges fixes';
 
   @override
@@ -8276,45 +8276,45 @@ class SFr extends S {
       'Estimation éducative. Ne constitue pas un conseil financier (LSFin art. 3).';
 
   @override
-  String get chiffreChocIfYouAct => 'Si tu agis';
+  String get premierEclairageIfYouAct => 'Si tu agis';
 
   @override
-  String get chiffreChocIfYouDontAct => 'Si tu ne fais rien';
+  String get premierEclairageIfYouDontAct => 'Si tu ne fais rien';
 
   @override
-  String get chiffreChocAvantApresGapAct =>
+  String get premierEclairageAvantApresGapAct =>
       'Un rachat LPP ou un 3a peut réduire cet écart de moitié.';
 
   @override
-  String get chiffreChocAvantApresGapNoAct =>
+  String get premierEclairageAvantApresGapNoAct =>
       'L\'écart se creuse chaque année. À la retraite, il sera trop tard.';
 
   @override
-  String get chiffreChocAvantApresLiquidityAct =>
+  String get premierEclairageAvantApresLiquidityAct =>
       'Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.';
 
   @override
-  String get chiffreChocAvantApresLiquidityNoAct =>
+  String get premierEclairageAvantApresLiquidityNoAct =>
       'Un imprévu sans réserve, c\'est un crédit à la consommation.';
 
   @override
-  String get chiffreChocAvantApresTaxAct =>
+  String get premierEclairageAvantApresTaxAct =>
       'Chaque année sans 3a, c\'est une économie d\'impôt perdue.';
 
   @override
-  String get chiffreChocAvantApresTaxNoAct =>
+  String get premierEclairageAvantApresTaxNoAct =>
       'Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.';
 
   @override
-  String get chiffreChocAvantApresIncomeAct =>
+  String get premierEclairageAvantApresIncomeAct =>
       'Quelques ajustements peuvent améliorer ta projection.';
 
   @override
-  String get chiffreChocAvantApresIncomeNoAct =>
+  String get premierEclairageAvantApresIncomeNoAct =>
       'Ta situation actuelle reste stable, mais sans marge de progression.';
 
   @override
-  String chiffreChocConfidenceSimple(String count) {
+  String premierEclairageConfidenceSimple(String count) {
     return 'Basé sur $count données. Ajoutes-en pour affiner.';
   }
 
@@ -8366,13 +8366,13 @@ class SFr extends S {
   }
 
   @override
-  String get chiffreChocBack => 'Retour';
+  String get premierEclairageBack => 'Retour';
 
   @override
-  String get chiffreChocShowComparison => 'Afficher la comparaison';
+  String get premierEclairageShowComparison => 'Afficher la comparaison';
 
   @override
-  String get chiffreChocHideComparison => 'Masquer la comparaison';
+  String get premierEclairageHideComparison => 'Masquer la comparaison';
 
   @override
   String get dashboardNextActionsTitle => 'Tes prochaines actions';
@@ -9207,12 +9207,12 @@ class SFr extends S {
   }
 
   @override
-  String expatAvsChiffreChoc(String amount) {
+  String expatAvsPremierEclairage(String amount) {
     return '-$amount/an sur ta rente AVS';
   }
 
   @override
-  String expatDepartChiffreChoc(String amount) {
+  String expatDepartPremierEclairage(String amount) {
     return '$amount de capital à sécuriser avant ton départ';
   }
 
@@ -9367,7 +9367,8 @@ class SFr extends S {
   String get realReturnTitle => 'Rendement réel 3a';
 
   @override
-  String get realReturnChiffreChocLabel => 'Taux équivalent sur effort net';
+  String get realReturnPremierEclairageLabel =>
+      'Taux équivalent sur effort net';
 
   @override
   String realReturnVsNominal(String rate) {
@@ -10131,7 +10132,7 @@ class SFr extends S {
   String get avsCotisationsSliderMax250k => 'CHF 250’000';
 
   @override
-  String avsCotisationsChiffreChocCaption(String amount) {
+  String avsCotisationsPremierEclairageCaption(String amount) {
     return 'En tant qu’indépendant·e, tu paies $amount/an de plus qu’un·e salarié·e';
   }
 
@@ -10233,7 +10234,7 @@ class SFr extends S {
   String get ijmJours => 'jours';
 
   @override
-  String ijmChiffreChocCaption(String amount, int jours) {
+  String ijmPremierEclairageCaption(String amount, int jours) {
     return 'Sans assurance IJM, tu perds $amount pendant le délai de carence de $jours jours';
   }
 
@@ -10333,11 +10334,11 @@ class SFr extends S {
   String get pillar3aIndepTauxLabel => 'Taux marginal d’imposition';
 
   @override
-  String get pillar3aIndepChiffreChocCaption =>
+  String get pillar3aIndepPremierEclairageCaption =>
       'd’économie fiscale annuelle grâce au 3e pilier';
 
   @override
-  String pillar3aIndepChiffreChocAvantageSalarie(String amount) {
+  String pillar3aIndepPremierEclairageAvantageSalarie(String amount) {
     return 'Tu économises $amount/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a';
   }
 
@@ -10453,7 +10454,7 @@ class SFr extends S {
   String get lppVolontaireTauxMarginal => 'Taux marginal d’imposition';
 
   @override
-  String lppVolontaireChiffreChocCaption(String amount) {
+  String lppVolontairePremierEclairageCaption(String amount) {
     return 'Sans LPP volontaire, tu perds $amount/an de capitalisation retraite';
   }
 
@@ -10788,12 +10789,12 @@ class SFr extends S {
   String get providerComparatorAppBarTitle => 'Comparateur 3a';
 
   @override
-  String providerComparatorChiffreChocLabel(int duree) {
+  String providerComparatorPremierEclairageLabel(int duree) {
     return 'Différence sur $duree ans';
   }
 
   @override
-  String get providerComparatorChiffreChocSubtitle =>
+  String get providerComparatorPremierEclairageSubtitle =>
       'entre le provider le plus et le moins performant';
 
   @override
@@ -12514,7 +12515,7 @@ class SFr extends S {
       'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)';
 
   @override
-  String get chiffreChocRenteCalculation =>
+  String get premierEclairageRenteCalculation =>
       '(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).';
 
   @override
@@ -12542,19 +12543,19 @@ class SFr extends S {
   }
 
   @override
-  String get chiffreChocSectionDisclaimer =>
+  String get premierEclairageSectionDisclaimer =>
       'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.';
 
   @override
   String get concubinageTabProtection => 'Protection';
 
   @override
-  String concubinageHeroChiffreChoc(String montant) {
+  String concubinageHeroPremierEclairage(String montant) {
     return 'CHF $montant de patrimoine exposé';
   }
 
   @override
-  String get concubinageHeroChiffreChocDesc =>
+  String get concubinageHeroPremierEclairageDesc =>
       'En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.';
 
   @override
@@ -16202,7 +16203,7 @@ class SFr extends S {
   String get firstJobBudgetBesoins => 'Besoins';
 
   @override
-  String firstJobBudgetChiffreChoc(String annual, String future) {
+  String firstJobBudgetPremierEclairage(String annual, String future) {
     return 'Si tu épargnes $annual CHF/an dès maintenant, tu auras ~$future CHF à 65 ans.';
   }
 
@@ -20933,14 +20934,14 @@ class SFr extends S {
       'Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.';
 
   @override
-  String get chiffreChocSilenceQuestion =>
+  String get premierEclairageSilenceQuestion =>
       'C\'est ton chiffre. Qu\'est-ce que tu en penses ?';
 
   @override
-  String get chiffreChocSilenceHint => 'Dis ce qui te vient...';
+  String get premierEclairageSilenceHint => 'Dis ce qui te vient...';
 
   @override
-  String get chiffreChocSkipToHome => 'Passer au dashboard';
+  String get premierEclairageSkipToHome => 'Passer au dashboard';
 
   @override
   String get landingQuickCalcTitle => 'Ton chiffre en 30 secondes';
@@ -20970,15 +20971,15 @@ class SFr extends S {
       '30 secondes pour ton premier chiffre. Pas de rendez-vous, pas de frais.';
 
   @override
-  String get instantChiffreChocConfidence =>
+  String get instantPremierEclairageConfidence =>
       'Estimation ±15 % — crée un compte pour plus de précision';
 
   @override
-  String get instantChiffreChocNothingStored =>
+  String get instantPremierEclairageNothingStored =>
       'Aucun compte. Rien n\'est stocké.';
 
   @override
-  String get instantChiffreChocComeBack => 'Reviens quand tu veux';
+  String get instantPremierEclairageComeBack => 'Reviens quand tu veux';
 
   @override
   String get coachSilentOpenerQuestion => 'Tu veux en parler ?';
@@ -21851,7 +21852,7 @@ class SFr extends S {
   String get quickStartHeadline => 'Trois questions, un premier chiffre.';
 
   @override
-  String get chiffreChocContinue => 'Continuer';
+  String get premierEclairageContinue => 'Continuer';
 
   @override
   String get planCta => 'Voir mon plan';
@@ -21932,9 +21933,6 @@ class SFr extends S {
 
   @override
   String get docReviewConfirm => 'Confirmer et enrichir mon profil';
-
-  @override
-  String get docImpactPremierEclairageTitle => 'Ce que Mint voit';
 
   @override
   String get docImpactQuestionsTitle => 'Questions à poser';

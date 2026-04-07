@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
-/// Selects the most impactful "chiffre choc" to show the user.
+/// Selects the most impactful "premier éclairage" to show the user.
 ///
-/// Sprint S57 — ChiffreChoc V2: intention × lifecycle × confidence × available data.
+/// Sprint S57 — PremierEclairage V2: intention × lifecycle × confidence × available data.
 ///
 /// Selection hierarchy:
 /// 1. Critical archetype alerts (indep no LPP, expat low AVS)
@@ -15,19 +15,19 @@ import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 /// 4. Lifecycle-aware fallback (age-driven, always valid)
 ///
 /// Confidence gating:
-/// - If the chiffre choc's key data is estimated → [ChiffreChocConfidence.pedagogical]
-/// - If based on provided data or pure math → [ChiffreChocConfidence.factual]
+/// - If the premier éclairage's key data is estimated → [PremierEclairageConfidence.pedagogical]
+/// - If based on provided data or pure math → [PremierEclairageConfidence.factual]
 ///
 /// Legal basis: LAVS art. 21-40, LPP art. 7-16, OPP3 art. 7, LIFD art. 38.
-class ChiffreChocSelector {
-  ChiffreChocSelector._();
+class PremierEclairageSelector {
+  PremierEclairageSelector._();
 
-  /// Select the most impactful chiffre choc for the given profile.
+  /// Select the most impactful premier éclairage for the given profile.
   ///
   /// [stressType] — user's declared intention from StepStressSelector.
   /// When set and not 'stress_general', influences which type of chiffre
   /// choc is selected (if the data supports it).
-  static ChiffreChoc select(
+  static PremierEclairage select(
     MinimalProfileResult profile, {
     String? stressType,
   }) {
@@ -71,10 +71,10 @@ class ChiffreChocSelector {
   // Phase 1: Stress-aligned selection
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Try to produce a chiffre choc aligned with the user's declared intention.
+  /// Try to produce a premier éclairage aligned with the user's declared intention.
   ///
   /// Returns null if the data doesn't support a meaningful choc for this stress.
-  static ChiffreChoc? _selectByStress(
+  static PremierEclairage? _selectByStress(
     String stressType,
     MinimalProfileResult profile,
   ) {
@@ -139,7 +139,7 @@ class ChiffreChocSelector {
   ///
   /// Uses pure math or well-grounded calculations per age group.
   /// Avoids showing retirement projections to users under 28.
-  static ChiffreChoc _selectByLifecycle(MinimalProfileResult profile) {
+  static PremierEclairage _selectByLifecycle(MinimalProfileResult profile) {
     if (profile.age < 28) {
       // Young: compound growth advantage (pure math, no estimation)
       return _buildCompoundGrowthChoc(profile);
@@ -163,8 +163,8 @@ class ChiffreChocSelector {
   // Archetype alerts (unchanged priority 0)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Archetype-specific chiffre choc (highest priority when applicable).
-  static ChiffreChoc? _selectByArchetype(MinimalProfileResult profile) {
+  /// Archetype-specific premier éclairage (highest priority when applicable).
+  static PremierEclairage? _selectByArchetype(MinimalProfileResult profile) {
     // Independent without LPP: massive retirement gap alert
     if (profile.employmentStatus == 'independant' &&
         profile.lppMonthlyRente <= 0 &&
@@ -173,8 +173,8 @@ class ChiffreChocSelector {
       final plafondStr = profile.plafond3a != null
           ? chf.formatChf(profile.plafond3a!)
           : '?';
-      return ChiffreChoc(
-        type: ChiffreChocType.retirementGap,
+      return PremierEclairage(
+        type: PremierEclairageType.retirementGap,
         value: '$gapFormatted/mois',
         rawValue: profile.retirementGapMonthly,
         title: 'Sans 2e pilier, ton gap de retraite',
@@ -200,8 +200,8 @@ class ChiffreChocSelector {
           : 'Avec $avsFormatted/mois d\'AVS estime, ta rente pourrait etre '
               'reduite par des lacunes de cotisation. Demande ton releve CI '
               'a ta caisse de compensation.';
-      return ChiffreChoc(
-        type: ChiffreChocType.retirementGap,
+      return PremierEclairage(
+        type: PremierEclairageType.retirementGap,
         value: '$avsFormatted/mois',
         rawValue: profile.avsMonthlyRente,
         title: 'Ta rente AVS estimee',
@@ -218,9 +218,9 @@ class ChiffreChocSelector {
   // Chiffre choc builders
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static ChiffreChoc _buildLiquidityChoc(MinimalProfileResult profile) {
-    return ChiffreChoc(
-      type: ChiffreChocType.liquidityAlert,
+  static PremierEclairage _buildLiquidityChoc(MinimalProfileResult profile) {
+    return PremierEclairage(
+      type: PremierEclairageType.liquidityAlert,
       value: '${profile.liquidityMonths.toStringAsFixed(1)} mois',
       rawValue: profile.liquidityMonths,
       title: 'Ta reserve de liquidite',
@@ -234,7 +234,7 @@ class ChiffreChocSelector {
     );
   }
 
-  static ChiffreChoc _buildRetirementGapChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildRetirementGapChoc(MinimalProfileResult profile) {
     final gapFormatted = chf.formatChfWithPrefix(profile.retirementGapMonthly);
     final pct = (profile.replacementRate * 100).round();
     final isIndep = profile.employmentStatus == 'independant';
@@ -246,8 +246,8 @@ class ChiffreChocSelector {
         : '\u00c0 la retraite, tu pourrais recevoir environ $pct% de ton revenu actuel. '
             'Il te manquerait $gapFormatted chaque mois. '
             'Decouvre comment reduire cet ecart.';
-    return ChiffreChoc(
-      type: ChiffreChocType.retirementGap,
+    return PremierEclairage(
+      type: PremierEclairageType.retirementGap,
       value: '$gapFormatted/mois',
       rawValue: profile.retirementGapMonthly,
       title: 'Ton ecart de retraite',
@@ -257,13 +257,13 @@ class ChiffreChocSelector {
     );
   }
 
-  static ChiffreChoc _buildTaxSaving3aChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildTaxSaving3aChoc(MinimalProfileResult profile) {
     final savingFormatted = chf.formatChfWithPrefix(profile.taxSaving3a);
     final plafondText = profile.plafond3a != null
         ? chf.formatChf(profile.plafond3a!)
         : '?';
-    return ChiffreChoc(
-      type: ChiffreChocType.taxSaving3a,
+    return PremierEclairage(
+      type: PremierEclairageType.taxSaving3a,
       value: '$savingFormatted/an',
       rawValue: profile.taxSaving3a,
       title: 'Ton economie d\'impot potentielle',
@@ -275,11 +275,11 @@ class ChiffreChocSelector {
     );
   }
 
-  static ChiffreChoc _buildRetirementIncomeChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildRetirementIncomeChoc(MinimalProfileResult profile) {
     final retirementFormatted = chf.formatChfWithPrefix(profile.totalMonthlyRetirement);
     final pct = (profile.replacementRate * 100).round();
-    return ChiffreChoc(
-      type: ChiffreChocType.retirementIncome,
+    return PremierEclairage(
+      type: PremierEclairageType.retirementIncome,
       value: '$retirementFormatted/mois',
       rawValue: profile.totalMonthlyRetirement,
       title: 'Ton revenu estime a la retraite',
@@ -293,8 +293,8 @@ class ChiffreChocSelector {
   /// Compound growth advantage for young users.
   ///
   /// Pure math: compares starting now vs starting at 35.
-  /// Always [ChiffreChocConfidence.factual] — no estimation involved.
-  static ChiffreChoc _buildCompoundGrowthChoc(MinimalProfileResult profile) {
+  /// Always [PremierEclairageConfidence.factual] — no estimation involved.
+  static PremierEclairage _buildCompoundGrowthChoc(MinimalProfileResult profile) {
     final years = 65 - profile.age;
     const monthlyContrib = 200.0;
     const annualRate = 0.03;
@@ -315,8 +315,8 @@ class ChiffreChocSelector {
     final advantage = futureValue - futureAt35;
     final advantageFormatted = chf.formatChfWithPrefix(advantage);
 
-    return ChiffreChoc(
-      type: ChiffreChocType.compoundGrowth,
+    return PremierEclairage(
+      type: PremierEclairageType.compoundGrowth,
       value: advantageFormatted,
       rawValue: advantage,
       title: 'Ton avantage temps',
@@ -325,7 +325,7 @@ class ChiffreChocSelector {
           'Le temps est ton plus grand atout.',
       iconName: 'trending_up',
       colorKey: 'success',
-      confidenceMode: ChiffreChocConfidence.factual, // Pure math
+      confidenceMode: PremierEclairageConfidence.factual, // Pure math
     );
   }
 
@@ -333,7 +333,7 @@ class ChiffreChocSelector {
   ///
   /// Pure math from provided salary — always factual.
   /// Shows what the user really earns per hour, making abstract salary concrete.
-  static ChiffreChoc _buildHourlyRateChoc(MinimalProfileResult profile) {
+  static PremierEclairage _buildHourlyRateChoc(MinimalProfileResult profile) {
     // Swiss standard: 42h/week × 52 weeks = 2'184h, minus 5 weeks vacation
     // → ~1'974 working hours/year. Simplified: 174h/month × 12 = 2'088h.
     const workingHoursPerYear = 2088.0;
@@ -348,8 +348,8 @@ class ChiffreChocSelector {
     final rentEstimate = monthlyExpenses * 0.30;
     final rentHours = (rentEstimate / (hourlyNet)).round();
 
-    return ChiffreChoc(
-      type: ChiffreChocType.hourlyRate,
+    return PremierEclairage(
+      type: PremierEclairageType.hourlyRate,
       value: '$hourlyFormatted/h',
       rawValue: hourlyNet,
       title: 'Ton salaire reel',
@@ -358,7 +358,7 @@ class ChiffreChocSelector {
           'Ton loyer te coute ~$rentHours heures de travail par mois.',
       iconName: 'schedule',
       colorKey: 'info',
-      confidenceMode: ChiffreChocConfidence.factual, // Derived from provided salary
+      confidenceMode: PremierEclairageConfidence.factual, // Derived from provided salary
     );
   }
 
@@ -373,35 +373,35 @@ class ChiffreChocSelector {
   /// - [liquidityAlert] is pedagogical if currentSavings is estimated
   /// - [retirementGap] / [retirementIncome] are pedagogical if LPP is estimated
   /// - [taxSaving3a] is factual (derived from salary + canton, both provided)
-  static ChiffreChoc _withConfidence(
-    ChiffreChoc choc,
+  static PremierEclairage _withConfidence(
+    PremierEclairage choc,
     MinimalProfileResult profile,
   ) {
     // Already set explicitly (e.g. compoundGrowth, hourlyRate)
-    if (choc.confidenceMode != ChiffreChocConfidence.factual) return choc;
+    if (choc.confidenceMode != PremierEclairageConfidence.factual) return choc;
 
     final estimated = profile.estimatedFields;
-    final ChiffreChocConfidence mode;
+    final PremierEclairageConfidence mode;
 
     switch (choc.type) {
-      case ChiffreChocType.compoundGrowth:
-      case ChiffreChocType.hourlyRate:
-      case ChiffreChocType.taxSaving3a:
-        mode = ChiffreChocConfidence.factual;
-      case ChiffreChocType.liquidityAlert:
+      case PremierEclairageType.compoundGrowth:
+      case PremierEclairageType.hourlyRate:
+      case PremierEclairageType.taxSaving3a:
+        mode = PremierEclairageConfidence.factual;
+      case PremierEclairageType.liquidityAlert:
         mode = estimated.contains('currentSavings')
-            ? ChiffreChocConfidence.pedagogical
-            : ChiffreChocConfidence.factual;
-      case ChiffreChocType.retirementGap:
-      case ChiffreChocType.retirementIncome:
+            ? PremierEclairageConfidence.pedagogical
+            : PremierEclairageConfidence.factual;
+      case PremierEclairageType.retirementGap:
+      case PremierEclairageType.retirementIncome:
         mode = estimated.contains('existingLpp')
-            ? ChiffreChocConfidence.pedagogical
-            : ChiffreChocConfidence.factual;
+            ? PremierEclairageConfidence.pedagogical
+            : PremierEclairageConfidence.factual;
     }
 
     if (mode == choc.confidenceMode) return choc;
 
-    return ChiffreChoc(
+    return PremierEclairage(
       type: choc.type,
       value: choc.value,
       rawValue: choc.rawValue,

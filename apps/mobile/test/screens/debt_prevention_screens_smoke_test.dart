@@ -146,7 +146,7 @@ void main() {
       expect(find.textContaining('imeline'), findsWidgets);
     });
 
-    testWidgets('shows chiffre choc', (tester) async {
+    testWidgets('shows premier éclairage', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           locale: Locale('fr'),

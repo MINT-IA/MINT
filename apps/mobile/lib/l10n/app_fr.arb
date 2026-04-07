@@ -709,8 +709,8 @@
   "budgetExampleLeisure": "loisirs",
   "budgetExampleSavings": "Épargne",
   "budgetExampleProjects": "projets",
-  "budgetChiffreChoc503020": "En épargnant CHF {monthly}/mois, tu accumules CHF {total} en 10 ans.",
-  "@budgetChiffreChoc503020": {
+  "budgetPremierEclairage503020": "En épargnant CHF {monthly}/mois, tu accumules CHF {total} en 10 ans.",
+  "@budgetPremierEclairage503020": {
     "placeholders": {
       "monthly": {
         "type": "String"
@@ -901,8 +901,8 @@
       }
     }
   },
-  "naissanceChiffreChocText": "Ton congé {type} représente {amount} d'APG sur {weeks} semaines",
-  "@naissanceChiffreChocText": {
+  "naissancePremierEclairageText": "Ton congé {type} représente {amount} d'APG sur {weeks} semaines",
+  "@naissancePremierEclairageText": {
     "placeholders": {
       "type": {
         "type": "String"
@@ -1030,8 +1030,8 @@
   "mariageCommunauteDesc": "Tout est mis en commun : biens propres et acquêts. Partage égalitaire total en cas de dissolution.",
   "mariagePatrimoine1": "Patrimoine Personne 1",
   "mariagePatrimoine2": "Patrimoine Personne 2",
-  "mariageChiffreChocDefault": "En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution",
-  "mariageChiffreChocCommunaute": "En communauté de biens, ce montant serait partagé avec ton conjoint",
+  "mariagePremierEclairageDefault": "En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution",
+  "mariagePremierEclairageCommunaute": "En communauté de biens, ce montant serait partagé avec ton conjoint",
   "mariageProtectionIntro": "Que se passe-t-il si l'un de vous deux décède ? Compare la protection légale entre mariés et concubins.",
   "mariageLppRenteLabel": "Rente LPP mensuelle du défunt",
   "mariageAvsSurvivor": "Rente AVS de survivant",
@@ -1433,8 +1433,8 @@
   "independantJourJSubtitle": "Ce qui change en 1 jour quand tu deviens indépendant·e",
   "independantJourJEmployee": "Salarié·e",
   "independantJourJSelfEmployed": "Indépendant·e",
-  "independantJourJChiffreChoc": "Tu perds ~{amount}/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.",
-  "@independantJourJChiffreChoc": {
+  "independantJourJPremierEclairage": "Tu perds ~{amount}/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.",
+  "@independantJourJPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -3286,9 +3286,9 @@
   "decesProchAction3": "Vérifier les bénéficiaires LPP et 3a auprès des caisses",
   "decesProchDisclaimer": "Outil éducatif — ne constitue pas un conseil juridique ou fiscal (LSFin). Chaque succession est unique : consulte un·e notaire ou un·e spécialiste. Sources : CC art. 457-640, OPP2 art. 48, OPP3 art. 2.",
   "demenagementTitre": "Déménagement cantonal",
-  "demenagementChiffreChocSousTitre": "économie (ou surcoût) annuel estimé",
-  "demenagementChiffreChocDetail": "En déménageant de {depart} vers {arrivee} (impôts + LAMal)",
-  "@demenagementChiffreChocDetail": {
+  "demenagementPremierEclairageSousTitre": "économie (ou surcoût) annuel estimé",
+  "demenagementPremierEclairageDetail": "En déménageant de {depart} vers {arrivee} (impôts + LAMal)",
+  "@demenagementPremierEclairageDetail": {
     "placeholders": {
       "depart": {
         "type": "String"
@@ -3414,7 +3414,7 @@
       }
     }
   },
-  "docImpactChiffreChocTitle": "Chiffre choc recalculé",
+  "docImpactPremierEclairageTitle": "Chiffre choc recalculé",
   "docImpactLppRealAmount": "d'avoir LPP réel (dont {oblig} obligatoire)",
   "@docImpactLppRealAmount": {
     "placeholders": {
@@ -3762,10 +3762,10 @@
   "budgetCtaPlan": "Planifier",
   "budgetCtaDiscover": "Découvrir",
   "budgetDisclaimerBased": "• Les montants sont basés sur les informations déclarées.",
-  "chiffreChocDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
-  "chiffreChocAction": "Qu'est-ce que je peux faire ?",
-  "chiffreChocConfidence": "Estimation basée sur {count} informations. Plus tu précises, plus c'est fiable.",
-  "@chiffreChocConfidence": {
+  "premierEclairageDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+  "premierEclairageAction": "Qu'est-ce que je peux faire ?",
+  "premierEclairageConfidence": "Estimation basée sur {count} informations. Plus tu précises, plus c'est fiable.",
+  "@premierEclairageConfidence": {
     "placeholders": {
       "count": {
         "type": "String"
@@ -4023,23 +4023,23 @@
   "santeHubToolAssuranceInvalidite": "Assurance invalidité",
   "santeHubToolInvaliditeIndependant": "Invalidité indépendant",
   "budgetErrorRetry": "Le calcul a buté. Réessaie ?",
-  "budgetChiffreChocCaption": "Soit ce qu'il te reste après toutes tes charges fixes",
+  "budgetPremierEclairageCaption": "Soit ce qu'il te reste après toutes tes charges fixes",
   "budgetMethodTitle": "Comprendre ce budget",
   "budgetMethodBody": "Ce budget sépare tes charges fixes (loyer, LAMal, impôts) de ton reste à vivre. La règle 50/30/20 suggère : 50 % pour les besoins, 30 % pour les envies, 20 % pour l'épargne. C'est un repère, pas une obligation.",
   "budgetMethodSource": "Source : méthode 50/30/20 (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Estimation éducative. Ne constitue pas un conseil financier (LSFin art. 3).",
-  "chiffreChocIfYouAct": "Si tu agis",
-  "chiffreChocIfYouDontAct": "Si tu ne fais rien",
-  "chiffreChocAvantApresGapAct": "Un rachat LPP ou un 3a peut réduire cet écart de moitié.",
-  "chiffreChocAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
-  "chiffreChocAvantApresLiquidityAct": "Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.",
-  "chiffreChocAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
-  "chiffreChocAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
-  "chiffreChocAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
-  "chiffreChocAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
-  "chiffreChocAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
-  "chiffreChocConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
-  "@chiffreChocConfidenceSimple": {
+  "premierEclairageIfYouAct": "Si tu agis",
+  "premierEclairageIfYouDontAct": "Si tu ne fais rien",
+  "premierEclairageAvantApresGapAct": "Un rachat LPP ou un 3a peut réduire cet écart de moitié.",
+  "premierEclairageAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
+  "premierEclairageAvantApresLiquidityAct": "Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.",
+  "premierEclairageAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
+  "premierEclairageAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
+  "premierEclairageAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
+  "premierEclairageAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
+  "premierEclairageAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
+  "premierEclairageConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
+  "@premierEclairageConfidenceSimple": {
     "description": "Simplified confidence indicator. Tone: inviting, not jargon.",
     "placeholders": {
       "count": {
@@ -4093,9 +4093,9 @@
       }
     }
   },
-  "chiffreChocBack": "Retour",
-  "chiffreChocShowComparison": "Afficher la comparaison",
-  "chiffreChocHideComparison": "Masquer la comparaison",
+  "premierEclairageBack": "Retour",
+  "premierEclairageShowComparison": "Afficher la comparaison",
+  "premierEclairageHideComparison": "Masquer la comparaison",
   "dashboardNextActionsTitle": "Tes prochaines actions",
   "dashboardExploreAlsoTitle": "Explorer aussi",
   "dashboardImproveAccuracyTitle": "Améliore ta précision",
@@ -4537,16 +4537,16 @@
       }
     }
   },
-  "expatAvsChiffreChoc": "-{amount}/an sur ta rente AVS",
-  "@expatAvsChiffreChoc": {
+  "expatAvsPremierEclairage": "-{amount}/an sur ta rente AVS",
+  "@expatAvsPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
       }
     }
   },
-  "expatDepartChiffreChoc": "{amount} de capital à sécuriser avant ton départ",
-  "@expatDepartChiffreChoc": {
+  "expatDepartPremierEclairage": "{amount} de capital à sécuriser avant ton départ",
+  "@expatDepartPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4625,7 +4625,7 @@
   "sim3aDebtStrategyTitle": "Stratégie bloquée",
   "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.",
   "realReturnTitle": "Rendement réel 3a",
-  "realReturnChiffreChocLabel": "Taux équivalent sur effort net",
+  "realReturnPremierEclairageLabel": "Taux équivalent sur effort net",
   "realReturnVsNominal": "vs {rate} % taux net 3a (brut − frais)",
   "@realReturnVsNominal": {
     "placeholders": {
@@ -5065,8 +5065,8 @@
   "avsCotisationsRevenuLabel": "Ton revenu net annuel",
   "avsCotisationsSliderMin": "CHF 0",
   "avsCotisationsSliderMax250k": "CHF 250’000",
-  "avsCotisationsChiffreChocCaption": "En tant qu’indépendant·e, tu paies {amount}/an de plus qu’un·e salarié·e",
-  "@avsCotisationsChiffreChocCaption": {
+  "avsCotisationsPremierEclairageCaption": "En tant qu’indépendant·e, tu paies {amount}/an de plus qu’un·e salarié·e",
+  "@avsCotisationsPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5116,8 +5116,8 @@
   "ijmDelaiCarence": "Délai de carence",
   "ijmDelaiCarenceDesc": "Période pendant laquelle tu ne reçois aucune indemnité",
   "ijmJours": "jours",
-  "ijmChiffreChocCaption": "Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours",
-  "@ijmChiffreChocCaption": {
+  "ijmPremierEclairageCaption": "Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours",
+  "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5172,9 +5172,9 @@
   "pillar3aIndepRevenuLabel": "Revenu net annuel",
   "pillar3aIndepSliderMax300k": "CHF 300’000",
   "pillar3aIndepTauxLabel": "Taux marginal d’imposition",
-  "pillar3aIndepChiffreChocCaption": "d’économie fiscale annuelle grâce au 3e pilier",
-  "pillar3aIndepChiffreChocAvantageSalarie": "Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a",
-  "@pillar3aIndepChiffreChocAvantageSalarie": {
+  "pillar3aIndepPremierEclairageCaption": "d’économie fiscale annuelle grâce au 3e pilier",
+  "pillar3aIndepPremierEclairageAvantageSalarie": "Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a",
+  "@pillar3aIndepPremierEclairageAvantageSalarie": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5229,8 +5229,8 @@
   "lppVolontaireAgeMin": "25 ans",
   "lppVolontaireAgeMax": "65 ans",
   "lppVolontaireTauxMarginal": "Taux marginal d’imposition",
-  "lppVolontaireChiffreChocCaption": "Sans LPP volontaire, tu perds {amount}/an de capitalisation retraite",
-  "@lppVolontaireChiffreChocCaption": {
+  "lppVolontairePremierEclairageCaption": "Sans LPP volontaire, tu perds {amount}/an de capitalisation retraite",
+  "@lppVolontairePremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5370,15 +5370,15 @@
   "librePassageCentrale2eSubtitle": "Rechercher des avoirs de libre passage oubliés",
   "librePassagePrivacyNote": "Tes données restent sur ton appareil. Aucune information n’est transmise à des tiers. Conforme à la nLPD.",
   "providerComparatorAppBarTitle": "Comparateur 3a",
-  "providerComparatorChiffreChocLabel": "Différence sur {duree} ans",
-  "@providerComparatorChiffreChocLabel": {
+  "providerComparatorPremierEclairageLabel": "Différence sur {duree} ans",
+  "@providerComparatorPremierEclairageLabel": {
     "placeholders": {
       "duree": {
         "type": "int"
       }
     }
   },
-  "providerComparatorChiffreChocSubtitle": "entre le provider le plus et le moins performant",
+  "providerComparatorPremierEclairageSubtitle": "entre le provider le plus et le moins performant",
   "providerComparatorSectionParametres": "Paramètres",
   "providerComparatorLabelAge": "Âge",
   "providerComparatorLabelAgeFormat": "{age} ans",
@@ -6169,7 +6169,7 @@
   "fhsBreakdownRisque": "Risque",
   "avsGapLifetimeLoss": "Sur 20 ans de retraite, c'est {amount} de moins — définitivement.",
   "avsGapCalculation": "Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)",
-  "chiffreChocRenteCalculation": "(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).",
+  "premierEclairageRenteCalculation": "(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).",
   "@fhsDeltaLabel": {
     "placeholders": {
       "delta": {
@@ -6218,17 +6218,17 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.",
+  "premierEclairageSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.",
   "concubinageTabProtection": "Protection",
-  "concubinageHeroChiffreChoc": "CHF {montant} de patrimoine exposé",
-  "@concubinageHeroChiffreChoc": {
+  "concubinageHeroPremierEclairage": "CHF {montant} de patrimoine exposé",
+  "@concubinageHeroPremierEclairage": {
     "placeholders": {
       "montant": {
         "type": "String"
       }
     }
   },
-  "concubinageHeroChiffreChocDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
+  "concubinageHeroPremierEclairageDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
   "concubinageEducationalAvs": "En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.",
   "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d'en faire la demande.",
   "concubinageEducationalSuccession": "Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.",
@@ -6858,7 +6858,7 @@
       }
     }
   },
-  "@firstJobBudgetChiffreChoc": {
+  "@firstJobBudgetPremierEclairage": {
     "placeholders": {
       "annual": {
         "type": "String"
@@ -8608,7 +8608,7 @@
   "financialReportEmptyTitle": "Ton bilan financier",
   "firstJobBudgetAlimentation": "Alimentation",
   "firstJobBudgetBesoins": "Besoins",
-  "firstJobBudgetChiffreChoc": "Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.",
+  "firstJobBudgetPremierEclairage": "Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.",
   "firstJobBudgetEnvies": "Envies",
   "firstJobBudgetEpargne": "Épargne & 3a",
   "firstJobBudgetEpargneCourt": "Épargne",
@@ -10120,9 +10120,9 @@
   "disclaimerShort": "Outil éducatif, pas un conseil financier.",
   "disclaimerLearnMore": "En savoir plus",
   "disclaimerFull": "Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.",
-  "chiffreChocSilenceQuestion": "C'est ton chiffre. Qu'est-ce que tu en penses ?",
-  "chiffreChocSilenceHint": "Dis ce qui te vient...",
-  "chiffreChocSkipToHome": "Passer au dashboard",
+  "premierEclairageSilenceQuestion": "C'est ton chiffre. Qu'est-ce que tu en penses ?",
+  "premierEclairageSilenceHint": "Dis ce qui te vient...",
+  "premierEclairageSkipToHome": "Passer au dashboard",
   "landingQuickCalcTitle": "Ton chiffre en 30 secondes",
   "landingQuickCalcSubtitle": "Aucun compte. Rien n'est stocké. Calcul éphémère.",
   "landingBirthYear": "Année de naissance",
@@ -10131,9 +10131,9 @@
   "landingCalculate": "Voir mon chiffre",
   "landingPrivacyBadge": "Aucun compte requis. Calcul sur ton téléphone. Rien n'est stocké.",
   "landingVzComparison": "30 secondes pour ton premier chiffre. Pas de rendez-vous, pas de frais.",
-  "instantChiffreChocConfidence": "Estimation ±15 % — crée un compte pour plus de précision",
-  "instantChiffreChocNothingStored": "Aucun compte. Rien n'est stocké.",
-  "instantChiffreChocComeBack": "Reviens quand tu veux",
+  "instantPremierEclairageConfidence": "Estimation ±15 % — crée un compte pour plus de précision",
+  "instantPremierEclairageNothingStored": "Aucun compte. Rien n'est stocké.",
+  "instantPremierEclairageComeBack": "Reviens quand tu veux",
   "coachSilentOpenerQuestion": "Tu veux en parler ?",
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
@@ -10605,7 +10605,7 @@
   "authResend": "Renvoyer le lien",
   "authPasswordFallback": "Se connecter avec un mot de passe",
   "quickStartHeadline": "Trois questions, un premier chiffre.",
-  "chiffreChocContinue": "Continuer",
+  "premierEclairageContinue": "Continuer",
   "planCta": "Voir mon plan",
   "coachErrorInline": "Le coach n'est pas disponible pour le moment.",
   "planHeadline": "Ton plan en 4 gestes",

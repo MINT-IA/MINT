@@ -332,7 +332,7 @@ void main() {
       expect(routeSet, isNot(contains('admin_observability')));
       expect(routeSet, isNot(contains('admin_analytics')));
       expect(routeSet, isNot(contains('onboarding_quick')));
-      expect(routeSet, isNot(contains('onboarding_chiffre_choc')));
+      expect(routeSet, isNot(contains('onboarding_premier_eclairage')));
       expect(routeSet, isNot(contains('score_reveal')));
       expect(routeSet, isNot(contains('scan_review')));
       expect(routeSet, isNot(contains('scan_impact')));

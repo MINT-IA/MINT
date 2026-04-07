@@ -257,8 +257,8 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
-                // 3. Chiffre Choc
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChiffreChocCard(result)),
+                // 3. Premier Éclairage
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPremierEclairageCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
@@ -464,14 +464,14 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     );
   }
 
-  // ── 3. Chiffre Choc Card ──────────────────────────────────────
+  // ── 3. Premier Éclairage Card ──────────────────────────────────────
 
-  Widget _buildChiffreChocCard(Retroactive3aResult result) {
+  Widget _buildPremierEclairageCard(Retroactive3aResult result) {
     return MintResultHeroCard(
       eyebrow: S.of(context)!.retroactive3aEconomiesFiscales,
       primaryValue: 'CHF\u00a0${formatChf(result.economiesFiscales)}',
       primaryLabel: S.of(context)!.retroactive3aSavingsLabel,
-      narrative: result.chiffreChoc,
+      narrative: result.premierEclairage,
       accentColor: MintColors.success,
       tone: MintSurfaceTone.porcelaine,
     );

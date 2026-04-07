@@ -597,9 +597,9 @@ class _ExpatScreenState extends State<ExpatScreen>
               child: MintResultHeroCard(
                 eyebrow: l.expatTabDeparture.toUpperCase(),
                 primaryValue: ExpatService.formatChf(totalCapital),
-                primaryLabel: l.expatDepartChiffreChoc(
+                primaryLabel: l.expatDepartPremierEclairage(
                     ExpatService.formatChf(totalCapital)),
-                narrative: l.expatDepartChiffreChoc(
+                narrative: l.expatDepartPremierEclairage(
                     ExpatService.formatChf(totalCapital)),
                 accentColor: MintColors.info,
                 tone: MintSurfaceTone.bleu,
@@ -1223,9 +1223,9 @@ class _ExpatScreenState extends State<ExpatScreen>
                 child: MintResultHeroCard(
                   eyebrow: l.expatTabAvs.toUpperCase(),
                   primaryValue: '-${ExpatService.formatChf(_avsResult!['annualLoss'] as double)}',
-                  primaryLabel: l.expatAvsChiffreChoc(ExpatService.formatChf(
+                  primaryLabel: l.expatAvsPremierEclairage(ExpatService.formatChf(
                       _avsResult!['annualLoss'] as double)),
-                  narrative: l.expatAvsChiffreChoc(ExpatService.formatChf(
+                  narrative: l.expatAvsPremierEclairage(ExpatService.formatChf(
                       _avsResult!['annualLoss'] as double)),
                   accentColor: MintColors.error,
                   tone: MintSurfaceTone.porcelaine,

@@ -380,7 +380,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
           // Chiffre-choc
           Semantics(
-            label: S.of(context)!.independantJourJChiffreChoc(
+            label: S.of(context)!.independantJourJPremierEclairage(
                 IndependantService.formatChf(totalLoss)),
             child: Container(
               width: double.infinity,
@@ -390,7 +390,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                S.of(context)!.independantJourJChiffreChoc(
+                S.of(context)!.independantJourJPremierEclairage(
                     IndependantService.formatChf(totalLoss)),
                 style: MintTextStyles.labelSmall(color: MintColors.error),
                 textAlign: TextAlign.center,

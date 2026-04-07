@@ -62,7 +62,7 @@ enum CardUrgency {
 }
 
 /// Un chiffre-choc avec son explication.
-class ChiffreChoc {
+class PremierEclairage {
   /// Le nombre impactant (ex: 12'450).
   final double value;
 
@@ -72,7 +72,7 @@ class ChiffreChoc {
   /// Phrase explicative courte.
   final String explanation;
 
-  const ChiffreChoc({
+  const PremierEclairage({
     required this.value,
     required this.unit,
     required this.explanation,
@@ -104,7 +104,7 @@ class ChiffreChoc {
         'explanation': explanation,
       };
 
-  factory ChiffreChoc.fromJson(Map<String, dynamic> json) => ChiffreChoc(
+  factory PremierEclairage.fromJson(Map<String, dynamic> json) => PremierEclairage(
         value: (json['value'] as num?)?.toDouble() ?? 0.0,
         unit: json['unit'] as String,
         explanation: json['explanation'] as String,
@@ -156,7 +156,7 @@ class ResponseCard {
   final String subtitle;
 
   /// Chiffre-choc impactant.
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
 
   /// CTA educatif.
   final CardCta cta;
@@ -193,7 +193,7 @@ class ResponseCard {
     required this.type,
     required this.title,
     required this.subtitle,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.cta,
     this.urgency = CardUrgency.low,
     this.deadline,
@@ -252,7 +252,7 @@ class ResponseCard {
         'type': type.name,
         'title': title,
         'subtitle': subtitle,
-        'chiffreChoc': chiffreChoc.toJson(),
+        'premierEclairage': premierEclairage.toJson(),
         'cta': cta.toJson(),
         'urgency': urgency.name,
         if (deadline != null) 'deadline': deadline!.toIso8601String(),

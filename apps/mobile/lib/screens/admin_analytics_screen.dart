@@ -35,7 +35,7 @@ class _AdminAnalyticsScreenState extends State<AdminAnalyticsScreen> {
 
   static const _funnelStepNames =
       'onboarding_minimal_started,onboarding_minimal_submitted,'
-      'chiffre_choc_viewed,dashboard_viewed,paywall_shown,paywall_conversion';
+      'premier_eclairage_viewed,dashboard_viewed,paywall_shown,paywall_conversion';
 
   @override
   void initState() {

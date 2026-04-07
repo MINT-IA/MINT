@@ -25,7 +25,7 @@ class UnemploymentResult {
   final double dureeMois;
   final int delaiCarenceJours;
   final double perteMensuelle;
-  final String chiffreChoc;
+  final String premierEclairage;
   final List<UnemploymentTimelineItem> timeline;
 
   const UnemploymentResult({
@@ -39,7 +39,7 @@ class UnemploymentResult {
     required this.dureeMois,
     required this.delaiCarenceJours,
     required this.perteMensuelle,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.timeline,
   });
 }
@@ -115,7 +115,7 @@ class UnemploymentService {
         dureeMois: 0,
         delaiCarenceJours: _delaiCarenceStandard,
         perteMensuelle: 0,
-        chiffreChoc: '',
+        premierEclairage: '',
         timeline: _buildTimeline(),
       );
     }
@@ -134,7 +134,7 @@ class UnemploymentService {
         dureeMois: 0,
         delaiCarenceJours: _delaiCarenceStandard,
         perteMensuelle: 0,
-        chiffreChoc: '',
+        premierEclairage: '',
         timeline: _buildTimeline(),
       );
     }
@@ -159,7 +159,7 @@ class UnemploymentService {
     // 6. Chiffre choc
     final perteMensuelle = gainAssureMensuel - indemniteMensuelle;
     final pctPerte = ((1 - taux) * 100).toStringAsFixed(0);
-    final chiffreChoc =
+    final premierEclairage =
         'Tu perdras ~${formatChf(perteMensuelle)}/mois '
         'soit $pctPerte% de ton salaire';
 
@@ -173,7 +173,7 @@ class UnemploymentService {
       dureeMois: dureeMois,
       delaiCarenceJours: _delaiCarenceStandard,
       perteMensuelle: perteMensuelle,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       timeline: _buildTimeline(),
     );
   }

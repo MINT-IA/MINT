@@ -22,8 +22,8 @@ import 'package:mint_mobile/services/coach/fallback_templates.dart';
 //  13. tipNarrative: liquidity alert
 //  14. tipNarrative: retirement gap
 //  15. tipNarrative: default enrichment
-//  16. chiffreChocReframe: certified data
-//  17. chiffreChocReframe: no certified data
+//  16. premierEclairageReframe: certified data
+//  17. premierEclairageReframe: no certified data
 //  18. enrichmentGuide: all block types
 //  19. fatcaGuidance: expat_us archetype
 //  20. fatcaGuidance: non-US archetype
@@ -257,9 +257,9 @@ void main() {
   // CHIFFRE CHOC REFRAME
   // ═══════════════════════════════════════════════════════════
 
-  group('FallbackTemplates.chiffreChocReframe', () {
+  group('FallbackTemplates.premierEclairageReframe', () {
     test('certified data mentions confidence and certification', () {
-      final result = FallbackTemplates.chiffreChocReframe(
+      final result = FallbackTemplates.premierEclairageReframe(
         _ctx(
           knownValues: {'confidence_score': 85},
           dataReliability: {'avoirLpp': 'certified'},
@@ -270,7 +270,7 @@ void main() {
     });
 
     test('no certified data shows confidence and enrichment', () {
-      final result = FallbackTemplates.chiffreChocReframe(
+      final result = FallbackTemplates.premierEclairageReframe(
         _ctx(
           knownValues: {'confidence_score': 40},
           dataReliability: {'avoirLpp': 'estimated'},
@@ -458,10 +458,10 @@ void main() {
       );
     });
 
-    test('chiffreChocReframe contains no banned terms', () {
+    test('premierEclairageReframe contains no banned terms', () {
       _assertNoBannedTerms(
-        FallbackTemplates.chiffreChocReframe(baseCtx),
-        'chiffreChocReframe',
+        FallbackTemplates.premierEclairageReframe(baseCtx),
+        'premierEclairageReframe',
       );
     });
 

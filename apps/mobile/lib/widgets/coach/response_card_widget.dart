@@ -184,10 +184,10 @@ class ResponseCardWidget extends StatelessWidget {
         ),
 
         // Chiffre-choc (if meaningful)
-        if (_hasChiffreChoc) ...[
+        if (_hasPremierEclairage) ...[
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
-            card.chiffreChoc.formatted,
+            card.premierEclairage.formatted,
             style: MintTextStyles.headlineMedium(
               color: MintColors.textPrimary,
             ),
@@ -243,18 +243,18 @@ class ResponseCardWidget extends StatelessWidget {
         ),
 
         // Chiffre-choc hero
-        if (_hasChiffreChoc) ...[
+        if (_hasPremierEclairage) ...[
           const SizedBox(height: MintSpacing.md + 4),
           Text(
-            card.chiffreChoc.formatted,
+            card.premierEclairage.formatted,
             style: MintTextStyles.displayMedium(
               color: MintColors.textPrimary,
             ),
           ),
-          if (card.chiffreChoc.explanation.isNotEmpty) ...[
+          if (card.premierEclairage.explanation.isNotEmpty) ...[
             const SizedBox(height: MintSpacing.xs),
             Text(
-              card.chiffreChoc.explanation,
+              card.premierEclairage.explanation,
               style: MintTextStyles.bodySmall(),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -492,7 +492,7 @@ class ResponseCardWidget extends StatelessWidget {
 
   // ── COMPUTED ──────────────────────────────────────────────
 
-  bool get _hasChiffreChoc => card.chiffreChoc.value != 0;
+  bool get _hasPremierEclairage => card.premierEclairage.value != 0;
   bool get _hasDeadline => card.deadlineBadge != null;
   bool get _hasProof =>
       card.sources.isNotEmpty ||
@@ -564,12 +564,12 @@ class ResponseCardStrip extends StatelessWidget {
       case ResponseCardVariant.compact:
         return 72;
       case ResponseCardVariant.chat:
-        return _hasChiffreChoc ? 200 : 160;
+        return _hasPremierEclairage ? 200 : 160;
       case ResponseCardVariant.sheet:
-        return _hasChiffreChoc ? 260 : 200;
+        return _hasPremierEclairage ? 260 : 200;
     }
   }
 
-  bool get _hasChiffreChoc =>
-      cards.any((c) => c.chiffreChoc.value != 0);
+  bool get _hasPremierEclairage =>
+      cards.any((c) => c.premierEclairage.value != 0);
 }

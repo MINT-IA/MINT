@@ -22,7 +22,7 @@ class HousingSaleResult {
   final List<String> alerts;
   final String disclaimer;
   final List<String> sources;
-  final String chiffreChoc;
+  final String premierEclairage;
   final bool cantonExplicit;
 
   const HousingSaleResult({
@@ -41,7 +41,7 @@ class HousingSaleResult {
     required this.alerts,
     required this.disclaimer,
     required this.sources,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.cantonExplicit,
   });
 }
@@ -281,7 +281,7 @@ class HousingSaleService {
     );
 
     // ── Chiffre choc ──
-    final chiffreChoc = produitNet >= 0
+    final premierEclairage = produitNet >= 0
         ? 'Produit net de ta vente : CHF ${produitNet.round()}'
         : 'Attention : produit net negatif de CHF ${produitNet.abs().round()}';
 
@@ -319,7 +319,7 @@ class HousingSaleService {
       alerts: alerts,
       disclaimer: disclaimer,
       sources: sources,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       cantonExplicit: cantonExplicit,
     );
   }

@@ -13,7 +13,7 @@ import 'package:mint_mobile/services/coach/prompt_registry.dart';
 //   4. dashboardGreeting includes user context
 //   5. scoreSummary includes FRI score and delta
 //   6. dailyTip includes fiscal season
-//   7. chiffreChocNarrative includes confidence score
+//   7. premierEclairageNarrative includes confidence score
 //   8. scenarioNarration includes known values
 //   9. getPrompt() dispatches all component types correctly
 //  10. getPrompt() returns baseSystemPrompt for unknown type
@@ -160,14 +160,14 @@ void main() {
       expect(prompt, contains('tax_declaration'));
     });
 
-    test('chiffreChocNarrative includes confidence score', () {
+    test('premierEclairageNarrative includes confidence score', () {
       final ctx = _ctx(
         knownValues: {
           'confidence_score': 85,
-          'chiffre_choc_value': 45000,
+          'premier_eclairage_value': 45000,
         },
       );
-      final prompt = PromptRegistry.chiffreChocNarrative(ctx);
+      final prompt = PromptRegistry.premierEclairageNarrative(ctx);
 
       expect(prompt, contains('85'));
       expect(prompt, contains('45000'));
@@ -239,7 +239,7 @@ void main() {
         'greeting',
         'score_summary',
         'tip',
-        'chiffre_choc',
+        'premier_eclairage',
         'scenario',
       ];
 
@@ -294,7 +294,7 @@ void main() {
         PromptRegistry.dashboardGreeting(ctx),
         PromptRegistry.scoreSummary(ctx),
         PromptRegistry.dailyTip(ctx),
-        PromptRegistry.chiffreChocNarrative(ctx),
+        PromptRegistry.premierEclairageNarrative(ctx),
         PromptRegistry.scenarioNarration(ctx),
         PromptRegistry.enrichmentGuide(ctx, 'lpp'),
       ];

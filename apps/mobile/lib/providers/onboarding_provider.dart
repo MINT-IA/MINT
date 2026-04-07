@@ -5,7 +5,7 @@
 /// persistence detail for app-kill survival.
 ///
 /// Consumed by:
-///   - InstantChiffreChocScreen (writes choc + emotion)
+///   - InstantPremierEclairageScreen (writes choc + emotion)
 ///   - LandingScreen / Onboarding Hinge (writes birthYear, salary, canton)
 ///   - ContextInjectorService (reads for coach first-session injection)
 ///   - CoachProfileProvider (reads to hydrate profile on first login)
@@ -16,11 +16,11 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// The type of chiffre choc shown during onboarding.
+/// The type of premier éclairage shown during onboarding.
 ///
-/// Must stay in sync with ChiffreChocType in chiffre_choc_selector.dart.
+/// Must stay in sync with PremierEclairageType in premier_eclairage_selector.dart.
 /// We duplicate the enum here to avoid a circular dependency — the selector
-/// returns a ChiffreChoc object, this provider stores the type as a string.
+/// returns a PremierEclairage object, this provider stores the type as a string.
 enum OnboardingChocType {
   compoundGrowth,
   taxSaving3a,
@@ -50,14 +50,14 @@ class OnboardingPayload {
     this.emotion,
   });
 
-  /// True when the 3 core fields are present (enough for chiffre choc calc).
+  /// True when the 3 core fields are present (enough for premier éclairage calc).
   bool get isComplete =>
       birthYear != null && grossSalary != null && canton != null;
 
-  /// True when the chiffre choc has been shown and emotion captured.
+  /// True when the premier éclairage has been shown and emotion captured.
   bool get hasChocData => chocType != null && chocValue != null;
 
-  /// True when the user reacted to the chiffre choc.
+  /// True when the user reacted to the premier éclairage.
   bool get hasEmotion => emotion != null && emotion!.isNotEmpty;
 }
 

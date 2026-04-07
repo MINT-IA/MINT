@@ -744,7 +744,7 @@ class ApiService {
     );
   }
 
-  static Future<ChiffreChoc> computeOnboardingChiffreChoc({
+  static Future<PremierEclairage> computeOnboardingPremierEclairage({
     required int age,
     required double grossSalary,
     required String canton,
@@ -758,7 +758,7 @@ class ApiService {
     double? monthlyDebtService,
     String? stressType,
   }) async {
-    final response = await post('/onboarding/chiffre-choc', {
+    final response = await post('/onboarding/premier-eclairage', {
       'age': age,
       'gross_salary': grossSalary,
       'canton': canton,
@@ -793,47 +793,47 @@ class ApiService {
     );
 
     final type = switch (category) {
-      'liquidity' => ChiffreChocType.liquidityAlert,
-      'tax_saving' => ChiffreChocType.taxSaving3a,
-      'retirement_gap' => ChiffreChocType.retirementGap,
-      'retirement_income' => ChiffreChocType.retirementIncome,
-      'compound_growth' => ChiffreChocType.compoundGrowth,
-      'hourly_rate' => ChiffreChocType.hourlyRate,
-      _ => ChiffreChocType.retirementIncome,
+      'liquidity' => PremierEclairageType.liquidityAlert,
+      'tax_saving' => PremierEclairageType.taxSaving3a,
+      'retirement_gap' => PremierEclairageType.retirementGap,
+      'retirement_income' => PremierEclairageType.retirementIncome,
+      'compound_growth' => PremierEclairageType.compoundGrowth,
+      'hourly_rate' => PremierEclairageType.hourlyRate,
+      _ => PremierEclairageType.retirementIncome,
     };
 
     final (title, iconName, colorKey, value) = switch (type) {
-      ChiffreChocType.liquidityAlert => (
+      PremierEclairageType.liquidityAlert => (
           'Ta reserve de liquidite',
           'warning_amber',
           'error',
           '${primaryNumber.toStringAsFixed(1)} mois',
         ),
-      ChiffreChocType.taxSaving3a => (
+      PremierEclairageType.taxSaving3a => (
           'Ton economie d\'impot potentielle',
           'savings',
           'success',
           '${chf.formatChfWithPrefix(primaryNumber)}/an',
         ),
-      ChiffreChocType.retirementGap => (
+      PremierEclairageType.retirementGap => (
           'Ton ecart de retraite',
           'trending_down',
           'warning',
           '${chf.formatChfWithPrefix(primaryNumber)}/mois',
         ),
-      ChiffreChocType.retirementIncome => (
+      PremierEclairageType.retirementIncome => (
           'Ton revenu estime a la retraite',
           'account_balance',
           'info',
           '${chf.formatChfWithPrefix(primaryNumber)}/mois',
         ),
-      ChiffreChocType.compoundGrowth => (
+      PremierEclairageType.compoundGrowth => (
           'Ton avantage temps',
           'trending_up',
           'success',
           chf.formatChfWithPrefix(primaryNumber),
         ),
-      ChiffreChocType.hourlyRate => (
+      PremierEclairageType.hourlyRate => (
           'Ton salaire reel',
           'schedule',
           'info',
@@ -848,10 +848,10 @@ class ApiService {
       fallback: 'factual',
     );
     final confidenceMode = confidenceModeStr == 'pedagogical'
-        ? ChiffreChocConfidence.pedagogical
-        : ChiffreChocConfidence.factual;
+        ? PremierEclairageConfidence.pedagogical
+        : PremierEclairageConfidence.factual;
 
-    return ChiffreChoc(
+    return PremierEclairage(
       type: type,
       value: value,
       rawValue: primaryNumber,
@@ -964,9 +964,9 @@ class ApiService {
     return ArbitrageResult(
       options: options,
       breakevenYear: breakeven != null && breakeven >= 0 ? breakeven : null,
-      chiffreChoc: _readString(
+      premierEclairage: _readString(
         response,
-        const ['chiffreChoc', 'chiffre_choc'],
+        const ['premierEclairage'],
       ),
       displaySummary: _readString(
         response,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -15,20 +15,20 @@ import 'package:mint_mobile/widgets/glossary_term.dart';
 import 'package:mint_mobile/providers/onboarding_provider.dart';
 import 'package:provider/provider.dart';
 
-/// Instant chiffre choc screen — shown from landing without account.
+/// Instant premier éclairage screen — shown from landing without account.
 ///
 /// Displays a big animated number (AVS + LPP estimate),
 /// canton context, confidence badge, and the P1 moment de silence.
 /// No data is stored. Pure ephemeral calculation.
-class InstantChiffreChocScreen extends StatefulWidget {
-  const InstantChiffreChocScreen({super.key});
+class InstantPremierEclairageScreen extends StatefulWidget {
+  const InstantPremierEclairageScreen({super.key});
 
   @override
-  State<InstantChiffreChocScreen> createState() =>
-      _InstantChiffreChocScreenState();
+  State<InstantPremierEclairageScreen> createState() =>
+      _InstantPremierEclairageScreenState();
 }
 
-class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
+class _InstantPremierEclairageScreenState extends State<InstantPremierEclairageScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
@@ -45,7 +45,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
   String _canton = '';
   double _grossSalary = 0;
   int? _birthYear;
-  ChiffreChoc? _choc;
+  PremierEclairage? _choc;
 
   bool _didInit = false;
 
@@ -83,7 +83,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
       _birthYear = extra['birthYear'] as int?;
     }
 
-    // Call ChiffreChocSelector for age-appropriate chiffre choc
+    // Call PremierEclairageSelector for age-appropriate premier éclairage
     if (_birthYear != null && _grossSalary > 0 && _canton.isNotEmpty) {
       final currentYear = DateTime.now().year;
       final age = currentYear - _birthYear!;
@@ -93,13 +93,13 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
           grossSalary: _grossSalary,
           canton: _canton,
         );
-        _choc = ChiffreChocSelector.select(profile);
+        _choc = PremierEclairageSelector.select(profile);
       } catch (_) {
         // Fallback: _choc stays null, use legacy display
       }
     }
 
-    AnalyticsService().trackScreenView('/chiffre-choc-instant');
+    AnalyticsService().trackScreenView('/premier-eclairage-instant');
 
     _animController.forward(from: 0);
 
@@ -156,9 +156,9 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
     await onboarding.setGrossSalary(_grossSalary);
     await onboarding.setCanton(_canton);
 
-    // Store chiffre choc data
+    // Store premier éclairage data
     final onboardingType = _mapChocType(
-      _choc?.type ?? ChiffreChocType.retirementIncome,
+      _choc?.type ?? PremierEclairageType.retirementIncome,
     );
     await onboarding.setChoc(onboardingType, _choc?.rawValue ?? 0);
 
@@ -166,18 +166,18 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
     if (mounted) context.go('/onboarding/promise');
   }
 
-  OnboardingChocType _mapChocType(ChiffreChocType type) {
+  OnboardingChocType _mapChocType(PremierEclairageType type) {
     return switch (type) {
-      ChiffreChocType.compoundGrowth => OnboardingChocType.compoundGrowth,
-      ChiffreChocType.taxSaving3a => OnboardingChocType.taxSaving3a,
-      ChiffreChocType.retirementGap => OnboardingChocType.retirementGap,
-      ChiffreChocType.retirementIncome => OnboardingChocType.retirementIncome,
-      ChiffreChocType.liquidityAlert => OnboardingChocType.liquidityAlert,
-      ChiffreChocType.hourlyRate => OnboardingChocType.hourlyRate,
+      PremierEclairageType.compoundGrowth => OnboardingChocType.compoundGrowth,
+      PremierEclairageType.taxSaving3a => OnboardingChocType.taxSaving3a,
+      PremierEclairageType.retirementGap => OnboardingChocType.retirementGap,
+      PremierEclairageType.retirementIncome => OnboardingChocType.retirementIncome,
+      PremierEclairageType.liquidityAlert => OnboardingChocType.liquidityAlert,
+      PremierEclairageType.hourlyRate => OnboardingChocType.hourlyRate,
     };
   }
 
-  Color _colorForChoc(ChiffreChoc choc) {
+  Color _colorForChoc(PremierEclairage choc) {
     return switch (choc.colorKey) {
       'error' => MintColors.error,
       'warning' => MintColors.warning,
@@ -186,18 +186,18 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
     };
   }
 
-  String _questionForChoc(ChiffreChoc choc, S l10n) {
+  String _questionForChoc(PremierEclairage choc, S l10n) {
     return switch (choc.type) {
-      ChiffreChocType.compoundGrowth => l10n.chocQuestionCompoundGrowth,
-      ChiffreChocType.taxSaving3a => l10n.chocQuestionTaxSaving(choc.value),
-      ChiffreChocType.retirementGap => l10n.chocQuestionRetirementGap(choc.value),
-      ChiffreChocType.retirementIncome => l10n.chocQuestionRetirementIncome(
+      PremierEclairageType.compoundGrowth => l10n.chocQuestionCompoundGrowth,
+      PremierEclairageType.taxSaving3a => l10n.chocQuestionTaxSaving(choc.value),
+      PremierEclairageType.retirementGap => l10n.chocQuestionRetirementGap(choc.value),
+      PremierEclairageType.retirementIncome => l10n.chocQuestionRetirementIncome(
         '${(choc.rawValue > 0 ? ((choc.rawValue / (_grossSalary / 12)) * 100).round() : _replacementPercent)}',
       ),
-      ChiffreChocType.liquidityAlert => l10n.chocQuestionLiquidity(
+      PremierEclairageType.liquidityAlert => l10n.chocQuestionLiquidity(
         choc.rawValue.toStringAsFixed(0),
       ),
-      ChiffreChocType.hourlyRate => l10n.chocQuestionHourlyRate(
+      PremierEclairageType.hourlyRate => l10n.chocQuestionHourlyRate(
         'CHF\u00a0${choc.rawValue.round()}',
       ),
     };
@@ -330,7 +330,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                             const SizedBox(width: MintSpacing.sm),
                             Flexible(
                               child: Text(
-                                l10n.instantChiffreChocConfidence,
+                                l10n.instantPremierEclairageConfidence,
                                 style: MintTextStyles.labelSmall(
                                   color: MintColors.textMuted,
                                 ),
@@ -352,7 +352,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                     child: Text(
                       _choc != null
                           ? _questionForChoc(_choc!, l10n)
-                          : l10n.chiffreChocSilenceQuestion,
+                          : l10n.premierEclairageSilenceQuestion,
                       style: MintTextStyles.bodyMedium(
                         color: MintColors.textSecondary,
                       ),
@@ -376,7 +376,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                             controller: _responseController,
                             maxLines: 3,
                             decoration: InputDecoration(
-                              hintText: l10n.chiffreChocSilenceHint,
+                              hintText: l10n.premierEclairageSilenceHint,
                               hintStyle: MintTextStyles.bodySmall(
                                 color: MintColors.textMuted,
                               ),
@@ -414,7 +414,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content:
-                                      Text(l10n.instantChiffreChocComeBack),
+                                      Text(l10n.instantPremierEclairageComeBack),
                                   behavior: SnackBarBehavior.floating,
                                   duration: const Duration(seconds: 3),
                                 ),
@@ -422,7 +422,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
                               context.go('/');
                             },
                             child: Text(
-                              l10n.instantChiffreChocComeBack,
+                              l10n.instantPremierEclairageComeBack,
                               style: MintTextStyles.labelSmall(
                                 color: MintColors.textMuted,
                               ),
@@ -437,7 +437,7 @@ class _InstantChiffreChocScreenState extends State<InstantChiffreChocScreen>
 
                   // Privacy badge
                   Text(
-                    l10n.instantChiffreChocNothingStored,
+                    l10n.instantPremierEclairageNothingStored,
                     style: MintTextStyles.micro(
                       color: MintColors.textMuted.withValues(alpha: 0.6),
                     ),

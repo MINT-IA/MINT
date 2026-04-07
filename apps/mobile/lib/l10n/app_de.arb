@@ -709,8 +709,8 @@
   "budgetExampleLeisure": "Freizeit",
   "budgetExampleSavings": "Sparen",
   "budgetExampleProjects": "Projekte",
-  "budgetChiffreChoc503020": "Mit CHF {monthly}/Monat sparst du CHF {total} in 10 Jahren.",
-  "@budgetChiffreChoc503020": {
+  "budgetPremierEclairage503020": "Mit CHF {monthly}/Monat sparst du CHF {total} in 10 Jahren.",
+  "@budgetPremierEclairage503020": {
     "placeholders": {
       "monthly": {
         "type": "String"
@@ -901,8 +901,8 @@
       }
     }
   },
-  "naissanceChiffreChocText": "Dein {type}urlaub entspricht {amount} EO über {weeks} Wochen",
-  "@naissanceChiffreChocText": {
+  "naissancePremierEclairageText": "Dein {type}urlaub entspricht {amount} EO über {weeks} Wochen",
+  "@naissancePremierEclairageText": {
     "placeholders": {
       "type": {
         "type": "String"
@@ -1030,8 +1030,8 @@
   "mariageCommunauteDesc": "Alles wird vereint: Eigengut und Errungenschaften. Vollständige Gleichverteilung bei Auflösung.",
   "mariagePatrimoine1": "Vermögen Person 1",
   "mariagePatrimoine2": "Vermögen Person 2",
-  "mariageChiffreChocDefault": "Im Standardgüterstand würde dieser Anteil deiner Errungenschaften bei Auflösung deinem Ehepartner zufallen",
-  "mariageChiffreChocCommunaute": "In der Gütergemeinschaft würde dieser Betrag mit deinem Ehepartner geteilt",
+  "mariagePremierEclairageDefault": "Im Standardgüterstand würde dieser Anteil deiner Errungenschaften bei Auflösung deinem Ehepartner zufallen",
+  "mariagePremierEclairageCommunaute": "In der Gütergemeinschaft würde dieser Betrag mit deinem Ehepartner geteilt",
   "mariageProtectionIntro": "Was passiert, wenn einer von euch stirbt? Vergleiche den gesetzlichen Schutz zwischen Ehepaaren und Konkubinatspaaren.",
   "mariageLppRenteLabel": "Monatliche BVG-Rente des Verstorbenen",
   "mariageAvsSurvivor": "AHV-Hinterlassenenrente",
@@ -1433,8 +1433,8 @@
   "independantJourJSubtitle": "Was sich an einem Tag ändert, wenn du selbstständig wirst",
   "independantJourJEmployee": "Angestellt",
   "independantJourJSelfEmployed": "Selbstständig",
-  "independantJourJChiffreChoc": "Du verlierst ~{amount}/Monat an unsichtbarem Schutz.\nDu hast nicht einen Job verlassen. Du hast ein Schutzsystem verlassen.",
-  "@independantJourJChiffreChoc": {
+  "independantJourJPremierEclairage": "Du verlierst ~{amount}/Monat an unsichtbarem Schutz.\nDu hast nicht einen Job verlassen. Du hast ein Schutzsystem verlassen.",
+  "@independantJourJPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -3238,9 +3238,9 @@
   "decesProchAction3": "BVG- und 3a-Begünstigte bei den Pensionskassen überprüfen",
   "decesProchDisclaimer": "Bildungstool — stellt keine rechtliche oder steuerliche Beratung dar (FIDLEG). Jede Erbfolge ist einzigartig: konsultiere einen Notar oder Spezialisten. Quellen: ZGB Art. 457-640, BVV2 Art. 48, BVV3 Art. 2.",
   "demenagementTitre": "Kantonaler Umzug",
-  "demenagementChiffreChocSousTitre": "geschätzte jährliche Ersparnis (oder Mehrkosten)",
-  "demenagementChiffreChocDetail": "Umzug von {depart} nach {arrivee} (Steuern + Krankenkasse)",
-  "@demenagementChiffreChocDetail": {
+  "demenagementPremierEclairageSousTitre": "geschätzte jährliche Ersparnis (oder Mehrkosten)",
+  "demenagementPremierEclairageDetail": "Umzug von {depart} nach {arrivee} (Steuern + Krankenkasse)",
+  "@demenagementPremierEclairageDetail": {
     "placeholders": {
       "depart": {
         "type": "String"
@@ -3317,7 +3317,7 @@
   "docImpactSubtitle": "Die Werte deines {docType} wurden in deine Projektionen integriert.",
   "docImpactConfidenceLabel": "% Vertrauen",
   "docImpactDeltaPoints": "+{points} Vertrauenspunkte",
-  "docImpactChiffreChocTitle": "Neuberechnete Kennzahl",
+  "docImpactPremierEclairageTitle": "Neuberechnete Kennzahl",
   "docImpactLppRealAmount": "an realem BVG-Guthaben (davon {oblig} obligatorisch)",
   "docImpactRenteOblig": "Obligatorische Rente bei 6.8%: CHF {amount}/Jahr",
   "docImpactSurobligWithRate": "Überobligatorischer Teil (CHF {suroblig}) bei {rate}% = CHF {rente}/Jahr",
@@ -3486,10 +3486,10 @@
   "budgetCtaPlan": "Planen",
   "budgetCtaDiscover": "Entdecken",
   "budgetDisclaimerBased": "• Die Beträge basieren auf den angegebenen Informationen.",
-  "chiffreChocDisclaimer": "Bildungstool — keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.",
-  "chiffreChocAction": "Was kann ich tun?",
-  "chiffreChocConfidence": "Schätzung basierend auf {count} Informationen. Je mehr du angibst, desto zuverlässiger.",
-  "@chiffreChocConfidence": {
+  "premierEclairageDisclaimer": "Bildungstool — keine Finanzberatung (FIDLEG). Quellen: AHVG Art. 34, BVG Art. 14-16, BVV3 Art. 7.",
+  "premierEclairageAction": "Was kann ich tun?",
+  "premierEclairageConfidence": "Schätzung basierend auf {count} Informationen. Je mehr du angibst, desto zuverlässiger.",
+  "@premierEclairageConfidence": {
     "placeholders": {
       "count": {
         "type": "String"
@@ -3730,23 +3730,23 @@
   "santeHubToolAssuranceInvalidite": "Invaliditätsversicherung",
   "santeHubToolInvaliditeIndependant": "Invalidität Selbständige",
   "budgetErrorRetry": "Die Berechnung hat nicht geklappt. Nochmal versuchen?",
-  "budgetChiffreChocCaption": "Was nach allen Fixkosten übrig bleibt",
+  "budgetPremierEclairageCaption": "Was nach allen Fixkosten übrig bleibt",
   "budgetMethodTitle": "Dieses Budget verstehen",
   "budgetMethodBody": "Dieses Budget trennt deine Fixkosten (Miete, Krankenkasse, Steuern) von deinem verfügbaren Einkommen. Die 50/30/20-Regel schlägt vor: 50 % für Bedürfnisse, 30 % für Wünsche, 20 % für Sparen. Ein Richtwert, keine Pflicht.",
   "budgetMethodSource": "Quelle: 50/30/20-Methode (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Lehrreiche Schätzung. Keine Finanzberatung (FIDLEG Art. 3).",
-  "chiffreChocIfYouAct": "Wenn du handelst",
-  "chiffreChocIfYouDontAct": "Wenn du nichts tust",
-  "chiffreChocAvantApresGapAct": "Ein BVG-Einkauf oder 3a-Beiträge können diese Lücke halbieren.",
-  "chiffreChocAvantApresGapNoAct": "Die Lücke wächst jedes Jahr. Bei der Pensionierung ist es zu spät.",
-  "chiffreChocAvantApresLiquidityAct": "500 CHF/Monat sparen baut in 6 Monaten 3 Monate Reserve auf.",
-  "chiffreChocAvantApresLiquidityNoAct": "Ein Notfall ohne Reserven bedeutet Konsumkredit.",
-  "chiffreChocAvantApresTaxAct": "Jedes Jahr ohne 3a ist ein verlorener Steuerabzug.",
-  "chiffreChocAvantApresTaxNoAct": "Ohne 3a zahlst du den vollen Steuersatz und bereitest die Pension nicht vor.",
-  "chiffreChocAvantApresIncomeAct": "Ein paar Anpassungen können deine Prognose verbessern.",
-  "chiffreChocAvantApresIncomeNoAct": "Deine Situation bleibt stabil, aber ohne Verbesserungsspielraum.",
-  "chiffreChocConfidenceSimple": "Basierend auf {count} Daten. Füge mehr hinzu, um zu verfeinern.",
-  "@chiffreChocConfidenceSimple": {
+  "premierEclairageIfYouAct": "Wenn du handelst",
+  "premierEclairageIfYouDontAct": "Wenn du nichts tust",
+  "premierEclairageAvantApresGapAct": "Ein BVG-Einkauf oder 3a-Beiträge können diese Lücke halbieren.",
+  "premierEclairageAvantApresGapNoAct": "Die Lücke wächst jedes Jahr. Bei der Pensionierung ist es zu spät.",
+  "premierEclairageAvantApresLiquidityAct": "500 CHF/Monat sparen baut in 6 Monaten 3 Monate Reserve auf.",
+  "premierEclairageAvantApresLiquidityNoAct": "Ein Notfall ohne Reserven bedeutet Konsumkredit.",
+  "premierEclairageAvantApresTaxAct": "Jedes Jahr ohne 3a ist ein verlorener Steuerabzug.",
+  "premierEclairageAvantApresTaxNoAct": "Ohne 3a zahlst du den vollen Steuersatz und bereitest die Pension nicht vor.",
+  "premierEclairageAvantApresIncomeAct": "Ein paar Anpassungen können deine Prognose verbessern.",
+  "premierEclairageAvantApresIncomeNoAct": "Deine Situation bleibt stabil, aber ohne Verbesserungsspielraum.",
+  "premierEclairageConfidenceSimple": "Basierend auf {count} Daten. Füge mehr hinzu, um zu verfeinern.",
+  "@premierEclairageConfidenceSimple": {
     "description": "Simplified confidence indicator. Tone: inviting, not jargon.",
     "placeholders": {
       "count": {
@@ -3791,9 +3791,9 @@
       }
     }
   },
-  "chiffreChocBack": "Zurück",
-  "chiffreChocShowComparison": "Vergleich anzeigen",
-  "chiffreChocHideComparison": "Vergleich ausblenden",
+  "premierEclairageBack": "Zurück",
+  "premierEclairageShowComparison": "Vergleich anzeigen",
+  "premierEclairageHideComparison": "Vergleich ausblenden",
   "dashboardNextActionsTitle": "Deine nächsten Schritte",
   "dashboardExploreAlsoTitle": "Entdecke mehr",
   "dashboardImproveAccuracyTitle": "Verbessere deine Genauigkeit",
@@ -4235,16 +4235,16 @@
       }
     }
   },
-  "expatAvsChiffreChoc": "-{amount}/Jahr auf deine AHV-Rente",
-  "@expatAvsChiffreChoc": {
+  "expatAvsPremierEclairage": "-{amount}/Jahr auf deine AHV-Rente",
+  "@expatAvsPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
       }
     }
   },
-  "expatDepartChiffreChoc": "{amount} Kapital vor dem Wegzug sichern",
-  "@expatDepartChiffreChoc": {
+  "expatDepartPremierEclairage": "{amount} Kapital vor dem Wegzug sichern",
+  "@expatDepartPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4323,7 +4323,7 @@
   "sim3aDebtStrategyTitle": "Strategie gesperrt",
   "sim3aDebtStrategyMessage": "3a-Anlagestrategien sind gesperrt, solange du aktive Schulden hast. Schuldenrückzahlung bringt eine höhere Rendite als jede Anlage.",
   "realReturnTitle": "Reale Rendite 3a",
-  "realReturnChiffreChocLabel": "Äquivalenter Satz auf Nettoaufwand",
+  "realReturnPremierEclairageLabel": "Äquivalenter Satz auf Nettoaufwand",
   "realReturnVsNominal": "vs {rate} % Netto-3a-Satz (brutto − Gebühren)",
   "@realReturnVsNominal": {
     "placeholders": {
@@ -4763,8 +4763,8 @@
   "avsCotisationsRevenuLabel": "Dein jährliches Nettoeinkommen",
   "avsCotisationsSliderMin": "CHF 0",
   "avsCotisationsSliderMax250k": "CHF 250’000",
-  "avsCotisationsChiffreChocCaption": "Als Selbstständige·r zahlst du {amount}/Jahr mehr als Angestellte",
-  "@avsCotisationsChiffreChocCaption": {
+  "avsCotisationsPremierEclairageCaption": "Als Selbstständige·r zahlst du {amount}/Jahr mehr als Angestellte",
+  "@avsCotisationsPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4814,8 +4814,8 @@
   "ijmDelaiCarence": "Wartefrist",
   "ijmDelaiCarenceDesc": "Zeitraum ohne Leistungsbezug",
   "ijmJours": "Tage",
-  "ijmChiffreChocCaption": "Ohne KTG-Versicherung verlierst du {amount} während der {jours}-tägigen Wartefrist",
-  "@ijmChiffreChocCaption": {
+  "ijmPremierEclairageCaption": "Ohne KTG-Versicherung verlierst du {amount} während der {jours}-tägigen Wartefrist",
+  "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4870,9 +4870,9 @@
   "pillar3aIndepRevenuLabel": "Jährliches Nettoeinkommen",
   "pillar3aIndepSliderMax300k": "CHF 300’000",
   "pillar3aIndepTauxLabel": "Grenzsteuersatz",
-  "pillar3aIndepChiffreChocCaption": "jährliche Steuerersparnis dank der 3. Säule",
-  "pillar3aIndepChiffreChocAvantageSalarie": "Du sparst {amount}/Jahr mehr Steuern als Angestellte dank der grossen 3a",
-  "@pillar3aIndepChiffreChocAvantageSalarie": {
+  "pillar3aIndepPremierEclairageCaption": "jährliche Steuerersparnis dank der 3. Säule",
+  "pillar3aIndepPremierEclairageAvantageSalarie": "Du sparst {amount}/Jahr mehr Steuern als Angestellte dank der grossen 3a",
+  "@pillar3aIndepPremierEclairageAvantageSalarie": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4927,8 +4927,8 @@
   "lppVolontaireAgeMin": "25 J.",
   "lppVolontaireAgeMax": "65 J.",
   "lppVolontaireTauxMarginal": "Grenzsteuersatz",
-  "lppVolontaireChiffreChocCaption": "Ohne freiwillige BVG verlierst du {amount}/Jahr an Alterskapitalisierung",
-  "@lppVolontaireChiffreChocCaption": {
+  "lppVolontairePremierEclairageCaption": "Ohne freiwillige BVG verlierst du {amount}/Jahr an Alterskapitalisierung",
+  "@lppVolontairePremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5068,15 +5068,15 @@
   "librePassageCentrale2eSubtitle": "Vergessene Freizügigkeitsguthaben suchen",
   "librePassagePrivacyNote": "Deine Daten bleiben auf deinem Gerät. Keine Informationen werden an Dritte übermittelt. Konform mit nDSG.",
   "providerComparatorAppBarTitle": "3a-Vergleich",
-  "providerComparatorChiffreChocLabel": "Unterschied über {duree} Jahre",
-  "@providerComparatorChiffreChocLabel": {
+  "providerComparatorPremierEclairageLabel": "Unterschied über {duree} Jahre",
+  "@providerComparatorPremierEclairageLabel": {
     "placeholders": {
       "duree": {
         "type": "int"
       }
     }
   },
-  "providerComparatorChiffreChocSubtitle": "zwischen dem besten und schlechtesten Anbieter",
+  "providerComparatorPremierEclairageSubtitle": "zwischen dem besten und schlechtesten Anbieter",
   "providerComparatorSectionParametres": "Parameter",
   "providerComparatorLabelAge": "Alter",
   "providerComparatorLabelAgeFormat": "{age} J.",
@@ -5867,7 +5867,7 @@
   "fhsBreakdownRisque": "Risiko",
   "avsGapLifetimeLoss": "Über 20 Rentenjahre sind das {amount} weniger — endgültig.",
   "avsGapCalculation": "Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)",
-  "chiffreChocRenteCalculation": "(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive).",
+  "premierEclairageRenteCalculation": "(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive).",
   "coachBriefingFallbackGreeting": "Hallo",
   "coachBriefingBadgeLlm": "KI-Coach",
   "coachBriefingBadge": "Coach",
@@ -5895,17 +5895,17 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse sind Schätzungen.",
+  "premierEclairageSectionDisclaimer": "Nur zu Bildungszwecken. Keine Anlage- oder Vorsorgeberatung (FIDLEG). Annahmen anpassbar — Ergebnisse sind Schätzungen.",
   "concubinageTabProtection": "Schutz",
-  "concubinageHeroChiffreChoc": "CHF {montant} gefährdetes Vermögen",
-  "@concubinageHeroChiffreChoc": {
+  "concubinageHeroPremierEclairage": "CHF {montant} gefährdetes Vermögen",
+  "@concubinageHeroPremierEclairage": {
     "placeholders": {
       "montant": {
         "type": "String"
       }
     }
   },
-  "concubinageHeroChiffreChocDesc": "Im Konkubinat ist dein Partner kein gesetzlicher Erbe. Ohne Testament geht dieser Betrag vollständig an andere.",
+  "concubinageHeroPremierEclairageDesc": "Im Konkubinat ist dein Partner kein gesetzlicher Erbe. Ohne Testament geht dieser Betrag vollständig an andere.",
   "concubinageEducationalAvs": "In der Schweiz gilt die 150 %-Plafonierung der AHV-Ehepaarrenten (AHVG Art. 35) nur für Verheiratete. Konkubinatspartner erhalten je ihre volle Einzelrente — ein echter Vorteil, wenn beide maximal eingezahlt haben.",
   "concubinageEducationalLpp": "Die BVG-Hinterlassenenrente (60 % der Rente des Verstorbenen, BVG Art. 19) steht nur Ehegatten zu. Im Konkubinat kann nur das Kassenreglement ein Todesfallkapital vorsehen — und es muss beantragt werden.",
   "concubinageEducationalSuccession": "Ein verheirateter Ehegatte ist in den meisten Kantonen von der Erbschaftssteuer befreit (ZGB Art. 462). Ein Konkubinatspartner zahlt Steuern zum Drittsatz, oft zwischen 20 % und 40 %.",
@@ -6462,7 +6462,7 @@
       }
     }
   },
-  "@firstJobBudgetChiffreChoc": {
+  "@firstJobBudgetPremierEclairage": {
     "placeholders": {
       "annual": {
         "type": "String"
@@ -8168,7 +8168,7 @@
   "financialReportEmptyTitle": "Deine Finanzbilanz",
   "firstJobBudgetAlimentation": "Lebensmittel",
   "firstJobBudgetBesoins": "Bedürfnisse",
-  "firstJobBudgetChiffreChoc": "Wenn du ab jetzt {annual} CHF/Jahr sparst, wirst du mit 65 ~{future} CHF haben.",
+  "firstJobBudgetPremierEclairage": "Wenn du ab jetzt {annual} CHF/Jahr sparst, wirst du mit 65 ~{future} CHF haben.",
   "firstJobBudgetEnvies": "Wünsche",
   "firstJobBudgetEpargne": "Sparen & Säule 3a",
   "firstJobBudgetEpargneCourt": "Ersparnisse",
@@ -9656,9 +9656,9 @@
   "disclaimerShort": "Bildungstool, keine Finanzberatung.",
   "disclaimerLearnMore": "Mehr erfahren",
   "disclaimerFull": "Vereinfachtes Bildungstool. Stellt keine persönliche Finanzberatung dar (FIDLEG). Quellen: AHVG Art. 21-29, BVG Art. 14, BVV3 Art. 7. Konsultiere eine qualifizierte Fachperson für individuelle Beratung.",
-  "chiffreChocSilenceQuestion": "Das ist deine Zahl. Was denkst du?",
-  "chiffreChocSilenceHint": "Sag, was dir einfällt...",
-  "chiffreChocSkipToHome": "Zum Dashboard",
+  "premierEclairageSilenceQuestion": "Das ist deine Zahl. Was denkst du?",
+  "premierEclairageSilenceHint": "Sag, was dir einfällt...",
+  "premierEclairageSkipToHome": "Zum Dashboard",
   "landingQuickCalcTitle": "Deine Zahl in 30 Sekunden",
   "landingQuickCalcSubtitle": "Kein Konto. Nichts gespeichert. Flüchtige Berechnung.",
   "landingBirthYear": "Geburtsjahr",
@@ -9667,9 +9667,9 @@
   "landingCalculate": "Meine Zahl sehen",
   "landingPrivacyBadge": "Kein Konto erforderlich. Berechnung auf deinem Handy. Nichts gespeichert.",
   "landingVzComparison": "30 Sekunden bis zu deiner ersten Zahl. Kein Termin, keine Kosten.",
-  "instantChiffreChocConfidence": "Schätzung ±15 % — erstelle ein Konto für mehr Genauigkeit",
-  "instantChiffreChocNothingStored": "Kein Konto. Nichts gespeichert.",
-  "instantChiffreChocComeBack": "Komm zurück, wann immer du willst",
+  "instantPremierEclairageConfidence": "Schätzung ±15 % — erstelle ein Konto für mehr Genauigkeit",
+  "instantPremierEclairageNothingStored": "Kein Konto. Nichts gespeichert.",
+  "instantPremierEclairageComeBack": "Komm zurück, wann immer du willst",
   "coachSilentOpenerQuestion": "Möchtest du darüber reden?",
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
@@ -10089,7 +10089,7 @@
   "authResend": "Link erneut senden",
   "authPasswordFallback": "Mit Passwort anmelden",
   "quickStartHeadline": "Drei Fragen, eine erste Zahl.",
-  "chiffreChocContinue": "Weiter",
+  "premierEclairageContinue": "Weiter",
   "planCta": "Meinen Plan ansehen",
   "coachErrorInline": "Der Coach ist gerade nicht verf\u00fcgbar.",
   "planHeadline": "Dein Plan in 4 Schritten",

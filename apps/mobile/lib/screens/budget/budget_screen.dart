@@ -370,8 +370,8 @@ class _BudgetScreenState extends State<BudgetScreen>
                   index: 3,
                   child: Budget503020Widget(
                     netSalary: widget.inputs.netIncome,
-                    chiffreChoc: plan.available > 0
-                        ? l.budgetChiffreChoc503020(
+                    premierEclairage: plan.available > 0
+                        ? l.budgetPremierEclairage503020(
                             formatChf(plan.available * 0.20),
                             formatChf(plan.available * 0.20 * 120),
                           )
@@ -545,7 +545,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           prefix: 'CHF\u00a0',
           color: heroColor,
           showLigne: false,
-          contextText: l.budgetChiffreChocCaption,
+          contextText: l.budgetPremierEclairageCaption,
           semanticsLabel:
               '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
         ),

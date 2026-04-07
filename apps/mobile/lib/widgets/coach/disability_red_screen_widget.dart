@@ -67,7 +67,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
                 children: [
                   _buildComparisonTable(),
                   const SizedBox(height: 20),
-                  _buildChiffreChoc(emergencyNeeded),
+                  _buildPremierEclairage(emergencyNeeded),
                   const SizedBox(height: 20),
                   _buildQuestion(),
                   if (_answer != null) _buildAnswerFeedback(),
@@ -213,7 +213,7 @@ class _DisabilityRedScreenWidgetState extends State<DisabilityRedScreenWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(double emergencyNeeded) {
+  Widget _buildPremierEclairage(double emergencyNeeded) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

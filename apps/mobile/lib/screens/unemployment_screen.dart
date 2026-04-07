@@ -114,7 +114,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
             // Hero: chute de revenu (shown when eligible)
             if (_result != null && _result!.eligible) ...[
-              _buildChiffreChoc(),
+              _buildPremierEclairage(),
               const SizedBox(height: MintSpacing.xl),
             ] else if (_result != null && !_result!.eligible) ...[
               _buildNotEligible(),
@@ -363,9 +363,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     return MintResultHeroCard(
       eyebrow: S.of(context)!.unemploymentTitle,
@@ -373,7 +373,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       primaryLabel: S.of(context)!.unemploymentMonthlyBenefit,
       secondaryValue: UnemploymentService.formatChf(r.indemniteMensuelle),
       secondaryLabel: S.of(context)!.unemploymentInsuredEarnings,
-      narrative: r.chiffreChoc,
+      narrative: r.premierEclairage,
       accentColor: MintColors.error,
       tone: MintSurfaceTone.peche,
     );

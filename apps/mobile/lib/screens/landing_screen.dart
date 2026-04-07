@@ -521,7 +521,7 @@ class _LandingScreenState extends State<LandingScreen>
         netMonthly > 0 ? ((totalMonthly / netMonthly) * 100).round() : 0;
 
     context.push(
-      '/chiffre-choc-instant',
+      '/premier-eclairage-instant',
       extra: {
         'monthlyTotal': totalMonthly,
         'replacementPercent': replacementPercent,

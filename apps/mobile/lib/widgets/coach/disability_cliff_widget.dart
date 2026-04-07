@@ -77,7 +77,7 @@ class DisabilityCliffWidget extends StatelessWidget {
                     (e) => _buildAct(e.key, e.value),
                   ),
                   const SizedBox(height: 8),
-                  _buildChiffreChoc(lostMonthly, lostYearly15),
+                  _buildPremierEclairage(lostMonthly, lostYearly15),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -236,7 +236,7 @@ class DisabilityCliffWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc(double lostMonthly, double lostYearly15) {
+  Widget _buildPremierEclairage(double lostMonthly, double lostYearly15) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

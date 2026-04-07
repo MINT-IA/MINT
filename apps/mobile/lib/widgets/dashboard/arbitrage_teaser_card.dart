@@ -118,7 +118,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           icon: Icons.compare_arrows_rounded,
           color: MintColors.purple,
           title: 'Rente vs Capital',
-          chiffreChoc:
+          premierEclairage:
               'L\u2019option $betterOption pourrait donner +CHF\u00a0${_fmt(diff)}/mois nets',
           route: '/rente-vs-capital',
         ));
@@ -149,7 +149,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
           icon: Icons.calendar_month_outlined,
           color: MintColors.info,
           title: 'Calendrier de retraits',
-          chiffreChoc:
+          premierEclairage:
               '\u00c9chelonner tes retraits pourrait \u00e9conomiser ~CHF\u00a0${_fmt(saving)} d\u2019imp\u00f4t',
           route: '/decaissement',
         ));
@@ -172,7 +172,7 @@ class ArbitrageTeaserSection extends StatelessWidget {
         icon: Icons.add_chart_rounded,
         color: MintColors.success,
         title: 'Rachat LPP',
-        chiffreChoc:
+        premierEclairage:
             'Un rachat de CHF\u00a0${_fmt(lacune)} pourrait r\u00e9duire ton imp\u00f4t de ~CHF\u00a0${_fmt(saving)}',
         route: '/rachat-lpp',
       ));
@@ -197,14 +197,14 @@ class _TeaserData {
   final IconData icon;
   final Color color;
   final String title;
-  final String chiffreChoc;
+  final String premierEclairage;
   final String route;
 
   const _TeaserData({
     required this.icon,
     required this.color,
     required this.title,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.route,
   });
 }
@@ -252,7 +252,7 @@ class _ArbitrageTeaserTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    teaser.chiffreChoc,
+                    teaser.premierEclairage,
                     style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                   ),
                   const SizedBox(height: 4),

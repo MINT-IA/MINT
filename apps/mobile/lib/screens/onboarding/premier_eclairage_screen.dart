@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -15,7 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
-/// Chiffre Choc screen — Category A (Hero).
+/// Premier Éclairage screen — Category A (Hero).
 ///
 /// Full-screen card with ONE dominant animated number.
 /// Max 2 sections above fold, 1 primary CTA, avant/apres expandable.
@@ -28,14 +28,14 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 /// Fallback: Local MinimalProfileService.compute() — offline/error path
 /// The local engine uses simplified heuristics. When both run,
 /// the API result takes precedence. This is by design for offline support.
-class ChiffreChocScreen extends StatefulWidget {
-  const ChiffreChocScreen({super.key});
+class PremierEclairageScreen extends StatefulWidget {
+  const PremierEclairageScreen({super.key});
 
   @override
-  State<ChiffreChocScreen> createState() => _ChiffreChocScreenState();
+  State<PremierEclairageScreen> createState() => _PremierEclairageScreenState();
 }
 
-class _ChiffreChocScreenState extends State<ChiffreChocScreen>
+class _PremierEclairageScreenState extends State<PremierEclairageScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _scaleAnim;
@@ -43,7 +43,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
   bool _didStartLoad = false;
   MinimalProfileResult? _profile;
-  ChiffreChoc? _chiffreChoc;
+  PremierEclairage? _premierEclairage;
   bool _avantApresExpanded = false;
 
   // ── Moment de silence state ──
@@ -107,7 +107,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         existing3a: existing3a,
         existingLpp: existingLpp,
       );
-      final choc = await ApiService.computeOnboardingChiffreChoc(
+      final choc = await ApiService.computeOnboardingPremierEclairage(
         age: age,
         grossSalary: grossSalary,
         canton: canton,
@@ -122,7 +122,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
       if (!mounted) return;
       setState(() {
         _profile = profile;
-        _chiffreChoc = choc;
+        _premierEclairage = choc;
       });
     } catch (_) {
       try {
@@ -141,15 +141,15 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
         if (!mounted) return;
         setState(() {
           _profile = profile;
-          _chiffreChoc = ChiffreChocSelector.select(profile, stressType: stressType);
+          _premierEclairage = PremierEclairageSelector.select(profile, stressType: stressType);
         });
       } catch (_) {
         // P2-11: If even local computation fails, show a generic fallback
         // instead of silently swallowing the error and showing nothing.
         if (!mounted) return;
         setState(() {
-          _chiffreChoc = const ChiffreChoc(
-            type: ChiffreChocType.retirementIncome,
+          _premierEclairage = const PremierEclairage(
+            type: PremierEclairageType.retirementIncome,
             value: '—',
             rawValue: 0,
             title: 'Calcul temporairement indisponible',
@@ -172,17 +172,17 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
       if (mounted) setState(() => _showInput = true);
     });
 
-    // Analytics: chiffre choc viewed with type and severity
-    if (_chiffreChoc != null && _profile != null) {
+    // Analytics: premier éclairage viewed with type and severity
+    if (_premierEclairage != null && _profile != null) {
       AnalyticsService().trackEvent(
-        'chiffre_choc_viewed',
+        'premier_eclairage_viewed',
         category: 'conversion',
         data: {
-          'type': _chiffreChoc!.type.name,
-          'color_key': _chiffreChoc!.colorKey,
+          'type': _premierEclairage!.type.name,
+          'color_key': _premierEclairage!.colorKey,
           'info_count': _profile!.providedFieldsCount,
         },
-        screenName: 'chiffre_choc',
+        screenName: 'premier_eclairage',
       );
     }
   }
@@ -197,33 +197,33 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
     };
   }
 
-  /// Returns avant/apres texts based on chiffre choc type.
-  ({String actText, String noActText}) _avantApresTexts(S l10n, ChiffreChocType type) {
+  /// Returns avant/apres texts based on premier éclairage type.
+  ({String actText, String noActText}) _avantApresTexts(S l10n, PremierEclairageType type) {
     return switch (type) {
-      ChiffreChocType.liquidityAlert => (
-        actText: l10n.chiffreChocAvantApresLiquidityAct,
-        noActText: l10n.chiffreChocAvantApresLiquidityNoAct,
+      PremierEclairageType.liquidityAlert => (
+        actText: l10n.premierEclairageAvantApresLiquidityAct,
+        noActText: l10n.premierEclairageAvantApresLiquidityNoAct,
       ),
-      ChiffreChocType.retirementGap => (
-        actText: l10n.chiffreChocAvantApresGapAct,
-        noActText: l10n.chiffreChocAvantApresGapNoAct,
+      PremierEclairageType.retirementGap => (
+        actText: l10n.premierEclairageAvantApresGapAct,
+        noActText: l10n.premierEclairageAvantApresGapNoAct,
       ),
-      ChiffreChocType.taxSaving3a => (
-        actText: l10n.chiffreChocAvantApresTaxAct,
-        noActText: l10n.chiffreChocAvantApresTaxNoAct,
+      PremierEclairageType.taxSaving3a => (
+        actText: l10n.premierEclairageAvantApresTaxAct,
+        noActText: l10n.premierEclairageAvantApresTaxNoAct,
       ),
-      ChiffreChocType.retirementIncome => (
-        actText: l10n.chiffreChocAvantApresIncomeAct,
-        noActText: l10n.chiffreChocAvantApresIncomeNoAct,
+      PremierEclairageType.retirementIncome => (
+        actText: l10n.premierEclairageAvantApresIncomeAct,
+        noActText: l10n.premierEclairageAvantApresIncomeNoAct,
       ),
       // V2 types: reuse closest existing avant/après texts
-      ChiffreChocType.compoundGrowth => (
-        actText: l10n.chiffreChocAvantApresTaxAct,
-        noActText: l10n.chiffreChocAvantApresTaxNoAct,
+      PremierEclairageType.compoundGrowth => (
+        actText: l10n.premierEclairageAvantApresTaxAct,
+        noActText: l10n.premierEclairageAvantApresTaxNoAct,
       ),
-      ChiffreChocType.hourlyRate => (
-        actText: l10n.chiffreChocAvantApresLiquidityAct,
-        noActText: l10n.chiffreChocAvantApresLiquidityNoAct,
+      PremierEclairageType.hourlyRate => (
+        actText: l10n.premierEclairageAvantApresLiquidityAct,
+        noActText: l10n.premierEclairageAvantApresLiquidityNoAct,
       ),
     };
   }
@@ -254,7 +254,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
   @override
   Widget build(BuildContext context) {
-    final choc = _chiffreChoc;
+    final choc = _premierEclairage;
     final profile = _profile;
     final l10n = S.of(context)!;
 
@@ -282,7 +282,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 alignment: Alignment.centerLeft,
                 child: Semantics(
                   button: true,
-                  label: l10n.chiffreChocBack,
+                  label: l10n.premierEclairageBack,
                   child: IconButton(
                     onPressed: () => context.pop(),
                     icon: const Icon(Icons.arrow_back_rounded),
@@ -332,8 +332,8 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 child: Semantics(
                   button: true,
                   label: _avantApresExpanded
-                      ? l10n.chiffreChocHideComparison
-                      : l10n.chiffreChocShowComparison,
+                      ? l10n.premierEclairageHideComparison
+                      : l10n.premierEclairageShowComparison,
                   child: GestureDetector(
                     onTap: () =>
                         setState(() => _avantApresExpanded = !_avantApresExpanded),
@@ -360,7 +360,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                               const SizedBox(width: MintSpacing.sm),
                               Expanded(
                                 child: Text(
-                                  '${l10n.chiffreChocIfYouAct} / ${l10n.chiffreChocIfYouDontAct}',
+                                  '${l10n.premierEclairageIfYouAct} / ${l10n.premierEclairageIfYouDontAct}',
                                   style: MintTextStyles.bodySmall(
                                     color: MintColors.textMuted,
                                   ),
@@ -377,7 +377,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                             _AvantApresRow(
                               icon: Icons.trending_up_rounded,
                               iconColor: MintColors.success,
-                              label: l10n.chiffreChocIfYouAct,
+                              label: l10n.premierEclairageIfYouAct,
                               text: avantApres.actText,
                             ),
                             const SizedBox(height: MintSpacing.sm),
@@ -386,7 +386,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                             _AvantApresRow(
                               icon: Icons.trending_flat_rounded,
                               iconColor: MintColors.warning,
-                              label: l10n.chiffreChocIfYouDontAct,
+                              label: l10n.premierEclairageIfYouDontAct,
                               text: avantApres.noActText,
                             ),
                           ],
@@ -404,7 +404,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 opacity: _fadeAnim,
                 child: MintConfidenceNotice(
                   percent: (infoCount * 15).clamp(0, 100),
-                  message: l10n.chiffreChocConfidenceSimple(
+                  message: l10n.premierEclairageConfidenceSimple(
                     infoCount.toString(),
                   ),
                 ),
@@ -418,7 +418,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                 duration: const Duration(milliseconds: 800),
                 curve: Curves.easeIn,
                 child: Text(
-                  l10n.chiffreChocSilenceQuestion,
+                  l10n.premierEclairageSilenceQuestion,
                   style: MintTextStyles.bodyMedium(
                     color: MintColors.textSecondary,
                   ),
@@ -442,7 +442,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                         controller: _responseController,
                         maxLines: 3,
                         decoration: InputDecoration(
-                          hintText: l10n.chiffreChocSilenceHint,
+                          hintText: l10n.premierEclairageSilenceHint,
                           hintStyle: MintTextStyles.bodySmall(
                             color: MintColors.textMuted,
                           ),
@@ -485,7 +485,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
                             ),
                           ),
                           child: Text(
-                            l10n.chiffreChocContinue,
+                            l10n.premierEclairageContinue,
                             style: MintTextStyles.titleMedium(
                               color: MintColors.white,
                             ),
@@ -501,7 +501,7 @@ class _ChiffreChocScreenState extends State<ChiffreChocScreen>
 
               // ── Disclaimer (micro pattern) ──
               Text(
-                l10n.chiffreChocDisclaimer,
+                l10n.premierEclairageDisclaimer,
                 style: MintTextStyles.micro(),
                 textAlign: TextAlign.center,
               ),

@@ -104,7 +104,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
-import 'package:mint_mobile/screens/onboarding/chiffre_choc_screen.dart';
+import 'package:mint_mobile/screens/onboarding/premier_eclairage_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
 import 'package:mint_mobile/screens/onboarding/plan_screen.dart';
@@ -859,9 +859,9 @@ final _router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/onboarding/chiffre-choc',
+      path: '/onboarding/premier-eclairage',
       parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const ChiffreChocScreen(),
+      builder: (context, state) => const PremierEclairageScreen(),
     ),
     GoRoute(
       path: '/onboarding/intent',

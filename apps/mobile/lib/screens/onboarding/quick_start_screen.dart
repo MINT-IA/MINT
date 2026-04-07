@@ -294,7 +294,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
         _loading = false;
         _saving = false;
       });
-      context.go('/onboarding/chiffre-choc', extra: {
+      context.go('/onboarding/premier-eclairage', extra: {
         'age': _age,
         'grossSalary': _salary,
         'canton': _canton,
@@ -619,7 +619,7 @@ class _QuickStartScreenState extends State<QuickStartScreen> {
                             ),
                           )
                         : Text(
-                            l.chiffreChocContinue,
+                            l.premierEclairageContinue,
                             style: MintTextStyles.titleMedium(
                               color: MintColors.white,
                             ),

@@ -48,7 +48,7 @@ void main() {
       expect(find.textContaining('3a'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with economie estimee', (tester) async {
+    testWidgets('displays premier éclairage with economie estimee', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // i18n: staggered3aEconomie = "Economie estimee"
@@ -162,11 +162,11 @@ void main() {
       expect(find.textContaining('endement'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with rendement percentage',
+    testWidgets('displays premier éclairage with rendement percentage',
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: realReturnChiffreChocLabel = "Taux equivalent sur effort net"
+      // i18n: realReturnPremierEclairageLabel = "Taux equivalent sur effort net"
       expect(find.textContaining('quivalent'), findsWidgets);
       expect(find.textContaining('%'), findsWidgets);
     });
@@ -280,10 +280,10 @@ void main() {
       expect(find.textContaining('omparateur 3a'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with difference amount', (tester) async {
+    testWidgets('displays premier éclairage with difference amount', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: providerComparatorChiffreChocLabel = "Difference sur X ans"
+      // i18n: providerComparatorPremierEclairageLabel = "Difference sur X ans"
       expect(find.textContaining('iff'), findsWidgets);
       expect(find.textContaining('CHF'), findsWidgets);
     });

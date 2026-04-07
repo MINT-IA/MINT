@@ -33,7 +33,7 @@ ResponseCard _makeCard({
     type: type,
     title: title,
     subtitle: subtitle,
-    chiffreChoc: ChiffreChoc(
+    premierEclairage: PremierEclairage(
       value: chiffreValue,
       unit: chiffreUnit,
       explanation: 'Test explanation for $title',

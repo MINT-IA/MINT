@@ -1,7 +1,7 @@
 // laurent_golden_path_test.dart
 //
 // Integration test: Laurent golden path — independent_no_lpp, changement intent.
-// Traces: intent -> quick_start -> chiffre_choc -> plan -> coach.
+// Traces: intent -> quick_start -> premier_eclairage -> plan -> coach.
 //
 // Laurent persona: 45 ans, NE (Neuchatel), changement intent, 85'000 CHF/an.
 // Service-level tests (not widget E2E) — consistent with project convention.
@@ -15,7 +15,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -91,7 +91,7 @@ void main() {
         canton: laurentCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_budget',
       );
@@ -101,14 +101,14 @@ void main() {
       expect(choc.rawValue, isNonZero);
     });
 
-    test('Laurent chiffre choc has valid label and subtitle', () {
+    test('Laurent premier éclairage has valid label and subtitle', () {
       final profile = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: laurentSalary,
         canton: laurentCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_budget',
       );
@@ -240,15 +240,15 @@ void main() {
       expect(result.grossMonthlySalary, lessThan(0));
     });
 
-    test('ChiffreChocSelector handles negative-salary profile gracefully', () {
+    test('PremierEclairageSelector handles negative-salary profile gracefully', () {
       final profile = MinimalProfileService.compute(
         age: laurentAge,
         grossSalary: -5000,
         canton: laurentCanton,
       );
 
-      // Should not throw — produces some chiffre choc even with negative input
-      final choc = ChiffreChocSelector.select(
+      // Should not throw — produces some premier éclairage even with negative input
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_budget',
       );

@@ -93,7 +93,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
                   const SizedBox(height: 20),
                   _buildComparison(c, partnerGets, taxAmount),
                   const SizedBox(height: 16),
-                  if (isConcubin) _buildChiffreChoc(taxAmount),
+                  if (isConcubin) _buildPremierEclairage(taxAmount),
                   if (isConcubin) const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -263,7 +263,7 @@ class _TestamentInvisibleWidgetState extends State<TestamentInvisibleWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(double taxAmount) {
+  Widget _buildPremierEclairage(double taxAmount) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
