@@ -50,22 +50,16 @@ class WidgetRenderer {
     void Function(String field, String value)? onInputSubmitted,
   }) {
     switch (call.name) {
-      case 'show_retirement_comparison':
-        return _buildRetirementComparison(context, call.input);
-      case 'show_budget_overview':
-        return _buildBudgetOverview(context, call.input);
+      // STAB-12 (07-04): show_retirement_comparison, show_budget_overview,
+      // show_choice_comparison, show_pillar_breakdown, show_comparison_card
+      // had renderer cases but no backend tool definition — orphan cases
+      // deleted per AUDIT_COACH_WIRING.md cross-product.
       case 'show_score_gauge':
         return _buildScoreGauge(context, call.input);
       case 'show_fact_card':
         return _buildFactCard(context, call.input);
-      case 'show_choice_comparison':
-        return _buildChoiceComparison(context, call.input);
-      case 'show_pillar_breakdown':
-        return _buildPillarBreakdown(context, call.input);
       case 'show_budget_snapshot':
         return _buildBudgetSnapshot(context, call.input);
-      case 'show_comparison_card':
-        return _buildComparisonCard(context, call.input);
       case 'ask_user_input':
         return _buildInputRequest(context, call.input, onInputSubmitted);
       case 'route_to_screen':
@@ -155,36 +149,6 @@ class WidgetRenderer {
     );
   }
 
-  static Widget _buildRetirementComparison(
-      BuildContext context, Map<String, dynamic> p) {
-    return ChatComparisonCard(
-      title: 'Ton aper\u00e7u retraite',
-      leftLabel: 'Aujourd\u2019hui',
-      leftValue: 'CHF\u00a0${_fmt(p['today_monthly'])}/mois',
-      rightLabel: '\u00c0 la retraite',
-      rightValue: 'CHF\u00a0${_fmt(p['retirement_monthly'])}/mois',
-      leftAmount: (p['today_monthly'] as num?)?.toDouble() ?? 0,
-      rightAmount: (p['retirement_monthly'] as num?)?.toDouble() ?? 0,
-      narrative: p['narrative'] as String?,
-      onTap: () => context.push('/retraite'),
-    );
-  }
-
-  static Widget _buildBudgetOverview(
-      BuildContext context, Map<String, dynamic> p) {
-    return ChatComparisonCard(
-      title: 'Ton budget',
-      leftLabel: 'Revenus',
-      leftValue: 'CHF\u00a0${_fmt(p['income_monthly'])}/mois',
-      rightLabel: 'D\u00e9penses',
-      rightValue: 'CHF\u00a0${_fmt(p['expenses_monthly'])}/mois',
-      leftAmount: (p['income_monthly'] as num?)?.toDouble() ?? 0,
-      rightAmount: (p['expenses_monthly'] as num?)?.toDouble() ?? 0,
-      narrative: p['narrative'] as String?,
-      onTap: () => context.push('/budget'),
-    );
-  }
-
   static Widget _buildScoreGauge(
       BuildContext context, Map<String, dynamic> p) {
     return ChatGaugeCard(
@@ -203,61 +167,6 @@ class WidgetRenderer {
       eyebrow: p['eyebrow'] as String? ?? p['title'] as String? ?? '',
       value: p['value'] as String? ?? p['highlight_value'] as String? ?? '\u2014',
       description: p['description'] as String? ?? p['content'] as String? ?? '',
-      onTap: route != null ? () => context.push(route) : null,
-    );
-  }
-
-  static Widget _buildChoiceComparison(
-      BuildContext context, Map<String, dynamic> p) {
-    final route = p['route'] as String?;
-    return ChatChoiceComparison(
-      title: p['title'] as String? ?? '',
-      leftTitle: p['left_title'] as String? ?? '',
-      leftValue: p['left_value'] as String? ?? '',
-      leftDescription: p['left_description'] as String? ?? '',
-      rightTitle: p['right_title'] as String? ?? '',
-      rightValue: p['right_value'] as String? ?? '',
-      rightDescription: p['right_description'] as String? ?? '',
-      onTap: route != null ? () => context.push(route) : null,
-    );
-  }
-
-  static Widget _buildPillarBreakdown(
-      BuildContext context, Map<String, dynamic> p) {
-    final avs = (p['avs_monthly'] as num?)?.toDouble() ?? 0;
-    final lpp = (p['lpp_monthly'] as num?)?.toDouble() ?? 0;
-    final p3a = (p['pillar_3a_monthly'] as num?)?.toDouble() ?? 0;
-    final total = avs + lpp + p3a;
-
-    return ChatComparisonCard(
-      title: 'Tes 3 piliers',
-      leftLabel: 'AVS + LPP',
-      leftValue: 'CHF\u00a0${_fmt(avs + lpp)}/mois',
-      rightLabel: '3e pilier',
-      rightValue: p3a > 0 ? 'CHF\u00a0${_fmt(p3a)}/mois' : 'Non d\u00e9clar\u00e9',
-      leftAmount: avs + lpp,
-      rightAmount: p3a > 0 ? p3a : total * 0.1,
-      narrative: p['narrative'] as String?,
-      onTap: () => context.push('/retraite'),
-    );
-  }
-
-  // ────────────────────────────────────────────────────────────
-  //  COMPARISON CARD — show_comparison_card tool
-  // ────────────────────────────────────────────────────────────
-
-  static Widget _buildComparisonCard(
-      BuildContext context, Map<String, dynamic> p) {
-    final route = p['route'] as String?;
-    return ChatComparisonCard(
-      title: p['title'] as String? ?? '',
-      leftLabel: p['left_label'] as String? ?? '',
-      leftValue: p['left_value'] as String? ?? '',
-      rightLabel: p['right_label'] as String? ?? '',
-      rightValue: p['right_value'] as String? ?? '',
-      leftAmount: (p['left_amount'] as num?)?.toDouble() ?? 0,
-      rightAmount: (p['right_amount'] as num?)?.toDouble() ?? 0,
-      narrative: p['narrative'] as String?,
       onTap: route != null ? () => context.push(route) : null,
     );
   }
