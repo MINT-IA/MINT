@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: La Beauté de Mint
 status: Roadmap created for v2.2
-stopped_at: v2.2 roadmap written + expert-audit patched, 96/96 REQs mapped to 13 phases, awaiting /gsd-plan-phase 1
+stopped_at: v2.2 roadmap written + expert-audit patched, 96/96 REQs mapped to 15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), awaiting /gsd-plan-phase 1
 last_updated: "2026-04-07T13:30:00.000Z"
-last_activity: 2026-04-07 — Roadmap created + expert-audit patched (13 phases, reset numbering)
+last_activity: 2026-04-07 — Roadmap created + expert-audit patched (15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), reset numbering)
 progress:
-  total_phases: 13
+  total_phases: 15
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-04-07)
 Phase: 1 (P0a — Unblockers & Perf Baseline) — not started
 Plan: —
 Status: Roadmap created, awaiting `/gsd-plan-phase 1`
-Last activity: 2026-04-07 — Roadmap created for v2.2 (13 phases, reset)
+Last activity: 2026-04-07 — Roadmap created for v2.2 (15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), reset)
 
-Progress: [░░░░░░░░░░] 0% (0/13 phases)
+Progress: [░░░░░░░░░░] 0% (0/15 phases (incl. Phase 8c polish + Phase 10.5 friction passes))
 
 ## Performance Metrics
 
@@ -59,7 +59,7 @@ Progress: [░░░░░░░░░░] 0% (0/13 phases)
 
 ## Accumulated Context
 
-### Roadmap shape (13 phases, reset numbering)
+### Roadmap shape (15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), reset numbering)
 
 | # | Phase | Chantier | REQs |
 |---|---|---|---|
@@ -91,7 +91,7 @@ Progress: [░░░░░░░░░░] 0% (0/13 phases)
 ### Decisions (v2.2)
 
 - Phase numbering reset to 1 (--reset-phase-numbers)
-- 13 phases derived from 10 chantiers + P0 two-phase split
+- 15 phases (incl. Phase 8c polish + Phase 10.5 friction passes) derived from 10 chantiers + P0 two-phase split
 - Phase 13 ship gate folded into Phase 12 for cleanliness
 - L1.2b + L1.3 co-located in Phase 8 per SUMMARY §3 dependency note (same files)
 

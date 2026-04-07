@@ -203,14 +203,14 @@ Phases assigned by `gsd-roadmapper` 2026-04-07, then expert-audit patched (Phase
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STAB-18 | Phase 1 | Pending |
+| STAB-18 | Phase 12 | Pending (deferred from Phase 1 — humans-ready gate, rescoped 2026-04-07) |
 | STAB-19 | Phase 1 | Pending |
 | STAB-20 | Phase 1 | Pending |
-| STAB-21 | Phase 1 | Pending |
-| PERF-01 | Phase 1 | Pending |
-| PERF-02 | Phase 1 | Pending |
-| PERF-03 | Phase 1 | Pending |
-| PERF-04 | Phase 1 | Pending |
+| STAB-21 | Phase 1 | Pending (moot if Phase 10 deletes the screen) |
+| PERF-01 | Phase 12 | Pending (deferred from Phase 1 — humans-ready gate) |
+| PERF-02 | Phase 12 | Pending (deferred from Phase 1 — humans-ready gate) |
+| PERF-03 | Phase 12 | Pending (deferred from Phase 1 — humans-ready gate) |
+| PERF-04 | Phase 12 | Pending (deferred from Phase 1 — humans-ready gate) |
 | PERF-05 | Phase 12 | Pending |
 | CONTRACT-01 | Phase 2 | Pending |
 | CONTRACT-02 | Phase 2 | Pending |

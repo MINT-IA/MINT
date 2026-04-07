@@ -32,7 +32,7 @@
 
 ### 🚧 v2.2 La Beauté de Mint (Phases 1-13, reset, expert-audit patched)
 
-- [ ] **Phase 1: P0a — Unblockers & Perf Baseline** — Sequential gate: a11y recruitment emails day 1 (FIRST task), STAB-17 signed, 4 providers wired, chiffre_choc sweep (atomic per layer), A14 baseline.
+- [ ] **Phase 1: P0a — Code Unblockers (rescoped)** — 4 providers wired, chiffre_choc sweep, a11y emails fire-and-forget. STAB-18 + PERF baseline DEFERRED to Phase 12 ship gate.
 - [ ] **Phase 2: P0b — Contracts & Audits + AAA Tokens + Voice Spec v0.5** — VoiceCursorContract SoT + codegen + CI drift, Profile 3 voice fields (preference + n5Counter + fragileMode), 6 AAA tokens implemented, VoiceCursorSpec v0.5 extract (5 levels + narrator wall + sensitive list), Krippendorff tooling, 2 pre-migration audits.
 - [ ] **Phase 3: L1.1 Audit du Retrait (S0-S5)** — DELETE/KEEP list per surface, -20% visual element reduction evidenced.
 - [ ] **Phase 4: L1.2a MTC Component + S4 Migration** — MintTrameConfiance v1 built (consumes Voice Spec v0.5 for audio-tone consistency), bloom 250ms, S4 first consumer shipped.
@@ -41,25 +41,26 @@
 - [ ] **Phase 7: L1.7 Landing v2 (S0 rebuild)** — Variante A paragraphe-mère, zero financial_core imports, consumes Phase 2 AAA tokens.
 - [ ] **Phase 8a: L1.2b — MTC 11-Surface Migration** — Coverage gate, sentence-subject lint, no_legacy_confidence_render grep.
 - [ ] **Phase 8b: L1.3 — Microtypographie + AAA Token Application + First Live a11y Session** — Spiekermann 4pt grid, AAA tokens applied to S0-S5, ≥1 live session compte-rendu.
+- [ ] **Phase 8c: Polish Pass #1 (cross-surface aesthetic supervision)** — NEW. Claude in active supervision mode walks every S0-S5 surface post-migration: screenshot diffs, micro-typo coherence, chromatic consistency cross-surface, before/after element count. Spawns design-reviewer agent. Outputs `docs/POLISH_PASS_1.md` with delta proposals. No code commits — proposals feed back into Phase 8b refinements OR open hot-fix tasks.
 - [ ] **Phase 9: L1.5 MintAlertObject (S5)** — Typed API, G2/G3 grammar, TalkBack 13 sweep, no_llm_alert grep gate.
 - [ ] **Phase 10: L1.8 Onboarding v2** — Delete 5 screens, intent → chat, screens-before-first-insight = 2, post-deletion test count ≥ pre-deletion.
+- [ ] **Phase 10.5: Friction Pass (golden path device test)** — NEW. Julien runs the new landing→intent→chat golden path on real Galaxy A14. Notes every frottement (timing, copy, animation, color, pacing). Claude re-processes notes into iterations on Phase 7+10 surfaces. The "très belle avant les humains" gate.
 - [ ] **Phase 11: L1.6b Phrase Rewrite + Krippendorff Validation** — 30 phrases rewritten, α ≥ 0.67 (overall + N4 + N5), reverse-test passes, N5 server gate live, auto-fragility live.
 - [ ] **Phase 12: L1.6c "Ton" UX Setting + Ship Gate** — User-facing Ton chooser, target 3 live sessions across Phases 8b+12, ComplianceGuard regression on all output channels, all CI gates green, Julien A14 manual pass.
 
 ## Phase Details
 
-### Phase 1: P0a — Unblockers & Perf Baseline
-**Goal**: Kill the v2.1 carryover, unblock Phase 2 contracts, and land a documented Galaxy A14 perf baseline before any new design code is written.
-**Depends on**: Nothing (sequential gate — nothing else starts until this ships)
-**Requirements**: STAB-18, STAB-19, STAB-20, STAB-21, PERF-01, PERF-02, PERF-03, PERF-04, ACCESS-01
+### Phase 1: P0a — Code Unblockers (rescoped 2026-04-07: "très belle avant les humains")
+**Goal**: Kill the v2.1 code carryover that blocks Phase 2+ (broken providers + chiffre_choc rename). Send a11y recruitment emails as fire-and-forget for later phases. STAB-17 walkthrough and Galaxy A14 baseline DEFERRED to Phase 12 ship gate — they're "ready for humans" gates, not "start coding" gates.
+**Depends on**: Nothing (sequential gate, code-only)
+**Requirements**: STAB-19, STAB-20, STAB-21, ACCESS-01
 **Success Criteria** (what must be TRUE):
-  1. **DAY-1 ORDERING (audit fix A3):** ACCESS-01 recruitment emails are the FIRST task of Phase 1, sent on day 1 by Julien personally (~1h). NOT bundled with STAB-17 walkthrough or chiffre_choc sweep. Day-1 ordering is the only way the 4-week recruitment lead time fits before Phase 8.
-  2. `AUDIT_TAP_RENDER.md` is signed at the bottom block by Julien after a real-device Galaxy A14 walkthrough; any FAILs are triaged into follow-up work.
-  3. `git grep 'ProviderNotFoundException' apps/mobile/lib/screens/main_tabs/mint_home_screen.dart` returns 0 AND the 4 providers (`MintStateProvider`, `FinancialPlanProvider`, `CoachEntryPayloadProvider`, `OnboardingProvider`) are registered in `app.dart` MultiProvider.
-  4. **STAB-20 atomic-commit rollback path (audit fix B3):** the 719-occurrence sweep ships as a sequence of atomic commits per layer (filenames first, then refs, then ARB keys, then OpenAPI/analytics), each independently revertable. CI grep gate `git grep -E 'chiffre_?choc|chiffreChoc' apps/mobile/lib/ services/backend/app/ apps/mobile/lib/l10n/` returns 0 at end of phase (allowed in `.planning/`, `docs/archive/`).
-  5. `.planning/perf/A14_BASELINE.md` exists, committed, containing cold-start (`timeToFirstFrameMicros`), 10s scroll FPS median/p95, MTC bloom frame budget, memory delta — all captured via `flutter run --profile --trace-startup`.
-  6. 6 recruitment emails (2 per partner: SBV-FSA, ASPEDAH, Caritas) sent on day 1; tracker file `docs/ACCESSIBILITY_TEST_LAYER1.md` lists named contacts with send dates AND notes whether the same recruits will also serve as Phase 11 Krippendorff testers (audit fix B2 — coordinate Phase 6 + Phase 11 tester pools to avoid double recruitment).
-**Pitfalls to watch** (from PITFALLS.md top 10): P10 chiffre_choc sweep incomplete; P14 live a11y tests start too late; P19 Phase 0 bloat.
+  1. **ACCESS-01 fire-and-forget (rescoped):** 6 recruitment emails (2 per partner: SBV-FSA, ASPEDAH, Caritas) sent by Julien personally — but no longer day-1 critical. Sessions land when code is ready (Phase 8b + Phase 12 polish), not against a deadline. If recruitment slips, the milestone waits — we don't descope AAA. Tracker in `docs/ACCESSIBILITY_TEST_LAYER1.md`.
+  2. `git grep 'ProviderNotFoundException' apps/mobile/lib/screens/main_tabs/mint_home_screen.dart` returns 0 AND the 4 providers (`MintStateProvider`, `FinancialPlanProvider`, `CoachEntryPayloadProvider`, `OnboardingProvider`) are registered in `app.dart` MultiProvider.
+  3. **STAB-20 atomic-commit rollback path:** the 719-occurrence sweep ships as a sequence of atomic commits per layer (filenames first, then refs, then ARB keys, then OpenAPI/analytics), each independently revertable. CI grep gate `git grep -E 'chiffre_?choc|chiffreChoc' apps/mobile/lib/ services/backend/app/ apps/mobile/lib/l10n/` returns 0 at end of phase (allowed in `.planning/`, `docs/archive/`).
+  4. STAB-21 (chiffre_choc_screen split-exit bug) noted as "moot — screen deleted in Phase 10" or fixed if Phase 10 slips.
+**DEFERRED to Phase 12** (rescoped 2026-04-07): STAB-18 manual tap-render walkthrough, PERF-01..04 Galaxy A14 baseline. These are humans-ready gates, not code-start gates. The autonomous run does not block on Julien being on his couch with a device.
+**Pitfalls to watch**: P10 chiffre_choc sweep incomplete; P19 Phase 0 bloat (now slim, 4 REQs only).
 **Plans**: TBD
 
 ### Phase 2: P0b — Contracts & Audits
@@ -218,10 +219,10 @@
 **Pitfalls to watch**: P1 tone-locking; P3 N5 editorial cap; P9 ComplianceGuard drift; P15 editorial drift; P17 sample size.
 **Plans**: TBD
 
-### Phase 12: L1.6c "Ton" UX Setting + Milestone Ship Gate
-**Goal**: Expose the user-facing "Ton" setting (soft/direct/unfiltered) wired to `Profile.voiceCursorPreference`, and close all remaining CI gates + manual gates for v2.2 TestFlight.
-**Depends on**: Phase 11, Phase 2 (Profile field), Phase 5 (spec)
-**Requirements**: VOICE-13, ACCESS-03, PERF-05
+### Phase 12: L1.6c "Ton" UX Setting + "Ready for Humans" Ship Gate (rescoped 2026-04-07)
+**Goal**: Expose the user-facing "Ton" setting (soft/direct/unfiltered) wired to `Profile.voiceCursorPreference`. Close all CI gates. Run the deferred-from-Phase-1 manual gates (STAB-18 walkthrough + Galaxy A14 perf baseline) — now framed as "is v2.2 ready to be shown to a real human?", not "TestFlight ASAP".
+**Depends on**: Phase 11, Phase 2 (Profile field), Phase 5 (spec), Phase 10.5 (friction pass)
+**Requirements**: VOICE-13, ACCESS-03, PERF-05, STAB-18 (deferred from Phase 1), PERF-01, PERF-02, PERF-03, PERF-04 (deferred from Phase 1)
 **Success Criteria** (what must be TRUE):
   1. `intent_screen.dart` (first launch) and `ProfileDrawer` (settings) expose a 3-option "Ton" chooser (`soft` / `direct` (default) / `unfiltered`) that writes `Profile.voiceCursorPreference` via API; UX label = "Ton", word "curseur" never user-visible (grep gate).
   2. WCAG 2.1 AA floor CI gate (`meetsGuideline(textContrastGuideline, androidTapTargetGuideline)`) is green on EVERY touched surface, not just S0-S5.
