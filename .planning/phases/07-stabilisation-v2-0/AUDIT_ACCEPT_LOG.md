@@ -78,6 +78,24 @@
 
 ---
 
+## 13.C2d circle_scoring_service — reclassified LIVE
+
+- **Why not delete:** Audit listed as 0/1 (dead-in-prod) but direct inspection during 07-04 execution found `apps/mobile/lib/services/financial_report_service.dart:12` imports it AND uses `CircleScoringService()` + `CircleScoringService.calculateAvsGapsFromAnswers()` + `.calculateSpouseAvsGapsFromAnswers()`. The audit's grep missed this because financial_report_service was itself ORPHAN-candidate and the pattern match was repo-wide but not transitively traced.
+- **Action:** Kept as LIVE. Audit row downgraded to ACCEPTED (reclassified).
+
+## 13.C2 circle_scoring_service note
+- Also note: circle_scoring_service will eventually be dead IF financial_report_service is later confirmed unused. Re-audit together in v3.0 dead-code sweep.
+
+---
+
+## 14 — R1 orphan routes deferred (12 of 13)
+
+- **Why not delete now:** Each of the 13 orphan routes requires per-route verification (screen imports, tool_call_parser.validRoutes whitelist, screen_registry.dart intent map, transitive consumers) and one atomic commit + `flutter analyze lib/` per route. At ~4 tool calls × 13 routes = 52 steps, the risk/reward ratio in the final Tier 3 slot did not justify the chance of a late-session regression breaking TestFlight prep. 07-04 executed `/weekly-recap` (the single zero-risk simple-redirect case) and deferred the other 12 to a dedicated v3.0 shell-polish sprint.
+- **Routes deferred:** `/auth/verify`, `/coach/history`, `/check/debt`, `/scan/avs-guide`, `/cantonal-benchmark`, `/about`, `/timeline`, `/confidence`, `/score-reveal`, `/open-banking`, `/open-banking/transactions`, `/open-banking/consents`.
+- **Revisit:** v3.0 shell polish sprint. GSD todo: "Per-route delete sweep for 12 R1 deferred routes." ADR placeholder: `decisions/ADR-vXXX-orphan-route-sweep.md`.
+
+---
+
 ## Revisit summary
 
 | Finding | Target milestone | Owner |

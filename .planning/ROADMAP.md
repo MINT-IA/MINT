@@ -45,7 +45,7 @@
 - [x] 07-01-PLAN.md — Façade audit (5 mechanical audits, parallelizable) — STAB-12..16
 - [x] 07-02-PLAN.md — Coach tool wiring + E2E test — STAB-01..04, STAB-11
 - [x] 07-03-PLAN.md — Phase 1 test refresh + IntentScreen async-gap fix — STAB-05..07
-- [ ] 07-04-PLAN.md — Audit fix sweep — STAB-12..16 fix actions
+- [x] 07-04-PLAN.md — Audit fix sweep — STAB-12..16 fix actions
 - [x] 07-05-PLAN.md — Lint & hygiene (ruff + flutter analyze) — STAB-08..09
 - [ ] 07-06-PLAN.md — CI green + tap-to-render gate — STAB-10, STAB-17
 **UI hint**: yes
