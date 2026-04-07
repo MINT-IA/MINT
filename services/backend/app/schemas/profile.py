@@ -4,6 +4,8 @@ from enum import Enum
 from typing import Optional
 from datetime import datetime
 
+from app.schemas.voice_cursor import VoicePreference
+
 logger = logging.getLogger(__name__)
 
 
@@ -63,6 +65,23 @@ class ProfileBase(BaseModel):
     targetRetirementAge: Optional[int] = Field(
         None, ge=58, le=70,
         description="Age cible de retraite (defaut: age legal)",
+    )
+
+    # ⭐ Voice cursor (Phase 02-03 / VOICE-09/10/13 — see voice_cursor.json contract)
+    # voiceCursorPreference: user-chosen tone, default 'direct' (per ROADMAP).
+    # n5IssuedThisWeek: rolling 7-day N5 emission counter (Phase 11 server-authoritative).
+    # fragileModeEnteredAt: nullable timestamp; non-null = fragile mode active (capped at N3).
+    voiceCursorPreference: VoicePreference = Field(
+        default=VoicePreference.direct,
+        description="User tone preference (soft/direct/unfiltered). Default: direct.",
+    )
+    n5IssuedThisWeek: int = Field(
+        default=0, ge=0,
+        description="Rolling 7-day N5 emission counter (Phase 11 cap enforcement).",
+    )
+    fragileModeEnteredAt: Optional[datetime] = Field(
+        default=None,
+        description="Timestamp when fragile mode was entered. Null = not active.",
     )
 
     @model_validator(mode='after')
@@ -136,6 +155,10 @@ class ProfileUpdate(BaseModel):
         None, ge=58, le=70,
         description="Age cible de retraite (defaut: age legal)",
     )
+    # ⭐ Voice cursor (Phase 02-03)
+    voiceCursorPreference: Optional[VoicePreference] = None
+    n5IssuedThisWeek: Optional[int] = Field(None, ge=0)
+    fragileModeEnteredAt: Optional[datetime] = None
 
 
 class Profile(ProfileBase):
