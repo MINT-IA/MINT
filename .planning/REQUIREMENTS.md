@@ -34,8 +34,8 @@
 
 ### Lint & Hygiene Cleanup
 
-- [ ] **STAB-08**: Backend `ruff` zero errors. Currently 43 (e.g. `documents.py:962`, `test_document_parser.py:783`, `test_documents.py:28`). Pure hygiene — must not change behavior.
-- [ ] **STAB-09**: `flutter analyze` — fix all warnings touching production code (`lib/`). Test/style infos in `test/` are acceptable but should be reduced where trivial. Goal: zero warnings on `lib/`.
+- [x] **STAB-08**: Backend `ruff` zero errors. Currently 43 (e.g. `documents.py:962`, `test_document_parser.py:783`, `test_documents.py:28`). Pure hygiene — must not change behavior.
+- [x] **STAB-09**: `flutter analyze` — fix all warnings touching production code (`lib/`). Test/style infos in `test/` are acceptable but should be reduced where trivial. Goal: zero warnings on `lib/`.
 
 ### CI Green
 
@@ -66,8 +66,8 @@
 | STAB-05 | Phase 7 | Pending |
 | STAB-06 | Phase 7 | Pending |
 | STAB-07 | Phase 7 | Pending |
-| STAB-08 | Phase 7 | Pending |
-| STAB-09 | Phase 7 | Pending |
+| STAB-08 | Phase 7 | Complete |
+| STAB-09 | Phase 7 | Complete |
 | STAB-10 | Phase 7 | Pending |
 | STAB-11 | Phase 7 | Complete |
 | STAB-12 | Phase 7 | Complete |
