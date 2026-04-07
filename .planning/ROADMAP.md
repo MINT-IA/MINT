@@ -32,7 +32,8 @@
 
 ### 🚧 v2.2 La Beauté de Mint (Phases 1-13, reset, expert-audit patched)
 
-- [ ] **Phase 1: P0a — Code Unblockers (rescoped)** — 4 providers wired, chiffre_choc sweep, a11y emails fire-and-forget. STAB-18 + PERF baseline DEFERRED to Phase 12 ship gate.
+- [ ] **Phase 1: P0a — Code Unblockers (rescoped, STAB-20 carved out)** — 4 providers wired ✅, ACCESS-01 tracker created ✅, STAB-21 moot pending Phase 10. STAB-20 carved out to Phase 1.5 after executor discovered 186-file domain-refactor surface (not a localized rename). STAB-18 + PERF baseline DEFERRED to Phase 12.
+- [ ] **Phase 1.5: P0a.1 — chiffre_choc Domain Rename (NEW, carved out 2026-04-07)** — Domain refactor: rename `ChiffreChoc` class in `response_card.dart`, `EducationContent.chiffreChoc*` fields, `ChiffreChocType` enum, `_buildChiffreChocRegime()` across ~50 life-event screens, per-event ARB keys in 6 files, backend selector + schemas + OpenAPI regen, analytics events, CI grep gate. 186 files / 1934 hits / layered atomic commits. Unblocks Phase 2 contracts.
 - [ ] **Phase 2: P0b — Contracts & Audits + AAA Tokens + Voice Spec v0.5** — VoiceCursorContract SoT + codegen + CI drift, Profile 3 voice fields (preference + n5Counter + fragileMode), 6 AAA tokens implemented, VoiceCursorSpec v0.5 extract (5 levels + narrator wall + sensitive list), Krippendorff tooling, 2 pre-migration audits.
 - [ ] **Phase 3: L1.1 Audit du Retrait (S0-S5)** — DELETE/KEEP list per surface, -20% visual element reduction evidenced.
 - [ ] **Phase 4: L1.2a MTC Component + S4 Migration** — MintTrameConfiance v1 built (consumes Voice Spec v0.5 for audio-tone consistency), bloom 250ms, S4 first consumer shipped.
@@ -61,6 +62,24 @@
   4. STAB-21 (chiffre_choc_screen split-exit bug) noted as "moot — screen deleted in Phase 10" or fixed if Phase 10 slips.
 **DEFERRED to Phase 12** (rescoped 2026-04-07): STAB-18 manual tap-render walkthrough, PERF-01..04 Galaxy A14 baseline. These are humans-ready gates, not code-start gates. The autonomous run does not block on Julien being on his couch with a device.
 **Pitfalls to watch**: P10 chiffre_choc sweep incomplete; P19 Phase 0 bloat (now slim, 4 REQs only).
+**Plans**: TBD
+**Status note (2026-04-07)**: STAB-19 + ACCESS-01 shipped on `feature/v2.2-p0a-code-unblockers`. STAB-21 disposition = moot pending Phase 10. STAB-20 carved out to Phase 1.5 after executor discovered the rename is a domain refactor (186 files, 1934 hits, touches ResponseCard class + EducationContent fields + ChiffreChocType enum + ~50 life-event screens), not a localized sweep.
+
+### Phase 1.5: P0a.1 — chiffre_choc → premier_eclairage Domain Rename
+**Goal**: Execute the full domain rename of `chiffre_choc` / `ChiffreChoc` / `chiffreChoc` across the entire live codebase as a sequence of atomic, layered commits. Unblock Phase 2 contracts which cannot define new fields referencing the old domain name.
+**Depends on**: Phase 1 (feature branch + ACCESS-01 tracker already on that branch)
+**Requirements**: STAB-20 (carved out from Phase 1)
+**Success Criteria** (what must be TRUE):
+  1. **Model layer renamed**: `ResponseCard.ChiffreChoc` class → `PremierEclairage`; `EducationContent.chiffreChoc*` fields → `premierEclairage*`; `ChiffreChocType` enum → `PremierEclairageType`. All call sites updated. `flutter analyze lib/` = 0 errors.
+  2. **Life-event screens migrated**: ~50 screens (`mariage`, `naissance`, `expat`, `mortgage/*`, `arbitrage/*`, `independants/*`, etc.) — `_buildChiffreChocRegime()` renamed + per-event ARB keys (`mariageChiffreChoc*` → `mariagePremierEclairage*`) renamed.
+  3. **ARB + gen-l10n**: all 6 ARB files renamed (every `*ChiffreChoc*` key), `flutter gen-l10n` regenerated, `app_localizations_*.dart` updated, `flutter test` green.
+  4. **Backend**: `chiffre_choc_selector.py` → `premier_eclairage_selector.py`, schemas renamed, OpenAPI regenerated (113 hits), `pytest -q` green, `ruff check` 0.
+  5. **Analytics events**: hard-renamed (no dual-emit — pre-launch, no warehouse contract).
+  6. **CI grep gate**: `tools/checks/no_chiffre_choc.py` scans `apps/mobile/lib/`, `services/backend/app/`, `apps/mobile/lib/l10n/`, `tools/openapi/`; excludes `.planning/**`, `docs/archive/**`, `apps/mobile/archive/**`, CLAUDE.md legacy note. Wired into CI. Green.
+  7. **CLAUDE.md legacy note** flipped from "uses chiffre choc" → "rename completed 2026-04-07 — legacy term retained in archives only".
+  8. **Atomic commit discipline**: each commit layer (backend / model / life-event screens / ARB / analytics / CI gate / docs) is independently revertable. `flutter analyze` + `flutter test` + `pytest -q` green between every commit.
+  9. **Test count**: post-rename `flutter test` aggregate count ≥ pre-rename count (no silent test drops).
+**Pitfalls to watch**: P10 (rename residue); regression risk across ~50 life-event screens; ARB generator drift; OpenAPI regen pipeline gotchas; hardcoded string audit tests that assert the literal "chiffre_choc".
 **Plans**: TBD
 
 ### Phase 2: P0b — Contracts & Audits
