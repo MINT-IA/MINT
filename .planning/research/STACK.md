@@ -1,362 +1,506 @@
-# Stack Research
+# Stack Research — v2.2 La Beauté de Mint
 
-**Domain:** Swiss fintech mobile app — v2.0 new feature additions
-**Researched:** 2026-04-06
-**Confidence:** HIGH (based on existing codebase audit + known library capabilities)
-
----
-
-## What This Document Covers
-
-Five new capability areas for v2.0:
-1. Document Intelligence (photo/PDF ingestion + LLM extraction)
-2. Anticipation Engine (rule-based proactive alerts, fiscal calendar)
-3. Financial Biography (encrypted local-only narrative memory)
-4. bLink Open Banking (OAuth 2.0, SFTI sandbox integration)
-5. Contextual Aujourd'hui (smart card ranking)
-
-**Existing stack already present — do not re-add:**
-`flutter`, `fastapi`, `pydantic v2`, `anthropic`, `image_picker ^1.1.2`, `google_mlkit_text_recognition ^0.15.0`, `file_picker ^8.0.0`, `flutter_secure_storage ^9.0.0`, `shared_preferences ^2.3.2`, `flutter_local_notifications ^18.0.1`, `pdfplumber` (in `[docling]` extras), `sqlalchemy`, `alembic`, `pyjwt`
+**Domain:** Flutter+FastAPI design/voice/accessibility milestone (additive only)
+**Researched:** 2026-04-07
+**Confidence:** HIGH on items 1, 2, 3, 5, 6, 7. MEDIUM on item 4 (Firebase Test Lab device availability — confirmed via official catalog page but A14 specifically requires `gcloud firebase test android models list` to confirm at provisioning time).
+**Scope rule:** Only NEW additions. Base stack (Flutter, GoRouter, Provider, Material 3, Montserrat/Inter, FastAPI, Pydantic v2, GoogleFonts, GitHub Actions macos-15) is already mature per CLAUDE.md §2 — DO NOT touch.
 
 ---
 
-## Feature 1: Document Intelligence
+## TL;DR — What to add, what to skip
 
-### What Already Exists
+| Item | Decision | Where |
+|------|----------|-------|
+| 1. Krippendorff α | **ADD** `krippendorff` (PyPI, Santiago Castro) — one-shot script in `tools/voice-cursor-irr/` | L1.6a |
+| 2. Patrol | **ADD** `patrol ^4.x` + `patrol_cli` — replaces no existing tool, complements `integration_test` | L1.5, L1.2a |
+| 3. Galaxy A14 perf harness | **DO NOT ADD** anything new — `flutter run --profile` + DevTools (already shipped with Flutter SDK) is sufficient | L1.0 |
+| 4. Firebase Test Lab v2.3 prep | **INVESTIGATE ONLY** — document, do not provision | v2.3 |
+| 5. ARB canton namespaces | **DO NOT ADD** package — custom `LocalizationsDelegate` (40 LOC) on top of existing `flutter_localizations` | L1.4 |
+| 6. VoiceCursorContract codegen | **ADD** single JSON file as source of truth + 2 thin generators (Python `datamodel-code-generator`, Dart hand-rolled script) | L1.0 |
+| 7. AAA contrast tooling | **ADD** Flutter widget test using existing `flutter_test`'s `SemanticsTester` + 30-LOC custom `wcagContrastRatio()` helper. NO new package. | L1.1, L1.3 |
 
-The codebase already has a **functioning 3-layer document pipeline**:
-
-- **On-device OCR**: `google_mlkit_text_recognition ^0.15.0` — handles LPP certificates, salary slips in French and German. Pure-Dart parsers (regex) for field extraction.
-- **Claude Vision backend**: `document_vision_service.py` uses `anthropic` SDK (already installed) for image-to-JSON extraction. Handles 8 document types including `lpp_plan`, `lease_contract`, `insurance_contract`.
-- **PDF text extraction**: `pdfplumber` in `[docling]` optional extras for server-side PDF parsing.
-- **Upload screens**: `document_scan_screen.dart`, `document_impact_screen.dart` exist.
-- **Models**: `DocumentType`, `ExtractedField`, `ExtractionResult` defined in both Flutter and FastAPI.
-
-### What Is Missing
-
-#### Flutter side
-
-**`flutter_image_compress`** — needed for photo pre-processing before Claude Vision upload. Raw camera images from `image_picker` are 3-8 MB. Claude Vision accepts max ~5 MB per image (base64). Compression to JPEG 85% quality reduces to ~400-800 KB without losing OCR accuracy.
-
-**No new camera library needed.** `image_picker ^1.1.2` already handles both camera and gallery. The `initialImageFromCamera` source parameter covers the "balance-moi le print screen" use case natively.
-
-#### Backend side
-
-**`python-multipart`** is already present for file upload. No new dependency.
-
-**`pillow>=10.4.0,<12.0.0`** — needed server-side for image pre-processing (rotation correction, EXIF normalization, grey-scale for low-contrast Swiss documents). Claude Vision does not auto-correct orientation from EXIF metadata — a rotated LPP certificate photograph will produce garbage extraction.
-
-**`pdf2image>=1.17.0,<2.0.0`** + system dependency `poppler` — needed for scanned PDF handling (PDFs that are images, not text-layer). `pdfplumber` extracts text from text-layer PDFs only. A scanned LPP certificate saved as PDF is invisible to `pdfplumber`. `pdf2image` converts each page to a PIL image that can then go through the Claude Vision path.
-
-**Do NOT add** `pypdf`, `PyMuPDF (fitz)`, or `camelot` — they duplicate `pdfplumber` functionality that is already wired. `pdf2image` covers the only gap (scanned PDFs).
-
-### Recommended Additions
-
-| Component | Addition | Version | Purpose |
-|-----------|----------|---------|---------|
-| Flutter | `flutter_image_compress` | `^2.3.0` | Compress camera photos to ~800 KB before upload |
-| Backend | `pillow` | `>=10.4.0,<12.0.0` | Server-side image normalization (rotation, EXIF, grey-scale) |
-| Backend | `pdf2image` | `>=1.17.0,<2.0.0` | Convert scanned PDFs to images for Claude Vision path |
-
-### Integration Points
-
-- Flutter `document_scan_screen.dart` calls `image_picker` -> compress with `flutter_image_compress` -> base64 encode -> POST to `/api/v1/document/vision`
-- Backend endpoint receives base64 -> `pillow` normalizes -> Claude Vision extracts -> returns `VisionExtractionResponse` (already schema'd)
-- `document_vision_service.py` already exists — it needs to be wired to a FastAPI endpoint (currently no HTTP route registered for it)
-- On-device MLKit path remains as fallback when user has no API key (BYOK disabled) — privacy-first: no image leaves device in that mode
+**Net new dependencies: 3** (`krippendorff` python, `patrol` dart, `datamodel-code-generator` python dev). Everything else is glue code on existing infra.
 
 ---
 
-## Feature 2: Anticipation Engine
+## 1. Krippendorff α tooling — L1.6a one-shot
 
-### What Already Exists
+### Recommendation
+Use the **`krippendorff`** PyPI package (Santiago Castro, https://pypi.org/project/krippendorff/). NumPy-accelerated, supports `level_of_measurement='ordinal'` natively, returns the weighted ordinal α directly. Active maintenance, ~50k monthly downloads, used by Label Studio and HuggingFace eval pipelines.
 
-`proactive_trigger_service.dart` implements 8 trigger types (lifecycle change, weekly recap, goal milestone, seasonal reminder, inactivity, confidence improvement, new cap, contract deadline). This is the foundation — it fires when the Coach tab opens.
+**Why this over alternatives:**
 
-`flutter_local_notifications ^18.0.1` + `timezone ^0.10.1` are already present for scheduled notification delivery.
+| Option | Verdict | Why |
+|--------|---------|-----|
+| `krippendorff` (PyPI) | **CHOSEN** | One-line API: `krippendorff.alpha(reliability_data=matrix, level_of_measurement='ordinal')`. Ordinal metric is the canonical Krippendorff weighting for 5-level Likert. Already in MINT's Python ecosystem. |
+| R `irr` package | Reject | Adds R toolchain to a Python+Dart shop. Zero benefit over the Python pkg for a one-shot run. |
+| ReCal3 (web) | Reject | Web form upload, no audit trail, no reproducibility, no version control of the input matrix. Acceptable for academic one-offs, not for an engineering shop. |
+| `simpledorff` | Reject | Pandas-DataFrame API is nicer for messy data but the Castro package is faster and the input shape (15 raters × 20 phrases) is trivial to express as a NumPy matrix. |
+| Aleph-Alpha fork | Reject | Newer fork with custom annotator weights — feature we don't need. Less battle-tested. |
 
-`shared_preferences ^2.3.2` stores trigger state (last fired date, stored phase, etc.).
+### Where it lives
+**`tools/voice-cursor-irr/`** — new directory at repo root. NOT a separate repo (overkill for ~50 LOC + one CSV). NOT inside `services/backend/` (it's not a runtime concern, must not bloat backend deps).
 
-### What Is Missing
-
-The anticipation engine for v2.0 needs two capabilities not yet in the existing trigger service:
-
-1. **Fiscal calendar** — hardcoded Swiss fiscal deadlines (3a deadline 31 Dec, tax declaration deadlines by canton, LPP rachat fiscal year end). These are **static data**, not a library. They belong in a new `assets/config/fiscal_calendar.json` file, not a new package.
-
-2. **Scheduled background checks** — the existing triggers fire only when the user opens the Coach tab. The anticipation engine must also fire when the app is backgrounded (e.g. "3a deadline in 7 days" notification at 9 AM on 24 December). This requires `flutter_local_notifications` (already present) + scheduling logic.
-
-**No new Dart packages are needed** for the anticipation engine. The entire engine is pure rule evaluation on `CoachProfile` fields against the fiscal calendar JSON. The `flutter_local_notifications` `zonedSchedule()` method (already available) handles the notification delivery.
-
-**Do NOT add** `workmanager` or `background_fetch` — these are explicitly out of scope for v2.0 (see PROJECT.md: "Background processing / WorkManager for anticipation — v3.0"). The anticipation engine in v2.0 triggers on app-open only, plus scheduled notifications via `flutter_local_notifications`.
-
-### Recommended Additions
-
-| Component | Addition | Version | Purpose |
-|-----------|----------|---------|---------|
-| Flutter | none (code only) | — | Fiscal calendar as `assets/config/fiscal_calendar.json` |
-| Backend | none (code only) | — | New `/api/v1/anticipation/evaluate` endpoint using pure Python rules |
-
-### Integration Points
-
-- New `AnticipationEngine` Dart class reads `fiscal_calendar.json` + `CoachProfile` -> emits `AnticipationAlert` list
-- `ProactiveTriggerService` gains one new trigger type: `fiscalDeadlineApproaching` (joins existing 8)
-- Backend endpoint is optional/future — the v2.0 engine is 100% client-side rule evaluation
-- `flutter_local_notifications.zonedSchedule()` handles TZ-aware scheduling — no new package needed
-
----
-
-## Feature 3: Financial Biography (Local Graph Memory)
-
-### What Already Exists
-
-`shared_preferences` stores flat key-value state. `flutter_secure_storage ^9.0.0` handles encrypted key storage. No structured event store exists yet.
-
-### What Is Missing
-
-The Financial Biography is a **local-only, encrypted, append-only structured store** of financial facts, decisions, and events. Requirements:
-
-- Encrypted at rest (nLPD compliance)
-- Structured queries ("what did the user decide about their LPP 6 months ago?")
-- Append-only with timestamps (never delete, only supersede)
-- Zero network egress (local-only constraint from PROJECT.md)
-- `AnonymizedBiographySummary` subset passed to coach context (no PII)
-
-**`sqflite ^2.4.1`** — SQLite for Flutter. The correct choice because:
-- Append-only event table with indexed timestamps is a trivial SQL pattern
-- `flutter_secure_storage` provides the encryption key; `encrypt` handles at-rest encryption
-- Avoids Hive/Isar complexity and breaking changes
-
-**`sqflite_common_ffi ^2.3.4`** — enables sqflite on desktop/test environments (macOS CI, web tests). Not required for iOS/Android production but prevents CI failures on the existing GitHub Actions `macos-15` runner.
-
-**`encrypt ^5.0.3`** — pure Dart AES-256-GCM. Encrypts each row's payload before SQLite insertion. Decrypts on read. The AES key is stored in `flutter_secure_storage` (already present — no new secure storage needed).
-
-**Do NOT use** `hive`, `hive_flutter`, `isar`, or `objectbox`:
-- Hive v2 — encryption adapter (`hive_flutter`) has known null-safety issues, not maintained
-- Isar 4 — major API break from v3; community still migrating as of early 2026
-- ObjectBox — binary/commercial license, overkill for append-only event log
-- Drift (moor) — valid alternative but requires `build_runner` code-gen; sqflite is simpler for this schema
-
-**Do NOT add** `sqlcipher_flutter_libs` — requires CocoaPods changes and Android NDK changes that will break the existing Podfile.lock and CI pipeline.
-
-### Recommended Additions
-
-| Component | Addition | Version | Purpose |
-|-----------|----------|---------|---------|
-| Flutter | `sqflite` | `^2.4.1` | Local structured event store for FinancialBiography |
-| Flutter | `sqflite_common_ffi` | `^2.3.4` | Desktop/test compatibility for CI |
-| Flutter | `encrypt` | `^5.0.3` | AES-256-GCM application-layer encryption before insertion |
-
-### Integration Points
-
-- `FinancialBiographyStore` — new service, uses `sqflite` + `flutter_secure_storage` key + `encrypt`
-- Schema: single `biography_events` table: `(id TEXT PK, event_type TEXT, payload_encrypted BLOB, created_at INTEGER, superseded_by TEXT)`
-- `AnonymizedBiographySummary` — serializes recent events, strips PII fields, passes to `CoachContextBuilder` (already exists)
-- `CoachContextBuilder` is the integration point for enriching LLM prompts — add a `biographySummary` field to it
-
----
-
-## Feature 4: bLink Open Banking (OAuth 2.0 + SFTI Sandbox)
-
-### What Already Exists
-
-`blink_connector.py` exists with full mock data (UBS, PostFinance, Raiffeisen accounts + realistic transactions). The connector class signature (`get_accounts`, `get_transactions`, `get_balances`) is production-ready. It currently raises `NotImplementedError` for the production path.
-
-`pyjwt ^2.8.0` is present for JWT handling.
-
-`httpx` is present in `[dev]` extras for tests.
-
-`consent_manager.dart` and `account_aggregator.py` exist and are the integration points.
-
-### What Is Missing
-
-For v2.0 sandbox activation (not production), two gaps exist:
-
-1. **OAuth 2.0 PKCE flow in Flutter** — bLink uses OAuth 2.0 Authorization Code + PKCE. The mobile app must launch the bank's authorization URL in a system browser, receive the redirect with auth code, exchange for access token. `flutter_web_auth_2 ^4.0.1` is the correct package:
-   - Launches the OAuth URL in a system browser (not WebView — SIX explicitly prohibits WebView for bLink consent screens)
-   - Receives the redirect callback via custom URL scheme (`mintapp://oauth/callback`)
-   - Uses iOS `ASWebAuthenticationSession`, Android Custom Tabs natively
-   - Successor to deprecated `flutter_web_auth` (same maintainer, active)
-
-2. **`httpx`** promoted from `[dev]` to production dependencies — needed for async HTTP calls to bLink API when the production path is activated (sandbox or production).
-
-**Do NOT add** `authlib` — overkill for a single PKCE token exchange. `pyjwt` (existing) + `httpx` covers the full flow.
-**Do NOT use** a WebView approach — bLink sandbox and production explicitly require system browser for consent.
-**Do NOT add** `app_links` — it handles deep links but not the full OAuth URL launch + callback cycle.
-
-### Recommended Additions
-
-| Component | Addition | Version | Purpose |
-|-----------|----------|---------|---------|
-| Flutter | `flutter_web_auth_2` | `^4.0.1` | OAuth 2.0 PKCE flow in system browser |
-| Backend | `httpx` (move from dev to prod) | `>=0.27.0,<1.0.0` | Async HTTP for bLink API calls |
-
-### Platform Configuration Required (Not a Package)
-
-**iOS `Info.plist`:**
-```xml
-<key>CFBundleURLTypes</key>
-<array>
-  <dict>
-    <key>CFBundleURLSchemes</key>
-    <array><string>mintapp</string></array>
-  </dict>
-</array>
+```
+tools/voice-cursor-irr/
+  README.md          # protocol: 15 testers × 20 phrases × N1-N5
+  ratings.csv        # rater_id, phrase_id, level (1-5)
+  compute_alpha.py   # ~30 LOC, prints α + 95% bootstrap CI
+  requirements.txt   # krippendorff>=0.6.1, numpy
 ```
 
-**Android `AndroidManifest.xml`** (add to existing `Runner` activity):
-```xml
-<intent-filter>
-  <action android:name="android.intent.action.VIEW" />
-  <category android:name="android.intent.category.DEFAULT" />
-  <category android:name="android.intent.category.BROWSABLE" />
-  <data android:scheme="mintapp" android:host="oauth" />
-</intent-filter>
+### Integration cost
+- `pip install krippendorff` (NOT added to backend `pyproject.toml` — isolated venv in `tools/voice-cursor-irr/`)
+- ~30 LOC Python script
+- 1 CSV template
+- README documenting protocol + acceptance gate (α ≥ 0.67)
+- **Estimate: 2 hours, including the bootstrap CI block**
+
+### Version
+`krippendorff>=0.6.1` (current as of 2026-04, verified PyPI). Pin exact version in requirements.txt for reproducibility of the one-shot result.
+
+---
+
+## 2. Patrol — L1.5 + L1.2a integration tests
+
+### Recommendation
+**`patrol: ^4.1.1`** (LeanCode) + **`patrol_cli`** as a global Dart tool. Patrol 4.x is current as of 2026-04 (verified leancode.co/v4 docs). Builds on top of `flutter_test` and `integration_test`, adds native interaction + custom finders + hot restart in tests.
+
+**Why Patrol over alternatives:**
+
+| Option | Verdict | Why |
+|--------|---------|-----|
+| Patrol 4.x | **CHOSEN** | Only Flutter-native E2E framework that handles native pop-ups (TalkBack/VoiceOver permission dialogs are critical for L1.2a "1 ligne audio" verification). Hot restart between tests = 5x faster than vanilla `integration_test`. |
+| `integration_test` only | Reject | Cannot interact with TalkBack overlay or accessibility-tree-only widgets reliably. We need this for MTC's audio-line semantics test. |
+| Maestro (Mobile.dev) | Reject | YAML DSL, not Dart. Adds a second test language to a Dart shop. Strong tool but ceremony cost > value for a 6-week milestone. |
+| Appium | Reject | WebDriver overhead, slow, brittle on Flutter. |
+
+### Integration with existing test infra
+- `flutter_test` (unit/widget) — unchanged, keeps 8137 tests
+- `integration_test` (E2E lite) — keeps `coach_tool_choreography_test.dart` (4 tools)
+- **NEW:** `patrol/` directory at `apps/mobile/integration_test/patrol/` containing visual + native tests for the 3 v2.2 surfaces
+
+### Golden screenshot diff config
+Patrol does NOT ship its own golden differ — it delegates to `flutter_test`'s `matchesGoldenFile`. Existing 1.5% tolerance pattern (per CLAUDE.md) is set via `goldenFileComparator = LocalFileComparator(...)` override at test main entry. **Reuse the existing pattern, do not introduce a parallel one.**
+
+For the 3 v2.2 targets:
+- **MintAlertObject (L1.5):** 6 golden states (G2 calm, G2 highlighted, G3 break, × 2 themes light/dark). Tap-to-reveal native sheet via Patrol's `$.native.tap()`.
+- **MintTrameConfiance (L1.2a):** 4-axis confidence rendering golden + bloom animation snapshot at t=0, t=125ms, t=250ms (use `tester.binding.scheduler.timeDilation` + `pumpAndSettle`). 1-line audio test asserts `Semantics(label: ...)` matches expected canonical phrase.
+- **intent_screen curseur question (L1.6c):** golden of 3-option chooser; Patrol drives a select-confirm-back round trip and asserts persisted preference.
+
+### Integration cost
+- 1 line in `pubspec.yaml` (`patrol: ^4.1.1` under dev_dependencies)
+- 1 line per test file (`import 'package:patrol/patrol.dart'`)
+- ~80 LOC test file per surface × 3 surfaces = ~240 LOC
+- patrol_cli installed once globally; CI workflow needs `dart pub global activate patrol_cli` step (3-line addition to existing GitHub Actions Flutter job)
+- **Estimate: 1 day for setup + 1 day per surface = 4 days total**
+
+### What Patrol does NOT do (and we don't need)
+- Visual regression as a service (Percy/Chromatic) — NOT needed, golden files in repo are fine for a 3-surface scope
+- Cross-device farm — that's item 4
+
+### Version pin
+`patrol: ^4.1.1` (verified pub.dev as of 2026-04). Requires Android SDK 21+ (already met). Requires patrol_cli matching minor version.
+
+---
+
+## 3. Galaxy A14 perf harness for MANUAL gate (L1.0)
+
+### Recommendation
+**DO NOT ADD ANY NEW TOOL.** Use what ships with the Flutter SDK already on Julien's Mac:
+1. `flutter run --profile -d <A14-device-id>` — produces a build with profiling enabled, not debug overhead
+2. `flutter run` opens DevTools URL in terminal — open in browser, attach to running app
+3. **DevTools Performance tab** captures: cold start frame, scroll FPS (Timeline), MTC bloom CPU/GPU frames
+4. **DevTools Memory tab** captures: heap snapshot before/after MTC tap
+
+### Capture protocol (one-shot, document in `.planning/perf/A14_BASELINE.md`)
+```bash
+# 1. Connect Galaxy A14 over USB, enable USB debugging
+adb devices  # confirm device id
+flutter devices  # confirm Flutter sees it
+
+# 2. Profile build (NOT debug — debug is 3-5x slower, results meaningless)
+cd apps/mobile
+flutter run --profile -d <A14_id> --trace-startup
+
+# 3. Cold start metric: --trace-startup writes start_up_info.json to build/
+cat build/start_up_info.json
+# Records: engineEnterTimestampMicros, timeToFirstFrameMicros, timeToFirstFrameRasterizedMicros
+
+# 4. Scroll FPS: open DevTools (URL printed by flutter run), Performance tab,
+#    record while scrolling Aujourd'hui home for 10 seconds, export timeline JSON
+
+# 5. MTC bloom: tap a confidence widget, capture frame in Performance tab,
+#    target = 16ms per frame for 250ms = 16 frames. Reject if >2 frames >32ms.
+
+# 6. Save artifacts to .planning/perf/A14_BASELINE_2026-04-XX/
 ```
 
-### Integration Points
+### Why no new tool
+| Option | Verdict | Why |
+|--------|---------|-----|
+| `flutter --profile` + DevTools | **CHOSEN** | Ships with SDK. Zero install. Officially blessed for Flutter perf. |
+| Android Studio Profiler | Reject for Flutter | Reads native traces; for Flutter the Dart timeline is what matters. AS Profiler shows Skia frames but DevTools shows the same with Dart context. |
+| `dart devtools` standalone | Same thing | Just a standalone DevTools launcher; equivalent. |
+| Perfetto direct | Overkill | Lower-level than DevTools' Timeline tab, which already wraps Perfetto traces. |
 
-- New `BLinkOAuthService` in Flutter — calls `flutter_web_auth_2.authenticate()` with bLink sandbox URL, stores access token in `flutter_secure_storage` (already present)
-- Backend `blink_connector.py` `get_accounts()` — replace `NotImplementedError` with `httpx.AsyncClient` call to `https://api.blink.six-group.com/v2/accounts` with Bearer token
-- `consent_manager.dart` (already exists) — add bLink consent record type
-- `account_aggregator.py` (already exists) — wires account data into profile enrichment pipeline
+### Integration cost
+- Zero install
+- ~1 hour to write the protocol doc
+- ~1 hour for Julien's first capture session (then ~15 min per repeat)
+- **Estimate: 2 hours setup, ongoing manual gate per merge to S1-S5**
 
----
-
-## Feature 5: Contextual Aujourd'hui (Smart Card Ranking)
-
-### What Already Exists
-
-`dashboard_curator_service.dart` exists for card selection. `lifecycle_detector.dart` and `lifecycle_phase.dart` define scoring signals. `CapMemoryStore` tracks recently served caps.
-
-### What Is Missing
-
-No new packages are required. The smart card ranking is pure business logic: score cards by relevance using a weighted sum of lifecycle phase, recent biography events, fiscal calendar proximity, profile completeness signals. All weights are constants — no ML.
-
-**Do NOT add** any recommendation or ML library (`tflite`, `ml_kit`, `vertex_ai`) — the PROJECT.md explicitly specifies rule-based ranking. Max 5 cards per day, deterministic, auditable.
-
-The only addition is a new `CardRankingEngine` Dart class that reads `CoachProfile` + `fiscal_calendar.json` + `CapMemoryStore` + `FinancialBiographyStore` and returns an ordered list of at most 5 `DashboardCard` objects. All inputs are either already available or introduced by Features 2 and 3 above.
-
-### Recommended Additions
-
-| Component | Addition | Version | Purpose |
-|-----------|----------|---------|---------|
-| Flutter | none (code only) | — | `CardRankingEngine` service using existing + new signals |
+### Acceptance thresholds (proposed for L1.0 spec)
+- Cold start (`timeToFirstFrameMicros`): **< 2500ms** on A14
+- Scroll FPS on Aujourd'hui home: **median ≥ 55 FPS, p95 ≥ 50 FPS** over 10s
+- MTC bloom: **0 dropped frames** during 250ms ease-out (16/16 frames under 16ms)
+- Memory after MTC tap: **delta < 4 MB** (no leak — re-tap 10× must stay flat)
 
 ---
 
-## Complete Delta: New Packages Only
+## 4. Firebase Test Lab investigation for v2.3 (DOCUMENT ONLY)
 
-### Flutter (`pubspec.yaml` additions)
+### Findings (verified 2026-04 against Firebase docs)
 
+**Pricing model** ([source](https://firebase.google.com/docs/test-lab/usage-quotas-pricing)):
+- Spark plan (free): 5 physical device tests/day, 10 virtual/day
+- Blaze (pay-as-you-go): **$5/device-hour** for physical devices, $1/device-hour for virtual
+- Realistic v2.3 budget for one PR run: 1 device × 15 min = $1.25 per PR. 100 PRs/month = $125/month. Cheap.
+
+**Galaxy A14 availability:**
+- Firebase Test Lab device catalog as of 2026-Q1 includes Samsung A-series, but **Galaxy A14 specifically must be confirmed at provisioning time** via `gcloud firebase test android models list | grep -i a14`. The catalog rotates.
+- If A14 not in catalog: nearest equivalent is **Galaxy A15** (Android 14, 4 GB RAM) — same SoC family (Mediatek Helio G99), behavior delta is small for our 4 metrics.
+- Fallback: **Pixel 4a** (Android 13, 6 GB) — overrepresents perf, would need a deflation factor.
+
+**GitHub Actions integration:**
+- Official action: `google-github-actions/auth@v2` + `gcloud firebase test android run` shell step
+- Requires GCP service account JSON in repo secrets (1 secret)
+- Existing macos-15 runner can call `gcloud` after `setup-gcloud@v2` step (~20 LOC YAML)
+- Total CI time impact: ~5-8 min added per run (upload APK, queue, run, fetch report)
+
+**v2.3 prep checklist (do not execute now):**
+1. Add `tools/perf-baseline/` directory with the metric extraction script (parses Firebase Test Lab `videos.json` + perf stats output)
+2. Provision GCP project + service account with `Firebase Test Lab Admin` role
+3. Confirm A14 or fallback device in catalog at v2.3 kickoff
+4. Estimate budget: ~$150/month at expected PR volume. Negligible vs Anthropic API spend.
+5. Decide PASS/FAIL gate thresholds (likely match item 3's manual thresholds with 10% slack for cloud variance)
+
+**Integration cost when v2.3 lands:** ~1 day (GCP setup + workflow + threshold tuning)
+
+### Sources
+- [Firebase Test Lab pricing](https://firebase.google.com/docs/test-lab/usage-quotas-pricing) — pricing verified
+- [Firebase Test Lab device catalog](https://firebase.google.com/docs/test-lab/android/available-testing-devices) — catalog page (refresh at v2.3 kickoff)
+- [gist: Android device list dump 2026-02](https://gist.github.com/akexorcist/c55af0f438f6ddea6a94e26962ea52ba) — community snapshot, useful sanity check
+
+---
+
+## 5. `flutter_localizations` ARB canton namespace pattern (L1.4)
+
+### Recommendation
+**DO NOT ADD A PACKAGE.** Use a **second `LocalizationsDelegate`** alongside the existing one. ~40 LOC custom delegate, no new dependency.
+
+### The pattern
+Flutter's `gen_l10n` tool generates one delegate per ARB family (controlled by `arb-dir` + `template-arb-file` + `output-class` in `l10n.yaml`). You can run `gen_l10n` **twice** with two `l10n.yaml` files to produce two independent localization classes:
+
+**File 1: `apps/mobile/l10n.yaml`** (existing — unchanged)
 ```yaml
-dependencies:
-  # Document Intelligence
-  flutter_image_compress: ^2.3.0   # Compress camera photos before Claude Vision upload
-
-  # Financial Biography
-  sqflite: ^2.4.1                  # Local encrypted event store
-  sqflite_common_ffi: ^2.3.4       # Desktop/test compat (CI on macos-15)
-  encrypt: ^5.0.3                  # AES-256-GCM application-layer encryption
-
-  # bLink Open Banking
-  flutter_web_auth_2: ^4.0.1       # OAuth 2.0 PKCE system browser flow
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
 ```
 
-Total: **5 new Flutter packages**
-
-### Backend (`pyproject.toml` additions)
-
-```toml
-# Add to main dependencies list:
-"pillow>=10.4.0,<12.0.0",        # Image normalization (rotation, EXIF)
-"pdf2image>=1.17.0,<2.0.0",      # Scanned PDF -> image for Claude Vision
-"httpx>=0.27.0,<1.0.0",          # Move from [dev] to prod for bLink async calls
+**File 2: `apps/mobile/l10n_regional.yaml`** (NEW)
+```yaml
+arb-dir: lib/l10n_regional
+template-arb-file: app_regional_vs.arb
+output-localization-file: app_regional_localizations.dart
+output-class: AppRegionalLocalizations
+preferred-supported-locales: ["fr_CH", "de_CH", "it_CH"]
 ```
 
-Total: **3 backend changes** (2 new, 1 promotion from dev)
-
-### System Dependency (Railway/Docker build)
-
-```dockerfile
-RUN apt-get install -y poppler-utils   # Required by pdf2image
+**Directory structure:**
 ```
+apps/mobile/lib/l10n_regional/
+  app_regional_vs.arb   # fr-CH base, ~30 keys, voix VS
+  app_regional_zh.arb   # de-CH base, ~30 keys, voix ZH
+  app_regional_ti.arb   # it-CH base, ~30 keys, voix TI
+```
+
+**Resolution at runtime:** A custom `RegionalVoiceService.forCanton(canton)` (already exists per CLAUDE.md §6) reads the user's canton from `Profile`, picks the right ARB family by canton key, and exposes a thin lookup `regional.greeting()` that returns from `AppRegionalLocalizations` of the canton-mapped locale. Falls back to base `AppLocalizations` if no regional override exists for that key.
+
+### Why custom delegate over alternatives
+| Option | Verdict | Why |
+|--------|---------|-----|
+| Two `gen_l10n` configs + custom delegate | **CHOSEN** | Zero new dependency. Reuses ARB tooling exactly as designed. Canton scoping happens in app code where it belongs (it's a profile-driven choice, not a locale-driven one). |
+| `slang` package | Reject | Beautiful tool, but adopting a non-flutter_localizations i18n package mid-project means migrating 233 existing keys. Cost > benefit. |
+| Single ARB family with `vs_`/`zh_`/`ti_` key prefixes | Reject | Pollutes the canonical 6-language ARB files with strings that have no business being translated into Portuguese. Violates the carve-out spirit. |
+| Custom JSON loader (no ARB) | Reject | Loses ARB tooling (placeholders, plurals, ICU). |
+
+### Code skeleton (the actual ~40 LOC)
+```dart
+// apps/mobile/lib/services/regional_voice_service.dart (extension)
+class RegionalVoiceService {
+  static String? lookup(BuildContext context, String key, String canton) {
+    final regional = AppRegionalLocalizations.of(context);
+    if (regional == null) return null;
+    return switch (canton) {
+      'VS' => regional.vs(key),
+      'ZH' => regional.zh(key),
+      'TI' => regional.ti(key),
+      _ => null,
+    };
+  }
+}
+
+// In app shell:
+MaterialApp(
+  localizationsDelegates: [
+    AppLocalizations.delegate,         // existing
+    AppRegionalLocalizations.delegate, // NEW
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ],
+  supportedLocales: const [
+    Locale('fr'), Locale('en'), Locale('de'), Locale('es'), Locale('it'), Locale('pt'),
+    Locale('fr', 'CH'), Locale('de', 'CH'), Locale('it', 'CH'), // NEW for regional
+  ],
+)
+```
+
+### Integration cost
+- 3 ARB files (~30 keys each, written by Julien + native validators)
+- 1 `l10n_regional.yaml`
+- 1 build script update to run `flutter gen-l10n --config l10n_regional.yaml` after the main one
+- ~40 LOC to extend `RegionalVoiceService`
+- ~10 LOC delegate registration
+- **Estimate: 1 day setup + content writing ongoing per chantier**
 
 ---
 
-## What NOT to Add
+## 6. VoiceCursorContract codegen (Phase 0, L1.0)
+
+### Recommendation
+**Single JSON file as source of truth** + **two thin generators**:
+1. **Source of truth:** `contracts/voice_cursor.json` (committed at repo root, not inside backend or mobile)
+2. **Python generator:** `datamodel-code-generator` (`pip install datamodel-code-generator`) reads JSON Schema → emits Pydantic v2 model. Run via Makefile target `make voice-cursor-py`.
+3. **Dart generator:** Hand-rolled ~60 LOC Dart script (`tools/codegen/voice_cursor_to_dart.dart`) reads same JSON → emits a `const` class. Runs via `dart run tools/codegen/voice_cursor_to_dart.dart`.
+
+Both generators run in CI as a **drift check**: if regenerated output differs from committed file, the build fails. This is the standard contract-codegen guard.
+
+### Why this over alternatives
+| Option | Verdict | Why |
+|--------|---------|-----|
+| JSON schema + 2 thin gens | **CHOSEN** | Single source. Pydantic v2 is fully spec'd from JSON Schema by `datamodel-code-generator` (battle-tested, used by FastAPI ecosystem). Dart side is so small (5 levels, ~10 fields, ~20 garde-fou rules) that hand-rolling a 60-LOC generator is cheaper than learning a heavyweight Dart codegen package. |
+| Hand-written sync (no codegen) | Reject | Drift risk is the entire reason VoiceCursorContract is a Phase 0 deliverable. Manual sync defeats the purpose. |
+| `freezed` + Python codegen | Reject | `freezed` is great for unions but VoiceCursorContract is a const config matrix, not a sum type. Adds build_runner ceremony to mobile. Pydantic side has no equivalent toolchain so we'd still need a second generator. |
+| Protobuf | Reject | Overkill for a config doc. Adds .proto compilation to two languages. The data is read once at app boot, not transmitted on the wire. |
+| OpenAPI extension | Reject | VoiceCursorContract is a config artifact, not an API endpoint. Doesn't belong in `tools/openapi/`. |
+
+### Source-of-truth shape
+```json
+// contracts/voice_cursor.json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VoiceCursorContract",
+  "version": "1.0.0",
+  "levels": {
+    "N1": { "name": "Neutre", "posture": "factual", "weeklyMax": null },
+    "N2": { "name": "Vif",    "posture": "direct",  "weeklyMax": null },
+    "N3": { "name": "Complice","posture": "warm",   "weeklyMax": null },
+    "N4": { "name": "Piquant","posture": "sharp",   "weeklyMax": null },
+    "N5": { "name": "Cash",   "posture": "blunt",   "weeklyMax": 1   }
+  },
+  "routingMatrix": {
+    "G1": { "new": "N1", "established": "N2", "intimate": "N2" },
+    "G2": { "new": "N2", "established": "N3", "intimate": "N4" },
+    "G3": { "new": "N4", "established": "N5", "intimate": "N5" }
+  },
+  "guardrails": {
+    "minOnG3": "N2",
+    "maxOnSensitiveTopics": "N3",
+    "fragileModeMaxDays": 30,
+    "fragileModeCap": "N3",
+    "sensitiveTopics": ["bereavement","divorce","jobLoss","illness"]
+  },
+  "userPreferenceCaps": {
+    "soft": "N3",
+    "direct": "N4",
+    "unfiltered": "N5"
+  }
+}
+```
+
+### Generated artifacts
+- `services/backend/app/schemas/voice_cursor.py` (Pydantic v2, do-not-edit header)
+- `apps/mobile/lib/services/voice/voice_cursor_contract.dart` (Dart const, do-not-edit header)
+
+### Integration cost
+- ~80 LOC JSON
+- ~60 LOC Dart codegen script
+- ~3 LOC Makefile targets (`voice-cursor-py`, `voice-cursor-dart`, `voice-cursor-check`)
+- ~10 LOC GitHub Actions step for drift check (run codegen, `git diff --exit-code`)
+- **Estimate: 0.5 day total**
+- Runtime cost: zero (const data, loaded once)
+
+### Version pins
+- `datamodel-code-generator>=0.25` (current, supports JSON Schema draft-07 + Pydantic v2 output cleanly)
+- Add to `services/backend/pyproject.toml` under `[tool.poetry.group.dev.dependencies]`
+
+---
+
+## 7. AAA contrast tooling (L1.1, L1.3)
+
+### Recommendation
+**DO NOT ADD A PACKAGE.** Write a ~30 LOC pure-Dart `wcagContrastRatio(Color fg, Color bg)` helper + a widget test pattern that traverses MintColors token pairs and asserts ratios. Runs in existing `flutter test` job, blocks CI.
+
+### Why no package
+| Option | Verdict | Why |
+|--------|---------|-----|
+| Custom 30-LOC helper + widget test | **CHOSEN** | WCAG 2.1 contrast formula is 6 lines (relative luminance + (L1+0.05)/(L2+0.05)). Adding a package for 6 lines is silly. Runs in existing `flutter test`. Zero CI infra change. |
+| `axe-core` | Reject | Web/DOM only. Flutter renders to canvas; axe has no Flutter binding. |
+| Stark (Figma plugin) | Reject | Design-time only, not runtime, not CI-able. Useful for designers, not engineers. |
+| `accessibility_test` Dart package | Reject after check | The package exists (pub.dev) but is largely unmaintained, last update 2023, wraps the same `SemanticsTester` we already get from `flutter_test`. No value-add. |
+| Flutter's built-in `accessibilityGuideline` matchers | **PARTIALLY ADOPT** | `meetsGuideline(textContrastGuideline)` exists in `flutter_test` and checks AA, NOT AAA. Use it for AA gating across the whole app, then layer the custom AAA helper on top for S1-S5. |
+
+### The 30-LOC helper
+```dart
+// apps/mobile/test/helpers/wcag_contrast.dart
+import 'dart:math';
+import 'package:flutter/material.dart';
+
+double _luminanceChannel(double c) {
+  c = c / 255.0;
+  return c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4).toDouble();
+}
+
+double _relativeLuminance(Color c) =>
+    0.2126 * _luminanceChannel(c.red.toDouble()) +
+    0.7152 * _luminanceChannel(c.green.toDouble()) +
+    0.0722 * _luminanceChannel(c.blue.toDouble());
+
+double wcagContrastRatio(Color fg, Color bg) {
+  final l1 = _relativeLuminance(fg);
+  final l2 = _relativeLuminance(bg);
+  final lighter = max(l1, l2);
+  final darker = min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+const aaaNormalText = 7.0;
+const aaaLargeText = 4.5;
+```
+
+### The test pattern
+```dart
+// apps/mobile/test/accessibility/aaa_contrast_test.dart
+testWidgets('S1 intent_screen — all text pairs meet AAA', (tester) async {
+  await tester.pumpWidget(const MintApp());
+  await tester.tap(find.byType(IntentScreen));
+  await tester.pumpAndSettle();
+
+  // For each Text widget, walk up to the nearest Container background,
+  // compute contrast, assert >= 7.0 (or >= 4.5 if fontSize >= 18sp or >= 14sp bold)
+  final textWidgets = find.byType(Text);
+  for (final element in textWidgets.evaluate()) {
+    final text = element.widget as Text;
+    final fg = (text.style?.color ?? DefaultTextStyle.of(element).style.color)!;
+    final bg = _findNearestBackground(element);
+    final ratio = wcagContrastRatio(fg, bg);
+    final isLarge = (text.style?.fontSize ?? 14) >= 18;
+    final required = isLarge ? aaaLargeText : aaaNormalText;
+    expect(ratio, greaterThanOrEqualTo(required),
+      reason: 'Text "${text.data}" fg=$fg bg=$bg ratio=$ratio < $required');
+  }
+});
+```
+
+### What this does NOT cover (and our gaps)
+- **Non-text contrast** (icons, focus rings, dividers) — WCAG 1.4.11 requires 3:1 for non-text UI. Add separate matcher with 3:1 threshold for icon-bearing widgets.
+- **Live overlay states** (focus, hover, pressed) — covered by Patrol golden tests in item 2.
+- **Semantic labels presence** — covered by Flutter's `meetsGuideline(labeledTapTargetGuideline)`.
+
+Combine all 4 into one `accessibility_smoke_test.dart` that runs per S1-S5 surface in CI.
+
+### Integration cost
+- ~30 LOC helper
+- ~50 LOC test pattern + ~50 LOC per surface × 5 surfaces = ~280 LOC tests
+- 0 new dependencies
+- 0 CI changes (runs in existing `flutter test` job)
+- **Estimate: 1 day total for helper + S1-S5 coverage**
+
+---
+
+## Installation summary
+
+```bash
+# Backend dev tooling (codegen)
+cd services/backend
+poetry add --group dev datamodel-code-generator
+
+# IRR one-shot tool (isolated)
+mkdir -p tools/voice-cursor-irr
+cd tools/voice-cursor-irr
+python3 -m venv .venv && source .venv/bin/activate
+pip install krippendorff>=0.6.1 numpy
+deactivate
+
+# Flutter dev dependency
+cd apps/mobile
+flutter pub add --dev patrol
+dart pub global activate patrol_cli
+
+# CI: add 'dart pub global activate patrol_cli' to .github/workflows/flutter.yml
+# CI: add codegen drift check step to .github/workflows/backend.yml
+```
+
+**Net new dependencies on the running app: ZERO.** All additions are dev/test/tooling. The shipped APK and FastAPI service get nothing new. This is the right shape for a design milestone.
+
+---
+
+## What NOT to Use
 
 | Avoid | Why | Use Instead |
 |-------|-----|-------------|
-| `workmanager` / `background_fetch` | Out of scope v2.0 (PROJECT.md explicit) | `flutter_local_notifications.zonedSchedule()` (already present) |
-| `hive` / `hive_flutter` | Encryption adapter fragile; not maintained | `sqflite` + `encrypt` |
-| `isar` | Major API break in v4; community unstable as of 2026 | `sqflite` |
-| `sqlcipher_flutter_libs` | Breaks iOS Podfile.lock + Android NDK | Application-layer `encrypt` |
-| `drift` (moor) | Requires `build_runner` code-gen overhead | `sqflite` |
-| `pypdf` / `PyMuPDF (fitz)` | Duplicates `pdfplumber`; PyMuPDF has GPL risk | `pdfplumber` (existing) + `pdf2image` |
-| `authlib` | Overkill for single PKCE exchange | `pyjwt` (existing) + `httpx` |
-| `requests` | Sync-only, old pattern in async FastAPI | `httpx` |
-| `aiohttp` | Already have `httpx`; two HTTP clients = confusion | `httpx` |
-| `flutter_web_auth` | Deprecated, unmaintained | `flutter_web_auth_2 ^4.0.1` |
-| `tflite` / `vertex_ai` | ML overkill for deterministic rule-based ranking | Pure Dart `CardRankingEngine` |
-| `objectbox` | Commercial/binary license | `sqflite` |
-| `camelot-py` | Only for table extraction from text-layer PDFs; `pdfplumber` already does this | `pdfplumber` |
-| `app_links` | Deep link handler only, not OAuth URL launch | `flutter_web_auth_2` |
+| `easy_localization` package | Would replace `flutter_localizations` and force migrating 233 keys mid-milestone | Custom delegate + second `gen_l10n` config (item 5) |
+| `slang` i18n | Same migration cost, no value for canton scoping | Same |
+| `accessibility_test` pub package | Stale (2023), wraps existing `flutter_test` | 30-LOC helper + native matchers (item 7) |
+| `freezed` for VoiceCursorContract | Build_runner ceremony for a const config | JSON + thin codegen (item 6) |
+| Protobuf for VoiceCursorContract | Not on the wire, two-language compile step | Same |
+| Maestro / Appium | Non-Dart test DSLs, slow | Patrol (item 2) |
+| ReCal3 web tool | No reproducibility, no version control | `krippendorff` PyPI (item 1) |
+| Android Studio Profiler for Flutter perf | Reads native traces; misses Dart context | `flutter --profile` + DevTools (item 3) |
+| Stark / axe-core | Design-time or web-only | Custom WCAG helper (item 7) |
+| Adding Patrol golden differ | Doesn't exist as separate concept | Reuse existing `matchesGoldenFile` 1.5% tolerance (item 2) |
+| Firebase Test Lab NOW | v2.2 is manual gate by decision | v2.3 prep doc only (item 4) |
 
 ---
 
-## Alternatives Considered
-
-| Feature | Recommended | Alternative | Why Not |
-|---------|-------------|-------------|---------|
-| Local DB | `sqflite` | `drift` | Drift adds `build_runner` code-gen; sqflite simpler for append-only log |
-| Local DB | `sqflite` | `isar` | Isar v4 API break; community instability in early 2026 |
-| Encryption | `encrypt` (app layer) | `sqlcipher_flutter_libs` | SQLCipher breaks iOS Podfile.lock + Android NDK config |
-| OAuth flow | `flutter_web_auth_2` | `app_links` | `app_links` handles deep links but not the OAuth URL launch + callback cycle |
-| Image compression | `flutter_image_compress` | `image` (pure Dart) | `image` package is ~10x slower for compression; `flutter_image_compress` uses native codecs |
-| Scanned PDF | `pdf2image` + poppler | `PyMuPDF` | GPL license risk; `pdf2image` + poppler is MIT |
-| bLink HTTP | promote `httpx` to prod | `aiohttp` | `httpx` already in dev extras; consistent pattern; httpx supports both sync/async |
-
----
-
-## Version Compatibility
+## Version Compatibility Notes
 
 | Package | Compatible With | Notes |
-|---------|----------------|-------|
-| `sqflite ^2.4.1` | Flutter SDK `^3.6.0` | No conflicts; uses `dart:io` |
-| `sqflite_common_ffi ^2.3.4` | `sqflite ^2.4.1` | Must use matching sqflite version |
-| `encrypt ^5.0.3` | `flutter_secure_storage ^9.0.0` | No overlap; complementary |
-| `flutter_image_compress ^2.3.0` | `image_picker ^1.1.2` | No overlap; compress the `XFile` bytes after picking |
-| `flutter_web_auth_2 ^4.0.1` | `go_router ^13.2.0` | Custom URL scheme handled before GoRouter; no conflict |
-| `pillow >=10.4.0,<12.0.0` | `pydantic v2`, `fastapi` | Pure image processing; no FastAPI integration required |
-| `pdf2image >=1.17.0,<2.0.0` | `pdfplumber >=0.11.0` | Complementary: pdfplumber for text-layer, pdf2image for scanned |
-| `httpx >=0.27.0,<1.0.0` | `fastapi`, `pytest-asyncio` | Already used in tests; promotion to prod is safe |
-
----
-
-## Implementation Order Recommendation
-
-1. **Document Intelligence** first — highest user value, pipeline already 80% built. Missing: wire HTTP route to `document_vision_service.py`, add `flutter_image_compress`, add `pillow`/`pdf2image` backend.
-2. **Financial Biography** second — enables the memory layer that Anticipation Engine and smart card ranking need as input signals.
-3. **Anticipation Engine** third — reads from Biography + fiscal calendar JSON; depends on #2 being present.
-4. **Contextual Aujourd'hui** fourth — reads from Biography + Anticipation Engine signals; pure ranking logic.
-5. **bLink Sandbox** last — isolated feature, no dependency on the others; most complex OAuth dance but most self-contained.
+|---------|-----------------|-------|
+| `patrol ^4.1.1` | Flutter ≥3.16, Android SDK ≥21 | Both already met. patrol_cli must match minor version. |
+| `krippendorff ≥0.6.1` | Python ≥3.8, NumPy ≥1.20 | Isolated venv — no impact on backend `pyproject.toml`. |
+| `datamodel-code-generator ≥0.25` | Pydantic v2 ≥2.0 | Backend already on Pydantic v2 per CLAUDE.md §4. |
+| Custom WCAG helper | Pure Dart, no deps | — |
+| Custom regional delegate | `flutter_localizations` (already in) | Requires running `gen_l10n` twice; document in README. |
 
 ---
 
 ## Sources
 
-- Direct codebase audit: `apps/mobile/pubspec.yaml`, `services/backend/pyproject.toml` — HIGH confidence
-- `services/backend/app/services/document_vision_service.py` — confirmed Claude Vision pipeline exists, needs HTTP route wiring
-- `services/backend/app/services/open_banking/blink_connector.py` — confirmed sandbox mock structure + `NotImplementedError` production path
-- `services/backend/app/services/docling/parser.py` — confirmed pdfplumber integration (text-layer PDFs only)
-- `apps/mobile/lib/services/coach/proactive_trigger_service.dart` — confirmed 8 triggers, SharedPreferences pattern
-- `apps/mobile/lib/screens/document_scan/document_scan_screen.dart` — confirmed image_picker + MLKit wiring
-- PROJECT.md — "Background processing / WorkManager for anticipation — v3.0", "bLink production — v3.0", "Cloud sync FinancialBiography — v3.0" (explicit out-of-scope)
-- `flutter_web_auth_2` — known successor to deprecated `flutter_web_auth`; maintained (MEDIUM confidence — training data)
-- `sqflite ^2.4.1` — stable, widely used Flutter SQLite package (HIGH confidence — established ecosystem standard)
-- `encrypt ^5.0.3` — pure Dart AES-256-GCM (MEDIUM confidence — training data, verify version on pub.dev before use)
-- `flutter_image_compress` — widely used Flutter image compression package (MEDIUM confidence — training data)
+- **Patrol** — [pub.dev/packages/patrol](https://pub.dev/packages/patrol), [patrol.leancode.co](https://patrol.leancode.co/), [Patrol 4.0 docs](https://patrol.leancode.co/v4) (verified 2026-04-07, version 4.1.1 confirmed)
+- **Krippendorff** — [PyPI krippendorff](https://pypi.org/project/krippendorff/) (Santiago Castro), [Label Studio writeup](https://labelstud.io/blog/how-to-use-krippendorff-s-alpha-to-measure-annotation-agreement/), [Wikipedia: Krippendorff's alpha](https://en.wikipedia.org/wiki/Krippendorff's_alpha) (verified 2026-04-07)
+- **Firebase Test Lab** — [Pricing & quotas](https://firebase.google.com/docs/test-lab/usage-quotas-pricing), [Available devices](https://firebase.google.com/docs/test-lab/android/available-testing-devices), [Device list snapshot 2026-02](https://gist.github.com/akexorcist/c55af0f438f6ddea6a94e26962ea52ba) (verified 2026-04-07; A14 specifically requires runtime confirmation)
+- **datamodel-code-generator** — [koxudaxi/datamodel-code-generator GitHub](https://github.com/koxudaxi/datamodel-code-generator) (Pydantic v2 support stable since 0.21)
+- **WCAG 2.1 contrast formula** — [W3C WCAG 2.1 §1.4.3 / §1.4.6](https://www.w3.org/TR/WCAG21/) (AA = 4.5/3.0, AAA = 7.0/4.5)
+- **Flutter perf** — [docs.flutter.dev/perf/ui-performance](https://docs.flutter.dev/perf/ui-performance), DevTools Performance tab (built-in to Flutter SDK)
+- **Flutter accessibility matchers** — `package:flutter_test`'s `meetsGuideline(textContrastGuideline)` (AA-only, AAA must be custom)
+
+**Confidence:** HIGH on all engineering recommendations (items 1, 2, 3, 5, 6, 7). MEDIUM on item 4 device availability — Firebase Test Lab catalog rotates and Galaxy A14 specifically must be re-confirmed at v2.3 kickoff via `gcloud firebase test android models list`.
 
 ---
-*Stack research for: MINT v2.0 Système Vivant — new feature additions*
-*Researched: 2026-04-06*
+*Stack research for: MINT v2.2 La Beauté de Mint — additive only*
+*Researched: 2026-04-07*
