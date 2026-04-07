@@ -122,7 +122,10 @@
   5. Hypotheses footer (VZ pattern) rendered at rest under every MTC consumer (max 3 lines); projections below confidence floor render `MTC.Empty` not faded numbers.
   6. Galaxy A14 manual perf gate passed by Julien on the S4 surface (0 dropped frames during bloom, scroll FPS within baseline).
 **Pitfalls to watch**: P4 silent coverage loss; P6 bloom jitter; P16 MTC sortable trap; P20 vestibular bloom.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 04-01-PLAN.md — MintTrameConfiance component build (widget + BloomStrategy + painter + ARB + ≥45 unit tests)
+- [ ] 04-02-PLAN.md — S4 migration: response_card_widget consumes MTC + Phase 3 DELETE list pruning
+- [ ] 04-03-PLAN.md — Golden test infrastructure: dual-device screen_pump helper + 5 S4 baseline goldens + CI wiring
 **UI hint**: yes
 
 ### Phase 5: L1.6a Voice Cursor Spec (full)
