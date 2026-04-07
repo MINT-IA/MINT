@@ -766,11 +766,8 @@ final _router = GoRouter(
       builder: (context, state) => const AchievementsScreen(),
     ),
 
-    // ── WEEKLY RECAP (S52 — redirect until implemented) ─────────
-    GoRoute(
-      path: '/weekly-recap',
-      redirect: (_, __) => '/home',
-    ),
+    // STAB-14 (07-04): /weekly-recap was an orphan redirect-to-/home with zero
+    // callers; deleted per AUDIT_ORPHAN_ROUTES row 90.
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
     GoRoute(
