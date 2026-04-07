@@ -127,9 +127,25 @@ void main() {
       expect(result, isNull);
     });
 
-    test('returns null for intent key (deferred to Phase 6)', () {
+    test(
+      'resolves intent key via MintScreenRegistry (STAB-01, 07-02)',
+      () {
+        // 'retirement_choice' is a canonical intent registered in
+        // MintScreenRegistry that resolves to /rente-vs-capital, which is
+        // in the ToolCallParser whitelist.
+        final result = ChatToolDispatcher.resolveRoute({
+          'intent': 'retirement_choice',
+        });
+        expect(result, isNotNull);
+        expect(result, startsWith('/'));
+        // Must pass the whitelist (base path only, strip query string).
+        expect(ToolCallParser.isValidRoute(result!.split('?').first), isTrue);
+      },
+    );
+
+    test('returns null for unknown intent', () {
       final result = ChatToolDispatcher.resolveRoute({
-        'intent': 'retirement_choice',
+        'intent': 'totally_unknown_intent_xyz',
       });
       expect(result, isNull);
     });
