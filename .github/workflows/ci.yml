@@ -126,9 +126,12 @@ jobs:
   #   - services: test/services/ + test/simulators/ + test/financial_core/ + test/domain/ + test/b2b/  (~200 files)
   #   - widgets:  test/widgets/ + test/models/ + test/providers/                                       (~85 files)
   #   - screens:  test/screens/ + test/golden/ + test/auth/ + test/modules/
-  #               + test/journeys/ + test/accessibility/ + test/i18n/ + test/golden_screenshots/        (~55 files)
+  #               + test/journeys/ + test/accessibility/ + test/i18n/                                  (~55 files)
   #
   # NOTE: test/patrol/ is intentionally excluded — requires emulator infrastructure.
+  # NOTE: test/golden_screenshots/ is intentionally excluded — pixel diffs are
+  #       cross-platform fragile (Mac baselines fail on Linux CI). Run locally
+  #       before each release. See test/golden_screenshots/README.md.
   # See .github/workflows/patrol.md for manual gate policy.
   #
   # `flutter analyze` runs only in the services shard to avoid redundant work.
@@ -152,7 +155,7 @@ jobs:
             test_dirs: "test/widgets/ test/models/ test/providers/"
             run_analyze: false
           - shard: screens
-            test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/ test/journeys/ test/accessibility/ test/i18n/ test/golden_screenshots/"
+            test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/ test/journeys/ test/accessibility/ test/i18n/"
             run_analyze: false
     defaults:
       run:

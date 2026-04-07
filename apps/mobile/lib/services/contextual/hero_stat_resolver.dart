@@ -46,7 +46,7 @@ class HeroStatResolver {
         value: _formatSwiss(gap),
         narrative:
             'Soit ${_formatSwiss(gap / 12)} CHF/mois que tu pourrais deduire.',
-        route: '/simulators/3a',
+        route: '/pilier-3a',
       );
     }
 

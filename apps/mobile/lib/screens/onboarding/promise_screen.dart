@@ -73,7 +73,7 @@ class PromiseScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 48,
                 child: FilledButton(
-                  onPressed: () => context.go('/login'),
+                  onPressed: () => context.go('/auth/login'),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     foregroundColor: MintColors.white,
