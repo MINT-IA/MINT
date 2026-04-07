@@ -10,6 +10,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
+import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 
 /// Dispatcher for coach tool calls.
@@ -79,12 +80,39 @@ class ChatToolDispatcher {
   ///
   /// Returns the route if valid, null otherwise.
   ///
-  /// Note: `input['intent']` path is not yet supported — intent-to-route
-  /// resolution is deferred to Phase 6 (Open Question #1 in RESEARCH.md).
+  /// If no explicit `route` is present, falls back to resolving `input['intent']`
+  /// via [resolveRouteFromIntent] (STAB-01, D-02 — façade audit 07-02).
   static String? resolveRoute(Map<String, dynamic> input) {
     final route = input['route'] as String?;
-    if (route == null || route.isEmpty) return null;
-    if (!ToolCallParser.isValidRoute(route)) return null;
-    return route;
+    if (route != null && route.isNotEmpty) {
+      if (!ToolCallParser.isValidRoute(route)) return null;
+      return route;
+    }
+    // Fallback: resolve via intent tag (STAB-01).
+    final intent = input['intent'] as String?;
+    if (intent != null && intent.isNotEmpty) {
+      return resolveRouteFromIntent(intent);
+    }
+    return null;
+  }
+
+  /// Resolves a canonical intent tag to a MINT GoRouter route.
+  ///
+  /// STAB-01 / D-02: the backend `route_to_screen` tool emits
+  /// `{intent, confidence, context_message}` WITHOUT an explicit route.
+  /// Mobile side resolves the intent via [MintScreenRegistry.findByIntentStatic]
+  /// (the canonical source of truth for intent→route mapping) and validates
+  /// the resulting route against the [ToolCallParser] whitelist.
+  ///
+  /// Returns the route if the intent is known AND the route passes the
+  /// security whitelist. Returns null otherwise (silently dropped upstream).
+  static String? resolveRouteFromIntent(String intent) {
+    if (intent.isEmpty) return null;
+    final entry = MintScreenRegistry.findByIntentStatic(intent);
+    if (entry == null) return null;
+    // Strip query string for whitelist check (e.g. '/retraite?mode=preretraite')
+    final basePath = entry.route.split('?').first;
+    if (!ToolCallParser.isValidRoute(basePath)) return null;
+    return entry.route;
   }
 }

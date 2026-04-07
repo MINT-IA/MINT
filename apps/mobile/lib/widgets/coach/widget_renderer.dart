@@ -3,11 +3,14 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
+import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/services/plan_generation_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
@@ -71,6 +74,8 @@ class WidgetRenderer {
         return _buildPlanPreviewCard(context, call.input);
       case 'record_check_in':
         return _buildCheckInSummaryCard(context, call.input);
+      case 'generate_document':
+        return _buildDocumentGenerationCard(context, call.input);
       default:
         return null;
     }
@@ -93,12 +98,23 @@ class WidgetRenderer {
   ///   4. Result → [RouteSuggestionCard.prefill] → GoRouter extra on tap.
   static Widget _buildRouteSuggestion(
       BuildContext context, Map<String, dynamic> p) {
-    final route = p['route'] as String? ?? '';
+    // STAB-01 / D-02: backend emits {intent, confidence, context_message}
+    // WITHOUT an explicit route. Resolve via ChatToolDispatcher (which uses
+    // MintScreenRegistry as the canonical intent→route map) before falling
+    // back to the legacy `route` key.
+    final explicitRoute = p['route'] as String? ?? '';
+    final resolvedRoute = explicitRoute.isNotEmpty &&
+            ToolCallParser.isValidRoute(explicitRoute)
+        ? explicitRoute
+        : ChatToolDispatcher.resolveRoute(p);
+    if (resolvedRoute == null || resolvedRoute.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final route = resolvedRoute;
     final contextMessage = p['context_message'] as String? ??
         p['narrative'] as String? ??
         '';
     final backendPrefill = p['prefill'] as Map<String, dynamic>?;
-    if (!ToolCallParser.isValidRoute(route)) return const SizedBox.shrink();
 
     // Flutter-side prefill fallback via RoutePlanner
     Map<String, dynamic>? mergedPrefill = backendPrefill;
@@ -564,5 +580,124 @@ class WidgetRenderer {
       versements: versements,
       month: month,
     );
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  DOCUMENT GENERATION — generate_document tool (STAB-02)
+  // ────────────────────────────────────────────────────────────
+
+  /// Build a minimal inline card announcing a pending document generation.
+  ///
+  /// STAB-02 / D-03: the backend emits `generate_document` with
+  /// `{document_type, context}`. The full document generation pipeline
+  /// (FormPrefillService / LetterGenerationService + AgentValidationGate +
+  /// DocumentCard) is heavier and requires async work; for STAB-02 we
+  /// surface a tappable chip card so the tool call is user-visible instead
+  /// of hitting `SizedBox.shrink()`. Tapping routes the user to `/documents`
+  /// where the full pipeline runs.
+  static Widget _buildDocumentGenerationCard(
+    BuildContext context,
+    Map<String, dynamic> p,
+  ) {
+    final documentType = p['document_type'] as String? ?? '';
+    final contextMessage = p['context'] as String? ??
+        p['narrative'] as String? ??
+        '';
+
+    final label = _documentTypeLabel(documentType);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: MintColors.primary.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.description_outlined,
+                size: 18,
+                color: MintColors.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: MintTextStyles.labelMedium(
+                  color: MintColors.textPrimary,
+                ).copyWith(fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          if (contextMessage.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              contextMessage,
+              style: MintTextStyles.bodySmall(
+                color: MintColors.textSecondary,
+              ).copyWith(height: 1.4),
+            ),
+          ],
+          const SizedBox(height: 12),
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => context.push('/documents'),
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: MintColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Pr\u00e9parer le document',
+                    style: MintTextStyles.labelSmall(
+                      color: MintColors.primary,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(width: 6),
+                  const Icon(
+                    Icons.arrow_forward,
+                    size: 14,
+                    color: MintColors.primary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Outil \u00e9ducatif \u2014 MINT pr\u00e9pare, tu valides. '
+            'Ne constitue pas un conseil financier (LSFin).',
+            style: MintTextStyles.micro(
+              color: MintColors.textMuted,
+            ).copyWith(height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static String _documentTypeLabel(String type) {
+    switch (type) {
+      case 'fiscal_declaration':
+        return 'D\u00e9claration fiscale';
+      case 'pension_fund_letter':
+        return 'Lettre caisse de pension';
+      case 'lpp_buyback_request':
+        return 'Demande de rachat LPP';
+      default:
+        return 'Document';
+    }
   }
 }
