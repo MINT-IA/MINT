@@ -123,14 +123,14 @@ DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
 _PLAN_TYPE_PROMPT = (
     "Avant d'extraire les champs financiers, identifie le type de plan LPP: "
     "legal (minimum LPP, taux 6.8%), surobligatoire (plan enveloppant), "
-    "ou 1e (investissement individuel, PAS de taux garanti). "
+    "ou 1e (investissement individuel, AUCUN taux fixe contractuellement). "
     "Indices 1e: mention 'plan 1e', pas de taux fixe, "
     "'strategies d'investissement', suroblig >> oblig avec choix de fonds. "
     'JSON: {"plan_type": "legal|surobligatoire|1e", "confidence": "high|medium|low"}'
 )
 
 _1E_WARNING = (
-    "Plan 1e detecte. Pas de taux de conversion garanti "
+    "Plan 1e detecte. Aucun taux de conversion fixe contractuellement "
     "-- projection en capital uniquement."
 )
 

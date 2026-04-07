@@ -283,7 +283,7 @@ def generate_document_insight(
     plan_1e_context = ""
     if plan_type and plan_type.lower() in ("1e", "plan_1e"):
         plan_1e_context = (
-            "ATTENTION : Plan 1e detecte. Pas de taux de conversion garanti. "
+            "ATTENTION : Plan 1e detecte. Aucun taux de conversion fixe contractuellement. "
             "Projections en capital uniquement. Ne mentionne pas de rente mensuelle estimee.\n"
         )
 
