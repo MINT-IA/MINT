@@ -25,9 +25,32 @@ void main() {
   Widget buildIntentScreen() {
     payloadProvider = CoachEntryPayloadProvider();
 
+    // NOTE (Phase 1 rewire): IntentScreen.build inspects GoRouterState.extra
+    // for `fromOnboarding`. The golden path (true) pushes to
+    // /onboarding/quick-start and skips the persistence + nav that these
+    // tests assert. Since Phase 1 moved `setOnboardingCompleted` to
+    // plan_screen, the only remaining responsibilities of IntentScreen that
+    // can be asserted at this boundary are the NON-onboarding path
+    // (settings / re-selection): persist chipKey, compute premier eclairage,
+    // seed CapMemoryStore, navigate to /home?tab=0. We exercise that path
+    // by stubbing a landing route that forwards to IntentScreen with
+    // `fromOnboarding: false` in extra.
     final router = GoRouter(
-      initialLocation: '/onboarding/intent',
+      initialLocation: '/test-entry',
       routes: [
+        GoRoute(
+          path: '/test-entry',
+          builder: (context, state) {
+            // Forward to IntentScreen with extra on first frame.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.go(
+                '/onboarding/intent',
+                extra: const <String, dynamic>{'fromOnboarding': false},
+              );
+            });
+            return const Scaffold(body: SizedBox.shrink());
+          },
+        ),
         GoRoute(
           path: '/onboarding/intent',
           builder: (context, state) => const IntentScreen(),
@@ -67,31 +90,31 @@ void main() {
   group('IntentScreen — renders', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.byType(IntentScreen), findsOneWidget);
     });
 
     testWidgets('shows title from i18n', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.textContaining('amène'), findsOneWidget);
     });
 
     testWidgets('shows subtitle from i18n', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.textContaining('situation'), findsOneWidget);
     });
 
     testWidgets('shows microcopy from i18n', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(find.textContaining('reformuler'), findsOneWidget);
     });
 
     testWidgets('shows all 7 chips', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
       // First 4 visible without scrolling.
       expect(find.textContaining('3a'), findsOneWidget);
       expect(find.textContaining('où j'), findsOneWidget);
@@ -110,17 +133,23 @@ void main() {
   });
 
   group('IntentScreen — chip tap', () {
-    testWidgets('tapping 3a chip persists chipKey and marks onboarding done',
+    // NOTE (STAB-06): Phase 1 moved `setMiniOnboardingCompleted` out of
+    // IntentScreen and into plan_screen. IntentScreen only persists the
+    // selected chipKey at this boundary. Tests below assert that — not
+    // onboarding-done. The onboarding-done boundary is covered by
+    // plan_screen tests.
+    testWidgets('tapping 3a chip persists chipKey (onboarding-done moved to plan_screen)',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.textContaining('3a'));
       await tester.pumpAndSettle();
 
+      // Responsibility moved: IntentScreen must NOT mark onboarding complete.
       final isMiniComplete =
           await ReportPersistenceService.isMiniOnboardingCompleted();
-      expect(isMiniComplete, isTrue);
+      expect(isMiniComplete, isFalse);
 
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
@@ -128,10 +157,10 @@ void main() {
       expect(intent, equals('intentChip3a'));
     });
 
-    testWidgets('tapping Autre persists chipKey and marks onboarding done',
+    testWidgets('tapping Autre persists chipKey (onboarding-done moved to plan_screen)',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.scrollUntilVisible(
         find.textContaining('Autre'),
@@ -141,9 +170,10 @@ void main() {
       await tester.tap(find.textContaining('Autre'));
       await tester.pumpAndSettle();
 
+      // Responsibility moved: IntentScreen must NOT mark onboarding complete.
       final isMiniComplete =
           await ReportPersistenceService.isMiniOnboardingCompleted();
-      expect(isMiniComplete, isTrue);
+      expect(isMiniComplete, isFalse);
 
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
@@ -153,7 +183,7 @@ void main() {
 
     testWidgets('tapping chip sets payload in provider', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Before tap, no payload.
       expect(payloadProvider.pending, isNull);
@@ -169,7 +199,7 @@ void main() {
 
     testWidgets('tapping chip navigates to /home', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.scrollUntilVisible(
         find.textContaining('projet'),
@@ -192,7 +222,7 @@ void main() {
     testWidgets('chip tap persists chipKey, not the localized label',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Tap the first chip (3a)
       await tester.tap(find.textContaining('3a'));
@@ -208,7 +238,7 @@ void main() {
     testWidgets('chip tap writes goalIntentTag to CapMemoryStore.declaredGoals',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       // Scroll to and tap 'projet' chip → maps to housing_purchase
       await tester.scrollUntilVisible(
@@ -226,7 +256,7 @@ void main() {
     testWidgets('chip tap navigates to /home?tab=0 (Aujourd\'hui, not Coach)',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.textContaining('3a'));
       await tester.pumpAndSettle();
@@ -241,7 +271,7 @@ void main() {
         'chip tap computes and persists premier eclairage snapshot with required keys',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.textContaining('3a'));
       await tester.pumpAndSettle();
@@ -265,7 +295,7 @@ void main() {
   group('IntentScreen — layout', () {
     testWidgets('constrained to 480px max width', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
-      await tester.pump();
+      await tester.pumpAndSettle();
       final boxes = tester
           .widgetList<ConstrainedBox>(find.byType(ConstrainedBox))
           .where((w) => w.constraints.maxWidth == 480);
