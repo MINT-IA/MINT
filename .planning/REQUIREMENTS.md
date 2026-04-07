@@ -23,9 +23,9 @@
 
 ## v2.2 Requirements (Active)
 
-All 70 requirements below are v2.2 scope. Each maps to exactly one chantier (see Traceability table).
+All 96 requirements below are v2.2 scope. Each maps to exactly one phase (see Traceability table).
 
-### STAB — Stabilisation carryover (v2.1 → v2.2 Phase 0)
+### STAB — Stabilisation carryover (v2.1 → v2.2 Phase 1)
 
 - [ ] **STAB-18**: Manual tap-to-render walkthrough on Galaxy A14 by Julien. Fill `AUDIT_TAP_RENDER.md` (scaffold from v2.1), sign bottom block, triage any FAIL into follow-up work. Gates TestFlight.
 - [ ] **STAB-19**: Wire 4 broken providers in `mint_home_screen.dart` (`MintStateProvider`, `FinancialPlanProvider`, `CoachEntryPayloadProvider`, `OnboardingProvider`) in `app.dart` MultiProvider. Remove the try/catch silent fallback at lines 124 and 638 — registering alone is insufficient.
@@ -46,7 +46,7 @@ All 70 requirements below are v2.2 scope. Each maps to exactly one chantier (see
 - [ ] **CONTRACT-02**: Dart codegen to `apps/mobile/lib/services/voice/voice_cursor_contract.g.dart` via custom script. Committed (offline-safe).
 - [ ] **CONTRACT-03**: Python codegen to `services/backend/app/schemas/voice_cursor.py` via `datamodel-code-generator >= 0.25`. Committed (offline-safe).
 - [ ] **CONTRACT-04**: CI drift guard — regenerate both on PR, `git diff --exit-code`. Red build on drift.
-- [ ] **CONTRACT-05**: `Profile.voiceCursorPreference` field added: Pydantic v2 `Literal['soft','direct','unfiltered'] = 'direct'`, CoachProfile Dart field (73 consumers migrated to read default), nullable SQLAlchemy column with read-time migration for existing rows.
+- [ ] **CONTRACT-05**: `Profile` voice cursor fields added (3 fields, 1 migration): (a) `voiceCursorPreference: Literal['soft','direct','unfiltered'] = 'direct'`, (b) `n5IssuedThisWeek: int = 0` (rolling 7-day counter consumed by VOICE-09 server gate), (c) `fragileModeEnteredAt: Optional[datetime] = None` (consumed by VOICE-10 auto-fragility detector). All in `services/backend/app/schemas/profile.py` Pydantic v2 + `apps/mobile/lib/models/coach_profile.dart` + nullable SQLAlchemy columns + read-time migration. Audit fix A1 — adding all 3 in Phase 2 prevents Phase 11 schema-discovery block.
 - [ ] **CONTRACT-06**: `resolveLevel(gravity, relation, preference, sensitiveFlag, fragileFlag, n5Budget) → N1..N5` pure function in VoiceCursorContract with ≥ 80 unit tests covering matrix + precedence cascade + edges.
 
 ### AUDIT — Pre-migration audits (gate L1.1 + L1.2b)
@@ -89,7 +89,7 @@ All 70 requirements below are v2.2 scope. Each maps to exactly one chantier (see
 - [ ] **VOICE-04**: 30 most-used coach phrases audited and rewritten per spec (extracted from `claude_coach_service.py` + ARB files 6 languages). Before/after documented in `docs/VOICE_PASS_LAYER1.md`.
 - [ ] **VOICE-05**: Krippendorff α validation protocol: 15 testers × 50 reference phrase set × blind classification N1-N5. Weighted ordinal IRR. Overall α ≥ 0.67, per-level N4 and N5 α ≥ 0.67 separately. Report committed to `docs/VOICE_CURSOR_TEST.md`.
 - [ ] **VOICE-06**: Generation-side reverse-Krippendorff test — 10 trigger contexts sent to Claude at N4 via system prompt, 10 generated outputs rated blind by same testers. Pass: ≥ 70% classified as N4. Fail: system prompt is tone-locked, fix before ship. This is the anti-tone-locking gate.
-- [ ] **VOICE-07**: Few-shot tone-locking mitigation — 3 verbatim N4 examples + 3 N5 examples embedded in coach system prompt. Acknowledge ~1-2k token cost increase; investigate Anthropic prompt caching if cost becomes material.
+- [ ] **VOICE-07**: Few-shot tone-locking mitigation — 3 verbatim N4 examples + 3 N5 examples embedded in coach system prompt. Token cost delta documented in `docs/COACH_COST_DELTA.md` with explicit decision logged: accept / mitigate via Anthropic prompt caching / reduce few-shot count. Audit fix B5 — production cost surface needs an owner before Phase 11 ships.
 - [ ] **VOICE-08**: ComplianceGuard extended with 50 adversarial N4/N5 phrases testing for prescription drift (imperative-without-hedge pattern, banned terms at high register). Red build on any ComplianceGuard regression.
 - [ ] **VOICE-09**: N5 server-side hard gate — `Profile.n5IssuedThisWeek` rolling 7-day counter, backend auto-downgrades N5 → N4 when ≥ 1. Editorial rule alone is insufficient.
 - [ ] **VOICE-10**: Auto-fragility detector — ≥ 3 G2/G3 events in 14 days auto-enters fragile mode (N3 cap, 30 days), no self-declaration required. Implicit detection logged to biography with user-visible "MINT a remarqué que..." disclosure.
@@ -199,112 +199,113 @@ All 70 requirements below are v2.2 scope. Each maps to exactly one chantier (see
 
 ## Traceability
 
-Filled by `gsd-roadmapper` when creating phases. Empty initially.
+Phases assigned by `gsd-roadmapper` 2026-04-07, then expert-audit patched (Phase 8 split into 8a/8b, AESTH-04 moved to Phase 2, CONTRACT-05 extended to 3 fields). 96/96 requirements mapped to 13 phases (no orphans, no duplicates).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STAB-18 | TBD | Pending |
-| STAB-19 | TBD | Pending |
-| STAB-20 | TBD | Pending |
-| STAB-21 | TBD | Pending |
-| PERF-01 | TBD | Pending |
-| PERF-02 | TBD | Pending |
-| PERF-03 | TBD | Pending |
-| PERF-04 | TBD | Pending |
-| PERF-05 | TBD | Pending |
-| CONTRACT-01 | TBD | Pending |
-| CONTRACT-02 | TBD | Pending |
-| CONTRACT-03 | TBD | Pending |
-| CONTRACT-04 | TBD | Pending |
-| CONTRACT-05 | TBD | Pending |
-| CONTRACT-06 | TBD | Pending |
-| AUDIT-01 | TBD | Pending |
-| AUDIT-02 | TBD | Pending |
-| AUDIT-03 | TBD | Pending |
-| MTC-01 | TBD | Pending |
-| MTC-02 | TBD | Pending |
-| MTC-03 | TBD | Pending |
-| MTC-04 | TBD | Pending |
-| MTC-05 | TBD | Pending |
-| MTC-06 | TBD | Pending |
-| MTC-07 | TBD | Pending |
-| MTC-08 | TBD | Pending |
-| MTC-09 | TBD | Pending |
-| MTC-10 | TBD | Pending |
-| MTC-11 | TBD | Pending |
-| MTC-12 | TBD | Pending |
-| AESTH-01 | TBD | Pending |
-| AESTH-02 | TBD | Pending |
-| AESTH-03 | TBD | Pending |
-| AESTH-04 | TBD | Pending |
-| AESTH-05 | TBD | Pending |
-| AESTH-06 | TBD | Pending |
-| AESTH-07 | TBD | Pending |
-| AESTH-08 | TBD | Pending |
-| VOICE-01 | TBD | Pending |
-| VOICE-02 | TBD | Pending |
-| VOICE-03 | TBD | Pending |
-| VOICE-04 | TBD | Pending |
-| VOICE-05 | TBD | Pending |
-| VOICE-06 | TBD | Pending |
-| VOICE-07 | TBD | Pending |
-| VOICE-08 | TBD | Pending |
-| VOICE-09 | TBD | Pending |
-| VOICE-10 | TBD | Pending |
-| VOICE-11 | TBD | Pending |
-| VOICE-12 | TBD | Pending |
-| VOICE-13 | TBD | Pending |
-| VOICE-14 | TBD | Pending |
-| ALERT-01 | TBD | Pending |
-| ALERT-02 | TBD | Pending |
-| ALERT-03 | TBD | Pending |
-| ALERT-04 | TBD | Pending |
-| ALERT-05 | TBD | Pending |
-| ALERT-06 | TBD | Pending |
-| ALERT-07 | TBD | Pending |
-| ALERT-08 | TBD | Pending |
-| ALERT-09 | TBD | Pending |
-| ALERT-10 | TBD | Pending |
-| TRUST-01 | TBD | Pending |
-| TRUST-02 | TBD | Pending |
-| TRUST-03 | TBD | Pending |
-| REGIONAL-01 | TBD | Pending |
-| REGIONAL-02 | TBD | Pending |
-| REGIONAL-03 | TBD | Pending |
-| REGIONAL-04 | TBD | Pending |
-| REGIONAL-05 | TBD | Pending |
-| REGIONAL-06 | TBD | Pending |
-| REGIONAL-07 | TBD | Pending |
-| LAND-01 | TBD | Pending |
-| LAND-02 | TBD | Pending |
-| LAND-03 | TBD | Pending |
-| LAND-04 | TBD | Pending |
-| LAND-05 | TBD | Pending |
-| LAND-06 | TBD | Pending |
-| ONB-01 | TBD | Pending |
-| ONB-02 | TBD | Pending |
-| ONB-03 | TBD | Pending |
-| ONB-04 | TBD | Pending |
-| ONB-05 | TBD | Pending |
-| ONB-06 | TBD | Pending |
-| ONB-07 | TBD | Pending |
-| ONB-08 | TBD | Pending |
-| ONB-09 | TBD | Pending |
-| ONB-10 | TBD | Pending |
-| ACCESS-01 | TBD | Pending |
-| ACCESS-02 | TBD | Pending |
-| ACCESS-03 | TBD | Pending |
-| ACCESS-04 | TBD | Pending |
-| ACCESS-05 | TBD | Pending |
-| ACCESS-06 | TBD | Pending |
-| ACCESS-07 | TBD | Pending |
-| ACCESS-08 | TBD | Pending |
-| ACCESS-09 | TBD | Pending |
+| STAB-18 | Phase 1 | Pending |
+| STAB-19 | Phase 1 | Pending |
+| STAB-20 | Phase 1 | Pending |
+| STAB-21 | Phase 1 | Pending |
+| PERF-01 | Phase 1 | Pending |
+| PERF-02 | Phase 1 | Pending |
+| PERF-03 | Phase 1 | Pending |
+| PERF-04 | Phase 1 | Pending |
+| PERF-05 | Phase 12 | Pending |
+| CONTRACT-01 | Phase 2 | Pending |
+| CONTRACT-02 | Phase 2 | Pending |
+| CONTRACT-03 | Phase 2 | Pending |
+| CONTRACT-04 | Phase 2 | Pending |
+| CONTRACT-05 | Phase 2 | Pending |
+| CONTRACT-06 | Phase 2 | Pending |
+| AUDIT-01 | Phase 2 | Pending |
+| AUDIT-02 | Phase 2 | Pending |
+| AUDIT-03 | Phase 3 | Pending |
+| MTC-01 | Phase 4 | Pending |
+| MTC-02 | Phase 4 | Pending |
+| MTC-03 | Phase 4 | Pending |
+| MTC-04 | Phase 4 | Pending |
+| MTC-05 | Phase 4 | Pending |
+| MTC-06 | Phase 4 | Pending |
+| MTC-07 | Phase 4 | Pending |
+| MTC-08 | Phase 4 | Pending |
+| MTC-09 | Phase 4 | Pending |
+| MTC-10 | Phase 8a | Pending |
+| MTC-11 | Phase 8a | Pending |
+| MTC-12 | Phase 8a | Pending |
+| AESTH-01 | Phase 8b | Pending |
+| AESTH-02 | Phase 8b | Pending |
+| AESTH-03 | Phase 8b | Pending |
+| AESTH-04 | Phase 2 | Pending (moved from Phase 8 per audit fix C1) |
+| AESTH-05 | Phase 8b | Pending |
+| AESTH-06 | Phase 8b | Pending |
+| AESTH-07 | Phase 8b | Pending |
+| AESTH-08 | Phase 3 | Pending |
+| VOICE-01 | Phase 5 | Pending |
+| VOICE-02 | Phase 5 | Pending |
+| VOICE-03 | Phase 5 | Pending |
+| VOICE-04 | Phase 11 | Pending |
+| VOICE-05 | Phase 11 | Pending |
+| VOICE-06 | Phase 11 | Pending |
+| VOICE-07 | Phase 5 | Pending |
+| VOICE-08 | Phase 11 | Pending |
+| VOICE-09 | Phase 11 | Pending |
+| VOICE-10 | Phase 11 | Pending |
+| VOICE-11 | Phase 5 | Pending |
+| VOICE-12 | Phase 5 | Pending |
+| VOICE-13 | Phase 12 | Pending |
+| VOICE-14 | Phase 11 | Pending |
+| ALERT-01 | Phase 9 | Pending |
+| ALERT-02 | Phase 9 | Pending |
+| ALERT-03 | Phase 9 | Pending |
+| ALERT-04 | Phase 9 | Pending |
+| ALERT-05 | Phase 9 | Pending |
+| ALERT-06 | Phase 9 | Pending |
+| ALERT-07 | Phase 9 | Pending |
+| ALERT-08 | Phase 9 | Pending |
+| ALERT-09 | Phase 9 | Pending |
+| ALERT-10 | Phase 9 | Pending |
+| TRUST-01 | Phase 4 | Pending |
+| TRUST-02 | Phase 8a | Pending |
+| TRUST-03 | Phase 4 | Pending |
+| REGIONAL-01 | Phase 6 | Pending |
+| REGIONAL-02 | Phase 6 | Pending |
+| REGIONAL-03 | Phase 6 | Pending |
+| REGIONAL-04 | Phase 6 | Pending |
+| REGIONAL-05 | Phase 6 | Pending |
+| REGIONAL-06 | Phase 6 | Pending |
+| REGIONAL-07 | Phase 6 | Pending |
+| LAND-01 | Phase 7 | Pending |
+| LAND-02 | Phase 7 | Pending |
+| LAND-03 | Phase 7 | Pending |
+| LAND-04 | Phase 7 | Pending |
+| LAND-05 | Phase 7 | Pending |
+| LAND-06 | Phase 7 | Pending |
+| ONB-01 | Phase 10 | Pending |
+| ONB-02 | Phase 10 | Pending |
+| ONB-03 | Phase 10 | Pending |
+| ONB-04 | Phase 10 | Pending |
+| ONB-05 | Phase 10 | Pending |
+| ONB-06 | Phase 10 | Pending |
+| ONB-07 | Phase 10 | Pending |
+| ONB-08 | Phase 10 | Pending |
+| ONB-09 | Phase 10 | Pending |
+| ONB-10 | Phase 10 | Pending |
+| ACCESS-01 | Phase 1 | Pending |
+| ACCESS-02 | Phase 8b | Pending |
+| ACCESS-03 | Phase 12 | Pending |
+| ACCESS-04 | Phase 8b | Pending |
+| ACCESS-05 | Phase 9 | Pending |
+| ACCESS-06 | Phase 10 | Pending |
+| ACCESS-07 | Phase 8b | Pending |
+| ACCESS-08 | Phase 8b | Pending |
+| ACCESS-09 | Phase 8b | Pending |
 
 **Coverage:**
 - v2.2 requirements: **96 total**
-- Mapped to phases: 0 (pending roadmapper)
-- Unmapped: 96 ⚠ (will be filled by `gsd-roadmapper`)
+- Mapped to phases: **96** ✓
+- Unmapped: **0**
+- Duplicates: **0**
 
 ---
 
@@ -314,12 +315,12 @@ These do NOT block milestone start. They gate specific chantiers and each has an
 
 | # | Question | Blocks | Expert default |
 |---|----------|--------|----------------|
-| 1 | VZ app teardown (5 screenshots from Julien) before L1.2a hypotheses footer API finalized | MTC-07 API lock | Yes, 1 hour. Do before L1.2a coding starts. |
-| 2 | Brand palette sign-off — accept darkening 6 tokens ~15% for AAA on S0-S5 | AESTH-04, AESTH-05 | Accept. Delta imperceptible to most users; EAA exposure outweighs aesthetic cost. |
+| 1 | VZ app teardown (5 screenshots from Julien) before L1.2a hypotheses footer API finalized | MTC-07 API lock (Phase 4) | Yes, 1 hour. Do before L1.2a coding starts. |
+| 2 | Brand palette sign-off — accept darkening 6 tokens ~15% for AAA on S0-S5 | AESTH-04, AESTH-05 (Phase 8) | Accept. Delta imperceptible to most users; EAA exposure outweighs aesthetic cost. |
 | 3 | Access for All Swiss audit (CHF 8-18k, 6-8w lead) this milestone? | v2.2 ship positioning only | Skip for v2.2. Schedule v2.3 if results merit. |
-| 4 | Focus mode (ambient dim at N4/N5, Reichenstein pattern) — stretch goal or must-ship? | L1.6 scope | Stretch. Promote to must-ship only if A14 baseline (PERF-01) shows headroom. |
+| 4 | Focus mode (ambient dim at N4/N5, Reichenstein pattern) — stretch goal or must-ship? | L1.6 scope (Phase 11/12) | Stretch. Promote to must-ship only if A14 baseline (PERF-01) shows headroom. |
 
 ---
 
 *Requirements defined: 2026-04-07*
-*Last updated: 2026-04-07 after expert challenge + 6 research reports + 2 user-locked decisions (Variante 1, P0 split)*
+*Last updated: 2026-04-07 after roadmapper mapped 96/96 REQs to 12 phases*
