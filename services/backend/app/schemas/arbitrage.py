@@ -76,7 +76,7 @@ class ArbitrageResultSchema(ArbitrageBaseModel):
     breakeven_year: int = Field(
         ..., description="Annee de croisement des courbes (-1 si jamais)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc: delta le plus marquant"
     )
     display_summary: str = Field(

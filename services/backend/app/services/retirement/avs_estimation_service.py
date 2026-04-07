@@ -62,7 +62,7 @@ class AvsEstimation:
     duree_estimee_ans: int            # Years from retirement to life expectancy
     total_cumule: float               # Total pension over estimated duration
     breakeven_vs_normal: Optional[int]  # Age at which total exceeds normal scenario
-    chiffre_choc: str                 # Educational shock figure
+    premier_eclairage: str                 # Educational shock figure
     sources: List[str] = field(default_factory=list)
 
 
@@ -191,7 +191,7 @@ class AvsEstimationService:
             perte_totale = round(
                 (normal_rente - rente_mensuelle) * nb_rentes * duree, 0
             )
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Anticiper de {AVS_RETIREMENT_AGE - retirement_age} an(s) = "
                 f"-{abs(penalty_pct):.1f}% a vie, soit ~CHF {perte_totale:,.0f} "
                 f"de moins sur {duree} ans"
@@ -200,13 +200,13 @@ class AvsEstimationService:
             gain_total = round(
                 (rente_mensuelle - normal_rente) * nb_rentes * duree, 0
             )
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Ajourner de {retirement_age - AVS_RETIREMENT_AGE} an(s) = "
                 f"+{penalty_pct:.1f}% a vie, soit ~CHF {gain_total:,.0f} "
                 f"de plus sur {duree} ans"
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Ta rente AVS estimee : CHF {rente_mensuelle:,.0f}/mois "
                 f"soit CHF {rente_annuelle:,.0f}/an (13 rentes)"
             )
@@ -230,7 +230,7 @@ class AvsEstimationService:
             duree_estimee_ans=duree,
             total_cumule=total_cumule,
             breakeven_vs_normal=breakeven,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 

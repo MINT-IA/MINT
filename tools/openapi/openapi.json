@@ -33,7 +33,7 @@
           "health"
         ],
         "summary": "Liveness Probe",
-        "description": "Kubernetes liveness probe — always returns ok if the process is running.",
+        "description": "Kubernetes liveness probe \u2014 always returns ok if the process is running.",
         "operationId": "liveness_probe_api_v1_health_live_get",
         "responses": {
           "200": {
@@ -55,7 +55,7 @@
           "health"
         ],
         "summary": "Readiness Probe",
-        "description": "Kubernetes readiness probe — checks database connectivity.\nReturns detailed status including version, environment, and DB status.",
+        "description": "Kubernetes readiness probe \u2014 checks database connectivity.\nReturns detailed status including version, environment, and DB status.",
         "operationId": "readiness_probe_api_v1_health_ready_get",
         "responses": {
           "200": {
@@ -203,8 +203,17 @@
           "auth"
         ],
         "summary": "Logout",
-        "description": "Logout by blacklisting the current token's JTI.\n\nThe token will be rejected on subsequent requests until it naturally expires,\nat which point the blacklist entry is eligible for cleanup.",
+        "description": "Logout by blacklisting the current token's JTI.\n\nThe token will be rejected on subsequent requests until it naturally expires,\nat which point the blacklist entry is eligible for cleanup.\n\nOptionally accepts a LogoutRequest body with refresh_token to blacklist both tokens.",
         "operationId": "logout_api_v1_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -212,6 +221,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
@@ -705,6 +724,132 @@
         ]
       }
     },
+    "/api/v1/auth/magic-link/send": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Magic Link Send",
+        "description": "Send a magic link to the given email address.\n\nAlways returns 200 regardless of whether the email exists in the DB\n(prevents user enumeration \u2014 T-01-04).\n\nRate limited to 5 requests/minute per IP (T-01-05).",
+        "operationId": "magic_link_send_api_v1_auth_magic_link_send_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MagicLinkSendRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MagicLinkSendResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/magic-link/verify": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Magic Link Verify",
+        "description": "Verify a magic link token and return a JWT access token.\n\nToken must be valid, not expired (15 min), and not already used (single-use).\nIf the email has no account, one is auto-created (frictionless onboarding \u2014 T-01-06).\n\nRate limited to 5 requests/minute per IP (T-01-02).",
+        "operationId": "magic_link_verify_api_v1_auth_magic_link_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MagicLinkVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MagicLinkVerifyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/apple/verify": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Apple Verify",
+        "description": "Verify an Apple identity token and return a JWT access token.\n\nMVP verification: decode JWT payload and check issuer + audience.\nProduction: validate signature against Apple's public keys\n(https://appleid.apple.com/auth/keys).\n\nRate limited to 5 requests/minute per IP (T-01-11).",
+        "operationId": "apple_verify_api_v1_auth_apple_verify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppleVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppleVerifyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/profiles/me": {
       "get": {
         "tags": [
@@ -785,7 +930,7 @@
           "profiles"
         ],
         "summary": "Get Profile",
-        "description": "Get a profile by ID.\nIf profile belongs to a user, verify ownership.",
+        "description": "Get a profile by ID.\nRequires authentication. Verifies ownership.",
         "operationId": "get_profile_api_v1_profiles__profile_id__get",
         "security": [
           {
@@ -832,7 +977,7 @@
           "profiles"
         ],
         "summary": "Update Profile",
-        "description": "Update an existing profile.\nIf profile belongs to a user, verify ownership.",
+        "description": "Update an existing profile.\nRequires authentication. Verifies ownership.",
         "operationId": "update_profile_api_v1_profiles__profile_id__patch",
         "security": [
           {
@@ -891,7 +1036,7 @@
           "scenarios"
         ],
         "summary": "Create Scenario",
-        "description": "Create a new scenario with computed outputs.",
+        "description": "Create a new scenario with computed outputs. Persisted in DB.",
         "operationId": "create_scenario_api_v1_scenarios_post",
         "requestBody": {
           "content": {
@@ -924,7 +1069,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/scenarios/{profile_id}": {
@@ -933,8 +1083,13 @@
           "scenarios"
         ],
         "summary": "List Scenarios",
-        "description": "List all scenarios for a profile.",
+        "description": "List all scenarios for a profile (paginated, ordered by creation date desc). Reads from DB.",
         "operationId": "list_scenarios_api_v1_scenarios__profile_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "profile_id",
@@ -945,6 +1100,33 @@
               "format": "uuid4",
               "title": "Profile Id"
             }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Nombre max de resultats",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Nombre max de resultats"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Offset pour la pagination",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Offset pour la pagination"
           }
         ],
         "responses": {
@@ -953,11 +1135,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Scenario"
-                  },
-                  "title": "Response List Scenarios Api V1 Scenarios  Profile Id  Get"
+                  "$ref": "#/components/schemas/PaginatedScenariosResponse"
                 }
               }
             }
@@ -1465,7 +1643,7 @@
           "rag"
         ],
         "summary": "Rag Vision",
-        "description": "Vision-augmented document extraction endpoint.\n\nAccepts a base64-encoded document image + BYOK API key.\nExtracts structured financial data via Claude/GPT-4o vision.\n\nOnly Claude and OpenAI support vision — Mistral will be rejected.\nThe image is processed in-flight and never stored by MINT.",
+        "description": "Vision-augmented document extraction endpoint.\n\nAccepts a base64-encoded document image + BYOK API key.\nExtracts structured financial data via Claude/GPT-4o vision.\n\nOnly Claude and OpenAI support vision \u2014 Mistral will be rejected.\nThe image is processed in-flight and never stored by MINT.",
         "operationId": "rag_vision_api_v1_rag_vision_post",
         "requestBody": {
           "content": {
@@ -1580,13 +1758,60 @@
         ]
       }
     },
+    "/api/v1/documents/premier-eclairage": {
+      "post": {
+        "tags": [
+          "documents"
+        ],
+        "summary": "Document Premier Eclairage",
+        "description": "Generate a 4-layer premier eclairage from extracted document data (DOC-07).\n\nCalled after document extraction and user confirmation to produce a\npersonalized insight using the MINT 4-layer insight engine:\n1. Factual extraction (what the document says)\n2. Human translation (plain language)\n3. Personal perspective (what it means for the user)\n4. Questions to ask (before signing/acting)\n\nRate limited to 5/minute (heavier than extraction).\nAll LLM-generated text is validated through ComplianceGuard (COMP-01).",
+        "operationId": "document_premier_eclairage_api_v1_documents_premier_eclairage_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PremierEclairageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/app__schemas__document_scan__PremierEclairageResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/documents/upload": {
       "post": {
         "tags": [
           "documents"
         ],
         "summary": "Upload Document",
-        "description": "Upload a PDF document for extraction.\n\nAccepts a PDF file, extracts text and tables, detects document type,\nand extracts structured fields (LPP certificate data).\n\nThe raw PDF is never stored — only the extracted fields are kept.",
+        "description": "Upload a PDF document for extraction.\n\nAccepts a PDF file, extracts text and tables, detects document type,\nand extracts structured fields (LPP certificate data).\n\nThe raw PDF is never stored \u2014 only the extracted fields are kept.",
         "operationId": "upload_document_api_v1_documents_upload_post",
         "security": [
           {
@@ -1647,8 +1872,42 @@
           "documents"
         ],
         "summary": "List Documents",
-        "description": "List all uploaded documents for the current user.\n\nReturns document summaries (no extracted fields for performance).",
+        "description": "List all uploaded documents for the current user.\n\nReturns document summaries (no extracted fields for performance).\nSupports LIMIT/OFFSET pagination (max 100 per page).",
         "operationId": "list_documents_api_v1_documents__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Max documents to return (1-100)",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max documents to return (1-100)"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of documents to skip",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Number of documents to skip"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -1659,13 +1918,18 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
           }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/documents/{doc_id}": {
@@ -1768,7 +2032,7 @@
           "documents"
         ],
         "summary": "Upload Bank Statement",
-        "description": "Upload a CSV or PDF bank statement for parsing and categorization.\n\nAccepts CSV or PDF files from Swiss banks (UBS, PostFinance, Raiffeisen, ZKB).\nAuto-detects bank format, extracts transactions, categorizes spending,\nand returns a budget-ready summary.\n\nThe raw file is never stored — only extracted transactions are kept.",
+        "description": "Upload a CSV or PDF bank statement for parsing and categorization.\n\nAccepts CSV or PDF files from Swiss banks (UBS, PostFinance, Raiffeisen, ZKB).\nAuto-detects bank format, extracts transactions, categorizes spending,\nand returns a budget-ready summary.\n\nThe raw file is never stored \u2014 only extracted transactions are kept.",
         "operationId": "upload_bank_statement_api_v1_documents_upload_statement_post",
         "requestBody": {
           "content": {
@@ -1815,7 +2079,7 @@
           "documents"
         ],
         "summary": "Preview Budget Import",
-        "description": "Preview what a bank statement import would look like in the budget module.\n\nReturns estimated monthly income, expenses, top categories, recurring charges,\nand savings rate — without storing any data.",
+        "description": "Preview what a bank statement import would look like in the budget module.\n\nReturns estimated monthly income, expenses, top categories, recurring charges,\nand savings rate \u2014 without storing any data.",
         "operationId": "preview_budget_import_api_v1_documents_upload_statement_preview_post",
         "requestBody": {
           "content": {
@@ -1862,7 +2126,7 @@
           "documents"
         ],
         "summary": "Confirm Document Scan",
-        "description": "Receive confirmed document scan extraction from mobile.\n\nCalled after user reviews and confirms OCR/Vision extracted fields.\nSyncs extracted data to the user's profile on the backend.\n\nPrivacy: no raw document image is sent — only confirmed field values.",
+        "description": "Receive confirmed document scan extraction from mobile.\n\nCalled after user reviews and confirms OCR/Vision extracted fields.\nSyncs extracted data to the user's profile on the backend.\n\nPrivacy: no raw document image is sent \u2014 only confirmed field values.",
         "operationId": "confirm_document_scan_api_v1_documents_scan_confirmation_post",
         "requestBody": {
           "content": {
@@ -1909,7 +2173,7 @@
           "documents"
         ],
         "summary": "Extract With Claude Vision",
-        "description": "Extract structured data from a document image using Claude Vision.\n\nReplaces MLKit OCR with Claude Vision for better accuracy on\nSwiss financial documents (LPP certs, tax declarations, etc.).\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
+        "description": "Extract structured data from a document image using Claude Vision.\n\nHardened pipeline (02-01):\n1. Pre-extraction classification \u2014 rejects non-financial documents (DOC-10)\n2. Audit log creation \u2014 metadata only, no image data (DOC-08)\n3. Finally-block deletion \u2014 image cleared even on error (COMP-04)\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
         "operationId": "extract_with_claude_vision_api_v1_documents_extract_vision_post",
         "requestBody": {
           "content": {
@@ -1956,7 +2220,7 @@
           "job-comparison"
         ],
         "summary": "Compare Jobs",
-        "description": "Compare two jobs focusing on the 'invisible salary' (LPP).\n\nThis stateless endpoint performs no data storage — all computation\nis done on the fly from the provided inputs.",
+        "description": "Compare two jobs focusing on the 'invisible salary' (LPP).\n\nThis stateless endpoint performs no data storage \u2014 all computation\nis done on the fly from the provided inputs.",
         "operationId": "compare_jobs_api_v1_job_comparison_compare_post",
         "requestBody": {
           "content": {
@@ -1998,7 +2262,7 @@
           "job-comparison"
         ],
         "summary": "Get Checklist",
-        "description": "Get the 'before you sign' checklist template for job change due diligence.\n\nThis is a static template — no personal data required.",
+        "description": "Get the 'before you sign' checklist template for job change due diligence.\n\nThis is a static template \u2014 no personal data required.",
         "operationId": "get_checklist_api_v1_job_comparison_checklist_get",
         "responses": {
           "200": {
@@ -2020,7 +2284,7 @@
           "life-events"
         ],
         "summary": "Simulate Divorce",
-        "description": "Simulate financial impact of a divorce under Swiss law.\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
+        "description": "Simulate financial impact of a divorce under Swiss law.\n\nStateless endpoint \u2014 no data storage. All computation is done\non the fly from the provided inputs.",
         "operationId": "simulate_divorce_api_v1_life_events_divorce_simulate_post",
         "requestBody": {
           "content": {
@@ -2062,7 +2326,7 @@
           "life-events"
         ],
         "summary": "Get Divorce Checklist",
-        "description": "Get template checklist for divorce planning.\n\nStatic template — no personal data required.",
+        "description": "Get template checklist for divorce planning.\n\nStatic template \u2014 no personal data required.",
         "operationId": "get_divorce_checklist_api_v1_life_events_divorce_checklist_get",
         "responses": {
           "200": {
@@ -2084,7 +2348,7 @@
           "life-events"
         ],
         "summary": "Simulate Succession",
-        "description": "Simulate inheritance distribution under Swiss law (2023 revision).\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
+        "description": "Simulate inheritance distribution under Swiss law (2023 revision).\n\nStateless endpoint \u2014 no data storage. All computation is done\non the fly from the provided inputs.",
         "operationId": "simulate_succession_api_v1_life_events_succession_simulate_post",
         "requestBody": {
           "content": {
@@ -2126,7 +2390,7 @@
           "life-events"
         ],
         "summary": "Get Succession Checklist",
-        "description": "Get template checklist for succession planning.\n\nStatic template — no personal data required.",
+        "description": "Get template checklist for succession planning.\n\nStatic template \u2014 no personal data required.",
         "operationId": "get_succession_checklist_api_v1_life_events_succession_checklist_get",
         "responses": {
           "200": {
@@ -2142,13 +2406,107 @@
         }
       }
     },
+    "/api/v1/life-events/donation/simulate": {
+      "post": {
+        "tags": [
+          "life-events"
+        ],
+        "summary": "Simulate Donation",
+        "description": "Simulate tax impact of a donation (CC art. 239-252).\n\nStateless endpoint \u2014 no data storage. All computation is done\non the fly from the provided inputs.",
+        "operationId": "simulate_donation_api_v1_life_events_donation_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DonationSimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DonationSimulationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/life-events/housing-sale/simulate": {
+      "post": {
+        "tags": [
+          "life-events"
+        ],
+        "summary": "Simulate Housing Sale",
+        "description": "Simulate capital gains tax on property sale (LIFD art. 12).\n\nStateless endpoint \u2014 no data storage. All computation is done\non the fly from the provided inputs.",
+        "operationId": "simulate_housing_sale_api_v1_life_events_housing_sale_simulate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HousingSaleSimulationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HousingSaleSimulationResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/coaching/tips": {
       "post": {
         "tags": [
           "coaching"
         ],
         "summary": "Generate Coaching Tips",
-        "description": "Generate personalized coaching tips based on profile.\n\nStateless endpoint — no data storage. All computation is done\non the fly from the provided inputs.",
+        "description": "Generate personalized coaching tips based on profile.\n\nStateless endpoint \u2014 no data storage. All computation is done\non the fly from the provided inputs.",
         "operationId": "generate_coaching_tips_api_v1_coaching_tips_post",
         "requestBody": {
           "content": {
@@ -2190,7 +2548,7 @@
           "segments"
         ],
         "summary": "Simulate Gender Gap",
-        "description": "Simulate LPP pension gap due to part-time work.\n\nCompares projected pension at current activity rate vs full-time.\nStateless — no data storage.",
+        "description": "Simulate LPP pension gap due to part-time work.\n\nCompares projected pension at current activity rate vs full-time.\nStateless \u2014 no data storage.",
         "operationId": "simulate_gender_gap_api_v1_segments_gender_gap_simulate_post",
         "requestBody": {
           "content": {
@@ -2232,7 +2590,7 @@
           "segments"
         ],
         "summary": "Simulate Frontalier",
-        "description": "Analyze cross-border worker situation by country of residence.\n\nCovers fiscal regime, 3a rights, LPP/AVS coordination.\nStateless — no data storage.",
+        "description": "Analyze cross-border worker situation by country of residence.\n\nCovers fiscal regime, 3a rights, LPP/AVS coordination.\nStateless \u2014 no data storage.",
         "operationId": "simulate_frontalier_api_v1_segments_frontalier_simulate_post",
         "requestBody": {
           "content": {
@@ -2274,7 +2632,7 @@
           "segments"
         ],
         "summary": "Simulate Independant",
-        "description": "Analyze self-employed worker coverage and contributions.\n\nCovers AVS, 3a plafond, coverage gaps, protection costs.\nStateless — no data storage.",
+        "description": "Analyze self-employed worker coverage and contributions.\n\nCovers AVS, 3a plafond, coverage gaps, protection costs.\nStateless \u2014 no data storage.",
         "operationId": "simulate_independant_api_v1_segments_independant_simulate_post",
         "requestBody": {
           "content": {
@@ -2349,7 +2707,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/assurances/coverage/check": {
@@ -2391,7 +2754,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/open-banking/status": {
@@ -2492,7 +2860,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentRevokeResponse"
+                }
               }
             }
           },
@@ -2515,29 +2885,64 @@
           "open-banking"
         ],
         "summary": "List Consents",
-        "description": "List active consents for the current person.",
+        "description": "List active consents for the current person (paginated, ordered by grant date desc).",
         "operationId": "list_consents_api_v1_open_banking_consents_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Nombre max de resultats",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Nombre max de resultats"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Offset pour la pagination",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Offset pour la pagination"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ConsentResponse"
-                  },
-                  "type": "array",
-                  "title": "Response List Consents Api V1 Open Banking Consents Get"
+                  "$ref": "#/components/schemas/PaginatedConsentsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
+        }
       }
     },
     "/api/v1/open-banking/accounts": {
@@ -2573,7 +2978,7 @@
           "open-banking"
         ],
         "summary": "List Transactions",
-        "description": "List transactions for an account with optional filters.\n\nRequires an active consent with 'transactions' scope.",
+        "description": "List transactions for an account with optional filters (paginated, ordered by date desc).\n\nRequires an active consent with 'transactions' scope.",
         "operationId": "list_transactions_api_v1_open_banking_accounts__account_id__transactions_get",
         "security": [
           {
@@ -2631,6 +3036,33 @@
               "title": "Category"
             },
             "description": "Filtrer par categorie"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Nombre max de resultats",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Nombre max de resultats"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Offset pour la pagination",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Offset pour la pagination"
           }
         ],
         "responses": {
@@ -2639,11 +3071,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/TransactionResponse"
-                  },
-                  "title": "Response List Transactions Api V1 Open Banking Accounts  Account Id  Transactions Get"
+                  "$ref": "#/components/schemas/PaginatedTransactionsResponse"
                 }
               }
             }
@@ -3685,7 +4113,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UnemploymentChecklistResponse"
+                }
               }
             }
           }
@@ -3716,7 +4146,9 @@
             "description": "Successful Response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OrpLinkResponse"
+                }
               }
             }
           },
@@ -3843,7 +4275,7 @@
           "fiscal"
         ],
         "summary": "Compare Cantons",
-        "description": "Rank all 26 cantons by tax burden for a given profile.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a chiffre choc.\n\nSources: LIFD art. 36, LHID art. 1, Charge fiscale 2024.",
+        "description": "Rank all 26 cantons by tax burden for a given profile.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier \u00e9clairage.\n\nSources: LIFD art. 36, LHID art. 1, Charge fiscale 2024.",
         "operationId": "compare_cantons_api_v1_fiscal_compare_post",
         "requestBody": {
           "content": {
@@ -3969,7 +4401,7 @@
           "wealth-tax"
         ],
         "summary": "Compare Wealth Tax",
-        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a chiffre choc.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
+        "description": "Rank all 26 cantons by wealth tax burden for a given fortune.\n\nReturns a sorted list from cheapest to most expensive canton,\nwith the ecart max and a premier \u00e9clairage.\n\nSources: LHID art. 14, OFS Charge Fiscale 2024.",
         "operationId": "compare_wealth_tax_api_v1_fiscal_wealth_tax_compare_post",
         "requestBody": {
           "content": {
@@ -5145,7 +5577,7 @@
           "disability-gap"
         ],
         "summary": "Compute",
-        "description": "Calcule le gap financier en cas d'invalidite sur 3 phases.\n\nPhase 1 : couverture employeur (CO art. 324a), duree selon echelle cantonale.\nPhase 2 : IJM a 80% du salaire, max 24 mois.\nPhase 3 : AI + LPP invalidite (long terme).\n\nReturns:\n    DisabilityGapResponse avec le detail des 3 phases, risque, alertes,\n    chiffre choc, disclaimer et sources legales.",
+        "description": "Calcule le gap financier en cas d'invalidite sur 3 phases.\n\nPhase 1 : couverture employeur (CO art. 324a), duree selon echelle cantonale.\nPhase 2 : IJM a 80% du salaire, max 24 mois.\nPhase 3 : AI + LPP invalidite (long terme).\n\nReturns:\n    DisabilityGapResponse avec le detail des 3 phases, risque, alertes,\n    premier \u00e9clairage, disclaimer et sources legales.",
         "operationId": "compute_api_v1_disability_gap_compute_post",
         "requestBody": {
           "content": {
@@ -5684,7 +6116,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/app__schemas__privacy__ConsentUpdateRequest"
+                "$ref": "#/components/schemas/ConsentUpdateRequest"
               }
             }
           },
@@ -5913,53 +6345,6 @@
         }
       }
     },
-    "/api/v1/billing/debug/activate": {
-      "post": {
-        "tags": [
-          "billing"
-        ],
-        "summary": "Debug Activate Subscription",
-        "description": "Internal/dev helper to activate subscription without store checkout.",
-        "operationId": "debug_activate_subscription_api_v1_billing_debug_activate_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BillingDebugActivateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/BillingDebugActivateResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ]
-      }
-    },
     "/api/v1/billing/apple/verify": {
       "post": {
         "tags": [
@@ -6089,14 +6474,14 @@
         }
       }
     },
-    "/api/v1/onboarding/chiffre-choc": {
+    "/api/v1/onboarding/premier-eclairage": {
       "post": {
         "tags": [
           "Onboarding S31"
         ],
-        "summary": "Compute Chiffre Choc",
-        "description": "Calcule le chiffre choc le plus percutant pour l'onboarding.\n\nPrend les memes inputs que le profil minimal, calcule le profil\nen interne, puis selectionne LE chiffre choc le plus impactant.\n\nPriorite:\n1. Crise de liquidite (< 2 mois de reserve)\n2. Gap retraite (taux de remplacement < 55%)\n3. Economie fiscale 3a (pas de 3a + economie > 1'500 CHF)\n4. Fallback: gap retraite\n\nReturns:\n    ChiffreChocResponse avec categorie, texte d'accroche, disclaimer et sources.",
-        "operationId": "compute_chiffre_choc_api_v1_onboarding_chiffre_choc_post",
+        "summary": "Compute Premier Eclairage",
+        "description": "Calcule le premier \u00e9clairage le plus percutant pour l'onboarding.\n\nPrend les memes inputs que le profil minimal, calcule le profil\nen interne, puis selectionne LE premier \u00e9clairage le plus impactant.\n\nPriorite:\n1. Crise de liquidite (< 2 mois de reserve)\n2. Gap retraite (taux de remplacement < 55%)\n3. Economie fiscale 3a (pas de 3a + economie > 1'500 CHF)\n4. Fallback: gap retraite\n\nReturns:\n    PremierEclairageResponse avec categorie, texte d'accroche, disclaimer et sources.",
+        "operationId": "compute_premier_eclairage_api_v1_onboarding_premier_eclairage_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -6113,7 +6498,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/app__schemas__onboarding__ChiffreChocResponse"
+                  "$ref": "#/components/schemas/app__schemas__onboarding__PremierEclairageResponse"
                 }
               }
             }
@@ -6170,7 +6555,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/arbitrage/allocation-annuelle": {
@@ -6212,7 +6602,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/arbitrage/location-vs-propriete": {
@@ -6254,7 +6649,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/arbitrage/rachat-vs-marche": {
@@ -6296,7 +6696,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/arbitrage/calendrier-retraits": {
@@ -6305,7 +6710,7 @@
           "Arbitrage S32-S33"
         ],
         "summary": "Arbitrage Calendrier Retraits",
-        "description": "Compare retrait total la meme annee vs retraits echelonnes.\n\nSimule 2 options:\n- Option A: Tout retirer la meme annee (progressivite maximale)\n- Option B: Echelonner les retraits sur plusieurs annees fiscales\n\nLe chiffre choc montre l'economie fiscale potentielle, souvent\nCHF 15'000 a 40'000+ pour des capitaux importants.\n\nReturns:\n    CalendrierRetraitsResponse avec 2 trajectoires, chiffre choc,\n    disclaimer et sources legales (LIFD art. 38, OPP3, LPP).",
+        "description": "Compare retrait total la meme annee vs retraits echelonnes.\n\nSimule 2 options:\n- Option A: Tout retirer la meme annee (progressivite maximale)\n- Option B: Echelonner les retraits sur plusieurs annees fiscales\n\nLe premier \u00e9clairage montre l'economie fiscale potentielle, souvent\nCHF 15'000 a 40'000+ pour des capitaux importants.\n\nReturns:\n    CalendrierRetraitsResponse avec 2 trajectoires, premier \u00e9clairage,\n    disclaimer et sources legales (LIFD art. 38, OPP3, LPP).",
         "operationId": "arbitrage_calendrier_retraits_api_v1_arbitrage_calendrier_retraits_post",
         "requestBody": {
           "content": {
@@ -6338,7 +6743,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/snapshots": {
@@ -6443,7 +6853,7 @@
           "Snapshots S33"
         ],
         "summary": "Delete User Snapshots",
-        "description": "Supprimer tous les snapshots de l'utilisateur authentifie.\n\nConformite LPD (Loi sur la protection des donnees) — droit a l'effacement.\n\nReturns:\n    DeleteSnapshotsResponse avec le nombre de snapshots supprimes.",
+        "description": "Supprimer tous les snapshots de l'utilisateur authentifie.\n\nConformite LPD (Loi sur la protection des donnees) \u2014 droit a l'effacement.\n\nReturns:\n    DeleteSnapshotsResponse avec le nombre de snapshots supprimes.",
         "operationId": "delete_user_snapshots_api_v1_snapshots_delete",
         "security": [
           {
@@ -6521,7 +6931,7 @@
           "Coach Narrative S35"
         ],
         "summary": "Generate Narrative",
-        "description": "Generer les 4 composants narratifs du coach.\n\nChaque composant est genere independamment et valide\npar ComplianceGuard avant d'etre retourne.\n\nReturns:\n    CoachNarrativeResponse avec greeting, score_summary,\n    tip_narrative, chiffre_choc_reframe + metadata.",
+        "description": "Generer les 4 composants narratifs du coach.\n\nChaque composant est genere independamment et valide\npar ComplianceGuard avant d'etre retourne.\n\nReturns:\n    CoachNarrativeResponse avec greeting, score_summary,\n    tip_narrative, premier_eclairage_reframe + metadata.",
         "operationId": "generate_narrative_api_v1_coach_narrative_post",
         "requestBody": {
           "content": {
@@ -6554,7 +6964,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/coach/greeting": {
@@ -6596,7 +7011,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/coach/score-summary": {
@@ -6638,7 +7058,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/coach/tip": {
@@ -6680,17 +7105,22 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
-    "/api/v1/coach/chiffre-choc": {
+    "/api/v1/coach/premier-eclairage": {
       "post": {
         "tags": [
           "Coach Narrative S35"
         ],
-        "summary": "Generate Chiffre Choc",
-        "description": "Generer uniquement la recontextualisation du chiffre choc.\n\nReturns:\n    ComponentNarrativeResponse avec le chiffre choc reframe.",
-        "operationId": "generate_chiffre_choc_api_v1_coach_chiffre_choc_post",
+        "summary": "Generate Premier Eclairage",
+        "description": "Generer uniquement la recontextualisation du premier \u00e9clairage.\n\nReturns:\n    ComponentNarrativeResponse avec le premier \u00e9clairage reframe.",
+        "operationId": "generate_premier_eclairage_api_v1_coach_premier_eclairage_post",
         "requestBody": {
           "content": {
             "application/json": {
@@ -6722,7 +7152,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/coach/chat": {
@@ -6731,7 +7166,7 @@
           "Coach Chat S56"
         ],
         "summary": "Coach Chat",
-        "description": "Coach chat endpoint — tools + system prompt + RAG + agent loop.\n\nCombines:\n    1. System prompt (lifecycle + regional voice + plan awareness)\n    2. Coach tools (route_to_screen, show_*, ask_user_input, retrieve_memories)\n    3. RAG retrieval (FAQ fallback + cantonal enrichment)\n    4. Agent loop (internal tool execute -> re-call LLM until end_turn)\n    5. ComplianceGuard filter on all LLM output\n\nInternal tools (INTERNAL_TOOL_NAMES):\n    - retrieve_memories: intercepted by the backend agent loop; searches\n      memory_block locally and returns tool_result to the LLM for the\n      next iteration.  Never forwarded to Flutter.\n\nThe API key is used for a single request and is never stored by MINT.\n\nReturns:\n    CoachChatResponse with message, optional tool_calls, sources,\n    disclaimers, and token usage.  tool_calls never contains internal tools.\n\nRaises:\n    400: Invalid request (missing fields, malformed provider).\n    401: Authentication required.\n    502: LLM API call failed.\n    503: RAG dependencies not installed.",
+        "description": "Coach chat endpoint \u2014 tools + system prompt + RAG + agent loop.\n\nCombines:\n    1. System prompt (lifecycle + regional voice + plan awareness)\n    2. Coach tools (route_to_screen, show_*, ask_user_input, retrieve_memories)\n    3. RAG retrieval (FAQ fallback + cantonal enrichment)\n    4. Agent loop (internal tool execute -> re-call LLM until end_turn)\n    5. ComplianceGuard filter on all LLM output\n\nInternal tools (INTERNAL_TOOL_NAMES):\n    - retrieve_memories: intercepted by the backend agent loop; searches\n      memory_block locally and returns tool_result to the LLM for the\n      next iteration.  Never forwarded to Flutter.\n\nThe API key is used for a single request and is never stored by MINT.\n\nReturns:\n    CoachChatResponse with message, optional tool_calls, sources,\n    disclaimers, and token usage.  tool_calls never contains internal tools.\n\nRaises:\n    400: Invalid request (missing fields, malformed provider).\n    401: Authentication required.\n    502: LLM API call failed.\n    503: RAG dependencies not installed.",
         "operationId": "coach_chat_api_v1_coach_chat_post",
         "requestBody": {
           "content": {
@@ -6858,7 +7293,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/notifications/events": {
@@ -6900,7 +7340,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/notifications/milestones": {
@@ -6942,7 +7387,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/api/v1/scenario/narrate": {
@@ -7035,7 +7485,7 @@
           "fri"
         ],
         "summary": "Calculer le FRI avec regles d'affichage",
-        "description": "Calcule le Financial Resilience Index et applique les regles d'affichage (seuil de confiance, action prioritaire, disclaimer). Outil educatif — ne constitue pas un conseil financier (LSFin).",
+        "description": "Calcule le Financial Resilience Index et applique les regles d'affichage (seuil de confiance, action prioritaire, disclaimer). Outil educatif \u2014 ne constitue pas un conseil financier (LSFin).",
         "operationId": "compute_fri_current_api_v1_fri_current_post",
         "requestBody": {
           "content": {
@@ -7077,7 +7527,7 @@
           "fri"
         ],
         "summary": "Simuler une action d'amelioration FRI",
-        "description": "Simule l'impact d'une action specifique sur le score FRI. Actions: add_3a, add_liquidity, add_rachat, reduce_mortgage. Outil educatif — ne constitue pas un conseil financier (LSFin).",
+        "description": "Simule l'impact d'une action specifique sur le score FRI. Actions: add_3a, add_liquidity, add_rachat, reduce_mortgage. Outil educatif \u2014 ne constitue pas un conseil financier (LSFin).",
         "operationId": "simulate_fri_action_api_v1_fri_simulate_action_post",
         "requestBody": {
           "content": {
@@ -7119,7 +7569,7 @@
           "Reengagement S40"
         ],
         "summary": "Generer les messages de reengagement personnalises",
-        "description": "Genere des messages de reengagement bases sur le calendrier fiscal suisse et les donnees personnelles de l'utilisateur. Chaque message contient un nombre personnel et une contrainte temporelle. Outil educatif — ne constitue pas un conseil financier (LSFin).",
+        "description": "Genere des messages de reengagement bases sur le calendrier fiscal suisse et les donnees personnelles de l'utilisateur. Chaque message contient un nombre personnel et une contrainte temporelle. Outil educatif \u2014 ne constitue pas un conseil financier (LSFin).",
         "operationId": "generate_messages_api_v1_reengagement_messages_post",
         "requestBody": {
           "content": {
@@ -7214,7 +7664,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ConsentUpdateRequest"
+                "$ref": "#/components/schemas/app__schemas__reengagement__ConsentUpdateRequest"
               }
             }
           },
@@ -7657,7 +8107,7 @@
           "Confidence S46"
         ],
         "summary": "Get Feature Gates",
-        "description": "Retourne les fonctionnalites debloquees selon le niveau de confiance.\n\nFeature gates:\n    < 30%:  basic_chiffre_choc_only\n    30-50%: + standard_projections\n    50-70%: + arbitrage_comparisons (with uncertainty bands)\n    70-85%: + precise_arbitrage + fri_scoring\n    > 85%:  + full_precision + longitudinal_tracking\n\nReturns:\n    FeatureGatesResponse avec gates, overall, et progression.",
+        "description": "Retourne les fonctionnalites debloquees selon le niveau de confiance.\n\nFeature gates:\n    < 30%:  basic_premier_eclairage_only\n    30-50%: + standard_projections\n    50-70%: + arbitrage_comparisons (with uncertainty bands)\n    70-85%: + precise_arbitrage + fri_scoring\n    > 85%:  + full_precision + longitudinal_tracking\n\nReturns:\n    FeatureGatesResponse avec gates, overall, et progression.",
         "operationId": "get_feature_gates_api_v1_confidence_gates_post",
         "requestBody": {
           "content": {
@@ -7892,6 +8342,32 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/household/dissolve": {
+      "delete": {
+        "tags": [
+          "Household P6"
+        ],
+        "summary": "Dissolve",
+        "operationId": "dissolve_api_v1_household_dissolve_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DissolveResponse"
                 }
               }
             }
@@ -8174,6 +8650,239 @@
                   "type": "object",
                   "additionalProperties": true,
                   "title": "Response Check Freshness Api V1 Regulatory Freshness Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bank-import/import": {
+      "post": {
+        "tags": [
+          "Bank Import"
+        ],
+        "summary": "Import a bank statement (CSV or XML)",
+        "description": "Upload a Swiss bank statement file. Supports UBS, PostFinance, Raiffeisen, BCGE/BCV, CS/ZKB, Yuh/Neon CSV formats and ISO 20022 camt.053/camt.054 XML. Returns auto-detected bank, categorized transactions, and summary.",
+        "operationId": "import_bank_statement_api_v1_bank_import_import_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_import_bank_statement_api_v1_bank_import_import_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankImportResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported format or parse error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BankImportErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "413": {
+            "description": "File too large"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/budget/anomalies": {
+      "post": {
+        "tags": [
+          "Budget Anomaly Detection"
+        ],
+        "summary": "Detect Anomalies",
+        "description": "Detect spending anomalies using statistical methods.\n\nReturns transactions flagged as unusual based on global (Modified Z-score)\nand per-category (Z-score) analysis.",
+        "operationId": "detect_anomalies_api_v1_budget_anomalies_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnomalyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnomalyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/audit": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List Audit Events",
+        "description": "List audit events with optional filters.\n\nRequires admin role + feature flag enable_admin_screens.\nResults are ordered by created_at descending (most recent first).",
+        "operationId": "list_audit_events_api_v1_admin_audit_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "event_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by event_type",
+              "title": "Event Type"
+            },
+            "description": "Filter by event_type"
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by user_id",
+              "title": "User Id"
+            },
+            "description": "Filter by user_id"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status",
+              "title": "Status"
+            },
+            "description": "Filter by status"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "description": "Max results",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max results"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedAuditResponse"
                 }
               }
             }
@@ -8637,7 +9346,7 @@
               }
             ],
             "title": "Rendementmarche",
-            "description": "Rendement marche libre (defaut: 4%)"
+            "description": "Rendement marche libre (scenario par defaut: 4%)"
           },
           "canton": {
             "anyOf": [
@@ -8677,9 +9386,9 @@
             "title": "Breakevenyear",
             "description": "Annee de croisement des courbes (-1 si jamais)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: delta le plus marquant"
           },
           "displaySummary": {
@@ -8726,7 +9435,7 @@
         "required": [
           "options",
           "breakevenYear",
-          "chiffreChoc",
+          "premierEclairage",
           "displaySummary",
           "hypotheses",
           "disclaimer",
@@ -9061,8 +9770,8 @@
             "type": "string",
             "title": "Canton"
           },
-          "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+          "premierEclairage": {
+            "$ref": "#/components/schemas/PremierEclairageResponse",
             "description": "Chiffre choc"
           },
           "sources": {
@@ -9092,7 +9801,7 @@
           "tauxMarginalImposition",
           "rendement3a",
           "canton",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "AmortizationComparisonResponse",
@@ -9322,6 +10031,142 @@
         "title": "AnnualRefreshResponse",
         "description": "Response for annual refresh check endpoint."
       },
+      "AnomalyItem": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "title": "Amount"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "anomalyScore": {
+            "type": "number",
+            "title": "Anomalyscore"
+          },
+          "anomalyType": {
+            "type": "string",
+            "title": "Anomalytype"
+          },
+          "insight": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Insight"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "category",
+          "anomalyScore",
+          "anomalyType"
+        ],
+        "title": "AnomalyItem"
+      },
+      "AnomalyRequest": {
+        "properties": {
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionItem"
+            },
+            "type": "array",
+            "maxItems": 5000,
+            "title": "Transactions",
+            "description": "List of transactions to analyse"
+          },
+          "madThreshold": {
+            "type": "number",
+            "exclusiveMaximum": 10.0,
+            "exclusiveMinimum": 0.1,
+            "title": "Madthreshold",
+            "description": "Modified Z-score threshold for global detection",
+            "default": 3.5
+          },
+          "zscoreThreshold": {
+            "type": "number",
+            "exclusiveMaximum": 10.0,
+            "exclusiveMinimum": 0.1,
+            "title": "Zscorethreshold",
+            "description": "Z-score threshold for per-category detection",
+            "default": 2.5
+          }
+        },
+        "type": "object",
+        "required": [
+          "transactions"
+        ],
+        "title": "AnomalyRequest"
+      },
+      "AnomalyResponse": {
+        "properties": {
+          "anomalies": {
+            "items": {
+              "$ref": "#/components/schemas/AnomalyItem"
+            },
+            "type": "array",
+            "title": "Anomalies"
+          },
+          "totalTransactions": {
+            "type": "integer",
+            "title": "Totaltransactions"
+          },
+          "anomalyCount": {
+            "type": "integer",
+            "title": "Anomalycount"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Outil \u00e9ducatif \u2014 ne constitue pas un conseil financier au sens de la LSFin."
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources",
+            "default": [
+              "Analyse statistique (Z-score, MAD)"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "anomalies",
+          "totalTransactions",
+          "anomalyCount"
+        ],
+        "title": "AnomalyResponse"
+      },
       "AppleVerifyPurchaseRequest": {
         "properties": {
           "product_id": {
@@ -9422,6 +10267,60 @@
         ],
         "title": "AppleVerifyPurchaseResponse"
       },
+      "AppleVerifyRequest": {
+        "properties": {
+          "identityToken": {
+            "type": "string",
+            "title": "Identitytoken"
+          },
+          "nonce": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nonce"
+          }
+        },
+        "type": "object",
+        "required": [
+          "identityToken"
+        ],
+        "title": "AppleVerifyRequest",
+        "description": "Schema for verifying an Apple identity token."
+      },
+      "AppleVerifyResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "title": "Accesstoken"
+          },
+          "tokenType": {
+            "type": "string",
+            "title": "Tokentype",
+            "default": "bearer"
+          },
+          "userId": {
+            "type": "string",
+            "title": "Userid"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accessToken",
+          "userId",
+          "email"
+        ],
+        "title": "AppleVerifyResponse",
+        "description": "Schema for Apple verify response (JWT + user info)."
+      },
       "AppleWebhookAck": {
         "properties": {
           "received": {
@@ -9473,6 +10372,96 @@
           "notificationType"
         ],
         "title": "AppleWebhookRequest"
+      },
+      "AuditEventResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid"
+          },
+          "actorEmail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actoremail"
+          },
+          "eventType": {
+            "type": "string",
+            "title": "Eventtype"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "ipAddress": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ipaddress"
+          },
+          "userAgent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Useragent"
+          },
+          "detailsJson": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detailsjson"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "eventType",
+          "status",
+          "source",
+          "createdAt"
+        ],
+        "title": "AuditEventResponse",
+        "description": "Single audit event returned by the admin endpoint."
       },
       "AuthAdminObservabilityResponse": {
         "properties": {
@@ -9788,9 +10777,9 @@
             "title": "Differencevssalarie",
             "description": "Surcout par rapport a un-e salarie-e (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -9813,7 +10802,7 @@
           "tauxEffectif",
           "comparaisonSalarie",
           "differenceVsSalarie",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "AvsCotisationsResponse",
@@ -9932,9 +10921,9 @@
             "title": "Breakevenvsnormal",
             "description": "Age de breakeven vs scenario normal"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -9961,7 +10950,7 @@
           "penaliteOuBonusPct",
           "dureeEstimeeAns",
           "totalCumule",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "AvsEstimationResponse",
@@ -10069,6 +11058,170 @@
         "title": "BankAccountResponse",
         "description": "A connected bank account."
       },
+      "BankImportErrorResponse": {
+        "properties": {
+          "error": {
+            "type": "string",
+            "title": "Error",
+            "description": "Error message"
+          },
+          "supportedFormats": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Supportedformats",
+            "description": "List of supported bank statement formats",
+            "default": [
+              "UBS (CSV)",
+              "PostFinance (CSV)",
+              "Raiffeisen (CSV)",
+              "BCGE/BCV (CSV)",
+              "CS/ZKB (CSV)",
+              "Yuh/Neon (CSV)",
+              "ISO 20022 camt.053 (XML)",
+              "ISO 20022 camt.054 (XML)"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "BankImportErrorResponse",
+        "description": "Error response when parsing fails."
+      },
+      "BankImportResponse": {
+        "properties": {
+          "bankName": {
+            "type": "string",
+            "title": "Bankname",
+            "description": "Detected bank name (UBS, PostFinance, etc.)"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "description": "Detected format identifier"
+          },
+          "transactions": {
+            "items": {
+              "$ref": "#/components/schemas/TransactionSchema"
+            },
+            "type": "array",
+            "title": "Transactions",
+            "description": "Parsed and categorized transactions"
+          },
+          "periodStart": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodstart",
+            "description": "First transaction date (YYYY-MM-DD)"
+          },
+          "periodEnd": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Periodend",
+            "description": "Last transaction date (YYYY-MM-DD)"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "description": "Currency code",
+            "default": "CHF"
+          },
+          "openingBalance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Openingbalance",
+            "description": "Opening balance"
+          },
+          "closingBalance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closingbalance",
+            "description": "Closing balance"
+          },
+          "totalCredits": {
+            "type": "number",
+            "title": "Totalcredits",
+            "description": "Sum of all credit amounts",
+            "default": 0.0
+          },
+          "totalDebits": {
+            "type": "number",
+            "title": "Totaldebits",
+            "description": "Sum of all debit amounts (negative)",
+            "default": 0.0
+          },
+          "categorySummary": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Categorysummary",
+            "description": "Total absolute spend per category"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Parsing confidence [0-1]",
+            "default": 0.0
+          },
+          "transactionCount": {
+            "type": "integer",
+            "title": "Transactioncount",
+            "description": "Total number of parsed transactions",
+            "default": 0
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "description": "Warnings or issues during parsing"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Legal disclaimer",
+            "default": "Outil educatif \u2014 ne constitue pas un conseil financier (LSFin)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "bankName",
+          "format"
+        ],
+        "title": "BankImportResponse",
+        "description": "Response from the bank statement import endpoint."
+      },
       "BankStatementUploadResponse": {
         "properties": {
           "document_type": {
@@ -10121,7 +11274,7 @@
           },
           "transactions": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__document__TransactionResponse"
+              "$ref": "#/components/schemas/TransactionResponse"
             },
             "type": "array",
             "title": "Transactions",
@@ -10189,7 +11342,7 @@
           },
           "recurring_monthly": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__document__TransactionResponse"
+              "$ref": "#/components/schemas/TransactionResponse"
             },
             "type": "array",
             "title": "Recurring Monthly",
@@ -10199,68 +11352,6 @@
         "type": "object",
         "title": "BankStatementUploadResponse",
         "description": "Response from a bank statement upload and extraction."
-      },
-      "BillingDebugActivateRequest": {
-        "properties": {
-          "tier": {
-            "type": "string",
-            "title": "Tier",
-            "default": "coach"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status",
-            "default": "active"
-          },
-          "is_trial": {
-            "type": "boolean",
-            "title": "Is Trial",
-            "default": false
-          },
-          "period_days": {
-            "type": "integer",
-            "title": "Period Days",
-            "default": 30
-          }
-        },
-        "type": "object",
-        "title": "BillingDebugActivateRequest"
-      },
-      "BillingDebugActivateResponse": {
-        "properties": {
-          "user_id": {
-            "type": "string",
-            "title": "User Id"
-          },
-          "tier": {
-            "type": "string",
-            "title": "Tier"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "features": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Features"
-          },
-          "created_subscription_id": {
-            "type": "string",
-            "title": "Created Subscription Id"
-          }
-        },
-        "type": "object",
-        "required": [
-          "user_id",
-          "tier",
-          "status",
-          "features",
-          "created_subscription_id"
-        ],
-        "title": "BillingDebugActivateResponse"
       },
       "BillingEntitlementsResponse": {
         "properties": {
@@ -10313,6 +11404,21 @@
           "is_trial"
         ],
         "title": "BillingEntitlementsResponse"
+      },
+      "Body_import_bank_statement_api_v1_bank_import_import_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File",
+            "description": "Bank statement file (.csv or .xml)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_import_bank_statement_api_v1_bank_import_import_post"
       },
       "Body_preview_budget_import_api_v1_documents_upload_statement_preview_post": {
         "properties": {
@@ -10586,7 +11692,7 @@
               }
             ],
             "title": "Ismarried",
-            "description": "Marie·e (splitting fiscal, defaut: False)"
+            "description": "Marie\u00b7e (splitting fiscal, defaut: False)"
           }
         },
         "type": "object",
@@ -10611,9 +11717,9 @@
             "title": "Breakevenyear",
             "description": "Annee de croisement des courbes (-1 si jamais)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: delta le plus marquant"
           },
           "displaySummary": {
@@ -10660,7 +11766,7 @@
         "required": [
           "options",
           "breakevenYear",
-          "chiffreChoc",
+          "premierEclairage",
           "displaySummary",
           "hypotheses",
           "disclaimer",
@@ -10687,6 +11793,7 @@
           },
           "nombreEnfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "description": "Nombre d'enfants a charge",
@@ -10715,9 +11822,9 @@
             "title": "Ecartmax",
             "description": "Ecart entre le canton le moins cher et le plus cher (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -10737,7 +11844,7 @@
         "type": "object",
         "required": [
           "ecartMax",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "CantonComparisonResponse",
@@ -10856,9 +11963,9 @@
             "title": "Perterevenutotale",
             "description": "Perte totale de revenu (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -10884,7 +11991,7 @@
           "perte3AAnnuelle",
           "perte3ATotale",
           "perteRevenuTotale",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "CareerGapResponse",
@@ -10921,7 +12028,7 @@
         "properties": {
           "transactions": {
             "items": {
-              "$ref": "#/components/schemas/TransactionResponse"
+              "$ref": "#/components/schemas/app__schemas__open_banking__TransactionResponse"
             },
             "type": "array",
             "title": "Transactions",
@@ -11004,9 +12111,9 @@
             "title": "Total",
             "description": "Nombre de communes retournees"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -11026,7 +12133,7 @@
         "type": "object",
         "required": [
           "total",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "CheapestCommunesResponse",
@@ -11093,30 +12200,30 @@
       },
       "ChecklistItem": {
         "properties": {
-          "label": {
+          "priorite": {
             "type": "string",
-            "title": "Label",
-            "description": "Checklist item description"
+            "title": "Priorite",
+            "description": "Priorite (haute, moyenne, basse)"
           },
-          "category": {
+          "action": {
             "type": "string",
-            "title": "Category",
-            "description": "Category (prevoyance, risque, administratif, fiscal)"
+            "title": "Action",
+            "description": "Action a effectuer"
           },
-          "priority": {
+          "delai": {
             "type": "string",
-            "title": "Priority",
-            "description": "Priority: haute, moyenne, basse"
+            "title": "Delai",
+            "description": "Delai recommande"
           }
         },
         "type": "object",
         "required": [
-          "label",
-          "category",
-          "priority"
+          "priorite",
+          "action",
+          "delai"
         ],
         "title": "ChecklistItem",
-        "description": "A single checklist item for the 'before you sign' template."
+        "description": "Un element de la checklist de depart."
       },
       "ChecklistItemResponse": {
         "properties": {
@@ -11153,7 +12260,7 @@
           "hasLpp": {
             "type": "boolean",
             "title": "Haslpp",
-            "description": "True si tu es affilie·e a une caisse de pension",
+            "description": "True si tu es affilie\u00b7e a une caisse de pension",
             "default": true
           },
           "hasProperty": {
@@ -11209,9 +12316,9 @@
             "title": "Prioritebasse",
             "description": "Actions de confort"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -11234,7 +12341,7 @@
           "prioriteHaute",
           "prioriteMoyenne",
           "prioriteBasse",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ChecklistMariageResponse",
@@ -11265,7 +12372,7 @@
           "hasLpp": {
             "type": "boolean",
             "title": "Haslpp",
-            "description": "True si tu es affilie·e a une caisse de pension",
+            "description": "True si tu es affilie\u00b7e a une caisse de pension",
             "default": true
           }
         },
@@ -11307,9 +12414,9 @@
             "title": "Prioritebasse",
             "description": "Actions de confort / optimisation"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -11332,7 +12439,7 @@
           "prioriteHaute",
           "prioriteMoyenne",
           "prioriteBasse",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ChecklistNaissanceResponse",
@@ -11342,7 +12449,7 @@
         "properties": {
           "items": {
             "items": {
-              "$ref": "#/components/schemas/ChecklistItem"
+              "$ref": "#/components/schemas/app__schemas__job_comparison__ChecklistItem"
             },
             "type": "array",
             "title": "Items",
@@ -11361,27 +12468,6 @@
         ],
         "title": "ChecklistResponse",
         "description": "Template checklist for job change due diligence."
-      },
-      "ChiffreChocResponse": {
-        "properties": {
-          "montant": {
-            "type": "number",
-            "title": "Montant",
-            "description": "Montant du chiffre choc (CHF)"
-          },
-          "texte": {
-            "type": "string",
-            "title": "Texte",
-            "description": "Texte explicatif"
-          }
-        },
-        "type": "object",
-        "required": [
-          "montant",
-          "texte"
-        ],
-        "title": "ChiffreChocResponse",
-        "description": "Shock figure with amount and text."
       },
       "ChurchTaxEstimateRequest": {
         "properties": {
@@ -11439,9 +12525,9 @@
             "title": "Impoteglise",
             "description": "Impot ecclesiastique estime (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -11466,7 +12552,7 @@
           "churchTaxRate",
           "impotCantonalBase",
           "impotEglise",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ChurchTaxEstimateResponse",
@@ -11485,6 +12571,18 @@
             "maxLength": 128,
             "minLength": 8,
             "title": "Device Id"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At",
+            "description": "ISO 8601 UTC timestamp of when the local data was last modified. Used for timestamp-based conflict resolution instead of version integers."
           },
           "wizard_answers": {
             "additionalProperties": true,
@@ -11616,6 +12714,14 @@
             "title": "Language",
             "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
             "default": "fr"
+          },
+          "cashLevel": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Cashlevel",
+            "description": "Voice intensity 1-5 (1=factual, 5=brut).",
+            "default": 3
           }
         },
         "type": "object",
@@ -11656,6 +12762,14 @@
             "type": "array",
             "title": "Sources",
             "description": "Sources de la base de connaissance utilisees (RAG retrieval)."
+          },
+          "cashLevel": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Cashlevel",
+            "description": "Voice intensity 1-5",
+            "default": 3
           },
           "disclaimers": {
             "items": {
@@ -11818,10 +12932,10 @@
             "title": "Tipnarrative",
             "description": "Conseil educatif personnalise"
           },
-          "chiffreChocReframe": {
+          "premierEclairageReframe": {
             "type": "string",
-            "title": "Chiffrechocreframe",
-            "description": "Recontextualisation du chiffre choc"
+            "title": "Premiereclairagereframe",
+            "description": "Recontextualisation du premier \u00e9clairage"
           },
           "usedFallback": {
             "additionalProperties": {
@@ -11850,7 +12964,7 @@
           "greeting",
           "scoreSummary",
           "tipNarrative",
-          "chiffreChocReframe",
+          "premierEclairageReframe",
           "usedFallback",
           "disclaimer",
           "sources"
@@ -12089,9 +13203,9 @@
             "title": "Total",
             "description": "Nombre total de communes"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -12114,7 +13228,7 @@
           "cantonNom",
           "system",
           "total",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "CommuneListResponse",
@@ -12368,6 +13482,7 @@
           },
           "enfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Enfants",
             "description": "Nombre d'enfants",
@@ -12439,9 +13554,9 @@
             "title": "Synthese",
             "description": "Synthese pedagogique"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -12469,7 +13584,7 @@
           "impotSuccessionConjoint",
           "impotSuccessionConcubin",
           "synthese",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ConcubinageCompareResponse",
@@ -12658,7 +13773,7 @@
             },
             "type": "array",
             "title": "Fieldsources",
-            "description": "Sources des champs du profil (optionnel — si absent, seul le score de completude est calcule)"
+            "description": "Sources des champs du profil (optionnel \u2014 si absent, seul le score de completude est calcule)"
           }
         },
         "type": "object",
@@ -12802,9 +13917,9 @@
             "title": "Estplafonne",
             "description": "True si le max CHF 220/jour est atteint"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -12831,7 +13946,7 @@
           "apgTotal",
           "perteRevenu",
           "estPlafonne",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "CongeParentalResponse",
@@ -13045,6 +14160,27 @@
         "title": "ConsentResponse",
         "description": "A banking consent."
       },
+      "ConsentRevokeResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Statut du consentement apres revocation"
+          },
+          "consentId": {
+            "type": "string",
+            "title": "Consentid",
+            "description": "Identifiant du consentement revoque"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "consentId"
+        ],
+        "title": "ConsentRevokeResponse",
+        "description": "Response after revoking a banking consent."
+      },
       "ConsentStateResponse": {
         "properties": {
           "consentType": {
@@ -13122,9 +14258,9 @@
             "title": "Nbconsentementsoptionnels",
             "description": "Nombre de consentements optionnels"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -13147,7 +14283,7 @@
           "dateVerification",
           "nbConsentementsActifs",
           "nbConsentementsOptionnels",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ConsentStatusResponse",
@@ -13155,24 +14291,35 @@
       },
       "ConsentUpdateRequest": {
         "properties": {
-          "consentType": {
-            "type": "string",
-            "title": "Consenttype",
-            "description": "Type de consentement (byok_data_sharing, snapshot_storage, notifications)"
+          "profileId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profileid",
+            "description": "DEPRECATED \u2014 ignored; server uses authenticated user ID (V12-1 IDOR fix)"
           },
-          "enabled": {
+          "categorie": {
+            "$ref": "#/components/schemas/ConsentCategory",
+            "description": "Categorie de traitement a modifier"
+          },
+          "estActif": {
             "type": "boolean",
-            "title": "Enabled",
-            "description": "Activer (true) ou desactiver (false)"
+            "title": "Estactif",
+            "description": "True pour consentir, False pour retirer le consentement"
           }
         },
         "type": "object",
         "required": [
-          "consentType",
-          "enabled"
+          "categorie",
+          "estActif"
         ],
         "title": "ConsentUpdateRequest",
-        "description": "Request body for PATCH /reengagement/consent/{user_id}."
+        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).\n\nV12-1: profile_id is ignored \u2014 the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients."
       },
       "ConsentUpdateResponse": {
         "properties": {
@@ -13597,7 +14744,7 @@
         },
         "type": "object",
         "title": "CrossValidationRequest",
-        "description": "Requete de validation croisee du profil.\n\nTous les champs sont optionnels — seuls les champs fournis sont valides.\nLa validation croise les champs entre eux pour detecter les incoherences."
+        "description": "Requete de validation croisee du profil.\n\nTous les champs sont optionnels \u2014 seuls les champs fournis sont valides.\nLa validation croise les champs entre eux pour detecter les incoherences."
       },
       "CrossValidationResponse": {
         "properties": {
@@ -13681,7 +14828,7 @@
               }
             ],
             "title": "Profileid",
-            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)"
+            "description": "DEPRECATED \u2014 ignored; server uses authenticated user ID (V12-1 IDOR fix)"
           },
           "mode": {
             "$ref": "#/components/schemas/DeletionMode",
@@ -13703,7 +14850,7 @@
         },
         "type": "object",
         "title": "DataDeletionRequest",
-        "description": "Requete pour la suppression des donnees personnelles (nLPD art. 32).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients."
+        "description": "Requete pour la suppression des donnees personnelles (nLPD art. 32).\n\nV12-1: profile_id is ignored \u2014 the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients."
       },
       "DataDeletionResponse": {
         "properties": {
@@ -13764,9 +14911,9 @@
             "title": "Explicationconservation",
             "description": "Explication si des donnees sont conservees"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -13800,7 +14947,7 @@
           "delaiGraceJours",
           "totalEnregistrementsSupprimes",
           "donneesConserveesObligationLegale",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "DataDeletionResponse",
@@ -13818,7 +14965,7 @@
               }
             ],
             "title": "Profileid",
-            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)"
+            "description": "DEPRECATED \u2014 ignored; server uses authenticated user ID (V12-1 IDOR fix)"
           },
           "includeSessions": {
             "type": "boolean",
@@ -13847,7 +14994,7 @@
         },
         "type": "object",
         "title": "DataExportRequest",
-        "description": "Requete pour l'export des donnees personnelles (nLPD art. 25).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients."
+        "description": "Requete pour l'export des donnees personnelles (nLPD art. 25).\n\nV12-1: profile_id is ignored \u2014 the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients."
       },
       "DataExportResponse": {
         "properties": {
@@ -13930,9 +15077,9 @@
             "title": "Responsabletraitement",
             "description": "Responsable du traitement (nLPD art. 19)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -13954,7 +15101,7 @@
           "profileId",
           "dateExport",
           "responsableTraitement",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "DataExportResponse",
@@ -14064,6 +15211,7 @@
           },
           "nbEnfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nbenfants",
             "description": "Nombre d'enfants a charge",
@@ -14137,9 +15285,9 @@
             "title": "Endessousminimumvital",
             "description": "Est-on en dessous du minimum vital?"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc"
           },
           "recommandations": {
@@ -14176,7 +15324,7 @@
           "minimumVital",
           "margeVsMinimumVital",
           "enDessousMinimumVital",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "DebtRatioResponse",
@@ -14397,7 +15545,7 @@
           },
           "checklist": {
             "items": {
-              "$ref": "#/components/schemas/app__schemas__expat__ChecklistItem"
+              "$ref": "#/components/schemas/ChecklistItem"
             },
             "type": "array",
             "title": "Checklist",
@@ -14666,9 +15814,9 @@
             "title": "Lppdisabilitybenefit",
             "description": "Rente d'invalidite LPP mensuelle (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: un nombre marquant avec explication"
           },
           "disclaimer": {
@@ -14699,12 +15847,30 @@
           "riskLevel",
           "aiRenteMensuelle",
           "lppDisabilityBenefit",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer",
           "sources"
         ],
         "title": "DisabilityGapResponse",
         "description": "Resultat complet de la simulation du gap d'invalidite sur 3 phases."
+      },
+      "DissolveResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "revoked_members": {
+            "type": "integer",
+            "title": "Revoked Members"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "revoked_members"
+        ],
+        "title": "DissolveResponse"
       },
       "DividendeVsSalaireRequest": {
         "properties": {
@@ -14786,9 +15952,9 @@
             "title": "Graphedata",
             "description": "Courbe de sensibilite: charge vs split (pas de 10%)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -14813,7 +15979,7 @@
           "splitOptimalIndicatif",
           "economies",
           "alerteRequalification",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "DividendeVsSalaireResponse",
@@ -14834,6 +16000,7 @@
           },
           "nombreEnfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "description": "Number of children",
@@ -15089,11 +16256,29 @@
             "type": "array",
             "title": "Documents",
             "description": "List of document summaries"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total number of documents for this user",
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Max documents per page",
+            "default": 50
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Current offset",
+            "default": 0
           }
         },
         "type": "object",
         "title": "DocumentListResponse",
-        "description": "Response for listing uploaded documents."
+        "description": "Response for listing uploaded documents with pagination metadata."
       },
       "DocumentScanConfirmation": {
         "properties": {
@@ -15211,7 +16396,13 @@
           "payslip",
           "lease_contract",
           "lpp_plan",
-          "insurance_contract"
+          "insurance_contract",
+          "pillar_3a_attestation",
+          "mortgage_attestation",
+          "insurance_policy",
+          "lease",
+          "lamal_statement",
+          "other"
         ],
         "title": "DocumentType",
         "description": "Supported document types for scanning."
@@ -15282,6 +16473,190 @@
         ],
         "title": "DocumentUploadResponse",
         "description": "Response from a document upload and extraction."
+      },
+      "DonationSimulationRequest": {
+        "properties": {
+          "montant": {
+            "type": "number",
+            "maximum": 10000000.0,
+            "minimum": 0.0,
+            "title": "Montant",
+            "description": "Donation amount (CHF)"
+          },
+          "donateurAge": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 18.0,
+            "title": "Donateurage",
+            "description": "Donor age",
+            "default": 50
+          },
+          "lienParente": {
+            "type": "string",
+            "title": "Lienparente",
+            "description": "Relationship: conjoint, descendant, parent, fratrie, concubin, tiers"
+          },
+          "canton": {
+            "type": "string",
+            "maxLength": 2,
+            "minLength": 2,
+            "title": "Canton",
+            "description": "Canton code (2-letter)",
+            "default": "GE"
+          },
+          "typeDonation": {
+            "type": "string",
+            "title": "Typedonation",
+            "description": "Type: especes, immobilier, titres",
+            "default": "especes"
+          },
+          "valeurImmobiliere": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Valeurimmobiliere",
+            "description": "Property value if real estate (CHF)",
+            "default": 0.0
+          },
+          "avancementHoirie": {
+            "type": "boolean",
+            "title": "Avancementhoirie",
+            "description": "Advance on inheritance (default for descendants)",
+            "default": true
+          },
+          "nbEnfants": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 0.0,
+            "title": "Nbenfants",
+            "description": "Number of donor's children",
+            "default": 0
+          },
+          "fortuneTotaleDonateur": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Fortunetotaledonateur",
+            "description": "Total estate of donor (CHF)",
+            "default": 0.0
+          },
+          "regimeMatrimonial": {
+            "type": "string",
+            "title": "Regimematrimonial",
+            "description": "Matrimonial regime",
+            "default": "participation_acquets"
+          },
+          "hasSpouse": {
+            "type": "boolean",
+            "title": "Hasspouse",
+            "description": "Whether donor has a spouse",
+            "default": false
+          },
+          "hasParents": {
+            "type": "boolean",
+            "title": "Hasparents",
+            "description": "Whether donor's parents are alive",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "montant",
+          "lienParente"
+        ],
+        "title": "DonationSimulationRequest",
+        "description": "Request model for donation simulation."
+      },
+      "DonationSimulationResponse": {
+        "properties": {
+          "montantDonation": {
+            "type": "number",
+            "title": "Montantdonation",
+            "description": "Donation amount (CHF)"
+          },
+          "tauxImposition": {
+            "type": "number",
+            "title": "Tauximposition",
+            "description": "Tax rate"
+          },
+          "impotDonation": {
+            "type": "number",
+            "title": "Impotdonation",
+            "description": "Tax amount (CHF)"
+          },
+          "reserveHereditaireTotale": {
+            "type": "number",
+            "title": "Reservehereditairetotale",
+            "description": "Total reserved shares (CHF)"
+          },
+          "quotiteDisponible": {
+            "type": "number",
+            "title": "Quotitedisponible",
+            "description": "Freely disposable share (CHF)"
+          },
+          "donationDepasseQuotite": {
+            "type": "boolean",
+            "title": "Donationdepassequotite",
+            "description": "Whether donation exceeds quotite"
+          },
+          "montantDepassement": {
+            "type": "number",
+            "title": "Montantdepassement",
+            "description": "Excess amount (CHF)"
+          },
+          "impactSuccession": {
+            "type": "string",
+            "title": "Impactsuccession",
+            "description": "Impact on future succession"
+          },
+          "checklist": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Checklist",
+            "description": "Action items"
+          },
+          "alerts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Alerts",
+            "description": "Warning messages"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Legal disclaimer"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources",
+            "description": "Legal references"
+          },
+          "premierEclairage": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Premiereclairage",
+            "description": "Impact number"
+          }
+        },
+        "type": "object",
+        "required": [
+          "montantDonation",
+          "tauxImposition",
+          "impotDonation",
+          "reserveHereditaireTotale",
+          "quotiteDisponible",
+          "donationDepasseQuotite",
+          "montantDepassement",
+          "impactSuccession",
+          "disclaimer"
+        ],
+        "title": "DonationSimulationResponse",
+        "description": "Response model for donation simulation."
       },
       "DoubleTaxationRequest": {
         "properties": {
@@ -15683,7 +17058,7 @@
           "retraite"
         ],
         "title": "EmploymentStatus",
-        "description": "Coaching-internal French dialect. Profile API uses English ('employee', 'self_employed', 'retired').\nIf integrating with Profile API, map: salarie↔employee, independant↔self_employed, retraite↔retired."
+        "description": "Coaching-internal French dialect. Profile API uses English ('employee', 'self_employed', 'retired').\nIf integrating with Profile API, map: salarie\u2194employee, independant\u2194self_employed, retraite\u2194retired."
       },
       "EmploymentStatusEnum": {
         "type": "string",
@@ -15948,8 +17323,8 @@
             "title": "Mixoptimal",
             "description": "Recommandation d'ordre de mobilisation"
           },
-          "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+          "premierEclairage": {
+            "$ref": "#/components/schemas/PremierEclairageResponse",
             "description": "Chiffre choc"
           },
           "alertes": {
@@ -15979,7 +17354,7 @@
           "prixCible",
           "pourcentagePrixCouvert",
           "mixOptimal",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "EplCombinedResponse",
@@ -16383,6 +17758,22 @@
           "safeModeDegraded": {
             "type": "boolean",
             "title": "Safemodedegraded"
+          },
+          "enableOpenBanking": {
+            "type": "boolean",
+            "title": "Enableopenbanking"
+          },
+          "enablePensionFundConnect": {
+            "type": "boolean",
+            "title": "Enablepensionfundconnect"
+          },
+          "enableExpertTier": {
+            "type": "boolean",
+            "title": "Enableexperttier"
+          },
+          "enableAdminScreens": {
+            "type": "boolean",
+            "title": "Enableadminscreens"
           }
         },
         "type": "object",
@@ -16391,7 +17782,11 @@
           "enableSlmNarratives",
           "enableDecisionScaffold",
           "valeurLocative2028Reform",
-          "safeModeDegraded"
+          "safeModeDegraded",
+          "enableOpenBanking",
+          "enablePensionFundConnect",
+          "enableExpertTier",
+          "enableAdminScreens"
         ],
         "title": "FeatureFlagsResponse"
       },
@@ -16648,6 +18043,7 @@
         "properties": {
           "salaireBrutMensuel": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Salairebrutmensuel",
             "description": "Salaire brut mensuel (CHF)"
@@ -16726,9 +18122,9 @@
             "title": "Alertes",
             "description": "Alertes et avertissements"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -16750,7 +18146,7 @@
           "decompositionSalaire",
           "recommandations3A",
           "recommandationLamal",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "FirstJobResponse",
@@ -16993,7 +18389,7 @@
           "confidenceScore"
         ],
         "title": "FriBreakdownResponse",
-        "description": "FRI breakdown result — 4 components + total."
+        "description": "FRI breakdown result \u2014 4 components + total."
       },
       "FriComputeRequest": {
         "properties": {
@@ -17229,7 +18625,7 @@
         },
         "type": "object",
         "title": "FriInputSchema",
-        "description": "Input data for FRI computation — mirrors FriInput dataclass."
+        "description": "Input data for FRI computation \u2014 mirrors FriInput dataclass."
       },
       "FriSimulateRequest": {
         "properties": {
@@ -17319,6 +18715,7 @@
           },
           "revenuBrut": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenubrut",
             "description": "Gross annual salary (CHF)"
@@ -17342,6 +18739,7 @@
           },
           "nombreEnfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "description": "Number of children",
@@ -17513,6 +18911,7 @@
           },
           "revenuAnnuel": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenuannuel",
             "description": "Annual gross salary at current activity rate (CHF)"
@@ -17809,9 +19208,9 @@
             "type": "string",
             "title": "Situation"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc"
           },
           "sources": {
@@ -17832,7 +19231,7 @@
           "resources",
           "canton",
           "situation",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "HelpResourcesResponse",
@@ -17986,6 +19385,218 @@
         ],
         "title": "HouseholdType"
       },
+      "HousingSaleSimulationRequest": {
+        "properties": {
+          "prixAchat": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Prixachat",
+            "description": "Purchase price (CHF)"
+          },
+          "prixVente": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Prixvente",
+            "description": "Sale price (CHF)"
+          },
+          "anneeAchat": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1900.0,
+            "title": "Anneeachat",
+            "description": "Year of purchase"
+          },
+          "anneeVente": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 1900.0,
+            "title": "Anneevente",
+            "description": "Year of sale",
+            "default": 2025
+          },
+          "investissementsValorisants": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Investissementsvalorisants",
+            "description": "Value-adding renovations (CHF)",
+            "default": 0.0
+          },
+          "fraisAcquisition": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Fraisacquisition",
+            "description": "Notary fees at purchase (CHF)",
+            "default": 0.0
+          },
+          "canton": {
+            "type": "string",
+            "maxLength": 2,
+            "minLength": 2,
+            "title": "Canton",
+            "description": "Canton code (2-letter)",
+            "default": "GE"
+          },
+          "residencePrincipale": {
+            "type": "boolean",
+            "title": "Residenceprincipale",
+            "description": "Primary residence?",
+            "default": true
+          },
+          "eplLppUtilise": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Epllpputilise",
+            "description": "LPP EPL used for purchase (CHF)",
+            "default": 0.0
+          },
+          "epl3aUtilise": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Epl3Autilise",
+            "description": "3a EPL used for purchase (CHF)",
+            "default": 0.0
+          },
+          "hypothequeRestante": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Hypothequerestante",
+            "description": "Remaining mortgage balance (CHF)",
+            "default": 0.0
+          },
+          "projetRemploi": {
+            "type": "boolean",
+            "title": "Projetremploi",
+            "description": "Plans to buy replacement property within 2 years?",
+            "default": false
+          },
+          "prixRemploi": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Prixremploi",
+            "description": "Price of replacement property (CHF)",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "required": [
+          "prixAchat",
+          "prixVente",
+          "anneeAchat"
+        ],
+        "title": "HousingSaleSimulationRequest",
+        "description": "Request model for housing sale simulation."
+      },
+      "HousingSaleSimulationResponse": {
+        "properties": {
+          "plusValueBrute": {
+            "type": "number",
+            "title": "Plusvaluebrute",
+            "description": "Gross capital gain (CHF)"
+          },
+          "plusValueImposable": {
+            "type": "number",
+            "title": "Plusvalueimposable",
+            "description": "Taxable capital gain (CHF)"
+          },
+          "dureeDetention": {
+            "type": "integer",
+            "title": "Dureedetention",
+            "description": "Years of ownership"
+          },
+          "tauxImpositionPlusValue": {
+            "type": "number",
+            "title": "Tauximpositionplusvalue",
+            "description": "Tax rate"
+          },
+          "impotPlusValue": {
+            "type": "number",
+            "title": "Impotplusvalue",
+            "description": "Tax on capital gain (CHF)"
+          },
+          "remploiReport": {
+            "type": "number",
+            "title": "Remploireport",
+            "description": "Tax deferred via reinvestment (CHF)"
+          },
+          "impotEffectif": {
+            "type": "number",
+            "title": "Impoteffectif",
+            "description": "Actual tax due (CHF)"
+          },
+          "remboursementEplLpp": {
+            "type": "number",
+            "title": "Remboursementepllpp",
+            "description": "EPL LPP to repay (CHF)"
+          },
+          "remboursementEpl3a": {
+            "type": "number",
+            "title": "Remboursementepl3A",
+            "description": "EPL 3a to repay (CHF)"
+          },
+          "soldeHypotheque": {
+            "type": "number",
+            "title": "Soldehypotheque",
+            "description": "Mortgage payoff (CHF)"
+          },
+          "produitNet": {
+            "type": "number",
+            "title": "Produitnet",
+            "description": "Net proceeds (CHF)"
+          },
+          "checklist": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Checklist",
+            "description": "Action items"
+          },
+          "alerts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Alerts",
+            "description": "Warning messages"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Legal disclaimer"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources",
+            "description": "Legal references"
+          },
+          "premierEclairage": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Premiereclairage",
+            "description": "Impact number"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plusValueBrute",
+          "plusValueImposable",
+          "dureeDetention",
+          "tauxImpositionPlusValue",
+          "impotPlusValue",
+          "remploiReport",
+          "impotEffectif",
+          "remboursementEplLpp",
+          "remboursementEpl3a",
+          "soldeHypotheque",
+          "produitNet",
+          "disclaimer"
+        ],
+        "title": "HousingSaleSimulationResponse",
+        "description": "Response model for housing sale simulation."
+      },
       "IjmRequest": {
         "properties": {
           "revenuMensuel": {
@@ -18038,9 +19649,9 @@
             "title": "Coutsanscouverture",
             "description": "Perte de revenu pendant le delai de carence sans IJM (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "alertes": {
@@ -18071,7 +19682,7 @@
           "primeMensuelle",
           "primeAnnuelle",
           "coutSansCouverture",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "IjmResponse",
@@ -18159,9 +19770,9 @@
             "title": "Economieimpotestimee",
             "description": "Economie d'impot estimee (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -18185,7 +19796,7 @@
           "deductionFraisGarde",
           "deductionTotale",
           "economieImpotEstimee",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ImpactFiscalEnfantResponse",
@@ -18368,8 +19979,8 @@
             "type": "number",
             "title": "Tauxmarginalimposition"
           },
-          "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+          "premierEclairage": {
+            "$ref": "#/components/schemas/PremierEclairageResponse",
             "description": "Chiffre choc"
           },
           "sources": {
@@ -18403,7 +20014,7 @@
           "canton",
           "ageBienAns",
           "tauxMarginalImposition",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "ImputedRentalResponse",
@@ -18472,6 +20083,7 @@
         "properties": {
           "revenuNet": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenunet",
             "description": "Annual net income from self-employment (CHF)"
@@ -18599,9 +20211,9 @@
             "title": "Title",
             "description": "Titre de l'insert en francais"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: un nombre marquant avec explication"
           },
           "learningGoals": {
@@ -18650,7 +20262,7 @@
         "required": [
           "questionId",
           "title",
-          "chiffreChoc",
+          "premierEclairage",
           "learningGoals",
           "disclaimer",
           "sources",
@@ -18690,6 +20302,7 @@
         "properties": {
           "email": {
             "type": "string",
+            "format": "email",
             "title": "Email"
           }
         },
@@ -19608,7 +21221,7 @@
               }
             ],
             "title": "Rendementmarche",
-            "description": "Rendement marche si location + investissement (defaut: 4%)"
+            "description": "Rendement marche si location + investissement (scenario par defaut: 4%)"
           },
           "appreciationImmo": {
             "anyOf": [
@@ -19656,7 +21269,7 @@
               }
             ],
             "title": "Ismarried",
-            "description": "Marie·e (splitting fiscal, defaut: False)"
+            "description": "Marie\u00b7e (splitting fiscal, defaut: False)"
           }
         },
         "type": "object",
@@ -19683,9 +21296,9 @@
             "title": "Breakevenyear",
             "description": "Annee de croisement des courbes (-1 si jamais)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: delta le plus marquant"
           },
           "displaySummary": {
@@ -19732,7 +21345,7 @@
         "required": [
           "options",
           "breakevenYear",
-          "chiffreChoc",
+          "premierEclairage",
           "displaySummary",
           "hypotheses",
           "disclaimer",
@@ -19742,6 +21355,24 @@
         ],
         "title": "LocationVsProprieteResponse",
         "description": "Resultat de la comparaison location vs achat."
+      },
+      "LogoutRequest": {
+        "properties": {
+          "refresh_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "title": "LogoutRequest",
+        "description": "Optional body for logout \u2014 allows blacklisting the refresh token too."
       },
       "LogoutResponse": {
         "properties": {
@@ -19854,9 +21485,9 @@
             "title": "Recommandationneutre",
             "description": "Recommandation neutre sans biais"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -19886,7 +21517,7 @@
           "optionCapitalNet",
           "breakevenAge",
           "recommandationNeutre",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "LppConversionResponse",
@@ -19951,9 +21582,9 @@
             "title": "Tauxbonification",
             "description": "Taux de bonification de vieillesse applique"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -19977,11 +21608,73 @@
           "economieFiscale",
           "comparaisonSansLpp",
           "tauxBonification",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "LppVolontaireResponse",
         "description": "Response for voluntary LPP simulation."
+      },
+      "MagicLinkSendRequest": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "MagicLinkSendRequest",
+        "description": "Schema for requesting a magic link email."
+      },
+      "MagicLinkSendResponse": {
+        "properties": {
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "title": "MagicLinkSendResponse",
+        "description": "Schema for magic link send response."
+      },
+      "MagicLinkVerifyRequest": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "MagicLinkVerifyRequest",
+        "description": "Schema for verifying a magic link token."
+      },
+      "MagicLinkVerifyResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "title": "Accesstoken"
+          },
+          "tokenType": {
+            "type": "string",
+            "title": "Tokentype",
+            "default": "bearer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "accessToken"
+        ],
+        "title": "MagicLinkVerifyResponse",
+        "description": "Schema for magic link verify response (JWT)."
       },
       "MariageFiscalRequest": {
         "properties": {
@@ -20007,6 +21700,7 @@
           },
           "enfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Enfants",
             "description": "Nombre d'enfants a charge",
@@ -20063,9 +21757,9 @@
             "title": "Deductionsmariage",
             "description": "Total des deductions specifiques au mariage (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -20092,7 +21786,7 @@
           "detailCelibataire2",
           "revenusCumules",
           "deductionsMariage",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "MariageFiscalResponse",
@@ -20224,8 +21918,22 @@
             "title": "Age",
             "description": "Age de l'utilisateur (18-70)"
           },
+          "birthDate": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birthdate",
+            "description": "Date de naissance ISO 8601 (ex: 1981-06-15). Si fourni, age est calcule automatiquement."
+          },
           "grossSalary": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Grosssalary",
             "description": "Salaire brut annuel en CHF"
@@ -20351,6 +22059,46 @@
             ],
             "title": "Stresstype",
             "description": "Intention declaree par l'utilisateur a l'onboarding"
+          },
+          "nationalityGroup": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^(CH|EU|non_EU|US)$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nationalitygroup",
+            "description": "Groupe de nationalite: CH, EU, non_EU, US"
+          },
+          "nationalityCountry": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nationalitycountry",
+            "description": "Code ISO pays de nationalite (ex: FR, DE, US)"
+          },
+          "arrivalAge": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 70.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Arrivalage",
+            "description": "Age d'arrivee en Suisse (None = ne en Suisse)"
           }
         },
         "type": "object",
@@ -20487,12 +22235,12 @@
           "mentorshipLevel": {
             "type": "string",
             "title": "Mentorshiplevel",
-            "default": "Guidance Générale (MVP)"
+            "default": "Guidance G\u00e9n\u00e9rale (MVP)"
           },
           "natureOfService": {
             "type": "string",
             "title": "Natureofservice",
-            "default": "Coaching / Éducatif"
+            "default": "Coaching / \u00c9ducatif"
           },
           "limitations": {
             "items": {
@@ -20742,8 +22490,8 @@
             "type": "string",
             "title": "Canton"
           },
-          "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+          "premierEclairage": {
+            "$ref": "#/components/schemas/PremierEclairageResponse",
             "description": "Chiffre choc"
           },
           "checklist": {
@@ -20787,7 +22535,7 @@
           "prixAchat",
           "revenuBrutAnnuel",
           "canton",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "MortgageAffordabilityResponse",
@@ -20823,6 +22571,7 @@
           },
           "nombreEnfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "description": "Nombre d'enfants a charge",
@@ -20885,9 +22634,9 @@
             "title": "Economie10Ans",
             "description": "Economie cumulee sur 10 ans (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "alertes": {
@@ -20931,7 +22680,7 @@
           "economieAnnuelle",
           "economieMensuelle",
           "economie10Ans",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "MoveSimulationResponse",
@@ -21089,6 +22838,7 @@
           },
           "childrenCount": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Childrencount",
             "description": "Nombre d'enfants a charge"
@@ -21315,6 +23065,167 @@
         "title": "OpenBankingStatusResponse",
         "description": "Open Banking feature status."
       },
+      "OrpLinkResponse": {
+        "properties": {
+          "canton": {
+            "type": "string",
+            "title": "Canton",
+            "description": "Code canton (ex: ZH, VD, GE)"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "URL de l'ORP cantonal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "canton",
+          "url"
+        ],
+        "title": "OrpLinkResponse",
+        "description": "Response for the ORP link endpoint."
+      },
+      "PaginatedAuditResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEventResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PaginatedAuditResponse",
+        "description": "Paginated list of audit events."
+      },
+      "PaginatedConsentsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ConsentResponse"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Liste des consentements"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Nombre total de consentements"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Limite par page"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Offset courant"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PaginatedConsentsResponse",
+        "description": "Paginated list of consents."
+      },
+      "PaginatedScenariosResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Scenario"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Liste des scenarios"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Nombre total de scenarios"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Limite par page"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Offset courant"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PaginatedScenariosResponse",
+        "description": "Paginated list of scenarios."
+      },
+      "PaginatedTransactionsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/app__schemas__open_banking__TransactionResponse"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Liste des transactions"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Nombre total de transactions"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Limite par page"
+          },
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Offset courant"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "PaginatedTransactionsResponse",
+        "description": "Paginated list of transactions."
+      },
       "ParseDocumentRequest": {
         "properties": {
           "text": {
@@ -21441,6 +23352,8 @@
           },
           "new_password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
             "title": "New Password"
           }
         },
@@ -21634,9 +23547,9 @@
             "title": "Avantageindependant",
             "description": "Avantage supplementaire de l'independant-e (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -21659,7 +23572,7 @@
           "economieFiscale",
           "comparaisonSalarie",
           "avantageIndependant",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "Pillar3aIndepResponse",
@@ -21839,6 +23752,92 @@
         "title": "PrecisionPromptSchema",
         "description": "Schema d'une demande de precision."
       },
+      "PremierEclairageRequest": {
+        "properties": {
+          "documentType": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "extractedFields": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractedFieldConfirmation"
+            },
+            "type": "array",
+            "title": "Extractedfields"
+          },
+          "overallConfidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Overallconfidence",
+            "description": "Overall extraction confidence (0-1)"
+          },
+          "planType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantype",
+            "description": "LPP plan type: legal, surobligatoire, 1e"
+          },
+          "planTypeWarning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantypewarning",
+            "description": "Warning for 1e plans"
+          },
+          "canton": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canton",
+            "description": "User's canton for regional context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "documentType",
+          "extractedFields",
+          "overallConfidence"
+        ],
+        "title": "PremierEclairageRequest",
+        "description": "Request for document-specific premier eclairage generation (DOC-07).\n\nAfter document extraction, sends extracted fields to generate a\npersonalized 4-layer insight using the MINT insight engine."
+      },
+      "PremierEclairageResponse": {
+        "properties": {
+          "montant": {
+            "type": "number",
+            "title": "Montant",
+            "description": "Montant du premier \u00e9clairage (CHF)"
+          },
+          "texte": {
+            "type": "string",
+            "title": "Texte",
+            "description": "Texte explicatif"
+          }
+        },
+        "type": "object",
+        "required": [
+          "montant",
+          "texte"
+        ],
+        "title": "PremierEclairageResponse",
+        "description": "Shock figure with amount and text."
+      },
       "Profile": {
         "properties": {
           "birthYear": {
@@ -21851,6 +23850,17 @@
               }
             ],
             "title": "Birthyear"
+          },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
           },
           "canton": {
             "anyOf": [
@@ -21869,7 +23879,9 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -21880,7 +23892,9 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -21891,7 +23905,9 @@
           "savingsMonthly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -21902,7 +23918,9 @@
           "totalSavings": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -21913,7 +23931,9 @@
           "lppInsuredSalary": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -21971,7 +23991,9 @@
           "selfEmployedNetIncome": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22026,7 +24048,9 @@
           "avsContributionYears": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 44.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22037,7 +24061,9 @@
           "spouseAvsContributionYears": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 44.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22064,7 +24090,9 @@
           "pillar3aAnnual": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 36288.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22075,13 +24103,29 @@
           "wealthEstimate": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 1000000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
               }
             ],
             "title": "Wealthestimate"
+          },
+          "targetRetirementAge": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 70.0,
+                "minimum": 58.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetretirementage",
+            "description": "Age cible de retraite (defaut: age legal)"
           },
           "id": {
             "type": "string",
@@ -22185,6 +24229,17 @@
             ],
             "title": "Birthyear"
           },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth"
+          },
           "canton": {
             "anyOf": [
               {
@@ -22202,7 +24257,9 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22213,7 +24270,9 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22224,7 +24283,9 @@
           "savingsMonthly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22235,7 +24296,9 @@
           "totalSavings": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22246,7 +24309,9 @@
           "lppInsuredSalary": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22304,7 +24369,9 @@
           "selfEmployedNetIncome": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22359,7 +24426,9 @@
           "avsContributionYears": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 44.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22370,7 +24439,9 @@
           "spouseAvsContributionYears": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 44.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22397,7 +24468,9 @@
           "pillar3aAnnual": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 36288.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22408,13 +24481,29 @@
           "wealthEstimate": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 1000000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
               }
             ],
             "title": "Wealthestimate"
+          },
+          "targetRetirementAge": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 70.0,
+                "minimum": 58.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetretirementage",
+            "description": "Age cible de retraite (defaut: age legal)"
           }
         },
         "type": "object",
@@ -22428,13 +24517,28 @@
           "birthYear": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 2025.0,
+                "minimum": 1900.0
               },
               {
                 "type": "null"
               }
             ],
             "title": "Birthyear"
+          },
+          "dateOfBirth": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dateofbirth",
+            "description": "Date de naissance ISO 8601 (ex: 1981-06-15)"
           },
           "canton": {
             "anyOf": [
@@ -22460,7 +24564,8 @@
           "incomeNetMonthly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22471,7 +24576,8 @@
           "incomeGrossYearly": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22558,7 +24664,8 @@
           "employmentStatus": {
             "anyOf": [
               {
-                "type": "string"
+                "type": "string",
+                "pattern": "^(salarie|independant|retraite|employee|self_employed|retired|mixed|unemployed|student)$"
               },
               {
                 "type": "null"
@@ -22591,7 +24698,9 @@
           "selfEmployedNetIncome": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 10000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22635,7 +24744,9 @@
           "avsContributionYears": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 44.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22646,13 +24757,50 @@
           "spouseAvsContributionYears": {
             "anyOf": [
               {
-                "type": "integer"
+                "type": "integer",
+                "maximum": 44.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
               }
             ],
             "title": "Spouseavscontributionyears"
+          },
+          "spouseSalaryGrossAnnual": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spousesalarygrossannual"
+          },
+          "spouseEmploymentStatus": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spouseemploymentstatus"
+          },
+          "householdGrossIncome": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Householdgrossincome"
           },
           "commune": {
             "anyOf": [
@@ -22679,7 +24827,9 @@
           "pillar3aAnnual": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 36288.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -22690,13 +24840,29 @@
           "wealthEstimate": {
             "anyOf": [
               {
-                "type": "number"
+                "type": "number",
+                "maximum": 1000000000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
               }
             ],
             "title": "Wealthestimate"
+          },
+          "targetRetirementAge": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 70.0,
+                "minimum": 58.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Targetretirementage",
+            "description": "Age cible de retraite (defaut: age legal)"
           }
         },
         "type": "object",
@@ -22782,9 +24948,9 @@
             "type": "string",
             "title": "Profilrisque"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc"
           },
           "baseLegale": {
@@ -22814,7 +24980,7 @@
           "versementAnnuel",
           "duree",
           "profilRisque",
-          "chiffreChoc",
+          "premierEclairage",
           "baseLegale",
           "disclaimer"
         ],
@@ -23072,7 +25238,7 @@
             "type": "string",
             "minLength": 1,
             "title": "Api Key",
-            "description": "User's LLM API key (BYOK — not stored by MINT)"
+            "description": "User's LLM API key (BYOK \u2014 not stored by MINT)"
           },
           "provider": {
             "$ref": "#/components/schemas/LLMProvider",
@@ -23105,6 +25271,30 @@
             "$ref": "#/components/schemas/RAGLanguage",
             "description": "Response language",
             "default": "fr"
+          },
+          "cash_level": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Cash Level",
+            "description": "Voice intensity 1-5 (1=factual, 5=brut)",
+            "default": 3
+          },
+          "tools": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tools",
+            "description": "Optional Anthropic-format tool definitions. When provided and provider=claude, the orchestrator forwards them to Claude so tool_use blocks can be returned. BYOK coach tool path."
           }
         },
         "type": "object",
@@ -23144,6 +25334,22 @@
             "title": "Tokens Used",
             "description": "Estimated token usage",
             "default": 0
+          },
+          "tool_calls": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Calls",
+            "description": "Tool_use blocks returned by the LLM when tools were supplied in the request. Null when no tools or no tool_use was emitted. Mobile parses this to dispatch coach tool choreography."
           }
         },
         "type": "object",
@@ -23230,7 +25436,7 @@
             "type": "string",
             "minLength": 1,
             "title": "Api Key",
-            "description": "User's LLM API key (BYOK — not stored by MINT)"
+            "description": "User's LLM API key (BYOK \u2014 not stored by MINT)"
           },
           "provider": {
             "$ref": "#/components/schemas/LLMProvider",
@@ -23589,7 +25795,7 @@
               }
             ],
             "title": "Rendementmarche",
-            "description": "Rendement marche libre (defaut: 4%)"
+            "description": "Rendement marche libre (scenario par defaut: 4%)"
           },
           "tauxConversion": {
             "anyOf": [
@@ -23627,7 +25833,7 @@
               }
             ],
             "title": "Ismarried",
-            "description": "Marie·e (splitting fiscal, defaut: False)"
+            "description": "Marie\u00b7e (splitting fiscal, defaut: False)"
           }
         },
         "type": "object",
@@ -23653,9 +25859,9 @@
             "title": "Breakevenyear",
             "description": "Annee de croisement des courbes (-1 si jamais)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: delta le plus marquant"
           },
           "displaySummary": {
@@ -23702,7 +25908,7 @@
         "required": [
           "options",
           "breakevenYear",
-          "chiffreChoc",
+          "premierEclairage",
           "displaySummary",
           "hypotheses",
           "disclaimer",
@@ -23835,9 +26041,9 @@
             "type": "number",
             "title": "Tauxmarginal"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc"
           },
           "sources": {
@@ -23869,7 +26075,7 @@
           "avantage3aVsEpargne",
           "dureeAnnees",
           "tauxMarginal",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "RealReturnResponse",
@@ -24533,7 +26739,7 @@
               }
             ],
             "title": "Tauxretrait",
-            "description": "Taux de retrait SWR sur le capital (defaut: 4%)"
+            "description": "Taux de retrait SWR sur le capital (hypothese par defaut: 4%)"
           },
           "rendementCapital": {
             "anyOf": [
@@ -24583,7 +26789,7 @@
               }
             ],
             "title": "Ismarried",
-            "description": "Marie·e (splitting fiscal, defaut: False)"
+            "description": "Marie\u00b7e (splitting fiscal, defaut: False)"
           }
         },
         "type": "object",
@@ -24611,9 +26817,9 @@
             "title": "Breakevenyear",
             "description": "Annee de croisement des courbes (-1 si jamais)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc: delta le plus marquant"
           },
           "displaySummary": {
@@ -24660,7 +26866,7 @@
         "required": [
           "options",
           "breakevenYear",
-          "chiffreChoc",
+          "premierEclairage",
           "displaySummary",
           "hypotheses",
           "disclaimer",
@@ -24748,9 +26954,9 @@
             "type": "integer",
             "title": "Nbdettes"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc"
           },
           "sources": {
@@ -24776,7 +26982,7 @@
           "payoffs",
           "budgetMensuel",
           "nbDettes",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "RepaymentPlanResponse",
@@ -24936,9 +27142,9 @@
             "title": "Alertes",
             "description": "Alertes contextuelles"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "checklist": {
@@ -24973,7 +27179,7 @@
           "tauxRemplacement",
           "pcPotentiellementEligible",
           "dureeCapital3AAns",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "RetirementBudgetResponse",
@@ -25163,8 +27369,8 @@
             "type": "number",
             "title": "Margebanque"
           },
-          "chiffreChoc": {
-            "$ref": "#/components/schemas/ChiffreChocResponse",
+          "premierEclairage": {
+            "$ref": "#/components/schemas/PremierEclairageResponse",
             "description": "Chiffre choc"
           },
           "sources": {
@@ -25192,7 +27398,7 @@
           "dureeAns",
           "tauxSaronActuel",
           "margeBanque",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "SaronVsFixedResponse",
@@ -26126,6 +28332,7 @@
         "properties": {
           "salary": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Salary",
             "description": "Salaire brut annuel (CHF)"
@@ -26145,6 +28352,7 @@
           },
           "children": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Children",
             "description": "Nombre d'enfants a charge",
@@ -26272,6 +28480,7 @@
           },
           "revenuImposable": {
             "type": "number",
+            "maximum": 10000000.0,
             "minimum": 0.0,
             "title": "Revenuimposable",
             "description": "Revenu imposable annuel (CHF)"
@@ -26360,9 +28569,9 @@
             "title": "Canton",
             "description": "Canton utilise"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pour l'utilisateur"
           },
           "alerts": {
@@ -26398,7 +28607,7 @@
           "avoirTotal",
           "nbComptes",
           "canton",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "StaggeredWithdrawalResponse",
@@ -26567,9 +28776,9 @@
             "title": "Tauxconcubin",
             "description": "Taux effectif concubin"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -26595,7 +28804,7 @@
           "difference",
           "tauxConjoint",
           "tauxConcubin",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "SuccessionResponse",
@@ -26621,6 +28830,7 @@
           },
           "nombreEnfants": {
             "type": "integer",
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "description": "Number of children",
@@ -26830,9 +29040,9 @@
             "title": "Totalsurvivantannuel",
             "description": "Total annuel (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -26857,7 +29067,7 @@
           "renteSurvivantLppAnnuelle",
           "totalSurvivantMensuel",
           "totalSurvivantAnnuel",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "SurvivorBenefitsResponse",
@@ -27037,7 +29247,7 @@
           },
           "nombreEnfants": {
             "type": "integer",
-            "maximum": 10.0,
+            "maximum": 20.0,
             "minimum": 0.0,
             "title": "Nombreenfants",
             "description": "Nombre d'enfants a charge",
@@ -27271,40 +29481,20 @@
         "title": "TrajectoireOptionSchema",
         "description": "Une option de trajectoire dans la comparaison d'arbitrage."
       },
-      "TransactionResponse": {
+      "TransactionItem": {
         "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "description": "Identifiant de la transaction"
-          },
-          "date": {
-            "type": "string",
-            "title": "Date",
-            "description": "Date de la transaction (YYYY-MM-DD)"
-          },
-          "description": {
-            "type": "string",
-            "title": "Description",
-            "description": "Description"
-          },
           "amount": {
             "type": "number",
             "title": "Amount",
-            "description": "Montant (CHF)"
-          },
-          "currency": {
-            "type": "string",
-            "title": "Currency",
-            "description": "Devise",
-            "default": "CHF"
+            "description": "Transaction amount (positive or negative)"
           },
           "category": {
             "type": "string",
             "title": "Category",
-            "description": "Categorie de depense"
+            "description": "Spending category",
+            "default": "other"
           },
-          "merchant": {
+          "date": {
             "anyOf": [
               {
                 "type": "string"
@@ -27313,32 +29503,153 @@
                 "type": "null"
               }
             ],
-            "title": "Merchant",
-            "description": "Nom du commercant"
+            "title": "Date",
+            "description": "ISO date string"
           },
-          "isDebit": {
-            "type": "boolean",
-            "title": "Isdebit",
-            "description": "Debit (true) ou credit (false)"
-          },
-          "confidence": {
-            "type": "number",
-            "title": "Confidence",
-            "description": "Score de confiance de la categorisation (0-1)"
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description",
+            "description": "Transaction description"
           }
         },
         "type": "object",
         "required": [
-          "id",
+          "amount"
+        ],
+        "title": "TransactionItem"
+      },
+      "TransactionResponse": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "Transaction date in ISO format (YYYY-MM-DD)"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Transaction description",
+            "default": ""
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "description": "Amount: positive=credit, negative=debit"
+          },
+          "balance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance",
+            "description": "Running balance after transaction"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Auto-detected spending category",
+            "default": "divers"
+          },
+          "subcategory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subcategory",
+            "description": "More specific sub-category"
+          },
+          "is_recurring": {
+            "type": "boolean",
+            "title": "Is Recurring",
+            "description": "Whether the transaction is detected as recurring",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
           "date",
-          "description",
-          "amount",
-          "category",
-          "isDebit",
-          "confidence"
+          "amount"
         ],
         "title": "TransactionResponse",
-        "description": "A single bank transaction."
+        "description": "A single bank transaction in the API response."
+      },
+      "TransactionSchema": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "Transaction date (YYYY-MM-DD)"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Transaction description text",
+            "default": ""
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "description": "Amount: positive=credit, negative=debit"
+          },
+          "balance": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance",
+            "description": "Running balance after transaction"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Auto-detected spending category",
+            "default": "Divers"
+          },
+          "subcategory": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subcategory",
+            "description": "More specific sub-category"
+          },
+          "isRecurring": {
+            "type": "boolean",
+            "title": "Isrecurring",
+            "description": "Whether detected as recurring",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "amount"
+        ],
+        "title": "TransactionSchema",
+        "description": "A single parsed and categorized bank transaction."
       },
       "TransferRequest": {
         "properties": {
@@ -27513,9 +29824,9 @@
             "title": "Alertes",
             "description": "Alertes et avertissements"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -27542,11 +29853,34 @@
           "dureeMois",
           "delaiCarenceJours",
           "eligible",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "UnemploymentBenefitsResponse",
         "description": "Response for LACI unemployment benefits calculation."
+      },
+      "UnemploymentChecklistResponse": {
+        "properties": {
+          "checklist": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Checklist",
+            "description": "Liste d'actions a entreprendre"
+          },
+          "timeline": {
+            "items": {
+              "$ref": "#/components/schemas/TimelineStep"
+            },
+            "type": "array",
+            "title": "Timeline",
+            "description": "Timeline post-perte d'emploi"
+          }
+        },
+        "type": "object",
+        "title": "UnemploymentChecklistResponse",
+        "description": "Response for the generic unemployment checklist endpoint."
       },
       "UrgenceResponse": {
         "properties": {
@@ -27602,6 +29936,8 @@
           },
           "password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
             "title": "Password"
           }
         },
@@ -27622,6 +29958,8 @@
           },
           "password": {
             "type": "string",
+            "maxLength": 256,
+            "minLength": 8,
             "title": "Password"
           },
           "display_name": {
@@ -27795,6 +30133,38 @@
             ],
             "title": "Rawanalysis",
             "description": "Claude's natural language analysis of the document"
+          },
+          "planType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantype",
+            "description": "LPP plan type: legal, surobligatoire, 1e (DOC-04)"
+          },
+          "planTypeWarning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantypewarning",
+            "description": "Warning message for 1e plans (no guaranteed conversion rate)"
+          },
+          "coherenceWarnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Coherencewarnings",
+            "description": "Cross-field coherence warnings (DOC-05)"
           }
         },
         "type": "object",
@@ -27843,9 +30213,9 @@
             "title": "Ecartmax",
             "description": "Ecart entre le canton le moins cher et le plus cher (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -27865,7 +30235,7 @@
         "type": "object",
         "required": [
           "ecartMax",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "WealthTaxComparisonResponse",
@@ -27933,9 +30303,9 @@
             "title": "Tauxeffectifpermille",
             "description": "Taux effectif en pour mille"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "disclaimer": {
@@ -27960,7 +30330,7 @@
           "fortuneImposable",
           "impotFortune",
           "tauxEffectifPermille",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "WealthTaxEstimateResponse",
@@ -28051,9 +30421,9 @@
             "title": "Economie10Ans",
             "description": "Economie cumulee sur 10 ans (CHF)"
           },
-          "chiffreChoc": {
+          "premierEclairage": {
             "type": "string",
-            "title": "Chiffrechoc",
+            "title": "Premiereclairage",
             "description": "Chiffre choc pedagogique"
           },
           "alertes": {
@@ -28089,7 +30459,7 @@
           "economieAnnuelle",
           "economieMensuelle",
           "economie10Ans",
-          "chiffreChoc",
+          "premierEclairage",
           "disclaimer"
         ],
         "title": "WealthTaxMoveResponse",
@@ -28390,95 +30760,83 @@
         "title": "RecommandationResponse",
         "description": "A single recommendation."
       },
-      "app__schemas__document__TransactionResponse": {
+      "app__schemas__document_scan__PremierEclairageResponse": {
         "properties": {
-          "date": {
+          "factualExtraction": {
             "type": "string",
-            "title": "Date",
-            "description": "Transaction date in ISO format (YYYY-MM-DD)"
+            "title": "Factualextraction",
+            "description": "Layer 1: key facts extracted from the document"
           },
-          "description": {
+          "humanTranslation": {
             "type": "string",
-            "title": "Description",
-            "description": "Transaction description",
-            "default": ""
+            "title": "Humantranslation",
+            "description": "Layer 2: plain language explanation, no jargon"
           },
-          "amount": {
-            "type": "number",
-            "title": "Amount",
-            "description": "Amount: positive=credit, negative=debit"
+          "personalPerspective": {
+            "type": "string",
+            "title": "Personalperspective",
+            "description": "Layer 3: what this implies for the user personally"
           },
-          "balance": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Balance",
-            "description": "Running balance after transaction"
+          "questionsToAsk": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Questionstoask",
+            "description": "Layer 4: questions to ask before signing/acting"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "description": "Mandatory LSFin disclaimer"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources",
+            "description": "Legal references (LPP art. X, LIFD art. Y, etc.)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "factualExtraction",
+          "humanTranslation",
+          "personalPerspective",
+          "questionsToAsk",
+          "disclaimer",
+          "sources"
+        ],
+        "title": "PremierEclairageResponse",
+        "description": "Response with 4-layer premier eclairage from document data (DOC-07).\n\nStructure follows the MINT 4-layer insight engine:\n1. Factual extraction (what the document says)\n2. Human translation (what it means in plain language)\n3. Personal perspective (what it implies for YOU)\n4. Questions to ask (before signing/acting)"
+      },
+      "app__schemas__job_comparison__ChecklistItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Checklist item description"
           },
           "category": {
             "type": "string",
             "title": "Category",
-            "description": "Auto-detected spending category",
-            "default": "divers"
+            "description": "Category (prevoyance, risque, administratif, fiscal)"
           },
-          "subcategory": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Subcategory",
-            "description": "More specific sub-category"
-          },
-          "is_recurring": {
-            "type": "boolean",
-            "title": "Is Recurring",
-            "description": "Whether the transaction is detected as recurring",
-            "default": false
+          "priority": {
+            "type": "string",
+            "title": "Priority",
+            "description": "Priority: haute, moyenne, basse"
           }
         },
         "type": "object",
         "required": [
-          "date",
-          "amount"
-        ],
-        "title": "TransactionResponse",
-        "description": "A single bank transaction in the API response."
-      },
-      "app__schemas__expat__ChecklistItem": {
-        "properties": {
-          "priorite": {
-            "type": "string",
-            "title": "Priorite",
-            "description": "Priorite (haute, moyenne, basse)"
-          },
-          "action": {
-            "type": "string",
-            "title": "Action",
-            "description": "Action a effectuer"
-          },
-          "delai": {
-            "type": "string",
-            "title": "Delai",
-            "description": "Delai recommande"
-          }
-        },
-        "type": "object",
-        "required": [
-          "priorite",
-          "action",
-          "delai"
+          "label",
+          "category",
+          "priority"
         ],
         "title": "ChecklistItem",
-        "description": "Un element de la checklist de depart."
+        "description": "A single checklist item for the 'before you sign' template."
       },
       "app__schemas__life_events__EtatCivil": {
         "type": "string",
@@ -28491,7 +30849,7 @@
         ],
         "title": "EtatCivil"
       },
-      "app__schemas__onboarding__ChiffreChocResponse": {
+      "app__schemas__onboarding__PremierEclairageResponse": {
         "properties": {
           "category": {
             "type": "string",
@@ -28554,12 +30912,43 @@
           "sources",
           "confidenceScore"
         ],
-        "title": "ChiffreChocResponse",
+        "title": "PremierEclairageResponse",
         "description": "Chiffre choc: un nombre marquant avec contexte educatif."
       },
-      "app__schemas__privacy__ConsentUpdateRequest": {
+      "app__schemas__open_banking__TransactionResponse": {
         "properties": {
-          "profileId": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Identifiant de la transaction"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "Date de la transaction (YYYY-MM-DD)"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "Description"
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "description": "Montant (CHF)"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "description": "Devise",
+            "default": "CHF"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Categorie de depense"
+          },
+          "merchant": {
             "anyOf": [
               {
                 "type": "string"
@@ -28568,26 +30957,53 @@
                 "type": "null"
               }
             ],
-            "title": "Profileid",
-            "description": "DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)"
+            "title": "Merchant",
+            "description": "Nom du commercant"
           },
-          "categorie": {
-            "$ref": "#/components/schemas/ConsentCategory",
-            "description": "Categorie de traitement a modifier"
-          },
-          "estActif": {
+          "isDebit": {
             "type": "boolean",
-            "title": "Estactif",
-            "description": "True pour consentir, False pour retirer le consentement"
+            "title": "Isdebit",
+            "description": "Debit (true) ou credit (false)"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence",
+            "description": "Score de confiance de la categorisation (0-1)"
           }
         },
         "type": "object",
         "required": [
-          "categorie",
-          "estActif"
+          "id",
+          "date",
+          "description",
+          "amount",
+          "category",
+          "isDebit",
+          "confidence"
+        ],
+        "title": "TransactionResponse",
+        "description": "A single bank transaction."
+      },
+      "app__schemas__reengagement__ConsentUpdateRequest": {
+        "properties": {
+          "consentType": {
+            "type": "string",
+            "title": "Consenttype",
+            "description": "Type de consentement (byok_data_sharing, snapshot_storage, notifications)"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled",
+            "description": "Activer (true) ou desactiver (false)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "consentType",
+          "enabled"
         ],
         "title": "ConsentUpdateRequest",
-        "description": "Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).\n\nV12-1: profile_id is ignored — the server uses the authenticated user's ID.\nKept as optional for backward compatibility with existing clients."
+        "description": "Request body for PATCH /reengagement/consent/{user_id}."
       },
       "app__schemas__segments__EtatCivil": {
         "type": "string",

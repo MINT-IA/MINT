@@ -79,7 +79,7 @@ class LppVolontaireResult:
     economie_fiscale: float
     comparaison_sans_lpp: float
     taux_bonification: float
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str] = field(default_factory=list)
 
@@ -156,7 +156,7 @@ def simuler_lpp_volontaire(
             economie_fiscale=0.0,
             comparaison_sans_lpp=0.0,
             taux_bonification=0.0,
-            chiffre_choc=(
+            premier_eclairage=(
                 "Avec un revenu nul ou un age hors de la tranche LPP (25-65), "
                 "l'affiliation volontaire n'est pas applicable."
             ),
@@ -174,7 +174,7 @@ def simuler_lpp_volontaire(
     # Comparison: annual retirement capital lost without LPP
     comparaison_sans_lpp = _estimer_capital_perdu_sans_lpp(revenu_net, age)
 
-    chiffre_choc = (
+    premier_eclairage = (
         f"Sans LPP volontaire, tu perds {comparaison_sans_lpp:,.0f} CHF/an "
         f"de capitalisation retraite (cotisation + interets cumules)."
     )
@@ -185,7 +185,7 @@ def simuler_lpp_volontaire(
         economie_fiscale=economie_fiscale,
         comparaison_sans_lpp=comparaison_sans_lpp,
         taux_bonification=taux_bonification,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )

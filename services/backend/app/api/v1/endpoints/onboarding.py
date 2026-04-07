@@ -2,11 +2,11 @@
 Onboarding endpoints — Sprint S31: Onboarding Redesign.
 
 POST /api/v1/onboarding/minimal-profile — compute minimal financial profile
-POST /api/v1/onboarding/chiffre-choc   — select impactful chiffre choc
+POST /api/v1/onboarding/premier-eclairage   — select impactful premier éclairage
 
 Given only 3 inputs (age, salary, canton), produces:
 - A full financial snapshot with confidence scoring
-- A single impactful "chiffre choc" to motivate the user
+- A single impactful "premier éclairage" to motivate the user
 
 All endpoints are stateless (no data storage). Pure computation on the fly.
 
@@ -23,12 +23,12 @@ from app.core.rate_limit import limiter
 from app.schemas.onboarding import (
     MinimalProfileRequest,
     MinimalProfileResponse,
-    ChiffreChocResponse,
+    PremierEclairageResponse,
 )
 from app.services.onboarding import (
     MinimalProfileInput,
     compute_minimal_profile,
-    select_chiffre_choc,
+    select_premier_eclairage,
 )
 
 router = APIRouter()
@@ -96,13 +96,13 @@ def compute_profile(request: Request, body: MinimalProfileRequest) -> MinimalPro
         raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
-@router.post("/chiffre-choc", response_model=ChiffreChocResponse)
+@router.post("/premier-eclairage", response_model=PremierEclairageResponse)
 @limiter.limit("30/minute")
-def compute_chiffre_choc(request: Request, body: MinimalProfileRequest) -> ChiffreChocResponse:
-    """Calcule le chiffre choc le plus percutant pour l'onboarding.
+def compute_premier_eclairage(request: Request, body: MinimalProfileRequest) -> PremierEclairageResponse:
+    """Calcule le premier éclairage le plus percutant pour l'onboarding.
 
     Prend les memes inputs que le profil minimal, calcule le profil
-    en interne, puis selectionne LE chiffre choc le plus impactant.
+    en interne, puis selectionne LE premier éclairage le plus impactant.
 
     Priorite:
     1. Crise de liquidite (< 2 mois de reserve)
@@ -111,14 +111,14 @@ def compute_chiffre_choc(request: Request, body: MinimalProfileRequest) -> Chiff
     4. Fallback: gap retraite
 
     Returns:
-        ChiffreChocResponse avec categorie, texte d'accroche, disclaimer et sources.
+        PremierEclairageResponse avec categorie, texte d'accroche, disclaimer et sources.
     """
     try:
         input_data = _request_to_input(body)
         profile = compute_minimal_profile(input_data)
-        choc = select_chiffre_choc(profile, stress_type=input_data.stress_type)
+        choc = select_premier_eclairage(profile, stress_type=input_data.stress_type)
 
-        return ChiffreChocResponse(
+        return PremierEclairageResponse(
             category=choc.category,
             primary_number=choc.primary_number,
             display_text=choc.display_text,

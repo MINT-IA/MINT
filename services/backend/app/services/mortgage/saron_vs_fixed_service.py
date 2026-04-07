@@ -60,7 +60,7 @@ class GrapheEntry:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -96,7 +96,7 @@ class SaronVsFixedResult:
     economie_max: float            # Max savings vs fixed (CHF)
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Input metadata
     montant_hypothecaire: float
@@ -197,7 +197,7 @@ class SaronVsFixedService:
 
         # 4. Chiffre choc
         if economie_max > 0:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=economie_max,
                 texte=(
                     f"Dans le meilleur scenario ({meilleur.label}), le SARON "
@@ -207,7 +207,7 @@ class SaronVsFixedService:
             )
         else:
             surcharge = abs(economie_max)
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=surcharge,
                 texte=(
                     f"Meme dans le meilleur scenario SARON, le taux fixe est "
@@ -230,7 +230,7 @@ class SaronVsFixedService:
             scenarios=scenario_results,
             meilleur_scenario=meilleur.nom,
             economie_max=economie_max,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             montant_hypothecaire=montant_hypothecaire,
             duree_ans=duree_ans,
             taux_saron_actuel=taux_saron_actuel,

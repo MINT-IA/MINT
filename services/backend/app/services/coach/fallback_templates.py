@@ -113,8 +113,8 @@ class FallbackTemplates:
         )
 
     @staticmethod
-    def chiffre_choc_reframe(ctx: CoachContext) -> str:
-        """Reframe a chiffre choc with confidence context.
+    def premier_eclairage_reframe(ctx: CoachContext) -> str:
+        """Reframe a premier éclairage with confidence context.
 
         Anchors on the confidence score to encourage profile enrichment.
         """

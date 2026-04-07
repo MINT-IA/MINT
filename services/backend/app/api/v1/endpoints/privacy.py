@@ -229,7 +229,7 @@ def export_user_data(
         donnees_analytics=result.donnees_analytics,
         politique_conservation=result.politique_conservation,
         responsable_traitement=result.responsable_traitement,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -287,7 +287,7 @@ def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require
         total_enregistrements_supprimes=result.total_enregistrements_supprimes,
         donnees_conservees_obligation_legale=result.donnees_conservees_obligation_legale,
         explication_conservation=result.explication_conservation,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
         alertes=result.alertes,
@@ -338,7 +338,7 @@ def get_consent_status(_user: User = Depends(require_current_user)) -> ConsentSt
         consentements=consentements_schema,
         nb_consentements_actifs=result.nb_consentements_actifs,
         nb_consentements_optionnels=result.nb_consentements_optionnels,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )

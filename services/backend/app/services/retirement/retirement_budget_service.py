@@ -36,7 +36,7 @@ class RetirementBudget:
     pc_potentiellement_eligible: bool
     duree_capital_3a_ans: float           # how many years 3a capital lasts
     alertes: List[str] = field(default_factory=list)
-    chiffre_choc: str = ""
+    premier_eclairage: str = ""
     checklist: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
     sources: List[str] = field(default_factory=list)
@@ -129,12 +129,12 @@ class RetirementBudgetService:
 
         # Chiffre choc
         if solde >= 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Bonne nouvelle : tes revenus de retraite couvrent tes depenses "
                 f"avec CHF {solde:,.0f}/mois de marge"
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Attention : il te manque CHF {abs(solde):,.0f}/mois a la retraite "
                 f"— soit CHF {abs(solde * 12):,.0f}/an"
             )
@@ -166,7 +166,7 @@ class RetirementBudgetService:
             pc_potentiellement_eligible=pc_eligible,
             duree_capital_3a_ans=duree_3a,
             alertes=alertes,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             checklist=checklist,
             disclaimer=DISCLAIMER,
             sources=sources,

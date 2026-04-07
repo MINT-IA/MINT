@@ -100,18 +100,18 @@ Le tip doit être actionnable (ex: "Tu pourrais simuler...").
 """
 
     @classmethod
-    def chiffre_choc_narrative(cls, ctx: CoachContext) -> str:
-        """Prompt for narrating a chiffre choc result."""
+    def premier_eclairage_narrative(cls, ctx: CoachContext) -> str:
+        """Prompt for narrating a premier éclairage result."""
         known = ctx.known_values
         return f"""{cls.BASE_SYSTEM_PROMPT}
 
 CONTEXTE UTILISATEUR :
 - Prénom : {ctx.first_name}
-- Chiffre clé : {known.get('chiffre_choc_value', 'N/A')}
-- Catégorie : {known.get('chiffre_choc_category', 'N/A')}
+- Chiffre clé : {known.get('premier_eclairage_value', 'N/A')}
+- Catégorie : {known.get('premier_eclairage_category', 'N/A')}
 - Score confiance : {known.get('confidence_score', 0)}%
 
-TÂCHE : Commente le chiffre choc en 2-3 phrases (max 100 mots).
+TÂCHE : Commente le premier éclairage en 2-3 phrases (max 100 mots).
 Contextualise le chiffre. Mentionne le niveau de confiance.
 Suggère une simulation (pas un conseil).
 """
@@ -139,7 +139,7 @@ Termine par une question ouverte.
             "greeting": cls.dashboard_greeting,
             "score_summary": cls.score_summary,
             "tip": cls.daily_tip,
-            "chiffre_choc": cls.chiffre_choc_narrative,
+            "premier_eclairage": cls.premier_eclairage_narrative,
             "scenario": cls.scenario_narration,
         }
         builder = prompts.get(component_type)

@@ -79,7 +79,7 @@ class DividendeVsSalaireResult:
     economies: float
     alerte_requalification: bool
     graphe_data: List[GrapheDataPoint] = field(default_factory=list)
-    chiffre_choc: str = ""
+    premier_eclairage: str = ""
     disclaimer: str = DISCLAIMER
     sources: List[str] = field(default_factory=list)
 
@@ -147,7 +147,7 @@ def simuler_dividende_vs_salaire(
             economies=0.0,
             alerte_requalification=False,
             graphe_data=[],
-            chiffre_choc="Avec un benefice nul, aucune optimisation n'est possible.",
+            premier_eclairage="Avec un benefice nul, aucune optimisation n'est possible.",
             disclaimer=DISCLAIMER,
             sources=list(SOURCES),
         )
@@ -188,7 +188,7 @@ def simuler_dividende_vs_salaire(
         c = _calculer_charge_split(benefice_disponible, s, taux)
         graphe_data.append(GrapheDataPoint(split_salaire=s, charge_totale=c))
 
-    chiffre_choc = (
+    premier_eclairage = (
         f"En optimisant le split salaire/dividende, tu peux potentiellement "
         f"reduire ta charge fiscale et sociale de {economies:,.0f} CHF/an "
         f"par rapport a un versement 100% salaire."
@@ -202,7 +202,7 @@ def simuler_dividende_vs_salaire(
         economies=economies,
         alerte_requalification=alerte_requalification,
         graphe_data=graphe_data,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )

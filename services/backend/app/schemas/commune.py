@@ -104,7 +104,7 @@ class CommuneListResponse(BaseModel):
     total: int = Field(
         ..., description="Nombre total de communes"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -130,7 +130,7 @@ class CheapestCommunesResponse(BaseModel):
     total: int = Field(
         ..., description="Nombre de communes retournees"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(

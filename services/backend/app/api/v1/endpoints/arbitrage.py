@@ -75,7 +75,7 @@ def _result_to_response(result, response_class):
     return response_class(
         options=[_option_to_schema(o) for o in result.options],
         breakeven_year=result.breakeven_year,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         display_summary=result.display_summary,
         hypotheses=result.hypotheses,
         disclaimer=result.disclaimer,
@@ -371,11 +371,11 @@ def arbitrage_calendrier_retraits(
     - Option A: Tout retirer la meme annee (progressivite maximale)
     - Option B: Echelonner les retraits sur plusieurs annees fiscales
 
-    Le chiffre choc montre l'economie fiscale potentielle, souvent
+    Le premier éclairage montre l'economie fiscale potentielle, souvent
     CHF 15'000 a 40'000+ pour des capitaux importants.
 
     Returns:
-        CalendrierRetraitsResponse avec 2 trajectoires, chiffre choc,
+        CalendrierRetraitsResponse avec 2 trajectoires, premier éclairage,
         disclaimer et sources legales (LIFD art. 38, OPP3, LPP).
     """
     try:

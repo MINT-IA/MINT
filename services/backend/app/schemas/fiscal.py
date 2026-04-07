@@ -149,7 +149,7 @@ class CantonComparisonResponse(BaseModel):
     ecart_max: float = Field(
         ..., description="Ecart entre le canton le moins cher et le plus cher (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -228,7 +228,7 @@ class MoveSimulationResponse(BaseModel):
     economie_10_ans: float = Field(
         ..., description="Economie cumulee sur 10 ans (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     alertes: List[str] = Field(

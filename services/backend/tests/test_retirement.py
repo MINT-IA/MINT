@@ -163,19 +163,19 @@ class TestAvsEstimation:
         if result.breakeven_vs_normal is not None:
             assert result.breakeven_vs_normal > 67
 
-    def test_chiffre_choc_anticipation(self, avs_service):
+    def test_premier_eclairage_anticipation(self, avs_service):
         """Chiffre choc for anticipation should contain loss information."""
         result = avs_service.estimate(current_age=50, retirement_age=63)
-        assert "Anticiper" in result.chiffre_choc
-        assert "%" in result.chiffre_choc
-        assert "CHF" in result.chiffre_choc
+        assert "Anticiper" in result.premier_eclairage
+        assert "%" in result.premier_eclairage
+        assert "CHF" in result.premier_eclairage
 
-    def test_chiffre_choc_normal(self, avs_service):
+    def test_premier_eclairage_normal(self, avs_service):
         """Chiffre choc for normal should contain rente information."""
         result = avs_service.estimate(current_age=50, retirement_age=65)
-        assert "rente AVS" in result.chiffre_choc
-        assert "CHF" in result.chiffre_choc
-        assert "/mois" in result.chiffre_choc
+        assert "rente AVS" in result.premier_eclairage
+        assert "CHF" in result.premier_eclairage
+        assert "/mois" in result.premier_eclairage
 
     def test_sources_contain_lavs(self, avs_service):
         """Sources should reference LAVS articles."""
@@ -302,12 +302,12 @@ class TestLppConversion:
         # Should mention breakeven
         assert str(result.breakeven_age) in result.recommandation_neutre
 
-    def test_chiffre_choc_present(self, lpp_service):
+    def test_premier_eclairage_present(self, lpp_service):
         """Chiffre choc should be present and contain key information."""
         result = lpp_service.compare(capital_lpp=500_000)
-        assert len(result.chiffre_choc) > 20
-        assert "CHF" in result.chiffre_choc
-        assert "Rente" in result.chiffre_choc or "rente" in result.chiffre_choc
+        assert len(result.premier_eclairage) > 20
+        assert "CHF" in result.premier_eclairage
+        assert "Rente" in result.premier_eclairage or "rente" in result.premier_eclairage
 
     def test_sources_contain_lpp(self, lpp_service):
         """Sources should reference LPP articles."""
@@ -516,7 +516,7 @@ class TestRetirementEndpoints:
         assert data["scenario"] == "normal"
         assert "renteMensuelle" in data
         assert "renteAnnuelle" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert "sources" in data
 

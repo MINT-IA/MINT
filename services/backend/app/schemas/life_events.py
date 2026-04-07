@@ -246,7 +246,7 @@ class DonationSimulationResponse(BaseModel):
     alerts: List[str] = Field(default_factory=list, description="Warning messages")
     disclaimer: str = Field(..., description="Legal disclaimer")
     sources: List[str] = Field(default_factory=list, description="Legal references")
-    chiffreChoc: dict = Field(default_factory=dict, description="Impact number")
+    premierEclairage: dict = Field(default_factory=dict, description="Impact number")
 
 
 # ---------------------------------------------------------------------------
@@ -315,4 +315,4 @@ class HousingSaleSimulationResponse(BaseModel):
     alerts: List[str] = Field(default_factory=list, description="Warning messages")
     disclaimer: str = Field(..., description="Legal disclaimer")
     sources: List[str] = Field(default_factory=list, description="Legal references")
-    chiffreChoc: dict = Field(default_factory=dict, description="Impact number")
+    premierEclairage: dict = Field(default_factory=dict, description="Impact number")

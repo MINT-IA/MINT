@@ -380,7 +380,7 @@ def _compute_feature_gates(overall: float) -> Dict[str, bool]:
     """Determine les fonctionnalites debloquees selon le score global.
 
     Feature gates:
-        < 30%:  basic_chiffre_choc_only
+        < 30%:  basic_premier_eclairage_only
         30-50%: + standard_projections
         50-70%: + arbitrage_comparisons (with uncertainty bands)
         70-85%: + precise_arbitrage + fri_scoring
@@ -393,7 +393,7 @@ def _compute_feature_gates(overall: float) -> Dict[str, bool]:
         Dict de feature gates (nom -> actif/inactif).
     """
     return {
-        "basic_chiffre_choc_only": True,  # always available
+        "basic_premier_eclairage_only": True,  # always available
         "standard_projections": overall >= 30.0,
         "arbitrage_comparisons": overall >= 50.0,
         "precise_arbitrage": overall >= 70.0,

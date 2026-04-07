@@ -62,7 +62,7 @@ def compute_avs_cotisations(
         taux_effectif=result.taux_effectif,
         comparaison_salarie=result.comparaison_salarie,
         difference_vs_salarie=result.difference_vs_salarie,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
@@ -96,7 +96,7 @@ def simulate_ijm(
         prime_mensuelle=result.prime_mensuelle,
         prime_annuelle=result.prime_annuelle,
         cout_sans_couverture=result.cout_sans_couverture,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         alertes=result.alertes,
         disclaimer=result.disclaimer,
         sources=result.sources,
@@ -132,7 +132,7 @@ def compute_3a_independant(
         economie_fiscale=result.economie_fiscale,
         comparaison_salarie=result.comparaison_salarie,
         avantage_independant=result.avantage_independant,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
@@ -176,7 +176,7 @@ def simulate_dividende_vs_salaire(
             )
             for dp in result.graphe_data
         ],
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
@@ -211,7 +211,7 @@ def simulate_lpp_volontaire(
         economie_fiscale=result.economie_fiscale,
         comparaison_sans_lpp=result.comparaison_sans_lpp,
         taux_bonification=result.taux_bonification,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )

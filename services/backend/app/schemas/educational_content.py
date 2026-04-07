@@ -34,7 +34,7 @@ class InsertContentResponse(EducationalBaseModel):
     title: str = Field(
         ..., description="Titre de l'insert en francais",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc: un nombre marquant avec explication",
     )
     learning_goals: List[str] = Field(

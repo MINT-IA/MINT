@@ -16,7 +16,7 @@ from app.core.rate_limit import limiter
 from app.schemas.mortgage import (
     MortgageAffordabilityRequest,
     MortgageAffordabilityResponse,
-    ChiffreChocResponse,
+    PremierEclairageResponse,
     DecompositionChargesResponse,
     SaronVsFixedRequest,
     SaronVsFixedResponse,
@@ -93,9 +93,9 @@ def calculate_affordability(
         prixAchat=result.prix_achat,
         revenuBrutAnnuel=result.revenu_brut_annuel,
         canton=result.canton,
-        chiffreChoc=ChiffreChocResponse(
-            montant=result.chiffre_choc.montant,
-            texte=result.chiffre_choc.texte,
+        premierEclairage=PremierEclairageResponse(
+            montant=result.premier_eclairage.montant,
+            texte=result.premier_eclairage.texte,
         ),
         checklist=result.checklist,
         alertes=result.alertes,
@@ -159,9 +159,9 @@ def compare_saron_vs_fixed(
         dureeAns=result.duree_ans,
         tauxSaronActuel=result.taux_saron_actuel,
         margeBanque=result.marge_banque,
-        chiffreChoc=ChiffreChocResponse(
-            montant=result.chiffre_choc.montant,
-            texte=result.chiffre_choc.texte,
+        premierEclairage=PremierEclairageResponse(
+            montant=result.premier_eclairage.montant,
+            texte=result.premier_eclairage.texte,
         ),
         sources=result.sources,
         disclaimer=result.disclaimer,
@@ -212,9 +212,9 @@ def calculate_imputed_rental(
         canton=result.canton,
         ageBienAns=result.age_bien_ans,
         tauxMarginalImposition=result.taux_marginal_imposition,
-        chiffreChoc=ChiffreChocResponse(
-            montant=result.chiffre_choc.montant,
-            texte=result.chiffre_choc.texte,
+        premierEclairage=PremierEclairageResponse(
+            montant=result.premier_eclairage.montant,
+            texte=result.premier_eclairage.texte,
         ),
         sources=result.sources,
         disclaimer=result.disclaimer,
@@ -282,9 +282,9 @@ def compare_amortization(
         tauxMarginalImposition=result.taux_marginal_imposition,
         rendement3a=result.rendement_3a,
         canton=result.canton,
-        chiffreChoc=ChiffreChocResponse(
-            montant=result.chiffre_choc.montant,
-            texte=result.chiffre_choc.texte,
+        premierEclairage=PremierEclairageResponse(
+            montant=result.premier_eclairage.montant,
+            texte=result.premier_eclairage.texte,
         ),
         sources=result.sources,
         disclaimer=result.disclaimer,
@@ -338,9 +338,9 @@ def calculate_epl_combined(
         prixCible=result.prix_cible,
         pourcentagePrixCouvert=result.pourcentage_prix_couvert,
         mixOptimal=result.mix_optimal,
-        chiffreChoc=ChiffreChocResponse(
-            montant=result.chiffre_choc.montant,
-            texte=result.chiffre_choc.texte,
+        premierEclairage=PremierEclairageResponse(
+            montant=result.premier_eclairage.montant,
+            texte=result.premier_eclairage.texte,
         ),
         alertes=result.alertes,
         sources=result.sources,

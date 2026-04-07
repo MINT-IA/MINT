@@ -1,10 +1,10 @@
 """
-Chiffre Choc Selector V2 — intention × lifecycle × confidence × available data.
+Premier Éclairage Selector V2 — intention × lifecycle × confidence × available data.
 
-Sprint S57 — ChiffreChoc V2.
+Sprint S57 — PremierEclairage V2.
 
 Given a MinimalProfileResult and optional stress_type, selects the single
-chiffre choc that will have the most impact on the user.
+premier éclairage that will have the most impact on the user.
 
 Selection hierarchy:
 0. Critical archetype alerts (indep no LPP, expat low AVS)
@@ -36,7 +36,7 @@ import math
 from typing import Optional
 
 from app.services.onboarding.onboarding_models import (
-    ChiffreChoc,
+    PremierEclairage,
     MinimalProfileResult,
 )
 
@@ -73,10 +73,10 @@ _SOURCES_COMPOUND = [
 # Phase 0: Archetype alerts (aligned with Flutter _selectByArchetype)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _select_by_archetype(profile: MinimalProfileResult) -> Optional[ChiffreChoc]:
-    """Archetype-specific chiffre choc (highest priority when applicable).
+def _select_by_archetype(profile: MinimalProfileResult) -> Optional[PremierEclairage]:
+    """Archetype-specific premier éclairage (highest priority when applicable).
 
-    Aligned with Flutter ChiffreChocSelector._selectByArchetype.
+    Aligned with Flutter PremierEclairageSelector._selectByArchetype.
     """
     # Independent without LPP: massive retirement gap alert
     if (profile.archetype == "independent_no_lpp"
@@ -85,7 +85,7 @@ def _select_by_archetype(profile: MinimalProfileResult) -> Optional[ChiffreChoc]
             and profile.gross_annual_salary > 0)):
         gap = max(0, profile.estimated_monthly_expenses - profile.estimated_monthly_retirement)
         lpp_estimated = "existing_lpp" in profile.estimated_fields
-        return ChiffreChoc(
+        return PremierEclairage(
             category="retirement_gap",
             primary_number=round(gap, 0),
             display_text=(
@@ -115,7 +115,7 @@ def _select_by_archetype(profile: MinimalProfileResult) -> Optional[ChiffreChoc]
             "Ta rente pourrait être réduite par des lacunes de cotisation. "
             "Demande ton relevé CI à ta caisse de compensation."
         )
-        return ChiffreChoc(
+        return PremierEclairage(
             category="retirement_gap",
             primary_number=round(avs, 0),
             display_text=f"Ta rente AVS estimée: CHF {avs:,.0f}/mois.",
@@ -134,8 +134,8 @@ def _select_by_archetype(profile: MinimalProfileResult) -> Optional[ChiffreChoc]
 # Category builders
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _build_liquidity_choc(profile: MinimalProfileResult) -> ChiffreChoc:
-    """Build chiffre choc for liquidity crisis (< 2 months runway)."""
+def _build_liquidity_choc(profile: MinimalProfileResult) -> PremierEclairage:
+    """Build premier éclairage for liquidity crisis (< 2 months runway)."""
     months = profile.months_liquidity
     monthly_expenses = profile.estimated_monthly_expenses
 
@@ -155,7 +155,7 @@ def _build_liquidity_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     savings_estimated = "current_savings" in profile.estimated_fields
     mode = "pedagogical" if savings_estimated else "factual"
 
-    return ChiffreChoc(
+    return PremierEclairage(
         category="liquidity",
         primary_number=round(months, 1),
         display_text=display_text,
@@ -168,8 +168,8 @@ def _build_liquidity_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
 
 
-def _build_retirement_gap_choc(profile: MinimalProfileResult) -> ChiffreChoc:
-    """Build chiffre choc for retirement gap."""
+def _build_retirement_gap_choc(profile: MinimalProfileResult) -> PremierEclairage:
+    """Build premier éclairage for retirement gap."""
     monthly_retirement = profile.estimated_monthly_retirement
     monthly_expenses = profile.estimated_monthly_expenses
     gap = max(0, monthly_expenses - monthly_retirement)
@@ -198,7 +198,7 @@ def _build_retirement_gap_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     lpp_estimated = "existing_lpp" in profile.estimated_fields
     mode = "pedagogical" if lpp_estimated else "factual"
 
-    return ChiffreChoc(
+    return PremierEclairage(
         category="retirement_gap",
         primary_number=round(gap, 0),
         display_text=display_text,
@@ -211,8 +211,8 @@ def _build_retirement_gap_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
 
 
-def _build_tax_saving_choc(profile: MinimalProfileResult) -> ChiffreChoc:
-    """Build chiffre choc for tax saving opportunity via 3a."""
+def _build_tax_saving_choc(profile: MinimalProfileResult) -> PremierEclairage:
+    """Build premier éclairage for tax saving opportunity via 3a."""
     tax_saving = profile.tax_saving_3a
 
     display_text = (
@@ -226,7 +226,7 @@ def _build_tax_saving_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
     action_text = "Explore les options 3a et leur impact fiscal \u2192"
 
-    return ChiffreChoc(
+    return PremierEclairage(
         category="tax_saving",
         primary_number=round(tax_saving, 0),
         display_text=display_text,
@@ -239,8 +239,8 @@ def _build_tax_saving_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
 
 
-def _build_retirement_income_choc(profile: MinimalProfileResult) -> ChiffreChoc:
-    """Build chiffre choc showing retirement income (positive framing)."""
+def _build_retirement_income_choc(profile: MinimalProfileResult) -> PremierEclairage:
+    """Build premier éclairage showing retirement income (positive framing)."""
     monthly_retirement = profile.estimated_monthly_retirement
     ratio_pct = round(profile.estimated_replacement_ratio * 100)
 
@@ -258,7 +258,7 @@ def _build_retirement_income_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     lpp_estimated = "existing_lpp" in profile.estimated_fields
     mode = "pedagogical" if lpp_estimated else "factual"
 
-    return ChiffreChoc(
+    return PremierEclairage(
         category="retirement_income",
         primary_number=round(monthly_retirement, 0),
         display_text=display_text,
@@ -271,7 +271,7 @@ def _build_retirement_income_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
 
 
-def _build_compound_growth_choc(profile: MinimalProfileResult) -> ChiffreChoc:
+def _build_compound_growth_choc(profile: MinimalProfileResult) -> PremierEclairage:
     """Build compound growth choc for young users. Pure math, always factual."""
     age = profile.age  # A10 fix: no hasattr fallback — field is always present
     years = 65 - age
@@ -300,7 +300,7 @@ def _build_compound_growth_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
     action_text = "Découvre combien ton 3a pourrait te rapporter \u2192"
 
-    return ChiffreChoc(
+    return PremierEclairage(
         category="compound_growth",
         primary_number=round(advantage, 0),
         display_text=display_text,
@@ -313,7 +313,7 @@ def _build_compound_growth_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
 
 
-def _build_hourly_rate_choc(profile: MinimalProfileResult) -> ChiffreChoc:
+def _build_hourly_rate_choc(profile: MinimalProfileResult) -> PremierEclairage:
     """Build hourly rate choc. Uses gross_annual_salary (provided), always factual.
 
     A2/A3 fix: uses profile.gross_annual_salary directly, NOT retirement proxy.
@@ -337,7 +337,7 @@ def _build_hourly_rate_choc(profile: MinimalProfileResult) -> ChiffreChoc:
     )
     action_text = "Explore ton budget en détail \u2192"
 
-    return ChiffreChoc(
+    return PremierEclairage(
         category="hourly_rate",
         primary_number=round(hourly_net, 0),
         display_text=display_text,
@@ -356,8 +356,8 @@ def _build_hourly_rate_choc(profile: MinimalProfileResult) -> ChiffreChoc:
 
 def _select_by_stress(
     stress_type: str, profile: MinimalProfileResult
-) -> Optional[ChiffreChoc]:
-    """Try to produce a chiffre choc aligned with user's declared intention.
+) -> Optional[PremierEclairage]:
+    """Try to produce a premier éclairage aligned with user's declared intention.
 
     A3 fix: uses profile.gross_annual_salary for salary guard, not retirement proxy.
     """
@@ -388,7 +388,7 @@ def _select_by_stress(
 # Lifecycle-aware fallback
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _select_by_lifecycle(profile: MinimalProfileResult) -> ChiffreChoc:
+def _select_by_lifecycle(profile: MinimalProfileResult) -> PremierEclairage:
     """Lifecycle-aware fallback when no stress/priority matched."""
     age = profile.age
 
@@ -411,11 +411,11 @@ def _select_by_lifecycle(profile: MinimalProfileResult) -> ChiffreChoc:
 # Main selector
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def select_chiffre_choc(
+def select_premier_eclairage(
     profile: MinimalProfileResult,
     stress_type: Optional[str] = None,
-) -> ChiffreChoc:
-    """Select the single most impactful chiffre choc for the user.
+) -> PremierEclairage:
+    """Select the single most impactful premier éclairage for the user.
 
     V2: selection = intention × lifecycle × confidence × available data.
 
@@ -424,7 +424,7 @@ def select_chiffre_choc(
         stress_type: Optional user intention ('stress_retraite', 'stress_budget', etc.)
 
     Returns:
-        A single ChiffreChoc with category, display text, confidence_mode,
+        A single PremierEclairage with category, display text, confidence_mode,
         and compliance fields.
     """
     # Phase 0: Archetype-specific alerts (A1 fix — was missing)

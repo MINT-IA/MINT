@@ -172,7 +172,7 @@ class TestLocationVsProprieteCompliance:
             prix_bien=TYPICAL_PRICE,
         )
         all_text = " ".join([
-            result.chiffre_choc,
+            result.premier_eclairage,
             result.display_summary,
             result.disclaimer,
             " ".join(result.hypotheses),
@@ -213,14 +213,14 @@ class TestLocationVsProprieteCompliance:
         assert "CO" in sources_text
         assert "LIFD" in sources_text
 
-    def test_chiffre_choc_not_empty(self):
+    def test_premier_eclairage_not_empty(self):
         """Chiffre choc must be a non-empty string."""
         result = compare_location_vs_propriete(
             capital_disponible=TYPICAL_CAPITAL,
             loyer_mensuel_actuel=TYPICAL_RENT,
             prix_bien=TYPICAL_PRICE,
         )
-        assert len(result.chiffre_choc) > 20
+        assert len(result.premier_eclairage) > 20
 
     def test_confidence_score_in_range(self):
         """Confidence score must be between 0 and 100."""

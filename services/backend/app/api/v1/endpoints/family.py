@@ -88,7 +88,7 @@ def compare_mariage_fiscal(request: Request, body: MariageFiscalRequest) -> Mari
         detail_celibataire_2=result.detail_celibataire_2,
         revenus_cumules=result.revenus_cumules,
         deductions_mariage=result.deductions_mariage,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -150,7 +150,7 @@ def estimate_survivant(request: Request, body: SurvivorBenefitsRequest) -> Survi
         rente_survivant_lpp_annuelle=result.rente_survivant_lpp_annuelle,
         total_survivant_mensuel=result.total_survivant_mensuel,
         total_survivant_annuel=result.total_survivant_annuel,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -182,7 +182,7 @@ def checklist_mariage(request: Request, body: ChecklistMariageRequest) -> Checkl
         priorite_haute=result.priorite_haute,
         priorite_moyenne=result.priorite_moyenne,
         priorite_basse=result.priorite_basse,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -216,7 +216,7 @@ def simulate_conge(request: Request, body: CongeParentalRequest) -> CongeParenta
         apg_total=result.apg_total,
         perte_revenu=result.perte_revenu,
         est_plafonne=result.est_plafonne,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -279,7 +279,7 @@ def impact_fiscal_enfant(request: Request, body: ImpactFiscalEnfantRequest) -> I
         deduction_frais_garde=result.deduction_frais_garde,
         deduction_totale=result.deduction_totale,
         economie_impot_estimee=result.economie_impot_estimee,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -312,7 +312,7 @@ def project_career_gap(request: Request, body: CareerGapRequest) -> CareerGapRes
         perte_3a_annuelle=result.perte_3a_annuelle,
         perte_3a_totale=result.perte_3a_totale,
         perte_revenu_totale=result.perte_revenu_totale,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -344,7 +344,7 @@ def checklist_naissance(request: Request, body: ChecklistNaissanceRequest) -> Ch
         priorite_haute=result.priorite_haute,
         priorite_moyenne=result.priorite_moyenne,
         priorite_basse=result.priorite_basse,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -390,7 +390,7 @@ def compare_concubinage(request: Request, body: ConcubinageCompareRequest) -> Co
         impot_succession_conjoint=result.impot_succession_conjoint,
         impot_succession_concubin=result.impot_succession_concubin,
         synthese=result.synthese,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -424,7 +424,7 @@ def compare_succession(request: Request, body: SuccessionRequest) -> SuccessionR
         difference=result.difference,
         taux_conjoint=result.taux_conjoint,
         taux_concubin=result.taux_concubin,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )

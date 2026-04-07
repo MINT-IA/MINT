@@ -54,7 +54,7 @@ class AvsCotisationsResponse(BaseModel):
     difference_vs_salarie: float = Field(
         ..., description="Surcout par rapport a un-e salarie-e (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -108,7 +108,7 @@ class IjmResponse(BaseModel):
     cout_sans_couverture: float = Field(
         ..., description="Perte de revenu pendant le delai de carence sans IJM (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     alertes: List[str] = Field(
@@ -168,7 +168,7 @@ class Pillar3aIndepResponse(BaseModel):
     avantage_independant: float = Field(
         ..., description="Avantage supplementaire de l'independant-e (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -251,7 +251,7 @@ class DividendeVsSalaireResponse(BaseModel):
         default_factory=list,
         description="Courbe de sensibilite: charge vs split (pas de 10%)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -308,7 +308,7 @@ class LppVolontaireResponse(BaseModel):
     taux_bonification: float = Field(
         ..., description="Taux de bonification de vieillesse applique"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
