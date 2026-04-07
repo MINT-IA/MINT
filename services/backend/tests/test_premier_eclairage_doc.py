@@ -12,8 +12,6 @@ Uses mocked Claude API responses.
 import json
 from unittest.mock import MagicMock, patch
 
-import pytest
-from fastapi.testclient import TestClient
 
 from app.schemas.document_scan import (
     ConfidenceLevel,

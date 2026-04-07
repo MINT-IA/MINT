@@ -9,7 +9,6 @@ Validates that the assembled system prompt:
 See: COMP-01, QA-06, QA-10, T-06-07 requirements.
 """
 
-import pytest
 
 from app.services.coach.claude_coach_service import (
     _BIOGRAPHY_AWARENESS,

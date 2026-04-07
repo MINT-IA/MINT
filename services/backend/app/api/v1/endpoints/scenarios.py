@@ -5,7 +5,6 @@ Persisted in PostgreSQL via ScenarioModel.
 
 import uuid
 from datetime import datetime, timezone
-from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
 from sqlalchemy.orm import Session

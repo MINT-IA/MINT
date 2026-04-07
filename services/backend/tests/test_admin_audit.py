@@ -11,9 +11,8 @@ Covers:
 Run: cd services/backend && python3 -m pytest tests/test_admin_audit.py -v
 """
 
-import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -22,7 +21,6 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.auth import require_current_user
 from app.core.database import get_db
-from app.models.audit_event import AuditEventModel
 from app.services.audit_service import log_audit_event
 
 

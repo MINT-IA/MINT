@@ -14,15 +14,11 @@ Run: cd services/backend && python3 -m pytest tests/test_auth_security_service.p
 
 from datetime import datetime, timedelta
 from hashlib import sha256
-from unittest.mock import patch
 
-import pytest
-from sqlalchemy.orm import Session
 
 from app.models.auth_security import (
     LoginSecurityStateModel,
     PasswordResetTokenModel,
-    EmailVerificationTokenModel,
 )
 from app.services.auth_security_service import (
     get_login_block_seconds,

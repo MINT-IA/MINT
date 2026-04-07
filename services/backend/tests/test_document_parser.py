@@ -780,12 +780,11 @@ class TestKnownFieldPatterns:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-from app.schemas.document_scan import (
+from app.schemas.document_scan import (  # noqa: E402
     ConfidenceLevel as VisionConfidenceLevel,
     ExtractedFieldConfirmation,
-    DocumentType as VisionDocumentType,
 )
-from app.services.document_vision_service import validate_lpp_coherence
+from app.services.document_vision_service import validate_lpp_coherence  # noqa: E402
 
 
 def _make_lpp_fields(oblig, suroblig, total, confidence="high"):

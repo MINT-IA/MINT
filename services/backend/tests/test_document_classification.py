@@ -5,7 +5,6 @@ whether an uploaded image is a Swiss financial document before
 running full extraction.
 """
 
-import pytest
 from unittest.mock import patch, MagicMock
 
 from app.schemas.document_scan import DocumentClassificationResult, ConfidenceLevel

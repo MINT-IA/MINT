@@ -6,7 +6,6 @@ auto-create user, rate limiting, send/verify endpoints.
 """
 
 import hashlib
-import secrets
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 

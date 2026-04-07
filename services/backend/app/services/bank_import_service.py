@@ -519,7 +519,6 @@ def parse_iso20022_xml(content: str) -> ParseResult:
             if amt_elem is None:
                 continue
             amount = float(amt_elem.text or "0")
-            currency = amt_elem.get("Ccy", "CHF")
 
             # Credit/Debit indicator
             cdi_elem = entry.find(f"{{{ns}}}CdtDbtInd") if ns else entry.find("CdtDbtInd")

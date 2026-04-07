@@ -252,8 +252,8 @@ class TestExtractionPrompt:
 #  ENDPOINT WIRING TESTS (02-01 Task 2)
 # ═══════════════════════════════════════════════════════════
 
-from unittest.mock import patch, MagicMock
-from app.schemas.document_scan import DocumentClassificationResult
+from unittest.mock import patch  # noqa: E402
+from app.schemas.document_scan import DocumentClassificationResult  # noqa: E402
 
 
 class TestExtractVisionEndpointWiring:

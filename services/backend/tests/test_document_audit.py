@@ -9,7 +9,7 @@ Covers:
 """
 
 import hashlib
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 from app.models.document_audit import DocumentAuditLog, create_audit_log
 

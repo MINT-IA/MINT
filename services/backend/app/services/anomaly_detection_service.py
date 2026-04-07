@@ -9,7 +9,6 @@ Used by JITAI nudge system to surface spending anomalies to the coach.
 
 from __future__ import annotations
 
-import math
 from statistics import mean, median, stdev
 
 
@@ -68,7 +67,6 @@ class AnomalyDetectionService:
             global_indices = list(range(len(transactions)))
 
         global_amounts = [abs(transactions[i]["amount"]) for i in global_indices]
-        amounts = [abs(t["amount"]) for t in transactions]
         anomalies: list[dict] = []
         seen_indices: set[int] = set()
 

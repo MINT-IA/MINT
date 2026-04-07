@@ -9,7 +9,6 @@ Validates that build_system_prompt correctly includes:
 - No cross-contamination between regional markers
 """
 
-import pytest
 
 from app.services.coach.claude_coach_service import build_system_prompt
 from app.services.coach.coach_models import CoachContext

@@ -10,21 +10,16 @@ Tests:
 """
 
 import json
-import pytest
 from unittest.mock import patch, MagicMock
 
 from app.schemas.document_scan import (
     ConfidenceLevel,
     DocumentType,
-    ExtractedFieldConfirmation,
-    VisionExtractionResponse,
     LppPlanType,
 )
 from app.services.document_vision_service import (
     detect_lpp_plan_type,
     extract_with_vision,
-    validate_lpp_coherence,
-    DOCUMENT_FIELDS,
 )
 
 

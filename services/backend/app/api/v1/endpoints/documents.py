@@ -959,7 +959,7 @@ async def extract_with_claude_vision(
     Only extracted structured fields are returned.
     """
     from app.services.document_vision_service import extract_with_vision
-    from app.models.document_audit import DocumentAuditLog, create_audit_log
+    from app.models.document_audit import create_audit_log
 
     logger.info(
         "Vision extraction: user=%s type=%s canton=%s",

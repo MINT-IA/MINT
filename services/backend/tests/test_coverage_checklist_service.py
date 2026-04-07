@@ -17,7 +17,6 @@ import pytest
 from app.services.coverage_checklist_service import (
     CoverageChecklistService,
     CoverageCheckInput,
-    CANTONS_MENAGE_OBLIGATOIRE,
 )
 
 

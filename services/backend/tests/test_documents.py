@@ -28,7 +28,7 @@ from app.main import app
 from tests.conftest import TestingSessionLocal
 
 # Re-use conftest's test DB infrastructure
-from tests.conftest import TestingSessionLocal, override_get_db
+from tests.conftest import override_get_db
 
 
 def _fake_user():

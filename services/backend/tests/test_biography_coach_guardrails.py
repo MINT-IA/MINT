@@ -7,7 +7,6 @@ approximate amounts, stale data handling, and privacy constraints.
 See: BIO-04, BIO-07, COMP-02, T-03-06 requirements.
 """
 
-import pytest
 
 from app.services.coach.claude_coach_service import (
     _BIOGRAPHY_AWARENESS,

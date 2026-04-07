@@ -14,8 +14,6 @@ import pytest
 
 from app.services.bank_import_service import (
     BankFormat,
-    ParseResult,
-    Transaction,
     categorize_transaction,
     detect_format,
     parse_bank_statement,

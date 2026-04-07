@@ -13,7 +13,6 @@ Covers:
 
 import random
 
-import pytest
 
 from app.services.anomaly_detection_service import AnomalyDetectionService
 

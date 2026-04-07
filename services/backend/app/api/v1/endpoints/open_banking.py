@@ -21,7 +21,7 @@ Endpoints:
 
 import logging
 import os
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session

@@ -14,8 +14,6 @@ Run: cd services/backend && python3 -m pytest tests/test_audit_service.py -v
 
 import json
 
-import pytest
-from sqlalchemy.orm import Session
 
 from app.models.audit_event import AuditEventModel
 from app.services.audit_service import log_audit_event
