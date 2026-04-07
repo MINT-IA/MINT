@@ -174,6 +174,20 @@
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 8c: Polish Pass #1 (cross-surface aesthetic supervision)
+**Goal**: Claude-supervised aesthetic delta pass on every S0-S5 surface post-8b. Screenshot diffs, micro-typo coherence, chromatic cross-surface consistency, before/after element count. No code commits in this phase — outputs a delta proposal document fed back as hot-fix tasks or into Phase 8b refinements. Julien validates proposals before any downstream apply.
+**Depends on**: Phase 8a (MTC migration shipped), Phase 8b (microtypo + AAA applied + first a11y session)
+**Requirements**: AESTH-01, AESTH-02, AESTH-03, AESTH-05, AESTH-06, AESTH-07 (cross-surface regression), STAB-20 (residue sweep)
+**Success Criteria** (what must be TRUE):
+  1. Per-surface screenshot diff (S0, S1, S2, S3, S4, S5) captured post-8b vs pre-migration baseline; committed to `docs/POLISH_PASS_1.md`.
+  2. Cross-surface coherence audit: typography scale, spacing rhythm, chromatic palette, MTC bloom timing, motion curves — one table per axis, discrepancies flagged.
+  3. Element count delta verified: -20% target from Phase 3 holds post-8b (no regression from reintroduced polish).
+  4. Delta proposal list: each item tagged (hot-fix-now / refine-in-8b / defer-to-post-milestone), each with surface + file + one-line rationale.
+  5. Julien sign-off on proposal list committed as `docs/POLISH_PASS_1.md` footer before Phase 9 begins.
+**Pitfalls to watch**: P15 editorial drift; cross-surface regression from isolated per-surface work.
+**Plans**: TBD
+**UI hint**: yes (supervision-only, no code commits)
+
 ### Phase 9: L1.5 MintAlertObject (S5)
 **Goal**: Build S5 as a typed, rule-fed alert primitive that imports VoiceCursorContract and enforces G2/G3 grammar at the component API level.
 **Depends on**: Phase 2 (CONTRACT-01..06), Phase 4 (optional, MTC patterns)
@@ -203,6 +217,20 @@
 **Pitfalls to watch**: P10 chiffre_choc sweep residue; P14 live tests.
 **Plans**: TBD
 **UI hint**: yes
+
+### Phase 10.5: Friction Pass (golden path device test)
+**Goal**: Julien runs the new S0 landing → intent → /coach/chat golden path on a real Galaxy A14 device and captures every frottement (timing, copy, animation, color, pacing, tap target). Claude re-processes notes into concrete iteration items against Phase 7 (landing) and Phase 10 (onboarding) surfaces. This is the "très belle avant les humains" gate — fail = return to Phase 7/10 for fixes.
+**Depends on**: Phase 7 (landing v2), Phase 10 (onboarding v2)
+**Requirements**: PERF-01, PERF-02, PERF-03 (A14 baseline subset), ONB-04, ONB-07, AESTH-05, AESTH-07
+**Success Criteria** (what must be TRUE):
+  1. Galaxy A14 physical device walkthrough completed by Julien: cold start → S0 → intent chip → chat first message → first insight. Screen recording committed to `docs/FRICTION_PASS_1.mp4` or frame dump to `docs/FRICTION_PASS_1/`.
+  2. Friction notes captured in `docs/FRICTION_PASS_1.md`: one entry per frottement with (timestamp, surface, axis [timing/copy/motion/color/pacing/tap], severity [block/polish/nit], proposed fix).
+  3. Claude processes notes into a tagged iteration list: block-items become hot-fix tasks reopening Phase 7 or 10 scope; polish-items queue for Phase 12 pre-ship; nits deferred to post-milestone.
+  4. All block-items resolved and re-verified on the same A14 device before Phase 11 begins. Second walkthrough recording confirms zero remaining blockers.
+  5. Cold start < 2.5s, first-frame-to-interactive < 3s, first chat message round-trip < 4s on A14 (preliminary, full PERF baseline lives in Phase 12).
+**Pitfalls to watch**: P14 device availability; friction notes that describe symptoms without surfaces; polish creep into blockers.
+**Plans**: TBD
+**UI hint**: yes (device-test + iteration loop)
 
 ### Phase 11: L1.6b Phrase Rewrite + Krippendorff Validation
 **Goal**: Rewrite the 30 most-used coach phrases to match the spec, and statistically prove tone-locking works via weighted ordinal Krippendorff α.
