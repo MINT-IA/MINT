@@ -1281,8 +1281,11 @@ async def sync_insight(
     if body.created_at:
         try:
             created = datetime.fromisoformat(body.created_at)
-        except (ValueError, TypeError):
-            pass
+        except (ValueError, TypeError) as e:
+            # STAB-16 (07-04): best-effort parse of client-supplied ISO8601.
+            # On failure, `created` stays None and downstream uses server time.
+            # Not user-visible; log at debug for forensics.
+            logger.debug("sync_insight: bad created_at '%s': %s", body.created_at, e)
 
     # S2 security fix: bind insight to current user to prevent cross-user overwrites.
     # user_id is stored in metadata and used as a filter in RAG retrieval.

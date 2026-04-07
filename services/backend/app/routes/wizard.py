@@ -1,7 +1,11 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Dict, Any, List
 from datetime import datetime, timedelta, timezone
+
+logger = logging.getLogger(__name__)
 from app.models.session import Session
 from app.models.user import User
 from app.database import get_db
@@ -382,8 +386,11 @@ def _generate_timeline_items(answers: Dict[str, Any]) -> List[Dict[str, Any]]:
                     "priority": "high",
                 }
             )
-        except Exception:
-            pass
+        except (ValueError, TypeError) as e:
+            # STAB-16 (07-04): best-effort date parsing on user-provided answers.
+            # Malformed dates (not ISO format) are skipped — the reminder simply
+            # isn't scheduled. No user-facing surface for this edge case today.
+            logger.debug("wizard: skipped q_mortgage_end_date parse: %s", e)
 
     # 2. Versement 3a : Règle décembre obligatoire [web:444]
     if answers.get("q_has_3a") == "yes":
@@ -419,8 +426,10 @@ def _generate_timeline_items(answers: Dict[str, Any]) -> List[Dict[str, Any]]:
                         "priority": "medium",
                     }
                 )
-            except Exception:
-                pass
+            except (ValueError, TypeError) as e:
+                # STAB-16 (07-04): best-effort date parsing on user-provided
+                # leasing/credit end date. Malformed entries are skipped.
+                logger.debug("wizard: skipped %s parse: %s", field, e)
 
     # Limiter à 6 items max par session pour éviter le bruit
     return items[:6]

@@ -306,5 +306,10 @@ class HybridSearchService:
             if conn is not None and self._pool is not None:  # pragma: no cover
                 try:
                     self._pool.putconn(conn)  # pragma: no cover
-                except Exception:
-                    pass  # pragma: no cover
+                except Exception as exc:  # pragma: no cover
+                    # STAB-16 (07-04): best-effort connection return. The pool
+                    # may have been closed between `getconn` and `putconn`
+                    # (graceful shutdown) — dropping the connection is safe
+                    # because the pool will recreate one on next use. Log for
+                    # observability so a real leak still surfaces in metrics.
+                    logger.debug("putconn failed (pool likely closed): %s", exc)
