@@ -9,11 +9,11 @@
 
 ### Coach Tool Wiring
 
-- [ ] **STAB-01**: `route_to_screen` tool call rendered end-to-end. Backend `coach_tools.py` emits `intent + confidence + context_message`; orchestrator must serialize to a marker the renderer accepts (route resolution from intent), and `widget_renderer.dart` must produce a visible widget instead of `SizedBox.shrink()`. `chat_tool_dispatcher.dart` must support the `intent` path.
-- [ ] **STAB-02**: `generate_document` tool call rendered visible. `coach_orchestrator.dart:644` already emits `[GENERATE_DOCUMENT:…]`; `widget_renderer.dart` must add a `case 'generate_document'` and `CoachMessageBubble` must surface it to the user.
-- [ ] **STAB-03**: `generate_financial_plan` exposed in `coach_orchestrator.dart` BYOK path (currently only `route_to_screen` and `generate_document` are sent to the LLM). `CoachLlmService.chat()` (`coach_llm_service.dart:321`) must re-expose `toolCalls` on return so the orchestrator can dispatch them.
-- [ ] **STAB-04**: `record_check_in` exposed in `coach_orchestrator.dart` BYOK path with `toolCalls` re-exposed identically. Renderer support already exists at `widget_renderer.dart:450`.
-- [ ] **STAB-11**: Coach end-to-end test covering the full chain (tool call emitted → orchestrator dispatched → renderer produced widget → widget visible in `CoachMessageBubble`) for all 4 tools above. Façade-without-wiring guard.
+- [x] **STAB-01**: `route_to_screen` tool call rendered end-to-end. Backend `coach_tools.py` emits `intent + confidence + context_message`; orchestrator must serialize to a marker the renderer accepts (route resolution from intent), and `widget_renderer.dart` must produce a visible widget instead of `SizedBox.shrink()`. `chat_tool_dispatcher.dart` must support the `intent` path.
+- [x] **STAB-02**: `generate_document` tool call rendered visible. `coach_orchestrator.dart:644` already emits `[GENERATE_DOCUMENT:…]`; `widget_renderer.dart` must add a `case 'generate_document'` and `CoachMessageBubble` must surface it to the user.
+- [x] **STAB-03**: `generate_financial_plan` exposed in `coach_orchestrator.dart` BYOK path (currently only `route_to_screen` and `generate_document` are sent to the LLM). `CoachLlmService.chat()` (`coach_llm_service.dart:321`) must re-expose `toolCalls` on return so the orchestrator can dispatch them.
+- [x] **STAB-04**: `record_check_in` exposed in `coach_orchestrator.dart` BYOK path with `toolCalls` re-exposed identically. Renderer support already exists at `widget_renderer.dart:450`.
+- [x] **STAB-11**: Coach end-to-end test covering the full chain (tool call emitted → orchestrator dispatched → renderer produced widget → widget visible in `CoachMessageBubble`) for all 4 tools above. Façade-without-wiring guard.
 
 ### Façade-Sans-Câblage Audit (NEW — deep wiring audit)
 
@@ -59,17 +59,17 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STAB-01 | Phase 7 | Pending |
-| STAB-02 | Phase 7 | Pending |
-| STAB-03 | Phase 7 | Pending |
-| STAB-04 | Phase 7 | Pending |
+| STAB-01 | Phase 7 | Complete |
+| STAB-02 | Phase 7 | Complete |
+| STAB-03 | Phase 7 | Complete |
+| STAB-04 | Phase 7 | Complete |
 | STAB-05 | Phase 7 | Pending |
 | STAB-06 | Phase 7 | Pending |
 | STAB-07 | Phase 7 | Pending |
 | STAB-08 | Phase 7 | Pending |
 | STAB-09 | Phase 7 | Pending |
 | STAB-10 | Phase 7 | Pending |
-| STAB-11 | Phase 7 | Pending |
+| STAB-11 | Phase 7 | Complete |
 | STAB-12 | Phase 7 | Complete |
 | STAB-13 | Phase 7 | Complete |
 | STAB-14 | Phase 7 | Complete |
