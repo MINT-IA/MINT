@@ -560,6 +560,25 @@ def _execute_internal_tool(
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
 
+    # STAB-12 (07-04): set_goal / mark_step_completed / save_insight are
+    # acknowledgement-only tools. They let the LLM track conversational state
+    # without rendering a widget. Persistence to the memory layer is a v3.0
+    # item; for now we return a plain-text ack so the agent loop continues.
+    if name == "set_goal":
+        goal = tool_input.get("goal") or tool_input.get("title") or ""
+        logger.info("set_goal ack (non-persisted): %s", goal[:100])
+        return f"Objectif noté : {goal}" if goal else "Objectif noté."
+
+    if name == "mark_step_completed":
+        step = tool_input.get("step") or tool_input.get("step_id") or ""
+        logger.info("mark_step_completed ack (non-persisted): %s", step[:100])
+        return f"Étape marquée comme terminée : {step}" if step else "Étape marquée comme terminée."
+
+    if name == "save_insight":
+        summary = tool_input.get("summary") or tool_input.get("insight") or ""
+        logger.info("save_insight ack (non-persisted): %s", summary[:100])
+        return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
+
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
     return f"Outil interne '{name}' non reconnu."

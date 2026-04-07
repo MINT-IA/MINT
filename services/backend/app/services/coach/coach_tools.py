@@ -62,6 +62,16 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "get_cap_status",
     "get_couple_optimization",
     "get_regulatory_constant",
+    # STAB-12 (07-04 / AUDIT_COACH_WIRING rows 7-9): these three tools have
+    # no Flutter renderer case — they are backend-only acknowledgements that
+    # let the LLM track state ("goal set", "step done", "insight saved")
+    # without rendering a widget. Marking them internal prevents silent
+    # drop at the mobile renderer. Persistence is deferred to v3.0 memory
+    # layer; for now the backend returns an acknowledgement string so the
+    # agent loop can continue without dead-end tool calls.
+    "set_goal",
+    "mark_step_completed",
+    "save_insight",
 ]
 
 # ---------------------------------------------------------------------------
