@@ -1,6 +1,6 @@
 # MINT Soul Sprint — Le prompt qui change tout
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term.
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "premier éclairage" comme legacy term.
 > Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`).
 >
 > Ce n'est pas un sprint technique. C'est le sprint qui donne une ÂME à MINT.
@@ -10,7 +10,7 @@
 >
 > Les 6 vérités de MINT :
 > 1. Le curseur d'intensité résout la crise d'identité
-> 2. Le chiffre choc est un moment de vérité, pas un hook
+> 2. Le premier éclairage est un moment de vérité, pas un hook
 > 3. Le coach attend, il ne parle pas en premier
 > 4. Le moment de silence est le moment le plus important
 > 5. Transparence radicale sur la privacy
@@ -38,18 +38,18 @@ git checkout -b feature/soul-moment-de-silence
 
 ## RÈGLE CÂBLAGE (NON-NÉGOCIABLE)
 Après le fix, tracer le flux COMPLET :
-User tap → chiffre choc → silence → question → champ texte → coach répond
+User tap → premier éclairage → silence → question → champ texte → coach répond
 Si UN maillon manque → le fix n'est PAS terminé.
 
 ## CE QU'IL FAUT CRÉER
 
-### Le flow émotionnel post-chiffre choc
+### Le flow émotionnel post-premier éclairage
 
 Aujourd'hui après le big number : 3 boutons, 5 actions, du jargon.
 Demain : un SILENCE. Puis une question. Puis une conversation.
 
-File: apps/mobile/lib/screens/onboarding/chiffre_choc_screen.dart
-(ou le screen qui affiche le résultat du chiffre choc après l'onboarding)
+File: apps/mobile/lib/screens/onboarding/premier_eclairage_screen.dart
+(ou le screen qui affiche le résultat du premier éclairage après l'onboarding)
 
 Après l'animation du big number (ex: "4'280 CHF/mois"), REMPLACER
 les boutons d'action par cette séquence :
@@ -67,7 +67,7 @@ AnimatedOpacity(
     children: [
       const SizedBox(height: 32),
       Text(
-        S.of(context)!.chiffreChocSilenceQuestion,
+        S.of(context)!.premierEclairageSilenceQuestion,
         // "C'est ton chiffre. Qu'est-ce que tu en penses ?"
         style: MintTextStyles.bodyLarge().copyWith(
           color: MintColors.textMuted,
@@ -82,7 +82,7 @@ AnimatedOpacity(
         child: TextField(
           controller: _responseController,
           decoration: InputDecoration(
-            hintText: S.of(context)!.chiffreChocSilenceHint,
+            hintText: S.of(context)!.premierEclairageSilenceHint,
             // "Dis ce qui te vient..."
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
@@ -133,7 +133,7 @@ void _navigateToCoachWithResponse() {
   if (userFeeling.isEmpty) return;
 
   // Tracker le moment (analytics)
-  AnalyticsService().trackEvent('chiffre_choc_feeling', {
+  AnalyticsService().trackEvent('premier_eclairage_feeling', {
     'length': userFeeling.length,
     'hasEmoji': userFeeling.contains(RegExp(r'[\u{1F600}-\u{1F9FF}]', unicode: true)),
   });
@@ -141,8 +141,8 @@ void _navigateToCoachWithResponse() {
   // Naviguer vers le coach avec le feeling comme premier message
   context.push('/coach/chat', extra: {
     'initialPrompt': userFeeling,
-    'context': 'post_chiffre_choc',
-    'chiffreChocValue': _chiffreChoc?.rawValue,
+    'context': 'post_premier_eclairage',
+    'premierEclairageValue': _premierEclairage?.rawValue,
   });
 }
 ```
@@ -151,14 +151,14 @@ void _navigateToCoachWithResponse() {
 
 File: apps/mobile/lib/screens/coach/coach_chat_screen.dart
 
-Quand le chat s'ouvre avec `context: 'post_chiffre_choc'`, le system prompt
+Quand le chat s'ouvre avec `context: 'post_premier_eclairage'`, le system prompt
 inclut une instruction spéciale :
 
 ```dart
-if (widget.extra?['context'] == 'post_chiffre_choc') {
+if (widget.extra?['context'] == 'post_premier_eclairage') {
   _systemPromptAddition = '''
 L'utilisateur vient de voir son chiffre de retraite pour la première fois.
-Son chiffre : ${widget.extra?['chiffreChocValue']} CHF/mois.
+Son chiffre : ${widget.extra?['premierEclairageValue']} CHF/mois.
 Sa réaction spontanée : "${widget.extra?['initialPrompt']}"
 
 C'est un moment ÉMOTIONNEL. Ne donne PAS de conseil. Ne liste PAS d'actions.
@@ -198,7 +198,7 @@ En dessous du champ de texte, un lien discret :
 TextButton(
   onPressed: () => context.push('/home'),
   child: Text(
-    S.of(context)!.chiffreChocSkipToHome,
+    S.of(context)!.premierEclairageSkipToHome,
     // "Passer au dashboard"
     style: MintTextStyles.caption().copyWith(color: MintColors.textMuted),
   ),
@@ -209,32 +209,32 @@ Petit, discret, pas le choix principal. Le choix principal c'est ÉCRIRE.
 
 ### Clés i18n (6 langues)
 
-- chiffreChocSilenceQuestion: "C'est ton chiffre. Qu'est-ce que tu en penses ?"
+- premierEclairageSilenceQuestion: "C'est ton chiffre. Qu'est-ce que tu en penses ?"
   EN: "That's your number. What do you think?"
   DE: "Das ist deine Zahl. Was denkst du?"
   IT: "Questo è il tuo numero. Cosa ne pensi?"
   ES: "Este es tu número. ¿Qué piensas?"
   PT: "Este é o teu número. O que achas?"
 
-- chiffreChocSilenceHint: "Dis ce qui te vient..."
+- premierEclairageSilenceHint: "Dis ce qui te vient..."
   EN: "Say what comes to mind..."
   DE: "Sag, was dir einfällt..."
   IT: "Dì quello che ti viene in mente..."
   ES: "Di lo que se te ocurra..."
   PT: "Diz o que te vem à mente..."
 
-- chiffreChocSkipToHome: "Passer au dashboard"
+- premierEclairageSkipToHome: "Passer au dashboard"
 
 ## VÉRIFICATION DE CÂBLAGE
 1. Chiffre choc affiché → 3 secondes de silence → question apparaît → VÉRIFIÉ
 2. Champ de texte fonctionnel → texte envoyé au coach → VÉRIFIÉ
-3. Coach reçoit le contexte 'post_chiffre_choc' → VÉRIFIÉ
+3. Coach reçoit le contexte 'post_premier_eclairage' → VÉRIFIÉ
 4. Coach répond avec empathie (pas de liste d'actions) → VÉRIFIÉ
 5. Bouton "Passer au dashboard" fonctionnel → VÉRIFIÉ
 6. Analytics trackEvent → VÉRIFIÉ
 7. flutter analyze — 0 errors
 8. flutter test — tous passent
-9. git commit: "feat(soul): moment de silence — emotional chiffre choc experience"
+9. git commit: "feat(soul): moment de silence — emotional premier éclairage experience"
 ```
 
 ---
@@ -324,7 +324,7 @@ Column(
 
     // Bouton
     FilledButton(
-      onPressed: _canCalculate ? () => _showInstantChiffreChoc() : null,
+      onPressed: _canCalculate ? () => _showInstantPremierEclairage() : null,
       child: Text(S.of(context)!.landingCalculate),
       // "Voir mon chiffre"
     ),
@@ -338,7 +338,7 @@ Column(
 bool get _canCalculate =>
     _birthYear != null && _salary != null && _salary! > 0 && _canton != null;
 
-void _showInstantChiffreChoc() {
+void _showInstantPremierEclairage() {
   final age = DateTime.now().year - _birthYear!;
   final monthlyRente = AvsCalculator.computeMonthlyRente(
     currentAge: age,
@@ -355,13 +355,13 @@ void _showInstantChiffreChoc() {
   final replacementRate = netMonthly > 0 ? totalMonthly / netMonthly : 0.0;
 
   // Analytics
-  AnalyticsService().trackEvent('instant_chiffre_choc', {
+  AnalyticsService().trackEvent('instant_premier_eclairage', {
     'age': age, 'canton': _canton, 'replacementRate': replacementRate,
   });
 
-  // Naviguer vers le chiffre choc instantané
+  // Naviguer vers le premier éclairage instantané
   // Cet écran utilise le même "moment de silence" du Prompt 1
-  context.push('/chiffre-choc-instant', extra: {
+  context.push('/premier-eclairage-instant', extra: {
     'totalMonthly': totalMonthly,
     'netMonthly': netMonthly,
     'replacementRate': replacementRate,
@@ -372,9 +372,9 @@ void _showInstantChiffreChoc() {
 }
 ```
 
-### L'écran chiffre choc instantané
+### L'écran premier éclairage instantané
 
-File: apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart (NOUVEAU)
+File: apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart (NOUVEAU)
 
 Écran MINIMALISTE :
 - Le big number animé
@@ -389,7 +389,7 @@ File: apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart (NOUVE
 ### Route publique (pas d'auth)
 
 File: apps/mobile/lib/app.dart
-Ajouter `/chiffre-choc-instant` dans les publicPrefixes.
+Ajouter `/premier-eclairage-instant` dans les publicPrefixes.
 
 ### Comparaison VZ sur le landing
 
@@ -407,11 +407,11 @@ Text(
 
 ## VÉRIFICATION DE CÂBLAGE
 1. Landing → 3 champs visibles (birth year, salary, canton) → VÉRIFIÉ
-2. Remplir + tapper → chiffre choc en <1 seconde → VÉRIFIÉ
+2. Remplir + tapper → premier éclairage en <1 seconde → VÉRIFIÉ
 3. Aucun compte créé, aucune donnée stockée → VÉRIFIÉ
 4. Moment de silence + question + champ texte → VÉRIFIÉ
 5. Analytics trackEvent → VÉRIFIÉ
-6. git commit: "feat(soul): 2-tap chiffre choc on landing with canton"
+6. git commit: "feat(soul): 2-tap premier éclairage on landing with canton"
 ```
 
 ---
@@ -939,7 +939,7 @@ PAS de jargon dans l'explication du jargon.
 
 File: apps/mobile/lib/screens/landing_screen.dart (ajouter section)
 
-Si l'utilisateur a déjà entré son salaire (via le 2-tap chiffre choc),
+Si l'utilisateur a déjà entré son salaire (via le 2-tap premier éclairage),
 calculer SA pénalité mariage estimée :
 
 ```dart
@@ -1003,7 +1003,7 @@ git checkout -b feature/soul-transparency
 MINT doit être l'app PLUS transparente du marché suisse. Pas des
 promesses vagues — une transparence RADICALE, action par action.
 
-### 1. Sur le landing (chiffre choc instantané)
+### 1. Sur le landing (premier éclairage instantané)
 
 Sous les 3 champs, AVANT le bouton "Voir mon chiffre" :
 
@@ -1124,7 +1124,7 @@ Pas de conflit. Merger : B → A
 | E | P7 (Transparence radicale) | feature/soul-transparency |
 
 ATTENTION : P2 et P6 touchent tous les deux landing_screen.dart.
-P2 ajoute les 3 champs + chiffre choc.
+P2 ajoute les 3 champs + premier éclairage.
 P6 ajoute la section couple preview.
 Merger P2 AVANT P6. Résoudre les conflits (sections différentes).
 
@@ -1132,7 +1132,7 @@ Merger P2 AVANT P6. Résoudre les conflits (sections différentes).
 
 1. Chiffre choc → 3 secondes de silence → "Qu'est-ce que tu en penses ?" ✅/❌
 2. L'utilisateur écrit → coach répond avec empathie (pas de liste) ✅/❌
-3. Landing → 3 champs → chiffre choc SANS compte ✅/❌
+3. Landing → 3 champs → premier éclairage SANS compte ✅/❌
 4. Coach → chiffre silencieux + "Tu veux en parler ?" (pas de message proactif) ✅/❌
 5. 3ème session → opt-in proactif proposé ✅/❌
 6. Dashboard → Confidence Score (pas progress bar) ✅/❌
@@ -1149,7 +1149,7 @@ Si UN seul ❌ → l'âme n'est pas là. Sprint PAS terminé.
 - Le coach ATTEND (pas de message proactif par défaut)
 - Chaque nombre dit "fais ÇA" avec un montant et un délai
 - La transparence est RADICALE (pas vague)
-- L'utilisateur peut ÉCRIRE ce qu'il ressent après le chiffre choc
+- L'utilisateur peut ÉCRIRE ce qu'il ressent après le premier éclairage
 - 0 test failures
 - 0 worktree orphelines
 ```

@@ -29,7 +29,7 @@ lifeEvent: "retirement"
 - Impact fiscal du retrait en capital.
 - Taux de remplacement estime (revenus retraite / dernier salaire).
 
-## Chiffre choc
+## Premier éclairage
 "En moyenne, la rente AVS + LPP ne couvre que 60% du dernier salaire -- le 3e pilier et l'epargne libre doivent combler le reste."
 
 ## Contenu educatif

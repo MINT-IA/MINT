@@ -8,7 +8,7 @@ tags: [succession, transmission, heritage, testament, beneficiaire, donation, cc
 ## Trigger
 L'utilisateur est dans la phase Transmission (75-99 ans) ou mentionne des sujets liés à la succession et à la transmission de patrimoine.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, environ CHF 95 milliards sont transmis chaque année par héritage et donation. Pourtant, 60% des Suisses n'ont pas de testament — ce qui peut créer des situations complexes pour les proches.
 
 ## Niveau 0

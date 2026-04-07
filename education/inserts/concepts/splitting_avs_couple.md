@@ -8,7 +8,7 @@ tags: [avs, couple, splitting, rente, mariage, lavs]
 ## Trigger
 L'utilisateur est marié ou vient de se marier, simule sa rente AVS en couple, ou le coach détecte un écart important de revenus entre les conjoints.
 
-## Chiffre Choc
+## Premier Éclairage
 Sans splitting, un·e conjoint·e qui a travaillé à 50% pendant 20 ans de mariage peut toucher une rente AVS réduite de CHF 500-800/mois seulement. Le splitting peut la porter à CHF 1'200-1'500/mois — presque le double.
 
 ## Niveau 0

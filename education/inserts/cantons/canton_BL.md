@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Bâle-Campagne"
 ## Trigger
 L'utilisateur réside en Bâle-Campagne ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale en Bâle-Campagne est moyenne à légèrement supérieure : le multiplicateur cantonal se situe autour de 115-120 %.
 
 ## Niveau 0

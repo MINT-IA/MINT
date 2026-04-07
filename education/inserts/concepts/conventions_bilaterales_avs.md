@@ -8,7 +8,7 @@ tags: [avs, expat, frontalier, bilatéral, totalisation, alcp, proratisation]
 ## Trigger
 Le profil utilisateur détecte un archetype expat_eu ou cross_border, l'utilisateur a travaillé dans plusieurs pays européens, ou l'utilisateur signale des années de cotisation hors Suisse.
 
-## Chiffre Choc
+## Premier Éclairage
 Un frontalier qui a travaillé 20 ans en France et 24 ans en Suisse a droit à une rente AVS suisse calculée sur 24/44 ans — sans la totalisation, il n'aurait pas de droit du tout en Suisse avec seulement 24 ans cotisés (sous le seuil d'une carrière complète).
 
 ## Niveau 0

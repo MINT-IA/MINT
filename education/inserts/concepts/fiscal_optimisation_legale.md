@@ -8,7 +8,7 @@ tags: [fiscal, optimisation, legale, strategie, timing, piliers, prévoyance]
 ## Trigger
 L'utilisateur cherche à réduire sa charge fiscale de manière légale, ou planifie le timing de ses retraits de prévoyance avant la retraite.
 
-## Chiffre Choc
+## Premier Éclairage
 Une planification fiscale stratégique (rachats LPP échelonnés + multi-comptes 3a + retrait étalé + coordination couple) peut faire économiser CHF 50'000 à 150'000 d'impôts sur les 10-15 dernières années avant la retraite. C'est de l'argent que tu gardes — en toute légalité.
 
 ## Niveau 0

@@ -27,7 +27,7 @@ lifeEvent: "divorce"
 - Estimation indicative des contributions d'entretien.
 - Checklist des demarches a entreprendre.
 
-## Chiffre choc
+## Premier éclairage
 "Le partage du 2e pilier represente en moyenne CHF 150'000 a CHF 250'000 transferes d'une caisse a l'autre -- c'est souvent le poste le plus important du divorce, devant la liquidation du regime matrimonial."
 
 ## Contenu educatif

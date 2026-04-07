@@ -1,14 +1,14 @@
 # W17 — "MINT POUR TOUS" — Orchestration corrigée
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 >
 > **Corrigé post-audit** : P2 supprimé (Pulse déjà adaptatif depuis 2026-03-22).
 > 5 prompts au lieu de 6. Waves restructurées.
 
 ## CONTEXTE
 MINT est une app de retraite déguisée en app de vie financière.
-Les hubs Explorer sont hardcodés (Retraite #1 pour tous). L'instant chiffre choc ne call pas ChiffreChocSelector. L'émotion post-chiffre-choc est perdue. Les hub screens n'utilisent aucun content gating lifecycle.
-W17 câble l'infrastructure existante (LifecyclePhaseService, ContentAdapterService, ChiffreChocSelector) aux écrans UI.
+Les hubs Explorer sont hardcodés (Retraite #1 pour tous). L'instant premier éclairage ne call pas PremierEclairageSelector. L'émotion post-chiffre-choc est perdue. Les hub screens n'utilisent aucun content gating lifecycle.
+W17 câble l'infrastructure existante (LifecyclePhaseService, ContentAdapterService, PremierEclairageSelector) aux écrans UI.
 
 ## RÈGLES
 - Chaque prompt = sa propre feature branch depuis `dev`
@@ -30,9 +30,9 @@ Pas de conflit de fichiers. Merger dans l'ordre : A → B.
 ### VAGUE 2 — Onboarding rewire (1 agent)
 | Agent | Prompt | Branch | Scope |
 |-------|--------|--------|-------|
-| C | P3 (Onboarding rewire) | `feature/w17-onboarding-rewire` | `instant_chiffre_choc_screen.dart` + `landing_screen.dart` + 6 ARB |
+| C | P3 (Onboarding rewire) | `feature/w17-onboarding-rewire` | `instant_premier_eclairage_screen.dart` + `landing_screen.dart` + 6 ARB |
 
-Seul agent qui touche le landing et l'instant chiffre choc. Merger après vague 1.
+Seul agent qui touche le landing et l'instant premier éclairage. Merger après vague 1.
 
 ### VAGUE 3 — Data passthrough (2 agents EN PARALLÈLE)
 | Agent | Prompt | Branch | Scope |
@@ -86,21 +86,21 @@ grep -n "'birthYear'" apps/mobile/lib/screens/landing_screen.dart
 ```
 → Doit trouver `'birthYear': _birthYear!` dans le route extra. ✅/❌
 
-**Test 6** : Instant chiffre choc appelle ChiffreChocSelector
+**Test 6** : Instant premier éclairage appelle PremierEclairageSelector
 ```bash
-grep -n "ChiffreChocSelector" apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart
+grep -n "PremierEclairageSelector" apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart
 ```
-→ Doit trouver `ChiffreChocSelector.select`. ✅/❌
+→ Doit trouver `PremierEclairageSelector.select`. ✅/❌
 
 **Test 7** : Plus de question générique
 ```bash
-grep -n "chiffreChocSilenceQuestion" apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart
+grep -n "premierEclairageSilenceQuestion" apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart
 ```
 → NE DOIT PAS trouver cette clé (remplacée). ✅/❌
 
 **Test 8** : Émotion stockée
 ```bash
-grep -n "onboarding_emotion" apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart
+grep -n "onboarding_emotion" apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart
 ```
 → Doit trouver `prefs.setString('onboarding_emotion'`. ✅/❌
 
@@ -132,7 +132,7 @@ grep -n "CONTEXTE ONBOARDING" apps/mobile/lib/services/coach/context_injector_se
 - Retraite hub masque les outils avancés aux jeunes
 - 18 ans voit "intérêts composés", pas "retraite"
 - L'émotion post-chiffre-choc arrive au coach
-- Le coach sait quel chiffre choc a été vu et réagit
+- Le coach sait quel premier éclairage a été vu et réagit
 - QuickStart a des defaults intelligents (plus de 1981/85000)
 
 ## CE QUE W17 NE FAIT PAS

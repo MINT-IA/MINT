@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Glaris"
 ## Trigger
 L'utilisateur réside à Glaris ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Glaris est simple et lisible grâce au taux unique : le canton applique un taux unique d'environ 25 % du revenu imposable — pas de progressivité cantonale.
 
 ## Niveau 0

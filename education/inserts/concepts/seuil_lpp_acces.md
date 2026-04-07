@@ -8,7 +8,7 @@ tags: [lpp, seuil, temps_partiel, acces, affiliation, pluriactif]
 ## Trigger
 L'utilisateur travaille à temps partiel, déclare un salaire inférieur à CHF 22'680/an, ou le coach détecte un profil sans 2e pilier déclaré.
 
-## Chiffre Choc
+## Premier Éclairage
 Environ 600'000 personnes en Suisse ne sont pas assurées au 2e pilier obligatoire — dont une majorité de femmes travaillant à temps partiel. En dessous de CHF 22'680/an par employeur, le pont LPP n'a pas de ticket d'entrée.
 
 ## Niveau 0

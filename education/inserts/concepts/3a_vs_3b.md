@@ -8,7 +8,7 @@ tags: [3a, 3b, epargne, fiscalite, opp3, lifd, retraite]
 ## Trigger
 L'utilisateur demande la différence entre 3a et 3b, le coach détecte que l'utilisateur n'a pas encore de 3a, ou l'utilisateur envisage une épargne libre au-delà du plafond 3a.
 
-## Chiffre Choc
+## Premier Éclairage
 CHF 7'258 versés en 3a économisent entre CHF 1'500 et CHF 3'500 d'impôts la même année — selon ton canton et ton revenu. C'est un rendement fiscal immédiat de 20 à 48% avant tout intérêt.
 
 ## Niveau 0

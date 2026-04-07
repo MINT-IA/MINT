@@ -8,7 +8,7 @@ tags: [lpp, invalidite, rente, protection, risque, prevoyance]
 ## Trigger
 L'utilisateur s'interroge sur ce qui se passe avec son 2e pilier en cas d'invalidité, ou découvre que la LPP protège aussi contre ce risque.
 
-## Chiffre Choc
+## Premier Éclairage
 En cas d'invalidité complète, ta caisse LPP te verse une rente pouvant atteindre 40-70 % de ton dernier salaire assuré — en plus de la rente AI. Combinées, ces deux rentes pourraient couvrir 60-80 % de ton ancien revenu.
 
 ## Niveau 0

@@ -1,6 +1,6 @@
 # Sprint de Transformation — Coach proactif + UX wow
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term.
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "premier éclairage" comme legacy term.
 > Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`).
 >
 > Ce document contient les prompts pour transformer MINT d'un "outil éducatif passif"
@@ -249,7 +249,7 @@ Column(
     // Bouton : Calculer
     FilledButton(
       onPressed: _birthYear != null && _salary != null
-          ? () => _showInstantChiffreChoc()
+          ? () => _showInstantPremierEclairage()
           : null,
       child: Text(S.of(context)!.landingCalculate), // "Voir mon chiffre"
     ),
@@ -260,7 +260,7 @@ Column(
 ### 2. Calcul instantané SANS compte
 
 ```dart
-void _showInstantChiffreChoc() {
+void _showInstantPremierEclairage() {
   final age = DateTime.now().year - _birthYear!;
   final monthlyRente = AvsCalculator.computeMonthlyRente(
     currentAge: age,
@@ -276,8 +276,8 @@ void _showInstantChiffreChoc() {
   final currentMonthly = _salary! / 12 * 0.85; // Net estimé
   final replacementRate = totalMonthly / currentMonthly;
 
-  // Naviguer vers un chiffre choc SIMPLIFIÉ (pas l'onboarding complet)
-  context.push('/chiffre-choc-instant', extra: {
+  // Naviguer vers un premier éclairage SIMPLIFIÉ (pas l'onboarding complet)
+  context.push('/premier-eclairage-instant', extra: {
     'totalMonthly': totalMonthly,
     'currentMonthly': currentMonthly,
     'replacementRate': replacementRate,
@@ -287,12 +287,12 @@ void _showInstantChiffreChoc() {
 }
 ```
 
-### 3. Écran chiffre choc instant (NOUVEAU, simplifié)
+### 3. Écran premier éclairage instant (NOUVEAU, simplifié)
 
-File: apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart (NOUVEAU)
+File: apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart (NOUVEAU)
 
 Un écran minimaliste :
-- Le big number animé (comme le chiffre choc existant)
+- Le big number animé (comme le premier éclairage existant)
 - Un contexte : "C'est X% de ton salaire actuel. La moyenne suisse est 68%."
 - DEUX boutons :
   - "Créer un compte pour aller plus loin" → signup → onboarding complet
@@ -304,7 +304,7 @@ C'est un calcul ÉPHÉMÈRE — si l'utilisateur veut sauvegarder, il crée un c
 ### 4. Route GoRouter
 
 File: apps/mobile/lib/app.dart
-Ajouter la route `/chiffre-choc-instant` dans les publicPrefixes (pas d'auth requise).
+Ajouter la route `/premier-eclairage-instant` dans les publicPrefixes (pas d'auth requise).
 
 ### 5. Clés i18n
 
@@ -319,11 +319,11 @@ Ajouter dans les 6 ARB files :
 
 ## VÉRIFICATION
 1. Landing screen → 2 champs visibles (birth year + salary)
-2. Remplir + tapper "Voir mon chiffre" → chiffre choc en <1 seconde
+2. Remplir + tapper "Voir mon chiffre" → premier éclairage en <1 seconde
 3. PAS de compte créé, PAS de données stockées
 4. flutter analyze — 0 errors
 5. flutter test — tous passent
-6. git commit: "feat(onboarding): 2-tap chiffre choc on landing (no account required)"
+6. git commit: "feat(onboarding): 2-tap premier éclairage on landing (no account required)"
 ```
 
 ---
@@ -738,7 +738,7 @@ Remplacer les Text() statiques contenant du jargon par GlossaryTerm :
 - Onboarding calibration : "avoir LPP", "taux de conversion", "3a"
 
 NE PAS tout remplacer — seulement les 10 termes les plus fréquents sur
-les écrans que Catherine voit en premier (onboarding, chiffre choc,
+les écrans que Catherine voit en premier (onboarding, premier éclairage,
 retirement dashboard, coach chat).
 
 ## VÉRIFICATION
@@ -810,7 +810,7 @@ Merger D → dev.
 
 ### VÉRIFICATION FINALE
 1. Nouvelle conversation coach → message proactif basé sur Cap du Jour ✅/❌
-2. Landing → 2 champs → chiffre choc SANS compte ✅/❌
+2. Landing → 2 champs → premier éclairage SANS compte ✅/❌
 3. Retirement dashboard → contexte "c'est bien/moyen" + CTA ✅/❌
 4. J+1 → notification personnalisée avec montant ✅/❌
 5. Landing → section couple visible ✅/❌

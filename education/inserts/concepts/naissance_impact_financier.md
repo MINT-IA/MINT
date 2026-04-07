@@ -8,7 +8,7 @@ tags: [naissance, famille, allocations, conge_maternite, conge_paternite, lapg, 
 ## Trigger
 L'utilisateur attend un enfant ou vient d'en avoir un et veut comprendre les implications financières (coûts, allocations, congés, prévoyance).
 
-## Chiffre Choc
+## Premier Éclairage
 Un enfant coûte en moyenne CHF 1'500 à CHF 1'800/mois en Suisse (de la naissance à 18 ans), soit environ CHF 325'000 à CHF 390'000 au total. Les allocations familiales (CHF 200-300/mois) ne couvrent qu'une fraction de ce coût.
 
 ## Niveau 0

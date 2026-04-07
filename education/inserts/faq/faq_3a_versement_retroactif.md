@@ -10,7 +10,7 @@ source: "OPP3 art. 7 (nouveau), Message du Conseil fédéral du 22.11.2023"
 ## Trigger
 L'utilisateur pose une question sur la possibilité de rattraper des années manquées de cotisation 3a, ou mentionne la nouvelle loi sur le versement rétroactif.
 
-## Chiffre Choc
+## Premier Éclairage
 Dès 2026, tu pourras rattraper jusqu'à 10 ans de cotisations 3a manquées. Pour un salarié LPP, cela représente un rattrapage potentiel de CHF 72'580 (10 × CHF 7'258), entièrement déductible du revenu imposable.
 
 ## Niveau 0

@@ -23,7 +23,7 @@ lifeEvent: "concubinage"
 - Estimation de l'impot successoral en concubinage.
 - Checklist des protections essentielles.
 
-## Chiffre choc
+## Premier éclairage
 "En cas de deces sans testament, ton-ta partenaire en concubinage n'herite de rien -- 0 CHF, quelle que soit la duree de vie commune."
 
 ## Contenu educatif

@@ -1,6 +1,6 @@
 # MINT Design System v2
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 
 > **Statut** : Document cible. Migration en cours depuis le code existant.
 > **Gouvernance** : Ce document décrit la direction visuelle cible pour MINT.
@@ -35,7 +35,7 @@ Les règles s'appliquent différemment selon le type d'écran. Chaque écran MIN
 à exactement une catégorie.
 
 ### A. Hero Screens (Insight / Projection)
-> Pulse, Retirement Dashboard, Score Reveal, Chiffre-Choc, Financial Report
+> Pulse, Retirement Dashboard, Score Reveal, Premier-Éclairage, Financial Report
 
 - **1 chiffre dominant** (`displayLarge`), visible en <3s
 - **Max 2 sections** au-dessus du fold (hero + 1 secondaire)
@@ -543,7 +543,7 @@ un `OutlinedButton` ou un `TextButton`.
 ### Phase 3 : Écrans (sprints S52-S54)
 
 Chaque écran passe la checklist §8. Ordre de priorité :
-1. **Tier 1** (6 écrans) : Pulse, Quick Start, Chiffre-Choc, Profile, Coach Chat, Budget
+1. **Tier 1** (6 écrans) : Pulse, Quick Start, Premier-Éclairage, Profile, Coach Chat, Budget
 2. **Tier 2** (6 écrans) : Retirement Dashboard, Rente vs Capital, Rachat LPP, 3a Retrait, Décaissement, Succession
 3. **Tier 3** (6 écrans) : Mariage, Naissance, Affordability, Divorce, Chômage, Déménagement
 4. **Tier 4** (6 écrans) : Fiscal Comparator, Simulator 3a, 3a Rendement, Allocation, Indépendant, Expatrié
@@ -563,7 +563,7 @@ Chaque écran passe la checklist §8. Ordre de priorité :
 | Cat. | Écran | Priorité |
 |------|-------|----------|
 | **A** | pulse_screen | Tier 1 |
-| **A** | premier_eclairage_screen (legacy: chiffre_choc_screen) | Tier 1 |
+| **A** | premier_eclairage_screen (legacy: premier_eclairage_screen) | Tier 1 |
 | **A** | retirement_dashboard_screen | Tier 2 |
 | **A** | score_reveal_screen | Tier 5 |
 | **A** | financial_report_screen_v2 | Tier 6 |

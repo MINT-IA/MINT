@@ -8,7 +8,7 @@ tags: [fiscal, fortune, patrimoine, cantonal, seuil, lhid]
 ## Trigger
 L'utilisateur possède un patrimoine et veut comprendre comment il est taxé, ou compare la charge fiscale entre cantons.
 
-## Chiffre Choc
+## Premier Éclairage
 La Suisse est l'un des rares pays à taxer la fortune (patrimoine). Avec une fortune nette de CHF 1'000'000, l'impôt sur la fortune varie de ~CHF 1'300 (Nidwald) à ~CHF 7'500 (Genève) par an selon le canton — un écart de 1 à 6.
 
 ## Niveau 0

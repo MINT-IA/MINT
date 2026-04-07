@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Schwytz"
 ## Trigger
 L'utilisateur réside à Schwytz ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Schwytz est très basse — l'un des cantons les moins chers de Suisse : le multiplicateur cantonal se situe autour de 75-85 %.
 
 ## Niveau 0

@@ -8,7 +8,7 @@ tags: [dette, surendettement, aide, caritas, lp, poursuites, urgence]
 ## Trigger
 L'utilisateur montre des signes de surendettement (dettes multiples, poursuites, difficulté à payer les charges courantes) ou demande de l'aide pour sa situation financière difficile.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, environ 1 ménage sur 5 a au moins une dette courante (leasing, petit crédit, arriéré d'impôts), pour un total estimé à plus de CHF 800 milliards de crédits à la consommation. Les services de conseil en désendettement (Caritas, CSRC) sont gratuits et confidentiels — pourtant seule une fraction des personnes concernées les consulte.
 
 ## Niveau 0

@@ -66,6 +66,10 @@ jobs:
           pip install pip-audit
           pip-audit --skip-editable --desc on --ignore-vuln CVE-2026-4539
 
+      - name: Legacy token gate (no chiffre_choc)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_chiffre_choc.py
+
       - name: Run tests
         env:
           TESTING: "1"

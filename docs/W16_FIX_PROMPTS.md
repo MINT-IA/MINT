@@ -1,6 +1,6 @@
 # W16 — Fixes techniques (absurdités logiques + logic gaps)
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 
 > 4 prompts ciblés sur les bugs de LOGIQUE trouvés par la W16.
 > Les findings UX/produit sont traités séparément (vision stratégique).
@@ -72,7 +72,7 @@ if (isDivorced && (marriageYears <= 0 || totalContributionYears <= 0)) {
 ```
 
 ### FIX 4: Replacement ratio >100% — reformuler (P0)
-File: Chercher où le replacement ratio est affiché en texte (chiffre choc,
+File: Chercher où le replacement ratio est affiché en texte (premier éclairage,
 dashboard, rapport).
 Bug: "120% de ton revenu actuel" est absurde pour un retraité.
 Action: Quand replacementRatio > 1.0 :
@@ -346,7 +346,7 @@ Le raccourcir à 1 ligne + lien "En savoir plus" :
 1. flutter gen-l10n — 0 errors
 2. flutter analyze — 0 errors
 3. flutter test — tous passent
-4. git commit: "fix(ux): W16 — jargon tooltips, data origin, chiffre choc context"
+4. git commit: "fix(ux): W16 — jargon tooltips, data origin, premier éclairage context"
 ```
 
 ---

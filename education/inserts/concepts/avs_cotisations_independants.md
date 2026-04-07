@@ -8,7 +8,7 @@ tags: [avs, independant, cotisation, bareme, lavs]
 ## Trigger
 L'utilisateur est indépendant·e ou envisage de le devenir, et veut comprendre ses obligations de cotisation AVS.
 
-## Chiffre Choc
+## Premier Éclairage
 Un·e indépendant·e paie entre 5.371 % et 10.60 % de son revenu net en cotisations AVS/AI/APG — contre un taux fixe de 5.30 % pour un·e salarié·e (l'employeur payant les 5.30 % restants). En dessous de CHF 9'800/an de revenu, tu bénéficies du barème dégressif.
 
 ## Niveau 0

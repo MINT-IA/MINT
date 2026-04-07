@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Fribourg"
 ## Trigger
 L'utilisateur réside à Fribourg ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Fribourg est modérée et attractive pour les familles : le multiplicateur cantonal se situe autour de 110 %.
 
 ## Niveau 0

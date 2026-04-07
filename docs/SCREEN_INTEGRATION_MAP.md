@@ -4,7 +4,7 @@
 > Pour chaque écran existant : son sort dans la nouvelle architecture (3 tabs + drawer),
 > comment le coach interagit avec lui, et les câbles à connecter.
 >
-> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term technique.
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "premier éclairage" comme legacy term technique.
 > Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`). Migration code à planifier.
 >
 > **Légende statut** :
@@ -83,10 +83,10 @@
 
 | Route | Écran | Statut | Détail |
 |-------|-------|--------|--------|
-| `/chiffre-choc-instant` | InstantChiffreChocScreen | **KEEP** (modified) | Lit OnboardingProvider au lieu de route extras. Appelle ChiffreChocSelector. Stocke émotion via OnboardingProvider. Post-émotion → `/onboarding/promise`. |
+| `/premier-eclairage-instant` | InstantPremierEclairageScreen | **KEEP** (modified) | Lit OnboardingProvider au lieu de route extras. Appelle PremierEclairageSelector. Stocke émotion via OnboardingProvider. Post-émotion → `/onboarding/promise`. |
 | `/onboarding/promise` | PromiseScreen | **NEW** | Texte adapté par LifecyclePhase. 2 boutons : Allons-y (register) / Juste les chiffres (mode libre). |
 | `/onboarding/quick` | QuickStartScreen | **ARCHIVE** | Remplacé par l'Onboarding Hinge dans LandingScreen. Les données sont collectées via les 3 prompts du landing + enrichissement progressif via le coach. Route gardée pour compat mais redirige vers `/`. |
-| `/onboarding/chiffre-choc` | ChiffreChocScreen | **ARCHIVE** | Unifié dans `/chiffre-choc-instant`. Redirection. |
+| `/onboarding/premier-eclairage` | PremierEclairageScreen | **ARCHIVE** | Unifié dans `/premier-eclairage-instant`. Redirection. |
 | `/data-block/:type` | DataBlockEnrichmentScreen | **KEEP** | Enrichissement de données via le coach. Inchangé. |
 
 ### 3.3 Main Shell (1 écran)
@@ -327,7 +327,7 @@
 
 ```
 /onboarding/quick           → REDIRECT → /
-/onboarding/chiffre-choc    → REDIRECT → /chiffre-choc-instant
+/onboarding/premier-eclairage    → REDIRECT → /premier-eclairage-instant
 /coach/cockpit              → REDIRECT → /home?tab=0
 /coach/checkin              → REDIRECT → /home?tab=1
 /coach/refresh              → REDIRECT → /home?tab=0
@@ -477,7 +477,7 @@ static const Set<String> _validCoachRoutes = {
 
 | Fichier | Raison |
 |---------|--------|
-| `instant_chiffre_choc_screen 2.dart` | Doublon avec espace dans le nom. Version ancienne. |
+| `instant_premier_eclairage_screen 2.dart` | Doublon avec espace dans le nom. Version ancienne. |
 
 ---
 

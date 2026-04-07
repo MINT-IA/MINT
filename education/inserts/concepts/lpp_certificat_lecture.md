@@ -8,7 +8,7 @@ tags: [lpp, certificat, lecture, comprehension, avoir_vieillesse, prevoyance]
 ## Trigger
 L'utilisateur reçoit son certificat de prévoyance annuel et ne comprend pas les chiffres, ou veut savoir quels montants sont importants.
 
-## Chiffre Choc
+## Premier Éclairage
 8 assuré·e·s sur 10 ne lisent pas ou ne comprennent pas leur certificat de prévoyance. Pourtant, c'est le seul document qui te dit exactement combien tu toucheras à la retraite via ton 2e pilier — et combien tu pourrais gagner en faisant un rachat.
 
 ## Niveau 0

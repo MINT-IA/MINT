@@ -11,7 +11,7 @@ source: "Administration fiscale du canton du Valais"
 ## Trigger
 L'utilisateur réside en Valais ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale en Valais est modérée et attractive : le multiplicateur cantonal se situe autour de 105-110 %. Le canton offre des taux intéressants sur le retrait de capital LPP.
 
 ## Niveau 0

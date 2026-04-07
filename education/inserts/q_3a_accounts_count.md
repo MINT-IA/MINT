@@ -28,7 +28,7 @@ status: "READY"
 - Le nombre recommandé dépend du montant total et du canton (taux progressif variable).
 - Les retraits anticipes (achat immobilier, independance) ne sont pas pris en compte ici.
 
-## Chiffre Choc
+## Premier Éclairage
 "Avec 5 comptes 3a retires sur 5 ans au lieu d'un seul, tu peux economiser entre 8'000 et 25'000 CHF d'impots sur le retrait — car chaque retrait est impose separement et a un taux plus bas."
 
 ## Learning Goals

@@ -8,7 +8,7 @@ tags: [lpp, salaire_coordonne, coordination, deduction, seuil, assure]
 ## Trigger
 L'utilisateur voit le "salaire coordonné" sur son certificat de prévoyance et ne comprend pas pourquoi il est inférieur à son salaire brut, ou travaille à temps partiel et s'interroge sur sa couverture.
 
-## Chiffre Choc
+## Premier Éclairage
 La déduction de coordination est de CHF 26'460/an (2025). Cela signifie que si tu gagnes CHF 50'000 brut, seuls CHF 23'540 sont assurés par la LPP obligatoire. Presque la moitié de ton salaire "disparaît" de la couverture 2e pilier !
 
 ## Niveau 0

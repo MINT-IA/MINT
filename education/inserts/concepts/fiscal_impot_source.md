@@ -8,7 +8,7 @@ tags: [fiscal, impot_source, permis_b, frontalier, retenue, lifd]
 ## Trigger
 L'utilisateur est au bénéfice d'un permis B ou L, est frontalier·ère, ou son employeur retient un impôt à la source sur son salaire.
 
-## Chiffre Choc
+## Premier Éclairage
 Environ 1.5 million de personnes en Suisse sont soumises à l'impôt à la source. Depuis 2021, les contribuables imposés à la source qui gagnent plus de CHF 120'000 brut/an doivent obligatoirement déposer une déclaration ordinaire — ce qui leur ouvre l'accès à toutes les déductions.
 
 ## Niveau 0

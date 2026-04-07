@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Nidwald"
 ## Trigger
 L'utilisateur réside à Nidwald ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Nidwald est très basse — parmi les plus attractives de Suisse : le multiplicateur cantonal se situe autour de 75-80 %.
 
 ## Niveau 0

@@ -10,7 +10,7 @@ tags: [lpp, rente, capital, breakeven, retraite, decision]
 - L'utilisateur demande s'il vaut mieux prendre la rente ou le capital du 2e pilier.
 - La simulation MINT affiche un avoir LPP significatif.
 
-## Chiffre Choc
+## Premier Éclairage
 "Avec une espérance de vie de 85 ans et une retraite à 65 ans, la rente devient mathématiquement plus avantageuse que le capital si tu vis plus de 15 à 17 ans après la retraite — le 'point de breakeven' dépend du taux de conversion de ta caisse."
 
 ## Niveau 0

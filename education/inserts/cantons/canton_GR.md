@@ -11,7 +11,7 @@ source: "Administration fiscale du canton des Grisons"
 ## Trigger
 L'utilisateur réside dans les Grisons ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale dans les Grisons est variable selon la commune, souvent attractive : le multiplicateur cantonal se situe autour de 100-110 %. Les communes touristiques (Davos, St. Moritz) offrent des taux très compétitifs.
 
 ## Niveau 0

@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Zurich"
 ## Trigger
 L'utilisateur réside à Zurich ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Zurich est modérée, dans la moyenne suisse : le multiplicateur cantonal se situe autour de 100-110 %. La ville de Zurich applique un multiplicateur communal d'environ 119 %.
 
 ## Niveau 0

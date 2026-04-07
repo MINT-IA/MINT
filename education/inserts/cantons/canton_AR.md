@@ -11,7 +11,7 @@ source: "Administration fiscale du canton d'Appenzell Rhodes-Extérieures"
 ## Trigger
 L'utilisateur réside en Appenzell Rhodes-Extérieures ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale en Appenzell Rhodes-Extérieures est modérément attractive : le multiplicateur cantonal se situe autour de 100 %.
 
 ## Niveau 0

@@ -38,7 +38,7 @@ lifeEvent: "housingSale"
 - Les investissements de plus-value doivent être documentés (factures).
 - Le remploi doit intervenir dans un délai de 2 ans (selon canton).
 
-## Chiffre Choc
+## Premier Éclairage
 "En vendant après {X} ans dans le canton de {canton}, tu paies {taux}% d'impôt sur la plus-value — soit {montant} CHF. Si tu rachètes un bien, cet impôt peut être reporté."
 
 ## Learning Goals

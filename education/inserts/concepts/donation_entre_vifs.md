@@ -8,7 +8,7 @@ tags: [donation, succession, transmission, fiscal, cc]
 ## Trigger
 L'utilisateur s'intéresse aux donations, à la transmission anticipée de patrimoine, ou à l'avance d'hoirie.
 
-## Chiffre Choc
+## Premier Éclairage
 Une donation de CHF 100'000 à un enfant est exonérée d'impôt dans la majorité des cantons suisses (VS, VD, ZH, BE, etc.). Mais dans certains cantons (comme AI ou AR), elle pourrait être taxée à plusieurs pourcents.
 
 ## Niveau 0

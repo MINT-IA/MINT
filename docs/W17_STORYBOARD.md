@@ -1,6 +1,6 @@
 # Wave 17 — AUDIT + STORYBOARD : Le flux réel vs le flux cible
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "premier éclairage" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 >
 > Ce document est un AUDIT du code actuel + un STORYBOARD du flux cible.
 > Chaque écran référence les fichiers, les lignes, les câbles coupés.
@@ -16,21 +16,21 @@
 - **Impact** : L'utilisateur saisit (année, salaire, canton) sur le landing, puis on lui redemande sur QuickStart
 - **Fix** : Passer `extra: {'birthYear': _birthYear, 'grossSalary': _grossSalary, 'canton': _canton}`
 
-### Câble 2 — Instant chiffre choc : émotion perdue au register
-- **Fichier** : `apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart` lignes 119-128
+### Câble 2 — Instant premier éclairage : émotion perdue au register
+- **Fichier** : `apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart` lignes 119-128
 - **Code** : `context.go('/auth/register?prompt=$userFeeling')` — register ignore ce param
-- **Impact** : Le moment le plus intime (réaction au chiffre choc) meurt dans un formulaire d'inscription
+- **Impact** : Le moment le plus intime (réaction au premier éclairage) meurt dans un formulaire d'inscription
 - **Fix** : Stocker `userFeeling` dans un provider ou SharedPreferences, le récupérer post-register et le passer au coach
 
-### Câble 3 — ChiffreChocSelector non utilisé par le flux instant
-- **Fichier** : `apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart`
-- **Code** : Calcul direct AVS+LPP, pas d'appel à `ChiffreChocSelector.select()`
+### Câble 3 — PremierEclairageSelector non utilisé par le flux instant
+- **Fichier** : `apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart`
+- **Code** : Calcul direct AVS+LPP, pas d'appel à `PremierEclairageSelector.select()`
 - **Impact** : Un utilisateur de 18 ans voit "CHF 2'642/mois à la retraite" — hors sujet total
-- **Fix** : Appeler `ChiffreChocSelector.select()` avec un MinimalProfile construit depuis les 3 champs
+- **Fix** : Appeler `PremierEclairageSelector.select()` avec un MinimalProfile construit depuis les 3 champs
 
 ### Câble 4 — Question post-chiffre-choc générique
-- **Fichier** : `instant_chiffre_choc_screen.dart` + `chiffre_choc_screen.dart`
-- **Code** : Clé ARB `chiffreChocSilenceQuestion` = "Qu'est-ce que tu ressens ?"
+- **Fichier** : `instant_premier_eclairage_screen.dart` + `premier_eclairage_screen.dart`
+- **Code** : Clé ARB `premierEclairageSilenceQuestion` = "Qu'est-ce que tu ressens ?"
 - **Impact** : "C'est ton chiffre. Qu'est-ce que tu en penses ?" — bateau, vide, aucune empathie
 - **Fix** : Table de questions par profil (voir Partie 3)
 
@@ -45,9 +45,9 @@
 - **Impact** : Le coach ne peut pas AGIR (router, afficher un widget, demander une info), il ne peut que PARLER
 - **Fix** : Parser les marqueurs dans `coach_chat_screen.dart` et exécuter les tools côté Flutter
 
-### Câble 7 — Pas d'écran "Promesse" entre chiffre choc et register
+### Câble 7 — Pas d'écran "Promesse" entre premier éclairage et register
 - **Fichier** : N'existe pas
-- **Impact** : Après le chiffre choc, rien ne dit "MINT reste avec toi, on va y arriver ensemble"
+- **Impact** : Après le premier éclairage, rien ne dit "MINT reste avec toi, on va y arriver ensemble"
 - **Fix** : Créer un écran intermédiaire (voir Partie 2)
 
 ---
@@ -60,18 +60,18 @@
 - **Fichier** : `landing_screen.dart`
 - **Voit** : 3 champs (année=2007, salaire=12'000, canton=VD)
 - **Tape** : "Calculer"
-- **Code actuel** : `_onCalculate()` → push `/chiffre-choc-instant` avec extra ✓
+- **Code actuel** : `_onCalculate()` → push `/premier-eclairage-instant` avec extra ✓
 
-#### Écran 2 — Chiffre Choc Instant (EXISTE mais MAL CÂBLÉ)
-- **Fichier** : `instant_chiffre_choc_screen.dart`
+#### Écran 2 — Premier Éclairage Instant (EXISTE mais MAL CÂBLÉ)
+- **Fichier** : `instant_premier_eclairage_screen.dart`
 - **Voit aujourd'hui** : "CHF 2'642/mois à la retraite" ← FAUX pour 19 ans
 - **Devrait voir** : Intérêts composés — "CHF 1'200 placés maintenant → CHF 9'847 à 65 ans"
-- **Cause** : `ChiffreChocSelector` non appelé (Câble 3)
+- **Cause** : `PremierEclairageSelector` non appelé (Câble 3)
 - **Fix** :
   ```dart
-  // Dans instant_chiffre_choc_screen.dart, remplacer le calcul direct par :
+  // Dans instant_premier_eclairage_screen.dart, remplacer le calcul direct par :
   final profile = MinimalProfile(age: age, grossSalary: salary, canton: canton);
-  final choc = ChiffreChocSelector.select(profile);
+  final choc = PremierEclairageSelector.select(profile);
   // age < 28 → choc.type == compoundGrowth
   ```
 
@@ -79,7 +79,7 @@
 - **Voit aujourd'hui** : "Qu'est-ce que tu ressens ?" (Câble 4)
 - **Devrait voir** : "Tu savais que le temps comptait autant ?"
 - **Chips** : "Non, c'est dingue" / "Oui mais j'ai pas d'argent" / "Dis-moi quoi faire"
-- **Fix** : Table de mapping `ChiffreChocType → questionKey` (voir Partie 3)
+- **Fix** : Table de mapping `PremierEclairageType → questionKey` (voir Partie 3)
 
 #### Écran 3 — La Promesse (N'EXISTE PAS — Câble 7)
 - **Fichier à créer** : `promise_screen.dart`
@@ -99,8 +99,8 @@
 
 #### Écran 4 — Coach (EXISTE mais NE SAIT RIEN)
 - **Fichier** : `coach_chat_screen.dart`
-- **Aujourd'hui** : Le coach ouvre avec un "silent opener" générique. Ne sait pas que l'utilisateur a vu un chiffre choc, a répondu, a 19 ans.
-- **Devrait** : Recevoir `OnboardingPayload` (chiffreChocType, value, emotion, age, canton) et ouvrir avec :
+- **Aujourd'hui** : Le coach ouvre avec un "silent opener" générique. Ne sait pas que l'utilisateur a vu un premier éclairage, a répondu, a 19 ans.
+- **Devrait** : Recevoir `OnboardingPayload` (premierEclairageType, value, emotion, age, canton) et ouvrir avec :
   ```
   Bienvenue Emma.
   Tu viens de découvrir la magie des intérêts composés.
@@ -116,8 +116,8 @@
 
 ### PERSONA B : MARCO, 35 ANS, EXPAT ITALIEN
 
-#### Écran 2 — Chiffre Choc (avec ChiffreChocSelector câblé)
-- **ChiffreChocSelector** retourne : `retirementGap` (38+ && replacement < 55%)
+#### Écran 2 — Premier Éclairage (avec PremierEclairageSelector câblé)
+- **PremierEclairageSelector** retourne : `retirementGap` (38+ && replacement < 55%)
 - **Voit** : "Il te manque CHF 2'310/mois à la retraite"
 - **Sous-texte détecté par archetype** : "Tu as cotisé 7 ans en Suisse. Tes années en Italie comptent — mais pas automatiquement." ← nécessite `expat_eu` archetype detection
 - **Câble manquant** : L'instant flow ne détecte PAS l'archetype (pas de question nationalité/arrivée)
@@ -131,8 +131,8 @@
 
 ### PERSONA C : JULIEN, 49 ANS (Golden Couple)
 
-#### Écran 2 — Chiffre Choc
-- **ChiffreChocSelector** retourne : `retirementIncome` (age 49, replacement ~65.5%)
+#### Écran 2 — Premier Éclairage
+- **PremierEclairageSelector** retourne : `retirementIncome` (age 49, replacement ~65.5%)
 - **Voit** : "CHF 8'505/mois — 65.5% de votre revenu actuel"
 - **Problème** : L'instant flow ne sait pas qu'il est marié → affiche individuel, pas couple
 - **Câble manquant** : Pas de question "situation familiale" dans les 3 champs du landing
@@ -146,8 +146,8 @@
 
 ### PERSONA D : FRANÇOISE, 58 ANS, DIVORCÉE
 
-#### Écran 2 — Chiffre Choc
-- **ChiffreChocSelector** retourne : `retirementIncome` (age 58)
+#### Écran 2 — Premier Éclairage
+- **PremierEclairageSelector** retourne : `retirementIncome` (age 58)
 - **Voit** : "CHF 5'180/mois — 85% de ton revenu"
 - **Problème** : Pas de mention du splitting AVS (pas de question divorce dans l'instant flow)
 - **Câble manquant** : L'instant flow ne capture ni le statut civil ni les événements de vie
@@ -158,7 +158,7 @@
 
 ### Question post-chiffre-choc (remplace "Qu'est-ce que tu ressens ?")
 
-| ChiffreChocType | Question | Clé ARB |
+| PremierEclairageType | Question | Clé ARB |
 |----------------|----------|---------|
 | `compoundGrowth` | "Tu savais que le temps comptait autant ?" | `chocQuestionCompoundGrowth` |
 | `taxSaving3a` | "CHF {amount} d'impôts en moins. Ça vaut 10 minutes ?" | `chocQuestionTaxSaving` |
@@ -169,7 +169,7 @@
 
 ### Chips contextuels par type
 
-| ChiffreChocType | Chip 1 | Chip 2 | Chip 3 |
+| PremierEclairageType | Chip 1 | Chip 2 | Chip 3 |
 |----------------|--------|--------|--------|
 | `compoundGrowth` | "Non, c'est dingue" | "Oui mais j'ai pas d'argent" | "Dis-moi quoi faire" |
 | `taxSaving3a` | "Je savais pas" | "J'ai déjà un 3a" | "Comment ça marche ?" |
@@ -225,12 +225,12 @@ Afficher : show_fact_card, show_budget_snapshot comme widgets inline
            "Calculer"    "Commencer"
                 │              │
                 ▼              │
-        CHIFFRE CHOC ADAPTÉ   │  ← ChiffreChocSelector.select()
+        CHIFFRE CHOC ADAPTÉ   │  ← PremierEclairageSelector.select()
         (type par âge/archi)  │     age<28 = compound growth
                 │              │     28-38 = 3a tax saving
            3.9s silence       │     38+ = gap/income
                 │              │
-         Question ciblée      │  ← Table par ChiffreChocType
+         Question ciblée      │  ← Table par PremierEclairageType
          + chips contextuels  │
                 │              │
                 ▼              │
@@ -270,11 +270,11 @@ Afficher : show_fact_card, show_budget_snapshot comme widgets inline
 
 | # | Tâche | Fichiers | Complexité | Impact |
 |---|-------|---------|-----------|--------|
-| 1 | Câbler ChiffreChocSelector dans instant flow | `instant_chiffre_choc_screen.dart` | Faible | 18 ans ne voit plus "retraite" |
-| 2 | Questions ciblées (table par type) | 6 clés ARB + `instant_chiffre_choc_screen.dart` + `chiffre_choc_screen.dart` | Faible | Plus de "qu'est-ce que tu en penses" |
+| 1 | Câbler PremierEclairageSelector dans instant flow | `instant_premier_eclairage_screen.dart` | Faible | 18 ans ne voit plus "retraite" |
+| 2 | Questions ciblées (table par type) | 6 clés ARB + `instant_premier_eclairage_screen.dart` + `premier_eclairage_screen.dart` | Faible | Plus de "qu'est-ce que tu en penses" |
 | 3 | Passer landing data à QuickStart/Promesse | `landing_screen.dart` ligne 94 | Trivial | Zéro double saisie |
 | 4 | Créer OnboardingPayload provider | Nouveau : `onboarding_payload_provider.dart` | Moyen | Fil rouge de données |
 | 5 | Créer écran Promesse | Nouveau : `promise_screen.dart` + route | Moyen | "MINT reste avec toi" |
-| 6 | Émotion → coach (pas register) | `instant_chiffre_choc_screen.dart` + provider | Moyen | L'émotion arrive au coach |
+| 6 | Émotion → coach (pas register) | `instant_premier_eclairage_screen.dart` + provider | Moyen | L'émotion arrive au coach |
 | 7 | Coach greeting lit precomputed insights | `coach_chat_screen.dart` | Faible | Coach proactif dès l'ouverture |
 | 8 | Parser tool_calls Flutter | `coach_chat_screen.dart` | Moyen | Coach peut AGIR (router, afficher) |
