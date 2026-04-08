@@ -34,6 +34,11 @@ enum FactType {
   lifeEvent,
   userDecision,
   coachPreference,
+  // ── Phase 9 Plan 09-04 (ALERT-05 G3 ack persistence, D-06) ─────────
+  /// A G3 MintAlertObject was acknowledged ("Compris") by the user.
+  /// `value` holds the alertId (content hash). `createdAt`/`updatedAt`
+  /// hold the acknowledgment timestamp.
+  alertAcknowledged,
 }
 
 /// How the fact was captured or last updated.
@@ -198,6 +203,27 @@ class BiographyFact {
       }
     }
     return [];
+  }
+
+  /// Phase 9 Plan 09-04 (D-06) — create an `alertAcknowledged` fact.
+  ///
+  /// Used by [MintAlertHost] when the user taps the "Compris" CTA on a G3
+  /// [MintAlertObject]. The `alertId` is the deterministic content hash of
+  /// the alert (see [MintAlertSignal.alertId]). Once stored, subsequent
+  /// signals for the same `alertId` are suppressed from render.
+  factory BiographyFact.alertAcknowledged({
+    required String alertId,
+    required DateTime at,
+  }) {
+    return BiographyFact(
+      id: 'alert_ack:$alertId:${at.toIso8601String()}',
+      factType: FactType.alertAcknowledged,
+      fieldPath: 'alert_ack',
+      value: alertId,
+      source: FactSource.userInput,
+      createdAt: at,
+      updatedAt: at,
+    );
   }
 
   @override

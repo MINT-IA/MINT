@@ -269,6 +269,26 @@ class BiographyRepository {
     return BiographyFact.fromJson(rows.first);
   }
 
+  // ── Phase 9 Plan 09-04 (D-06) — generic fact + alert ack helpers ──
+
+  /// Generic insert used by Phase 9 alert ack persistence. Delegates to
+  /// [insertFact] so the storage path is identical to the typed CRUD.
+  Future<void> recordFact(BiographyFact fact) async {
+    await insertFact(fact);
+  }
+
+  /// Returns true if an `alertAcknowledged` fact exists for [alertId].
+  ///
+  /// Used by [MintAlertHost] to suppress a G3 [MintAlertObject] that the
+  /// user has already dismissed via the "Compris" CTA.
+  Future<bool> hasAlertAck(String alertId) async {
+    final rows = await _db.rawQuery(
+      'SELECT id FROM $_tableName WHERE factType = ? AND value = ? AND isDeleted = ? LIMIT 1',
+      [FactType.alertAcknowledged.name, alertId, 0],
+    );
+    return rows.isNotEmpty;
+  }
+
   /// Close the database connection.
   Future<void> close() async {
     await _db.close();
