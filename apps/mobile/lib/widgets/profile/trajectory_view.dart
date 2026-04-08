@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
-import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 /// Trajectory view for the Dossier/Profil tab.
 ///
@@ -332,12 +333,13 @@ class _ConfidenceSection extends StatelessWidget {
 
   const _ConfidenceSection({required this.profile, required this.s});
 
-  /// Quick heuristic confidence based on filled fields.
-  /// Real confidence should come from EnhancedConfidence scorer,
-  /// but this provides a lightweight fallback for the view.
-  int _estimateConfidence() {
+  /// Quick heuristic confidence based on filled fields, synthesised into
+  /// the canonical 4-axis [EnhancedConfidence] via [fromBareScore] so the
+  /// view can hand it directly to [MintTrameConfiance.detail] without
+  /// re-implementing local color tiers (Plan 08a-02 Batch B + AUDIT-01).
+  EnhancedConfidence _synthesizeConfidence() {
     int filled = 0;
-    int total = 6;
+    const total = 6;
 
     if (profile.salaireBrutMensuel > 0) filled++;
     if (profile.canton.isNotEmpty) filled++;
@@ -346,14 +348,12 @@ class _ConfidenceSection extends StatelessWidget {
     if (profile.isCouple && profile.conjoint != null) filled++;
     if (profile.prevoyance.anneesContribuees != null) filled++;
 
-    return ((filled / total) * 100).round().clamp(5, 100);
+    final pct = ((filled / total) * 100).clamp(5, 100).toDouble();
+    return EnhancedConfidence.fromBareScore(pct);
   }
 
   @override
   Widget build(BuildContext context) {
-    final pct = _estimateConfidence();
-    final isLow = pct < 50;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -362,12 +362,13 @@ class _ConfidenceSection extends StatelessWidget {
           style: MintTextStyles.headlineMedium(),
         ),
         const SizedBox(height: MintSpacing.md),
-        MintConfidenceNotice(
-          percent: pct,
-          message: isLow
-              ? s.trajectoryConfidenceLowMessage
-              : s.trajectoryConfidenceHighMessage,
-          ctaLabel: isLow ? s.trajectoryConfidenceCta : null,
+        // MintTrameConfiance (Plan 08a-02 Batch B) — replaces the legacy
+        // MintConfidenceNotice / hand-rolled percent. firstAppearance because
+        // the trajectory view is a standalone surface, not a feed item.
+        MintTrameConfiance.detail(
+          confidence: _synthesizeConfidence(),
+          bloomStrategy: BloomStrategy.firstAppearance,
+          hypotheses: const [],
         ),
       ],
     );
