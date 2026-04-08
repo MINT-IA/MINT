@@ -10207,5 +10207,9 @@
   "mtcSummaryWeakCompleteness": "Berechnet auf Basis dessen, was wir heute wissen — ein paar Teile fehlen noch.",
   "mtcSummaryWeakAccuracy": "Eine Schl\u00fcsselzahl beruht auf einer fragilen Annahme — Mint bleibt vorsichtig.",
   "mtcSummaryWeakFreshness": "Daten vor einiger Zeit erhoben — Mint sagt es lieber noch einmal.",
-  "mtcSummaryWeakUnderstanding": "Die Rechnung steht, die Idee verdient noch ein Gespr\u00e4ch."
+  "mtcSummaryWeakUnderstanding": "Die Rechnung steht, die Idee verdient noch ein Gespr\u00e4ch.",
+  "landingV2Paragraph": "Mint sagt dir, was dir sonst niemand sagen will. \u00dcber deine Versicherungen, deine 3a, deinen Lohn, deinen Mietvertrag, deine Beziehung, deine Steuern. Ruhig. Ohne dir irgendetwas zu verkaufen.",
+  "landingV2Cta": "Weiter (ohne Konto)",
+  "landingV2Privacy": "Nichts verl\u00e4sst dein Handy, bis du es entscheidest.",
+  "landingV2Legal": "Bildungstool. Keine Finanzberatung im Sinne des FIDLEG."
 }

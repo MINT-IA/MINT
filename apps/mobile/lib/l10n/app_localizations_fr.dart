@@ -22205,4 +22205,19 @@ class SFr extends S {
   @override
   String get mtcSummaryWeakUnderstanding =>
       'Le calcul est posé, l\'idée mérite encore qu\'on en parle.';
+
+  @override
+  String get landingV2Paragraph =>
+      'Mint te dit ce que personne n\'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.';
+
+  @override
+  String get landingV2Cta => 'Continuer (sans compte)';
+
+  @override
+  String get landingV2Privacy =>
+      'Rien ne sort de ton téléphone tant que tu ne le décides pas.';
+
+  @override
+  String get landingV2Legal =>
+      'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.';
 }

@@ -22211,4 +22211,19 @@ class SPt extends S {
   @override
   String get mtcSummaryWeakUnderstanding =>
       'O cálculo está feito, a ideia ainda merece conversa.';
+
+  @override
+  String get landingV2Paragraph =>
+      'Mint diz-te o que mais ninguém tem interesse em dizer-te. Sobre os teus seguros, o teu 3a, o teu salário, o teu arrendamento, o teu casal, os teus impostos. Calmamente. Sem te vender nada.';
+
+  @override
+  String get landingV2Cta => 'Continuar (sem conta)';
+
+  @override
+  String get landingV2Privacy =>
+      'Nada sai do teu telemóvel até que tu o decidas.';
+
+  @override
+  String get landingV2Legal =>
+      'Ferramenta educativa. Não constitui aconselhamento financeiro nos termos da LSFin.';
 }

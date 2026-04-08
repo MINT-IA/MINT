@@ -10207,5 +10207,9 @@
   "mtcSummaryWeakCompleteness": "Calculado con lo que sabemos hoy — todav\u00eda faltan algunas piezas.",
   "mtcSummaryWeakAccuracy": "Una cifra clave se apoya en una hip\u00f3tesis fr\u00e1gil — Mint se mantiene prudente.",
   "mtcSummaryWeakFreshness": "Datos recogidos hace un tiempo — Mint prefiere repetirlo.",
-  "mtcSummaryWeakUnderstanding": "El c\u00e1lculo est\u00e1 hecho, la idea a\u00fan merece una conversaci\u00f3n."
+  "mtcSummaryWeakUnderstanding": "El c\u00e1lculo est\u00e1 hecho, la idea a\u00fan merece una conversaci\u00f3n.",
+  "landingV2Paragraph": "Mint te dice lo que nadie tiene inter\u00e9s en decirte. Sobre tus seguros, tu 3a, tu salario, tu alquiler, tu pareja, tus impuestos. Con calma. Sin venderte nada.",
+  "landingV2Cta": "Continuar (sin cuenta)",
+  "landingV2Privacy": "Nada sale de tu tel\u00e9fono hasta que t\u00fa lo decidas.",
+  "landingV2Legal": "Herramienta educativa. No constituye asesoramiento financiero seg\u00fan la LSFin."
 }

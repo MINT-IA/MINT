@@ -22254,4 +22254,19 @@ class SDe extends S {
   @override
   String get mtcSummaryWeakUnderstanding =>
       'Die Rechnung steht, die Idee verdient noch ein Gespräch.';
+
+  @override
+  String get landingV2Paragraph =>
+      'Mint sagt dir, was dir sonst niemand sagen will. Über deine Versicherungen, deine 3a, deinen Lohn, deinen Mietvertrag, deine Beziehung, deine Steuern. Ruhig. Ohne dir irgendetwas zu verkaufen.';
+
+  @override
+  String get landingV2Cta => 'Weiter (ohne Konto)';
+
+  @override
+  String get landingV2Privacy =>
+      'Nichts verlässt dein Handy, bis du es entscheidest.';
+
+  @override
+  String get landingV2Legal =>
+      'Bildungstool. Keine Finanzberatung im Sinne des FIDLEG.';
 }

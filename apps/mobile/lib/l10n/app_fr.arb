@@ -10747,5 +10747,13 @@
   "mtcSummaryWeakFreshness": "Données récoltées il y a un moment — Mint préfère le redire.",
   "@mtcSummaryWeakFreshness": {"description": "MTC one-line summary when freshness is the weakest axis."},
   "mtcSummaryWeakUnderstanding": "Le calcul est posé, l'idée mérite encore qu'on en parle.",
-  "@mtcSummaryWeakUnderstanding": {"description": "MTC one-line summary when understanding is the weakest axis."}
+  "@mtcSummaryWeakUnderstanding": {"description": "MTC one-line summary when understanding is the weakest axis."},
+  "landingV2Paragraph": "Mint te dit ce que personne n'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.",
+  "@landingV2Paragraph": {"description": "Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing."},
+  "landingV2Cta": "Continuer (sans compte)",
+  "@landingV2Cta": {"description": "Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing."},
+  "landingV2Privacy": "Rien ne sort de ton téléphone tant que tu ne le décides pas.",
+  "@landingV2Privacy": {"description": "Landing v2 privacy micro-phrase below CTA (LOCKED per D-03)."},
+  "landingV2Legal": "Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.",
+  "@landingV2Legal": {"description": "Landing v2 legal footer (LOCKED per D-04). Compliance anchor."}
 }

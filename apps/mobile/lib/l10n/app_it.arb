@@ -10207,5 +10207,9 @@
   "mtcSummaryWeakCompleteness": "Calcolato su quello che sappiamo oggi — qualche pezzo manca ancora.",
   "mtcSummaryWeakAccuracy": "Una cifra chiave poggia su un'ipotesi fragile — Mint resta prudente.",
   "mtcSummaryWeakFreshness": "Dati raccolti un po' di tempo fa — Mint preferisce ridirlo.",
-  "mtcSummaryWeakUnderstanding": "Il calcolo \u00e8 fatto, l'idea merita ancora una conversazione."
+  "mtcSummaryWeakUnderstanding": "Il calcolo \u00e8 fatto, l'idea merita ancora una conversazione.",
+  "landingV2Paragraph": "Mint ti dice quello che nessuno ha interesse a dirti. Sulle tue assicurazioni, sul tuo 3a, sul tuo stipendio, sul tuo contratto d'affitto, sulla tua coppia, sulle tue imposte. Con calma. Senza venderti nulla.",
+  "landingV2Cta": "Continua (senza account)",
+  "landingV2Privacy": "Niente esce dal tuo telefono finch\u00e9 non lo decidi tu.",
+  "landingV2Legal": "Strumento educativo. Non costituisce consulenza finanziaria ai sensi della LSerFi."
 }

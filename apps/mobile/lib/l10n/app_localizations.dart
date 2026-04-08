@@ -38954,6 +38954,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le calcul est posé, l\'idée mérite encore qu\'on en parle.'**
   String get mtcSummaryWeakUnderstanding;
+
+  /// Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint te dit ce que personne n\'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.'**
+  String get landingV2Paragraph;
+
+  /// Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer (sans compte)'**
+  String get landingV2Cta;
+
+  /// Landing v2 privacy micro-phrase below CTA (LOCKED per D-03).
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ne sort de ton téléphone tant que tu ne le décides pas.'**
+  String get landingV2Privacy;
+
+  /// Landing v2 legal footer (LOCKED per D-04). Compliance anchor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.'**
+  String get landingV2Legal;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

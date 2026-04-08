@@ -22264,4 +22264,19 @@ class SIt extends S {
   @override
   String get mtcSummaryWeakUnderstanding =>
       'Il calcolo è fatto, l\'idea merita ancora una conversazione.';
+
+  @override
+  String get landingV2Paragraph =>
+      'Mint ti dice quello che nessuno ha interesse a dirti. Sulle tue assicurazioni, sul tuo 3a, sul tuo stipendio, sul tuo contratto d\'affitto, sulla tua coppia, sulle tue imposte. Con calma. Senza venderti nulla.';
+
+  @override
+  String get landingV2Cta => 'Continua (senza account)';
+
+  @override
+  String get landingV2Privacy =>
+      'Niente esce dal tuo telefono finché non lo decidi tu.';
+
+  @override
+  String get landingV2Legal =>
+      'Strumento educativo. Non costituisce consulenza finanziaria ai sensi della LSerFi.';
 }

@@ -22092,4 +22092,19 @@ class SEn extends S {
   @override
   String get mtcSummaryWeakUnderstanding =>
       'The math is settled, the idea still deserves a conversation.';
+
+  @override
+  String get landingV2Paragraph =>
+      'Mint tells you what no one else has any interest in telling you. About your insurance, your 3a, your salary, your lease, your partner, your taxes. Calmly. Without selling you anything.';
+
+  @override
+  String get landingV2Cta => 'Continue (no account)';
+
+  @override
+  String get landingV2Privacy =>
+      'Nothing leaves your phone until you decide it does.';
+
+  @override
+  String get landingV2Legal =>
+      'Educational tool. Not financial advice under LSFin.';
 }
