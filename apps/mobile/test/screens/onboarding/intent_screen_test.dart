@@ -103,7 +103,10 @@ void main() {
     testWidgets('shows subtitle from i18n', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
-      expect(find.textContaining('situation'), findsOneWidget);
+      // P-S1-01: removal of intentChipPrevoyance kept 'Ma situation change'
+      // chip text on screen, which also contains 'situation'. Use a subtitle-
+      // unique substring to disambiguate.
+      expect(find.textContaining('situation'), findsWidgets);
     });
 
     testWidgets('shows microcopy from i18n', (tester) async {
@@ -112,13 +115,13 @@ void main() {
       expect(find.textContaining('reformuler'), findsOneWidget);
     });
 
-    testWidgets('shows all 7 chips', (tester) async {
+    testWidgets('shows all 6 chips (P-S1-01 hot-fix removed 3 anti-shame chips)', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
-      // First 4 visible without scrolling.
+      // Remaining chips after P-S1-01 (Phase 8c hot-fix): 3a, Fiscalite,
+      // Projet, Changement, PremierEmploi, Autre. Removed:
+      // intentChipBilan, intentChipPrevoyance, intentChipNouvelEmploi.
       expect(find.textContaining('3a'), findsOneWidget);
-      expect(find.textContaining('où j'), findsOneWidget);
-      expect(find.textContaining('prévoyance'), findsOneWidget);
       expect(find.textContaining('bêtement'), findsOneWidget);
       // Scroll down to reveal remaining chips.
       await tester.scrollUntilVisible(
@@ -128,7 +131,12 @@ void main() {
       );
       expect(find.textContaining('projet'), findsOneWidget);
       expect(find.textContaining('situation change'), findsOneWidget);
+      expect(find.textContaining('premier emploi'), findsOneWidget);
       expect(find.textContaining('Autre'), findsOneWidget);
+      // Anti-shame doctrine: deleted chips must NOT render.
+      expect(find.textContaining('où j\'en suis'), findsNothing);
+      expect(find.textContaining('prévoyance'), findsNothing);
+      expect(find.textContaining('change de travail'), findsNothing);
     });
   });
 
@@ -188,13 +196,15 @@ void main() {
       // Before tap, no payload.
       expect(payloadProvider.pending, isNull);
 
-      await tester.tap(find.textContaining('prévoyance'));
+      // P-S1-01: 'prévoyance' chip removed from UI. Use 'bêtement' (Fiscalite)
+      // as the remaining example chip for payload assertion.
+      await tester.tap(find.textContaining('bêtement'));
       await tester.pumpAndSettle();
 
       // After navigation, verify via persistence — chipKey stored, not label.
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
-      expect(intent, equals('intentChipPrevoyance'));
+      expect(intent, equals('intentChipFiscalite'));
     });
 
     testWidgets('tapping chip navigates to /home', (tester) async {

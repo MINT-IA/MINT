@@ -62,16 +62,11 @@ class IntentScreen extends StatelessWidget {
         label: l10n.intentChip3a,
         message: l10n.intentChip3a,
       ),
-      _IntentChip(
-        chipKey: 'intentChipBilan',
-        label: l10n.intentChipBilan,
-        message: l10n.intentChipBilan,
-      ),
-      _IntentChip(
-        chipKey: 'intentChipPrevoyance',
-        label: l10n.intentChipPrevoyance,
-        message: l10n.intentChipPrevoyance,
-      ),
+      // P-S1-01 (Phase 8c hot-fix): intentChipBilan + intentChipPrevoyance
+      // removed from rendered list per anti-shame doctrine #3 (curriculum
+      // framing) + CLAUDE.md anti-pattern #16 (retirement-default framing).
+      // ARB keys + IntentRouter mapping kept for legacy deep-link / golden
+      // journey routing (Pierre, Marc) — UI surface only is removed.
       _IntentChip(
         chipKey: 'intentChipFiscalite',
         label: l10n.intentChipFiscalite,
@@ -92,11 +87,10 @@ class IntentScreen extends StatelessWidget {
         label: l10n.intentChipPremierEmploi,
         message: l10n.intentChipPremierEmploi,
       ),
-      _IntentChip(
-        chipKey: 'intentChipNouvelEmploi',
-        label: l10n.intentChipNouvelEmploi,
-        message: l10n.intentChipNouvelEmploi,
-      ),
+      // P-S1-01 (Phase 8c hot-fix): intentChipNouvelEmploi removed from
+      // rendered list per Phase 3 DELETE #1 (redundant with premierEmploi +
+      // changement). ARB key + IntentRouter mapping kept for Anna golden
+      // journey + legacy routing.
       _IntentChip(
         chipKey: 'intentChipAutre',
         label: l10n.intentChipAutre,
