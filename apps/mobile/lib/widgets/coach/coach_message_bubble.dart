@@ -72,13 +72,21 @@ class CoachMessageBubble extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        msg.content.isEmpty && isStreamingThis
-                            ? '...'
-                            : msg.content,
-                        style: MintTextStyles.bodyMedium(
-                                color: MintColors.textPrimary)
-                            .copyWith(height: 1.6),
+                      // ACCESS-08 (P8b-03): liveRegion announces new coach
+                      // output to screen readers without shifting focus.
+                      // Only the Text is wrapped — focus stays where it is,
+                      // only content is announced.
+                      Semantics(
+                        liveRegion: true,
+                        container: true,
+                        child: Text(
+                          msg.content.isEmpty && isStreamingThis
+                              ? '...'
+                              : msg.content,
+                          style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textPrimary)
+                              .copyWith(height: 1.6),
+                        ),
                       ),
                       // Streaming cursor
                       if (isStreamingThis) ...[
@@ -525,6 +533,8 @@ class BlinkingCursor extends StatefulWidget {
 class _BlinkingCursorState extends State<BlinkingCursor>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  bool _reducedMotion = false;
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -532,7 +542,21 @@ class _BlinkingCursorState extends State<BlinkingCursor>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+    // ACCESS-07 (D-08): reduced-motion fallback per MediaQuery.disableAnimations.
+    // The blinking cursor is the streaming/typing indicator. When reduced-motion
+    // is on, render a static dot instead of a 600ms repeating opacity pulse.
+    _reducedMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (!_reducedMotion) {
+      _controller.repeat(reverse: true);
+    }
   }
 
   @override
@@ -543,6 +567,19 @@ class _BlinkingCursorState extends State<BlinkingCursor>
 
   @override
   Widget build(BuildContext context) {
+    final dot = Container(
+      width: 2,
+      height: 14,
+      decoration: BoxDecoration(
+        // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+        color: MintColors.textSecondaryAaa.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(1),
+      ),
+    );
+    if (_reducedMotion) {
+      // Static glyph — no animation controller running.
+      return Opacity(opacity: 0.6, child: dot);
+    }
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -551,15 +588,7 @@ class _BlinkingCursorState extends State<BlinkingCursor>
           child: child,
         );
       },
-      child: Container(
-        width: 2,
-        height: 14,
-        decoration: BoxDecoration(
-          // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
-          color: MintColors.textSecondaryAaa.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(1),
-        ),
-      ),
+      child: dot,
     );
   }
 }
