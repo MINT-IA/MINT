@@ -16,10 +16,14 @@ import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/voice/ton_chooser_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Whether the intent screen was reached from the onboarding golden path
 /// (post-auth). Post-Phase-10-02a: both paths now land on /coach/chat with
@@ -185,7 +189,8 @@ class IntentScreen extends StatelessWidget {
     // Capture ALL BuildContext-dependent values BEFORE the first await
     // (STAB-07 / D-16: no use_build_context_synchronously across async gaps).
     final router = GoRouter.of(context);
-    final coachProfile = context.read<CoachProfileProvider>().profile;
+    final coachProvider = context.read<CoachProfileProvider>();
+    final coachProfile = coachProvider.profile;
     final payloadProvider = context.read<CoachEntryPayloadProvider>();
     final profile = _buildMinimalProfileFor(coachProfile);
 
@@ -194,6 +199,31 @@ class IntentScreen extends StatelessWidget {
       screenName: '/onboarding/intent',
       data: {'chipKey': chip.chipKey, 'label': chip.label},
     );
+
+    // ── Phase 12-01: First-launch Ton chooser sheet (D-02) ──
+    // Show once per device. After confirmation (or skip), the flag is set
+    // and subsequent intent_screen visits skip the sheet.
+    final prefs = await SharedPreferences.getInstance();
+    final tonShown = prefs.getBool('ton_chooser_first_launch_done') ?? false;
+    if (!tonShown && context.mounted) {
+      final currentTon =
+          coachProvider.profile?.voiceCursorPreference ?? VoicePreference.direct;
+      final picked = await showTonChooserSheet(context, current: currentTon);
+      await prefs.setBool('ton_chooser_first_launch_done', true);
+      if (picked != null && picked != currentTon) {
+        await coachProvider.setVoiceCursorPreference(picked);
+        AnalyticsService().trackEvent(
+          'voice_ton_set_first_launch',
+          category: 'onboarding',
+          data: {
+            'from': currentTon.name,
+            'to': picked.name,
+            'source': 'first_launch',
+          },
+        );
+      }
+    }
+    if (!context.mounted) return;
 
     // Persist selected intent. Onboarding-done is written later by
     // coach_chat_screen on first successful chat entry from an intent payload
