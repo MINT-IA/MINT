@@ -128,14 +128,12 @@ class _MintAlertHostState extends State<MintAlertHost> {
     super.dispose();
   }
 
-  /// Default announce implementation using the non-deprecated
-  /// [SemanticsService.sendAnnouncement] API. Falls back to a no-op if
-  /// no [View] is attached (very early frames under some test bindings).
+  /// Default announce implementation using [SemanticsService.announce] —
+  /// the stable API on Flutter 3.27.x pinned by CI. `sendAnnouncement`
+  /// only exists on newer Flutter versions and breaks the build.
   void _defaultAnnounce(String message, TextDirection direction) {
     if (!mounted) return;
-    final view = View.maybeOf(context);
-    if (view == null) return;
-    SemanticsService.sendAnnouncement(view, message, direction);
+    SemanticsService.announce(message, direction);
   }
 
   AnnounceFn get _announce => widget.announce ?? _defaultAnnounce;

@@ -441,14 +441,10 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
     final label = l10n != null
         ? oneLineConfidenceSummary(c, l10n: l10n, audioTone: widget.audioTone)
         : 'mtc-confidence';
-    // Migrated from deprecated `SemanticsService.announce` (removed after
-    // Flutter 3.35.0-0.1.pre) to `sendAnnouncement`, which is multi-window
-    // safe. Uses the enclosing view; falls back silently if no View is
-    // attached (early frames under some test bindings).
-    final view = View.maybeOf(context);
-    if (view != null) {
-      SemanticsService.sendAnnouncement(view, label, TextDirection.ltr);
-    }
+    // Use `SemanticsService.announce` — the stable API on Flutter 3.27.x
+    // pinned by CI. `sendAnnouncement(view, ...)` only exists on newer
+    // Flutter versions and breaks the build under 3.27.4.
+    SemanticsService.announce(label, TextDirection.ltr);
     MintTrameConfiance.debugAnnounceCount++;
   }
 

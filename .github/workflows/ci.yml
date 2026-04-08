@@ -184,11 +184,14 @@ jobs:
       - name: No legacy REGIONAL_MAP (REGIONAL-05)
         working-directory: ${{ github.workspace }}
         run: |
-          if git grep -nE 'REGIONAL_MAP[[:space:]]*=' services/backend/; then
+          # Match only actual assignments (top-of-line), not doc/comment
+          # mentions. Aligned with tools/ship_gate/run_all_gates_v2_2.sh
+          # item [17] to keep a single source of truth.
+          if git grep -nE '^[[:space:]]*REGIONAL_MAP[[:space:]]*=' services/backend/app/; then
             echo "::error::REGIONAL-05 violation: legacy REGIONAL_MAP reintroduced in services/backend/"
             exit 1
           fi
-          if git grep -n '_REGIONAL_IDENTITY' services/backend/app/; then
+          if git grep -nE '^[[:space:]]*_REGIONAL_IDENTITY[[:space:]]*=' services/backend/app/; then
             echo "::error::REGIONAL-05 violation: legacy _REGIONAL_IDENTITY reintroduced in services/backend/app/"
             exit 1
           fi
