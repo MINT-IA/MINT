@@ -153,7 +153,11 @@
   4. CI guard `git grep 'REGIONAL_MAP\s*=' services/backend/` returns 0 (red build on regression).
   5. 3 named native validators (1 VS, 1 ZH, 1 TI) listed in `docs/VOICE_PASS_LAYER1.md` with sign-off date on their 30 strings each.
 **Pitfalls to watch**: P11 regional validators recruitment; P12 backend dual-system not deleted; P18 ARB fallback.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 06-01-PLAN.md — Pre-audit: walk backend + mobile regional code → docs/REGIONAL_VOICE_AUDIT.md
+- [ ] 06-02-PLAN.md — Backend consolidation: regional_microcopy_codegen.py + delete REGIONAL_MAP/_REGIONAL_IDENTITY + CI guards
+- [ ] 06-03-PLAN.md — ARB carve-outs: 3 files (VS/ZH/TI) + custom delegate + Profile.canton wiring + widget tests + native sign-off
+- [ ] 06-04-PLAN.md — Validator coordination doc (Phase 11 pool piggyback)
 
 ### Phase 7: L1.7 Landing v2 (S0 Rebuild)
 **Goal**: Rebuild the S0 landing as a calm promise surface — zero numbers, zero inputs, Variante A paragraphe-mère, AAA from day 1.
