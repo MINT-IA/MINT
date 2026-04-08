@@ -186,7 +186,10 @@
   4. Sentence-subject rule (TRUST-02) enforced via ARB lint across the 11 migrated surfaces.
   5. Galaxy A14 manual scroll-FPS + bloom check by Julien on the migrated home surface.
 **Pitfalls to watch**: P4 silent coverage loss; P5 MTC semantic conflation.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 08a-01-PLAN.md — Extend ResponseCard + backend schema with EnhancedConfidence? (wire format D-05, round-trip test)
+- [ ] 08a-02-PLAN.md — Migrate 11 surfaces to MintTrameConfiance in 3 batches (coach / profile / home+retirement) + 6 ARB files + A14 checkpoint
+- [ ] 08a-03-PLAN.md — Coverage gate (no_legacy_confidence_render.py) + TRUST-02 ARB lint (sentence_subject_arb_lint.py) + CI wiring + MTC-12 lcov baseline + MIGRATION_RESIDUE_8a.md
 **UI hint**: yes
 
 ### Phase 8b: L1.3 — Microtypographie + AAA Token Application + First Live a11y Session (audit fix B1: split)
