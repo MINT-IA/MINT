@@ -729,20 +729,13 @@ class _CoachInputBarState extends State<_CoachInputBar> {
 
     final chips = <_SuggestionChip>[];
 
-    // Chip 1: If confidence is low, suggest improving data.
-    if (state.confidenceScore < 60) {
-      chips.add(_SuggestionChip(
-        label: l10n.mintHomeConfidence,
-        onTap: () => widget.onSwitchToCoach?.call(
-          const CoachEntryPayload(
-            source: CoachEntrySource.homeChip,
-            topic: 'confidence',
-          ),
-        ),
-      ));
-    }
-
-    // Chip 2: If there's a cap, surface its headline.
+    // P-S2-02 (Phase 8c hot-fix): mintHomeConfidence + mintHomeNoActionProjection
+    // suggestion chips removed. Both trip anti-shame checkpoints (2/3/6):
+    // confidence chip nudges users to "improve their data" (shame for being
+    // incomplete), inaction chip frames non-action as a problem (shame for
+    // not engaging). Doctrine: MINT illuminates, never nudges.
+    //
+    // Only the cap-driven chip (situated, content-bearing) is preserved.
     if (state.hasCap && chips.length < 3) {
       chips.add(_SuggestionChip(
         label: state.currentCap!.headline,
@@ -750,21 +743,6 @@ class _CoachInputBarState extends State<_CoachInputBar> {
           CoachEntryPayload(
             source: CoachEntrySource.homeChip,
             topic: state.currentCap!.id,
-          ),
-        ),
-      ));
-    }
-
-    // Chip 3: If there's an inaction delta, nudge the user.
-    if (state.hasSessionDelta &&
-        state.sessionDelta!.cause == 'inaction' &&
-        chips.length < 3) {
-      chips.add(_SuggestionChip(
-        label: l10n.mintHomeNoActionProjection,
-        onTap: () => widget.onSwitchToCoach?.call(
-          const CoachEntryPayload(
-            source: CoachEntrySource.homeChip,
-            topic: 'inaction',
           ),
         ),
       ));

@@ -21263,9 +21263,6 @@ class SFr extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'Si tu ne fais rien';
-
-  @override
   String get mintHomeIn30Days => 'dans 30 jours';
 
   @override
@@ -21273,9 +21270,6 @@ class SFr extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Itinéraire alternatif';
-
-  @override
-  String get mintHomeConfidence => 'Confiance';
 
   @override
   String get mintHomeTalkAboutIt => 'On en parle ?';

@@ -21322,9 +21322,6 @@ class SIt extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'Se non fai nulla';
-
-  @override
   String get mintHomeIn30Days => 'tra 30 giorni';
 
   @override
@@ -21332,9 +21329,6 @@ class SIt extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Percorso alternativo';
-
-  @override
-  String get mintHomeConfidence => 'Fiducia';
 
   @override
   String get mintHomeTalkAboutIt => 'Ne parliamo ?';

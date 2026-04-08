@@ -21153,9 +21153,6 @@ class SEn extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'If you do nothing';
-
-  @override
   String get mintHomeIn30Days => 'in 30 days';
 
   @override
@@ -21163,9 +21160,6 @@ class SEn extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Alternative route';
-
-  @override
-  String get mintHomeConfidence => 'Confidence';
 
   @override
   String get mintHomeTalkAboutIt => 'Let\'s talk about it?';

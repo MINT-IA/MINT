@@ -10283,11 +10283,9 @@
       }
     }
   },
-  "mintHomeNoActionProjection": "Si tu ne fais rien",
   "mintHomeIn30Days": "dans 30 jours",
   "mintHomeIn6Months": "dans 6 mois",
   "mintHomeAlternativeRoute": "Itinéraire alternatif",
-  "mintHomeConfidence": "Confiance",
   "mintHomeTalkAboutIt": "On en parle ?",
   "mintHomeSimulate": "Simuler",
   "mintHomeSignal": "Signal",

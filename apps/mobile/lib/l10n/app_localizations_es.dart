@@ -21268,9 +21268,6 @@ class SEs extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'Si no haces nada';
-
-  @override
   String get mintHomeIn30Days => 'en 30 días';
 
   @override
@@ -21278,9 +21275,6 @@ class SEs extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Ruta alternativa';
-
-  @override
-  String get mintHomeConfidence => 'Confianza';
 
   @override
   String get mintHomeTalkAboutIt => '¿Hablamos ?';

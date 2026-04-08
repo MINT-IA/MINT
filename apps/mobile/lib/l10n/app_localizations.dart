@@ -37359,12 +37359,6 @@ abstract class S {
   /// **'depuis le {date}'**
   String mintHomeDeltaSince(String date);
 
-  /// No description provided for @mintHomeNoActionProjection.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu ne fais rien'**
-  String get mintHomeNoActionProjection;
-
   /// No description provided for @mintHomeIn30Days.
   ///
   /// In fr, this message translates to:
@@ -37382,12 +37376,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Itinéraire alternatif'**
   String get mintHomeAlternativeRoute;
-
-  /// No description provided for @mintHomeConfidence.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confiance'**
-  String get mintHomeConfidence;
 
   /// No description provided for @mintHomeTalkAboutIt.
   ///

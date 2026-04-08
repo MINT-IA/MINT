@@ -21271,9 +21271,6 @@ class SPt extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'Se não fizeres nada';
-
-  @override
   String get mintHomeIn30Days => 'em 30 dias';
 
   @override
@@ -21281,9 +21278,6 @@ class SPt extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Rota alternativa';
-
-  @override
-  String get mintHomeConfidence => 'Confiança';
 
   @override
   String get mintHomeTalkAboutIt => 'Falamos sobre isso ?';

@@ -21312,9 +21312,6 @@ class SDe extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'Wenn du nichts tust';
-
-  @override
   String get mintHomeIn30Days => 'in 30 Tagen';
 
   @override
@@ -21322,9 +21319,6 @@ class SDe extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Alternative Route';
-
-  @override
-  String get mintHomeConfidence => 'Vertrauen';
 
   @override
   String get mintHomeTalkAboutIt => 'Reden wir darüber ?';
