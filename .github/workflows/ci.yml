@@ -98,10 +98,15 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/no_legacy_confidence_render.py
 
-      # ─── Phase 8a / TRUST-02: sentence-subject ARB lint ─────────────
-      - name: ARB sentence-subject lint (TRUST-02)
+      # ─── Phase 8a / TRUST-02 + Phase 9 / ALERT-02: sentence-subject ARB lint ─
+      - name: ARB sentence-subject lint (TRUST-02 + ALERT-02)
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/sentence_subject_arb_lint.py
+
+      # ─── Phase 9 / ALERT-07: no LLM-driven alert objects ────────────
+      - name: No LLM-driven alert objects (ALERT-07)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_llm_alert.py
 
       # ─── Phase 6 / REGIONAL-05: no legacy REGIONAL_MAP ──────────
       - name: No legacy REGIONAL_MAP (REGIONAL-05)

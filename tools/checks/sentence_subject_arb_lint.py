@@ -49,8 +49,14 @@ from pathlib import Path
 
 ARB_FILE = "apps/mobile/lib/l10n/app_fr.arb"
 
-# Key-name scope: only keys whose identifier matches one of these tokens
-KEY_SCOPE = re.compile(r"confidence|fiabilit|tramee", re.IGNORECASE)
+# Key-name scope: only keys whose identifier matches one of these tokens.
+# Phase 9 / ALERT-02 extension: also cover MintAlertObject ARB keys
+# (alert*, alertGeneric*, alertG2*, alertG3*) — same MINT-as-subject doctrine
+# applies: alerts must never frame the user as the source of a problem.
+KEY_SCOPE = re.compile(
+    r"confidence|fiabilit|tramee|^alert[A-Z]|^mintAlert",
+    re.IGNORECASE,
+)
 
 # Banned sentence-subject patterns (applied to the STRING VALUE of scoped keys)
 BANNED_PATTERNS = [
@@ -69,6 +75,11 @@ BANNED_PATTERNS = [
         re.compile(r"\bTu as[^.!?]{0,40}confiance", re.IGNORECASE),
         "user-as-subject: 'Tu as ... confiance' makes the user the judge. "
         "Use 'MINT a confiance' or 'MINT avance avec prudence'.",
+    ),
+    (
+        re.compile(r"\bTu as[^.!?]{0,40}alert", re.IGNORECASE),
+        "user-as-subject: 'Tu as ... alerte' frames the user as the problem "
+        "source. Use 'MINT a remarqué' or 'MINT voit une tension'.",
     ),
     (
         re.compile(r"\bVotre score\b", re.IGNORECASE),
