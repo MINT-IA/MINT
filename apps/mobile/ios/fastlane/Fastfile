@@ -156,7 +156,19 @@ platform :ios do
 
     setup_ci if ENV["CI"]
 
-    # Nuke existing appstore certs + profiles from Apple + match repo
+    # Force auto-confirmation: match_nuke calls UI.confirm regardless of
+    # skip_confirmation in non-TTY CI contexts, and without a TTY it
+    # returns false → nuke bails → the misleading "readonly" error fires.
+    # Stub UI.confirm to always return true for this lane.
+    module FastlaneCore
+      class UI
+        def self.confirm(_message)
+          true
+        end
+      end
+    end
+
+    # Nuke existing appstore certs + profiles from Apple + match repo.
     match_nuke(
       type: "appstore",
       app_identifier: "ch.mint.app",
@@ -165,6 +177,7 @@ platform :ios do
       git_basic_authorization: ENV["MATCH_GIT_BASIC_AUTHORIZATION"],
       api_key: api_key,
       skip_confirmation: true,
+      readonly: false,
     )
 
     # Regenerate fresh cert + profile (picks up Sign In with Apple entitlement)
