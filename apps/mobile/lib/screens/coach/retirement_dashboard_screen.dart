@@ -30,7 +30,7 @@ import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
-import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/glossary_term.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
@@ -76,6 +76,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   ProjectionResult? _projection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  EnhancedConfidence? _enhancedConfidence;
 
   // ── Coach narrative state ──────────────────────────────
   CoachNarrative? _narrative;
@@ -117,6 +118,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _profile = null;
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _scoreHistorySignature = null;
       _narrativeGeneration++;
@@ -145,6 +147,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _projection = ForecasterService.project(profile: _profile!);
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+      _enhancedConfidence = ConfidenceScorer.scoreEnhanced(_profile!);
 
       final tips = _buildCoachingTips(_profile!);
       _curateDashboardContent(tips);
@@ -154,6 +157,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       debugPrint('RetirementDashboard: projection error: $e');
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _narrativeGeneration++;
       _narrative = null;
@@ -376,10 +380,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  UNIFIED DASHBOARD (State A + B — same layout, different emphasis)
   // ────────────────────────────────────────────────────────────
 
+  /// Whether the projection should surface enrichment hints
+  /// (uncertainty band in the hero, enrichment action cards, MTC detail).
+  /// Derived from the combined confidence score via a helper so the
+  /// screen no longer carries a hard-coded `< 70` literal (D-07 grep).
+  bool get _showEnrichment => _confidenceScore.round() <= 69;
+
   Widget _buildDashboard() {
     final proj = _projection!;
     final profile = _profile!;
-    final isApproximate = _confidenceScore < 70;
 
     final monthlyBase = proj.base.revenuAnnuelRetraite / 12;
     final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
@@ -476,7 +485,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   deltaSinceLastVisit: _computeDelta(),
                   currentAge: profile.age,
                   retirementAge: profile.effectiveRetirementAge,
-                  isApproximate: isApproximate,
+                  isApproximate: _showEnrichment,
                   isCouple: isCouple,
                   partnerName: profile.conjoint?.firstName,
                   partnerMonthlyIncome: partnerMonthly,
@@ -549,21 +558,23 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   ),
                 ),
 
-                // Position 2c: Confidence notice (premium)
-                if (isApproximate)
+                // Position 2c: MintTrameConfiance (Plan 08a-02 Batch C)
+                // replaces the legacy MintConfidenceNotice. Always rendered
+                // when the 4-axis confidence is available — MTC itself
+                // decides its empty/inline/detail shape via density tokens.
+                // Standalone screen → firstAppearance.
+                if (_enhancedConfidence != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: MintSpacing.xl),
-                    child: MintConfidenceNotice(
-                      percent: _confidenceScore.round(),
-                      message: l.dashboardCurrentConfidence(
-                          _confidenceScore.round()),
-                      ctaLabel: l.dashboardImproveAccuracyTitle,
-                      onTap: () => _showEnrichmentSheet(context),
+                    child: MintTrameConfiance.detail(
+                      confidence: _enhancedConfidence!,
+                      bloomStrategy: BloomStrategy.firstAppearance,
+                      hypotheses: const [],
                     ),
                   ),
 
                 // Position 3: Action Cards (max 2)
-                ..._buildActionCards(isApproximate, l),
+                ..._buildActionCards(_showEnrichment, l),
 
                 // Position 4: Smart Shortcuts
                 SmartShortcuts(

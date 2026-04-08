@@ -5,8 +5,8 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 /// Card surfacing the user's projection precision score with the single
 /// best enrichment action.
@@ -17,6 +17,12 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 class ConfidenceScoreCard extends StatelessWidget {
   /// Combined confidence score (0-100), from [EnhancedConfidence.combined].
   final double score;
+
+  /// Optional 4-axis confidence (Plan 08a-02 Batch C). When non-null it is
+  /// rendered via [MintTrameConfiance.detail]. When null, synthesised from
+  /// [score] via [EnhancedConfidence.fromBareScore] for back-compat with
+  /// the existing single-score API (tests + legacy callers).
+  final EnhancedConfidence? confidence;
 
   /// Sorted enrichment prompts (by impact descending), from
   /// [EnhancedConfidence.axisPrompts].
@@ -34,24 +40,19 @@ class ConfidenceScoreCard extends StatelessWidget {
   const ConfidenceScoreCard({
     super.key,
     required this.score,
+    this.confidence,
     this.enrichmentPrompts = const [],
     this.onEnrichmentTap,
     this.onRetry,
     this.hasError = false,
   });
 
-  /// Semantic color based on score thresholds (UI-SPEC §Color).
-  Color _semanticColor() {
-    if (score >= 70) return MintColors.scoreExcellent;
-    if (score >= 40) return MintColors.scoreAttention;
-    return MintColors.scoreCritique;
-  }
+  EnhancedConfidence get _resolvedConfidence =>
+      confidence ?? EnhancedConfidence.fromBareScore(score);
 
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final semanticColor = _semanticColor();
-    final disableAnimations = MediaQuery.of(context).disableAnimations;
 
     // Zone label — from i18n
     final String zoneLabel;
@@ -95,13 +96,14 @@ class ConfidenceScoreCard extends StatelessWidget {
                         ),
                       ),
                     ] else
-                      ConfidenceBar(
-                        score: score,
-                        showLabel: false,
-                        // Disable inner animation when reduced-motion is on
-                        key: disableAnimations
-                            ? const ValueKey('confidence_bar_static')
-                            : const ValueKey('confidence_bar_animated'),
+                      // MintTrameConfiance (Plan 08a-02 Batch C) — replaces
+                      // the hand-rolled ConfidenceBar. Home feed context →
+                      // onlyIfTopOfList (MTC-03 anti bloom-storm). Detail
+                      // variant carries hypotheses when available.
+                      MintTrameConfiance.detail(
+                        confidence: _resolvedConfidence,
+                        bloomStrategy: BloomStrategy.onlyIfTopOfList,
+                        hypotheses: const [],
                       ),
                   ],
                 ),
@@ -116,12 +118,14 @@ class ConfidenceScoreCard extends StatelessWidget {
                     Text(
                       '${score.round()}\u00a0%',
                       style: MintTextStyles.bodySmall(
-                        color: semanticColor,
+                        color: MintColors.textSecondary,
                       ).copyWith(fontWeight: FontWeight.w700),
                     ),
                     Text(
                       zoneLabel,
-                      style: MintTextStyles.micro(color: semanticColor),
+                      style: MintTextStyles.micro(
+                        color: MintColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
