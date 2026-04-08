@@ -207,6 +207,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
+  /// Phase 10-02a: write the miniOnboardingCompleted flag on first chat
+  /// entry from an onboarding-intent payload. Idempotent: re-entering the
+  /// coach chat later with another intent payload is a no-op.
+  Future<void> _markOnboardingCompletedIfNeeded() async {
+    try {
+      final already =
+          await ReportPersistenceService.isMiniOnboardingCompleted();
+      if (!already) {
+        await ReportPersistenceService.setMiniOnboardingCompleted(true);
+      }
+    } catch (_) {
+      // Best-effort: chat continues even if the flag cannot be written.
+    }
+  }
+
   /// Load onboarding payload (one-shot).
   ///
   /// Phase 10-02a: emotion replay dropped — coach reacts to facts, not
@@ -264,6 +279,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         // Wire Spec V2: structured entry payload takes priority
         if (widget.entryPayload != null) {
           final payload = widget.entryPayload!;
+          // Phase 10-02a: onboarding-done ownership moved here from
+          // intent_screen. Conversation is the only honest "onboarding
+          // done" signal — the flag is set on the first successful chat
+          // entry carried by an onboarding-intent payload.
+          if (payload.source == CoachEntrySource.onboardingIntent &&
+              payload.data?['fromOnboarding'] == true) {
+            _markOnboardingCompletedIfNeeded();
+          }
           if (payload.userMessage != null) {
             // User typed a free-form message — send it directly
             WidgetsBinding.instance.addPostFrameCallback((_) {
