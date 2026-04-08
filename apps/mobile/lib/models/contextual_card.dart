@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:mint_mobile/services/anticipation/anticipation_signal.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_signal.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXTUAL CARD — Phase 05 / Interface Contextuelle
@@ -28,11 +30,18 @@ enum DeltaDirection { up, down, flat }
 ///
 /// [priorityScore] determines ranking order in the Aujourd'hui feed.
 /// Hero card always has 1.0 (guaranteed slot 1).
+///
+/// [gravity] (Phase 9 D-03 / D-05) is an optional severity hint used by
+/// `card_ranking_service.rankCards()` to float MintAlertObject-bearing cards
+/// (Gravity.g3) to index 0. Null for non-alert cards (default).
 sealed class ContextualCard {
   /// Priority score for ranking (0.0 = lowest, 1.0 = highest).
   final double priorityScore;
 
-  const ContextualCard({required this.priorityScore});
+  /// Optional Phase 9 alert gravity hint. Null on every non-alert card.
+  final Gravity? gravity;
+
+  const ContextualCard({required this.priorityScore, this.gravity});
 }
 
 /// Slot 1: dominant financial metric with optional delta badge.
@@ -129,6 +138,33 @@ final class ContextualActionCard extends ContextualCard {
     required this.icon,
     required super.priorityScore,
   });
+}
+
+/// Phase 9 — wraps a [MintAlertSignal] emitted by a rule-based feeder
+/// (AnticipationProvider, NudgeEngine, ProactiveTriggerService) so it can
+/// flow through the unified contextual card stream.
+///
+/// `card_ranking_service.rankCards()` floats G3 instances of this card to
+/// index 0 (D-05). NEVER constructed inside a `claude_*_service.dart` file
+/// (D-07; enforced by `tools/checks/no_llm_alert.py` in Plan 09-03).
+final class ContextualAlertCard extends ContextualCard {
+  /// The underlying typed alert signal.
+  final MintAlertSignal signal;
+
+  ContextualAlertCard({
+    required this.signal,
+    double? priorityScoreOverride,
+  }) : super(
+          // G3 → 1.0 visible slot priority; G2 → 0.85; G1 → 0.7. The
+          // tiebreaker layer (rankCards) does the actual hard float for G3.
+          priorityScore: priorityScoreOverride ??
+              switch (signal.gravity) {
+                Gravity.g3 => 1.0,
+                Gravity.g2 => 0.85,
+                Gravity.g1 => 0.70,
+              },
+          gravity: signal.gravity,
+        );
 }
 
 /// Overflow container for cards beyond the visible 4 slots.
