@@ -1,14 +1,14 @@
 // STAB-19 smoke test (Phase 1 P0a, D-01 verification gate).
 //
 // Purpose: Prove that MintHomeScreen pumps inside a MultiProvider shell that
-// contains the 4 providers historically missing in v2.1 (root cause of
-// ProviderNotFoundException at runtime). The 4 providers are:
+// contains the providers historically missing in v2.1 (root cause of
+// ProviderNotFoundException at runtime). Post Phase 10-02c, the providers are:
 //   - MintStateProvider
 //   - FinancialPlanProvider
 //   - CoachEntryPayloadProvider
-//   - OnboardingProvider
+// (OnboardingProvider was deleted in Phase 10-02c.)
 //
-// They are now registered in apps/mobile/lib/app.dart:1010-1013. This test
+// They are registered in apps/mobile/lib/app.dart. This test
 // guards against future regressions by reconstructing the relevant slice of
 // the app shell and asserting no exception is thrown during pump+settle.
 //
@@ -25,7 +25,6 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
-import 'package:mint_mobile/providers/onboarding_provider.dart';
 
 // Other providers MintHomeScreen reads via context.watch / context.read.
 import 'package:mint_mobile/providers/anticipation_provider.dart';
@@ -52,7 +51,6 @@ void main() {
             ChangeNotifierProvider(create: (_) => MintStateProvider()),
             ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
             ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
-            ChangeNotifierProvider(create: (_) => OnboardingProvider()),
             // Co-providers consumed by MintHomeScreen.
             ChangeNotifierProvider(create: (_) => AnticipationProvider()),
             ChangeNotifierProvider(create: (_) => BiographyProvider()),
