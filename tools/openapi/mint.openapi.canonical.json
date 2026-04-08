@@ -15046,6 +15046,15 @@
             ],
             "title": "Primaryactivity"
           },
+          "recentGravityEvents": {
+            "description": "Rolling 30-day list of gravity events (Phase 11 fragility detector).",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Recentgravityevents",
+            "type": "array"
+          },
           "savingsMonthly": {
             "anyOf": [
               {
@@ -15439,6 +15448,15 @@
             ],
             "title": "Primaryactivity"
           },
+          "recentGravityEvents": {
+            "description": "Rolling 30-day list of gravity events (Phase 11 fragility detector).",
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Recentgravityevents",
+            "type": "array"
+          },
           "savingsMonthly": {
             "anyOf": [
               {
@@ -15807,6 +15825,21 @@
               }
             ],
             "title": "Primaryactivity"
+          },
+          "recentGravityEvents": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recentgravityevents"
           },
           "savingsMonthly": {
             "anyOf": [
