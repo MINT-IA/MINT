@@ -4,8 +4,8 @@ Final ComplianceGuard regression run for v2.2 ship gate. Every output channel to
 
 ## Run Metadata
 
-- **Run date**: 2026-04-08 12:01:33 UTC
-- **Git SHA**: `1a1aafc2`
+- **Run date**: 2026-04-08 12:02:00 UTC
+- **Git SHA**: `b3b2adf0`
 - **Fixture**: `services/backend/data/compliance_regression/v2_2_channels.json`
 - **Test file**: `services/backend/tests/services/compliance/test_compliance_regression_v2_2.py`
 - **Runner**: `tools/compliance/run_v2_2_regression.py`
