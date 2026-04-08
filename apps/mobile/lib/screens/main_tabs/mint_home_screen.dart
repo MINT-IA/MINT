@@ -35,6 +35,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/animated_progress_bar.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_object.dart';
 import 'package:mint_mobile/widgets/home/action_opportunity_card.dart';
 import 'package:mint_mobile/widgets/home/anticipation_signal_card.dart';
 import 'package:mint_mobile/widgets/home/contextual_overflow.dart';
@@ -489,7 +490,37 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
           onTap: () => ctx.push(action.route),
         ),
       ContextualOverflowCard overflow => ContextualOverflow(card: overflow),
+      // Phase 9 D-05: ContextualAlertCard renders the typed MintAlertObject.
+      // Resolved at the call site so the widget stays a pure function of
+      // localized strings; the signal carries ARB keys only.
+      ContextualAlertCard alert => MintAlertObject(
+          gravity: alert.signal.gravity,
+          fact: _arbLookup(ctx, alert.signal.factKey),
+          cause: _arbLookup(ctx, alert.signal.causeKey),
+          nextMoment: _arbLookup(ctx, alert.signal.nextMomentKey),
+          alertId: alert.signal.alertId,
+          resolutionContext: VoiceResolutionContext.neutral,
+        ),
     };
+  }
+
+  /// Minimal ARB-key resolver used by [ContextualAlertCard] dispatch.
+  /// Falls back to the key string if no match (defensive — keys should
+  /// always exist since they originate from the feeder layer).
+  String _arbLookup(BuildContext ctx, String key) {
+    final l = S.of(ctx)!;
+    switch (key) {
+      case 'mintAlertDebtFact':
+        return l.mintAlertDebtFact;
+      case 'mintAlertDebtCause':
+        return l.mintAlertDebtCause;
+      case 'mintAlertDebtNextMoment':
+        return l.mintAlertDebtNextMoment;
+      case 'alertGenericNextMomentPrefix':
+        return l.alertGenericNextMomentPrefix;
+      default:
+        return key;
+    }
   }
 }
 

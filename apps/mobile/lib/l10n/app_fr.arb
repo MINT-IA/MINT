@@ -10765,5 +10765,11 @@
   "alertG3Label": "À ne pas ignorer",
   "@alertG3Label": {"description": "MintAlertObject G3 label (firm but calm, no alarmism)."},
   "alertAckCta": "Compris",
-  "@alertAckCta": {"description": "MintAlertObject acknowledge CTA (used by Plan 09-04 biography ack)."}
+  "@alertAckCta": {"description": "MintAlertObject acknowledge CTA (used by Plan 09-04 biography ack)."},
+  "mintAlertDebtFact": "MINT voit une tension sur tes dettes : les remboursements pèsent plus que ce qui est confortable.",
+  "@mintAlertDebtFact": {"description": "MintAlertObject debt G3 fact line — MINT-as-subject (anti-shame, never blames the user)."},
+  "mintAlertDebtCause": "C'est ce que MINT remarque quand le remboursement mensuel dépasse le seuil de respiration du budget.",
+  "@mintAlertDebtCause": {"description": "MintAlertObject debt G3 cause line — explains the threshold MINT noticed."},
+  "mintAlertDebtNextMoment": "On peut regarder ensemble un plan de sortie, à ton rythme.",
+  "@mintAlertDebtNextMoment": {"description": "MintAlertObject debt G3 next-moment invitation — never imperative."}
 }

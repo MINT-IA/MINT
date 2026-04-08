@@ -22235,4 +22235,16 @@ class SEs extends S {
 
   @override
   String get alertAckCta => 'Entendido';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT ve tensión en tus deudas: los reembolsos pesan más de lo cómodo.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'Es lo que MINT nota cuando el reembolso mensual supera el umbral de respiración del presupuesto.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'Podemos mirar juntos un plan de salida, a tu ritmo.';
 }

@@ -10215,5 +10215,8 @@
   "alertGenericNextMomentPrefix": "When we come back to it",
   "alertG2Label": "Worth checking",
   "alertG3Label": "Don't ignore",
-  "alertAckCta": "Got it"
+  "alertAckCta": "Got it",
+  "mintAlertDebtFact": "MINT sees tension on your debts: repayments weigh more than what feels comfortable.",
+  "mintAlertDebtCause": "It's what MINT notices when monthly repayments cross the budget breathing threshold.",
+  "mintAlertDebtNextMoment": "We can look at an exit plan together, at your own pace."
 }

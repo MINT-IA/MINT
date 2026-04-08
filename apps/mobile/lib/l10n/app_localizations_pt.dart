@@ -22238,4 +22238,16 @@ class SPt extends S {
 
   @override
   String get alertAckCta => 'Entendido';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT vê tensão nas tuas dívidas: os reembolsos pesam mais do que o confortável.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'É o que MINT nota quando o reembolso mensal ultrapassa o limiar de respiração do orçamento.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'Podemos olhar juntos para um plano de saída, ao teu ritmo.';
 }

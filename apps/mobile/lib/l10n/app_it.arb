@@ -10215,5 +10215,8 @@
   "alertGenericNextMomentPrefix": "Quando ne riparleremo",
   "alertG2Label": "Da verificare",
   "alertG3Label": "Non ignorare",
-  "alertAckCta": "Capito"
+  "alertAckCta": "Capito",
+  "mintAlertDebtFact": "MINT vede una tensione sui tuoi debiti: i rimborsi pesano più del comodo.",
+  "mintAlertDebtCause": "Lo nota MINT quando il rimborso mensile supera la soglia di respiro del budget.",
+  "mintAlertDebtNextMoment": "Possiamo guardare insieme un piano di uscita, al tuo ritmo."
 }

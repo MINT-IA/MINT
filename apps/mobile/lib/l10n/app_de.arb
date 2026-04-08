@@ -10215,5 +10215,8 @@
   "alertGenericNextMomentPrefix": "Wenn wir darauf zur\u00fcckkommen",
   "alertG2Label": "Zu pr\u00fcfen",
   "alertG3Label": "Nicht \u00fcbersehen",
-  "alertAckCta": "Verstanden"
+  "alertAckCta": "Verstanden",
+  "mintAlertDebtFact": "MINT sieht Spannung bei deinen Schulden: die Rückzahlungen wiegen mehr als angenehm.",
+  "mintAlertDebtCause": "Das fällt MINT auf, wenn die monatliche Rückzahlung die Atemgrenze deines Budgets überschreitet.",
+  "mintAlertDebtNextMoment": "Wir können uns gemeinsam einen Ausstiegsplan ansehen, in deinem Tempo."
 }

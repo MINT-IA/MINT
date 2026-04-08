@@ -34,7 +34,8 @@ const List<String> _s0s5Files = <String>[
   'lib/screens/main_tabs/mint_home_screen.dart',
   'lib/widgets/coach/coach_message_bubble.dart',
   'lib/widgets/coach/response_card_widget.dart',
-  'lib/widgets/report/debt_alert_banner.dart',
+  // Phase 9 D-08: debt_alert_banner.dart deleted; mint_alert_object.dart
+  // (Plan 09-01) is covered by the dedicated Plan 09-04 TalkBack sweep.
 ];
 
 /// Regex that grabs a line only if it names a SizedBox/EdgeInsets spacing

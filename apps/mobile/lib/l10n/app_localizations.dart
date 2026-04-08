@@ -39002,6 +39002,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Compris'**
   String get alertAckCta;
+
+  /// MintAlertObject debt G3 fact line — MINT-as-subject (anti-shame, never blames the user).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT voit une tension sur tes dettes : les remboursements pèsent plus que ce qui est confortable.'**
+  String get mintAlertDebtFact;
+
+  /// MintAlertObject debt G3 cause line — explains the threshold MINT noticed.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est ce que MINT remarque quand le remboursement mensuel dépasse le seuil de respiration du budget.'**
+  String get mintAlertDebtCause;
+
+  /// MintAlertObject debt G3 next-moment invitation — never imperative.
+  ///
+  /// In fr, this message translates to:
+  /// **'On peut regarder ensemble un plan de sortie, à ton rythme.'**
+  String get mintAlertDebtNextMoment;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

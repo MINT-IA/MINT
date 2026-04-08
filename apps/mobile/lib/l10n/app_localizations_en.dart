@@ -22119,4 +22119,16 @@ class SEn extends S {
 
   @override
   String get alertAckCta => 'Got it';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT sees tension on your debts: repayments weigh more than what feels comfortable.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'It\'s what MINT notices when monthly repayments cross the budget breathing threshold.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'We can look at an exit plan together, at your own pace.';
 }

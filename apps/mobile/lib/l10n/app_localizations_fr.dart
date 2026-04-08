@@ -22232,4 +22232,16 @@ class SFr extends S {
 
   @override
   String get alertAckCta => 'Compris';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT voit une tension sur tes dettes : les remboursements pèsent plus que ce qui est confortable.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'C\'est ce que MINT remarque quand le remboursement mensuel dépasse le seuil de respiration du budget.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'On peut regarder ensemble un plan de sortie, à ton rythme.';
 }

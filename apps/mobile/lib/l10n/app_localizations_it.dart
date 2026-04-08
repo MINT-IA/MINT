@@ -22291,4 +22291,16 @@ class SIt extends S {
 
   @override
   String get alertAckCta => 'Capito';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT vede una tensione sui tuoi debiti: i rimborsi pesano più del comodo.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'Lo nota MINT quando il rimborso mensile supera la soglia di respiro del budget.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'Possiamo guardare insieme un piano di uscita, al tuo ritmo.';
 }

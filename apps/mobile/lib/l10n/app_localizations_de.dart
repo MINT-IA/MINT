@@ -22281,4 +22281,16 @@ class SDe extends S {
 
   @override
   String get alertAckCta => 'Verstanden';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT sieht Spannung bei deinen Schulden: die Rückzahlungen wiegen mehr als angenehm.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'Das fällt MINT auf, wenn die monatliche Rückzahlung die Atemgrenze deines Budgets überschreitet.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'Wir können uns gemeinsam einen Ausstiegsplan ansehen, in deinem Tempo.';
 }
