@@ -66,13 +66,15 @@ void main() {
   // ── COMPACT VARIANT ──
 
   group('ResponseCardWidget — compact', () {
-    testWidgets('renders title and chevron', (tester) async {
+    testWidgets('renders title without chevron (S4 DELETE #4)',
+        (tester) async {
       await tester.pumpWidget(_wrap(
         ResponseCardWidget.compact(card: _makeCard(title: 'Rachat LPP')),
       ));
 
       expect(find.text('Rachat LPP'), findsOneWidget);
-      expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
+      // DELETE #4: chevron removed — the whole card is tappable.
+      expect(find.byIcon(Icons.chevron_right_rounded), findsNothing);
     });
 
     testWidgets('does NOT show chiffre-choc', (tester) async {
@@ -139,7 +141,8 @@ void main() {
       expect(find.text('OPP3 art. 7'), findsNothing);
     });
 
-    testWidgets('shows deadline pill when set', (tester) async {
+    testWidgets('shows deadline pill when set (S4 DELETE #2 — no icon)',
+        (tester) async {
       final deadline = DateTime.now().add(const Duration(days: 15));
       await tester.pumpWidget(_wrap(
         ResponseCardWidget.chat(
@@ -147,7 +150,10 @@ void main() {
         ),
       ));
 
-      expect(find.byIcon(Icons.schedule_rounded), findsOneWidget);
+      // DELETE #2: schedule Icon removed — the "J-N" text carries the
+      // time semantic on its own.
+      expect(find.byIcon(Icons.schedule_rounded), findsNothing);
+      expect(find.textContaining('J-'), findsOneWidget);
     });
 
     testWidgets('no deadline pill when no deadline', (tester) async {
@@ -155,7 +161,9 @@ void main() {
         ResponseCardWidget.chat(card: _makeCard()),
       ));
 
+      // No deadline → no badge text rendered at all.
       expect(find.byIcon(Icons.schedule_rounded), findsNothing);
+      expect(find.textContaining('J-'), findsNothing);
     });
   });
 

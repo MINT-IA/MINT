@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -54,20 +55,52 @@ class ResponseCardWidget extends StatelessWidget {
   /// Callback when CTA is tapped. Defaults to GoRouter push.
   final VoidCallback? onCtaTap;
 
+  /// Optional confidence for the MTC slot. When non-null AND [isProjection]
+  /// is true, MintTrameConfiance.inline is mounted at the bottom of the card
+  /// (AESTH-07 MUJI 4-line grammar, line 4 = MTC). When null, no slot.
+  ///
+  /// Phase 4 Plan 04-02: the [ResponseCard] model does not yet carry a
+  /// confidence field — callers pass `null` until Phase 8a wires the model.
+  /// The null-safe fallback is a safe no-op (no MTC rendered).
+  final EnhancedConfidence? confidence;
+
+  /// Whether this response is a calculation/projection answer. Only projection
+  /// answers get an MTC slot — chat replies and education content do not.
+  /// See CONTEXT.md D-07.
+  final bool isProjection;
+
+  /// Optional voice level (from [resolveLevel]) to adapt MTC phrasing. The
+  /// level never changes colors or timing — only the one-line summary wording.
+  final VoiceLevel? audioTone;
+
   const ResponseCardWidget({
     super.key,
     required this.card,
     this.variant = ResponseCardVariant.sheet,
     this.onCtaTap,
+    this.confidence,
+    this.isProjection = false,
+    this.audioTone,
   });
 
   /// Shortcut constructors
-  const ResponseCardWidget.chat({super.key, required this.card, this.onCtaTap})
-      : variant = ResponseCardVariant.chat;
+  const ResponseCardWidget.chat({
+    super.key,
+    required this.card,
+    this.onCtaTap,
+    this.confidence,
+    this.isProjection = false,
+    this.audioTone,
+  }) : variant = ResponseCardVariant.chat;
 
-  const ResponseCardWidget.compact(
-      {super.key, required this.card, this.onCtaTap})
-      : variant = ResponseCardVariant.compact;
+  const ResponseCardWidget.compact({
+    super.key,
+    required this.card,
+    this.onCtaTap,
+    this.confidence,
+    this.isProjection = false,
+    this.audioTone,
+  }) : variant = ResponseCardVariant.compact;
 
   @override
   Widget build(BuildContext context) {
@@ -84,16 +117,12 @@ class ResponseCardWidget extends StatelessWidget {
                 ? MintSpacing.sm + 4
                 : MintSpacing.md,
           ),
+          // DELETE #1 (S4 audit): shadow-on-shadow ornament removed. The
+          // border-radius + card surface token is sufficient separation on
+          // porcelaine (D-03.b).
           decoration: BoxDecoration(
             color: MintColors.card,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: _buildContent(context),
         ),
@@ -112,40 +141,31 @@ class ResponseCardWidget extends StatelessWidget {
     }
   }
 
-  // ── COMPACT: titre + CTA chevron ──────────────────────────
+  // ── COMPACT: titre seul (audit S4 DELETE #3 + #4) ─────────
+  //
+  // DELETE #3: decorative icon container for compact variant removed —
+  // the compact row is a minimal title+subtitle stack, no pill needed.
+  // DELETE #4: chevron removed — the whole card is tappable, chevron
+  // restates what the tap affordance already implies (D-03.c).
 
   Widget _buildCompact(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        _buildIcon(size: 32),
-        const SizedBox(width: MintSpacing.sm + 4),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                card.title,
-                style: MintTextStyles.titleMedium(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (card.subtitle.isNotEmpty)
-                Text(
-                  card.subtitle,
-                  style: MintTextStyles.bodySmall(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-            ],
+        Text(
+          card.title,
+          style: MintTextStyles.titleMedium(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (card.subtitle.isNotEmpty)
+          Text(
+            card.subtitle,
+            style: MintTextStyles.bodySmall(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        const SizedBox(width: MintSpacing.sm),
-        const Icon(
-          Icons.chevron_right_rounded,
-          color: MintColors.textMuted,
-          size: 20,
-        ),
       ],
     );
   }
@@ -309,22 +329,14 @@ class ResponseCardWidget extends StatelessWidget {
             : MintColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.schedule_rounded,
-            size: 12,
-            color: isUrgent ? MintColors.error : MintColors.primary,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            badge,
-            style: MintTextStyles.labelSmall(
-              color: isUrgent ? MintColors.error : MintColors.primary,
-            ),
-          ),
-        ],
+      // DELETE #2 (S4 audit): schedule Icon removed. The badge Text
+      // ("dans N jours" / "J-N" / "Demain") already carries the time
+      // semantic — the icon is redundant ornament (D-03.c).
+      child: Text(
+        badge,
+        style: MintTextStyles.labelSmall(
+          color: isUrgent ? MintColors.error : MintColors.primary,
+        ),
       ),
     );
   }
@@ -406,27 +418,15 @@ class ResponseCardWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Drag handle
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: MintColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: MintSpacing.md),
-
+            // DELETE #5 (S4 audit): drag handle Container removed.
+            // Native bottom sheets already expose a drag affordance; the
+            // explicit handle is ornament (D-03.b).
             Text(card.title, style: MintTextStyles.titleMedium()),
             const SizedBox(height: MintSpacing.md),
 
-            // Sources
+            // DELETE #6 (S4 audit): "Sources" label Text removed — the
+            // micro-text source rows below self-explain as citation list.
             if (card.sources.isNotEmpty) ...[
-              Text(S.of(context)!.proofSheetSources,
-                  style: MintTextStyles.bodySmall()),
-              const SizedBox(height: MintSpacing.xs),
               ...card.sources.map(
                 (s) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
