@@ -58,27 +58,27 @@ void main() {
       // Deviation: REQ-locked #595960 measured 6.95:1 white / 6.71:1
       // craie, failing strict AAA. Iteration 2 of the auto-darkening
       // protocol (#555560) clears both axes (≥ 7.10:1 craie).
-      expect(MintColors.textSecondaryAaa.toARGB32(), 0xFF555560);
+      expect(MintColors.textSecondaryAaa.value, 0xFF555560);
     });
 
     test('textMutedAaa = #525256', () {
-      expect(MintColors.textMutedAaa.toARGB32(), 0xFF525256);
+      expect(MintColors.textMutedAaa.value, 0xFF525256);
     });
 
     test('successAaa = #0F5E28', () {
-      expect(MintColors.successAaa.toARGB32(), 0xFF0F5E28);
+      expect(MintColors.successAaa.value, 0xFF0F5E28);
     });
 
     test('warningAaa = #8C3F06', () {
-      expect(MintColors.warningAaa.toARGB32(), 0xFF8C3F06);
+      expect(MintColors.warningAaa.value, 0xFF8C3F06);
     });
 
     test('errorAaa = #8B1D1D', () {
-      expect(MintColors.errorAaa.toARGB32(), 0xFF8B1D1D);
+      expect(MintColors.errorAaa.value, 0xFF8B1D1D);
     });
 
     test('infoAaa = #004FA3', () {
-      expect(MintColors.infoAaa.toARGB32(), 0xFF004FA3);
+      expect(MintColors.infoAaa.value, 0xFF004FA3);
     });
   });
 }

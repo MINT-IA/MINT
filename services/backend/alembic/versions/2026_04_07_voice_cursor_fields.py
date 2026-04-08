@@ -1,7 +1,7 @@
 """voice_cursor_fields — Phase 02-03 (P0b)
 
 Revision ID: 2026_04_07_voice_cursor_fields
-Revises: p13_add_password_changed_at
+Revises: p13_password_changed_at
 Create Date: 2026-04-07
 
 NOTE — SCAFFOLD ONLY, NOT EXECUTED.
@@ -29,7 +29,7 @@ from __future__ import annotations
 
 # revision identifiers, used by Alembic.
 revision = "2026_04_07_voice_cursor_fields"
-down_revision = "p13_add_password_changed_at"
+down_revision = "p13_password_changed_at"
 branch_labels = None
 depends_on = None
 
