@@ -22139,4 +22139,45 @@ class SEn extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT has spotted an important point that needs your attention.';
+
+  @override
+  String get tonChooserTitle => 'Pick how Mint speaks to you';
+
+  @override
+  String get tonChooserSubtitle =>
+      'How Mint talks to you. You can change this anytime.';
+
+  @override
+  String get tonSoftLabel => 'Gentle';
+
+  @override
+  String get tonDirectLabel => 'Direct';
+
+  @override
+  String get tonUnfilteredLabel => 'Unfiltered';
+
+  @override
+  String get tonSoftExample => 'We\'ll take it slow.';
+
+  @override
+  String get tonDirectExample => 'Here\'s what it actually means.';
+
+  @override
+  String get tonUnfilteredExample => 'No filter. You want to know.';
+
+  @override
+  String get tonSkipLater => 'Later';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint couldn\'t save that choice. We\'ll try again later.';
+
+  @override
+  String get tonSelectedSemantics => 'Selected';
+
+  @override
+  String get tonNotSelectedSemantics => 'Not selected';
+
+  @override
+  String get tonSectionLabel => 'Voice';
 }

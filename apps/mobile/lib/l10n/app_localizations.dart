@@ -16774,7 +16774,7 @@ abstract class S {
   /// No description provided for @genderGapIntro.
   ///
   /// In fr, this message translates to:
-  /// **'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l\'impact.'**
+  /// **'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le sélecteur pour voir l\'impact.'**
   String get genderGapIntro;
 
   /// No description provided for @genderGapTauxActivite.
@@ -39026,6 +39026,84 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'MINT a repéré un point important qui demande ton attention.'**
   String get mintAlertAnnounceG3;
+
+  /// Phase 12-01 — TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis le ton de Mint'**
+  String get tonChooserTitle;
+
+  /// Phase 12-01 — TonChooser subtitle (anti-shame: all 3 options equally legitimate).
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment Mint te parle. Tu peux changer à tout moment.'**
+  String get tonChooserSubtitle;
+
+  /// Phase 12-01 — Ton option 1 label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doux'**
+  String get tonSoftLabel;
+
+  /// Phase 12-01 — Ton option 2 label (default).
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct'**
+  String get tonDirectLabel;
+
+  /// Phase 12-01 — Ton option 3 label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non filtré'**
+  String get tonUnfilteredLabel;
+
+  /// Phase 12-01 — Ton soft micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'On y va doucement.'**
+  String get tonSoftExample;
+
+  /// Phase 12-01 — Ton direct micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ce que ça veut dire.'**
+  String get tonDirectExample;
+
+  /// Phase 12-01 — Ton unfiltered micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de filtre. Tu veux savoir.'**
+  String get tonUnfilteredExample;
+
+  /// Phase 12-01 — TonChooserSheet skip CTA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get tonSkipLater;
+
+  /// Phase 12-01 — Neutral toast on optimistic rollback (no banned terms).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint n\'a pas pu enregistrer ce choix. On réessaie plus tard.'**
+  String get tonSyncFailedToast;
+
+  /// Phase 12-01 — a11y suffix for selected Ton cell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionné'**
+  String get tonSelectedSemantics;
+
+  /// Phase 12-01 — a11y suffix for unselected Ton cell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non sélectionné'**
+  String get tonNotSelectedSemantics;
+
+  /// Phase 12-01 — ProfileDrawer section heading for Ton chooser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix'**
+  String get tonSectionLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

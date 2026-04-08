@@ -22310,4 +22310,45 @@ class SIt extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT ha individuato un punto importante che richiede la tua attenzione.';
+
+  @override
+  String get tonChooserTitle => 'Scegli come Mint ti parla';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Come Mint ti parla. Puoi cambiarlo quando vuoi.';
+
+  @override
+  String get tonSoftLabel => 'Dolce';
+
+  @override
+  String get tonDirectLabel => 'Diretto';
+
+  @override
+  String get tonUnfilteredLabel => 'Senza filtro';
+
+  @override
+  String get tonSoftExample => 'Andiamo piano.';
+
+  @override
+  String get tonDirectExample => 'Ecco cosa significa davvero.';
+
+  @override
+  String get tonUnfilteredExample => 'Nessun filtro. Vuoi sapere.';
+
+  @override
+  String get tonSkipLater => 'Più tardi';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint non è riuscito a salvare la scelta. Riproviamo più tardi.';
+
+  @override
+  String get tonSelectedSemantics => 'Selezionato';
+
+  @override
+  String get tonNotSelectedSemantics => 'Non selezionato';
+
+  @override
+  String get tonSectionLabel => 'Voce';
 }

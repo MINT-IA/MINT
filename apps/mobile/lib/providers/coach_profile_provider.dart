@@ -11,6 +11,8 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 
 /// Provider pour le profil Coach MINT.
 ///
@@ -701,6 +703,45 @@ class CoachProfileProvider extends ChangeNotifier {
     );
     _profileUpdatedSinceBudget = true;
     notifyListeners();
+  }
+
+  /// Phase 12-01 — Optimistic update of [CoachProfile.voiceCursorPreference].
+  ///
+  /// Updates local state immediately + notifies listeners (optimistic). Then
+  /// awaits [remoteSync] (injected for testability — defaults to a no-op
+  /// success since no `/api/v1/profile` PATCH endpoint is wired yet).
+  ///
+  /// On `false` from [remoteSync], rolls back local state and notifies again.
+  /// Returns `true` on success, `false` on rollback.
+  ///
+  /// Pure provider — does NOT show toasts or fire analytics. Callers (UI) own
+  /// the toast + analytics decisions per D-09 (event source distinguishes
+  /// first-launch vs settings).
+  Future<bool> setVoiceCursorPreference(
+    VoicePreference next, {
+    Future<bool> Function(VoicePreference value)? remoteSync,
+  }) async {
+    final current = _profile;
+    if (current == null) return false;
+    if (current.voiceCursorPreference == next) return true;
+
+    final previous = current.voiceCursorPreference;
+
+    // Optimistic local update.
+    _profile = current.copyWith(voiceCursorPreference: next);
+    notifyListeners();
+
+    // Default sync = no-op success (Plan 12-04 will wire real PATCH).
+    final ok = remoteSync == null ? true : await remoteSync(next);
+
+    if (!ok) {
+      // Rollback.
+      _profile = _profile?.copyWith(voiceCursorPreference: previous);
+      notifyListeners();
+      return false;
+    }
+
+    return true;
   }
 
   /// Replace the current profile with an updated one and persist via answers.

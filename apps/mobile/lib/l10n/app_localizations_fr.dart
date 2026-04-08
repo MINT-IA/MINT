@@ -9467,7 +9467,7 @@ class SFr extends S {
 
   @override
   String get genderGapIntro =>
-      'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l\'impact.';
+      'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le sélecteur pour voir l\'impact.';
 
   @override
   String get genderGapTauxActivite => 'Taux d\'activité';
@@ -22251,4 +22251,45 @@ class SFr extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT a repéré un point important qui demande ton attention.';
+
+  @override
+  String get tonChooserTitle => 'Choisis le ton de Mint';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Comment Mint te parle. Tu peux changer à tout moment.';
+
+  @override
+  String get tonSoftLabel => 'Doux';
+
+  @override
+  String get tonDirectLabel => 'Direct';
+
+  @override
+  String get tonUnfilteredLabel => 'Non filtré';
+
+  @override
+  String get tonSoftExample => 'On y va doucement.';
+
+  @override
+  String get tonDirectExample => 'Voici ce que ça veut dire.';
+
+  @override
+  String get tonUnfilteredExample => 'Pas de filtre. Tu veux savoir.';
+
+  @override
+  String get tonSkipLater => 'Plus tard';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint n\'a pas pu enregistrer ce choix. On réessaie plus tard.';
+
+  @override
+  String get tonSelectedSemantics => 'Sélectionné';
+
+  @override
+  String get tonNotSelectedSemantics => 'Non sélectionné';
+
+  @override
+  String get tonSectionLabel => 'Voix';
 }

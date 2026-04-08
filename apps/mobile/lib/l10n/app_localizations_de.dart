@@ -22302,4 +22302,45 @@ class SDe extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT hat einen wichtigen Punkt entdeckt, der deine Aufmerksamkeit braucht.';
+
+  @override
+  String get tonChooserTitle => 'Wähle, wie Mint mit dir spricht';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Wie Mint mit dir redet. Du kannst es jederzeit ändern.';
+
+  @override
+  String get tonSoftLabel => 'Sanft';
+
+  @override
+  String get tonDirectLabel => 'Direkt';
+
+  @override
+  String get tonUnfilteredLabel => 'Ungefiltert';
+
+  @override
+  String get tonSoftExample => 'Wir gehen es ruhig an.';
+
+  @override
+  String get tonDirectExample => 'Das bedeutet es konkret.';
+
+  @override
+  String get tonUnfilteredExample => 'Kein Filter. Du willst es wissen.';
+
+  @override
+  String get tonSkipLater => 'Später';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint konnte diese Wahl nicht speichern. Wir versuchen es später.';
+
+  @override
+  String get tonSelectedSemantics => 'Ausgewählt';
+
+  @override
+  String get tonNotSelectedSemantics => 'Nicht ausgewählt';
+
+  @override
+  String get tonSectionLabel => 'Stimme';
 }

@@ -22253,4 +22253,45 @@ class SEs extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT ha detectado un punto importante que necesita tu atención.';
+
+  @override
+  String get tonChooserTitle => 'Elige cómo te habla Mint';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Cómo te habla Mint. Puedes cambiarlo cuando quieras.';
+
+  @override
+  String get tonSoftLabel => 'Suave';
+
+  @override
+  String get tonDirectLabel => 'Directo';
+
+  @override
+  String get tonUnfilteredLabel => 'Sin filtro';
+
+  @override
+  String get tonSoftExample => 'Vamos con calma.';
+
+  @override
+  String get tonDirectExample => 'Esto es lo que significa.';
+
+  @override
+  String get tonUnfilteredExample => 'Sin filtro. Quieres saber.';
+
+  @override
+  String get tonSkipLater => 'Más tarde';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint no pudo guardar esta elección. Lo intentaremos más tarde.';
+
+  @override
+  String get tonSelectedSemantics => 'Seleccionado';
+
+  @override
+  String get tonNotSelectedSemantics => 'No seleccionado';
+
+  @override
+  String get tonSectionLabel => 'Voz';
 }

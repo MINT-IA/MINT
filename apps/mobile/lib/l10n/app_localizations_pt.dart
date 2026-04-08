@@ -22257,4 +22257,45 @@ class SPt extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT detetou um ponto importante que precisa da tua atenção.';
+
+  @override
+  String get tonChooserTitle => 'Escolhe como o Mint te fala';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Como o Mint te fala. Podes mudar quando quiseres.';
+
+  @override
+  String get tonSoftLabel => 'Suave';
+
+  @override
+  String get tonDirectLabel => 'Direto';
+
+  @override
+  String get tonUnfilteredLabel => 'Sem filtro';
+
+  @override
+  String get tonSoftExample => 'Vamos com calma.';
+
+  @override
+  String get tonDirectExample => 'Eis o que isto significa.';
+
+  @override
+  String get tonUnfilteredExample => 'Sem filtro. Queres saber.';
+
+  @override
+  String get tonSkipLater => 'Mais tarde';
+
+  @override
+  String get tonSyncFailedToast =>
+      'O Mint não conseguiu guardar essa escolha. Tentamos mais tarde.';
+
+  @override
+  String get tonSelectedSemantics => 'Selecionado';
+
+  @override
+  String get tonNotSelectedSemantics => 'Não selecionado';
+
+  @override
+  String get tonSectionLabel => 'Voz';
 }
