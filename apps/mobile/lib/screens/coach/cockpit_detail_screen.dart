@@ -21,8 +21,8 @@ import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
-import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
 import 'package:mint_mobile/widgets/coach/confidence_blocks_bar.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
 import 'package:mint_mobile/widgets/coach/impact_mint_card.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
@@ -73,6 +73,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   RetirementProjectionResult? _retirementProjection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  EnhancedConfidence? _enhancedConfidence;
   Map<String, BlockScore> _confidenceBlocs = const {};
   DashboardProjectionSnapshot? _snapshot;
 
@@ -99,6 +100,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       _profile = null;
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
       _monteCarloResult = null;
@@ -125,6 +127,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       );
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+      _enhancedConfidence = ConfidenceScorer.scoreEnhanced(_profile!);
       _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
 
       // Detailed retirement projection (budget gap, phases, etc.)
@@ -153,6 +156,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       _projection = null;
       _snapshot = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
       _monteCarloResult = null;
@@ -319,13 +323,24 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── Confidence Bar ──────────────────────────
-                ConfidenceBar(score: _confidenceScore),
-                const SizedBox(height: 16),
+                // ── MintTrameConfiance (detail) ─────────────
+                // Plan 08a-02 Batch A: MTC replaces the legacy
+                // ConfidenceBar. Standalone screen → firstAppearance.
+                if (_enhancedConfidence != null) ...[
+                  MintTrameConfiance.detail(
+                    confidence: _enhancedConfidence!,
+                    bloomStrategy: BloomStrategy.firstAppearance,
+                    hypotheses: const [],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
-                // ── Confidence Blocks Bar (per-category) ────
+                // ── Data-block completeness (extraction) ────
+                // Sibling of MTC per AUDIT-01: this is an
+                // extraction-confidence visualisation, not a
+                // calculation-confidence one.
                 if (_confidenceBlocs.isNotEmpty) ...[
-                  ConfidenceBlocksBar(blocs: _confidenceBlocs),
+                  DataBlockConfidenceBar(blocs: _confidenceBlocs),
                   const SizedBox(height: 16),
                 ],
 

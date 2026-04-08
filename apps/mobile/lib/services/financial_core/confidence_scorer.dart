@@ -1041,4 +1041,39 @@ class EnhancedConfidence {
       axisPrompts: const [],
     );
   }
+
+  /// Plan 08a-02 Batch A synthesis helper.
+  ///
+  /// Builds a minimal [EnhancedConfidence] from a bare legacy 0-100 score
+  /// for surfaces that still carry a `double confidenceScore` API and need
+  /// to hand a `EnhancedConfidence` to [MintTrameConfiance]. All four
+  /// axes are collapsed to the same input value — callers that have a
+  /// real 4-axis breakdown MUST pass the real instance instead.
+  ///
+  /// See `.planning/phases/08a-l1.2b-mtc-11-surface-migration/08a-02-PLAN.md`
+  /// and the Batch A orchestrator clarifications (option (b)).
+  factory EnhancedConfidence.fromBareScore(double score) {
+    final s = score.clamp(0.0, 100.0);
+    String levelFor(double v) {
+      if (v >= 70) return 'high';
+      if (v >= 40) return 'medium';
+      return 'low';
+    }
+
+    return EnhancedConfidence(
+      completeness: s,
+      accuracy: s,
+      freshness: s,
+      understanding: s,
+      combined: s,
+      level: levelFor(s),
+      baseResult: const ProjectionConfidence(
+        score: 0,
+        level: 'low',
+        prompts: [],
+        assumptions: [],
+      ),
+      axisPrompts: const [],
+    );
+  }
 }

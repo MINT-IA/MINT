@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT HERO ZONE — "L'essentiel en 3 secondes"
@@ -481,48 +483,26 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
   // ── Confidence chip ─────────────────────────────────────
 
   Widget _buildConfidenceChip() {
-    final score = widget.confidenceScore;
-    final isGood = score >= 70;
-    final chipColor = isGood ? MintColors.success : MintColors.warning;
-
-    return Semantics(
-      label: 'Score de confiance',
-      button: true,
-      child: Tooltip(
-        message: S.of(context)?.confidenceDetailsTooltip ?? '',
-        child: GestureDetector(
+    // Plan 08a-02 Batch A: MTC is the single confidence renderer here.
+    // The ±15% uncertainty band remains a plain text sibling label inside
+    // _buildHeroNumber — MTC is a confidence primitive, not a number-range
+    // renderer (locked clarification #1 from orchestrator).
+    //
+    // Widget API stays on `double confidenceScore` (3 arbitrage call sites
+    // would break otherwise). We synthesize a minimal EnhancedConfidence
+    // via fromBareScore for the MTC call.
+    final synthesized =
+        EnhancedConfidence.fromBareScore(widget.confidenceScore);
+    return Tooltip(
+      message: S.of(context)?.confidenceDetailsTooltip ?? '',
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: widget.onConfidenceTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: chipColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: chipColor.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isGood ? Icons.verified_outlined : Icons.tune_outlined,
-              size: 14,
-              color: chipColor,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              isGood
-                  ? 'Confiance : ${score.round()}%'
-                  : 'Confiance : ${score.round()}% — Améliorer',
-              style: MintTextStyles.labelMedium(color: chipColor).copyWith(fontWeight: FontWeight.w600),
-            ),
-            if (!isGood) ...[
-              const SizedBox(width: 4),
-              Icon(Icons.arrow_forward_ios, size: 10, color: chipColor),
-            ],
-          ],
+        child: MintTrameConfiance.inline(
+          confidence: synthesized,
+          bloomStrategy: BloomStrategy.firstAppearance,
         ),
       ),
-    ),
-    ),
     );
   }
 
