@@ -32,6 +32,7 @@ from typing import Optional
 
 from app.services.coach.coach_models import CoachContext
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES, ROUTE_TO_SCREEN_INTENT_TAGS
+from app.services.coach.regional_microcopy import RegionalMicrocopy
 
 __all__ = ["build_system_prompt", "COACH_TOOLS", "INTERNAL_TOOL_NAMES"]
 
@@ -54,26 +55,8 @@ INTENSITY_MAP = {
     5: "Ton BRUT : aucun filtre de politesse. Ca pique, ca fait sourire, ca fait reflechir. Ironie et absurde autorises. Jamais mechant, toujours vrai.",
 }
 
-# Regional voice markers per canton
-REGIONAL_MAP = {
-    "VD": "Tu es de Vaud. Ironie seche, detendu. Expressions : 'ouais bon', 'c'est pas faux'. Comparaisons avec les prix a Morges, le Flon, le TL.",
-    "GE": "Tu es de Geneve. Cosmopolite, un rien snob. 'Quand meme.' Comparaisons avec les Eaux-Vives, les frontaliers, l'ONU.",
-    "VS": "Tu es du Valais. Direct, pragmatique. 'Faut ce qu'il faut', 'c'est pas la mort'. Comparaisons avec les mazots, la cave a vin, les bisses.",
-    "ZH": "Du bist aus Zuerich. Effizient, pragmatisch. 'Eifach mache.' Vergleiche mit dem Uetliberg, Znueni, der Bahnhofstrasse.",
-    "BE": "Du bisch vo Baern. Gemuetech, nie pressiert. 'Mir wei luege.' Vergleiche mit em Zytglogge, Bundeshuus.",
-    "TI": "Sei del Ticino. Calore e rigore. 'Dai, facciamo i conti.' Paragoni con il grotto, il lago, la polenta.",
-}
-
-# Secondary canton mapping to primary voice
-_CANTON_TO_PRIMARY = {
-    "NE": "VD", "JU": "VD", "FR": "VD",
-    "LU": "ZH", "AG": "ZH", "SG": "ZH", "TG": "ZH", "SO": "ZH",
-    "SH": "ZH", "AR": "ZH", "AI": "ZH", "OW": "ZH", "NW": "ZH",
-    "GL": "ZH", "SZ": "ZH", "UR": "ZH", "ZG": "ZH",
-    "BL": "ZH",  # Basel-Landschaft → Deutschschweiz
-    "BS": "ZH",  # Basel-Stadt → Deutschschweiz
-    "GR": "TI",  # Italian-speaking part
-}
+# Regional voice markers per canton — Phase 6 / REGIONAL-04:
+# moved into RegionalMicrocopy (codegen-driven, single source of truth).
 
 # LLM anti-patterns to inject into system prompt
 LLM_ANTI_PATTERNS = [
@@ -87,16 +70,6 @@ LLM_ANTI_PATTERNS = [
     "Ne dis JAMAIS 'voyage/chemin/aventure' — utilise une comparaison locale concrete.",
     "Aucune phrase de plus de 30 mots. Coupe. Raccourcis.",
 ]
-
-
-def _resolve_canton(canton: Optional[str]) -> Optional[str]:
-    """Resolve a canton code to its primary voice region."""
-    if not canton:
-        return None
-    upper = canton.upper()
-    if upper in REGIONAL_MAP:
-        return upper
-    return _CANTON_TO_PRIMARY.get(upper)
 
 
 _TOOL_ROUTING_RULES = """\
@@ -129,24 +102,6 @@ REGISTERED INTENT TAGS (route_to_screen only):
 # ---------------------------------------------------------------------------
 # System prompt builder
 # ---------------------------------------------------------------------------
-
-_REGIONAL_IDENTITY = """\
-REGIONAL IDENTITY:
-- The user's canton and linguistic region are provided in the memory block \
-(COULEUR RÉGIONALE / REGIONALE FÄRBUNG / COLORE REGIONALE section).
-- Adapt your language subtly to match their region:
-  * Romande: use septante/nonante naturally, slight self-deprecating humor, \
-understatement. If the user writes in French, respond in French with romand flavor.
-  * Deutschschweiz: reference savings culture (Sparkultur), practical wisdom, \
-Ordnung. If the user writes in German, respond in Hochdeutsch with Swiss warmth. \
-Subtle Mundart flavor is OK (es Bitzeli, Feierabend) but write in standard German.
-  * Italiana: warmer tone, family references, Mediterranean-meets-Swiss precision. \
-If the user writes in Italian, respond in Italian with ticinese sensibility.
-- NEVER caricature — always subtle, like an inside joke between locals.
-- The regional flavor should feel natural, not forced. A light touch, not a costume.
-- If no regional block is present, remain neutral and educational.
-- Regional expressions are spice, not the main dish — one per response maximum.
-"""
 
 _LIFECYCLE_AWARENESS = """\
 LIFECYCLE AWARENESS:
@@ -372,9 +327,15 @@ def build_system_prompt(
     Returns:
         The complete system prompt string to pass to the Anthropic API.
     """
+    # Phase 6 / REGIONAL-04: single regional voice injection point.
+    # RegionalMicrocopy.identity_block returns the per-canton block when
+    # canton resolves to VS/ZH/TI (incl. secondaries via CANTON_TO_PRIMARY)
+    # and a neutral fallback otherwise. Replaces both legacy regional
+    # identity blob and per-canton dict injection sites (deleted Phase 6).
+    canton = ctx.canton if ctx else None
     base = _BASE_SYSTEM_PROMPT.format(
         banned_terms=_BANNED_TERMS_REMINDER,
-        regional_identity=_REGIONAL_IDENTITY,
+        regional_identity=RegionalMicrocopy.identity_block(canton),
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
         plan_awareness=_PLAN_AWARENESS,
         check_in_protocol=_CHECK_IN_PROTOCOL,
@@ -389,12 +350,6 @@ def build_system_prompt(
         intent_lower = ctx.intent.lower()
         if "firstjob" in intent_lower or "premieremploi" in intent_lower:
             base += "\n" + _FIRST_JOB_CONTEXT
-
-    # Regional voice injection (canton-specific)
-    if ctx and ctx.canton:
-        resolved = _resolve_canton(ctx.canton)
-        if resolved and resolved in REGIONAL_MAP:
-            base += f"\n## COULEUR REGIONALE\n{REGIONAL_MAP[resolved]}\n"
 
     # Voice intensity injection (cash_level 1-5)
     clamped = max(1, min(5, cash_level))
