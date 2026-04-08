@@ -17,10 +17,25 @@
 // below are injected into the AI system prompt and must not be extracted
 // to ARB files. They are coach identity guidance, not UI copy.
 //
+// Phase 6 (L1.4): UI-side regional microcopy lives in the sparse ARB
+// carve-outs under `lib/l10n_regional/` and is consumed via
+// [RegionalLocalizationsDelegate]. This service exposes two helpers
+// (`delegateForCanton`, `lookup`) that let callers stack the regional
+// override on top of base AppLocalizations without touching the LLM
+// prompt surface described above. See
+// `lib/l10n_regional/regional_localizations_delegate.dart` and
+// `docs/VOICE_CURSOR_SPEC.md` §14 for the stacking contract.
+//
 // References:
 //   - docs/VOICE_SYSTEM.md §9 (Adaptation linguistique)
-//   - CLAUDE.md §6 (Compliance rules)
+//   - docs/VOICE_CURSOR_SPEC.md §14 (regional stacking)
+//   - CLAUDE.md §6 (Compliance rules), §7 (Regional Swiss Voice Identity)
+//   - .planning/phases/06-l1.4-voix-regionale/CONTEXT.md (D-04, D-05, D-07)
 // ────────────────────────────────────────────────────────────
+
+import 'package:flutter/widgets.dart';
+
+import '../../l10n_regional/regional_localizations_delegate.dart';
 
 /// Swiss linguistic regions.
 enum SwissRegion {
@@ -112,6 +127,43 @@ class RegionalVoiceService {
   }
 
   // ── Public API ─────────────────────────────────────────────
+
+  // ── Phase 6 L1.4 — UI regional microcopy bridge ────────────
+  //
+  // These helpers connect [Profile.canton] to the sparse ARB carve-outs
+  // under `lib/l10n_regional/`. They are additive: the LLM-prompt API
+  // above (`forCanton`, `regionForCanton`, `RegionalFlavor`) is untouched
+  // and remains the source of truth for coach identity injection.
+
+  /// Builds a [RegionalLocalizationsDelegate] configured for the given
+  /// canton. Pass the result to `MaterialApp.localizationsDelegates`
+  /// alongside `AppLocalizations.delegate`. A null/unmapped canton yields
+  /// a delegate that reports `isSupported == false` for every locale —
+  /// safe to always include, zero overhead when no canton is set.
+  static RegionalLocalizationsDelegate delegateForCanton(String? canton) {
+    return RegionalLocalizationsDelegate(resolveRegionalCanton(canton));
+  }
+
+  /// Stacking lookup per VOICE_CURSOR_SPEC §14: return the regional
+  /// override for [key] if present, else fall back silently to
+  /// [baseFallback]. Never throws, never returns null.
+  ///
+  /// Usage:
+  /// ```dart
+  /// final s = AppLocalizations.of(context)!;
+  /// final greeting = RegionalVoiceService.lookup(
+  ///   context, 'greetingMorning', s.greetingMorning,
+  /// );
+  /// ```
+  static String lookup(
+    BuildContext context,
+    String key,
+    String baseFallback,
+  ) {
+    final regional = RegionalLocalizations.of(context);
+    if (regional == null) return baseFallback;
+    return regional.lookup(key) ?? baseFallback;
+  }
 
   /// Get regional voice flavor based on user's canton.
   ///
