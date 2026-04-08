@@ -39020,6 +39020,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'On peut regarder ensemble un plan de sortie, à ton rythme.'**
   String get mintAlertDebtNextMoment;
+
+  /// Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT a repéré un point important qui demande ton attention.'**
+  String get mintAlertAnnounceG3;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

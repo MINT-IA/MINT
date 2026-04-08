@@ -10218,5 +10218,7 @@
   "alertAckCta": "Got it",
   "mintAlertDebtFact": "MINT sees tension on your debts: repayments weigh more than what feels comfortable.",
   "mintAlertDebtCause": "It's what MINT notices when monthly repayments cross the budget breathing threshold.",
-  "mintAlertDebtNextMoment": "We can look at an exit plan together, at your own pace."
+  "mintAlertDebtNextMoment": "We can look at an exit plan together, at your own pace.",
+  "mintAlertAnnounceG3": "MINT has spotted an important point that needs your attention.",
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."}
 }

@@ -248,6 +248,8 @@ class FactCard extends StatelessWidget {
         return 'D\u00e9cision';
       case FactType.coachPreference:
         return 'Pr\u00e9f\u00e9rence coach';
+      case FactType.alertAcknowledged:
+        return 'Alerte reconnue';
     }
   }
 

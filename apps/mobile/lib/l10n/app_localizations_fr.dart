@@ -22244,4 +22244,8 @@ class SFr extends S {
   @override
   String get mintAlertDebtNextMoment =>
       'On peut regarder ensemble un plan de sortie, à ton rythme.';
+
+  @override
+  String get mintAlertAnnounceG3 =>
+      'MINT a repéré un point important qui demande ton attention.';
 }

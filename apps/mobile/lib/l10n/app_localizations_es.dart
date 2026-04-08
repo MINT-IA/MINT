@@ -22247,4 +22247,8 @@ class SEs extends S {
   @override
   String get mintAlertDebtNextMoment =>
       'Podemos mirar juntos un plan de salida, a tu ritmo.';
+
+  @override
+  String get mintAlertAnnounceG3 =>
+      'MINT ha detectado un punto importante que necesita tu atención.';
 }

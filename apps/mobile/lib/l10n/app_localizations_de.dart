@@ -22293,4 +22293,8 @@ class SDe extends S {
   @override
   String get mintAlertDebtNextMoment =>
       'Wir können uns gemeinsam einen Ausstiegsplan ansehen, in deinem Tempo.';
+
+  @override
+  String get mintAlertAnnounceG3 =>
+      'MINT hat einen wichtigen Punkt entdeckt, der deine Aufmerksamkeit braucht.';
 }

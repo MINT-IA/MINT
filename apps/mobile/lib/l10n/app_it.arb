@@ -10218,5 +10218,7 @@
   "alertAckCta": "Capito",
   "mintAlertDebtFact": "MINT vede una tensione sui tuoi debiti: i rimborsi pesano più del comodo.",
   "mintAlertDebtCause": "Lo nota MINT quando il rimborso mensile supera la soglia di respiro del budget.",
-  "mintAlertDebtNextMoment": "Possiamo guardare insieme un piano di uscita, al tuo ritmo."
+  "mintAlertDebtNextMoment": "Possiamo guardare insieme un piano di uscita, al tuo ritmo.",
+  "mintAlertAnnounceG3": "MINT ha individuato un punto importante che richiede la tua attenzione.",
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."}
 }

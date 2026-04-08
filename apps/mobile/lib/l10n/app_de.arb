@@ -10218,5 +10218,7 @@
   "alertAckCta": "Verstanden",
   "mintAlertDebtFact": "MINT sieht Spannung bei deinen Schulden: die Rückzahlungen wiegen mehr als angenehm.",
   "mintAlertDebtCause": "Das fällt MINT auf, wenn die monatliche Rückzahlung die Atemgrenze deines Budgets überschreitet.",
-  "mintAlertDebtNextMoment": "Wir können uns gemeinsam einen Ausstiegsplan ansehen, in deinem Tempo."
+  "mintAlertDebtNextMoment": "Wir können uns gemeinsam einen Ausstiegsplan ansehen, in deinem Tempo.",
+  "mintAlertAnnounceG3": "MINT hat einen wichtigen Punkt entdeckt, der deine Aufmerksamkeit braucht.",
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."}
 }

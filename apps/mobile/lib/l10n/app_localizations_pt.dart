@@ -22250,4 +22250,8 @@ class SPt extends S {
   @override
   String get mintAlertDebtNextMoment =>
       'Podemos olhar juntos para um plano de saída, ao teu ritmo.';
+
+  @override
+  String get mintAlertAnnounceG3 =>
+      'MINT detetou um ponto importante que precisa da tua atenção.';
 }

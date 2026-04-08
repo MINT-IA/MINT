@@ -22303,4 +22303,8 @@ class SIt extends S {
   @override
   String get mintAlertDebtNextMoment =>
       'Possiamo guardare insieme un piano di uscita, al tuo ritmo.';
+
+  @override
+  String get mintAlertAnnounceG3 =>
+      'MINT ha individuato un punto importante che richiede la tua attenzione.';
 }

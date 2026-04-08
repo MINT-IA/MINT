@@ -10771,5 +10771,7 @@
   "mintAlertDebtCause": "C'est ce que MINT remarque quand le remboursement mensuel dépasse le seuil de respiration du budget.",
   "@mintAlertDebtCause": {"description": "MintAlertObject debt G3 cause line — explains the threshold MINT noticed."},
   "mintAlertDebtNextMoment": "On peut regarder ensemble un plan de sortie, à ton rythme.",
-  "@mintAlertDebtNextMoment": {"description": "MintAlertObject debt G3 next-moment invitation — never imperative."}
+  "@mintAlertDebtNextMoment": {"description": "MintAlertObject debt G3 next-moment invitation — never imperative."},
+  "mintAlertAnnounceG3": "MINT a repéré un point important qui demande ton attention.",
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."}
 }
