@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'
+          flutter-version: '3.41.4'
           cache: true
       - name: Flesch–Kincaid (Kandel–Moles) French gate
         run: |
@@ -113,7 +113,7 @@ jobs:
         run: python3 tools/checks/wcag_aa_all_touched.py
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'
+          flutter-version: '3.41.4'
           cache: true
       - name: Install Flutter dependencies
         working-directory: apps/mobile
@@ -310,7 +310,7 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.4'  # pinned — withOpacity migration pending
+          flutter-version: '3.41.4'  # matches local dev; AppDelegate.swift uses FlutterImplicitEngineDelegate (3.41+)
           cache: true
 
       - name: Flutter version
