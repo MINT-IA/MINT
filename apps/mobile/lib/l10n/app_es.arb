@@ -3523,27 +3523,57 @@
   "coachErrorRateLimit": "Límite de solicitudes alcanzado. Inténtalo de nuevo en un momento.",
   "coachErrorGeneric": "Error técnico. Inténtalo más tarde.",
   "coachErrorConnection": "Error de conexión. Verifica tu conexión a internet o tu clave API.",
-  "coachSuggestSimulate3a": "¿Cuánto ahorro si aporto el máximo?",
+  "coachSuggestSimulate3a": "Si aporto más a mi 3a, ¿qué cambia?",
+  "@coachSuggestSimulate3a": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachSuggestView3a": "¿Cuánto tengo en mis cuentas 3a?",
   "coachSuggestSimulateLpp": "¿Me conviene hacer un rescate LPP?",
   "coachSuggestUnderstandLpp": "¿Qué voy a cobrar realmente a los 65?",
   "coachSuggestTrajectory": "¿Qué pasa si no hago nada?",
-  "coachSuggestScenarios": "Renta o capital — ¿qué me conviene?",
-  "coachSuggestDeductions": "¿Cuánto recupero de impuestos este año?",
+  "coachSuggestScenarios": "Renta o capital — muéstrame los dos lado a lado",
+  "@coachSuggestScenarios": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
+  "coachSuggestDeductions": "¿Cuánto podría recuperar este año?",
+  "@coachSuggestDeductions": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachSuggestTaxImpact": "¿Cuántos impuestos menos con un rescate?",
-  "coachSuggestFitness": "¿Voy bien respecto a mi objetivo?",
-  "coachSuggestRetirement": "¿Tendré suficiente para vivir jubilado?",
+  "coachSuggestFitness": "¿Dónde estoy, en comparación con lo que me había dicho?",
+  "@coachSuggestFitness": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
+  "coachSuggestRetirement": "En la jubilación, ¿qué me quedará cada mes?",
+  "@coachSuggestRetirement": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachEmptyStateMessage": "Aún sin perfil. Tres preguntas, y hablamos.",
   "coachEmptyStateButton": "Hacer mi diagnóstico",
   "coachTooltipHistory": "Historial",
   "coachTooltipExport": "Exportar conversación",
   "coachTooltipSettings": "Ajustes de IA",
   "coachBadgeSlm": "En dispositivo",
+  "@coachBadgeSlm": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBadgeByok": "Nube",
+  "@coachBadgeByok": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBadgeFallback": "Sin conexión",
+  "@coachBadgeFallback": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachLoading": "Mirando tus cifras…",
   "coachSources": "Fuentes",
-  "coachInputHint": "¿Una pregunta sobre tus finanzas?",
+  "@coachSources": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
+  "coachInputHint": "Dime qué te ronda por la cabeza.",
+  "@coachInputHint": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachUserMessage": "Tu mensaje",
   "coachCoachMessage": "Respuesta del coach",
   "coachSendButton": "Enviar",
@@ -5869,8 +5899,17 @@
   "avsGapCalculation": "Cálculo: pensión mensual × 13 meses/año (13.ª pensión AVS desde dic. 2026)",
   "premierEclairageRenteCalculation": "(cálculo: pensión mensual × 13 meses/año, 13.ª pensión incluida).",
   "coachBriefingFallbackGreeting": "Hola",
+  "@coachBriefingFallbackGreeting": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingBadgeLlm": "Coach IA",
+  "@coachBriefingBadgeLlm": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingBadge": "Coach",
+  "@coachBriefingBadge": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingConfidenceLow": "Confianza {score} % — Enriquecer",
   "@coachBriefingConfidenceLow": {
     "placeholders": {
@@ -7786,11 +7825,23 @@
   "coachErrorServiceUnavailable": "Servicio temporalmente no disponible. Inténtalo en unos minutos.",
   "coachFactCardTitle": "¿Sabías que?",
   "coachGateSubtitle": "Disponible con MINT Coach",
+  "@coachGateSubtitle": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachGateTitle": "Función Coach",
+  "@coachGateTitle": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachGateUnlock": "Desbloquear",
+  "@coachGateUnlock": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachMarkStepConfirm": "¿Marcar el paso \"{stepId}\" como completado?",
   "coachMintLabel": "Coach MINT",
-  "coachPulseDisclaimer": "Estimaciones educativas — no constituye asesoramiento financiero. Los rendimientos pasados no presuponen rendimientos futuros. Consulta a un especialista. LSFin.",
+  "coachPulseDisclaimer": "Mint aclara, Mint no promete nada. Las estimaciones aquí son educativas y no constituyen asesoramiento financiero. Los rendimientos pasados no presuponen rendimientos futuros. Para un plan personalizado, habla con un·a especialista. LSFin.",
+  "@coachPulseDisclaimer": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachingDescAttentif": "MINT está atento en cada sesión. Sugerencias frecuentes y memoria rica.",
   "coachingDescCalme": "MINT interviene ocasionalmente. Un recordatorio cada 3 días máximo.",
   "coachingDescDiscret": "MINT te deja tranquilo. Recordatorios raros, solo plazos críticos.",
@@ -8239,6 +8290,9 @@
   "greetingAfternoon": "Buenas tardes",
   "greetingEvening": "Buenas noches",
   "greetingMorning": "Buenos días",
+  "@greetingMorning": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "greetingNight": "Buenas noches",
   "helpResourcesAppBarTitle": "AYUDA EN CASO DE DEUDA",
   "helpResourcesCantonLabel": "Tu cantón",
@@ -9425,10 +9479,14 @@
   "acceptInvitationSuccess": "¡Bienvenido al hogar!",
   "acceptInvitationSuccessBody": "Te uniste al hogar Couple+. Tus proyecciones de jubilación están vinculadas.",
   "acceptInvitationTitle": "Unirme a un hogar",
-  "coachDisclaimer": "Herramienta educativa — las respuestas no constituyen asesoramiento financiero (LSFin art. 3). Consulta a un especialista para decisiones importantes.",
+  "coachDisclaimer": "Mint aclara, Mint no aconseja. Las respuestas aquí son educativas y no constituyen asesoramiento financiero en el sentido de la LSFin (art. 3). Para una decisión importante, habla con un·a especialista.",
+  "@coachDisclaimer": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachFallbackName": "amigo/a",
-  "coachGreetingDefault": "Hola {name}. Estoy mirando tus cifras — cuéntame qué te preocupa.{scoreSuffix}",
+  "coachGreetingDefault": "Hola {name}. Mint mira tus cifras con calma — cuando quieras, hablamos de ello.{scoreSuffix}",
   "@coachGreetingDefault": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" },
     "placeholders": {
       "name": {
         "type": "String"
@@ -9670,7 +9728,10 @@
   "instantPremierEclairageConfidence": "Estimación ±15 % — crea una cuenta para más precisión",
   "instantPremierEclairageNothingStored": "Sin cuenta. Nada almacenado.",
   "instantPremierEclairageComeBack": "Vuelve cuando quieras",
-  "coachSilentOpenerQuestion": "¿Quieres hablar de esto?",
+  "coachSilentOpenerQuestion": "Mint está aquí cuando quieras hablar de ello.",
+  "@coachSilentOpenerQuestion": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachProactiveOptIn": "Por cierto — ¿quieres que te señale las cosas importantes al abrir la app? ¿O prefieres que hablemos solo cuando te apetezca?",
   "coachOptInAccept": "Sí, señálame",
   "coachOptInDecline": "No, vengo cuando quiera",
@@ -9791,7 +9852,10 @@
     }
   },
   "coachInterruptMortgageOverThird": "Los bancos rechazarán. Aquí tienes 2 opciones.",
-  "coachInterruptFullCapitalRisk": "100 % capital = 0 renta garantizada. ¿Seguro?",
+  "coachInterruptFullCapitalRisk": "Mint observa: 100 % en capital significa cero renta mensual de por vida. ¿Quieres que veamos qué implica?",
+  "@coachInterruptFullCapitalRisk": {
+    "x-mint-meta": { "level": "N4", "phase": "11-01" }
+  },
   "coachInterruptEplBlock": "Atención: bloqueo EPL durante 3 años.",
   "coachInterruptBudgetDeficit": "Déficit de {deficit} CHF/mes. ¿Lo miramos?",
   "@coachInterruptBudgetDeficit": {
@@ -9871,13 +9935,28 @@
   "intentScreenTitle": "¿Qué te trae por aquí?",
   "intentScreenSubtitle": "Elige lo que más se parezca a tu situación. Empezamos por ahí.",
   "intentScreenMicrocopy": "Después podrás reformularlo con tus propias palabras.",
-  "intentChip3a": "Me han propuesto un 3a",
+  "intentChip3a": "Alguien acaba de hablarme de un 3a",
+  "@intentChip3a": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipBilan": "Quiero ver dónde estoy",
   "intentChipPrevoyance": "No entiendo bien mi previsión",
-  "intentChipFiscalite": "Quiero dejar de pagar impuestos de más",
+  "intentChipFiscalite": "Quiero ver claro en mis impuestos",
+  "@intentChipFiscalite": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "intentChipProjet": "Tengo un proyecto",
+  "@intentChipProjet": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipChangement": "Mi situación está cambiando",
+  "@intentChipChangement": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipAutre": "Otra cosa…",
+  "@intentChipAutre": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "premierEclairageCardDismiss": "Cerrar",
   "premierEclairageCardCta": "Entender",
   "premierEclairageCardCtaPersonalize": "Personalizar",
@@ -9890,7 +9969,10 @@
   "coachOpenerIntentPrevoyance": "Estás pensando en tu previsión — esto es lo que MINT ha encontrado para ti.",
   "coachOpenerIntentFiscalite": "Te interesan tus impuestos — esto es lo que MINT ha encontrado para ti.",
   "coachOpenerIntentProjet": "Tienes un proyecto inmobiliario — esto es lo que MINT ha encontrado para ti.",
-  "coachOpenerIntentChangement": "Estás viviendo un cambio de vida — esto es lo que MINT ha encontrado para ti.",
+  "coachOpenerIntentChangement": "Estás viviendo un cambio — Mint ha mirado lo que podría afectar, sin decidir nada por ti.",
+  "@coachOpenerIntentChangement": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachOpenerIntentAutre": "Bienvenido — así es como MINT puede ayudarte.",
   "planCard_ctaDetail": "Ver detalle",
   "planCard_ctaRecalculate": "Recalcular",
@@ -10004,6 +10086,9 @@
   "prefillBadgePrecise": "Refinar este número",
   "calculatorNoPrefillBody": "Introduce los valores para ejecutar el cálculo. MINT lo rellenará automáticamente la próxima vez.",
   "intentChipPremierEmploi": "Mi primer empleo",
+  "@intentChipPremierEmploi": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipNouvelEmploi": "Cambio de trabajo",
   "capStepFirstJob01Title": "Tu salario",
   "capStepFirstJob01Desc": "Introduce tu primer salario bruto mensual",
@@ -10100,7 +10185,10 @@
   "planStepInsuranceBody": "LAMal, RC, hogar: lo b\u00e1sico a verificar antes de firmar nada.",
   "planStepAvsTitle": "Conocer tus derechos AVS",
   "planStepAvsBody": "Cada a\u00f1o de cotizaci\u00f3n cuenta. Verifica tu extracto CI para evitar lagunas.",
-  "coachCheckInWelcome": "\u00a1Hola! Estoy aqu\u00ed. \u00bfMiramos juntos lo que importa para ti?",
+  "coachCheckInWelcome": "¡Hola! Mint está aquí. Cuando quieras, miramos juntos lo que importa este mes.",
+  "@coachCheckInWelcome": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "docNotFinancial": "Este documento no parece ser un documento financiero suizo.",
   "docNotFinancialHint": "Prueba con un certificado LPP, de salario, 3a o una p\u00f3liza de seguro.",
   "docFileTooLarge": "Archivo demasiado grande. M\u00e1ximo 10\u00a0MB.",

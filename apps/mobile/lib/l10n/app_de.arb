@@ -3523,27 +3523,57 @@
   "coachErrorRateLimit": "Anfragelimit erreicht. Versuche es in einem Moment erneut.",
   "coachErrorGeneric": "Technischer Fehler. Versuche es später erneut.",
   "coachErrorConnection": "Verbindungsfehler. Überprüfe deine Internetverbindung oder deinen API-Schlüssel.",
-  "coachSuggestSimulate3a": "Wie viel spare ich, wenn ich das Maximum einzahle?",
+  "coachSuggestSimulate3a": "Wenn ich mehr in meine 3a einzahle, was ändert sich?",
+  "@coachSuggestSimulate3a": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachSuggestView3a": "Wie viel habe ich auf meinen 3a-Konten?",
   "coachSuggestSimulateLpp": "Lohnt sich ein BVG-Einkauf für mich?",
   "coachSuggestUnderstandLpp": "Was bekomme ich mit 65 tatsächlich?",
   "coachSuggestTrajectory": "Wie schlimm ist es, wenn ich nichts tue?",
-  "coachSuggestScenarios": "Rente oder Kapital — was passt zu mir?",
-  "coachSuggestDeductions": "Wie viel Steuern hole ich dieses Jahr zurück?",
+  "coachSuggestScenarios": "Rente oder Kapital — zeig mir beide nebeneinander",
+  "@coachSuggestScenarios": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
+  "coachSuggestDeductions": "Wie viel könnte ich dieses Jahr zurückholen?",
+  "@coachSuggestDeductions": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachSuggestTaxImpact": "Wie viel weniger Steuern mit einem Einkauf?",
-  "coachSuggestFitness": "Bin ich auf Kurs für mein Ziel?",
-  "coachSuggestRetirement": "Reicht es mir zum Leben im Ruhestand?",
+  "coachSuggestFitness": "Wo stehe ich im Vergleich zu dem, was ich mir vorgenommen hatte?",
+  "@coachSuggestFitness": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
+  "coachSuggestRetirement": "Im Ruhestand, was bleibt mir jeden Monat?",
+  "@coachSuggestRetirement": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachEmptyStateMessage": "Noch kein Profil. Drei Fragen, und wir reden.",
   "coachEmptyStateButton": "Diagnose starten",
   "coachTooltipHistory": "Verlauf",
   "coachTooltipExport": "Gespräch exportieren",
   "coachTooltipSettings": "KI-Einstellungen",
   "coachBadgeSlm": "On-device",
+  "@coachBadgeSlm": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBadgeByok": "Cloud",
+  "@coachBadgeByok": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBadgeFallback": "Offline",
+  "@coachBadgeFallback": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachLoading": "Ich schaue mir deine Zahlen an…",
   "coachSources": "Quellen",
-  "coachInputHint": "Eine Frage zu deinen Finanzen?",
+  "@coachSources": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
+  "coachInputHint": "Sag mir, was dir durch den Kopf geht.",
+  "@coachInputHint": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachUserMessage": "Deine Nachricht",
   "coachCoachMessage": "Coach-Antwort",
   "coachSendButton": "Senden",
@@ -5869,8 +5899,17 @@
   "avsGapCalculation": "Berechnung: Monatsrente × 13 Monate/Jahr (13. AHV-Rente ab Dez. 2026)",
   "premierEclairageRenteCalculation": "(Berechnung: Monatsrente × 13 Monate/Jahr, 13. Rente inklusive).",
   "coachBriefingFallbackGreeting": "Hallo",
+  "@coachBriefingFallbackGreeting": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingBadgeLlm": "KI-Coach",
+  "@coachBriefingBadgeLlm": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingBadge": "Coach",
+  "@coachBriefingBadge": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingConfidenceLow": "Vertrauen {score} % — Ergänzen",
   "@coachBriefingConfidenceLow": {
     "placeholders": {
@@ -7786,11 +7825,23 @@
   "coachErrorServiceUnavailable": "Service vorübergehend nicht verfügbar. Versuche es in einigen Minuten erneut.",
   "coachFactCardTitle": "Wusstest du?",
   "coachGateSubtitle": "Verfügbar mit MINT Coach",
+  "@coachGateSubtitle": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachGateTitle": "Coach-Funktion",
+  "@coachGateTitle": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachGateUnlock": "Freischalten",
+  "@coachGateUnlock": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachMarkStepConfirm": "Schritt «{stepId}» als erledigt markieren?",
   "coachMintLabel": "Coach MINT",
-  "coachPulseDisclaimer": "Paedagogische Schaetzungen — keine Finanzberatung. Vergangene Renditen sind kein Indikator fuer zukuenftige Renditen. Konsultiere eine Fachperson fuer einen personalisierten Plan. FIDLEG.",
+  "coachPulseDisclaimer": "Mint erhellt, Mint verspricht nichts. Die Schätzungen hier sind bildend und stellen keine Finanzberatung dar. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Für einen personalisierten Plan, sprich mit einer Fachperson. FIDLEG.",
+  "@coachPulseDisclaimer": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachingDescAttentif": "MINT achtet bei jeder Sitzung auf dich. Häufige Vorschläge und reiches Gedächtnis.",
   "coachingDescCalme": "MINT meldet sich gelegentlich. Maximal eine Erinnerung alle 3 Tage.",
   "coachingDescDiscret": "MINT lässt dich in Ruhe. Seltene Erinnerungen, nur kritische Fristen.",
@@ -8239,6 +8290,9 @@
   "greetingAfternoon": "Guten Nachmittag",
   "greetingEvening": "Guten Abend",
   "greetingMorning": "Guten Morgen",
+  "@greetingMorning": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "greetingNight": "Gute Nacht",
   "helpResourcesAppBarTitle": "SCHULDENHILFE",
   "helpResourcesCantonLabel": "Dein Kanton",
@@ -9425,10 +9479,14 @@
   "acceptInvitationSuccess": "Willkommen im Haushalt!",
   "acceptInvitationSuccessBody": "Du bist dem Couple+ Haushalt beigetreten. Deine Pensionierungsprojektionen sind jetzt verknüpft.",
   "acceptInvitationTitle": "Haushalt beitreten",
-  "coachDisclaimer": "Bildungstool — die Antworten stellen keine Finanzberatung dar (FIDLEG Art. 3). Konsultiere eine Fachperson für wichtige Entscheidungen.",
+  "coachDisclaimer": "Mint erhellt, Mint berät nicht. Die Antworten hier sind bildend und stellen keine Finanzberatung im Sinne des FIDLEG (Art. 3) dar. Für wichtige Entscheidungen, sprich mit einer Fachperson.",
+  "@coachDisclaimer": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachFallbackName": "Freund·in",
-  "coachGreetingDefault": "Hallo {name}. Ich schaue mir deine Zahlen an — sag mir, was dich beschäftigt.{scoreSuffix}",
+  "coachGreetingDefault": "Hallo {name}. Mint schaut sich deine Zahlen in Ruhe an — wann immer du willst, sprechen wir darüber.{scoreSuffix}",
   "@coachGreetingDefault": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" },
     "placeholders": {
       "name": {
         "type": "String"
@@ -9670,7 +9728,10 @@
   "instantPremierEclairageConfidence": "Schätzung ±15 % — erstelle ein Konto für mehr Genauigkeit",
   "instantPremierEclairageNothingStored": "Kein Konto. Nichts gespeichert.",
   "instantPremierEclairageComeBack": "Komm zurück, wann immer du willst",
-  "coachSilentOpenerQuestion": "Möchtest du darüber reden?",
+  "coachSilentOpenerQuestion": "Mint ist da, wann immer du darüber sprechen willst.",
+  "@coachSilentOpenerQuestion": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
   "coachOptInDecline": "Nein, ich komme wenn ich will",
@@ -9791,7 +9852,10 @@
     }
   },
   "coachInterruptMortgageOverThird": "Die Bank wird ablehnen. Hier sind 2 Optionen.",
-  "coachInterruptFullCapitalRisk": "100 % Kapital = 0 garantierte Rente. Sicher?",
+  "coachInterruptFullCapitalRisk": "Mint bemerkt: 100 % als Kapital bedeutet keine monatliche Rente auf Lebenszeit. Möchtest du anschauen, was das bedeutet?",
+  "@coachInterruptFullCapitalRisk": {
+    "x-mint-meta": { "level": "N4", "phase": "11-01" }
+  },
   "coachInterruptEplBlock": "Achtung: WEF-Sperre für 3 Jahre.",
   "coachInterruptBudgetDeficit": "Defizit von {deficit} CHF/Monat. Schauen wir?",
   "@coachInterruptBudgetDeficit": {
@@ -9871,13 +9935,28 @@
   "intentScreenTitle": "Was führt dich hierher?",
   "intentScreenSubtitle": "Wähle, was am besten zu deiner Situation passt. Wir fangen dort an.",
   "intentScreenMicrocopy": "Du kannst später jederzeit in deinen eigenen Worten formulieren.",
-  "intentChip3a": "Man hat mir eine 3a-Lösung vorgeschlagen",
+  "intentChip3a": "Jemand hat gerade mit mir über eine 3a gesprochen",
+  "@intentChip3a": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipBilan": "Ich will wissen, wo ich stehe",
   "intentChipPrevoyance": "Ich verstehe meine Vorsorge nicht richtig",
-  "intentChipFiscalite": "Ich will weniger unnötig Steuern zahlen",
+  "intentChipFiscalite": "Bei meinen Steuern möchte ich klar sehen",
+  "@intentChipFiscalite": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "intentChipProjet": "Ich habe ein Projekt im Kopf",
+  "@intentChipProjet": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipChangement": "Meine Situation verändert sich",
+  "@intentChipChangement": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipAutre": "Etwas anderes…",
+  "@intentChipAutre": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "premierEclairageCardDismiss": "Schliessen",
   "premierEclairageCardCta": "Verstehen",
   "premierEclairageCardCtaPersonalize": "Personalisieren",
@@ -9890,7 +9969,10 @@
   "coachOpenerIntentPrevoyance": "Du denkst über deine Vorsorge nach — hier ist, was MINT für dich gefunden hat.",
   "coachOpenerIntentFiscalite": "Du interessierst dich für deine Steuern — hier ist, was MINT für dich gefunden hat.",
   "coachOpenerIntentProjet": "Du hast ein Immobilienprojekt — hier ist, was MINT für dich gefunden hat.",
-  "coachOpenerIntentChangement": "Du erlebst eine Lebensveränderung — hier ist, was MINT für dich gefunden hat.",
+  "coachOpenerIntentChangement": "Du machst eine Veränderung durch — Mint hat geschaut, was sie betreffen könnte, ohne etwas für dich zu entscheiden.",
+  "@coachOpenerIntentChangement": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachOpenerIntentAutre": "Willkommen — so kann MINT dir helfen.",
   "planCard_ctaDetail": "Details anzeigen",
   "planCard_ctaRecalculate": "Neu berechnen",
@@ -10004,6 +10086,9 @@
   "prefillBadgePrecise": "Diese Zahl praezisieren",
   "calculatorNoPrefillBody": "Gib die Werte ein. MINT fuellt sie naechstes Mal automatisch aus.",
   "intentChipPremierEmploi": "Mein erster Job",
+  "@intentChipPremierEmploi": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipNouvelEmploi": "Ich wechsle den Job",
   "capStepFirstJob01Title": "Dein Gehalt",
   "capStepFirstJob01Desc": "Gib dein erstes Bruttomonatsgehalt ein",
@@ -10100,7 +10185,10 @@
   "planStepInsuranceBody": "KVG, Haftpflicht, Haushalt: die Basics pr\u00fcfen, bevor du etwas unterschreibst.",
   "planStepAvsTitle": "Deine AHV-Rechte kennen",
   "planStepAvsBody": "Jedes Beitragsjahr z\u00e4hlt. Pr\u00fcfe deinen IK-Auszug, um L\u00fccken zu vermeiden.",
-  "coachCheckInWelcome": "Hallo! Ich bin da. Schauen wir zusammen, was f\u00fcr dich z\u00e4hlt.",
+  "coachCheckInWelcome": "Hallo! Mint ist da. Wann immer du willst, schauen wir gemeinsam, was diesen Monat zählt.",
+  "@coachCheckInWelcome": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "docNotFinancial": "Dieses Dokument scheint kein Schweizer Finanzdokument zu sein.",
   "docNotFinancialHint": "Versuche es mit einem BVG-Ausweis, Lohnausweis, 3a-Bescheinigung oder einer Versicherungspolice.",
   "docFileTooLarge": "Datei zu gross. Maximum 10\u00a0MB.",

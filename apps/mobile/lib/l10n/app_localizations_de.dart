@@ -7780,7 +7780,7 @@ class SDe extends S {
 
   @override
   String get coachSuggestSimulate3a =>
-      'Wie viel spare ich, wenn ich das Maximum einzahle?';
+      'Wenn ich mehr in meine 3a einzahle, was ändert sich?';
 
   @override
   String get coachSuggestView3a => 'Wie viel habe ich auf meinen 3a-Konten?';
@@ -7796,21 +7796,24 @@ class SDe extends S {
       'Wie schlimm ist es, wenn ich nichts tue?';
 
   @override
-  String get coachSuggestScenarios => 'Rente oder Kapital — was passt zu mir?';
+  String get coachSuggestScenarios =>
+      'Rente oder Kapital — zeig mir beide nebeneinander';
 
   @override
   String get coachSuggestDeductions =>
-      'Wie viel Steuern hole ich dieses Jahr zurück?';
+      'Wie viel könnte ich dieses Jahr zurückholen?';
 
   @override
   String get coachSuggestTaxImpact =>
       'Wie viel weniger Steuern mit einem Einkauf?';
 
   @override
-  String get coachSuggestFitness => 'Bin ich auf Kurs für mein Ziel?';
+  String get coachSuggestFitness =>
+      'Wo stehe ich im Vergleich zu dem, was ich mir vorgenommen hatte?';
 
   @override
-  String get coachSuggestRetirement => 'Reicht es mir zum Leben im Ruhestand?';
+  String get coachSuggestRetirement =>
+      'Im Ruhestand, was bleibt mir jeden Monat?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -7844,7 +7847,7 @@ class SDe extends S {
   String get coachSources => 'Quellen';
 
   @override
-  String get coachInputHint => 'Eine Frage zu deinen Finanzen?';
+  String get coachInputHint => 'Sag mir, was dir durch den Kopf geht.';
 
   @override
   String get coachUserMessage => 'Deine Nachricht';
@@ -14957,7 +14960,7 @@ class SDe extends S {
 
   @override
   String get coachPulseDisclaimer =>
-      'Paedagogische Schaetzungen — keine Finanzberatung. Vergangene Renditen sind kein Indikator fuer zukuenftige Renditen. Konsultiere eine Fachperson fuer einen personalisierten Plan. FIDLEG.';
+      'Mint erhellt, Mint verspricht nichts. Die Schätzungen hier sind bildend und stellen keine Finanzberatung dar. Vergangene Renditen sind kein Indikator für zukünftige Renditen. Für einen personalisierten Plan, sprich mit einer Fachperson. FIDLEG.';
 
   @override
   String get coachingDescAttentif =>
@@ -20595,14 +20598,14 @@ class SDe extends S {
 
   @override
   String get coachDisclaimer =>
-      'Bildungstool — die Antworten stellen keine Finanzberatung dar (FIDLEG Art. 3). Konsultiere eine Fachperson für wichtige Entscheidungen.';
+      'Mint erhellt, Mint berät nicht. Die Antworten hier sind bildend und stellen keine Finanzberatung im Sinne des FIDLEG (Art. 3) dar. Für wichtige Entscheidungen, sprich mit einer Fachperson.';
 
   @override
   String get coachFallbackName => 'Freund·in';
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Hallo $name. Ich schaue mir deine Zahlen an — sag mir, was dich beschäftigt.$scoreSuffix';
+    return 'Hallo $name. Mint schaut sich deine Zahlen in Ruhe an — wann immer du willst, sprechen wir darüber.$scoreSuffix';
   }
 
   @override
@@ -21031,7 +21034,8 @@ class SDe extends S {
       'Komm zurück, wann immer du willst';
 
   @override
-  String get coachSilentOpenerQuestion => 'Möchtest du darüber reden?';
+  String get coachSilentOpenerQuestion =>
+      'Mint ist da, wann immer du darüber sprechen willst.';
 
   @override
   String get coachProactiveOptIn =>
@@ -21370,7 +21374,7 @@ class SDe extends S {
 
   @override
   String get coachInterruptFullCapitalRisk =>
-      '100 % Kapital = 0 garantierte Rente. Sicher?';
+      'Mint bemerkt: 100 % als Kapital bedeutet keine monatliche Rente auf Lebenszeit. Möchtest du anschauen, was das bedeutet?';
 
   @override
   String get coachInterruptEplBlock => 'Achtung: WEF-Sperre für 3 Jahre.';
@@ -21477,7 +21481,8 @@ class SDe extends S {
       'Du kannst später jederzeit in deinen eigenen Worten formulieren.';
 
   @override
-  String get intentChip3a => 'Man hat mir eine 3a-Lösung vorgeschlagen';
+  String get intentChip3a =>
+      'Jemand hat gerade mit mir über eine 3a gesprochen';
 
   @override
   String get intentChipBilan => 'Ich will wissen, wo ich stehe';
@@ -21487,7 +21492,7 @@ class SDe extends S {
       'Ich verstehe meine Vorsorge nicht richtig';
 
   @override
-  String get intentChipFiscalite => 'Ich will weniger unnötig Steuern zahlen';
+  String get intentChipFiscalite => 'Bei meinen Steuern möchte ich klar sehen';
 
   @override
   String get intentChipProjet => 'Ich habe ein Projekt im Kopf';
@@ -21542,7 +21547,7 @@ class SDe extends S {
 
   @override
   String get coachOpenerIntentChangement =>
-      'Du erlebst eine Lebensveränderung — hier ist, was MINT für dich gefunden hat.';
+      'Du machst eine Veränderung durch — Mint hat geschaut, was sie betreffen könnte, ohne etwas für dich zu entscheiden.';
 
   @override
   String get coachOpenerIntentAutre => 'Willkommen — so kann MINT dir helfen.';
@@ -21939,7 +21944,7 @@ class SDe extends S {
 
   @override
   String get coachCheckInWelcome =>
-      'Hallo! Ich bin da. Schauen wir zusammen, was für dich zählt.';
+      'Hallo! Mint ist da. Wann immer du willst, schauen wir gemeinsam, was diesen Monat zählt.';
 
   @override
   String get docNotFinancial =>

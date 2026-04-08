@@ -7764,7 +7764,7 @@ class SFr extends S {
 
   @override
   String get coachSuggestSimulate3a =>
-      'Combien j’économise si je verse le max ?';
+      'Si je verse plus sur mon 3a, ça change quoi ?';
 
   @override
   String get coachSuggestView3a => 'J’ai combien sur mes comptes 3a ?';
@@ -7780,21 +7780,23 @@ class SFr extends S {
 
   @override
   String get coachSuggestScenarios =>
-      'Rente ou capital — qu’est-ce qui me convient ?';
+      'Rente ou capital — montre-moi les deux côte à côte';
 
   @override
-  String get coachSuggestDeductions => 'Combien je récupère cette année ?';
+  String get coachSuggestDeductions =>
+      'Combien je pourrais récupérer cette année ?';
 
   @override
   String get coachSuggestTaxImpact =>
       'Combien d’impôts en moins avec un rachat ?';
 
   @override
-  String get coachSuggestFitness => 'Je suis où par rapport à mon objectif ?';
+  String get coachSuggestFitness =>
+      'Je suis où, par rapport à ce que je m\'étais dit ?';
 
   @override
   String get coachSuggestRetirement =>
-      'J’aurai assez pour vivre à la retraite ?';
+      'À la retraite, il me restera quoi chaque mois ?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -7828,7 +7830,7 @@ class SFr extends S {
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Une question sur tes finances ?';
+  String get coachInputHint => 'Dis-moi ce qui te trotte dans la tête.';
 
   @override
   String get coachUserMessage => 'Ton message';
@@ -14920,7 +14922,7 @@ class SFr extends S {
 
   @override
   String get coachPulseDisclaimer =>
-      'Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.';
+      'Mint éclaire, Mint ne promet rien. Les estimations ici sont éducatives et ne constituent pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Pour un plan personnalisé, parle à un·e spécialiste. LSFin.';
 
   @override
   String get coachingDescAttentif =>
@@ -20548,14 +20550,14 @@ class SFr extends S {
 
   @override
   String get coachDisclaimer =>
-      'Outil éducatif — les réponses ne constituent pas un conseil financier (LSFin art. 3). Consulte un·e spécialiste pour les décisions importantes.';
+      'Mint éclaire, Mint n\'avise pas. Les réponses ici sont éducatives et ne constituent pas un conseil financier au sens de la LSFin (art. 3). Pour une décision importante, parle à un·e spécialiste.';
 
   @override
   String get coachFallbackName => 'ami·e';
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Salut $name. Je regarde tes chiffres — dis-moi ce qui te trotte dans la tête.$scoreSuffix';
+    return 'Salut $name. Mint regarde tes chiffres tranquillement — quand tu veux, on en parle.$scoreSuffix';
   }
 
   @override
@@ -20982,7 +20984,8 @@ class SFr extends S {
   String get instantPremierEclairageComeBack => 'Reviens quand tu veux';
 
   @override
-  String get coachSilentOpenerQuestion => 'Tu veux en parler ?';
+  String get coachSilentOpenerQuestion =>
+      'Mint est là quand tu veux en parler.';
 
   @override
   String get coachProactiveOptIn =>
@@ -21321,7 +21324,7 @@ class SFr extends S {
 
   @override
   String get coachInterruptFullCapitalRisk =>
-      '100 % capital = 0 rente garantie. Sûr ?';
+      'Mint observe : 100 % en capital, c\'est zéro rente mensuelle à vie. Tu veux qu\'on regarde ce que ça implique ?';
 
   @override
   String get coachInterruptEplBlock => 'Attention : blocage EPL pendant 3 ans.';
@@ -21428,7 +21431,7 @@ class SFr extends S {
       'Tu pourras reformuler ensuite avec tes mots.';
 
   @override
-  String get intentChip3a => 'On m\'a proposé un 3a';
+  String get intentChip3a => 'On vient de me parler d\'un 3a';
 
   @override
   String get intentChipBilan => 'Je veux voir où j\'en suis';
@@ -21437,7 +21440,7 @@ class SFr extends S {
   String get intentChipPrevoyance => 'Je comprends mal ma prévoyance';
 
   @override
-  String get intentChipFiscalite => 'Je veux payer moins bêtement';
+  String get intentChipFiscalite => 'Mes impôts, j\'aimerais y voir clair';
 
   @override
   String get intentChipProjet => 'J\'ai un projet';
@@ -21492,7 +21495,7 @@ class SFr extends S {
 
   @override
   String get coachOpenerIntentChangement =>
-      'Tu vis un changement de vie — voici ce que MINT a trouvé pour toi.';
+      'Tu vis un changement — Mint a regardé ce que ça pourrait toucher, sans rien décider à ta place.';
 
   @override
   String get coachOpenerIntentAutre =>
@@ -21891,7 +21894,7 @@ class SFr extends S {
 
   @override
   String get coachCheckInWelcome =>
-      'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?';
+      'Salut ! Mint est là. Quand tu veux, on regarde ensemble ce qui compte ce mois-ci.';
 
   @override
   String get docNotFinancial =>
