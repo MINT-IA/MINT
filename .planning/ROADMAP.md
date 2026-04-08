@@ -169,7 +169,10 @@
   3. Banned-terms lint passes: "Commencer", "Démarrer", "Voir mon chiffre", "Ton chiffre en X secondes", "chiffre choc" return 0 hits in LAND-touched files.
   4. AAA contrast (7:1) verified via `wcagContrastRatio()` widget test on every text surface of S0; routes directly to `/onboarding/intent`.
 **Pitfalls to watch**: P10 chiffre_choc sweep residue; P13 AAA contrast.
-**Plans**: TBD
+**Plans** (3):
+  - [ ] 07-01-PLAN.md — Paragraphe-mère i18n authoring (fr master + 5 translations)
+  - [ ] 07-02-PLAN.md — Landing screen rebuild + CI lint gates + smoke test
+  - [ ] 07-03-PLAN.md — Dual-device golden tests + AAA contrast assertions
 **UI hint**: yes
 
 ### Phase 8a: L1.2b — MTC 11-Surface Migration (audit fix B1: split from monster Phase 8)
