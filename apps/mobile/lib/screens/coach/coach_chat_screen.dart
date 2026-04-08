@@ -149,10 +149,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// SharedPreferences key for voice intensity level.
   static const String _cashLevelKey = 'mint_coach_cash_level';
 
-  /// Onboarding emotion payload (one-shot, cleared after reading).
-  /// The choc type/value are read by ContextInjectorService from prefs.
-  String? _onboardingEmotion;
-
   /// Extra context from CoachEntryPayload, injected into the system prompt.
   /// One-shot: cleared after first use.
   String? _entryPayloadContext;
@@ -211,28 +207,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
-  /// Load onboarding payload from SharedPreferences (one-shot).
+  /// Load onboarding payload (one-shot).
   ///
-  /// Reads the emotion, choc type, and choc value set during onboarding,
-  /// then clears them so they are only injected once. Permanent profile
-  /// data (birth_year, salary, canton) is NOT cleared.
-  ///
-  /// Also loads the selected intent chip key for the first-session opener (D-06).
+  /// Phase 10-02a: emotion replay dropped — coach reacts to facts, not
+  /// to a pre-captured mood. Only the selected intent chip key is loaded
+  /// for the first-session opener (D-06).
   Future<void> _loadOnboardingPayload() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final emotion = prefs.getString('onboarding_emotion');
-
-      if (emotion != null && emotion.isNotEmpty) {
-        if (mounted) {
-          setState(() {
-            _onboardingEmotion = emotion;
-          });
-        }
-        // One-shot data (emotion, choc_type, choc_value) is cleared
-        // by ContextInjectorService._buildOnboardingBlock after reading.
-      }
-
       // Load onboarding intent for first-session opener (D-06).
       final selectedIntent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
@@ -299,12 +280,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           final prompt = widget.initialPrompt!;
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _sendMessage(prompt);
-          });
-        } else if (_onboardingEmotion != null && _onboardingEmotion!.isNotEmpty) {
-          // Auto-send onboarding emotion as first message when no explicit prompt.
-          final emotion = _onboardingEmotion!;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _sendMessage(emotion);
           });
         }
       }
