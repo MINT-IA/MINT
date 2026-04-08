@@ -111,6 +111,15 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/regional_microcopy_drift.py
 
+      # ─── Phase 7 / LAND-01, LAND-04: landing v2 calm-promise gates ──
+      - name: Landing v2 — no numbers / banned terms (LAND-04)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/landing_no_numbers.py
+
+      - name: Landing v2 — no financial_core imports (LAND-01)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/landing_no_financial_core.py
+
       - name: Run tests
         env:
           TESTING: "1"
