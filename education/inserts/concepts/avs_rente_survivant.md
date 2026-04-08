@@ -8,7 +8,7 @@ tags: [avs, survivant, veuve, veuf, orphelin, deces, lavs]
 ## Trigger
 L'utilisateur a perdu un·e proche, s'inquiète pour la couverture de son ou sa conjoint·e en cas de décès, ou planifie sa prévoyance successorale.
 
-## Chiffre Choc
+## Premier Éclairage
 La rente de veuve/veuf AVS peut atteindre CHF 2'016/mois (80 % de la rente maximale). Mais un veuf sans enfant à charge ne touche rien dès que le dernier enfant a 18 ans — une inégalité en cours de révision.
 
 ## Niveau 0

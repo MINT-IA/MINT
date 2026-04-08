@@ -8,7 +8,7 @@ tags: [3a, depart, suisse, expatriation, retrait, fiscalite]
 ## Trigger
 L'utilisateur quitte la Suisse ou envisage de s'expatrier et veut savoir ce qui arrive à son pilier 3a.
 
-## Chiffre Choc
+## Premier Éclairage
 L'impôt sur le retrait 3a en cas de départ varie de ~5 % (Schwyz) à ~12 % (Genève) selon le canton de dernier domicile. En transférant ton 3a dans un canton à faible imposition avant de partir, tu pourrais économiser des milliers de francs. Certains cantons appliquent même un taux réduit pour les non-résidents.
 
 ## Niveau 0

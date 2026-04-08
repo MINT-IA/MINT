@@ -72,7 +72,7 @@ class FirstJobResult {
   final List<String> checklist;
 
   // Chiffre choc
-  final String chiffreChoc;
+  final String premierEclairage;
 
   const FirstJobResult({
     required this.brut,
@@ -94,7 +94,7 @@ class FirstJobResult {
     required this.economieAnnuelleVs300,
     required this.noteLamal,
     required this.checklist,
-    required this.chiffreChoc,
+    required this.premierEclairage,
   });
 }
 
@@ -223,7 +223,7 @@ class FirstJobService {
     final franchiseData = _calculateFranchiseOptions(age, canton);
 
     // Chiffre choc
-    final chiffreChoc =
+    final premierEclairage =
         'Ton employeur paie ~${formatChf(employeurTotal)}/mois '
         'en plus de ton salaire — des charges que tu ne vois jamais';
 
@@ -250,7 +250,7 @@ class FirstJobService {
           'Si tu es jeune et en bonne sante, la franchise 2500 est souvent '
           'plus avantageuse. Compare sur priminfo.admin.ch pour ton canton.',
       checklist: _buildChecklist(),
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
     );
   }
 

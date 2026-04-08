@@ -8,7 +8,7 @@ tags: [lpp, taux_conversion, 6.8, obligatoire, surobligatoire, rente]
 ## Trigger
 L'utilisateur veut comprendre comment son capital LPP se transforme en rente mensuelle, ou découvre que son taux de conversion est inférieur à 6.8 %.
 
-## Chiffre Choc
+## Premier Éclairage
 Avec un taux de conversion de 6.8 %, un capital de CHF 500'000 te donne une rente de CHF 34'000/an (CHF 2'833/mois). Mais si ta caisse applique 5.0 % sur le surobligatoire, ce même capital ne te donnerait que ~CHF 29'000/an — CHF 417/mois de moins, à vie.
 
 ## Niveau 0

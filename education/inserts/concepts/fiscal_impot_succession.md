@@ -8,7 +8,7 @@ tags: [fiscal, succession, heritage, donation, cantonal, exoneration]
 ## Trigger
 L'utilisateur hérite ou planifie sa succession et veut comprendre les impôts applicables, ou se demande si son canton taxe les héritages.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, le conjoint survivant et les descendants directs sont exonérés d'impôt successoral dans la plupart des cantons. Mais un·e concubin·e ou un·e ami·e pourrait payer jusqu'à 40-50 % d'impôt sur l'héritage reçu (ex. Vaud : jusqu'à 25 %, Neuchâtel : jusqu'à 50 % pour non-parents).
 
 ## Niveau 0

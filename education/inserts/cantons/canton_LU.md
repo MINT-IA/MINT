@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Lucerne"
 ## Trigger
 L'utilisateur réside à Lucerne ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Lucerne est très compétitive, parmi les plus basses de Suisse : le multiplicateur cantonal se situe autour de 85-90 %.
 
 ## Niveau 0

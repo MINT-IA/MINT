@@ -77,7 +77,7 @@ class TestMariageFiscalComparison:
         # When 2 high earners marry, combined income hits higher brackets
         assert result.est_penalite_mariage is True
         assert result.difference > 0
-        assert "Penalite" in result.chiffre_choc
+        assert "Penalite" in result.premier_eclairage
 
     def test_bonus_mariage_one_income(self, mariage_service):
         """Single earner + stay-at-home spouse should create a marriage bonus."""
@@ -87,7 +87,7 @@ class TestMariageFiscalComparison:
         # Single earner benefits from married bracket (lower rates)
         assert result.est_penalite_mariage is False
         assert result.difference < 0
-        assert "Bonus" in result.chiffre_choc
+        assert "Bonus" in result.premier_eclairage
 
     def test_revenus_cumules(self, mariage_service):
         """Combined revenue should equal sum of both incomes."""
@@ -150,12 +150,12 @@ class TestMariageFiscalComparison:
         assert "LIFD" in source_text
         assert "art." in source_text
 
-    def test_chiffre_choc_contains_chf(self, mariage_service):
+    def test_premier_eclairage_contains_chf(self, mariage_service):
         """Chiffre choc should contain CHF amount."""
         result = mariage_service.compare_fiscal_impact(
             revenu_1=80_000, revenu_2=60_000, canton="ZH",
         )
-        assert "CHF" in result.chiffre_choc
+        assert "CHF" in result.premier_eclairage
 
 
 # ===========================================================================
@@ -249,7 +249,7 @@ class TestSurvivorBenefits:
         expected_total = 2016.0 + 1200.0
         assert result.total_survivant_mensuel == expected_total
         assert result.total_survivant_annuel == round(expected_total * 12, 2)
-        assert "CHF" in result.chiffre_choc
+        assert "CHF" in result.premier_eclairage
         source_text = " ".join(result.sources)
         assert "LAVS" in source_text
         assert "LPP" in source_text
@@ -316,7 +316,7 @@ class TestCongeParentalAPG:
             salaire_mensuel=6000, is_mother=True,
         )
         assert result.perte_revenu > 0
-        assert "CHF" in result.chiffre_choc
+        assert "CHF" in result.premier_eclairage
 
 
 # ===========================================================================
@@ -468,14 +468,14 @@ class TestCareerGap:
         )
         assert result.perte_revenu_totale == 40_000
 
-    def test_chiffre_choc_present(self, naissance_service):
+    def test_premier_eclairage_present(self, naissance_service):
         """Chiffre choc should mention LPP and 3a."""
         result = naissance_service.project_career_gap(
             salaire_annuel=80_000, duree_interruption_mois=12, age=35,
         )
-        assert "LPP" in result.chiffre_choc
-        assert "3a" in result.chiffre_choc
-        assert "CHF" in result.chiffre_choc
+        assert "LPP" in result.premier_eclairage
+        assert "3a" in result.premier_eclairage
+        assert "CHF" in result.premier_eclairage
 
 
 # ===========================================================================
@@ -568,12 +568,12 @@ class TestInheritanceTax:
         assert result.impot_concubin == 0.0
         assert result.difference == 0.0
 
-    def test_chiffre_choc_contains_amount(self, concubinage_service):
+    def test_premier_eclairage_contains_amount(self, concubinage_service):
         """Chiffre choc should contain CHF amount."""
         result = concubinage_service.estimate_inheritance_tax(
             patrimoine=1_000_000, canton="GE",
         )
-        assert "CHF" in result.chiffre_choc
+        assert "CHF" in result.premier_eclairage
 
 
 # ===========================================================================
@@ -672,11 +672,11 @@ class TestChecklistMariage:
         assert "LIFD" in source_text
         assert "LPP" in source_text
 
-    def test_checklist_has_chiffre_choc(self, mariage_service):
-        """Checklist should include a chiffre choc."""
+    def test_checklist_has_premier_eclairage(self, mariage_service):
+        """Checklist should include a premier éclairage."""
         result = mariage_service.checklist_mariage()
-        assert len(result.chiffre_choc) > 0
-        assert "demarches" in result.chiffre_choc.lower() or "regime" in result.chiffre_choc.lower()
+        assert len(result.premier_eclairage) > 0
+        assert "demarches" in result.premier_eclairage.lower() or "regime" in result.premier_eclairage.lower()
 
     def test_checklist_has_disclaimer(self, mariage_service):
         """Checklist should include a disclaimer."""
@@ -697,7 +697,7 @@ class TestChecklistMariage:
         )
         banned = ["garanti", "certain", "assure", "sans risque", "optimal",
                   "meilleur", "parfait", "conseiller"]
-        all_text = " ".join(result.items + [result.chiffre_choc, result.disclaimer])
+        all_text = " ".join(result.items + [result.premier_eclairage, result.disclaimer])
         for word in banned:
             assert word not in all_text.lower(), f"Banned word '{word}' found in checklist"
 
@@ -784,11 +784,11 @@ class TestChecklistNaissance:
         assert "LAFam" in source_text
         assert "LAMal" in source_text
 
-    def test_checklist_has_chiffre_choc(self, naissance_service):
-        """Checklist should include a chiffre choc."""
+    def test_checklist_has_premier_eclairage(self, naissance_service):
+        """Checklist should include a premier éclairage."""
         result = naissance_service.checklist_naissance()
-        assert len(result.chiffre_choc) > 0
-        assert "CHF" in result.chiffre_choc
+        assert len(result.premier_eclairage) > 0
+        assert "CHF" in result.premier_eclairage
 
     def test_checklist_has_disclaimer(self, naissance_service):
         """Checklist should include a disclaimer."""
@@ -796,12 +796,12 @@ class TestChecklistNaissance:
         assert len(result.disclaimer) > 0
         assert "specialiste" in result.disclaimer.lower()
 
-    def test_checklist_canton_allocation_in_chiffre_choc(self, naissance_service):
+    def test_checklist_canton_allocation_in_premier_eclairage(self, naissance_service):
         """Chiffre choc should mention the canton allocation amount."""
         result = naissance_service.checklist_naissance(canton="GE")
-        assert "GE" in result.chiffre_choc
+        assert "GE" in result.premier_eclairage
         # GE allocation = 300 * 12 = 3600
-        assert "3,600" in result.chiffre_choc or "3'600" in result.chiffre_choc or "3600" in result.chiffre_choc
+        assert "3,600" in result.premier_eclairage or "3'600" in result.premier_eclairage or "3600" in result.premier_eclairage
 
     def test_checklist_no_banned_words(self, naissance_service):
         """Checklist should not contain banned words."""
@@ -810,7 +810,7 @@ class TestChecklistNaissance:
         )
         banned = ["garanti", "certain", "assure", "sans risque", "optimal",
                   "meilleur", "parfait", "conseiller"]
-        all_text = " ".join(result.items + [result.chiffre_choc, result.disclaimer])
+        all_text = " ".join(result.items + [result.premier_eclairage, result.disclaimer])
         for word in banned:
             assert word not in all_text.lower(), f"Banned word '{word}' found in checklist"
 
@@ -902,7 +902,7 @@ class TestFamilyEndpoints:
         assert "impotMariesTotal" in data
         assert "difference" in data
         assert "estPenaliteMariage" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
 
     def test_mariage_regime_endpoint(self, client):
@@ -1087,7 +1087,7 @@ class TestFamilyEndpoints:
         assert "prioriteHaute" in data
         assert "prioriteMoyenne" in data
         assert "prioriteBasse" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert "sources" in data
 
@@ -1109,7 +1109,7 @@ class TestFamilyEndpoints:
         assert "prioriteHaute" in data
         assert "prioriteMoyenne" in data
         assert "prioriteBasse" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert "sources" in data
 
@@ -1132,4 +1132,4 @@ class TestFamilyEndpoints:
         assert "estPenaliteMariage" in data
         assert "revenusCumules" in data
         assert "deductionsMariage" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data

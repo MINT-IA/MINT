@@ -354,12 +354,12 @@ class TestUnemploymentCompliance:
         assert "LACI" in source_text
         assert "OAC" in source_text
 
-    def test_chiffre_choc_non_empty(self, calculator):
+    def test_premier_eclairage_non_empty(self, calculator):
         """Chiffre choc should be a non-empty string."""
         result = calculator.calculate(
             gain_assure_mensuel=6000, age=35, annees_cotisation=18,
         )
-        assert len(result["chiffre_choc"]) > 20
+        assert len(result["premier_eclairage"]) > 20
 
     def test_no_banned_terms_in_disclaimer(self):
         """Disclaimer should not contain banned terms."""

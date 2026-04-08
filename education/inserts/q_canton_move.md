@@ -27,7 +27,7 @@ lifeEvent: "cantonMove"
 - Impact sur les allocations familiales.
 - Estimation de l'economie ou du surcout annuel.
 
-## Chiffre choc
+## Premier éclairage
 "Un demenagement de Neuchatel a Zoug peut representer plus de CHF 15'000/an d'economie fiscale pour un revenu de CHF 120'000 -- mais les loyers sont aussi nettement plus eleves."
 
 ## Contenu educatif

@@ -8,7 +8,7 @@ tags: [lpp, rente, capital, breakeven, longevite, lifd, retraite, fiscalite]
 ## Trigger
 L'utilisateur approche de la retraite (55 ans+), demande s'il vaut mieux prendre la rente ou le capital du 2e pilier, ou la simulation MINT affiche un avoir LPP significatif.
 
-## Chiffre Choc
+## Premier Éclairage
 Un homme qui prend sa retraite à 65 ans a une espérance de vie de 19 ans (OFS 2024) — juste au-dessus du breakeven typique de 15-17 ans. Une femme a une espérance de 22 ans, bien au-delà : statistiquement, la rente est souvent plus avantageuse pour les femmes.
 
 ## Niveau 0

@@ -5,7 +5,7 @@ POST /api/v1/coach/narrative      — Generate all 4 narrative components
 POST /api/v1/coach/greeting       — Generate greeting only
 POST /api/v1/coach/score-summary  — Generate score summary only
 POST /api/v1/coach/tip            — Generate tip narrative only
-POST /api/v1/coach/chiffre-choc   — Generate chiffre choc reframe only
+POST /api/v1/coach/premier-eclairage   — Generate premier éclairage reframe only
 
 Sources:
     - LSFin art. 3 (information financiere)
@@ -67,7 +67,7 @@ def generate_narrative(http_request: Request, request: CoachContextRequest, _use
 
     Returns:
         CoachNarrativeResponse avec greeting, score_summary,
-        tip_narrative, chiffre_choc_reframe + metadata.
+        tip_narrative, premier_eclairage_reframe + metadata.
     """
     ctx = _build_ctx(request)
     result = _service.generate_all(ctx)
@@ -76,7 +76,7 @@ def generate_narrative(http_request: Request, request: CoachContextRequest, _use
         greeting=result.greeting,
         score_summary=result.score_summary,
         tip_narrative=result.tip_narrative,
-        chiffre_choc_reframe=result.chiffre_choc_reframe,
+        premier_eclairage_reframe=result.premier_eclairage_reframe,
         used_fallback=result.used_fallback,
         disclaimer=result.disclaimer,
         sources=result.sources,
@@ -144,18 +144,18 @@ def generate_tip(http_request: Request, request: CoachContextRequest, _user: Use
 
 
 @limiter.limit("30/minute")
-@router.post("/chiffre-choc", response_model=ComponentNarrativeResponse)
-def generate_chiffre_choc(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
-    """Generer uniquement la recontextualisation du chiffre choc.
+@router.post("/premier-eclairage", response_model=ComponentNarrativeResponse)
+def generate_premier_eclairage(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
+    """Generer uniquement la recontextualisation du premier éclairage.
 
     Returns:
-        ComponentNarrativeResponse avec le chiffre choc reframe.
+        ComponentNarrativeResponse avec le premier éclairage reframe.
     """
     ctx = _build_ctx(request)
-    text = _service.generate_chiffre_choc_reframe(ctx)
+    text = _service.generate_premier_eclairage_reframe(ctx)
 
     return ComponentNarrativeResponse(
-        component="chiffre_choc_reframe",
+        component="premier_eclairage_reframe",
         text=text,
         used_fallback=True,
         disclaimer=STANDARD_DISCLAIMER,

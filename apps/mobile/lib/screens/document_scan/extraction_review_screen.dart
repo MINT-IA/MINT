@@ -795,6 +795,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       case FactType.lifeEvent:
       case FactType.userDecision:
       case FactType.coachPreference:
+      case FactType.alertAcknowledged:
         return 'annual';
     }
   }

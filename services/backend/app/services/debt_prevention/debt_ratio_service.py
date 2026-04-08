@@ -58,7 +58,7 @@ class DebtRatioResult:
     en_dessous_minimum_vital: bool
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     recommandations: List[str] = field(default_factory=list)
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
@@ -146,7 +146,7 @@ class DebtRatioService:
         )
 
         # 6. Chiffre choc
-        chiffre_choc = (
+        premier_eclairage = (
             f"Ton ratio d'endettement est de {ratio_pct}% "
             f"— seuil recommande : 30%"
         )
@@ -171,7 +171,7 @@ class DebtRatioService:
             minimum_vital=float(minimum_vital_total),
             marge_vs_minimum_vital=marge,
             en_dessous_minimum_vital=en_dessous,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             recommandations=recommandations,
             sources=sources,
             disclaimer=DISCLAIMER,

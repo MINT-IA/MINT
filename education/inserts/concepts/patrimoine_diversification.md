@@ -8,7 +8,7 @@ tags: [patrimoine, diversification, allocation, actifs, risque, investissement]
 ## Trigger
 L'utilisateur a tout son patrimoine dans un seul type d'actif (immobilier, compte épargne, ou LPP) et veut comprendre l'intérêt de diversifier.
 
-## Chiffre Choc
+## Premier Éclairage
 Un portefeuille diversifié (actions + obligations + immobilier) a historiquement perdu au maximum ~30 % en période de crise (2008), contre ~55 % pour un portefeuille 100 % actions. Mais sur 20 ans, le portefeuille diversifié a quand même généré 5-6 %/an en moyenne — en dormant beaucoup mieux la nuit.
 
 ## Niveau 0

@@ -45,7 +45,7 @@ class TestListAllInserts:
         for insert in data["inserts"]:
             assert "questionId" in insert
             assert "title" in insert
-            assert "chiffreChoc" in insert
+            assert "premierEclairage" in insert
             assert "learningGoals" in insert
             assert "disclaimer" in insert
             assert "sources" in insert
@@ -64,7 +64,7 @@ class TestGetSingleInsert:
         assert resp.status_code == 200
         data = resp.json()
         assert data["questionId"] == "q_has_3a"
-        assert "3a" in data["title"].lower() or "3a" in data["chiffreChoc"].lower()
+        assert "3a" in data["title"].lower() or "3a" in data["premierEclairage"].lower()
 
     def test_get_emergency_fund_returns_200(self, client):
         """GET /q_emergency_fund returns 200 with correct insert."""
@@ -151,7 +151,7 @@ class TestEducationalContentCompliance:
             # Check user-facing text fields
             text_fields = [
                 insert["title"],
-                insert["chiffreChoc"],
+                insert["premierEclairage"],
                 insert["actionLabel"],
                 insert["safeMode"],
             ]

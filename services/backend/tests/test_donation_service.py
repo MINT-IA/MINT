@@ -127,8 +127,8 @@ class TestDonationCompliance:
         assert len(result.sources) >= 3
         assert any("CC art." in s for s in result.sources)
 
-    def test_chiffre_choc_present(self, service):
-        """Result includes a chiffre choc."""
+    def test_premier_eclairage_present(self, service):
+        """Result includes a premier éclairage."""
         result = service.calculate(_base_input())
-        assert "montant" in result.chiffre_choc
-        assert "texte" in result.chiffre_choc
+        assert "montant" in result.premier_eclairage
+        assert "texte" in result.premier_eclairage

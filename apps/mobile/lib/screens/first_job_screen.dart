@@ -168,7 +168,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCantonAndActivity()),
                 const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: MintSpacing.lg),
                   SalaryBreakdownWidget(
                     brut: _result!.brut,
@@ -446,9 +446,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -465,7 +465,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            r.chiffreChoc,
+            r.premierEclairage,
             style: MintTextStyles.bodyMedium(
                 color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
@@ -984,7 +984,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           ],
         ),
       ],
-      chiffreChoc: l10n.firstJobBudgetChiffreChoc(
+      premierEclairage: l10n.firstJobBudgetPremierEclairage(
         '${(annualSavings.round() ~/ 1000)}\'000',
         '~${(fv.round() ~/ 1000)}\'000',
       ),

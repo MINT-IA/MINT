@@ -12,6 +12,8 @@ import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/navigation/route_planner.dart';
 import 'package:mint_mobile/services/navigation/screen_registry.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -126,8 +128,9 @@ void main() {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
-      // Silent opener shows "Tu veux en parler ?" instead of a proactive greeting.
-      expect(find.textContaining('Tu veux en parler'), findsOneWidget);
+      // Silent opener copy (coachSilentOpenerQuestion):
+      // "Mint est là quand tu veux en parler." — lowercase 't' post-Phase-12.
+      expect(find.textContaining('tu veux en parler'), findsOneWidget);
     });
 
     testWidgets('shows silent opener with financial data', (tester) async {
@@ -143,7 +146,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.textContaining('question sur tes finances'), findsWidgets);
+      // coachInputHint post-Phase-12: "Dis-moi ce qui te trotte dans la tête."
+      expect(find.textContaining('trotte'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {
@@ -552,6 +556,85 @@ void main() {
       );
       final decision = planner.plan('totally_unknown_intent_xyz');
       expect(decision.action, RouteAction.conversationOnly);
+    });
+  });
+
+  // ══════════════════════════════════════════════════════════════════
+  //  Phase 10-02a: onboarding-done bootstrap from intent payload
+  // ══════════════════════════════════════════════════════════════════
+  group('CoachChatScreen — onboarding bootstrap (Phase 10-02a)', () {
+    Widget buildWithPayload(CoachEntryPayload? payload) {
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => buildProfileProvider()),
+          ChangeNotifierProvider(create: (_) => ByokProvider()),
+          ChangeNotifierProvider(create: (_) => UserActivityProvider()),
+          ChangeNotifierProvider(create: (_) => MintStateProvider()),
+        ],
+        child: MaterialApp(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: CoachChatScreen(entryPayload: payload),
+        ),
+      );
+    }
+
+    testWidgets(
+        'first entry from onboarding intent payload sets miniOnboardingCompleted',
+        (tester) async {
+      usePhoneViewport(tester);
+      // Flag starts false.
+      expect(
+        await ReportPersistenceService.isMiniOnboardingCompleted(),
+        isFalse,
+      );
+
+      // No userMessage → no _sendMessage call → no streaming timers.
+      final payload = CoachEntryPayload(
+        source: CoachEntrySource.onboardingIntent,
+        topic: 'pillar3a',
+        data: const {'fromOnboarding': true},
+      );
+
+      await tester.pumpWidget(buildWithPayload(payload));
+      await pumpUntilGreeting(tester);
+
+      // Chat bootstrap owns this write — intent_screen does not touch it.
+      expect(
+        await ReportPersistenceService.isMiniOnboardingCompleted(),
+        isTrue,
+      );
+    });
+
+    testWidgets(
+        'entry without onboardingIntent source does NOT set the flag',
+        (tester) async {
+      usePhoneViewport(tester);
+      expect(
+        await ReportPersistenceService.isMiniOnboardingCompleted(),
+        isFalse,
+      );
+
+      // Simulate a home-chip entry (not onboarding). No userMessage
+      // to avoid spawning streaming timers in the test env.
+      final payload = CoachEntryPayload(
+        source: CoachEntrySource.homeChip,
+        topic: 'pillar3a',
+      );
+
+      await tester.pumpWidget(buildWithPayload(payload));
+      await pumpUntilGreeting(tester);
+
+      expect(
+        await ReportPersistenceService.isMiniOnboardingCompleted(),
+        isFalse,
+      );
     });
   });
 }

@@ -78,7 +78,7 @@ class CoachNarrative {
 
   /// Contextual narration for the chiffre-choc screen (max ~100 words).
   /// Example: "A 58 ans, tu as encore 7 ans pour combler un ecart de CHF 850/mois."
-  final String? chiffreChocNarration;
+  final String? premierEclairageNarration;
 
   /// Retirement countdown phrase for 45-60 dashboard header.
   /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
@@ -105,7 +105,7 @@ class CoachNarrative {
     this.urgentAlert,
     this.milestoneMessage,
     this.scenarioNarrations,
-    this.chiffreChocNarration,
+    this.premierEclairageNarration,
     this.retirementCountdown,
     this.monthlyComparison,
     this.versementsTrend,
@@ -122,7 +122,7 @@ class CoachNarrative {
         'urgentAlert': urgentAlert,
         'milestoneMessage': milestoneMessage,
         'scenarioNarrations': scenarioNarrations,
-        'chiffreChocNarration': chiffreChocNarration,
+        'premierEclairageNarration': premierEclairageNarration,
         'retirementCountdown': retirementCountdown,
         'monthlyComparison': monthlyComparison,
         'versementsTrend': versementsTrend,
@@ -142,7 +142,7 @@ class CoachNarrative {
       scenarioNarrations: (json['scenarioNarrations'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      chiffreChocNarration: json['chiffreChocNarration'] as String?,
+      premierEclairageNarration: json['premierEclairageNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
       monthlyComparison: json['monthlyComparison'] as String?,
       versementsTrend: json['versementsTrend'] as String?,
@@ -528,9 +528,9 @@ class CoachNarrativeService {
       }
     }
 
-    // ── chiffreChocNarration + retirementCountdown (static fallback) ──
+    // ── premierEclairageNarration + retirementCountdown (static fallback) ──
     // Chiffre choc — confidence-aware via FallbackTemplates
-    final chiffreChocNarration = FallbackTemplates.chiffreChocReframe(ctx);
+    final premierEclairageNarration = FallbackTemplates.premierEclairageReframe(ctx);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
@@ -580,7 +580,7 @@ class CoachNarrativeService {
       milestoneMessage:
           null, // Milestones: async detection, handled in generate()
       scenarioNarrations: scenarioNarrations,
-      chiffreChocNarration: chiffreChocNarration,
+      premierEclairageNarration: premierEclairageNarration,
       retirementCountdown: retirementCountdown,
       monthlyComparison: monthlyComparison,
       versementsTrend: versementsTrend,
@@ -698,7 +698,7 @@ class CoachNarrativeService {
         urgentAlert: narrative.urgentAlert,
         milestoneMessage: narrative.milestoneMessage,
         scenarioNarrations: narrative.scenarioNarrations,
-        chiffreChocNarration: narrative.chiffreChocNarration,
+        premierEclairageNarration: narrative.premierEclairageNarration,
         retirementCountdown: narrative.retirementCountdown,
         monthlyComparison: narrative.monthlyComparison,
         versementsTrend: narrative.versementsTrend,
@@ -881,7 +881,7 @@ class CoachNarrativeService {
     buffer.writeln();
     buffer.writeln('INSTRUCTIONS :');
     buffer.writeln(
-        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), chiffreChocNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
+        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), premierEclairageNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
     buffer.writeln(
         '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)');
     buffer.writeln(
@@ -1239,7 +1239,7 @@ class CoachNarrativeService {
       scenarioNarrations: (json['scenarioNarrations'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      chiffreChocNarration: json['chiffreChocNarration'] as String?,
+      premierEclairageNarration: json['premierEclairageNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
       monthlyComparison: json['monthlyComparison'] as String?,
       versementsTrend: json['versementsTrend'] as String?,
@@ -1268,8 +1268,8 @@ class CoachNarrativeService {
       scenarioNarrations: narrative.scenarioNarrations
           ?.map((s) => _filterBannedTerms(s))
           .toList(),
-      chiffreChocNarration: narrative.chiffreChocNarration != null
-          ? _filterBannedTerms(narrative.chiffreChocNarration!)
+      premierEclairageNarration: narrative.premierEclairageNarration != null
+          ? _filterBannedTerms(narrative.premierEclairageNarration!)
           : null,
       retirementCountdown: narrative.retirementCountdown != null
           ? _filterBannedTerms(narrative.retirementCountdown!)

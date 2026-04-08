@@ -165,7 +165,7 @@ class WealthTaxEstimate:
     taux_effectif_permille: float  # per mille
     disclaimer: str
     sources: List[str]
-    chiffre_choc: str
+    premier_eclairage: str
 
 
 @dataclass
@@ -191,7 +191,7 @@ class WealthTaxMoveSimulation:
     economie_annuelle: float
     economie_mensuelle: float
     economie_10_ans: float
-    chiffre_choc: str
+    premier_eclairage: str
     alertes: List[str]
     disclaimer: str
     sources: List[str]
@@ -238,7 +238,7 @@ class WealthTaxService:
                 taux_effectif_permille=0.0,
                 disclaimer=DISCLAIMER,
                 sources=list(SOURCES),
-                chiffre_choc="Avec une fortune nette de 0 CHF, tu ne paies pas d'impot sur la fortune.",
+                premier_eclairage="Avec une fortune nette de 0 CHF, tu ne paies pas d'impot sur la fortune.",
             )
 
         # 1. Determine exemption threshold
@@ -263,7 +263,7 @@ class WealthTaxService:
                 taux_effectif_permille=0.0,
                 disclaimer=DISCLAIMER,
                 sources=list(SOURCES),
-                chiffre_choc=(
+                premier_eclairage=(
                     f"Ta fortune de {fortune:,.0f} CHF est en dessous du seuil "
                     f"d'exoneration de {exemption:,.0f} CHF dans le canton "
                     f"de {canton_name}. Tu ne paies pas d'impot sur la fortune."
@@ -288,9 +288,9 @@ class WealthTaxService:
         # 7. Actual effective rate (per mille of total fortune, not just imposable)
         taux_effectif = round((impot_fortune / fortune) * 1000, 4) if fortune > 0 else 0.0
 
-        # 8. Build chiffre choc
+        # 8. Build premier éclairage
         canton_name = CANTON_NAMES.get(canton, canton)
-        chiffre_choc = (
+        premier_eclairage = (
             f"Sur une fortune de {fortune:,.0f} CHF dans le canton de "
             f"{canton_name}, l'impot sur la fortune est d'environ "
             f"{impot_fortune:,.0f} CHF/an, soit {impot_fortune / 12:,.0f} CHF/mois."
@@ -305,7 +305,7 @@ class WealthTaxService:
             taux_effectif_permille=taux_effectif,
             disclaimer=DISCLAIMER,
             sources=list(SOURCES),
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
         )
 
     def compare_all_cantons(
@@ -372,21 +372,21 @@ class WealthTaxService:
         economie_mensuelle = round(economie_annuelle / 12, 2)
         economie_10_ans = round(economie_annuelle * 10, 2)
 
-        # Build chiffre choc
+        # Build premier éclairage
         if economie_annuelle > 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"En demenageant de {tax_from.canton_name} a {tax_to.canton_name}, "
                 f"tu pourrais economiser environ {abs(economie_annuelle):,.0f} CHF/an "
                 f"d'impot sur la fortune, soit {abs(economie_10_ans):,.0f} CHF sur 10 ans."
             )
         elif economie_annuelle < 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Attention: demenager de {tax_from.canton_name} a {tax_to.canton_name} "
                 f"te couterait environ {abs(economie_annuelle):,.0f} CHF/an de plus "
                 f"en impot sur la fortune, soit {abs(economie_10_ans):,.0f} CHF sur 10 ans."
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"L'impot sur la fortune est quasi identique entre "
                 f"{tax_from.canton_name} et {tax_to.canton_name}."
             )
@@ -406,7 +406,7 @@ class WealthTaxService:
             economie_annuelle=economie_annuelle,
             economie_mensuelle=economie_mensuelle,
             economie_10_ans=economie_10_ans,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             alertes=alertes,
             disclaimer=DISCLAIMER,
             sources=list(SOURCES),
@@ -517,7 +517,7 @@ def estimer_impot_fortune(
         "fortune_imposable": estimate.fortune_imposable,
         "impot_fortune": estimate.impot_fortune,
         "taux_effectif_permille": estimate.taux_effectif_permille,
-        "chiffre_choc": estimate.chiffre_choc,
+        "premier_eclairage": estimate.premier_eclairage,
         "disclaimer": estimate.disclaimer,
         "sources": estimate.sources,
     }

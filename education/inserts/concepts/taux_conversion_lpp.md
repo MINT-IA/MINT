@@ -8,7 +8,7 @@ tags: [lpp, rente, conversion, surobligatoire, retraite]
 ## Trigger
 L'utilisateur consulte sa projection de rente LPP, compare rente et capital du 2e pilier, ou le coach détecte un avoir LPP supérieur à CHF 100'000.
 
-## Chiffre Choc
+## Premier Éclairage
 Un même avoir de CHF 500'000 produit CHF 2'833/mois à 6.8% — mais seulement CHF 2'292/mois à 5.5%. La différence de CHF 541/mois représente CHF 6'492/an à vie.
 
 ## Niveau 0

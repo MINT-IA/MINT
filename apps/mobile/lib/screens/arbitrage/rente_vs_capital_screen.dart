@@ -659,7 +659,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                   RepaintBoundary(
                     child: Column(
                       children: [
-                        _buildChiffreChocAccroche(),
+                        _buildPremierEclairageAccroche(),
                         const SizedBox(height: MintSpacing.md),
                         _buildHeroMonthly(),
                       ],
@@ -1155,9 +1155,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   /// Chiffre-choc en haut — pourquoi cette decision compte.
-  Widget _buildChiffreChocAccroche() {
+  Widget _buildPremierEclairageAccroche() {
     final r = _result!;
-    // Build a punchy one-liner from the engine's chiffreChoc
+    // Build a punchy one-liner from the engine's premierEclairage
     final taxDelta = (r.impotCumulRente - r.impotRetraitCapital).abs();
     final epuiseAge = r.capitalEpuiseAge;
 
@@ -1174,7 +1174,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     } else if (epuiseAge != null) {
       accroche = S.of(context)!.renteVsCapitalAccrocheEpuise(epuiseAge);
     } else {
-      accroche = r.chiffreChoc;
+      accroche = r.premierEclairage;
     }
 
     return Semantics(

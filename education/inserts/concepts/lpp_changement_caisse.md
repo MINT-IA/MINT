@@ -8,7 +8,7 @@ tags: [lpp, changement, employeur, transfert, caisse, prestation_sortie]
 ## Trigger
 L'utilisateur change d'emploi et se demande ce qui arrive à son 2e pilier, ou compare les caisses de pension de deux employeurs.
 
-## Chiffre Choc
+## Premier Éclairage
 Un changement d'employeur à 50 ans peut modifier ta rente future de CHF 200 à 500/mois selon la qualité de la nouvelle caisse (taux de conversion surobligatoire, rémunération du capital). Un détail souvent négligé dans la négociation salariale.
 
 ## Niveau 0

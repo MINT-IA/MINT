@@ -10,7 +10,7 @@ source: "Directives ASB/FINMA, CO art. 793ss"
 ## Trigger
 L'utilisateur pose des questions sur les taux hypothécaires, la capacité d'emprunt, ou les règles suisses en matière de financement immobilier.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, la banque calcule ta capacité avec un taux théorique de 5 %, pas le taux réel. Résultat : pour un bien à CHF 1'000'000, il faut un revenu brut d'environ CHF 180'000/an — même si le taux effectif est de 2 %.
 
 ## Niveau 0

@@ -202,6 +202,7 @@ class CoachOpenerService {
       case FactType.lifeEvent:
       case FactType.userDecision:
       case FactType.coachPreference:
+      case FactType.alertAcknowledged:
         return 'de profil';
     }
   }

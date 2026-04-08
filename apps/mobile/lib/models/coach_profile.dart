@@ -12,6 +12,8 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -1392,6 +1394,28 @@ class CoachProfile {
   /// Format: '{category}_{subcategory}' e.g. 'proteger_retraite'.
   final String? primaryFocus;
 
+  // === VOICE CURSOR (Phase 02-03 — see voice_cursor_contract.dart) ===
+  /// User-chosen tone preference (soft / direct / unfiltered).
+  /// Default: direct (per ROADMAP). Surfaced in Phase 12 "Ton" chooser.
+  final VoicePreference voiceCursorPreference;
+
+  /// Rolling 7-day N5 emission counter for cap enforcement.
+  /// Phase 11 VOICE-09 moves this to server-authoritative; this phase
+  /// only persists the field. Default: 0.
+  final int n5IssuedThisWeek;
+
+  /// Timestamp when fragile mode was entered (auto or user-declared).
+  /// Null = fragile mode not active. When non-null, voice cursor caps at N3
+  /// (see fragilityCap rule in voice_cursor_contract.dart).
+  final DateTime? fragileModeEnteredAt;
+
+  /// Phase 11 (VOICE-09/10) — rolling 30-day gravity event log.
+  /// Each entry: {"ts": ISO8601 String, "gravity": "G1"|"G2"|"G3"}.
+  /// Server-authoritative: client mirrors for offline read-only display;
+  /// the fragility detector lives backend-side (fragility_detector_service).
+  /// No PII: only the gravity label + timestamp are persisted.
+  final List<Map<String, dynamic>> recentGravityEvents;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
@@ -1430,6 +1454,10 @@ class CoachProfile {
     DateTime? updatedAt,
     this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
     this.primaryFocus,
+    this.voiceCursorPreference = VoicePreference.direct,
+    this.n5IssuedThisWeek = 0,
+    this.fragileModeEnteredAt,
+    this.recentGravityEvents = const [],
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
@@ -1534,6 +1562,10 @@ class CoachProfile {
           familyChange == other.familyChange &&
           gender == other.gender &&
           targetRetirementAge == other.targetRetirementAge &&
+          voiceCursorPreference == other.voiceCursorPreference &&
+          n5IssuedThisWeek == other.n5IssuedThisWeek &&
+          fragileModeEnteredAt == other.fragileModeEnteredAt &&
+          listEquals(recentGravityEvents, other.recentGravityEvents) &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
 
@@ -1546,7 +1578,10 @@ class CoachProfile {
         goalsB.length, plannedContributions.length, checkIns.length,
         housingStatus, riskTolerance, realEstateProject,
         providers3a.length, arrivalAge, residencePermit, familyChange,
-        gender, targetRetirementAge, createdAt, updatedAt,
+        gender, targetRetirementAge,
+        voiceCursorPreference, n5IssuedThisWeek, fragileModeEnteredAt,
+        recentGravityEvents.length,
+        createdAt, updatedAt,
       ]);
 
   // ════════════════════════════════════════════════════════════════
@@ -1763,6 +1798,10 @@ class CoachProfile {
     DateTime? updatedAt,
     FinancialLiteracyLevel? financialLiteracyLevel,
     String? primaryFocus,
+    VoicePreference? voiceCursorPreference,
+    int? n5IssuedThisWeek,
+    DateTime? fragileModeEnteredAt,
+    List<Map<String, dynamic>>? recentGravityEvents,
   }) {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -1811,6 +1850,11 @@ class CoachProfile {
       financialLiteracyLevel:
           financialLiteracyLevel ?? this.financialLiteracyLevel,
       primaryFocus: primaryFocus ?? this.primaryFocus,
+      voiceCursorPreference:
+          voiceCursorPreference ?? this.voiceCursorPreference,
+      n5IssuedThisWeek: n5IssuedThisWeek ?? this.n5IssuedThisWeek,
+      fragileModeEnteredAt: fragileModeEnteredAt ?? this.fragileModeEnteredAt,
+      recentGravityEvents: recentGravityEvents ?? this.recentGravityEvents,
     );
   }
 
@@ -2022,7 +2066,27 @@ class CoachProfile {
         orElse: () => FinancialLiteracyLevel.beginner,
       ),
       primaryFocus: json['primaryFocus'] as String?,
+      voiceCursorPreference: _parseVoicePreference(json['voiceCursorPreference']),
+      n5IssuedThisWeek: (json['n5IssuedThisWeek'] as int?) ?? 0,
+      fragileModeEnteredAt: json['fragileModeEnteredAt'] != null
+          ? DateTime.tryParse(json['fragileModeEnteredAt'] as String)
+          : null,
+      recentGravityEvents: (json['recentGravityEvents'] as List?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          const [],
     );
+  }
+
+  /// Parse VoicePreference from JSON; legacy/missing/invalid → direct (default).
+  static VoicePreference _parseVoicePreference(dynamic raw) {
+    if (raw == null) return VoicePreference.direct;
+    final s = raw.toString();
+    for (final v in VoicePreference.values) {
+      if (v.name == s) return v;
+    }
+    // Invalid value: fall back to default. Phase 11 will log this.
+    return VoicePreference.direct;
   }
 
   Map<String, dynamic> toJson() => {
@@ -2066,6 +2130,10 @@ class CoachProfile {
         'updatedAt': updatedAt.toIso8601String(),
         'financialLiteracyLevel': financialLiteracyLevel.name,
         'primaryFocus': primaryFocus,
+        'voiceCursorPreference': voiceCursorPreference.name,
+        'n5IssuedThisWeek': n5IssuedThisWeek,
+        'fragileModeEnteredAt': fragileModeEnteredAt?.toIso8601String(),
+        'recentGravityEvents': recentGravityEvents,
       };
 
   // ════════════════════════════════════════════════════════════════

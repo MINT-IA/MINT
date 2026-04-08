@@ -152,7 +152,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
       children: [
         // Hero chiffre-choc — patrimoine exposed
         if (_patrimoine > 0) ...[
-          MintEntrance(child: _buildHeroChiffreChoc()),
+          MintEntrance(child: _buildHeroPremierEclairage()),
           const SizedBox(height: MintSpacing.lg),
         ],
 
@@ -225,9 +225,9 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
     );
   }
 
-  Widget _buildHeroChiffreChoc() {
+  Widget _buildHeroPremierEclairage() {
     return Semantics(
-      label: S.of(context)!.concubinageHeroChiffreChoc(
+      label: S.of(context)!.concubinageHeroPremierEclairage(
         FamilyService.formatChf(_patrimoine),
       ),
       child: Container(
@@ -240,7 +240,7 @@ class _ConcubinageScreenState extends State<ConcubinageScreen>
           children: [
             MintHeroNumber(
               value: FamilyService.formatChf(_patrimoine),
-              caption: S.of(context)!.concubinageHeroChiffreChocDesc,
+              caption: S.of(context)!.concubinageHeroPremierEclairageDesc,
               color: MintColors.white,
             ),
           ],

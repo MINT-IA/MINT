@@ -8,7 +8,7 @@ tags: [fiscal, deduction, impôt, declaration, optimisation, lifd]
 ## Trigger
 L'utilisateur prépare sa déclaration d'impôts et cherche à maximiser ses déductions, ou ne connaît pas les possibilités de déduction.
 
-## Chiffre Choc
+## Premier Éclairage
 En moyenne, les contribuables suisses "oublient" entre CHF 1'000 et CHF 3'000 de déductions chaque année. Sur une carrière de 40 ans, cela représente CHF 40'000 à 120'000 de déductions perdues — soit CHF 12'000 à 36'000 d'impôts payés en trop.
 
 ## Niveau 0

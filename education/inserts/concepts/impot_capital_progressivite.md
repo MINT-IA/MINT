@@ -8,7 +8,7 @@ tags: [lpp, 3a, capital, fiscalite, lifd, progressivite, echelonnement]
 ## Trigger
 L'utilisateur envisage un retrait en capital du 2e et/ou 3e pilier, possède plusieurs comptes 3a, ou le coach détecte un avoir LPP ou 3a total dépassant CHF 100'000.
 
-## Chiffre Choc
+## Premier Éclairage
 Dans certains cantons, retirer CHF 200'000 en deux fois sur deux années fiscales distinctes peut économiser CHF 10'000 à 20'000 d'impôts par rapport à un retrait unique — la progressivité punit les gros retraits concentrés.
 
 ## Niveau 0

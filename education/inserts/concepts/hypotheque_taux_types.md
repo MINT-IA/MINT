@@ -8,7 +8,7 @@ tags: [immobilier, hypotheque, taux, fixe, variable, saron, finma]
 ## Trigger
 L'utilisateur achète un bien immobilier ou doit renouveler son hypothèque et se demande quel type de taux choisir.
 
-## Chiffre Choc
+## Premier Éclairage
 Sur une hypothèque de CHF 500'000, la différence entre un taux fixe à 2.5 % et un taux SARON à 1.8 % représente CHF 3'500/an. Mais si le SARON monte à 3 %, tu paies CHF 2'500/an de plus qu'avec le fixe. Le choix du type d'hypothèque est une décision à plusieurs dizaines de milliers de francs sur 10 ans.
 
 ## Niveau 0

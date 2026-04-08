@@ -4,7 +4,7 @@
 > Updated: 29 March 2026 — All 4 phases audited, 102+ bugs fixed, all features wired E2E
 > Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)
 >
-> **⚠️ LEGACY NOTE (2026-04-05):** This document uses "chiffre choc" as a legacy term.
+> **⚠️ LEGACY NOTE (2026-04-05):** This document uses "premier éclairage" as a legacy term.
 > Canonical concept: **"premier éclairage"** (see `docs/MINT_IDENTITY.md`).
 > Mission updated: "Mint te dit ce que personne n'a intérêt à te dire."
 > Execution method: Autoresearch Dev Agents (`visions/MINT_Autoresearch_Dev_Agents.md`)

@@ -13,7 +13,6 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
-import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -169,6 +168,8 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
+      // P10-02b: QuickStartScreen deleted. Profile identity tap now lands on
+      // /coach/chat via the redirect shim chain.
       final router = GoRouter(
         initialLocation: '/profile',
         routes: [
@@ -182,7 +183,13 @@ void main() {
           ),
           GoRoute(
             path: '/onboarding/quick',
-            builder: (context, state) => const QuickStartScreen(),
+            redirect: (context, state) => '/coach/chat',
+          ),
+          GoRoute(
+            path: '/coach/chat',
+            builder: (context, state) => const Scaffold(
+              body: Center(child: Text('COACH_CHAT_STUB')),
+            ),
           ),
         ],
       );
@@ -249,8 +256,9 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
-      final foundQuick = find.byType(QuickStartScreen).evaluate().isNotEmpty;
-      expect(foundQuick, isTrue);
+      // P10-02b: assert the redirect landed on the coach chat stub instead
+      // of the deleted QuickStartScreen.
+      expect(find.text('COACH_CHAT_STUB'), findsOneWidget);
       expect(find.textContaining('Cette page n'), findsNothing);
     });
   });
@@ -411,8 +419,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingPunchline1 = "Le système financier suisse est puissant."
-      expect(find.textContaining('financier suisse'), findsOneWidget);
+      // Phase 7 Landing v2: paragraphe-mère (landingV2Paragraph) replaces
+      // legacy "Le système financier suisse est puissant." punchline.
+      expect(find.textContaining('personne n\'a intérêt'), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
@@ -432,9 +441,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
+      // Phase 7 Landing v2 removed the trust bar (shield/lock/check icons).
+      // The privacy reassurance is now a single micro-phrase (landingV2Privacy).
+      expect(find.textContaining('Rien ne sort de ton téléphone'), findsOneWidget);
     });
 
     testWidgets('shows CTA button with Commencer', (tester) async {
@@ -444,18 +453,22 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingCtaCommencer = "Commencer"
-      expect(find.text('Commencer'), findsOneWidget);
+      // Phase 7 Landing v2: landingV2Cta = "Continuer (sans compte)".
+      expect(find.textContaining('Continuer'), findsOneWidget);
     });
 
-    testWidgets('shows login button', (tester) async {
+    testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('connecter'), findsOneWidget);
+      // Phase 7 Landing v2: no visible login button. The login affordance
+      // is a long-press on the MINT wordmark (routes to /auth/login).
+      expect(find.textContaining('connecter'), findsNothing);
+      // The MINT wordmark still renders as the hidden entry point.
+      expect(find.text('MINT'), findsOneWidget);
     });
   });
 

@@ -1,6 +1,6 @@
 # Post-W13 — 8 Prompts (3 fixes + 5 features)
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 
 > Ce document contient les 8 prompts pour :
 > - Fermer les 3 items W13 restants (1 NOT FIXED + 2 PARTIAL)
@@ -611,7 +611,7 @@ Un écran simple :
 2. Auto-détection du format → affiche le nom de la banque détectée
 3. Liste des transactions parsées avec catégories auto-détectées
 4. Résumé : total revenus, total dépenses, période, nombre de transactions
-5. Bouton "Analyser" → lance le chiffre choc sur les VRAIS chiffres
+5. Bouton "Analyser" → lance le premier éclairage sur les VRAIS chiffres
 
 Route : `/import` dans app.dart
 

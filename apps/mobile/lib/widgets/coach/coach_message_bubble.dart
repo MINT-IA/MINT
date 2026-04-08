@@ -51,13 +51,19 @@ class CoachMessageBubble extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Coach avatar — refined 24px dot
-              const CoachAvatar(),
-              const SizedBox(width: 10),
+              // P-S3-01 (Phase 8c hot-fix): CoachAvatar removed from the
+              // coach reading zone — a 24px gradient dot with an 'M' letter
+              // is decorative ornament, not content. The bubble's asymmetric
+              // top-left radius (6) is sufficient "coach voice" semantic.
+              // The 44px left indent of downstream sections is preserved
+              // by the same SizedBox width (24 + md-4 = 44).
+              const SizedBox(width: 44),
               Flexible(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: MintSpacing.md,
+                    vertical: MintSpacing.md,
+                  ),
                   decoration: const BoxDecoration(
                     color: MintColors.porcelaine,
                     borderRadius: BorderRadius.only(
@@ -70,13 +76,21 @@ class CoachMessageBubble extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        msg.content.isEmpty && isStreamingThis
-                            ? '...'
-                            : msg.content,
-                        style: MintTextStyles.bodyMedium(
-                                color: MintColors.textPrimary)
-                            .copyWith(height: 1.6),
+                      // ACCESS-08 (P8b-03): liveRegion announces new coach
+                      // output to screen readers without shifting focus.
+                      // Only the Text is wrapped — focus stays where it is,
+                      // only content is announced.
+                      Semantics(
+                        liveRegion: true,
+                        container: true,
+                        child: Text(
+                          msg.content.isEmpty && isStreamingThis
+                              ? '...'
+                              : msg.content,
+                          style: MintTextStyles.bodyMedium(
+                                  color: MintColors.textPrimary)
+                              .copyWith(height: 1.6),
+                        ),
                       ),
                       // Streaming cursor
                       if (isStreamingThis) ...[
@@ -94,24 +108,19 @@ class CoachMessageBubble extends StatelessWidget {
               const SizedBox(width: 48),
             ],
           ),
-          // Tier badge — very subtle, only on non-greeting messages
-          if (!isStreamingThis &&
-              msg.tier != ChatTier.none &&
-              messageIndex > 0) ...[
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.only(left: 42),
-              child: CoachTierBadge(tier: msg.tier),
-            ),
-          ],
+          // P-S3-02 (Phase 8c hot-fix): CoachTierBadge rendering removed.
+          // SLM/BYOK/Fallback labels are developer-metadata leakage to
+          // users — 9px micro-text at 50% alpha is decorative noise inside
+          // the coach reading zone. The CoachTierBadge class is preserved
+          // below for potential debug-surface reuse.
           // Rich widget or input request from Claude tool calling (S56)
           if (!isStreamingThis &&
               hasToolCalls &&
               !(isAskUserInput && isInputAnswered)) ...[
             for (final toolCall in msg.richToolCalls) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: MintSpacing.md - 4),
               Padding(
-                padding: const EdgeInsets.only(left: 42, right: 16),
+                padding: const EdgeInsets.only(left: 44, right: MintSpacing.md),
                 child: WidgetRenderer.build(
                       context,
                       toolCall,
@@ -125,25 +134,25 @@ class CoachMessageBubble extends StatelessWidget {
           ],
           // Sources
           if (msg.sources.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: MintSpacing.md - 4),
             Padding(
-              padding: const EdgeInsets.only(left: 42, right: 48),
+              padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
               child: CoachSourcesSection(sources: msg.sources),
             ),
           ],
           // Disclaimers (from RAG backend)
           if (msg.disclaimers.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Padding(
-              padding: const EdgeInsets.only(left: 42, right: 48),
+              padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
               child: CoachDisclaimersSection(disclaimers: msg.disclaimers),
             ),
           ],
           // Response Cards (Phase 1 — inline strip)
           if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: MintSpacing.md - 4),
             Padding(
-              padding: const EdgeInsets.only(left: 42),
+              padding: const EdgeInsets.only(left: 44),
               child: ResponseCardStrip(cards: msg.responseCards),
             ),
           ],
@@ -151,9 +160,9 @@ class CoachMessageBubble extends StatelessWidget {
           if (!isStreamingThis &&
               msg.suggestedActions != null &&
               msg.suggestedActions!.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             Padding(
-              padding: const EdgeInsets.only(left: 42),
+              padding: const EdgeInsets.only(left: 44),
               child: CoachSuggestedActions(
                 actions: msg.suggestedActions!,
                 onActionTap: onActionTap,
@@ -183,8 +192,10 @@ class UserMessageBubble extends StatelessWidget {
           const SizedBox(width: 72),
           Flexible(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md,
+                vertical: MintSpacing.md,
+              ),
               decoration: const BoxDecoration(
                 color: MintColors.primary,
                 borderRadius: BorderRadius.only(
@@ -219,14 +230,18 @@ class SystemMessageBubble extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.md - 4,
+            vertical: MintSpacing.xs,
+          ),
           decoration: BoxDecoration(
             color: MintColors.porcelaine.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
             message.content,
-            style: MintTextStyles.micro(color: MintColors.textMuted)
+            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+            style: MintTextStyles.micro(color: MintColors.textMutedAaa)
                 .copyWith(fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
@@ -303,12 +318,14 @@ class CoachTierBadge extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon,
-            size: 9, color: MintColors.textMuted.withValues(alpha: 0.5)),
-        const SizedBox(width: 3),
+            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+            size: 9, color: MintColors.textMutedAaa.withValues(alpha: 0.5)),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
           style: MintTextStyles.micro(
-            color: MintColors.textMuted.withValues(alpha: 0.5),
+            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+            color: MintColors.textMutedAaa.withValues(alpha: 0.5),
           ).copyWith(fontWeight: FontWeight.w400),
         ),
       ],
@@ -347,7 +364,10 @@ class CoachSourcesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.md - 4,
+        vertical: MintSpacing.md - 4,
+      ),
       decoration: BoxDecoration(
         color: MintColors.bleuAir.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
@@ -358,7 +378,8 @@ class CoachSourcesSection extends StatelessWidget {
           Text(
             S.of(context)!.coachSources,
             style: MintTextStyles.micro(
-              color: MintColors.textMuted,
+              // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+              color: MintColors.textMutedAaa,
             ).copyWith(
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
@@ -367,7 +388,7 @@ class CoachSourcesSection extends StatelessWidget {
           const SizedBox(height: MintSpacing.xs),
           for (final source in sources)
             Padding(
-              padding: const EdgeInsets.only(bottom: 3),
+              padding: const EdgeInsets.only(bottom: MintSpacing.xs),
               child: Semantics(
                 label: source.title,
                 button: true,
@@ -378,18 +399,20 @@ class CoachSourcesSection extends StatelessWidget {
                     children: [
                       Icon(Icons.description_outlined,
                           size: 12,
-                          color: MintColors.textSecondary
+                          // AESTH-05 per AUDIT_RETRAIT S3 R1 (D-03 swap map)
+                          color: MintColors.textSecondaryAaa
                               .withValues(alpha: 0.6)),
-                      const SizedBox(width: 5),
+                      const SizedBox(width: MintSpacing.xs),
                       Expanded(
                         child: Text(
                           '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
                           style: MintTextStyles.micro(
-                            color: MintColors.textSecondary,
+                            // AESTH-05 per AUDIT_RETRAIT S3 R1 (D-03 swap map)
+                            color: MintColors.textSecondaryAaa,
                           ).copyWith(
                             decoration: TextDecoration.underline,
                             decorationColor:
-                                MintColors.textSecondary.withValues(alpha: 0.3),
+                                MintColors.textSecondaryAaa.withValues(alpha: 0.3),
                           ),
                         ),
                       ),
@@ -413,7 +436,10 @@ class CoachDisclaimersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.md - 4,
+        vertical: MintSpacing.md - 4,
+      ),
       decoration: BoxDecoration(
         color: MintColors.pecheDouce.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
@@ -422,13 +448,15 @@ class CoachDisclaimersSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline_rounded,
-              size: 13, color: MintColors.textMuted.withValues(alpha: 0.6)),
-          const SizedBox(width: 6),
+              // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+              size: 13, color: MintColors.textMutedAaa.withValues(alpha: 0.6)),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               disclaimers.join('\n'),
               style: MintTextStyles.micro(
-                color: MintColors.textMuted,
+                // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                color: MintColors.textMutedAaa,
               ).copyWith(height: 1.4),
             ),
           ),
@@ -461,8 +489,10 @@ class CoachSuggestedActions extends StatelessWidget {
         return GestureDetector(
           onTap: () => onActionTap?.call(action),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md,
+              vertical: MintSpacing.md - 4,
+            ),
             decoration: BoxDecoration(
               color: isLifeEvent
                   ? MintColors.pecheDouce.withValues(alpha: 0.18)
@@ -502,6 +532,8 @@ class BlinkingCursor extends StatefulWidget {
 class _BlinkingCursorState extends State<BlinkingCursor>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  bool _reducedMotion = false;
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -509,7 +541,21 @@ class _BlinkingCursorState extends State<BlinkingCursor>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialized) return;
+    _initialized = true;
+    // ACCESS-07 (D-08): reduced-motion fallback per MediaQuery.disableAnimations.
+    // The blinking cursor is the streaming/typing indicator. When reduced-motion
+    // is on, render a static dot instead of a 600ms repeating opacity pulse.
+    _reducedMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    if (!_reducedMotion) {
+      _controller.repeat(reverse: true);
+    }
   }
 
   @override
@@ -520,6 +566,19 @@ class _BlinkingCursorState extends State<BlinkingCursor>
 
   @override
   Widget build(BuildContext context) {
+    final dot = Container(
+      width: 2,
+      height: 14,
+      decoration: BoxDecoration(
+        // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+        color: MintColors.textSecondaryAaa.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(1),
+      ),
+    );
+    if (_reducedMotion) {
+      // Static glyph — no animation controller running.
+      return Opacity(opacity: 0.6, child: dot);
+    }
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -528,14 +587,7 @@ class _BlinkingCursorState extends State<BlinkingCursor>
           child: child,
         );
       },
-      child: Container(
-        width: 2,
-        height: 14,
-        decoration: BoxDecoration(
-          color: MintColors.textSecondary.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(1),
-        ),
-      ),
+      child: dot,
     );
   }
 }

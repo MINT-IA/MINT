@@ -125,11 +125,11 @@ class TestAvsCotisations:
         expected_diff = round(result.cotisation_avs_ai_apg - result.comparaison_salarie, 2)
         assert abs(result.difference_vs_salarie - expected_diff) < 0.01
 
-    def test_chiffre_choc_present(self):
+    def test_premier_eclairage_present(self):
         """Chiffre choc should be a non-empty string."""
         result = calculer_cotisation_avs(80_000.0)
-        assert len(result.chiffre_choc) > 20
-        assert "CHF" in result.chiffre_choc
+        assert len(result.premier_eclairage) > 20
+        assert "CHF" in result.premier_eclairage
 
     def test_middle_bracket_income(self):
         """Income in the middle bracket should use correct rate."""
@@ -203,11 +203,11 @@ class TestIjm:
         result = simuler_ijm(8000.0, 35, 45)
         assert any("invalide" in a.lower() or "defaut" in a.lower() for a in result.alertes)
 
-    def test_chiffre_choc_contains_amount(self):
+    def test_premier_eclairage_contains_amount(self):
         """Chiffre choc should mention the cost without coverage."""
         result = simuler_ijm(8000.0, 35, 60)
-        assert "CHF" in result.chiffre_choc
-        assert "delai de carence" in result.chiffre_choc
+        assert "CHF" in result.premier_eclairage
+        assert "delai de carence" in result.premier_eclairage
 
     def test_high_age_premium_alert(self):
         """Age >= 51 should trigger a premium warning."""
@@ -279,10 +279,10 @@ class TestPillar3aIndep:
         result = calculer_3a_independant(100_000.0, True, 0.30)
         assert result.avantage_independant == 0.0
 
-    def test_chiffre_choc_mentions_grand_3a(self):
+    def test_premier_eclairage_mentions_grand_3a(self):
         """Chiffre choc should mention the advantage for self-employed without LPP."""
         result = calculer_3a_independant(100_000.0, False, 0.30)
-        assert "independant" in result.chiffre_choc.lower()
+        assert "independant" in result.premier_eclairage.lower()
 
     def test_taux_marginal_clamped(self):
         """Marginal rate should be clamped to [0, 1]."""

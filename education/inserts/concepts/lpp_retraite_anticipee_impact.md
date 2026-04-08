@@ -8,7 +8,7 @@ tags: [lpp, retraite_anticipee, impact, reduction, capital, rente]
 ## Trigger
 L'utilisateur envisage une retraite anticipée et veut comprendre l'impact sur son 2e pilier, ou compare les scénarios de départ à différents âges.
 
-## Chiffre Choc
+## Premier Éclairage
 Partir à 60 ans au lieu de 65 ans peut réduire ta rente LPP de 30 à 40 %. C'est un triple effet : 5 ans de cotisations en moins, 5 ans d'intérêts en moins, et un taux de conversion réduit. Sur une rente de CHF 2'000/mois, cela peut représenter CHF 600-800/mois en moins — à vie.
 
 ## Niveau 0

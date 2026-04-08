@@ -17,7 +17,12 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    // Phase 12-01 added a first-launch Ton chooser modal sheet that fires
+    // inside `_onChipTap` before persistence/navigation. Pre-set the flag so
+    // the sheet is skipped and the tests can exercise the persist+nav path.
+    SharedPreferences.setMockInitialValues({
+      'ton_chooser_first_launch_done': true,
+    });
   });
 
   late CoachEntryPayloadProvider payloadProvider;
@@ -55,11 +60,11 @@ void main() {
           path: '/onboarding/intent',
           builder: (context, state) => const IntentScreen(),
         ),
-        // Stub route for navigation target.
+        // Stub route for navigation target (Phase 10-02a: /coach/chat merged path).
         GoRoute(
-          path: '/home',
+          path: '/coach/chat',
           builder: (context, state) =>
-              const Scaffold(body: Text('home')),
+              const Scaffold(body: Text('coach-chat')),
         ),
       ],
     );
@@ -103,7 +108,10 @@ void main() {
     testWidgets('shows subtitle from i18n', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
-      expect(find.textContaining('situation'), findsOneWidget);
+      // P-S1-01: removal of intentChipPrevoyance kept 'Ma situation change'
+      // chip text on screen, which also contains 'situation'. Use a subtitle-
+      // unique substring to disambiguate.
+      expect(find.textContaining('situation'), findsWidgets);
     });
 
     testWidgets('shows microcopy from i18n', (tester) async {
@@ -112,14 +120,16 @@ void main() {
       expect(find.textContaining('reformuler'), findsOneWidget);
     });
 
-    testWidgets('shows all 7 chips', (tester) async {
+    testWidgets('shows all 6 chips (P-S1-01 hot-fix removed 3 anti-shame chips)', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
-      // First 4 visible without scrolling.
+      // Remaining chips after P-S1-01 (Phase 8c hot-fix): 3a, Fiscalite,
+      // Projet, Changement, PremierEmploi, Autre. Removed:
+      // intentChipBilan, intentChipPrevoyance, intentChipNouvelEmploi.
       expect(find.textContaining('3a'), findsOneWidget);
-      expect(find.textContaining('où j'), findsOneWidget);
-      expect(find.textContaining('prévoyance'), findsOneWidget);
-      expect(find.textContaining('bêtement'), findsOneWidget);
+      // Phase 12 Fiscalite copy drift: "Mes impôts, j'aimerais y voir clair"
+      // (was "bêtement" in earlier copy). Use a stable post-Phase-12 substring.
+      expect(find.textContaining('impôts'), findsOneWidget);
       // Scroll down to reveal remaining chips.
       await tester.scrollUntilVisible(
         find.textContaining('Autre'),
@@ -128,7 +138,12 @@ void main() {
       );
       expect(find.textContaining('projet'), findsOneWidget);
       expect(find.textContaining('situation change'), findsOneWidget);
+      expect(find.textContaining('premier emploi'), findsOneWidget);
       expect(find.textContaining('Autre'), findsOneWidget);
+      // Anti-shame doctrine: deleted chips must NOT render.
+      expect(find.textContaining('où j\'en suis'), findsNothing);
+      expect(find.textContaining('prévoyance'), findsNothing);
+      expect(find.textContaining('change de travail'), findsNothing);
     });
   });
 
@@ -188,16 +203,19 @@ void main() {
       // Before tap, no payload.
       expect(payloadProvider.pending, isNull);
 
-      await tester.tap(find.textContaining('prévoyance'));
+      // P-S1-01: 'prévoyance' chip removed from UI. Use 'impôts' (Fiscalite,
+      // Phase 12 copy: "Mes impôts, j'aimerais y voir clair") as the remaining
+      // example chip for payload assertion.
+      await tester.tap(find.textContaining('impôts'));
       await tester.pumpAndSettle();
 
       // After navigation, verify via persistence — chipKey stored, not label.
       final intent =
           await ReportPersistenceService.getSelectedOnboardingIntent();
-      expect(intent, equals('intentChipPrevoyance'));
+      expect(intent, equals('intentChipFiscalite'));
     });
 
-    testWidgets('tapping chip navigates to /home', (tester) async {
+    testWidgets('tapping chip navigates to /coach/chat (Phase 10-02a merged path)', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
 
@@ -209,8 +227,8 @@ void main() {
       await tester.tap(find.textContaining('projet'));
       await tester.pumpAndSettle();
 
-      // Should have navigated away from IntentScreen.
-      expect(find.text('home'), findsOneWidget);
+      // Should have navigated away from IntentScreen to /coach/chat.
+      expect(find.text('coach-chat'), findsOneWidget);
     });
   });
 
@@ -253,7 +271,7 @@ void main() {
       expect(memory.declaredGoals, contains('housing_purchase'));
     });
 
-    testWidgets('chip tap navigates to /home?tab=0 (Aujourd\'hui, not Coach)',
+    testWidgets('chip tap navigates to /coach/chat (Phase 10-02a unified path)',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
@@ -261,10 +279,10 @@ void main() {
       await tester.tap(find.textContaining('3a'));
       await tester.pumpAndSettle();
 
-      // Should have navigated to /home (tab=0 — Aujourd'hui).
-      // We verify we left the IntentScreen and arrived at the home stub.
+      // Phase 10-02a: merged nav target is /coach/chat for both onboarding
+      // and non-onboarding paths. Screens-before-first-insight = 2.
       expect(find.byType(IntentScreen), findsNothing);
-      expect(find.text('home'), findsOneWidget);
+      expect(find.text('coach-chat'), findsOneWidget);
     });
 
     testWidgets(

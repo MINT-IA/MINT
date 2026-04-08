@@ -124,6 +124,9 @@ class BiographyRefreshDetector {
       case FactType.userDecision:
       case FactType.coachPreference:
         return 'Reconfirmer cette preference';
+      case FactType.alertAcknowledged:
+        // Phase 9 Plan 09-04: ack markers do not decay — never refreshed.
+        return '';
     }
   }
 
@@ -156,6 +159,8 @@ class BiographyRefreshDetector {
         return 'Decision utilisateur';
       case FactType.coachPreference:
         return 'Preference coach';
+      case FactType.alertAcknowledged:
+        return 'Alerte reconnue';
     }
   }
 }

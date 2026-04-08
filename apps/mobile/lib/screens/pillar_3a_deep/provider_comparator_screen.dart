@@ -103,7 +103,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc
-                _buildChiffreChoc(result, l),
+                _buildPremierEclairage(result, l),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Inputs
@@ -128,7 +128,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(ProviderComparisonResult result, S l) {
+  Widget _buildPremierEclairage(ProviderComparisonResult result, S l) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
@@ -139,7 +139,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       child: Column(
         children: [
           Text(
-            l.providerComparatorChiffreChocLabel(_duree),
+            l.providerComparatorPremierEclairageLabel(_duree),
             style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: MintSpacing.sm),
@@ -149,7 +149,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            l.providerComparatorChiffreChocSubtitle,
+            l.providerComparatorPremierEclairageSubtitle,
             style: MintTextStyles.labelSmall(color: MintColors.success),
           ),
         ],

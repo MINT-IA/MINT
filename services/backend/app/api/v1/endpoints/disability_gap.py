@@ -37,7 +37,7 @@ def compute(request: Request, body: DisabilityGapRequest) -> DisabilityGapRespon
 
     Returns:
         DisabilityGapResponse avec le detail des 3 phases, risque, alertes,
-        chiffre choc, disclaimer et sources legales.
+        premier éclairage, disclaimer et sources legales.
     """
     try:
         # Map schema enum to service enum
@@ -74,7 +74,7 @@ def compute(request: Request, body: DisabilityGapRequest) -> DisabilityGapRespon
             alerts=result.alerts,
             ai_rente_mensuelle=result.ai_rente_mensuelle,
             lpp_disability_benefit=result.lpp_disability_benefit,
-            chiffre_choc=result.chiffre_choc,
+            premier_eclairage=result.premier_eclairage,
             disclaimer=result.disclaimer,
             sources=result.sources,
         )

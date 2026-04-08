@@ -60,7 +60,7 @@ void main() {
       expect(find.textContaining('achat'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc card with CHF amount', (tester) async {
+    testWidgets('displays premier éclairage card with CHF amount', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -210,7 +210,7 @@ void main() {
       expect(find.textContaining('SARON'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with CHF amount', (tester) async {
+    testWidgets('displays premier éclairage with CHF amount', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -337,7 +337,7 @@ void main() {
       expect(find.textContaining('locative'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with fiscal impact', (tester) async {
+    testWidgets('displays premier éclairage with fiscal impact', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -456,7 +456,7 @@ void main() {
       expect(find.textContaining('Indirect'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc after scrolling', (tester) async {
+    testWidgets('displays premier éclairage after scrolling', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -559,7 +559,7 @@ void main() {
       expect(find.textContaining('EPL'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with percentage', (tester) async {
+    testWidgets('displays premier éclairage with percentage', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 

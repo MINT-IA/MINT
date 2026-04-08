@@ -9,7 +9,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 //
 // Reusable comparison card for canton move simulation.
 // Shows: [Canton A] → [Canton B]
-// Annual/10-year savings, chiffre choc text.
+// Annual/10-year savings, premier éclairage text.
 // Green = savings, Red = surcharge.
 // ────────────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ class MoveSavingsCard extends StatelessWidget {
   final double economieAnnuelle;
   final double economieMensuelle;
   final double economie10Ans;
-  final String chiffreChoc;
+  final String premierEclairage;
 
   const MoveSavingsCard({
     super.key,
@@ -36,7 +36,7 @@ class MoveSavingsCard extends StatelessWidget {
     required this.economieAnnuelle,
     required this.economieMensuelle,
     required this.economie10Ans,
-    required this.chiffreChoc,
+    required this.premierEclairage,
   });
 
   bool get _isSaving => economieAnnuelle > 0;
@@ -72,7 +72,7 @@ class MoveSavingsCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                chiffreChoc,
+                premierEclairage,
                 style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)).copyWith(height: 1.5),
                 textAlign: TextAlign.center,
               ),

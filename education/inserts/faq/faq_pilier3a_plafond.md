@@ -10,7 +10,7 @@ source: "OPP3 art. 7, LPP art. 82"
 ## Trigger
 L'utilisateur veut savoir combien il peut verser sur son 3e pilier a chaque année.
 
-## Chiffre Choc
+## Premier Éclairage
 En 2025-2026, le plafond 3a est de CHF 7'258/an pour un salarié affilié à une caisse de pension. Pour un indépendant sans LPP, c'est CHF 36'288/an (20 % du revenu net).
 
 ## Niveau 0

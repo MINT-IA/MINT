@@ -156,6 +156,11 @@ class AnonymizedBiographySummary {
           return '${fact.value.substring(0, 97)}...';
         }
         return fact.value;
+      case FactType.alertAcknowledged:
+        // Phase 9 Plan 09-04: internal ack marker — never surfaced in
+        // anonymized summaries (the coach has no business knowing which
+        // alerts the user dismissed).
+        return '[donnee confidentielle]';
     }
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,6 +11,8 @@ import 'package:mint_mobile/services/anticipation/anticipation_signal.dart';
 import 'package:mint_mobile/services/anticipation/anticipation_trigger.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_signal.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANTICIPATION PROVIDER — Phase 04 / Moteur d'Anticipation
@@ -32,6 +36,60 @@ class AnticipationProvider extends ChangeNotifier {
   AnticipationRankResult _rankResult =
       const AnticipationRankResult(visible: [], overflow: []);
   bool _evaluated = false;
+
+  // ── Phase 9 / L1.5 MintAlertObject feeder wiring (D-09) ────────
+  final StreamController<MintAlertSignal> _alertController =
+      StreamController<MintAlertSignal>.broadcast();
+  MintAlertSignal? _currentDebtCrisisSignal;
+
+  /// Broadcast stream of typed alert signals emitted by this rule-based
+  /// feeder. Consumed by S5 host widgets that build a [MintAlertObject].
+  /// NEVER fed by `claude_*_service.dart` files (Phase 9 D-07).
+  Stream<MintAlertSignal> get alertSignals => _alertController.stream;
+
+  /// Latest debt-crisis signal, if active. `null` if no debt crisis.
+  MintAlertSignal? get currentDebtCrisisSignal => _currentDebtCrisisSignal;
+
+  /// Mark a debt crisis active. Builds a [MintAlertSignal] from the
+  /// known-safe ARB key triple and emits it on [alertSignals]. Called by
+  /// the financial report screen (legacy `DebtAlertBanner` migration —
+  /// Phase 9 D-08). Idempotent: re-marking the same yyyyMMdd does not
+  /// re-emit.
+  void markDebtCrisis({DateTime? now}) {
+    final effectiveNow = now ?? DateTime.now();
+    final dateTag =
+        '${effectiveNow.year.toString().padLeft(4, '0')}'
+        '${effectiveNow.month.toString().padLeft(2, '0')}'
+        '${effectiveNow.day.toString().padLeft(2, '0')}';
+    final alertId = 'anticipation:debtCrisis:$dateTag';
+
+    if (_currentDebtCrisisSignal?.alertId == alertId) return;
+
+    final signal = MintAlertSignal(
+      gravity: Gravity.g3,
+      factKey: 'mintAlertDebtFact',
+      causeKey: 'mintAlertDebtCause',
+      nextMomentKey: 'mintAlertDebtNextMoment',
+      topicTag: 'debt',
+      alertId: alertId,
+    );
+    _currentDebtCrisisSignal = signal;
+    _alertController.add(signal);
+    notifyListeners();
+  }
+
+  /// Clear the active debt-crisis signal (e.g. user resolved debt).
+  void clearDebtCrisis() {
+    if (_currentDebtCrisisSignal == null) return;
+    _currentDebtCrisisSignal = null;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _alertController.close();
+    super.dispose();
+  }
 
   /// Visible signals (max 2) for card display.
   List<AnticipationSignal> get visibleSignals => _rankResult.visible;

@@ -148,7 +148,7 @@ class DataExportResponse(PrivacyBaseModel):
     responsable_traitement: str = Field(
         ..., description="Responsable du traitement (nLPD art. 19)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -238,7 +238,7 @@ class DataDeletionResponse(PrivacyBaseModel):
         default=None,
         description="Explication si des donnees sont conservees",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -325,7 +325,7 @@ class ConsentStatusResponse(PrivacyBaseModel):
         ..., ge=0,
         description="Nombre de consentements optionnels",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(

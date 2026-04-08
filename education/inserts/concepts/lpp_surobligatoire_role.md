@@ -8,7 +8,7 @@ tags: [lpp, surobligatoire, obligatoire, taux, enveloppant, caisse]
 ## Trigger
 L'utilisateur découvre que sa caisse a une part surobligatoire, ou s'interroge sur les différences de conditions entre l'obligatoire et le surobligatoire.
 
-## Chiffre Choc
+## Premier Éclairage
 En moyenne, 60 % des avoirs LPP en Suisse se trouvent dans la part surobligatoire — où les caisses sont libres de fixer le taux d'intérêt et le taux de conversion. Le taux de conversion surobligatoire moyen est tombé à ~5.0 % en 2025, contre 6.8 % pour l'obligatoire.
 
 ## Niveau 0

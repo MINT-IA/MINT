@@ -8,7 +8,7 @@ tags: [fiscal, deductions, frais_professionnels, lifd, revenu_imposable]
 ## Trigger
 L'utilisateur cherche à comprendre quels frais liés à son activité professionnelle il peut déduire de ses impôts, ou se demande s'il vaut mieux utiliser le forfait ou les frais effectifs.
 
-## Chiffre Choc
+## Premier Éclairage
 Un·e salarié·e peut déduire entre CHF 4'000 et CHF 12'000+ de frais professionnels par an, selon sa situation. Beaucoup de contribuables sous-estiment ces déductions et paient trop d'impôts sans le savoir.
 
 ## Niveau 0

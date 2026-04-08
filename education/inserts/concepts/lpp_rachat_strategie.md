@@ -8,7 +8,7 @@ tags: [lpp, rachat, deduction_fiscale, strategie, timing, optimisation]
 ## Trigger
 L'utilisateur envisage un rachat volontaire dans sa caisse de pension, ou cherche à optimiser sa fiscalité avant la retraite.
 
-## Chiffre Choc
+## Premier Éclairage
 Un rachat LPP de CHF 50'000 dans le canton de Vaud pourrait te faire économiser environ CHF 15'000 à 20'000 d'impôts l'année du rachat (selon ton taux marginal). C'est l'une des déductions fiscales les plus puissantes en Suisse.
 
 ## Niveau 0

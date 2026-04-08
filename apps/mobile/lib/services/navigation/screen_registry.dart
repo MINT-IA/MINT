@@ -1373,9 +1373,9 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  static const ScreenEntry _onboardingChiffreChoc = ScreenEntry(
-    route: '/onboarding/chiffre-choc',
-    intentTag: 'onboarding_chiffre_choc',
+  static const ScreenEntry _onboardingPremierEclairage = ScreenEntry(
+    route: '/onboarding/premier-eclairage',
+    intentTag: 'onboarding_premier_eclairage',
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
@@ -1570,7 +1570,7 @@ class MintScreenRegistry extends ScreenRegistry {
     _adminAnalytics,
     _coachRefresh,
     _onboardingQuick,
-    _onboardingChiffreChoc,
+    _onboardingPremierEclairage,
     // E — Conversation pure / non-routable
     _landing,
     _coachChat,

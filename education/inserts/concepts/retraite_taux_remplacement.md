@@ -8,7 +8,7 @@ tags: [retraite, taux_remplacement, prevoyance, avs, lpp, 3a, planification]
 ## Trigger
 L'utilisateur veut savoir quel pourcentage de son salaire actuel il touchera à la retraite, ou cherche à évaluer s'il aura assez pour maintenir son niveau de vie.
 
-## Chiffre Choc
+## Premier Éclairage
 L'objectif constitutionnel suisse est un taux de remplacement de 60 % du dernier salaire via les 1er et 2e piliers. En réalité, pour un salaire supérieur à CHF 90'000, ce taux tombe souvent à 40-50 % — le 3e pilier et l'épargne libre deviennent alors indispensables.
 
 ## Niveau 0

@@ -83,11 +83,11 @@ Create these files:
 ```
 services/backend/app/services/onboarding/__init__.py
 services/backend/app/services/onboarding/minimal_profile_service.py
-services/backend/app/services/onboarding/chiffre_choc_selector.py
+services/backend/app/services/onboarding/premier_eclairage_selector.py
 services/backend/app/services/onboarding/onboarding_models.py
 services/backend/app/api/v1/endpoints/onboarding.py
 services/backend/tests/test_minimal_profile.py
-services/backend/tests/test_chiffre_choc.py
+services/backend/tests/test_premier_eclairage.py
 ```
 
 **minimal_profile_service.py:**
@@ -137,7 +137,7 @@ Default estimation logic:
 - `household_type`: `"single"`
 - `existing_lpp`: project from age 25 using LPP bonification rates from CLAUDE.md
 
-**chiffre_choc_selector.py:**
+**premier_eclairage_selector.py:**
 
 Priority order (select FIRST match):
 1. `months_liquidity < 2` → category "liquidity", display: months of runway
@@ -146,11 +146,11 @@ Priority order (select FIRST match):
 4. `lpp_buyback_potential > 20000 AND marginal_tax_rate > 0.25` → category "lpp_opportunity"
 5. `mortgage_stress > 0.38` → category "mortgage_stress"
 
-Returns exactly ONE ChiffreChoc. Never two.
+Returns exactly ONE PremierEclairage. Never two.
 
 ```python
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     category: str
     primary_number: float
     display_text: str              # French, informal "tu"
@@ -171,10 +171,10 @@ class ChiffreChoc:
 - Test that disclaimer is always non-empty
 - Test that sources always contain at least one legal reference
 
-**Tests (test_chiffre_choc.py — min 15 tests):**
+**Tests (test_premier_eclairage.py — min 15 tests):**
 - Test priority ordering: liquidity crisis beats retirement gap
 - Test each category triggers correctly
-- Test that exactly one chiffre choc is returned
+- Test that exactly one premier éclairage is returned
 - Test banned terms not present in any display_text
 - Test edge cases: age 22, age 64, salary 0, salary 500k
 - Compliance check: no "garanti", "optimal", "meilleur", "tu devrais" in ANY output string
@@ -182,7 +182,7 @@ class ChiffreChoc:
 **API endpoint (onboarding.py):**
 ```
 POST /api/v1/onboarding/minimal-profile
-POST /api/v1/onboarding/chiffre-choc
+POST /api/v1/onboarding/premier-eclairage
 ```
 
 Pydantic schemas with `alias_generator = to_camel`, `populate_by_name = True`.
@@ -194,10 +194,10 @@ Pydantic schemas with `alias_generator = to_camel`, `populate_by_name = True`.
 Create these files:
 ```
 apps/mobile/lib/services/minimal_profile_service.dart
-apps/mobile/lib/services/chiffre_choc_selector.dart
+apps/mobile/lib/services/premier_eclairage_selector.dart
 apps/mobile/lib/models/minimal_profile_models.dart
 apps/mobile/lib/screens/onboarding/onboarding_minimal_screen.dart
-apps/mobile/lib/screens/onboarding/chiffre_choc_screen.dart
+apps/mobile/lib/screens/onboarding/premier_eclairage_screen.dart
 apps/mobile/lib/screens/onboarding/progressive_enrichment_screen.dart
 ```
 
@@ -213,9 +213,9 @@ apps/mobile/lib/screens/onboarding/progressive_enrichment_screen.dart
 - Salary slider presets: 50k, 60k, 80k, 100k, 120k, 150k+
 - Canton dropdown: 26 cantons sorted alphabetically
 - Single CTA button: "Voir mon résultat"
-- No navigation to other modules until chiffre choc is shown
+- No navigation to other modules until premier éclairage is shown
 
-**chiffre_choc_screen.dart:**
+**premier_eclairage_screen.dart:**
 - Full-screen card with ONE number (large, centered)
 - Contextual subtitle (e.g., "Aujourd'hui, tu dépenses probablement ~CHF X/mois")
 - Confidence indicator: "Estimation basée sur 3 informations."
@@ -224,7 +224,7 @@ apps/mobile/lib/screens/onboarding/progressive_enrichment_screen.dart
 
 **progressive_enrichment_screen.dart:**
 - Additional questions in rounds (Round 2: family/savings/property, Round 3: 3a/LPP/debt)
-- Each answer triggers real-time recalculation of chiffre choc
+- Each answer triggers real-time recalculation of premier éclairage
 - Animated transition showing number changing
 - User can stop at any point and proceed to main app
 
@@ -370,7 +370,7 @@ Use TaxCalculator.capitalWithdrawalTax() with progressive brackets from CLAUDE.m
 1M+: base_rate × 1.70
 ```
 
-The chiffre choc: total tax saved by staggering. Often CHF 15'000-40'000+.
+The premier éclairage: total tax saved by staggering. Often CHF 15'000-40'000+.
 
 **Snapshot table** (SQL or equivalent):
 ```sql
@@ -556,8 +556,8 @@ class CoachNarrativeService:
     async def generate_tip_narrative(self, ctx: CoachContext, raw_tip: dict) -> str:
         """Max 120 words. Takes raw trigger from CoachingService."""
 
-    async def generate_chiffre_choc_reframe(self, ctx: CoachContext, chiffre: dict) -> str:
-        """Max 100 words. Emotional reframe of chiffre choc."""
+    async def generate_premier_eclairage_reframe(self, ctx: CoachContext, chiffre: dict) -> str:
+        """Max 100 words. Emotional reframe of premier éclairage."""
 ```
 
 Each method:
@@ -632,7 +632,7 @@ apps/mobile/lib/services/coach/coach_cache_service.dart
 apps/mobile/lib/services/coach/fallback_templates.dart
 apps/mobile/lib/screens/dashboard/coach_pulse_card.dart
 apps/mobile/lib/screens/dashboard/coach_tip_card.dart
-apps/mobile/lib/screens/dashboard/coach_chiffre_choc_card.dart
+apps/mobile/lib/screens/dashboard/coach_premier_eclairage_card.dart
 ```
 
 **coach_cache_service.dart — Smart invalidation:**
@@ -642,7 +642,7 @@ enum InvalidationTrigger {
   checkIn,        // invalidates: scoreSummary, tipNarrative
   profileUpdate,  // invalidates: ALL
   newDay,         // invalidates: greeting only
-  arbitrage,      // invalidates: chiffreChocReframe
+  arbitrage,      // invalidates: premierEclairageReframe
   manualRefresh,  // invalidates: ALL
 }
 ```
@@ -826,7 +826,7 @@ All must pass. If baseline is broken, fix BEFORE starting sprint.
 3. **Backend = source of truth.** Flutter must produce identical results.
 4. **Every user-facing string in French.** Informal "tu". Inclusive language.
 5. **Every service output includes:** disclaimer, sources, confidenceScore.
-6. **Every calculator output includes:** chiffre_choc, alertes.
+6. **Every calculator output includes:** premier_eclairage, alertes.
 7. **No banned terms.** Run compliance check before committing.
 8. **Surgical git commit.** Only sprint-specific files.
 
@@ -877,7 +877,7 @@ S34 (Compliance Guard) ◄── BLOCKER ─────────────
 
 The implementation is complete when:
 
-- [ ] Onboarding produces a chiffre choc in < 60 seconds from 3 inputs
+- [ ] Onboarding produces a premier éclairage in < 60 seconds from 3 inputs
 - [ ] All 5 arbitrage modules produce side-by-side comparisons with crossover points
 - [ ] Rente vs Capital always shows the mixed (oblig/suroblig) option
 - [ ] ComplianceGuard catches 100% of banned terms in adversarial tests

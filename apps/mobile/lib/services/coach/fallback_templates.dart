@@ -125,12 +125,12 @@ class FallbackTemplates {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // Chiffre Choc Reframe — max 100 words (ComponentType.chiffreChoc)
+  // Premier Éclairage Reframe — max 100 words (ComponentType.premierEclairage)
   // ═══════════════════════════════════════════════════════════════
 
   /// Contextualizes a shock figure with confidence level and
   /// encourages profile enrichment based on data reliability.
-  static String chiffreChocReframe(CoachContext ctx) {
+  static String premierEclairageReframe(CoachContext ctx) {
     final confidence = ctx.knownValues['confidence_score'] ?? 30;
     final hasCertifiedData = ctx.dataReliability.values
         .any((v) => v == 'certified');

@@ -10,7 +10,7 @@ source: "CC art. 122-124e, LPP art. 22-22e"
 ## Trigger
 L'utilisateur se pose des questions sur l'impact du divorce sur la prévoyance professionnelle ou le 3e pilier.
 
-## Chiffre Choc
+## Premier Éclairage
 En cas de divorce, les avoirs LPP accumulés pendant le mariage sont partagés 50/50. Pour un couple avec CHF 300'000 de différence d'avoirs LPP, cela représente un transfert de CHF 150'000 d'un conjoint à l'autre.
 
 ## Niveau 0

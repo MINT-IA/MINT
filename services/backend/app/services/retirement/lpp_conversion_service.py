@@ -51,7 +51,7 @@ class LppConversionResult:
     option_capital_net: float          # Net capital after tax
     breakeven_age: int                 # Age where cumulative net rente > net capital
     recommandation_neutre: str         # Neutral comparison text
-    chiffre_choc: str                  # Educational shock figure
+    premier_eclairage: str                  # Educational shock figure
     sources: List[str] = field(default_factory=list)
 
 
@@ -132,7 +132,7 @@ class LppConversionService:
             f"Aucune option n'est universellement meilleure — cela depend de ta situation."
         )
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"Rente = CHF {rente_nette_mensuelle:,.0f}/mois net a vie | "
             f"Capital = CHF {capital_net:,.0f} net (breakeven a {breakeven} ans)"
         )
@@ -149,7 +149,7 @@ class LppConversionService:
             option_capital_net=capital_net,
             breakeven_age=breakeven,
             recommandation_neutre=recommandation,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=[
                 "LPP art. 14 (taux de conversion 6.8% minimum obligatoire)",
                 "LIFD art. 22 (rente LPP imposable comme revenu)",

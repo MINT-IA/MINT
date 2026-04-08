@@ -5,7 +5,7 @@ Generates 4 independent personalized narrative components:
     1. greeting — Dashboard welcome message
     2. score_summary — FRI score explanation
     3. tip_narrative — Actionable educational tip
-    4. chiffre_choc_reframe — Confidence-anchored reframe
+    4. premier_eclairage_reframe — Confidence-anchored reframe
 
 Architecture:
     - Currently uses FallbackTemplates (deterministic, no LLM).
@@ -111,8 +111,8 @@ class CoachNarrativeService:
             return FallbackTemplates.tip_narrative(ctx)
         return result.sanitized_text
 
-    def generate_chiffre_choc_reframe(self, ctx: CoachContext) -> str:
-        """Generate chiffre choc reframe anchored on confidence score.
+    def generate_premier_eclairage_reframe(self, ctx: CoachContext) -> str:
+        """Generate premier éclairage reframe anchored on confidence score.
 
         Args:
             ctx: CoachContext with confidence_score.
@@ -120,12 +120,12 @@ class CoachNarrativeService:
         Returns:
             Compliant reframe string (max 100 words).
         """
-        text = FallbackTemplates.chiffre_choc_reframe(ctx)
+        text = FallbackTemplates.premier_eclairage_reframe(ctx)
         result = self._guard.validate(
-            text, context=ctx, component_type=ComponentType.chiffre_choc
+            text, context=ctx, component_type=ComponentType.premier_eclairage
         )
         if result.use_fallback:
-            return FallbackTemplates.chiffre_choc_reframe(ctx)
+            return FallbackTemplates.premier_eclairage_reframe(ctx)
         return result.sanitized_text
 
     def generate_all(self, ctx: CoachContext) -> CoachNarrativeResult:
@@ -143,18 +143,18 @@ class CoachNarrativeService:
         greeting = self.generate_greeting(ctx)
         score_summary = self.generate_score_summary(ctx)
         tip_narrative = self.generate_tip_narrative(ctx)
-        chiffre_choc_reframe = self.generate_chiffre_choc_reframe(ctx)
+        premier_eclairage_reframe = self.generate_premier_eclairage_reframe(ctx)
 
         return CoachNarrativeResult(
             greeting=greeting,
             score_summary=score_summary,
             tip_narrative=tip_narrative,
-            chiffre_choc_reframe=chiffre_choc_reframe,
+            premier_eclairage_reframe=premier_eclairage_reframe,
             used_fallback={
                 "greeting": True,
                 "score_summary": True,
                 "tip_narrative": True,
-                "chiffre_choc_reframe": True,
+                "premier_eclairage_reframe": True,
             },
             disclaimer=STANDARD_DISCLAIMER,
             sources=list(STANDARD_SOURCES),

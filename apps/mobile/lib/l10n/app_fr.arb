@@ -709,8 +709,8 @@
   "budgetExampleLeisure": "loisirs",
   "budgetExampleSavings": "Épargne",
   "budgetExampleProjects": "projets",
-  "budgetChiffreChoc503020": "En épargnant CHF {monthly}/mois, tu accumules CHF {total} en 10 ans.",
-  "@budgetChiffreChoc503020": {
+  "budgetPremierEclairage503020": "En épargnant CHF {monthly}/mois, tu accumules CHF {total} en 10 ans.",
+  "@budgetPremierEclairage503020": {
     "placeholders": {
       "monthly": {
         "type": "String"
@@ -901,8 +901,8 @@
       }
     }
   },
-  "naissanceChiffreChocText": "Ton congé {type} représente {amount} d'APG sur {weeks} semaines",
-  "@naissanceChiffreChocText": {
+  "naissancePremierEclairageText": "Ton congé {type} représente {amount} d'APG sur {weeks} semaines",
+  "@naissancePremierEclairageText": {
     "placeholders": {
       "type": {
         "type": "String"
@@ -1030,8 +1030,8 @@
   "mariageCommunauteDesc": "Tout est mis en commun : biens propres et acquêts. Partage égalitaire total en cas de dissolution.",
   "mariagePatrimoine1": "Patrimoine Personne 1",
   "mariagePatrimoine2": "Patrimoine Personne 2",
-  "mariageChiffreChocDefault": "En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution",
-  "mariageChiffreChocCommunaute": "En communauté de biens, ce montant serait partagé avec ton conjoint",
+  "mariagePremierEclairageDefault": "En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution",
+  "mariagePremierEclairageCommunaute": "En communauté de biens, ce montant serait partagé avec ton conjoint",
   "mariageProtectionIntro": "Que se passe-t-il si l'un de vous deux décède ? Compare la protection légale entre mariés et concubins.",
   "mariageLppRenteLabel": "Rente LPP mensuelle du défunt",
   "mariageAvsSurvivor": "Rente AVS de survivant",
@@ -1433,8 +1433,8 @@
   "independantJourJSubtitle": "Ce qui change en 1 jour quand tu deviens indépendant·e",
   "independantJourJEmployee": "Salarié·e",
   "independantJourJSelfEmployed": "Indépendant·e",
-  "independantJourJChiffreChoc": "Tu perds ~{amount}/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.",
-  "@independantJourJChiffreChoc": {
+  "independantJourJPremierEclairage": "Tu perds ~{amount}/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.",
+  "@independantJourJPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -3286,9 +3286,9 @@
   "decesProchAction3": "Vérifier les bénéficiaires LPP et 3a auprès des caisses",
   "decesProchDisclaimer": "Outil éducatif — ne constitue pas un conseil juridique ou fiscal (LSFin). Chaque succession est unique : consulte un·e notaire ou un·e spécialiste. Sources : CC art. 457-640, OPP2 art. 48, OPP3 art. 2.",
   "demenagementTitre": "Déménagement cantonal",
-  "demenagementChiffreChocSousTitre": "économie (ou surcoût) annuel estimé",
-  "demenagementChiffreChocDetail": "En déménageant de {depart} vers {arrivee} (impôts + LAMal)",
-  "@demenagementChiffreChocDetail": {
+  "demenagementPremierEclairageSousTitre": "économie (ou surcoût) annuel estimé",
+  "demenagementPremierEclairageDetail": "En déménageant de {depart} vers {arrivee} (impôts + LAMal)",
+  "@demenagementPremierEclairageDetail": {
     "placeholders": {
       "depart": {
         "type": "String"
@@ -3414,7 +3414,7 @@
       }
     }
   },
-  "docImpactChiffreChocTitle": "Chiffre choc recalculé",
+  "docImpactPremierEclairageTitle": "Chiffre choc recalculé",
   "docImpactLppRealAmount": "d'avoir LPP réel (dont {oblig} obligatoire)",
   "@docImpactLppRealAmount": {
     "placeholders": {
@@ -3762,10 +3762,10 @@
   "budgetCtaPlan": "Planifier",
   "budgetCtaDiscover": "Découvrir",
   "budgetDisclaimerBased": "• Les montants sont basés sur les informations déclarées.",
-  "chiffreChocDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
-  "chiffreChocAction": "Qu'est-ce que je peux faire ?",
-  "chiffreChocConfidence": "Estimation basée sur {count} informations. Plus tu précises, plus c'est fiable.",
-  "@chiffreChocConfidence": {
+  "premierEclairageDisclaimer": "Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.",
+  "premierEclairageAction": "Qu'est-ce que je peux faire ?",
+  "premierEclairageConfidence": "Estimation basée sur {count} informations. Plus tu précises, plus c'est fiable.",
+  "@premierEclairageConfidence": {
     "placeholders": {
       "count": {
         "type": "String"
@@ -3816,27 +3816,57 @@
   "coachErrorRateLimit": "Limite de requêtes atteinte. Réessaie dans quelques instants.",
   "coachErrorGeneric": "Erreur technique. Réessaie plus tard.",
   "coachErrorConnection": "Erreur de connexion. Vérifie ta connexion internet ou ta clé API.",
-  "coachSuggestSimulate3a": "Combien j’économise si je verse le max ?",
+  "coachSuggestSimulate3a": "Si je verse plus sur mon 3a, ça change quoi ?",
+  "@coachSuggestSimulate3a": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachSuggestView3a": "J’ai combien sur mes comptes 3a ?",
   "coachSuggestSimulateLpp": "Ça vaut le coup de racheter du LPP ?",
   "coachSuggestUnderstandLpp": "Qu’est-ce que je touche à 65 ans ?",
   "coachSuggestTrajectory": "C’est grave si je fais rien ?",
-  "coachSuggestScenarios": "Rente ou capital — qu’est-ce qui me convient ?",
-  "coachSuggestDeductions": "Combien je récupère cette année ?",
+  "coachSuggestScenarios": "Rente ou capital — montre-moi les deux côte à côte",
+  "@coachSuggestScenarios": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
+  "coachSuggestDeductions": "Combien je pourrais récupérer cette année ?",
+  "@coachSuggestDeductions": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachSuggestTaxImpact": "Combien d’impôts en moins avec un rachat ?",
-  "coachSuggestFitness": "Je suis où par rapport à mon objectif ?",
-  "coachSuggestRetirement": "J’aurai assez pour vivre à la retraite ?",
+  "coachSuggestFitness": "Je suis où, par rapport à ce que je m'étais dit ?",
+  "@coachSuggestFitness": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
+  "coachSuggestRetirement": "À la retraite, il me restera quoi chaque mois ?",
+  "@coachSuggestRetirement": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachEmptyStateMessage": "Pas encore de profil. Trois questions, et on discute.",
   "coachEmptyStateButton": "Faire mon diagnostic",
   "coachTooltipHistory": "Historique",
   "coachTooltipExport": "Exporter la conversation",
   "coachTooltipSettings": "Paramètres IA",
   "coachBadgeSlm": "On-device",
+  "@coachBadgeSlm": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBadgeByok": "Cloud",
+  "@coachBadgeByok": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBadgeFallback": "Hors-ligne",
+  "@coachBadgeFallback": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachLoading": "Je regarde tes chiffres…",
   "coachSources": "Sources",
-  "coachInputHint": "Une question sur tes finances ?",
+  "@coachSources": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
+  "coachInputHint": "Dis-moi ce qui te trotte dans la tête.",
+  "@coachInputHint": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachUserMessage": "Ton message",
   "coachCoachMessage": "Réponse du coach",
   "coachSendButton": "Envoyer",
@@ -4023,23 +4053,23 @@
   "santeHubToolAssuranceInvalidite": "Assurance invalidité",
   "santeHubToolInvaliditeIndependant": "Invalidité indépendant",
   "budgetErrorRetry": "Le calcul a buté. Réessaie ?",
-  "budgetChiffreChocCaption": "Soit ce qu'il te reste après toutes tes charges fixes",
+  "budgetPremierEclairageCaption": "Soit ce qu'il te reste après toutes tes charges fixes",
   "budgetMethodTitle": "Comprendre ce budget",
   "budgetMethodBody": "Ce budget sépare tes charges fixes (loyer, LAMal, impôts) de ton reste à vivre. La règle 50/30/20 suggère : 50 % pour les besoins, 30 % pour les envies, 20 % pour l'épargne. C'est un repère, pas une obligation.",
   "budgetMethodSource": "Source : méthode 50/30/20 (Elizabeth Warren, 2005)",
   "budgetDisclaimerNote": "Estimation éducative. Ne constitue pas un conseil financier (LSFin art. 3).",
-  "chiffreChocIfYouAct": "Si tu agis",
-  "chiffreChocIfYouDontAct": "Si tu ne fais rien",
-  "chiffreChocAvantApresGapAct": "Un rachat LPP ou un 3a peut réduire cet écart de moitié.",
-  "chiffreChocAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
-  "chiffreChocAvantApresLiquidityAct": "Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.",
-  "chiffreChocAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
-  "chiffreChocAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
-  "chiffreChocAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
-  "chiffreChocAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
-  "chiffreChocAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
-  "chiffreChocConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
-  "@chiffreChocConfidenceSimple": {
+  "premierEclairageIfYouAct": "Si tu agis",
+  "premierEclairageIfYouDontAct": "Si tu ne fais rien",
+  "premierEclairageAvantApresGapAct": "Un rachat LPP ou un 3a peut réduire cet écart de moitié.",
+  "premierEclairageAvantApresGapNoAct": "L'écart se creuse chaque année. À la retraite, il sera trop tard.",
+  "premierEclairageAvantApresLiquidityAct": "Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.",
+  "premierEclairageAvantApresLiquidityNoAct": "Un imprévu sans réserve, c'est un crédit à la consommation.",
+  "premierEclairageAvantApresTaxAct": "Chaque année sans 3a, c'est une économie d'impôt perdue.",
+  "premierEclairageAvantApresTaxNoAct": "Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.",
+  "premierEclairageAvantApresIncomeAct": "Quelques ajustements peuvent améliorer ta projection.",
+  "premierEclairageAvantApresIncomeNoAct": "Ta situation actuelle reste stable, mais sans marge de progression.",
+  "premierEclairageConfidenceSimple": "Basé sur {count} données. Ajoutes-en pour affiner.",
+  "@premierEclairageConfidenceSimple": {
     "description": "Simplified confidence indicator. Tone: inviting, not jargon.",
     "placeholders": {
       "count": {
@@ -4093,9 +4123,9 @@
       }
     }
   },
-  "chiffreChocBack": "Retour",
-  "chiffreChocShowComparison": "Afficher la comparaison",
-  "chiffreChocHideComparison": "Masquer la comparaison",
+  "premierEclairageBack": "Retour",
+  "premierEclairageShowComparison": "Afficher la comparaison",
+  "premierEclairageHideComparison": "Masquer la comparaison",
   "dashboardNextActionsTitle": "Tes prochaines actions",
   "dashboardExploreAlsoTitle": "Explorer aussi",
   "dashboardImproveAccuracyTitle": "Améliore ta précision",
@@ -4537,16 +4567,16 @@
       }
     }
   },
-  "expatAvsChiffreChoc": "-{amount}/an sur ta rente AVS",
-  "@expatAvsChiffreChoc": {
+  "expatAvsPremierEclairage": "-{amount}/an sur ta rente AVS",
+  "@expatAvsPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
       }
     }
   },
-  "expatDepartChiffreChoc": "{amount} de capital à sécuriser avant ton départ",
-  "@expatDepartChiffreChoc": {
+  "expatDepartPremierEclairage": "{amount} de capital à sécuriser avant ton départ",
+  "@expatDepartPremierEclairage": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -4625,7 +4655,7 @@
   "sim3aDebtStrategyTitle": "Stratégie bloquée",
   "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.",
   "realReturnTitle": "Rendement réel 3a",
-  "realReturnChiffreChocLabel": "Taux équivalent sur effort net",
+  "realReturnPremierEclairageLabel": "Taux équivalent sur effort net",
   "realReturnVsNominal": "vs {rate} % taux net 3a (brut − frais)",
   "@realReturnVsNominal": {
     "placeholders": {
@@ -4688,7 +4718,7 @@
   "genderGapAppBarTitle": "Lacune de prévoyance",
   "genderGapHeaderTitle": "Lacune de prévoyance",
   "genderGapHeaderSubtitle": "Impact du temps partiel sur la retraite",
-  "genderGapIntro": "La déduction de coordination (CHF 26'460) n'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l'impact.",
+  "genderGapIntro": "La déduction de coordination (CHF 26'460) n'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le sélecteur pour voir l'impact.",
   "genderGapTauxActivite": "Taux d'activité",
   "genderGapParametres": "Paramètres",
   "genderGapRevenuAnnuel": "Revenu annuel brut (100 %)",
@@ -5065,8 +5095,8 @@
   "avsCotisationsRevenuLabel": "Ton revenu net annuel",
   "avsCotisationsSliderMin": "CHF 0",
   "avsCotisationsSliderMax250k": "CHF 250’000",
-  "avsCotisationsChiffreChocCaption": "En tant qu’indépendant·e, tu paies {amount}/an de plus qu’un·e salarié·e",
-  "@avsCotisationsChiffreChocCaption": {
+  "avsCotisationsPremierEclairageCaption": "En tant qu’indépendant·e, tu paies {amount}/an de plus qu’un·e salarié·e",
+  "@avsCotisationsPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5116,8 +5146,8 @@
   "ijmDelaiCarence": "Délai de carence",
   "ijmDelaiCarenceDesc": "Période pendant laquelle tu ne reçois aucune indemnité",
   "ijmJours": "jours",
-  "ijmChiffreChocCaption": "Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours",
-  "@ijmChiffreChocCaption": {
+  "ijmPremierEclairageCaption": "Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours",
+  "@ijmPremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5172,9 +5202,9 @@
   "pillar3aIndepRevenuLabel": "Revenu net annuel",
   "pillar3aIndepSliderMax300k": "CHF 300’000",
   "pillar3aIndepTauxLabel": "Taux marginal d’imposition",
-  "pillar3aIndepChiffreChocCaption": "d’économie fiscale annuelle grâce au 3e pilier",
-  "pillar3aIndepChiffreChocAvantageSalarie": "Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a",
-  "@pillar3aIndepChiffreChocAvantageSalarie": {
+  "pillar3aIndepPremierEclairageCaption": "d’économie fiscale annuelle grâce au 3e pilier",
+  "pillar3aIndepPremierEclairageAvantageSalarie": "Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a",
+  "@pillar3aIndepPremierEclairageAvantageSalarie": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5229,8 +5259,8 @@
   "lppVolontaireAgeMin": "25 ans",
   "lppVolontaireAgeMax": "65 ans",
   "lppVolontaireTauxMarginal": "Taux marginal d’imposition",
-  "lppVolontaireChiffreChocCaption": "Sans LPP volontaire, tu perds {amount}/an de capitalisation retraite",
-  "@lppVolontaireChiffreChocCaption": {
+  "lppVolontairePremierEclairageCaption": "Sans LPP volontaire, tu perds {amount}/an de capitalisation retraite",
+  "@lppVolontairePremierEclairageCaption": {
     "placeholders": {
       "amount": {
         "type": "String"
@@ -5370,15 +5400,15 @@
   "librePassageCentrale2eSubtitle": "Rechercher des avoirs de libre passage oubliés",
   "librePassagePrivacyNote": "Tes données restent sur ton appareil. Aucune information n’est transmise à des tiers. Conforme à la nLPD.",
   "providerComparatorAppBarTitle": "Comparateur 3a",
-  "providerComparatorChiffreChocLabel": "Différence sur {duree} ans",
-  "@providerComparatorChiffreChocLabel": {
+  "providerComparatorPremierEclairageLabel": "Différence sur {duree} ans",
+  "@providerComparatorPremierEclairageLabel": {
     "placeholders": {
       "duree": {
         "type": "int"
       }
     }
   },
-  "providerComparatorChiffreChocSubtitle": "entre le provider le plus et le moins performant",
+  "providerComparatorPremierEclairageSubtitle": "entre le provider le plus et le moins performant",
   "providerComparatorSectionParametres": "Paramètres",
   "providerComparatorLabelAge": "Âge",
   "providerComparatorLabelAgeFormat": "{age} ans",
@@ -6169,7 +6199,7 @@
   "fhsBreakdownRisque": "Risque",
   "avsGapLifetimeLoss": "Sur 20 ans de retraite, c'est {amount} de moins — définitivement.",
   "avsGapCalculation": "Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)",
-  "chiffreChocRenteCalculation": "(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).",
+  "premierEclairageRenteCalculation": "(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).",
   "@fhsDeltaLabel": {
     "placeholders": {
       "delta": {
@@ -6192,8 +6222,17 @@
     }
   },
   "coachBriefingFallbackGreeting": "Bonjour",
+  "@coachBriefingFallbackGreeting": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingBadgeLlm": "Coach IA",
+  "@coachBriefingBadgeLlm": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingBadge": "Coach",
+  "@coachBriefingBadge": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachBriefingConfidenceLow": "Confiance {score} % — Enrichir",
   "@coachBriefingConfidenceLow": {
     "placeholders": {
@@ -6218,17 +6257,17 @@
       }
     }
   },
-  "chiffreChocSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.",
+  "premierEclairageSectionDisclaimer": "Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.",
   "concubinageTabProtection": "Protection",
-  "concubinageHeroChiffreChoc": "CHF {montant} de patrimoine exposé",
-  "@concubinageHeroChiffreChoc": {
+  "concubinageHeroPremierEclairage": "CHF {montant} de patrimoine exposé",
+  "@concubinageHeroPremierEclairage": {
     "placeholders": {
       "montant": {
         "type": "String"
       }
     }
   },
-  "concubinageHeroChiffreChocDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
+  "concubinageHeroPremierEclairageDesc": "En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.",
   "concubinageEducationalAvs": "En Suisse, le plafond de 150 % sur les rentes AVS de couple (LAVS art. 35) ne s’applique qu’aux mariés. Les concubins touchent chacun leur rente individuelle complète — un avantage réel quand les deux ont cotisé au maximum.",
   "concubinageEducationalLpp": "La rente LPP de survivant (60 % de la rente du défunt, LPP art. 19) est réservée aux époux. En concubinage, seul le règlement de la caisse peut prévoir un capital décès — et il est nécessaire d'en faire la demande.",
   "concubinageEducationalSuccession": "Un conjoint marié est exonéré d’impôt successoral dans la plupart des cantons (CC art. 462). Un concubin paie l’impôt au taux des tiers, souvent entre 20 % et 40 %.",
@@ -6858,7 +6897,7 @@
       }
     }
   },
-  "@firstJobBudgetChiffreChoc": {
+  "@firstJobBudgetPremierEclairage": {
     "placeholders": {
       "annual": {
         "type": "String"
@@ -8226,11 +8265,23 @@
   "coachErrorServiceUnavailable": "Service temporairement indisponible. Réessaie dans quelques minutes.",
   "coachFactCardTitle": "Le savais-tu ?",
   "coachGateSubtitle": "Disponible avec MINT Coach",
+  "@coachGateSubtitle": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachGateTitle": "Fonctionnalité Coach",
+  "@coachGateTitle": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachGateUnlock": "Débloquer",
+  "@coachGateUnlock": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachMarkStepConfirm": "Marquer l'étape « {stepId} » comme terminée ?",
   "coachMintLabel": "Coach MINT",
-  "coachPulseDisclaimer": "Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.",
+  "coachPulseDisclaimer": "Mint éclaire, Mint ne promet rien. Les estimations ici sont éducatives et ne constituent pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Pour un plan personnalisé, parle à un·e spécialiste. LSFin.",
+  "@coachPulseDisclaimer": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachingDescAttentif": "MINT est attentif à chaque session. Suggestions fréquentes et mémoire riche.",
   "coachingDescCalme": "MINT intervient de temps en temps. Un rappel tous les 3 jours maximum.",
   "coachingDescDiscret": "MINT te laisse tranquille. Rappels rares, uniquement les échéances critiques.",
@@ -8608,7 +8659,7 @@
   "financialReportEmptyTitle": "Ton bilan financier",
   "firstJobBudgetAlimentation": "Alimentation",
   "firstJobBudgetBesoins": "Besoins",
-  "firstJobBudgetChiffreChoc": "Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.",
+  "firstJobBudgetPremierEclairage": "Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.",
   "firstJobBudgetEnvies": "Envies",
   "firstJobBudgetEpargne": "Épargne & 3a",
   "firstJobBudgetEpargneCourt": "Épargne",
@@ -8679,6 +8730,9 @@
   "greetingAfternoon": "Bon après-midi",
   "greetingEvening": "Bonsoir",
   "greetingMorning": "Bonjour",
+  "@greetingMorning": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "greetingNight": "Bonne nuit",
   "helpResourcesAppBarTitle": "AIDE EN CAS DE DETTE",
   "helpResourcesCantonLabel": "Ton canton",
@@ -9865,10 +9919,14 @@
   "acceptInvitationSuccess": "Bienvenue dans le ménage !",
   "acceptInvitationSuccessBody": "Tu as rejoint le ménage Couple+. Tes projections de retraite sont désormais liées.",
   "acceptInvitationTitle": "Rejoindre un ménage",
-  "coachDisclaimer": "Outil éducatif — les réponses ne constituent pas un conseil financier (LSFin art. 3). Consulte un·e spécialiste pour les décisions importantes.",
+  "coachDisclaimer": "Mint éclaire, Mint n'avise pas. Les réponses ici sont éducatives et ne constituent pas un conseil financier au sens de la LSFin (art. 3). Pour une décision importante, parle à un·e spécialiste.",
+  "@coachDisclaimer": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "coachFallbackName": "ami·e",
-  "coachGreetingDefault": "Salut {name}. Je regarde tes chiffres — dis-moi ce qui te trotte dans la tête.{scoreSuffix}",
+  "coachGreetingDefault": "Salut {name}. Mint regarde tes chiffres tranquillement — quand tu veux, on en parle.{scoreSuffix}",
   "@coachGreetingDefault": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" },
     "placeholders": {
       "name": {
         "type": "String"
@@ -10120,9 +10178,9 @@
   "disclaimerShort": "Outil éducatif, pas un conseil financier.",
   "disclaimerLearnMore": "En savoir plus",
   "disclaimerFull": "Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.",
-  "chiffreChocSilenceQuestion": "C'est ton chiffre. Qu'est-ce que tu en penses ?",
-  "chiffreChocSilenceHint": "Dis ce qui te vient...",
-  "chiffreChocSkipToHome": "Passer au dashboard",
+  "premierEclairageSilenceQuestion": "C'est ton chiffre. Qu'est-ce que tu en penses ?",
+  "premierEclairageSilenceHint": "Dis ce qui te vient...",
+  "premierEclairageSkipToHome": "Passer au dashboard",
   "landingQuickCalcTitle": "Ton chiffre en 30 secondes",
   "landingQuickCalcSubtitle": "Aucun compte. Rien n'est stocké. Calcul éphémère.",
   "landingBirthYear": "Année de naissance",
@@ -10131,10 +10189,13 @@
   "landingCalculate": "Voir mon chiffre",
   "landingPrivacyBadge": "Aucun compte requis. Calcul sur ton téléphone. Rien n'est stocké.",
   "landingVzComparison": "30 secondes pour ton premier chiffre. Pas de rendez-vous, pas de frais.",
-  "instantChiffreChocConfidence": "Estimation ±15 % — crée un compte pour plus de précision",
-  "instantChiffreChocNothingStored": "Aucun compte. Rien n'est stocké.",
-  "instantChiffreChocComeBack": "Reviens quand tu veux",
-  "coachSilentOpenerQuestion": "Tu veux en parler ?",
+  "instantPremierEclairageConfidence": "Estimation ±15 % — crée un compte pour plus de précision",
+  "instantPremierEclairageNothingStored": "Aucun compte. Rien n'est stocké.",
+  "instantPremierEclairageComeBack": "Reviens quand tu veux",
+  "coachSilentOpenerQuestion": "Mint est là quand tu veux en parler.",
+  "@coachSilentOpenerQuestion": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
   "coachOptInDecline": "Non, je viens quand je veux",
@@ -10283,11 +10344,9 @@
       }
     }
   },
-  "mintHomeNoActionProjection": "Si tu ne fais rien",
   "mintHomeIn30Days": "dans 30 jours",
   "mintHomeIn6Months": "dans 6 mois",
   "mintHomeAlternativeRoute": "Itinéraire alternatif",
-  "mintHomeConfidence": "Confiance",
   "mintHomeTalkAboutIt": "On en parle ?",
   "mintHomeSimulate": "Simuler",
   "mintHomeSignal": "Signal",
@@ -10309,7 +10368,10 @@
     }
   },
   "coachInterruptMortgageOverThird": "Les banques refuseront. Voici 2 pistes.",
-  "coachInterruptFullCapitalRisk": "100 % capital = 0 rente garantie. Sûr ?",
+  "coachInterruptFullCapitalRisk": "Mint observe : 100 % en capital, c'est zéro rente mensuelle à vie. Tu veux qu'on regarde ce que ça implique ?",
+  "@coachInterruptFullCapitalRisk": {
+    "x-mint-meta": { "level": "N4", "phase": "11-01" }
+  },
   "coachInterruptEplBlock": "Attention : blocage EPL pendant 3 ans.",
   "coachInterruptBudgetDeficit": "Déficit de {deficit} CHF/mois. On regarde ?",
   "@coachInterruptBudgetDeficit": {
@@ -10389,13 +10451,28 @@
   "intentScreenTitle": "Qu'est-ce qui t'amène ?",
   "intentScreenSubtitle": "Choisis ce qui ressemble le plus à ta situation. On commence là.",
   "intentScreenMicrocopy": "Tu pourras reformuler ensuite avec tes mots.",
-  "intentChip3a": "On m'a proposé un 3a",
+  "intentChip3a": "On vient de me parler d'un 3a",
+  "@intentChip3a": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipBilan": "Je veux voir où j'en suis",
   "intentChipPrevoyance": "Je comprends mal ma prévoyance",
-  "intentChipFiscalite": "Je veux payer moins bêtement",
+  "intentChipFiscalite": "Mes impôts, j'aimerais y voir clair",
+  "@intentChipFiscalite": {
+    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+  },
   "intentChipProjet": "J'ai un projet",
+  "@intentChipProjet": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipChangement": "Ma situation change",
+  "@intentChipChangement": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipAutre": "Autre…",
+  "@intentChipAutre": {
+    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+  },
   "premierEclairageCardDismiss": "Fermer",
   "premierEclairageCardCta": "Comprendre",
   "premierEclairageCardCtaPersonalize": "Personnaliser",
@@ -10408,7 +10485,10 @@
   "coachOpenerIntentPrevoyance": "Tu penses à ta prévoyance — voici ce que MINT a trouvé pour toi.",
   "coachOpenerIntentFiscalite": "Tu t'intéresses à tes impôts — voici ce que MINT a trouvé pour toi.",
   "coachOpenerIntentProjet": "Tu as un projet immobilier — voici ce que MINT a trouvé pour toi.",
-  "coachOpenerIntentChangement": "Tu vis un changement de vie — voici ce que MINT a trouvé pour toi.",
+  "coachOpenerIntentChangement": "Tu vis un changement — Mint a regardé ce que ça pourrait toucher, sans rien décider à ta place.",
+  "@coachOpenerIntentChangement": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "coachOpenerIntentAutre": "Bienvenue — voici comment MINT peut t'aider.",
   "planCard_ctaDetail": "Voir le détail",
   "planCard_ctaRecalculate": "Recalculer",
@@ -10522,6 +10602,9 @@
   "prefillBadgePrecise": "Préciser ce chiffre",
   "calculatorNoPrefillBody": "Saisis les valeurs pour lancer le calcul. MINT complétera automatiquement les prochaines fois.",
   "intentChipPremierEmploi": "Mon premier emploi",
+  "@intentChipPremierEmploi": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "intentChipNouvelEmploi": "Je change de travail",
   "capStepFirstJob01Title": "Ton salaire",
   "capStepFirstJob01Desc": "Entre ton premier salaire brut mensuel",
@@ -10605,7 +10688,7 @@
   "authResend": "Renvoyer le lien",
   "authPasswordFallback": "Se connecter avec un mot de passe",
   "quickStartHeadline": "Trois questions, un premier chiffre.",
-  "chiffreChocContinue": "Continuer",
+  "premierEclairageContinue": "Continuer",
   "planCta": "Voir mon plan",
   "coachErrorInline": "Le coach n'est pas disponible pour le moment.",
   "planHeadline": "Ton plan en 4 gestes",
@@ -10618,7 +10701,10 @@
   "planStepInsuranceBody": "LAMal, RC, m\u00e9nage\u00a0: les bases \u00e0 v\u00e9rifier avant de signer quoi que ce soit.",
   "planStepAvsTitle": "Conna\u00eetre tes droits AVS",
   "planStepAvsBody": "Chaque ann\u00e9e de cotisation compte. V\u00e9rifie ton relev\u00e9 CI pour \u00e9viter les lacunes.",
-  "coachCheckInWelcome": "Salut\u00a0! Je suis l\u00e0. On regarde ensemble ce qui compte pour toi\u00a0?",
+  "coachCheckInWelcome": "Salut ! Mint est là. Quand tu veux, on regarde ensemble ce qui compte ce mois-ci.",
+  "@coachCheckInWelcome": {
+    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+  },
   "docNotFinancial": "Ce document ne semble pas \u00eatre un document financier suisse.",
   "docNotFinancialHint": "Essaie avec un certificat LPP, de salaire, 3a, ou une police d\u2019assurance.",
   "docFileTooLarge": "Fichier trop volumineux. Maximum 10\u00a0Mo.",
@@ -10731,5 +10817,75 @@
   "ctxEmptyBody": "Continue à enrichir ton profil pour que MINT puisse t'éclairer au bon moment.",
   "ctxEmptyCta": "Scanner un document",
   "ctxHeroStatProfileLabel": "Ton profil MINT",
-  "ctxHeroStatProfileNarrative": "Plus ton profil est complet, plus MINT est précis."
+  "ctxHeroStatProfileNarrative": "Plus ton profil est complet, plus MINT est précis.",
+  "voiceCursorPreferenceLabel": "Ton",
+  "@voiceCursorPreferenceLabel": {"description": "Header for the user-facing tone setting (Phase 12). Never 'Niveau' or 'Intensité' — those words sound judgmental."},
+  "voiceCursorPreferenceSoft": "Doux",
+  "@voiceCursorPreferenceSoft": {"description": "Softest tone option. Calm, no shame for choosing it."},
+  "voiceCursorPreferenceDirect": "Direct",
+  "@voiceCursorPreferenceDirect": {"description": "Default tone option."},
+  "voiceCursorPreferenceUnfiltered": "Sans filtre",
+  "@voiceCursorPreferenceUnfiltered": {"description": "Most direct tone option. Calm, no shame for choosing it."},
+  "mtcSummaryWeakCompleteness": "Calculé sur ce qu'on connaît aujourd'hui — quelques pièces manquent encore.",
+  "@mtcSummaryWeakCompleteness": {"description": "MTC one-line summary when completeness is the weakest axis. Anti-shame: MINT as subject."},
+  "mtcSummaryWeakAccuracy": "Hypothèse fragile sur un chiffre clé — Mint reste prudent.",
+  "@mtcSummaryWeakAccuracy": {"description": "MTC one-line summary when accuracy is the weakest axis."},
+  "mtcSummaryWeakFreshness": "Données récoltées il y a un moment — Mint préfère le redire.",
+  "@mtcSummaryWeakFreshness": {"description": "MTC one-line summary when freshness is the weakest axis."},
+  "mtcSummaryWeakUnderstanding": "Le calcul est posé, l'idée mérite encore qu'on en parle.",
+  "@mtcSummaryWeakUnderstanding": {"description": "MTC one-line summary when understanding is the weakest axis."},
+  "landingV2Paragraph": "Mint te dit ce que personne n'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.",
+  "@landingV2Paragraph": {"description": "Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing."},
+  "landingV2Cta": "Continuer (sans compte)",
+  "@landingV2Cta": {"description": "Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing."},
+  "landingV2Privacy": "Rien ne sort de ton téléphone tant que tu ne le décides pas.",
+  "@landingV2Privacy": {"description": "Landing v2 privacy micro-phrase below CTA (LOCKED per D-03)."},
+  "landingV2Legal": "Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.",
+  "@landingV2Legal": {"description": "Landing v2 legal footer (LOCKED per D-04). Compliance anchor."},
+  "alertGenericFactPrefix": "MINT a remarqué",
+  "@alertGenericFactPrefix": {"description": "MintAlertObject default fact prefix (anti-shame: MINT is subject)."},
+  "alertGenericCausePrefix": "Pourquoi",
+  "@alertGenericCausePrefix": {"description": "MintAlertObject default cause line prefix."},
+  "alertGenericNextMomentPrefix": "Quand on en reparle",
+  "@alertGenericNextMomentPrefix": {"description": "MintAlertObject default next-moment prefix (invitation, never imperative)."},
+  "alertG2Label": "À vérifier",
+  "@alertG2Label": {"description": "MintAlertObject G2 label (calm register, NEVER 'Warning' or 'Attention')."},
+  "alertG3Label": "À ne pas ignorer",
+  "@alertG3Label": {"description": "MintAlertObject G3 label (firm but calm, no alarmism)."},
+  "alertAckCta": "Compris",
+  "@alertAckCta": {"description": "MintAlertObject acknowledge CTA (used by Plan 09-04 biography ack)."},
+  "mintAlertDebtFact": "MINT voit une tension sur tes dettes : les remboursements pèsent plus que ce qui est confortable.",
+  "@mintAlertDebtFact": {"description": "MintAlertObject debt G3 fact line — MINT-as-subject (anti-shame, never blames the user)."},
+  "mintAlertDebtCause": "C'est ce que MINT remarque quand le remboursement mensuel dépasse le seuil de respiration du budget.",
+  "@mintAlertDebtCause": {"description": "MintAlertObject debt G3 cause line — explains the threshold MINT noticed."},
+  "mintAlertDebtNextMoment": "On peut regarder ensemble un plan de sortie, à ton rythme.",
+  "@mintAlertDebtNextMoment": {"description": "MintAlertObject debt G3 next-moment invitation — never imperative."},
+  "mintAlertAnnounceG3": "MINT a repéré un point important qui demande ton attention.",
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."},
+  "tonChooserTitle": "Choisis le ton de Mint",
+  "@tonChooserTitle": {"description": "Phase 12-01 \u2014 TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy."},
+  "tonChooserSubtitle": "Comment Mint te parle. Tu peux changer à tout moment.",
+  "@tonChooserSubtitle": {"description": "Phase 12-01 \u2014 TonChooser subtitle (anti-shame: all 3 options equally legitimate)."},
+  "tonSoftLabel": "Doux",
+  "@tonSoftLabel": {"description": "Phase 12-01 \u2014 Ton option 1 label."},
+  "tonDirectLabel": "Direct",
+  "@tonDirectLabel": {"description": "Phase 12-01 \u2014 Ton option 2 label (default)."},
+  "tonUnfilteredLabel": "Non filtré",
+  "@tonUnfilteredLabel": {"description": "Phase 12-01 \u2014 Ton option 3 label."},
+  "tonSoftExample": "On y va doucement.",
+  "@tonSoftExample": {"description": "Phase 12-01 \u2014 Ton soft micro-example (≤60 chars).", "level": "N2"},
+  "tonDirectExample": "Voici ce que ça veut dire.",
+  "@tonDirectExample": {"description": "Phase 12-01 \u2014 Ton direct micro-example (≤60 chars).", "level": "N3"},
+  "tonUnfilteredExample": "Pas de filtre. Tu veux savoir.",
+  "@tonUnfilteredExample": {"description": "Phase 12-01 \u2014 Ton unfiltered micro-example (≤60 chars).", "level": "N4"},
+  "tonSkipLater": "Plus tard",
+  "@tonSkipLater": {"description": "Phase 12-01 \u2014 TonChooserSheet skip CTA."},
+  "tonSyncFailedToast": "Mint n'a pas pu enregistrer ce choix. On réessaie plus tard.",
+  "@tonSyncFailedToast": {"description": "Phase 12-01 \u2014 Neutral toast on optimistic rollback (no banned terms)."},
+  "tonSelectedSemantics": "Sélectionné",
+  "@tonSelectedSemantics": {"description": "Phase 12-01 \u2014 a11y suffix for selected Ton cell."},
+  "tonNotSelectedSemantics": "Non sélectionné",
+  "@tonNotSelectedSemantics": {"description": "Phase 12-01 \u2014 a11y suffix for unselected Ton cell."},
+  "tonSectionLabel": "Voix",
+  "@tonSectionLabel": {"description": "Phase 12-01 \u2014 ProfileDrawer section heading for Ton chooser."}
 }

@@ -26,7 +26,7 @@ status: "READY"
 - Les situations de copropriete ou PPE ne sont pas detaillees.
 - La valeur locative varie considerablement d'un canton a l'autre.
 
-## Chiffre Choc
+## Premier Éclairage
 "En Suisse, seuls 36% des menages sont proprietaires — le taux le plus bas d'Europe. Pourtant, un proprietaire paie en moyenne 15-25% de moins par mois qu'un locataire equivalent apres 15 ans d'amortissement."
 
 ## Learning Goals

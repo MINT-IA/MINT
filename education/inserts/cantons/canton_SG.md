@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Saint-Gall"
 ## Trigger
 L'utilisateur réside à Saint-Gall ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Saint-Gall est dans la moyenne suisse : le multiplicateur cantonal se situe autour de 110 %.
 
 ## Niveau 0

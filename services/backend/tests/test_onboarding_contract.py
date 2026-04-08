@@ -2,7 +2,7 @@
 Integration tests for the onboarding HTTP contract — Sprint S57.
 
 Tests the FULL request → endpoint → response → client mapping path
-for /api/v1/onboarding/chiffre-choc and /api/v1/onboarding/minimal-profile.
+for /api/v1/onboarding/premier-eclairage and /api/v1/onboarding/minimal-profile.
 
 These tests catch serialization drift, missing fields, and schema/endpoint
 misalignment that unit tests on isolated selectors cannot detect.
@@ -27,15 +27,15 @@ BANNED_TERMS = [
 
 
 # ===========================================================================
-# TestChiffreChocContract — HTTP contract tests
+# TestPremierEclairageContract — HTTP contract tests
 # ===========================================================================
 
-class TestChiffreChocContract:
-    """Full HTTP round-trip tests for /api/v1/onboarding/chiffre-choc."""
+class TestPremierEclairageContract:
+    """Full HTTP round-trip tests for /api/v1/onboarding/premier-eclairage."""
 
     def test_basic_request_returns_200(self, client):
         """Minimal 3-field request returns 200 with all required fields."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 45,
             "grossSalary": 100_000,
             "canton": "VD",
@@ -57,7 +57,7 @@ class TestChiffreChocContract:
     def test_stress_type_flows_to_selector(self, client):
         """stress_type in request influences category in response."""
         # stress_budget should produce hourly_rate for a user with good liquidity
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 30,
             "grossSalary": 80_000,
             "canton": "ZH",
@@ -70,7 +70,7 @@ class TestChiffreChocContract:
 
     def test_stress_impots_produces_tax_saving(self, client):
         """stress_impots should produce tax_saving category."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 35,
             "grossSalary": 90_000,
             "canton": "GE",
@@ -88,7 +88,7 @@ class TestChiffreChocContract:
         when ratio is OK.
         """
         # High salary + real LPP data → ratio should be OK
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 45,
             "grossSalary": 80_000,
             "canton": "VD",
@@ -111,7 +111,7 @@ class TestChiffreChocContract:
         Provide enough savings to avoid triggering liquidity alert, so the
         test isolates the lifecycle fallback behavior.
         """
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 22,
             "grossSalary": 55_000,
             "canton": "FR",
@@ -124,7 +124,7 @@ class TestChiffreChocContract:
 
     def test_confidence_mode_in_response(self, client):
         """confidence_mode field is present and valid in response."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 45,
             "grossSalary": 100_000,
             "canton": "VD",
@@ -136,7 +136,7 @@ class TestChiffreChocContract:
     def test_estimated_data_produces_pedagogical_mode(self, client):
         """When key data is estimated (no LPP/savings provided), mode should be pedagogical."""
         # Don't provide LPP or savings → they will be estimated
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 49,
             "grossSalary": 100_000,
             "canton": "VD",
@@ -150,7 +150,7 @@ class TestChiffreChocContract:
 
     def test_real_data_produces_factual_mode(self, client):
         """When key data is provided, mode should be factual."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 22,
             "grossSalary": 60_000,
             "canton": "ZH",
@@ -167,7 +167,7 @@ class TestChiffreChocContract:
 
     def test_compound_growth_serializes_correctly(self, client):
         """compound_growth category serializes with all required fields."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 22,
             "grossSalary": 55_000,
             "canton": "BE",
@@ -183,7 +183,7 @@ class TestChiffreChocContract:
 
     def test_camel_case_aliasing(self, client):
         """All fields use camelCase in response (Pydantic alias_generator)."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 40,
             "grossSalary": 90_000,
             "canton": "VD",
@@ -210,7 +210,7 @@ class TestChiffreChocContract:
             {"age": 30, "grossSalary": 80_000, "canton": "ZH", "stressType": "stress_budget", "currentSavings": 20_000},
         ]
         for body in profiles:
-            resp = client.post("/api/v1/onboarding/chiffre-choc", json=body)
+            resp = client.post("/api/v1/onboarding/premier-eclairage", json=body)
             assert resp.status_code == 200
             data = resp.json()
             all_text = " ".join([
@@ -225,7 +225,7 @@ class TestChiffreChocContract:
 
     def test_disclaimer_and_sources_present(self, client):
         """Every response includes disclaimer and sources."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 40,
             "grossSalary": 90_000,
             "canton": "VD",
@@ -239,7 +239,7 @@ class TestChiffreChocContract:
 
     def test_invalid_stress_type_rejected(self, client):
         """Invalid stress_type value is rejected by schema validation."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 30,
             "grossSalary": 80_000,
             "canton": "VD",
@@ -249,7 +249,7 @@ class TestChiffreChocContract:
 
     def test_null_stress_type_accepted(self, client):
         """Null/absent stress_type is valid (V1 backward compat)."""
-        resp = client.post("/api/v1/onboarding/chiffre-choc", json={
+        resp = client.post("/api/v1/onboarding/premier-eclairage", json={
             "age": 30,
             "grossSalary": 80_000,
             "canton": "VD",

@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/contextual_card.dart';
 import 'package:mint_mobile/services/anticipation/anticipation_signal.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
+import 'package:mint_mobile/services/contextual/card_ranking_service.dart';
 import 'package:mint_mobile/services/contextual/coach_opener_service.dart';
 import 'package:mint_mobile/services/contextual/contextual_ranking_service.dart';
 
@@ -30,8 +31,10 @@ class ContextualCardProvider extends ChangeNotifier {
   String _coachOpener = '';
   bool _evaluated = false;
 
-  /// Visible cards (hero + up to 3 non-hero).
-  List<ContextualCard> get visibleCards => _rankResult?.visible ?? [];
+  /// Visible cards (hero + up to 3 non-hero), with Phase 9 G3 alert
+  /// cards floated to index 0 by [rankCards] (D-05).
+  List<ContextualCard> get visibleCards =>
+      rankCards(_rankResult?.visible ?? const []);
 
   /// Overflow card containing remaining cards (null if none).
   ContextualOverflowCard? get overflowCard => _rankResult?.overflow;

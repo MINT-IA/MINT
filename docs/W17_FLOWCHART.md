@@ -1,6 +1,6 @@
 # MINT — Carte de navigation réelle (tracée depuis le code)
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "premier éclairage" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 >
 > Chaque flèche = un `context.go()` ou `context.push()` vérifié dans le code.
 > Les conditions sont les vrais `if` du code, pas de la fiction.
@@ -32,7 +32,7 @@
                                 │            ▼                        │                     │
                                 │  ┌─────────────────────┐           │                     │
                                 │  │ CHIFFRE CHOC INSTANT │           │                     │
-                                │  │ (/chiffre-choc-      │           │                     │
+                                │  │ (/premier-eclairage-      │           │                     │
                                 │  │  instant)             │           │                     │
                                 │  │                       │           │                     │
                                 │  │ Voit:                 │           │                     │
@@ -198,10 +198,10 @@
   (Quick Start + Register qui redemande prénom + date naissance).
 ```
 
-### Boucle 2 : "Calculer → Chiffre Choc → Register → Verify Email → ???"
+### Boucle 2 : "Calculer → Premier Éclairage → Register → Verify Email → ???"
 
 ```
-  Landing         Chiffre Choc       Register          Verify Email
+  Landing         Premier Éclairage       Register          Verify Email
   ┌─────┐         ┌──────────┐       ┌──────────┐      ┌──────────┐
   │     │─Calc──→│ emotion  │─────→│ Register │─────→│ Verify   │
   │     │         │ stockée  │ go() │ (pas de  │ go() │ email    │
@@ -223,7 +223,7 @@
   /auth/register, on fait context.go('/auth/register') SANS paramètre
   redirect. Donc après register, le redirect est null → /home par défaut.
   Mais si verify email est requis, le redirect est aussi null → /auth/login.
-  L'utilisateur fait: chiffre choc → register → verify → login → home.
+  L'utilisateur fait: premier éclairage → register → verify → login → home.
   4 ÉCRANS D'AUTH pour voir son résultat !
 ```
 

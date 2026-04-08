@@ -330,7 +330,7 @@ def simulate_donation(
         alerts=result.alerts,
         disclaimer=result.disclaimer,
         sources=result.sources,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
     )
 
 
@@ -384,5 +384,5 @@ def simulate_housing_sale(
         alerts=result.alerts,
         disclaimer=result.disclaimer,
         sources=result.sources,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
     )

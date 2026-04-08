@@ -5,7 +5,7 @@
 ///   1. Greeting — personalized, context-aware salutation
 ///   2. Score Summary — FRI score with trend explanation
 ///   3. Tip Narrative — actionable educational insight
-///   4. Chiffre Choc Reframe — contextualizes shock figures
+///   4. Premier Éclairage Reframe — contextualizes shock figures
 ///
 /// Synchronous API: uses [FallbackTemplates] as the generation engine
 /// (no LLM dependency). If ComplianceGuard flags a violation, falls back
@@ -37,13 +37,13 @@ class CoachNarrativeResult {
   final String tipNarrative;
 
   /// Chiffre choc contextualizer (max 100 words).
-  final String chiffreChocReframe;
+  final String premierEclairageReframe;
 
   const CoachNarrativeResult({
     required this.greeting,
     required this.scoreSummary,
     required this.tipNarrative,
-    required this.chiffreChocReframe,
+    required this.premierEclairageReframe,
   });
 }
 
@@ -69,7 +69,7 @@ class CoachNarrativeService {
       greeting: _generateGreeting(ctx),
       scoreSummary: _generateScoreSummary(ctx),
       tipNarrative: _generateTipNarrative(ctx),
-      chiffreChocReframe: _generateChiffreChocReframe(ctx),
+      premierEclairageReframe: _generatePremierEclairageReframe(ctx),
     );
   }
 
@@ -84,9 +84,9 @@ class CoachNarrativeService {
   static String generateTipNarrative(CoachContext ctx) =>
       _generateTipNarrative(ctx);
 
-  /// Generate only the chiffre choc reframe component.
-  static String generateChiffreChocReframe(CoachContext ctx) =>
-      _generateChiffreChocReframe(ctx);
+  /// Generate only the premier éclairage reframe component.
+  static String generatePremierEclairageReframe(CoachContext ctx) =>
+      _generatePremierEclairageReframe(ctx);
 
   /// Generate an enrichment guide for a specific data block.
   ///
@@ -129,8 +129,8 @@ class CoachNarrativeService {
       ctx: ctx,
       byokConfig: byokConfig,
     );
-    final chiffreChoc = await CoachOrchestrator.generateNarrativeComponent(
-      componentType: ComponentType.chiffreChoc,
+    final premierEclairage = await CoachOrchestrator.generateNarrativeComponent(
+      componentType: ComponentType.premierEclairage,
       ctx: ctx,
       byokConfig: byokConfig,
     );
@@ -138,7 +138,7 @@ class CoachNarrativeService {
       greeting: greeting.text,
       scoreSummary: scoreSummary.text,
       tipNarrative: tip.text,
-      chiffreChocReframe: chiffreChoc.text,
+      premierEclairageReframe: premierEclairage.text,
     );
   }
 
@@ -180,15 +180,15 @@ class CoachNarrativeService {
         : result.sanitizedText;
   }
 
-  static String _generateChiffreChocReframe(CoachContext ctx) {
-    final text = FallbackTemplates.chiffreChocReframe(ctx);
+  static String _generatePremierEclairageReframe(CoachContext ctx) {
+    final text = FallbackTemplates.premierEclairageReframe(ctx);
     final result = ComplianceGuard.validate(
       text,
       context: ctx,
-      componentType: ComponentType.chiffreChoc,
+      componentType: ComponentType.premierEclairage,
     );
     return result.useFallback
-        ? FallbackTemplates.chiffreChocReframe(ctx)
+        ? FallbackTemplates.premierEclairageReframe(ctx)
         : result.sanitizedText;
   }
 

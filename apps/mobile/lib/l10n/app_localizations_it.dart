@@ -1703,7 +1703,7 @@ class SIt extends S {
   String get budgetExampleProjects => 'progetti';
 
   @override
-  String budgetChiffreChoc503020(String monthly, String total) {
+  String budgetPremierEclairage503020(String monthly, String total) {
     return 'Risparmiando CHF $monthly/mese, accumuli CHF $total in 10 anni.';
   }
 
@@ -2156,7 +2156,7 @@ class SIt extends S {
   }
 
   @override
-  String naissanceChiffreChocText(String type, String amount, int weeks) {
+  String naissancePremierEclairageText(String type, String amount, int weeks) {
     return 'Il tuo congedo di $type rappresenta $amount di IPG su $weeks settimane';
   }
 
@@ -2375,11 +2375,11 @@ class SIt extends S {
   String get mariagePatrimoine2 => 'Patrimonio Persona 2';
 
   @override
-  String get mariageChiffreChocDefault =>
+  String get mariagePremierEclairageDefault =>
       'Nel regime predefinito, questa parte dei tuoi acquisti andrebbe al tuo coniuge in caso di scioglimento';
 
   @override
-  String get mariageChiffreChocCommunaute =>
+  String get mariagePremierEclairageCommunaute =>
       'In comunione dei beni, questo importo sarebbe condiviso con il tuo coniuge';
 
   @override
@@ -3382,7 +3382,7 @@ class SIt extends S {
   String get independantJourJSelfEmployed => 'Indipendente';
 
   @override
-  String independantJourJChiffreChoc(String amount) {
+  String independantJourJPremierEclairage(String amount) {
     return 'Perdi ~$amount/mese di protezione invisibile.\nNon hai lasciato un lavoro. Hai lasciato un sistema di protezione.';
   }
 
@@ -6880,11 +6880,11 @@ class SIt extends S {
   String get demenagementTitre => 'Trasloco cantonale';
 
   @override
-  String get demenagementChiffreChocSousTitre =>
+  String get demenagementPremierEclairageSousTitre =>
       'risparmio (o costo aggiuntivo) annuale stimato';
 
   @override
-  String demenagementChiffreChocDetail(String depart, String arrivee) {
+  String demenagementPremierEclairageDetail(String depart, String arrivee) {
     return 'Traslocando da $depart a $arrivee (imposte + cassa malati)';
   }
 
@@ -7131,7 +7131,7 @@ class SIt extends S {
   }
 
   @override
-  String get docImpactChiffreChocTitle => 'Cifra chiave ricalcolata';
+  String get docImpactPremierEclairageTitle => 'Cosa vede Mint';
 
   @override
   String docImpactLppRealAmount(String oblig) {
@@ -7615,14 +7615,14 @@ class SIt extends S {
       '• Gli importi si basano sulle informazioni dichiarate.';
 
   @override
-  String get chiffreChocDisclaimer =>
+  String get premierEclairageDisclaimer =>
       'Strumento educativo — non costituisce consulenza finanziaria (LSFin). Fonti: LAVS art. 34, LPP art. 14-16, OPP3 art. 7.';
 
   @override
-  String get chiffreChocAction => 'Cosa posso fare?';
+  String get premierEclairageAction => 'Cosa posso fare?';
 
   @override
-  String chiffreChocConfidence(String count) {
+  String premierEclairageConfidence(String count) {
     return 'Stima basata su $count informazioni. Più precisi, più affidabile.';
   }
 
@@ -7774,7 +7774,8 @@ class SIt extends S {
       'Errore di connessione. Verifica la tua connessione internet o la tua chiave API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Quanto risparmio se verso il massimo?';
+  String get coachSuggestSimulate3a =>
+      'Se verso di più sul mio 3a, cosa cambia?';
 
   @override
   String get coachSuggestView3a => 'Quanto ho sui miei conti 3a?';
@@ -7789,19 +7790,22 @@ class SIt extends S {
   String get coachSuggestTrajectory => 'Quanto è grave se non faccio nulla?';
 
   @override
-  String get coachSuggestScenarios => 'Rendita o capitale — cosa mi conviene?';
+  String get coachSuggestScenarios =>
+      'Rendita o capitale — mostrameli affiancati';
 
   @override
-  String get coachSuggestDeductions => 'Quante tasse recupero quest\'anno?';
+  String get coachSuggestDeductions => 'Quanto potrei recuperare quest\'anno?';
 
   @override
   String get coachSuggestTaxImpact => 'Quante tasse in meno con un riscatto?';
 
   @override
-  String get coachSuggestFitness => 'Sono in linea con il mio obiettivo?';
+  String get coachSuggestFitness =>
+      'A che punto sono, rispetto a quello che mi ero detto?';
 
   @override
-  String get coachSuggestRetirement => 'Mi basterà per vivere in pensione?';
+  String get coachSuggestRetirement =>
+      'In pensione, cosa mi resterà ogni mese?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -7835,7 +7839,7 @@ class SIt extends S {
   String get coachSources => 'Fonti';
 
   @override
-  String get coachInputHint => 'Una domanda sulle tue finanze?';
+  String get coachInputHint => 'Dimmi cosa ti passa per la testa.';
 
   @override
   String get coachUserMessage => 'Il tuo messaggio';
@@ -8266,7 +8270,7 @@ class SIt extends S {
   String get budgetErrorRetry => 'Il calcolo non è riuscito. Riprovare?';
 
   @override
-  String get budgetChiffreChocCaption =>
+  String get budgetPremierEclairageCaption =>
       'Quello che resta dopo tutte le spese fisse';
 
   @override
@@ -8285,45 +8289,45 @@ class SIt extends S {
       'Stima educativa. Non costituisce consulenza finanziaria (LSFin art. 3).';
 
   @override
-  String get chiffreChocIfYouAct => 'Se agisci';
+  String get premierEclairageIfYouAct => 'Se agisci';
 
   @override
-  String get chiffreChocIfYouDontAct => 'Se non fai nulla';
+  String get premierEclairageIfYouDontAct => 'Se non fai nulla';
 
   @override
-  String get chiffreChocAvantApresGapAct =>
+  String get premierEclairageAvantApresGapAct =>
       'Un riscatto LPP o contributi al 3a possono dimezzare questo divario.';
 
   @override
-  String get chiffreChocAvantApresGapNoAct =>
+  String get premierEclairageAvantApresGapNoAct =>
       'Il divario cresce ogni anno. Alla pensione, sarà troppo tardi.';
 
   @override
-  String get chiffreChocAvantApresLiquidityAct =>
+  String get premierEclairageAvantApresLiquidityAct =>
       'Risparmiando 500 CHF/mese, ricostruisci 3 mesi di riserva in 6 mesi.';
 
   @override
-  String get chiffreChocAvantApresLiquidityNoAct =>
+  String get premierEclairageAvantApresLiquidityNoAct =>
       'Un\'emergenza senza riserve significa credito al consumo.';
 
   @override
-  String get chiffreChocAvantApresTaxAct =>
+  String get premierEclairageAvantApresTaxAct =>
       'Ogni anno senza 3a è una deduzione fiscale persa.';
 
   @override
-  String get chiffreChocAvantApresTaxNoAct =>
+  String get premierEclairageAvantApresTaxNoAct =>
       'Senza 3a, paghi l\'aliquota piena e non prepari la pensione.';
 
   @override
-  String get chiffreChocAvantApresIncomeAct =>
+  String get premierEclairageAvantApresIncomeAct =>
       'Qualche aggiustamento può migliorare la tua proiezione.';
 
   @override
-  String get chiffreChocAvantApresIncomeNoAct =>
+  String get premierEclairageAvantApresIncomeNoAct =>
       'La tua situazione resta stabile, ma senza margine di crescita.';
 
   @override
-  String chiffreChocConfidenceSimple(String count) {
+  String premierEclairageConfidenceSimple(String count) {
     return 'Basato su $count dati. Aggiungine per affinare.';
   }
 
@@ -8375,13 +8379,13 @@ class SIt extends S {
   }
 
   @override
-  String get chiffreChocBack => 'Indietro';
+  String get premierEclairageBack => 'Indietro';
 
   @override
-  String get chiffreChocShowComparison => 'Mostra confronto';
+  String get premierEclairageShowComparison => 'Mostra confronto';
 
   @override
-  String get chiffreChocHideComparison => 'Nascondi confronto';
+  String get premierEclairageHideComparison => 'Nascondi confronto';
 
   @override
   String get dashboardNextActionsTitle => 'Le tue prossime azioni';
@@ -9215,12 +9219,12 @@ class SIt extends S {
   }
 
   @override
-  String expatAvsChiffreChoc(String amount) {
+  String expatAvsPremierEclairage(String amount) {
     return '-$amount/anno sulla tua rendita AVS';
   }
 
   @override
-  String expatDepartChiffreChoc(String amount) {
+  String expatDepartPremierEclairage(String amount) {
     return '$amount di capitale da mettere al sicuro prima della partenza';
   }
 
@@ -9375,7 +9379,7 @@ class SIt extends S {
   String get realReturnTitle => 'Rendimento reale 3a';
 
   @override
-  String get realReturnChiffreChocLabel =>
+  String get realReturnPremierEclairageLabel =>
       'Tasso equivalente sullo sforzo netto';
 
   @override
@@ -10141,7 +10145,7 @@ class SIt extends S {
   String get avsCotisationsSliderMax250k => 'CHF 250’000';
 
   @override
-  String avsCotisationsChiffreChocCaption(String amount) {
+  String avsCotisationsPremierEclairageCaption(String amount) {
     return 'Come indipendente, paghi $amount/anno in più di un dipendente';
   }
 
@@ -10242,7 +10246,7 @@ class SIt extends S {
   String get ijmJours => 'giorni';
 
   @override
-  String ijmChiffreChocCaption(String amount, int jours) {
+  String ijmPremierEclairageCaption(String amount, int jours) {
     return 'Senza assicurazione IJM, perdi $amount durante il periodo di attesa di $jours giorni';
   }
 
@@ -10342,11 +10346,11 @@ class SIt extends S {
   String get pillar3aIndepTauxLabel => 'Aliquota marginale';
 
   @override
-  String get pillar3aIndepChiffreChocCaption =>
+  String get pillar3aIndepPremierEclairageCaption =>
       'di risparmio fiscale annuo grazie al 3° pilastro';
 
   @override
-  String pillar3aIndepChiffreChocAvantageSalarie(String amount) {
+  String pillar3aIndepPremierEclairageAvantageSalarie(String amount) {
     return 'Risparmi $amount/anno in più di un dipendente grazie al grande 3a';
   }
 
@@ -10462,7 +10466,7 @@ class SIt extends S {
   String get lppVolontaireTauxMarginal => 'Aliquota marginale';
 
   @override
-  String lppVolontaireChiffreChocCaption(String amount) {
+  String lppVolontairePremierEclairageCaption(String amount) {
     return 'Senza LPP volontaria, perdi $amount/anno di capitalizzazione pensionistica';
   }
 
@@ -10798,12 +10802,12 @@ class SIt extends S {
   String get providerComparatorAppBarTitle => 'Comparatore 3a';
 
   @override
-  String providerComparatorChiffreChocLabel(int duree) {
+  String providerComparatorPremierEclairageLabel(int duree) {
     return 'Differenza su $duree anni';
   }
 
   @override
-  String get providerComparatorChiffreChocSubtitle =>
+  String get providerComparatorPremierEclairageSubtitle =>
       'tra il provider più e meno performante';
 
   @override
@@ -12530,7 +12534,7 @@ class SIt extends S {
       'Calcolo: rendita mensile × 13 mesi/anno (13ª rendita AVS da dic. 2026)';
 
   @override
-  String get chiffreChocRenteCalculation =>
+  String get premierEclairageRenteCalculation =>
       '(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa).';
 
   @override
@@ -12558,19 +12562,19 @@ class SIt extends S {
   }
 
   @override
-  String get chiffreChocSectionDisclaimer =>
+  String get premierEclairageSectionDisclaimer =>
       'Simulazione a scopo educativo. Non costituisce consulenza finanziaria (LSerFi). Ipotesi modificabili — risultati non assicurati.';
 
   @override
   String get concubinageTabProtection => 'Protezione';
 
   @override
-  String concubinageHeroChiffreChoc(String montant) {
+  String concubinageHeroPremierEclairage(String montant) {
     return 'CHF $montant di patrimonio esposto';
   }
 
   @override
-  String get concubinageHeroChiffreChocDesc =>
+  String get concubinageHeroPremierEclairageDesc =>
       'In concubinato, il tuo partner non è erede legale. Senza testamento, questo importo gli sfugge interamente.';
 
   @override
@@ -14959,7 +14963,7 @@ class SIt extends S {
 
   @override
   String get coachPulseDisclaimer =>
-      'Stime educative — non costituisce consulenza finanziaria. I rendimenti passati non sono indicativi di quelli futuri. Consulta un esperto. LSFin.';
+      'Mint illumina, Mint non promette nulla. Le stime qui sono educative e non costituiscono consulenza finanziaria. I rendimenti passati non sono indicativi di quelli futuri. Per un piano personalizzato, parla con un·a specialista. LSerFi.';
 
   @override
   String get coachingDescAttentif =>
@@ -16250,7 +16254,7 @@ class SIt extends S {
   String get firstJobBudgetBesoins => 'Bisogni';
 
   @override
-  String firstJobBudgetChiffreChoc(String annual, String future) {
+  String firstJobBudgetPremierEclairage(String annual, String future) {
     return 'Se risparmi $annual CHF/anno da ora, avrai ~$future CHF a 65 anni.';
   }
 
@@ -20605,14 +20609,14 @@ class SIt extends S {
 
   @override
   String get coachDisclaimer =>
-      'Strumento educativo — le risposte non costituiscono consulenza finanziaria (LSFin art. 3). Consulta un esperto per le decisioni importanti.';
+      'Mint illumina, Mint non consiglia. Le risposte qui sono educative e non costituiscono consulenza finanziaria ai sensi della LSerFi (art. 3). Per una decisione importante, parla con un·a specialista.';
 
   @override
   String get coachFallbackName => 'amico/a';
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Ciao $name. Sto guardando i tuoi numeri — dimmi cosa ti preoccupa.$scoreSuffix';
+    return 'Ciao $name. Mint guarda i tuoi numeri con calma — quando vuoi, ne parliamo.$scoreSuffix';
   }
 
   @override
@@ -20992,14 +20996,15 @@ class SIt extends S {
       'Strumento educativo semplificato. Non costituisce consulenza finanziaria personalizzata (LSFin). Fonti: LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulta uno specialista qualificato.';
 
   @override
-  String get chiffreChocSilenceQuestion =>
+  String get premierEclairageSilenceQuestion =>
       'Questo è il tuo numero. Cosa ne pensi?';
 
   @override
-  String get chiffreChocSilenceHint => 'Dì quello che ti viene in mente...';
+  String get premierEclairageSilenceHint =>
+      'Dì quello che ti viene in mente...';
 
   @override
-  String get chiffreChocSkipToHome => 'Vai alla dashboard';
+  String get premierEclairageSkipToHome => 'Vai alla dashboard';
 
   @override
   String get landingQuickCalcTitle => 'Il tuo numero in 30 secondi';
@@ -21029,17 +21034,18 @@ class SIt extends S {
       '30 secondi per il tuo primo numero. Senza appuntamento, senza costi.';
 
   @override
-  String get instantChiffreChocConfidence =>
+  String get instantPremierEclairageConfidence =>
       'Stima ±15 % — crea un conto per maggiore precisione';
 
   @override
-  String get instantChiffreChocNothingStored => 'Nessun conto. Nulla salvato.';
+  String get instantPremierEclairageNothingStored =>
+      'Nessun conto. Nulla salvato.';
 
   @override
-  String get instantChiffreChocComeBack => 'Torna quando vuoi';
+  String get instantPremierEclairageComeBack => 'Torna quando vuoi';
 
   @override
-  String get coachSilentOpenerQuestion => 'Vuoi parlarne?';
+  String get coachSilentOpenerQuestion => 'Mint è qui quando vuoi parlarne.';
 
   @override
   String get coachProactiveOptIn =>
@@ -21320,9 +21326,6 @@ class SIt extends S {
   }
 
   @override
-  String get mintHomeNoActionProjection => 'Se non fai nulla';
-
-  @override
   String get mintHomeIn30Days => 'tra 30 giorni';
 
   @override
@@ -21330,9 +21333,6 @@ class SIt extends S {
 
   @override
   String get mintHomeAlternativeRoute => 'Percorso alternativo';
-
-  @override
-  String get mintHomeConfidence => 'Fiducia';
 
   @override
   String get mintHomeTalkAboutIt => 'Ne parliamo ?';
@@ -21384,7 +21384,7 @@ class SIt extends S {
 
   @override
   String get coachInterruptFullCapitalRisk =>
-      '100 % capitale = 0 rendita garantita. Sicuro?';
+      'Mint osserva: 100 % in capitale significa zero rendita mensile a vita. Vuoi che guardiamo cosa implica?';
 
   @override
   String get coachInterruptEplBlock => 'Attenzione: blocco EPL per 3 anni.';
@@ -21490,7 +21490,7 @@ class SIt extends S {
       'Potrai riformulare con le tue parole in seguito.';
 
   @override
-  String get intentChip3a => 'Mi hanno proposto un 3a';
+  String get intentChip3a => 'Qualcuno mi ha appena parlato di un 3a';
 
   @override
   String get intentChipBilan => 'Voglio vedere a che punto sono';
@@ -21499,8 +21499,7 @@ class SIt extends S {
   String get intentChipPrevoyance => 'Non capisco bene la mia previdenza';
 
   @override
-  String get intentChipFiscalite =>
-      'Voglio smettere di pagare tasse inutilmente';
+  String get intentChipFiscalite => 'Vorrei vederci chiaro sulle mie tasse';
 
   @override
   String get intentChipProjet => 'Ho un progetto in mente';
@@ -21555,7 +21554,7 @@ class SIt extends S {
 
   @override
   String get coachOpenerIntentChangement =>
-      'Stai vivendo un cambiamento di vita — ecco cosa ha trovato MINT per te.';
+      'Stai vivendo un cambiamento — Mint ha guardato cosa potrebbe toccare, senza decidere nulla al posto tuo.';
 
   @override
   String get coachOpenerIntentAutre =>
@@ -21908,7 +21907,7 @@ class SIt extends S {
   String get quickStartHeadline => 'Tre domande, un primo numero.';
 
   @override
-  String get chiffreChocContinue => 'Continua';
+  String get premierEclairageContinue => 'Continua';
 
   @override
   String get planCta => 'Vedi il mio piano';
@@ -21953,7 +21952,7 @@ class SIt extends S {
 
   @override
   String get coachCheckInWelcome =>
-      'Ciao! Sono qui. Guardiamo insieme cosa conta per te?';
+      'Ciao! Mint è qui. Quando vuoi, guardiamo insieme cosa conta questo mese.';
 
   @override
   String get docNotFinancial =>
@@ -21988,9 +21987,6 @@ class SIt extends S {
 
   @override
   String get docReviewConfirm => 'Confermare e arricchire il mio profilo';
-
-  @override
-  String get docImpactPremierEclairageTitle => 'Cosa vede Mint';
 
   @override
   String get docImpactQuestionsTitle => 'Domande da porre';
@@ -22237,4 +22233,122 @@ class SIt extends S {
   @override
   String get ctxHeroStatProfileNarrative =>
       'Più completo è il tuo profilo, più preciso diventa MINT.';
+
+  @override
+  String get voiceCursorPreferenceLabel => 'Tono';
+
+  @override
+  String get voiceCursorPreferenceSoft => 'Dolce';
+
+  @override
+  String get voiceCursorPreferenceDirect => 'Diretto';
+
+  @override
+  String get voiceCursorPreferenceUnfiltered => 'Senza filtro';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Calcolato su quello che sappiamo oggi — qualche pezzo manca ancora.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'Una cifra chiave poggia su un\'ipotesi fragile — Mint resta prudente.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Dati raccolti un po\' di tempo fa — Mint preferisce ridirlo.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'Il calcolo è fatto, l\'idea merita ancora una conversazione.';
+
+  @override
+  String get landingV2Paragraph =>
+      'Mint ti dice quello che nessuno ha interesse a dirti. Sulle tue assicurazioni, sul tuo 3a, sul tuo stipendio, sul tuo contratto d\'affitto, sulla tua coppia, sulle tue imposte. Con calma. Senza venderti nulla.';
+
+  @override
+  String get landingV2Cta => 'Continua (senza account)';
+
+  @override
+  String get landingV2Privacy =>
+      'Niente esce dal tuo telefono finché non lo decidi tu.';
+
+  @override
+  String get landingV2Legal =>
+      'Strumento educativo. Non costituisce consulenza finanziaria ai sensi della LSerFi.';
+
+  @override
+  String get alertGenericFactPrefix => 'MINT ha notato';
+
+  @override
+  String get alertGenericCausePrefix => 'Perché';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'Quando ne riparleremo';
+
+  @override
+  String get alertG2Label => 'Da verificare';
+
+  @override
+  String get alertG3Label => 'Non ignorare';
+
+  @override
+  String get alertAckCta => 'Capito';
+
+  @override
+  String get mintAlertDebtFact =>
+      'MINT vede una tensione sui tuoi debiti: i rimborsi pesano più del comodo.';
+
+  @override
+  String get mintAlertDebtCause =>
+      'Lo nota MINT quando il rimborso mensile supera la soglia di respiro del budget.';
+
+  @override
+  String get mintAlertDebtNextMoment =>
+      'Possiamo guardare insieme un piano di uscita, al tuo ritmo.';
+
+  @override
+  String get mintAlertAnnounceG3 =>
+      'MINT ha individuato un punto importante che richiede la tua attenzione.';
+
+  @override
+  String get tonChooserTitle => 'Scegli come Mint ti parla';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Come Mint ti parla. Puoi cambiarlo quando vuoi.';
+
+  @override
+  String get tonSoftLabel => 'Dolce';
+
+  @override
+  String get tonDirectLabel => 'Diretto';
+
+  @override
+  String get tonUnfilteredLabel => 'Senza filtro';
+
+  @override
+  String get tonSoftExample => 'Andiamo piano.';
+
+  @override
+  String get tonDirectExample => 'Ecco cosa significa davvero.';
+
+  @override
+  String get tonUnfilteredExample => 'Nessun filtro. Vuoi sapere.';
+
+  @override
+  String get tonSkipLater => 'Più tardi';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint non è riuscito a salvare la scelta. Riproviamo più tardi.';
+
+  @override
+  String get tonSelectedSemantics => 'Selezionato';
+
+  @override
+  String get tonNotSelectedSemantics => 'Non selezionato';
+
+  @override
+  String get tonSectionLabel => 'Voce';
 }

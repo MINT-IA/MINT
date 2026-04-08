@@ -26,7 +26,7 @@ status: "READY"
 - L'impact fiscal exact depend du canton et des revenus respectifs des conjoints.
 - Le partenariat enregistre n'est pas encore reconnu dans tous les cantons pour tous les aspects fiscaux.
 
-## Chiffre Choc
+## Premier Éclairage
 "Un couple marie peut economiser jusqu'a 6'000 CHF/an d'impots par rapport a deux concubins dans certains cantons — mais dans d'autres c'est l'inverse (penalite du mariage)."
 
 ## Learning Goals

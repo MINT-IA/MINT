@@ -639,7 +639,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     );
   }
 
-  // ── Produit Net Card (chiffre choc) ──
+  // ── Produit Net Card (premier éclairage) ──
   Widget _buildProduitNetCard() {
     final r = _result!;
     final isPositive = r.produitNet >= 0;

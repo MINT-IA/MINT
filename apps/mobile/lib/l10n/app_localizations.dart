@@ -3189,11 +3189,11 @@ abstract class S {
   /// **'projets'**
   String get budgetExampleProjects;
 
-  /// No description provided for @budgetChiffreChoc503020.
+  /// No description provided for @budgetPremierEclairage503020.
   ///
   /// In fr, this message translates to:
   /// **'En épargnant CHF {monthly}/mois, tu accumules CHF {total} en 10 ans.'**
-  String budgetChiffreChoc503020(String monthly, String total);
+  String budgetPremierEclairage503020(String monthly, String total);
 
   /// No description provided for @budgetEmergencyFund.
   ///
@@ -4029,11 +4029,11 @@ abstract class S {
   /// **'Perte totale estimée sur le congé : {amount}'**
   String naissanceTotalLossEstimated(String amount);
 
-  /// No description provided for @naissanceChiffreChocText.
+  /// No description provided for @naissancePremierEclairageText.
   ///
   /// In fr, this message translates to:
   /// **'Ton congé {type} représente {amount} d\'APG sur {weeks} semaines'**
-  String naissanceChiffreChocText(String type, String amount, int weeks);
+  String naissancePremierEclairageText(String type, String amount, int weeks);
 
   /// No description provided for @naissanceMaternite.
   ///
@@ -4419,17 +4419,17 @@ abstract class S {
   /// **'Patrimoine Personne 2'**
   String get mariagePatrimoine2;
 
-  /// No description provided for @mariageChiffreChocDefault.
+  /// No description provided for @mariagePremierEclairageDefault.
   ///
   /// In fr, this message translates to:
   /// **'En régime par défaut, cette part de tes acquêts reviendrait à ton conjoint en cas de dissolution'**
-  String get mariageChiffreChocDefault;
+  String get mariagePremierEclairageDefault;
 
-  /// No description provided for @mariageChiffreChocCommunaute.
+  /// No description provided for @mariagePremierEclairageCommunaute.
   ///
   /// In fr, this message translates to:
   /// **'En communauté de biens, ce montant serait partagé avec ton conjoint'**
-  String get mariageChiffreChocCommunaute;
+  String get mariagePremierEclairageCommunaute;
 
   /// No description provided for @mariageProtectionIntro.
   ///
@@ -6202,11 +6202,11 @@ abstract class S {
   /// **'Indépendant·e'**
   String get independantJourJSelfEmployed;
 
-  /// No description provided for @independantJourJChiffreChoc.
+  /// No description provided for @independantJourJPremierEclairage.
   ///
   /// In fr, this message translates to:
   /// **'Tu perds ~{amount}/mois de protection invisible.\nTu n’as pas quitté un emploi. Tu as quitté un système de protection.'**
-  String independantJourJChiffreChoc(String amount);
+  String independantJourJPremierEclairage(String amount);
 
   /// No description provided for @independantAvsBody.
   ///
@@ -12300,17 +12300,17 @@ abstract class S {
   /// **'Déménagement cantonal'**
   String get demenagementTitre;
 
-  /// No description provided for @demenagementChiffreChocSousTitre.
+  /// No description provided for @demenagementPremierEclairageSousTitre.
   ///
   /// In fr, this message translates to:
   /// **'économie (ou surcoût) annuel estimé'**
-  String get demenagementChiffreChocSousTitre;
+  String get demenagementPremierEclairageSousTitre;
 
-  /// No description provided for @demenagementChiffreChocDetail.
+  /// No description provided for @demenagementPremierEclairageDetail.
   ///
   /// In fr, this message translates to:
   /// **'En déménageant de {depart} vers {arrivee} (impôts + LAMal)'**
-  String demenagementChiffreChocDetail(String depart, String arrivee);
+  String demenagementPremierEclairageDetail(String depart, String arrivee);
 
   /// No description provided for @demenagementSituation.
   ///
@@ -12714,11 +12714,11 @@ abstract class S {
   /// **'+{points} points de confiance'**
   String docImpactDeltaPoints(int points);
 
-  /// No description provided for @docImpactChiffreChocTitle.
+  /// No description provided for @docImpactPremierEclairageTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Chiffre choc recalculé'**
-  String get docImpactChiffreChocTitle;
+  /// **'Ce que Mint voit'**
+  String get docImpactPremierEclairageTitle;
 
   /// No description provided for @docImpactLppRealAmount.
   ///
@@ -13500,23 +13500,23 @@ abstract class S {
   /// **'• Les montants sont basés sur les informations déclarées.'**
   String get budgetDisclaimerBased;
 
-  /// No description provided for @chiffreChocDisclaimer.
+  /// No description provided for @premierEclairageDisclaimer.
   ///
   /// In fr, this message translates to:
   /// **'Outil éducatif — ne constitue pas un conseil financier (LSFin). Sources : LAVS art. 34, LPP art. 14-16, OPP3 art. 7.'**
-  String get chiffreChocDisclaimer;
+  String get premierEclairageDisclaimer;
 
-  /// No description provided for @chiffreChocAction.
+  /// No description provided for @premierEclairageAction.
   ///
   /// In fr, this message translates to:
   /// **'Qu\'est-ce que je peux faire ?'**
-  String get chiffreChocAction;
+  String get premierEclairageAction;
 
-  /// No description provided for @chiffreChocConfidence.
+  /// No description provided for @premierEclairageConfidence.
   ///
   /// In fr, this message translates to:
   /// **'Estimation basée sur {count} informations. Plus tu précises, plus c\'est fiable.'**
-  String chiffreChocConfidence(String count);
+  String premierEclairageConfidence(String count);
 
   /// No description provided for @slmChooseModel.
   ///
@@ -13785,7 +13785,7 @@ abstract class S {
   /// No description provided for @coachSuggestSimulate3a.
   ///
   /// In fr, this message translates to:
-  /// **'Combien j’économise si je verse le max ?'**
+  /// **'Si je verse plus sur mon 3a, ça change quoi ?'**
   String get coachSuggestSimulate3a;
 
   /// No description provided for @coachSuggestView3a.
@@ -13815,13 +13815,13 @@ abstract class S {
   /// No description provided for @coachSuggestScenarios.
   ///
   /// In fr, this message translates to:
-  /// **'Rente ou capital — qu’est-ce qui me convient ?'**
+  /// **'Rente ou capital — montre-moi les deux côte à côte'**
   String get coachSuggestScenarios;
 
   /// No description provided for @coachSuggestDeductions.
   ///
   /// In fr, this message translates to:
-  /// **'Combien je récupère cette année ?'**
+  /// **'Combien je pourrais récupérer cette année ?'**
   String get coachSuggestDeductions;
 
   /// No description provided for @coachSuggestTaxImpact.
@@ -13833,13 +13833,13 @@ abstract class S {
   /// No description provided for @coachSuggestFitness.
   ///
   /// In fr, this message translates to:
-  /// **'Je suis où par rapport à mon objectif ?'**
+  /// **'Je suis où, par rapport à ce que je m\'étais dit ?'**
   String get coachSuggestFitness;
 
   /// No description provided for @coachSuggestRetirement.
   ///
   /// In fr, this message translates to:
-  /// **'J’aurai assez pour vivre à la retraite ?'**
+  /// **'À la retraite, il me restera quoi chaque mois ?'**
   String get coachSuggestRetirement;
 
   /// No description provided for @coachEmptyStateMessage.
@@ -13905,7 +13905,7 @@ abstract class S {
   /// No description provided for @coachInputHint.
   ///
   /// In fr, this message translates to:
-  /// **'Une question sur tes finances ?'**
+  /// **'Dis-moi ce qui te trotte dans la tête.'**
   String get coachInputHint;
 
   /// No description provided for @coachUserMessage.
@@ -14677,11 +14677,11 @@ abstract class S {
   /// **'Le calcul a buté. Réessaie ?'**
   String get budgetErrorRetry;
 
-  /// No description provided for @budgetChiffreChocCaption.
+  /// No description provided for @budgetPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
   /// **'Soit ce qu\'il te reste après toutes tes charges fixes'**
-  String get budgetChiffreChocCaption;
+  String get budgetPremierEclairageCaption;
 
   /// No description provided for @budgetMethodTitle.
   ///
@@ -14707,71 +14707,71 @@ abstract class S {
   /// **'Estimation éducative. Ne constitue pas un conseil financier (LSFin art. 3).'**
   String get budgetDisclaimerNote;
 
-  /// No description provided for @chiffreChocIfYouAct.
+  /// No description provided for @premierEclairageIfYouAct.
   ///
   /// In fr, this message translates to:
   /// **'Si tu agis'**
-  String get chiffreChocIfYouAct;
+  String get premierEclairageIfYouAct;
 
-  /// No description provided for @chiffreChocIfYouDontAct.
+  /// No description provided for @premierEclairageIfYouDontAct.
   ///
   /// In fr, this message translates to:
   /// **'Si tu ne fais rien'**
-  String get chiffreChocIfYouDontAct;
+  String get premierEclairageIfYouDontAct;
 
-  /// No description provided for @chiffreChocAvantApresGapAct.
+  /// No description provided for @premierEclairageAvantApresGapAct.
   ///
   /// In fr, this message translates to:
   /// **'Un rachat LPP ou un 3a peut réduire cet écart de moitié.'**
-  String get chiffreChocAvantApresGapAct;
+  String get premierEclairageAvantApresGapAct;
 
-  /// No description provided for @chiffreChocAvantApresGapNoAct.
+  /// No description provided for @premierEclairageAvantApresGapNoAct.
   ///
   /// In fr, this message translates to:
   /// **'L\'écart se creuse chaque année. À la retraite, il sera trop tard.'**
-  String get chiffreChocAvantApresGapNoAct;
+  String get premierEclairageAvantApresGapNoAct;
 
-  /// No description provided for @chiffreChocAvantApresLiquidityAct.
+  /// No description provided for @premierEclairageAvantApresLiquidityAct.
   ///
   /// In fr, this message translates to:
   /// **'Épargner 500 CHF/mois reconstitue 3 mois de réserve en 6 mois.'**
-  String get chiffreChocAvantApresLiquidityAct;
+  String get premierEclairageAvantApresLiquidityAct;
 
-  /// No description provided for @chiffreChocAvantApresLiquidityNoAct.
+  /// No description provided for @premierEclairageAvantApresLiquidityNoAct.
   ///
   /// In fr, this message translates to:
   /// **'Un imprévu sans réserve, c\'est un crédit à la consommation.'**
-  String get chiffreChocAvantApresLiquidityNoAct;
+  String get premierEclairageAvantApresLiquidityNoAct;
 
-  /// No description provided for @chiffreChocAvantApresTaxAct.
+  /// No description provided for @premierEclairageAvantApresTaxAct.
   ///
   /// In fr, this message translates to:
   /// **'Chaque année sans 3a, c\'est une économie d\'impôt perdue.'**
-  String get chiffreChocAvantApresTaxAct;
+  String get premierEclairageAvantApresTaxAct;
 
-  /// No description provided for @chiffreChocAvantApresTaxNoAct.
+  /// No description provided for @premierEclairageAvantApresTaxNoAct.
   ///
   /// In fr, this message translates to:
   /// **'Sans 3a, tu paies le taux plein et tu ne prépares pas ta retraite.'**
-  String get chiffreChocAvantApresTaxNoAct;
+  String get premierEclairageAvantApresTaxNoAct;
 
-  /// No description provided for @chiffreChocAvantApresIncomeAct.
+  /// No description provided for @premierEclairageAvantApresIncomeAct.
   ///
   /// In fr, this message translates to:
   /// **'Quelques ajustements peuvent améliorer ta projection.'**
-  String get chiffreChocAvantApresIncomeAct;
+  String get premierEclairageAvantApresIncomeAct;
 
-  /// No description provided for @chiffreChocAvantApresIncomeNoAct.
+  /// No description provided for @premierEclairageAvantApresIncomeNoAct.
   ///
   /// In fr, this message translates to:
   /// **'Ta situation actuelle reste stable, mais sans marge de progression.'**
-  String get chiffreChocAvantApresIncomeNoAct;
+  String get premierEclairageAvantApresIncomeNoAct;
 
   /// Simplified confidence indicator. Tone: inviting, not jargon.
   ///
   /// In fr, this message translates to:
   /// **'Basé sur {count} données. Ajoutes-en pour affiner.'**
-  String chiffreChocConfidenceSimple(String count);
+  String premierEclairageConfidenceSimple(String count);
 
   /// No description provided for @quickStartAge.
   ///
@@ -14851,23 +14851,23 @@ abstract class S {
   /// **'Dernière mise à jour il y a {days} jours'**
   String profileAnnualRefreshDays(int days);
 
-  /// No description provided for @chiffreChocBack.
+  /// No description provided for @premierEclairageBack.
   ///
   /// In fr, this message translates to:
   /// **'Retour'**
-  String get chiffreChocBack;
+  String get premierEclairageBack;
 
-  /// No description provided for @chiffreChocShowComparison.
+  /// No description provided for @premierEclairageShowComparison.
   ///
   /// In fr, this message translates to:
   /// **'Afficher la comparaison'**
-  String get chiffreChocShowComparison;
+  String get premierEclairageShowComparison;
 
-  /// No description provided for @chiffreChocHideComparison.
+  /// No description provided for @premierEclairageHideComparison.
   ///
   /// In fr, this message translates to:
   /// **'Masquer la comparaison'**
-  String get chiffreChocHideComparison;
+  String get premierEclairageHideComparison;
 
   /// No description provided for @dashboardNextActionsTitle.
   ///
@@ -16321,17 +16321,17 @@ abstract class S {
   /// **'Chaque année manquante réduit ta rente d\'environ {percent} %. La réduction est définitive et s\'applique à vie.'**
   String expatAvsReductionExplain(String percent);
 
-  /// No description provided for @expatAvsChiffreChoc.
+  /// No description provided for @expatAvsPremierEclairage.
   ///
   /// In fr, this message translates to:
   /// **'-{amount}/an sur ta rente AVS'**
-  String expatAvsChiffreChoc(String amount);
+  String expatAvsPremierEclairage(String amount);
 
-  /// No description provided for @expatDepartChiffreChoc.
+  /// No description provided for @expatDepartPremierEclairage.
   ///
   /// In fr, this message translates to:
   /// **'{amount} de capital à sécuriser avant ton départ'**
-  String expatDepartChiffreChoc(String amount);
+  String expatDepartPremierEclairage(String amount);
 
   /// No description provided for @independantCoveredLabel.
   ///
@@ -16603,11 +16603,11 @@ abstract class S {
   /// **'Rendement réel 3a'**
   String get realReturnTitle;
 
-  /// No description provided for @realReturnChiffreChocLabel.
+  /// No description provided for @realReturnPremierEclairageLabel.
   ///
   /// In fr, this message translates to:
   /// **'Taux équivalent sur effort net'**
-  String get realReturnChiffreChocLabel;
+  String get realReturnPremierEclairageLabel;
 
   /// No description provided for @realReturnVsNominal.
   ///
@@ -16774,7 +16774,7 @@ abstract class S {
   /// No description provided for @genderGapIntro.
   ///
   /// In fr, this message translates to:
-  /// **'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l\'impact.'**
+  /// **'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le sélecteur pour voir l\'impact.'**
   String get genderGapIntro;
 
   /// No description provided for @genderGapTauxActivite.
@@ -17941,11 +17941,11 @@ abstract class S {
   /// **'CHF 250’000'**
   String get avsCotisationsSliderMax250k;
 
-  /// No description provided for @avsCotisationsChiffreChocCaption.
+  /// No description provided for @avsCotisationsPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
   /// **'En tant qu’indépendant·e, tu paies {amount}/an de plus qu’un·e salarié·e'**
-  String avsCotisationsChiffreChocCaption(String amount);
+  String avsCotisationsPremierEclairageCaption(String amount);
 
   /// No description provided for @avsCotisationsTauxEffectif.
   ///
@@ -18121,11 +18121,11 @@ abstract class S {
   /// **'jours'**
   String get ijmJours;
 
-  /// No description provided for @ijmChiffreChocCaption.
+  /// No description provided for @ijmPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
   /// **'Sans assurance IJM, tu perds {amount} pendant le délai de carence de {jours} jours'**
-  String ijmChiffreChocCaption(String amount, int jours);
+  String ijmPremierEclairageCaption(String amount, int jours);
 
   /// No description provided for @ijmHighRiskTitle.
   ///
@@ -18295,17 +18295,17 @@ abstract class S {
   /// **'Taux marginal d’imposition'**
   String get pillar3aIndepTauxLabel;
 
-  /// No description provided for @pillar3aIndepChiffreChocCaption.
+  /// No description provided for @pillar3aIndepPremierEclairageCaption.
   ///
   /// In fr, this message translates to:
   /// **'d’économie fiscale annuelle grâce au 3e pilier'**
-  String get pillar3aIndepChiffreChocCaption;
+  String get pillar3aIndepPremierEclairageCaption;
 
-  /// No description provided for @pillar3aIndepChiffreChocAvantageSalarie.
+  /// No description provided for @pillar3aIndepPremierEclairageAvantageSalarie.
   ///
   /// In fr, this message translates to:
   /// **'Tu économises {amount}/an d’impôts de plus qu’un·e salarié·e grâce au grand 3a'**
-  String pillar3aIndepChiffreChocAvantageSalarie(String amount);
+  String pillar3aIndepPremierEclairageAvantageSalarie(String amount);
 
   /// No description provided for @pillar3aIndepPlafondApplicable.
   ///
@@ -18511,11 +18511,11 @@ abstract class S {
   /// **'Taux marginal d’imposition'**
   String get lppVolontaireTauxMarginal;
 
-  /// No description provided for @lppVolontaireChiffreChocCaption.
+  /// No description provided for @lppVolontairePremierEclairageCaption.
   ///
   /// In fr, this message translates to:
   /// **'Sans LPP volontaire, tu perds {amount}/an de capitalisation retraite'**
-  String lppVolontaireChiffreChocCaption(String amount);
+  String lppVolontairePremierEclairageCaption(String amount);
 
   /// No description provided for @lppVolontaireTrancheAge.
   ///
@@ -19129,17 +19129,17 @@ abstract class S {
   /// **'Comparateur 3a'**
   String get providerComparatorAppBarTitle;
 
-  /// No description provided for @providerComparatorChiffreChocLabel.
+  /// No description provided for @providerComparatorPremierEclairageLabel.
   ///
   /// In fr, this message translates to:
   /// **'Différence sur {duree} ans'**
-  String providerComparatorChiffreChocLabel(int duree);
+  String providerComparatorPremierEclairageLabel(int duree);
 
-  /// No description provided for @providerComparatorChiffreChocSubtitle.
+  /// No description provided for @providerComparatorPremierEclairageSubtitle.
   ///
   /// In fr, this message translates to:
   /// **'entre le provider le plus et le moins performant'**
-  String get providerComparatorChiffreChocSubtitle;
+  String get providerComparatorPremierEclairageSubtitle;
 
   /// No description provided for @providerComparatorSectionParametres.
   ///
@@ -22219,11 +22219,11 @@ abstract class S {
   /// **'Calcul : rente mensuelle × 13 mois/an (13ᵉ rente AVS dès déc. 2026)'**
   String get avsGapCalculation;
 
-  /// No description provided for @chiffreChocRenteCalculation.
+  /// No description provided for @premierEclairageRenteCalculation.
   ///
   /// In fr, this message translates to:
   /// **'(calcul : rente mensuelle × 13 mois/an, 13ᵉ rente incluse).'**
-  String get chiffreChocRenteCalculation;
+  String get premierEclairageRenteCalculation;
 
   /// No description provided for @coachBriefingFallbackGreeting.
   ///
@@ -22261,11 +22261,11 @@ abstract class S {
   /// **'Impact estimé : CHF {amount}'**
   String coachBriefingImpactEstimated(String amount);
 
-  /// No description provided for @chiffreChocSectionDisclaimer.
+  /// No description provided for @premierEclairageSectionDisclaimer.
   ///
   /// In fr, this message translates to:
   /// **'Simulation à titre éducatif uniquement. Ne constitue pas un conseil en placement ou prévoyance (LSFin). Hypothèses modifiables — résultats non assurés.'**
-  String get chiffreChocSectionDisclaimer;
+  String get premierEclairageSectionDisclaimer;
 
   /// No description provided for @concubinageTabProtection.
   ///
@@ -22273,17 +22273,17 @@ abstract class S {
   /// **'Protection'**
   String get concubinageTabProtection;
 
-  /// No description provided for @concubinageHeroChiffreChoc.
+  /// No description provided for @concubinageHeroPremierEclairage.
   ///
   /// In fr, this message translates to:
   /// **'CHF {montant} de patrimoine exposé'**
-  String concubinageHeroChiffreChoc(String montant);
+  String concubinageHeroPremierEclairage(String montant);
 
-  /// No description provided for @concubinageHeroChiffreChocDesc.
+  /// No description provided for @concubinageHeroPremierEclairageDesc.
   ///
   /// In fr, this message translates to:
   /// **'En concubinage, ton partenaire n’est pas héritier légal. Sans testament, ce montant lui échappe entièrement.'**
-  String get concubinageHeroChiffreChocDesc;
+  String get concubinageHeroPremierEclairageDesc;
 
   /// No description provided for @concubinageEducationalAvs.
   ///
@@ -26366,7 +26366,7 @@ abstract class S {
   /// No description provided for @coachPulseDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.'**
+  /// **'Mint éclaire, Mint ne promet rien. Les estimations ici sont éducatives et ne constituent pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Pour un plan personnalisé, parle à un·e spécialiste. LSFin.'**
   String get coachPulseDisclaimer;
 
   /// No description provided for @coachingDescAttentif.
@@ -28632,11 +28632,11 @@ abstract class S {
   /// **'Besoins'**
   String get firstJobBudgetBesoins;
 
-  /// No description provided for @firstJobBudgetChiffreChoc.
+  /// No description provided for @firstJobBudgetPremierEclairage.
   ///
   /// In fr, this message translates to:
   /// **'Si tu épargnes {annual} CHF/an dès maintenant, tu auras ~{future} CHF à 65 ans.'**
-  String firstJobBudgetChiffreChoc(String annual, String future);
+  String firstJobBudgetPremierEclairage(String annual, String future);
 
   /// No description provided for @firstJobBudgetEnvies.
   ///
@@ -36180,7 +36180,7 @@ abstract class S {
   /// No description provided for @coachDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Outil éducatif — les réponses ne constituent pas un conseil financier (LSFin art. 3). Consulte un·e spécialiste pour les décisions importantes.'**
+  /// **'Mint éclaire, Mint n\'avise pas. Les réponses ici sont éducatives et ne constituent pas un conseil financier au sens de la LSFin (art. 3). Pour une décision importante, parle à un·e spécialiste.'**
   String get coachDisclaimer;
 
   /// No description provided for @coachFallbackName.
@@ -36192,7 +36192,7 @@ abstract class S {
   /// No description provided for @coachGreetingDefault.
   ///
   /// In fr, this message translates to:
-  /// **'Salut {name}. Je regarde tes chiffres — dis-moi ce qui te trotte dans la tête.{scoreSuffix}'**
+  /// **'Salut {name}. Mint regarde tes chiffres tranquillement — quand tu veux, on en parle.{scoreSuffix}'**
   String coachGreetingDefault(String name, String scoreSuffix);
 
   /// No description provided for @coachGreetingSlm.
@@ -36819,23 +36819,23 @@ abstract class S {
   /// **'Outil éducatif simplifié. Ne constitue pas un conseil financier personnalisé (LSFin). Sources : LAVS art. 21-29, LPP art. 14, OPP3 art. 7. Consulte un·e spécialiste pour un accompagnement adapté.'**
   String get disclaimerFull;
 
-  /// No description provided for @chiffreChocSilenceQuestion.
+  /// No description provided for @premierEclairageSilenceQuestion.
   ///
   /// In fr, this message translates to:
   /// **'C\'est ton chiffre. Qu\'est-ce que tu en penses ?'**
-  String get chiffreChocSilenceQuestion;
+  String get premierEclairageSilenceQuestion;
 
-  /// No description provided for @chiffreChocSilenceHint.
+  /// No description provided for @premierEclairageSilenceHint.
   ///
   /// In fr, this message translates to:
   /// **'Dis ce qui te vient...'**
-  String get chiffreChocSilenceHint;
+  String get premierEclairageSilenceHint;
 
-  /// No description provided for @chiffreChocSkipToHome.
+  /// No description provided for @premierEclairageSkipToHome.
   ///
   /// In fr, this message translates to:
   /// **'Passer au dashboard'**
-  String get chiffreChocSkipToHome;
+  String get premierEclairageSkipToHome;
 
   /// No description provided for @landingQuickCalcTitle.
   ///
@@ -36885,28 +36885,28 @@ abstract class S {
   /// **'30 secondes pour ton premier chiffre. Pas de rendez-vous, pas de frais.'**
   String get landingVzComparison;
 
-  /// No description provided for @instantChiffreChocConfidence.
+  /// No description provided for @instantPremierEclairageConfidence.
   ///
   /// In fr, this message translates to:
   /// **'Estimation ±15 % — crée un compte pour plus de précision'**
-  String get instantChiffreChocConfidence;
+  String get instantPremierEclairageConfidence;
 
-  /// No description provided for @instantChiffreChocNothingStored.
+  /// No description provided for @instantPremierEclairageNothingStored.
   ///
   /// In fr, this message translates to:
   /// **'Aucun compte. Rien n\'est stocké.'**
-  String get instantChiffreChocNothingStored;
+  String get instantPremierEclairageNothingStored;
 
-  /// No description provided for @instantChiffreChocComeBack.
+  /// No description provided for @instantPremierEclairageComeBack.
   ///
   /// In fr, this message translates to:
   /// **'Reviens quand tu veux'**
-  String get instantChiffreChocComeBack;
+  String get instantPremierEclairageComeBack;
 
   /// No description provided for @coachSilentOpenerQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'Tu veux en parler ?'**
+  /// **'Mint est là quand tu veux en parler.'**
   String get coachSilentOpenerQuestion;
 
   /// No description provided for @coachProactiveOptIn.
@@ -37359,12 +37359,6 @@ abstract class S {
   /// **'depuis le {date}'**
   String mintHomeDeltaSince(String date);
 
-  /// No description provided for @mintHomeNoActionProjection.
-  ///
-  /// In fr, this message translates to:
-  /// **'Si tu ne fais rien'**
-  String get mintHomeNoActionProjection;
-
   /// No description provided for @mintHomeIn30Days.
   ///
   /// In fr, this message translates to:
@@ -37382,12 +37376,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Itinéraire alternatif'**
   String get mintHomeAlternativeRoute;
-
-  /// No description provided for @mintHomeConfidence.
-  ///
-  /// In fr, this message translates to:
-  /// **'Confiance'**
-  String get mintHomeConfidence;
 
   /// No description provided for @mintHomeTalkAboutIt.
   ///
@@ -37476,7 +37464,7 @@ abstract class S {
   /// No description provided for @coachInterruptFullCapitalRisk.
   ///
   /// In fr, this message translates to:
-  /// **'100 % capital = 0 rente garantie. Sûr ?'**
+  /// **'Mint observe : 100 % en capital, c\'est zéro rente mensuelle à vie. Tu veux qu\'on regarde ce que ça implique ?'**
   String get coachInterruptFullCapitalRisk;
 
   /// No description provided for @coachInterruptEplBlock.
@@ -37650,7 +37638,7 @@ abstract class S {
   /// No description provided for @intentChip3a.
   ///
   /// In fr, this message translates to:
-  /// **'On m\'a proposé un 3a'**
+  /// **'On vient de me parler d\'un 3a'**
   String get intentChip3a;
 
   /// No description provided for @intentChipBilan.
@@ -37668,7 +37656,7 @@ abstract class S {
   /// No description provided for @intentChipFiscalite.
   ///
   /// In fr, this message translates to:
-  /// **'Je veux payer moins bêtement'**
+  /// **'Mes impôts, j\'aimerais y voir clair'**
   String get intentChipFiscalite;
 
   /// No description provided for @intentChipProjet.
@@ -37764,7 +37752,7 @@ abstract class S {
   /// No description provided for @coachOpenerIntentChangement.
   ///
   /// In fr, this message translates to:
-  /// **'Tu vis un changement de vie — voici ce que MINT a trouvé pour toi.'**
+  /// **'Tu vis un changement — Mint a regardé ce que ça pourrait toucher, sans rien décider à ta place.'**
   String get coachOpenerIntentChangement;
 
   /// No description provided for @coachOpenerIntentAutre.
@@ -38373,11 +38361,11 @@ abstract class S {
   /// **'Trois questions, un premier chiffre.'**
   String get quickStartHeadline;
 
-  /// No description provided for @chiffreChocContinue.
+  /// No description provided for @premierEclairageContinue.
   ///
   /// In fr, this message translates to:
   /// **'Continuer'**
-  String get chiffreChocContinue;
+  String get premierEclairageContinue;
 
   /// No description provided for @planCta.
   ///
@@ -38454,7 +38442,7 @@ abstract class S {
   /// No description provided for @coachCheckInWelcome.
   ///
   /// In fr, this message translates to:
-  /// **'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?'**
+  /// **'Salut ! Mint est là. Quand tu veux, on regarde ensemble ce qui compte ce mois-ci.'**
   String get coachCheckInWelcome;
 
   /// No description provided for @docNotFinancial.
@@ -38516,12 +38504,6 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Confirmer et enrichir mon profil'**
   String get docReviewConfirm;
-
-  /// No description provided for @docImpactPremierEclairageTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Ce que Mint voit'**
-  String get docImpactPremierEclairageTitle;
 
   /// No description provided for @docImpactQuestionsTitle.
   ///
@@ -38912,6 +38894,216 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Plus ton profil est complet, plus MINT est précis.'**
   String get ctxHeroStatProfileNarrative;
+
+  /// Header for the user-facing tone setting (Phase 12). Never 'Niveau' or 'Intensité' — those words sound judgmental.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton'**
+  String get voiceCursorPreferenceLabel;
+
+  /// Softest tone option. Calm, no shame for choosing it.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doux'**
+  String get voiceCursorPreferenceSoft;
+
+  /// Default tone option.
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct'**
+  String get voiceCursorPreferenceDirect;
+
+  /// Most direct tone option. Calm, no shame for choosing it.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans filtre'**
+  String get voiceCursorPreferenceUnfiltered;
+
+  /// MTC one-line summary when completeness is the weakest axis. Anti-shame: MINT as subject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculé sur ce qu\'on connaît aujourd\'hui — quelques pièces manquent encore.'**
+  String get mtcSummaryWeakCompleteness;
+
+  /// MTC one-line summary when accuracy is the weakest axis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse fragile sur un chiffre clé — Mint reste prudent.'**
+  String get mtcSummaryWeakAccuracy;
+
+  /// MTC one-line summary when freshness is the weakest axis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données récoltées il y a un moment — Mint préfère le redire.'**
+  String get mtcSummaryWeakFreshness;
+
+  /// MTC one-line summary when understanding is the weakest axis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le calcul est posé, l\'idée mérite encore qu\'on en parle.'**
+  String get mtcSummaryWeakUnderstanding;
+
+  /// Landing v2 paragraphe-mère (LOCKED master text per CONTEXT.md D-01). Anti-shame, calm, six life-domains, no retirement framing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint te dit ce que personne n\'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit.'**
+  String get landingV2Paragraph;
+
+  /// Landing v2 primary CTA (LOCKED per D-02). Routes to /onboarding/intent. Parenthetical '(sans compte)' is load-bearing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer (sans compte)'**
+  String get landingV2Cta;
+
+  /// Landing v2 privacy micro-phrase below CTA (LOCKED per D-03).
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ne sort de ton téléphone tant que tu ne le décides pas.'**
+  String get landingV2Privacy;
+
+  /// Landing v2 legal footer (LOCKED per D-04). Compliance anchor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.'**
+  String get landingV2Legal;
+
+  /// MintAlertObject default fact prefix (anti-shame: MINT is subject).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT a remarqué'**
+  String get alertGenericFactPrefix;
+
+  /// MintAlertObject default cause line prefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi'**
+  String get alertGenericCausePrefix;
+
+  /// MintAlertObject default next-moment prefix (invitation, never imperative).
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand on en reparle'**
+  String get alertGenericNextMomentPrefix;
+
+  /// MintAlertObject G2 label (calm register, NEVER 'Warning' or 'Attention').
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get alertG2Label;
+
+  /// MintAlertObject G3 label (firm but calm, no alarmism).
+  ///
+  /// In fr, this message translates to:
+  /// **'À ne pas ignorer'**
+  String get alertG3Label;
+
+  /// MintAlertObject acknowledge CTA (used by Plan 09-04 biography ack).
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get alertAckCta;
+
+  /// MintAlertObject debt G3 fact line — MINT-as-subject (anti-shame, never blames the user).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT voit une tension sur tes dettes : les remboursements pèsent plus que ce qui est confortable.'**
+  String get mintAlertDebtFact;
+
+  /// MintAlertObject debt G3 cause line — explains the threshold MINT noticed.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est ce que MINT remarque quand le remboursement mensuel dépasse le seuil de respiration du budget.'**
+  String get mintAlertDebtCause;
+
+  /// MintAlertObject debt G3 next-moment invitation — never imperative.
+  ///
+  /// In fr, this message translates to:
+  /// **'On peut regarder ensemble un plan de sortie, à ton rythme.'**
+  String get mintAlertDebtNextMoment;
+
+  /// Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT a repéré un point important qui demande ton attention.'**
+  String get mintAlertAnnounceG3;
+
+  /// Phase 12-01 — TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis le ton de Mint'**
+  String get tonChooserTitle;
+
+  /// Phase 12-01 — TonChooser subtitle (anti-shame: all 3 options equally legitimate).
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment Mint te parle. Tu peux changer à tout moment.'**
+  String get tonChooserSubtitle;
+
+  /// Phase 12-01 — Ton option 1 label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doux'**
+  String get tonSoftLabel;
+
+  /// Phase 12-01 — Ton option 2 label (default).
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct'**
+  String get tonDirectLabel;
+
+  /// Phase 12-01 — Ton option 3 label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non filtré'**
+  String get tonUnfilteredLabel;
+
+  /// Phase 12-01 — Ton soft micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'On y va doucement.'**
+  String get tonSoftExample;
+
+  /// Phase 12-01 — Ton direct micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ce que ça veut dire.'**
+  String get tonDirectExample;
+
+  /// Phase 12-01 — Ton unfiltered micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de filtre. Tu veux savoir.'**
+  String get tonUnfilteredExample;
+
+  /// Phase 12-01 — TonChooserSheet skip CTA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get tonSkipLater;
+
+  /// Phase 12-01 — Neutral toast on optimistic rollback (no banned terms).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint n\'a pas pu enregistrer ce choix. On réessaie plus tard.'**
+  String get tonSyncFailedToast;
+
+  /// Phase 12-01 — a11y suffix for selected Ton cell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionné'**
+  String get tonSelectedSemantics;
+
+  /// Phase 12-01 — a11y suffix for unselected Ton cell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non sélectionné'**
+  String get tonNotSelectedSemantics;
+
+  /// Phase 12-01 — ProfileDrawer section heading for Ton chooser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix'**
+  String get tonSectionLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

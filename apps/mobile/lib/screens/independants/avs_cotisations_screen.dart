@@ -73,7 +73,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIncomeSlider(s)),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
-              _buildChiffreChoc(s),
+              _buildPremierEclairage(s),
               const SizedBox(height: MintSpacing.lg),
               _buildResultCards(s),
               const SizedBox(height: MintSpacing.lg),
@@ -132,7 +132,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(S s) {
+  Widget _buildPremierEclairage(S s) {
     final r = _result!;
     if (r.differenceAnnuelle <= 0) return const SizedBox.shrink();
     return Semantics(
@@ -151,7 +151,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              s.avsCotisationsChiffreChocCaption(IndependantsService.formatChf(r.differenceAnnuelle)),
+              s.avsCotisationsPremierEclairageCaption(IndependantsService.formatChf(r.differenceAnnuelle)),
               style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
               textAlign: TextAlign.center,
             ),

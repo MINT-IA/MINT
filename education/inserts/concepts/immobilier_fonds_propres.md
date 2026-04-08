@@ -8,7 +8,7 @@ tags: [immobilier, fonds_propres, hypotheque, 2e_pilier, 3a, epl, finma]
 ## Trigger
 L'utilisateur veut acheter un bien immobilier et s'interroge sur les fonds propres nécessaires, ou cherche à constituer son apport.
 
-## Chiffre Choc
+## Premier Éclairage
 Pour un appartement à CHF 800'000, tu as besoin de CHF 160'000 de fonds propres (20 %). Mais au maximum CHF 80'000 (la moitié) peuvent provenir de ton 2e pilier. Le reste doit venir de ton épargne, 3a, donation, ou avance d'hoirie.
 
 ## Niveau 0

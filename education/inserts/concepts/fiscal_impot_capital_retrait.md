@@ -8,7 +8,7 @@ tags: [fiscal, impôt, capital, retrait, progressif, lifd, prévoyance]
 ## Trigger
 L'utilisateur retire du capital de prévoyance (LPP, 3a, libre passage) et veut comprendre combien d'impôt il paiera, ou planifie ses retraits.
 
-## Chiffre Choc
+## Premier Éclairage
 L'impôt sur le retrait de capital est progressif : retirer CHF 100'000 coûte environ CHF 5'000-7'000 d'impôts, mais retirer CHF 500'000 coûte ~CHF 40'000-60'000 — pas 5 fois plus, mais 8 à 10 fois plus. La progressivité punit les gros retraits en une seule fois.
 
 ## Niveau 0

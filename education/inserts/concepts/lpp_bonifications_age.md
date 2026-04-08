@@ -8,7 +8,7 @@ tags: [lpp, bonification, age, epargne, cotisation, tranche]
 ## Trigger
 L'utilisateur veut comprendre pourquoi ses déductions LPP augmentent avec l'âge, ou planifie l'évolution de son épargne 2e pilier.
 
-## Chiffre Choc
+## Premier Éclairage
 À 55 ans, tu épargnes 18 % de ton salaire coordonné chaque année pour ta LPP — soit 2.5 fois plus qu'à 25 ans (7 %). Les 10 dernières années de ta carrière représentent souvent plus de 40 % de ton capital LPP total.
 
 ## Niveau 0

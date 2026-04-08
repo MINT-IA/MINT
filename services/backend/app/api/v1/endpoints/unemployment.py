@@ -71,7 +71,7 @@ def calculate_unemployment_benefits(
         timeline=timeline_steps,
         checklist=result.get("checklist", []),
         alertes=result.get("alertes", []),
-        chiffre_choc=result["chiffre_choc"],
+        premier_eclairage=result["premier_eclairage"],
         disclaimer=result["disclaimer"],
         sources=result["sources"],
     )

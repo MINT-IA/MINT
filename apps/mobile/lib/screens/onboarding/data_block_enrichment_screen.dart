@@ -380,7 +380,7 @@ class _DataBlockEnrichmentScreenState
 
   String? _enrichmentRoute(String type) {
     const routes = {
-      'revenu': '/onboarding/quick',
+      'revenu': '/coach/chat', // P10-02b: was /onboarding/quick (deleted)
       'lpp': '/scan',
       'avs': '/document-scan/avs-guide',
       '3a': '/pilier-3a',

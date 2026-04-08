@@ -11,7 +11,7 @@ source: "Administration fiscale du canton d'Uri"
 ## Trigger
 L'utilisateur réside à Uri ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Uri est compétitive : le multiplicateur cantonal se situe autour de 90-95 %.
 
 ## Niveau 0

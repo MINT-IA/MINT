@@ -206,7 +206,7 @@ class FirstJobOnboardingService:
 
         # 6. Chiffre choc
         cotisations_invisibles = breakdown["cotisations_invisibles_employeur"]
-        chiffre_choc = (
+        premier_eclairage = (
             f"Ton employeur paie {cotisations_invisibles:,.0f} CHF/mois de charges "
             f"sociales en plus de ton salaire brut. Ton cout reel pour l'entreprise "
             f"est de {salaire_brut_mensuel + cotisations_invisibles:,.0f} CHF/mois."
@@ -218,7 +218,7 @@ class FirstJobOnboardingService:
             "recommandation_lamal": recommandation_lamal,
             "checklist_premier_emploi": checklist,
             "alertes": alertes,
-            "chiffre_choc": chiffre_choc,
+            "premier_eclairage": premier_eclairage,
             "disclaimer": DISCLAIMER,
             "sources": list(SOURCES),
         }

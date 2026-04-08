@@ -25,7 +25,7 @@ lifeEvent: "firstJob"
 - Potentiel d'economie fiscale via le 3e pilier.
 - Checklist des actions a entreprendre.
 
-## Chiffre choc
+## Premier éclairage
 "Sur un salaire brut de CHF 5'000/mois, environ CHF 650 partent en cotisations sociales -- mais ces cotisations construisent ta retraite des le premier jour."
 
 ## Contenu educatif

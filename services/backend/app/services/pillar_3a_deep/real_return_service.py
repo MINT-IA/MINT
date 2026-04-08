@@ -70,7 +70,7 @@ class RealReturnResult:
     taux_marginal: float
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
 
@@ -253,7 +253,7 @@ class RealReturnService:
         # Chiffre choc: compare rNet vs rGross (sans avantage fiscal)
         reel_pct = round(rendement_reel * 100, 1)
         nominal_pct = round(r_gross * 100, 1)
-        chiffre_choc = (
+        premier_eclairage = (
             f"Rendement reel de ton 3a : {reel_pct}% par an "
             f"(vs {nominal_pct}% sans avantage fiscal)"
         )
@@ -280,7 +280,7 @@ class RealReturnService:
             avantage_3a_vs_epargne=avantage,
             duree_annees=duree_annees,
             taux_marginal=taux_marginal,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
             disclaimer=DISCLAIMER,
         )

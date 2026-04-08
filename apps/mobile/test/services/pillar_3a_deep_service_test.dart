@@ -133,7 +133,7 @@ void main() {
       expect(result.disclaimer, contains('OPP3'));
     });
 
-    test('chiffre choc positif quand economie > 0', () {
+    test('premier éclairage positif quand economie > 0', () {
       final result = StaggeredWithdrawalSimulator.simulate(
         avoirTotal: 300000,
         nbComptes: 3,
@@ -142,8 +142,8 @@ void main() {
         ageRetraitDebut: 62,
         ageRetraitFin: 65,
       );
-      expect(result.chiffreChoc.isPositive, true);
-      expect(result.chiffreChoc.montant, greaterThan(0));
+      expect(result.premierEclairage.isPositive, true);
+      expect(result.premierEclairage.montant, greaterThan(0));
     });
   });
 
@@ -454,7 +454,7 @@ void main() {
       expect(result.disclaimer, contains('spécialiste'));
     });
 
-    test('chiffre choc positif quand gain vs epargne > 0', () {
+    test('premier éclairage positif quand gain vs epargne > 0', () {
       final result = RealReturnCalculator.calculate(
         versementAnnuel: 7258,
         tauxMarginal: 0.30,
@@ -462,7 +462,7 @@ void main() {
         fraisGestion: 0.004,
         dureeAnnees: 20,
       );
-      expect(result.chiffreChoc.isPositive, true);
+      expect(result.premierEclairage.isPositive, true);
     });
 
     test('versement plafonne a 36288 (plafond sans LPP)', () {

@@ -10,7 +10,7 @@ source: "LAVS art. 34, Initiative populaire acceptée le 3 mars 2024"
 ## Trigger
 L'utilisateur mentionne la 13e rente AVS, la votation de mars 2024, ou veut savoir combien il touchera en plus.
 
-## Chiffre Choc
+## Premier Éclairage
 Chaque retraité·e recevra un 13e versement de rente AVS dès 2026. Pour la rente maximale individuelle, c'est CHF 2'520 de plus par an.
 
 ## Niveau 0

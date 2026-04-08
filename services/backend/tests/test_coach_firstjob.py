@@ -81,39 +81,54 @@ class TestFirstJobContext:
 
 
 class TestRegionalVoice:
-    """Regional voice markers should match the canton."""
+    """Regional voice markers should match the canton (Phase 6 / REGIONAL-04).
 
-    def test_vd_regional_markers_present(self):
-        """VD canton includes Vaud regional markers."""
-        ctx = _make_ctx(intent="firstJob", canton="VD")
+    Post-refactor: regional voice flows through `RegionalMicrocopy.identity_block`
+    with VS as the Romande anchor (D-05). VD/GE/NE/JU/FR all resolve to VS.
+    """
+
+    def test_vs_regional_markers_present(self):
+        """VS canton (Romande anchor) includes Romande regional markers."""
+        ctx = _make_ctx(intent="firstJob", canton="VS")
         prompt = build_system_prompt(ctx=ctx)
-        assert "Vaud" in prompt
-        assert "COULEUR REGIONALE" in prompt
+        assert "Romande" in prompt
+        assert "REGIONAL IDENTITY" in prompt
 
     def test_zh_regional_markers_present(self):
-        """ZH canton includes Zurich regional markers."""
+        """ZH canton includes Deutschschweiz markers."""
         ctx = _make_ctx(intent="firstJob", canton="ZH")
         prompt = build_system_prompt(ctx=ctx)
-        assert "Zuerich" in prompt or "ZH" in prompt
-        assert "COULEUR REGIONALE" in prompt
+        assert "Deutschschweiz" in prompt
+        assert "REGIONAL IDENTITY" in prompt
 
-    def test_vd_markers_absent_for_zh(self):
-        """ZH canton does NOT include VD markers."""
+    def test_romande_markers_absent_for_zh(self):
+        """ZH canton does NOT include Romande markers."""
         ctx = _make_ctx(intent="firstJob", canton="ZH")
         prompt = build_system_prompt(ctx=ctx)
-        assert "Vaud" not in prompt
-        assert "Morges" not in prompt
+        assert "Romande" not in prompt
 
-    def test_zh_markers_absent_for_vd(self):
-        """VD canton does NOT include ZH markers."""
-        ctx = _make_ctx(intent="firstJob", canton="VD")
+    def test_zh_markers_absent_for_vs(self):
+        """VS canton does NOT include Deutschschweiz markers."""
+        ctx = _make_ctx(intent="firstJob", canton="VS")
         prompt = build_system_prompt(ctx=ctx)
-        assert "Zuerich" not in prompt
-        assert "Bahnhofstrasse" not in prompt
+        assert "Deutschschweiz" not in prompt
+
+    def test_vd_resolves_to_vs_anchor(self):
+        """D-05: VD (Romande secondary) resolves to VS Romande anchor, NOT a VD-labeled block."""
+        ctx_vd = _make_ctx(intent="firstJob", canton="VD")
+        prompt_vd = build_system_prompt(ctx=ctx_vd)
+        ctx_vs = _make_ctx(intent="firstJob", canton="VS")
+        prompt_vs = build_system_prompt(ctx=ctx_vs)
+        # Both should carry the same Romande identity block
+        assert "Romande" in prompt_vd
+        assert "anchor: VS" in prompt_vd
+        # And VD must NOT introduce a Vaud-specific dedicated block
+        assert "anchor: VD" not in prompt_vd
+        assert "Romande" in prompt_vs
 
     def test_secondary_canton_resolves_to_primary(self):
-        """NE (secondary) resolves to VD (primary) regional voice."""
+        """NE (Romande secondary) resolves to VS anchor per D-05 flip."""
         ctx = _make_ctx(intent="firstJob", canton="NE")
         prompt = build_system_prompt(ctx=ctx)
-        assert "Vaud" in prompt
-        assert "COULEUR REGIONALE" in prompt
+        assert "Romande" in prompt
+        assert "anchor: VS" in prompt

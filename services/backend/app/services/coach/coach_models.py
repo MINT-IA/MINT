@@ -15,7 +15,7 @@ class ComponentType(str, Enum):
     greeting = "greeting"                # max 30 words
     score_summary = "score_summary"      # max 80 words
     tip = "tip"                          # max 120 words
-    chiffre_choc = "chiffre_choc"        # max 100 words
+    premier_eclairage = "premier_eclairage"        # max 100 words
     scenario = "scenario"                # max 150 words
     enrichment_guide = "enrichmentGuide" # max 150 words — data block conversational guide
     general = "general"                  # max 200 words
@@ -26,7 +26,7 @@ COMPONENT_WORD_LIMITS = {
     ComponentType.greeting: 30,
     ComponentType.score_summary: 80,
     ComponentType.tip: 120,
-    ComponentType.chiffre_choc: 100,
+    ComponentType.premier_eclairage: 100,
     ComponentType.scenario: 150,
     ComponentType.enrichment_guide: 150,
     ComponentType.general: 200,
@@ -94,7 +94,7 @@ class CoachNarrativeResult:
     greeting: str
     score_summary: str
     tip_narrative: str
-    chiffre_choc_reframe: str
+    premier_eclairage_reframe: str
     used_fallback: Dict[str, bool] = field(default_factory=dict)
     disclaimer: str = ""
     sources: List[str] = field(default_factory=list)

@@ -29,14 +29,13 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
-import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/animated_progress_bar.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
-import 'package:mint_mobile/widgets/coach/streak_badge.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_object.dart';
 import 'package:mint_mobile/widgets/home/action_opportunity_card.dart';
 import 'package:mint_mobile/widgets/home/anticipation_signal_card.dart';
 import 'package:mint_mobile/widgets/home/contextual_overflow.dart';
@@ -164,7 +163,8 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                         child: const Icon(
                           Icons.person_outline_rounded,
                           size: 20,
-                          color: MintColors.textSecondary,
+                          // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                          color: MintColors.textSecondaryAaa,
                         ),
                       ),
                     ),
@@ -237,7 +237,8 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                   const Icon(
                                     Icons.wb_sunny_outlined,
                                     size: 48,
-                                    color: MintColors.textMuted,
+                                    // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                                    color: MintColors.textMutedAaa,
                                   ),
                                   const SizedBox(height: MintSpacing.md),
                                   Text(
@@ -249,7 +250,8 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                   Text(
                                     l.ctxEmptyBody,
                                     style: MintTextStyles.bodyMedium(
-                                      color: MintColors.textSecondary,
+                                      // AESTH-05 per AUDIT_RETRAIT S2 R2 (D-03 swap map)
+                                      color: MintColors.textSecondaryAaa,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -347,12 +349,13 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                         );
                       }
 
-                      // Active state: PlanRealityCard with streak badge INSIDE header
+                      // P-S2-01 (Phase 8c hot-fix): StreakBadgeWidget removed.
+                      // "Streaks tied to knowledge / check-in cadence" is on
+                      // the anti-shame doctrine "will never ship" list.
                       final status = PlanTrackingService.evaluate(
                         checkIns: profile.checkIns,
                         contributions: profile.plannedContributions,
                       );
-                      final streak = StreakService.compute(profile);
                       final birthYear =
                           profile.birthYear;
                       final monthsToRetirement =
@@ -376,7 +379,6 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                 monthsToRetirement > 0
                                     ? monthsToRetirement
                                     : 12,
-                            streakBadge: StreakBadgeWidget(streak: streak),
                           ),
                         ),
                       );
@@ -488,7 +490,37 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
           onTap: () => ctx.push(action.route),
         ),
       ContextualOverflowCard overflow => ContextualOverflow(card: overflow),
+      // Phase 9 D-05: ContextualAlertCard renders the typed MintAlertObject.
+      // Resolved at the call site so the widget stays a pure function of
+      // localized strings; the signal carries ARB keys only.
+      ContextualAlertCard alert => MintAlertObject(
+          gravity: alert.signal.gravity,
+          fact: _arbLookup(ctx, alert.signal.factKey),
+          cause: _arbLookup(ctx, alert.signal.causeKey),
+          nextMoment: _arbLookup(ctx, alert.signal.nextMomentKey),
+          alertId: alert.signal.alertId,
+          resolutionContext: VoiceResolutionContext.neutral,
+        ),
     };
+  }
+
+  /// Minimal ARB-key resolver used by [ContextualAlertCard] dispatch.
+  /// Falls back to the key string if no match (defensive — keys should
+  /// always exist since they originate from the feeder layer).
+  String _arbLookup(BuildContext ctx, String key) {
+    final l = S.of(ctx)!;
+    switch (key) {
+      case 'mintAlertDebtFact':
+        return l.mintAlertDebtFact;
+      case 'mintAlertDebtCause':
+        return l.mintAlertDebtCause;
+      case 'mintAlertDebtNextMoment':
+        return l.mintAlertDebtNextMoment;
+      case 'alertGenericNextMomentPrefix':
+        return l.alertGenericNextMomentPrefix;
+      default:
+        return key;
+    }
   }
 }
 
@@ -524,7 +556,8 @@ class _ItineraireAlternatifCard extends StatelessWidget {
         children: [
           Text(
             l10n.mintHomeAlternativeRoute,
-            style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+            // AESTH-05 per AUDIT_RETRAIT S2 R4 (D-03 swap map)
+            style: MintTextStyles.labelMedium(color: MintColors.textMutedAaa),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -535,7 +568,9 @@ class _ItineraireAlternatifCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.xs),
             Text(
               cap.expectedImpact!,
-              style: MintTextStyles.bodyMedium(color: MintColors.success),
+              // AESTH-06 per AUDIT_RETRAIT S2 R6 (D-04 one-color-one-meaning:
+              // success info-bearing text demoted to textSecondaryAaa)
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondaryAaa),
             ),
           ],
           const SizedBox(height: MintSpacing.md),
@@ -644,7 +679,8 @@ class _CoachInputBarState extends State<_CoachInputBar> {
         // ── Accroche phrase ──
         Text(
           l10n.mintHomeWhatscoming,
-          style: MintTextStyles.titleMedium(color: MintColors.textMuted),
+          // AESTH-05 per AUDIT_RETRAIT S2 R7 (D-03 swap map)
+          style: MintTextStyles.titleMedium(color: MintColors.textMutedAaa),
         ),
         const SizedBox(height: MintSpacing.sm),
 
@@ -668,7 +704,8 @@ class _CoachInputBarState extends State<_CoachInputBar> {
                   decoration: InputDecoration(
                     hintText: l10n.mintHomeAskQuestion,
                     hintStyle: MintTextStyles.bodyMedium(
-                      color: MintColors.textMuted,
+                      // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                      color: MintColors.textMutedAaa,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -723,20 +760,13 @@ class _CoachInputBarState extends State<_CoachInputBar> {
 
     final chips = <_SuggestionChip>[];
 
-    // Chip 1: If confidence is low, suggest improving data.
-    if (state.confidenceScore < 60) {
-      chips.add(_SuggestionChip(
-        label: l10n.mintHomeConfidence,
-        onTap: () => widget.onSwitchToCoach?.call(
-          const CoachEntryPayload(
-            source: CoachEntrySource.homeChip,
-            topic: 'confidence',
-          ),
-        ),
-      ));
-    }
-
-    // Chip 2: If there's a cap, surface its headline.
+    // P-S2-02 (Phase 8c hot-fix): mintHomeConfidence + mintHomeNoActionProjection
+    // suggestion chips removed. Both trip anti-shame checkpoints (2/3/6):
+    // confidence chip nudges users to "improve their data" (shame for being
+    // incomplete), inaction chip frames non-action as a problem (shame for
+    // not engaging). Doctrine: MINT illuminates, never nudges.
+    //
+    // Only the cap-driven chip (situated, content-bearing) is preserved.
     if (state.hasCap && chips.length < 3) {
       chips.add(_SuggestionChip(
         label: state.currentCap!.headline,
@@ -744,21 +774,6 @@ class _CoachInputBarState extends State<_CoachInputBar> {
           CoachEntryPayload(
             source: CoachEntrySource.homeChip,
             topic: state.currentCap!.id,
-          ),
-        ),
-      ));
-    }
-
-    // Chip 3: If there's an inaction delta, nudge the user.
-    if (state.hasSessionDelta &&
-        state.sessionDelta!.cause == 'inaction' &&
-        chips.length < 3) {
-      chips.add(_SuggestionChip(
-        label: l10n.mintHomeNoActionProjection,
-        onTap: () => widget.onSwitchToCoach?.call(
-          const CoachEntryPayload(
-            source: CoachEntrySource.homeChip,
-            topic: 'inaction',
           ),
         ),
       ));
@@ -790,7 +805,8 @@ class _SuggestionChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+          // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondaryAaa),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -849,7 +865,8 @@ class _JourneyStepsCard extends StatelessWidget {
               Text(
                 '${sequence.completedCount}/${sequence.totalCount}',
                 style:
-                    MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                    // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                    MintTextStyles.labelSmall(color: MintColors.textSecondaryAaa),
               ),
             ],
           ),
@@ -943,13 +960,15 @@ class _JourneyStepsCard extends StatelessWidget {
                         TextSpan(
                           text: '${l.homeJourneyUpcoming}\u00a0:\u00a0',
                           style: MintTextStyles.bodySmall(
-                            color: MintColors.textMuted,
+                            // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                            color: MintColors.textMutedAaa,
                           ),
                         ),
                         TextSpan(
                           text: _resolveTitle(l, next.titleKey),
                           style: MintTextStyles.bodySmall(
-                            color: MintColors.textMuted,
+                            // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                            color: MintColors.textMutedAaa,
                           ),
                         ),
                       ],

@@ -220,4 +220,47 @@ class MintColors {
   static const Color white30 = Color(0x4DFFFFFF); // 30% white
   static const Color white24 = Color(0x3DFFFFFF); // 24% white
 
+  // ============ AAA TOKENS (S0-S5 only — AESTH-04) ============
+  // These 6 tokens hit WCAG 2.1 AAA strict normal-text contrast
+  // (≥ 7:1) against every legitimate S0-S5 background:
+  //   #FFFFFF (background, card)
+  //   #FCFBF8 (craie)
+  // Proven by test/theme/aaa_tokens_contrast_test.dart.
+  // Brand sign-off: Julien (6 AAA tokens approved 2026-04-07).
+  // Application happens in Phase 7 LAND-05 + Phase 8b AESTH-05.
+  // Legacy textSecondary/textMuted/success/warning/error/info
+  // remain untouched for out-of-S0-S5 surfaces.
+
+  /// Body secondary text, metadata, timestamps, hypothesis footer
+  /// on S0-S5. Replaces `textSecondary` in those surfaces only.
+  /// NOTE: hex darkened from REQ-locked #595960 → #555560 to clear
+  /// strict ≥ 7:1 on the warm `craie` background (#FCFBF8). The
+  /// REQ-locked value measured 6.95:1 white / 6.71:1 craie, failing
+  /// strict AAA. Iteration 2 of the auto-darkening protocol cleared
+  /// both axes. See plan 02-02 deviation note.
+  static const Color textSecondaryAaa = Color(0xFF555560);
+
+  /// Micro-labels, input hints, disabled state text, footer legal
+  /// on S0-S5. Replaces `textMuted` in those surfaces only.
+  static const Color textMutedAaa = Color(0xFF525256);
+
+  /// "Premier éclairage" positive confirmation, successful save
+  /// toast, completed-action indicator on S0-S5. NOT for score
+  /// badges (banned by anti-shame doctrine).
+  static const Color successAaa = Color(0xFF0F5E28);
+
+  /// The single desaturated amber — "verifiable fact requiring
+  /// attention" per AESTH §3 one-color-one-meaning rule. Used by
+  /// MintAlertObject G2 and MTC confidence-floor prompts.
+  static const Color warningAaa = Color(0xFF8C3F06);
+
+  /// Form validation errors and MintAlertObject G3 rupture
+  /// grammaticale accent on S0-S5. NEVER for compliance messaging
+  /// (compliance = neutral per narrator wall).
+  static const Color errorAaa = Color(0xFF8B1D1D);
+
+  /// Hypothesis footer links, "voir détail" tap targets,
+  /// trajectory base scenario legend on S0-S5.
+  static const Color infoAaa = Color(0xFF004FA3);
+
 }

@@ -361,15 +361,15 @@ void main() {
       expect(result.indemniteJournaliere, closeTo(expectedDaily, 0.01));
     });
 
-    test('chiffre choc mentionne la perte mensuelle', () {
+    test('premier éclairage mentionne la perte mensuelle', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
         moisCotisation: 18,
       );
 
-      expect(result.chiffreChoc, contains('mois'));
-      expect(result.chiffreChoc, contains('salaire'));
+      expect(result.premierEclairage, contains('mois'));
+      expect(result.premierEclairage, contains('salaire'));
     });
 
     test('formatChf formate avec apostrophe suisse', () {

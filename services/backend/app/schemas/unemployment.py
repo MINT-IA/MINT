@@ -156,7 +156,7 @@ class UnemploymentBenefitsResponse(BaseModel):
     alertes: List[str] = Field(
         default_factory=list, description="Alertes et avertissements"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -331,7 +331,7 @@ class FirstJobResponse(BaseModel):
     alertes: List[str] = Field(
         default_factory=list, description="Alertes et avertissements"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(

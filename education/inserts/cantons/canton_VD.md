@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Vaud"
 ## Trigger
 L'utilisateur réside dans le canton de Vaud ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale dans le canton de Vaud est plutôt élevée, l'une des plus hautes en Suisse romande : le multiplicateur cantonal se situe autour de 130-135 %.
 
 ## Niveau 0

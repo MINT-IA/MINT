@@ -182,7 +182,7 @@ def get_feature_gates(request: Request, body: FeatureGatesRequest) -> FeatureGat
     """Retourne les fonctionnalites debloquees selon le niveau de confiance.
 
     Feature gates:
-        < 30%:  basic_chiffre_choc_only
+        < 30%:  basic_premier_eclairage_only
         30-50%: + standard_projections
         50-70%: + arbitrage_comparisons (with uncertainty bands)
         70-85%: + precise_arbitrage + fri_scoring

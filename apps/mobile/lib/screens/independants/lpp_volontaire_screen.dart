@@ -71,7 +71,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  MintEntrance(child: _buildChiffreChoc()),
+                  MintEntrance(child: _buildPremierEclairage()),
                   const SizedBox(height: 24),
                   MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultCards()),
                   const SizedBox(height: 24),
@@ -200,9 +200,9 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     return Semantics(
       label: S.of(context)!.semanticsLppCapitalisation(IndependantsService.formatChf(r.capitalisationAnnuelle)),
@@ -213,7 +213,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           children: [
             MintHeroNumber(
               value: IndependantsService.formatChf(r.capitalisationAnnuelle),
-              caption: S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
+              caption: S.of(context)!.lppVolontairePremierEclairageCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
               color: MintColors.success,
             ),
           ],

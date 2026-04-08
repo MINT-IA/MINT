@@ -35,10 +35,100 @@ jobs:
             flutter:
               - 'apps/mobile/**'
 
+  # ─── Contracts drift guard (VoiceCursorContract codegen) ─────
+  # Regenerates Dart + Python contract consumers from tools/contracts/voice_cursor.json
+  # and fails the build if anything drifted. Runs BEFORE backend/flutter for fail-fast.
+  contracts-drift:
+    name: Contracts drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Regenerate contract consumers
+        run: bash tools/contracts/regenerate.sh
+      - name: Fail on drift
+        run: |
+          if ! git diff --exit-code \
+              tools/contracts/ \
+              apps/mobile/lib/services/voice/voice_cursor_contract.g.dart \
+              services/backend/app/schemas/voice_cursor.py; then
+            echo "::error::Contracts drift detected — run 'bash tools/contracts/regenerate.sh' and commit."
+            exit 1
+          fi
+
+  # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
+  # Pure-Dart Kandel–Moles French readability check on the onboarding
+  # surfaces (intent screen + landing v2 + intent chips). Fails the build
+  # if any scoreable string drops below K–M 50 (B1 floor). Pre-existing
+  # legacy keys (landingFeature*, onboardingStep*) are out of scope —
+  # scoring targets only the new 2-screen golden path.
+  #
+  # Runs on every change to apps/mobile/** or tools/checks/flesch_kincaid_fr.dart.
+  # Lives in its own job so a readability regression fails fast (no
+  # 10-minute wait for the full Flutter shard matrix).
+  readability:
+    name: Onboarding readability (ACCESS-06)
+    needs: [changes]
+    if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          cache: true
+      - name: Flesch–Kincaid (Kandel–Moles) French gate
+        run: |
+          dart run tools/checks/flesch_kincaid_fr.dart \
+            apps/mobile/lib/l10n/app_fr.arb \
+            --keys-prefix=intentScreen,intentChip,landingV2 \
+            --min=50 \
+            --min-words=8
+
+  # ─── Phase 12 Plan 12-02 / ACCESS-03 / D-04: WCAG 2.1 AA gate ───
+  # Two-layer floor gate on every v2.2-touched UI surface:
+  #   1. Python hardcoded-color scanner (tools/checks/wcag_aa_all_touched.py)
+  #      catches raw Color(0xFF...) literals in text contexts that fall
+  #      below WCAG AA 4.5:1 against craie/white.
+  #   2. Dart meetsGuideline widget test
+  #      (test/accessibility/wcag_aa_all_touched_test.dart) asserts
+  #      textContrastGuideline + android/iOS tap target guidelines on
+  #      9 representative v2.2 surface scaffolds.
+  #
+  # Complements (does NOT replace) the strict S0–S5 AAA gate at
+  # test/theme/aaa_tokens_contrast_test.dart.
+  wcag-aa-all-touched:
+    name: WCAG AA all touched surfaces (ACCESS-03)
+    needs: [changes]
+    if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Python WCAG AA hardcoded-color gate
+        run: python3 tools/checks/wcag_aa_all_touched.py
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          cache: true
+      - name: Install Flutter dependencies
+        working-directory: apps/mobile
+        run: flutter pub get
+      - name: Generate l10n
+        working-directory: apps/mobile
+        run: flutter gen-l10n
+      - name: Dart meetsGuideline AA all-touched-surfaces test
+        working-directory: apps/mobile
+        run: flutter test test/accessibility/wcag_aa_all_touched_test.dart
+
   # ─── Backend Tests ───────────────────────────────────────────
   backend:
     name: Backend tests
-    needs: changes
+    needs: [changes, contracts-drift]
     if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -65,6 +155,60 @@ jobs:
         run: |
           pip install pip-audit
           pip-audit --skip-editable --desc on --ignore-vuln CVE-2026-4539
+
+      - name: Legacy token gate (no chiffre_choc)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_chiffre_choc.py
+
+      # ─── Phase 8a / MTC-11, MTC-12: no legacy confidence render ─────
+      - name: No legacy confidence render (Phase 8a gate)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_legacy_confidence_render.py
+
+      # ─── Phase 12 / PERF-05: no implicit BloomStrategy on MTC ──────
+      - name: No implicit BloomStrategy on MTC (PERF-05)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_implicit_bloom_strategy.py
+
+      # ─── Phase 8a / TRUST-02 + Phase 9 / ALERT-02: sentence-subject ARB lint ─
+      - name: ARB sentence-subject lint (TRUST-02 + ALERT-02)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/sentence_subject_arb_lint.py
+
+      # ─── Phase 9 / ALERT-07: no LLM-driven alert objects ────────────
+      - name: No LLM-driven alert objects (ALERT-07)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_llm_alert.py
+
+      # ─── Phase 6 / REGIONAL-05: no legacy REGIONAL_MAP ──────────
+      - name: No legacy REGIONAL_MAP (REGIONAL-05)
+        working-directory: ${{ github.workspace }}
+        run: |
+          # Match only actual assignments (top-of-line), not doc/comment
+          # mentions. Aligned with tools/ship_gate/run_all_gates_v2_2.sh
+          # item [17] to keep a single source of truth.
+          if git grep -nE '^[[:space:]]*REGIONAL_MAP[[:space:]]*=' services/backend/app/; then
+            echo "::error::REGIONAL-05 violation: legacy REGIONAL_MAP reintroduced in services/backend/"
+            exit 1
+          fi
+          if git grep -nE '^[[:space:]]*_REGIONAL_IDENTITY[[:space:]]*=' services/backend/app/; then
+            echo "::error::REGIONAL-05 violation: legacy _REGIONAL_IDENTITY reintroduced in services/backend/app/"
+            exit 1
+          fi
+
+      # ─── Phase 6 / REGIONAL-04: regional microcopy codegen drift ──
+      - name: Regional microcopy codegen drift
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/regional_microcopy_drift.py
+
+      # ─── Phase 7 / LAND-01, LAND-04: landing v2 calm-promise gates ──
+      - name: Landing v2 — no numbers / banned terms (LAND-04)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/landing_no_numbers.py
+
+      - name: Landing v2 — no financial_core imports (LAND-01)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/landing_no_financial_core.py
 
       - name: Run tests
         env:
@@ -140,7 +284,7 @@ jobs:
   #
   flutter:
     name: Flutter ${{ matrix.shard }}
-    needs: changes
+    needs: [changes, contracts-drift]
     if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
@@ -220,10 +364,34 @@ jobs:
           } | sort -z \
             | xargs -0 flutter test --concurrency=4 --reporter compact
 
+      # ─── Golden test gate (Plan 04-03) ────────────────────────────
+      # Runs ONLY on the services shard to avoid triple-execution.
+      # Scope: test/goldens/helpers/ unit tests only (they pin the
+      # screen_pump helper's public surface: device dimensions, view
+      # wiring, locale wiring, MediaQuery flags).
+      #
+      # The image-diff goldens under test/goldens/*.dart are tagged
+      # `local-only` and intentionally NOT run here. Flutter pixel
+      # goldens are cross-platform fragile (macOS masters drift on
+      # Linux CI due to font hinting + glyph rasterization), same
+      # policy that already excludes test/golden_screenshots/. They
+      # are executed locally by Julien before each release and the
+      # Galaxy A14 subset is a manual device gate per PERF-04.
+      #
+      # See apps/mobile/test/goldens/README.md for the full CI scope
+      # decision, local-run commands, and the un-skip protocol for
+      # S4 goldens once Plan 04-02 lands.
+      - name: Golden helper tests (Plan 04-03 CI subset)
+        if: matrix.shard == 'services'
+        shell: bash
+        run: |
+          echo "Running golden helper unit tests (CI-safe subset)"
+          flutter test test/goldens/helpers/ --reporter compact
+
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -232,10 +400,14 @@ jobs:
           # Skip check if job was skipped (no relevant changes)
           backend="${{ needs.backend.result }}"
           flutter="${{ needs.flutter.result }}"
+          readability="${{ needs.readability.result }}"
+          wcag="${{ needs.wcag-aa-all-touched.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]]; then
-            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}"
+          [[ "$readability" == "skipped" ]] && readability="success"
+          [[ "$wcag" == "skipped" ]] && wcag="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]]; then
+            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}, readability=${{ needs.readability.result }}, wcag=${{ needs.wcag-aa-all-touched.result }}"
             exit 1
           fi
           echo "All checks passed"

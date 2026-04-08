@@ -72,7 +72,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  MintEntrance(child: _buildChiffreChoc()),
+                  MintEntrance(child: _buildPremierEclairage()),
                   const SizedBox(height: 24),
                   MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultSection()),
                   const SizedBox(height: 24),
@@ -234,9 +234,9 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     if (r.avantageSurSalarie <= 0) {
       return Semantics(
@@ -248,7 +248,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
             children: [
               MintHeroNumber(
                 value: IndependantsService.formatChf(r.economieFiscale),
-                caption: S.of(context)!.pillar3aIndepChiffreChocCaption,
+                caption: S.of(context)!.pillar3aIndepPremierEclairageCaption,
                 color: MintColors.primary,
               ),
             ],
@@ -266,7 +266,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
           children: [
             MintHeroNumber(
               value: IndependantsService.formatChf(r.avantageSurSalarie),
-              caption: S.of(context)!.pillar3aIndepChiffreChocAvantageSalarie(IndependantsService.formatChf(r.avantageSurSalarie)),
+              caption: S.of(context)!.pillar3aIndepPremierEclairageAvantageSalarie(IndependantsService.formatChf(r.avantageSurSalarie)),
               color: MintColors.success,
             ),
           ],

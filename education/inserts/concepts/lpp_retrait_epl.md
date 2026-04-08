@@ -8,7 +8,7 @@ tags: [lpp, epl, immobilier, retrait, propriete, logement]
 ## Trigger
 L'utilisateur envisage d'acheter un bien immobilier et souhaite utiliser son 2e pilier comme fonds propres, ou veut comprendre les conséquences d'un retrait EPL.
 
-## Chiffre Choc
+## Premier Éclairage
 Le retrait EPL minimum est de CHF 20'000 (OPP2 art. 5). Mais attention : retirer CHF 100'000 de ton 2e pilier à 40 ans, c'est renoncer à environ CHF 180'000 à 65 ans (avec un rendement de 2.5 %/an) — soit une rente réduite de ~CHF 12'240/an à vie.
 
 ## Niveau 0

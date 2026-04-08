@@ -8,7 +8,7 @@ tags: [avs, retraite_anticipee, reduction, age_flexible, lavs]
 ## Trigger
 L'utilisateur envisage de prendre sa retraite AVS avant l'âge de référence (65 ans), ou souhaite comprendre l'impact financier d'un départ anticipé.
 
-## Chiffre Choc
+## Premier Éclairage
 Chaque année d'anticipation réduit ta rente AVS de 6.8 % — à vie. Anticiper de 2 ans sur une rente maximale te coûte CHF 343/mois, soit plus de CHF 4'100/an, pour toute la durée de ta retraite.
 
 ## Niveau 0

@@ -8,7 +8,7 @@ tags: [avs, extrait, compte_individuel, ik, cotisation, verification]
 ## Trigger
 L'utilisateur veut vérifier son historique de cotisations AVS, cherche à détecter des lacunes, ou prépare sa planification de retraite.
 
-## Chiffre Choc
+## Premier Éclairage
 40 % des extraits de compte AVS contiennent des erreurs ou des lacunes insoupçonnées. Commander ton extrait IK est gratuit et pourrait te faire gagner des centaines de francs par mois de rente — à condition d'agir dans le délai de 5 ans pour combler les éventuelles lacunes.
 
 ## Niveau 0

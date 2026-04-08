@@ -106,6 +106,8 @@ class BiographyProvider extends ChangeNotifier {
       case FactType.userDecision:
       case FactType.coachPreference:
         return 'Decisions';
+      case FactType.alertAcknowledged:
+        return 'Interactions';
     }
   }
 

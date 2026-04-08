@@ -429,19 +429,19 @@ def compare_allocation_annuelle(
     if option_3a and option_libre:
         delta = abs(option_3a.terminal_value - option_libre.terminal_value)
         if option_3a.terminal_value > option_libre.terminal_value:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Dans ce scenario simule sur {annees_avant_retraite} ans, "
                 f"le 3a pourrait representer {delta:,.0f} CHF de plus que "
                 f"l'investissement libre grace a l'avantage fiscal."
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Dans ce scenario simule sur {annees_avant_retraite} ans, "
                 f"l'investissement libre pourrait representer {delta:,.0f} CHF de plus "
                 f"que le 3a grace au rendement de marche."
             )
     else:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule, avec {montant_disponible:,.0f} CHF/an "
             f"sur {annees_avant_retraite} ans, chaque strategie presente un "
             f"profil risque/rendement different."
@@ -590,7 +590,7 @@ def compare_allocation_annuelle(
     return ArbitrageResult(
         options=options,
         breakeven_year=breakeven_year,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         display_summary=display_summary,
         hypotheses=hypotheses,
         disclaimer=_DISCLAIMER,

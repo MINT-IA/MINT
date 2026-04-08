@@ -386,7 +386,7 @@ class ArbitrageSummaryService {
       dataSources: profile.dataSources,
     );
 
-    // The chiffreChoc tells the story — extract monthly impact
+    // The premierEclairage tells the story — extract monthly impact
     // 3a deduction gives immediate tax savings
     final impact3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * tauxMarginal / 12;
 
@@ -490,7 +490,7 @@ class ArbitrageSummaryService {
         ),
       ],
       breakevenYear: null,
-      chiffreChoc:
+      premierEclairage:
           '${formatChfWithPrefix(result.taxSaving)} d\'impot en moins en echelonnant les retraits',
       displaySummary: result.recommendation,
       hypotheses: const [

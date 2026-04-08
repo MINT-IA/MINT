@@ -348,7 +348,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: MintSpacing.md),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroChiffreChoc(result, l)),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
                 const SizedBox(height: MintSpacing.lg),
                 MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
@@ -401,7 +401,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     );
   }
 
-  Widget _buildHeroChiffreChoc(RachatEchelonneResult result, S l) {
+  Widget _buildHeroPremierEclairage(RachatEchelonneResult result, S l) {
     final delta = result.delta;
     final showSavings = delta > 0;
 

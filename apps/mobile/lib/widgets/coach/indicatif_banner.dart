@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 /// Banner displayed when projection confidence is below 70%.
 ///
@@ -15,6 +17,14 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 class IndicatifBanner extends StatelessWidget {
   final double confidenceScore;
 
+  /// Optional 4-axis enhanced confidence. When provided it is threaded
+  /// into [MintTrameConfiance.inline] as-is. When null, the banner
+  /// synthesises a minimal [EnhancedConfidence] from [confidenceScore]
+  /// via [EnhancedConfidence.fromBareScore] so the 3 existing bare-double
+  /// arbitrage call sites (Plan 08a-02 Batch A clarification, option b)
+  /// keep working unchanged.
+  final EnhancedConfidence? confidence;
+
   /// The most impactful enrichment prompt's category, used for the CTA.
   /// Falls back to 'lpp' if null.
   final String? topEnrichmentCategory;
@@ -22,6 +32,7 @@ class IndicatifBanner extends StatelessWidget {
   const IndicatifBanner({
     super.key,
     required this.confidenceScore,
+    this.confidence,
     this.topEnrichmentCategory,
   });
 
@@ -68,19 +79,13 @@ class IndicatifBanner extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          // Mini gauge
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: SizedBox(
-              height: 6,
-              child: LinearProgressIndicator(
-                value: (confidenceScore / 100).clamp(0.0, 1.0),
-                backgroundColor: MintColors.lightBorder,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  confidenceScore >= 40 ? MintColors.accent : MintColors.error,
-                ),
-              ),
-            ),
+          // MintTrameConfiance (Plan 08a-02 Batch A) — replaces the
+          // hand-rolled mini gauge. BloomStrategy.firstAppearance because
+          // the banner is a standalone surface, not a feed item.
+          MintTrameConfiance.inline(
+            confidence: confidence ??
+                EnhancedConfidence.fromBareScore(confidenceScore),
+            bloomStrategy: BloomStrategy.firstAppearance,
           ),
           const SizedBox(height: 10),
           Text(

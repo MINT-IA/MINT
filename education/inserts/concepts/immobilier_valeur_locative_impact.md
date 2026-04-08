@@ -8,7 +8,7 @@ tags: [immobilier, fiscalite, valeur_locative, deductions, proprietaire, lifd]
 ## Trigger
 L'utilisateur est propriétaire ou envisage de le devenir et veut comprendre l'impact fiscal global de la propriété immobilière.
 
-## Chiffre Choc
+## Premier Éclairage
 Devenir propriétaire peut augmenter ton revenu imposable de CHF 15'000 à CHF 30'000/an (valeur locative), mais les déductions d'intérêts et d'entretien compensent souvent largement, surtout les premières années. Le solde net dépend de ton hypothèque et du canton.
 
 ## Niveau 0

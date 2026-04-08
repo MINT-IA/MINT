@@ -441,8 +441,8 @@ void main() {
         canton: 'ZH',
       );
 
-      expect(result.chiffreChoc, contains('employeur'));
-      expect(result.chiffreChoc, contains('CHF'));
+      expect(result.premierEclairage, contains('employeur'));
+      expect(result.premierEclairage, contains('CHF'));
     });
   });
 

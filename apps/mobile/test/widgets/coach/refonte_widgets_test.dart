@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/widgets/coach/chiffre_choc_section.dart';
+import 'package:mint_mobile/widgets/coach/premier_eclairage_section.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
 import 'package:mint_mobile/widgets/coach/explore_hub.dart';
 import 'package:mint_mobile/widgets/coach/low_confidence_card.dart';
@@ -21,7 +21,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 //   2. ExploreHub
 //   3. LowConfidenceCard
 //   4. EarlyRetirementComparison
-//   5. ChiffreChocSection
+//   5. PremierEclairageSection
 //   6. TrajectoryCard
 
 /// Builds a MaterialApp wrapper with localization for widgets that use S.of().
@@ -304,16 +304,16 @@ void main() {
   });
 
   // ══════════════════════════════════════════════════════════════
-  //  5. ChiffreChocSection
+  //  5. PremierEclairageSection
   // ══════════════════════════════════════════════════════════════
 
-  group('ChiffreChocSection', () {
+  group('PremierEclairageSection', () {
     testWidgets('renders with profile that has 3a gap and LPP buyback',
         (tester) async {
       final profile = buildProfileWith3aGap();
       await tester.pumpWidget(
         buildLocalizedApp(
-          child: ChiffreChocSection(
+          child: PremierEclairageSection(
             profile: profile,
             narratives: const {},
           ),
@@ -359,7 +359,7 @@ void main() {
 
       await tester.pumpWidget(
         buildLocalizedApp(
-          child: ChiffreChocSection(
+          child: PremierEclairageSection(
             profile: fullProfile,
             narratives: const {},
           ),

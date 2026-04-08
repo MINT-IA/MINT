@@ -8,7 +8,7 @@ tags: [prestations_complementaires, pc, avs, ai, filet_social, minimum_vital, lp
 ## Trigger
 L'utilisateur a une rente AVS/AI insuffisante pour couvrir ses besoins vitaux, ou s'inquiète de ne pas avoir assez à la retraite.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, environ 1 retraité·e sur 8 touche des prestations complémentaires. Pour une personne seule, les PC visent à assurer un revenu minimum d'environ CHF 20'100/an (loyer inclus). Ce n'est pas de l'aide sociale — c'est un droit légal.
 
 ## Niveau 0

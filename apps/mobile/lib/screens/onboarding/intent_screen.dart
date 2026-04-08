@@ -12,18 +12,23 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/cap_sequence_engine.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/voice/ton_chooser_sheet.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Whether the intent screen was reached from the onboarding golden path
-/// (post-auth). When true, navigates to quick-start instead of computing
-/// premier eclairage and going to /home.
+/// (post-auth). Post-Phase-10-02a: both paths now land on /coach/chat with
+/// an enriched CoachEntryPayload — this flag only controls whether the
+/// coach bootstrap considers this the user's first-ever entry.
 bool _isFromOnboarding(Map<String, dynamic>? extra) {
   if (extra == null) return true; // Default: onboarding path
   return extra['fromOnboarding'] as bool? ?? true;
@@ -32,9 +37,9 @@ bool _isFromOnboarding(Map<String, dynamic>? extra) {
 /// Intent-based onboarding screen.
 ///
 /// Replaces the old form-based Quick Start / Smart Onboarding.
-/// Shows 7 situational chips — user taps one, triggers the full onboarding
+/// Shows 6 situational chips — user taps one, triggers the full onboarding
 /// pipeline: intent routing, premier eclairage computation, CapMemory seeding,
-/// and navigation to /home?tab=0 (Aujourd'hui).
+/// and navigation to /coach/chat (Phase 10-02a: unified merged path).
 ///
 /// No data collection. No formulaire. The coach handles everything.
 ///
@@ -62,16 +67,11 @@ class IntentScreen extends StatelessWidget {
         label: l10n.intentChip3a,
         message: l10n.intentChip3a,
       ),
-      _IntentChip(
-        chipKey: 'intentChipBilan',
-        label: l10n.intentChipBilan,
-        message: l10n.intentChipBilan,
-      ),
-      _IntentChip(
-        chipKey: 'intentChipPrevoyance',
-        label: l10n.intentChipPrevoyance,
-        message: l10n.intentChipPrevoyance,
-      ),
+      // P-S1-01 (Phase 8c hot-fix): intentChipBilan + intentChipPrevoyance
+      // removed from rendered list per anti-shame doctrine #3 (curriculum
+      // framing) + CLAUDE.md anti-pattern #16 (retirement-default framing).
+      // ARB keys + IntentRouter mapping kept for legacy deep-link / golden
+      // journey routing (Pierre, Marc) — UI surface only is removed.
       _IntentChip(
         chipKey: 'intentChipFiscalite',
         label: l10n.intentChipFiscalite,
@@ -92,11 +92,10 @@ class IntentScreen extends StatelessWidget {
         label: l10n.intentChipPremierEmploi,
         message: l10n.intentChipPremierEmploi,
       ),
-      _IntentChip(
-        chipKey: 'intentChipNouvelEmploi',
-        label: l10n.intentChipNouvelEmploi,
-        message: l10n.intentChipNouvelEmploi,
-      ),
+      // P-S1-01 (Phase 8c hot-fix): intentChipNouvelEmploi removed from
+      // rendered list per Phase 3 DELETE #1 (redundant with premierEmploi +
+      // changement). ARB key + IntentRouter mapping kept for Anna golden
+      // journey + legacy routing.
       _IntentChip(
         chipKey: 'intentChipAutre',
         label: l10n.intentChipAutre,
@@ -129,7 +128,8 @@ class IntentScreen extends StatelessWidget {
                     Text(
                       l10n.intentScreenSubtitle,
                       style: MintTextStyles.bodyLarge(
-                        color: MintColors.textSecondary,
+                        // AESTH-05 per AUDIT_RETRAIT S1 (D-03 swap map)
+                        color: MintColors.textSecondaryAaa,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -163,7 +163,8 @@ class IntentScreen extends StatelessWidget {
                       child: Text(
                         l10n.intentScreenMicrocopy,
                         style: MintTextStyles.bodySmall(
-                          color: MintColors.textMuted,
+                          // AESTH-05 per AUDIT_RETRAIT S1 (D-03 swap map)
+                          color: MintColors.textMutedAaa,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -188,7 +189,8 @@ class IntentScreen extends StatelessWidget {
     // Capture ALL BuildContext-dependent values BEFORE the first await
     // (STAB-07 / D-16: no use_build_context_synchronously across async gaps).
     final router = GoRouter.of(context);
-    final coachProfile = context.read<CoachProfileProvider>().profile;
+    final coachProvider = context.read<CoachProfileProvider>();
+    final coachProfile = coachProvider.profile;
     final payloadProvider = context.read<CoachEntryPayloadProvider>();
     final profile = _buildMinimalProfileFor(coachProfile);
 
@@ -198,25 +200,47 @@ class IntentScreen extends StatelessWidget {
       data: {'chipKey': chip.chipKey, 'label': chip.label},
     );
 
-    // Persist selected intent (but NOT onboarding completion — that moves to
-    // plan_screen per Research Pitfall 3).
+    // ── Phase 12-01: First-launch Ton chooser sheet (D-02) ──
+    // Show once per device. After confirmation (or skip), the flag is set
+    // and subsequent intent_screen visits skip the sheet.
+    final prefs = await SharedPreferences.getInstance();
+    final tonShown = prefs.getBool('ton_chooser_first_launch_done') ?? false;
+    if (!tonShown && context.mounted) {
+      final currentTon =
+          coachProvider.profile?.voiceCursorPreference ?? VoicePreference.direct;
+      final picked = await showTonChooserSheet(context, current: currentTon);
+      await prefs.setBool('ton_chooser_first_launch_done', true);
+      if (picked != null && picked != currentTon) {
+        await coachProvider.setVoiceCursorPreference(picked);
+        AnalyticsService().trackEvent(
+          'voice_ton_set_first_launch',
+          category: 'onboarding',
+          data: {
+            'from': currentTon.name,
+            'to': picked.name,
+            'source': 'first_launch',
+          },
+        );
+      }
+    }
+    if (!context.mounted) return;
+
+    // Persist selected intent. Onboarding-done is written later by
+    // coach_chat_screen on first successful chat entry from an intent payload
+    // (Phase 10-02a: conversation is the only honest "onboarding done" signal).
     await ReportPersistenceService.setSelectedOnboardingIntent(chip.chipKey);
 
-    // ── Golden path: navigate to quick-start for data collection ──
-    if (fromOnboarding) {
-      if (!context.mounted) return;
-      router.go('/onboarding/quick-start', extra: {'intent': chip.chipKey});
-      return;
-    }
-
-    // ── Non-onboarding path (settings, re-selection): legacy behavior ──
+    // ── Unified path (Phase 10-02a): both onboarding and non-onboarding
+    // land on /coach/chat with an enriched CoachEntryPayload. No more
+    // branch to quick-start. The `fromOnboarding` flag is forwarded via
+    // the payload so the chat bootstrap can detect first-entry.
 
     // Resolve intent mapping.
     final mapping = IntentRouter.forChipKey(chip.chipKey);
 
     if (mapping != null) {
       // Compute premier eclairage.
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: mapping.stressType,
       );
@@ -251,15 +275,18 @@ class IntentScreen extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    // Build coach payload (preserved from current behavior).
+    // Build coach payload. `fromOnboarding` is forwarded via `data` so
+    // coach_chat_screen can detect first-entry and set miniOnboardingCompleted.
     final payload = CoachEntryPayload(
       source: CoachEntrySource.onboardingIntent,
       userMessage: chip.message,
+      data: {'fromOnboarding': fromOnboarding},
     );
     payloadProvider.setPayload(payload);
 
-    // Navigate to Aujourd'hui tab.
-    router.go('/home?tab=0');
+    // Phase 10-02a: unified target = /coach/chat (merged from /home?tab=0).
+    // Screens-before-first-insight reduced from 5 to 2 (landing + intent).
+    router.go('/coach/chat', extra: payload);
   }
 
   /// Build a [MinimalProfileResult] from an already-captured [CoachProfile].
@@ -283,7 +310,7 @@ class IntentScreen extends StatelessWidget {
       );
     }
 
-    // Zero-valued profile — ChiffreChocSelector pedagogical fallback (D-08).
+    // Zero-valued profile — PremierEclairageSelector pedagogical fallback (D-08).
     return const MinimalProfileResult(
       avsMonthlyRente: 0,
       lppAnnualRente: 0,

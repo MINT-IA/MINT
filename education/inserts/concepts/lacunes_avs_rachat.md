@@ -8,7 +8,7 @@ tags: [avs, lacunes, rachat, lavs, rente, cotisation, expat]
 ## Trigger
 L'utilisateur indique des années sans cotisation AVS (études à l'étranger, expatriation, activité non salariée), l'extrait de compte AVS révèle des années manquantes, ou le coach détecte un archetype expat_eu, expat_non_eu ou returning_swiss.
 
-## Chiffre Choc
+## Premier Éclairage
 1 année de cotisation AVS manquante = CHF 688/an de rente en moins à vie. Sur 20 ans de retraite, c'est CHF 13'760 perdus — et certaines lacunes peuvent être rachetées pour quelques centaines de francs seulement.
 
 ## Niveau 0

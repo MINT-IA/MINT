@@ -161,7 +161,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
                 // Chiffre choc
                 if (result != null) ...[
-                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChoc(result)),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairage(result)),
                   const SizedBox(height: MintSpacing.lg),
                 ],
 
@@ -202,8 +202,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     ));
   }
 
-  Widget _buildChiffreChoc(RepaymentComparisonResult result) {
-    final color = switch (result.chiffreChoc.niveau) {
+  Widget _buildPremierEclairage(RepaymentComparisonResult result) {
+    final color = switch (result.premierEclairage.niveau) {
       DebtRiskLevel.vert => MintColors.success,
       DebtRiskLevel.orange => MintColors.warning,
       DebtRiskLevel.rouge => MintColors.error,
@@ -215,7 +215,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         ? result.avalanche
         : result.bouleDeNeige;
 
-    final tone = switch (result.chiffreChoc.niveau) {
+    final tone = switch (result.premierEclairage.niveau) {
       DebtRiskLevel.vert => MintSurfaceTone.sauge,
       DebtRiskLevel.orange => MintSurfaceTone.peche,
       DebtRiskLevel.rouge => MintSurfaceTone.blanc,

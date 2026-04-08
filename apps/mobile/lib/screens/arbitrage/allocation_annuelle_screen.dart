@@ -237,7 +237,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                   const SizedBox(height: MintSpacing.lg),
 
                   // ── Chiffre choc ──
-                  _buildChiffreChocCard(l),
+                  _buildPremierEclairageCard(l),
                   const SizedBox(height: MintSpacing.lg),
 
                   // ── Sensitivity ──
@@ -577,10 +577,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  CHIFFRE CHOC CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildChiffreChocCard(S l) {
+  Widget _buildPremierEclairageCard(S l) {
     if (_result == null) return const SizedBox.shrink();
     return Semantics(
-      label: _result!.chiffreChoc,
+      label: _result!.premierEclairage,
       child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
         radius: 16,
@@ -601,7 +601,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              _result!.chiffreChoc,
+              _result!.premierEclairage,
               style: MintTextStyles.bodyMedium(
                 color: MintColors.textPrimary,
               ),

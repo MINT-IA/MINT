@@ -102,7 +102,7 @@ class AvsEstimationResponse(BaseModel):
         default=None,
         description="Age de breakeven vs scenario normal",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -185,7 +185,7 @@ class LppConversionResponse(BaseModel):
     recommandation_neutre: str = Field(
         ..., description="Recommandation neutre sans biais",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -275,7 +275,7 @@ class RetirementBudgetResponse(BaseModel):
         default_factory=list,
         description="Alertes contextuelles",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     checklist: List[str] = Field(

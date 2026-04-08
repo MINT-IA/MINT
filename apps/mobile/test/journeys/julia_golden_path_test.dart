@@ -1,7 +1,7 @@
 // julia_golden_path_test.dart
 //
 // Integration test: Julia golden path — expat_us (FATCA), fiscalite intent.
-// Traces: intent -> quick_start -> chiffre_choc -> plan -> coach.
+// Traces: intent -> quick_start -> premier_eclairage -> plan -> coach.
 //
 // Julia persona: 38 ans, ZG (Zug), fiscalite intent, 180'000 CHF/an.
 // Service-level tests (not widget E2E) — consistent with project convention.
@@ -15,7 +15,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -90,7 +90,7 @@ void main() {
         canton: juliaCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_impots',
       );
@@ -100,14 +100,14 @@ void main() {
       expect(choc.rawValue, isNonZero);
     });
 
-    test('Julia chiffre choc has valid label and subtitle', () {
+    test('Julia premier éclairage has valid label and subtitle', () {
       final profile = MinimalProfileService.compute(
         age: juliaAge,
         grossSalary: juliaSalary,
         canton: juliaCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_impots',
       );
@@ -246,14 +246,14 @@ void main() {
       expect(result.grossMonthlySalary, greaterThan(0));
     });
 
-    test('ChiffreChocSelector handles underage profile gracefully', () {
+    test('PremierEclairageSelector handles underage profile gracefully', () {
       final profile = MinimalProfileService.compute(
         age: 17,
         grossSalary: juliaSalary,
         canton: juliaCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_impots',
       );

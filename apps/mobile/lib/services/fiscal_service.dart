@@ -236,18 +236,18 @@ class FiscalService {
     final economieMensuelle = economieAnnuelle / 12;
     final economie10Ans = economieAnnuelle * 10;
 
-    String chiffreChoc;
+    String premierEclairage;
     if (economieAnnuelle > 0) {
-      chiffreChoc =
+      premierEclairage =
           'En déménageant de ${cantonNames[cantonDepart]} à ${cantonNames[cantonArrivee]}, '
           'tu économiserais ~${formatChf(economieAnnuelle)}/an soit '
           '${formatChf(economie10Ans)} sur 10 ans';
     } else if (economieAnnuelle < 0) {
-      chiffreChoc =
+      premierEclairage =
           'Attention : ce déménagement te coûterait ~${formatChf(-economieAnnuelle)}/an '
           'en impôts supplémentaires';
     } else {
-      chiffreChoc = 'Charge fiscale équivalente dans les deux cantons';
+      premierEclairage = 'Charge fiscale équivalente dans les deux cantons';
     }
 
     return {
@@ -262,7 +262,7 @@ class FiscalService {
       'economieAnnuelle': economieAnnuelle,
       'economieMensuelle': economieMensuelle,
       'economie10Ans': economie10Ans,
-      'chiffreChoc': chiffreChoc,
+      'premierEclairage': premierEclairage,
     };
   }
 

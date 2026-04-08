@@ -210,8 +210,8 @@ void main() {
       expect(certResult.sources.any((s) => s.contains('LPP art. 19')), isTrue);
     });
 
-    test('chiffreChoc is non-empty', () {
-      expect(certResult.chiffreChoc, isNotEmpty);
+    test('premierEclairage is non-empty', () {
+      expect(certResult.premierEclairage, isNotEmpty);
     });
 
     test('confidenceScore is between 0 and 100', () {
