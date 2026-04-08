@@ -128,8 +128,9 @@ void main() {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
-      // Silent opener shows "Tu veux en parler ?" instead of a proactive greeting.
-      expect(find.textContaining('Tu veux en parler'), findsOneWidget);
+      // Silent opener copy (coachSilentOpenerQuestion):
+      // "Mint est là quand tu veux en parler." — lowercase 't' post-Phase-12.
+      expect(find.textContaining('tu veux en parler'), findsOneWidget);
     });
 
     testWidgets('shows silent opener with financial data', (tester) async {
@@ -145,7 +146,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.textContaining('question sur tes finances'), findsWidgets);
+      // coachInputHint post-Phase-12: "Dis-moi ce qui te trotte dans la tête."
+      expect(find.textContaining('trotte'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {

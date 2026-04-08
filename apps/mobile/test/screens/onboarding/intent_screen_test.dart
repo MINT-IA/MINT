@@ -17,7 +17,12 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    // Phase 12-01 added a first-launch Ton chooser modal sheet that fires
+    // inside `_onChipTap` before persistence/navigation. Pre-set the flag so
+    // the sheet is skipped and the tests can exercise the persist+nav path.
+    SharedPreferences.setMockInitialValues({
+      'ton_chooser_first_launch_done': true,
+    });
   });
 
   late CoachEntryPayloadProvider payloadProvider;
@@ -122,7 +127,9 @@ void main() {
       // Projet, Changement, PremierEmploi, Autre. Removed:
       // intentChipBilan, intentChipPrevoyance, intentChipNouvelEmploi.
       expect(find.textContaining('3a'), findsOneWidget);
-      expect(find.textContaining('bêtement'), findsOneWidget);
+      // Phase 12 Fiscalite copy drift: "Mes impôts, j'aimerais y voir clair"
+      // (was "bêtement" in earlier copy). Use a stable post-Phase-12 substring.
+      expect(find.textContaining('impôts'), findsOneWidget);
       // Scroll down to reveal remaining chips.
       await tester.scrollUntilVisible(
         find.textContaining('Autre'),
@@ -196,9 +203,10 @@ void main() {
       // Before tap, no payload.
       expect(payloadProvider.pending, isNull);
 
-      // P-S1-01: 'prévoyance' chip removed from UI. Use 'bêtement' (Fiscalite)
-      // as the remaining example chip for payload assertion.
-      await tester.tap(find.textContaining('bêtement'));
+      // P-S1-01: 'prévoyance' chip removed from UI. Use 'impôts' (Fiscalite,
+      // Phase 12 copy: "Mes impôts, j'aimerais y voir clair") as the remaining
+      // example chip for payload assertion.
+      await tester.tap(find.textContaining('impôts'));
       await tester.pumpAndSettle();
 
       // After navigation, verify via persistence — chipKey stored, not label.

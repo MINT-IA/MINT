@@ -419,8 +419,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingPunchline1 = "Le système financier suisse est puissant."
-      expect(find.textContaining('financier suisse'), findsOneWidget);
+      // Phase 7 Landing v2: paragraphe-mère (landingV2Paragraph) replaces
+      // legacy "Le système financier suisse est puissant." punchline.
+      expect(find.textContaining('personne n\'a intérêt'), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
@@ -440,9 +441,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
+      // Phase 7 Landing v2 removed the trust bar (shield/lock/check icons).
+      // The privacy reassurance is now a single micro-phrase (landingV2Privacy).
+      expect(find.textContaining('Rien ne sort de ton téléphone'), findsOneWidget);
     });
 
     testWidgets('shows CTA button with Commencer', (tester) async {
@@ -452,18 +453,22 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingCtaCommencer = "Commencer"
-      expect(find.text('Commencer'), findsOneWidget);
+      // Phase 7 Landing v2: landingV2Cta = "Continuer (sans compte)".
+      expect(find.textContaining('Continuer'), findsOneWidget);
     });
 
-    testWidgets('shows login button', (tester) async {
+    testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('connecter'), findsOneWidget);
+      // Phase 7 Landing v2: no visible login button. The login affordance
+      // is a long-press on the MINT wordmark (routes to /auth/login).
+      expect(find.textContaining('connecter'), findsNothing);
+      // The MINT wordmark still renders as the hidden entry point.
+      expect(find.text('MINT'), findsOneWidget);
     });
   });
 
