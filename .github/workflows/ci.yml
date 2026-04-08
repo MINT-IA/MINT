@@ -93,6 +93,24 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/no_chiffre_choc.py
 
+      # ─── Phase 6 / REGIONAL-05: no legacy REGIONAL_MAP ──────────
+      - name: No legacy REGIONAL_MAP (REGIONAL-05)
+        working-directory: ${{ github.workspace }}
+        run: |
+          if git grep -nE 'REGIONAL_MAP[[:space:]]*=' services/backend/; then
+            echo "::error::REGIONAL-05 violation: legacy REGIONAL_MAP reintroduced in services/backend/"
+            exit 1
+          fi
+          if git grep -n '_REGIONAL_IDENTITY' services/backend/app/; then
+            echo "::error::REGIONAL-05 violation: legacy _REGIONAL_IDENTITY reintroduced in services/backend/app/"
+            exit 1
+          fi
+
+      # ─── Phase 6 / REGIONAL-04: regional microcopy codegen drift ──
+      - name: Regional microcopy codegen drift
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/regional_microcopy_drift.py
+
       - name: Run tests
         env:
           TESTING: "1"
