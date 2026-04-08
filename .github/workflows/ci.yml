@@ -93,6 +93,16 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/no_chiffre_choc.py
 
+      # ─── Phase 8a / MTC-11, MTC-12: no legacy confidence render ─────
+      - name: No legacy confidence render (Phase 8a gate)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_legacy_confidence_render.py
+
+      # ─── Phase 8a / TRUST-02: sentence-subject ARB lint ─────────────
+      - name: ARB sentence-subject lint (TRUST-02)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/sentence_subject_arb_lint.py
+
       # ─── Phase 6 / REGIONAL-05: no legacy REGIONAL_MAP ──────────
       - name: No legacy REGIONAL_MAP (REGIONAL-05)
         working-directory: ${{ github.workspace }}
