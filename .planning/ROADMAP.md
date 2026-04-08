@@ -237,7 +237,11 @@
   6. TalkBack 13 widget-trap sweep completed on S5 (CustomPaint semanticsBuilder, IconButton tooltips, InkResponse, AnimatedSwitcher keys, obscureText labels, DropdownMenu semantics).
   7. G3 politique default = information-only; external action API prepared but disabled until partner routing signed (documented in component docstring).
 **Pitfalls to watch**: P8 precedence; P16 sortable trap; P14 live tests.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 09-01-PLAN.md — MintAlertObject typed API + Gravity wiring + G2/G3 rendering
+- [ ] 09-02-PLAN.md — Feeder wiring + debt_alert_banner migration + card_ranking_service
+- [ ] 09-03-PLAN.md — CI guards: no_llm_alert.py + sentence_subject_arb_lint extension
+- [ ] 09-04-PLAN.md — Patrol 8 golden states + TalkBack 13 sweep + G3 biography ack + announce
 **UI hint**: yes
 
 ### Phase 10: L1.8 Onboarding v2
