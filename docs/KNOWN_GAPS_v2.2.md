@@ -5,6 +5,13 @@
 **Scope:** 172 commits on 735 touched files since dev divergence (246 code files)
 **Method:** 10-category audit-only sweep. Zero code changes.
 
+**2026-04-07 update — P1 + 2×P2 RESOLVED** (pre-dev-merge polish pass):
+- P1 `profile_drawer.dart:118` language picker no-op → wired to `/settings/langue` (commit `e8955b4e`).
+- P2 `coach_orchestrator.dart:775` FR-only fallback → localized for 6 locales via new `CoachFallbackMessages` dispatch (commit `58a57628`).
+- P2 `mint_trame_confiance.dart:143` unjustified ignore → corrected lint name + multi-line D-06 rationale (commit `5d98fdf0`).
+
+Post-fix verification: `flutter analyze lib/` 0 errors, 459/459 coach tests green, 18/18 ship gates PASS.
+
 ## Executive summary
 
 - **P1 gaps (ship-blocking for production-ready):** 1
@@ -23,8 +30,8 @@ ARB hits (`756.XXXX.XXXX.XX`, `TODOS LOS`) are AVS number format placeholders an
 | File:Line | Content | Severity | Proposed fix | 10-min fixable |
 |---|---|---|---|---|
 | `apps/mobile/lib/providers/coach_profile_provider.dart:909` | `// TODO(P2): Sync monthly check-ins to backend for cross-device access` | P2 | Defer to v2.3 backend sync sprint. Document in `docs/KNOWN_GAPS_v2.2.md` (this file). | n |
-| `apps/mobile/lib/services/coach/coach_orchestrator.dart:773` | `// TODO(S57-i18n): migrate hardcoded FR strings — service has no BuildContext` | P2 | Inject l10n via static accessor or pass localised strings from caller. ~30 min. | n |
-| `apps/mobile/lib/widgets/profile_drawer.dart:118` | `// TODO: inline language picker` | **P1** | Wire to existing `LocaleProvider` or push `/profile/language` route. ~15 min. | y |
+| ~~`apps/mobile/lib/services/coach/coach_orchestrator.dart:773`~~ | ~~`// TODO(S57-i18n): migrate hardcoded FR strings`~~ | ~~P2~~ | **RESOLVED 2026-04-07** (`58a57628`) — `CoachFallbackMessages` dispatch, 6 locales. | — |
+| ~~`apps/mobile/lib/widgets/profile_drawer.dart:118`~~ | ~~`// TODO: inline language picker`~~ | ~~**P1**~~ | **RESOLVED 2026-04-07** (`e8955b4e`) — wired to `/settings/langue`. | — |
 | `services/backend/app/services/retirement/avs_estimation_service.py:165` | `# TODO(P1-3): LAVS art. 29quinquies — income splitting during marriage not yet modeled.` | P3 | Already known product gap (couple data client-side only). Defer. | n |
 
 ## Category 2 — Stubs and UnimplementedError
@@ -42,7 +49,7 @@ Zero unintentional stubs.
 | `app_localizations*.dart` (12 hits) | `ignore_for_file: type=lint`, `ignore: unused_import` | Won't fix — all generated files. |
 | `apps/mobile/lib/providers/coach_profile_provider.dart:1611` | `// ignore: unused_local_variable — extracted for future use` | P3 | Annotated reason. Either wire `tauxActivite` consumer or delete extraction. ~5 min if delete. |
 | `apps/mobile/lib/services/navigation/screen_registry.dart` (5 hits, lines 372/453/488/742/937) | `// ignore: prefer_const_constructors` | P3 | Likely runtime-built widgets that can't be const. Verify and either make const or annotate reason. ~15 min total. |
-| `apps/mobile/lib/widgets/trust/mint_trame_confiance.dart:143` | `// ignore: avoid_unused_constructor_parameters` | P2 | DO NOT TOUCH — file is owned by parallel agent this sweep. Re-audit post-merge. |
+| ~~`apps/mobile/lib/widgets/trust/mint_trame_confiance.dart:143`~~ | ~~`// ignore: avoid_unused_constructor_parameters`~~ | ~~P2~~ | **RESOLVED 2026-04-07** (`5d98fdf0`) — corrected to `unused_element_parameter` + D-06 API-stability rationale. |
 
 ## Category 4 — `skip: true` in tests
 
