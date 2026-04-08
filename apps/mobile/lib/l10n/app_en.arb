@@ -10209,5 +10209,11 @@
   "landingV2Paragraph": "Mint tells you what no one else has any interest in telling you. About your insurance, your 3a, your salary, your lease, your partner, your taxes. Calmly. Without selling you anything.",
   "landingV2Cta": "Continue (no account)",
   "landingV2Privacy": "Nothing leaves your phone until you decide it does.",
-  "landingV2Legal": "Educational tool. Not financial advice under LSFin."
+  "landingV2Legal": "Educational tool. Not financial advice under LSFin.",
+  "alertGenericFactPrefix": "MINT noticed",
+  "alertGenericCausePrefix": "Why",
+  "alertGenericNextMomentPrefix": "When we come back to it",
+  "alertG2Label": "Worth checking",
+  "alertG3Label": "Don't ignore",
+  "alertAckCta": "Got it"
 }

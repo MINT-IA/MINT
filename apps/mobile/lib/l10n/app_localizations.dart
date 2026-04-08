@@ -38966,6 +38966,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.'**
   String get landingV2Legal;
+
+  /// MintAlertObject default fact prefix (anti-shame: MINT is subject).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT a remarqué'**
+  String get alertGenericFactPrefix;
+
+  /// MintAlertObject default cause line prefix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi'**
+  String get alertGenericCausePrefix;
+
+  /// MintAlertObject default next-moment prefix (invitation, never imperative).
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand on en reparle'**
+  String get alertGenericNextMomentPrefix;
+
+  /// MintAlertObject G2 label (calm register, NEVER 'Warning' or 'Attention').
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier'**
+  String get alertG2Label;
+
+  /// MintAlertObject G3 label (firm but calm, no alarmism).
+  ///
+  /// In fr, this message translates to:
+  /// **'À ne pas ignorer'**
+  String get alertG3Label;
+
+  /// MintAlertObject acknowledge CTA (used by Plan 09-04 biography ack).
+  ///
+  /// In fr, this message translates to:
+  /// **'Compris'**
+  String get alertAckCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -22214,4 +22214,22 @@ class SFr extends S {
   @override
   String get landingV2Legal =>
       'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.';
+
+  @override
+  String get alertGenericFactPrefix => 'MINT a remarqué';
+
+  @override
+  String get alertGenericCausePrefix => 'Pourquoi';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'Quand on en reparle';
+
+  @override
+  String get alertG2Label => 'À vérifier';
+
+  @override
+  String get alertG3Label => 'À ne pas ignorer';
+
+  @override
+  String get alertAckCta => 'Compris';
 }

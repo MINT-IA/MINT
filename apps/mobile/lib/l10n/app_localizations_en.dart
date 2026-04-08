@@ -22101,4 +22101,22 @@ class SEn extends S {
   @override
   String get landingV2Legal =>
       'Educational tool. Not financial advice under LSFin.';
+
+  @override
+  String get alertGenericFactPrefix => 'MINT noticed';
+
+  @override
+  String get alertGenericCausePrefix => 'Why';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'When we come back to it';
+
+  @override
+  String get alertG2Label => 'Worth checking';
+
+  @override
+  String get alertG3Label => 'Don\'t ignore';
+
+  @override
+  String get alertAckCta => 'Got it';
 }

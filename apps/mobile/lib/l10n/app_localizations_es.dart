@@ -22217,4 +22217,22 @@ class SEs extends S {
   @override
   String get landingV2Legal =>
       'Herramienta educativa. No constituye asesoramiento financiero según la LSFin.';
+
+  @override
+  String get alertGenericFactPrefix => 'MINT observó';
+
+  @override
+  String get alertGenericCausePrefix => 'Por qué';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'Cuando volvamos a hablar de esto';
+
+  @override
+  String get alertG2Label => 'Para revisar';
+
+  @override
+  String get alertG3Label => 'No lo ignores';
+
+  @override
+  String get alertAckCta => 'Entendido';
 }

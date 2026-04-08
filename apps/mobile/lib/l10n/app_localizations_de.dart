@@ -22263,4 +22263,22 @@ class SDe extends S {
   @override
   String get landingV2Legal =>
       'Bildungstool. Keine Finanzberatung im Sinne des FIDLEG.';
+
+  @override
+  String get alertGenericFactPrefix => 'MINT hat bemerkt';
+
+  @override
+  String get alertGenericCausePrefix => 'Warum';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'Wenn wir darauf zurückkommen';
+
+  @override
+  String get alertG2Label => 'Zu prüfen';
+
+  @override
+  String get alertG3Label => 'Nicht übersehen';
+
+  @override
+  String get alertAckCta => 'Verstanden';
 }

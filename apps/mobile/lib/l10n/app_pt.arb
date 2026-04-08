@@ -10209,5 +10209,11 @@
   "landingV2Paragraph": "Mint diz-te o que mais ningu\u00e9m tem interesse em dizer-te. Sobre os teus seguros, o teu 3a, o teu sal\u00e1rio, o teu arrendamento, o teu casal, os teus impostos. Calmamente. Sem te vender nada.",
   "landingV2Cta": "Continuar (sem conta)",
   "landingV2Privacy": "Nada sai do teu telem\u00f3vel at\u00e9 que tu o decidas.",
-  "landingV2Legal": "Ferramenta educativa. N\u00e3o constitui aconselhamento financeiro nos termos da LSFin."
+  "landingV2Legal": "Ferramenta educativa. N\u00e3o constitui aconselhamento financeiro nos termos da LSFin.",
+  "alertGenericFactPrefix": "A MINT reparou",
+  "alertGenericCausePrefix": "Porqu\u00ea",
+  "alertGenericNextMomentPrefix": "Quando voltarmos a falar disso",
+  "alertG2Label": "A verificar",
+  "alertG3Label": "N\u00e3o ignores",
+  "alertAckCta": "Entendido"
 }

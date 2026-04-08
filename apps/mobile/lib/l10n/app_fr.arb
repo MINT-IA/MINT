@@ -10753,5 +10753,17 @@
   "landingV2Privacy": "Rien ne sort de ton téléphone tant que tu ne le décides pas.",
   "@landingV2Privacy": {"description": "Landing v2 privacy micro-phrase below CTA (LOCKED per D-03)."},
   "landingV2Legal": "Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.",
-  "@landingV2Legal": {"description": "Landing v2 legal footer (LOCKED per D-04). Compliance anchor."}
+  "@landingV2Legal": {"description": "Landing v2 legal footer (LOCKED per D-04). Compliance anchor."},
+  "alertGenericFactPrefix": "MINT a remarqué",
+  "@alertGenericFactPrefix": {"description": "MintAlertObject default fact prefix (anti-shame: MINT is subject)."},
+  "alertGenericCausePrefix": "Pourquoi",
+  "@alertGenericCausePrefix": {"description": "MintAlertObject default cause line prefix."},
+  "alertGenericNextMomentPrefix": "Quand on en reparle",
+  "@alertGenericNextMomentPrefix": {"description": "MintAlertObject default next-moment prefix (invitation, never imperative)."},
+  "alertG2Label": "À vérifier",
+  "@alertG2Label": {"description": "MintAlertObject G2 label (calm register, NEVER 'Warning' or 'Attention')."},
+  "alertG3Label": "À ne pas ignorer",
+  "@alertG3Label": {"description": "MintAlertObject G3 label (firm but calm, no alarmism)."},
+  "alertAckCta": "Compris",
+  "@alertAckCta": {"description": "MintAlertObject acknowledge CTA (used by Plan 09-04 biography ack)."}
 }

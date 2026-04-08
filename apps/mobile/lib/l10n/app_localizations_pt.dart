@@ -22220,4 +22220,22 @@ class SPt extends S {
   @override
   String get landingV2Legal =>
       'Ferramenta educativa. Não constitui aconselhamento financeiro nos termos da LSFin.';
+
+  @override
+  String get alertGenericFactPrefix => 'A MINT reparou';
+
+  @override
+  String get alertGenericCausePrefix => 'Porquê';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'Quando voltarmos a falar disso';
+
+  @override
+  String get alertG2Label => 'A verificar';
+
+  @override
+  String get alertG3Label => 'Não ignores';
+
+  @override
+  String get alertAckCta => 'Entendido';
 }

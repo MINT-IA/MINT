@@ -10209,5 +10209,11 @@
   "landingV2Paragraph": "Mint sagt dir, was dir sonst niemand sagen will. \u00dcber deine Versicherungen, deine 3a, deinen Lohn, deinen Mietvertrag, deine Beziehung, deine Steuern. Ruhig. Ohne dir irgendetwas zu verkaufen.",
   "landingV2Cta": "Weiter (ohne Konto)",
   "landingV2Privacy": "Nichts verl\u00e4sst dein Handy, bis du es entscheidest.",
-  "landingV2Legal": "Bildungstool. Keine Finanzberatung im Sinne des FIDLEG."
+  "landingV2Legal": "Bildungstool. Keine Finanzberatung im Sinne des FIDLEG.",
+  "alertGenericFactPrefix": "MINT hat bemerkt",
+  "alertGenericCausePrefix": "Warum",
+  "alertGenericNextMomentPrefix": "Wenn wir darauf zur\u00fcckkommen",
+  "alertG2Label": "Zu pr\u00fcfen",
+  "alertG3Label": "Nicht \u00fcbersehen",
+  "alertAckCta": "Verstanden"
 }

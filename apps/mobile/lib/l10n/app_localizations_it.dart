@@ -22273,4 +22273,22 @@ class SIt extends S {
   @override
   String get landingV2Legal =>
       'Strumento educativo. Non costituisce consulenza finanziaria ai sensi della LSerFi.';
+
+  @override
+  String get alertGenericFactPrefix => 'MINT ha notato';
+
+  @override
+  String get alertGenericCausePrefix => 'Perché';
+
+  @override
+  String get alertGenericNextMomentPrefix => 'Quando ne riparleremo';
+
+  @override
+  String get alertG2Label => 'Da verificare';
+
+  @override
+  String get alertG3Label => 'Non ignorare';
+
+  @override
+  String get alertAckCta => 'Capito';
 }
