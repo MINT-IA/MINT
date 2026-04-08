@@ -51,9 +51,13 @@ class CoachMessageBubble extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Coach avatar — refined 24px dot
-              const CoachAvatar(),
-              const SizedBox(width: MintSpacing.md - 4),
+              // P-S3-01 (Phase 8c hot-fix): CoachAvatar removed from the
+              // coach reading zone — a 24px gradient dot with an 'M' letter
+              // is decorative ornament, not content. The bubble's asymmetric
+              // top-left radius (6) is sufficient "coach voice" semantic.
+              // The 44px left indent of downstream sections is preserved
+              // by the same SizedBox width (24 + md-4 = 44).
+              const SizedBox(width: 44),
               Flexible(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -104,16 +108,11 @@ class CoachMessageBubble extends StatelessWidget {
               const SizedBox(width: 48),
             ],
           ),
-          // Tier badge — very subtle, only on non-greeting messages
-          if (!isStreamingThis &&
-              msg.tier != ChatTier.none &&
-              messageIndex > 0) ...[
-            const SizedBox(height: MintSpacing.xs),
-            Padding(
-              padding: const EdgeInsets.only(left: 44),
-              child: CoachTierBadge(tier: msg.tier),
-            ),
-          ],
+          // P-S3-02 (Phase 8c hot-fix): CoachTierBadge rendering removed.
+          // SLM/BYOK/Fallback labels are developer-metadata leakage to
+          // users — 9px micro-text at 50% alpha is decorative noise inside
+          // the coach reading zone. The CoachTierBadge class is preserved
+          // below for potential debug-surface reuse.
           // Rich widget or input request from Claude tool calling (S56)
           if (!isStreamingThis &&
               hasToolCalls &&
