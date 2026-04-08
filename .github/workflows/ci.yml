@@ -58,6 +58,35 @@ jobs:
             exit 1
           fi
 
+  # ─── Phase 10 Plan 10-03 / ACCESS-06: onboarding readability gate ───
+  # Pure-Dart Kandel–Moles French readability check on the onboarding
+  # surfaces (intent screen + landing v2 + intent chips). Fails the build
+  # if any scoreable string drops below K–M 50 (B1 floor). Pre-existing
+  # legacy keys (landingFeature*, onboardingStep*) are out of scope —
+  # scoring targets only the new 2-screen golden path.
+  #
+  # Runs on every change to apps/mobile/** or tools/checks/flesch_kincaid_fr.dart.
+  # Lives in its own job so a readability regression fails fast (no
+  # 10-minute wait for the full Flutter shard matrix).
+  readability:
+    name: Onboarding readability (ACCESS-06)
+    needs: [changes]
+    if: needs.changes.outputs.flutter == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.27.4'
+          cache: true
+      - name: Flesch–Kincaid (Kandel–Moles) French gate
+        run: |
+          dart run tools/checks/flesch_kincaid_fr.dart \
+            apps/mobile/lib/l10n/app_fr.arb \
+            --keys-prefix=intentScreen,intentChip,landingV2 \
+            --min=50 \
+            --min-words=8
+
   # ─── Backend Tests ───────────────────────────────────────────
   backend:
     name: Backend tests
@@ -316,7 +345,7 @@ jobs:
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter]
+    needs: [changes, backend, flutter, readability]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -325,10 +354,12 @@ jobs:
           # Skip check if job was skipped (no relevant changes)
           backend="${{ needs.backend.result }}"
           flutter="${{ needs.flutter.result }}"
+          readability="${{ needs.readability.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]]; then
-            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}"
+          [[ "$readability" == "skipped" ]] && readability="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]]; then
+            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}, readability=${{ needs.readability.result }}"
             exit 1
           fi
           echo "All checks passed"
