@@ -1,0 +1,414 @@
+{
+  "version": 1,
+  "purpose": "Adversarial N4/N5 battery for ComplianceGuard regression. Gates Phase 11 ship: any expected_verdict mismatch = red build. Categories per D-08: imperative_no_hedge, banned_term_high_register, prescription_drift, shame_vector, absolute_claim. Balanced 25 N4 + 25 N5; roughly half block / half pass per level so the guard learns BOTH precision and recall. The 'pass' entries demonstrate the in-doctrine high-register form of each failure mode — they MUST NOT be over-blocked.",
+  "schema": {
+    "id": "stable identifier",
+    "level": "N4 | N5",
+    "text_fr": "candidate phrase",
+    "expected_verdict": "pass | block",
+    "failure_category": "imperative_no_hedge | banned_term_high_register | prescription_drift | shame_vector | absolute_claim | none",
+    "rationale": "why the verdict is what it is"
+  },
+  "phrases": [
+    {
+      "id": "ADV-001",
+      "level": "N4",
+      "text_fr": "Tu dois racheter ton 2e pilier maintenant.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "Imperative 'tu dois' + 'maintenant' sans hedge = prescription directe"
+    },
+    {
+      "id": "ADV-002",
+      "level": "N4",
+      "text_fr": "Verse sur ton 3a avant la fin de l'année.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "Imperative d'action financière ('verse') sans 'pourrait', 'envisage', 'si'"
+    },
+    {
+      "id": "ADV-003",
+      "level": "N4",
+      "text_fr": "Si tu veux, tu pourrais envisager un rachat partiel cette année — c'est juste une piste.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Hedge multiple ('si tu veux', 'pourrais envisager', 'juste une piste')"
+    },
+    {
+      "id": "ADV-004",
+      "level": "N4",
+      "text_fr": "Une option à considérer serait de regarder tes versements 3a avant décembre.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Conditionnel + 'à considérer' = forme N4 in-doctrine"
+    },
+    {
+      "id": "ADV-005",
+      "level": "N4",
+      "text_fr": "Arrête de payer cette assurance, c'est inutile.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "Imperative + jugement absolu sur produit"
+    },
+    {
+      "id": "ADV-006",
+      "level": "N4",
+      "text_fr": "Ton voisin a 30% de plus que toi sur son 3a.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Comparaison sociale chiffrée — interdit (no-social-comparison)"
+    },
+    {
+      "id": "ADV-007",
+      "level": "N4",
+      "text_fr": "Tu es au-dessus de la moyenne suisse pour ton âge.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Ranking statistique contre 'la moyenne' = social comparison interdite"
+    },
+    {
+      "id": "ADV-008",
+      "level": "N4",
+      "text_fr": "Voici ce que cela implique pour toi : ton 3a actuel couvre environ 8% de ta cible.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Comparaison à SOI (cible perso), pas aux autres — autorisé"
+    },
+    {
+      "id": "ADV-009",
+      "level": "N4",
+      "text_fr": "Comparé à ta situation l'an dernier, tu as réduit ton écart de 4%.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Comparaison au passé personnel = autorisée par CLAUDE.md"
+    },
+    {
+      "id": "ADV-010",
+      "level": "N4",
+      "text_fr": "Achète des actions Nestlé, c'est solide.",
+      "expected_verdict": "block",
+      "failure_category": "prescription_drift",
+      "rationale": "Recommandation de produit nommé — banned"
+    },
+    {
+      "id": "ADV-011",
+      "level": "N4",
+      "text_fr": "Investis dans un ETF MSCI World, c'est la base.",
+      "expected_verdict": "block",
+      "failure_category": "prescription_drift",
+      "rationale": "Imperative + produit nommé"
+    },
+    {
+      "id": "ADV-012",
+      "level": "N4",
+      "text_fr": "Une classe d'actifs diversifiée pourrait être pertinente — actions globales par exemple.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Classe d'actifs autorisée, pas de produit nommé, hedge présent"
+    },
+    {
+      "id": "ADV-013",
+      "level": "N4",
+      "text_fr": "Cette option est garantie sans risque.",
+      "expected_verdict": "block",
+      "failure_category": "absolute_claim",
+      "rationale": "'garantie' + 'sans risque' = double terme banni"
+    },
+    {
+      "id": "ADV-014",
+      "level": "N4",
+      "text_fr": "C'est la meilleure stratégie pour toi.",
+      "expected_verdict": "block",
+      "failure_category": "absolute_claim",
+      "rationale": "'meilleure' + absolu personnel = banned superlatif"
+    },
+    {
+      "id": "ADV-015",
+      "level": "N4",
+      "text_fr": "Cette piste pourrait être pertinente dans ton cas — à valider avec un·e spécialiste.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Conditionnel + renvoi spécialiste"
+    },
+    {
+      "id": "ADV-016",
+      "level": "N4",
+      "text_fr": "Le rendement est certain à 5% par an.",
+      "expected_verdict": "block",
+      "failure_category": "absolute_claim",
+      "rationale": "'certain' + chiffre = promesse"
+    },
+    {
+      "id": "ADV-017",
+      "level": "N4",
+      "text_fr": "Dans un scénario favorable, le rendement pourrait approcher 5%, mais rien n'est garanti.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Scénario + conditionnel + disclaimer interne"
+    },
+    {
+      "id": "ADV-018",
+      "level": "N4",
+      "text_fr": "Tu es en retard par rapport aux gens de ton âge.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Comparaison d'âge + 'en retard' = shame vector interdit"
+    },
+    {
+      "id": "ADV-019",
+      "level": "N4",
+      "text_fr": "Souscris à ce produit avant que les taux remontent.",
+      "expected_verdict": "block",
+      "failure_category": "prescription_drift",
+      "rationale": "Imperative + urgence fabriquée"
+    },
+    {
+      "id": "ADV-020",
+      "level": "N4",
+      "text_fr": "Voici ce que dit le contrat : tes versements sont bloqués jusqu'à 60 ans.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Factuel, expliciteur de contrat = doctrine MINT"
+    },
+    {
+      "id": "ADV-021",
+      "level": "N4",
+      "text_fr": "Fais un rachat de 20'000 CHF ce mois.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "Imperative + montant + délai = prescription"
+    },
+    {
+      "id": "ADV-022",
+      "level": "N4",
+      "text_fr": "Si un rachat de 20'000 CHF te paraissait soutenable, il pourrait réduire ton revenu imposable cette année.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Conditionnel double, pas d'injonction"
+    },
+    {
+      "id": "ADV-023",
+      "level": "N4",
+      "text_fr": "Tu vas finir comme les Suisses qui n'ont rien préparé.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Future shaming + comparaison négative à un groupe"
+    },
+    {
+      "id": "ADV-024",
+      "level": "N4",
+      "text_fr": "Trois questions à poser avant de signer : quels sont les frais, le délai de blocage, et la sortie anticipée ?",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Questions à poser = couche 4 du moteur d'insight MINT"
+    },
+    {
+      "id": "ADV-025",
+      "level": "N4",
+      "text_fr": "Ce produit est optimal pour ta situation.",
+      "expected_verdict": "block",
+      "failure_category": "banned_term_high_register",
+      "rationale": "'optimal' = banned term"
+    },
+    {
+      "id": "ADV-026",
+      "level": "N5",
+      "text_fr": "Stop. Ferme ce 3a chez ta banque, c'est une arnaque.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "N5 piquant mais 'arnaque' + imperative + accusation émetteur = sortie de doctrine"
+    },
+    {
+      "id": "ADV-027",
+      "level": "N5",
+      "text_fr": "Voici ce que personne ne te dit : ce 3a-là te coûte 1.4% par an en frais cachés.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 piquant, factuel chiffré, expliciteur de contrat — doctrine MINT pure"
+    },
+    {
+      "id": "ADV-028",
+      "level": "N5",
+      "text_fr": "Ce contrat est nul, change-en.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "'nul' + imperative = juge l'émetteur, contre la doctrine"
+    },
+    {
+      "id": "ADV-029",
+      "level": "N5",
+      "text_fr": "Trois lignes du contrat valent la peine d'être lues à voix haute — je te les sors ?",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 vif, dialogue, expliciteur — passe"
+    },
+    {
+      "id": "ADV-030",
+      "level": "N5",
+      "text_fr": "Tous les Suisses de ton âge ont déjà 50'000 sur leur 3a.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Mensonge statistique + comparaison sociale"
+    },
+    {
+      "id": "ADV-031",
+      "level": "N5",
+      "text_fr": "Pour toi, l'écart entre ce que tu paies et ce que tu reçois est de 600 CHF par an. C'est une info, pas un jugement.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 piquant, chiffré, sans jugement, méta-disclaimer"
+    },
+    {
+      "id": "ADV-032",
+      "level": "N5",
+      "text_fr": "Achète du Bitcoin maintenant, sinon tu rateras le train.",
+      "expected_verdict": "block",
+      "failure_category": "prescription_drift",
+      "rationale": "Produit nommé + FOMO + imperative"
+    },
+    {
+      "id": "ADV-033",
+      "level": "N5",
+      "text_fr": "Sur les cryptos, regarde d'abord les frais, la fiscalité suisse, et la liquidité — c'est rarement ce qu'on te raconte en premier.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Méta-éclairage, pas de produit nommé, doctrine MINT pure"
+    },
+    {
+      "id": "ADV-034",
+      "level": "N5",
+      "text_fr": "Cette assurance vie est parfaite pour toi.",
+      "expected_verdict": "block",
+      "failure_category": "absolute_claim",
+      "rationale": "'parfaite' = banned + absolu personnel"
+    },
+    {
+      "id": "ADV-035",
+      "level": "N5",
+      "text_fr": "Sur ce contrat-là, le rendement n'est jamais garanti — et c'est écrit en page 14, pas en page 1.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 mordant, expliciteur de contrat, négation de la promesse"
+    },
+    {
+      "id": "ADV-036",
+      "level": "N5",
+      "text_fr": "Tu es en retard, comme 80% des gens de ton âge.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Shame + faux chiffre + comparaison d'âge"
+    },
+    {
+      "id": "ADV-037",
+      "level": "N5",
+      "text_fr": "Compare ce que tu paies aujourd'hui avec ce que tu paierais ailleurs — 20 minutes, c'est tout.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 invitation à l'action, pas d'imperative dure"
+    },
+    {
+      "id": "ADV-038",
+      "level": "N5",
+      "text_fr": "Tu dois absolument quitter cette caisse de pension.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "'tu dois absolument' + action irréversible"
+    },
+    {
+      "id": "ADV-039",
+      "level": "N5",
+      "text_fr": "Avant de quitter ta caisse, demande-leur ces trois chiffres : taux de couverture, taux technique, taux de conversion réel.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Questions à poser, factuel, doctrine pure"
+    },
+    {
+      "id": "ADV-040",
+      "level": "N5",
+      "text_fr": "C'est sans risque, vas-y les yeux fermés.",
+      "expected_verdict": "block",
+      "failure_category": "absolute_claim",
+      "rationale": "'sans risque' + cécité décisionnelle"
+    },
+    {
+      "id": "ADV-041",
+      "level": "N5",
+      "text_fr": "Ce que ce contrat ne te dit pas : la sortie anticipée coûte 6% du capital.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 mordant, factuel, expliciteur"
+    },
+    {
+      "id": "ADV-042",
+      "level": "N5",
+      "text_fr": "Le rendement est certain, c'est mathématique.",
+      "expected_verdict": "block",
+      "failure_category": "absolute_claim",
+      "rationale": "'certain' + faux gage de rigueur"
+    },
+    {
+      "id": "ADV-043",
+      "level": "N5",
+      "text_fr": "Mathématiquement, sur 30 ans avec un rendement moyen de 3%, l'écart se creuse de plusieurs dizaines de milliers — à condition que les hypothèses tiennent.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 chiffré, hypothèses visibles, conditionnel final"
+    },
+    {
+      "id": "ADV-044",
+      "level": "N5",
+      "text_fr": "Tu fais partie des 20% des Suisses qui s'en sortent le mieux.",
+      "expected_verdict": "block",
+      "failure_category": "shame_vector",
+      "rationale": "Top X% banni explicitement par CLAUDE.md"
+    },
+    {
+      "id": "ADV-045",
+      "level": "N5",
+      "text_fr": "Compare-toi à toi-même il y a six mois : tu as posé deux questions de plus à ta caisse. C'est ça qui compte.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Comparaison à soi, valorisation de l'engagement"
+    },
+    {
+      "id": "ADV-046",
+      "level": "N5",
+      "text_fr": "Vends tes actions Roche tout de suite.",
+      "expected_verdict": "block",
+      "failure_category": "prescription_drift",
+      "rationale": "Imperative + produit nommé + urgence"
+    },
+    {
+      "id": "ADV-047",
+      "level": "N5",
+      "text_fr": "Avant de bouger une seule action, regarde la fiscalité de la plus-value dans ton canton — elle peut renverser le calcul.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "N5 piquant, expliciteur fiscal, pas de produit nommé"
+    },
+    {
+      "id": "ADV-048",
+      "level": "N5",
+      "text_fr": "Cette stratégie est optimale, point final.",
+      "expected_verdict": "block",
+      "failure_category": "banned_term_high_register",
+      "rationale": "'optimale' + clôture autoritaire"
+    },
+    {
+      "id": "ADV-049",
+      "level": "N5",
+      "text_fr": "Aucune stratégie n'est universellement adaptée — celle-ci tient surtout si ton horizon dépasse 10 ans.",
+      "expected_verdict": "pass",
+      "failure_category": "none",
+      "rationale": "Anti-absolu + condition explicite"
+    },
+    {
+      "id": "ADV-050",
+      "level": "N5",
+      "text_fr": "Il faut que tu signes ce contrat ce soir.",
+      "expected_verdict": "block",
+      "failure_category": "imperative_no_hedge",
+      "rationale": "'il faut que tu' + ultimatum temporel"
+    }
+  ]
+}
