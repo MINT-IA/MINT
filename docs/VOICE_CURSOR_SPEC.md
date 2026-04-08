@@ -1628,3 +1628,19 @@ Base → regional (VS / ZH / TI) → sensitive cap → fragile cap → N5 gate. 
 - `docs/MINT_IDENTITY.md` — identity anchor.
 
 **— Quick reference card end —**
+
+## 14. Regional stacking (Phase 6 L1.4)
+
+Regional microcopy is **coloring**, never intensity. The voice cursor N-level
+is set by the base ARB key; the regional layer only swaps the rendered string
+when a mapped canton is present. Stacking order at render time:
+
+```
+base N-level string → regional override (if canton mapped + locale matches) → sensitive-topic cap
+```
+
+The regional layer never changes the N-level, never applies in English, and
+falls back silently to the base ARB for unmapped cantons or missing keys.
+Full rules in `.planning/phases/06-l1.4-voix-regionale/CONTEXT.md` D-04/D-05/D-07
+and in `apps/mobile/lib/l10n_regional/regional_localizations_delegate.dart`.
+
