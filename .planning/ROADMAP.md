@@ -269,7 +269,10 @@
   4. All block-items resolved and re-verified on the same A14 device before Phase 11 begins. Second walkthrough recording confirms zero remaining blockers.
   5. Cold start < 2.5s, first-frame-to-interactive < 3s, first chat message round-trip < 4s on A14 (preliminary, full PERF baseline lives in Phase 12).
 **Pitfalls to watch**: P14 device availability; friction notes that describe symptoms without surfaces; polish creep into blockers.
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 10.5-01-PLAN.md — Pre-walkthrough setup (build script, instructions, friction note template) [Claude]
+- [ ] 10.5-02-PLAN.md — Walkthrough execution on Galaxy A14 [Julien, human-gated]
+- [ ] 10.5-03-PLAN.md — Triage + hot-fix dispatch + re-verify (iterate until zero blockers, max 3)
 **UI hint**: yes (device-test + iteration loop)
 
 ### Phase 11: L1.6b Phrase Rewrite + Krippendorff Validation
