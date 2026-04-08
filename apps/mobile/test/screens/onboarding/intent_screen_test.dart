@@ -55,11 +55,11 @@ void main() {
           path: '/onboarding/intent',
           builder: (context, state) => const IntentScreen(),
         ),
-        // Stub route for navigation target.
+        // Stub route for navigation target (Phase 10-02a: /coach/chat merged path).
         GoRoute(
-          path: '/home',
+          path: '/coach/chat',
           builder: (context, state) =>
-              const Scaffold(body: Text('home')),
+              const Scaffold(body: Text('coach-chat')),
         ),
       ],
     );
@@ -207,7 +207,7 @@ void main() {
       expect(intent, equals('intentChipFiscalite'));
     });
 
-    testWidgets('tapping chip navigates to /home', (tester) async {
+    testWidgets('tapping chip navigates to /coach/chat (Phase 10-02a merged path)', (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
 
@@ -219,8 +219,8 @@ void main() {
       await tester.tap(find.textContaining('projet'));
       await tester.pumpAndSettle();
 
-      // Should have navigated away from IntentScreen.
-      expect(find.text('home'), findsOneWidget);
+      // Should have navigated away from IntentScreen to /coach/chat.
+      expect(find.text('coach-chat'), findsOneWidget);
     });
   });
 
@@ -263,7 +263,7 @@ void main() {
       expect(memory.declaredGoals, contains('housing_purchase'));
     });
 
-    testWidgets('chip tap navigates to /home?tab=0 (Aujourd\'hui, not Coach)',
+    testWidgets('chip tap navigates to /coach/chat (Phase 10-02a unified path)',
         (tester) async {
       await tester.pumpWidget(buildIntentScreen());
       await tester.pumpAndSettle();
@@ -271,10 +271,10 @@ void main() {
       await tester.tap(find.textContaining('3a'));
       await tester.pumpAndSettle();
 
-      // Should have navigated to /home (tab=0 — Aujourd'hui).
-      // We verify we left the IntentScreen and arrived at the home stub.
+      // Phase 10-02a: merged nav target is /coach/chat for both onboarding
+      // and non-onboarding paths. Screens-before-first-insight = 2.
       expect(find.byType(IntentScreen), findsNothing);
-      expect(find.text('home'), findsOneWidget);
+      expect(find.text('coach-chat'), findsOneWidget);
     });
 
     testWidgets(

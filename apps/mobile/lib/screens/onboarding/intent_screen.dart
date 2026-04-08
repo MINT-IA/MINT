@@ -22,8 +22,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Whether the intent screen was reached from the onboarding golden path
-/// (post-auth). When true, navigates to quick-start instead of computing
-/// premier eclairage and going to /home.
+/// (post-auth). Post-Phase-10-02a: both paths now land on /coach/chat with
+/// an enriched CoachEntryPayload — this flag only controls whether the
+/// coach bootstrap considers this the user's first-ever entry.
 bool _isFromOnboarding(Map<String, dynamic>? extra) {
   if (extra == null) return true; // Default: onboarding path
   return extra['fromOnboarding'] as bool? ?? true;
@@ -32,9 +33,9 @@ bool _isFromOnboarding(Map<String, dynamic>? extra) {
 /// Intent-based onboarding screen.
 ///
 /// Replaces the old form-based Quick Start / Smart Onboarding.
-/// Shows 7 situational chips — user taps one, triggers the full onboarding
+/// Shows 6 situational chips — user taps one, triggers the full onboarding
 /// pipeline: intent routing, premier eclairage computation, CapMemory seeding,
-/// and navigation to /home?tab=0 (Aujourd'hui).
+/// and navigation to /coach/chat (Phase 10-02a: unified merged path).
 ///
 /// No data collection. No formulaire. The coach handles everything.
 ///
@@ -194,18 +195,15 @@ class IntentScreen extends StatelessWidget {
       data: {'chipKey': chip.chipKey, 'label': chip.label},
     );
 
-    // Persist selected intent (but NOT onboarding completion — that moves to
-    // plan_screen per Research Pitfall 3).
+    // Persist selected intent. Onboarding-done is written later by
+    // coach_chat_screen on first successful chat entry from an intent payload
+    // (Phase 10-02a: conversation is the only honest "onboarding done" signal).
     await ReportPersistenceService.setSelectedOnboardingIntent(chip.chipKey);
 
-    // ── Golden path: navigate to quick-start for data collection ──
-    if (fromOnboarding) {
-      if (!context.mounted) return;
-      router.go('/onboarding/quick-start', extra: {'intent': chip.chipKey});
-      return;
-    }
-
-    // ── Non-onboarding path (settings, re-selection): legacy behavior ──
+    // ── Unified path (Phase 10-02a): both onboarding and non-onboarding
+    // land on /coach/chat with an enriched CoachEntryPayload. No more
+    // branch to quick-start. The `fromOnboarding` flag is forwarded via
+    // the payload so the chat bootstrap can detect first-entry.
 
     // Resolve intent mapping.
     final mapping = IntentRouter.forChipKey(chip.chipKey);
@@ -247,15 +245,18 @@ class IntentScreen extends StatelessWidget {
 
     if (!context.mounted) return;
 
-    // Build coach payload (preserved from current behavior).
+    // Build coach payload. `fromOnboarding` is forwarded via `data` so
+    // coach_chat_screen can detect first-entry and set miniOnboardingCompleted.
     final payload = CoachEntryPayload(
       source: CoachEntrySource.onboardingIntent,
       userMessage: chip.message,
+      data: {'fromOnboarding': fromOnboarding},
     );
     payloadProvider.setPayload(payload);
 
-    // Navigate to Aujourd'hui tab.
-    router.go('/home?tab=0');
+    // Phase 10-02a: unified target = /coach/chat (merged from /home?tab=0).
+    // Screens-before-first-insight reduced from 5 to 2 (landing + intent).
+    router.go('/coach/chat', extra: payload);
   }
 
   /// Build a [MinimalProfileResult] from an already-captured [CoachProfile].
