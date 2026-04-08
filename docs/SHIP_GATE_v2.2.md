@@ -5,38 +5,34 @@
 
 - **Milestone:** v2.2 La Beauté de Mint
 - **Branch:** `feature/v2.2-p0a-code-unblockers`
-- **Git SHA:** `a7113f03cf3654e189a76826debbc719517cfd3e`
-- **Run date (UTC):** 2026-04-08T12:15:55Z
+- **Git SHA:** `a91f5d3e15538ecff9e68c199bfc052426a56814`
+- **Run date (UTC):** 2026-04-08T16:11:36Z
 - **Runner:** `tools/ship_gate/run_all_gates_v2_2.sh`
-- **Result:** 17/18 PASS, 1 FAIL
-- **Verdict:** **SHIP BLOCKED on 1 deferred gate(s), 17/18 green, awaiting hotfix dispatch**
+- **Result:** 18/18 PASS, 0 FAIL
+- **Verdict:** **SHIP READY (code side)**
 
 ## 18-gate matrix
 
 | # | Gate | Owner Phase | Status | Duration (s) | Command |
 |---|------|-------------|--------|--------------|---------|
-| 1 | flutter analyze | always | PASS | 5 | `cd apps/mobile && flutter analyze lib/ --no-fatal-infos --no-fatal-warnings` |
-| 2 | flutter test (full suite) | always | **FAIL** | 84 | `cd apps/mobile && flutter test` |
+| 1 | flutter analyze | always | PASS | 4 | `cd apps/mobile && flutter analyze lib/ --no-fatal-infos --no-fatal-warnings` |
+| 2 | flutter test (full suite) | always | PASS | 88 | `cd apps/mobile && flutter test` |
 | 3 | pytest backend | always | PASS | 69 | `cd services/backend && python3 -m pytest tests/ -q` |
 | 4 | ruff (backend lint) | Phase 1.5 | PASS | 0 | `if command -v ruff >/dev/null 2>&1; then cd services/backend && ruff check .; else echo 'WARN: ruff not installed locally; CI installs via pip — gate skipped locally' >&2; exit 0; fi` |
-| 5 | OpenAPI codegen drift | Phase 1.5 | PASS | 3 | `TESTING=1 DATABASE_URL='sqlite:///./test.db' python3 tools/openapi/generate_canonical.py && git diff --exit-code tools/openapi/mint.openapi.canonical.json` |
-| 6 | VoiceCursorContract drift | Phase 2 | PASS | 0 | `bash tools/contracts/regenerate.sh && git diff --exit-code tools/contracts/ apps/mobile/lib/services/voice/voice_cursor_contract.g.dart services/backend/app/schemas/voice_cursor.py` |
+| 5 | OpenAPI codegen drift | Phase 1.5 | PASS | 2 | `TESTING=1 DATABASE_URL='sqlite:///./test.db' python3 tools/openapi/generate_canonical.py && git diff --exit-code tools/openapi/mint.openapi.canonical.json` |
+| 6 | VoiceCursorContract drift | Phase 2 | PASS | 1 | `bash tools/contracts/regenerate.sh && git diff --exit-code tools/contracts/ apps/mobile/lib/services/voice/voice_cursor_contract.g.dart services/backend/app/schemas/voice_cursor.py` |
 | 7 | Regional microcopy drift | Phase 6 | PASS | 0 | `python3 tools/checks/regional_microcopy_drift.py` |
 | 8 | Contrast matrix (AAA + AA) | Phase 2 + 12-02 | PASS | 3 | `cd apps/mobile && flutter test test/theme/aaa_tokens_contrast_test.dart test/accessibility/wcag_aa_all_touched_test.dart` |
 | 9 | Flesch-Kincaid French | Phase 10 | PASS | 0 | `cd apps/mobile && dart run ../../tools/checks/flesch_kincaid_fr.dart lib/l10n/app_fr.arb --keys-prefix=intentScreen,intentChip,landingV2 --min=50 --min-words=8` |
-| 10 | no_chiffre_choc grep | Phase 1.5 | PASS | 1 | `python3 tools/checks/no_chiffre_choc.py` |
-| 11 | no_legacy_confidence_render | Phase 8a | PASS | 0 | `python3 tools/checks/no_legacy_confidence_render.py` |
-| 12 | no_llm_alert | Phase 9 | PASS | 1 | `python3 tools/checks/no_llm_alert.py` |
+| 10 | no_chiffre_choc grep | Phase 1.5 | PASS | 0 | `python3 tools/checks/no_chiffre_choc.py` |
+| 11 | no_legacy_confidence_render | Phase 8a | PASS | 1 | `python3 tools/checks/no_legacy_confidence_render.py` |
+| 12 | no_llm_alert | Phase 9 | PASS | 0 | `python3 tools/checks/no_llm_alert.py` |
 | 13 | sentence_subject ARB lint + no user-facing curseur | Phase 8a + 11 + 12-01 | PASS | 0 | `python3 tools/checks/sentence_subject_arb_lint.py && bash tools/ci/grep_no_user_facing_curseur.sh` |
 | 14 | Landing v2 — no numbers + no financial_core | Phase 7 | PASS | 0 | `python3 tools/checks/landing_no_numbers.py && python3 tools/checks/landing_no_financial_core.py` |
 | 15 | S0–S5 AAA-only token gate | Phase 8b | PASS | 0 | `python3 tools/checks/s0_s5_aaa_only.py` |
 | 16 | no_implicit_bloom_strategy | Plan 12-03 | PASS | 0 | `python3 tools/checks/no_implicit_bloom_strategy.py` |
 | 17 | REGIONAL_MAP / _REGIONAL_IDENTITY grep | Phase 6 cleanup | PASS | 0 | `if git grep -nE '^[[:space:]]*REGIONAL_MAP[[:space:]]*=' services/backend/app/; then exit 1; fi; if git grep -nE '^[[:space:]]*_REGIONAL_IDENTITY[[:space:]]*=' services/backend/app/; then exit 1; fi; exit 0` |
 | 18 | Banned-terms grep (garanti/optimal/meilleur) | always | PASS | 0 | `if git grep -nE '\b(garanti\\|optimal\\|meilleur)' apps/mobile/lib/ services/backend/app/ -- ':!*.g.dart' ':!*test*' ':!*l10n*' ':!*.arb'; then exit 1; fi; exit 0` |
-
-## Failed gates
-
-- **Gate 2: flutter test (full suite)** — TRACKED DEFERRED (owner: Phase 10 (separate hotfix dispatch by orchestrator)). Issue: 21 PremierEclairageCard test failures. Tracked in `.planning/phases/12-l1.6c-ton-ux-ship-gate/12-05-DEFERRED.md`. Log: `/tmp/mint_gate_2.log`.
 
 ## Human gates pending (Plan 12-06)
 
