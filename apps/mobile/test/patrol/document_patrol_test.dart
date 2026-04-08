@@ -64,6 +64,8 @@ void main() {
     // Patrol integration test: requires emulator / real binding. Under the
     // widget-test binding, app.main() throws LateInitializationError before
     // the first frame. Tracked under QA-04/QA-05 (emulator CI infra).
+    // Investigation note (2026-04-08 pre-dev-merge sweep):
+    // .planning/phases/12-l1.6c-ton-ux-ship-gate/12-PATROL-DEFERRED.md
     testWidgets('document capture and enrichment with screenshots', skip: true,
         (tester) async {
       // Launch the full app.
