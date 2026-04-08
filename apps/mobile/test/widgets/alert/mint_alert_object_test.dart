@@ -101,10 +101,8 @@ void main() {
       final deco = container.decoration as BoxDecoration;
       // G2 uses warningAaa somewhere in its border or background.
       final borderColor = (deco.border as Border?)?.top.color;
-      final hasWarning = borderColor == MintColors.warningAaa ||
-          (deco.color?.value == MintColors.warningAaa.withOpacity(0.08).value);
-      expect(hasWarning, isTrue,
-          reason: 'G2 must use warningAaa accent token');
+      expect(borderColor, MintColors.warningAaa,
+          reason: 'G2 must use warningAaa accent token on its border');
     });
 
     testWidgets('G3 renders with errorAaa accent + grammatical break',
@@ -125,10 +123,8 @@ void main() {
           .firstWhere((c) => c.decoration is BoxDecoration);
       final deco = container.decoration as BoxDecoration;
       final borderColor = (deco.border as Border?)?.top.color;
-      final hasError = borderColor == MintColors.errorAaa ||
-          (deco.color?.value == MintColors.errorAaa.withOpacity(0.12).value);
-      expect(hasError, isTrue,
-          reason: 'G3 must use errorAaa accent token');
+      expect(borderColor, MintColors.errorAaa,
+          reason: 'G3 must use errorAaa accent token on its border');
 
       // Grammatical break: G3 must contain a Divider between fact and cause.
       expect(find.byType(Divider), findsWidgets,
@@ -230,4 +226,6 @@ class FakeAccessibilityFeatures implements AccessibilityFeatures {
   bool get onOffSwitchLabels => false;
   @override
   bool get reduceMotion => disableAnimations;
+  @override
+  bool get supportsAnnounce => true;
 }
