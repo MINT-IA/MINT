@@ -14886,6 +14886,19 @@
             "title": "Factfindcompletionindex",
             "type": "number"
           },
+          "fragileModeEnteredAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Timestamp when fragile mode was entered. Null = not active.",
+            "title": "Fragilemodeenteredat"
+          },
           "gender": {
             "anyOf": [
               {
@@ -15002,6 +15015,13 @@
             ],
             "title": "Lppinsuredsalary"
           },
+          "n5IssuedThisWeek": {
+            "default": 0,
+            "description": "Rolling 7-day N5 emission counter (Phase 11 cap enforcement).",
+            "minimum": 0.0,
+            "title": "N5Issuedthisweek",
+            "type": "integer"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -15091,6 +15111,11 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "voiceCursorPreference": {
+            "$ref": "#/components/schemas/VoicePreference",
+            "default": "direct",
+            "description": "User tone preference (soft/direct/unfiltered). Default: direct."
           },
           "wealthEstimate": {
             "anyOf": [
@@ -15259,6 +15284,19 @@
             "title": "Factfindcompletionindex",
             "type": "number"
           },
+          "fragileModeEnteredAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Timestamp when fragile mode was entered. Null = not active.",
+            "title": "Fragilemodeenteredat"
+          },
           "gender": {
             "anyOf": [
               {
@@ -15370,6 +15408,13 @@
             ],
             "title": "Lppinsuredsalary"
           },
+          "n5IssuedThisWeek": {
+            "default": 0,
+            "description": "Rolling 7-day N5 emission counter (Phase 11 cap enforcement).",
+            "minimum": 0.0,
+            "title": "N5Issuedthisweek",
+            "type": "integer"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -15459,6 +15504,11 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "voiceCursorPreference": {
+            "$ref": "#/components/schemas/VoicePreference",
+            "default": "direct",
+            "description": "User tone preference (soft/direct/unfiltered). Default: direct."
           },
           "wealthEstimate": {
             "anyOf": [
@@ -15565,6 +15615,18 @@
               }
             ],
             "title": "Factfindcompletionindex"
+          },
+          "fragileModeEnteredAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fragilemodeenteredat"
           },
           "gender": {
             "anyOf": [
@@ -15710,6 +15772,18 @@
             ],
             "title": "Lppinsuredsalary"
           },
+          "n5IssuedThisWeek": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N5Issuedthisweek"
+          },
           "pillar3aAnnual": {
             "anyOf": [
               {
@@ -15818,6 +15892,16 @@
               }
             ],
             "title": "Totalsavings"
+          },
+          "voiceCursorPreference": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VoicePreference"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "wealthEstimate": {
             "anyOf": [
@@ -21047,6 +21131,15 @@
         ],
         "title": "VisionExtractionResponse",
         "type": "object"
+      },
+      "VoicePreference": {
+        "enum": [
+          "soft",
+          "direct",
+          "unfiltered"
+        ],
+        "title": "VoicePreference",
+        "type": "string"
       },
       "WealthTaxComparisonRequest": {
         "description": "Request for 26-canton wealth tax comparison.",
