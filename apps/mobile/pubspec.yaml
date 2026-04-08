@@ -56,6 +56,11 @@ flutter:
   
   # Assets
   assets:
+    # Phase 6 — L1.4 Regional voice ARBs (loaded at runtime by
+    # lib/l10n_regional/regional_localizations_delegate.dart).
+    - lib/l10n_regional/app_regional_vs.arb
+    - lib/l10n_regional/app_regional_zh.arb
+    - lib/l10n_regional/app_regional_ti.arb
     - assets/config/pillar_3a_limits.json
     - assets/config/tax_scales.json
     - assets/config/tax_scales_2024.json
