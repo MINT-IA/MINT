@@ -309,7 +309,13 @@ Plans:
   6. **Audit fix B4: final ComplianceGuard regression run** on every output channel touched in v2.0/v2.1/v2.2 (alerts, biography, openers, extraction, MintAlertObject, all 30 rewritten coach phrases, voice cursor outputs at all 5 levels). Zero ComplianceGuard rule violations. Report committed to `docs/COMPLIANCE_REGRESSION_v2.2.md`.
   7. All v2.2 CI gates green: flutter analyze lib/ 0, flutter test, pytest, ruff 0, codegen drift guards, contrast matrix, Flesch-Kincaid, chiffre_choc grep, REGIONAL_MAP grep, no_legacy_confidence_render grep, no_llm_alert grep, banned-terms grep, sentence-subject ARB lint, `@meta level:` lint.
 **Pitfalls to watch**: P2 context bleeding (final multi-turn regression pass); P14 live tests; P15 editorial drift (handoff to post-milestone cadence).
-**Plans**: TBD
+**Plans**: 6 plans
+- [ ] 12-01-PLAN.md — Ton chooser (intent_screen sheet + ProfileDrawer inline + 6-lang ARB + analytics + optimistic sync) [VOICE-13]
+- [ ] 12-02-PLAN.md — WCAG 2.1 AA CI gate across every v2.2-touched surface [ACCESS-03]
+- [ ] 12-03-PLAN.md — BloomStrategy Dart custom_lint rule [PERF-05]
+- [ ] 12-04-PLAN.md — Final ComplianceGuard regression run + docs/COMPLIANCE_REGRESSION_v2.2.md (B4)
+- [ ] 12-05-PLAN.md — All-gates-green sweep + docs/SHIP_GATE_v2.2.md 13-row matrix
+- [ ] 12-06-PLAN.md — Human-gated: STAB-18 + A14 baseline + live session decision tree + ship sign-off [STAB-18, PERF-01..04]
 **UI hint**: yes
 
 ## Progress
