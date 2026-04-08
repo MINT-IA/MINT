@@ -6,6 +6,7 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RESPONSE CARD WIDGET — V2 "Calm Narrative"
@@ -218,6 +219,9 @@ class ResponseCardWidget extends StatelessWidget {
 
         // CTA
         _buildCta(context),
+
+        // MTC slot (AESTH-07 MUJI 4-line, line 4) — conditional per D-07.
+        ..._buildMtcSlot(),
       ],
     );
   }
@@ -294,8 +298,37 @@ class ResponseCardWidget extends StatelessWidget {
             ],
           ],
         ),
+
+        // MTC slot (AESTH-07 MUJI 4-line, line 4) — conditional per D-07.
+        ..._buildMtcSlot(),
       ],
     );
+  }
+
+  // ── MTC SLOT ──────────────────────────────────────────────
+  //
+  // Plan 04-02 / CONTEXT.md D-07: mount `MintTrameConfiance.inline` at the
+  // bottom of the card body when (confidence != null && isProjection).
+  // The `BloomStrategy.firstAppearance` is used because S4 is a standalone
+  // surface (per CONTEXT.md D-03 / D-07 — feeds use onlyIfTopOfList).
+  //
+  // When the response is not a projection or no confidence is available,
+  // nothing is rendered (safe no-op). The ResponseCard model does not yet
+  // carry a confidence field — this is intentional: Phase 8a wires the
+  // model field, Phase 4 ships the slot infrastructure.
+
+  List<Widget> _buildMtcSlot() {
+    final c = confidence;
+    if (c == null || !isProjection) return const [];
+    return [
+      const SizedBox(height: MintSpacing.sm + 4),
+      MintTrameConfiance.inline(
+        confidence: c,
+        bloomStrategy: BloomStrategy.firstAppearance,
+        audioTone: audioTone,
+        isTopOfList: false,
+      ),
+    ];
   }
 
   // ── SHARED COMPONENTS ─────────────────────────────────────

@@ -6,6 +6,7 @@ import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────────
 //  RESPONSE CARD — MTC INTEGRATION TESTS (Phase 4 Plan 04-02)
@@ -224,6 +225,194 @@ void main() {
       ));
       expect(find.text('Versement 3a 2026'), findsOneWidget);
       expect(find.text('Simuler mon 3a'), findsOneWidget);
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  TASK 2 — Conditional MTC mounting
+  // ──────────────────────────────────────────────────────────────
+
+  group('MTC conditional mounting', () {
+    testWidgets('confidence != null && isProjection=true → MTC mounted',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(MintTrameConfiance), findsOneWidget);
+    });
+
+    testWidgets('confidence == null → no MTC even if isProjection=true',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          isProjection: true,
+        ),
+      ));
+      expect(find.byType(MintTrameConfiance), findsNothing);
+    });
+
+    testWidgets('isProjection=false → no MTC even if confidence != null',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(),
+        ),
+      ));
+      expect(find.byType(MintTrameConfiance), findsNothing);
+    });
+
+    testWidgets('MTC slot rendered on the chat variant as well',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget.chat(
+          card: _makeCard(),
+          confidence: _mockConfidence(),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(MintTrameConfiance), findsOneWidget);
+    });
+
+    testWidgets('MTC positioned below the title (AESTH-07 line 4)',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      final mtcFinder = find.byType(MintTrameConfiance);
+      final titleFinder = find.text('Versement 3a 2026');
+      expect(mtcFinder, findsOneWidget);
+      expect(titleFinder, findsOneWidget);
+      final mtcY = tester.getTopLeft(mtcFinder).dy;
+      final titleY = tester.getTopLeft(titleFinder).dy;
+      expect(
+        mtcY,
+        greaterThan(titleY),
+        reason: 'MTC must render below the title (AESTH-07 line 4).',
+      );
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  TASK 2 — ARB resolution for oneLineConfidenceSummary
+  // ──────────────────────────────────────────────────────────────
+
+  group('oneLineConfidenceSummary ARB resolution', () {
+    testWidgets('weakest=completeness resolves via AppLocalizations',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(
+            completeness: 50,
+            accuracy: 90,
+            freshness: 90,
+            understanding: 90,
+          ),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(MintTrameConfiance), findsOneWidget);
+    });
+
+    testWidgets('weakest=understanding resolves via AppLocalizations',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(
+            completeness: 90,
+            accuracy: 90,
+            freshness: 90,
+            understanding: 50,
+          ),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(MintTrameConfiance), findsOneWidget);
+    });
+
+    testWidgets('sparse weakest (< 40) triggers MTC.empty factory fallback',
+        (tester) async {
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(
+            completeness: 20,
+            accuracy: 90,
+            freshness: 90,
+            understanding: 90,
+          ),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      final mtc = tester.widget<MintTrameConfiance>(
+        find.byType(MintTrameConfiance),
+      );
+      expect(mtc.debugKind, MtcKind.empty);
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
+  //  TASK 2 — Semantics (announce-exactly-once)
+  // ──────────────────────────────────────────────────────────────
+
+  group('semantics with MTC mounted', () {
+    testWidgets('MTC fires exactly one SemanticsService.announce on mount',
+        (tester) async {
+      MintTrameConfiance.debugReset();
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: _makeCard(),
+          variant: ResponseCardVariant.sheet,
+          confidence: _mockConfidence(),
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(MintTrameConfiance.debugAnnounceCount, 1);
+    });
+
+    testWidgets('rebuilding with same confidence ref → no re-announce',
+        (tester) async {
+      MintTrameConfiance.debugReset();
+      final confidence = _mockConfidence();
+      Widget buildCard() => _wrap(
+            ResponseCardWidget(
+              card: _makeCard(),
+              variant: ResponseCardVariant.sheet,
+              confidence: confidence,
+              isProjection: true,
+            ),
+          );
+      await tester.pumpWidget(buildCard());
+      await tester.pumpAndSettle();
+      final before = MintTrameConfiance.debugAnnounceCount;
+      await tester.pumpWidget(buildCard());
+      await tester.pumpAndSettle();
+      expect(MintTrameConfiance.debugAnnounceCount, before);
     });
   });
 }
