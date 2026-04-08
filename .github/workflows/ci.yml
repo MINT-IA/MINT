@@ -247,6 +247,30 @@ jobs:
           } | sort -z \
             | xargs -0 flutter test --concurrency=4 --reporter compact
 
+      # ─── Golden test gate (Plan 04-03) ────────────────────────────
+      # Runs ONLY on the services shard to avoid triple-execution.
+      # Scope: test/goldens/helpers/ unit tests only (they pin the
+      # screen_pump helper's public surface: device dimensions, view
+      # wiring, locale wiring, MediaQuery flags).
+      #
+      # The image-diff goldens under test/goldens/*.dart are tagged
+      # `local-only` and intentionally NOT run here. Flutter pixel
+      # goldens are cross-platform fragile (macOS masters drift on
+      # Linux CI due to font hinting + glyph rasterization), same
+      # policy that already excludes test/golden_screenshots/. They
+      # are executed locally by Julien before each release and the
+      # Galaxy A14 subset is a manual device gate per PERF-04.
+      #
+      # See apps/mobile/test/goldens/README.md for the full CI scope
+      # decision, local-run commands, and the un-skip protocol for
+      # S4 goldens once Plan 04-02 lands.
+      - name: Golden helper tests (Plan 04-03 CI subset)
+        if: matrix.shard == 'services'
+        shell: bash
+        run: |
+          echo "Running golden helper unit tests (CI-safe subset)"
+          flutter test test/goldens/helpers/ --reporter compact
+
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
