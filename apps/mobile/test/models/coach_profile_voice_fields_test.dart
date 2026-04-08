@@ -208,6 +208,71 @@ void main() {
       }
     });
 
+    // ── Phase 11 (VOICE-09/10): recentGravityEvents round-trip ───────────
+    group('recentGravityEvents (Phase 11)', () {
+      test('default is empty list', () {
+        final p = _baseProfile();
+        expect(p.recentGravityEvents, isEmpty);
+      });
+
+      test('round-trip preserves entries', () {
+        final p = _baseProfile().copyWith(
+          recentGravityEvents: [
+            {'ts': '2026-04-01T10:00:00Z', 'gravity': 'G2'},
+            {'ts': '2026-04-05T14:30:00Z', 'gravity': 'G3'},
+          ],
+        );
+        final restored = CoachProfile.fromJson(jsonDecode(jsonEncode(p.toJson())));
+        expect(restored.recentGravityEvents, hasLength(2));
+        expect(restored.recentGravityEvents[0]['gravity'], 'G2');
+        expect(restored.recentGravityEvents[1]['gravity'], 'G3');
+        expect(restored.recentGravityEvents[1]['ts'], '2026-04-05T14:30:00Z');
+      });
+
+      test('legacy payload missing key → empty list', () {
+        // Build payload then strip the field to simulate legacy persistence.
+        final p = _baseProfile();
+        final raw = p.toJson()..remove('recentGravityEvents');
+        final restored = CoachProfile.fromJson(raw);
+        expect(restored.recentGravityEvents, isEmpty);
+      });
+
+      test('equality includes recentGravityEvents', () {
+        final a = _baseProfile().copyWith(recentGravityEvents: [
+          {'ts': '2026-04-01T10:00:00Z', 'gravity': 'G2'},
+        ]);
+        final b = _baseProfile().copyWith(recentGravityEvents: [
+          {'ts': '2026-04-01T10:00:00Z', 'gravity': 'G3'},
+        ]);
+        expect(a == b, isFalse);
+      });
+
+      test('copyWith preserves recentGravityEvents when not overridden', () {
+        final original = _baseProfile().copyWith(recentGravityEvents: [
+          {'ts': '2026-04-01T10:00:00Z', 'gravity': 'G2'},
+        ]);
+        final updated = original.copyWith(n5IssuedThisWeek: 1);
+        expect(updated.recentGravityEvents, hasLength(1));
+        expect(updated.recentGravityEvents[0]['gravity'], 'G2');
+      });
+
+      test('ARB files do NOT leak recentGravityEvents key', () {
+        const arbFiles = [
+          'lib/l10n/app_fr.arb',
+          'lib/l10n/app_en.arb',
+          'lib/l10n/app_de.arb',
+          'lib/l10n/app_es.arb',
+          'lib/l10n/app_it.arb',
+          'lib/l10n/app_pt.arb',
+        ];
+        for (final path in arbFiles) {
+          final raw = File(path).readAsStringSync();
+          expect(raw.contains('recentGravityEvents'), isFalse,
+              reason: '$path leaks recentGravityEvents');
+        }
+      });
+    });
+
     test('all 6 locales have the 4 voice cursor preference labels', () {
       final arbFiles = {
         'fr': 'lib/l10n/app_fr.arb',
