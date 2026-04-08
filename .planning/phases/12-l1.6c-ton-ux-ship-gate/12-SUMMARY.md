@@ -56,7 +56,7 @@ Plan 12-06 (human-gated) requires:
 5. **ACCESS-01** — 6 a11y partner recruitment emails sent (Phase 1 deferred, Phase 8b-04 deferred, now blocking)
 6. **Krippendorff testers** — 15 testers recruited (Phase 11-02 deferred), runs the α validation
 
-The infrastructure for all 6 items is fully shipped:
+The infrastructure for all 6 items is code-complete on the feature branch (not yet on dev):
 - A14 build script: `tools/scripts/build_a14.sh`
 - Friction walkthrough README + template: `docs/FRICTION_PASS_1.md` + `docs/FRICTION_PASS_1/README.md`
 - Krippendorff α runner: `tools/voice_corpus/krippendorff_runner.py` (synthetic fixture passes α=0.97)
@@ -68,8 +68,8 @@ Decision tree at `docs/SHIP_GATE_v2.2.md` and individual phase context files.
 `feature/v2.2-p0a-code-unblockers` — ~155 commits ahead of dev.
 
 ## What's left to ship v2.2
-**Code-side: NOTHING.** The branch is fully shippable.
-**Human-side:** the 6 items listed under Plan 12-06 above.
+**Code-side:** NOTHING new — branch is ship-ready on all 18 automated gates, pending merge to dev.
+**Human-side:** the 6 items listed under Plan 12-06 above remain PENDING.
 
 Two doctrine-compatible paths exist for the human-side:
 - **Full ambition**: send emails + recruit testers + run all 4 walkthroughs → ship in 2-4 weeks
