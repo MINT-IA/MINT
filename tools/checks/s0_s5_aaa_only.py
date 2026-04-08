@@ -29,7 +29,7 @@ S0_S5_FILES = [
     "apps/mobile/lib/screens/main_tabs/mint_home_screen.dart",
     "apps/mobile/lib/widgets/coach/coach_message_bubble.dart",
     "apps/mobile/lib/widgets/coach/response_card_widget.dart",
-    "apps/mobile/lib/widgets/report/debt_alert_banner.dart",
+    "apps/mobile/lib/widgets/alert/mint_alert_object.dart",
 ]
 
 # Matches MintColors.<legacyToken> where <legacyToken> is NOT suffixed by "Aaa"
