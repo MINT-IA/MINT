@@ -203,7 +203,11 @@
   4. `liveRegion: true` semantics on coach_message_bubble incoming; reduced-motion fallback verified across MTC bloom + coach typing + onboarding transitions.
   5. ≥1 live a11y test session completed (1 of the 3 partners: SBV-FSA OR ASPEDAH OR Caritas) with compte-rendu committed to `docs/ACCESSIBILITY_TEST_LAYER1.md`. AAA honesty gate decision committed: "AAA met on S0-S5" OR "descoped to AA + documented gaps per ACCESS-09".
 **Pitfalls to watch**: P13 AAA contrast brand pastels; P14 live tests recruitment lead time.
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 08b-01-PLAN.md — AAA token application on S0-S5 (AESTH-05, AESTH-06, ACCESS-04)
+  - [ ] 08b-02-PLAN.md — Spiekermann microtypographie pass on S0-S5 (AESTH-01, AESTH-02, AESTH-03, AESTH-07)
+  - [ ] 08b-03-PLAN.md — liveRegion + reduced-motion audit + fixes (ACCESS-07, ACCESS-08)
+  - [ ] 08b-04-PLAN.md — First live a11y session + AAA honesty gate (ACCESS-02, ACCESS-09) — GATED on ACCESS-01
 **UI hint**: yes
 
 ### Phase 8c: Polish Pass #1 (cross-surface aesthetic supervision)
