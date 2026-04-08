@@ -965,4 +965,80 @@ class EnhancedConfidence {
     required this.baseResult,
     this.axisPrompts = const [],
   });
+
+  // ── Plan 08a-01 wire helpers ─────────────────────────────────────
+  //
+  // Locked wire shape (CONTEXT §D-05): the 4 axes as [0.0, 1.0]
+  // floats plus a computed combined ``score`` for quick rendering.
+  // Enrichment prompts are NOT shipped over the wire — clients
+  // derive them locally. Mirrors
+  // ``services/backend/app/schemas/enhanced_confidence.py``.
+
+  /// Combined score on the [0.0, 1.0] scale.
+  ///
+  /// Mirrors backend's ``score`` field. The mobile class stores
+  /// ``combined`` on a 0-100 scale; this getter rescales it.
+  double get scoreUnit => (combined / 100.0).clamp(0.0, 1.0);
+
+  /// Serialize to the Plan 08a-01 wire shape (D-05).
+  ///
+  /// All four axes are emitted as [0.0, 1.0] floats — the mobile
+  /// class stores them on a 0-100 scale, so we rescale here.
+  Map<String, dynamic> toJson() => {
+        'completeness': (completeness / 100.0).clamp(0.0, 1.0),
+        'accuracy': (accuracy / 100.0).clamp(0.0, 1.0),
+        'freshness': (freshness / 100.0).clamp(0.0, 1.0),
+        'understanding': (understanding / 100.0).clamp(0.0, 1.0),
+        'score': scoreUnit,
+      };
+
+  /// Parse the Plan 08a-01 wire shape (D-05).
+  ///
+  /// Tolerates either [0.0, 1.0] or [0, 100] inputs: any axis whose
+  /// value is > 1.0 is treated as already being on the 0-100 scale.
+  /// The mobile class stores axes on the 0-100 scale, so we upscale
+  /// the canonical [0.0, 1.0] inputs accordingly.
+  factory EnhancedConfidence.fromJson(Map<String, dynamic> json) {
+    double axis(String key) {
+      final raw = (json[key] as num?)?.toDouble() ?? 0.0;
+      return raw <= 1.0 ? raw * 100.0 : raw;
+    }
+
+    final completeness = axis('completeness');
+    final accuracy = axis('accuracy');
+    final freshness = axis('freshness');
+    final understanding = axis('understanding');
+    final scoreRaw = (json['score'] as num?)?.toDouble();
+    final combined = scoreRaw != null
+        ? (scoreRaw <= 1.0 ? scoreRaw * 100.0 : scoreRaw)
+        : (() {
+            // Geometric mean fallback if score absent.
+            final product =
+                completeness * accuracy * freshness * understanding;
+            if (product <= 0) return 0.0;
+            return math.pow(product, 0.25).toDouble();
+          })();
+
+    String levelFor(double v) {
+      if (v >= 70) return 'high';
+      if (v >= 40) return 'medium';
+      return 'low';
+    }
+
+    return EnhancedConfidence(
+      completeness: completeness,
+      accuracy: accuracy,
+      freshness: freshness,
+      understanding: understanding,
+      combined: combined,
+      level: levelFor(completeness),
+      baseResult: const ProjectionConfidence(
+        score: 0,
+        level: 'low',
+        prompts: [],
+        assumptions: [],
+      ),
+      axisPrompts: const [],
+    );
+  }
 }

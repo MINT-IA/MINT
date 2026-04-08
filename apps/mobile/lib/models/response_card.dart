@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -188,6 +189,13 @@ class ResponseCard {
   /// Icone Material optionnelle.
   final IconData? icon;
 
+  /// 4-axis confidence payload (Plan 08a-01, wire D-05).
+  ///
+  /// Optional and null by default — preserves the Phase 4
+  /// null-fallback posture so existing call sites compile unchanged.
+  /// Enables the 11-surface MTC migration in Plan 08a-02.
+  final EnhancedConfidence? confidence;
+
   const ResponseCard({
     required this.id,
     required this.type,
@@ -204,6 +212,7 @@ class ResponseCard {
     this.category = '',
     this.impactChf,
     this.icon,
+    this.confidence,
   });
 
   /// Nombre de jours avant la deadline (null si pas de deadline).
@@ -262,5 +271,48 @@ class ResponseCard {
         'impactPoints': impactPoints,
         if (category.isNotEmpty) 'category': category,
         if (impactChf != null) 'impactChf': impactChf,
+        if (confidence != null) 'confidence': confidence!.toJson(),
       };
+
+  /// Parse a ResponseCard from a JSON payload.
+  ///
+  /// Plan 08a-01: tolerates ``confidence`` being absent or
+  /// explicitly null (back-compat with the Phase 4 null-fallback
+  /// posture). When present, decoded via
+  /// [EnhancedConfidence.fromJson] using the locked D-05 wire shape.
+  factory ResponseCard.fromJson(Map<String, dynamic> json) {
+    ResponseCardType parseType(String raw) => ResponseCardType.values.firstWhere(
+          (t) => t.name == raw,
+          orElse: () => ResponseCardType.lppBuyback,
+        );
+    CardUrgency parseUrgency(String? raw) => CardUrgency.values.firstWhere(
+          (u) => u.name == raw,
+          orElse: () => CardUrgency.low,
+        );
+
+    final confJson = json['confidence'];
+    return ResponseCard(
+      id: json['id'] as String,
+      type: parseType(json['type'] as String),
+      title: json['title'] as String,
+      subtitle: json['subtitle'] as String,
+      premierEclairage: PremierEclairage.fromJson(
+        json['premierEclairage'] as Map<String, dynamic>,
+      ),
+      cta: CardCta.fromJson(json['cta'] as Map<String, dynamic>),
+      urgency: parseUrgency(json['urgency'] as String?),
+      deadline: json['deadline'] != null
+          ? DateTime.parse(json['deadline'] as String)
+          : null,
+      disclaimer: json['disclaimer'] as String,
+      sources: (json['sources'] as List?)?.cast<String>() ?? const [],
+      alertes: (json['alertes'] as List?)?.cast<String>() ?? const [],
+      impactPoints: (json['impactPoints'] as num?)?.toInt() ?? 0,
+      category: (json['category'] as String?) ?? '',
+      impactChf: (json['impactChf'] as num?)?.toDouble(),
+      confidence: confJson is Map<String, dynamic>
+          ? EnhancedConfidence.fromJson(confJson)
+          : null,
+    );
+  }
 }
