@@ -5,6 +5,13 @@ import 'package:mint_mobile/screens/landing_screen.dart';
 
 import 'golden_test_helpers.dart';
 
+// Phase 7 (L1.7 Landing v2) rebuilt LandingScreen as a single full-screen
+// calm promise surface: wordmark + paragraphe-mère + CTA + privacy
+// micro-phrase + legal footer. There is no SingleChildScrollView,
+// no trust bar, no quick-calc section — so the legacy "scrolled to quick
+// calc" and "bottom (CTA + trust bar)" variants no longer apply.
+//
+// A single top-of-page golden is sufficient for visual regression.
 void main() {
   setUp(() async {
     await setupGoldenEnvironment();
@@ -26,7 +33,8 @@ void main() {
           warmup: kFontWarmupDuration);
     });
 
-    testWidgets('landing — top of page', (tester) async {
+    testWidgets('landing — top of page (Phase 7 calm promise surface)',
+        (tester) async {
       setGoldenViewport(tester);
       addTearDown(() => tester.view.resetPhysicalSize());
 
@@ -35,42 +43,6 @@ void main() {
       await expectLater(
         find.byType(LandingScreen),
         matchesGoldenFile('goldens/landing_top.png'),
-      );
-    });
-
-    testWidgets('landing — scrolled to quick calc', (tester) async {
-      setGoldenViewport(tester);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(tester, buildGoldenWidget(const LandingScreen()));
-
-      await tester.drag(
-        find.byType(SingleChildScrollView),
-        const Offset(0, -500),
-      );
-      await tester.pump(const Duration(milliseconds: 300));
-
-      await expectLater(
-        find.byType(LandingScreen),
-        matchesGoldenFile('goldens/landing_quick_calc.png'),
-      );
-    });
-
-    testWidgets('landing — bottom (CTA + trust bar)', (tester) async {
-      setGoldenViewport(tester);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(tester, buildGoldenWidget(const LandingScreen()));
-
-      await tester.drag(
-        find.byType(SingleChildScrollView),
-        const Offset(0, -1200),
-      );
-      await tester.pump(const Duration(milliseconds: 300));
-
-      await expectLater(
-        find.byType(LandingScreen),
-        matchesGoldenFile('goldens/landing_bottom.png'),
       );
     });
   });
