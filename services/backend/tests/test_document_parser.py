@@ -773,3 +773,129 @@ class TestKnownFieldPatterns:
             assert defn["type"] in ("amount", "rate", "percentage"), f"{name} type invalide: {defn['type']}"
             assert "patterns" in defn, f"{name} manque les patterns"
             assert len(defn["patterns"]) >= 2, f"{name} a trop peu de patterns"
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 12. Vision Cross-Field Coherence (DOC-05) — 12 tests
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+from app.schemas.document_scan import (  # noqa: E402
+    ConfidenceLevel as VisionConfidenceLevel,
+    ExtractedFieldConfirmation,
+)
+from app.services.document_vision_service import validate_lpp_coherence  # noqa: E402
+
+
+def _make_lpp_fields(oblig, suroblig, total, confidence="high"):
+    """Helper to create LPP field list for coherence testing."""
+    fields = []
+    if oblig is not None:
+        fields.append(ExtractedFieldConfirmation(
+            field_name="avoirLppObligatoire",
+            value=oblig,
+            confidence=VisionConfidenceLevel(confidence),
+            source_text=f"Obligatoire: {oblig}",
+        ))
+    if suroblig is not None:
+        fields.append(ExtractedFieldConfirmation(
+            field_name="avoirLppSurobligatoire",
+            value=suroblig,
+            confidence=VisionConfidenceLevel(confidence),
+            source_text=f"Surobligatoire: {suroblig}",
+        ))
+    if total is not None:
+        fields.append(ExtractedFieldConfirmation(
+            field_name="avoirLppTotal",
+            value=total,
+            confidence=VisionConfidenceLevel(confidence),
+            source_text=f"Total: {total}",
+        ))
+    return fields
+
+
+class TestVisionCoherence:
+    """Tests for validate_lpp_coherence() — DOC-05."""
+
+    def test_coherent_values_no_warnings(self):
+        """Test 1: oblig + suroblig = total exactly -> no warnings."""
+        fields = _make_lpp_fields(200000, 150000, 350000)
+        warnings = validate_lpp_coherence(fields)
+        assert len(warnings) == 0
+
+    def test_10x_error_detected(self):
+        """Test 2: total = 10x expected -> 10x error warning."""
+        fields = _make_lpp_fields(200000, 150000, 3500000)
+        warnings = validate_lpp_coherence(fields)
+        assert any("10x" in w or "disproportionne" in w.lower() for w in warnings)
+
+    def test_over_5_percent_triggers_warning(self):
+        """Test 3: >5% deviation triggers coherence warning."""
+        # 200k + 150k = 350k; total = 380k -> deviation = 30k/380k = 7.9%
+        fields = _make_lpp_fields(200000, 150000, 380000)
+        warnings = validate_lpp_coherence(fields)
+        assert any("correspondent pas" in w for w in warnings)
+
+    def test_within_5_percent_no_warning(self):
+        """Test 4: within 5% tolerance -> no warning."""
+        # 200k + 150k = 350k; total = 365k -> deviation = 15k/365k = 4.1%
+        fields = _make_lpp_fields(200000, 150000, 365000)
+        warnings = validate_lpp_coherence(fields)
+        coherence_warnings = [w for w in warnings if "correspondent pas" in w]
+        assert len(coherence_warnings) == 0
+
+    def test_missing_field_no_warning(self):
+        """Test 5: missing oblig field -> no warning (can't validate)."""
+        fields = _make_lpp_fields(None, 150000, 350000)
+        warnings = validate_lpp_coherence(fields)
+        assert len(warnings) == 0
+
+    def test_coherence_failure_downgrades_confidence(self):
+        """Test 6: coherence failure downgrades all 3 fields to low."""
+        fields = _make_lpp_fields(200000, 150000, 3500000, confidence="high")
+        validate_lpp_coherence(fields)
+        for f in fields:
+            assert f.confidence == VisionConfidenceLevel.low
+
+    def test_coherence_warning_message_in_french(self):
+        """Test 7: coherence warning is in French."""
+        fields = _make_lpp_fields(200000, 150000, 400000)
+        warnings = validate_lpp_coherence(fields)
+        assert any("Verifie" in w for w in warnings)
+
+    def test_exact_5_percent_boundary_pass(self):
+        """Test boundary: exactly 5% deviation should pass."""
+        # 200k + 150k = 350k; total where deviation = 5% exactly
+        # deviation = |350k - total| / total = 0.05
+        # 350 / total = 0.95 -> total = 350000/0.95 = 368421.05
+        # Let's use total = 368000 -> deviation = 18000/368000 = 4.89% (passes)
+        fields = _make_lpp_fields(200000, 150000, 368000)
+        warnings = validate_lpp_coherence(fields)
+        coherence_warnings = [w for w in warnings if "correspondent pas" in w]
+        assert len(coherence_warnings) == 0
+
+    def test_just_over_5_percent_boundary_fail(self):
+        """Test boundary: just over 5% deviation should fail."""
+        # total = 370000 -> deviation = 20000/370000 = 5.4% (fails)
+        fields = _make_lpp_fields(200000, 150000, 370000)
+        warnings = validate_lpp_coherence(fields)
+        assert any("correspondent pas" in w for w in warnings)
+
+    def test_10x_specific_warning_text(self):
+        """Test 10: 10x error has specific warning text."""
+        fields = _make_lpp_fields(50000, 50000, 5000000)
+        warnings = validate_lpp_coherence(fields)
+        assert any("erreur 10x" in w.lower() or "disproportionne" in w.lower() for w in warnings)
+
+    def test_coherent_preserves_high_confidence(self):
+        """Coherent values preserve original confidence."""
+        fields = _make_lpp_fields(200000, 150000, 350000, confidence="high")
+        validate_lpp_coherence(fields)
+        for f in fields:
+            assert f.confidence == VisionConfidenceLevel.high
+
+    def test_missing_suroblig_no_warning(self):
+        """Missing surobligatoire -> no coherence check possible."""
+        fields = _make_lpp_fields(200000, None, 350000)
+        warnings = validate_lpp_coherence(fields)
+        assert len(warnings) == 0

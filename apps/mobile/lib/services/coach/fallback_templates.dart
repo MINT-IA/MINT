@@ -8,6 +8,8 @@
 /// References: LSFin, LAVS, LPP, OPP3, LIFD.
 library;
 
+import 'package:mint_mobile/utils/chf_formatter.dart';
+
 import 'coach_models.dart';
 
 class FallbackTemplates {
@@ -95,7 +97,7 @@ class FallbackTemplates {
     // Tax optimization lever (> CHF 1000 potential)
     if (taxSaving > 1000) {
       return '${ctx.firstName}, un versement 3a pourrait réduire ton impôt '
-          'd\'environ CHF ${taxSaving.toStringAsFixed(0)} cette année. '
+          'd\'environ ${formatChfWithPrefix(taxSaving)} cette année. '
           'Simule l\'impact sur ton profil.';
     }
 
@@ -123,12 +125,12 @@ class FallbackTemplates {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // Chiffre Choc Reframe — max 100 words (ComponentType.chiffreChoc)
+  // Premier Éclairage Reframe — max 100 words (ComponentType.premierEclairage)
   // ═══════════════════════════════════════════════════════════════
 
   /// Contextualizes a shock figure with confidence level and
   /// encourages profile enrichment based on data reliability.
-  static String chiffreChocReframe(CoachContext ctx) {
+  static String premierEclairageReframe(CoachContext ctx) {
     final confidence = ctx.knownValues['confidence_score'] ?? 30;
     final hasCertifiedData = ctx.dataReliability.values
         .any((v) => v == 'certified');
@@ -209,6 +211,11 @@ class FallbackTemplates {
         'quelques points éducatifs à connaître. '
         'Le FATCA (Foreign Account Tax Compliance Act) impose '
         'une déclaration annuelle de tes comptes suisses à l\'IRS. '
+        'De plus, si la somme de tes comptes étrangers dépasse '
+        '\$10\u00a0000 à tout moment de l\'année, tu es tenu·e de '
+        'déposer un FBAR (FinCEN Form 114) avant le 15 avril. '
+        'L\'amende pour non-déclaration peut atteindre \$12\u00a0500 '
+        'par compte (voire plus en cas de faute intentionnelle). '
         'Tes investissements en fonds suisses pourraient être '
         'classés PFIC, avec un traitement fiscal US spécifique. '
         'La convention de double imposition CH-US prévoit des '
@@ -216,7 +223,8 @@ class FallbackTemplates {
         'versements 3a et prestations LPP. '
         'Il serait utile de consulter un·e spécialiste '
         'en fiscalité transfrontalière CH-US. '
-        'Réf. : Convention de double imposition CH-US, FATCA.';
+        'Réf. : Convention de double imposition CH-US, FATCA, '
+        'FBAR (FinCEN Form 114, 31 USC 5314).';
   }
 
   // ═══════════════════════════════════════════════════════════════

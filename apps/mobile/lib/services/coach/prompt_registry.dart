@@ -164,17 +164,17 @@ Ancre sur un chiffre concret. Utilise le conditionnel.
 Le tip doit être actionnable (ex: "Tu pourrais simuler...").
 ''';
 
-  /// Prompt for chiffre choc narrative.
-  static String chiffreChocNarrative(CoachContext ctx) => '''
+  /// Prompt for premier éclairage narrative.
+  static String premierEclairageNarrative(CoachContext ctx) => '''
 $baseSystemPrompt
 
 CONTEXTE UTILISATEUR :
 - Prénom : ${ctx.firstName}
-- Chiffre clé : ${ctx.knownValues['chiffre_choc_value'] ?? 'N/A'}
-- Catégorie : ${ctx.knownValues['chiffre_choc_category'] ?? 'N/A'}
+- Chiffre clé : ${ctx.knownValues['premier_eclairage_value'] ?? 'N/A'}
+- Catégorie : ${ctx.knownValues['premier_eclairage_category'] ?? 'N/A'}
 - Score confiance : ${ctx.knownValues['confidence_score'] ?? 0}%
 
-TÂCHE : Commente le chiffre choc en 2-3 phrases (max 100 mots).
+TÂCHE : Commente le premier éclairage en 2-3 phrases (max 100 mots).
 Contextualise le chiffre. Mentionne le niveau de confiance.
 Suggère une simulation (pas un conseil).
 ''';
@@ -499,8 +499,8 @@ MINT est un outil éducatif. Consulte un·e spécialiste pour toute décision im
         return scoreSummary(ctx);
       case 'tip':
         return dailyTip(ctx);
-      case 'chiffre_choc':
-        return chiffreChocNarrative(ctx);
+      case 'premier_eclairage':
+        return premierEclairageNarrative(ctx);
       case 'scenario':
         return scenarioNarration(ctx);
       case 'enrichment_guide':

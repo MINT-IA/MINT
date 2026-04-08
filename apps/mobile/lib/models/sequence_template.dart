@@ -69,11 +69,17 @@ class SequenceTemplate {
   /// Archetype filter. Null = available for all archetypes.
   final String? archetypeFilter;
 
+  /// Semantic topics covered by this sequence (for cohort suppression check).
+  /// If any topic is in the user's suppressedTopics, this sequence should not
+  /// be proposed (MINT_ANTI_BULLSHIT_MANIFESTO.md §6).
+  final Set<String> topics;
+
   const SequenceTemplate({
     required this.id,
     required this.goalLabelKey,
     required this.steps,
     this.archetypeFilter,
+    this.topics = const {},
   });
 
   // ── V1 PRE-DEFINED TEMPLATES ──────────────────────────────────
@@ -154,6 +160,7 @@ class SequenceTemplate {
   /// Préparation retraite (5 étapes)
   static const retirementPrep = SequenceTemplate(
     id: 'retirement_prep',
+    topics: {'retirement_deep', 'rente_vs_capital'},
     goalLabelKey: 'sequenceRetirementGoal',
     steps: [
       SequenceStepDef(
@@ -207,6 +214,7 @@ class SequenceTemplate {
   /// Phase 4: Agir (budget post-retraite, résumé)
   static const preretraiteComplete = SequenceTemplate(
     id: 'preretraite_complete',
+    topics: {'retirement_deep', 'withdrawal_sequencing', 'rente_vs_capital', 'lpp_buyback'},
     goalLabelKey: 'sequencePreretraiteGoal',
     steps: [
       // Phase 1: Clarifier
@@ -351,6 +359,217 @@ class SequenceTemplate {
     ],
   );
 
+  /// Premiers pas financiers (3 étapes) — cohorte 18-27.
+  ///
+  /// Premier salaire → budget de base → 3a découverte.
+  static const premiersPas = SequenceTemplate(
+    id: 'premiers_pas',
+    goalLabelKey: 'sequencePremiersPasGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'pp_01_first_job',
+        order: 1,
+        intentTag: 'life_event_first_job',
+        titleKey: 'sequencePremiersPasStep1',
+      ),
+      SequenceStepDef(
+        id: 'pp_02_budget',
+        order: 2,
+        intentTag: 'budget_overview',
+        titleKey: 'sequencePremiersPasStep2',
+        outputMapping: {
+          'revenu_net': 'revenu_net',
+          'charges_totales': 'charges_totales',
+        },
+      ),
+      SequenceStepDef(
+        id: 'pp_03_3a',
+        order: 3,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequencePremiersPasStep3',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_annuelle',
+          'economie_fiscale': 'economie_fiscale',
+        },
+      ),
+    ],
+  );
+
+  /// Densification & protection (4 étapes) — cohorte 38-52.
+  ///
+  /// Projection retraite → protection invalidité → rachat LPP → résumé.
+  static const densification = SequenceTemplate(
+    id: 'densification',
+    topics: {'retirement_deep', 'lpp_buyback'},
+    goalLabelKey: 'sequenceDensificationGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'dens_01_projection',
+        order: 1,
+        intentTag: 'retirement_projection',
+        titleKey: 'sequenceDensificationStep1',
+        outputMapping: {
+          'taux_remplacement': 'taux_remplacement',
+          'gap_mensuel': 'gap_mensuel',
+        },
+      ),
+      SequenceStepDef(
+        id: 'dens_02_disability',
+        order: 2,
+        intentTag: 'disability_gap',
+        titleKey: 'sequenceDensificationStep2',
+      ),
+      SequenceStepDef(
+        id: 'dens_03_buyback',
+        order: 3,
+        intentTag: 'lpp_buyback',
+        titleKey: 'sequenceDensificationStep3',
+        outputMapping: {'economie_rachat': 'economie_rachat'},
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'dens_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceDensificationStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
+  /// Retraite active (4 étapes) — cohorte 65-74.
+  ///
+  /// Budget retraite → succession → LAMal → résumé.
+  static const retraiteActive = SequenceTemplate(
+    id: 'retraite_active',
+    topics: {'succession', 'estate_planning'},
+    goalLabelKey: 'sequenceRetraiteActiveGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'ra_01_budget',
+        order: 1,
+        intentTag: 'budget_overview',
+        titleKey: 'sequenceRetraiteActiveStep1',
+        outputMapping: {
+          'revenu_net': 'revenu_retraite',
+          'charges_totales': 'charges_retraite',
+        },
+      ),
+      SequenceStepDef(
+        id: 'ra_02_succession',
+        order: 2,
+        intentTag: 'succession_patrimoine',
+        titleKey: 'sequenceRetraiteActiveStep2',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'ra_03_lamal',
+        order: 3,
+        intentTag: 'lamal_franchise',
+        titleKey: 'sequenceRetraiteActiveStep3',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'ra_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceRetraiteActiveStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
+  /// Couple financier (5 étapes) — cohorte 28-37.
+  ///
+  /// Mariage vs concubinage, fiscalité couple, 3a couple,
+  /// coordination LPP, résumé.
+  static const coupleFinancier = SequenceTemplate(
+    id: 'couple_financier',
+    goalLabelKey: 'sequenceCoupleGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'couple_01_status',
+        order: 1,
+        intentTag: 'life_event_marriage',
+        titleKey: 'sequenceCoupleStep1',
+        outputMapping: {'impact_fiscal_couple': 'impact_fiscal_couple'},
+      ),
+      SequenceStepDef(
+        id: 'couple_02_household',
+        order: 2,
+        intentTag: 'household_couple',
+        titleKey: 'sequenceCoupleStep2',
+      ),
+      SequenceStepDef(
+        id: 'couple_03_3a',
+        order: 3,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequenceCoupleStep3',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_couple',
+          'economie_fiscale': 'economie_couple',
+        },
+      ),
+      SequenceStepDef(
+        id: 'couple_04_fiscal',
+        order: 4,
+        intentTag: 'cantonal_fiscal_comparator',
+        titleKey: 'sequenceCoupleStep4',
+        isOptional: true,
+      ),
+      SequenceStepDef(
+        id: 'couple_05_summary',
+        order: 5,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceCoupleStep5',
+        isOptional: true,
+      ),
+    ],
+  );
+
+  /// Naissance & coûts (4 étapes) — cohorte 28-37.
+  ///
+  /// Impact budget naissance, déductions enfants, 3a famille, résumé.
+  static const naissanceCouts = SequenceTemplate(
+    id: 'naissance_couts',
+    goalLabelKey: 'sequenceNaissanceGoal',
+    steps: [
+      SequenceStepDef(
+        id: 'naissance_01_impact',
+        order: 1,
+        intentTag: 'life_event_birth',
+        titleKey: 'sequenceNaissanceStep1',
+      ),
+      SequenceStepDef(
+        id: 'naissance_02_budget',
+        order: 2,
+        intentTag: 'budget_overview',
+        titleKey: 'sequenceNaissanceStep2',
+        outputMapping: {
+          'revenu_net': 'revenu_famille',
+          'charges_totales': 'charges_famille',
+        },
+      ),
+      SequenceStepDef(
+        id: 'naissance_03_3a',
+        order: 3,
+        intentTag: 'simulator_3a',
+        titleKey: 'sequenceNaissanceStep3',
+        outputMapping: {
+          'contribution_annuelle': 'contribution_parent',
+          'economie_fiscale': 'economie_parent',
+        },
+      ),
+      SequenceStepDef(
+        id: 'naissance_04_summary',
+        order: 4,
+        intentTag: '_inline_summary',
+        titleKey: 'sequenceNaissanceStep4',
+        isOptional: true,
+      ),
+    ],
+  );
+
   // ── INTENT → TEMPLATE MAPPING ─────────────────────────────────
 
   /// Maps a user intent to a guided sequence template.
@@ -361,6 +580,12 @@ class SequenceTemplate {
       'housing_purchase' => housingPurchase,
       'retirement_choice' || 'retirement_projection' => retirementPrep,
       'preretraite_complete' => preretraiteComplete,
+      'life_event_marriage' || 'life_event_concubinage' || 'household_couple' => coupleFinancier,
+      'life_event_birth' => naissanceCouts,
+      'life_event_first_job' => premiersPas,
+      'disability_gap' || 'disability_insurance_flow' => densification,
+      'succession_patrimoine' => retraiteActive,
+      // 75+ uses retraiteActive (same journey, simplified)
       'simulator_3a' || 'tax_optimization_3a' => optimize3a,
       'debt_ratio' || 'debt_repayment' || 'debt_risk_check' => financialTension,
       _ => null,

@@ -44,7 +44,6 @@ def _find_tool(name: str) -> Optional[dict]:
 
 def _fake_user():
     """Mock authenticated user for dependency override."""
-    from app.core.auth import require_current_user, get_current_user
 
     user = MagicMock()
     user.id = "test-user-id"
@@ -194,7 +193,7 @@ class TestHandleRetrieveMemories:
             memory_block=_MEMORY_BLOCK,
             max_results=2,
         )
-        returned_lines = [l for l in result.split("\n") if l.strip()]
+        returned_lines = [line for line in result.split("\n") if line.strip()]
         assert len(returned_lines) <= 2
 
     def test_case_insensitive_search(self):
@@ -208,7 +207,7 @@ class TestHandleRetrieveMemories:
         """When multiple lines match, they appear in document order."""
         memory = "Ligne A: retraite\nLigne B: autre\nLigne C: retraite aussi"
         result = _handle_retrieve_memories(topic="retraite", memory_block=memory, max_results=5)
-        lines = [l for l in result.split("\n") if l.strip()]
+        lines = [line for line in result.split("\n") if line.strip()]
         assert lines[0].startswith("Ligne A")
         assert lines[1].startswith("Ligne C")
 
@@ -217,7 +216,7 @@ class TestHandleRetrieveMemories:
         # Build a memory with 5 lines all matching "test"
         memory = "\n".join(f"test ligne {i}" for i in range(5))
         result = _handle_retrieve_memories(topic="test", memory_block=memory)
-        returned_lines = [l for l in result.split("\n") if l.strip()]
+        returned_lines = [line for line in result.split("\n") if line.strip()]
         assert len(returned_lines) == 3
 
     def test_max_results_1_returns_exactly_one_line(self):
@@ -225,14 +224,14 @@ class TestHandleRetrieveMemories:
         result = _handle_retrieve_memories(
             topic="retraite", memory_block=_MEMORY_BLOCK, max_results=1
         )
-        returned_lines = [l for l in result.split("\n") if l.strip()]
+        returned_lines = [line for line in result.split("\n") if line.strip()]
         assert len(returned_lines) == 1
 
     def test_max_results_capped_at_5(self):
         """max_results values above 5 must be capped at 5."""
         memory = "\n".join(f"item {i}" for i in range(10))
         result = _handle_retrieve_memories(topic="item", memory_block=memory, max_results=100)
-        returned_lines = [l for l in result.split("\n") if l.strip()]
+        returned_lines = [line for line in result.split("\n") if line.strip()]
         assert len(returned_lines) <= 5
 
 
@@ -247,10 +246,15 @@ class TestRetrieveMemoriesEndpointIntercept:
     @pytest.fixture(autouse=True)
     def _setup_auth(self):
         from app.core.auth import require_current_user, get_current_user
+        from app.services.billing_service import ALL_FEATURES
 
         app.dependency_overrides[require_current_user] = _fake_user
         app.dependency_overrides[get_current_user] = _fake_user
-        yield
+        with patch(
+            "app.api.v1.endpoints.coach_chat.recompute_entitlements",
+            return_value=("premium", ALL_FEATURES),
+        ):
+            yield
         app.dependency_overrides.pop(require_current_user, None)
         app.dependency_overrides.pop(get_current_user, None)
 

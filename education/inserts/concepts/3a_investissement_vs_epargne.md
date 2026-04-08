@@ -8,7 +8,7 @@ tags: [3a, investissement, epargne, fonds, rendement, risque]
 ## Trigger
 L'utilisateur hésite entre un compte 3a épargne classique et un 3a investi en fonds de placement, ou veut comprendre la différence de rendement sur le long terme.
 
-## Chiffre Choc
+## Premier Éclairage
 Sur 30 ans, avec un versement annuel de CHF 7'000 : un compte 3a épargne à 0.5 % te donnerait ~CHF 217'000, tandis qu'un 3a investi à 4 % (rendement historique moyen des fonds équilibrés) pourrait atteindre ~CHF 408'000. La différence : ~CHF 191'000 — sans avoir versé un franc de plus.
 
 ## Niveau 0

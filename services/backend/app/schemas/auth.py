@@ -4,27 +4,21 @@ Authentication schemas for user registration, login, and tokens.
 
 from datetime import datetime
 from typing import Optional, Literal
-from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic.alias_generators import to_camel
 
 
 class UserRegister(BaseModel):
     """Schema for user registration."""
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=8, max_length=256)
     display_name: Optional[str] = None
-
-    @field_validator('password')
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Le mot de passe doit contenir au moins 8 caractères')
-        return v
 
 
 class UserLogin(BaseModel):
     """Schema for user login."""
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=1, max_length=256)
 
 
 class RefreshTokenRequest(BaseModel):
@@ -40,14 +34,7 @@ class PasswordResetRequest(BaseModel):
 class PasswordResetConfirmRequest(BaseModel):
     """Schema for password reset confirmation."""
     token: str
-    new_password: str
-
-    @field_validator('new_password')
-    @classmethod
-    def validate_new_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Le mot de passe doit contenir au moins 8 caractères')
-        return v
+    new_password: str = Field(..., min_length=8, max_length=256)
 
 
 class PasswordResetRequestResponse(BaseModel):
@@ -158,6 +145,16 @@ class AuthAdminOnboardingCohortsResponse(BaseModel):
     cohorts: list[AuthAdminOnboardingCohortRow]
 
 
+class LogoutRequest(BaseModel):
+    """Optional body for logout — allows blacklisting the refresh token too."""
+    refresh_token: Optional[str] = None
+
+
+class LogoutResponse(BaseModel):
+    """Schema for logout response."""
+    status: str
+
+
 class TokenResponse(BaseModel):
     """Schema for JWT token response."""
     access_token: str
@@ -189,3 +186,58 @@ class UserResponse(BaseModel):
     email_verified: bool
     display_name: Optional[str]
     created_at: datetime
+
+
+# ---------------------------------------------------------------------------
+# Magic Link schemas
+# ---------------------------------------------------------------------------
+
+class MagicLinkSendRequest(BaseModel):
+    """Schema for requesting a magic link email."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    email: EmailStr
+
+
+class MagicLinkSendResponse(BaseModel):
+    """Schema for magic link send response."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    message: str
+
+
+class MagicLinkVerifyRequest(BaseModel):
+    """Schema for verifying a magic link token."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    token: str
+
+
+class MagicLinkVerifyResponse(BaseModel):
+    """Schema for magic link verify response (JWT)."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    access_token: str
+    token_type: str = "bearer"
+
+
+# ---------------------------------------------------------------------------
+# Apple Sign-In schemas
+# ---------------------------------------------------------------------------
+
+class AppleVerifyRequest(BaseModel):
+    """Schema for verifying an Apple identity token."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    identity_token: str
+    nonce: Optional[str] = None
+
+
+class AppleVerifyResponse(BaseModel):
+    """Schema for Apple verify response (JWT + user info)."""
+    model_config = ConfigDict(populate_by_name=True, alias_generator=to_camel)
+
+    access_token: str
+    token_type: str = "bearer"
+    user_id: str
+    email: str

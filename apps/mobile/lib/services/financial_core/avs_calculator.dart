@@ -1,4 +1,5 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 // ALL AVS calculations MUST use AvsCalculator from financial_core.
 // See ADR-20260223-unified-financial-engine.md
@@ -19,6 +20,8 @@ class AvsCalculator {
   /// - Early retirement penalty (6.8%/yr from 63) — LAVS art. 40
   /// - Deferral bonus (up to +31.5% at 70) — LAVS art. 39
   /// - Gender-aware reference age for AVS21 (LAVS art. 21 al. 1)
+  /// - Divorce income splitting — LAVS art. 29quinquies
+  /// - Child-raising credits (bonifications éducatives) — LAVS art. 29sexies
   ///
   /// [isFemale] and [birthYear] are optional — when provided, the
   /// reference age accounts for AVS21 transitional cohorts (women
@@ -32,6 +35,11 @@ class AvsCalculator {
     double grossAnnualSalary = 0,
     bool? isFemale,
     int? birthYear,
+    bool isDivorced = false,
+    double? exSpouseAnnualSalary,
+    int marriageYears = 0,
+    int childRaisingYears = 0,
+    int totalContributionYears = avsDureeCotisationComplete,
   }) {
     // Determine gender-aware reference age (AVS21, LAVS art. 21 al. 1)
     final refAge = (isFemale != null && birthYear != null)
@@ -56,10 +64,41 @@ class AvsCalculator {
         (currentYears + futureYears).clamp(0, fullYears);
     final effectiveYears =
         (totalYears - lacunes).clamp(0, fullYears);
-    final gapFactor = effectiveYears / fullYears;
+    final gapFactor = fullYears > 0 ? effectiveYears / fullYears : 0.0;
 
-    // 2. RAMD-based rente (LAVS art. 34, echelle 44)
-    final baseRente = renteFromRAMD(grossAnnualSalary);
+    // 2. Effective salary (RAMD) with divorce splitting + child credits
+    double effectiveSalary = grossAnnualSalary;
+
+    // 2a. Divorce income splitting (LAVS art. 29quinquies)
+    // During marriage years, combined income is split 50/50.
+    // Remaining years use individual salary.
+    // Guard: skip splitting if marriageYears <= 0 or totalContributionYears <= 0
+    // (avoids division by zero and meaningless splits).
+    if (isDivorced &&
+        exSpouseAnnualSalary != null &&
+        marriageYears > 0 &&
+        totalContributionYears > 0) {
+      final combinedDuringMarriage =
+          (grossAnnualSalary + exSpouseAnnualSalary) / 2;
+      final marriageRatio = marriageYears / totalContributionYears;
+      final singleRatio = 1.0 - marriageRatio;
+      effectiveSalary = (combinedDuringMarriage * marriageRatio) +
+          (grossAnnualSalary * singleRatio);
+    }
+
+    // 2b. Child-raising credits / bonifications éducatives (LAVS art. 29sexies)
+    // Annual credit = 3× minimum annual AVS pension.
+    // Added to RAMD prorated over total contribution years.
+    if (childRaisingYears > 0 && totalContributionYears > 0) {
+      const bonificationAnnuelle = 3 * avsRenteMinMensuelle * 12;
+      final bonificationRAMD =
+          (bonificationAnnuelle * childRaisingYears) / totalContributionYears;
+      effectiveSalary += bonificationRAMD;
+      effectiveSalary = effectiveSalary.clamp(0, avsRAMDMax);
+    }
+
+    // 2c. RAMD-based rente (LAVS art. 34, echelle 44)
+    final baseRente = renteFromRAMD(effectiveSalary);
     double rente = baseRente * gapFactor;
 
     // 3. Early/late retirement adjustments relative to gender-aware refAge
@@ -78,24 +117,36 @@ class AvsCalculator {
     return rente;
   }
 
-  /// AVS rente based on RAMD (LAVS art. 34, echelle 44).
+  /// Round to nearest 5 centimes (Swiss standard for social insurance amounts).
+  /// OAVS art. 53 — applied at display level, not computation level,
+  /// to avoid cascading rounding effects in couple/optimizer calculations.
+  static double roundTo5Centimes(double value) {
+    return (value * 20).roundToDouble() / 20;
+  }
+
+  /// AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
   ///
-  /// Linear interpolation between min and max rente.
-  /// RAMD <= 14'700 → 1'260/mois (minimum)
-  /// RAMD >= 88'200 → 2'520/mois (maximum)
-  /// No data (0) → return 0 (cannot estimate rente without salary data).
+  /// Concave lookup + linear interpolation between table points.
+  /// Source: Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
+  /// RAMD <= 0 → 0 (no salary data).
+  /// RAMD <= 14'700 → 1'260/mois (minimum).
+  /// RAMD >= 88'200 → 2'520/mois (maximum).
+  /// Between table points: linear interpolation within the bracket.
   /// gapFactor in computeMonthlyRente already handles contribution years.
   static double renteFromRAMD(double grossAnnualSalary) {
-    if (grossAnnualSalary <= 0) return 0.0;
-    final ramdMax = reg('avs.ramd_max', avsRAMDMax);
-    final ramdMin = reg('avs.ramd_min', avsRAMDMin);
-    final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
-    final renteMin = reg('avs.min_monthly_pension', avsRenteMinMensuelle);
-    if (grossAnnualSalary >= ramdMax) return renteMax;
-    if (grossAnnualSalary <= ramdMin) return renteMin;
-    final fraction =
-        (grossAnnualSalary - ramdMin) / (ramdMax - ramdMin);
-    return renteMin + (renteMax - renteMin) * fraction;
+    if (grossAnnualSalary <= 0) return 0;
+    final table = RegulatorySyncService.getEchelle44();
+    if (grossAnnualSalary <= table.first[0]) return table.first[1];
+    if (grossAnnualSalary >= table.last[0]) return table.last[1];
+    for (int i = 0; i < table.length - 1; i++) {
+      final lower = table[i];
+      final upper = table[i + 1];
+      if (grossAnnualSalary >= lower[0] && grossAnnualSalary <= upper[0]) {
+        final ratio = (grossAnnualSalary - lower[0]) / (upper[0] - lower[0]);
+        return lower[1] + ratio * (upper[1] - lower[1]);
+      }
+    }
+    return table.last[1];
   }
 
   /// Couple AVS with married cap (LAVS art. 35).
@@ -111,13 +162,41 @@ class AvsCalculator {
     final coupleMax = reg('avs.couple_max_monthly', avsRenteCoupleMaxMensuelle);
     if (isMarried && total > coupleMax) {
       final ratio = coupleMax / total;
-      return (
-        user: avsUser * ratio,
-        conjoint: avsConjoint * ratio,
-        total: coupleMax,
-      );
+      return (user: avsUser * ratio, conjoint: avsConjoint * ratio, total: coupleMax);
     }
+    // No rounding on couple — rounding is applied on individual computeMonthlyRente()
     return (user: avsUser, conjoint: avsConjoint, total: total);
+  }
+
+  /// Bridge pension (rente-pont) estimate for early retirees.
+  ///
+  /// When retiring before the AVS reference age, there is an income gap
+  /// where neither AVS nor LPP rente is paid. Some employers/caisses offer
+  /// a bridge pension to cover this gap.
+  ///
+  /// Returns the estimated monthly gap and total bridge cost.
+  /// - [retirementAge]: actual retirement age (e.g. 60)
+  /// - [referenceAge]: AVS reference age (e.g. 65)
+  /// - [estimatedAvsMonthly]: what the AVS rente would be at reference age
+  /// - [estimatedLppMonthly]: what the LPP rente would be (if annuity chosen)
+  static ({double monthlyGap, double totalBridgeCost, int gapYears}) computeBridgePension({
+    required int retirementAge,
+    required int referenceAge,
+    required double estimatedAvsMonthly,
+    double estimatedLppMonthly = 0,
+  }) {
+    final gapYears = (referenceAge - retirementAge).clamp(0, 10);
+    if (gapYears <= 0) {
+      return (monthlyGap: 0, totalBridgeCost: 0, gapYears: 0);
+    }
+    // During the gap: no AVS, potentially no LPP rente either
+    final monthlyGap = estimatedAvsMonthly + estimatedLppMonthly;
+    final totalBridgeCost = monthlyGap * 12 * gapYears;
+    return (
+      monthlyGap: monthlyGap,
+      totalBridgeCost: totalBridgeCost,
+      gapYears: gapYears,
+    );
   }
 
   /// Convert monthly AVS rente to annual, including the 13th rente if active.
@@ -159,5 +238,28 @@ class AvsCalculator {
     final renteMax = reg('avs.max_monthly_pension', avsRenteMaxMensuelle);
     final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
     return renteMax * gap / fullYears;
+  }
+
+  /// Explains why a computed rente is zero or very low.
+  ///
+  /// Use after [computeMonthlyRente] returns 0 or near-zero to provide
+  /// user-facing context instead of a bare "0 CHF".
+  static String? explainZeroRente({
+    required double computedRente,
+    required double grossAnnualSalary,
+    required int currentAge,
+    required int retirementAge,
+  }) {
+    if (computedRente > 0) return null;
+    if (grossAnnualSalary <= 0) {
+      return 'Aucun revenu d\u00e9clar\u00e9 \u2014 renseigne ton salaire pour estimer ta rente AVS.';
+    }
+    if (retirementAge < 63) {
+      return 'Anticipation AVS possible uniquement d\u00e8s 63 ans (LAVS art.\u00a040).';
+    }
+    if (currentAge < 20) {
+      return 'Les cotisations AVS d\u00e9butent \u00e0 20 ans (LAVS art.\u00a03).';
+    }
+    return 'Revenu insuffisant pour g\u00e9n\u00e9rer une rente dans cette configuration.';
   }
 }

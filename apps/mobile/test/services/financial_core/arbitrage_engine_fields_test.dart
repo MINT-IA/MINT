@@ -254,9 +254,9 @@ void main() {
       expect(combined, contains('LIFD'));
     });
 
-    test('chiffreChoc is non-empty', () {
+    test('premierEclairage is non-empty', () {
       final r = certResult();
-      expect(r.chiffreChoc, isNotEmpty);
+      expect(r.premierEclairage, isNotEmpty);
     });
   });
 }

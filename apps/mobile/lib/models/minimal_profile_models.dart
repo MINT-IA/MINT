@@ -2,7 +2,7 @@
 ///
 /// MinimalProfileResult holds the computed financial snapshot from just
 /// 3 inputs (age, salary, canton) plus optional enrichment fields.
-/// ChiffreChoc represents the single impactful number shown to the user.
+/// PremierEclairage represents the single impactful number shown to the user.
 library;
 
 /// Result of the minimal profile computation.
@@ -55,6 +55,9 @@ class MinimalProfileResult {
 
   /// Age used for the computation.
   final int age;
+
+  /// Birth date (ISO 8601) — when available, age is computed from this.
+  final DateTime? birthDate;
 
   /// Gross annual salary used for the computation.
   final double grossAnnualSalary;
@@ -114,6 +117,7 @@ class MinimalProfileResult {
     required this.liquidityMonths,
     required this.canton,
     required this.age,
+    this.birthDate,
     required this.grossAnnualSalary,
     required this.householdType,
     required this.isPropertyOwner,
@@ -126,8 +130,8 @@ class MinimalProfileResult {
   });
 }
 
-/// Types of chiffre choc that can be selected.
-enum ChiffreChocType {
+/// Types of premier éclairage that can be selected.
+enum PremierEclairageType {
   /// Liquidity reserve dangerously low (< 2 months expenses).
   liquidityAlert,
 
@@ -147,12 +151,12 @@ enum ChiffreChocType {
   hourlyRate,
 }
 
-/// Whether the chiffre choc is based on real data or estimates.
+/// Whether the premier éclairage is based on real data or estimates.
 ///
 /// Governs the tone of the message:
 /// - [factual]: data is provided or pure math → precise language
 /// - [pedagogical]: key data is estimated → educational framing, no false precision
-enum ChiffreChocConfidence {
+enum PremierEclairageConfidence {
   /// Based on provided data or pure math — can show precise numbers.
   factual,
 
@@ -162,10 +166,10 @@ enum ChiffreChocConfidence {
 
 /// A single impactful number to show the user.
 ///
-/// Selected by [ChiffreChocSelector] based on priority rules.
-class ChiffreChoc {
-  /// The type of chiffre choc.
-  final ChiffreChocType type;
+/// Selected by [PremierEclairageSelector] based on priority rules.
+class PremierEclairage {
+  /// The type of premier éclairage.
+  final PremierEclairageType type;
 
   /// The main number to display (formatted for display).
   final String value;
@@ -185,13 +189,13 @@ class ChiffreChoc {
   /// Color suggestion key ('warning', 'success', 'info', 'error').
   final String colorKey;
 
-  /// Whether this chiffre choc is based on real data or estimates.
+  /// Whether this premier éclairage is based on real data or estimates.
   ///
   /// When [pedagogical], the UI should frame the number as illustrative,
   /// not as a precise projection. When [factual], precise language is appropriate.
-  final ChiffreChocConfidence confidenceMode;
+  final PremierEclairageConfidence confidenceMode;
 
-  const ChiffreChoc({
+  const PremierEclairage({
     required this.type,
     required this.value,
     required this.rawValue,
@@ -199,6 +203,6 @@ class ChiffreChoc {
     required this.subtitle,
     required this.iconName,
     required this.colorKey,
-    this.confidenceMode = ChiffreChocConfidence.factual,
+    this.confidenceMode = PremierEclairageConfidence.factual,
   });
 }

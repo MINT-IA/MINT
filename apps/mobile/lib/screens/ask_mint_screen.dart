@@ -1,6 +1,3 @@
-// DEPRECATED (S52): AskMintScreen is superseded by CoachChatScreen.
-// Route /ask-mint now redirects to /coach/chat in app.dart.
-// This file is kept for backwards compatibility only — do not add features here.
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -16,8 +13,6 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// A single chat message in the Ask MINT conversation.
 class _ChatMessage {
@@ -88,9 +83,9 @@ class _AskMintScreenState extends State<AskMintScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: byok.isConfigured
+      body: byok.isConfigured
           ? _buildChatInterface(s, byok)
-          : _buildConfigureCTA(s))),
+          : _buildConfigureCTA(s),
     );
   }
 
@@ -105,7 +100,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            MintEntrance(child: Container(
+            Container(
               padding: const EdgeInsets.all(24),
               decoration: const BoxDecoration(
                 color: MintColors.accentPastel,
@@ -116,14 +111,14 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 color: MintColors.accent,
                 size: 48,
               ),
-            )),
+            ),
             const SizedBox(height: 24),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
+            Text(
               s.askMintConfigureTitle,
               style: MintTextStyles.headlineLarge(),
-            )),
+            ),
             const SizedBox(height: MintSpacing.sm),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
+            Text(
               s.askMintConfigureBody,
               textAlign: TextAlign.center,
               style: const TextStyle(
@@ -131,7 +126,7 @@ class _AskMintScreenState extends State<AskMintScreen> {
                 color: MintColors.textSecondary,
                 height: 1.5,
               ),
-            )),
+            ),
             const SizedBox(height: MintSpacing.xl),
             SizedBox(
               width: double.infinity,
@@ -143,22 +138,21 @@ class _AskMintScreenState extends State<AskMintScreen> {
             ),
             const SizedBox(height: 16),
             // Privacy note
-            MintEntrance(delay: const Duration(milliseconds: 300), child: Row(
+            Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.lock_outline,
                     size: 14, color: MintColors.textMuted),
                 const SizedBox(width: 6),
-                Flexible(child: Text(
+                Text(
                   s.byokPrivacyShort,
                   style: const TextStyle(
                     fontSize: 12,
                     color: MintColors.textMuted,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                )),
+                ),
               ],
-            )),
+            ),
           ],
         ),
       ),
@@ -382,10 +376,13 @@ class _AskMintScreenState extends State<AskMintScreen> {
         child: InkWell(
         onTap: () => _sendMessage(text),
         borderRadius: BorderRadius.circular(16),
-        child: MintSurface(
-          tone: MintSurfaceTone.porcelaine,
+        child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          radius: 16,
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.border),
+          ),
           child: Row(
             children: [
               Expanded(
@@ -870,12 +867,6 @@ class _AskMintScreenState extends State<AskMintScreen> {
       };
     }
 
-    if (byok.apiKey == null || byok.provider == null) {
-      if (!mounted) return;
-      setState(() => _isLoading = false);
-      return;
-    }
-
     try {
       final response = await _ragService.query(
         question: text,
@@ -885,7 +876,6 @@ class _AskMintScreenState extends State<AskMintScreen> {
         language: 'fr',
       );
 
-      if (!mounted) return;
       setState(() {
         _messages.add(_ChatMessage(
           text: response.answer,
@@ -896,7 +886,6 @@ class _AskMintScreenState extends State<AskMintScreen> {
         _isLoading = false;
       });
     } on RagApiException catch (e) {
-      if (!mounted) return;
       setState(() {
         _messages.add(_ChatMessage(
           text: _getErrorMessage(e.code),
@@ -906,7 +895,6 @@ class _AskMintScreenState extends State<AskMintScreen> {
         _isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
       setState(() {
         _messages.add(_ChatMessage(
           text: S.of(context)!.askMintErrorGeneric,

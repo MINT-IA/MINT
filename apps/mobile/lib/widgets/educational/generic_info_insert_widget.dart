@@ -5,7 +5,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
 
 /// Widget generique pour les inserts educatifs informationnels.
-/// Affiche un chiffre choc, des objectifs d'apprentissage, des sources
+/// Affiche un premier éclairage, des objectifs d'apprentissage, des sources
 /// et un bouton d'action optionnel. Utilise [EducationalInsertWidget] comme base.
 class GenericInfoInsertWidget extends StatelessWidget {
   /// Titre de l'insert
@@ -14,8 +14,8 @@ class GenericInfoInsertWidget extends StatelessWidget {
   /// Sous-titre optionnel
   final String? subtitle;
 
-  /// Fait marquant / chiffre choc
-  final String chiffreChoc;
+  /// Fait marquant / premier éclairage
+  final String premierEclairage;
 
   /// Points d'apprentissage (bullets)
   final List<String> learningGoals;
@@ -39,7 +39,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.learningGoals,
     required this.disclaimer,
     required this.sources,
@@ -59,8 +59,8 @@ class GenericInfoInsertWidget extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Chiffre Choc card
-          _buildChiffreChocCard(),
+          // Premier Éclairage card
+          _buildPremierEclairageCard(),
           const SizedBox(height: 16),
 
           // Learning goals
@@ -81,8 +81,8 @@ class GenericInfoInsertWidget extends StatelessWidget {
     );
   }
 
-  /// Carte mise en avant pour le chiffre choc
-  Widget _buildChiffreChocCard() {
+  /// Carte mise en avant pour le premier éclairage
+  Widget _buildPremierEclairageCard() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -112,7 +112,7 @@ class GenericInfoInsertWidget extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              chiffreChoc,
+              premierEclairage,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),

@@ -8,7 +8,7 @@ tags: [divorce, prevoyance, lpp, avs, partage, cc, separation]
 ## Trigger
 L'utilisateur divorce ou envisage un divorce et veut comprendre l'impact sur sa prévoyance (AVS, LPP, 3a).
 
-## Chiffre Choc
+## Premier Éclairage
 Lors d'un divorce, les avoirs LPP acquis pendant le mariage sont partagés par moitié. Pour un couple marié depuis 20 ans, cela peut représenter un transfert de CHF 100'000 à CHF 300'000+ d'un·e conjoint·e vers l'autre.
 
 ## Niveau 0

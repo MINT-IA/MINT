@@ -8,7 +8,7 @@ tags: [lpp, libre_passage, changement_emploi, lflp, fondation]
 ## Trigger
 L'utilisateur mentionne un changement d'emploi ou une période sans emploi, le coach détecte un gap d'affiliation LPP dans le parcours professionnel, ou l'utilisateur signale avoir un compte de libre passage.
 
-## Chiffre Choc
+## Premier Éclairage
 Des milliards de francs dorment dans des fondations de libre passage oubliées en Suisse. La Centrale du 2e pilier a répertorié plus de 700'000 avoirs non réclamés — un avoir "oublié" peut perdre CHF 20'000 à 30'000 de rendement sur 10 ans vs une caisse active.
 
 ## Niveau 0

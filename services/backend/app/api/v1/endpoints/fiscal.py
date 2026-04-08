@@ -79,7 +79,7 @@ def compare_cantons(request: Request, body: CantonComparisonRequest) -> CantonCo
     """Rank all 26 cantons by tax burden for a given profile.
 
     Returns a sorted list from cheapest to most expensive canton,
-    with the ecart max and a chiffre choc.
+    with the ecart max and a premier éclairage.
 
     Sources: LIFD art. 36, LHID art. 1, Charge fiscale 2024.
     """
@@ -106,22 +106,22 @@ def compare_cantons(request: Request, body: CantonComparisonRequest) -> CantonCo
 
     ecart_max = rankings[-1].difference_vs_cheapest if rankings else 0.0
 
-    # Build chiffre choc
+    # Build premier éclairage
     if rankings:
         cheapest = rankings[0]
         most_expensive = rankings[-1]
-        chiffre_choc = (
+        premier_eclairage = (
             f"A revenu egal, tu paies {ecart_max:,.0f} CHF de plus par an "
             f"a {most_expensive.canton_name} qu'a {cheapest.canton_name}. "
             f"C'est {ecart_max / 12:,.0f} CHF/mois de difference."
         )
     else:
-        chiffre_choc = "Aucune donnee disponible."
+        premier_eclairage = "Aucune donnee disponible."
 
     return CantonComparisonResponse(
         classement=classement,
         ecart_max=ecart_max,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )
@@ -164,7 +164,7 @@ def simulate_move(request: Request, body: MoveSimulationRequest) -> MoveSimulati
         economie_annuelle=simulation.economie_annuelle,
         economie_mensuelle=simulation.economie_mensuelle,
         economie_10_ans=simulation.economie_10_ans,
-        chiffre_choc=simulation.chiffre_choc,
+        premier_eclairage=simulation.premier_eclairage,
         alertes=simulation.alertes,
         checklist=simulation.checklist,
         disclaimer=simulation.disclaimer,

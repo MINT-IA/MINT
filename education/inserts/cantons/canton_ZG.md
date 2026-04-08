@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Zoug"
 ## Trigger
 L'utilisateur réside à Zoug ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Zoug est la plus basse de Suisse : le multiplicateur cantonal se situe autour de 60-70 %. Un salarié à Zoug paie environ 2 à 3 fois moins d'impôts qu'à Genève.
 
 ## Niveau 0

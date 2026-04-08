@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -8,6 +9,7 @@ import 'package:mint_mobile/services/assurances_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -119,6 +121,13 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildDemoModeBadge(),
+                const SizedBox(height: 12),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeCoverageHeadline,
+                  body: S.of(context)!.narrativeCoverageBody,
+                  tone: MintSurfaceTone.bleu,
+                  badge: S.of(context)!.narrativeCoverageBadge,
+                )),
                 const SizedBox(height: 12),
                 _buildHeader(),
                 const SizedBox(height: 20),
@@ -299,6 +308,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       button: true,
       child: GestureDetector(
       onTap: () {
+        HapticFeedback.lightImpact();
         _statut = value;
         // Reset related switches when changing status
         if (value == 'independant') {

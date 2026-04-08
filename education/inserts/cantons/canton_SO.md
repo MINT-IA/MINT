@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Soleure"
 ## Trigger
 L'utilisateur réside à Soleure ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Soleure est dans la moyenne suisse : le multiplicateur cantonal se situe autour de 110-115 %.
 
 ## Niveau 0

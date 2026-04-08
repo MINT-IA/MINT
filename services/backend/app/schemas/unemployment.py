@@ -44,6 +44,42 @@ class TimelineStep(BaseModel):
 # Unemployment Benefits Schemas
 # ===========================================================================
 
+# ===========================================================================
+# Checklist & ORP link response models
+# ===========================================================================
+
+class UnemploymentChecklistResponse(BaseModel):
+    """Response for the generic unemployment checklist endpoint."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    checklist: List[str] = Field(
+        default_factory=list, description="Liste d'actions a entreprendre"
+    )
+    timeline: List[TimelineStep] = Field(
+        default_factory=list, description="Timeline post-perte d'emploi"
+    )
+
+
+class OrpLinkResponse(BaseModel):
+    """Response for the ORP link endpoint."""
+
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    canton: str = Field(..., description="Code canton (ex: ZH, VD, GE)")
+    url: str = Field(..., description="URL de l'ORP cantonal")
+
+
+# ===========================================================================
+# Unemployment Benefits Schemas
+# ===========================================================================
+
 class UnemploymentBenefitsRequest(BaseModel):
     """Request for LACI unemployment benefits calculation."""
 
@@ -120,7 +156,7 @@ class UnemploymentBenefitsResponse(BaseModel):
     alertes: List[str] = Field(
         default_factory=list, description="Alertes et avertissements"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -253,7 +289,7 @@ class FirstJobRequest(BaseModel):
     )
 
     salaire_brut_mensuel: float = Field(
-        ..., description="Salaire brut mensuel (CHF)", ge=0
+        ..., description="Salaire brut mensuel (CHF)", ge=0, le=10_000_000
     )
     canton: str = Field(
         "ZH", description="Code canton (ex: ZH, VD, GE)", min_length=2, max_length=2
@@ -295,7 +331,7 @@ class FirstJobResponse(BaseModel):
     alertes: List[str] = Field(
         default_factory=list, description="Alertes et avertissements"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(

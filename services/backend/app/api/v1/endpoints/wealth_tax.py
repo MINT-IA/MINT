@@ -70,7 +70,7 @@ def estimate_wealth_tax(request: Request, body: WealthTaxEstimateRequest) -> Wea
         fortune_imposable=estimate.fortune_imposable,
         impot_fortune=estimate.impot_fortune,
         taux_effectif_permille=estimate.taux_effectif_permille,
-        chiffre_choc=estimate.chiffre_choc,
+        premier_eclairage=estimate.premier_eclairage,
         disclaimer=estimate.disclaimer,
         sources=estimate.sources,
     )
@@ -86,7 +86,7 @@ def compare_wealth_tax(request: Request, body: WealthTaxComparisonRequest) -> We
     """Rank all 26 cantons by wealth tax burden for a given fortune.
 
     Returns a sorted list from cheapest to most expensive canton,
-    with the ecart max and a chiffre choc.
+    with the ecart max and a premier éclairage.
 
     Sources: LHID art. 14, OFS Charge Fiscale 2024.
     """
@@ -115,22 +115,22 @@ def compare_wealth_tax(request: Request, body: WealthTaxComparisonRequest) -> We
 
     ecart_max = rankings[-1].difference_vs_cheapest if rankings else 0.0
 
-    # Build chiffre choc
+    # Build premier éclairage
     if rankings and ecart_max > 0:
         cheapest = rankings[0]
         most_expensive = rankings[-1]
-        chiffre_choc = (
+        premier_eclairage = (
             f"A fortune egale, tu paies {ecart_max:,.0f} CHF de plus par an "
             f"d'impot sur la fortune a {most_expensive.canton_name} "
             f"qu'a {cheapest.canton_name}."
         )
     else:
-        chiffre_choc = "Aucune donnee disponible."
+        premier_eclairage = "Aucune donnee disponible."
 
     return WealthTaxComparisonResponse(
         classement=classement,
         ecart_max=ecart_max,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=WEALTH_DISCLAIMER,
         sources=list(WEALTH_SOURCES),
     )
@@ -172,7 +172,7 @@ def simulate_wealth_tax_move(request: Request, body: WealthTaxMoveRequest) -> We
         economie_annuelle=simulation.economie_annuelle,
         economie_mensuelle=simulation.economie_mensuelle,
         economie_10_ans=simulation.economie_10_ans,
-        chiffre_choc=simulation.chiffre_choc,
+        premier_eclairage=simulation.premier_eclairage,
         alertes=simulation.alertes,
         disclaimer=simulation.disclaimer,
         sources=simulation.sources,
@@ -210,7 +210,7 @@ def estimate_church_tax(request: Request, body: ChurchTaxEstimateRequest) -> Chu
         church_tax_rate=estimate.church_tax_rate,
         impot_cantonal_base=estimate.impot_cantonal_base,
         impot_eglise=estimate.impot_eglise,
-        chiffre_choc=estimate.chiffre_choc,
+        premier_eclairage=estimate.premier_eclairage,
         disclaimer=estimate.disclaimer,
         sources=estimate.sources,
     )

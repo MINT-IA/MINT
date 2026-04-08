@@ -1,12 +1,12 @@
 """
-Onboarding Models — Dataclasses for minimal profile and chiffre choc.
+Onboarding Models — Dataclasses for minimal profile and premier éclairage.
 
 Sprint S31 — Onboarding Redesign.
 
 These models define the input/output contracts for the onboarding flow:
 - MinimalProfileInput: 3 required fields + optional enrichment fields
 - MinimalProfileResult: full projection with confidence scoring
-- ChiffreChoc: single impactful number with educational context
+- PremierEclairage: single impactful number with educational context
 
 Sources:
     - LAVS art. 21-29 (rente AVS)
@@ -31,6 +31,7 @@ class MinimalProfileInput:
     age: int
     gross_salary: float
     canton: str
+    birth_date: Optional[str] = None        # ISO 8601 date (e.g. "1981-06-15")
     household_type: Optional[str] = None        # default: "single"
     current_savings: Optional[float] = None      # default: estimated from age/salary
     is_property_owner: Optional[bool] = None     # default: False
@@ -40,6 +41,12 @@ class MinimalProfileInput:
     total_debts: Optional[float] = None          # default: 0
     monthly_debt_service: Optional[float] = None  # default: 0
     stress_type: Optional[str] = None            # user's declared intention from onboarding
+    # P2-26: Gender for AVS21 retirement age (LAVS art. 21 al. 1)
+    gender: Optional[str] = None                  # "male", "female", or None
+    # FIX-092/093: Archetype detection fields (expats, cross-border, etc.)
+    nationality_group: Optional[str] = None       # "CH", "EU", "non_EU", "US"
+    nationality_country: Optional[str] = None     # ISO 2-letter code
+    arrival_age: Optional[int] = None             # Age at arrival in Switzerland (None = born in CH)
 
 
 @dataclass
@@ -68,12 +75,12 @@ class MinimalProfileResult:
     disclaimer: str
     sources: List[str]
     enrichment_prompts: List[str]
-    age: int = 30  # user's age — used by lifecycle-aware chiffre choc selector
+    age: int = 30  # user's age — used by lifecycle-aware premier éclairage selector
     gross_annual_salary: float = 0.0  # gross salary — used by hourly rate choc + archetype alerts
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Single impactful number with educational context.
 
     Represents the ONE number that will capture the user's attention

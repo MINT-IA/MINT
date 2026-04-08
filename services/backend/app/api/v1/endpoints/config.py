@@ -19,6 +19,10 @@ class FeatureFlagsResponse(BaseModel):
     enableDecisionScaffold: bool
     valeurLocative2028Reform: bool
     safeModeDegraded: bool
+    enableOpenBanking: bool
+    enablePensionFundConnect: bool
+    enableExpertTier: bool
+    enableAdminScreens: bool
 
 
 @router.get("/feature-flags", response_model=FeatureFlagsResponse)
@@ -34,4 +38,8 @@ def get_feature_flags(
         enableDecisionScaffold=flags["enable_decision_scaffold"],
         valeurLocative2028Reform=flags["valeur_locative_2028_reform"],
         safeModeDegraded=flags["safe_mode_degraded"],
+        enableOpenBanking=flags["enable_blink_production"],
+        enablePensionFundConnect=flags["enable_caisse_pension_api"],
+        enableExpertTier=flags["enable_expert_tier"],
+        enableAdminScreens=flags["enable_admin_screens"],
     )

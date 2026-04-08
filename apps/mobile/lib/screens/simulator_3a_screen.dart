@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -17,6 +17,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
@@ -45,13 +46,15 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   String? _seqStepId;
   bool _finalReturnEmitted = false;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Uses centralized formatChfWithPrefix from chf_formatter.dart
   late final TextEditingController _contributionCtrl;
 
   /// True if values were pre-filled from CoachProfile.
   bool _isPreFilled = false;
   /// Canton used for estimated marginal rate display.
   String _profileCanton = '';
+  /// Fields pre-filled from GoRouter coach suggestion.
+  final Set<String> _prefilledFields = {};
 
   @override
   void initState() {
@@ -74,8 +77,42 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {}
+  }
+
+  /// Apply prefill values from GoRouter coach suggestion.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly → annual (13 months)
+      final annualSalary = salaireBrut.toDouble() * 13;
+      // Re-derive marginal rate if canton is available
+      if (_profileCanton.isNotEmpty) {
+        _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
+          annualSalary,
+          _profileCanton,
+        );
+      }
+      _prefilledFields.add('salaire_brut');
+      changed = true;
+    }
+
+    final canton = prefill['canton'];
+    if (canton is String && canton.isNotEmpty) {
+      _profileCanton = canton.toUpperCase();
+      _prefilledFields.add('canton');
+      changed = true;
+    }
+
+    if (changed) {
+      setState(() {});
+      _calculate();
+    }
   }
 
   void _emitFinalReturn() {
@@ -201,6 +238,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       );
     });
     if (!_hasUserInteracted) return;
+    _writeBackResult();
     if (_seqRunId != null) return; // Sequence mode: terminal only on pop
     final screenReturn = ScreenReturn.completed(
       route: '/pilier-3a',
@@ -211,6 +249,50 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       'simulator_3a',
       screenReturn,
     );
+  }
+
+  /// Write computed 3a simulation results back to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    final result = _result;
+    if (result == null) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      // Write back optimal 3a contribution to profile
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
+              ? profile.prevoyance.totalEpargne3a
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
   }
 
   @override
@@ -317,8 +399,13 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               Text(
                 l.sim3aProfilePreFilled,
                 style: MintTextStyles.labelSmall(color: MintColors.success)
-                    .copyWith(fontSize: 11),
+                    ,
               ),
+              if (_prefilledFields.isNotEmpty)
+                const SmartDefaultIndicator(
+                  source: 'Depuis ton profil MINT',
+                  confidence: 0.60,
+                ),
             ],
           ),
         ],
@@ -341,7 +428,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           decoration: InputDecoration(
             suffixText: 'CHF',
             suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
-            hintText: _currencyFormat.format(_plafond3a),
+            hintText: formatChfWithPrefix(_plafond3a),
             hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: MintSpacing.md, vertical: MintSpacing.sm),
@@ -370,7 +457,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
-            'Max: ${_currencyFormat.format(_plafond3a)}',
+            'Max: ${formatChfWithPrefix(_plafond3a)}',
             style: MintTextStyles.labelSmall(color: MintColors.textMuted),
           ),
         ),
@@ -390,7 +477,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
               _profileCanton,
             ),
             style: MintTextStyles.labelSmall(color: MintColors.textMuted)
-                .copyWith(fontSize: 11),
+                ,
           ),
         ],
         const SizedBox(height: MintSpacing.sm),
@@ -499,9 +586,9 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
           Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Semantics(
-            label: '${l.sim3aAnnualTaxSaved}: ${_currencyFormat.format(_result!['annualTaxSaved']!)}',
+            label: '${l.sim3aAnnualTaxSaved}: ${formatChfWithPrefix(_result!['annualTaxSaved']!)}',
             child: Text(
-              _currencyFormat.format(_result!['annualTaxSaved']!),
+              formatChfWithPrefix(_result!['annualTaxSaved']!),
               style: MintTextStyles.displayMedium(color: MintColors.primary),
             ),
           ),
@@ -522,7 +609,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       children: [
         Flexible(child: Text(label, style: MintTextStyles.bodyMedium())),
         Text(
-          _currencyFormat.format(value),
+          formatChfWithPrefix(value),
           style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
@@ -560,7 +647,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: MintTextStyles.titleMedium().copyWith(fontSize: 15)),
+                Text(title, style: MintTextStyles.labelLarge()),
                 const SizedBox(height: MintSpacing.xs),
                 Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],

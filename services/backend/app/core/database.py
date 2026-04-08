@@ -15,9 +15,10 @@ _engine_kwargs: dict = {}
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     # SQLite: needs check_same_thread=False, no connection pooling params
     _engine_kwargs["connect_args"] = {"check_same_thread": False}
-elif "postgresql" in SQLALCHEMY_DATABASE_URL:
+elif "postgresql" in SQLALCHEMY_DATABASE_URL:  # pragma: no cover
     # PostgreSQL: enable connection pooling for production
-    _engine_kwargs["pool_size"] = 10
+    _engine_kwargs["pool_size"] = 20  # pragma: no cover
+    _engine_kwargs["max_overflow"] = 20  # pragma: no cover
     _engine_kwargs["pool_recycle"] = 3600
     _engine_kwargs["pool_pre_ping"] = True
 

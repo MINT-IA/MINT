@@ -40,7 +40,7 @@ class Retroactive3aResult {
   final List<YearlyRetroactiveEntry> breakdown;
 
   /// One-liner impact number for the user.
-  final String chiffreChoc;
+  final String premierEclairage;
 
   /// Educational disclaimer (LSFin / OPP3).
   final String disclaimer;
@@ -55,7 +55,7 @@ class Retroactive3aResult {
     required this.totalContribution,
     required this.economiesFiscales,
     required this.breakdown,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
     required this.sources,
   });
@@ -143,7 +143,7 @@ class Retroactive3aCalculator {
     final economiesFiscales = totalRetroactive * effectiveTaux;
 
     // Chiffre choc — use shared CHF formatter.
-    final chiffreChoc =
+    final premierEclairage =
         'Tu peux rattraper $effectiveGap an${effectiveGap > 1 ? "s" : ""} '
         "d'\u00e9pargne 3a et \u00e9conomiser "
         "CHF\u00a0${formatChf(economiesFiscales)} d'imp\u00f4ts "
@@ -156,7 +156,7 @@ class Retroactive3aCalculator {
       totalContribution: totalContribution,
       economiesFiscales: economiesFiscales,
       breakdown: breakdown,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
       disclaimer:
           'Outil \u00e9ducatif\u00a0\u2014 ne constitue pas un conseil fiscal (LSFin). '
           'Le rattrapage 3a est disponible d\u00e8s 2026 (OPP3 art. 7). '

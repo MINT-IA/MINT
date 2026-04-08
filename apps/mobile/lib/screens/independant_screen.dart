@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/coach/fiscal_superpower_widget.dart';
 import 'package:mint_mobile/widgets/coach/double_price_freedom_widget.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -379,7 +380,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
 
           // Chiffre-choc
           Semantics(
-            label: S.of(context)!.independantJourJChiffreChoc(
+            label: S.of(context)!.independantJourJPremierEclairage(
                 IndependantService.formatChf(totalLoss)),
             child: Container(
               width: double.infinity,
@@ -389,7 +390,7 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                S.of(context)!.independantJourJChiffreChoc(
+                S.of(context)!.independantJourJPremierEclairage(
                     IndependantService.formatChf(totalLoss)),
                 style: MintTextStyles.labelSmall(color: MintColors.error),
                 textAlign: TextAlign.center,
@@ -741,9 +742,13 @@ class _IndependantScreenState extends State<IndependantScreen> {
                 S.of(context)!.independantTotalMonthly,
                 style: MintTextStyles.titleMedium(),
               ),
-              Text(
-                IndependantService.formatChf(cost.totalMensuel),
-                style: MintTextStyles.displayMedium(color: MintColors.primary),
+              MintCountUp(
+                value: cost.totalMensuel,
+                prefix: 'CHF\u00a0',
+                suffix: '',
+                color: MintColors.primary,
+                showLigne: false,
+                fullReveal: false,
               ),
             ],
           ),

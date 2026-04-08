@@ -8,7 +8,7 @@ tags: [budget, 50_30_20, epargne, depenses, gestion, suisse]
 ## Trigger
 L'utilisateur cherche à structurer son budget, ne sait pas combien épargner, ou veut un cadre simple pour gérer ses finances.
 
-## Chiffre Choc
+## Premier Éclairage
 Le ménage suisse moyen consacre environ 30 % de son revenu brut aux impôts et cotisations obligatoires (AVS, LPP, LAMal). Il reste donc ~70 % de revenu disponible. Sur ce solde, les ménages les plus sains financièrement épargnent 15 à 20 % — soit environ 10-14 % du revenu brut.
 
 ## Niveau 0

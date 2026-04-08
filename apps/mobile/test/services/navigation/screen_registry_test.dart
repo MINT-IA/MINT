@@ -49,6 +49,7 @@ void main() {
     });
 
     test('total entry count covers all registered surfaces (= 110)', () {
+      // 07-06: dropped _coachWeeklyRecap (route /weekly-recap deleted in 07-04)
       expect(MintScreenRegistry.entries.length, equals(110));
     });
 
@@ -331,7 +332,7 @@ void main() {
       expect(routeSet, isNot(contains('admin_observability')));
       expect(routeSet, isNot(contains('admin_analytics')));
       expect(routeSet, isNot(contains('onboarding_quick')));
-      expect(routeSet, isNot(contains('onboarding_chiffre_choc')));
+      expect(routeSet, isNot(contains('onboarding_premier_eclairage')));
       expect(routeSet, isNot(contains('score_reveal')));
       expect(routeSet, isNot(contains('scan_review')));
       expect(routeSet, isNot(contains('scan_impact')));

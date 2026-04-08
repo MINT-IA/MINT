@@ -3,7 +3,7 @@
 > Date : 2026-03-27 (V2.3 — après 4 audits)
 > Statut : **DRAFT** — À valider avant implémentation
 > Auteur : Team Lead (S57)
-> Dépendances : ChiffreChoc V2, EVI Bridge, Confidence Doctrine (tous livrés)
+> Dépendances : PremierEclairage V2, EVI Bridge, Confidence Doctrine (tous livrés)
 
 ---
 

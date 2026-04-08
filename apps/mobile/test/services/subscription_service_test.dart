@@ -147,36 +147,30 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('Upgrade', () {
-    test('upgradeTo premium changes tier to premium', () async {
+    test('upgradeTo premium requires backend (returns false without API)', () async {
+      // SECURITY: paid upgrades always require backend verification.
+      // Without a backend, upgradeTo returns false.
       final success = await SubscriptionService.upgradeTo(
         SubscriptionTier.premium,
       );
 
-      expect(success, isTrue);
-
-      final state = SubscriptionService.currentState();
-      expect(state.tier, SubscriptionTier.premium);
+      expect(success, isFalse);
     });
 
-    test('upgradeTo starter changes tier to starter', () async {
+    test('upgradeTo starter requires backend (returns false without API)', () async {
       final success = await SubscriptionService.upgradeTo(
         SubscriptionTier.starter,
       );
 
-      expect(success, isTrue);
-
-      final state = SubscriptionService.currentState();
-      expect(state.tier, SubscriptionTier.starter);
+      expect(success, isFalse);
     });
 
-    test('upgrade sets 30-day expiry', () async {
+    test('upgrade without backend does not change state', () async {
       await SubscriptionService.upgradeTo(SubscriptionTier.premium);
 
       final state = SubscriptionService.currentState();
-      expect(state.expiresAt, isNotNull);
-      // Expiry should be approximately 30 days from now
-      final diff = state.expiresAt!.difference(DateTime.now()).inDays;
-      expect(diff, inInclusiveRange(29, 30));
+      // State unchanged — still free tier
+      expect(state.tier, SubscriptionTier.free);
     });
 
     test('upgrade does not set trial active', () async {

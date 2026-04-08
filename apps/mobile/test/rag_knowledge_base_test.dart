@@ -175,7 +175,7 @@ void main() {
   group('Structure — required sections', () {
     const requiredSections = [
       '## Trigger',
-      '## Chiffre Choc',
+      '## Premier Éclairage',
       '## Niveau 0',
       '## Niveau 1',
       '## Sources',
@@ -433,25 +433,25 @@ void main() {
   // 7. CHIFFRE CHOC — Impact number quality
   // ═══════════════════════════════════════════════════════════════════════
 
-  group('Chiffre Choc quality', () {
-    test('every chiffre choc contains a number (CHF or %)', () {
+  group('Premier Éclairage quality', () {
+    test('every premier éclairage contains a number (CHF or %)', () {
       final numberPattern = RegExp(r"(CHF|\d+['\.]?\d+|\d+\s*%|\d+ mois|\d+ ans)");
 
       for (final entry in fileContents.entries) {
-        final chocIdx = entry.value.indexOf('## Chiffre Choc');
+        final chocIdx = entry.value.indexOf('## Premier Éclairage');
         final niv0Idx = entry.value.indexOf('## Niveau 0');
         if (chocIdx < 0 || niv0Idx < 0) continue;
 
         final chocSection = entry.value.substring(chocIdx, niv0Idx);
         expect(numberPattern.hasMatch(chocSection), isTrue,
             reason:
-                '${entry.key}: Chiffre Choc must contain an impactful number');
+                '${entry.key}: Premier Éclairage must contain an impactful number');
       }
     });
 
-    test('chiffre choc is concise (< 300 words)', () {
+    test('premier éclairage is concise (< 300 words)', () {
       for (final entry in fileContents.entries) {
-        final chocIdx = entry.value.indexOf('## Chiffre Choc');
+        final chocIdx = entry.value.indexOf('## Premier Éclairage');
         final niv0Idx = entry.value.indexOf('## Niveau 0');
         if (chocIdx < 0 || niv0Idx < 0) continue;
 
@@ -459,7 +459,7 @@ void main() {
         final wordCount = chocSection.split(RegExp(r'\s+')).length;
         expect(wordCount, lessThan(300),
             reason:
-                '${entry.key}: Chiffre Choc too verbose ($wordCount words)');
+                '${entry.key}: Premier Éclairage too verbose ($wordCount words)');
       }
     });
   });

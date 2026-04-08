@@ -73,7 +73,7 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIncomeSlider(s)),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
-              _buildChiffreChoc(s),
+              _buildPremierEclairage(s),
               const SizedBox(height: MintSpacing.lg),
               _buildResultCards(s),
               const SizedBox(height: MintSpacing.lg),
@@ -132,28 +132,31 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(S s) {
+  Widget _buildPremierEclairage(S s) {
     final r = _result!;
     if (r.differenceAnnuelle <= 0) return const SizedBox.shrink();
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            IndependantsService.formatChf(r.differenceAnnuelle),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            s.avsCotisationsChiffreChocCaption(IndependantsService.formatChf(r.differenceAnnuelle)),
-            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return Semantics(
+      label: S.of(context)!.semanticsAvsDifference(IndependantsService.formatChf(r.differenceAnnuelle)),
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.lg),
+        decoration: BoxDecoration(
+          color: MintColors.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Text(
+              IndependantsService.formatChf(r.differenceAnnuelle),
+              style: MintTextStyles.displayMedium(color: MintColors.white),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(
+              s.avsCotisationsPremierEclairageCaption(IndependantsService.formatChf(r.differenceAnnuelle)),
+              style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -182,18 +185,21 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
   }
 
   Widget _buildMetricCard(String label, String value, IconData icon, {bool small = false}) {
-    return MintSurface(
-      padding: const EdgeInsets.all(MintSpacing.md),
-      radius: 16,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: MintColors.textMuted),
-          const SizedBox(height: MintSpacing.sm),
-          Text(value, style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: small ? 13 : 18, fontWeight: FontWeight.w700)),
-          const SizedBox(height: MintSpacing.xs),
-          Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
-        ],
+    return Semantics(
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
+      child: MintSurface(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        radius: 16,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ExcludeSemantics(child: Icon(icon, size: 18, color: MintColors.textMuted)),
+            const SizedBox(height: MintSpacing.sm),
+            Text(value, style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: small ? 13 : 18, fontWeight: FontWeight.w700)),
+            const SizedBox(height: MintSpacing.xs),
+            Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
+          ],
+        ),
       ),
     );
   }
@@ -313,9 +319,12 @@ class _AvsCotisationsScreenState extends State<AvsCotisationsScreen> {
             ],
           ),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text(
-            s.avsCotisationsTauxEffectifLabel(r.tauxEffectif.toStringAsFixed(2)),
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+          Semantics(
+            label: S.of(context)!.semanticsAvsTauxEffectif(r.tauxEffectif.toStringAsFixed(2)),
+            child: Text(
+              s.avsCotisationsTauxEffectifLabel(r.tauxEffectif.toStringAsFixed(2)),
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),

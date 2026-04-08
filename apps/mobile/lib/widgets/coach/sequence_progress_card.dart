@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Displays the progress of an active guided sequence in the coach chat.
@@ -55,7 +57,9 @@ class SequenceProgressCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final progress = totalCount > 0 ? completedCount / totalCount : 0.0;
 
-    return MintSurface(
+    return Semantics(
+      label: '$goalLabel, $completedCount sur $totalCount étapes terminées. $currentStepLabel',
+      child: MintSurface(
       padding: const EdgeInsets.all(20),
       radius: 20,
       elevated: true,
@@ -119,6 +123,8 @@ class SequenceProgressCard extends StatelessWidget {
           // ── Current step ────────────────────────────────────
           Text(
             currentStepLabel,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: MintTextStyles.bodySmall(
               color: MintColors.textSecondary,
             ).copyWith(height: 1.4),
@@ -162,7 +168,12 @@ class SequenceProgressCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: onAdvance,
+                onPressed: onAdvance == null
+                    ? null
+                    : () {
+                        HapticFeedback.lightImpact();
+                        onAdvance!();
+                      },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   foregroundColor: MintColors.white,
@@ -172,7 +183,7 @@ class SequenceProgressCard extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Pr\u00eat pour l\'\u00e9tape suivante',
+                  S.of(context)?.sequenceReadyNextStep ?? 'Prêt pour l\'\u00e9tape suivante',
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -195,7 +206,7 @@ class SequenceProgressCard extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'Quitter le parcours',
+                  S.of(context)?.sequenceQuitButton ?? 'Quitter le parcours',
                   style: GoogleFonts.inter(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
@@ -206,6 +217,7 @@ class SequenceProgressCard extends StatelessWidget {
           ],
         ],
       ),
+    ),
     );
   }
 }

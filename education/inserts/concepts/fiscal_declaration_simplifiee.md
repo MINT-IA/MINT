@@ -8,7 +8,7 @@ tags: [fiscal, declaration, simplifiee, astuces, delai, procedure]
 ## Trigger
 L'utilisateur doit remplir sa déclaration d'impôts et cherche des conseils pratiques, ou a peur de faire des erreurs.
 
-## Chiffre Choc
+## Premier Éclairage
 17 % des déclarations fiscales en Suisse contiennent des erreurs — la plupart en défaveur du contribuable (oubli de déductions). Prendre 2 heures pour bien remplir ta déclaration pourrait te rapporter CHF 500 à 2'000 d'économies.
 
 ## Niveau 0

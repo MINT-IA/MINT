@@ -8,7 +8,7 @@ tags: [fiscal, double_imposition, cdi, convention, international, fatca]
 ## Trigger
 L'utilisateur a des revenus ou du patrimoine à l'étranger, travaille pour un employeur étranger, ou est binational et se demande s'il est taxé deux fois.
 
-## Chiffre Choc
+## Premier Éclairage
 La Suisse a signé plus de 100 conventions de double imposition (CDI) avec des pays du monde entier. Sans CDI, un revenu de CHF 100'000 pourrait être taxé deux fois : ~30 % en Suisse + 25-40 % dans l'autre pays = jusqu'à 70 % d'impôt total. Avec une CDI, la charge totale est ramenée à un niveau normal (30-35 %).
 
 ## Niveau 0

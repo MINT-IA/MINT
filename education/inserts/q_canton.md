@@ -28,7 +28,7 @@ status: "READY"
 - Les baremes cantonaux changent chaque annee.
 - Les deductions specifiques (frais medicaux, garde d'enfants) varient enormement.
 
-## Chiffre Choc
+## Premier Éclairage
 "Pour un revenu de 100'000 CHF, l'impot varie de ~8% a Zoug a ~30% a Geneve — soit une difference de plus de 22'000 CHF par an. Ton canton est le premier levier fiscal en Suisse."
 
 ## Learning Goals

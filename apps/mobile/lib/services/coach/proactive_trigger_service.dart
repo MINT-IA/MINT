@@ -31,12 +31,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/contract_alert_service.dart';
+import 'package:mint_mobile/services/contract_benchmark_service.dart';
 import 'package:mint_mobile/services/coach/goal_tracker_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/gamification/seasonal_event_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
+import 'package:mint_mobile/services/sequence/sequence_store.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_signal.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  MODELS
@@ -106,6 +110,40 @@ class ProactiveTrigger {
 class ProactiveTriggerService {
   ProactiveTriggerService._();
 
+  // ── Phase 9 / L1.5 MintAlertObject feeder wiring (D-09) ──
+
+  /// Convert a [ProactiveTrigger] into a [MintAlertSignal] for consumption
+  /// by S5 widgets that build a [MintAlertObject]. Returns `null` when the
+  /// input is `null` (no trigger fired this session).
+  ///
+  /// Mapping rules:
+  ///   * `contractDeadlineApproaching` → `Gravity.g3`
+  ///     (rachat / lease deadlines are time-critical)
+  ///   * `inactivityReturn`            → `Gravity.g2`
+  ///   * everything else               → `Gravity.g1`
+  ///
+  /// Keys are ARB keys (no resolved strings). NEVER call from a
+  /// `claude_*_service.dart` file (Phase 9 D-07; enforced by
+  /// `tools/checks/no_llm_alert.py` in Plan 09-03).
+  static Stream<MintAlertSignal> alertSignalsFrom(
+    ProactiveTrigger? trigger,
+  ) async* {
+    if (trigger == null) return;
+    yield MintAlertSignal(
+      gravity: switch (trigger.type) {
+        ProactiveTriggerType.contractDeadlineApproaching => Gravity.g3,
+        ProactiveTriggerType.inactivityReturn => Gravity.g2,
+        _ => Gravity.g1,
+      },
+      factKey: trigger.messageKey,
+      causeKey: trigger.messageKey,
+      nextMomentKey: 'alertGenericNextMomentPrefix',
+      topicTag: trigger.type.name,
+      alertId: 'proactive:${trigger.type.name}:'
+          '${trigger.triggeredAt.toIso8601String().substring(0, 10)}',
+    );
+  }
+
   // ── SharedPreferences keys ────────────────────────────────
 
   /// Last trigger date (ISO8601). One trigger per calendar day max.
@@ -160,6 +198,12 @@ class ProactiveTriggerService {
       return null;
     }
 
+    // ── Guard: don't fire triggers while a sequence is active ──
+    final activeRun = await SequenceStore.load();
+    if (activeRun != null && activeRun.activeStepId != null) {
+      return null;
+    }
+
     // ── Evaluate in priority order ────────────────────────
     ProactiveTrigger? trigger;
 
@@ -170,7 +214,7 @@ class ProactiveTriggerService {
     trigger ??= _checkInactivityReturn(prefs, profile, currentDate);
     trigger ??= _checkConfidenceImproved(prefs, profile, currentDate);
     trigger ??= await _checkNewCapAvailable(prefs, currentDate);
-    trigger ??= await _checkContractDeadlines(currentDate);
+    trigger ??= await _checkContractDeadlines(currentDate, profile: profile);
 
     // ── Per-type engagement suppression ─────────────────────
     // If the user has consistently ignored this trigger type,
@@ -316,7 +360,7 @@ class ProactiveTriggerService {
     return ProactiveTrigger(
       type: ProactiveTriggerType.weeklyRecapAvailable,
       messageKey: 'proactiveWeeklyRecap',
-      intentTag: '/coach/weekly-recap',
+      intentTag: '/weekly-recap',  // Matches GoRouter route
       triggeredAt: now,
     );
   }
@@ -523,14 +567,27 @@ class ProactiveTriggerService {
   }
 
   /// Check if any contract deadline is approaching.
+  /// Enriches with benchmark data when profile available.
   static Future<ProactiveTrigger?> _checkContractDeadlines(
-    DateTime now,
-  ) async {
+    DateTime now, {
+    CoachProfile? profile,
+  }) async {
     final alerts = await ContractAlertService.getActiveAlerts(now);
     if (alerts.isEmpty) return null;
 
     final nearest = alerts.first;
     final days = nearest.daysRemaining(now);
+
+    // Enrich with benchmark if profile available
+    String? benchmarkHint;
+    if (profile != null) {
+      final enriched = await ContractBenchmarkService.enrichAlerts(
+        profile: profile,
+        now: now,
+      );
+      final match = enriched.where((e) => e.deadline.label == nearest.label).firstOrNull;
+      benchmarkHint = match?.benchmarkMessage;
+    }
 
     return ProactiveTrigger(
       type: ProactiveTriggerType.contractDeadlineApproaching,
@@ -538,6 +595,7 @@ class ProactiveTriggerService {
       params: {
         'label': nearest.label,
         'days': days.toString(),
+        if (benchmarkHint != null) 'benchmark': benchmarkHint,
       },
       triggeredAt: now,
     );

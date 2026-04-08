@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_motion.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANIMATED CHIFFRE — Swiss-calm number roll-up
@@ -88,27 +89,12 @@ class _AnimatedChiffreState extends State<AnimatedChiffre> {
       curve: MintMotion.curveStandard, // easeOutCubic
       builder: (context, animatedValue, _) {
         return Text(
-          '${widget.prefix}${_formatNumber(animatedValue)}${widget.suffix}',
+          '${widget.prefix}${formatChf(animatedValue)}${widget.suffix}',
           style: resolvedStyle,
         );
       },
     );
   }
 
-  /// Formats [n] with Swiss thousand-separator (apostrophe).
-  ///
-  /// Examples: 677847 → "677'847", 1000 → "1'000", 42.5 → "42"
-  String _formatNumber(double n) {
-    final formatted = n.toStringAsFixed(0);
-    if (n < 1000) return formatted;
-
-    final buffer = StringBuffer();
-    int count = 0;
-    for (int i = formatted.length - 1; i >= 0; i--) {
-      buffer.write(formatted[i]);
-      count++;
-      if (count % 3 == 0 && i > 0) buffer.write("'");
-    }
-    return buffer.toString().split('').reversed.join();
-  }
+  // _formatNumber removed — use centralized formatChf from chf_formatter.dart
 }

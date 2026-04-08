@@ -304,7 +304,7 @@ class ForecasterService {
     // Compare against GROSS household income for consistency.
     // Previously used householdNetAnnuel (NET) which inflated the ratio.
     final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
-    final tauxRemplacement = _safeReplacementRate(
+    final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
       annualCurrentIncome: householdGrossAnnuel,
     );
@@ -444,7 +444,7 @@ class ForecasterService {
           ).monthlyNetPayslip
         : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
-    final tauxRemplacement = _safeReplacementRate(
+    final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
       annualCurrentIncome: householdNetAnnuel,
     );
@@ -522,7 +522,7 @@ class ForecasterService {
 
     // Conjoint balances
     double conjLppBalance = profile.conjoint?.prevoyance?.avoirLppTotal ?? 0;
-    double conjSavingsBalance = 0; // Conjoint savings → libre
+    double conjSavingsBalance = profile.conjoint?.patrimoine?.epargneLiquide ?? 0;
 
     // --- Monthly contributions (from planned) ---
     double monthly3a = profile.total3aMensuel;
@@ -659,7 +659,8 @@ class ForecasterService {
     double totalRendement = 0;
 
     for (int m = 0; m < months; m++) {
-      final date = DateTime(now.year, now.month + m + 1);
+      // FIX-059: was m+1, causing all projections to be shifted by 1 month.
+      final date = DateTime(now.year, now.month + m);
 
       // Reset 3a cap at year boundary
       if (date.year != currentYear) {
@@ -1000,7 +1001,12 @@ class ForecasterService {
     return (to.year - from.year) * 12 + (to.month - from.month);
   }
 
-  static double _safeReplacementRate({
+  /// Canonical replacement rate computation with safety guards.
+  ///
+  /// FIX-P1-3: Made public so [RetirementProjectionService] delegates here
+  /// instead of duplicating the formula (which lacked guards).
+  /// Clamps to 0-200%, rejects negative or absurdly low incomes.
+  static double safeReplacementRate({
     required double annualRetirementIncome,
     required double annualCurrentIncome,
   }) {

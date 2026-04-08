@@ -1,0 +1,6 @@
+# Optional dev/exploration tools (NOT installed by CI by default).
+# Pinned here for reproducibility when developers want to inspect JSON schemas
+# or experiment with code generation. The MINT contracts pipeline (see
+# tools/contracts/) uses hand-rolled emitters and does NOT depend on this file
+# at runtime — it stays hermetic against stdlib json only.
+datamodel-code-generator==0.25.*

@@ -1,9 +1,18 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/snapshot_service.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 
 /// Provider pour le profil Coach MINT.
 ///
@@ -128,6 +137,43 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// True si le profil a ete mis a jour depuis la derniere synchro budget.
   bool get profileUpdatedSinceBudget => _profileUpdatedSinceBudget;
+
+  // ════════════════════════════════════════════════════════════════
+  //  BACKEND SYNC — fire-and-forget profile push
+  // ════════════════════════════════════════════════════════════════
+
+  /// Best-effort sync of local profile data to the backend.
+  /// Fire-and-forget: failure does NOT block local operations.
+  /// Only runs when the user is authenticated.
+  /// All exceptions are caught — safe to call without awaiting.
+  Future<void> _syncToBackend() async {
+    if (_profile == null || !_isLoaded) return;
+    try {
+      // Only sync when authenticated — avoid 401 errors.
+      final isLoggedIn = await AuthService.isLoggedIn();
+      if (!isLoggedIn) return;
+      final answers = Map<String, dynamic>.from(_lastAnswers);
+      final prefs = await SharedPreferences.getInstance();
+      // Stable device ID — generated once, persisted across sessions.
+      var deviceId = prefs.getString('_mint_device_id');
+      if (deviceId == null) {
+        deviceId = const Uuid().v4();
+        await prefs.setString('_mint_device_id', deviceId);
+      }
+      await ApiService.claimLocalData(
+        localDataVersion: 1,
+        deviceId: deviceId,
+        wizardAnswers: answers,
+      );
+    } catch (e) {
+      debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
+    }
+  }
+
+  /// Public entry point for backend sync.
+  /// Called by [AuthProvider] after login/register to push local data
+  /// when the backend profile is empty.
+  Future<void> triggerBackendSync() => _syncToBackend();
 
   String get personaKey {
     final p = _profile;
@@ -350,15 +396,16 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Merge individual fields into the existing profile (incremental update).
   /// Used by chat inline pickers to update one field at a time without
   /// overwriting the rest of the profile.
-  void mergeAnswers(Map<String, dynamic> partial) {
+  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
     final merged = Map<String, dynamic>.from(_lastAnswers)..addAll(partial);
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
+    await ReportPersistenceService.saveAnswers(merged);
     notifyListeners();
-    ReportPersistenceService.saveAnswers(merged);
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
@@ -381,8 +428,8 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Source: OFAS barème cotisations 2025. Estimation; le taux réel dépend
   /// du plan LPP et du canton.
   ///
-  /// Persiste de maniere asynchrone via [ReportPersistenceService].
-  void updateFromSmartFlow({
+  /// Persiste via [ReportPersistenceService] before notifying listeners.
+  Future<void> updateFromSmartFlow({
     required int age,
     required double grossSalary,
     required String canton,
@@ -403,13 +450,19 @@ class CoachProfileProvider extends ChangeNotifier {
     int? arrivalYear,
     /// User's primary focus/intention from FocusSelector.
     String? primaryFocus,
-  }) {
+    /// Residence permit type: 'C', 'B', 'G', 'L', or 'other'.
+    /// When 'G', archetype is forced to cross_border.
+    String? permitType,
+  }) async {
+    // P0-9: Clamp salary to valid bounds before any computation.
+    final clampedGrossSalary = grossSalary.clamp(0, 10000000).toDouble();
+
     // Convert gross annual → net monthly
     // Net monthly = (grossSalary / 12) × (1 - 0.13) (charges sociales ~13%)
     // fromWizardAnswers() reconvertit net → brut via / (1 - 0.13),
     // ce qui préserve le salaire brut original.
     const double socialChargesRate = 0.13;
-    final netMonthly = (grossSalary / 12) * (1 - socialChargesRate);
+    final netMonthly = (clampedGrossSalary / 12) * (1 - socialChargesRate);
     final birthYear = DateTime.now().year - age;
     final effectiveEmployment = employmentStatus ?? 'salarie';
 
@@ -442,24 +495,27 @@ class CoachProfileProvider extends ChangeNotifier {
     // so the aperçu financier shows realistic values instead of zeros.
     final minimal = MinimalProfileService.compute(
       age: age,
-      grossSalary: grossSalary,
+      grossSalary: clampedGrossSalary,
       canton: canton,
     );
 
     // AVS contribution years (LAVS art. 29 — cotisations dès 21 ans).
-    final int avsContributionYears;
+    final int rawAvsYears;
     if (isReturningSwiss) {
       // Reduced by time abroad
-      avsContributionYears = ((age - 20) - (yearsAbroad ?? 0)).clamp(0, 44);
+      rawAvsYears = (age - 20) - (yearsAbroad ?? 0);
     } else if (isExpat) {
       // Contributions start from max(arrivalAge, 21)
       final arrivalAge = arrivalYear - birthYear;
       final startAge = arrivalAge > 21 ? arrivalAge : 21;
-      avsContributionYears = (age - startAge).clamp(0, 44);
+      rawAvsYears = age - startAge;
     } else {
       // Swiss native: cotisations since age 21
-      avsContributionYears = (age - 20).clamp(0, 44);
+      rawAvsYears = age - 20;
     }
+    final avsContributionYears = rawAvsYears.clamp(0, 44);
+    // Flag when the raw value was outside [0, 44] so UI can inform the user.
+    final bool avsYearsWereClamped = rawAvsYears != avsContributionYears;
 
     final answers = <String, dynamic>{
       if (firstName != null && firstName.isNotEmpty) 'q_firstname': firstName,
@@ -467,14 +523,16 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_canton': canton,
       'q_net_income_period_chf': netMonthly,
       // Store gross annual directly to avoid net→gross roundtrip imprecision.
-      'q_gross_salary_annual': grossSalary,
+      'q_gross_salary_annual': clampedGrossSalary,
       // Use actual employment status — independant may not have LPP
       'q_employment_status': effectiveEmployment,
       // LPP access: salary > seuil AND salarié (LPP art. 7 — indépendants: opt.)
       'q_has_pension_fund':
-          grossSalary >= 22680 && effectiveEmployment != 'independant',
+          clampedGrossSalary >= 22680 && effectiveEmployment != 'independant',
       // AVS years estimated from age and situation (LAVS art. 29)
       'q_avs_contribution_years': avsContributionYears,
+      // P2-15: Flag when AVS years were clamped to [0,44] so UI can warn user.
+      if (avsYearsWereClamped) '_avs_years_clamped': true,
       // AVS rente estimated via financial_core AvsCalculator
       '_coach_avs_rente_estimee': minimal.avsMonthlyRente,
       // Patrimoine: estimated savings = (age-25) × salary × 5%
@@ -482,6 +540,7 @@ class CoachProfileProvider extends ChangeNotifier {
       // Nationality for archetype detection (see CLAUDE.md archetype table)
       if (nationality != null) 'q_nationality': nationality,
       if (primaryFocus != null) 'q_primary_focus': primaryFocus,
+      if (permitType != null) 'q_residence_permit': permitType,
     };
 
     // Returning Swiss: inject lacunes and arrivalYear so fromWizardAnswers
@@ -532,11 +591,12 @@ class CoachProfileProvider extends ChangeNotifier {
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
-    notifyListeners();
 
-    // Persist asynchronously so the dashboard can reload from storage
-    ReportPersistenceService.saveAnswers(answers);
-    ReportPersistenceService.setMiniOnboardingCompleted(true);
+    // Persist BEFORE notify so downstream listeners see consistent state
+    await ReportPersistenceService.saveAnswers(answers);
+    await ReportPersistenceService.setMiniOnboardingCompleted(true);
+    notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   /// Create a NEW local CoachProfile from backend data when no local profile
@@ -560,8 +620,13 @@ class CoachProfileProvider extends ChangeNotifier {
     // Only create if we have at least one meaningful field from backend
     if (birthYear == null && canton == null && grossYearly == null) return;
 
-    final salaireBrutMensuel = grossYearly != null ? grossYearly / 12 : 0.0;
+    // P0-9: Clamp remote salary to valid bounds.
+    final clampedGrossYearly = grossYearly?.clamp(0, 10000000).toDouble();
+    final salaireBrutMensuel = clampedGrossYearly != null ? clampedGrossYearly / 12 : 0.0;
+    // Use actual birthYear if available; fallback = current year - 40
+    // but mark profile as partial so wizard completion is triggered.
     final effectiveBirthYear = birthYear ?? (DateTime.now().year - 40);
+    final isPartialAge = birthYear == null;
 
     _profile = CoachProfile(
       birthYear: effectiveBirthYear,
@@ -571,10 +636,14 @@ class CoachProfileProvider extends ChangeNotifier {
       employmentStatus: employmentStatus ?? 'salarie',
       goalA: GoalA(
         type: GoalAType.retraite,
-        targetDate: DateTime(effectiveBirthYear + 65),
+        // If birthYear is estimated, use a conservative target (don't assume 65)
+        targetDate: isPartialAge
+            ? DateTime(DateTime.now().year + 20) // Generic "20 years from now"
+            : DateTime(effectiveBirthYear + 65),
         label: 'Retraite',
       ),
     );
+    _isPartialProfile = _isPartialProfile || isPartialAge;
     _isPartialProfile = true;
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
@@ -596,7 +665,7 @@ class CoachProfileProvider extends ChangeNotifier {
     if (p.birthYear == 0 && remoteData['birthYear'] != null) {
       updates['birthYear'] = remoteData['birthYear'];
     }
-    if (p.canton.isEmpty && remoteData['canton'] != null) {
+    if ((p.canton.isEmpty || p.canton == 'unknown') && remoteData['canton'] != null) {
       updates['canton'] = remoteData['canton'] as String?;
     }
     if (p.gender == null && remoteData['gender'] != null) {
@@ -636,18 +705,193 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Phase 12-01 — Optimistic update of [CoachProfile.voiceCursorPreference].
+  ///
+  /// Updates local state immediately + notifies listeners (optimistic). Then
+  /// awaits [remoteSync] (injected for testability — defaults to a no-op
+  /// success since no `/api/v1/profile` PATCH endpoint is wired yet).
+  ///
+  /// On `false` from [remoteSync], rolls back local state and notifies again.
+  /// Returns `true` on success, `false` on rollback.
+  ///
+  /// Pure provider — does NOT show toasts or fire analytics. Callers (UI) own
+  /// the toast + analytics decisions per D-09 (event source distinguishes
+  /// first-launch vs settings).
+  Future<bool> setVoiceCursorPreference(
+    VoicePreference next, {
+    Future<bool> Function(VoicePreference value)? remoteSync,
+  }) async {
+    final current = _profile;
+    if (current == null) return false;
+    if (current.voiceCursorPreference == next) return true;
+
+    final previous = current.voiceCursorPreference;
+
+    // Optimistic local update.
+    _profile = current.copyWith(voiceCursorPreference: next);
+    notifyListeners();
+
+    // Default sync = no-op success (Plan 12-04 will wire real PATCH).
+    final ok = remoteSync == null ? true : await remoteSync(next);
+
+    if (!ok) {
+      // Rollback.
+      _profile = _profile?.copyWith(voiceCursorPreference: previous);
+      notifyListeners();
+      return false;
+    }
+
+    return true;
+  }
+
   /// Replace the current profile with an updated one and persist via answers.
   void updateProfile(CoachProfile updated) {
+    final previousStatus = _profile?.etatCivil;
     _profile = updated;
     _profileUpdatedSinceBudget = true;
     notifyListeners();
-    // Persist housing fields into wizard answers for reload
-    _persistHousingFields(updated);
+    // FIX-045: Persist ALL profile fields.
+    _persistFullProfile(updated);
+    // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
+    CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
+    // FIX-HIGH-2: Invalidate CapMemory on significant profile change
+    // to prevent stale caps from being re-served.
+    CapMemoryStore.load().then((mem) {
+      CapMemoryStore.save(mem.copyWith(
+        lastCapServed: null,
+        lastCapDate: null,
+      ));
+    }).catchError((Object e) {
+      debugPrint('[CoachProfileProvider] CapMemory invalidation failed: $e');
+    });
+    // FIX-097: If civil status changed to non-coupled, dissolve household.
+    if (previousStatus != null &&
+        previousStatus != updated.etatCivil &&
+        updated.etatCivil != CoachCivilStatus.marie &&
+        updated.etatCivil != CoachCivilStatus.concubinage) {
+      // FIX-097: Clear local household state on divorce (AWAITED).
+      // FIX-P0-1: Remove ALL partner/spouse keys to prevent ghost conjoint
+      // on app restart. Without this, fromWizardAnswers() recreates the spouse
+      // from stale SharedPreferences → AVS couple cap 150% applied to a single.
+      // FIX-P0-3: Was fire-and-forget → now awaited to guarantee cleanup before
+      // any subsequent read.
+      _awaitedDivorceCleanup();
+    }
+  }
+
+  /// Awaited divorce cleanup — removes all partner/spouse keys from SharedPreferences.
+  /// Previously fire-and-forget (.then/.catchError), which could race with subsequent reads.
+  Future<void> _awaitedDivorceCleanup() async {
+    try {
+      final sp = await SharedPreferences.getInstance();
+      await sp.remove('_household_data');
+      final keysToRemove = sp.getKeys().where(
+          (k) => k.startsWith('q_partner_') || k.startsWith('q_spouse_'));
+      for (final key in keysToRemove.toList()) {
+        await sp.remove(key);
+      }
+    } catch (_) {
+      // Best-effort: SharedPreferences failure is non-fatal.
+    }
+  }
+
+  Future<void> _persistFullProfile(CoachProfile profile) async {
+    final answers = await ReportPersistenceService.loadAnswers();
+    // Core fields
+    if (profile.canton.isNotEmpty) answers['q_canton'] = profile.canton;
+    // FIX-096: Persist etatCivil (divorce was lost on restart).
+    answers['q_civil_status'] = profile.etatCivil.name;
+    answers['q_salaire'] = profile.salaireBrutMensuel;
+    answers['q_nombre_mois'] = profile.nombreDeMois;
+    if (profile.employmentStatus.isNotEmpty) {
+      answers['q_employment_status'] = profile.employmentStatus;
+    }
+    // Prevoyance
+    if (profile.prevoyance.avoirLppTotal != null) {
+      answers['q_avoir_lpp'] = profile.prevoyance.avoirLppTotal;
+    }
+    if (profile.prevoyance.nombre3a > 0) {
+      answers['q_nombre_3a'] = profile.prevoyance.nombre3a;
+    }
+    if (profile.prevoyance.totalEpargne3a > 0) {
+      answers['q_total_3a'] = profile.prevoyance.totalEpargne3a;
+    }
+    // Patrimoine
+    answers['q_epargne_liquide'] = profile.patrimoine.epargneLiquide;
+    answers['q_investissements'] = profile.patrimoine.investissements;
+    // Housing
+    _persistHousingFieldsSync(answers, profile);
+    // Target retirement
+    if (profile.targetRetirementAge != null) {
+      answers['q_target_retirement_age'] = profile.targetRetirementAge;
+    }
+    // FIX-P0-2: Persist conjoint (spouse) data — was previously lost on restart.
+    // fromWizardAnswers() reads these keys to rebuild ConjointProfile.
+    if (profile.conjoint != null) {
+      final c = profile.conjoint!;
+      if (c.salaireBrutMensuel != null) {
+        // Store as net (reverse the brut→net from fromWizardAnswers)
+        const socialChargesRate = 0.133; // AVS+AI+APG+AC standard rate
+        answers['q_partner_net_income_chf'] =
+            c.salaireBrutMensuel! * (1 - socialChargesRate);
+      }
+      if (c.birthYear != null) {
+        answers['q_partner_birth_year'] = c.birthYear;
+      }
+      if (c.employmentStatus != null) {
+        answers['q_partner_employment_status'] = c.employmentStatus;
+      }
+      if (c.firstName != null) {
+        answers['q_partner_firstname'] = c.firstName;
+      }
+      if (c.gender != null) {
+        answers['q_partner_gender'] = c.gender;
+      }
+      if (c.nationality != null) {
+        answers['q_partner_nationality'] = c.nationality;
+      }
+      if (c.canton != null) {
+        answers['q_partner_canton'] = c.canton;
+      }
+      if (c.nombreEnfants != null) {
+        answers['q_partner_enfants'] = c.nombreEnfants;
+      }
+    }
+    await ReportPersistenceService.saveAnswers(answers);
+  }
+
+  /// W15: Create a financial snapshot from the current profile state.
+  /// Fire-and-forget — errors are logged, never surfaced to the user.
+  void _createSnapshotFromProfile(String trigger) {
+    final p = _profile;
+    if (p == null) return;
+    SnapshotService.createSnapshot(
+      trigger: trigger,
+      age: p.age,
+      grossIncome: p.salaireBrutMensuel * p.nombreDeMois,
+      canton: p.canton,
+      replacementRatio: 0.0, // Computed by projection services, not available here
+      monthsLiquidity: 0.0, // Requires budget data not in CoachProfile
+      taxSavingPotential: 0.0, // Requires tax simulation
+      confidenceScore: 0.0, // Requires projection
+    );
+  }
+
+  void _persistHousingFieldsSync(Map<String, dynamic> answers, CoachProfile profile) {
+    if (profile.housingStatus != null) {
+      answers['q_housing_status'] = profile.housingStatus;
+    }
+    if (profile.riskTolerance != null) {
+      answers['q_risk_tolerance'] = profile.riskTolerance;
+    }
+    if (profile.realEstateProject != null) {
+      answers['q_real_estate_project'] = profile.realEstateProject;
+    }
   }
 
   /// Update the user's primary focus/intention from Pulse screen.
   /// Does NOT trigger full profile recomputation — only persists the new focus.
-  void updatePrimaryFocus(String focus) {
+  Future<void> updatePrimaryFocus(String focus) async {
     if (_profile == null) return;
     _profile = _profile!.copyWith(
       primaryFocus: focus,
@@ -656,56 +900,33 @@ class CoachProfileProvider extends ChangeNotifier {
     // Persist to wizard answers for survival across app restart.
     _lastAnswers['q_primary_focus'] = focus;
     _profileUpdatedSinceBudget = true;
+    await ReportPersistenceService.saveAnswers(_lastAnswers);
     notifyListeners();
-    ReportPersistenceService.saveAnswers(_lastAnswers);
   }
 
-  Future<void> _persistHousingFields(CoachProfile profile) async {
-    final answers = await ReportPersistenceService.loadAnswers();
-    if (profile.housingStatus != null) {
-      answers['q_housing_status'] = profile.housingStatus;
-    } else {
-      answers.remove('q_housing_status');
-    }
-    final p = profile.patrimoine;
-    // Set or clear housing fields — avoids stale data when switching
-    // between owner and renter.
-    _setOrRemove(answers, 'q_property_market_value', p.propertyMarketValue);
-    _setOrRemove(answers, 'q_mortgage_balance', p.mortgageBalance);
-    _setOrRemove(answers, 'q_mortgage_rate', p.mortgageRate);
-    _setOrRemove(answers, 'q_monthly_rent', p.monthlyRent);
-    await ReportPersistenceService.saveAnswers(answers);
-  }
-
-  static void _setOrRemove(
-    Map<String, dynamic> map,
-    String key,
-    dynamic value,
-  ) {
-    if (value != null) {
-      map[key] = value;
-    } else {
-      map.remove(key);
-    }
-  }
 
   /// Ajoute un check-in mensuel au profil et le persiste.
-  void addCheckIn(MonthlyCheckIn checkIn) {
+  // TODO(P2): Sync monthly check-ins to backend for cross-device access
+  Future<void> addCheckIn(MonthlyCheckIn checkIn) async {
     if (_profile == null) return;
     final updated = [..._profile!.checkIns, checkIn];
     _profile = _profile!.copyWithCheckIns(updated);
-    // Persister les check-ins
-    ReportPersistenceService.saveCheckIns(
+    // Persist BEFORE notify so downstream listeners see consistent state
+    await ReportPersistenceService.saveCheckIns(
       updated.map((ci) => ci.toJson()).toList(),
     );
+
+    // W15: Auto-trigger financial snapshot after each check-in
+    _createSnapshotFromProfile('check_in');
+
     notifyListeners();
   }
 
   /// Met a jour les contributions dans le profil et les persiste.
-  void updateContributions(List<PlannedMonthlyContribution> contributions) {
+  Future<void> updateContributions(List<PlannedMonthlyContribution> contributions) async {
     if (_profile == null) return;
     _profile = _profile!.copyWithContributions(contributions);
-    ReportPersistenceService.saveContributions(
+    await ReportPersistenceService.saveContributions(
       contributions.map((c) => c.toJson()).toList(),
     );
     notifyListeners();
@@ -836,6 +1057,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _profileUpdatedSinceBudget = true;
     notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   // ════════════════════════════════════════════════════════════════
@@ -849,10 +1071,34 @@ class CoachProfileProvider extends ChangeNotifier {
   /// dans les answers wizard pour coherence au redemarrage.
   ///
   /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document A
+  /// FIX-095: Previous prevoyance backup for undo capability.
+  PrevoyanceProfile? _previousPrevoyance;
+
+  /// FIX-095: Get the previous prevoyance state (before last extraction).
+  PrevoyanceProfile? get previousPrevoyance => _previousPrevoyance;
+
+  /// FIX-094: Check if new LPP data diverges significantly from existing.
+  /// Returns the delta percentage if > 30%, null otherwise.
+  double? checkLppDivergence(List<ExtractedField> fields) {
+    if (_profile == null) return null;
+    final currentAvoir = _profile!.prevoyance.avoirLppTotal;
+    if (currentAvoir == null || currentAvoir <= 0) return null;
+    final newAvoir = fields
+        .where((f) => f.fieldName == 'avoirLppTotal' || f.fieldName == 'avoir_lpp_total')
+        .firstOrNull?.value;
+    if (newAvoir == null) return null;
+    final newVal = newAvoir is num ? newAvoir.toDouble() : double.tryParse(newAvoir.toString()) ?? 0;
+    if (newVal <= 0) return null;
+    final deltaPct = ((newVal - currentAvoir) / currentAvoir * 100).abs();
+    return deltaPct > 30 ? deltaPct : null;
+  }
+
   Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
     if (_profile == null) return;
 
     final p = _profile!;
+    // FIX-095: Save previous state for undo capability.
+    _previousPrevoyance = p.prevoyance;
 
     // Extract values from confirmed fields
     double? avoirTotal;
@@ -1006,7 +1252,12 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+
+    // W15: Auto-trigger snapshot after LPP certificate scan
+    _createSnapshotFromProfile('document_scan');
+
     notifyListeners();
+    _syncToBackend(); // Fire-and-forget, does not block UI
   }
 
   /// Inject PARTNER LPP certificate extraction into CoachProfile.conjoint.
@@ -1357,7 +1608,7 @@ class CoachProfileProvider extends ChangeNotifier {
     double? salaireBrut;
     int? nombreMois;
     double? bonus;
-    double? tauxActivite;
+    double? tauxActivite; // ignore: unused_local_variable — extracted for future use
 
     for (final field in fields) {
       if (field.profileField == null) continue;
@@ -1391,7 +1642,7 @@ class CoachProfileProvider extends ChangeNotifier {
 
     _profile = p.copyWith(
       salaireBrutMensuel: salaireBrut ?? p.salaireBrutMensuel,
-      nombreDeMois: nombreMois ?? p.nombreDeMois,
+      nombreDeMois: (nombreMois ?? p.nombreDeMois).toDouble(),
       bonusPourcentage: bonus ?? p.bonusPourcentage,
       dataSources: updatedSources,
       dataTimestamps: updatedTimestamps,

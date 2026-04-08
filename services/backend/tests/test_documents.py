@@ -20,9 +20,15 @@ from unittest.mock import MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.v1.endpoints.documents import _detect_document_type, _document_store
+from app.api.v1.endpoints.documents import _detect_document_type
 from app.core.auth import require_current_user
+from app.core.database import get_db
+from app.models.document import DocumentModel
 from app.main import app
+from tests.conftest import TestingSessionLocal
+
+# Re-use conftest's test DB infrastructure
+from tests.conftest import override_get_db
 
 
 def _fake_user():
@@ -34,63 +40,114 @@ def _fake_user():
     return user
 
 
+def _override_get_db():
+    db = TestingSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def _ensure_premium_subscription():
+    """Ensure the test user has a premium subscription for vault access."""
+    from datetime import timedelta
+    from app.models.billing import SubscriptionModel
+    db = TestingSessionLocal()
+    try:
+        existing = (
+            db.query(SubscriptionModel)
+            .filter(SubscriptionModel.user_id == "test-user-id")
+            .first()
+        )
+        if not existing:
+            sub = SubscriptionModel(
+                user_id="test-user-id",
+                tier="premium",
+                status="active",
+                source="test",
+                current_period_end=datetime.utcnow() + timedelta(days=30),
+            )
+            db.add(sub)
+            db.commit()
+    finally:
+        db.close()
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Fixtures
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _mock_entitlements_premium():
+    """Patch recompute_entitlements to grant premium access (all features)."""
+    from app.services.billing_service import ALL_FEATURES
+    return patch(
+        "app.api.v1.endpoints.documents.recompute_entitlements",
+        return_value=("premium", ALL_FEATURES),
+    )
+
+
 @pytest.fixture
 def client():
-    """Test client with a clean document store and auth override."""
-    _document_store.clear()
+    """Test client with test DB and auth override."""
+    app.dependency_overrides[get_db] = override_get_db
     app.dependency_overrides[require_current_user] = _fake_user
-    with TestClient(app) as c:
+
+    # Grant document_upload consent for the test user (nLPD opt-in model)
+    from app.services.reengagement.consent_manager import ConsentManager
+    from app.services.reengagement.reengagement_models import ConsentType
+    db = TestingSessionLocal()
+    ConsentManager.update_consent("test-user-id", ConsentType.document_upload, True, db=db)
+    db.close()
+
+    with _mock_entitlements_premium(), TestClient(app) as c:
         yield c
     app.dependency_overrides.pop(require_current_user, None)
-    _document_store.clear()
+    app.dependency_overrides.pop(get_db, None)
 
 
 @pytest.fixture
 def populated_store():
-    """Pre-populate the document store with sample documents."""
-    _document_store.clear()
-    now = datetime.now(timezone.utc).isoformat()
+    """Pre-populate the document table with sample documents."""
+    db = TestingSessionLocal()
+    now = datetime.now(timezone.utc)
 
-    _document_store["doc-aaa"] = {
-        "id": "doc-aaa",
-        "user_id": "test-user-id",
-        "document_type": "lpp_certificate",
-        "upload_date": now,
-        "confidence": 0.85,
-        "fields_found": 15,
-        "fields_total": 18,
-        "extracted_fields": {"avoir_vieillesse_total": 166300.0},
-        "warnings": [],
-    }
-    _document_store["doc-bbb"] = {
-        "id": "doc-bbb",
-        "user_id": "test-user-id",
-        "document_type": "salary_slip",
-        "upload_date": now,
-        "confidence": 0.60,
-        "fields_found": 5,
-        "fields_total": 18,
-        "extracted_fields": {"salaire_avs": 95000.0},
-        "warnings": ["Partial extraction"],
-    }
-    _document_store["doc-ccc"] = {
-        "id": "doc-ccc",
-        "user_id": "test-user-id",
-        "document_type": "unknown",
-        "upload_date": now,
-        "confidence": 0.0,
-        "fields_found": 0,
-        "fields_total": 18,
-        "extracted_fields": {},
-        "warnings": ["Could not identify document type"],
-    }
+    db.add(DocumentModel(
+        id="doc-aaa",
+        user_id="test-user-id",
+        document_type="lpp_certificate",
+        upload_date=now,
+        confidence=0.85,
+        fields_found=15,
+        fields_total=18,
+        extracted_fields={"avoir_vieillesse_total": 166300.0},
+        warnings=[],
+    ))
+    db.add(DocumentModel(
+        id="doc-bbb",
+        user_id="test-user-id",
+        document_type="salary_slip",
+        upload_date=now,
+        confidence=0.60,
+        fields_found=5,
+        fields_total=18,
+        extracted_fields={"salaire_avs": 95000.0},
+        warnings=["Partial extraction"],
+    ))
+    db.add(DocumentModel(
+        id="doc-ccc",
+        user_id="test-user-id",
+        document_type="unknown",
+        upload_date=now,
+        confidence=0.0,
+        fields_found=0,
+        fields_total=18,
+        extracted_fields={},
+        warnings=["Could not identify document type"],
+    ))
+    db.commit()
+    db.close()
     yield
-    _document_store.clear()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -417,7 +474,7 @@ class TestUploadValidation:
             files={"file": ("document.pdf", b"dummy content", "text/plain")},
         )
         assert response.status_code == 400
-        assert "Unsupported file type" in response.json()["detail"]
+        assert "Only PDF files are accepted" in response.json()["detail"]
 
     def test_upload_wrong_extension(self, client):
         """POST /upload with non-.pdf extension returns 400."""
@@ -430,13 +487,31 @@ class TestUploadValidation:
 
     def test_upload_empty_file(self, client):
         """POST /upload with empty file returns 400."""
-        # Use application/octet-stream to bypass content-type check
+        # application/octet-stream is now rejected (FIX-W12), use application/pdf
         response = client.post(
             "/api/v1/documents/upload",
-            files={"file": ("empty.pdf", b"", "application/octet-stream")},
+            files={"file": ("empty.pdf", b"", "application/pdf")},
         )
         assert response.status_code == 400
         assert "Empty file" in response.json()["detail"]
+
+    def test_upload_octet_stream_rejected(self, client):
+        """POST /upload with application/octet-stream is rejected (FIX-W12)."""
+        response = client.post(
+            "/api/v1/documents/upload",
+            files={"file": ("doc.pdf", b"%PDF-1.4 content", "application/octet-stream")},
+        )
+        assert response.status_code == 400
+        assert "Only PDF files are accepted" in response.json()["detail"]
+
+    def test_upload_invalid_magic_bytes(self, client):
+        """POST /upload with non-PDF content returns 400 (FIX-W12 magic bytes)."""
+        response = client.post(
+            "/api/v1/documents/upload",
+            files={"file": ("fake.pdf", b"<html>not a pdf</html>", "application/pdf")},
+        )
+        assert response.status_code == 400
+        assert "invalid magic bytes" in response.json()["detail"]
 
     def test_upload_statement_wrong_extension(self, client):
         """POST /upload-statement with unsupported extension returns 400."""

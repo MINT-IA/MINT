@@ -8,7 +8,7 @@ tags: [avs, cotisation, lacunes, rente, lavs, carriere]
 ## Trigger
 L'utilisateur se demande combien d'années de cotisation AVS il lui faut pour une rente complète, ou découvre qu'il a des lacunes.
 
-## Chiffre Choc
+## Premier Éclairage
 Chaque année de cotisation AVS manquante réduit ta rente d'environ 1/44e, soit environ CHF 688/an (CHF 57/mois) pour la rente maximale de CHF 2'520/mois (30'240/an). Deux années manquantes = CHF 114/mois de moins, à vie.
 
 ## Niveau 0

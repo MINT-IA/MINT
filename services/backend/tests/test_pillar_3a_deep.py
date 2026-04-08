@@ -6,7 +6,7 @@ Covers:
     - Real return calculator — 7 tests
     - Provider comparator — 7 tests
     - API endpoints (integration) — 3 tests
-    - Compliance (banned terms, disclaimer, chiffre_choc) — 4 tests
+    - Compliance (banned terms, disclaimer, premier_eclairage) — 4 tests
 
 Target: 31 tests.
 
@@ -486,7 +486,7 @@ class TestPillar3aDeepEndpoints:
         data = response.json()
         assert len(data["yearlyPlan"]) == 3
         assert data["economy"] > 0
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert "sources" in data
 
@@ -506,7 +506,7 @@ class TestPillar3aDeepEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["capitalFinal3a"] > data["totalVerse"]
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
 
     def test_compare_providers_endpoint(self, client):
@@ -524,7 +524,7 @@ class TestPillar3aDeepEndpoints:
         data = response.json()
         assert len(data["projections"]) == 5
         assert data["differenceMax"] > 0
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
 
 
@@ -570,24 +570,24 @@ class TestPillar3aDeepCompliance:
                 f"Disclaimer should use gender-neutral language: {disclaimer}"
             )
 
-    def test_chiffre_choc_always_present(self, multi_service, return_service, provider_service):
-        """All service results should include a chiffre_choc."""
+    def test_premier_eclairage_always_present(self, multi_service, return_service, provider_service):
+        """All service results should include a premier_eclairage."""
         r1 = multi_service.simulate_staggered_withdrawal(
             avoir_total=200_000, nb_comptes=3, canton="VD",
             revenu_imposable=100_000, age_retrait_debut=60, age_retrait_fin=64,
         )
-        assert len(r1.chiffre_choc) > 10
+        assert len(r1.premier_eclairage) > 10
 
         r2 = return_service.calculate_real_return(
             versement_annuel=7000, taux_marginal=0.30,
             rendement_brut=0.04, frais_gestion=0.005, duree_annees=30,
         )
-        assert len(r2.chiffre_choc) > 10
+        assert len(r2.premier_eclairage) > 10
 
         r3 = provider_service.compare_providers(
             age=30, versement_annuel=7000, duree=30,
         )
-        assert len(r3.chiffre_choc) > 10
+        assert len(r3.premier_eclairage) > 10
 
     def test_no_banned_terms_in_api_responses(self, client):
         """No API response should contain banned terms."""

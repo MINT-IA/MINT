@@ -23,6 +23,10 @@ import 'package:mint_mobile/services/voice/regional_voice_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
+import 'package:mint_mobile/services/biography/anonymized_biography_service.dart';
+import 'package:mint_mobile/services/biography/biography_repository.dart';
+import 'package:mint_mobile/services/biography/biography_refresh_detector.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -190,7 +194,9 @@ class ContextInjectorService {
     // naturally reference past topics in its responses.
     String recentInsightsBlock = '';
     try {
-      final recentInsights = await CoachMemoryService.getInsights(prefs: sp);
+      final rawInsights = await CoachMemoryService.getInsights(prefs: sp);
+      // FIX-W12: Cap cross-session insights to prevent context overflow
+      final recentInsights = rawInsights.take(10).toList(); // Max 10 insights in context
       if (recentInsights.isNotEmpty) {
         final coachingPref = CoachingPreference.load(sp);
         recentInsightsBlock = _buildRecentInsightsBlock(
@@ -326,6 +332,51 @@ class ContextInjectorService {
       budgetBlock = lines.join('\n');
     }
 
+    // ── Biography (Phase 3 — Memoire Narrative) ────────────────
+    // Inject anonymized financial biography so Claude can reference
+    // the user's story naturally. NEVER raw facts — only
+    // AnonymizedBiographySummary enters the prompt (COMP-03).
+    String biographyBlock = '';
+    if (profile != null) {
+      try {
+        final repo = await BiographyRepository.instance();
+        final facts = await repo.getActiveFacts();
+        if (facts.isNotEmpty) {
+          biographyBlock = AnonymizedBiographySummary.build(facts);
+          // Check for stale data needing refresh (BIO-08)
+          final staleFields =
+              BiographyRefreshDetector.detectStaleFields(facts);
+          if (staleFields.isNotEmpty) {
+            biographyBlock +=
+                '\n${BiographyRefreshDetector.buildRefreshNudge(staleFields)}';
+          }
+        }
+      } catch (_) {
+        // Graceful degradation: coach works without biography context.
+      }
+    }
+
+    // ── Onboarding payload (one-shot) ────────────────────────
+    // Phase 10-02a: SharedPrefs onboarding readers dropped (screens that
+    // wrote onboarding_choc_* / onboarding_emotion / onboarding_birth_year
+    // are being deleted in split 10-02b). Emotion dropped entirely.
+    // birthYear now sourced from CoachProfile. Premier éclairage snapshot
+    // is read from ReportPersistenceService (still written by intent_screen).
+    String onboardingBlock = '';
+    try {
+      onboardingBlock = await _buildOnboardingBlock(profile);
+    } catch (_) {
+      // Graceful degradation: coach works without onboarding context.
+    }
+
+    // ── Check-in summary (SUI-04) ─────────────────────────────
+    // Inject last check-in amount so coach can reference it naturally.
+    // T-05-06: Only total CHF included (no contribution breakdown).
+    String checkInBlock = '';
+    if (profile != null) {
+      checkInBlock = ConversationMemoryService.buildCheckInSummary(profile);
+    }
+
     // Build the complete memory block
     final memoryBlock = _buildMemoryBlock(
       lifecycleBlock: lifecycleBlock,
@@ -338,7 +389,10 @@ class ContextInjectorService {
       planBlock: planBlock,
       recentInsightsBlock: recentInsightsBlock,
       budgetBlock: budgetBlock,
+      biographyBlock: biographyBlock,
       enrichmentBlock: enrichmentBlock,
+      onboardingBlock: onboardingBlock,
+      checkInBlock: checkInBlock,
     );
 
     return EnrichedContext(
@@ -399,6 +453,39 @@ class ContextInjectorService {
     }
 
     return lines.join('\n');
+  }
+
+  /// Build the one-shot onboarding context block.
+  ///
+  /// Phase 10-02a: SharedPrefs onboarding readers removed. Reads the
+  /// premier éclairage snapshot written by intent_screen (still live)
+  /// and the user's age from [profile]. Emotion is dropped entirely —
+  /// the coach reacts to facts, not to a pre-captured mood.
+  /// Returns an empty string when no premier éclairage snapshot is present.
+  static Future<String> _buildOnboardingBlock(CoachProfile? profile) async {
+    final snapshot =
+        await ReportPersistenceService.loadPremierEclairageSnapshot();
+    if (snapshot == null) return '';
+
+    final title = snapshot['title'] as String?;
+    final value = snapshot['value'];
+
+    final buf = StringBuffer();
+    buf.writeln('--- CONTEXTE ONBOARDING ---');
+    if (title != null && title.isNotEmpty) {
+      buf.writeln('Premier \u00e9clairage montr\u00e9\u00a0: $title '
+          '(valeur\u00a0: ${value ?? "??"})');
+    }
+    final age = profile?.age;
+    if (age != null && age > 0) {
+      buf.writeln('\u00c2ge\u00a0: $age ans');
+    }
+    buf.writeln('INSTRUCTION\u00a0: R\u00e9agis au premier \u00e9clairage. '
+        'Propose 3 actions concr\u00e8tes avec des chiffres. '
+        'Ne redemande PAS les informations d\u00e9j\u00e0 connues.');
+    buf.writeln('--- FIN ONBOARDING ---');
+
+    return buf.toString().trim();
   }
 
   /// Map enrichment category to the best route for data capture.
@@ -689,7 +776,10 @@ class ContextInjectorService {
     String planBlock = '',
     String recentInsightsBlock = '',
     String budgetBlock = '',
+    String biographyBlock = '',
     String enrichmentBlock = '',
+    String onboardingBlock = '',
+    String checkInBlock = '',
   }) {
     final parts = <String>[];
 
@@ -702,6 +792,12 @@ class ContextInjectorService {
     parts.add('Tu es un outil éducatif\u00a0: ne constitue pas un conseil financier '
         '(LSFin). Propose toujours des actions concrètes et des étapes '
         'que l\'utilisateur peut entreprendre.');
+
+    // Onboarding context (one-shot — premier éclairage + emotion)
+    if (onboardingBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(onboardingBlock);
+    }
 
     // Lifecycle context
     if (lifecycleBlock.isNotEmpty) {
@@ -731,6 +827,18 @@ class ContextInjectorService {
     if (budgetBlock.isNotEmpty) {
       parts.add('');
       parts.add(budgetBlock);
+    }
+
+    // Financial biography (Memoire Narrative Phase 3)
+    if (biographyBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(biographyBlock);
+    }
+
+    // Check-in summary (SUI-04) — last monthly check-in amount for coach context
+    if (checkInBlock.isNotEmpty) {
+      parts.add('');
+      parts.add(checkInBlock);
     }
 
     // EVI-ranked enrichment priorities (coach should propose these)

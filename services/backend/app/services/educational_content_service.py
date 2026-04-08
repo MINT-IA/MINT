@@ -1,7 +1,7 @@
 """
 Educational Content Service — Contenu pedagogique pour les inserts du wizard.
 
-Sert le contenu educatif (chiffre choc, objectifs d'apprentissage, disclaimer,
+Sert le contenu educatif (premier éclairage, objectifs d'apprentissage, disclaimer,
 sources legales) pour chaque question du wizard MINT.
 
 Sources:
@@ -56,7 +56,7 @@ class InsertContent:
     Fields:
         question_id: Unique identifier matching the wizard question.
         title: Display title in French.
-        chiffre_choc: Impactful number/statistic with explanatory text.
+        premier_eclairage: Impactful number/statistic with explanatory text.
         learning_goals: List of learning objectives for the user.
         disclaimer: Legal disclaimer (mentions outil educatif and LSFin).
         sources: List of Swiss law references.
@@ -67,7 +67,7 @@ class InsertContent:
     """
     question_id: str
     title: str
-    chiffre_choc: str
+    premier_eclairage: str
     learning_goals: List[str]
     disclaimer: str
     sources: List[str]
@@ -94,7 +94,7 @@ def _register(insert: InsertContent) -> None:
 _register(InsertContent(
     question_id="q_financial_stress_check",
     title="Ton stress financier, en clair",
-    chiffre_choc=(
+    premier_eclairage=(
         "La complexite financiere est la 1ere source de charge mentale "
         "pour les 22-45 ans en Suisse. En 30 secondes, identifie ton "
         "levier n-1 pour retrouver ton souffle."
@@ -119,7 +119,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_has_pension_fund",
     title="Affiliation LPP : es-tu couvert-e ?",
-    chiffre_choc=(
+    premier_eclairage=(
         "Le seuil d'entree LPP est de 22'680 CHF/an. En dessous, "
         "tu n'es pas affilie-e au 2e pilier — et ton plafond 3a passe "
         "de 7'258 a 36'288 CHF/an."
@@ -144,7 +144,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_has_3a",
     title="Pilier 3a : ton potentiel d'economie",
-    chiffre_choc=(
+    premier_eclairage=(
         "Un-e salarie-e qui verse le maximum 3a (7'258 CHF) peut "
         "economiser entre 1'500 et 2'800 CHF d'impots par an selon "
         "le canton — de l'argent que tu laisses a l'Etat chaque annee sans 3a."
@@ -169,7 +169,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_3a_annual_amount",
     title="Economie fiscale 3a : combien tu gagnes",
-    chiffre_choc=(
+    premier_eclairage=(
         "Ton versement 3a reduit directement ton revenu imposable. "
         "Sur 30 ans, la difference entre verser le maximum et ne rien "
         "verser peut depasser 100'000 CHF en economies d'impots cumulees."
@@ -193,7 +193,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_mortgage_type",
     title="Hypotheque : fixe, SARON ou mixte ?",
-    chiffre_choc=(
+    premier_eclairage=(
         "Sur un pret de 600'000 CHF, la difference entre un taux fixe "
         "a 2.5% et un SARON a 1.5% represente 6'000 CHF/an — mais le "
         "SARON peut monter. Stabilite vs economie : un choix de tolerance au risque."
@@ -217,7 +217,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_has_consumer_credit",
     title="Credit a la consommation : le cout reel",
-    chiffre_choc=(
+    premier_eclairage=(
         "Un credit de 10'000 CHF a 9.9% sur 3 ans coute environ "
         "1'600 CHF d'interets — soit 16% du montant emprunte. "
         "Chaque mois, une partie de tes mensualites ne rembourse "
@@ -243,7 +243,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_has_leasing",
     title="Leasing : achat deguise ou flexibilite ?",
-    chiffre_choc=(
+    premier_eclairage=(
         "Un leasing auto de 500 CHF/mois sur 4 ans coute 24'000 CHF — "
         "et a la fin tu ne possedes rien. L'achat d'un vehicule "
         "equivalent d'occasion pourrait couter 15'000 CHF au total."
@@ -267,7 +267,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_emergency_fund",
     title="Fonds d'urgence : ton filet de securite",
-    chiffre_choc=(
+    premier_eclairage=(
         "3 a 6 mois de charges fixes : c'est le filet de securite "
         "recommande. En Suisse, un-e salarie-e sur trois n'a pas "
         "d'epargne de precaution suffisante pour tenir 3 mois."
@@ -293,7 +293,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_civil_status",
     title="Etat civil : impact financier et patrimonial",
-    chiffre_choc=(
+    premier_eclairage=(
         "Un couple marie peut economiser jusqu'a 6'000 CHF/an d'impots "
         "par rapport a deux concubins selon le canton — mais ailleurs "
         "c'est l'inverse (penalite du mariage)."
@@ -322,7 +322,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_employment_status",
     title="Statut professionnel : tes droits et couvertures",
-    chiffre_choc=(
+    premier_eclairage=(
         "Un independant sans LPP volontaire peut cotiser jusqu'a "
         "36'288 CHF/an au 3a — soit 5x plus qu'un salarie (7'258 CHF). "
         "Mais il perd l'assurance invalidite LPP."
@@ -351,7 +351,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_housing_status",
     title="Logement : locataire ou proprietaire",
-    chiffre_choc=(
+    premier_eclairage=(
         "En Suisse, seuls 36% des menages sont proprietaires — le taux "
         "le plus bas d'Europe. Pourtant, un proprietaire paie en moyenne "
         "15-25% de moins par mois qu'un locataire equivalent apres 15 ans "
@@ -381,7 +381,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_canton",
     title="Canton de residence : ton premier levier fiscal",
-    chiffre_choc=(
+    premier_eclairage=(
         "Pour un revenu de 100'000 CHF, l'impot varie de ~8% a Zoug "
         "a ~30% a Geneve — soit une difference de plus de 22'000 CHF "
         "par an. Ton canton est le premier levier fiscal en Suisse."
@@ -409,7 +409,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_lpp_buyback_available",
     title="Rachat LPP : un rendement fiscal immediat",
-    chiffre_choc=(
+    premier_eclairage=(
         "Un rachat LPP de 20'000 CHF peut te faire economiser entre "
         "5'000 et 8'000 CHF d'impots l'annee meme — c'est un rendement "
         "fiscal immediat de 25 a 40%."
@@ -437,7 +437,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_3a_accounts_count",
     title="Nombre de comptes 3a : la strategie d'echelonnement",
-    chiffre_choc=(
+    premier_eclairage=(
         "Avec 5 comptes 3a retires sur 5 ans au lieu d'un seul, tu "
         "peux economiser entre 8'000 et 25'000 CHF d'impots sur le "
         "retrait — car chaque retrait est impose separement a un taux plus bas."
@@ -465,7 +465,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_has_investments",
     title="Placements : le regime fiscal suisse",
-    chiffre_choc=(
+    premier_eclairage=(
         "En Suisse, les gains en capital prives sont exoneres d'impot "
         "(LIFD art. 16 al. 3) — mais les dividendes et interets sont "
         "imposes a 100%. Placer 100'000 CHF en valeurs mobilieres peut "
@@ -494,7 +494,7 @@ _register(InsertContent(
 _register(InsertContent(
     question_id="q_real_estate_project",
     title="Projet immobilier : capacite d'emprunt et apport",
-    chiffre_choc=(
+    premier_eclairage=(
         "Pour un bien a 800'000 CHF, il te faut 160'000 CHF d'apport "
         "personnel — dont maximum 80'000 CHF de ton 2e pilier. Tes charges "
         "mensuelles theoriques seront d'environ 4'670 CHF, soit un revenu "
@@ -530,7 +530,7 @@ class EducationalContentService:
     """Serve educational insert content for wizard questions.
 
     Provides educational inserts keyed by question_id. Each insert includes
-    a chiffre choc, learning goals, disclaimer, and Swiss law sources.
+    a premier éclairage, learning goals, disclaimer, and Swiss law sources.
 
     Compliance:
         - NEVER use banned terms (garanti, certain, assure, sans risque,

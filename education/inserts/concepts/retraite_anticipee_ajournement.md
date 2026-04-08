@@ -8,7 +8,7 @@ tags: [avs, retraite, anticipation, ajournement, lavs, age_reference]
 ## Trigger
 L'utilisateur a plus de 58 ans, mentionne une retraite anticipée, ou la simulation MINT détecte un écart entre l'âge de retraite souhaité et 65 ans.
 
-## Chiffre Choc
+## Premier Éclairage
 Partir 2 ans plus tôt que prévu réduit ta rente AVS de 13.6% — à vie. Sur 20 ans de retraite, c'est plus de CHF 50'000 de rente en moins (selon rente individuelle de base).
 
 ## Niveau 0

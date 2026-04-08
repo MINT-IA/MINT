@@ -1,8 +1,9 @@
 // cantonal_benchmark_data.dart — S60 Cantonal Benchmarks
 //
 // Static reference data for all 26 Swiss cantons.
-// Source: OFS/BFS aggregated public statistics (Enquête sur le budget des ménages,
-// Statistique des revenus, Statistique fiscale).
+// Source: Estimated values calibrated to OFS/BFS public statistics
+// (Enquête sur le budget des ménages, Statistique des revenus, Statistique fiscale).
+// NOTE: These are OFS-style APPROXIMATIONS, not official OFS data extracts.
 //
 // COMPLIANCE (NON-NEGOTIABLE — CLAUDE.md §6):
 // - This is NOT user data. These are AGGREGATED public statistics.
@@ -21,7 +22,8 @@
 
 /// Aggregated public statistics for a single Swiss canton.
 ///
-/// All values are derived from OFS/BFS public data.
+/// All values are educational approximations calibrated to OFS/BFS public data.
+/// NOT official OFS extracts — orders of magnitude only.
 /// No individual user data is used or stored.
 class CantonalBenchmark {
   final String cantonCode;

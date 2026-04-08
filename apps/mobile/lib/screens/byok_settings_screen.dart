@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -210,7 +211,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
                     color: isSelected
                         ? MintColors.white.withValues(alpha: 0.7)
                         : MintColors.textMuted,
-                  ).copyWith(fontSize: 10),
+                  ),
                 ),
               ],
             ],
@@ -346,6 +347,7 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
             onPressed: byok.isLoading || _apiKeyController.text.isEmpty
                 ? null
                 : () async {
+                    HapticFeedback.lightImpact();
                     final messenger = ScaffoldMessenger.of(context);
                     await byok.saveKey(
                         _selectedProvider, _apiKeyController.text.trim());
@@ -420,9 +422,9 @@ class _ByokSettingsScreenState extends State<ByokSettingsScreen> {
               Text(
                 s.byokCopilotActivated,
                 textAlign: TextAlign.center,
-                style: MintTextStyles.headlineMedium(
+                style: MintTextStyles.titleLarge(
                   color: MintColors.white,
-                ).copyWith(fontSize: 18),
+                ),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(

@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
@@ -24,7 +25,8 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 /// PREFILL: When navigated from coach via RouteSuggestionCard,
 /// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
 /// with pre-computed values. Currently reads from CoachProfileProvider.
-/// TODO: merge prefill with profile data for coach-optimized defaults.
+/// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
+/// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
 class StaggeredWithdrawalScreen extends StatefulWidget {
   const StaggeredWithdrawalScreen({super.key});
 
@@ -41,6 +43,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   int _ageRetraitDebut = 60;
   int _ageRetraitFin = 64;
   bool _hasUserInteracted = false;
+  bool _showEmptyState = false;
 
   String? _seqRunId;
   String? _seqStepId;
@@ -93,8 +96,15 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
   void _initializeFromProfile() {
     try {
       final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
+      if (!provider.hasProfile) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
       final profile = provider.profile!;
+      if (profile.prevoyance.totalEpargne3a <= 0 && profile.revenuBrutAnnuel <= 0) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
       setState(() {
         final avoir3a = profile.prevoyance.totalEpargne3a;
         if (avoir3a > 0) {
@@ -153,8 +163,29 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final result = _result;
     final l = S.of(context)!;
+
+    if (_showEmptyState && !_hasUserInteracted) {
+      return Scaffold(
+        backgroundColor: MintColors.surface,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          surfaceTintColor: MintColors.white,
+          title: Text(l.staggered3aTitle,
+              style: MintTextStyles.headlineMedium()),
+        ),
+        body: MintEmptyState(
+          icon: Icons.schedule_outlined,
+          title: S.of(context)!.staggeredWithdrawalEmptyTitle,
+          subtitle: S.of(context)!.staggeredWithdrawalEmptySubtitle,
+          ctaLabel: S.of(context)!.staggeredWithdrawalEmptyCta,
+          onCta: () => context.push('/onboarding/quick'),
+        ),
+      );
+    }
+
+    final result = _result;
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
@@ -180,7 +211,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc
-                _buildChiffreChoc(result, l),
+                _buildPremierEclairage(result, l),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Introduction
@@ -212,7 +243,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(StaggeredWithdrawalResult result, S l) {
+  Widget _buildPremierEclairage(StaggeredWithdrawalResult result, S l) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
@@ -248,7 +279,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            '${l.staggered3aEconomie.toLowerCase()} — $_nbComptes ${l.staggered3aAns}',
+            '${l.staggered3aEconomie.toLowerCase()} \u2014 $_nbComptes ${l.staggered3aAns}',
             style: MintTextStyles.labelSmall(
               color: result.economie > 0
                   ? MintColors.categoryGreen
@@ -278,7 +309,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           const SizedBox(height: MintSpacing.sm),
           Text(
             l.staggered3aIntroBody,
-            style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5),
+            style: MintTextStyles.bodyMedium().copyWith(height: 1.5),
           ),
         ],
       ),
@@ -427,9 +458,9 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
         children: [
           Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.xs),
-          Text(subtitle, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+          Text(subtitle, style: MintTextStyles.labelMedium()),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text('CHF ${formatChf(amount)}', style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 22)),
+          Text('CHF ${formatChf(amount)}', style: MintTextStyles.headlineMedium(color: color)),
           const SizedBox(height: MintSpacing.xs),
           Text(S.of(context)!.staggered3aImpotEstime, style: MintTextStyles.labelSmall()),
         ],
@@ -462,10 +493,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               padding: const EdgeInsets.symmetric(vertical: 6),
               child: Row(
                 children: [
-                  SizedBox(width: 40, child: Text('${year.ageRetrait}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12))),
-                  Expanded(child: Text('CHF ${formatChf(year.montantRetire)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12), textAlign: TextAlign.right)),
-                  Expanded(child: Text('CHF ${formatChf(year.impotEstime)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.error, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
-                  Expanded(child: Text('CHF ${formatChf(year.montantNet)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.greenDark, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
+                  SizedBox(width: 40, child: Text('${year.ageRetrait}', style: MintTextStyles.labelMedium())),
+                  Expanded(child: Text('CHF ${formatChf(year.montantRetire)}', style: MintTextStyles.labelMedium(), textAlign: TextAlign.right)),
+                  Expanded(child: Text('CHF ${formatChf(year.impotEstime)}', style: MintTextStyles.labelMedium().copyWith(color: MintColors.error, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
+                  Expanded(child: Text('CHF ${formatChf(year.montantNet)}', style: MintTextStyles.labelMedium().copyWith(color: MintColors.greenDark, fontWeight: FontWeight.w600), textAlign: TextAlign.right)),
                 ],
               ),
             ),
@@ -474,10 +505,10 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
 
           Row(
             children: [
-              SizedBox(width: 40, child: Text(l.staggered3aTotal, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold))),
-              Expanded(child: Text('CHF ${formatChf(_avoirTotal)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
-              Expanded(child: Text('CHF ${formatChf(result.impotEchelonne)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold, color: MintColors.error), textAlign: TextAlign.right)),
-              Expanded(child: Text('CHF ${formatChf(_avoirTotal - result.impotEchelonne)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.bold, color: MintColors.greenDark), textAlign: TextAlign.right)),
+              SizedBox(width: 40, child: Text(l.staggered3aTotal, style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold))),
+              Expanded(child: Text('CHF ${formatChf(_avoirTotal)}', style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+              Expanded(child: Text('CHF ${formatChf(result.impotEchelonne)}', style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold, color: MintColors.error), textAlign: TextAlign.right)),
+              Expanded(child: Text('CHF ${formatChf(_avoirTotal - result.impotEchelonne)}', style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.bold, color: MintColors.greenDark), textAlign: TextAlign.right)),
             ],
           ),
         ],

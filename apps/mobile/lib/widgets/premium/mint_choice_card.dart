@@ -47,7 +47,7 @@ class MintChoiceCard extends StatelessWidget {
             border: Border.all(
               color: selected
                   ? effectiveColor.withValues(alpha: 0.3)
-                  : Colors.transparent,
+                  : MintColors.transparent,
               width: 1.5,
             ),
           ),

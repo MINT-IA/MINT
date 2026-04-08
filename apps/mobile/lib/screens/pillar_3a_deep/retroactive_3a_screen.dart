@@ -11,7 +11,11 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
@@ -37,6 +41,9 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
   late int _gapYears = _maxRetroactiveYears.clamp(1, _maxRetroactiveYears);
   double _tauxMarginal = 0.30;
   bool _hasLpp = true;
+  bool _showEmptyState = false;
+  final Set<String> _prefilledFields = {};
+  bool _hasUserInteracted = false;
 
   static const _taxRates = [0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50];
 
@@ -51,13 +58,65 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeFromProfile();
+      _readSequenceContext();
     });
+  }
+
+  /// Read GoRouter extra for prefill from a coach suggestion.
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
+      }
+    } catch (_) {}
+  }
+
+  /// Apply prefill values from GoRouter coach suggestion.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly → annual (13 months)
+      final annualSalary = salaireBrut.toDouble() * 13;
+      try {
+        final profile = context.read<CoachProfileProvider>().profile;
+        final cantonCode = profile?.canton ?? '';
+        final rate = RetirementTaxCalculator.estimateMarginalRate(
+          annualSalary,
+          cantonCode,
+        );
+        final closest = _taxRates.reduce((a, b) =>
+            (a - rate).abs() < (b - rate).abs() ? a : b);
+        _tauxMarginal = closest;
+        _prefilledFields.add('taux_marginal');
+        changed = true;
+      } catch (_) {}
+    }
+
+    final canton = prefill['canton'];
+    if (canton is String && canton.isNotEmpty) {
+      _prefilledFields.add('canton');
+      changed = true;
+    }
+
+    if (changed) setState(() {});
   }
 
   void _initializeFromProfile() {
     try {
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
+      final profile = provider.profile!;
+      if (profile.revenuBrutAnnuel <= 0) {
+        setState(() => _showEmptyState = true);
+        return;
+      }
       bool changed = false;
       if (profile.revenuBrutAnnuel > 0) {
         final rate = RetirementTaxCalculator.estimateMarginalRate(
@@ -85,8 +144,76 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     }
   }
 
+  /// Write back retroactive 3a calculation results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
+              ? profile.prevoyance.totalEpargne3a
+              : null,
+          projectedRenteLpp: result.economiesFiscales > 0
+              ? result.economiesFiscales
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_showEmptyState) {
+      return Scaffold(
+        backgroundColor: MintColors.white,
+        appBar: AppBar(
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: Text(S.of(context)!.retroactive3aTitle,
+              style: MintTextStyles.titleMedium()),
+        ),
+        body: MintEmptyState(
+          icon: Icons.savings_outlined,
+          title: S.of(context)!.retroactive3aEmptyTitle,
+          subtitle: S.of(context)!.retroactive3aEmptySubtitle,
+          ctaLabel: S.of(context)!.retroactive3aEmptyCta,
+          onCta: () => context.push('/onboarding/quick'),
+        ),
+      );
+    }
     final result = _result;
 
     return Scaffold(
@@ -113,24 +240,33 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // 0. Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeRetroactive3aHeadline,
+                  body: S.of(context)!.narrativeRetroactive3aBody,
+                  tone: MintSurfaceTone.sauge,
+                  badge: S.of(context)!.narrativeRetroactive3aBadge,
+                )),
+                const SizedBox(height: MintSpacing.lg),
+
                 // 1. Hero Card
-                MintEntrance(child: _buildHeroCard()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeroCard()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 2. Input Section
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
-                // 3. Chiffre Choc
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChiffreChocCard(result)),
+                // 3. Premier Éclairage
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPremierEclairageCard(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 4. Breakdown
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildBreakdownSection(result)),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBreakdownSection(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 5. Avant / Apres
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildImpactComparison(result)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildImpactComparison(result)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 6. Action Cards
@@ -223,7 +359,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 return ChoiceChip(
                   label: Text('$year'),
                   selected: isSelected,
-                  onSelected: (_) => setState(() => _gapYears = year),
+                  onSelected: (_) {
+                    setState(() { _hasUserInteracted = true; _gapYears = year; });
+                    WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                  },
                   selectedColor: MintColors.primary.withValues(alpha: 0.15),
                   backgroundColor: MintColors.surface,
                   labelStyle: MintTextStyles.bodySmall(
@@ -246,9 +385,19 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                S.of(context)!.retroactive3aTauxMarginal,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    S.of(context)!.retroactive3aTauxMarginal,
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                  ),
+                  if (_prefilledFields.contains('taux_marginal'))
+                    const SmartDefaultIndicator(
+                      source: 'Depuis ton profil MINT',
+                      confidence: 0.60,
+                    ),
+                ],
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 4, vertical: MintSpacing.xs),
@@ -269,7 +418,10 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                             ))
                         .toList(),
                     onChanged: (v) {
-                      if (v != null) setState(() => _tauxMarginal = v);
+                      if (v != null) {
+                        setState(() { _hasUserInteracted = true; _tauxMarginal = v; });
+                        WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                      }
                     },
                   ),
                 ),
@@ -312,39 +464,16 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
     );
   }
 
-  // ── 3. Chiffre Choc Card ──────────────────────────────────────
+  // ── 3. Premier Éclairage Card ──────────────────────────────────────
 
-  Widget _buildChiffreChocCard(Retroactive3aResult result) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.xl - 4),
-      decoration: BoxDecoration(
-        color: MintColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        children: [
-          Text(
-            S.of(context)!.retroactive3aEconomiesFiscales,
-            style: MintTextStyles.labelSmall(color: MintColors.white60)
-                .copyWith(fontWeight: FontWeight.w700, letterSpacing: 1.0),
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Semantics(
-            label: 'CHF ${formatChf(result.economiesFiscales)}',
-            child: Text(
-              'CHF\u00a0${formatChf(result.economiesFiscales)}',
-              style: MintTextStyles.displayMedium(color: MintColors.white),
-            ),
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          Text(
-            result.chiffreChoc,
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodySmall(color: MintColors.white70),
-          ),
-        ],
-      ),
+  Widget _buildPremierEclairageCard(Retroactive3aResult result) {
+    return MintResultHeroCard(
+      eyebrow: S.of(context)!.retroactive3aEconomiesFiscales,
+      primaryValue: 'CHF\u00a0${formatChf(result.economiesFiscales)}',
+      primaryLabel: S.of(context)!.retroactive3aSavingsLabel,
+      narrative: result.premierEclairage,
+      accentColor: MintColors.success,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

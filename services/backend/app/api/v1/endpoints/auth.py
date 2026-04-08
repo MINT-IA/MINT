@@ -11,6 +11,7 @@ import csv
 import io
 from fastapi import APIRouter, HTTPException, Depends, Request, status
 from fastapi import Query
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -38,6 +39,8 @@ from app.schemas.auth import (
     TokenResponse,
     UserResponse,
     RefreshTokenRequest,
+    LogoutRequest,
+    LogoutResponse,
     EmailVerificationRequest,
     EmailVerificationConfirmRequest,
     EmailVerificationRequestResponse,
@@ -52,6 +55,12 @@ from app.schemas.auth import (
     AuthAdminPurgeUnverifiedResponse,
     AuthAdminOnboardingQualityResponse,
     AuthAdminOnboardingCohortsResponse,
+    MagicLinkSendRequest,
+    MagicLinkSendResponse,
+    MagicLinkVerifyRequest,
+    MagicLinkVerifyResponse,
+    AppleVerifyRequest,
+    AppleVerifyResponse,
 )
 from app.services.auth_service import (
     hash_password,
@@ -59,6 +68,9 @@ from app.services.auth_service import (
     create_access_token,
     create_refresh_token,
     decode_refresh_token,
+    decode_token,
+    blacklist_token,
+    is_jti_blacklisted,
 )
 from app.services.audit_service import log_audit_event as _raw_log_audit_event
 from app.services.auth_security_service import (
@@ -102,7 +114,8 @@ def log_audit_event(*args, **kwargs) -> None:
 def _request_ip(request: Request) -> Optional[str]:
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
-        return forwarded.split(",")[0].strip()
+        # Use RIGHTMOST IP — closest to the server, hardest to spoof
+        return forwarded.split(",")[-1].strip()
     return request.client.host if request.client else None
 
 
@@ -176,11 +189,20 @@ def register_user(
         updated_at=datetime.now(timezone.utc),
     )
 
-    db.add(new_user)
+    # FIX-063: Handle concurrent registration with same email.
+    from sqlalchemy.exc import IntegrityError as SAIntegrityError
+    try:
+        db.add(new_user)
+        db.flush()  # trigger IntegrityError early if email exists
+    except SAIntegrityError:  # pragma: no cover — concurrent race only
+        db.rollback()  # pragma: no cover
+        raise HTTPException(  # pragma: no cover
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Un utilisateur avec cet email existe déjà",
+        )
     verification_required = _email_verification_required()
     verification_token: Optional[str] = None
     verification_email_sent = False
-    _email_infra_failed = False
     if verification_required:
         try:
             verification_token = issue_email_verification_token(db, new_user.id)
@@ -189,19 +211,16 @@ def register_user(
                 token=verification_token,
             )
         except Exception as exc:
-            # Fail-soft: user gets tokens but email_verified stays False.
-            # The mobile shows a verification banner.
-            # We still create the user and issue tokens (UX requirement),
-            # but mark email_verification_required so the client can prompt.
+            # Degrade gracefully: never block registration on email-verification
+            # infrastructure issues (missing table/migration, SMTP, etc.).
             logger.warning(
                 "Email verification bootstrap failed during register; "
-                "continuing with tokens but email_verified=False: %s",
+                "continuing without mandatory verification: %s",
                 exc,
             )
             verification_required = False
             verification_token = None
             verification_email_sent = False
-            _email_infra_failed = True
     log_audit_event(
         db,
         event_type="auth.register",
@@ -240,7 +259,7 @@ def register_user(
             requires_email_verification=True,
         )
 
-    # Generate tokens — user always gets access (fail-soft pattern).
+    # Generate tokens
     token = create_access_token(new_user.id, new_user.email)
     refresh = create_refresh_token(new_user.id)
 
@@ -252,9 +271,7 @@ def register_user(
         user_id=new_user.id,
         email=new_user.email,
         email_verified=bool(new_user.email_verified),
-        # Fail-soft: when email infra failed, tell the client verification
-        # is still required so it can show a "Vérifie ton email" banner.
-        requires_email_verification=_email_infra_failed,
+        requires_email_verification=False,
     )
 
 
@@ -397,6 +414,24 @@ def refresh_access_token(
             detail="Refresh token invalide ou expiré",
         )
 
+    # SECURITY: Check if this refresh token's JTI has been blacklisted (replay attack).
+    refresh_jti = payload.get("jti")
+    if refresh_jti and is_jti_blacklisted(db, refresh_jti):
+        log_audit_event(
+            db,
+            event_type="auth.refresh",
+            status="failed",
+            source="api",
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={"reason": "refresh_token_reused"},
+        )
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token déjà utilisé",
+        )
+
     user = db.query(User).filter(User.id == payload["user_id"]).first()
     if not user:
         log_audit_event(
@@ -413,6 +448,14 @@ def refresh_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Utilisateur non trouvé",
         )
+
+    # SECURITY: Blacklist the consumed refresh token BEFORE issuing new ones.
+    # This ensures single-use rotation: each refresh token can only be used once.
+    if refresh_jti:
+        from datetime import datetime, timezone
+        refresh_exp = payload.get("exp")
+        exp_dt = datetime.fromtimestamp(refresh_exp, tz=timezone.utc) if refresh_exp else datetime.now(timezone.utc)
+        blacklist_token(db, refresh_jti, exp_dt)
 
     # Rotate: issue new access + refresh tokens
     new_access = create_access_token(user.id, user.email)
@@ -438,6 +481,70 @@ def refresh_access_token(
         email=user.email,
         email_verified=bool(user.email_verified),
     )
+
+
+_security_scheme = HTTPBearer(auto_error=False)
+
+
+@router.post("/logout", response_model=LogoutResponse)
+@limiter.limit("30/minute")
+def logout(
+    request: Request,
+    body: LogoutRequest = None,
+    credentials: HTTPAuthorizationCredentials = Depends(_security_scheme),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> LogoutResponse:
+    """
+    Logout by blacklisting the current token's JTI.
+
+    The token will be rejected on subsequent requests until it naturally expires,
+    at which point the blacklist entry is eligible for cleanup.
+
+    Optionally accepts a LogoutRequest body with refresh_token to blacklist both tokens.
+    """
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token requis",
+        )
+
+    payload = decode_token(credentials.credentials)
+    if payload is None or "jti" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token invalide",
+        )
+
+    expires_at = datetime.fromtimestamp(payload["exp"], tz=timezone.utc)
+    blacklist_token(db, payload["jti"], expires_at)
+
+    # SECURITY: Also blacklist the refresh token if provided via typed schema.
+    # This prevents the refresh token from being reused after logout.
+    if body and body.refresh_token:
+        refresh_payload = decode_refresh_token(body.refresh_token)
+        if refresh_payload and refresh_payload.get("jti"):
+            r_exp = refresh_payload.get("exp")
+            r_exp_dt = (
+                datetime.fromtimestamp(r_exp, tz=timezone.utc)
+                if r_exp
+                else datetime.now(timezone.utc)
+            )
+            blacklist_token(db, refresh_payload["jti"], r_exp_dt)
+
+    log_audit_event(
+        db,
+        event_type="auth.logout",
+        status="success",
+        source="api",
+        user_id=current_user.id,
+        actor_email=current_user.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
+
+    return LogoutResponse(status="logged_out")
 
 
 @router.post("/password-reset/request", response_model=PasswordResetRequestResponse)
@@ -536,6 +643,9 @@ def confirm_password_reset(
 
     user.hashed_password = hash_password(body.new_password)
     user.updated_at = datetime.now(timezone.utc)
+    # FIX-049: Invalidate all existing tokens by setting password_changed_at.
+    # Tokens issued before this timestamp are rejected by get_current_user().
+    user.password_changed_at = datetime.now(timezone.utc)
     clear_failed_logins(db, user.email)
     log_audit_event(
         db,
@@ -680,7 +790,9 @@ def confirm_email_verification(
 
 
 @router.get("/admin/observability", response_model=AuthAdminObservabilityResponse)
+@limiter.limit("5/minute")
 def auth_admin_observability(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> AuthAdminObservabilityResponse:
@@ -699,6 +811,7 @@ def auth_admin_observability(
     "/admin/purge-unverified",
     response_model=AuthAdminPurgeUnverifiedResponse,
 )
+@limiter.limit("5/minute")
 def auth_admin_purge_unverified(
     request: Request,
     body: AuthAdminPurgeUnverifiedRequest,
@@ -740,7 +853,9 @@ def auth_admin_purge_unverified(
 
 
 @router.get("/admin/cohorts/export.csv")
+@limiter.limit("5/minute")
 def auth_admin_export_cohorts_csv(
+    request: Request,
     days: int = Query(default=30, ge=1, le=365),
     start_date: Optional[date] = Query(default=None),
     end_date: Optional[date] = Query(default=None),
@@ -800,7 +915,9 @@ def auth_admin_export_cohorts_csv(
     "/admin/onboarding-quality",
     response_model=AuthAdminOnboardingQualityResponse,
 )
+@limiter.limit("5/minute")
 def auth_admin_onboarding_quality(
+    request: Request,
     days: int = Query(default=30, ge=1, le=365),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -817,7 +934,9 @@ def auth_admin_onboarding_quality(
     "/admin/onboarding-quality/cohorts",
     response_model=AuthAdminOnboardingCohortsResponse,
 )
+@limiter.limit("5/minute")
 def auth_admin_onboarding_quality_cohorts(
+    request: Request,
     days: int = Query(default=30, ge=1, le=365),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -831,7 +950,9 @@ def auth_admin_onboarding_quality_cohorts(
 
 
 @router.get("/me", response_model=UserResponse)
+@limiter.limit("30/minute")
 def get_current_user_info(
+    request: Request,
     current_user: User = Depends(require_current_user),
 ) -> UserResponse:
     """
@@ -853,8 +974,10 @@ def get_current_user_info(
 
 
 @router.delete("/account", response_model=DeleteAccountResponse)
+@limiter.limit("5/minute")
 def delete_account(
     request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(_security_scheme),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> DeleteAccountResponse:
@@ -867,69 +990,144 @@ def delete_account(
     """
     user_id = current_user.id
 
-    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
-    profile_ids = [p.id for p in profiles]
-    deleted_profiles = len(profile_ids)
-    deleted_sessions = 0
-    if profile_ids:
-        deleted_sessions = (
-            db.query(SessionModel)
-            .filter(SessionModel.profile_id.in_(profile_ids))
-            .count()
+    # P0-3: Blacklist the current access token BEFORE deleting user data.
+    # Prevents the token from being reused after account deletion.
+    if credentials:
+        access_payload = decode_token(credentials.credentials)
+        if access_payload and access_payload.get("jti"):
+            a_exp = access_payload.get("exp")
+            a_exp_dt = (
+                datetime.fromtimestamp(a_exp, tz=timezone.utc)
+                if a_exp
+                else datetime.now(timezone.utc)
+            )
+            blacklist_token(db, access_payload["jti"], a_exp_dt)
+
+    # W12: Wrap all deletions in explicit transaction with rollback on failure.
+    try:
+        profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).all()
+        profile_ids = [p.id for p in profiles]
+        deleted_profiles = len(profile_ids)
+        deleted_sessions = 0
+        if profile_ids:
+            deleted_sessions = (
+                db.query(SessionModel)
+                .filter(SessionModel.profile_id.in_(profile_ids))
+                .delete(synchronize_session=False)
+            )
+
+            # Purge scenarios linked to the user's profiles
+            from app.models.scenario import ScenarioModel
+            db.query(ScenarioModel).filter(
+                ScenarioModel.profile_id.in_(profile_ids)
+            ).delete(synchronize_session=False)
+
+        # Purge snapshots linked to the user
+        from app.models.snapshot import SnapshotModel
+        db.query(SnapshotModel).filter(
+            SnapshotModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        anonymized_analytics_events = (
+            db.query(AnalyticsEvent)
+            .filter(AnalyticsEvent.user_id == user_id)
+            .update({AnalyticsEvent.user_id: None}, synchronize_session=False)
         )
 
-    anonymized_analytics_events = (
-        db.query(AnalyticsEvent)
-        .filter(AnalyticsEvent.user_id == user_id)
-        .update({AnalyticsEvent.user_id: None}, synchronize_session=False)
-    )
-
-    # Purge auth-security artifacts
-    db.query(LoginSecurityStateModel).filter(
-        LoginSecurityStateModel.email == current_user.email
-    ).delete(synchronize_session=False)
-    db.query(PasswordResetTokenModel).filter(
-        PasswordResetTokenModel.user_id == user_id
-    ).delete(synchronize_session=False)
-    db.query(EmailVerificationTokenModel).filter(
-        EmailVerificationTokenModel.user_id == user_id
-    ).delete(synchronize_session=False)
-
-    # Purge billing artifacts linked to the account
-    sub_ids = [
-        sub_id
-        for (sub_id,) in db.query(SubscriptionModel.id)
-        .filter(SubscriptionModel.user_id == user_id)
-        .all()
-    ]
-    db.query(EntitlementModel).filter(
-        EntitlementModel.user_id == user_id
-    ).delete(synchronize_session=False)
-    if sub_ids:
-        db.query(BillingTransactionModel).filter(
-            BillingTransactionModel.subscription_id.in_(sub_ids)
+        # Purge auth-security artifacts
+        db.query(LoginSecurityStateModel).filter(
+            LoginSecurityStateModel.email == current_user.email
         ).delete(synchronize_session=False)
-        db.query(SubscriptionModel).filter(
-            SubscriptionModel.id.in_(sub_ids)
+        db.query(PasswordResetTokenModel).filter(
+            PasswordResetTokenModel.user_id == user_id
         ).delete(synchronize_session=False)
-    log_audit_event(
-        db,
-        event_type="auth.account_delete",
-        status="success",
-        source="api",
-        user_id=user_id,
-        actor_email=current_user.email,
-        ip_address=_request_ip(request),
-        user_agent=request.headers.get("user-agent"),
-        details={
-            "deleted_profiles": deleted_profiles,
-            "deleted_sessions": deleted_sessions,
-            "anonymized_analytics_events": anonymized_analytics_events,
-        },
-    )
+        db.query(EmailVerificationTokenModel).filter(
+            EmailVerificationTokenModel.user_id == user_id
+        ).delete(synchronize_session=False)
 
-    db.delete(current_user)
-    db.commit()
+        # Purge billing artifacts linked to the account
+        sub_ids = [
+            sub_id
+            for (sub_id,) in db.query(SubscriptionModel.id)
+            .filter(SubscriptionModel.user_id == user_id)
+            .all()
+        ]
+        db.query(EntitlementModel).filter(
+            EntitlementModel.user_id == user_id
+        ).delete(synchronize_session=False)
+        if sub_ids:
+            db.query(BillingTransactionModel).filter(
+                BillingTransactionModel.subscription_id.in_(sub_ids)
+            ).delete(synchronize_session=False)
+            db.query(SubscriptionModel).filter(
+                SubscriptionModel.id.in_(sub_ids)
+            ).delete(synchronize_session=False)
+        log_audit_event(
+            db,
+            event_type="auth.account_delete",
+            status="success",
+            source="api",
+            user_id=user_id,
+            actor_email=current_user.email,
+            ip_address=_request_ip(request),
+            user_agent=request.headers.get("user-agent"),
+            details={
+                "deleted_profiles": deleted_profiles,
+                "deleted_sessions": deleted_sessions,
+                "anonymized_analytics_events": anonymized_analytics_events,
+            },
+        )
+
+        # P0-2: Purge conversation memory — consents (including conversation_memory consent)
+        from app.models.consent import ConsentModel
+        db.query(ConsentModel).filter(
+            ConsentModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        # P0-2: Purge banking consents
+        from app.models.banking_consent import BankingConsentModel
+        db.query(BankingConsentModel).filter(
+            BankingConsentModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        # P0-2: Purge household memberships (coach memory via household partner link)
+        from app.models.household import HouseholdMemberModel
+        db.query(HouseholdMemberModel).filter(
+            HouseholdMemberModel.user_id == user_id
+        ).delete(synchronize_session=False)
+
+        # FIX-067 nLPD: Purge user embeddings from pgvector (RAG memory/insights).
+        # Orphaned embeddings would persist user data after account deletion.
+        # This covers both document embeddings AND coach insight memories
+        # (doc_type='memory' stored via insight_embedder).
+        # Uses raw SQL via SQLAlchemy to avoid sync-in-async asyncio pitfalls
+        # (asyncio.get_event_loop().run_until_complete is unsafe in ASGI workers).
+        try:  # pragma: no cover — requires PostgreSQL with pgvector
+            from sqlalchemy import text as sa_text  # pragma: no cover
+            db.execute(  # pragma: no cover
+                sa_text(
+                    "DELETE FROM document_embeddings "
+                    "WHERE metadata::jsonb->>'user_id' = :uid"
+                ),
+                {"uid": user_id},
+            )
+        except Exception as exc:
+            logger.warning("Failed to purge embeddings for user %s: %s", user_id[:8], exc)
+
+        # FIX-181 nLPD: Purge document records BEFORE deleting user (atomic).
+        # If purge fails, abort — never leave orphaned user data.
+        from app.models.document import DocumentModel
+        db.query(DocumentModel).filter(DocumentModel.user_id == user_id).delete()
+
+        db.delete(current_user)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logger.error("Account deletion failed for user %s: %s", user_id, e)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Account deletion failed. Please try again or contact support.",
+        )
 
     return DeleteAccountResponse(
         status="deleted",
@@ -937,4 +1135,201 @@ def delete_account(
         deleted_profiles=deleted_profiles,
         deleted_sessions=deleted_sessions,
         anonymized_analytics_events=anonymized_analytics_events,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Magic Link Authentication (passwordless)
+# ---------------------------------------------------------------------------
+
+@router.post("/magic-link/send", response_model=MagicLinkSendResponse)
+@limiter.limit("5/minute")
+def magic_link_send(
+    request: Request,
+    body: MagicLinkSendRequest,
+    db: Session = Depends(get_db),
+) -> MagicLinkSendResponse:
+    """
+    Send a magic link to the given email address.
+
+    Always returns 200 regardless of whether the email exists in the DB
+    (prevents user enumeration — T-01-04).
+
+    Rate limited to 5 requests/minute per IP (T-01-05).
+    """
+    from app.services.magic_link_service import MagicLinkService
+
+    service = MagicLinkService(db)
+    token = service.generate_token(body.email)
+    service.send_magic_link_email(body.email, token)
+
+    log_audit_event(
+        db,
+        event_type="auth.magic_link_send",
+        status="success",
+        source="api",
+        actor_email=body.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+
+    return MagicLinkSendResponse(
+        message="Si un compte existe avec cet email, un lien de connexion a été envoyé."
+    )
+
+
+@router.post("/magic-link/verify", response_model=MagicLinkVerifyResponse)
+@limiter.limit("5/minute")
+def magic_link_verify(
+    request: Request,
+    body: MagicLinkVerifyRequest,
+    db: Session = Depends(get_db),
+) -> MagicLinkVerifyResponse:
+    """
+    Verify a magic link token and return a JWT access token.
+
+    Token must be valid, not expired (15 min), and not already used (single-use).
+    If the email has no account, one is auto-created (frictionless onboarding — T-01-06).
+
+    Rate limited to 5 requests/minute per IP (T-01-02).
+    """
+    from app.services.magic_link_service import MagicLinkService
+
+    service = MagicLinkService(db)
+    user = service.verify_token(body.token)
+
+    # Create JWT
+    token = create_access_token(user.id, user.email)
+
+    log_audit_event(
+        db,
+        event_type="auth.magic_link_verify",
+        status="success",
+        source="api",
+        user_id=user.id,
+        actor_email=user.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
+
+    return MagicLinkVerifyResponse(
+        access_token=token,
+        token_type="bearer",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Apple Sign-In Authentication
+# ---------------------------------------------------------------------------
+
+@router.post("/apple/verify", response_model=AppleVerifyResponse)
+@limiter.limit("5/minute")
+def apple_verify(
+    request: Request,
+    body: AppleVerifyRequest,
+    db: Session = Depends(get_db),
+) -> AppleVerifyResponse:
+    """
+    Verify an Apple identity token and return a JWT access token.
+
+    MVP verification: decode JWT payload and check issuer + audience.
+    Production: validate signature against Apple's public keys
+    (https://appleid.apple.com/auth/keys).
+
+    Rate limited to 5 requests/minute per IP (T-01-11).
+    """
+    import base64
+    import json as _json
+
+    # Decode Apple identity token (JWT) without signature verification (MVP).
+    # Production should verify against Apple's JWKS endpoint.
+    try:
+        # Apple identity tokens are standard JWTs (header.payload.signature)
+        parts = body.identity_token.split(".")
+        if len(parts) != 3:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid Apple identity token format",
+            )
+
+        # Decode payload (base64url)
+        payload_b64 = parts[1]
+        # Add padding if needed
+        padding = 4 - len(payload_b64) % 4
+        if padding != 4:
+            payload_b64 += "=" * padding
+        payload_bytes = base64.urlsafe_b64decode(payload_b64)
+        payload = _json.loads(payload_bytes)
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Failed to decode Apple identity token",
+        )
+
+    # T-01-11: Verify issuer
+    if payload.get("iss") != "https://appleid.apple.com":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Apple token issuer",
+        )
+
+    # T-01-12: Check token expiry
+    import time
+    token_exp = payload.get("exp", 0)
+    if token_exp < time.time():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Apple identity token expired",
+        )
+
+    # Extract Apple user info
+    apple_sub = payload.get("sub")  # Apple user ID (stable)
+    apple_email = payload.get("email", "")
+
+    if not apple_sub:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Apple identity token missing subject",
+        )
+
+    # Find or create user by email (or Apple sub as fallback identifier)
+    user = None
+    if apple_email:
+        user = db.query(User).filter(User.email == apple_email).first()
+
+    if user is None:
+        # Auto-create user (frictionless onboarding, same pattern as magic link)
+        user = User(
+            id=str(uuid4()),
+            email=apple_email or f"apple_{apple_sub}@privaterelay.appleid.com",
+            hashed_password="",  # No password for Apple Sign-In users
+            email_verified=True,  # Apple verifies email
+            created_at=datetime.now(timezone.utc),
+        )
+        db.add(user)
+        db.flush()
+
+    # Create JWT
+    access_token = create_access_token(user.id, user.email)
+
+    log_audit_event(
+        db,
+        event_type="auth.apple_verify",
+        status="success",
+        source="api",
+        user_id=user.id,
+        actor_email=user.email,
+        ip_address=_request_ip(request),
+        user_agent=request.headers.get("user-agent"),
+    )
+    db.commit()
+
+    return AppleVerifyResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user_id=user.id,
+        email=user.email,
     )

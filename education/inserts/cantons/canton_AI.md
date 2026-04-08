@@ -11,7 +11,7 @@ source: "Administration fiscale du canton d'Appenzell Rhodes-Intérieures"
 ## Trigger
 L'utilisateur réside en Appenzell Rhodes-Intérieures ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale en Appenzell Rhodes-Intérieures est très compétitive pour les revenus modestes : le multiplicateur cantonal se situe autour de 95 %.
 
 ## Niveau 0

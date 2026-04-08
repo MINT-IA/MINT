@@ -14,6 +14,7 @@ export 'cross_pillar_calculator.dart';
 export 'bayesian_enricher.dart';
 export 'coach_reasoner.dart';
 export 'confidence_scorer.dart';
+export 'couple_optimizer.dart';
 export 'fri_calculator.dart';
 export 'housing_cost_calculator.dart';
 export 'lpp_calculator.dart';

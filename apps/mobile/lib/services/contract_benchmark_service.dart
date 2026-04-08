@@ -34,61 +34,83 @@ class EnrichedAlert {
   });
 }
 
+/// Callback for localizing benchmark messages.
+/// When null, French defaults are used (appropriate for coach LLM context).
+typedef BenchmarkLocalizer = String Function(String key, Map<String, String> params);
+
 /// Enriches contract alerts with benchmark comparisons.
 class ContractBenchmarkService {
   ContractBenchmarkService._();
 
   /// Enrich active alerts with benchmark data from the user's profile.
+  ///
+  /// [localizer] — optional callback for i18n. When null, uses French defaults
+  /// (suitable when the message feeds into the coach LLM prompt, not shown
+  /// directly to the user).
   static Future<List<EnrichedAlert>> enrichAlerts({
     required CoachProfile profile,
+    BenchmarkLocalizer? localizer,
     DateTime? now,
   }) async {
     final alerts = await ContractAlertService.getActiveAlerts(now);
     if (alerts.isEmpty) return [];
 
-    return alerts.map((d) => _enrich(d, profile)).toList();
+    return alerts.map((d) => _enrich(d, profile, localizer)).toList();
   }
 
-  static EnrichedAlert _enrich(ContractDeadline d, CoachProfile profile) {
+  static EnrichedAlert _enrich(
+    ContractDeadline d, CoachProfile profile, BenchmarkLocalizer? l,
+  ) {
     return switch (d.documentType) {
-      'lease_contract' => _enrichLease(d, profile),
-      'insurance_contract' => _enrichInsurance(d, profile),
-      'lpp_certificate' => _enrichLpp(d, profile),
+      'lease_contract' => _enrichLease(d, profile, l),
+      'insurance_contract' => _enrichInsurance(d, profile, l),
+      'lpp_certificate' => _enrichLpp(d, profile, l),
       _ => EnrichedAlert(deadline: d),
     };
   }
 
-  static EnrichedAlert _enrichLease(ContractDeadline d, CoachProfile profile) {
+  static EnrichedAlert _enrichLease(
+    ContractDeadline d, CoachProfile profile, BenchmarkLocalizer? l,
+  ) {
     final loyer = profile.depenses.loyer;
     if (loyer <= 0) return EnrichedAlert(deadline: d);
 
-    // Compare rent to cantonal average (educational estimate)
     final avgRent = _cantonalAverageRent(profile.canton);
     final diff = loyer - avgRent;
 
     return EnrichedAlert(
       deadline: d,
       benchmarkMessage: diff > 200
-          ? 'Ton loyer est CHF\u00a0${loyer.round()}/mois. '
-            'La moyenne cantonale (${profile.canton}) est ~CHF\u00a0${avgRent.round()}.'
+          ? (l != null
+              ? l('benchmarkLeaseAboveAverage', {
+                  'rent': loyer.round().toString(),
+                  'canton': profile.canton,
+                  'average': avgRent.round().toString(),
+                })
+              : 'Ton loyer est CHF\u00a0${loyer.round()}/mois. '
+                'La moyenne cantonale (${profile.canton}) est ~CHF\u00a0${avgRent.round()}. '
+                'Ce chiffre est indicatif (source\u00a0: OFS 2023).')
           : null,
-      estimatedMonthlySavings: diff > 200 ? diff : null,
-      actionRoute: '/mortgage/amortization',
+      actionRoute: '/budget',
     );
   }
 
   static EnrichedAlert _enrichInsurance(
-    ContractDeadline d, CoachProfile profile,
+    ContractDeadline d, CoachProfile profile, BenchmarkLocalizer? l,
   ) {
     return EnrichedAlert(
       deadline: d,
-      benchmarkMessage: 'Vérifie si ta couverture est toujours adaptée '
-          'à ta situation actuelle.',
+      benchmarkMessage: l != null
+          ? l('benchmarkInsuranceCheck', {})
+          : 'Vérifie si ta couverture est toujours adaptée '
+            'à ta situation actuelle.',
       actionRoute: '/assurances/lamal',
     );
   }
 
-  static EnrichedAlert _enrichLpp(ContractDeadline d, CoachProfile profile) {
+  static EnrichedAlert _enrichLpp(
+    ContractDeadline d, CoachProfile profile, BenchmarkLocalizer? l,
+  ) {
     final avoir = profile.prevoyance.avoirLppTotal;
     if (avoir == null || avoir <= 0) return EnrichedAlert(deadline: d);
 
@@ -96,9 +118,12 @@ class ContractBenchmarkService {
     if (rachat != null && rachat > 10000) {
       return EnrichedAlert(
         deadline: d,
-        benchmarkMessage: 'Tu as un potentiel de rachat LPP '
-            'de ~CHF\u00a0${rachat.round()}. '
-            'C\u2019est une opportunité d\u2019optimisation fiscale.',
+        benchmarkMessage: l != null
+            ? l('benchmarkLppBuyback', {'amount': rachat.round().toString()})
+            : 'Tu as un potentiel de rachat LPP '
+              'de ~CHF\u00a0${rachat.round()}. '
+              'Un rachat pourrait réduire ton imposition — '
+              'à vérifier avec ta caisse (art.\u00a079b LPP, blocage EPL 3\u00a0ans).',
         actionRoute: '/rachat-lpp',
       );
     }

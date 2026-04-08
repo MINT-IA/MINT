@@ -4,9 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 /// "Futur" panel of the triptyque layout — retirement income projection.
 ///
@@ -31,6 +33,14 @@ class FuturProjectionCard extends StatelessWidget {
   final double disposableActuel;
   final double? disposableCouple;
   final double confidenceScore;
+
+  /// Optional 4-axis confidence (Plan 08a-02 Batch B). When non-null it is
+  /// rendered via [MintTrameConfiance.inline] at the MUJI line-4 slot.
+  /// When null the card synthesises one from [confidenceScore] via
+  /// [EnhancedConfidence.fromBareScore] so existing single-caller wiring
+  /// keeps working unchanged.
+  final EnhancedConfidence? confidence;
+
   final VoidCallback? onDetailTap;
 
   const FuturProjectionCard({
@@ -52,8 +62,12 @@ class FuturProjectionCard extends StatelessWidget {
     required this.disposableActuel,
     this.disposableCouple,
     required this.confidenceScore,
+    this.confidence,
     this.onDetailTap,
   });
+
+  EnhancedConfidence get _resolvedConfidence =>
+      confidence ?? EnhancedConfidence.fromBareScore(confidenceScore);
 
   bool get _isCouple => conjointFirstName != null;
 
@@ -122,7 +136,17 @@ class FuturProjectionCard extends StatelessWidget {
           _buildIncomeSection(l),
           const Divider(height: 1, indent: 16, endIndent: 16),
           _buildCapitalSection(l),
-          if (confidenceScore < 70) _buildUncertaintyBand(l),
+          _buildUncertaintyBand(l),
+          // MintTrameConfiance (Plan 08a-02 Batch B) — MUJI line-4 slot.
+          // Replaces the legacy confidence KPI tile + local color tiers.
+          // firstAppearance because this is a card detail, not a feed item.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: MintTrameConfiance.inline(
+              confidence: _resolvedConfidence,
+              bloomStrategy: BloomStrategy.firstAppearance,
+            ),
+          ),
           _buildFootnote(l),
           if (onDetailTap != null) _buildDetailCta(l),
           if (onDetailTap == null) const SizedBox(height: 8),
@@ -185,16 +209,9 @@ class FuturProjectionCard extends StatelessWidget {
             '$ageRetraite ans',
             MintColors.info,
           ),
-          const SizedBox(width: 8),
-          _kpiCard(
-            l.futurConfiance,
-            '${confidenceScore.toStringAsFixed(0)}%',
-            confidenceScore >= 70
-                ? MintColors.success
-                : confidenceScore >= 40
-                    ? MintColors.warning
-                    : MintColors.error,
-          ),
+          // Confidence KPI tile removed (Plan 08a-02 Batch B): the
+          // MintTrameConfiance.inline at the MUJI line-4 slot now carries
+          // confidence. No more local color tiers in this file.
         ],
       ),
     );
@@ -213,7 +230,7 @@ class FuturProjectionCard extends StatelessWidget {
           children: [
             Text(
               value,
-              style: MintTextStyles.bodyLarge(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+              style: MintTextStyles.bodyLarge(color: color).copyWith(fontWeight: FontWeight.w800),
             ),
             const SizedBox(height: 2),
             Text(
@@ -325,12 +342,12 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ),
               Text(
                 'CHF ${_fmtChf(monthly)}/mois',
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -362,12 +379,12 @@ class FuturProjectionCard extends StatelessWidget {
               _isCouple
                   ? l.futurTotalCoupleProjecte
                   : l.futurTotalMensuelProjecte,
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Text(
             'CHF ${_fmtChf(_totalMonthlyProjected)}/mois',
-            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -389,7 +406,7 @@ class FuturProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.futurCapitalTotal,
-                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
               Text(
@@ -501,7 +518,7 @@ class FuturProjectionCard extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   l.futurExplorerDetails,
-                  style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),

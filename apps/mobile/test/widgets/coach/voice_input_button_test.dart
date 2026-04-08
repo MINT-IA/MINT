@@ -98,7 +98,10 @@ Widget _buildApp(Widget child) {
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    // Pre-mark voice disclosure as shown to skip the consent dialog in tests.
+    SharedPreferences.setMockInitialValues({
+      '_voice_disclosure_shown': true,
+    });
   });
 
   group('VoiceInputButton', () {

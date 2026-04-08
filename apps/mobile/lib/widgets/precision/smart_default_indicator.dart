@@ -77,6 +77,10 @@ class SmartDefaultIndicator extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -160,7 +164,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                       children: [
                         Text(
                           'Fiabilite : $confidencePct %',
-                          style: MintTextStyles.bodySmall(color: _confidenceColor(confidence)).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                          style: MintTextStyles.labelMedium(color: _confidenceColor(confidence)),
                         ),
                         const Spacer(),
                       ],

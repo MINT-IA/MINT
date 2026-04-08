@@ -101,7 +101,7 @@ class BudgetLivingEngine {
         retirementAgeUser: targetRetirementAge,
       );
       retirementBudget = _wrapRetirementResult(retirementResult, profile);
-      gap = _computeGap(present, retirementBudget);
+      gap = _computeGap(present, retirementBudget, profile.salaireBrutMensuel);
     } catch (_) {
       // Graceful degradation: show present-only if retirement calc fails.
       return BudgetSnapshot(
@@ -136,12 +136,19 @@ class BudgetLivingEngine {
 
   static PresentBudget _computePresent(CoachProfile profile) {
     // Net income — main user
+    // FIX-100: Use revenuBrutAnnuel which handles independants.
+    // salaireBrutMensuel can be 0 for independants (they use selfEmployedNetIncome).
+    final grossAnnual = profile.revenuBrutAnnuel;
     final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
+      grossSalary: grossAnnual,
       canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
       age: profile.age,
     );
-    double monthlyNet = mainBreakdown.monthlyNetPayslip;
+    // For independants, social charges are different (AVS 10.6% total, no LPP split).
+    // NetIncomeBreakdown uses salarié rates — for independants, use ~90% of gross as net.
+    double monthlyNet = profile.employmentStatus == 'independant' && grossAnnual > 0
+        ? grossAnnual * 0.90 / 12  // ~10% charges sociales pour indépendants
+        : mainBreakdown.monthlyNetPayslip;
 
     // Partner net income
     final conj = profile.conjoint;
@@ -249,13 +256,15 @@ class BudgetLivingEngine {
   static BudgetGap _computeGap(
     PresentBudget present,
     RetirementBudget retirement,
+    double grossMonthlySalary,
   ) {
     // Gap: positive means retirement income < today (need to plan).
     final monthlyGap = present.monthlyNet - retirement.monthlyNet;
 
-    // Replacement rate: retirement net as % of present net.
-    final replacementRate = present.monthlyNet > 0
-        ? (retirement.monthlyNet / present.monthlyNet * 100).clamp(0.0, 200.0)
+    // Replacement rate: retirement income as % of GROSS income (CLAUDE.md §8).
+    // Consistent with minimal_profile_service and ForecasterService.
+    final replacementRate = grossMonthlySalary > 0
+        ? (retirement.monthlyNet / grossMonthlySalary * 100).clamp(0.0, 200.0)
         : 0.0;
 
     return BudgetGap(

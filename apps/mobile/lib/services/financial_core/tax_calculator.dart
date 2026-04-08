@@ -63,6 +63,9 @@ class NetIncomeBreakdown {
     required int age,
     String etatCivil = 'celibataire',
     int nombreEnfants = 0,
+    // FIX-101: Cross-border workers use withholding tax (impôt à la source),
+    // which is typically 10-20% lower than ordinary taxation.
+    bool isCrossBorder = false,
   }) {
     if (grossSalary <= 0) {
       return NetIncomeBreakdown(
@@ -88,14 +91,33 @@ class NetIncomeBreakdown {
           salaireCoord * totalBonif / 2; // ~50% part employe (LPP art. 66)
     }
 
-    // 3. Impot sur le revenu (via FiscalService, 26 cantons)
-    final taxResult = FiscalService.estimateTax(
-      revenuBrut: grossSalary,
-      canton: canton,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-    );
-    final incomeTax = (taxResult['chargeTotale'] as double?) ?? 0;
+    // 3. Impot sur le revenu
+    double incomeTax;
+    if (isCrossBorder) {
+      // FIX-101: Cross-border workers → impôt à la source (withholding tax).
+      // Simplified: cantonal withholding rate is typically ~4.5-10% of gross.
+      // Exact rates depend on canton + family situation + bilateral treaty.
+      // Educational estimate only — source: Administration fédérale des contributions.
+      const baseWithholdingRates = {
+        'GE': 0.145, 'VD': 0.135, 'VS': 0.105, 'NE': 0.125, 'JU': 0.115,
+        'FR': 0.120, 'BS': 0.130, 'BL': 0.125, 'AG': 0.110, 'ZH': 0.115,
+        'TI': 0.100, 'SG': 0.105, 'TG': 0.100, 'GR': 0.095,
+      };
+      final baseRate = baseWithholdingRates[canton.toUpperCase()] ?? 0.12;
+      // Family adjustment: married -20%, per child -5%
+      final familyFactor = (etatCivil == 'marie' ? 0.80 : 1.0) -
+          (nombreEnfants * 0.05).clamp(0.0, 0.20);
+      incomeTax = grossSalary * baseRate * familyFactor;
+    } else {
+      // Ordinary taxation (via FiscalService, 26 cantons)
+      final taxResult = FiscalService.estimateTax(
+        revenuBrut: grossSalary,
+        canton: canton,
+        etatCivil: etatCivil,
+        nombreEnfants: nombreEnfants,
+      );
+      incomeTax = (taxResult['chargeTotale'] as double?) ?? 0;
+    }
 
     return NetIncomeBreakdown(
       grossSalary: grossSalary,
@@ -365,6 +387,8 @@ class RetirementTaxCalculator {
     int steps = 10,
   }) {
     if (deduction <= 0) return 0.0;
+    // CHAOS-NaN: Guard against division by zero when steps=0.
+    if (steps <= 0) return 0.0;
 
     final double stepSize = deduction / steps;
     double currentIncome = income;
@@ -385,26 +409,54 @@ class RetirementTaxCalculator {
     return totallySaved;
   }
 
-  /// Estimate annual 3a tax saving using canton-aware marginal rate.
+  /// Estimate 3a tax saving from annual contribution (OPP3, LIFD art. 33).
   ///
-  /// Replaces hardcoded `7258 * 0.25` patterns. Uses the real marginal rate
-  /// for the user's income level, canton, and family situation.
+  /// [grossAnnualSalary]: declarant's gross annual salary.
+  /// [canton]: for marginal rate lookup.
+  /// [isMarried]: for family situation adjustment.
+  /// [children]: number of dependent children.
+  /// [hasLpp]: if true, ceiling = 7'258; if false, ceiling = min(20% net, 36'288).
+  /// [contributionMonths]: months worked in the tax year (1-12). Pro-rates the
+  ///   ceiling for partial years (e.g. new job mid-year, or first job).
+  ///   OPP3 art. 7: the deductible amount is proportional to the employment duration.
+  /// [contribution]: actual contribution; if null, assumes max deductible.
   ///
-  /// Legal basis: OPP3 art. 7 (plafond 3a), LIFD (impot federal).
+  /// Returns the estimated tax saving in CHF.
+  ///
+  /// Legal basis: OPP3 art. 7 (plafond 3a), LIFD art. 33 (deduction).
   static double estimate3aTaxSaving({
     required double grossAnnualSalary,
     required String canton,
     bool isMarried = false,
     int children = 0,
+    bool hasLpp = true,
+    int contributionMonths = 12,
+    double? contribution,
   }) {
     if (grossAnnualSalary <= 0) return 0;
-    final marginalRate = estimateMarginalRate(
-      grossAnnualSalary,
-      canton,
+    final months = contributionMonths.clamp(1, 12);
+
+    // Ceiling depends on LPP affiliation (OPP3 art. 7)
+    final double annualCeiling = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+
+    // Pro-rate for partial year
+    final double proRatedCeiling = annualCeiling * months / 12;
+
+    // Actual deductible = min(contribution, proRatedCeiling)
+    final double deductible = contribution != null
+        ? contribution.clamp(0.0, proRatedCeiling)
+        : proRatedCeiling;
+
+    return estimateTaxSaving(
+      income: grossAnnualSalary,
+      deduction: deductible,
+      canton: canton,
       isMarried: isMarried,
       children: children,
     );
-    return reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) * marginalRate;
   }
 
   /// Estimate retirement income tax (annual → monthly).

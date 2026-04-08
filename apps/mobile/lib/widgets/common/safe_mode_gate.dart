@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class SafeModeGate extends StatelessWidget {
   final bool hasDebt;
   final Widget child;
-  final String lockedTitle;
-  final String lockedMessage;
+  final String? lockedTitle;
+  final String? lockedMessage;
   final List<String> reasons;
   final String? ctaRoute;
-  final String ctaLabel;
+  final String? ctaLabel;
 
   const SafeModeGate({
     super.key,
     required this.hasDebt,
     required this.child,
-    this.lockedTitle = "Concentration Prioritaire",
-    this.lockedMessage =
-        "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu'un signal de dette est actif. La priorité est de construire ta sécurité.",
+    this.lockedTitle,
+    this.lockedMessage,
     this.reasons = const [],
     this.ctaRoute = '/debt/repayment',
-    this.ctaLabel = 'Voir mon plan de désendettement',
+    this.ctaLabel,
   });
 
   @override
@@ -29,6 +29,11 @@ class SafeModeGate extends StatelessWidget {
     if (!hasDebt) {
       return child;
     }
+
+    final l = S.of(context)!;
+    final title = lockedTitle ?? l.safeModeTitle;
+    final message = lockedMessage ?? l.safeModeMessage;
+    final cta = ctaLabel ?? l.safeModeCta;
 
     // Locked State visualization
     return Container(
@@ -50,12 +55,12 @@ class SafeModeGate extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  lockedTitle,
+                  title,
                   style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  lockedMessage,
+                  message,
                   style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(height: 1.4),
                 ),
                 if (reasons.isNotEmpty) ...[
@@ -75,7 +80,7 @@ class SafeModeGate extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   reason,
-                                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                                 ),
                               ),
                             ],
@@ -91,6 +96,10 @@ class SafeModeGate extends StatelessWidget {
                     onTap: () {
                       showModalBottomSheet<void>(
                       context: context,
+                      isScrollControlled: true,
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.85,
+                      ),
                       backgroundColor: MintColors.white,
                       shape: const RoundedRectangleBorder(
                         borderRadius:
@@ -104,7 +113,7 @@ class SafeModeGate extends StatelessWidget {
                           children: [
                             Text(
                               'Pourquoi c’est bloqué',
-                              style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                              style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                             ),
                             const SizedBox(height: 10),
                             Text(
@@ -119,7 +128,7 @@ class SafeModeGate extends StatelessWidget {
                                       padding: const EdgeInsets.only(bottom: 6),
                                       child: Text(
                                         '• $reason',
-                                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                                       ),
                                     ),
                                   ),
@@ -131,7 +140,7 @@ class SafeModeGate extends StatelessWidget {
                   },
                   child: Text(
                     "Pourquoi est-ce bloqué ?",
-                    style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),
                 ),
@@ -150,8 +159,8 @@ class SafeModeGate extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      ctaLabel,
-                      style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      cta,
+                      style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

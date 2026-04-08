@@ -8,7 +8,7 @@ tags: [frontalier, permis_g, impot_source, prevoyance, cross_border, fiscalite]
 ## Trigger
 L'utilisateur est frontalier·ère ou envisage de le devenir, et s'interroge sur les implications fiscales et de prévoyance.
 
-## Chiffre Choc
+## Premier Éclairage
 Un·e frontalier·ère travaillant à Genève et habitant en France voisine peut payer jusqu'à 15 % de moins d'impôts qu'un·e résident·e suisse à revenu égal — ou 10 % de plus, selon le canton et la commune française. La fiscalité transfrontalière est un labyrinthe où chaque détail compte.
 
 ## Niveau 0

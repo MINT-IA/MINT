@@ -68,7 +68,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             "Qu'est-ce qui t'occupe ?",
-            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, height: 1.3),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(height: 1.3),
           ),
         ),
         const SizedBox(height: 12),
@@ -315,7 +315,7 @@ class _FocusSelectorState extends State<FocusSelector> {
                   ),
                   Text(
                     opt.apercu,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                   ),
                 ],
               ),

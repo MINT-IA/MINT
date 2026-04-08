@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
@@ -85,6 +86,48 @@ class _EplScreenState extends State<EplScreen> {
       }
     } catch (_) {
       // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  /// Write back EPL computed results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          avoirLppTotal: result.montantSouhaiteApplicable > 0
+              ? (_avoirTotal - result.montantSouhaiteApplicable).clamp(0, double.infinity)
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
     }
   }
 
@@ -213,6 +256,15 @@ class _EplScreenState extends State<EplScreen> {
             padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeEplHeadline,
+                  body: S.of(context)!.narrativeEplBody,
+                  tone: MintSurfaceTone.bleu,
+                  badge: S.of(context)!.narrativeEplBadge,
+                )),
+                const SizedBox(height: MintSpacing.lg),
+
                 // Introduction
                 _buildIntroCard(l),
                 const SizedBox(height: MintSpacing.lg),
@@ -330,7 +382,10 @@ class _EplScreenState extends State<EplScreen> {
             max: 500000,
             divisions: 96,
             format: 'CHF ${formatChf(_montantSouhaite)}',
-            onChanged: (v) => setState(() { _hasUserInteracted = true; _montantSouhaite = v; }),
+            onChanged: (v) {
+              setState(() { _hasUserInteracted = true; _montantSouhaite = v; });
+              WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+            },
           )),
           const SizedBox(height: MintSpacing.sm + 4),
 

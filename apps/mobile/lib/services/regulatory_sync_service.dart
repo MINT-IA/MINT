@@ -15,6 +15,7 @@ library;
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +27,9 @@ class RegulatorySyncService {
 
   /// Cached constants from last successful sync.
   static Map<String, double>? _cachedConstants;
+
+  /// Raw cache for non-scalar values (e.g. lists/tables).
+  static Map<String, dynamic> _rawCache = {};
 
   /// Timestamp of last successful sync.
   static DateTime? _lastSyncAt;
@@ -63,6 +67,8 @@ class RegulatorySyncService {
   static Future<Map<String, double>> fetchConstants() async {
     try {
       final response = await ApiService.get('/regulatory/constants');
+      // Store raw response for list-type values (e.g. Echelle 44).
+      _rawCache = Map<String, dynamic>.from(response);
       final constants = _parseConstants(response);
       if (constants.isNotEmpty) {
         _cachedConstants = constants;
@@ -101,6 +107,30 @@ class RegulatorySyncService {
       debugPrint('RegulatorySyncService: fetch "$key" failed — $e');
       return null;
     }
+  }
+
+  /// Get a cached list value by key, or null if not synced / not a list.
+  static List<List<double>>? getList(String key) {
+    final entry = _rawCache[key];
+    if (entry == null) return null;
+    final value = entry is Map ? entry['value'] : entry;
+    if (value is! List) return null;
+    try {
+      return value.map<List<double>>((row) {
+        return (row as List).map<double>((v) => (v as num).toDouble()).toList();
+      }).toList();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Get the Echelle 44 table (backend-synced or hardcoded fallback).
+  ///
+  /// Returns List<List<double>> where each entry is [RAMD, rente_mensuelle].
+  static List<List<double>> getEchelle44() {
+    final cached = getList('avs.echelle44');
+    if (cached != null) return cached;
+    return avsEchelle44;
   }
 
   /// Get a constant from the cache (synchronous).
@@ -152,6 +182,7 @@ class RegulatorySyncService {
   @visibleForTesting
   static void clearCache() {
     _cachedConstants = null;
+    _rawCache = {};
     _lastSyncAt = null;
     _isFromDisk = false;
   }

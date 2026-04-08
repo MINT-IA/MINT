@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 // ────────────────────────────────────────────────────────────
 //  CoachInsight — S58 / AI Memory
 // ────────────────────────────────────────────────────────────
@@ -99,7 +101,7 @@ class CoachInsight {
   factory CoachInsight.fromJson(Map<String, dynamic> json) {
     return CoachInsight(
       id: json['id'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
       topic: json['topic'] as String? ?? 'general',
       summary: json['summary'] as String,
       type: InsightType.values.firstWhere(
@@ -125,7 +127,10 @@ class CoachInsight {
       return list
           .map((e) => CoachInsight.fromJson(e as Map<String, dynamic>))
           .toList();
-    } catch (_) {
+    } catch (e) {
+      // STAB-16 (07-04): corrupt insight payload — log and return empty.
+      // User's insight history appears blank instead of crashing the chat.
+      debugPrint('[coach_insight] decodeList failed: $e');
       return [];
     }
   }

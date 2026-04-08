@@ -55,13 +55,13 @@ void main() {
       );
     });
 
-    test('same seed → identical medianAt65 and ruinProbability', () {
-      final r1 = MonteCarloProjectionService.simulate(
+    test('same seed → identical medianAt65 and ruinProbability', () async {
+      final r1 = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 42,
         numSimulations: 100,
       );
-      final r2 = MonteCarloProjectionService.simulate(
+      final r2 = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 42,
         numSimulations: 100,
@@ -73,13 +73,13 @@ void main() {
       expect(r1.p90At65, r2.p90At65);
     });
 
-    test('different seeds → different results', () {
-      final r1 = MonteCarloProjectionService.simulate(
+    test('different seeds → different results', () async {
+      final r1 = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 42,
         numSimulations: 100,
       );
-      final r2 = MonteCarloProjectionService.simulate(
+      final r2 = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 99,
         numSimulations: 100,
@@ -89,8 +89,8 @@ void main() {
       expect(r1.medianAt65 == r2.medianAt65, isFalse);
     });
 
-    test('annual returns produce meaningful P10-P90 spread', () {
-      final result = MonteCarloProjectionService.simulate(
+    test('annual returns produce meaningful P10-P90 spread', () async {
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 42,
         numSimulations: 200,
@@ -104,8 +104,8 @@ void main() {
       expect(spread, greaterThan(500));
     });
 
-    test('disclaimer mentions annual draws', () {
-      final result = MonteCarloProjectionService.simulate(
+    test('disclaimer mentions annual draws', () async {
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 42,
         numSimulations: 50,
@@ -113,8 +113,8 @@ void main() {
       expect(result.disclaimer, contains('tirages annuels'));
     });
 
-    test('sources include legal references', () {
-      final result = MonteCarloProjectionService.simulate(
+    test('sources include legal references', () async {
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         seed: 42,
         numSimulations: 50,
@@ -126,7 +126,7 @@ void main() {
   });
 
   group('Monte Carlo — FATCA 3a guard (C01)', () {
-    test('conjoint canContribute3a=false → no conjoint 3a projected', () {
+    test('conjoint canContribute3a=false → no conjoint 3a projected', () async {
       // Profile with FATCA conjoint (cannot contribute to 3a)
       final fatcaProfile = CoachProfile(
         firstName: 'Julien',
@@ -179,7 +179,7 @@ void main() {
       );
 
       // With FATCA restriction
-      final r1 = MonteCarloProjectionService.simulate(
+      final r1 = await MonteCarloProjectionService.simulate(
         profile: fatcaProfile,
         seed: 42,
         numSimulations: 100,
@@ -236,7 +236,7 @@ void main() {
         ),
       );
 
-      final r2 = MonteCarloProjectionService.simulate(
+      final r2 = await MonteCarloProjectionService.simulate(
         profile: nonFatcaProfile,
         seed: 42,
         numSimulations: 100,
@@ -248,7 +248,7 @@ void main() {
   });
 
   group('Monte Carlo — alertes and compliance', () {
-    test('early retirement before 63 triggers bridge alert', () {
+    test('early retirement before 63 triggers bridge alert', () async {
       final profile = CoachProfile(
         firstName: 'Marc',
         birthYear: 1985,
@@ -279,7 +279,7 @@ void main() {
         plannedContributions: const [],
       );
 
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 60,
         seed: 42,

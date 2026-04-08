@@ -1,9 +1,17 @@
 # Cohort OS Spec
 
-> Statut: spec produit corrigee, pre-implementation
+> Statut: **IMPLÉMENTÉ** — vérifié contre le code le 29 mars 2026
 > Role: adapter MINT par cohortes sans creer de seconde source de verite
 > Scope: coach, suggestion chips, Pulse, priorisation de surfaces
 > Non-scope: nouvelle engine de classification parallele, refonte visuelle globale
+>
+> **Implémentation** :
+> - `ProductCohortService` : 6 cohortes projetées depuis `LifecyclePhaseService` (pas de nouvelle SOT)
+> - `_suppressedTopics()` : matrice de suppression par cohorte (Anti-Bullshit Manifesto §6)
+> - `CapEngine` : filtrage des caps par cohort topics (6 points d'intégration)
+> - `ContextInjectorService` : injection lifecycle phase dans le contexte coach (14 points)
+> - `SequenceTemplate.topics` : 10 séquences avec topics field pour cohort suppression check
+> - `SequenceChatHandler.startSequence()` : guard `suppressedTopics.intersection()` avant démarrage
 
 ---
 

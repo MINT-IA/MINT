@@ -131,7 +131,7 @@ class CrisisDashboardWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             '${indicators.length} indicateurs vitaux — actions prioritaires en rouge.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -170,7 +170,7 @@ class CrisisDashboardWidget extends StatelessWidget {
                 ),
                 child: Text(
                   '${ind.value} ${ind.unit}',
-                  style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.labelMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(width: 8),
@@ -232,12 +232,12 @@ class CrisisDashboardWidget extends StatelessWidget {
               children: [
                 Text(
                   'Action prioritaire maintenant',
-                  style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   action,
-                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
                 ),
               ],
             ),

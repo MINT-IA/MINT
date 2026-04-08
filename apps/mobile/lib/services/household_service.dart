@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mint_mobile/services/api_service.dart';
 
 /// Service for managing Couple+ household.
 ///
@@ -57,11 +58,11 @@ class HouseholdService {
     if (response.statusCode != 201) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Erreur invitation';
+        detail = json.decode(response.body)['detail'] ?? 'Invitation failed';
       } catch (_) {
-        detail = response.body;
+        detail = 'Invitation failed';
       }
-      throw Exception('HTTP ${response.statusCode}: $detail');
+      throw ApiException(detail, statusCode: response.statusCode);
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }
@@ -83,11 +84,11 @@ class HouseholdService {
     if (response.statusCode != 200) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Erreur acceptation';
+        detail = json.decode(response.body)['detail'] ?? 'Invitation acceptance failed';
       } catch (_) {
-        detail = response.body;
+        detail = 'Invitation acceptance failed';
       }
-      throw Exception('HTTP ${response.statusCode}: $detail');
+      throw ApiException(detail, statusCode: response.statusCode);
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }
@@ -105,11 +106,11 @@ class HouseholdService {
     if (response.statusCode != 200) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Erreur revocation';
+        detail = json.decode(response.body)['detail'] ?? 'Member revocation failed';
       } catch (_) {
-        detail = response.body;
+        detail = 'Member revocation failed';
       }
-      throw Exception('HTTP ${response.statusCode}: $detail');
+      throw ApiException(detail, statusCode: response.statusCode);
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }
@@ -131,11 +132,11 @@ class HouseholdService {
     if (response.statusCode != 200) {
       String detail;
       try {
-        detail = json.decode(response.body)['detail'] ?? 'Erreur transfert';
+        detail = json.decode(response.body)['detail'] ?? 'Ownership transfer failed';
       } catch (_) {
-        detail = response.body;
+        detail = 'Ownership transfer failed';
       }
-      throw Exception('HTTP ${response.statusCode}: $detail');
+      throw ApiException(detail, statusCode: response.statusCode);
     }
     return json.decode(response.body) as Map<String, dynamic>;
   }

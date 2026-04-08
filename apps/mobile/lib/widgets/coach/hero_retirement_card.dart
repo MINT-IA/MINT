@@ -118,7 +118,7 @@ class HeroRetirementCard extends StatelessWidget {
               ),
               Text(
                 _headerSubtitle,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -277,7 +277,7 @@ class HeroRetirementCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
         ),
         const SizedBox(height: 4),
         Text(
@@ -301,13 +301,18 @@ class HeroRetirementCard extends StatelessWidget {
             : MintColors.scoreCritique;
 
     // P1-A: Human explanation of replacement ratio
-    final explanation = ratio >= 70
-        ? 'Confortable \u2014 tu gardes ton train de vie'
-        : ratio >= 60
-            ? 'Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)'
-            : ratio >= 50
-                ? 'Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires'
-                : 'Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation';
+    // Guard: clamp to 200% to prevent absurd display values
+    // (consistent with ForecasterService.safeReplacementRate)
+    final displayRatio = ratio.clamp(0.0, 200.0);
+    final explanation = displayRatio > 100
+        ? 'Tu disposes de ressources sup\u00e9rieures \u00e0 ton revenu actuel \u2014 v\u00e9rifie les hypoth\u00e8ses'
+        : displayRatio >= 70
+            ? 'Confortable \u2014 tu gardes ton train de vie'
+            : displayRatio >= 60
+                ? 'Suffisant pour la plupart des m\u00e9nages (charges r\u00e9duites \u00e0 la retraite)'
+                : displayRatio >= 50
+                    ? 'Serr\u00e9 \u2014 des ajustements seront n\u00e9cessaires'
+                    : 'Insuffisant \u2014 agis maintenant pour am\u00e9liorer ta situation';
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -326,7 +331,9 @@ class HeroRetirementCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tu garderas ${ratio.toStringAsFixed(0)}% de ton train de vie',
+                      displayRatio > 100
+                          ? 'Tu as ${(displayRatio - 100).toStringAsFixed(0)}\u00a0% de ressources suppl\u00e9mentaires'
+                          : 'Tu garderas ${displayRatio.toStringAsFixed(0)}\u00a0% de ton train de vie',
                       style: MintTextStyles.bodyMedium(color: color).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
@@ -360,7 +367,7 @@ class HeroRetirementCard extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           'Fourchette\u00a0: ${formatChfWithPrefix(rangeMin!)} \u2013 ${formatChfWithPrefix(rangeMax!)} / mois',
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
         ),
       ],
     );
@@ -383,7 +390,7 @@ class HeroRetirementCard extends StatelessWidget {
           children: [
             Text(
               formatChfWithPrefix(min),
-              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
+              style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.0),
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 3, left: 6, right: 6),
@@ -394,7 +401,7 @@ class HeroRetirementCard extends StatelessWidget {
             ),
             Text(
               formatChfWithPrefix(max),
-              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
+              style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.0),
             ),
           ],
         ),
@@ -421,7 +428,7 @@ class HeroRetirementCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'La fourchette se r\u00e9duira en ajoutant tes donn\u00e9es LPP et AVS.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -447,7 +454,7 @@ class HeroRetirementCard extends StatelessWidget {
             children: [
               Text(
                 'Il nous manque des informations',
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
               Text(

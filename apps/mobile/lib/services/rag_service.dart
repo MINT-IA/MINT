@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 
-/// Response from the RAG query endpoint
 /// A tool call returned by the LLM (e.g. route_to_screen).
 class RagToolCall {
   final String name;
@@ -18,6 +17,7 @@ class RagToolCall {
   }
 }
 
+/// Response from the RAG query endpoint
 class RagResponse {
   final String answer;
   final List<RagSource> sources;
@@ -47,7 +47,10 @@ class RagResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
       toolCalls: (json['tool_calls'] as List<dynamic>?)
               ?.map((t) => RagToolCall.fromJson(t as Map<String, dynamic>))
               .toList() ??
@@ -139,7 +142,10 @@ class RagVisionResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -186,6 +192,7 @@ class RagService {
     Map<String, dynamic>? profileContext,
     String language = 'fr',
     List<Map<String, dynamic>>? tools,
+    int cashLevel = 3,
   }) async {
     final uri = Uri.parse('$baseUrl/rag/query');
 
@@ -194,6 +201,7 @@ class RagService {
       'api_key': apiKey,
       'provider': provider,
       'language': language,
+      'cash_level': cashLevel.clamp(1, 5),
     };
 
     if (model != null) body['model'] = model;
@@ -249,7 +257,7 @@ class RagService {
         final errorBody = _tryDecodeError(response.body);
         throw RagApiException(
           code: 'server_error',
-          message: errorBody ?? 'Erreur serveur (${response.statusCode}).', // Dynamic — not extracted
+          message: errorBody ?? 'Service temporarily unavailable',
         );
       }
     }
@@ -293,13 +301,24 @@ class RagService {
     if (model != null) body['model'] = model;
     if (profileContext != null) body['profile_context'] = profileContext;
 
-    final response = await http
-        .post(
-          uri,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 120));
+    // FIX-084: Retry on 429 (same pattern as query()).
+    const maxRetries = 2;
+    late http.Response response;
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 120));
+
+      if (response.statusCode == 429 && attempt < maxRetries) {
+        await Future<void>.delayed(Duration(seconds: (attempt + 1) * 2));
+        continue;
+      }
+      break;
+    }
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -321,7 +340,7 @@ class RagService {
       final errorBody = _tryDecodeError(response.body);
       throw RagApiException(
         code: 'vision_error',
-        message: errorBody ?? 'Erreur d\'extraction vision (${response.statusCode}).', // Dynamic — not extracted
+        message: errorBody ?? 'Service temporarily unavailable',
       );
     }
   }

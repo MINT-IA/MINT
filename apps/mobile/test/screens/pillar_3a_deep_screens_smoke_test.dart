@@ -48,7 +48,7 @@ void main() {
       expect(find.textContaining('3a'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with economie estimee', (tester) async {
+    testWidgets('displays premier éclairage with economie estimee', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // i18n: staggered3aEconomie = "Economie estimee"
@@ -162,11 +162,11 @@ void main() {
       expect(find.textContaining('endement'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with rendement percentage',
+    testWidgets('displays premier éclairage with rendement percentage',
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: realReturnChiffreChocLabel = "Taux equivalent sur effort net"
+      // i18n: realReturnPremierEclairageLabel = "Taux equivalent sur effort net"
       expect(find.textContaining('quivalent'), findsWidgets);
       expect(find.textContaining('%'), findsWidgets);
     });
@@ -174,7 +174,7 @@ void main() {
     testWidgets('displays parameters section with 5 sliders', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -200));
+      await tester.drag(find.byType(ListView), const Offset(0, -400));
       await tester.pump();
       // i18n: realReturnParams = "Parametres"
       expect(find.textContaining('aram'), findsWidgets);
@@ -183,7 +183,7 @@ void main() {
     testWidgets('has 5 Slider widgets', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
       await tester.pump();
       expect(find.byType(Slider), findsNWidgets(5));
     });
@@ -191,7 +191,7 @@ void main() {
     testWidgets('displays rendements compares section', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.drag(find.byType(ListView), const Offset(0, -800));
       await tester.pump();
       // i18n: realReturnCompared = "Rendements compares"
       expect(find.textContaining('endements'), findsWidgets);
@@ -200,7 +200,7 @@ void main() {
     testWidgets('displays capital final comparison bars', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
       await tester.pump();
       // i18n: realReturnFinalCapital contains "Capital final"
       expect(find.textContaining('apital final'), findsWidgets);
@@ -209,7 +209,7 @@ void main() {
     testWidgets('displays gain vs epargne classique', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
       await tester.pump();
       await tester.drag(find.byType(ListView), const Offset(0, -200));
       await tester.pump();
@@ -221,7 +221,7 @@ void main() {
         (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.drag(find.byType(ListView), const Offset(0, -1000));
       await tester.pump();
       expect(find.byType(LinearProgressIndicator), findsNWidgets(2));
     });
@@ -280,10 +280,10 @@ void main() {
       expect(find.textContaining('omparateur 3a'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with difference amount', (tester) async {
+    testWidgets('displays premier éclairage with difference amount', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
-      // i18n: providerComparatorChiffreChocLabel = "Difference sur X ans"
+      // i18n: providerComparatorPremierEclairageLabel = "Difference sur X ans"
       expect(find.textContaining('iff'), findsWidgets);
       expect(find.textContaining('CHF'), findsWidgets);
     });
@@ -361,15 +361,6 @@ void main() {
       expect(find.textContaining('rudent'), findsWidgets);
     });
 
-    testWidgets('displays vs meilleur badge on non-best providers',
-        (tester) async {
-      await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
-      await tester.pump();
-      expect(find.textContaining('vs premier'), findsWidgets);
-    });
+    // Compliance: "vs premier" ranking badge removed (no provider ranking per CLAUDE.md §6).
   });
 }

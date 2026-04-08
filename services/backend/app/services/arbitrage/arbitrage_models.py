@@ -61,7 +61,7 @@ class ArbitrageResult:
 
     options: List[TrajectoireOption]
     breakeven_year: int          # Year when curves cross (-1 if never)
-    chiffre_choc: str            # Single most striking delta
+    premier_eclairage: str            # Single most striking delta
     display_summary: str         # One-sentence summary (French, informal)
     hypotheses: List[str]        # ALWAYS explicit -- user can modify
     disclaimer: str              # ALWAYS present

@@ -1,6 +1,6 @@
-from pydantic import BaseModel, UUID4, ConfigDict
+from pydantic import BaseModel, UUID4, ConfigDict, Field
 from enum import Enum
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime
 
 
@@ -31,3 +31,14 @@ class Scenario(ScenarioCreate):
     createdAt: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PaginatedScenariosResponse(BaseModel):
+    """Paginated list of scenarios."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    items: List[Scenario] = Field(..., description="Liste des scenarios")
+    total: int = Field(..., description="Nombre total de scenarios")
+    limit: int = Field(..., description="Limite par page")
+    offset: int = Field(..., description="Offset courant")

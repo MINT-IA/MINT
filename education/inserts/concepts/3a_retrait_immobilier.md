@@ -8,7 +8,7 @@ tags: [3a, retrait, immobilier, epl, fonds_propres, achat]
 ## Trigger
 L'utilisateur envisage d'acheter un bien immobilier et veut utiliser son pilier 3a comme fonds propres, ou compare les options EPL (LPP vs 3a).
 
-## Chiffre Choc
+## Premier Éclairage
 Le retrait 3a pour l'achat immobilier n'a pas de montant minimum (contrairement au retrait EPL LPP qui exige CHF 20'000 minimum). Tu peux retirer la totalité de tes avoirs 3a — et contrairement à la LPP, le remboursement n'est pas obligatoire.
 
 ## Niveau 0

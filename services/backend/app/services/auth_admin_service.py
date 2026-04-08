@@ -4,7 +4,7 @@ Auth admin services: observability and cleanup.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 import json
 from typing import Any
 from sqlalchemy import func
@@ -23,7 +23,7 @@ from app.models.audit_event import AuditEventModel
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def build_auth_observability_snapshot(db: Session, *, purge_days: int) -> dict[str, Any]:

@@ -1,17 +1,14 @@
-import 'dart:math';
-
 import 'package:mint_mobile/constants/social_insurance.dart';
-import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT SERVICE — Sprint S21 / Retraite complete
 // ────────────────────────────────────────────────────────────
 //
 // Pure Dart service for Swiss retirement planning:
-//   1. estimateAvs    — AVS pension estimate (LAVS art. 21-29)
-//   2. compareLpp     — LPP capital vs rente comparison
-//   3. calculateBudget — Retirement budget reconciliation
+//   1. compareLpp     — LPP capital vs rente comparison
+//   2. calculateBudget — Retirement budget reconciliation
 //
 // All constants match 2025/2026 legislation.
 // No banned terms ("garanti", "certain", "assure", "sans risque").
@@ -38,85 +35,7 @@ class RetirementService {
   static List<String> get allCantonCodes => sortedCantonCodes;
 
   // ════════════════════════════════════════════════════════════
-  //  1. AVS ESTIMATE
-  // ════════════════════════════════════════════════════════════
-
-  /// Estimate AVS retirement pension.
-  ///
-  /// Returns a map with scenario, rente, adjustment factor, etc.
-  ///
-  /// **DEPRECATED**: Use `AvsCalculator.computeMonthlyRente()` from financial_core
-  /// for accurate RAMD-scaled rente estimation. This simplified method uses
-  /// `avsRenteMaxMensuelle * gapFactor` which does not account for RAMD scaling.
-  /// TODO: Migrate retirement_screen.dart consumers then delete this method.
-  @Deprecated('Use AvsCalculator.computeMonthlyRente() from financial_core')
-  static Map<String, dynamic> estimateAvs({
-    required int ageActuel,
-    int ageRetraite = avsAgeReferenceHomme,
-    bool isCouple = false,
-    int anneesLacunes = 0,
-    int esperanceVie = 87,
-  }) {
-    // Determine scenario
-    String scenario;
-    double factor;
-    double penalitePct;
-
-    if (ageRetraite < avsRetirementAge) {
-      scenario = 'anticipation';
-      final yearsEarly = avsRetirementAge - ageRetraite;
-      factor = 1.0 - (avsAnticipationPenaltyPerYear * yearsEarly);
-      penalitePct = -(avsAnticipationPenaltyPerYear * yearsEarly * 100);
-    } else if (ageRetraite > avsRetirementAge) {
-      scenario = 'ajournement';
-      final yearsLate = (ageRetraite - avsRetirementAge).clamp(1, 5);
-      factor = 1.0 + (avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!);
-      penalitePct =
-          (avsDeferralBonus[yearsLate] ?? avsDeferralBonus[5]!) * 100;
-    } else {
-      scenario = 'normal';
-      factor = 1.0;
-      penalitePct = 0.0;
-    }
-
-    // Gap reduction
-    final effectiveYears = maxContributionYears - anneesLacunes;
-    final gapFactor =
-        effectiveYears > 0 ? effectiveYears / maxContributionYears : 0.0;
-
-    // Calculate rente
-    final baseRente = reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * gapFactor;
-    final renteMensuelle = baseRente * factor;
-    final renteAnnuelle = AvsCalculator.annualRente(renteMensuelle);
-
-    // Couple
-    double? renteCouple;
-    if (isCouple) {
-      renteCouple = min(
-        renteMensuelle * 2,
-        reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * avsCoupleFactor,
-      );
-    }
-
-    // Projection
-    final duree = esperanceVie - ageRetraite;
-    final totalCumule = renteAnnuelle * duree;
-
-    return {
-      'scenario': scenario,
-      'ageDepart': ageRetraite,
-      'renteMensuelle': renteMensuelle,
-      'renteAnnuelle': renteAnnuelle,
-      'facteurAjustement': factor,
-      'penaliteOuBonusPct': penalitePct,
-      'renteCoupleMensuelle': renteCouple,
-      'dureeEstimeeAns': duree,
-      'totalCumule': totalCumule,
-    };
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  2. LPP CAPITAL VS RENTE
+  //  1. LPP CAPITAL VS RENTE
   // ════════════════════════════════════════════════════════════
 
   /// Compare LPP capital vs rente withdrawal options.
@@ -169,7 +88,7 @@ class RetirementService {
   }
 
   // ════════════════════════════════════════════════════════════
-  //  3. RETIREMENT BUDGET
+  //  2. RETIREMENT BUDGET
   // ════════════════════════════════════════════════════════════
 
   /// Retirement budget reconciliation.
@@ -199,7 +118,7 @@ class RetirementService {
     final alertes = <String>[];
     if (solde < 0) {
       alertes.add(
-          'Deficit mensuel de CHF ${solde.abs().toStringAsFixed(0)}');
+          'Deficit mensuel de ${formatChfWithPrefix(solde.abs())}');
     }
     if (tauxRemplacement < 60) {
       alertes.add(

@@ -214,7 +214,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
               Text(
                 _titleForTrigger(trigger, l),
                 textAlign: TextAlign.center,
-                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
+                style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
               ),
               const SizedBox(height: 12),
 
@@ -292,7 +292,7 @@ class _RegistrationBottomSheet extends StatelessWidget {
                   Flexible(
                     child: Text(
                       l.authGatePrivacyNote,
-                      style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.3),
+                      style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(height: 1.3),
                     ),
                   ),
                 ],

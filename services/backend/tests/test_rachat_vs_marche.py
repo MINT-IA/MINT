@@ -58,7 +58,7 @@ class TestRachatVsMarcheCore:
             montant=montant,
             taux_marginal=taux,
         )
-        # The tax saving should appear in the chiffre_choc or hypotheses
+        # The tax saving should appear in the premier_eclairage or hypotheses
         hyp_text = " ".join(result.hypotheses)
         assert "15" in hyp_text  # 15'000 CHF saving
 
@@ -187,7 +187,7 @@ class TestRachatVsMarcheCompliance:
             taux_marginal=TYPICAL_TAUX_MARGINAL,
         )
         all_text = " ".join([
-            result.chiffre_choc,
+            result.premier_eclairage,
             result.display_summary,
             result.disclaimer,
             " ".join(result.hypotheses),
@@ -222,13 +222,13 @@ class TestRachatVsMarcheCompliance:
         )
         assert len(result.sources) >= 3
 
-    def test_chiffre_choc_not_empty(self):
+    def test_premier_eclairage_not_empty(self):
         """Chiffre choc must be a non-empty string."""
         result = compare_rachat_vs_marche(
             montant=TYPICAL_MONTANT,
             taux_marginal=TYPICAL_TAUX_MARGINAL,
         )
-        assert len(result.chiffre_choc) > 20
+        assert len(result.premier_eclairage) > 20
 
     def test_confidence_score_in_range(self):
         """Confidence score must be between 0 and 100."""

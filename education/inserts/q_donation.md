@@ -38,7 +38,7 @@ lifeEvent: "donation"
 - Le rapport successoral (avancement d'hoirie) dépend du contrat de donation.
 - Ne remplace pas un conseil notarial pour les donations immobilières.
 
-## Chiffre Choc
+## Premier Éclairage
 "Une donation de {montant} CHF à ton {lien} dans le canton de {canton} coûte {impot} CHF d'impôt ({taux}%). À Schwyz ou Obwald, le même geste serait à 0%."
 
 ## Learning Goals

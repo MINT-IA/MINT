@@ -76,6 +76,14 @@ class LppCalculator {
     double? bonificationRateOverride,
     double? salaireAssureOverride,
   }) {
+    // NOTE: LPP entry threshold (22'680) applies to annual salary.
+    // For partial years, the effective threshold should be pro-rated.
+    // Currently assumes full-year employment.
+    // TODO(P2-Finance): Add contributionMonths param for pro-rated threshold
+    //
+    // NOTE: grossAnnualSalary should be base salary × 12, NOT including
+    // 13th month bonus, unless the LPP certificate explicitly includes it
+    // in the coordinated salary. See LPP art. 8.
     final seuil = reg('lpp.entry_threshold', lppSeuilEntree);
     final belowThreshold =
         salaireAssureOverride == null && grossAnnualSalary < seuil;
@@ -90,6 +98,9 @@ class LppCalculator {
 
     for (int a = currentAge; a < retirementAge && a < 70; a++) {
       balance *= (1 + caisseReturn);
+      // LPP bonifications start at age 25 (LPP art. 7).
+      // Before 25, only the return on existing capital applies.
+      if (a < 25) continue;
       final bonifRate =
           bonificationRateOverride ?? getLppBonificationRate(a);
       balance += salaireBase * bonifRate;
@@ -100,6 +111,9 @@ class LppCalculator {
         buybackDone += yearly;
       }
     }
+
+    // P3-21: Floor balance at zero to prevent negative projections
+    if (balance < 0) balance = 0;
 
     final effectiveRate = adjustedConversionRate(
       baseRate: conversionRate,
@@ -124,6 +138,8 @@ class LppCalculator {
     double? salaireAssureOverride,
   }) {
     double newBalance = currentBalance * (1 + monthlyReturn);
+    // LPP bonifications start at age 25 (LPP art. 7)
+    if (age < 25) return newBalance < 0 ? 0 : newBalance;
     if (salaireAssureOverride == null && grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) {
       return newBalance;
     }
@@ -131,7 +147,9 @@ class LppCalculator {
         (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
             .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     final bonifRate = bonificationRateOverride ?? getLppBonificationRate(age);
-    return newBalance + salaireBase * bonifRate / 12;
+    final result = newBalance + salaireBase * bonifRate / 12;
+    // P3-21: Floor balance at zero
+    return result < 0 ? 0 : result;
   }
 
   /// Compute monthly LPP income blending rente and capital withdrawal.

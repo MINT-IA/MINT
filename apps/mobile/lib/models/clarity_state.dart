@@ -111,7 +111,7 @@ class ClarityState {
   }
 
   Color get precisionColor {
-    if (precisionIndex < 40) return Colors.orange;
+    if (precisionIndex < 40) return MintColors.warning;
     if (precisionIndex < 70) return MintColors.centralScenarioLight; // Vert clair
     if (precisionIndex < 90) return MintColors.centralScenario; // Vert
     return MintColors.stressScenario; // Vert foncé
@@ -426,10 +426,10 @@ class ClarityProgressHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
+      decoration: const BoxDecoration(
+        color: MintColors.white,
         border: Border(
-          bottom: BorderSide(color: Colors.grey.shade200),
+          bottom: BorderSide(color: MintColors.lightBorder),
         ),
       ),
       child: Column(
@@ -463,20 +463,20 @@ class ClarityProgressHeader extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.orange.shade100,
+                    color: MintColors.warningBg,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange),
+                    border: Border.all(color: MintColors.warning),
                   ),
                   child: const Row(
                     children: [
-                      Icon(Icons.shield, size: 16, color: Colors.orange),
+                      Icon(Icons.shield, size: 16, color: MintColors.warning),
                       SizedBox(width: 4),
                       Text(
                         'Mode Protection',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange,
+                          color: MintColors.warning,
                         ),
                       ),
                     ],
@@ -490,7 +490,7 @@ class ClarityProgressHeader extends StatelessWidget {
             child: LinearProgressIndicator(
               value: state.precisionIndex / 100,
               minHeight: 8,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: MintColors.lightBorder,
               valueColor: AlwaysStoppedAnimation<Color>(state.precisionColor),
             ),
           ),

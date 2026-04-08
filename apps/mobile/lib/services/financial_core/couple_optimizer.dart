@@ -159,9 +159,13 @@ class CoupleOptimizer {
     // Guard: no conjoint → nothing to optimize.
     if (conjoint == null) return const CoupleOptimizationResult.empty();
 
-    // Guard: conjoint with zero/null salary is unusable for tax comparisons.
+    // Guard: both incomes zero → nothing to optimize.
+    // If only one partner has income, AVS cap and marriage penalty still apply.
+    final userIncome = mainUser.salaireBrutMensuel * mainUser.nombreDeMois;
     final conjointIncome = conjoint.revenuBrutAnnuel;
-    if (conjointIncome <= 0) return const CoupleOptimizationResult.empty();
+    if (userIncome <= 0 && conjointIncome <= 0) {
+      return const CoupleOptimizationResult.empty();
+    }
 
     return CoupleOptimizationResult(
       lppBuybackOrder: _analyzeLppBuybackOrder(mainUser, conjoint),
@@ -198,7 +202,7 @@ class CoupleOptimizer {
             income: userIncome,
             deduction: referenceAmount.clamp(0, userRachat),
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children,
           )
         : 0.0;
@@ -208,7 +212,7 @@ class CoupleOptimizer {
             income: conjointIncome,
             deduction: referenceAmount.clamp(0, conjointRachat),
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children,
           )
         : 0.0;
@@ -270,7 +274,7 @@ class CoupleOptimizer {
             income: userIncome,
             deduction: ceiling,
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children3a,
           )
         : 0.0;
@@ -280,7 +284,7 @@ class CoupleOptimizer {
             income: conjointIncome,
             deduction: ceiling,
             canton: canton,
-            isMarried: true,
+            isMarried: user.etatCivil == CoachCivilStatus.marie,
             children: children3a,
           )
         : 0.0;
@@ -372,7 +376,8 @@ class CoupleOptimizer {
   ) {
     final userIncome = user.salaireBrutMensuel * user.nombreDeMois;
     final conjointIncome = conjoint.revenuBrutAnnuel;
-    if (userIncome <= 0 || conjointIncome <= 0) return null;
+    // Need at least one income to compute marriage penalty
+    if (userIncome <= 0 && conjointIncome <= 0) return null;
 
     final canton = user.canton;
     final enfants = user.nombreEnfants;

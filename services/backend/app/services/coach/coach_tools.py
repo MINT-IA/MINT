@@ -62,6 +62,16 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "get_cap_status",
     "get_couple_optimization",
     "get_regulatory_constant",
+    # STAB-12 (07-04 / AUDIT_COACH_WIRING rows 7-9): these three tools have
+    # no Flutter renderer case — they are backend-only acknowledgements that
+    # let the LLM track state ("goal set", "step done", "insight saved")
+    # without rendering a widget. Marking them internal prevents silent
+    # drop at the mobile renderer. Persistence is deferred to v3.0 memory
+    # layer; for now the backend returns an acknowledgement string so the
+    # agent loop can continue without dead-end tool calls.
+    "set_goal",
+    "mark_step_completed",
+    "save_insight",
 ]
 
 # ---------------------------------------------------------------------------
@@ -309,6 +319,18 @@ COACH_TOOLS: list[dict[str, Any]] = [
                         "Never use banned terms (garanti, optimal, tu devrais)."
                     ),
                 },
+                "prefill": {
+                    "type": "object",
+                    "description": (
+                        "Optional key-value map of profile fields to pre-populate the "
+                        "target screen. Keys match CoachProfile field names: "
+                        "avoirLppTotal, salaireBrutMensuel, tauxConversion, ageRetraite, "
+                        "canton, epargneLiquide, rachatMaximum. "
+                        "Only include fields with confirmed values from the user's profile "
+                        "context. Omit entirely if no values are known."
+                    ),
+                    "additionalProperties": True,
+                },
             },
             "required": ["intent", "confidence", "context_message"],
         },
@@ -553,6 +575,106 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["key"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # record_check_in — WRITE: record monthly contributions check-in
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "record_check_in",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Record the user's monthly check-in contributions. "
+            "Use ONLY after the user has answered all contribution questions for the current month. "
+            "Displays a summary card in chat and persists data to the user's profile. "
+            "Never call this tool preemptively — wait for the user to provide actual amounts."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "month": {
+                    "type": "string",
+                    "description": "ISO month string YYYY-MM (e.g. '2026-04')",
+                },
+                "versements": {
+                    "type": "object",
+                    "description": (
+                        "Map of contribution_id to amount in CHF "
+                        "(e.g. {'3a_julien': 500.0, 'epargne_libre': 200.0})"
+                    ),
+                },
+                "summary_message": {
+                    "type": "string",
+                    "description": (
+                        "Coach summary to display to user "
+                        "(e.g. 'Parfait, 500 CHF sur le 3a et 200 CHF en épargne libre. C'est noté\u00a0!')"
+                    ),
+                },
+            },
+            "required": ["month", "versements", "summary_message"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # generate_financial_plan — WRITE: calculator-backed plan generation (Flutter-bound)
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "generate_financial_plan",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Generate a personalized financial plan based on the user's goal. "
+            "The plan is computed by Flutter-side calculators (financial_core), "
+            "NOT by the LLM. Only the narrative field may come from the coach. "
+            "Use when the user asks for a plan, a roadmap, or a strategy to "
+            "reach a financial goal. This tool is forwarded to Flutter for "
+            "execution — the backend does NOT generate the plan itself."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "goal": {
+                    "type": "string",
+                    "description": (
+                        "Human-readable description of the financial goal "
+                        "(e.g. 'Acheter un appartement \u00e0 Sion', "
+                        "'Optimiser mon 3e pilier', 'Constituer un fonds d\u2019urgence')."
+                    ),
+                },
+                "monthly_amount": {
+                    "type": "number",
+                    "description": (
+                        "Suggested monthly contribution in CHF. This is a coaching "
+                        "suggestion \u2014 the actual plan amount is computed by calculators."
+                    ),
+                },
+                "milestones": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": (
+                        "List of milestone descriptions for the plan "
+                        "(e.g. ['Ouvrir un compte 3a', 'Premier versement', "
+                        "'Atteindre 7258 CHF/an'])."
+                    ),
+                },
+                "projected_outcome": {
+                    "type": "string",
+                    "description": (
+                        "Brief projected outcome description using conditional "
+                        "language. Must include a disclaimer that this is "
+                        "educational, not a guarantee."
+                    ),
+                },
+                "narrative": {
+                    "type": "string",
+                    "description": (
+                        "Coach narrative explaining the plan in human terms. "
+                        "Must be educational and non-prescriptive. "
+                        "Use conditional language ('pourrait', 'dans ce sc\u00e9nario')."
+                    ),
+                },
+            },
+            "required": ["goal", "narrative"],
         },
     },
     # ─────────────────────────────────────────────────────────────────

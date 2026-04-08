@@ -10,7 +10,9 @@ import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de conseil en libre passage.
@@ -100,12 +102,21 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeLibrePassageHeadline,
+                  body: S.of(context)!.narrativeLibrePassageBody,
+                  tone: MintSurfaceTone.bleu,
+                  badge: S.of(context)!.narrativeLibrePassageBadge,
+                )),
+                const SizedBox(height: MintSpacing.md),
+
                 // Situation selector
-                MintEntrance(child: _buildSituationSelector(l)),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSituationSelector(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // Profile inputs (age + avoir)
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildProfileInputs(l)),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProfileInputs(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // New employer toggle — only for job change
@@ -122,7 +133,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // Checklist
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChecklistSection(result.checklist, l)),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChecklistSection(result.checklist, l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommendations
@@ -132,7 +143,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // ── P7-D : Opération sauvetage 2e pilier ─────────
-                MintEntrance(delay: const Duration(milliseconds: 300), child: LppRescueWidget(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: LppRescueWidget(
                   lppBalance: _avoir,
                   daysElapsed: 10,
                   options: [
@@ -166,7 +177,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 const SizedBox(height: MintSpacing.lg),
 
                 // Link to sfbvg.ch
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCentrale2ePilier(l)),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildCentrale2ePilier(l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // nLPD / Privacy
@@ -277,7 +288,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             min: 0,
             max: 500000,
             divisions: 100,
-            formatValue: (v) => 'CHF ${(v / 1000).toStringAsFixed(0)}k',
+            formatValue: (v) => formatChfCompact(v),
             onChanged: (v) => setState(() => _avoir = v),
           ),
         ],

@@ -81,7 +81,7 @@ class BreakevenIndicatorWidget extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Sensibilité du capital au rendement',
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 6),
             if (sensitivity!.containsKey('rendement_plus_1') &&

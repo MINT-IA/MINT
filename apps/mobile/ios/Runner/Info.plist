@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>fr</string>
 	<key>CFBundleDisplayName</key>
@@ -22,7 +24,48 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+		<string>_dartVmService._tcp</string>
+		<string>_flutter-devtools._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>MINT a besoin d'accéder à ta caméra pour scanner tes documents financiers.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>MINT utilise le réseau local en mode debug pour se connecter aux outils de développement Flutter.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>MINT utilise le micro pour la dictée vocale avec le coach.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>MINT a besoin d'accéder à ta galerie pour importer des documents financiers.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>MINT utilise la reconnaissance vocale pour transcrire tes questions.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -39,23 +82,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>MINT utilise le réseau local en mode debug pour se connecter aux outils de développement Flutter.</string>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_dartobservatory._tcp</string>
-		<string>_dartVmService._tcp</string>
-		<string>_flutter-devtools._tcp</string>
-	</array>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>MINT a besoin d'accéder à ta galerie pour importer des documents financiers.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>MINT a besoin d'accéder à ta caméra pour scanner tes documents financiers.</string>
 </dict>
 </plist>

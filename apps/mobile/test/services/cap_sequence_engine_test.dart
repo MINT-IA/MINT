@@ -591,6 +591,231 @@ void main() {
     });
   });
 
+  // ── FIRST JOB SEQUENCE ───────────────────────────────────────
+
+  group('FirstJob sequence', () {
+    test('produces 5 steps', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 5000),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      expect(seq.totalCount, equals(5));
+    });
+
+    test('step IDs are fj_01 through fj_05', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 5000),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final ids = seq.steps.map((s) => s.id).toList();
+      expect(ids, contains('fj_01_income'));
+      expect(ids, contains('fj_02_salary_xray'));
+      expect(ids, contains('fj_03_lpp'));
+      expect(ids, contains('fj_04_3a'));
+      expect(ids, contains('fj_05_specialist'));
+    });
+
+    test('step 1 (income) is completed when salary > 0', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 5000),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final step1 = seq.steps.firstWhere((s) => s.id == 'fj_01_income');
+      expect(step1.status, equals(CapStepStatus.completed));
+    });
+
+    test('step 1 (income) is upcoming when salary == 0', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 0),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final step1 = seq.steps.firstWhere((s) => s.id == 'fj_01_income');
+      expect(step1.status, isNot(equals(CapStepStatus.completed)));
+    });
+
+    test('step 2 (salary xray) is blocked when no salary', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 0),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final step2 = seq.steps.firstWhere((s) => s.id == 'fj_02_salary_xray');
+      expect(step2.status, equals(CapStepStatus.blocked));
+    });
+
+    test('step 2 is completed when first_job_salary in memory', () {
+      const memory = CapMemory(completedActions: ['first_job_salary']);
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 5000),
+        memory: memory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final step2 = seq.steps.firstWhere((s) => s.id == 'fj_02_salary_xray');
+      expect(step2.status, equals(CapStepStatus.completed));
+    });
+
+    test('step 4 (3a) is completed when 3a capital > 0', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(
+          salaireBrutMensuel: 5000,
+          prevoyance: const PrevoyanceProfile(totalEpargne3a: 1000),
+        ),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final step4 = seq.steps.firstWhere((s) => s.id == 'fj_04_3a');
+      expect(step4.status, equals(CapStepStatus.completed));
+    });
+
+    test('step 5 (specialist) is completed when specialist_consulted in memory', () {
+      const memory = CapMemory(completedActions: ['specialist_consulted']);
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 5000),
+        memory: memory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      final step5 = seq.steps.firstWhere((s) => s.id == 'fj_05_specialist');
+      expect(step5.status, equals(CapStepStatus.completed));
+    });
+
+    test('all firstJob step titleKeys start with capStepFirstJob', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 5000),
+        memory: emptyMemory,
+        goalIntentTag: 'first_job',
+        l: _l,
+      );
+      for (final step in seq.steps) {
+        expect(step.titleKey.startsWith('capStepFirstJob'), isTrue,
+            reason: 'Step ${step.id} has titleKey: ${step.titleKey}');
+      }
+    });
+  });
+
+  // ── NEW JOB SEQUENCE ──────────────────────────────────────────
+
+  group('NewJob sequence', () {
+    test('produces 5 steps', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 8000),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      expect(seq.totalCount, equals(5));
+    });
+
+    test('step IDs are nj_01 through nj_05', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 8000),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final ids = seq.steps.map((s) => s.id).toList();
+      expect(ids, contains('nj_01_income'));
+      expect(ids, contains('nj_02_compare'));
+      expect(ids, contains('nj_03_lpp_transfer'));
+      expect(ids, contains('nj_04_3a'));
+      expect(ids, contains('nj_05_specialist'));
+    });
+
+    test('step 1 (income) is completed when salary > 0', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 8000),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final step1 = seq.steps.firstWhere((s) => s.id == 'nj_01_income');
+      expect(step1.status, equals(CapStepStatus.completed));
+    });
+
+    test('step 2 (compare) is blocked when no salary', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 0),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final step2 = seq.steps.firstWhere((s) => s.id == 'nj_02_compare');
+      expect(step2.status, equals(CapStepStatus.blocked));
+    });
+
+    test('step 2 is completed when salary_compared in memory', () {
+      const memory = CapMemory(completedActions: ['salary_compared']);
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 8000),
+        memory: memory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final step2 = seq.steps.firstWhere((s) => s.id == 'nj_02_compare');
+      expect(step2.status, equals(CapStepStatus.completed));
+    });
+
+    test('step 3 (lpp_transfer) is blocked when no salary', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 0),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final step3 = seq.steps.firstWhere((s) => s.id == 'nj_03_lpp_transfer');
+      expect(step3.status, equals(CapStepStatus.blocked));
+    });
+
+    test('step 4 (3a) is completed when 3a capital > 0', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(
+          salaireBrutMensuel: 8000,
+          prevoyance: const PrevoyanceProfile(totalEpargne3a: 5000),
+        ),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final step4 = seq.steps.firstWhere((s) => s.id == 'nj_04_3a');
+      expect(step4.status, equals(CapStepStatus.completed));
+    });
+
+    test('all newJob step titleKeys start with capStepNewJob', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 8000),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      for (final step in seq.steps) {
+        expect(step.titleKey.startsWith('capStepNewJob'), isTrue,
+            reason: 'Step ${step.id} has titleKey: ${step.titleKey}');
+      }
+    });
+
+    test('step 5 (specialist) intentTag is null — opens coach', () {
+      final seq = CapSequenceEngine.build(
+        profile: _profile(salaireBrutMensuel: 8000),
+        memory: emptyMemory,
+        goalIntentTag: 'new_job',
+        l: _l,
+      );
+      final step5 = seq.steps.firstWhere((s) => s.id == 'nj_05_specialist');
+      expect(step5.intentTag, isNull);
+    });
+  });
+
   // ── DETERMINISM ───────────────────────────────────────────────
 
   group('Determinism — same input, same output', () {

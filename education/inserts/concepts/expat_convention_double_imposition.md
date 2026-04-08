@@ -8,7 +8,7 @@ tags: [expat, fiscalite, double_imposition, convention, international, lifd]
 ## Trigger
 L'utilisateur a des revenus ou du patrimoine dans plusieurs pays, ou s'installe/quitte la Suisse et s'interroge sur la double imposition.
 
-## Chiffre Choc
+## Premier Éclairage
 La Suisse a signé plus de 100 conventions de double imposition (CDI). Sans ces accords, un Suisse travaillant pour une entreprise étrangère pourrait payer 40-60 % d'impôts cumulés au lieu de 20-30 %. Les CDI éliminent ou réduisent cette double charge.
 
 ## Niveau 0

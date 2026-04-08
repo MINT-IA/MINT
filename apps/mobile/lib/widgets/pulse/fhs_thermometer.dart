@@ -145,12 +145,15 @@ class _FhsThermometerState extends State<FhsThermometer>
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        CustomPaint(
-                          painter: _FhsArcPainter(
-                            score: widget.score,
-                            progress: _arcAnimation.value,
+                        Semantics(
+                          label: 'Financial health score gauge: ${widget.score}%',
+                          child: CustomPaint(
+                            painter: _FhsArcPainter(
+                              score: widget.score,
+                              progress: _arcAnimation.value,
+                            ),
+                            size: const Size(200, 200),
                           ),
-                          size: const Size(200, 200),
                         ),
                         // Center content
                         Column(

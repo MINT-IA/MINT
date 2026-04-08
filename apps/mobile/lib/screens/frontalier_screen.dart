@@ -1,17 +1,16 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/expat_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FRONTALIER SCREEN — Sprint S23 / Expatriation + Frontaliers
@@ -57,37 +56,9 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
     _recalculateTax();
     _recalculate90Day();
     _recalculateCharges();
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        if (profile.canton.isNotEmpty) {
-          _taxCanton = profile.canton;
-        }
-        if (profile.salaireBrutMensuel > 0) {
-          _taxSalary = profile.salaireBrutMensuel;
-          _chargesSalary = profile.salaireBrutMensuel;
-        }
-        if (profile.nombreEnfants > 0) {
-          _taxChildren = profile.nombreEnfants;
-        }
-        if (profile.etatCivil == CoachCivilStatus.marie) {
-          _taxMaritalStatus = 1;
-        }
-      });
-      _recalculateTax();
-      _recalculateCharges();
-    } catch (_) {}
   }
 
   @override
@@ -200,19 +171,33 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         MintEntrance(child: _buildTaxInputsCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_taxResult != null) ...[
-          _buildTaxResultCard(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildTaxResultCard(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          if (_taxCanton == 'GE') _buildQuasiResidentBadge(),
+          if (_taxCanton == 'GE')
+            MintEntrance(
+              delay: const Duration(milliseconds: 200),
+              child: _buildQuasiResidentBadge(),
+            ),
           if (_taxCanton == 'GE') const SizedBox(height: MintSpacing.md + 4),
-          if (_taxResult!['isTessin'] == true) _buildTessinNote(),
+          if (_taxResult!['isTessin'] == true)
+            MintEntrance(
+              delay: const Duration(milliseconds: 200),
+              child: _buildTessinNote(),
+            ),
           if (_taxResult!['isTessin'] == true)
             const SizedBox(height: MintSpacing.md + 4),
         ],
-        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
-          S.of(context)!.frontalierEducationalTax,
-        )),
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.frontalierEducationalTax,
+          ),
+        ),
         const SizedBox(height: MintSpacing.md + 4),
-        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
+        _buildDisclaimer(),
       ],
     );
   }
@@ -222,7 +207,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
 
     return MintSurface(
       tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -239,11 +224,13 @@ class _FrontalierScreenState extends State<FrontalierScreen>
               Semantics(
                 label: S.of(context)!.frontalierCantonTravail,
                 button: true,
-                child: MintSurface(
-                  tone: MintSurfaceTone.porcelaine,
+                child: Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.sm + 4),
-                  radius: 10,
+                  decoration: BoxDecoration(
+                    color: MintColors.surface,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _taxCanton,
@@ -270,17 +257,19 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
           const SizedBox(height: MintSpacing.md + 4),
 
-          // Salary slider
-          _buildSlider(
+          // Salary input
+          MintAmountField(
             label: S.of(context)!.frontalierSalaireBrut,
             value: _taxSalary,
+            formatValue: (v) => ExpatService.formatChf(v),
+            onChanged: (v) {
+              setState(() {
+                _taxSalary = v;
+                _recalculateTax();
+              });
+            },
             min: 3000,
             max: 25000,
-            step: 500,
-            onChanged: (v) {
-              _taxSalary = v;
-              _recalculateTax();
-            },
           ),
           const SizedBox(height: MintSpacing.md + 4),
 
@@ -300,6 +289,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                   selected: _taxMaritalStatus == 0,
                   child: GestureDetector(
                     onTap: () {
+                      HapticFeedback.lightImpact();
                       _taxMaritalStatus = 0;
                       _recalculateTax();
                     },
@@ -340,6 +330,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                   selected: _taxMaritalStatus == 1,
                   child: GestureDetector(
                     onTap: () {
+                      HapticFeedback.lightImpact();
                       _taxMaritalStatus = 1;
                       _recalculateTax();
                     },
@@ -414,8 +405,8 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final cantonNom = result['cantonNom'] as String;
 
     return MintSurface(
-      tone: MintSurfaceTone.blanc,
-      padding: const EdgeInsets.all(MintSpacing.md + 4),
+      tone: MintSurfaceTone.porcelaine,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -436,20 +427,23 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md + 4),
 
           // Monthly tax hero
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  ExpatService.formatChf(monthlyTax),
-                  style: MintTextStyles.displayMedium(),
-                ),
-                const SizedBox(height: MintSpacing.xs),
-                Text(
-                  S.of(context)!.frontalierParMois,
-                  style: MintTextStyles.bodyMedium(
-                      color: MintColors.textMuted),
-                ),
-              ],
+          Semantics(
+            label: '${ExpatService.formatChf(monthlyTax)} ${S.of(context)!.frontalierParMois}',
+            child: Center(
+              child: Column(
+                children: [
+                  Text(
+                    ExpatService.formatChf(monthlyTax),
+                    style: MintTextStyles.displayMedium(),
+                  ),
+                  const SizedBox(height: MintSpacing.xs),
+                  Text(
+                    S.of(context)!.frontalierParMois,
+                    style: MintTextStyles.bodyMedium(
+                        color: MintColors.textMuted),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: MintSpacing.md + 4),
@@ -484,10 +478,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md),
 
           // Annual total
-          MintSurface(
-            tone: MintSurfaceTone.porcelaine,
+          Container(
             padding: const EdgeInsets.all(MintSpacing.md),
-            radius: 16,
+            decoration: BoxDecoration(
+              color: MintColors.surface,
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -602,55 +598,72 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         MintEntrance(child: _build90DayInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_ruleResult != null) ...[
-          _build90DayGauge(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _build90DayGauge(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _build90DayRecommendation(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _build90DayRecommendation(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _build90DayLegalRef(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _build90DayLegalRef(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
-          S.of(context)!.frontalierEducational90Days,
-        )),
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.frontalierEducational90Days,
+          ),
+        ),
         const SizedBox(height: MintSpacing.md + 4),
-        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
+        _buildDisclaimer(),
       ],
     );
   }
 
   Widget _build90DayInputCard() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.frontalierJoursBureau,
-            value: _bureauDays.toDouble(),
-            min: 0,
-            max: 250,
-            step: 5,
+            value: _bureauDays,
+            minValue: 0,
+            maxValue: 250,
+            formatValue: (v) => '$v ${S.of(context)!.frontalierJoursSuffix}',
             onChanged: (v) {
-              _bureauDays = v.round();
-              _recalculate90Day();
+              setState(() {
+                _bureauDays = v;
+                _recalculate90Day();
+              });
             },
-            formatAsInt: true,
-            suffix: S.of(context)!.frontalierJoursSuffix,
           ),
           const SizedBox(height: MintSpacing.md + 4),
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.frontalierJoursHomeOffice,
-            value: _homeOfficeDays.toDouble(),
-            min: 0,
-            max: 250,
-            step: 5,
+            value: _homeOfficeDays,
+            minValue: 0,
+            maxValue: 250,
+            formatValue: (v) => '$v ${S.of(context)!.frontalierJoursSuffix}',
             onChanged: (v) {
-              _homeOfficeDays = v.round();
-              _recalculate90Day();
+              setState(() {
+                _homeOfficeDays = v;
+                _recalculate90Day();
+              });
             },
-            formatAsInt: true,
-            suffix: S.of(context)!.frontalierJoursSuffix,
           ),
         ],
       ),
@@ -686,9 +699,14 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         break;
     }
 
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
       padding: const EdgeInsets.all(MintSpacing.md + 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: gaugeColor.withValues(alpha: 0.3)),
+      ),
       child: Column(
         children: [
           Row(
@@ -704,9 +722,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(height: MintSpacing.md + 4),
 
           // Big number
-          Text(
-            '$riskDays',
-            style: MintTextStyles.displayLarge(color: gaugeColor),
+          Semantics(
+            label: '$riskDays ${S.of(context)!.frontalierJoursHomeOfficeLabel}',
+            child: Text(
+              '$riskDays',
+              style: MintTextStyles.displayLarge(color: gaugeColor),
+            ),
           ),
           Text(
             S.of(context)!.frontalierJoursHomeOfficeLabel,
@@ -874,10 +895,13 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final result = _ruleResult!;
     final recommendation = result['recommendation'] as String;
 
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -906,10 +930,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     final result = _ruleResult!;
     final legalRef = result['legalReference'] as String;
 
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
+    return Container(
       padding: const EdgeInsets.all(MintSpacing.sm + 4),
-      radius: 12,
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -938,18 +964,30 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         MintEntrance(child: _buildChargesInputCard()),
         const SizedBox(height: MintSpacing.md + 4),
         if (_chargesResult != null) ...[
-          _buildChargesComparison(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 100),
+            child: _buildChargesComparison(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _buildChargesDifferenceBadge(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 200),
+            child: _buildChargesDifferenceBadge(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
-          _buildLamalSection(),
+          MintEntrance(
+            delay: const Duration(milliseconds: 250),
+            child: _buildLamalSection(),
+          ),
           const SizedBox(height: MintSpacing.md + 4),
         ],
-        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEducationalInsert(
-          S.of(context)!.frontalierEducationalCharges,
-        )),
+        MintEntrance(
+          delay: const Duration(milliseconds: 300),
+          child: _buildEducationalInsert(
+            S.of(context)!.frontalierEducationalCharges,
+          ),
+        ),
         const SizedBox(height: MintSpacing.md + 4),
-        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDisclaimer()),
+        _buildDisclaimer(),
       ],
     );
   }
@@ -957,22 +995,29 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   Widget _buildChargesInputCard() {
     final countries = ExpatService.countryLabels.keys.toList();
 
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.frontalierSalaireBrut,
             value: _chargesSalary,
+            formatValue: (v) => ExpatService.formatChf(v),
+            onChanged: (v) {
+              setState(() {
+                _chargesSalary = v;
+                _recalculateCharges();
+              });
+            },
             min: 3000,
             max: 25000,
-            step: 500,
-            onChanged: (v) {
-              _chargesSalary = v;
-              _recalculateCharges();
-            },
           ),
           const SizedBox(height: MintSpacing.md + 4),
 
@@ -995,6 +1040,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
                     selected: isSelected,
                     child: GestureDetector(
                       onTap: () {
+                        HapticFeedback.lightImpact();
                         _chargesCountry = country;
                         _recalculateCharges();
                       },
@@ -1044,10 +1090,14 @@ class _FrontalierScreenState extends State<FrontalierScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: MintSurface(
-            tone: MintSurfaceTone.blanc,
+          child: Container(
             padding: const EdgeInsets.all(MintSpacing.md),
-            radius: 16,
+            decoration: BoxDecoration(
+              color: MintColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border:
+                  Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1078,10 +1128,14 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         ),
         const SizedBox(width: MintSpacing.sm + 4),
         Expanded(
-          child: MintSurface(
-            tone: MintSurfaceTone.blanc,
+          child: Container(
             padding: const EdgeInsets.all(MintSpacing.md),
-            radius: 16,
+            decoration: BoxDecoration(
+              color: MintColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border:
+                  Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1206,10 +1260,13 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   }
 
   Widget _buildLamalSection() {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
       padding: const EdgeInsets.all(MintSpacing.md),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1251,10 +1308,12 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MintSurface(
-          tone: MintSurfaceTone.porcelaine,
+        Container(
           padding: const EdgeInsets.all(MintSpacing.sm),
-          radius: 8,
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(8),
+          ),
           child: Icon(icon, size: 16, color: MintColors.textSecondary),
         ),
         const SizedBox(width: MintSpacing.sm + 2),
@@ -1285,40 +1344,6 @@ class _FrontalierScreenState extends State<FrontalierScreen>
   //  SHARED WIDGETS
   // ════════════════════════════════════════════════════════════
 
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required double step,
-    required ValueChanged<double> onChanged,
-    bool formatAsInt = false,
-    String? suffix,
-  }) {
-    final divisions = ((max - min) / step).round();
-
-    String displayValue;
-    if (formatAsInt) {
-      displayValue = '${value.round()}${suffix != null ? ' $suffix' : ''}';
-    } else {
-      displayValue = ExpatService.formatChf(value);
-    }
-
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions > 0 ? divisions : 1,
-      formatValue: (_) => displayValue,
-      onChanged: (v) {
-        setState(() {
-          onChanged((v / step).round() * step);
-        });
-      },
-    );
-  }
-
   Widget _buildStepper({
     required int value,
     required int minVal,
@@ -1328,7 +1353,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
     return Row(
       children: [
         Semantics(
-          label: S.of(context)!.semanticsDecrement,
+          label: S.of(context)!.semanticsDecrease,
           button: true,
           child: IconButton(
             onPressed: value > minVal
@@ -1350,7 +1375,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           ),
         ),
         Semantics(
-          label: S.of(context)!.semanticsIncrement,
+          label: S.of(context)!.semanticsIncrease,
           button: true,
           child: IconButton(
             onPressed: value < maxVal
@@ -1425,7 +1450,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
             child: Text(
-              S.of(context)!.frontalierDisclaimer,
+              ExpatService.disclaimer,
               style: MintTextStyles.micro(color: MintColors.textMuted),
             ),
           ),

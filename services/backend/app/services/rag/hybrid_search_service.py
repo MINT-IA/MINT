@@ -62,6 +62,7 @@ WITH vector_results AS (
            1 - (embedding <=> %(query_embedding)s::vector) AS vector_score
     FROM document_embeddings
     WHERE (%(doc_types)s IS NULL OR doc_type = ANY(%(doc_types)s))
+      AND (doc_type != 'memory' OR metadata::jsonb->>'user_id' = %(user_id)s OR %(user_id)s IS NULL)
     ORDER BY embedding <=> %(query_embedding)s::vector
     LIMIT %(n_results)s
 ),
@@ -71,6 +72,7 @@ keyword_results AS (
     FROM document_embeddings
     WHERE to_tsvector('french', content) @@ plainto_tsquery('french', %(query_text)s)
       AND (%(doc_types)s IS NULL OR doc_type = ANY(%(doc_types)s))
+      AND (doc_type != 'memory' OR metadata::jsonb->>'user_id' = %(user_id)s OR %(user_id)s IS NULL)
     LIMIT %(n_results)s
 )
 SELECT COALESCE(v.doc_id, k.doc_id) AS doc_id,
@@ -83,7 +85,9 @@ SELECT COALESCE(v.doc_id, k.doc_id) AS doc_id,
        (0.7 * COALESCE(v.vector_score, 0) + 0.3 * COALESCE(k.keyword_score, 0))
        * CASE
            WHEN COALESCE(v.doc_type, k.doc_type) = 'memory'
+                AND COALESCE(v.metadata, k.metadata) IS NOT NULL
                 AND COALESCE(v.metadata, k.metadata)::jsonb ? 'created_at'
+                AND COALESCE(v.metadata, k.metadata)::jsonb->>'created_at' ~ '^\d{4}-\d{2}-\d{2}'
                 AND (NOW() - (COALESCE(v.metadata, k.metadata)::jsonb->>'created_at')::timestamptz) < INTERVAL '30 days'
            THEN 1.2  -- 20% freshness boost for recent memories
            ELSE 1.0
@@ -103,6 +107,7 @@ SELECT doc_id, title, content, metadata, doc_type,
 FROM document_embeddings
 WHERE to_tsvector('french', content) @@ plainto_tsquery('french', %(query_text)s)
   AND (%(doc_types)s IS NULL OR doc_type = ANY(%(doc_types)s))
+  AND (doc_type != 'memory' OR metadata::jsonb->>'user_id' = %(user_id)s OR %(user_id)s IS NULL)
 ORDER BY keyword_score DESC
 LIMIT %(n_results)s;
 """
@@ -137,6 +142,7 @@ class HybridSearchService:
         """
         self._db_url = db_url
         self._openai_client = None  # lazy-initialized
+        self._pool = None  # lazy-initialized ThreadedConnectionPool
         self._available: Optional[bool] = None
 
     def _get_openai_client(self):
@@ -154,9 +160,18 @@ class HybridSearchService:
         return self._openai_client
 
     def _get_connection(self):
-        """Get a psycopg2 connection to the PostgreSQL database."""
-        import psycopg2
-        return psycopg2.connect(self._db_url)
+        """Get a psycopg2 connection from the pool (or create one).
+
+        FIX-031: Uses a ThreadedConnectionPool to avoid creating a new
+        connection per search() call. At 100 concurrent users, raw
+        psycopg2.connect() would exhaust PostgreSQL connections.
+        """
+        if self._pool is None:  # pragma: no cover
+            import psycopg2.pool  # pragma: no cover
+            self._pool = psycopg2.pool.ThreadedConnectionPool(  # pragma: no cover
+                minconn=2, maxconn=10, dsn=self._db_url,
+            )
+        return self._pool.getconn()  # pragma: no cover
 
     def _embed_query(self, query: str) -> Optional[str]:
         """Embed a query string and return as pgvector-compatible string.
@@ -205,6 +220,7 @@ class HybridSearchService:
         n_results: int = 5,
         doc_types: Optional[list[str]] = None,
         min_score: float = 0.1,
+        user_id: Optional[str] = None,
     ) -> list[SearchResult]:
         """Search using hybrid vector + keyword scoring.
 
@@ -238,6 +254,7 @@ class HybridSearchService:
                     "n_results": n_results,
                     "doc_types": doc_types,
                     "min_score": min_score,
+                    "user_id": user_id,
                 }
             else:
                 # Fallback: keyword-only (no embedding available)
@@ -246,6 +263,7 @@ class HybridSearchService:
                     "query_text": query,
                     "n_results": n_results,
                     "doc_types": doc_types,
+                    "user_id": user_id,
                 }
                 logger.info("hybrid_search falling back to keyword-only (no embedding)")
 
@@ -285,8 +303,13 @@ class HybridSearchService:
             logger.error("hybrid_search failed: %s", exc)
             return []
         finally:
-            if conn is not None:
+            if conn is not None and self._pool is not None:  # pragma: no cover
                 try:
-                    conn.close()
-                except Exception:
-                    pass
+                    self._pool.putconn(conn)  # pragma: no cover
+                except Exception as exc:  # pragma: no cover
+                    # STAB-16 (07-04): best-effort connection return. The pool
+                    # may have been closed between `getconn` and `putconn`
+                    # (graceful shutdown) — dropping the connection is safe
+                    # because the pool will recreate one on next use. Log for
+                    # observability so a real leak still surfaces in metrics.
+                    logger.debug("putconn failed (pool likely closed): %s", exc)

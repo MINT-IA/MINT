@@ -110,7 +110,7 @@ class BudgetGapCard extends StatelessWidget {
               ),
               Text(
                 '${isSurplus ? '+' : ''}${_formatChf(budgetGap.soldeMensuel)}',
-                style: MintTextStyles.headlineMedium(color: soldeColor).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                style: MintTextStyles.headlineSmall(color: soldeColor).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),

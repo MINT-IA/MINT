@@ -1,10 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -12,15 +9,17 @@ import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/coach/mortgage_journey_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
-import 'package:mint_mobile/models/screen_return.dart';
-import 'package:mint_mobile/services/screen_completion_tracker.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 
 /// Ecran de capacite d'achat immobilier (Cat B — Decision Canvas).
@@ -28,11 +27,6 @@ import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
 /// Layout S55: enjeu d'abord, consequence avant controle, matiere chaude.
 /// Le resultat (prix max accessible) domine. Les sliders suivent.
 /// Base legale : directive ASB sur le credit hypothecaire.
-///
-/// PREFILL: When navigated from coach via RouteSuggestionCard,
-/// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
-/// with pre-computed values. Currently reads from CoachProfileProvider.
-/// TODO: merge prefill with profile data for coach-optimized defaults.
 class AffordabilityScreen extends StatefulWidget {
   const AffordabilityScreen({super.key});
 
@@ -42,82 +36,159 @@ class AffordabilityScreen extends StatefulWidget {
 
 class _AffordabilityScreenState extends State<AffordabilityScreen> {
   bool _hasUserInteracted = false;
-
-  /// Sequence IDs read from GoRouter.extra (Tier A when present).
-  /// Null when navigated without sequence context (Tier B legacy).
   String? _seqRunId;
   String? _seqStepId;
+  bool _finalReturnEmitted = false;
+  final Set<String> _prefilledFields = {};
 
   @override
   void initState() {
     super.initState();
+    ReportPersistenceService.markSimulatorExplored('mortgage');
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _readSequenceContext();
-      if (_seqRunId == null) {
-        ReportPersistenceService.markSimulatorExplored('mortgage');
-      }
       _initializeFromProfile();
+      _readSequenceContext();
     });
   }
 
-  /// Read sequence runId/stepId from GoRouter.extra if present.
+  /// Auto-fill from CoachProfile — replaces hardcoded defaults (120000, 200000).
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      bool changed = false;
+      final revenuAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
+      if (revenuAnnuel > 0) {
+        _revenuBrut = revenuAnnuel;
+        _prefilledFields.add('revenu_brut');
+        changed = true;
+      }
+      final avoirLpp = profile.prevoyance.avoirLppTotal;
+      if (avoirLpp != null && avoirLpp > 0) {
+        _avoirLpp = avoirLpp;
+        _prefilledFields.add('avoir_lpp');
+        changed = true;
+      }
+      final epargne = profile.patrimoine.epargneLiquide;
+      if (epargne > 0) {
+        _epargneDispo = epargne;
+        _prefilledFields.add('epargne_dispo');
+        changed = true;
+      }
+      final canton = profile.canton;
+      if (canton.isNotEmpty) {
+        _canton = canton.toUpperCase();
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // CoachProfileProvider not available — keep hardcoded defaults.
+    }
+  }
+
   void _readSequenceContext() {
     try {
       final extra = GoRouterState.of(context).extra;
       if (extra is Map<String, dynamic>) {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
       }
     } catch (_) {
       // Not navigated via GoRouter or no extra — stay Tier B.
     }
   }
 
-  /// Emits a realtime ScreenReturn on every slider change (Tier B — no
-  /// sequence IDs). The debounce in CoachChatScreen filters the noise.
-  /// Sequence IDs are NOT included here to avoid premature step advancement.
-  /// Suppressed in sequence mode — terminal return on pop handles it.
-  void _emitScreenReturn() {
-    if (!_hasUserInteracted) return;
-    if (_seqRunId != null) return; // Sequence mode: terminal only
-    final result = _result;
-    final screenReturn = ScreenReturn.changedInputs(
-      route: '/hypotheque',
-      updatedFields: {'maxAffordablePrice': result.prixMaxAccessible},
-      confidenceDelta: 0.02,
-    );
-    ScreenCompletionTracker.markCompletedWithReturn(
-      'affordability',
-      screenReturn,
-    );
+  /// Apply prefill from GoRouter coach suggestion (overrides profile auto-fill).
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly value — multiply by 13 for annual
+      _revenuBrut = salaireBrut.toDouble() * 13;
+      _prefilledFields.add('revenu_brut');
+      changed = true;
+    }
+
+    final epargne = prefill['epargne'];
+    if (epargne is num && epargne >= 0) {
+      _epargneDispo = epargne.toDouble();
+      _prefilledFields.add('epargne_dispo');
+      changed = true;
+    }
+
+    final avoirLpp = prefill['avoirLpp'];
+    if (avoirLpp is num && avoirLpp >= 0) {
+      _avoirLpp = avoirLpp.toDouble();
+      _prefilledFields.add('avoir_lpp');
+      changed = true;
+    }
+
+    if (changed) setState(() {});
   }
 
-  /// Emits a terminal ScreenReturn when the user leaves the screen.
-  /// If in a guided sequence (Tier A), includes runId/stepId/eventId
-  /// and stepOutputs for the SequenceCoordinator to advance the run.
-  /// Emits the terminal Tier A ScreenReturn exactly once.
-  /// Called from PopScope.onPopInvokedWithResult when the user leaves.
-  /// Guards: _seqRunId non-null, not already emitted.
-  /// If user didn't interact → abandoned (so coordinator can retry).
-  /// If user interacted → completed with outputs.
+  /// Write computed mortgage capacity back to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    try {
+      final result = _result;
+      final updated = profile.copyWith(
+        patrimoine: profile.patrimoine.copyWith(
+          mortgageCapacity: result.prixMaxAccessible > 0
+              ? result.prixMaxAccessible
+              : null,
+          estimatedMonthlyPayment: result.chargesTheoriquesMensuelles > 0
+              ? result.chargesTheoriquesMensuelles
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
   void _emitFinalReturn() {
     if (_finalReturnEmitted) return;
     if (_seqRunId == null || _seqStepId == null) return;
     _finalReturnEmitted = true;
 
     if (!_hasUserInteracted) {
-      // User opened screen but left without interacting → abandoned.
-      // The coordinator will offer a retry instead of leaving sequence stuck.
       final screenReturn = ScreenReturn.abandoned(
         route: '/hypotheque',
         runId: _seqRunId,
         stepId: _seqStepId,
         eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
       );
-      ScreenCompletionTracker.markCompletedWithReturn(
-        'affordability',
-        screenReturn,
-      );
+      ScreenCompletionTracker.markCompletedWithReturn('affordability', screenReturn);
       return;
     }
 
@@ -132,51 +203,22 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       stepId: _seqStepId,
       eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
     );
-    ScreenCompletionTracker.markCompletedWithReturn(
-      'affordability',
-      screenReturn,
-    );
+    ScreenCompletionTracker.markCompletedWithReturn('affordability', screenReturn);
   }
-
-  /// Guard: ensures _emitFinalReturn fires exactly once.
-  bool _finalReturnEmitted = false;
 
   double _revenuBrut = 120000;
   double _prixAchat = 800000;
   double _epargneDispo = 100000;
   double _avoir3a = 50000;
   double _avoirLpp = 200000;
-  String _canton = 'ZH';
+  String _canton = 'VD';
   bool _showAdvancedParams = false;
 
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        final revenuAnnuel = profile.revenuBrutAnnuel;
-        if (revenuAnnuel > 0) {
-          _revenuBrut = revenuAnnuel;
-        }
-        final epargne = profile.patrimoine.epargneLiquide;
-        if (epargne > 0) {
-          _epargneDispo = epargne;
-        }
-        // Always use profile's 3a value (even 0 = no savings is valid data)
-        _avoir3a = profile.prevoyance.totalEpargne3a;
-        final lpp = profile.prevoyance.avoirLppTotal;
-        if (lpp != null && lpp > 0) {
-          _avoirLpp = lpp;
-        }
-        if (cantonFullNames.containsKey(profile.canton)) {
-          _canton = profile.canton;
-        }
-      });
-    } catch (_) {
-      // Provider not in tree (tests) — keep defaults
-    }
-  }
+  static const _cantons = [
+    'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
+    'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
+    'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+  ];
 
   AffordabilityResult get _result => AffordabilityCalculator.calculate(
         revenuBrutAnnuel: _revenuBrut,
@@ -198,7 +240,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       },
       child: Scaffold(
       backgroundColor: MintColors.porcelaine,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           // ── White standard AppBar (Design System §4.5) ──
           SliverAppBar(
@@ -223,33 +265,33 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // SECTION 1 — L'ENJEU : la question hero
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintEntrance(child: Text(
+                Text(
                   l.affordabilityEmotionalPositif,
                   style: MintTextStyles.headlineLarge(
                     color: MintColors.textPrimary,
                   ),
-                )),
+                ),
                 const SizedBox(height: MintSpacing.xl),
 
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 // SECTION 2 — LE RESULTAT : consequence financiere
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-                MintEntrance(delay: const Duration(milliseconds: 200), child: MintResultHeroCard(
-                  eyebrow: result.chiffreChocPositif
+                MintResultHeroCard(
+                  eyebrow: result.premierEclairagePositif
                       ? l.affordabilityParameters
                       : l.affordabilityInsightEquityTitle,
-                  primaryValue: result.chiffreChocPositif
+                  primaryValue: result.premierEclairagePositif
                       ? 'CHF\u00a0${formatChf(result.prixMaxAccessible)}'
                       : 'CHF\u00a0${formatChf(result.manqueFondsPropres)}',
-                  primaryLabel: result.chiffreChocPositif
+                  primaryLabel: result.premierEclairagePositif
                       ? l.affordabilityCalculationDetail
                       : l.affordabilityExceeded,
-                  narrative: result.chiffreChocTexte,
-                  accentColor: result.chiffreChocPositif
+                  narrative: result.premierEclairageTexte,
+                  accentColor: result.premierEclairagePositif
                       ? MintColors.success
                       : MintColors.error,
                   tone: MintSurfaceTone.porcelaine,
-                )),
+                ),
                 const SizedBox(height: MintSpacing.xl),
 
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -345,7 +387,7 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<String>(
                                   value: _canton,
-                                  items: sortedCantonCodes
+                                  items: _cantons
                                       .map((c) => DropdownMenuItem(
                                             value: c,
                                             child: Text(c,
@@ -355,7 +397,10 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                                           ))
                                       .toList(),
                                   onChanged: (v) {
-                                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
+                                    if (v != null) {
+                                      setState(() { _hasUserInteracted = true; _canton = v; });
+                                      WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                                    }
                                   },
                                 ),
                               ),
@@ -366,39 +411,38 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       const SizedBox(height: MintSpacing.lg),
 
                       // Revenu brut annuel
-                      MintPremiumSlider(
+                      _buildAmountFieldWithBadge(
                         label: l.affordabilityGrossIncome,
                         value: _revenuBrut,
+                        fieldKey: 'revenu_brut',
+                        onChanged: (v) {
+                          setState(() { _hasUserInteracted = true; _revenuBrut = v; });
+                          WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+                        },
                         min: 50000,
                         max: 300000,
-                        divisions: 50,
-                        formatValue: (_) => 'CHF\u00a0${formatChf(_revenuBrut)}',
-                        onChanged: (v) { _hasUserInteracted = true; setState(() => _revenuBrut = v); _emitScreenReturn(); },
                       ),
                       const SizedBox(height: MintSpacing.md),
 
                       // Prix d'achat
-                      MintPremiumSlider(
+                      MintAmountField(
                         label: l.affordabilityTargetPrice,
                         value: _prixAchat,
+                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _prixAchat = v; }),
                         min: 200000,
                         max: 3000000,
-                        divisions: 56,
-                        formatValue: (_) => 'CHF\u00a0${formatChf(_prixAchat)}',
-                        onChanged: (v) { _hasUserInteracted = true; setState(() => _prixAchat = v); _emitScreenReturn(); },
                       ),
                       const SizedBox(height: MintSpacing.md),
 
                       // Epargne disponible
-                      MintPremiumSlider(
+                      MintAmountField(
                         label: l.affordabilityAvailableSavings,
                         value: _epargneDispo,
+                        formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                        onChanged: (v) => setState(() { _hasUserInteracted = true; _epargneDispo = v; }),
                         min: 0,
                         max: 500000,
-                        divisions: 100,
-                        formatValue: (_) =>
-                            'CHF\u00a0${formatChf(_epargneDispo)}',
-                        onChanged: (v) { _hasUserInteracted = true; setState(() => _epargneDispo = v); _emitScreenReturn(); },
                       ),
 
                       // Progressive disclosure: 3a + LPP behind toggle
@@ -430,26 +474,22 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                       ),
                       if (_showAdvancedParams) ...[
                         const SizedBox(height: MintSpacing.md),
-                        MintPremiumSlider(
+                        MintAmountField(
                           label: l.affordabilityPillar3a,
                           value: _avoir3a,
+                          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoir3a = v; }),
                           min: 0,
                           max: 300000,
-                          divisions: 60,
-                          formatValue: (_) =>
-                              'CHF\u00a0${formatChf(_avoir3a)}',
-                          onChanged: (v) { _hasUserInteracted = true; setState(() => _avoir3a = v); _emitScreenReturn(); },
                         ),
                         const SizedBox(height: MintSpacing.md),
-                        MintPremiumSlider(
+                        _buildAmountFieldWithBadge(
                           label: l.affordabilityPillarLpp,
                           value: _avoirLpp,
+                          fieldKey: 'avoir_lpp',
+                          onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirLpp = v; }),
                           min: 0,
                           max: 500000,
-                          divisions: 100,
-                          formatValue: (_) =>
-                              'CHF\u00a0${formatChf(_avoirLpp)}',
-                          onChanged: (v) { _hasUserInteracted = true; setState(() => _avoirLpp = v); _emitScreenReturn(); },
                         ),
                       ],
                     ],
@@ -495,8 +535,47 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
             ),
           ),
         ],
-      ))),
-    ),
+      ),
+    ));
+  }
+
+  /// Builds a MintAmountField with an optional SmartDefaultIndicator badge
+  /// shown above the field when the field key is in _prefilledFields.
+  Widget _buildAmountFieldWithBadge({
+    required String label,
+    required double value,
+    required String fieldKey,
+    required ValueChanged<double> onChanged,
+    double? min,
+    double? max,
+  }) {
+    final isPrefilled = _prefilledFields.contains(fieldKey);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (isPrefilled) ...[
+          Row(
+            children: [
+              Text(label,
+                  style: MintTextStyles.bodySmall(
+                      color: MintColors.textSecondary)),
+              const SmartDefaultIndicator(
+                source: 'Depuis ton profil MINT',
+                confidence: 0.60,
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+        ],
+        MintAmountField(
+          label: isPrefilled ? label : label,
+          value: value,
+          formatValue: (v) => 'CHF\u00a0${formatChf(v)}',
+          onChanged: onChanged,
+          min: min,
+          max: max,
+        ),
+      ],
     );
   }
 

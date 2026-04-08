@@ -29,7 +29,7 @@ class LetterGeneratorSheet extends StatelessWidget {
         children: [
           Text(
             s.letterGenTitle,
-            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20),
+            style: MintTextStyles.headlineSmall(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
@@ -110,7 +110,7 @@ class LetterGeneratorSheet extends StatelessWidget {
                   Text(title,
                       style: MintTextStyles.titleMedium(color: MintColors.textPrimary)),
                   Text(subtitle,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary)),
                 ],
               ),
             ),

@@ -10,7 +10,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.user import User
 from app.core.config import settings
-from app.services.auth_service import decode_token
+import jwt as pyjwt
+from app.services.auth_service import decode_token, is_jti_blacklisted
 
 security = HTTPBearer(auto_error=False)
 
@@ -38,6 +39,22 @@ def get_current_user(
         return None
 
     token = credentials.credentials
+
+    # SECURITY: Check blacklist BEFORE expiry to prevent revoked tokens from
+    # getting a generic "expired" response instead of "revoked".
+    try:
+        unverified = pyjwt.decode(token, options={"verify_exp": False, "verify_signature": False})
+        jti = unverified.get("jti")
+        if jti and is_jti_blacklisted(db, jti):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token révoqué"
+            )
+    except HTTPException:
+        raise  # Re-raise auth failures
+    except Exception:
+        pass  # If decode fails entirely, let decode_token handle it
+
     payload = decode_token(token)
 
     if payload is None:
@@ -53,6 +70,18 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Utilisateur non trouvé"
         )
+
+    # FIX-049: Reject tokens issued before last password change.
+    # After password reset, all previously issued tokens are invalid.
+    token_iat = payload.get("iat")
+    if user.password_changed_at and token_iat:  # pragma: no cover — requires password reset flow
+        from datetime import datetime, timezone  # pragma: no cover
+        iat_dt = datetime.fromtimestamp(token_iat, tz=timezone.utc)  # pragma: no cover
+        if iat_dt < user.password_changed_at.replace(tzinfo=timezone.utc):  # pragma: no cover
+            raise HTTPException(  # pragma: no cover
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token invalidé par changement de mot de passe"
+            )
 
     return user
 

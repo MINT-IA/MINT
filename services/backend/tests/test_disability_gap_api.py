@@ -8,7 +8,7 @@ Covers:
     - Self-employed -> no phase 1 coverage
     - Invalid canton -> 400
     - Various disability degrees -> correct AI rente
-    - Response includes disclaimer, sources, chiffre_choc
+    - Response includes disclaimer, sources, premier_eclairage
     - Response includes all 3 phase gaps
     - Risk levels (critical, high, medium, low)
     - Edge cases (zero income, student, mixed status)
@@ -168,7 +168,7 @@ class TestDisabilityGapDegrees:
 
 
 class TestDisabilityGapCompliance:
-    """Tests for compliance fields (disclaimer, sources, chiffre_choc)."""
+    """Tests for compliance fields (disclaimer, sources, premier_eclairage)."""
 
     def test_response_includes_disclaimer(self, client):
         """Response must include disclaimer with 'outil educatif'."""
@@ -189,9 +189,9 @@ class TestDisabilityGapCompliance:
         assert "LAI" in all_sources
         assert "LPP" in all_sources
 
-    def test_response_includes_chiffre_choc(self, client):
-        """Response must include chiffre_choc with CHF amount."""
+    def test_response_includes_premier_eclairage(self, client):
+        """Response must include premier_eclairage with CHF amount."""
         resp = client.post(API_URL, json=_employee_payload())
         data = resp.json()
-        assert "chiffreChoc" in data
-        assert "CHF" in data["chiffreChoc"]
+        assert "premierEclairage" in data
+        assert "CHF" in data["premierEclairage"]

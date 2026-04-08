@@ -234,7 +234,7 @@ class _TopCantonWidgetState extends State<TopCantonWidget> {
             child: Text(
               'Le canton le moins cher est parfois à 30 minutes. '
               'Compare aussi la qualité des écoles, transports et prix de l\'immobilier.',
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

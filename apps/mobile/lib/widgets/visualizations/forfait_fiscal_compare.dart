@@ -196,7 +196,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
               ),
               Text(
                 l.forfaitFiscalSubtitle,
-                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(),
               ),
             ],
           ),
@@ -275,7 +275,7 @@ class _ForfaitFiscalCompareState extends State<ForfaitFiscalCompare>
                         isSaving
                             ? l.forfaitFiscalSaving
                             : l.forfaitFiscalSurcharge,
-                        style: MintTextStyles.bodyMedium(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -541,7 +541,7 @@ class _ForfaitBarPainter extends CustomPainter {
         final amtTp = TextPainter(
           text: TextSpan(
             text: _formatChfShort(seg.amount),
-            style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: MintColors.white).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         );
@@ -710,7 +710,7 @@ class _ForfaitBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: MintTextStyles.micro(color: color).copyWith(fontSize: 10, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal, height: 1.3),
+        style: MintTextStyles.micro(color: color).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal, height: 1.3),
       ),
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,
@@ -729,7 +729,7 @@ class _ForfaitBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: _formatChf(total * progress),
-        style: MintTextStyles.bodyMedium(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+        style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     );

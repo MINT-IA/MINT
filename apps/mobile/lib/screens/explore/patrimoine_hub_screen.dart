@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/content_adapter_service.dart';
+import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -13,6 +17,20 @@ class PatrimoineHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+
+    // Lifecycle-based content gating — graceful degradation.
+    ContentAdaptation? adaptation;
+    try {
+      final profileProvider = context.watch<CoachProfileProvider>();
+      if (profileProvider.hasProfile) {
+        final profile = profileProvider.profile!;
+        final phase = LifecyclePhaseService.detect(profile);
+        adaptation = ContentAdapterService.adapt(phase, profile);
+      }
+    } catch (_) {
+      // Provider not in tree — show everything.
+    }
+
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
@@ -31,22 +49,24 @@ class PatrimoineHubScreen extends StatelessWidget {
             l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
           )),
-          const SizedBox(height: MintSpacing.md),
-          _HubItemCard(
-            title: l.patrimoineHubFeaturedSuccession,
-            subtitle: l.patrimoineHubFeaturedSuccessionSub,
-            icon: Icons.account_tree_outlined,
-            tone: MintSurfaceTone.sauge,
-            onTap: () => context.push('/succession'),
-          ),
-          const SizedBox(height: MintSpacing.md),
-          _HubItemCard(
-            title: l.patrimoineHubFeaturedDonation,
-            subtitle: l.patrimoineHubFeaturedDonationSub,
-            icon: Icons.card_giftcard_outlined,
-            tone: MintSurfaceTone.sauge,
-            onTap: () => context.push('/life-event/donation'),
-          ),
+          if (adaptation?.showEstatePlanning ?? true) ...[
+            const SizedBox(height: MintSpacing.md),
+            _HubItemCard(
+              title: l.patrimoineHubFeaturedSuccession,
+              subtitle: l.patrimoineHubFeaturedSuccessionSub,
+              icon: Icons.account_tree_outlined,
+              tone: MintSurfaceTone.sauge,
+              onTap: () => context.push('/succession'),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            _HubItemCard(
+              title: l.patrimoineHubFeaturedDonation,
+              subtitle: l.patrimoineHubFeaturedDonationSub,
+              icon: Icons.card_giftcard_outlined,
+              tone: MintSurfaceTone.sauge,
+              onTap: () => context.push('/life-event/donation'),
+            ),
+          ],
           const SizedBox(height: MintSpacing.md),
           _HubItemCard(
             title: l.patrimoineHubFeaturedRenteCapital,

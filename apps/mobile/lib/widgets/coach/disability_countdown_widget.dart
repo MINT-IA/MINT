@@ -82,7 +82,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
                   const SizedBox(height: 20),
                   _buildTimeline(hold, gap, color),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(hold, gap, color, isOk),
+                  _buildPremierEclairage(hold, gap, color, isOk),
                   const SizedBox(height: 16),
                   if (!isOk) _buildActions(),
                   if (!isOk) const SizedBox(height: 16),
@@ -246,7 +246,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(double hold, double gap, Color color, bool isOk) {
+  Widget _buildPremierEclairage(double hold, double gap, Color color, bool isOk) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -265,7 +265,7 @@ class _DisabilityCountdownWidgetState extends State<DisabilityCountdownWidget> {
             const SizedBox(height: 4),
             Text(
               'Tu tiens ${hold.toStringAsFixed(1)} mois, soit plus que le délai moyen de $_aiDelayMonths mois.',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ] else ...[
             Text(

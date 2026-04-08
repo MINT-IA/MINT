@@ -1,3 +1,4 @@
+import 'dart:isolate';
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -52,7 +53,7 @@ class MonteCarloProjectionService {
   //  PUBLIC API
   // ════════════════════════════════════════════════════════════
 
-  /// Lance une simulation Monte Carlo de retraite.
+  /// Lance une simulation Monte Carlo de retraite (async, via Isolate).
   ///
   /// [profile] : profil financier complet de l'utilisateur.
   /// [retirementAgeUser] : age de depart a la retraite (defaut 65).
@@ -60,7 +61,26 @@ class MonteCarloProjectionService {
   /// [depensesMensuelles] : depenses mensuelles estimees a la retraite.
   /// [numSimulations] : nombre de simulations (defaut 500).
   /// [seed] : graine pour le generateur aleatoire (tests reproductibles).
-  static MonteCarloResult simulate({
+  static Future<MonteCarloResult> simulate({
+    required CoachProfile profile,
+    int retirementAgeUser = 65,
+    double lppCapitalPct = 0.0,
+    double? depensesMensuelles,
+    int numSimulations = 1000,
+    int? seed,
+  }) async {
+    return Isolate.run(() => _simulateSync(
+          profile: profile,
+          retirementAgeUser: retirementAgeUser,
+          lppCapitalPct: lppCapitalPct,
+          depensesMensuelles: depensesMensuelles,
+          numSimulations: numSimulations,
+          seed: seed,
+        ));
+  }
+
+  /// Synchronous simulation (runs inside Isolate).
+  static MonteCarloResult _simulateSync({
     required CoachProfile profile,
     int retirementAgeUser = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
@@ -378,11 +398,12 @@ class MonteCarloProjectionService {
         final libreReturnYear =
             _normalRandom(random, mean: 0.04, sd: 0.08);
 
-        // AVS indexee chaque annee — seulement apres le delai d'anticipation
+        // FIX-005: AVS indexation starts from the year AVS begins paying,
+        // not from year 0. Was over-indexing by 1-5% in early retirement.
         final avsUserThisYear = y >= yearsUntilAvsUser
-            ? avsUserMonthly * pow(1 + avsIndexation, y.toDouble())
+            ? avsUserMonthly * pow(1 + avsIndexation, (y - yearsUntilAvsUser).toDouble())
             : 0.0;
-        // Conjoint AVS: starts immediately (conjoint retires at 65)
+        // Conjoint AVS: indexation from year 0 (conjoint already retired)
         final avsConjointThisYear = hasConjoint
             ? avsConjointMonthly * pow(1 + avsIndexation, y.toDouble())
             : 0.0;

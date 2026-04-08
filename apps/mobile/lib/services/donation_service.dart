@@ -20,7 +20,7 @@ class DonationResult {
   final List<String> alerts;
   final String disclaimer;
   final List<String> sources;
-  final String chiffreChoc;
+  final String premierEclairage;
 
   const DonationResult({
     required this.montantDonation,
@@ -35,7 +35,7 @@ class DonationResult {
     required this.alerts,
     required this.disclaimer,
     required this.sources,
-    required this.chiffreChoc,
+    required this.premierEclairage,
   });
 }
 
@@ -308,7 +308,7 @@ class DonationService {
     }
 
     // ── Chiffre choc ──
-    final chiffreChoc = impotDonation > 0
+    final premierEclairage = impotDonation > 0
         ? 'Impot sur la donation : CHF ${impotDonation.round()} '
             '(${(tauxImposition * 100).toStringAsFixed(0)}%)'
         : 'Bonne nouvelle : cette donation est exoneree d\'impot '
@@ -345,7 +345,7 @@ class DonationService {
       alerts: alerts,
       disclaimer: disclaimer,
       sources: sources,
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
     );
   }
 }

@@ -57,7 +57,7 @@ class DetailFondsPropresMix:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -81,7 +81,7 @@ class EplCombinedResult:
     mix_optimal: List[str]         # Ordered steps: "cash d'abord, puis 3a, puis LPP"
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Compliance
     alertes: List[str] = field(default_factory=list)
@@ -218,7 +218,7 @@ class EplCombinedService:
             fonds_propres_requis = prix_cible * HYPOTHEQUE_FONDS_PROPRES_MIN
             if total_net >= fonds_propres_requis:
                 surplus = round(total_net - fonds_propres_requis, 2)
-                chiffre_choc = ChiffreChoc(
+                premier_eclairage = PremierEclairage(
                     montant=total_net,
                     texte=(
                         f"Tu disposes de {total_net:,.0f} CHF de fonds propres "
@@ -228,7 +228,7 @@ class EplCombinedService:
                 )
             else:
                 gap = round(fonds_propres_requis - total_net, 2)
-                chiffre_choc = ChiffreChoc(
+                premier_eclairage = PremierEclairage(
                     montant=gap,
                     texte=(
                         f"Il te manque {gap:,.0f} CHF de fonds propres pour "
@@ -236,7 +236,7 @@ class EplCombinedService:
                     ),
                 )
         else:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=total_net,
                 texte=(
                     f"Tu peux mobiliser {total_net:,.0f} CHF de fonds propres "
@@ -259,7 +259,7 @@ class EplCombinedService:
             prix_cible=prix_cible,
             pourcentage_prix_couvert=pourcentage_couvert,
             mix_optimal=mix_optimal,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             alertes=alertes,
             sources=sources,
             disclaimer=DISCLAIMER,

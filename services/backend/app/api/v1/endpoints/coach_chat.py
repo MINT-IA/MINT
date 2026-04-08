@@ -37,19 +37,41 @@ import os
 import re
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.services.billing_service import recompute_entitlements
+from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
+from app.services.reengagement.consent_manager import ConsentManager
+from app.services.reengagement.reengagement_models import ConsentType
 from app.schemas.coach_chat import CoachChatRequest, CoachChatResponse
 from app.services.coach.claude_coach_service import build_system_prompt
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_tools import INTERNAL_TOOL_NAMES, get_llm_tools
-from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP  # noqa: F401
+from app.services.rules_engine import get_3a_ceiling
 from app.services.coach.structured_reasoning import StructuredReasoningService
+from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
+
+# SEC-6: PII patterns to scrub from user messages before LLM processing
+_PII_PATTERNS = [
+    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}"),  # IBAN
+    re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # AHV/AVS
+    re.compile(r"\b\d{4,7}\s*(?:CHF|francs?)\b", re.IGNORECASE),  # salary
+]
+
+
+def _scrub_pii(text: str) -> str:
+    """Remove PII patterns from text (defense-in-depth)."""
+    for pattern in _PII_PATTERNS:
+        text = pattern.sub("[***]", text)
+    return text
+
 
 router = APIRouter()
 
@@ -151,10 +173,39 @@ async def _get_orchestrator():
 
 # Patterns that indicate PII in memory_block content.
 _PII_PATTERNS = [
-    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}", re.IGNORECASE),  # IBAN
-    re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Z]{2})"),  # NPA (Swiss postal code 1000-9999 before city name)
+    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}", re.IGNORECASE),  # IBAN (CH + 19 digits, with optional spaces)
+    re.compile(r"CH\d{19}", re.IGNORECASE),  # IBAN compact format (no spaces)
+    re.compile(r"\b[1-9]\d{3}\b(?=\s+[A-Za-zÀ-ÿ]{2})"),  # NPA (Swiss postal code 1000-9999 before city name, incl. accented)
     re.compile(r"\b[\w.+-]+@[\w-]+\.[\w.-]+\b"),  # email
-    re.compile(r"\+?\d[\d\s]{8,14}\d"),  # phone numbers
+    re.compile(r"(?:\+41|0)[\s.\-]?(?:76|77|78|79|[1-4]\d)[\s.\-]?\d{3}[\s.\-]?\d{2}[\s.\-]?\d{2}"),  # Swiss phone numbers (FIX-W12: stricter format)
+    re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # Swiss AHV/AVS numbers (FIX-W12)
+]
+
+# Prompt injection patterns — reused by memory, profile context, and user input sanitizers.
+_INJECTION_PATTERNS = [
+    # English patterns
+    re.compile(r'\[?\s*SYSTEM\s*(OVERRIDE|PROMPT|MESSAGE)\s*\]?', re.IGNORECASE),
+    re.compile(r'ignore\s+(all\s+)?(previous\s+)?(rules|instructions|constraints)', re.IGNORECASE),
+    re.compile(r'new\s+(directive|instruction|rule|system\s+prompt)', re.IGNORECASE),
+    re.compile(r'you\s+are\s+now\s+', re.IGNORECASE),
+    re.compile(r'disregard\s+(all|previous|above)', re.IGNORECASE),
+    re.compile(r'forget\s+(everything|all|your\s+instructions)', re.IGNORECASE),
+    re.compile(r'act\s+as\s+(if|though)\s+', re.IGNORECASE),
+    re.compile(r'pretend\s+(you|to\s+be)', re.IGNORECASE),
+    # Product recommendation injection (compliance: no-advice rule)
+    re.compile(r'recommend\s+(buying?|selling?|investing?\s+in)\s+', re.IGNORECASE),
+    re.compile(r'(buy|sell|invest\s+in)\s+[A-Z]{2,5}\s+(stock|shares?|ETF)', re.IGNORECASE),
+    # French patterns (multilingual injection defense)
+    re.compile(r'ignore[rz]?\s+(toutes?\s+)?(les\s+)?(règles|instructions|contraintes)', re.IGNORECASE),
+    re.compile(r'nouvelle[s]?\s+(directive|instruction|règle|consigne)', re.IGNORECASE),
+    re.compile(r'désormais\s+(tu|vous)\s+(dois|devez|es|êtes)', re.IGNORECASE),
+    re.compile(r'oublie[rz]?\s+(tout|toutes?\s+les\s+instructions)', re.IGNORECASE),
+    re.compile(r'fais\s+comme\s+si', re.IGNORECASE),
+    re.compile(r'tu\s+es\s+(maintenant|désormais)\s+', re.IGNORECASE),
+    re.compile(r'(sois|deviens)\s+(prescriptif|directif|un\s+conseiller)', re.IGNORECASE),
+    # German patterns
+    re.compile(r'ignoriere?\s+(alle\s+)?(vorherigen?\s+)?(Regeln|Anweisungen)', re.IGNORECASE),
+    re.compile(r'vergiss\s+(alles|alle\s+Anweisungen)', re.IGNORECASE),
 ]
 
 
@@ -173,6 +224,36 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
     scrubbed = memory_block.strip()
     for pattern in _PII_PATTERNS:
         scrubbed = pattern.sub("[REDACTED]", scrubbed)
+
+    # FIX-080: Strip prompt injection patterns from memory content.
+    # Users can save insights containing adversarial instructions
+    # that would be interpreted as system-level directives.
+    import re
+    import unicodedata
+
+    # Unicode normalization: strip zero-width chars, normalize to NFKC
+    # NFKC is stronger than NFC — decomposes compatibility characters
+    # (e.g., ligatures, fullwidth digits) preventing bypass via visual equivalents.
+    scrubbed = unicodedata.normalize("NFKC", scrubbed)
+    scrubbed = re.sub(
+        '['
+        '\u00ad'          # soft hyphen
+        '\u034f'          # combining grapheme joiner
+        '\u061c'          # Arabic letter mark
+        '\u115f\u1160'    # Hangul fillers
+        '\u17b4\u17b5'    # Khmer vowels
+        '\u180e'          # Mongolian vowel separator
+        '\u200b-\u200f'   # zero-width & directional marks
+        '\u2028\u2029'    # line/paragraph separators
+        '\u202a-\u202e'   # directional formatting
+        '\u2060'          # word joiner
+        '\u2066-\u2069'   # directional isolates
+        '\ufeff'          # BOM / zero-width no-break space
+        ']', '', scrubbed)
+
+    # Use module-level _INJECTION_PATTERNS (shared with profile context + user input sanitizers)
+    for pattern in _INJECTION_PATTERNS:
+        scrubbed = pattern.sub("[FILTERED]", scrubbed)
 
     # Prompt injection armor: wrap in explicit data-only delimiters
     return (
@@ -201,7 +282,7 @@ _PROFILE_SAFE_FIELDS = {
     "lpp_certificate_year", "avs_rente", "monthly_retirement_income",
     "data_source",
     # Fields consumed by RAG retriever for personalization:
-    "civil_status", "employment_status",
+    "civil_status", "employment_status", "has_2nd_pillar",
     # Couple optimization (pre-computed by Flutter CoupleOptimizer):
     "couple_optimization",
     # C2: Couple context fields (numeric, privacy-safe)
@@ -210,6 +291,13 @@ _PROFILE_SAFE_FIELDS = {
     # Cap/Plan context (consumed by get_cap_status internal tool):
     "cap_headline", "cap_why_now", "cap_cta", "cap_expected_impact",
     "sequence_completed", "sequence_total", "active_goal",
+    # FIX-104: Pillar fields for coach education (numeric, privacy-safe)
+    "lpp_balance_total", "lpp_conversion_rate", "lpp_buyback_potential",
+    "avs_annual_estimate", "avs_contribution_years",
+    "marital_status", "months_to_retirement", "number_of_children",
+    "years_since_last_buyback",
+    # Planned contributions (consumed by claude_coach_service system prompt)
+    "planned_contributions",
 }
 
 
@@ -224,10 +312,31 @@ def _sanitize_profile_context(profile_context: Optional[dict]) -> dict:
     """
     if not profile_context:
         return {}
-    return {
-        k: v for k, v in profile_context.items()
-        if k in _PROFILE_SAFE_FIELDS and v is not None
-    }
+    safe = {}
+    for k, v in profile_context.items():
+        if k not in _PROFILE_SAFE_FIELDS or v is None:
+            continue
+        # Sanitize string values through injection filter (P0-1: profile data injection)
+        if isinstance(v, str):
+            for pattern in _INJECTION_PATTERNS:
+                v = pattern.sub("[FILTERED]", v)
+        # Sanitize list-of-dict values (e.g., planned_contributions)
+        elif isinstance(v, list):
+            sanitized_list = []
+            for item in v:
+                if isinstance(item, dict):
+                    sanitized_item = {}
+                    for ik, iv in item.items():
+                        if isinstance(iv, str):
+                            for pattern in _INJECTION_PATTERNS:
+                                iv = pattern.sub("[FILTERED]", iv)
+                        sanitized_item[ik] = iv
+                    sanitized_list.append(sanitized_item)
+                else:
+                    sanitized_list.append(item)
+            v = sanitized_list
+        safe[k] = v
+    return safe
 
 
 # ---------------------------------------------------------------------------
@@ -261,13 +370,15 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
 def _build_system_prompt_with_memory(
     coach_ctx,
     memory_block: Optional[str],
+    language: str = "fr",
+    cash_level: int = 3,
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
     The memory block is sanitized for PII and wrapped in prompt injection
     armor before being appended to the system prompt.
     """
-    prompt = build_system_prompt(ctx=coach_ctx)
+    prompt = build_system_prompt(ctx=coach_ctx, language=language, cash_level=cash_level)
     sanitized = _sanitize_memory_block(memory_block)
     if sanitized:
         prompt = prompt + "\n\n" + sanitized
@@ -367,6 +478,7 @@ def _handle_retrieve_memories(
 
 MAX_AGENT_LOOP_ITERATIONS = 5
 MAX_AGENT_LOOP_TOKENS = 8000
+MAX_REQUEST_TOKENS = 4000  # Per-request budget
 
 
 def _execute_internal_tool(
@@ -389,14 +501,45 @@ def _execute_internal_tool(
         Plain-text result string for the tool.
     """
     name = tool_call.get("name", "")
-    tool_input = tool_call.get("input", {})
+    raw_input = tool_call.get("input", {})
+
+    # P0-4: Validate tool arguments — type check and length limit.
+    # LLM-generated arguments could be malformed or adversarially large.
+    if not isinstance(raw_input, dict):
+        logger.warning("Tool %s received non-dict input: %s", name, type(raw_input).__name__)
+        return "Erreur : arguments invalides (dict attendu)."
+
+    # Enforce length limits on all string values in tool input
+    _MAX_ARG_LEN = 500
+    tool_input: dict = {}
+    for k, v in raw_input.items():
+        if not isinstance(k, str) or len(k) > 100:
+            continue  # drop malformed keys
+        if isinstance(v, str):
+            tool_input[k] = v[:_MAX_ARG_LEN]
+        elif isinstance(v, (int, float, bool)):
+            tool_input[k] = v
+        elif isinstance(v, dict):
+            # Allow one level of nested dict (e.g., metadata), but cap string values
+            tool_input[k] = {
+                sk: (sv[:_MAX_ARG_LEN] if isinstance(sv, str) else sv)
+                for sk, sv in v.items()
+                if isinstance(sk, str) and len(sk) <= 100
+            }
+        # else: drop non-primitive types (lists of objects, etc.)
+
     ctx = profile_context or {}
 
     if name == "retrieve_memories":
+        import re
+        raw_topic = tool_input.get("topic", "")
+        # BUG-B fix: sanitize topic to prevent prompt injection via LLM tool_use.
+        # Only allow word chars, spaces, hyphens, dots (Unicode-aware).
+        safe_topic = raw_topic if re.match(r'^[\w\s\-\.]{1,100}$', raw_topic, re.UNICODE) else ""
         return _handle_retrieve_memories(
-            topic=tool_input.get("topic", ""),
+            topic=safe_topic,
             memory_block=memory_block,
-            max_results=tool_input.get("max_results", 3),
+            max_results=min(tool_input.get("max_results", 3), 10),
         )
 
     if name == "get_budget_status":
@@ -416,6 +559,25 @@ def _execute_internal_tool(
 
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
+
+    # STAB-12 (07-04): set_goal / mark_step_completed / save_insight are
+    # acknowledgement-only tools. They let the LLM track conversational state
+    # without rendering a widget. Persistence to the memory layer is a v3.0
+    # item; for now we return a plain-text ack so the agent loop continues.
+    if name == "set_goal":
+        goal = tool_input.get("goal") or tool_input.get("title") or ""
+        logger.info("set_goal ack (non-persisted): %s", goal[:100])
+        return f"Objectif noté : {goal}" if goal else "Objectif noté."
+
+    if name == "mark_step_completed":
+        step = tool_input.get("step") or tool_input.get("step_id") or ""
+        logger.info("mark_step_completed ack (non-persisted): %s", step[:100])
+        return f"Étape marquée comme terminée : {step}" if step else "Étape marquée comme terminée."
+
+    if name == "save_insight":
+        summary = tool_input.get("summary") or tool_input.get("insight") or ""
+        logger.info("save_insight ack (non-persisted): %s", summary[:100])
+        return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
 
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
@@ -517,7 +679,9 @@ def _format_cross_pillar_analysis(ctx: dict) -> str:
 
     lines = ["Analyse inter-piliers :"]
     if annual_3a is not None:
-        ceiling = PILIER_3A_PLAFOND_AVEC_LPP
+        ceiling = get_3a_ceiling(
+            ctx.get("employment_status"), ctx.get("has_2nd_pillar"),
+        )
         remaining = max(0, ceiling - float(annual_3a))
         lines.append(f"- 3a versé cette année : {_fmt_chf(annual_3a)} / {_fmt_chf(ceiling)}")
         if remaining > 0:
@@ -603,7 +767,7 @@ def _format_couple_optimization(ctx: dict) -> str:
     if avs:
         if avs.get("cap_applied"):
             reduction = avs.get("monthly_reduction", 0)
-            lines.append(f"- AVS couple : plafonnement appliqué (LAVS art. 35)")
+            lines.append("- AVS couple : plafonnement appliqué (LAVS art. 35)")
             lines.append(f"  Réduction mensuelle : {_fmt_chf(reduction)}")
         else:
             lines.append("- AVS couple : pas de plafonnement (revenus sous le seuil)")
@@ -686,6 +850,7 @@ async def _run_agent_loop(
     language: str,
     memory_block: Optional[str],
     system_prompt: Optional[str] = None,
+    user_id: Optional[str] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -717,19 +882,24 @@ async def _run_agent_loop(
     all_sources: list = []
     all_disclaimers: list = []
     total_tokens = 0
+    request_tokens_used = 0
     final_answer = ""
     current_question = question
     answer_text = ""  # initialized to prevent NameError in for/else
+    # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
+    _MAX_UNKNOWN_TOOL_CALLS = 2
+    unknown_tool_count = 0
 
     for iteration in range(MAX_AGENT_LOOP_ITERATIONS):
         # Check token budget BEFORE calling (except first iteration)
         if iteration > 0 and total_tokens >= MAX_AGENT_LOOP_TOKENS:
             logger.warning(
-                "Agent loop token budget exceeded: %d >= %d (before iteration %d)",
-                total_tokens,
-                MAX_AGENT_LOOP_TOKENS,
-                iteration,
+                "Agent loop token budget exhausted (%d/%d) at iteration %d for user %s",
+                total_tokens, MAX_AGENT_LOOP_TOKENS, iteration, user_id,
             )
+            # Append a completion note to the last answer
+            if answer_text:
+                answer_text += "\n\n_Note\u00a0: certaines informations n'ont pas pu être chargées. Repose ta question pour plus de détails._"
             final_answer = answer_text
             break
 
@@ -742,23 +912,67 @@ async def _run_agent_loop(
             language=language,
             tools=stripped_tools,
             system_prompt=system_prompt,
+            user_id=user_id,
         )
 
         # Accumulate metadata across iterations
-        total_tokens += result.get("tokens_used", 0)
+        iteration_tokens = result.get("tokens_used", 0)
+        total_tokens += iteration_tokens
+        request_tokens_used += iteration_tokens
         all_sources.extend(result.get("sources", []))
         all_disclaimers.extend(result.get("disclaimers", []))
 
         answer_text = result.get("answer", "")
+
+        # FIX-W12: Per-request token budget guard
+        if request_tokens_used >= MAX_REQUEST_TOKENS:
+            logger.warning("Per-request token budget exceeded: %d", request_tokens_used)
+            final_answer = answer_text
+            break
         raw_tool_calls = result.get("tool_calls") or []
 
-        # Separate internal vs Flutter tool calls
+        # P0-5: Collect known tool names for unknown-call detection
+        all_known_names = set(INTERNAL_TOOL_NAMES) | {
+            t.get("name", "") for t in stripped_tools
+        }
+
+        # Separate internal vs Flutter vs unknown tool calls
         internal_calls = [
             t for t in raw_tool_calls if t.get("name", "") in INTERNAL_TOOL_NAMES
         ]
         external_calls = [
             t for t in raw_tool_calls if t.get("name", "") not in INTERNAL_TOOL_NAMES
+            and t.get("name", "") in all_known_names
         ]
+
+        # P0-5: Count unknown tool calls — stop loop after threshold
+        unknown_calls = [
+            t for t in raw_tool_calls
+            if t.get("name", "") and t.get("name", "") not in all_known_names
+        ]
+        if unknown_calls:
+            for uc in unknown_calls:
+                unknown_tool_count += 1
+                logger.warning(
+                    "Unknown tool call '%s' (count: %d/%d)",
+                    uc.get("name"), unknown_tool_count, _MAX_UNKNOWN_TOOL_CALLS,
+                )
+            if unknown_tool_count >= _MAX_UNKNOWN_TOOL_CALLS:
+                logger.error(
+                    "Agent loop aborted: %d unknown tool calls exceeded limit",
+                    unknown_tool_count,
+                )
+                final_answer = answer_text or "Désolé, une erreur interne est survenue."
+                break
+        # Sanitize PII from Flutter-bound tool inputs before returning
+        for tc in external_calls:
+            inp = tc.get("input", {})
+            if tc.get("name") == "save_insight" and "summary" in inp:
+                for pattern in _PII_PATTERNS:
+                    inp["summary"] = pattern.sub("[***]", inp["summary"])
+            if tc.get("name") == "route_to_screen" and "context_message" in inp:
+                for pattern in _PII_PATTERNS:
+                    inp["context_message"] = pattern.sub("[***]", inp["context_message"])
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done
@@ -770,6 +984,14 @@ async def _run_agent_loop(
         tool_results: list = []
         for call in internal_calls:
             result_text = _execute_internal_tool(call, memory_block, profile_context)
+            # FIX-W12: Truncate tool results to prevent context explosion
+            if len(result_text) > 500:
+                result_text = result_text[:500] + "... [tronqué]"
+            # P0-3: Sanitize tool output through injection filter before
+            # re-injecting into the next LLM prompt. Tool results could
+            # contain user-controlled data (e.g., memory content).
+            for pattern in _INJECTION_PATTERNS:
+                result_text = pattern.sub("[FILTERED]", result_text)
             tool_results.append(
                 f"[{call.get('name', 'unknown')}] {result_text}"
             )
@@ -821,11 +1043,12 @@ async def _run_agent_loop(
 
 
 @router.post("/chat", response_model=CoachChatResponse)
-@limiter.limit("30/minute")
+@limiter.limit("30/minute;500/day")
 async def coach_chat(
     request: Request,
     body: CoachChatRequest,
     _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> CoachChatResponse:
     """Coach chat endpoint — tools + system prompt + RAG + agent loop.
 
@@ -853,6 +1076,20 @@ async def coach_chat(
         502: LLM API call failed.
         503: RAG dependencies not installed.
     """
+    # Entitlement gate: coachLlm requires Premium or higher.
+    effective_tier, active_features = recompute_entitlements(db, str(_user.id))
+    if "coachLlm" not in active_features:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Un abonnement Premium est requis pour le coaching IA.",
+        )
+
+    # nLPD art. 6 al. 7: Check conversation_memory consent.
+    # Without consent, conversation is stateless (no memory_block persistence).
+    has_memory_consent = ConsentManager.is_consent_given(
+        str(_user.id), ConsentType.conversation_memory, db=db
+    )
+
     # ------------------------------------------------------------------
     # Step 0: Sanitize inputs (PII whitelist + memory scrubbing)
     # ------------------------------------------------------------------
@@ -887,10 +1124,18 @@ async def coach_chat(
     # The LLM humanizes this pre-computed analysis rather than reasoning from scratch.
     # Uses sanitized profile to prevent PII leakage in reasoning_trace.
     # ------------------------------------------------------------------
+    # nLPD: strip memory_block when conversation_memory consent not granted
+    effective_memory_block = body.memory_block if has_memory_consent else None
+
+    # P0-2: Sanitize user input through injection filter before LLM processing
+    sanitized_message = body.message
+    for pattern in _INJECTION_PATTERNS:
+        sanitized_message = pattern.sub("", sanitized_message)
+
     reasoning_output = StructuredReasoningService.reason(
-        user_message=body.message,
+        user_message=sanitized_message,
         profile_context=safe_profile,
-        memory_block=body.memory_block,
+        memory_block=effective_memory_block,
     )
     reasoning_block = reasoning_output.as_system_prompt_block()
 
@@ -898,7 +1143,7 @@ async def coach_chat(
     # Step 2: Build system prompt (lifecycle + regional + plan + memory)
     # Memory block is PII-scrubbed and wrapped in prompt injection armor.
     # ------------------------------------------------------------------
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, body.memory_block)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
@@ -938,8 +1183,9 @@ async def coach_chat(
             model=body.model,
             profile_context=safe_profile,
             language=body.language,
-            memory_block=body.memory_block,
+            memory_block=effective_memory_block,
             system_prompt=system_prompt,
+            user_id=_user.id if _user else None,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
@@ -997,9 +1243,6 @@ async def coach_chat(
 #  INSIGHT SYNC — Mobile → Backend → pgvector
 # ════════════════════════════════════════════════════════════
 
-from pydantic import BaseModel as _BaseModel
-
-
 class _InsightSyncRequest(_BaseModel):
     """Payload to embed a CoachInsight into the RAG vector store."""
     insight_id: str
@@ -1016,8 +1259,10 @@ class _InsightSyncResponse(_BaseModel):
 
 
 @router.post("/sync-insight", response_model=_InsightSyncResponse)
+@limiter.limit("30/minute")
 async def sync_insight(
     body: _InsightSyncRequest,
+    request: Request,
     current_user=Depends(require_current_user),
 ):
     """Sync a CoachInsight from mobile to the RAG vector store.
@@ -1036,9 +1281,15 @@ async def sync_insight(
     if body.created_at:
         try:
             created = datetime.fromisoformat(body.created_at)
-        except (ValueError, TypeError):
-            pass
+        except (ValueError, TypeError) as e:
+            # STAB-16 (07-04): best-effort parse of client-supplied ISO8601.
+            # On failure, `created` stays None and downstream uses server time.
+            # Not user-visible; log at debug for forensics.
+            logger.debug("sync_insight: bad created_at '%s': %s", body.created_at, e)
 
+    # S2 security fix: bind insight to current user to prevent cross-user overwrites.
+    # user_id is stored in metadata and used as a filter in RAG retrieval.
+    uid = current_user.id if current_user else None
     success = await embed_insight(
         insight_id=body.insight_id,
         topic=body.topic,
@@ -1046,6 +1297,7 @@ async def sync_insight(
         insight_type=body.insight_type,
         metadata=body.metadata,
         created_at=created,
+        user_id=uid,
     )
 
     return _InsightSyncResponse(

@@ -51,7 +51,7 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = e.toString();
+        _error = S.of(context)!.conversationHistoryError;
         _isLoading = false;
       });
     }

@@ -70,7 +70,7 @@ class UnemploymentTimelineWidget extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'PLAN D\'ACTION',
-                style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
               ),
             ],
           ),

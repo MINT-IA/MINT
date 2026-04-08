@@ -8,7 +8,7 @@ tags: [assurance, lamal, complementaire, lca, sante, couverture]
 ## Trigger
 L'utilisateur se demande si une assurance complémentaire vaut le coût, ou veut comprendre la différence entre l'assurance de base et les complémentaires.
 
-## Chiffre Choc
+## Premier Éclairage
 L'assurance de base LAMal couvre environ 95 % des soins médicaux courants. Les complémentaires coûtent en moyenne CHF 100 à CHF 500/mois supplémentaires — et contrairement à la base, l'assureur peut te refuser ou exclure des prestations si tu as des antécédents médicaux.
 
 ## Niveau 0

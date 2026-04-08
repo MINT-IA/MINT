@@ -10,7 +10,7 @@ tags: [lpp, libre_passage, transfert, emploi, fondation, lflp]
 - Le coach détecte un gap d'affiliation LPP dans le parcours professionnel.
 - L'utilisateur signale avoir un compte de libre passage.
 
-## Chiffre Choc
+## Premier Éclairage
 "Des milliards de CHF dorment dans des fondations de libre passage oubliées en Suisse. La Centrale du 2e pilier a répertorié plus de 700'000 polices non réclamées — vérifie si tu en fais partie."
 
 ## Niveau 0

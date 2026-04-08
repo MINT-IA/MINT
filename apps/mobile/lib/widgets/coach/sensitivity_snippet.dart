@@ -55,7 +55,7 @@ class SensitivitySnippet extends StatelessWidget {
           Text(
             'Dans ces simulations, chaque variable est test\u00e9e '
             'ind\u00e9pendamment.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 14),
 
@@ -78,7 +78,7 @@ class SensitivitySnippet extends StatelessWidget {
                 children: [
                   Text(
                     'Voir l\'analyse compl\u00e8te',
-                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(width: 4),
                   const Icon(
@@ -129,7 +129,7 @@ class SensitivitySnippet extends StatelessWidget {
             Expanded(
               child: Text(
                 variable.label,
-                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -206,7 +206,7 @@ class SensitivitySnippet extends StatelessWidget {
                     top: 5,
                     child: Text(
                       variable.lowLabel,
-                      style: MintTextStyles.micro(color: MintColors.error).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
+                      style: MintTextStyles.labelTiny(color: MintColors.error).copyWith(fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
                     ),
                   ),
                   Positioned(
@@ -214,7 +214,7 @@ class SensitivitySnippet extends StatelessWidget {
                     top: 5,
                     child: Text(
                       variable.highLabel,
-                      style: MintTextStyles.micro(color: MintColors.success).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
+                      style: MintTextStyles.labelTiny(color: MintColors.success).copyWith(fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
                     ),
                   ),
                 ],

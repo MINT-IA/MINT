@@ -142,4 +142,4 @@ Depuis juillet 2022, Google exige que chaque application déclare ses pratiques 
 
 ---
 
-*MINT — « Juste quand il faut : une explication, une action, un rappel. »*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

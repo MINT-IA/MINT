@@ -93,7 +93,7 @@ class _OptimisationDecaissementScreenState
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
-                _ChiffreChocCard(
+                _PremierEclairageCard(
                   chiffre: l.optimDecaissementChiffre,
                   explication: l.optimDecaissementChiffreExplication,
                 ),
@@ -181,11 +181,11 @@ class _OptimisationDecaissementScreenState
 
 // ── Widgets internes ─────────────────────────────────────────
 
-class _ChiffreChocCard extends StatelessWidget {
+class _PremierEclairageCard extends StatelessWidget {
   final String chiffre;
   final String explication;
 
-  const _ChiffreChocCard({required this.chiffre, required this.explication});
+  const _PremierEclairageCard({required this.chiffre, required this.explication});
 
   @override
   Widget build(BuildContext context) {
@@ -246,7 +246,7 @@ class _InfoCard extends StatelessWidget {
                 children: [
                   Text(title, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: MintSpacing.xs),
-                  Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+                  Text(body, style: MintTextStyles.labelMedium().copyWith(height: 1.5)),
                 ],
               ),
             ),
@@ -301,7 +301,7 @@ class _WithdrawalTable extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(child: Text(etalement, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600))),
-                  Expanded(child: Text(montant, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12))),
+                  Expanded(child: Text(montant, style: MintTextStyles.labelMedium())),
                   Expanded(
                     child: Text(
                       impot,
@@ -362,7 +362,7 @@ class _StepCard extends StatelessWidget {
                 children: [
                   Text(title, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
                   const SizedBox(height: MintSpacing.xs),
-                  Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+                  Text(body, style: MintTextStyles.labelMedium().copyWith(height: 1.5)),
                 ],
               ),
             ),

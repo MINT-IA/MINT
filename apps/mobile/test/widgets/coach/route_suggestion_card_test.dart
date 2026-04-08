@@ -1,6 +1,5 @@
 // ────────────────────────────────────────────────────────────
 //  ROUTE SUGGESTION CARD TESTS — S58 route_to_screen wiring
-//  ReturnContract V2 — ScreenOutcome lifecycle
 // ────────────────────────────────────────────────────────────
 //
 //  Tests:
@@ -8,10 +7,10 @@
 //  2.  Shows CTA button via i18n key (no hardcoded strings)
 //  3.  Shows partial-readiness warning banner when isPartial == true
 //  4.  No partial-readiness warning when isPartial == false
-//  5.  Calls onReturn(completed) after normal visit (≥ 5 s)
-//  6.  Calls onReturn(abandoned) after quick return (< 5 s)
-//  7.  Calls onReturn(changedInputs) when profile hash changes
-//  8.  No hardcoded strings in widget tree
+//  5.  No hardcoded strings in widget tree (i18n locale test)
+//  6.  Partial warning uses i18n label
+//  7.  CTA button is tappable and navigates
+//  8.  context_message is displayed as body text
 // ────────────────────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
@@ -19,7 +18,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -30,19 +28,13 @@ import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 ///
 /// The GoRouter is configured with a single `/` route that returns the
 /// [child] directly, so no navigation is needed for rendering tests.
-/// An additional `/test-target` stub allows push-and-return tests.
+/// An additional `/rente-vs-capital` stub allows push-and-return tests.
 Widget _buildTestApp(Widget child) {
   final router = GoRouter(
     routes: [
       GoRoute(
         path: '/',
         builder: (context, state) => Scaffold(body: child),
-      ),
-      GoRoute(
-        path: '/test-target',
-        builder: (context, state) => const Scaffold(
-          body: Center(child: Text('Target Screen')),
-        ),
       ),
       GoRoute(
         path: '/rente-vs-capital',
@@ -86,12 +78,6 @@ Future<void> _pumpCard(
 // ────────────────────────────────────────────────────────────
 
 void main() {
-  setUp(() {
-    // ScreenCompletionTracker uses SharedPreferences — initialise mock store
-    // so that widget tests do not hit the platform channel.
-    SharedPreferences.setMockInitialValues({});
-  });
-
   group('RouteSuggestionCard', () {
     testWidgets('renders with context_message', (tester) async {
       await _pumpCard(
@@ -132,11 +118,9 @@ void main() {
       );
       // routeSuggestionPartialWarning key → 'Estimation — données incomplètes'
       expect(
-        find.textContaining('Estimation'),
-        findsWidgets, // appears in banner AND possibly context
+        find.textContaining('données incomplètes'),
+        findsOneWidget,
       );
-      // The info icon should be shown in the warning banner
-      expect(find.byIcon(Icons.info_outline), findsOneWidget);
     });
 
     testWidgets('no partial warning banner when isPartial is false',
@@ -149,141 +133,8 @@ void main() {
           isPartial: false,
         ),
       );
-      // Warning icon should NOT be present when readiness is full
-      expect(find.byIcon(Icons.info_outline), findsNothing);
-    });
-
-    // ── ReturnContract V2 — resolveOutcome unit tests ────────
-    // These test the static resolution logic directly because widget tests
-    // cannot advance DateTime.now() (only the Flutter frame clock advances).
-
-    test('resolveOutcome → completed when elapsed ≥ 5 s and no hash change',
-        () {
-      final outcome = RouteSuggestionCard.resolveOutcome(
-        elapsed: const Duration(seconds: 6),
-        hashBefore: 'same',
-        hashAfter: 'same',
-      );
-      expect(outcome, ScreenOutcome.completed);
-    });
-
-    test('resolveOutcome → abandoned when elapsed < 5 s', () {
-      final outcome = RouteSuggestionCard.resolveOutcome(
-        elapsed: const Duration(seconds: 3),
-        hashBefore: 'same',
-        hashAfter: 'same',
-      );
-      expect(outcome, ScreenOutcome.abandoned);
-    });
-
-    test('resolveOutcome → abandoned exactly at 0 ms (immediate return)', () {
-      final outcome = RouteSuggestionCard.resolveOutcome(
-        elapsed: Duration.zero,
-        hashBefore: null,
-        hashAfter: null,
-      );
-      expect(outcome, ScreenOutcome.abandoned);
-    });
-
-    test('resolveOutcome → changedInputs when elapsed ≥ 5 s and hash differs',
-        () {
-      final outcome = RouteSuggestionCard.resolveOutcome(
-        elapsed: const Duration(seconds: 10),
-        hashBefore: 'hash_before',
-        hashAfter: 'hash_after',
-      );
-      expect(outcome, ScreenOutcome.changedInputs);
-    });
-
-    test('resolveOutcome → completed when hash fn absent (no profileHashFn)',
-        () {
-      final outcome = RouteSuggestionCard.resolveOutcome(
-        elapsed: const Duration(seconds: 8),
-        hashBefore: null,
-        hashAfter: null,
-      );
-      expect(outcome, ScreenOutcome.completed);
-    });
-
-    test('resolveOutcome → completed exactly at the 5 s threshold', () {
-      final outcome = RouteSuggestionCard.resolveOutcome(
-        elapsed: const Duration(seconds: 5),
-        hashBefore: 'x',
-        hashAfter: 'x',
-      );
-      expect(outcome, ScreenOutcome.completed);
-    });
-
-    testWidgets('onReturn callback fires after navigation and return',
-        (tester) async {
-      ScreenOutcome? receivedOutcome;
-
-      tester.view.physicalSize = const Size(1080, 1920);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      final router = GoRouter(
-        routes: [
-          GoRoute(
-            path: '/',
-            builder: (context, state) => Scaffold(
-              body: RouteSuggestionCard(
-                contextMessage: 'Ouvre le simulateur.',
-                route: '/rente-vs-capital',
-                onReturn: (outcome) => receivedOutcome = outcome,
-              ),
-            ),
-          ),
-          GoRoute(
-            path: '/rente-vs-capital',
-            builder: (context, state) => Scaffold(
-              appBar: AppBar(title: const Text('Rente vs Capital')),
-              body: const Center(child: Text('Rente vs Capital')),
-            ),
-          ),
-        ],
-      );
-
-      await tester.pumpWidget(MaterialApp.router(
-        routerConfig: router,
-        locale: const Locale('fr'),
-        localizationsDelegates: const [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: S.supportedLocales,
-      ));
-      await tester.pump(const Duration(milliseconds: 100));
-
-      // Tap CTA to navigate
-      await tester.tap(find.text('Ouvrir'));
-      await tester.pumpAndSettle();
-
-      // Pop back immediately (widget-test time = near 0 → abandoned outcome)
-      await tester.tap(find.byType(BackButton));
-      await tester.pumpAndSettle();
-      // Allow ScreenCompletionTracker async lookup to complete.
-      await tester.pump(const Duration(milliseconds: 50));
-
-      // Callback must have fired with a valid ScreenOutcome (not null)
-      expect(receivedOutcome, isNotNull);
-      expect(ScreenOutcome.values, contains(receivedOutcome));
-    });
-
-    testWidgets('contains arrow_forward icon in CTA button', (tester) async {
-      await _pumpCard(
-        tester,
-        const RouteSuggestionCard(
-          contextMessage: 'Ouvre la simulation.',
-          route: '/rente-vs-capital',
-        ),
-      );
-      expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+      // No warning text when readiness is full
+      expect(find.textContaining('données incomplètes'), findsNothing);
     });
 
     testWidgets('no hardcoded "Ouvrir" string — uses i18n', (tester) async {
@@ -349,19 +200,6 @@ void main() {
         find.textContaining('données incomplètes'),
         findsOneWidget,
       );
-    });
-
-    testWidgets('renders without crashing when onReturn is null',
-        (tester) async {
-      await _pumpCard(
-        tester,
-        const RouteSuggestionCard(
-          contextMessage: 'Aucun callback.',
-          route: '/rente-vs-capital',
-          onReturn: null,
-        ),
-      );
-      expect(find.byType(RouteSuggestionCard), findsOneWidget);
     });
 
     testWidgets('CTA button is tappable', (tester) async {

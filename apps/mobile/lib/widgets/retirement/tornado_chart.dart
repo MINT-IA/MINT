@@ -77,7 +77,7 @@ class TornadoChart extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           subtitle,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13, height: 1.4),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
         const SizedBox(height: 16),
 
@@ -86,12 +86,15 @@ class TornadoChart extends StatelessWidget {
           height: chartHeight,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return CustomPaint(
-                size: Size(constraints.maxWidth, chartHeight),
-                painter: _TornadoPainter(
-                  baseCase: baseCase,
-                  variables: displayVars,
-                  baseCaseSuffix: baseCaseSuffix,
+              return Semantics(
+                label: 'Sensitivity tornado chart',
+                child: CustomPaint(
+                  size: Size(constraints.maxWidth, chartHeight),
+                  painter: _TornadoPainter(
+                    baseCase: baseCase,
+                    variables: displayVars,
+                    baseCaseSuffix: baseCaseSuffix,
+                  ),
                 ),
               );
             },
@@ -106,7 +109,7 @@ class TornadoChart extends StatelessWidget {
         // ── Disclaimer ────────────────────────────────────────
         Text(
           disclaimerText,
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal, height: 1.4),
         ),
       ],
     );
@@ -321,7 +324,7 @@ class _TornadoPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+        style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -374,7 +377,7 @@ class _TornadoPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w500),
+        style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500),
       ),
       textDirection: TextDirection.ltr,
       maxLines: 2,
@@ -459,11 +462,11 @@ class _TornadoPainter extends CustomPainter {
         children: [
           TextSpan(
             text: v.lowLabel,
-            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
           ),
           TextSpan(
             text: '  $lowDeltaText',
-            style: MintTextStyles.micro(color: lowDelta < 0 ? MintColors.danger : MintColors.success).copyWith(fontSize: 10, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+            style: MintTextStyles.micro(color: lowDelta < 0 ? MintColors.danger : MintColors.success).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
         ],
       ),
@@ -489,11 +492,11 @@ class _TornadoPainter extends CustomPainter {
         children: [
           TextSpan(
             text: highDeltaText,
-            style: MintTextStyles.micro(color: highDelta >= 0 ? MintColors.success : MintColors.danger).copyWith(fontSize: 10, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+            style: MintTextStyles.micro(color: highDelta >= 0 ? MintColors.success : MintColors.danger).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           TextSpan(
             text: '  ${v.highLabel}',
-            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+            style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
           ),
         ],
       ),

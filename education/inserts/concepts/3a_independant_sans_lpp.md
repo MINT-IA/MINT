@@ -8,7 +8,7 @@ tags: [3a, independant, opp3, fiscalite, prévoyance, plafond_grand]
 ## Trigger
 L'utilisateur déclare un statut d'indépendant sans LPP, le coach détecte un archetype independent_no_lpp, ou l'utilisateur demande comment structurer sa prévoyance en tant qu'indépendant.
 
-## Chiffre Choc
+## Premier Éclairage
 En tant qu'indépendant sans LPP, tu peux verser jusqu'à CHF 36'288/an en 3a — soit 5 fois le plafond d'un salarié. À un taux marginal de 40%, c'est jusqu'à CHF 14'515 d'économies fiscales par an.
 
 ## Niveau 0

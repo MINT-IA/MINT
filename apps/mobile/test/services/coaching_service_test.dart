@@ -866,10 +866,12 @@ void main() {
           age: 50,
           canton: 'VD',
           revenuAnnuel: 100000,
-          has3a: false,
+          has3a: true,        // Triggers 3a_not_maxed (fiscalite) year-round
           has3aAnswered: true,
+          montant3a: 2000,    // Below 7258 ceiling → 3a_not_maxed fires
           hasLpp: true,
           avoirLpp: 50000,
+          lacuneLpp: 80000,   // Triggers lpp_buyback (prevoyance)
           employmentStatus: EmploymentStatus.salarie,
         ),
       );

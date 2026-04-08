@@ -7,10 +7,13 @@
 /// Sprint C1 — MINT Coach Redesign
 library;
 
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/services/coaching_service.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
@@ -80,9 +83,10 @@ enum FinancialArchetype {
 class ConjointProfile {
   final String? firstName;
   final int? birthYear;
+  final DateTime? dateOfBirth;
   final String? gender; // 'M', 'F', or null (AVS21 reference age)
   final double? salaireBrutMensuel;
-  final int nombreDeMois; // 12, 13, 13.5
+  final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final String?
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
@@ -90,6 +94,14 @@ class ConjointProfile {
   final bool isFatcaResident; // US citizen/green card → FATCA restrictions
   final bool canContribute3a; // false si FATCA resident (certains providers)
   final PrevoyanceProfile? prevoyance;
+
+  /// Canton of residence of the conjoint (ISO 2-letter, e.g. "VS", "ZH").
+  /// Null if same as the primary user or unknown.
+  final String? canton;
+
+  /// Number of children for this conjoint (for allocations familiales, etc.).
+  /// Null if unknown.
+  final int? nombreEnfants;
 
   /// Patrimoine du conjoint (epargne, investissements).
   /// Null si non renseigne — Liquidite axis sera sous-evalue.
@@ -112,15 +124,18 @@ class ConjointProfile {
   const ConjointProfile({
     this.firstName,
     this.birthYear,
+    this.dateOfBirth,
     this.gender,
     this.salaireBrutMensuel,
-    this.nombreDeMois = 12,
+    this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentStatus,
     this.nationality,
     this.isFatcaResident = false,
     this.canContribute3a = true,
     this.prevoyance,
+    this.canton,
+    this.nombreEnfants,
     this.patrimoine,
     this.arrivalAge,
     this.targetRetirementAge,
@@ -135,10 +150,22 @@ class ConjointProfile {
     return base + bonus;
   }
 
-  /// Age actuel
+  /// Age actuel — prefers dateOfBirth (exact month/day), falls back to birthYear.
+  /// Aligned with CoachProfile.age to avoid inconsistencies.
   int? get age {
+    if (dateOfBirth != null) {
+      final now = DateTime.now();
+      int a = now.year - dateOfBirth!.year;
+      if (now.month < dateOfBirth!.month ||
+          (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
+        a--;
+      }
+      return a.clamp(0, 150);
+    }
     if (birthYear == null) return null;
-    return DateTime.now().year - birthYear!;
+    final currentYear = DateTime.now().year;
+    if (birthYear! < 1900 || birthYear! > currentYear - 10) return null;
+    return currentYear - birthYear!;
   }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
@@ -165,8 +192,10 @@ class ConjointProfile {
 
   factory ConjointProfile.fromJson(Map<String, dynamic> json) {
     final isFatca = json['isFatcaResident'] ?? false;
-    // FATCA hard block: most providers refuse US persons (LSFin compliance).
-    final topCanContribute = json['canContribute3a'] ?? !isFatca;
+    // FIX-089: FATCA doesn't block 3a if the person has Swiss employment income
+    // (AVS-contributing salary in Switzerland). Only block if purely non-Swiss income.
+    final hasSwissIncome = ((json['revenuBrutAnnuel'] as num?)?.toDouble() ?? 0) > 0;
+    final topCanContribute = json['canContribute3a'] ?? (!isFatca || hasSwissIncome);
     PrevoyanceProfile? prev;
     if (json['prevoyance'] != null) {
       prev = PrevoyanceProfile.fromJson(json['prevoyance']);
@@ -175,15 +204,20 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: json['firstName'] as String?,
       birthYear: json['birthYear'] as int?,
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth'] as String)
+          : null,
       gender: json['gender'] as String?,
       salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble(),
-      nombreDeMois: json['nombreDeMois'] ?? 12,
+      nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] as String?,
       nationality: json['nationality'] as String?,
       isFatcaResident: isFatca,
       canContribute3a: topCanContribute,
       prevoyance: prev,
+      canton: json['canton'] as String?,
+      nombreEnfants: json['nombreEnfants'] as int?,
       patrimoine: json['patrimoine'] != null
           ? PatrimoineProfile.fromJson(json['patrimoine'])
           : null,
@@ -196,6 +230,7 @@ class ConjointProfile {
   Map<String, dynamic> toJson() => {
         'firstName': firstName,
         'birthYear': birthYear,
+        'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
         'gender': gender,
         'salaireBrutMensuel': salaireBrutMensuel,
         'nombreDeMois': nombreDeMois,
@@ -205,6 +240,8 @@ class ConjointProfile {
         'isFatcaResident': isFatcaResident,
         'canContribute3a': canContribute3a,
         'prevoyance': prevoyance?.toJson(),
+        'canton': canton,
+        'nombreEnfants': nombreEnfants,
         'patrimoine': patrimoine?.toJson(),
         'arrivalAge': arrivalAge,
         'targetRetirementAge': targetRetirementAge,
@@ -214,15 +251,18 @@ class ConjointProfile {
   ConjointProfile copyWith({
     String? firstName,
     int? birthYear,
+    DateTime? dateOfBirth,
     String? gender,
     double? salaireBrutMensuel,
-    int? nombreDeMois,
+    double? nombreDeMois,
     double? bonusPourcentage,
     String? employmentStatus,
     String? nationality,
     bool? isFatcaResident,
     bool? canContribute3a,
     PrevoyanceProfile? prevoyance,
+    String? canton,
+    int? nombreEnfants,
     PatrimoineProfile? patrimoine,
     int? arrivalAge,
     int? targetRetirementAge,
@@ -239,6 +279,7 @@ class ConjointProfile {
     return ConjointProfile(
       firstName: firstName ?? this.firstName,
       birthYear: birthYear ?? this.birthYear,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       gender: gender ?? this.gender,
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
@@ -248,6 +289,8 @@ class ConjointProfile {
       isFatcaResident: effectiveFatca,
       canContribute3a: effectiveCan,
       prevoyance: effectivePrev,
+      canton: canton ?? this.canton,
+      nombreEnfants: nombreEnfants ?? this.nombreEnfants,
       patrimoine: patrimoine ?? this.patrimoine,
       arrivalAge: arrivalAge ?? this.arrivalAge,
       targetRetirementAge: targetRetirementAge ?? this.targetRetirementAge,
@@ -399,6 +442,60 @@ class PrevoyanceProfile {
     );
   }
 
+  PrevoyanceProfile copyWith({
+    int? anneesContribuees,
+    int? lacunesAVS,
+    double? renteAVSEstimeeMensuelle,
+    String? nomCaisse,
+    double? avoirLppTotal,
+    double? avoirLppObligatoire,
+    double? avoirLppSurobligatoire,
+    double? rachatMaximum,
+    double? rachatEffectue,
+    double? tauxConversion,
+    double? tauxConversionSuroblig,
+    double? rendementCaisse,
+    double? salaireAssure,
+    double? ramd,
+    int? bonificationsEducatives,
+    double? projectedRenteLpp,
+    double? projectedCapital65,
+    double? disabilityCoverage,
+    double? deathCoverage,
+    int? nombre3a,
+    double? totalEpargne3a,
+    List<Compte3a>? comptes3a,
+    bool? canContribute3a,
+    List<LibrePassageCompte>? librePassage,
+  }) {
+    return PrevoyanceProfile(
+      anneesContribuees: anneesContribuees ?? this.anneesContribuees,
+      lacunesAVS: lacunesAVS ?? this.lacunesAVS,
+      renteAVSEstimeeMensuelle: renteAVSEstimeeMensuelle ?? this.renteAVSEstimeeMensuelle,
+      nomCaisse: nomCaisse ?? this.nomCaisse,
+      avoirLppTotal: avoirLppTotal ?? this.avoirLppTotal,
+      avoirLppObligatoire: avoirLppObligatoire ?? this.avoirLppObligatoire,
+      avoirLppSurobligatoire: avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
+      rachatMaximum: rachatMaximum ?? this.rachatMaximum,
+      rachatEffectue: rachatEffectue ?? this.rachatEffectue,
+      tauxConversion: tauxConversion ?? this.tauxConversion,
+      tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
+      rendementCaisse: rendementCaisse ?? this.rendementCaisse,
+      salaireAssure: salaireAssure ?? this.salaireAssure,
+      ramd: ramd ?? this.ramd,
+      bonificationsEducatives: bonificationsEducatives ?? this.bonificationsEducatives,
+      projectedRenteLpp: projectedRenteLpp ?? this.projectedRenteLpp,
+      projectedCapital65: projectedCapital65 ?? this.projectedCapital65,
+      disabilityCoverage: disabilityCoverage ?? this.disabilityCoverage,
+      deathCoverage: deathCoverage ?? this.deathCoverage,
+      nombre3a: nombre3a ?? this.nombre3a,
+      totalEpargne3a: totalEpargne3a ?? this.totalEpargne3a,
+      comptes3a: comptes3a ?? this.comptes3a,
+      canContribute3a: canContribute3a ?? this.canContribute3a,
+      librePassage: librePassage ?? this.librePassage,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
         'anneesContribuees': anneesContribuees,
         'lacunesAVS': lacunesAVS,
@@ -447,7 +544,14 @@ class PrevoyanceProfile {
           ramd == other.ramd &&
           nombre3a == other.nombre3a &&
           totalEpargne3a == other.totalEpargne3a &&
-          canContribute3a == other.canContribute3a;
+          canContribute3a == other.canContribute3a &&
+          bonificationsEducatives == other.bonificationsEducatives &&
+          projectedRenteLpp == other.projectedRenteLpp &&
+          projectedCapital65 == other.projectedCapital65 &&
+          disabilityCoverage == other.disabilityCoverage &&
+          deathCoverage == other.deathCoverage &&
+          listEquals(comptes3a, other.comptes3a) &&
+          listEquals(librePassage, other.librePassage);
 
   @override
   int get hashCode => Object.hashAll([
@@ -468,6 +572,13 @@ class PrevoyanceProfile {
         nombre3a,
         totalEpargne3a,
         canContribute3a,
+        bonificationsEducatives,
+        projectedRenteLpp,
+        projectedCapital65,
+        disabilityCoverage,
+        deathCoverage,
+        comptes3a.length,
+        librePassage.length,
       ]);
 }
 
@@ -485,8 +596,8 @@ class Compte3a {
 
   factory Compte3a.fromJson(Map<String, dynamic> json) {
     return Compte3a(
-      provider: json['provider'] as String,
-      solde: (json['solde'] as num).toDouble(),
+      provider: (json['provider'] as String?) ?? 'Inconnu',
+      solde: (json['solde'] as num?)?.toDouble() ?? 0.0,
       rendementEstime: (json['rendementEstime'] as num?)?.toDouble() ?? 0.04,
     );
   }
@@ -496,6 +607,17 @@ class Compte3a {
         'solde': solde,
         'rendementEstime': rendementEstime,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Compte3a &&
+          provider == other.provider &&
+          solde == other.solde &&
+          rendementEstime == other.rendementEstime;
+
+  @override
+  int get hashCode => Object.hash(provider, solde, rendementEstime);
 }
 
 /// Compte de libre passage (apres changement d'emploi ou lacune LPP).
@@ -514,9 +636,9 @@ class LibrePassageCompte {
   factory LibrePassageCompte.fromJson(Map<String, dynamic> json) {
     return LibrePassageCompte(
       institution: json['institution'] as String?,
-      solde: (json['solde'] as num).toDouble(),
+      solde: (json['solde'] as num?)?.toDouble() ?? 0.0,
       dateOuverture: json['dateOuverture'] != null
-          ? DateTime.parse(json['dateOuverture'])
+          ? (DateTime.tryParse(json['dateOuverture'] ?? '') ?? DateTime.now())
           : null,
     );
   }
@@ -526,6 +648,17 @@ class LibrePassageCompte {
         'solde': solde,
         'dateOuverture': dateOuverture?.toIso8601String(),
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibrePassageCompte &&
+          institution == other.institution &&
+          solde == other.solde &&
+          dateOuverture == other.dateOuverture;
+
+  @override
+  int get hashCode => Object.hash(institution, solde, dateOuverture);
 }
 
 /// Patrimoine (epargne + investissements + immobilier)
@@ -545,6 +678,10 @@ class PatrimoineProfile {
   // S45: Immobilier enrichi
   final String? propertyDescription; // "Appt 4.5p, Sion (VS)"
 
+  // CAL-03: Calculator write-back fields (from /hypotheque calculator)
+  final double? mortgageCapacity; // Computed max mortgage capacity from calculator
+  final double? estimatedMonthlyPayment; // Computed monthly payment from calculator
+
   const PatrimoineProfile({
     this.epargneLiquide = 0,
     this.investissements = 0,
@@ -556,6 +693,8 @@ class PatrimoineProfile {
     this.mortgageRate,
     this.monthlyRent,
     this.propertyDescription,
+    this.mortgageCapacity,
+    this.estimatedMonthlyPayment,
   });
 
   /// Valeur immobilière effective (propertyMarketValue si renseigné, sinon legacy immobilier).
@@ -594,6 +733,8 @@ class PatrimoineProfile {
       mortgageRate: (json['mortgageRate'] as num?)?.toDouble(),
       monthlyRent: (json['monthlyRent'] as num?)?.toDouble(),
       propertyDescription: json['propertyDescription'] as String?,
+      mortgageCapacity: (json['mortgageCapacity'] as num?)?.toDouble(),
+      estimatedMonthlyPayment: (json['estimatedMonthlyPayment'] as num?)?.toDouble(),
     );
   }
 
@@ -608,6 +749,8 @@ class PatrimoineProfile {
     double? mortgageRate,
     double? monthlyRent,
     String? propertyDescription,
+    double? mortgageCapacity,
+    double? estimatedMonthlyPayment,
   }) {
     return PatrimoineProfile(
       epargneLiquide: epargneLiquide ?? this.epargneLiquide,
@@ -622,6 +765,8 @@ class PatrimoineProfile {
       mortgageRate: mortgageRate ?? this.mortgageRate,
       monthlyRent: monthlyRent ?? this.monthlyRent,
       propertyDescription: propertyDescription ?? this.propertyDescription,
+      mortgageCapacity: mortgageCapacity ?? this.mortgageCapacity,
+      estimatedMonthlyPayment: estimatedMonthlyPayment ?? this.estimatedMonthlyPayment,
     );
   }
 
@@ -636,6 +781,8 @@ class PatrimoineProfile {
         'mortgageRate': mortgageRate,
         'monthlyRent': monthlyRent,
         'propertyDescription': propertyDescription,
+        'mortgageCapacity': mortgageCapacity,
+        'estimatedMonthlyPayment': estimatedMonthlyPayment,
       };
 
   @override
@@ -652,7 +799,9 @@ class PatrimoineProfile {
           mortgageBalance == other.mortgageBalance &&
           mortgageRate == other.mortgageRate &&
           monthlyRent == other.monthlyRent &&
-          propertyDescription == other.propertyDescription;
+          propertyDescription == other.propertyDescription &&
+          mortgageCapacity == other.mortgageCapacity &&
+          estimatedMonthlyPayment == other.estimatedMonthlyPayment;
 
   @override
   int get hashCode => Object.hashAll([
@@ -666,6 +815,8 @@ class PatrimoineProfile {
         mortgageRate,
         monthlyRent,
         propertyDescription,
+        mortgageCapacity,
+        estimatedMonthlyPayment,
       ]);
 }
 
@@ -932,9 +1083,9 @@ class GoalA {
         (e) => e.name == json['type'],
         orElse: () => GoalAType.retraite,
       ),
-      targetDate: DateTime.parse(json['targetDate']),
+      targetDate: DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now(),
       targetAmount: (json['targetAmount'] as num?)?.toDouble(),
-      label: json['label'] as String,
+      label: (json['label'] as String?) ?? '',
     );
   }
 
@@ -944,6 +1095,18 @@ class GoalA {
         'targetAmount': targetAmount,
         'label': label,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GoalA &&
+          type == other.type &&
+          targetDate == other.targetDate &&
+          targetAmount == other.targetAmount &&
+          label == other.label;
+
+  @override
+  int get hashCode => Object.hash(type, targetDate, targetAmount, label);
 }
 
 /// Objectif secondaire (Goal B)
@@ -962,10 +1125,10 @@ class GoalB {
 
   factory GoalB.fromJson(Map<String, dynamic> json) {
     return GoalB(
-      label: json['label'] as String,
-      targetAmount: (json['targetAmount'] as num).toDouble(),
+      label: (json['label'] as String?) ?? '',
+      targetAmount: (json['targetAmount'] as num?)?.toDouble() ?? 0.0,
       targetDate: json['targetDate'] != null
-          ? DateTime.parse(json['targetDate'])
+          ? (DateTime.tryParse(json['targetDate'] ?? '') ?? DateTime.now())
           : null,
       priority: json['priority'] ?? 0,
     );
@@ -977,6 +1140,18 @@ class GoalB {
         'targetDate': targetDate?.toIso8601String(),
         'priority': priority,
       };
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GoalB &&
+          label == other.label &&
+          targetAmount == other.targetAmount &&
+          targetDate == other.targetDate &&
+          priority == other.priority;
+
+  @override
+  int get hashCode => Object.hash(label, targetAmount, targetDate, priority);
 }
 
 /// Check-in mensuel (une "activite" au sens TrainerRoad)
@@ -1011,7 +1186,7 @@ class MonthlyCheckIn {
 
   factory MonthlyCheckIn.fromJson(Map<String, dynamic> json) {
     return MonthlyCheckIn(
-      month: DateTime.parse(json['month']),
+      month: DateTime.tryParse(json['month'] ?? '') ?? DateTime.now(),
       versements: Map<String, double>.from(
         (json['versements'] as Map).map(
           (k, v) => MapEntry(k.toString(), (v as num).toDouble()),
@@ -1021,7 +1196,7 @@ class MonthlyCheckIn {
           (json['depensesExceptionnelles'] as num?)?.toDouble(),
       revenusExceptionnels: (json['revenusExceptionnels'] as num?)?.toDouble(),
       note: json['note'] as String?,
-      completedAt: DateTime.parse(json['completedAt']),
+      completedAt: DateTime.tryParse(json['completedAt'] ?? '') ?? DateTime.now(),
       friScore: (json['friScore'] as num?)?.toDouble(),
       fitnessScore: json['fitnessScore'] as int?,
     );
@@ -1058,10 +1233,10 @@ class PlannedMonthlyContribution {
 
   factory PlannedMonthlyContribution.fromJson(Map<String, dynamic> json) {
     return PlannedMonthlyContribution(
-      id: json['id'] as String,
-      label: json['label'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      category: json['category'] as String,
+      id: (json['id'] as String?) ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
+      label: (json['label'] as String?) ?? '',
+      amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
+      category: (json['category'] as String?) ?? 'other',
       isAutomatic: json['isAutomatic'] ?? false,
     );
   }
@@ -1089,6 +1264,17 @@ class PlannedMonthlyContribution {
       isAutomatic: isAutomatic ?? this.isAutomatic,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlannedMonthlyContribution &&
+          id == other.id &&
+          amount == other.amount &&
+          category == other.category;
+
+  @override
+  int get hashCode => Object.hash(id, amount, category);
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -1101,6 +1287,10 @@ class PlannedMonthlyContribution {
 /// et au FinancialFitnessScore. Persiste localement (SharedPreferences
 /// ou Hive) et peut etre exporte en JSON.
 class CoachProfile {
+  /// Schema version for migration support.
+  /// Increment when breaking changes are made to serialization format.
+  static const int schemaVersion = 1;
+
   // === IDENTITE ===
   final String? firstName;
   final int birthYear;
@@ -1116,7 +1306,7 @@ class CoachProfile {
 
   // === REVENUS ===
   final double salaireBrutMensuel;
-  final int nombreDeMois; // 12, 13, 13.5
+  final double nombreDeMois; // 12, 13, 13.5
   final double? bonusPourcentage;
   final String
       employmentStatus; // 'salarie', 'independant', 'chomage', 'retraite'
@@ -1204,6 +1394,28 @@ class CoachProfile {
   /// Format: '{category}_{subcategory}' e.g. 'proteger_retraite'.
   final String? primaryFocus;
 
+  // === VOICE CURSOR (Phase 02-03 — see voice_cursor_contract.dart) ===
+  /// User-chosen tone preference (soft / direct / unfiltered).
+  /// Default: direct (per ROADMAP). Surfaced in Phase 12 "Ton" chooser.
+  final VoicePreference voiceCursorPreference;
+
+  /// Rolling 7-day N5 emission counter for cap enforcement.
+  /// Phase 11 VOICE-09 moves this to server-authoritative; this phase
+  /// only persists the field. Default: 0.
+  final int n5IssuedThisWeek;
+
+  /// Timestamp when fragile mode was entered (auto or user-declared).
+  /// Null = fragile mode not active. When non-null, voice cursor caps at N3
+  /// (see fragilityCap rule in voice_cursor_contract.dart).
+  final DateTime? fragileModeEnteredAt;
+
+  /// Phase 11 (VOICE-09/10) — rolling 30-day gravity event log.
+  /// Each entry: {"ts": ISO8601 String, "gravity": "G1"|"G2"|"G3"}.
+  /// Server-authoritative: client mirrors for offline read-only display;
+  /// the fragility detector lives backend-side (fragility_detector_service).
+  /// No PII: only the gravity label + timestamp are persisted.
+  final List<Map<String, dynamic>> recentGravityEvents;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
@@ -1215,7 +1427,7 @@ class CoachProfile {
     this.nombreEnfants = 0,
     this.conjoint,
     required this.salaireBrutMensuel,
-    this.nombreDeMois = 12,
+    this.nombreDeMois = 12.0,
     this.bonusPourcentage,
     this.employmentStatus = 'salarie',
     this.depenses = const DepensesProfile(),
@@ -1242,6 +1454,10 @@ class CoachProfile {
     DateTime? updatedAt,
     this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
     this.primaryFocus,
+    this.voiceCursorPreference = VoicePreference.direct,
+    this.n5IssuedThisWeek = 0,
+    this.fragileModeEnteredAt,
+    this.recentGravityEvents = const [],
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
@@ -1311,39 +1527,61 @@ class CoachProfile {
   // preferred over missing a genuine data change.
 
   @override
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is CoachProfile &&
           runtimeType == other.runtimeType &&
           firstName == other.firstName &&
           birthYear == other.birthYear &&
+          dateOfBirth == other.dateOfBirth &&
           canton == other.canton &&
+          commune == other.commune &&
           nationality == other.nationality &&
-          salaireBrutMensuel == other.salaireBrutMensuel &&
-          employmentStatus == other.employmentStatus &&
           etatCivil == other.etatCivil &&
           nombreEnfants == other.nombreEnfants &&
-          targetRetirementAge == other.targetRetirementAge &&
+          conjoint == other.conjoint &&
+          salaireBrutMensuel == other.salaireBrutMensuel &&
+          nombreDeMois == other.nombreDeMois &&
+          bonusPourcentage == other.bonusPourcentage &&
+          employmentStatus == other.employmentStatus &&
+          depenses == other.depenses &&
           prevoyance == other.prevoyance &&
           patrimoine == other.patrimoine &&
-          conjoint == other.conjoint &&
+          dettes == other.dettes &&
+          goalA == other.goalA &&
+          listEquals(goalsB, other.goalsB) &&
+          listEquals(plannedContributions, other.plannedContributions) &&
+          listEquals(checkIns, other.checkIns) &&
+          housingStatus == other.housingStatus &&
+          riskTolerance == other.riskTolerance &&
+          realEstateProject == other.realEstateProject &&
+          listEquals(providers3a, other.providers3a) &&
+          arrivalAge == other.arrivalAge &&
+          residencePermit == other.residencePermit &&
+          familyChange == other.familyChange &&
+          gender == other.gender &&
+          targetRetirementAge == other.targetRetirementAge &&
+          voiceCursorPreference == other.voiceCursorPreference &&
+          n5IssuedThisWeek == other.n5IssuedThisWeek &&
+          fragileModeEnteredAt == other.fragileModeEnteredAt &&
+          listEquals(recentGravityEvents, other.recentGravityEvents) &&
+          createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
 
   @override
   int get hashCode => Object.hashAll([
-        firstName,
-        birthYear,
-        canton,
-        nationality,
-        salaireBrutMensuel,
-        employmentStatus,
-        etatCivil,
-        nombreEnfants,
-        targetRetirementAge,
-        prevoyance,
-        patrimoine,
-        conjoint,
-        updatedAt,
+        firstName, birthYear, dateOfBirth, canton, commune, nationality,
+        etatCivil, nombreEnfants, conjoint, salaireBrutMensuel,
+        nombreDeMois, bonusPourcentage, employmentStatus,
+        depenses, prevoyance, patrimoine, dettes, goalA,
+        goalsB.length, plannedContributions.length, checkIns.length,
+        housingStatus, riskTolerance, realEstateProject,
+        providers3a.length, arrivalAge, residencePermit, familyChange,
+        gender, targetRetirementAge,
+        voiceCursorPreference, n5IssuedThisWeek, fragileModeEnteredAt,
+        recentGravityEvents.length,
+        createdAt, updatedAt,
       ]);
 
   // ════════════════════════════════════════════════════════════════
@@ -1352,6 +1590,7 @@ class CoachProfile {
 
   /// Age actuel — précis au jour si dateOfBirth est disponible,
   /// sinon fallback sur birthYear (précision ±1 an).
+  /// CHAOS-3: Guard against invalid birthYear (e.g. 2100) producing negative age.
   int get age {
     if (dateOfBirth != null) {
       final now = DateTime.now();
@@ -1360,9 +1599,15 @@ class CoachProfile {
           (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
         a--;
       }
-      return a;
+      return a.clamp(0, 150);
     }
-    return DateTime.now().year - birthYear;
+    final currentYear = DateTime.now().year;
+    if (birthYear < 1900 || birthYear > currentYear - 10) {
+      // Invalid birthYear — return 0 to signal "data not available".
+      // Readiness gates use age==0 as "blocked/missing".
+      return 0;
+    }
+    return currentYear - birthYear;
   }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
@@ -1378,9 +1623,20 @@ class CoachProfile {
     return base + bonus;
   }
 
-  /// Revenu brut annuel du couple
+  /// Revenu brut annuel du couple.
+  ///
+  /// P2-19: When etatCivil == marie but conjoint == null, we return
+  /// only the main user's income (safe fallback — never assume spouse income).
   double get revenuBrutAnnuelCouple =>
       revenuBrutAnnuel + (conjoint?.revenuBrutAnnuel ?? 0);
+
+  /// P2-19: True when user declares married/concubinage but has no spouse data.
+  /// Consumers should show a warning and avoid assuming spouse income/AVS rights.
+  bool get isMissingConjointData =>
+      isCouple && conjoint == null;
+
+  /// FIX-101: Cross-border worker detection (permis G).
+  bool get isCrossBorder => residencePermit?.toUpperCase() == 'G';
 
   /// Total depenses fixes mensuelles
   double get totalDepensesMensuelles => depenses.totalMensuel;
@@ -1407,6 +1663,7 @@ class CoachProfile {
     DateTime expected = DateTime(DateTime.now().year, DateTime.now().month);
     for (final ci in sorted) {
       final ciMonth = DateTime(ci.month.year, ci.month.month);
+      // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
       if (ciMonth == expected ||
           ciMonth == DateTime(expected.year, expected.month - 1)) {
         count++;
@@ -1487,8 +1744,12 @@ class CoachProfile {
   /// Also delegates to [PrevoyanceProfile.canContribute3a] which may be
   /// set independently (e.g. when profile is loaded from a certificate).
   bool get canContribute3a {
+    // US citizens with FATCA: blocked (most Swiss providers refuse)
     if (archetype == FinancialArchetype.expatUs) return false;
     if (nationality == 'US') return false;
+    // FIX-102: Frontaliers GE can deduct 3a if quasi-resident (≥90% Swiss income)
+    // or if they have Swiss employment income (AVS-contributing salary).
+    if (isCrossBorder && revenuBrutAnnuel > 0) return true;
     return prevoyance.canContribute3a;
   }
 
@@ -1510,7 +1771,7 @@ class CoachProfile {
     int? nombreEnfants,
     ConjointProfile? conjoint,
     double? salaireBrutMensuel,
-    int? nombreDeMois,
+    double? nombreDeMois,
     double? bonusPourcentage,
     String? employmentStatus,
     DepensesProfile? depenses,
@@ -1537,6 +1798,10 @@ class CoachProfile {
     DateTime? updatedAt,
     FinancialLiteracyLevel? financialLiteracyLevel,
     String? primaryFocus,
+    VoicePreference? voiceCursorPreference,
+    int? n5IssuedThisWeek,
+    DateTime? fragileModeEnteredAt,
+    List<Map<String, dynamic>>? recentGravityEvents,
   }) {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -1547,7 +1812,14 @@ class CoachProfile {
       nationality: nationality ?? this.nationality,
       etatCivil: etatCivil ?? this.etatCivil,
       nombreEnfants: nombreEnfants ?? this.nombreEnfants,
-      conjoint: conjoint ?? this.conjoint,
+      // FIX-035 LAVS art. 35: clear conjoint when civil status changes
+      // to non-coupled (divorce, veuvage, célibataire). Otherwise the
+      // AVS couple cap 150% keeps applying to a single person.
+      conjoint: (etatCivil != null &&
+              etatCivil != CoachCivilStatus.marie &&
+              etatCivil != CoachCivilStatus.concubinage)
+          ? null
+          : (conjoint ?? this.conjoint),
       salaireBrutMensuel: salaireBrutMensuel ?? this.salaireBrutMensuel,
       nombreDeMois: nombreDeMois ?? this.nombreDeMois,
       bonusPourcentage: bonusPourcentage ?? this.bonusPourcentage,
@@ -1578,6 +1850,11 @@ class CoachProfile {
       financialLiteracyLevel:
           financialLiteracyLevel ?? this.financialLiteracyLevel,
       primaryFocus: primaryFocus ?? this.primaryFocus,
+      voiceCursorPreference:
+          voiceCursorPreference ?? this.voiceCursorPreference,
+      n5IssuedThisWeek: n5IssuedThisWeek ?? this.n5IssuedThisWeek,
+      fragileModeEnteredAt: fragileModeEnteredAt ?? this.fragileModeEnteredAt,
+      recentGravityEvents: recentGravityEvents ?? this.recentGravityEvents,
     );
   }
 
@@ -1697,13 +1974,19 @@ class CoachProfile {
   // ════════════════════════════════════════════════════════════════
 
   factory CoachProfile.fromJson(Map<String, dynamic> json) {
+    // Schema migration: handle older versions if needed.
+    final version = json['schemaVersion'] as int? ?? 0;
+    // Version 0 (pre-schema) and version 1 share the same format.
+    // Future migrations: if (version < 2) { ... migrate fields ... }
+    assert(version <= schemaVersion,
+        'CoachProfile schema version $version is newer than supported $schemaVersion');
     return CoachProfile(
       firstName: json['firstName'] as String?,
-      birthYear: json['birthYear'] as int,
+      birthYear: (json['birthYear'] as int?) ?? 1980,
       dateOfBirth: json['dateOfBirth'] != null
           ? DateTime.tryParse(json['dateOfBirth'] as String)
           : null,
-      canton: json['canton'] as String,
+      canton: (json['canton'] as String?) ?? 'ZH',
       commune: json['commune'] as String?,
       nationality: json['nationality'] as String?,
       etatCivil: CoachCivilStatus.values.firstWhere(
@@ -1714,8 +1997,8 @@ class CoachProfile {
       conjoint: json['conjoint'] != null
           ? ConjointProfile.fromJson(json['conjoint'])
           : null,
-      salaireBrutMensuel: (json['salaireBrutMensuel'] as num).toDouble(),
-      nombreDeMois: json['nombreDeMois'] ?? 12,
+      salaireBrutMensuel: (json['salaireBrutMensuel'] as num?)?.toDouble() ?? 0,
+      nombreDeMois: (json['nombreDeMois'] as num?)?.toDouble() ?? 12.0,
       bonusPourcentage: (json['bonusPourcentage'] as num?)?.toDouble(),
       employmentStatus: json['employmentStatus'] ?? 'salarie',
       depenses: json['depenses'] != null
@@ -1730,7 +2013,9 @@ class CoachProfile {
       dettes: json['dettes'] != null
           ? DetteProfile.fromJson(json['dettes'])
           : const DetteProfile(),
-      goalA: GoalA.fromJson(json['goalA']),
+      goalA: json['goalA'] != null
+          ? GoalA.fromJson(json['goalA'])
+          : GoalA(type: GoalAType.retraite, targetDate: DateTime(2035), label: ''),
       goalsB:
           (json['goalsB'] as List?)?.map((g) => GoalB.fromJson(g)).toList() ??
               const [],
@@ -1766,25 +2051,49 @@ class CoachProfile {
           ) ??
           const {},
       dataTimestamps: (json['dataTimestamps'] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(k, DateTime.parse(v as String)),
+            (k, v) {
+              final dt = DateTime.tryParse(v as String? ?? '');
+              return MapEntry(k, dt ?? DateTime.now());
+            },
           ) ??
           const {},
       createdAt:
-          json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
+          json['createdAt'] != null ? DateTime.tryParse(json['createdAt'] as String) : null,
       updatedAt:
-          json['updatedAt'] != null ? DateTime.parse(json['updatedAt']) : null,
+          json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt'] as String) : null,
       financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
         (e) => e.name == json['financialLiteracyLevel'],
         orElse: () => FinancialLiteracyLevel.beginner,
       ),
       primaryFocus: json['primaryFocus'] as String?,
+      voiceCursorPreference: _parseVoicePreference(json['voiceCursorPreference']),
+      n5IssuedThisWeek: (json['n5IssuedThisWeek'] as int?) ?? 0,
+      fragileModeEnteredAt: json['fragileModeEnteredAt'] != null
+          ? DateTime.tryParse(json['fragileModeEnteredAt'] as String)
+          : null,
+      recentGravityEvents: (json['recentGravityEvents'] as List?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          const [],
     );
   }
 
+  /// Parse VoicePreference from JSON; legacy/missing/invalid → direct (default).
+  static VoicePreference _parseVoicePreference(dynamic raw) {
+    if (raw == null) return VoicePreference.direct;
+    final s = raw.toString();
+    for (final v in VoicePreference.values) {
+      if (v.name == s) return v;
+    }
+    // Invalid value: fall back to default. Phase 11 will log this.
+    return VoicePreference.direct;
+  }
+
   Map<String, dynamic> toJson() => {
+        'schemaVersion': schemaVersion,
         'firstName': firstName,
         'birthYear': birthYear,
-        'dateOfBirth': dateOfBirth?.toIso8601String(),
+        'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
         'canton': canton,
         'commune': commune,
         'nationality': nationality,
@@ -1821,6 +2130,10 @@ class CoachProfile {
         'updatedAt': updatedAt.toIso8601String(),
         'financialLiteracyLevel': financialLiteracyLevel.name,
         'primaryFocus': primaryFocus,
+        'voiceCursorPreference': voiceCursorPreference.name,
+        'n5IssuedThisWeek': n5IssuedThisWeek,
+        'fragileModeEnteredAt': fragileModeEnteredAt?.toIso8601String(),
+        'recentGravityEvents': recentGravityEvents,
       };
 
   // ════════════════════════════════════════════════════════════════
@@ -1835,7 +2148,9 @@ class CoachProfile {
   factory CoachProfile.fromWizardAnswers(Map<String, dynamic> answers) {
     // ── Identite ────────────────────────────────────────────
     final firstName = answers['q_firstname'] as String?;
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
+    // CHAOS-78: Never default to 1990 — unknown birthYear stays 0
+    // (age getter returns 0 for invalid birthYear, signaling "data missing").
+    final birthYear = _parseInt(answers['q_birth_year']) ?? 0;
     final dobRaw = answers['q_date_of_birth'];
     final dateOfBirth = dobRaw is String ? DateTime.tryParse(dobRaw) : null;
     final canton = (answers['q_canton'] as String?) ?? 'ZH';
@@ -1848,8 +2163,11 @@ class CoachProfile {
                   (now.month == dateOfBirth.month && now.day < dateOfBirth.day))
               ? 1
               : 0);
-    } else {
+    } else if (birthYear >= 1900) {
       age = DateTime.now().year - birthYear;
+    } else {
+      // No birth data available — age 0 signals "data missing" to readiness gates.
+      age = 0;
     }
 
     // Civil status mapping
@@ -1861,7 +2179,10 @@ class CoachProfile {
     final nombreEnfants = _parseInt(childrenRaw) ?? 0;
 
     // ── Revenus ─────────────────────────────────────────────
-    final payFrequency = answers['q_pay_frequency'] as String? ?? 'monthly';
+    // FIX-P0-2: Normalize to lowercase — "Yearly" (capitalized) was not
+    // recognized, causing annual salary to be treated as monthly.
+    final payFrequency =
+        (answers['q_pay_frequency'] as String?)?.toLowerCase() ?? 'monthly';
     final netIncome = _parseDouble(answers['q_net_income_period_chf']) ?? 5000;
 
     // Convert to monthly net income based on pay frequency
@@ -1956,7 +2277,10 @@ class CoachProfile {
       default: // 'no_gaps' ou null
         avsGaps = 0;
     }
-    final avsYears = _parseInt(answers['q_avs_contribution_years']);
+    final rawAvsYears = _parseInt(answers['q_avs_contribution_years']);
+    // P1-6: AVS contribution years can't exceed (age - 20) — contributions
+    // start at ~20 (LAVS art. 3). Also capped at 44 (max duree cotisation).
+    final avsYears = rawAvsYears?.clamp(0, (age - 20).clamp(0, 44));
 
     // ── Extraction-persisted fields (survive restart) ─────────
     final coachAvoirLppOblig = _parseDouble(answers['_coach_avoir_lpp_oblig']);
@@ -2028,8 +2352,10 @@ class CoachProfile {
         case 'yes_6months':
           epargneLiquide = estimatedMonthlyExpenses * 6;
         case 'yes_3months':
-          epargneLiquide = estimatedMonthlyExpenses * 4.5;
+          epargneLiquide = estimatedMonthlyExpenses * 3.0;
         case 'no':
+          // User declares no emergency fund — use 1 month of savings as
+          // conservative floor (0 would break liquidity ratios).
           epargneLiquide = savingsMonthly * 1;
         default:
           epargneLiquide =
@@ -2293,6 +2619,8 @@ class CoachProfile {
         isFatcaResident: conjIsFatca,
         canContribute3a: !conjIsFatca,
         prevoyance: conjointPrevoyance,
+        canton: answers['q_partner_canton'] as String?,
+        nombreEnfants: _parseInt(answers['q_partner_enfants']),
       );
     }
 

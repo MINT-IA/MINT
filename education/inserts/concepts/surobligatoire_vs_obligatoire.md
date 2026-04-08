@@ -8,7 +8,7 @@ tags: [lpp, surobligatoire, obligatoire, taux_conversion, certificat_prevoyance]
 ## Trigger
 L'utilisateur consulte son certificat de prévoyance et voit deux colonnes (obligatoire / total), le coach explique le taux de conversion effectif, ou l'utilisateur gagne plus de CHF 88'200/an.
 
-## Chiffre Choc
+## Premier Éclairage
 Pour un avoir de CHF 500'000 dont CHF 300'000 en partie surobligatoire, un taux de conversion de 5.5% au lieu de 6.8% représente CHF 325/mois de rente en moins — CHF 3'900/an à vie.
 
 ## Niveau 0

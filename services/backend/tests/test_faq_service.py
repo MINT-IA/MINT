@@ -6,6 +6,8 @@ Validates FAQ count, structure, search, and category filtering.
 
 from __future__ import annotations
 
+import re as _re
+
 import pytest
 
 from app.services.rag.faq_service import FaqEntry, FaqService
@@ -81,9 +83,6 @@ def test_faq_entries_are_faq_entry_instances(all_faqs):
 # ---------------------------------------------------------------------------
 # Compliance checks — no banned terms
 # ---------------------------------------------------------------------------
-
-
-import re as _re
 
 # Banned as absolute promises — checked as whole words to avoid false positives
 # (e.g. "certain" banned but not "certaines/certains" as adjectives)

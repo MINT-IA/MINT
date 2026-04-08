@@ -97,23 +97,23 @@ def cheapest_communes_endpoint(
         CommuneResponse(**r) for r in results
     ]
 
-    # Build chiffre choc
+    # Build premier éclairage
     if len(commune_responses) >= 2:
         cheapest = commune_responses[0]
         most_exp = commune_responses[-1]
-        chiffre_choc = (
+        premier_eclairage = (
             f"A commune comparable, le multiplicateur varie de "
             f"{cheapest.multiplier:.2f} ({cheapest.commune}, {cheapest.canton}) "
             f"a {most_exp.multiplier:.2f} ({most_exp.commune}, {most_exp.canton}). "
             f"Ton choix de commune peut faire une vraie difference sur tes impots."
         )
     else:
-        chiffre_choc = "Pas assez de donnees pour comparer."
+        premier_eclairage = "Pas assez de donnees pour comparer."
 
     return CheapestCommunesResponse(
         communes=commune_responses,
         total=len(commune_responses),
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )
@@ -152,14 +152,14 @@ def list_canton_communes_endpoint(
         CommuneResponse(**r) for r in results
     ]
 
-    # Build chiffre choc
+    # Build premier éclairage
     canton_data = COMMUNE_DATA[canton_code]
     canton_nom = CANTON_NAMES.get(canton_code, canton_code)
     if len(commune_responses) >= 2:
         cheapest = commune_responses[0]
         most_exp = commune_responses[-1]
         ecart = most_exp.multiplier - cheapest.multiplier
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans le canton de {canton_nom}, le multiplicateur varie de "
             f"{cheapest.multiplier:.2f} ({cheapest.commune}) a "
             f"{most_exp.multiplier:.2f} ({most_exp.commune}), "
@@ -167,7 +167,7 @@ def list_canton_communes_endpoint(
             f"Choisir la bonne commune peut reduire significativement tes impots."
         )
     else:
-        chiffre_choc = f"Une seule commune repertoriee pour {canton_nom}."
+        premier_eclairage = f"Une seule commune repertoriee pour {canton_nom}."
 
     return CommuneListResponse(
         canton=canton_code,
@@ -175,7 +175,7 @@ def list_canton_communes_endpoint(
         system=canton_data["system"],
         communes=commune_responses,
         total=len(commune_responses),
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )

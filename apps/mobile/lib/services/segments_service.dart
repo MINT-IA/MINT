@@ -219,8 +219,8 @@ class GenderGapService {
       description:
           'Versez le plafond annuel de CHF\u00A07\'056 (salariés) pour '
           'compenser partiellement la lacune LPP. La déduction fiscale '
-          'est immédiate et le capital reste disponible sous certaines '
-          'conditions.',
+          'est immédiate et le capital reste disponible '
+          '(achat immobilier, départ de Suisse, invalidité — OPP3 art.\u00A04).',
       source: 'OPP3 art. 7',
       icon: 'savings',
     ));
@@ -805,7 +805,7 @@ class IndependantService {
         urgency: input.hasIjm ? 'basse' : 'critique',
         recommendation: input.hasIjm
             ? 'Ta couverture IJM est en place. Vérifie le délai de carence '
-                'et le montant assuré.'
+                'et le niveau d\u2019indemnisation journalière.'
             : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
                 'Souscrivez une assurance IJM individuelle (indemnité journalière '
                 'en cas de maladie).',

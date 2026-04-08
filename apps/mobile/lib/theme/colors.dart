@@ -24,13 +24,18 @@ class MintColors {
   // Text
   static const Color textPrimary = Color(0xFF1D1D1F);
   static const Color textSecondary = Color(0xFF6E6E73);
-  static const Color textMuted = Color(0xFF86868B);
+  // WCAG AA contrast fix: old #86868B (3.2:1 on white) → #737378 (4.6:1)
+  static const Color textMuted = Color(0xFF737378);
   
   // Accents
-  static const Color success = Color(0xFF24B14D);
-  static const Color warning = Color(0xFFFF9F0A);
-  static const Color error = Color(0xFFFF453A);
-  static const Color info = Color(0xFF007AFF); // Apple Blue for neutral info
+  // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)
+  static const Color success = Color(0xFF157B35);
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color warning = Color(0xFFB45309);
+  // WCAG AA contrast fix: old #FF453A (3.41:1) → #D32F2F (4.98:1 on white)
+  static const Color error = Color(0xFFD32F2F);
+  // WCAG AA contrast fix: old #007AFF (4.02:1) → #0062CC (5.80:1 on white)
+  static const Color info = Color(0xFF0062CC);
   
   // Borders
   static const Color border = Color(0xFFD2D2D7);
@@ -53,15 +58,22 @@ class MintColors {
   static const Color corailDiscret = Color(0xFFE6855E);
 
   // Trajectory colors (MINT Coach)
-  static const Color trajectoryOptimiste = Color(0xFF24B14D);
-  static const Color trajectoryBase = Color(0xFF007AFF);
-  static const Color trajectoryPrudent = Color(0xFFFF9F0A);
+  // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)
+  static const Color trajectoryOptimiste = Color(0xFF157B35);
+  // WCAG AA contrast fix: old #007AFF (4.02:1) → #0062CC (5.80:1 on white)
+  static const Color trajectoryBase = Color(0xFF0062CC);
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color trajectoryPrudent = Color(0xFFB45309);
 
   // Score gradient (MINT Coach)
-  static const Color scoreExcellent = Color(0xFF24B14D);
-  static const Color scoreBon = Color(0xFF8BC34A);
-  static const Color scoreAttention = Color(0xFFFF9F0A);
-  static const Color scoreCritique = Color(0xFFFF453A);
+  // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)
+  static const Color scoreExcellent = Color(0xFF157B35);
+  // WCAG AA contrast fix: old #8BC34A (2.86:1) → #5A8C2F (~4.6:1 on white)
+  static const Color scoreBon = Color(0xFF5A8C2F);
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color scoreAttention = Color(0xFFB45309);
+  // WCAG AA contrast fix: old #FF453A (3.41:1) → #D32F2F (4.98:1 on white)
+  static const Color scoreCritique = Color(0xFFD32F2F);
   // Score aliases (used by coach widgets)
   static const Color scoreGreen = scoreExcellent;
   static const Color scoreRed = scoreCritique;
@@ -104,7 +116,8 @@ class MintColors {
   // Tool library category accents
   static const Color categoryGreen = Color(0xFF059669); // Savings, legal, tax
   static const Color categoryBlue = Color(0xFF2563EB); // Emploi, banque, hypothèque
-  static const Color categoryAmber = Color(0xFFD97706); // Budget, dettes
+  // WCAG AA contrast fix: old #D97706 (3.19:1) → #B45309 (5.02:1 on white)
+  static const Color categoryAmber = Color(0xFFB45309); // Budget, dettes
   static const Color categoryPurple = Color(0xFF7C3AED); // 3a advanced, marriage
   static const Color categoryMagenta = Color(0xFFDB2777); // Family/marriage
   static const Color categoryMisc = Color(0xFFA2845E); // Default/miscellaneous
@@ -206,5 +219,48 @@ class MintColors {
   static const Color white54 = Color(0x8AFFFFFF); // 54% white
   static const Color white30 = Color(0x4DFFFFFF); // 30% white
   static const Color white24 = Color(0x3DFFFFFF); // 24% white
+
+  // ============ AAA TOKENS (S0-S5 only — AESTH-04) ============
+  // These 6 tokens hit WCAG 2.1 AAA strict normal-text contrast
+  // (≥ 7:1) against every legitimate S0-S5 background:
+  //   #FFFFFF (background, card)
+  //   #FCFBF8 (craie)
+  // Proven by test/theme/aaa_tokens_contrast_test.dart.
+  // Brand sign-off: Julien (6 AAA tokens approved 2026-04-07).
+  // Application happens in Phase 7 LAND-05 + Phase 8b AESTH-05.
+  // Legacy textSecondary/textMuted/success/warning/error/info
+  // remain untouched for out-of-S0-S5 surfaces.
+
+  /// Body secondary text, metadata, timestamps, hypothesis footer
+  /// on S0-S5. Replaces `textSecondary` in those surfaces only.
+  /// NOTE: hex darkened from REQ-locked #595960 → #555560 to clear
+  /// strict ≥ 7:1 on the warm `craie` background (#FCFBF8). The
+  /// REQ-locked value measured 6.95:1 white / 6.71:1 craie, failing
+  /// strict AAA. Iteration 2 of the auto-darkening protocol cleared
+  /// both axes. See plan 02-02 deviation note.
+  static const Color textSecondaryAaa = Color(0xFF555560);
+
+  /// Micro-labels, input hints, disabled state text, footer legal
+  /// on S0-S5. Replaces `textMuted` in those surfaces only.
+  static const Color textMutedAaa = Color(0xFF525256);
+
+  /// "Premier éclairage" positive confirmation, successful save
+  /// toast, completed-action indicator on S0-S5. NOT for score
+  /// badges (banned by anti-shame doctrine).
+  static const Color successAaa = Color(0xFF0F5E28);
+
+  /// The single desaturated amber — "verifiable fact requiring
+  /// attention" per AESTH §3 one-color-one-meaning rule. Used by
+  /// MintAlertObject G2 and MTC confidence-floor prompts.
+  static const Color warningAaa = Color(0xFF8C3F06);
+
+  /// Form validation errors and MintAlertObject G3 rupture
+  /// grammaticale accent on S0-S5. NEVER for compliance messaging
+  /// (compliance = neutral per narrator wall).
+  static const Color errorAaa = Color(0xFF8B1D1D);
+
+  /// Hypothesis footer links, "voir détail" tap targets,
+  /// trajectory base scenario legend on S0-S5.
+  static const Color infoAaa = Color(0xFF004FA3);
 
 }

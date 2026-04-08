@@ -10,6 +10,7 @@ from typing import Optional
 from app.core.auth import require_current_user
 from app.core.database import get_db
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.models.user import User
 from app.schemas.billing import (
     BillingEntitlementsResponse,
@@ -44,12 +45,15 @@ router = APIRouter()
 def _request_ip(request: Request) -> Optional[str]:
     forwarded = request.headers.get("x-forwarded-for")
     if forwarded:
-        return forwarded.split(",")[0].strip()
+        # Use RIGHTMOST IP — closest to the server, hardest to spoof
+        return forwarded.split(",")[-1].strip()
     return request.client.host if request.client else None
 
 
 @router.get("/entitlements", response_model=BillingEntitlementsResponse)
+@limiter.limit("30/minute")
 def get_entitlements(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> BillingEntitlementsResponse:
@@ -58,7 +62,9 @@ def get_entitlements(
 
 
 @router.post("/checkout/stripe", response_model=StripeCheckoutResponse)
+@limiter.limit("10/minute")
 def create_checkout(
+    request: Request,
     body: StripeCheckoutRequest,
     current_user: User = Depends(require_current_user),
 ) -> StripeCheckoutResponse:
@@ -75,7 +81,9 @@ def create_checkout(
 
 
 @router.post("/portal/stripe", response_model=StripePortalResponse)
+@limiter.limit("10/minute")
 def create_portal(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> StripePortalResponse:
@@ -90,6 +98,7 @@ def create_portal(
 
 
 @router.post("/webhooks/stripe", response_model=StripeWebhookAck)
+@limiter.limit("60/minute")
 async def stripe_webhook(
     request: Request,
     db: Session = Depends(get_db),
@@ -102,16 +111,19 @@ async def stripe_webhook(
     return StripeWebhookAck(received=True, event_type=event.get("type", "unknown"))
 
 
-@router.post("/debug/activate", response_model=BillingDebugActivateResponse)
+@router.post("/debug/activate", response_model=BillingDebugActivateResponse, include_in_schema=False)
+@limiter.limit("5/minute")
 def debug_activate_subscription(
+    request: Request,
     body: BillingDebugActivateRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> BillingDebugActivateResponse:
     """
     Internal/dev helper to activate subscription without store checkout.
+    SECURITY: Only available in development. Hidden from OpenAPI schema.
     """
-    if settings.ENVIRONMENT in {"production", "staging"}:
+    if settings.ENVIRONMENT != "development":
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Not found",
@@ -121,9 +133,9 @@ def debug_activate_subscription(
     sub.tier = body.tier
     sub.status = body.status
     sub.is_trial = body.is_trial
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
-    sub.current_period_end = datetime.utcnow() + timedelta(days=body.period_days)
+    sub.current_period_end = datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=body.period_days)
     db.commit()
     db.refresh(sub)
     _, features = recompute_entitlements(db, current_user.id)
@@ -137,6 +149,7 @@ def debug_activate_subscription(
 
 
 @router.post("/apple/verify", response_model=AppleVerifyPurchaseResponse)
+@limiter.limit("10/minute")
 def verify_apple_purchase(
     request: Request,
     body: AppleVerifyPurchaseRequest,
@@ -195,6 +208,7 @@ def verify_apple_purchase(
 
 
 @router.post("/webhooks/apple", response_model=AppleWebhookAck)
+@limiter.limit("60/minute")
 def apple_webhook(
     request: Request,
     body: AppleWebhookRequest,

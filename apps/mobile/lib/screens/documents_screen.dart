@@ -10,6 +10,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -96,11 +97,25 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: MintSpacing.sm),
         ],
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Loading indicator for initial document fetch
+            if (docProvider.isLoading)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                child: Center(
+                  child: Text(
+                    S.of(context)!.loadingGeneric,
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+                  ),
+                ),
+              ),
+
             // 1. Header card
             MintEntrance(child: _buildHeaderCard(s, totalDocs)),
             const SizedBox(height: MintSpacing.lg),
@@ -149,7 +164,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ))),
+      )))),
     );
   }
 
@@ -213,9 +228,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   const Icon(Icons.folder_outlined,
                       color: MintColors.info, size: 18),
                   const SizedBox(width: MintSpacing.sm),
-                  Text(
-                    s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
-                    style: MintTextStyles.bodySmall(color: MintColors.info),
+                  Flexible(
+                    child: Text(
+                      s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
+                      style: MintTextStyles.bodySmall(color: MintColors.info),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -393,7 +412,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -539,7 +560,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     children: [
                       Text(
                         typeLabel,
-                        style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                        style: MintTextStyles.labelLarge(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: MintSpacing.xs),
                       Row(
@@ -584,43 +607,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildEmptyState(S s) {
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
-      padding: const EdgeInsets.all(MintSpacing.xl),
-      child: Column(
-        children: [
-          Icon(Icons.folder_open_outlined,
-              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
-          const SizedBox(height: MintSpacing.md),
-          Text(
-            s.vaultEmptyTitle,
-            style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            s.documentsEmptyVoice,
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodyMedium(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          FilledButton.icon(
-            onPressed: () => _showUploadTypeSheet(s),
-            style: FilledButton.styleFrom(
-              backgroundColor: MintColors.primary,
-              foregroundColor: MintColors.white,
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: Text(
-              s.vaultUploadButton,
-              style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 14),
-            ),
-          ),
-        ],
-      ),
+    return MintEmptyState(
+      icon: Icons.folder_open_outlined,
+      title: s.vaultEmptyTitle,
+      subtitle: s.documentsEmptyVoice,
+      ctaLabel: s.vaultUploadButton,
+      onCta: () => _showUploadTypeSheet(s),
     );
   }
 
@@ -656,7 +648,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   s.vaultPremiumTitle,
-                  style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.white),
                 ),
               ),
             ],
@@ -685,7 +677,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ),
               child: Text(
                 s.vaultPremiumCta,
-                style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 14),
+                style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -713,9 +705,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
           ),
           const SizedBox(width: MintSpacing.md),
-          Text(
-            s.vaultAnalyzing,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          Flexible(
+            child: Text(
+              s.vaultAnalyzing,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -873,7 +869,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(width: MintSpacing.sm),
             Text(
               value,
-              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              style: MintTextStyles.labelLarge(),
             ),
           ],
         ),
@@ -958,7 +954,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 children: [
                   Text(
                     s.bankImportTitle,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(),
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Text(
@@ -1051,6 +1047,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     if (!sub.isCoach && docProvider.documentCount >= _freeDocLimit) {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -1079,6 +1079,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -1110,7 +1114,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   s.vaultUploadTitle,
-                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+                  style: MintTextStyles.headlineSmall(),
                 ),
               ),
             ),
@@ -1223,7 +1227,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s.vaultTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+          style: MintTextStyles.headlineSmall(),
         ),
         content: Text(
           s.vaultPrivacy,

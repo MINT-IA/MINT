@@ -72,6 +72,10 @@ class _MintEntranceState extends State<MintEntrance>
 
   @override
   Widget build(BuildContext context) {
+    // WCAG 2.1 SC 2.3.3: respect reduced-motion preference
+    final reduceMotion = MediaQuery.of(context).disableAnimations;
+    if (reduceMotion) return widget.child;
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {

@@ -81,8 +81,8 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Hero: chiffre choc ──
-              MintEntrance(child: _buildChiffreChoc(s)),
+              // ── Hero: premier éclairage ──
+              MintEntrance(child: _buildPremierEclairage(s)),
               const SizedBox(height: 24),
 
               // ── Urgences 48h ──
@@ -118,7 +118,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(S s) {
+  Widget _buildPremierEclairage(S s) {
     const delaiRepudiation = 3; // mois — CC art. 567
     return Container(
       padding: const EdgeInsets.all(20),
@@ -210,7 +210,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProcheSituation,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.md),
 
@@ -282,7 +282,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProchTimelineTitre,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         const SizedBox(height: MintSpacing.md),
         ...etapes.map(
@@ -401,7 +401,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
       children: [
         Text(
           s.decesProchActionsTitre,
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 12),
         ...actions.map(

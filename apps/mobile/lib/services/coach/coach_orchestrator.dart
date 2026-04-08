@@ -1,7 +1,7 @@
 /// Coach Orchestrator — Sprint S44 (Intelligence Branchement).
 ///
 /// Single entry-point for ALL coach AI generation:
-///   - Dashboard narrative (greeting, scoreSummary, tip, chiffreChoc)
+///   - Dashboard narrative (greeting, scoreSummary, tip, premierEclairage)
 ///   - Chat responses (BYOK / mock fallback)
 ///
 /// Priority chain (privacy-first):
@@ -28,6 +28,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/services/coach/coach_fallback_messages.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
@@ -177,6 +178,8 @@ class CoachOrchestrator {
     required CoachContext ctx,
     LlmConfig? byokConfig,
     String? memoryBlock,
+    String language = 'fr',
+    int cashLevel = 3,
   }) async {
     // Build system prompt with optional memory block injection (S58).
     // Pan5-1: Use PromptRegistry.chatSystemPrompt (enriched, context-aware)
@@ -185,6 +188,16 @@ class CoachOrchestrator {
     final systemPrompt = (memoryBlock != null && memoryBlock.isNotEmpty)
         ? '$basePrompt\n\n$memoryBlock'
         : basePrompt;
+
+    // FIX-W12: Warn if system prompt exceeds 40% of context
+    final systemPromptChars = systemPrompt.length;
+    final maxSystemChars = (_maxPromptChars * 0.4).floor();
+    if (systemPromptChars > maxSystemChars) {
+      debugPrint(
+        '[Coach] WARNING: System prompt $systemPromptChars chars exceeds '
+        '40% budget ($maxSystemChars). Truncating memory block.',
+      );
+    }
 
     // 1. SLM tier for chat
     if (_slmEligible()) {
@@ -214,12 +227,14 @@ class CoachOrchestrator {
         config: byokConfig,
         ctx: ctx,
         memoryBlock: memoryBlock,
+        language: language,
+        cashLevel: cashLevel,
       );
       if (byokResponse != null) return byokResponse;
     }
 
     // 3. Mock fallback (no LLM, keyword-based)
-    return _chatFallback();
+    return _chatFallback(language);
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -459,8 +474,12 @@ class CoachOrchestrator {
   //  INTERNAL — BYOK tier (chat)
   // ══════════════════════════════════════════════════════════════
 
-  /// Coach tools in Anthropic format for route_to_screen + generate_document.
-  /// Passed to the backend so Claude can return tool_use blocks.
+  /// Coach tools in Anthropic format for the BYOK path.
+  ///
+  /// STAB-03 / STAB-04 / D-04: list expanded to 4 tools so Claude can call
+  /// generate_financial_plan and record_check_in in addition to the original
+  /// route_to_screen + generate_document. Structured tool_use blocks flow
+  /// back through CoachResponse.toolCalls → richToolCalls → WidgetRenderer.
   static const List<Map<String, dynamic>> _coachTools = [
     {
       'name': 'route_to_screen',
@@ -515,6 +534,65 @@ class CoachOrchestrator {
         'required': ['document_type', 'context'],
       },
     },
+    {
+      'name': 'generate_financial_plan',
+      'description':
+          'Generate a personalized financial plan preview card in the chat. '
+              'Use when the user asks for "un plan", "quoi faire", or a concrete '
+              'multi-step action list. The card shows a goal, a monthly target, '
+              'milestones, and a coach narrative. Read-only — no money movement.',
+      'input_schema': {
+        'type': 'object',
+        'properties': {
+          'goal': {
+            'type': 'string',
+            'description':
+                'Short goal description (e.g. "Preparer la retraite", "Acheter un appartement").',
+          },
+          'monthly_amount': {
+            'type': 'number',
+            'description':
+                'Monthly target amount in CHF. Optional — omit if unknown.',
+          },
+          'narrative': {
+            'type': 'string',
+            'description':
+                'Coach narrative (1-2 sentences) explaining why this plan.',
+          },
+        },
+        'required': ['goal', 'narrative'],
+      },
+    },
+    {
+      'name': 'record_check_in',
+      'description':
+          'Record a monthly check-in (3a/LPP deposits) and display a summary card. '
+              'Use when the user confirms they made their monthly contributions. '
+              'The card is persisted to the user profile. Read-only posture — '
+              'MINT never moves money, only records what the user reports.',
+      'input_schema': {
+        'type': 'object',
+        'properties': {
+          'month': {
+            'type': 'string',
+            'description':
+                'Month of the check-in in YYYY-MM format (e.g. "2026-04").',
+          },
+          'versements': {
+            'type': 'object',
+            'description':
+                'Map of contribution category → amount in CHF '
+                    '(e.g. {"3a": 604.0, "lpp": 250.0}).',
+          },
+          'summary_message': {
+            'type': 'string',
+            'description':
+                'One-sentence coach summary of what the user accomplished.',
+          },
+        },
+        'required': ['month', 'versements', 'summary_message'],
+      },
+    },
   ];
 
   /// Attempt BYOK RAG for a chat response.
@@ -527,6 +605,8 @@ class CoachOrchestrator {
     required LlmConfig config,
     required CoachContext ctx,
     String? memoryBlock,
+    String language = 'fr',
+    int cashLevel = 3,
   }) async {
     final ragService = RagService();
     final providerStr = _llmProviderString(config.provider);
@@ -570,6 +650,8 @@ class CoachOrchestrator {
               ...ctx.knownValues.map((k, v) =>
                   MapEntry(k, v.isFinite && v > 0 ? v : null)),
             },
+            language: language,
+            cashLevel: cashLevel,
             // Pass tools so Claude can return route_to_screen tool_use blocks.
             tools: providerStr == 'claude' ? _coachTools : null,
           )
@@ -689,16 +771,19 @@ class CoachOrchestrator {
   }
 
   /// Safe chat fallback — honest message when no LLM is available.
-  // TODO(S57-i18n): migrate hardcoded FR strings — service has no BuildContext;
-  // requires static localisation accessor or caller-injected strings (Phase 1.3).
-  static CoachResponse _chatFallback() {
-    return const CoachResponse(
-      message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'
-          'En attendant, tu peux :\n'
-          '• Explorer tes simulateurs (3a, LPP, retraite)\n'
-          '• Consulter les fiches éducatives\n'
-          '• Enrichir ton profil pour des projections plus précises\n\n'
-          '_${ComplianceGuard.standardDisclaimer}_',
+  ///
+  /// Resolves KNOWN_GAPS_v2.2.md Cat 7 (P2 — FR-only fallback). The
+  /// orchestrator is a static service with no `BuildContext`, so we
+  /// dispatch on the ISO 639-1 [languageCode] via
+  /// [CoachFallbackMessages]. Anti-shame doctrine: MINT is the subject
+  /// of the unavailability, never the user. CLAUDE.md §7 compliant.
+  static CoachResponse _chatFallback(String languageCode) {
+    final message = CoachFallbackMessages.chatUnavailable(
+      languageCode,
+      ComplianceGuard.standardDisclaimer,
+    );
+    return CoachResponse(
+      message: message,
       disclaimer: ComplianceGuard.standardDisclaimer,
       wasFiltered: false,
     );
@@ -797,8 +882,8 @@ class CoachOrchestrator {
         return 'score_summary';
       case ComponentType.tip:
         return 'tip';
-      case ComponentType.chiffreChoc:
-        return 'chiffre_choc';
+      case ComponentType.premierEclairage:
+        return 'premier_eclairage';
       case ComponentType.scenario:
         return 'scenario';
       case ComponentType.enrichmentGuide:
@@ -825,8 +910,8 @@ class CoachOrchestrator {
         return 'Génère un résumé du score FRI ${ctx.friTotal.toStringAsFixed(0)}/100.';
       case ComponentType.tip:
         return 'Génère un tip éducatif personnalisé.';
-      case ComponentType.chiffreChoc:
-        return 'Commente le chiffre choc de manière éducative.';
+      case ComponentType.premierEclairage:
+        return 'Commente le premier éclairage de manière éducative.';
       case ComponentType.scenario:
         return 'Narre le scénario de projection.';
       case ComponentType.enrichmentGuide:
@@ -857,8 +942,8 @@ class CoachOrchestrator {
         return FallbackTemplates.scoreSummary(ctx);
       case ComponentType.tip:
         return _contextualTip(ctx);
-      case ComponentType.chiffreChoc:
-        return FallbackTemplates.chiffreChocReframe(ctx);
+      case ComponentType.premierEclairage:
+        return FallbackTemplates.premierEclairageReframe(ctx);
       case ComponentType.enrichmentGuide:
         return FallbackTemplates.enrichmentGuide(ctx, 'general');
       case ComponentType.scenario:

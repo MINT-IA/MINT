@@ -8,7 +8,7 @@ tags: [lpp, bonifications, age, salaire_coordonne, retraite]
 ## Trigger
 L'utilisateur consulte la composition de son avoir LPP, s'interroge sur l'impact d'un changement d'emploi à 40 ou 50 ans, ou le coach détecte un profil dans la tranche 45-54 ou 55-65 ans.
 
-## Chiffre Choc
+## Premier Éclairage
 À 55 ans, chaque CHF 100'000 de salaire coordonné génère CHF 18'000/an d'épargne LPP — c'est la marche la plus haute de l'escalier, soit 2.6× plus qu'à 30 ans (7%).
 
 ## Niveau 0

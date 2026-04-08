@@ -14,6 +14,8 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
@@ -134,24 +136,33 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: S.of(context)!.narrativeRealReturnHeadline,
+            body: S.of(context)!.narrativeRealReturnBody,
+            tone: MintSurfaceTone.sauge,
+            badge: S.of(context)!.narrativeRealReturnBadge,
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Chiffre choc
-          MintEntrance(child: _buildChiffreChoc(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairage(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Aha moment narrative
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAhaMoment(result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAhaMoment(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection()),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection()),
           const SizedBox(height: MintSpacing.lg),
 
           // Resultat rendement
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRendementSection(result)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRendementSection(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison barres
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonBars(result)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonBars(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Detail economie fiscale
@@ -166,33 +177,17 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(RealReturnResult result) {
+  Widget _buildPremierEclairage(RealReturnResult result) {
     final l = S.of(context)!;
-    return Container(
-      padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.success.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.success.withValues(alpha: 0.15), width: 1.5),
-      ),
-      child: Column(
-        children: [
-          Text(
-            l.realReturnChiffreChocLabel,
-            style: MintTextStyles.bodySmall(color: MintColors.success),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
-            style: MintTextStyles.displayMedium(color: MintColors.success).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
-            style: MintTextStyles.bodySmall(color: MintColors.success),
-          ),
-        ],
-      ),
+    return MintResultHeroCard(
+      eyebrow: l.realReturnPremierEclairageLabel,
+      primaryValue: '${result.rendementReel.toStringAsFixed(1)}\u00a0%',
+      primaryLabel: l.realReturnPrimaryLabel,
+      secondaryValue: '${result.rendementNominal.toStringAsFixed(1)}\u00a0%',
+      secondaryLabel: l.realReturnVsNominal(result.rendementNominal.toStringAsFixed(1)),
+      narrative: l.realReturnNarrative,
+      accentColor: MintColors.success,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 
@@ -390,23 +385,26 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           ),
 
           const SizedBox(height: MintSpacing.md),
-          Container(
-            padding: const EdgeInsets.all(MintSpacing.sm),
-            decoration: BoxDecoration(
-              color: MintColors.success.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.trending_up, color: MintColors.success, size: 20),
-                const SizedBox(width: MintSpacing.sm),
-                Expanded(
-                  child: Text(
-                    l.realReturnGainVsSavings(formatChf(result.gainVsEpargne)),
-                    style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+          Semantics(
+            label: S.of(context)!.semanticsRealReturnGain(formatChf(result.gainVsEpargne)),
+            child: Container(
+              padding: const EdgeInsets.all(MintSpacing.sm),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const ExcludeSemantics(child: Icon(Icons.trending_up, color: MintColors.success, size: 20)),
+                  const SizedBox(width: MintSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      l.realReturnGainVsSavings(formatChf(result.gainVsEpargne)),
+                      style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -485,26 +483,29 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
 
   Widget _buildResultRow(String label, String value,
       {bool isBold = false, Color? color}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: MintTextStyles.bodySmall(
-                color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
-              ).copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
+    return Semantics(
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                style: MintTextStyles.bodySmall(
+                  color: isBold ? MintColors.textPrimary : MintColors.textSecondary,
+                ).copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
+              ),
             ),
-          ),
-          Text(
-            value,
-            style: MintTextStyles.bodySmall(
-              color: color ?? MintColors.textPrimary,
-            ).copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
-          ),
-        ],
+            Text(
+              value,
+              style: MintTextStyles.bodySmall(
+                color: color ?? MintColors.textPrimary,
+              ).copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

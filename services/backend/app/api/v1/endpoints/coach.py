@@ -5,14 +5,18 @@ POST /api/v1/coach/narrative      — Generate all 4 narrative components
 POST /api/v1/coach/greeting       — Generate greeting only
 POST /api/v1/coach/score-summary  — Generate score summary only
 POST /api/v1/coach/tip            — Generate tip narrative only
-POST /api/v1/coach/chiffre-choc   — Generate chiffre choc reframe only
+POST /api/v1/coach/premier-eclairage   — Generate premier éclairage reframe only
 
 Sources:
     - LSFin art. 3 (information financiere)
     - LPD art. 6 (protection des donnees)
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
+
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 
 from app.schemas.coach import (
     CoachContextRequest,
@@ -53,8 +57,9 @@ def _build_ctx(request: CoachContextRequest):
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/narrative", response_model=CoachNarrativeResponse)
-def generate_narrative(request: CoachContextRequest) -> CoachNarrativeResponse:
+def generate_narrative(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> CoachNarrativeResponse:
     """Generer les 4 composants narratifs du coach.
 
     Chaque composant est genere independamment et valide
@@ -62,7 +67,7 @@ def generate_narrative(request: CoachContextRequest) -> CoachNarrativeResponse:
 
     Returns:
         CoachNarrativeResponse avec greeting, score_summary,
-        tip_narrative, chiffre_choc_reframe + metadata.
+        tip_narrative, premier_eclairage_reframe + metadata.
     """
     ctx = _build_ctx(request)
     result = _service.generate_all(ctx)
@@ -71,15 +76,16 @@ def generate_narrative(request: CoachContextRequest) -> CoachNarrativeResponse:
         greeting=result.greeting,
         score_summary=result.score_summary,
         tip_narrative=result.tip_narrative,
-        chiffre_choc_reframe=result.chiffre_choc_reframe,
+        premier_eclairage_reframe=result.premier_eclairage_reframe,
         used_fallback=result.used_fallback,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/greeting", response_model=ComponentNarrativeResponse)
-def generate_greeting(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_greeting(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement le greeting personnalise.
 
     Returns:
@@ -97,8 +103,9 @@ def generate_greeting(request: CoachContextRequest) -> ComponentNarrativeRespons
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/score-summary", response_model=ComponentNarrativeResponse)
-def generate_score_summary(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_score_summary(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement le resume du score FRI.
 
     Returns:
@@ -116,8 +123,9 @@ def generate_score_summary(request: CoachContextRequest) -> ComponentNarrativeRe
     )
 
 
+@limiter.limit("30/minute")
 @router.post("/tip", response_model=ComponentNarrativeResponse)
-def generate_tip(request: CoachContextRequest) -> ComponentNarrativeResponse:
+def generate_tip(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
     """Generer uniquement le conseil educatif.
 
     Returns:
@@ -135,18 +143,19 @@ def generate_tip(request: CoachContextRequest) -> ComponentNarrativeResponse:
     )
 
 
-@router.post("/chiffre-choc", response_model=ComponentNarrativeResponse)
-def generate_chiffre_choc(request: CoachContextRequest) -> ComponentNarrativeResponse:
-    """Generer uniquement la recontextualisation du chiffre choc.
+@limiter.limit("30/minute")
+@router.post("/premier-eclairage", response_model=ComponentNarrativeResponse)
+def generate_premier_eclairage(http_request: Request, request: CoachContextRequest, _user: User = Depends(require_current_user)) -> ComponentNarrativeResponse:
+    """Generer uniquement la recontextualisation du premier éclairage.
 
     Returns:
-        ComponentNarrativeResponse avec le chiffre choc reframe.
+        ComponentNarrativeResponse avec le premier éclairage reframe.
     """
     ctx = _build_ctx(request)
-    text = _service.generate_chiffre_choc_reframe(ctx)
+    text = _service.generate_premier_eclairage_reframe(ctx)
 
     return ComponentNarrativeResponse(
-        component="chiffre_choc_reframe",
+        component="premier_eclairage_reframe",
         text=text,
         used_fallback=True,
         disclaimer=STANDARD_DISCLAIMER,

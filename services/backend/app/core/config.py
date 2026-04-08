@@ -20,13 +20,18 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = "mint-dev-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_HOURS: int = 24
+    # P1-Auth: Default True in production/staging (via env var override).
+    # In development, defaults to False for convenience.
+    # IMPORTANT: For production deployments, set AUTH_REQUIRE_EMAIL_VERIFICATION=true
+    # in environment variables, or rely on the fail-safe below.
     AUTH_REQUIRE_EMAIL_VERIFICATION: bool = False
     AUTH_UNVERIFIED_PURGE_DAYS: int = 7
     AUTH_AUTO_PURGE_ON_STARTUP: bool = False
     AUTH_ADMIN_EMAIL_ALLOWLIST: str = ""
 
-    # Logging
+    # Logging & Monitoring
     LOG_LEVEL: str = "INFO"
+    SENTRY_DSN: str = ""  # Set in Railway: https://sentry.io project DSN
 
     # Redis (for rate limiting; empty string = in-memory fallback)
     REDIS_URL: str = ""
@@ -93,4 +98,26 @@ if (
     raise RuntimeError(
         "CRITICAL: JWT_SECRET_KEY must be set via environment variable in production. "
         "Do not use the default dev secret."
+    )
+
+# P1-Auth: Force email verification in production. Log a warning in staging
+# if it's disabled (allows testing without SMTP, but flags the risk).
+if os.getenv("ENVIRONMENT", "development") == "production":
+    if not settings.AUTH_REQUIRE_EMAIL_VERIFICATION:
+        import logging as _logging
+
+        _logging.getLogger("mint.config").warning(
+            "AUTH_REQUIRE_EMAIL_VERIFICATION is False in production. "
+            "Set AUTH_REQUIRE_EMAIL_VERIFICATION=true in environment variables."
+        )
+
+# Fail-fast: INTERNAL_ACCESS_ENABLED with wildcard in production = universal premium
+if (
+    os.getenv("ENVIRONMENT", "development") == "production"
+    and settings.INTERNAL_ACCESS_ENABLED
+    and settings.INTERNAL_ACCESS_ALLOWLIST.strip() == "*"
+):
+    raise RuntimeError(
+        "CRITICAL: INTERNAL_ACCESS_ENABLED=true with wildcard allowlist in production. "
+        "This grants ALL users premium access. Set INTERNAL_ACCESS_ALLOWLIST to specific emails."
     )

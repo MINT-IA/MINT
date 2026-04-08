@@ -10,13 +10,54 @@
 // ────────────────────────────────────────────────────────────
 
 /// Types of documents MINT can scan and parse.
+/// Document types — must map to backend DocumentType (snake_case).
+/// Mapping: lppCertificate ↔ lpp_certificate, threeAAttestation ↔ pillar_3a_attestation
 enum DocumentType {
-  lppCertificate,
-  taxDeclaration,
-  avsExtract,
-  threeAAttestation,
-  mortgageAttestation,
-  salaryCertificate,
+  lppCertificate,        // → lpp_certificate
+  taxDeclaration,        // → tax_declaration
+  avsExtract,            // → avs_extract
+  threeAAttestation,     // → pillar_3a_attestation
+  mortgageAttestation,   // → mortgage_attestation
+  salaryCertificate,     // → salary_certificate
+}
+
+/// Convert to backend snake_case format.
+extension DocumentTypeBackend on DocumentType {
+  String get backendValue {
+    switch (this) {
+      case DocumentType.threeAAttestation:
+        return 'pillar_3a_attestation';
+      case DocumentType.lppCertificate:
+        return 'lpp_certificate';
+      case DocumentType.taxDeclaration:
+        return 'tax_declaration';
+      case DocumentType.avsExtract:
+        return 'avs_extract';
+      case DocumentType.mortgageAttestation:
+        return 'mortgage_attestation';
+      case DocumentType.salaryCertificate:
+        return 'salary_certificate';
+    }
+  }
+
+  static DocumentType fromBackend(String value) {
+    switch (value) {
+      case 'pillar_3a_attestation':
+        return DocumentType.threeAAttestation;
+      case 'lpp_certificate':
+        return DocumentType.lppCertificate;
+      case 'tax_declaration':
+        return DocumentType.taxDeclaration;
+      case 'avs_extract':
+        return DocumentType.avsExtract;
+      case 'mortgage_attestation':
+        return DocumentType.mortgageAttestation;
+      case 'salary_certificate':
+        return DocumentType.salaryCertificate;
+      default:
+        return DocumentType.lppCertificate;
+    }
+  }
 }
 
 /// Human-readable label for each document type (French).
@@ -209,6 +250,15 @@ class ExtractionResult {
   /// Legal sources referenced.
   final List<String> sources;
 
+  /// LPP plan type detected by backend (legal, surobligatoire, 1e).
+  final String? planType;
+
+  /// Warning text when plan type is 1e (no guaranteed conversion rate).
+  final String? planTypeWarning;
+
+  /// Cross-field coherence warnings from backend validation.
+  final List<String> coherenceWarnings;
+
   const ExtractionResult({
     required this.documentType,
     required this.fields,
@@ -217,6 +267,9 @@ class ExtractionResult {
     required this.warnings,
     required this.disclaimer,
     required this.sources,
+    this.planType,
+    this.planTypeWarning,
+    this.coherenceWarnings = const [],
   });
 
   /// Fields that need user review (confidence < 80%).

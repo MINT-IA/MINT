@@ -8,7 +8,7 @@ tags: [lpp, epl, rachat, blocage, immobilier, lpp_art79b, fiscalite]
 ## Trigger
 L'utilisateur envisage un rachat LPP ET un achat immobilier dans les 3 prochaines années, ou le coach détecte un potentiel de rachat LPP combiné à un projet immobilier actif.
 
-## Chiffre Choc
+## Premier Éclairage
 Si tu rachètes CHF 50'000 en LPP et tu retires pour l'EPL 2 ans plus tard, le fisc peut annuler la déduction du rachat — et exiger le remboursement de CHF 12'000 à 18'000 d'impôts (selon canton et taux marginal).
 
 ## Niveau 0

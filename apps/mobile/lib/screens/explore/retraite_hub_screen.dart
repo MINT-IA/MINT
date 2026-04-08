@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/action_insight_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/glossary_term.dart';
+import 'package:mint_mobile/services/content_adapter_service.dart';
+import 'package:mint_mobile/services/lifecycle_phase_service.dart';
 
 class RetraiteHubScreen extends StatelessWidget {
   const RetraiteHubScreen({super.key});
@@ -13,6 +22,28 @@ class RetraiteHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
+
+    // Resolve cap for action insight — graceful degradation.
+    CapDecision? cap;
+    LifecyclePhaseResult? phase;
+    ContentAdaptation? adaptation;
+    try {
+      final profileProvider = context.watch<CoachProfileProvider>();
+      if (profileProvider.hasProfile) {
+        final profile = profileProvider.profile!;
+        cap = CapEngine.compute(
+          profile: profile,
+          now: DateTime.now(),
+          l: l,
+          memory: const CapMemory(),
+        );
+        phase = LifecyclePhaseService.detect(profile);
+        adaptation = ContentAdapterService.adapt(phase, profile);
+      }
+    } catch (_) {
+      // Provider not in tree — no action insight shown.
+    }
+
     return Scaffold(
       backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
@@ -27,6 +58,56 @@ class RetraiteHubScreen extends StatelessWidget {
           vertical: MintSpacing.md,
         ),
         children: [
+          // ── ACTION INSIGHT (retirement-specific) ──
+          if (cap != null && cap.ctaRoute != null)
+            MintEntrance(child: ActionInsightWidget(
+              contextLine: cap.whyNow,
+              actionLine: cap.ctaLabel,
+              impactLine: cap.expectedImpact,
+              route: cap.ctaRoute,
+            ))
+          else
+            ActionInsightWidget(
+              contextLine: '',
+              actionLine: l.actionInsightFallback,
+              route: '/onboarding/quick',
+            ),
+          const SizedBox(height: MintSpacing.md),
+          // Glossary quick-access: key retirement terms
+          const MintEntrance(child: Wrap(
+            spacing: MintSpacing.md,
+            runSpacing: MintSpacing.sm,
+            children: [
+              GlossaryTerm(term: 'AVS'),
+              GlossaryTerm(term: 'LPP'),
+              GlossaryTerm(term: '3a'),
+              GlossaryTerm(term: 'Taux de remplacement'),
+            ],
+          )),
+          // ── YOUNG USER EDUCATIONAL BANNER ──
+          if (phase != null &&
+              (phase.phase == LifecyclePhase.demarrage ||
+                  phase.phase == LifecyclePhase.construction))
+            Padding(
+              padding: const EdgeInsets.only(bottom: MintSpacing.md),
+              child: MintSurface(
+                tone: MintSurfaceTone.sauge,
+                padding: const EdgeInsets.all(MintSpacing.md),
+                child: Row(
+                  children: [
+                    const Icon(Icons.lightbulb_outline, color: MintColors.textSecondary, size: 20),
+                    const SizedBox(width: MintSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        l.retraiteHubYoungDisclaimer,
+                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: MintSpacing.lg),
           MintEntrance(child: Text(
             l.exploreHubFeatured,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
@@ -47,14 +128,16 @@ class RetraiteHubScreen extends StatelessWidget {
             tone: MintSurfaceTone.sauge,
             onTap: () => context.push('/rente-vs-capital'),
           ),
-          const SizedBox(height: MintSpacing.md),
-          _HubItemCard(
-            title: l.retraiteHubFeaturedRachat,
-            subtitle: l.retraiteHubFeaturedRachatSub,
-            icon: Icons.add_chart_outlined,
-            tone: MintSurfaceTone.sauge,
-            onTap: () => context.push('/rachat-lpp'),
-          ),
+          if (adaptation?.showLppBuyback ?? true) ...[
+            const SizedBox(height: MintSpacing.md),
+            _HubItemCard(
+              title: l.retraiteHubFeaturedRachat,
+              subtitle: l.retraiteHubFeaturedRachatSub,
+              icon: Icons.add_chart_outlined,
+              tone: MintSurfaceTone.sauge,
+              onTap: () => context.push('/rachat-lpp'),
+            ),
+          ],
           const SizedBox(height: MintSpacing.xl),
           MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             l.exploreHubSeeAll,
@@ -96,12 +179,14 @@ class RetraiteHubScreen extends StatelessWidget {
             tone: MintSurfaceTone.blanc,
             onTap: () => context.push('/libre-passage'),
           ),
-          const SizedBox(height: MintSpacing.sm),
-          _HubItemCard(
-            title: l.retraiteHubToolDecaissement,
-            tone: MintSurfaceTone.blanc,
-            onTap: () => context.push('/decaissement'),
-          ),
+          if (adaptation?.showWithdrawalSequencing ?? true) ...[
+            const SizedBox(height: MintSpacing.sm),
+            _HubItemCard(
+              title: l.retraiteHubToolDecaissement,
+              tone: MintSurfaceTone.blanc,
+              onTap: () => context.push('/decaissement'),
+            ),
+          ],
           const SizedBox(height: MintSpacing.sm),
           _HubItemCard(
             title: l.retraiteHubToolEpl,

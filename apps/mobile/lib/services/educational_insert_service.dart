@@ -146,7 +146,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Ton état civil, ses impacts financiers',
           subtitle: 'Impôts, succession, prévoyance',
-          chiffreChoc:
+          premierEclairage:
               'Un couple marié peut économiser jusqu\'à 6\'000 CHF/an '
               'd\'impôts par rapport à deux concubins dans certains cantons '
               '— mais dans d\'autres c\'est l\'inverse (pénalité du mariage).',
@@ -176,7 +176,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Ton statut professionnel, tes droits',
           subtitle: 'Prévoyance, 3a, couvertures sociales',
-          chiffreChoc:
+          premierEclairage:
               'Un indépendant sans LPP volontaire peut cotiser jusqu\'à '
               '36\'288 CHF/an au 3a — soit 5x plus qu\'un salarié (7\'258 CHF). '
               'Mais il perd l\'assurance invalidité LPP.',
@@ -206,7 +206,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Locataire ou propriétaire ?',
           subtitle: 'Fiscalité, EPL et capacité d\'emprunt',
-          chiffreChoc:
+          premierEclairage:
               'En Suisse, seuls 36% des ménages sont propriétaires — '
               'le taux le plus bas d\'Europe. Pourtant, un propriétaire paie '
               'en moyenne 15-25% de moins par mois qu\'un locataire équivalent '
@@ -237,7 +237,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Ton canton, ton impôt',
           subtitle: 'Le 1er levier fiscal en Suisse',
-          chiffreChoc:
+          premierEclairage:
               'Pour un revenu de 100\'000 CHF, l\'impôt varie de ~8% à Zoug '
               'à ~30% à Genève — soit une différence de plus de 22\'000 CHF par an. '
               'Ton canton est le premier levier fiscal en Suisse.',
@@ -268,7 +268,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Rachat LPP : ton levier fiscal',
           subtitle: 'Rendement immédiat de 25 à 40%',
-          chiffreChoc:
+          premierEclairage:
               'Un rachat LPP de 20\'000 CHF peut te faire économiser entre '
               '5\'000 et 8\'000 CHF d\'impôts l\'année même — c\'est un rendement '
               'fiscal immédiat de 25 à 40%.',
@@ -297,7 +297,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Nombre de comptes 3a : la stratégie',
           subtitle: 'Échelonner pour payer moins d\'impôts',
-          chiffreChoc:
+          premierEclairage:
               'Avec 5 comptes 3a retirés sur 5 ans au lieu d\'un seul, '
               'tu peux économiser entre 8\'000 et 25\'000 CHF d\'impôts sur '
               'le retrait — car chaque retrait est imposé séparément et à un taux plus bas.',
@@ -326,7 +326,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Placements : le régime fiscal suisse',
           subtitle: 'Gains en capital, dividendes, fortune',
-          chiffreChoc:
+          premierEclairage:
               'En Suisse, les gains en capital privés sont exonérés d\'impôt '
               '(LIFD art. 16 al. 3) — mais les dividendes et intérêts sont '
               'imposés à 100%. Placer 100\'000 CHF en valeurs mobilières plutôt '
@@ -358,7 +358,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Projet immobilier : par où commencer',
           subtitle: 'Apport, capacité d\'emprunt, sources',
-          chiffreChoc:
+          premierEclairage:
               'Pour un bien à 800\'000 CHF, il te faut 160\'000 CHF d\'apport '
               'personnel — dont maximum 80\'000 CHF de ton 2e pilier. '
               'Tes charges mensuelles théoriques seront d\'environ 4\'670 CHF, '

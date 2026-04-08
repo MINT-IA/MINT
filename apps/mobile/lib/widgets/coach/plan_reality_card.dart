@@ -16,14 +16,19 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class PlanRealityCard extends StatelessWidget {
   final PlanStatus status;
-  final double compoundImpact;
+  final double? compoundImpact;
   final int monthsToRetirement;
+
+  /// Optional streak badge rendered in the card header Row (right side).
+  /// Pass [StreakBadgeWidget] here to show streak count inside the card.
+  final Widget? streakBadge;
 
   const PlanRealityCard({
     super.key,
     required this.status,
-    required this.compoundImpact,
+    this.compoundImpact,
     required this.monthsToRetirement,
+    this.streakBadge,
   });
 
   @override
@@ -49,7 +54,7 @@ class PlanRealityCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header + badge
+            // Header + adherence badge + optional streak badge (inside card)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -66,11 +71,15 @@ class PlanRealityCard extends StatelessWidget {
                   ),
                   child: Text(
                     badgeLabel,
-                    style: MintTextStyles.labelSmall(color: badgeColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: badgeColor).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
+            if (streakBadge != null) ...[
+              const SizedBox(height: 12),
+              streakBadge!,
+            ],
             const SizedBox(height: 16),
 
             // Adherence progress bar
@@ -97,7 +106,7 @@ class PlanRealityCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               '${status.completedActions} / ${status.totalActions} actions complétées',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
             const SizedBox(height: 16),
 
@@ -105,7 +114,7 @@ class PlanRealityCard extends StatelessWidget {
             if (status.nextActions.isNotEmpty) ...[
               Text(
                 'Prochaines actions',
-                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               ...status.nextActions.map((action) => Padding(
@@ -128,7 +137,7 @@ class PlanRealityCard extends StatelessWidget {
             ],
 
             // Compound impact
-            if (compoundImpact > 0) ...[
+            if (compoundImpact != null && compoundImpact! > 0) ...[
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
@@ -141,12 +150,12 @@ class PlanRealityCard extends StatelessWidget {
                   children: [
                     Text(
                       'Impact composé estimé sur ${(monthsToRetirement / 12).round()} ans',
-                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      formatChf(compoundImpact),
-                      style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
+                      formatChf(compoundImpact!),
+                      style: MintTextStyles.headlineSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 2),
                     Text(

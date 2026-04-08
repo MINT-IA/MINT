@@ -3,19 +3,23 @@ import 'dart:convert';
 import 'dart:developer' as dev;
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 class ReportPersistenceService {
   static const String _wizardKey = 'wizard_answers_v2';
   static const String _completedKey = 'wizard_completed';
 
-  /// Sauvegarde les réponses du wizard (incremental off)
+  /// Sauvegarde les réponses du wizard (incremental off).
+  /// SEC-10: Sensitive financial keys are stored in encrypted storage.
   static Future<void> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
-    final jsonString = json.encode(answers);
+    final cleaned = await SecureWizardStore.secureSensitiveKeys(answers);
+    final jsonString = json.encode(cleaned);
     await prefs.setString(_wizardKey, jsonString);
   }
 
-  /// Charge les réponses existantes
+  /// Charge les réponses existantes.
+  /// SEC-10: Sensitive financial keys are restored from encrypted storage.
   static Future<Map<String, dynamic>> loadAnswers() async {
     final prefs = await SharedPreferences.getInstance();
     final jsonString = prefs.getString(_wizardKey);
@@ -23,7 +27,8 @@ class ReportPersistenceService {
     if (jsonString == null) return {};
 
     try {
-      return Map<String, dynamic>.from(json.decode(jsonString));
+      final answers = Map<String, dynamic>.from(json.decode(jsonString));
+      return await SecureWizardStore.restoreSensitiveKeys(answers);
     } catch (e, stack) {
       dev.log('Failed to decode wizard answers',
           error: e, stackTrace: stack, name: 'Persistence');
@@ -56,6 +61,13 @@ class ReportPersistenceService {
       'mini_onboarding_metrics_challenge_v1';
   static const String _onboardingCohortMetricsKey =
       'mini_onboarding_cohort_metrics_v1';
+  static const String _selectedIntentKey = 'selected_onboarding_intent_v1';
+
+  // ── Premier Eclairage persistence keys (D-09) ──
+  static const String _hasSeenPremierEclairageKey =
+      'has_seen_premier_eclairage_v1';
+  static const String _premierEclairageSnapshotKey =
+      'premier_eclairage_snapshot_v1';
 
   static Future<void>? _metricLock;
 
@@ -69,6 +81,18 @@ class ReportPersistenceService {
   static Future<bool> isMiniOnboardingCompleted() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_miniOnboardingKey) ?? false;
+  }
+
+  /// Persiste l'intent choisi sur l'écran d'intent (onboarding V2).
+  static Future<void> setSelectedOnboardingIntent(String intent) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_selectedIntentKey, intent);
+  }
+
+  /// Retourne l'intent choisi lors de l'onboarding, ou null.
+  static Future<String?> getSelectedOnboardingIntent() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_selectedIntentKey);
   }
 
   /// Retourne une variante A/B persistente pour le mini-onboarding.
@@ -179,6 +203,45 @@ class ReportPersistenceService {
       _metricLock = null;
       completer.complete();
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  PREMIER ECLAIRAGE PERSISTENCE (D-09)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Saves a premier eclairage snapshot to SharedPreferences.
+  ///
+  /// [data] MUST contain only display fields:
+  ///   value (formatted string), title, subtitle, colorKey, suggestedRoute.
+  /// NEVER store raw salary, IBAN, or PII — per T-03-02 threat mitigation.
+  static Future<void> savePremierEclairageSnapshot(
+      Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_premierEclairageSnapshotKey, json.encode(data));
+  }
+
+  /// Loads the premier eclairage snapshot. Returns null if not set or on error.
+  static Future<Map<String, dynamic>?> loadPremierEclairageSnapshot() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_premierEclairageSnapshotKey);
+    if (raw == null) return null;
+    try {
+      return Map<String, dynamic>.from(json.decode(raw) as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Returns true if the user has already seen their premier eclairage card.
+  static Future<bool> hasSeenPremierEclairage() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_hasSeenPremierEclairageKey) ?? false;
+  }
+
+  /// Marks the premier eclairage card as seen (one-shot flag per D-09).
+  static Future<void> markPremierEclairageSeen() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_hasSeenPremierEclairageKey, true);
   }
 
   /// Efface les metriques onboarding (control + challenge).
@@ -645,8 +708,11 @@ class ReportPersistenceService {
     await prefs.remove(_onboardingMetricsControlKey);
     await prefs.remove(_onboardingMetricsChallengeKey);
     await prefs.remove(_onboardingCohortMetricsKey);
+    await prefs.remove(_selectedIntentKey);
     await prefs.remove(_contributionsKey);
     await prefs.remove(_onboarding30PlanKey);
     await prefs.remove(_coachNarrativeModeKey);
+    await prefs.remove(_hasSeenPremierEclairageKey);
+    await prefs.remove(_premierEclairageSnapshotKey);
   }
 }

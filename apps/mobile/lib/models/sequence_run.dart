@@ -8,6 +8,8 @@ library;
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 // ════════════════════════════════════════════════════════════════
 //  ENUMS
 // ════════════════════════════════════════════════════════════════
@@ -97,13 +99,17 @@ class SequenceRun {
 
   /// Return a copy with [eventId] added to the processed set.
   /// Evicts the oldest entry if the set exceeds [maxProcessedEvents].
+  /// CHAOS-5: Use List for deterministic FIFO eviction (Set.first is unordered).
   SequenceRun markEventProcessed(String eventId) {
-    final updated = Set<String>.from(processedEventIds)..add(eventId);
-    // FIFO eviction: remove oldest entries if over limit.
-    while (updated.length > maxProcessedEvents) {
-      updated.remove(updated.first);
+    final ordered = List<String>.from(processedEventIds);
+    if (!ordered.contains(eventId)) {
+      ordered.add(eventId);
     }
-    return _copyWith(processedEventIds: updated);
+    // FIFO eviction: remove oldest (first-inserted) entries if over limit.
+    while (ordered.length > maxProcessedEvents) {
+      ordered.removeAt(0);
+    }
+    return _copyWith(processedEventIds: ordered.toSet());
   }
 
   // ── IMMUTABLE UPDATES ──────────────────────────────────────────
@@ -290,7 +296,10 @@ class SequenceRun {
       return SequenceRun.fromJson(
         jsonDecode(raw) as Map<String, dynamic>,
       );
-    } catch (_) {
+    } catch (e) {
+      // STAB-16 (07-04): corrupt sequence state — log and return null so the
+      // caller can reset to a fresh run rather than silently losing history.
+      debugPrint('[sequence_run] deserialize failed: $e');
       return null;
     }
   }

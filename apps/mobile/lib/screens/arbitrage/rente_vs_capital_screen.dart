@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/arbitrage/arbitrage_tornado_section.dart';
 import 'package:mint_mobile/widgets/arbitrage/hypothesis_editor_widget.dart';
 import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
@@ -41,7 +43,8 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 /// PREFILL: When navigated from coach via RouteSuggestionCard,
 /// GoRouterState.extra may contain {'prefill': Map<String, dynamic>}
 /// with pre-computed values. Currently reads from CoachProfileProvider.
-/// TODO: merge prefill with profile data for coach-optimized defaults.
+/// DECISION: prefill merge deferred to Phase 2 (S62+ coach-driven defaults).
+/// Current: CoachProfileProvider supplies defaults; coach prefill via GoRouter extra.
 class RenteVsCapitalScreen extends StatefulWidget {
   const RenteVsCapitalScreen({super.key});
 
@@ -87,10 +90,17 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   int _requestCounter = 0;
   ArbitrageResult? _result;
 
+  // P2-9: Debounce recomputation to avoid 200-300ms lag per keystroke.
+  Timer? _debounceTimer;
+
   // ── CoachProfile auto-fill ──
   bool _didAutoFill = false;
   Map<String, ProfileDataSource> _dataSources = {};
   bool _hasEstimatedValues = false;
+
+  // ── GoRouter prefill from coach suggestion ──
+  Map<String, dynamic>? _goRouterPrefill;
+  final Set<String> _prefilledFields = {};
 
   // ── F2-6: Gate ScreenReturn behind user interaction ──
   bool _hasUserInteracted = false;
@@ -116,6 +126,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
         if (extra is Map<String, dynamic>) {
           _seqRunId = extra['runId'] as String?;
           _seqStepId = extra['stepId'] as String?;
+          final prefill = extra['prefill'] as Map<String, dynamic>?;
+          if (prefill != null) {
+            _goRouterPrefill = prefill;
+          }
         }
       } catch (_) {}
     });
@@ -250,10 +264,108 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       _hasEstimatedValues = hasEstimates;
       _recalculate();
     }
+
+    // Apply GoRouter coach prefill AFTER profile auto-fill so coach values win.
+    if (_goRouterPrefill != null) {
+      _applyPrefill(_goRouterPrefill!);
+    }
+  }
+
+  /// Write computed results back to CoachProfile.
+  /// Only called after user has interacted (_hasUserInteracted == true).
+  /// Guard prevents infinite recalculation loop with _didAutoFill.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    if (_result == null) return;
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return;
+
+    try {
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          projectedRenteLpp: _result!.renteNetMensuelle > 0
+              ? _result!.renteNetMensuelle * 12
+              : null,
+          projectedCapital65: _result!.capitalProjecte > 0
+              ? _result!.capitalProjecte
+              : null,
+        ),
+        targetRetirementAge: _ageRetraiteSlider.value.round(),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
+  /// Apply prefill values from a coach suggestion (GoRouter extra['prefill']).
+  /// Called after _autoFillFromProfile() to ensure coach values override estimates.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final avoirLpp = prefill['avoirLpp'];
+    if (avoirLpp is num && avoirLpp > 0) {
+      _lppTotalCtrl.text = avoirLpp.toDouble().clamp(0, 5000000).round().toString();
+      _prefilledFields.add('lpp_total');
+      changed = true;
+    }
+
+    final tauxConversion = prefill['tauxConversion'];
+    if (tauxConversion is num && tauxConversion > 0) {
+      final tc = tauxConversion.toDouble().clamp(0.01, 0.10);
+      _tcObligCtrl.text = (tc * 100).toStringAsFixed(1);
+      _prefilledFields.add('lpp_obligatoire');
+      changed = true;
+    }
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // salaireBrut from prefill is monthly — multiply by nombreDeMois
+      const nombreDeMois = 13;
+      final annualSalary = salaireBrut.toDouble() * nombreDeMois;
+      _salaryCtrl.text = annualSalary.round().toString();
+      _prefilledFields.add('salaire_brut');
+      changed = true;
+    }
+
+    final ageRetraite = prefill['ageRetraite'];
+    if (ageRetraite is num) {
+      final age = ageRetraite.toDouble().clamp(58.0, 70.0);
+      _ageRetraiteSlider.value = age;
+      _prefilledFields.add('ageRetraite');
+      changed = true;
+    }
+
+    if (changed) {
+      setState(() {});
+      _recalculate();
+    }
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _ageCtrl.dispose();
     _salaryCtrl.dispose();
     _lppTotalCtrl.dispose();
@@ -270,15 +382,24 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   }
 
   /// Compute estimate-mode inputs from the LPP total entered by the user.
+  /// P2-9: Debounced (300ms) to avoid recomputing on every keystroke.
   void _recalculate() {
-    _recalculateAsync();
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _recalculateAsync();
+    });
   }
 
   /// F2-6: User-triggered recalculation — marks interaction before recalc.
   /// Used by all user-facing onChanged handlers.
   void _userRecalculate() {
     _hasUserInteracted = true;
-    _recalculateAsync();
+    _recalculate();
+    // Write-back is deferred until after async recalculation completes.
+    // Call _writeBackResult after a brief delay to let result settle.
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) _writeBackResult();
+    });
   }
 
   Future<void> _recalculateAsync() async {
@@ -532,12 +653,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                     ),
 
                   // ══════════════════════════════════════════════
-                  //  BLOC A — ACCROCHE
+                  //  BLOC A — ACCROCHE (RepaintBoundary for perf)
                   //  Chiffre-choc + Hero CHF/mois + micro-légendes
                   // ══════════════════════════════════════════════
-                  _buildChiffreChocAccroche(),
-                  const SizedBox(height: MintSpacing.md),
-                  _buildHeroMonthly(),
+                  RepaintBoundary(
+                    child: Column(
+                      children: [
+                        _buildPremierEclairageAccroche(),
+                        const SizedBox(height: MintSpacing.md),
+                        _buildHeroMonthly(),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: MintSpacing.lg),
 
                   // ══════════════════════════════════════════════
@@ -644,6 +771,10 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   void _showExplanation(String term, String text) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -714,6 +845,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                 ],
                 selected: {_inputMode},
                 onSelectionChanged: (v) {
+                  HapticFeedback.lightImpact();
                   setState(() => _inputMode = v.first);
                   _userRecalculate();
                 },
@@ -927,39 +1059,42 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     // Retirement age chips: 58 to 70.
     const ageOptions = [58, 60, 62, 63, 64, 65, 66, 67, 70];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l.renteVsCapitalRetirementAgeChips, style: _labelStyle),
-        const SizedBox(height: MintSpacing.sm),
-        Wrap(
-          spacing: MintSpacing.xs,
-          runSpacing: MintSpacing.xs,
-          children: ageOptions.map((age) {
-            final isSelected = _ageRetraiteSlider.value.round() == age;
-            return ChoiceChip(
-              label: Text('$age'),
-              selected: isSelected,
-              onSelected: (_) {
-                _ageRetraiteSlider.value = age.toDouble();
-                _userRecalculate();
-              },
-              selectedColor: MintColors.primary.withValues(alpha: 0.15),
-              backgroundColor: MintColors.surface,
-              labelStyle: MintTextStyles.bodySmall(
-                color: isSelected ? MintColors.primary : MintColors.textPrimary,
-              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
-              side: BorderSide(
-                color: isSelected ? MintColors.primary : MintColors.border,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              visualDensity: VisualDensity.compact,
-            );
-          }).toList(),
-        ),
-      ],
+    return ValueListenableBuilder<double>(
+      valueListenable: _ageRetraiteSlider,
+      builder: (context, ageValue, _) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l.renteVsCapitalRetirementAgeChips, style: _labelStyle),
+          const SizedBox(height: MintSpacing.sm),
+          Wrap(
+            spacing: MintSpacing.xs,
+            runSpacing: MintSpacing.xs,
+            children: ageOptions.map((age) {
+              final isSelected = ageValue.round() == age;
+              return ChoiceChip(
+                label: Text('$age'),
+                selected: isSelected,
+                onSelected: (_) {
+                  _ageRetraiteSlider.value = age.toDouble();
+                  _userRecalculate();
+                },
+                selectedColor: MintColors.primary.withValues(alpha: 0.15),
+                backgroundColor: MintColors.surface,
+                labelStyle: MintTextStyles.bodySmall(
+                  color: isSelected ? MintColors.primary : MintColors.textPrimary,
+                ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+                side: BorderSide(
+                  color: isSelected ? MintColors.primary : MintColors.border,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                visualDensity: VisualDensity.compact,
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -969,12 +1104,18 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     String? fieldName,
     bool isPercent = false,
   }) {
+    final isPrefilled = fieldName != null && _prefilledFields.contains(fieldName);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Expanded(child: Text(label, style: _labelStyle)),
+            if (isPrefilled)
+              const SmartDefaultIndicator(
+                source: 'Depuis ton profil MINT',
+                confidence: 0.60,
+              ),
             if (fieldName != null)
               FieldHelpTooltip(fieldName: fieldName),
           ],
@@ -1014,9 +1155,9 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   /// Chiffre-choc en haut — pourquoi cette decision compte.
-  Widget _buildChiffreChocAccroche() {
+  Widget _buildPremierEclairageAccroche() {
     final r = _result!;
-    // Build a punchy one-liner from the engine's chiffreChoc
+    // Build a punchy one-liner from the engine's premierEclairage
     final taxDelta = (r.impotCumulRente - r.impotRetraitCapital).abs();
     final epuiseAge = r.capitalEpuiseAge;
 
@@ -1033,7 +1174,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
     } else if (epuiseAge != null) {
       accroche = S.of(context)!.renteVsCapitalAccrocheEpuise(epuiseAge);
     } else {
-      accroche = r.chiffreChoc;
+      accroche = r.premierEclairage;
     }
 
     return Semantics(
@@ -1102,11 +1243,11 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
                       ),
                     ),
                     const SizedBox(height: MintSpacing.xs),
-                    Text(
-                      formatChf(renteMois),
-                      style: MintTextStyles.displayMedium().copyWith(
-                        fontSize: 26,
-                      ),
+                    MintCountUp(
+                      value: renteMois,
+                      prefix: 'CHF\u00a0',
+                      showLigne: false,
+                      fullReveal: false,
                     ),
                     Text(S.of(context)!.renteVsCapitalPerMonth,
                       style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
@@ -1250,7 +1391,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           // ── Life expectancy: chips ──
           MintEntrance(child: Text(
             S.of(context)!.renteVsCapitalLifeExpectancyChips,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           )),
           const SizedBox(height: MintSpacing.sm),
           MintEntrance(delay: const Duration(milliseconds: 100), child: Wrap(
@@ -1292,7 +1433,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
           // ── Chart: capital restant vs revenus cumules de la rente ──
           MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
             S.of(context)!.renteVsCapitalChartTitle,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           )),
           const SizedBox(height: MintSpacing.xs),
           Text(
@@ -1654,7 +1795,7 @@ class _RenteVsCapitalScreenState extends State<RenteVsCapitalScreen> {
       children: [
         Text(
           S.of(context)!.renteVsCapitalImpactTitle,
-          style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+          style: MintTextStyles.labelLarge(),
         ),
         const SizedBox(height: MintSpacing.xs),
         Text(

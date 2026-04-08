@@ -36,7 +36,7 @@ from __future__ import annotations
 import asyncio
 import datetime
 from typing import Optional
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -47,8 +47,7 @@ from app.api.v1.endpoints.coach_chat import (
     _run_agent_loop,
     _sanitize_profile_context,
 )
-from app.services.coach.claude_coach_service import build_system_prompt
-from app.services.coach.coach_tools import COACH_TOOLS, get_llm_tools
+from app.services.coach.coach_tools import get_llm_tools
 from app.services.coach.structured_reasoning import (
     ReasoningOutput,
     StructuredReasoningService,

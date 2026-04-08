@@ -57,7 +57,7 @@ class HorizonLineWidget extends StatelessWidget {
                   const SizedBox(height: 24),
                   _buildAfterLine(),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -163,7 +163,7 @@ class HorizonLineWidget extends StatelessWidget {
             ),
             child: Text(
               'Il te reste $daysLeft jours — soit ${monthsLeft.toStringAsFixed(1)} mois de revenus',
-              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -223,7 +223,7 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -253,7 +253,7 @@ class HorizonLineWidget extends StatelessWidget {
                 Text(
                   'Il n\'y a pas de transition douce. Le jour J+1, tes droits sont épuisés. '
                   'Prépare ton plan B avant d\'atteindre la ligne.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),

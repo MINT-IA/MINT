@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,7 @@ import 'package:mint_mobile/services/wealth_tax_service.dart';
 import 'package:mint_mobile/widgets/fiscal/canton_ranking_bar.dart';
 import 'package:mint_mobile/widgets/fiscal/move_savings_card.dart';
 import 'package:mint_mobile/widgets/coach/moving_true_cost_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
@@ -485,6 +487,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                 ],
                 selected: {_etatCivil},
                 onSelectionChanged: (v) {
+                  HapticFeedback.lightImpact();
                   _hasUserInteracted = true;
                   _etatCivil = v.first;
                   _recalculate();
@@ -520,7 +523,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
                     width: 32,
                     child: Text(
                       '$_nombreEnfants',
-                      style: MintTextStyles.titleMedium().copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.titleLarge().copyWith(fontWeight: FontWeight.w700),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -652,9 +655,9 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             alignment: Alignment.center,
             child: Text(
               '${tauxEffectif.toStringAsFixed(1)}%',
-              style: MintTextStyles.displayMedium(
+              style: MintTextStyles.headlineMedium(
                 color: isBelow ? MintColors.success : MintColors.error,
-              ).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
+              ).copyWith(fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 20),
@@ -912,7 +915,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
-        // Ecart max chiffre choc
+        // Ecart max premier éclairage
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -921,9 +924,11 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
           ),
           child: Column(
             children: [
-              Text(
-                FiscalService.formatChf(ecartMax),
-                style: MintTextStyles.displayMedium(color: MintColors.white),
+              MintCountUp(
+                value: ecartMax,
+                prefix: 'CHF\u00a0',
+                color: MintColors.white,
+                showLigne: false,
               ),
               const SizedBox(height: 6),
               Text(
@@ -1085,7 +1090,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             economieAnnuelle: _moveResult!['economieAnnuelle'] as double,
             economieMensuelle: _moveResult!['economieMensuelle'] as double,
             economie10Ans: _moveResult!['economie10Ans'] as double,
-            chiffreChoc: _moveResult!['chiffreChoc'] as String,
+            premierEclairage: _moveResult!['premierEclairage'] as String,
           ),
         if (_fortune > 0) ...[
           const SizedBox(height: 16),

@@ -1,5 +1,7 @@
 # NAVIGATION GRAAL V10 — MINT
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Statut : cible produit / UX / information architecture
 > Horizon : 2026-2027
 > Portée : mobile app MINT
@@ -298,7 +300,7 @@ La capture est une **sheet contextuelle** ou une **entrée intégrée** :
 |---|---|---|
 | Landing / Welcome | `/` | actif |
 | Onboarding Quick Start | `/onboarding/quick` | actif (note: pas `/quick-start`) |
-| Chiffre-Choc | `/onboarding/chiffre-choc` | actif |
+| Premier-Éclairage | `/onboarding/premier-eclairage` | actif |
 | Coach Chat | `/coach/chat` | actif |
 | Coach Checkin | `/coach/checkin` | actif |
 | Coach Refresh | `/coach/refresh` | actif |
@@ -447,7 +449,7 @@ Le hub n'est pas top-level dans la navigation globale, mais c'est un sous-hub im
 | `/auth/forgot-password` | actif |
 | `/auth/verify-email` | actif |
 | `/onboarding/quick` → `QuickStartScreen` | actif |
-| `/onboarding/chiffre-choc` → `ChiffreChocScreen` | actif |
+| `/onboarding/premier-eclairage` → `PremierEclairageScreen` | actif |
 | `/data-block/:type` → `DataBlockEnrichmentScreen` | actif |
 | `/advisor`, `/advisor/plan-30-days`, `/advisor/wizard` | redirects legacy |
 | `/onboarding/smart`, `/onboarding/minimal` | redirects legacy |

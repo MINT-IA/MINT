@@ -89,7 +89,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.adminObsExportFailed}: $e')),
+        SnackBar(content: Text(l10n.adminObsExportFailed)),
       );
     }
   }
@@ -246,7 +246,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
         children: [
           Text(
             '${score.toStringAsFixed(1)} / 100',
-            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
+            style: MintTextStyles.displaySmall(),
           ),
           const SizedBox(height: MintSpacing.sm),
           LinearProgressIndicator(
@@ -343,7 +343,7 @@ class _Card extends StatelessWidget {
         children: [
           Text(
             title,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           ),
           const SizedBox(height: MintSpacing.sm + 2),
           child,

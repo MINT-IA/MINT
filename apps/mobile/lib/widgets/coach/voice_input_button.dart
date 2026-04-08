@@ -120,6 +120,31 @@ class _VoiceInputButtonState extends State<VoiceInputButton>
       return;
     }
 
+    // FIX-W11-nLPD: Show voice disclosure before first use
+    if (!await VoiceService.hasShownDisclosure()) {
+      if (!mounted) return;
+      final l = S.of(context)!;
+      final accepted = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(l.voiceDisclosureTitle),
+          content: Text(l.voiceDisclosureBody),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(l.commonCancel),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text(l.onboardingConsentAccept),
+            ),
+          ],
+        ),
+      );
+      if (accepted != true) return;
+      await VoiceService.markDisclosureShown();
+    }
+
     // Start listening
     try {
       final result = await widget.voiceService.listen(config: widget.config);
@@ -150,7 +175,7 @@ class _VoiceInputButtonState extends State<VoiceInputButton>
       case VoiceState.listening:
         semanticsLabel = l.voiceMicListening;
         icon = Icons.mic;
-        iconColor = Colors.white;
+        iconColor = MintColors.white;
         bgColor = MintColors.primary;
       case VoiceState.processing:
         semanticsLabel = l.voiceMicProcessing;

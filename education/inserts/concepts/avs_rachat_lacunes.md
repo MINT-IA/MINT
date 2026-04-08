@@ -8,7 +8,7 @@ tags: [avs, lacune, rachat, cotisation, delai, lavs]
 ## Trigger
 L'utilisateur découvre une lacune dans son historique de cotisations AVS (via extrait IK ou simulation) et souhaite savoir s'il peut la combler.
 
-## Chiffre Choc
+## Premier Éclairage
 Chaque année de lacune réduit ta rente AVS d'environ 2.27 % (1/44e) — à vie. Sur une rente maximale de CHF 2'520/mois (CHF 30'240/an), cela représente ~CHF 57/mois ou ~CHF 687/an en moins. Mais attention : tu n'as que 5 ans pour combler une lacune, après c'est irréversible.
 
 ## Niveau 0

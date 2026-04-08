@@ -393,6 +393,19 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: true,
   );
 
+  // FIX-172: preretraite_complete must exist in registry for LLM to suggest it.
+  // This is the flagship 11-step journey for pre-retirees (53-64 cohort).
+  static const ScreenEntry _preretraiteComplete = ScreenEntry(
+    route: '/retraite?mode=preretraite',
+    intentTag: 'preretraite_complete',
+    behavior: ScreenBehavior.decisionCanvas,
+    requiredFields: ['salaireBrut', 'age', 'canton'],
+    optionalFields: ['avoirLpp', 'rachatMaximum'],
+    fallbackRoute: '/coach/chat?prompt=retraite',
+    preferFromChat: true,
+    prefillFromProfile: true,
+  );
+
   static const ScreenEntry _pilier3a = ScreenEntry(
     route: '/pilier-3a',
     intentTag: 'simulator_3a',
@@ -1099,9 +1112,9 @@ class MintScreenRegistry extends ScreenRegistry {
     route: '/data-block/:type',
     intentTag: 'data_block_enrichment',
     behavior: ScreenBehavior.captureUtility,
+    preferFromChat: false, // Parameterized route — must not be opened from chat without :type resolution
     requiredFields: [],
     optionalFields: [],
-    preferFromChat: true,
     prefillFromProfile: false,
   );
 
@@ -1310,16 +1323,6 @@ class MintScreenRegistry extends ScreenRegistry {
     preferFromChat: false,
   );
 
-  static const ScreenEntry _coachWeeklyRecap = ScreenEntry(
-    route: '/coach/weekly-recap',
-    intentTag: 'coach_weekly_recap',
-    behavior: ScreenBehavior.conversationPure,
-    requiredFields: [],
-    optionalFields: [],
-    preferFromChat: false,
-    prefillFromProfile: false,
-  );
-
   static const ScreenEntry _educationHub = ScreenEntry(
     route: '/education/hub',
     intentTag: 'education_hub',
@@ -1370,9 +1373,9 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  static const ScreenEntry _onboardingChiffreChoc = ScreenEntry(
-    route: '/onboarding/chiffre-choc',
-    intentTag: 'onboarding_chiffre_choc',
+  static const ScreenEntry _onboardingPremierEclairage = ScreenEntry(
+    route: '/onboarding/premier-eclairage',
+    intentTag: 'onboarding_premier_eclairage',
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
     optionalFields: [],
@@ -1488,6 +1491,7 @@ class MintScreenRegistry extends ScreenRegistry {
     // B — Decision Canvas
     _renteVsCapital,
     _retraite,
+    _preretraiteComplete,
     _pilier3a,
     _staggeredWithdrawal,
     _fiscal,
@@ -1566,7 +1570,7 @@ class MintScreenRegistry extends ScreenRegistry {
     _adminAnalytics,
     _coachRefresh,
     _onboardingQuick,
-    _onboardingChiffreChoc,
+    _onboardingPremierEclairage,
     // E — Conversation pure / non-routable
     _landing,
     _coachChat,
@@ -1585,7 +1589,6 @@ class MintScreenRegistry extends ScreenRegistry {
     _exploreSante,
     _coachCheckin,
     _coachHistory,
-    _coachWeeklyRecap,
     _educationHub,
     _educationTheme,
     _scoreReveal,

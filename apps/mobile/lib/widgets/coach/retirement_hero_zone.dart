@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT HERO ZONE — "L'essentiel en 3 secondes"
@@ -200,7 +202,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         const SizedBox(width: 4),
         Text(
           '${sign}CHF ${delta.abs().round()}/mois depuis ta dernière visite',
-          style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+          style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -222,7 +224,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
         if (_scrubbedAge != null)
           Text(
             'Revenu estimé$ageLabel',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         Center(
           child: Text(
@@ -250,7 +252,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
             padding: const EdgeInsets.only(top: 4),
             child: Text(
               'Ménage combiné${widget.partnerName != null ? ' (toi + ${widget.partnerName})' : ''}',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
       ],
@@ -293,13 +295,31 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           children: [
             Text(
               '${rate.toStringAsFixed(0)}% de ton revenu actuel',
-              style: MintTextStyles.labelSmall(color: _zoneColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: _zoneColor).copyWith(fontWeight: FontWeight.w600),
             ),
-            Text(
-              'Taux de remplacement',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+            Tooltip(
+              message: S.of(context)?.jargonReplacementRateTooltip ?? '',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    S.of(context)?.jargonReplacementRate ?? 'Taux de remplacement',
+                    style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                  ),
+                  const SizedBox(width: 2),
+                  const Icon(Icons.info_outline, size: 12, color: MintColors.textMuted),
+                ],
+              ),
             ),
           ],
+        ),
+        // Context line for replacement rate
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            _replacementRateContext(rate, context),
+            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+          ),
         ),
       ],
     );
@@ -318,11 +338,12 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
     final total = avs + lpp + troisA + autre;
     if (total <= 0) return const SizedBox.shrink();
 
+    final l = S.of(context);
     final segments = <_PillarSegment>[
-      _PillarSegment('AVS', avs, MintColors.retirementAvs),
-      _PillarSegment('LPP', lpp, MintColors.retirementLpp),
-      _PillarSegment('3a', troisA, MintColors.retirement3a),
-      if (autre > 0) _PillarSegment('Autre', autre, MintColors.purple),
+      _PillarSegment(l?.jargonAvs ?? 'AVS', 'AVS', avs, MintColors.retirementAvs, l?.jargonAvsTooltip),
+      _PillarSegment(l?.jargonLpp ?? 'LPP', 'LPP', lpp, MintColors.retirementLpp, l?.jargonLppTooltip),
+      _PillarSegment(l?.jargon3a ?? '3a', '3a', troisA, MintColors.retirement3a, l?.jargon3aTooltip),
+      if (autre > 0) _PillarSegment('Autre', 'Autre', autre, MintColors.purple, null),
     ];
 
     return Column(
@@ -343,7 +364,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                     alignment: Alignment.center,
                     child: fraction > 0.12
                         ? Text(
-                            s.label,
+                            s.shortLabel,
                             style: MintTextStyles.micro(color: MintColors.white).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
                           )
                         : null,
@@ -359,7 +380,7 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: segments.map((s) {
             final monthly = s.value / 12;
-            return Row(
+            final legendWidget = Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
@@ -377,6 +398,10 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
                 ),
               ],
             );
+            if (s.tooltip != null) {
+              return Tooltip(message: s.tooltip!, child: legendWidget);
+            }
+            return legendWidget;
           }).toList(),
         ),
       ],
@@ -458,46 +483,39 @@ class _RetirementHeroZoneState extends State<RetirementHeroZone> {
   // ── Confidence chip ─────────────────────────────────────
 
   Widget _buildConfidenceChip() {
-    final score = widget.confidenceScore;
-    final isGood = score >= 70;
-    final chipColor = isGood ? MintColors.success : MintColors.warning;
-
-    return Semantics(
-      label: 'Score de confiance',
-      button: true,
+    // Plan 08a-02 Batch A: MTC is the single confidence renderer here.
+    // The ±15% uncertainty band remains a plain text sibling label inside
+    // _buildHeroNumber — MTC is a confidence primitive, not a number-range
+    // renderer (locked clarification #1 from orchestrator).
+    //
+    // Widget API stays on `double confidenceScore` (3 arbitrage call sites
+    // would break otherwise). We synthesize a minimal EnhancedConfidence
+    // via fromBareScore for the MTC call.
+    final synthesized =
+        EnhancedConfidence.fromBareScore(widget.confidenceScore);
+    return Tooltip(
+      message: S.of(context)?.confidenceDetailsTooltip ?? '',
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: widget.onConfidenceTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: chipColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: chipColor.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isGood ? Icons.verified_outlined : Icons.tune_outlined,
-              size: 14,
-              color: chipColor,
-            ),
-            const SizedBox(width: 6),
-            Text(
-              isGood
-                  ? 'Confiance : ${score.round()}%'
-                  : 'Confiance : ${score.round()}% — Améliorer',
-              style: MintTextStyles.labelSmall(color: chipColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
-            ),
-            if (!isGood) ...[
-              const SizedBox(width: 4),
-              Icon(Icons.arrow_forward_ios, size: 10, color: chipColor),
-            ],
-          ],
+        child: MintTrameConfiance.inline(
+          confidence: synthesized,
+          bloomStrategy: BloomStrategy.firstAppearance,
         ),
       ),
-    ),
     );
+  }
+
+  // ── Replacement rate context (FIX 4) ─────────────────────
+  String _replacementRateContext(double rate, BuildContext context) {
+    final l = S.of(context);
+    if (rate >= 80) {
+      return l?.replacementRateContextGood ?? '';
+    } else if (rate >= 60) {
+      return l?.replacementRateContextAverage ?? '';
+    } else {
+      return l?.replacementRateContextLow ?? '';
+    }
   }
 
   // ── Coach one-liner ─────────────────────────────────────
@@ -690,7 +708,9 @@ class _SparklinePainter extends CustomPainter {
 
 class _PillarSegment {
   final String label;
+  final String shortLabel;
   final double value;
   final Color color;
-  const _PillarSegment(this.label, this.value, this.color);
+  final String? tooltip;
+  const _PillarSegment(this.label, this.shortLabel, this.value, this.color, [this.tooltip]);
 }

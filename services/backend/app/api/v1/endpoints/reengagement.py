@@ -20,10 +20,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
-
-logger = logging.getLogger(__name__)
 from app.models.user import User
-
 from app.schemas.reengagement import (
     ByokDetailResponse,
     ConsentDashboardResponse,
@@ -36,6 +33,8 @@ from app.schemas.reengagement import (
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_engine import ReengagementEngine
 from app.services.reengagement.reengagement_models import ConsentType
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

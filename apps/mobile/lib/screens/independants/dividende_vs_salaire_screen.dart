@@ -6,11 +6,10 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -39,32 +38,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
     _calculate();
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final profile = context.read<CoachProfileProvider>().profile;
-      if (profile == null) return;
-      bool changed = false;
-      if (profile.revenuBrutAnnuel > 0) {
-        _benefice = profile.revenuBrutAnnuel.clamp(0, 500000);
-        changed = true;
-      }
-      if (profile.revenuBrutAnnuel > 0) {
-        _tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
-          profile.revenuBrutAnnuel,
-          profile.canton,
-        );
-        changed = true;
-      }
-      if (changed) _calculate();
-    } catch (_) {
-      // Provider not available
-    }
   }
 
   void _calculate() {
@@ -81,7 +55,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -92,25 +66,25 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBeneficeSlider()),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPartSalaireSlider()),
+                _buildPartSalaireSlider(),
                 const SizedBox(height: 20),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTauxSlider()),
+                _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  MintEntrance(child: _buildPremierEclairage()),
                   const SizedBox(height: 24),
                   if (_result!.requalificationRisk) ...[
-                    _buildRequalificationAlert(),
+                    MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRequalificationAlert()),
                     const SizedBox(height: 20),
                   ],
-                  _buildResultSection(),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildResultSection()),
                   const SizedBox(height: 24),
-                  _buildCurveChart(),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCurveChart()),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),
                 ],
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
+                _buildDisclaimer(),
                 const SizedBox(height: 16),
                 _buildCantonalDisclaimer(),
                 const SizedBox(height: 16),
@@ -120,7 +94,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -170,126 +144,98 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     );
   }
 
-  // ── Sliders ────────────────────────────────────────────────
+  // ── Inputs ────────────────────────────────────────────────
 
   Widget _buildBeneficeSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.dividendeBeneficeTotal,
-      valueLabel: IndependantsService.formatChf(_benefice),
-      minLabel: 'CHF 0',
-      maxLabel: "CHF 500'000",
-      value: _benefice,
-      min: 0,
-      max: 500000,
-      divisions: 500,
-      onChanged: (v) {
-        _benefice = v;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintAmountField(
+        label: S.of(context)!.dividendeBeneficeTotal,
+        value: _benefice,
+        formatValue: (v) => IndependantsService.formatChf(v),
+        onChanged: (v) {
+          setState(() {
+            _benefice = v;
+            _calculate();
+          });
+        },
+        min: 0,
+        max: 500000,
+      ),
     );
   }
 
   Widget _buildPartSalaireSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.dividendePartSalaire,
-      valueLabel: '${_partSalairePct.toInt()}%',
-      minLabel: '0%',
-      maxLabel: '100%',
-      value: _partSalairePct,
-      min: 0,
-      max: 100,
-      divisions: 100,
-      onChanged: (v) {
-        _partSalairePct = v;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintPremiumSlider(
+        label: S.of(context)!.dividendePartSalaire,
+        value: _partSalairePct,
+        min: 0,
+        max: 100,
+        divisions: 100,
+        formatValue: (v) => '${v.toInt()}\u00a0%',
+        onChanged: (v) {
+          setState(() {
+            _partSalairePct = v;
+            _calculate();
+          });
+        },
+      ),
     );
   }
 
   Widget _buildTauxSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.dividendeTauxMarginal,
-      valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
-      minLabel: '10%',
-      maxLabel: '45%',
-      value: _tauxMarginal * 100,
-      min: 10,
-      max: 45,
-      divisions: 35,
-      onChanged: (v) {
-        _tauxMarginal = v / 100;
-        _calculate();
-      },
-    );
-  }
-
-  Widget _buildSliderCard({
-    required String title,
-    required String valueLabel,
-    required String minLabel,
-    required String maxLabel,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required ValueChanged<double> onChanged,
-  }) {
-    return MintSurface(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          MintPremiumSlider(
-            label: title,
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            formatValue: (_) => valueLabel,
-            onChanged: onChanged,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(minLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(maxLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
+    return _buildInputCard(
+      child: MintPremiumSlider(
+        label: S.of(context)!.dividendeTauxMarginal,
+        value: _tauxMarginal * 100,
+        min: 10,
+        max: 45,
+        divisions: 35,
+        formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+        onChanged: (v) {
+          setState(() {
+            _tauxMarginal = v / 100;
+            _calculate();
+          });
+        },
       ),
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  Widget _buildInputCard({required Widget child}) {
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.all(20),
+      child: child,
+    );
+  }
 
-  Widget _buildChiffreChoc() {
+  // ── Premier Éclairage ───────────────────────────────────────────
+
+  Widget _buildPremierEclairage() {
     final r = _result!;
     final saving = r.economie;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: saving > 0 ? MintColors.success : MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Semantics(
-            label: IndependantsService.formatChf(saving),
-            child: Text(
-              IndependantsService.formatChf(saving),
-              style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
+    return Semantics(
+      label: saving > 0
+          ? S.of(context)!.semanticsDividendeSaving(IndependantsService.formatChf(saving))
+          : S.of(context)!.semanticsDividendeAdjust,
+      child: MintSurface(
+        tone: saving > 0 ? MintSurfaceTone.sauge : MintSurfaceTone.porcelaine,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            MintHeroNumber(
+              value: IndependantsService.formatChf(saving),
+              caption: saving > 0
+                  ? 'Le split adapté te fait économiser '
+                    '${IndependantsService.formatChf(saving)}/an '
+                    'par rapport à 100% salaire'
+                  : 'Ajuste le split pour trouver une économie',
+              color: saving > 0 ? MintColors.success : MintColors.primary,
             ),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            saving > 0
-                ? S.of(context)!.dividendeVsSalaireChiffreChocPositive(IndependantsService.formatChf(saving))
-                : S.of(context)!.dividendeVsSalaireChiffreChocNeutral,
-            style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -297,7 +243,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   // ── Requalification Alert ──────────────────────────────────
 
   Widget _buildRequalificationAlert() {
-    return Container(
+    return Semantics(
+      label: S.of(context)!.semanticsDividendeRequalification,
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.08),
@@ -314,12 +262,15 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  S.of(context)!.dividendeVsSalaireRequalificationTitle,
+                  'Risque de requalification',
                   style: MintTextStyles.bodyMedium(color: MintColors.error).copyWith(fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
-                  S.of(context)!.dividendeVsSalaireRequalificationBody,
+                  'Si la part salaire est inférieure à ~60% du bénéfice, '
+                  'l\'administration fiscale peut requalifier une partie '
+                  'des dividendes en salaire (pratique cantonale variable). '
+                  'Cela entraîne des cotisations AVS rétroactives.',
                   style: MintTextStyles.bodySmall(color: MintColors.error.withValues(alpha: 0.8)),
                 ),
               ],
@@ -327,49 +278,54 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // ── Result Section ─────────────────────────────────────────
 
   Widget _buildResultSection() {
     final r = _result!;
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         children: [
           _buildResultRow(
-            S.of(context)!.dividendeVsSalairePartSalaireLabel,
+            'Part salaire',
             IndependantsService.formatChf(r.partSalaire),
-            subtitle: S.of(context)!.dividendeVsSalairePctBenefice(_partSalairePct.toInt()),
+            subtitle: '${_partSalairePct.toInt()}% du bénéfice',
           ),
           const SizedBox(height: 12),
           _buildResultRow(
-            S.of(context)!.dividendeVsSalairePartDividende,
+            'Part dividende',
             IndependantsService.formatChf(r.partDividende),
-            subtitle: S.of(context)!.dividendeVsSalairePctBenefice((100 - _partSalairePct).toInt()),
+            subtitle: '${(100 - _partSalairePct).toInt()}% du bénéfice',
           ),
           const Divider(height: 24),
           _buildResultRow(
-            S.of(context)!.dividendeVsSalaireChargeSalaire,
+            'Charge sur salaire',
             IndependantsService.formatChf(r.chargeSalaire),
             color: MintColors.error,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            S.of(context)!.dividendeVsSalaireChargeDividende,
+            'Charge sur dividende',
             IndependantsService.formatChf(r.chargeDividende),
             color: MintColors.info,
           ),
           const Divider(height: 24),
           _buildResultRow(
-            S.of(context)!.dividendeVsSalaireChargeTotalSplit,
+            'Charge totale (split)',
             IndependantsService.formatChf(r.chargeTotal),
             bold: true,
           ),
           const SizedBox(height: 8),
           _buildResultRow(
-            S.of(context)!.dividendeVsSalaireCharge100Salaire,
+            'Charge si 100% salaire',
             IndependantsService.formatChf(r.chargeToutSalaire),
             color: MintColors.textMuted,
           ),
@@ -385,7 +341,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     String? subtitle,
     bool bold = false,
   }) {
-    return Row(
+    return Semantics(
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -408,7 +366,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           style: MintTextStyles.bodyMedium(color: bold ? MintColors.primary : (color ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
-    );
+    ));
   }
 
   // ── Curve Chart ────────────────────────────────────────────
@@ -417,8 +375,13 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     final r = _result!;
     if (r.sensitivity.isEmpty) return const SizedBox.shrink();
 
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -460,11 +423,11 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           // Legend
           Row(
             children: [
-              _buildChartLegend(MintColors.primary, S.of(context)!.dividendeVsSalaireChargeTotale),
+              _buildChartLegend(MintColors.primary, 'Charge totale'),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.success, S.of(context)!.dividendeVsSalaireSplitAdapte),
+              _buildChartLegend(MintColors.success, 'Split adapte'),
               const SizedBox(width: 16),
-              _buildChartLegend(MintColors.info, S.of(context)!.dividendeVsSalairePositionActuelle),
+              _buildChartLegend(MintColors.info, 'Position actuelle'),
             ],
           ),
         ],
@@ -503,7 +466,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             const Icon(Icons.lightbulb_outline, size: 16, color: MintColors.textMuted),
             const SizedBox(width: 8),
             Text(
-              S.of(context)!.dividendeVsSalaireARetenir,
+              'À RETENIR',
               style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
             ),
           ],
@@ -511,18 +474,24 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         const SizedBox(height: 12),
         _buildEduCard(
           Icons.account_balance_outlined,
-          S.of(context)!.dividendeVsSalaireEduImpotTitle,
-          S.of(context)!.dividendeVsSalaireEduImpotBody,
+          'Impôt sur le bénéfice',
+          'Rappelle-toi que le bénéfice distribué en dividende est '
+          'imposé d\'abord au niveau de la société (impôt sur le bénéfice), '
+          'puis au niveau personnel (double imposition économique).',
         ),
         _buildEduCard(
           Icons.people_outline,
-          S.of(context)!.dividendeVsSalaireEduAvsTitle,
-          S.of(context)!.dividendeVsSalaireEduAvsBody,
+          'AVS uniquement sur le salaire',
+          'Les cotisations AVS (environ 12.5% au total) ne s\'appliquent '
+          'qu\'à la part salaire. Le dividende échappe aux charges sociales, '
+          'd\'où l\'intérêt d\'ajuster le split.',
         ),
         _buildEduCard(
           Icons.gavel_outlined,
-          S.of(context)!.dividendeVsSalaireEduCantonalTitle,
-          S.of(context)!.dividendeVsSalaireEduCantonalBody,
+          'Pratique cantonale',
+          'Les autorités fiscales surveillent les distributions excessives '
+          'de dividendes. Un salaire "conforme au marché" est attendu. '
+          'La limite varie selon les cantons.',
         ),
       ],
     );
@@ -540,9 +509,12 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MintSurface(
+            Container(
               padding: const EdgeInsets.all(8),
-              radius: 10,
+              decoration: BoxDecoration(
+                color: MintColors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: 12),

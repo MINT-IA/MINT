@@ -1,5 +1,7 @@
 # GLOSSAIRE PRODUIT MINT
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Dernière mise à jour : 2026-03-27
 > Statut : **AUTORITATIF** — Ce document fait foi pour tous les nommages produit.
 > Toute nouvelle feature, route, ou libellé doit s'aligner sur ce glossaire.
@@ -35,7 +37,7 @@
 | **Budget B** | Liberté mensuelle à la retraite (AVS + LPP + 3a - charges) | Une projection unique figée |
 | **Gap** | L'écart entre Budget A et Budget B (CHF/mois) | Un score ou une note |
 | **Cap** | La meilleure action unique à proposer maintenant | Un conseil financier |
-| **Chiffre choc** | Un nombre marquant révélé à l'onboarding | Une projection complète |
+| **Premier éclairage** | Premier insight personnalisé révélé à l'onboarding (nombre, angle mort, implication, ou question à poser). Remplace le legacy "premier éclairage". | Une projection complète |
 | **Taux de remplacement** | Revenu retraite / revenu actuel (%) | Un score de santé |
 | **Confiance** | Fiabilité de la projection (0-100%, 4 axes) | Un score d'engagement |
 | **FRI** | Financial Resilience Index (liquidité + fiscal + retraite + risque) | Un score de rendement |

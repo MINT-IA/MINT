@@ -3,13 +3,13 @@
 /// Lightweight store using SharedPreferences (consistent with MINT pattern).
 /// Stores conversation messages as JSON and maintains an index of metadata.
 ///
-/// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
-/// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
-/// TODO: Prefix all keys with user ID for native multi-account isolation.
+/// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are now user-prefixed
+/// when a user ID is set via [ConversationStore.setCurrentUserId].
+/// Account isolation relies on prefix + purge at logout/deleteAccount.
 library;
 
 import 'dart:convert';
-
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 
@@ -54,8 +54,8 @@ class ConversationMeta {
     return ConversationMeta(
       id: json['id'] as String,
       title: json['title'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastMessageAt: DateTime.parse(json['lastMessageAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+      lastMessageAt: DateTime.tryParse(json['lastMessageAt'] as String? ?? '') ?? DateTime.now(),
       messageCount: json['messageCount'] as int? ?? 0,
       summary: json['summary'] as String?,
       tags: (json['tags'] as List<dynamic>?)
@@ -91,6 +91,19 @@ class ConversationMeta {
 //  ConversationStore — SharedPreferences-based persistence
 // ────────────────────────────────────────────────────────────
 
+/// SEC-6: PII patterns to scrub from persisted conversation messages.
+/// Defense-in-depth: prevents accidental PII storage in SharedPreferences.
+final RegExp _piiScrubPattern = RegExp(
+  r'(?:'
+  r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}' // IBAN
+  r'|\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b' // AHV/AVS number
+  r'|\b\d{4,7}\s*(?:CHF|francs?)\b' // salary amounts
+  r')',
+  caseSensitive: false,
+);
+
+String _scrubPii(String text) => text.replaceAll(_piiScrubPattern, '[***]');
+
 class ConversationStore {
   /// Prefix for individual conversation message lists.
   static const _messagesPrefix = '_chat_conversations_';
@@ -98,8 +111,23 @@ class ConversationStore {
   /// Key for the conversation index (list of metadata).
   static const _indexKey = '_chat_conversation_index';
 
+  /// Maximum conversations retained in SharedPreferences.
+  /// Oldest conversations are pruned when this limit is exceeded.
+  static const _maxConversations = 50;
+
   /// Maximum title length (characters).
   static const _maxTitleLength = 50;
+
+  // ── User-scoped key prefix (cross-account isolation) ────
+
+  static String? _currentUserId;
+
+  /// Set the current user ID to prefix all SharedPreferences keys.
+  /// Call on login (with userId) and on logout (with null).
+  static void setCurrentUserId(String? userId) => _currentUserId = userId;
+
+  static String _userPrefix() =>
+      _currentUserId != null ? '${_currentUserId}_' : '';
 
   // ── Public API ──────────────────────────────────────────
 
@@ -115,12 +143,14 @@ class ConversationStore {
 
     final prefs = await SharedPreferences.getInstance();
 
-    // Serialize messages
+    // FIX-W11-1: Atomic write — temp key first, then real key, then remove temp.
+    final key = '${_userPrefix()}$_messagesPrefix$conversationId';
+    final tempKey = '${key}_tmp';
     final messagesJson = messages.map(_messageToJson).toList();
-    await prefs.setString(
-      '$_messagesPrefix$conversationId',
-      jsonEncode(messagesJson),
-    );
+    final encoded = jsonEncode(messagesJson);
+    await prefs.setString(tempKey, encoded);
+    await prefs.setString(key, encoded);
+    await prefs.remove(tempKey);
 
     // Update index
     final index = await _loadIndex(prefs);
@@ -160,7 +190,13 @@ class ConversationStore {
   /// Returns an empty list if the conversation does not exist.
   Future<List<ChatMessage>> loadConversation(String conversationId) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString('$_messagesPrefix$conversationId');
+    final key = '${_userPrefix()}$_messagesPrefix$conversationId';
+    final tempKey = '${key}_tmp';
+    var raw = prefs.getString(key);
+    // FIX-W11-1: Recovery — if main key missing/empty but temp exists, use temp.
+    if (raw == null || raw.isEmpty) {
+      raw = prefs.getString(tempKey);
+    }
     if (raw == null) return [];
 
     try {
@@ -168,7 +204,8 @@ class ConversationStore {
       return list
           .map((e) => _messageFromJson(e as Map<String, dynamic>))
           .toList();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[ConversationStore] Corrupted conversation $conversationId: $e');
       return [];
     }
   }
@@ -184,7 +221,7 @@ class ConversationStore {
   /// Delete a conversation (messages + metadata).
   Future<void> deleteConversation(String conversationId) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('$_messagesPrefix$conversationId');
+    await prefs.remove('${_userPrefix()}$_messagesPrefix$conversationId');
 
     final index = await _loadIndex(prefs);
     index.removeWhere((m) => m.id == conversationId);
@@ -219,21 +256,49 @@ class ConversationStore {
     RegExp(r"\b\d{1,3}(?:['\s]\d{3})+(?:\.\d{1,2})?\b"),
     RegExp(r"\b\d{4,}(?:\.\d{1,2})?\b"),
     // "mon salaire est de X" / "je gagne X" patterns
-    RegExp(r'(salaire|gagne|touche|revenu)[^.]{0,20}[\d\s\x27\.]{4,}', caseSensitive: false),
+    // FIX: ReDoS — replaced [^.]{0,20} (backtracking) with \s+\S{0,20} (linear)
+    RegExp(r'(?:salaire|gagne|touche|revenu)\s+\S{0,20}\d{4,}', caseSensitive: false),
     // Email addresses
     RegExp(r'\b[\w.+-]+@[\w-]+\.[\w.]+\b'),
-    // Swiss phone numbers: +41..., 07x...
-    RegExp(r'(?:\+41|0)\s*\d[\d\s]{7,}'),
+    // Swiss phone numbers: +41..., 07x... (FIX-W12: stricter Swiss format)
+    RegExp(r'(?:\+41|0)[\s.-]?(?:76|77|78|79|[1-4]\d)[\s.-]?\d{3}[\s.-]?\d{2}[\s.-]?\d{2}'),
+    // Swiss AHV/AVS numbers: 756.xxxx.xxxx.xx (FIX-W12)
+    RegExp(r'\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b'),
+    // Swiss NPA (4-digit postal codes before city names)
+    RegExp(r'\b[1-9]\d{3}\s+[A-Z]', caseSensitive: false),
+    // Employer patterns: "je travaille chez X", "mon employeur X"
+    RegExp(r'(travaille\s+chez|employeur\s+est|boîte|entreprise)\s+\S+', caseSensitive: false),
+    // IBAN (CH + 19 digits, with optional spaces)
+    RegExp(r'CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1,2}', caseSensitive: false),
+    // IBAN compact format (no spaces)
+    RegExp(r'CH\d{19}', caseSensitive: false),
+    // Written-out amounts: "septante mille", "cent vingt mille"
+    RegExp(r'(septante|huitante|nonante|cinquante|soixante|vingt|trente|quarante)\s+(mille|cents?)', caseSensitive: false),
   ];
+
+  /// Strip zero-width and invisible Unicode characters that could bypass PII
+  /// regex patterns. Mirrors backend NFKC normalization (unicodedata.normalize).
+  /// Dart lacks built-in NFKC, so we strip the most common bypass vectors:
+  /// zero-width space/joiner/non-joiner, soft hyphen, BOM, combining grapheme joiner.
+  static String _stripInvisibleChars(String text) {
+    return text.replaceAll(
+      RegExp(
+        '[\u200B\u200C\u200D\u00AD\uFEFF\u034F\u2060\u2061\u2062\u2063\u2064]',
+      ),
+      '',
+    );
+  }
 
   /// Scrub PII-like patterns from text for safe persistence.
   static String scrubPii(String text) {
-    var result = text;
+    // Strip invisible chars before regex matching (NFKC-lite, same intent as backend)
+    var result = _stripInvisibleChars(text);
     for (final pattern in _piiPatterns) {
       result = result.replaceAll(pattern, '[***]');
     }
     // Collapse multiple consecutive redactions
-    result = result.replaceAll(RegExp(r'(\[\*\*\*\]\s*){2,}'), '[***] ');
+    // FIX: ReDoS — limit repetition to avoid catastrophic backtracking
+    result = result.replaceAll(RegExp(r'(\[\*\*\*\]\s*){2,10}'), '[***] ');
     return result.trim();
   }
 
@@ -293,7 +358,7 @@ class ConversationStore {
 
   /// Load the conversation index from SharedPreferences.
   Future<List<ConversationMeta>> _loadIndex(SharedPreferences prefs) async {
-    final raw = prefs.getString(_indexKey);
+    final raw = prefs.getString('${_userPrefix()}$_indexKey');
     if (raw == null) return [];
 
     try {
@@ -306,13 +371,21 @@ class ConversationStore {
     }
   }
 
-  /// Persist the conversation index.
+  /// Persist the conversation index, pruning oldest if over limit.
   Future<void> _saveIndex(
     SharedPreferences prefs,
     List<ConversationMeta> index,
   ) async {
+    // Prune oldest conversations if over limit
+    if (index.length > _maxConversations) {
+      final toRemove = index.sublist(_maxConversations);
+      for (final meta in toRemove) {
+        await prefs.remove('${_userPrefix()}$_messagesPrefix${meta.id}');
+      }
+      index = index.sublist(0, _maxConversations);
+    }
     final json = index.map((m) => m.toJson()).toList();
-    await prefs.setString(_indexKey, jsonEncode(json));
+    await prefs.setString('${_userPrefix()}$_indexKey', jsonEncode(json));
   }
 
   // ── ChatMessage serialization ───────────────────────────
@@ -323,8 +396,9 @@ class ConversationStore {
   // (they are session-specific and would bloat storage).
 
   Map<String, dynamic> _messageToJson(ChatMessage msg) => {
+        'schemaVersion': ChatMessage.schemaVersion,
         'role': msg.role,
-        'content': msg.content,
+        'content': _scrubPii(msg.content),
         'timestamp': msg.timestamp.toIso8601String(),
         'tier': msg.tier.name,
         if (msg.suggestedActions != null)
@@ -333,6 +407,8 @@ class ConversationStore {
       };
 
   ChatMessage _messageFromJson(Map<String, dynamic> json) {
+    // Schema migration: version 0 (pre-schema) and 1 share the same format.
+    // Future migrations: final version = json['schemaVersion'] as int? ?? 0;
     final tierName = json['tier'] as String? ?? 'none';
     final tier = ChatTier.values.firstWhere(
       (t) => t.name == tierName,
@@ -342,7 +418,7 @@ class ConversationStore {
     return ChatMessage(
       role: json['role'] as String,
       content: json['content'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String? ?? '') ?? DateTime.now(),
       tier: tier,
       suggestedActions: (json['suggestedActions'] as List<dynamic>?)
           ?.map((e) => e as String)

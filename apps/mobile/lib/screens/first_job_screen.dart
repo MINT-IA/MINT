@@ -1,7 +1,10 @@
 import 'dart:math' show pow;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -16,6 +19,7 @@ import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
 import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -35,6 +39,11 @@ class FirstJobScreen extends StatefulWidget {
 }
 
 class _FirstJobScreenState extends State<FirstJobScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   double _salaire = 5000;
   int _age = 25;
   String _canton = 'ZH';
@@ -56,6 +65,47 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   void initState() {
     super.initState();
     _calculate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/first-job',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
+      return;
+    }
+
+    final screenReturn = ScreenReturn.completed(
+      route: '/first-job',
+      stepOutputs: {},
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
   }
 
   @override
@@ -88,7 +138,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.background,
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
@@ -98,16 +152,23 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                MintEntrance(child: _buildHeader()),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeFirstJobHeadline,
+                  body: S.of(context)!.narrativeFirstJobBody,
+                  tone: MintSurfaceTone.sauge,
+                  badge: S.of(context)!.narrativeFirstJobBadge,
+                )),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSalaireSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeSlider()),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSalaireSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCantonAndActivity()),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAgeSlider()),
+                const SizedBox(height: MintSpacing.md + 4),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCantonAndActivity()),
                 const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: MintSpacing.lg),
                   SalaryBreakdownWidget(
                     brut: _result!.brut,
@@ -203,7 +264,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
             ),
           ),
         ],
-      ))),
+      )))),
     );
   }
 
@@ -268,6 +329,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       max: 15000,
       divisions: 260,
       onChanged: (v) {
+        _hasUserInteracted = true;
         _salaire = v;
         _calculate();
       },
@@ -285,6 +347,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       max: 30,
       divisions: 12,
       onChanged: (v) {
+        _hasUserInteracted = true;
         _age = v.toInt();
         _calculate();
       },
@@ -353,6 +416,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) {
+                        _hasUserInteracted = true;
                         _canton = v;
                         _calculate();
                       }
@@ -382,9 +446,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -401,7 +465,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            r.chiffreChoc,
+            r.premierEclairage,
             style: MintTextStyles.bodyMedium(
                 color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
@@ -920,7 +984,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           ],
         ),
       ],
-      chiffreChoc: l10n.firstJobBudgetChiffreChoc(
+      premierEclairage: l10n.firstJobBudgetPremierEclairage(
         '${(annualSavings.round() ~/ 1000)}\'000',
         '~${(fv.round() ~/ 1000)}\'000',
       ),
@@ -1031,6 +1095,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               button: true,
               child: GestureDetector(
                 onTap: () {
+                  HapticFeedback.lightImpact();
                   setState(() => _salaire = s.value);
                   _calculate();
                 },

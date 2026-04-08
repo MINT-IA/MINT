@@ -110,7 +110,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                   final isSelected = age == _selected;
                   return Center(
                     child: Text(
-                      S.of(context)!.ageYears(age),
+                      S.of(context)!.ageYears(age.toString()),
                       style: MintTextStyles.headlineMedium(
                         color: isSelected
                             ? MintColors.textPrimary
@@ -248,13 +248,13 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
                   controller: _controller,
                   keyboardType: TextInputType.number,
                   onChanged: _onChanged,
-                  style: MintTextStyles.headlineLarge()
-                      .copyWith(fontSize: 28),
+                  style: MintTextStyles.displaySmall()
+                      ,
                   decoration: InputDecoration(
                     hintText: widget.hint ?? "0",
                     hintStyle: MintTextStyles.headlineLarge(
                       color: MintColors.textMuted.withValues(alpha: 0.4),
-                    ).copyWith(fontSize: 28),
+                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                   ),

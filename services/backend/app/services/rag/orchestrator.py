@@ -45,6 +45,7 @@ class RAGOrchestrator:
         n_results: int = 5,
         tools: list[dict] | None = None,
         system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None,
     ) -> dict:
         """
         Execute the full RAG pipeline.
@@ -83,6 +84,7 @@ class RAGOrchestrator:
             profile_context=profile_context,
             n_results=n_results,
             language=language,
+            user_id=user_id,
         )
 
         # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs

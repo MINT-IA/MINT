@@ -31,13 +31,10 @@ import logging
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import pytest
 
 from app.api.v1.endpoints.coach_chat import (
     MAX_AGENT_LOOP_ITERATIONS,
-    MAX_AGENT_LOOP_TOKENS,
     _execute_internal_tool,
-    _handle_retrieve_memories,
     _run_agent_loop,
 )
 
@@ -131,21 +128,27 @@ class TestAgentLoopTermination:
         assert orch.query.call_count == MAX_AGENT_LOOP_ITERATIONS
 
     def test_breaks_on_token_budget_exceeded(self):
-        """Loop breaks early when cumulative tokens exceed MAX_AGENT_LOOP_TOKENS."""
-        # First iteration: 5000 tokens. Token check passes (5000 < 8000) → re-call.
-        # Second iteration: 5000 more tokens → total 10000 >= 8000 → break.
+        """Loop breaks early when cumulative tokens exceed MAX_AGENT_LOOP_TOKENS.
+
+        Uses 1500 tokens per iteration to stay under per-request budget (4000)
+        for the first two calls, then hit the overall budget (8000) check.
+        Iter 0: total=1500, request=1500 → continue (has internal tools).
+        Iter 1: total=3000, request=3000 → continue (has internal tools).
+        Iter 2: total=4500, request=4500 >= 4000 → per-request break.
+        """
         results = [
             _make_orchestrator_result(
                 answer=f"Iteration {i}",
                 tool_calls=[{"name": "retrieve_memories", "input": {"topic": "test"}}],
-                tokens_used=5000,
+                tokens_used=1500,
             )
-            for i in range(5)
+            for i in range(10)
         ]
         orch = _make_mock_orchestrator(*results)
         result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
-        assert orch.query.call_count == 2
-        assert result["tokens_used"] == 10000
+        # 3 calls: iter 0 (1500), iter 1 (3000), iter 2 (4500 >= 4000 → break)
+        assert orch.query.call_count == 3
+        assert result["tokens_used"] == 4500
 
 
 # ===========================================================================
@@ -188,7 +191,7 @@ class TestAgentLoopToolExecution:
             _make_orchestrator_result(answer="Voici le résultat combiné."),
         )
         kwargs = {**_BASE_KWARGS, "memory_block": memory_block}
-        result = _run(_run_agent_loop(orchestrator=orch, **kwargs))
+        _run(_run_agent_loop(orchestrator=orch, **kwargs))
         assert orch.query.call_count == 2
         second_question = orch.query.call_args_list[1].kwargs["question"]
         assert "retraite" in second_question
@@ -203,7 +206,7 @@ class TestAgentLoopToolExecution:
             ),
             _make_orchestrator_result(answer="Pas de données en mémoire."),
         )
-        result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
+        _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
         assert orch.query.call_count == 2
         second_question = orch.query.call_args_list[1].kwargs["question"]
         assert "Aucune mémoire" in second_question
@@ -280,38 +283,44 @@ class TestAgentLoopToolFiltering:
         assert len(result["tool_calls"]) == 1
         assert result["tool_calls"][0]["name"] == "show_budget_snapshot"
 
-    def test_write_tools_forwarded_to_flutter_not_executed(self):
-        """set_goal, mark_step_completed, save_insight are forwarded to Flutter, not executed (Test 12)."""
+    def test_write_tools_handled_internally_not_forwarded(self):
+        """set_goal, mark_step_completed, save_insight are now internal ack tools (07-04 STAB-12).
+
+        Updated 07-06: prior to 07-04 these were Flutter-side write tools. Commit
+        860f8a9a marked them internal so the backend returns an ack string and the
+        loop continues. They are no longer forwarded to Flutter.
+        """
         write_tools = [
             {"name": "set_goal", "input": {"goal_intent_tag": "retirement_choice"}},
             {"name": "mark_step_completed", "input": {"step_id": "open_3a", "outcome": "completed"}},
             {"name": "save_insight", "input": {"topic": "lpp", "summary": "rachat planifié", "type": "decision"}},
         ]
-        # No internal tools → loop exits after 1 call
+        # Internal tools → loop iterates again with the ack results
         orch = _make_mock_orchestrator(
-            _make_orchestrator_result(answer="Actions enregistrées.", tool_calls=write_tools)
+            _make_orchestrator_result(answer="J'enregistre.", tool_calls=write_tools),
+            _make_orchestrator_result(answer="Actions enregistrées."),
         )
         executed_tools: list = []
         original = _execute_internal_tool
 
-        def _capturing(tool_call, memory_block):
+        def _capturing(tool_call, memory_block, profile_context=None):
             executed_tools.append(tool_call["name"])
-            return original(tool_call, memory_block)
+            return original(tool_call, memory_block, profile_context)
 
         with patch("app.api.v1.endpoints.coach_chat._execute_internal_tool", side_effect=_capturing):
             result = _run(_run_agent_loop(orchestrator=orch, **_BASE_KWARGS))
 
-        # Write tools must NOT have been executed by the backend
-        assert "set_goal" not in executed_tools
-        assert "mark_step_completed" not in executed_tools
-        assert "save_insight" not in executed_tools
-        # Write tools must reach Flutter
+        # All three are now executed internally as ack tools
+        assert "set_goal" in executed_tools
+        assert "mark_step_completed" in executed_tools
+        assert "save_insight" in executed_tools
+        # And NOT forwarded to Flutter
         names = [tc["name"] for tc in (result["tool_calls"] or [])]
-        assert "set_goal" in names
-        assert "mark_step_completed" in names
-        assert "save_insight" in names
-        # No re-call needed
-        assert orch.query.call_count == 1
+        assert "set_goal" not in names
+        assert "mark_step_completed" not in names
+        assert "save_insight" not in names
+        # Loop re-called the orchestrator after the ack
+        assert orch.query.call_count == 2
 
     def test_external_tools_accumulated_across_iterations(self):
         """External tools from multiple iterations are all collected."""

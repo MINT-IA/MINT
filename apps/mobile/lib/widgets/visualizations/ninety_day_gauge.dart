@@ -193,7 +193,7 @@ class _NinetyDayGaugeState extends State<NinetyDayGauge>
               ),
               Text(
                 l.ninetyDayGaugeSubtitle,
-                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(),
               ),
             ],
           ),

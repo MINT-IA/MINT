@@ -66,7 +66,7 @@ def estimate_avs(request: Request, body: AvsEstimationRequest) -> AvsEstimationR
         duree_estimee_ans=result.duree_estimee_ans,
         total_cumule=result.total_cumule,
         breakeven_vs_normal=result.breakeven_vs_normal,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -104,7 +104,7 @@ def compare_lpp(request: Request, body: LppConversionRequest) -> LppConversionRe
         option_capital_net=result.option_capital_net,
         breakeven_age=result.breakeven_age,
         recommandation_neutre=result.recommandation_neutre,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -144,7 +144,7 @@ def budget_retirement(request: Request, body: RetirementBudgetRequest) -> Retire
         pc_potentiellement_eligible=result.pc_potentiellement_eligible,
         duree_capital_3a_ans=result.duree_capital_3a_ans,
         alertes=result.alertes,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         checklist=result.checklist,
         disclaimer=result.disclaimer,
         sources=result.sources,

@@ -8,7 +8,7 @@ tags: [avs, ai, invalidite, rente, incapacite, lai]
 ## Trigger
 L'utilisateur mentionne une incapacité de travail, un accident, une maladie longue durée, ou souhaite comprendre la couverture invalidité en Suisse.
 
-## Chiffre Choc
+## Premier Éclairage
 25 % des actifs suisses seront confrontés à une incapacité de travail de longue durée avant la retraite. La rente AI maximale est identique à la rente AVS maximale : CHF 2'520/mois — mais 40 % des bénéficiaires ne touchent qu'un quart de rente.
 
 ## Niveau 0

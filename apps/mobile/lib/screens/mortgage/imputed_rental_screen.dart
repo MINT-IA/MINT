@@ -10,11 +10,12 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de calcul de la valeur locative et de son impact fiscal.
 ///
-/// Affiche la decomposition valeur locative vs deductions avec un chiffre choc.
+/// Affiche la decomposition valeur locative vs deductions avec un premier éclairage.
 /// Base legale : LIFD art. 21 al. 1 let. b (valeur locative).
 class ImputedRentalScreen extends StatefulWidget {
   const ImputedRentalScreen({super.key});
@@ -106,7 +107,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairageCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Decomposition
@@ -153,36 +154,18 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(ImputedRentalResult result) {
-    final color = result.chiffreChocPositif
-        ? MintColors.success
-        : MintColors.error;
-    final icon = result.chiffreChocPositif
-        ? Icons.savings_outlined
-        : Icons.trending_up;
-
-    return Semantics(
-      label: 'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
-      child: MintSurface(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        radius: 16,
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 40),
-            const SizedBox(height: MintSpacing.sm + 4),
-            Text(
-              'CHF ${formatChf(result.impotSupplementaire.abs())}/an',
-              style: MintTextStyles.displayMedium(color: color),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              result.chiffreChocTexte,
-              textAlign: TextAlign.center,
-              style: MintTextStyles.bodyMedium(),
-            ),
-          ],
-        ),
-      ),
+  Widget _buildPremierEclairageCard(ImputedRentalResult result) {
+    return MintResultHeroCard(
+      eyebrow: S.of(context)!.imputedRentalEyebrow,
+      primaryValue: 'CHF\u00a0${formatChf(result.impotSupplementaire.abs())}/an',
+      primaryLabel: result.premierEclairagePositif
+          ? S.of(context)!.imputedRentalSavingsLabel
+          : S.of(context)!.imputedRentalTaxLabel,
+      narrative: result.premierEclairageTexte,
+      accentColor: result.premierEclairagePositif
+          ? MintColors.success
+          : MintColors.error,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

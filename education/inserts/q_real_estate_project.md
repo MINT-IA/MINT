@@ -32,7 +32,7 @@ status: "READY"
 - Les frais de notaire et droits de mutation varient selon le canton (1-3% du prix).
 - L'evaluation bancaire du bien peut differer du prix demande.
 
-## Chiffre Choc
+## Premier Éclairage
 "Pour un bien a 800'000 CHF, il te faut 160'000 CHF d'apport personnel — dont maximum 80'000 CHF de ton 2e pilier. Tes charges mensuelles theoriques seront d'environ 4'670 CHF, soit un revenu brut minimum de 14'000 CHF/mois."
 
 ## Learning Goals

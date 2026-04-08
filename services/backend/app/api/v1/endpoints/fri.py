@@ -124,7 +124,7 @@ async def simulate_fri_action(request: Request, body: FriSimulateRequest) -> Fri
         result = FriDisplayService.simulate_action(
             inp, body.action_type, body.confidence_score,
         )
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(status_code=422, detail="Unprocessable input")
 
     return FriSimulateResponse(

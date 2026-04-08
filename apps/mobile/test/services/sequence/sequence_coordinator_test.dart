@@ -7,7 +7,7 @@ import 'package:mint_mobile/services/sequence/sequence_coordinator.dart';
 void main() {
   // ── Helpers ────────────────────────────────────────────────────
 
-  SequenceRun _startRun(SequenceTemplate template) {
+  SequenceRun startRun(SequenceTemplate template) {
     return SequenceRun.start(
       runId: 'test-run-1',
       templateId: template.id,
@@ -52,7 +52,7 @@ void main() {
 
   group('SequenceRun', () {
     test('start creates run with first step active', () {
-      final run = _startRun(SequenceTemplate.housingPurchase);
+      final run = startRun(SequenceTemplate.housingPurchase);
       expect(run.isActive, isTrue);
       expect(run.activeStepId, 'housing_01_affordability');
       expect(run.completedCount, 0);
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('completeStep marks step done and stores outputs', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       run = run.completeStep('housing_01_affordability', {
         'capacite_achat': 850000,
         'fonds_propres_requis': 170000,
@@ -72,14 +72,14 @@ void main() {
     });
 
     test('skipStep marks step skipped', () {
-      var run = _startRun(SequenceTemplate.retirementPrep);
+      var run = startRun(SequenceTemplate.retirementPrep);
       run = run.skipStep('ret_03_buyback');
       expect(run.stepStates['ret_03_buyback'], StepRunState.skipped);
       expect(run.completedCount, 1); // skipped counts as completed
     });
 
     test('activateStep deactivates previous active', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       expect(run.activeStepId, 'housing_01_affordability');
       run = run.activateStep('housing_02_epl');
       expect(run.activeStepId, 'housing_02_epl');
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('invalidateSteps resets steps to pending and removes outputs', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       run = run.completeStep('housing_01_affordability', {'x': 1});
       run = run.invalidateSteps(['housing_01_affordability']);
       expect(run.stepStates['housing_01_affordability'], StepRunState.pending);
@@ -95,7 +95,7 @@ void main() {
     });
 
     test('progress is computed correctly', () {
-      var run = _startRun(SequenceTemplate.optimize3a);
+      var run = startRun(SequenceTemplate.optimize3a);
       expect(run.progress, 0.0);
       run = run.completeStep('3a_01_simulator', {});
       expect(run.progress, closeTo(0.333, 0.01));
@@ -110,7 +110,7 @@ void main() {
 
   group('SequenceRun serialization', () {
     test('round-trip serialize/deserialize preserves all data', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       run = run.completeStep('housing_01_affordability', {
         'capacite_achat': 850000.0,
         'fonds_propres_requis': 170000,
@@ -142,8 +142,8 @@ void main() {
 
   group('SequenceCoordinator.decide', () {
     test('completed step → advance to next', () {
-      final template = SequenceTemplate.housingPurchase;
-      final run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      final run = startRun(template);
 
       final action = SequenceCoordinator.decide(
         template: template,
@@ -166,8 +166,8 @@ void main() {
     });
 
     test('all steps completed → complete action', () {
-      final template = SequenceTemplate.optimize3a;
-      var run = _startRun(template);
+      const template = SequenceTemplate.optimize3a;
+      var run = startRun(template);
       run = run.completeStep('3a_01_simulator', {'contribution_annuelle': 7258});
       run = run.completeStep('3a_02_withdrawal', {'gain_echelonnement': 12000});
       run = run.activateStep('3a_03_real_return');
@@ -186,8 +186,8 @@ void main() {
     });
 
     test('abandoned once → retry', () {
-      final template = SequenceTemplate.housingPurchase;
-      final run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      final run = startRun(template);
 
       final action = SequenceCoordinator.decide(
         template: template,
@@ -201,9 +201,9 @@ void main() {
     });
 
     test('abandoned twice on optional step → skip', () {
-      final template = SequenceTemplate.housingPurchase;
+      const template = SequenceTemplate.housingPurchase;
       // Step 4 (summary) is optional
-      var run = _startRun(template);
+      var run = startRun(template);
       run = run.completeStep('housing_01_affordability', {});
       run = run.completeStep('housing_02_epl', {});
       run = run.completeStep('housing_03_fiscal', {});
@@ -220,8 +220,8 @@ void main() {
     });
 
     test('abandoned twice on required step → pause', () {
-      final template = SequenceTemplate.housingPurchase;
-      final run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      final run = startRun(template);
 
       final action = SequenceCoordinator.decide(
         template: template,
@@ -235,8 +235,8 @@ void main() {
     });
 
     test('changed inputs → re-evaluate all completed steps with outputs', () {
-      final template = SequenceTemplate.housingPurchase;
-      var run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      var run = startRun(template);
       run = run.completeStep('housing_01_affordability', {
         'capacite_achat': 850000,
       });
@@ -261,8 +261,8 @@ void main() {
     });
 
     test('changed inputs with no completed outputs → pause', () {
-      final template = SequenceTemplate.housingPurchase;
-      final run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      final run = startRun(template);
 
       final action = SequenceCoordinator.decide(
         template: template,
@@ -279,7 +279,7 @@ void main() {
     });
 
     test('no active step → pause', () {
-      final template = SequenceTemplate.housingPurchase;
+      const template = SequenceTemplate.housingPurchase;
       final run = SequenceRun(
         runId: 'test',
         templateId: template.id,
@@ -302,8 +302,8 @@ void main() {
 
   group('Output transfer (prefill)', () {
     test('step 1 outputs flow to step 2 via outputMapping', () {
-      final template = SequenceTemplate.housingPurchase;
-      var run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      var run = startRun(template);
       run = run.completeStep('housing_01_affordability', {
         'capacite_achat': 850000,
         'fonds_propres_requis': 170000,
@@ -330,8 +330,8 @@ void main() {
     });
 
     test('outputs accumulate across multiple steps', () {
-      final template = SequenceTemplate.housingPurchase;
-      var run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      var run = startRun(template);
       // Complete step 1
       run = run.completeStep('housing_01_affordability', {
         'capacite_achat': 850000,
@@ -367,7 +367,7 @@ void main() {
 
   group('Output sanitization', () {
     test('completeStep truncates long strings', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       final longString = 'x' * 300;
       run = run.completeStep('housing_01_affordability', {
         'label': longString,
@@ -377,7 +377,7 @@ void main() {
     });
 
     test('completeStep drops outputs exceeding per-step size budget', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       // Create outputs that exceed 2KB per step
       final bigOutputs = <String, dynamic>{};
       for (int i = 0; i < 50; i++) {
@@ -389,7 +389,7 @@ void main() {
     });
 
     test('completeStep filters non-primitive values', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       run = run.completeStep('housing_01_affordability', {
         'capacite_achat': 850000.0,        // double — kept
         'count': 3,                         // int — kept
@@ -413,8 +413,8 @@ void main() {
 
   group('Blocked steps', () {
     test('blocked step causes pause (never silently skipped)', () {
-      final template = SequenceTemplate.housingPurchase;
-      var run = _startRun(template);
+      const template = SequenceTemplate.housingPurchase;
+      var run = startRun(template);
       // Block step 2
       final states = Map<String, StepRunState>.from(run.stepStates);
       states['housing_02_epl'] = StepRunState.blocked;
@@ -445,24 +445,24 @@ void main() {
 
   group('Idempotence — processedEventIds', () {
     test('isEventProcessed returns false for unknown eventId', () {
-      final run = _startRun(SequenceTemplate.housingPurchase);
+      final run = startRun(SequenceTemplate.housingPurchase);
       expect(run.isEventProcessed('evt_unknown'), isFalse);
     });
 
     test('isEventProcessed returns false for null eventId', () {
-      final run = _startRun(SequenceTemplate.housingPurchase);
+      final run = startRun(SequenceTemplate.housingPurchase);
       expect(run.isEventProcessed(null), isFalse);
     });
 
     test('markEventProcessed adds and recognizes eventId', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       run = run.markEventProcessed('evt_123');
       expect(run.isEventProcessed('evt_123'), isTrue);
       expect(run.isEventProcessed('evt_456'), isFalse);
     });
 
     test('markEventProcessed evicts oldest when over limit', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       // Add 21 events — first should be evicted
       for (int i = 0; i < 21; i++) {
         run = run.markEventProcessed('evt_$i');
@@ -475,7 +475,7 @@ void main() {
     });
 
     test('processedEventIds survives serialization round-trip', () {
-      var run = _startRun(SequenceTemplate.housingPurchase);
+      var run = startRun(SequenceTemplate.housingPurchase);
       run = run.markEventProcessed('evt_abc');
       run = run.markEventProcessed('evt_def');
 
@@ -489,7 +489,7 @@ void main() {
     });
 
     test('empty processedEventIds not serialized to JSON', () {
-      final run = _startRun(SequenceTemplate.housingPurchase);
+      final run = startRun(SequenceTemplate.housingPurchase);
       final json = run.toJson();
       expect(json.containsKey('processedEventIds'), isFalse);
     });

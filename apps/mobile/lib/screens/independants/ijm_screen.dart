@@ -85,7 +85,7 @@ class _IjmScreenState extends State<IjmScreen> {
             MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCarenceToggle(s)),
             const SizedBox(height: MintSpacing.lg),
             if (_result != null) ...[
-              _buildChiffreChoc(s),
+              _buildPremierEclairage(s),
               const SizedBox(height: MintSpacing.lg),
               if (_result!.isHighRisk) ...[
                 _buildHighRiskWarning(s),
@@ -184,7 +184,7 @@ class _IjmScreenState extends State<IjmScreen> {
             ),
             child: Column(
               children: [
-                Text('$jours j', style: MintTextStyles.titleMedium(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700)),
+                Text('$jours j', style: MintTextStyles.titleLarge(color: isSelected ? MintColors.white : MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: MintSpacing.xs / 2),
                 Text(s.ijmJours, style: MintTextStyles.labelSmall(color: isSelected ? MintColors.white.withValues(alpha: 0.8) : MintColors.textMuted)),
               ],
@@ -195,7 +195,7 @@ class _IjmScreenState extends State<IjmScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(S s) {
+  Widget _buildPremierEclairage(S s) {
     final r = _result!;
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -204,7 +204,7 @@ class _IjmScreenState extends State<IjmScreen> {
         children: [
           Text(IndependantsService.formatChf(r.perteCarence), style: MintTextStyles.displayMedium(color: MintColors.white)),
           const SizedBox(height: MintSpacing.sm),
-          Text(s.ijmChiffreChocCaption(IndependantsService.formatChf(r.perteCarence), r.delaiCarence), style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center),
+          Text(s.ijmPremierEclairageCaption(IndependantsService.formatChf(r.perteCarence), r.delaiCarence), style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)), textAlign: TextAlign.center),
         ],
       ),
     );

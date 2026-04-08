@@ -3,6 +3,9 @@
 > Dernière mise à jour : 2026-03-27
 > Statut : **AUTORITATIF** — Ce document définit quel moteur fait foi, dans quel contexte.
 > En cas de divergence code/doc : ce document prime. Si le code contredit, corriger le code.
+>
+> **⚠️ LEGACY NOTE (2026-04-05):** "premier éclairage" est un legacy term technique.
+> Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`). Migration code à planifier.
 
 ---
 
@@ -40,7 +43,7 @@
 |---|---|---|---|
 | **Confiance globale** | Backend `EnhancedConfidenceService` (4 axes, geometric mean) | Mobile `EnhancedConfidenceService` (3 axes, weighted) | Feature gates, enrichment ranking, UI bars |
 | **Confiance projection** | `ConfidenceScorer` (financial_core, 12 composants) | Aucun | Seuil ≥ 40 pour afficher projections |
-| **Confiance chiffre choc** | `ChiffreChocSelector._withConfidence()` | Default `factual` | Mode factuel vs pédagogique dans l'onboarding |
+| **Confiance premier éclairage** | `PremierEclairageSelector._withConfidence()` | Default `factual` | Mode factuel vs pédagogique dans l'onboarding |
 | **FRI** | `FriCalculator` (financial_core, 4 axes) | Aucun | Shadow mode (pas affiché), nourrit FHS |
 | **FHS** | `FinancialHealthScoreService` (FRI + temporal) | Aucun | Pulse, streaks, weekly recap |
 
@@ -52,11 +55,11 @@
 
 ---
 
-## 4. Onboarding chiffre choc
+## 4. Onboarding premier éclairage
 
 | Composant | Source de vérité | Fallback | Contrat |
 |---|---|---|---|
-| **Sélection** | Backend `select_chiffre_choc()` via API `/onboarding/chiffre-choc` | Mobile `ChiffreChocSelector.select()` (local) | Même algorithme : intention × lifecycle × confidence × data |
+| **Sélection** | Backend `select_premier_eclairage()` via API `/onboarding/premier-eclairage` | Mobile `PremierEclairageSelector.select()` (local) | Même algorithme : intention × lifecycle × confidence × data |
 | **Calcul minimal** | Backend `compute_minimal_profile()` | Mobile `MinimalProfileService.compute()` | Même formules, mêmes constantes via `RegulatoryRegistry` |
 | **stress_type** | Envoyé dans request HTTP + passé au local selector | — | Doit influencer les deux chemins identiquement |
 | **confidence_mode** | Renvoyé dans response HTTP + calculé localement | Default `factual` | Même logique `_withConfidence` / per-builder |
@@ -65,8 +68,8 @@
 
 | Test | Fichier | Ce qu'il vérifie |
 |---|---|---|
-| Backend selector (35 tests) | `tests/test_chiffre_choc.py` | Sélection par stress, lifecycle, confiance, archetype |
-| Flutter selector (23 tests) | `test/services/chiffre_choc_selector_test.dart` | Même matrice de cas |
+| Backend selector (35 tests) | `tests/test_premier_eclairage.py` | Sélection par stress, lifecycle, confiance, archetype |
+| Flutter selector (23 tests) | `test/services/premier_eclairage_selector_test.dart` | Même matrice de cas |
 | HTTP contract (16 tests) | `tests/test_onboarding_contract.py` | stress_type round-trip, confidence_mode, camelCase, banned terms |
 | **Verrouillage F3** | `test_onboarding_contract.py::test_stress_retraite_with_ok_ratio_returns_income_not_gap` | **Exactement** `retirement_income` (pas `retirement_gap`) |
 

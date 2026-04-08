@@ -8,7 +8,7 @@ tags: [avs, cotisation_minimale, 530, non_actif, lavs]
 ## Trigger
 L'utilisateur ne travaille pas (études terminées, entre deux emplois, au foyer) et se demande s'il doit cotiser à l'AVS, ou découvre une cotisation minimale sur son relevé.
 
-## Chiffre Choc
+## Premier Éclairage
 La cotisation minimale AVS est de CHF 530/an (soit ~CHF 44/mois). Ne pas la payer, c'est risquer une lacune qui te coûtera ~CHF 687/an de rente en moins — pour toute ta retraite. Un investissement de CHF 530 qui en rapporte CHF 687 chaque année pendant 20+ ans.
 
 ## Niveau 0

@@ -31,7 +31,7 @@ status: "READY"
 - L'economie fiscale reelle depend de l'ensemble des deductions du contribuable.
 - Le blocage EPL de 3 ans n'est pas toujours detecte automatiquement.
 
-## Chiffre Choc
+## Premier Éclairage
 "Un rachat LPP de 20'000 CHF peut te faire economiser entre 5'000 et 8'000 CHF d'impots l'annee meme — c'est un rendement fiscal immediat de 25 a 40%."
 
 ## Learning Goals

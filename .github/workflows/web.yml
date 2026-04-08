@@ -20,8 +20,6 @@ on:
     branches: [staging, main]
     types: [closed]
     paths:
-      - "apps/mobile/lib/**"
-      - "apps/mobile/pubspec.*"
       - "apps/mobile/web/**"
       - "vercel.json"
       - ".github/workflows/web.yml"

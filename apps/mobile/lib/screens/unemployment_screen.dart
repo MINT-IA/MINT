@@ -11,9 +11,10 @@ import 'package:mint_mobile/utils/profile_auto_fill_mixin.dart';
 import 'package:mint_mobile/widgets/educational/unemployment_timeline_widget.dart';
 import 'package:mint_mobile/widgets/coach/unemployment_counter_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 
 // ────────────────────────────────────────────────────────────
 //  UNEMPLOYMENT SCREEN — Sprint S19 / Chomage (LACI)
@@ -57,17 +58,10 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       final salaireMensuel = p.revenuBrutAnnuel > 0
           ? (p.revenuBrutAnnuel / 12).clamp(1500.0, 12646.0)
           : 6000.0;
-      final age = p.age > 0 ? p.age.clamp(18, avsAgeReferenceHomme) : 35;
+      final age = p.age > 0 ? p.age.clamp(18, 65) : 35;
       setState(() {
         _gainAssure = salaireMensuel.roundToDouble();
         _age = age;
-        if (p.nombreEnfants > 0) {
-          _hasChildren = true;
-        }
-        final annees = p.prevoyance.anneesContribuees;
-        if (annees != null && annees > 0) {
-          _moisCotisation = (annees * 12).clamp(0, 480);
-        }
       });
       _calculate();
     });
@@ -88,36 +82,39 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: MintColors.background,
+      backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
-        backgroundColor: MintColors.white,
-        surfaceTintColor: MintColors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0.5,
+        backgroundColor: MintColors.porcelaine,
+        surfaceTintColor: MintColors.porcelaine,
         foregroundColor: MintColors.textPrimary,
-        leading: Semantics(
-          label: S.of(context)!.semanticsBackButton,
-          button: true,
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
         ),
         title: Text(
           S.of(context)!.unemploymentTitle,
           style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(
           MintSpacing.lg, MintSpacing.md, MintSpacing.lg, MintSpacing.lg,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Narrative intro
+            MintNarrativeCard(
+              headline: S.of(context)!.narrativeUnemploymentHeadline,
+              body: S.of(context)!.narrativeUnemploymentBody,
+              tone: MintSurfaceTone.bleu,
+              badge: S.of(context)!.narrativeUnemploymentBadge,
+            ),
+            const SizedBox(height: MintSpacing.xl),
+
             // Hero: chute de revenu (shown when eligible)
             if (_result != null && _result!.eligible) ...[
-              _buildChiffreChoc(),
+              _buildPremierEclairage(),
               const SizedBox(height: MintSpacing.xl),
             ] else if (_result != null && !_result!.eligible) ...[
               _buildNotEligible(),
@@ -126,13 +123,13 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               _buildHeader(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            MintEntrance(child: _buildGainSlider()),
+            _buildGainSlider(),
             const SizedBox(height: MintSpacing.md),
-            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildAgeSlider()),
+            _buildAgeSlider(),
             const SizedBox(height: MintSpacing.md),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildMoisCotisationSlider()),
+            _buildMoisCotisationSlider(),
             const SizedBox(height: MintSpacing.md),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggles()),
+            _buildToggles(),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null && _result!.eligible) ...[
               _buildTauxCard(),
@@ -159,11 +156,11 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               _buildMintCrashTestSection(),
               const SizedBox(height: MintSpacing.xl),
             ],
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
+            _buildDisclaimer(),
             const SizedBox(height: MintSpacing.xxl + MintSpacing.xl),
           ],
         ),
-      ))),
+      ),
     );
   }
 
@@ -194,80 +191,61 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     );
   }
 
-  // ── Sliders ────────────────────────────────────────────────
+  // ── Inputs ────────────────────────────────────────────────
 
   Widget _buildGainSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.unemploymentGainSliderTitle,
-      valueLabel: UnemploymentService.formatChf(_gainAssure),
-      minLabel: S.of(context)!.unemploymentGainMin,
-      maxLabel: S.of(context)!.unemploymentGainMax,
-      value: _gainAssure,
-      min: 0,
-      max: 12350,
-      divisions: 247,
-      onChanged: (v) {
-        _gainAssure = v;
-        _calculate();
-      },
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      child: MintAmountField(
+        label: S.of(context)!.unemploymentGainSliderTitle,
+        value: _gainAssure,
+        formatValue: (v) => UnemploymentService.formatChf(v),
+        onChanged: (v) {
+          setState(() {
+            _gainAssure = v;
+            _calculate();
+          });
+        },
+        min: 0,
+        max: 12350,
+      ),
     );
   }
 
   Widget _buildAgeSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.unemploymentAgeSliderTitle,
-      valueLabel: S.of(context)!.unemploymentAgeValue(_age),
-      minLabel: S.of(context)!.unemploymentAgeMin,
-      maxLabel: S.of(context)!.unemploymentAgeMax,
-      value: _age.toDouble(),
-      min: 18,
-      max: 65,
-      divisions: 47,
-      onChanged: (v) {
-        _age = v.toInt();
-        _calculate();
-      },
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      child: MintPickerTile(
+        label: S.of(context)!.unemploymentAgeSliderTitle,
+        value: _age,
+        minValue: 18,
+        maxValue: 65,
+        formatValue: (v) => S.of(context)!.unemploymentAgeValue(v),
+        onChanged: (v) {
+          setState(() {
+            _age = v;
+            _calculate();
+          });
+        },
+      ),
     );
   }
 
   Widget _buildMoisCotisationSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.unemploymentContribTitle,
-      valueLabel: S.of(context)!.unemploymentContribValue(_moisCotisation),
-      minLabel: '0',
-      maxLabel: S.of(context)!.unemploymentContribMax,
-      value: _moisCotisation.toDouble(),
-      min: 0,
-      max: 24,
-      divisions: 24,
-      onChanged: (v) {
-        _moisCotisation = v.toInt();
-        _calculate();
-      },
-    );
-  }
-
-  Widget _buildSliderCard({
-    required String title,
-    required String valueLabel,
-    required String minLabel,
-    required String maxLabel,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required ValueChanged<double> onChanged,
-  }) {
     return MintSurface(
       tone: MintSurfaceTone.blanc,
-      child: MintPremiumSlider(
-        label: title,
-        value: value,
-        min: min,
-        max: max,
-        divisions: divisions,
-        formatValue: (_) => valueLabel,
-        onChanged: onChanged,
+      child: MintPickerTile(
+        label: S.of(context)!.unemploymentContribTitle,
+        value: _moisCotisation,
+        minValue: 0,
+        maxValue: 24,
+        formatValue: (v) => S.of(context)!.unemploymentContribValue(v),
+        onChanged: (v) {
+          setState(() {
+            _moisCotisation = v;
+            _calculate();
+          });
+        },
       ),
     );
   }
@@ -289,9 +267,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
           const SizedBox(height: MintSpacing.xs),
           Text(
             S.of(context)!.unemploymentSituationSubtitle,
-            style: MintTextStyles.labelSmall(
+            style: MintTextStyles.labelMedium(
               color: MintColors.textSecondary,
-            ).copyWith(fontSize: 12),
+            ),
           ),
           const SizedBox(height: MintSpacing.md),
           _buildToggleRow(
@@ -385,9 +363,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     return MintResultHeroCard(
       eyebrow: S.of(context)!.unemploymentTitle,
@@ -395,7 +373,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
       primaryLabel: S.of(context)!.unemploymentMonthlyBenefit,
       secondaryValue: UnemploymentService.formatChf(r.indemniteMensuelle),
       secondaryLabel: S.of(context)!.unemploymentInsuredEarnings,
-      narrative: r.chiffreChoc,
+      narrative: r.premierEclairage,
       accentColor: MintColors.error,
       tone: MintSurfaceTone.peche,
     );
@@ -447,9 +425,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                     isEnhanced
                         ? S.of(context)!.unemploymentRateEnhanced
                         : S.of(context)!.unemploymentRateStandard,
-                    style: MintTextStyles.labelSmall(
+                    style: MintTextStyles.labelMedium(
                       color: MintColors.textSecondary,
-                    ).copyWith(fontSize: 12, height: 1.4),
+                    ).copyWith(height: 1.4),
                   ),
                 ],
               ),
@@ -531,9 +509,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             const SizedBox(height: MintSpacing.xs),
             Text(
               label,
-              style: MintTextStyles.labelSmall(
+              style: MintTextStyles.labelMedium(
                 color: MintColors.textSecondary,
-              ).copyWith(fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -661,9 +639,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                       ),
                       child: Text(
                         S.of(context)!.unemploymentYouTag,
-                        style: MintTextStyles.labelSmall(
+                        style: MintTextStyles.labelTiny(
                           color: MintColors.white,
-                        ).copyWith(fontSize: 9, fontWeight: FontWeight.w700),
+                        ).copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
                   Text(
@@ -682,11 +660,11 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
               ),
               Text(
                 b.$2,
-                style: MintTextStyles.labelSmall(
+                style: MintTextStyles.labelMedium(
                   color: isCurrent
                       ? MintColors.primary
                       : MintColors.textSecondary,
-                ).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                ).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -905,9 +883,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                 Expanded(
                   child: Text(
                     l10n.unemploymentTsunamiTitle,
-                    style: MintTextStyles.titleMedium(
+                    style: MintTextStyles.labelLarge(
                       color: MintColors.textPrimary,
-                    ).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
+                    ).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ),
               ],
@@ -942,9 +920,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
                         const SizedBox(height: MintSpacing.xs),
                         Text(
                           v.text,
-                          style: MintTextStyles.labelSmall(
+                          style: MintTextStyles.labelMedium(
                             color: MintColors.textSecondary,
-                          ).copyWith(fontSize: 12, height: 1.5),
+                          ).copyWith(height: 1.5),
                         ),
                         const SizedBox(height: MintSpacing.sm),
                       ],
@@ -963,7 +941,7 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
 
   Widget _buildMintCrashTestSection() {
     final l10n = S.of(context)!;
-    final survivalIncome = _gainAssure * 0.70; // taux LACI standard
+    final survivalIncome = _gainAssure * acIndemniteTaux; // taux LACI standard (LACI art. 22) — from social_insurance.dart
 
     // Derive budget lines proportionally from gainAssure
     final loyer = (_gainAssure * 0.30).roundToDouble(); // ~30% du revenu
@@ -1031,9 +1009,9 @@ class _UnemploymentScreenState extends State<UnemploymentScreen>
             Expanded(
               child: Text(
                 S.of(context)!.unemploymentDisclaimer,
-                style: MintTextStyles.micro(
+                style: MintTextStyles.labelSmall(
                   color: MintColors.textMuted,
-                ).copyWith(fontSize: 11),
+                ),
               ),
             ),
           ],

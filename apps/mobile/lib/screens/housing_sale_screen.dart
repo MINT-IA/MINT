@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/housing_sale_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 import 'package:mint_mobile/widgets/coach/remploi_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/sale_surprises_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/coach/net_proceeds_widget.dart';
-import 'package:provider/provider.dart';
-import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -57,7 +58,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   double _investissementsValorisants = 50000;
   double _fraisAcquisition = 30000;
   double _hypothequeRestante = 600000;
-  String _canton = 'ZH';
+  String _canton = 'VD';
   bool _residencePrincipale = true;
   bool _projetRemploi = false;
   double _prixRemploi = 900000;
@@ -71,36 +72,6 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
   List<bool> _checklistState = [];
 
   static List<String> get _cantons => sortedCantonCodes;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeFromProfile();
-    });
-  }
-
-  void _initializeFromProfile() {
-    try {
-      final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) return;
-      final profile = provider.profile!;
-      setState(() {
-        final propertyValue = profile.patrimoine.immobilierEffectif;
-        if (propertyValue > 0) {
-          _prixAchat = propertyValue;
-          _prixVente = propertyValue * 1.25;
-        }
-        final mortgage = profile.patrimoine.mortgageBalance;
-        if (mortgage != null && mortgage > 0) {
-          _hypothequeRestante = mortgage;
-        }
-        if (profile.canton.isNotEmpty) {
-          _canton = profile.canton;
-        }
-      });
-    } catch (_) {}
-  }
 
   @override
   void dispose() {
@@ -147,7 +118,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       appBar: AppBar(
         title: Text(S.of(context)!.housingSaleAppBarTitle),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: SingleChildScrollView(
         controller: _scrollController,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
@@ -157,11 +128,11 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 24),
             MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard()),
             const SizedBox(height: 24),
-            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildBienSection()),
+            MintEntrance(delay: const Duration(milliseconds: 150), child: _buildBienSection()),
             const SizedBox(height: 12),
-            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildFinancementSection()),
+            _buildFinancementSection(),
             const SizedBox(height: 12),
-            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildEplSection()),
+            _buildEplSection(),
             const SizedBox(height: 12),
             _buildRemploiSection(),
             const SizedBox(height: 24),
@@ -169,20 +140,20 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 24),
             if (_result != null) ...[
               Container(key: _resultsKey),
-              _buildPlusValueCard(),
+              MintEntrance(child: _buildPlusValueCard()),
               const SizedBox(height: 24),
-              _buildTaxCard(),
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTaxCard()),
               const SizedBox(height: 24),
               if (_result!.remploiReport > 0) ...[
-                _buildRemploiResultCard(),
+                MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRemploiResultCard()),
                 const SizedBox(height: 24),
               ],
               if (_result!.remboursementEplLpp > 0 ||
                   _result!.remboursementEpl3a > 0) ...[
-                _buildEplRepaymentCard(),
+                MintEntrance(delay: const Duration(milliseconds: 150), child: _buildEplRepaymentCard()),
                 const SizedBox(height: 24),
               ],
-              _buildProduitNetCard(),
+              MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProduitNetCard()),
               const SizedBox(height: 24),
               if (_result!.alerts.isNotEmpty) ...[
                 _buildAlertsSection(),
@@ -228,15 +199,18 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
             const SizedBox(height: 40),
           ],
         ),
-      ))),
+      ),
     );
   }
 
   // ── Header ──
   Widget _buildHeader() {
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
+    return Container(
       padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(
         children: [
           Container(
@@ -307,55 +281,50 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       accentColor: MintColors.warningText,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSalePrixAchat,
             value: _prixAchat,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _prixAchat = v),
             min: 100000,
             max: 3000000,
-            divisions: 58,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _prixAchat = v),
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSalePrixVente,
             value: _prixVente,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _prixVente = v),
             min: 100000,
             max: 3000000,
-            divisions: 58,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _prixVente = v),
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.housingSaleAnneeAchat,
-            value: _anneeAchat.toDouble(),
-            min: 1980,
-            max: 2025,
-            divisions: 45,
-            format: (v) => '${v.toInt()}',
-            onChanged: (v) => setState(() => _anneeAchat = v.toInt()),
+            value: _anneeAchat,
+            minValue: 1980,
+            maxValue: 2025,
+            formatValue: (v) => '$v',
+            onChanged: (v) => setState(() => _anneeAchat = v),
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSaleInvestissements,
             value: _investissementsValorisants,
-            min: 0,
-            max: 500000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
+            formatValue: (v) => _chfFmt(v),
             onChanged: (v) =>
                 setState(() => _investissementsValorisants = v),
+            min: 0,
+            max: 500000,
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSaleFraisAcquisition,
             value: _fraisAcquisition,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _fraisAcquisition = v),
             min: 0,
             max: 100000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _fraisAcquisition = v),
           ),
           const SizedBox(height: 16),
           _buildCantonDropdown(),
@@ -379,14 +348,13 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       accentColor: MintColors.warningText,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSaleHypotheque,
             value: _hypothequeRestante,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _hypothequeRestante = v),
             min: 0,
             max: 2000000,
-            divisions: 200,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _hypothequeRestante = v),
           ),
         ],
       ),
@@ -402,24 +370,22 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
       accentColor: MintColors.warningText,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSaleEplLpp,
             value: _eplLppUtilise,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _eplLppUtilise = v),
             min: 0,
             max: 500000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _eplLppUtilise = v),
           ),
           const SizedBox(height: 16),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.housingSaleEpl3a,
             value: _epl3aUtilise,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _epl3aUtilise = v),
             min: 0,
             max: 200000,
-            divisions: 40,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _epl3aUtilise = v),
           ),
         ],
       ),
@@ -442,14 +408,13 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
           if (_projetRemploi) ...[
             const SizedBox(height: 16),
-            _buildSlider(
+            MintAmountField(
               label: S.of(context)!.housingSalePrixNouveauBien,
               value: _prixRemploi,
+              formatValue: (v) => _chfFmt(v),
+              onChanged: (v) => setState(() => _prixRemploi = v),
               min: 100000,
               max: 3000000,
-              divisions: 58,
-              format: (v) => _chfFmt(v),
-              onChanged: (v) => setState(() => _prixRemploi = v),
             ),
           ],
         ],
@@ -459,10 +424,16 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
 
   // ── Simulate Button ──
   Widget _buildSimulateButton() {
-    return SizedBox(
+    return Semantics(
+      button: true,
+      label: S.of(context)!.housingSaleCalculer,
+      child: SizedBox(
       width: double.infinity,
       child: FilledButton.icon(
-        onPressed: _simulate,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          _simulate();
+        },
         icon: const Icon(Icons.calculate_outlined, size: 20),
         label: Text(
           S.of(context)!.housingSaleCalculer,
@@ -477,7 +448,7 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   // ── Plus-Value Card ──
@@ -668,33 +639,21 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     );
   }
 
-  // ── Produit Net Card (chiffre choc) ──
+  // ── Produit Net Card (premier éclairage) ──
   Widget _buildProduitNetCard() {
     final r = _result!;
     final isPositive = r.produitNet >= 0;
-    return Container(
+    return MintSurface(
+      tone: isPositive ? MintSurfaceTone.porcelaine : MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: (isPositive ? MintColors.primary : MintColors.error)
-            .withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: (isPositive ? MintColors.primary : MintColors.error)
-              .withValues(alpha: 0.15),
-        ),
-      ),
       child: Column(
         children: [
-          Text(
-            S.of(context)!.housingSaleProduitNetTitle,
-            style: MintTextStyles.labelSmall(
-              color: isPositive ? MintColors.primary : MintColors.error,
-            ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            _chfFmt(r.produitNet),
-            style: MintTextStyles.displayMedium(color: isPositive ? MintColors.primary : MintColors.error),
+          MintCountUp(
+            value: r.produitNet,
+            prefix: 'CHF\u00a0',
+            color: isPositive ? MintColors.primary : MintColors.error,
+            showLigne: false,
+            contextText: S.of(context)!.housingSaleProduitNetTitle,
           ),
           const SizedBox(height: 16),
           // Breakdown
@@ -876,9 +835,12 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
 
   // ── Expandable Tile ──
   Widget _buildExpandableTile(String title, String content) {
-    return MintSurface(
-      tone: MintSurfaceTone.porcelaine,
-      radius: 16,
+    return Container(
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.border),
+      ),
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: MintColors.transparent),
         child: ExpansionTile(
@@ -939,10 +901,13 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
           style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
         ),
         const SizedBox(height: 8),
-        MintSurface(
-          tone: MintSurfaceTone.porcelaine,
+        Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          radius: 12,
+          decoration: BoxDecoration(
+            color: MintColors.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: MintColors.border),
+          ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _canton,
@@ -1011,28 +976,4 @@ class _HousingSaleScreenState extends State<HousingSaleScreen> {
     );
   }
 
-  // ── Slider ──
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) format,
-    required void Function(double) onChanged,
-  }) {
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions,
-      formatValue: format,
-      onChanged: (v) {
-        setState(() {
-          onChanged(v);
-        });
-      },
-    );
-  }
 }

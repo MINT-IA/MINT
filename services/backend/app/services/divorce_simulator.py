@@ -44,6 +44,11 @@ class DivorceInput:
     fortune_commune: float                          # Common fortune (real estate, savings)
     dette_commune: float                            # Common debt (mortgage, etc.)
     canton: str                                     # Canton of residence
+    # P1-4: Pre-marriage LPP capital (CC art. 123 / CC art. 195d).
+    # When callers provide total current LPP instead of marriage-period-only,
+    # set these so only the marriage-period difference is split.
+    lpp_at_marriage_conjoint_1: float = 0.0         # LPP capital at marriage start (spouse 1)
+    lpp_at_marriage_conjoint_2: float = 0.0         # LPP capital at marriage start (spouse 2)
 
 
 @dataclass
@@ -137,26 +142,38 @@ class DivorceSimulator:
     def _compute_lpp_split(self, data: DivorceInput) -> dict:
         """Compute LPP splitting per CC art. 122-124.
 
-        Rule: The LPP accumulated by both spouses DURING the marriage
-        is pooled and split 50/50. Each spouse receives half of the total.
+        Rule: Only LPP accumulated DURING the marriage is split 50/50.
+        Pre-marriage capital is excluded (CC art. 123 + CC art. 195d).
 
         CC art. 123: Le tribunal ordonne le partage par moitie des
         prestations de sortie acquises pendant le mariage.
 
+        If lpp_at_marriage_conjoint_* are provided, the marriage-period
+        capital is computed as: lpp_pendant_mariage - lpp_at_marriage.
+        This ensures pre-marriage capital is excluded from the split.
+
         Returns:
             dict with conjoint_1_recoit, conjoint_2_recoit, transfert_lpp
         """
-        total_lpp_mariage = (
-            data.lpp_conjoint_1_pendant_mariage + data.lpp_conjoint_2_pendant_mariage
+        # P1-4: Subtract pre-marriage capital so only marriage-period LPP is split.
+        # CC art. 195d: les biens propres avant le mariage ne sont pas partages.
+        lpp_mariage_1 = max(
+            0.0,
+            data.lpp_conjoint_1_pendant_mariage - data.lpp_at_marriage_conjoint_1,
         )
+        lpp_mariage_2 = max(
+            0.0,
+            data.lpp_conjoint_2_pendant_mariage - data.lpp_at_marriage_conjoint_2,
+        )
+        total_lpp_mariage = lpp_mariage_1 + lpp_mariage_2
         moitie = total_lpp_mariage / 2.0
 
         # Each spouse gets half. The transfer is the difference between
-        # what they accumulated and what they should have (half).
+        # what they accumulated during marriage and what they should have (half).
         # Positive transfert = conjoint_1 pays to conjoint_2
-        transfert = data.lpp_conjoint_1_pendant_mariage - moitie
+        transfert = lpp_mariage_1 - moitie
 
-        return {
+        result = {
             "total_lpp_pendant_mariage": round(total_lpp_mariage, 2),
             "conjoint_1_recoit": round(moitie, 2),
             "conjoint_2_recoit": round(moitie, 2),
@@ -168,6 +185,19 @@ class DivorceSimulator:
             ),
             "source": "CC art. 122-124, OPP2 art. 22",
         }
+
+        # Add disclaimer when pre-marriage capital is excluded
+        if data.lpp_at_marriage_conjoint_1 > 0 or data.lpp_at_marriage_conjoint_2 > 0:
+            result["capital_pre_mariage_exclu"] = round(
+                data.lpp_at_marriage_conjoint_1 + data.lpp_at_marriage_conjoint_2, 2
+            )
+            result["disclaimer_pre_mariage"] = (
+                "Le capital LPP acquis avant le mariage est exclu du partage "
+                "(CC art. 123 / CC art. 195d). Seule la part accumulee pendant "
+                "le mariage est partagee 50/50."
+            )
+
+        return result
 
     def _compute_avs_splitting(self, data: DivorceInput) -> dict:
         """Compute AVS splitting explanation per LAVS art. 29sexies.

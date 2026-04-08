@@ -25,7 +25,7 @@ lifeEvent: "birth"
 - Impact fiscal des enfants.
 - Projection de l'impact sur la carriere (LPP).
 
-## Chiffre choc
+## Premier éclairage
 "Un enfant coute en moyenne CHF 1'200/mois jusqu'a ses 18 ans -- mais les allocations ne couvrent qu'environ 20% de ce montant."
 
 ## Contenu educatif

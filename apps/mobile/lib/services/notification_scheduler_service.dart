@@ -17,6 +17,7 @@
 library;
 
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -141,7 +142,7 @@ class NotificationSchedulerService {
   }) {
     final now = today ?? DateTime.now();
     final year = now.year;
-    final savingStr = _formatChf(taxSaving3a);
+    final savingStr = formatChf(taxSaving3a);
     final notifications = <ScheduledNotification>[];
 
     // ── 3a deadline reminders ─────────────────────────────────
@@ -228,7 +229,8 @@ class NotificationSchedulerService {
 
     // ── Monthly check-in reminders (1st of each remaining month)
 
-    for (int month = now.month + 1; month <= 12; month++) {
+    // FIX-060: was month+1, skipping December when now.month=12.
+    for (int month = now.month; month <= 12; month++) {
       final first = DateTime(year, month, 1, 10, 0);
       if (first.isAfter(now)) {
         final monthName = _monthName(month);
@@ -391,7 +393,7 @@ class NotificationSchedulerService {
         planStatus.totalActions > 0 &&
         planStatus.adherenceRate < 0.8) {
       final adherence = (planStatus.adherenceRate * 100).toStringAsFixed(0);
-      final impact = _formatChf(planStatus.monthlyGapChf * 12);
+      final impact = formatChf(planStatus.monthlyGapChf * 12);
       final total = planStatus.totalActions.toString();
       final actionsBehind =
           (planStatus.totalActions - planStatus.completedActions).clamp(0, 999);
@@ -414,16 +416,7 @@ class NotificationSchedulerService {
 
   // ── Formatting helpers ─────────────────────────────────────
 
-  /// Format a CHF amount with Swiss apostrophe as thousands separator.
-  ///
-  /// Example: 1820.5 → "1'820", 7258.0 → "7'258"
-  static String _formatChf(double amount) {
-    final intStr = amount.toStringAsFixed(0);
-    return intStr.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}\'',
-    );
-  }
+  // _formatChf removed — use centralized formatChf from chf_formatter.dart
 
   /// French month name (lowercase).
   static String _monthName(int month) {

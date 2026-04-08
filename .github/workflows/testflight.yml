@@ -4,8 +4,12 @@
 #   - staging: builds from staging branch, points to staging API (internal testing)
 #   - production: builds from main branch, points to production API (beta testers)
 #
-# Manual-only (workflow_dispatch) to save macOS minutes (10x multiplier).
-# Usage:
+# Triggers:
+#   - push to staging → auto-build staging TestFlight
+#   - push to main    → auto-build production TestFlight
+#   - workflow_dispatch (manual fallback)
+#
+# Usage (manual):
 #   gh workflow run TestFlight -f environment=staging
 #   gh workflow run TestFlight -f environment=production
 #
@@ -27,6 +31,11 @@
 name: TestFlight
 
 on:
+  push:
+    branches: [staging, main]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/testflight.yml'
   workflow_dispatch:
     inputs:
       environment:
@@ -39,29 +48,37 @@ on:
           - production
 
 concurrency:
-  group: testflight-${{ github.event.inputs.environment }}
+  group: testflight-${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
   cancel-in-progress: true
 
 jobs:
   build-and-upload:
-    name: "Build iOS + Upload TestFlight (${{ github.event.inputs.environment }})"
+    name: "Build iOS + Upload TestFlight"
     runs-on: macos-15
     timeout-minutes: 45
     environment:
-      name: ${{ github.event.inputs.environment }}
+      name: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
 
     defaults:
       run:
         working-directory: apps/mobile
 
     steps:
-      # ── Resolve API URL + branch from environment input ──
+      # ── Resolve API URL + branch from input or push ref ──
       # Note: these steps run BEFORE checkout, so override working-directory
       - name: Resolve environment config
         id: env-config
         working-directory: .
         run: |
-          if [ "${{ github.event.inputs.environment }}" = "staging" ]; then
+          ENV_INPUT="${{ github.event.inputs.environment }}"
+          if [ -z "$ENV_INPUT" ]; then
+            if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+              ENV_INPUT="production"
+            else
+              ENV_INPUT="staging"
+            fi
+          fi
+          if [ "$ENV_INPUT" = "staging" ]; then
             echo "branch=staging" >> "$GITHUB_OUTPUT"
             echo "api_url=${{ vars.STAGING_API_URL }}" >> "$GITHUB_OUTPUT"
             echo "env_label=STAGING" >> "$GITHUB_OUTPUT"
@@ -157,11 +174,14 @@ jobs:
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
           EXTRA_DEFINES=""
-          if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
-            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=HUGGINGFACE_TOKEN=$HUGGINGFACE_TOKEN"
-          fi
+          # SECURITY (P0-9): HUGGINGFACE_TOKEN removed from dart-define.
+          # Tokens in dart-define are embedded in the binary and extractable.
+          # SLM model download uses runtime token via initializePlugin() instead.
           if [[ -n "$SLM_MODEL_URL" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
+          fi
+          if [[ -n "${{ secrets.SENTRY_DSN_MOBILE }}" ]]; then
+            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN_MOBILE }}"
           fi
           flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
 

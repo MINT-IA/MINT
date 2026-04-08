@@ -4,11 +4,24 @@ enum HouseholdType { single, couple, concubine, family }
 
 enum Goal { house, retire, emergency, invest, optimizeTaxes, other }
 
+/// Maps Goal enum to snake_case strings expected by the backend API.
+extension GoalSerialization on Goal {
+  String get apiValue {
+    switch (this) {
+      case Goal.optimizeTaxes:
+        return 'optimize_taxes';
+      default:
+        return name;
+    }
+  }
+}
+
 /// Statut d'emploi de l'utilisateur
 enum EmploymentStatus {
   employee, // Salarié
   selfEmployed, // Indépendant
   mixed, // Mixte (salarié + indépendant)
+  unemployed, // Sans emploi
   student, // Étudiant
   retired, // Retraité
   other, // Autre
@@ -23,6 +36,8 @@ extension EmploymentStatusExtension on EmploymentStatus {
         return 'Indépendant(e)';
       case EmploymentStatus.mixed:
         return 'Mixte (salarié + indépendant)';
+      case EmploymentStatus.unemployed:
+        return 'Sans emploi';
       case EmploymentStatus.student:
         return 'Étudiant(e)';
       case EmploymentStatus.retired:
@@ -40,6 +55,8 @@ extension EmploymentStatusExtension on EmploymentStatus {
         return 'self_employed';
       case EmploymentStatus.mixed:
         return 'mixed';
+      case EmploymentStatus.unemployed:
+        return 'unemployed';
       case EmploymentStatus.student:
         return 'student';
       case EmploymentStatus.retired:
@@ -53,6 +70,7 @@ extension EmploymentStatusExtension on EmploymentStatus {
 class Profile {
   final String id;
   final int? birthYear;
+  final DateTime? dateOfBirth;
   final String? canton;
   final HouseholdType householdType;
   final double? incomeNetMonthly;
@@ -73,6 +91,24 @@ class Profile {
   final bool? hasVoluntaryLpp; // Pour indépendants
   final String? primaryActivity; // Pour mixtes: 'employee' ou 'self_employed'
 
+  /// Computed age — prefers dateOfBirth (exact month/day comparison),
+  /// falls back to birthYear. Matches CoachProfile.age precision.
+  int? get age {
+    if (dateOfBirth != null) {
+      final now = DateTime.now();
+      int a = now.year - dateOfBirth!.year;
+      if (now.month < dateOfBirth!.month ||
+          (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
+        a--;
+      }
+      return a;
+    }
+    if (birthYear != null) {
+      return DateTime.now().year - birthYear!;
+    }
+    return null;
+  }
+
   // ⭐ Genre (AVS21 transitional reference age, LAVS art. 21 al. 1)
   final String? gender; // 'M', 'F', or null
 
@@ -90,6 +126,7 @@ class Profile {
   Profile({
     required this.id,
     this.birthYear,
+    this.dateOfBirth,
     this.canton,
     required this.householdType,
     this.incomeNetMonthly,
@@ -129,6 +166,7 @@ class Profile {
     switch (employmentStatus!) {
       case EmploymentStatus.student:
       case EmploymentStatus.retired:
+      case EmploymentStatus.unemployed:
         return 0;
       case EmploymentStatus.selfEmployed:
         if (has2ndPillar == true) return pilier3aPlafondAvecLpp;
@@ -166,6 +204,9 @@ class Profile {
     return Profile(
       id: json['id'],
       birthYear: json['birthYear'],
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth'])
+          : null,
       canton: json['canton'],
       householdType: HouseholdType.values.firstWhere(
         (e) => e.name == json['householdType'],
@@ -180,12 +221,15 @@ class Profile {
       factfindCompletionIndex:
           json['factfindCompletionIndex']?.toDouble() ?? 0.0,
       goal: Goal.values.firstWhere(
-        (e) =>
-            e.name == json['goal'] ||
-            e.name == json['goal']?.replaceAll('_', ''),
+        (e) {
+          final raw = json['goal'] as String?;
+          if (raw == null) return false;
+          return e.name == raw ||
+              e.name.toLowerCase() == raw.replaceAll('_', '').toLowerCase();
+        },
         orElse: () => Goal.other,
       ),
-      createdAt: DateTime.parse(json['createdAt']),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       // Nouveaux champs
       employmentStatus: json['employmentStatus'] != null
           ? EmploymentStatus.values.firstWhere(
@@ -213,6 +257,7 @@ class Profile {
     return {
       'id': id,
       'birthYear': birthYear,
+      'dateOfBirth': dateOfBirth?.toIso8601String().split('T').first,
       'canton': canton,
       'householdType': householdType.name,
       'incomeNetMonthly': incomeNetMonthly,
@@ -222,7 +267,7 @@ class Profile {
       'lppInsuredSalary': lppInsuredSalary,
       'hasDebt': hasDebt,
       'factfindCompletionIndex': factfindCompletionIndex,
-      'goal': goal.name,
+      'goal': goal.apiValue,
       'createdAt': createdAt.toIso8601String(),
       // Nouveaux champs
       'employmentStatus': employmentStatus?.value,
@@ -245,6 +290,7 @@ class Profile {
   Profile copyWith({
     String? id,
     int? birthYear,
+    DateTime? dateOfBirth,
     String? canton,
     HouseholdType? householdType,
     double? incomeNetMonthly,
@@ -275,6 +321,7 @@ class Profile {
     return Profile(
       id: id ?? this.id,
       birthYear: birthYear ?? this.birthYear,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
       canton: canton ?? this.canton,
       householdType: householdType ?? this.householdType,
       incomeNetMonthly: incomeNetMonthly ?? this.incomeNetMonthly,

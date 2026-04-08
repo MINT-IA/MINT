@@ -3,7 +3,7 @@ User model for authentication.
 """
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -19,8 +19,11 @@ class User(Base):
     display_name = Column(String, nullable=True)
     email_verified = Column(Boolean, nullable=False, default=False)
     role = Column(String, nullable=True, default=None)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    # FIX-049: Tokens issued before this timestamp are rejected.
+    # Set on password change to invalidate all existing sessions.
+    password_changed_at = Column(DateTime, nullable=True)
 
     # Relationships
     profiles = relationship("ProfileModel", back_populates="user", cascade="all, delete-orphan")

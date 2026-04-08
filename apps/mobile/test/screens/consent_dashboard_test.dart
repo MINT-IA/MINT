@@ -190,8 +190,9 @@ void main() {
 
       for (final cat in PrivacyService.dataCategories) {
         final retentionDays = cat['retentionDays'] as int;
+        // i18n uses non-breaking space before colon — match on substring
         expect(
-          find.textContaining('Conservation : $retentionDays jours'),
+          find.textContaining('$retentionDays jours'),
           findsWidgets,
           reason: 'Retention tag for "${cat['id']}" should be visible',
         );

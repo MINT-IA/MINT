@@ -60,7 +60,7 @@ class IjmResult:
     prime_mensuelle: float
     prime_annuelle: float
     cout_sans_couverture: float
-    chiffre_choc: str
+    premier_eclairage: str
     alertes: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
     sources: List[str] = field(default_factory=list)
@@ -119,7 +119,7 @@ def simuler_ijm(
             prime_mensuelle=0.0,
             prime_annuelle=0.0,
             cout_sans_couverture=0.0,
-            chiffre_choc="Avec un revenu nul, l'IJM n'est pas applicable.",
+            premier_eclairage="Avec un revenu nul, l'IJM n'est pas applicable.",
             alertes=alertes,
             disclaimer=DISCLAIMER,
             sources=list(SOURCES),
@@ -169,7 +169,7 @@ def simuler_ijm(
         "critiques du statut d'independant-e."
     )
 
-    chiffre_choc = (
+    premier_eclairage = (
         f"Sans IJM, tu perds {cout_sans_couverture:,.0f} CHF de revenu pendant "
         f"le delai de carence de {delai_carence} jours."
     )
@@ -179,7 +179,7 @@ def simuler_ijm(
         prime_mensuelle=prime_mensuelle,
         prime_annuelle=prime_annuelle,
         cout_sans_couverture=cout_sans_couverture,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         alertes=alertes,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),

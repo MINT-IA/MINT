@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Insert didactique pour q_emergency_fund
 /// Calculateur de fonds d'urgence (3-6 mois de charges)
@@ -27,7 +27,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
   late double _monthlyExpenses;
   double _targetMonths = 4;
   
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Using centralized formatChfWithPrefix from chf_formatter.dart
 
   @override
   void initState() {
@@ -82,7 +82,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
               SizedBox(
                 width: 90,
                 child: Text(
-                  _currencyFormat.format(_monthlyExpenses),
+                  formatChfWithPrefix(_monthlyExpenses),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
@@ -165,7 +165,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                           style: const TextStyle(fontSize: 13, color: MintColors.textSecondary),
                         ),
                         Text(
-                          _currencyFormat.format(_targetAmount),
+                          formatChfWithPrefix(_targetAmount),
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -202,7 +202,7 @@ class _EmergencyFundInsertWidgetState extends State<EmergencyFundInsertWidget> {
                       const SizedBox(height: 8),
                       if (_currentProgress < 1)
                         Text(
-                          s.emergencyFundManque(_currencyFormat.format(_targetAmount - widget.currentSavings!)),
+                          s.emergencyFundManque(formatChfWithPrefix(_targetAmount - widget.currentSavings!)),
                           style: const TextStyle(fontSize: 13, color: MintColors.warning),
                         )
                       else

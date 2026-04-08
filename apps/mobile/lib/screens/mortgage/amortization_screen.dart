@@ -12,6 +12,8 @@ import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de comparaison amortissement direct vs indirect.
@@ -93,24 +95,33 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
+          // Narrative intro
+          MintEntrance(child: MintNarrativeCard(
+            headline: S.of(context)!.narrativeAmortizationHeadline,
+            body: S.of(context)!.narrativeAmortizationBody,
+            tone: MintSurfaceTone.bleu,
+            badge: S.of(context)!.narrativeAmortizationBadge,
+          )),
+          const SizedBox(height: MintSpacing.lg),
+
           // Intro pedagogique
-          MintEntrance(child: _buildIntroCard(s)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPremierEclairageCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChartSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection(s)),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Comparaison detaillee
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildComparisonSection(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer
@@ -203,32 +214,18 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(S s, AmortizationResult result) {
-    final isPositive = result.chiffreChocPositif;
-    final color = isPositive ? MintColors.success : MintColors.info;
+  Widget _buildPremierEclairageCard(S s, AmortizationResult result) {
+    final isPositive = result.premierEclairagePositif;
 
-    return Semantics(
-      label: 'CHF ${formatChf(result.economieIndirect.abs())}',
-      child: MintSurface(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        radius: 16,
-        child: Column(
-          children: [
-            Icon(Icons.compare_arrows, color: color, size: 40),
-            const SizedBox(height: MintSpacing.sm + 4),
-            Text(
-              'CHF ${formatChf(result.economieIndirect.abs())}',
-              style: MintTextStyles.displayMedium(color: color),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              result.chiffreChocTexte,
-              textAlign: TextAlign.center,
-              style: MintTextStyles.bodyMedium(),
-            ),
-          ],
-        ),
-      ),
+    return MintResultHeroCard(
+      eyebrow: s.amortizationEyebrow,
+      primaryValue: 'CHF\u00a0${formatChf(result.economieIndirect.abs())}',
+      primaryLabel: isPositive
+          ? s.amortizationSavingsLabel
+          : s.amortizationDifferenceLabel,
+      narrative: result.premierEclairageTexte,
+      accentColor: isPositive ? MintColors.success : MintColors.info,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 

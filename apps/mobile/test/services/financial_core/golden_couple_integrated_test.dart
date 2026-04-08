@@ -64,12 +64,12 @@ const double kCombinedSalary = 189207.0;
 //          capped at 44 → gapFactor = 1.0 → rente = 2520 CHF/mois
 //
 //  Lauren: salary 67'000, arrivalAge=20
-//          fraction = (67000-14700)/(88200-14700) = 52300/73500 ≈ 0.7116
-//          renteFromRAMD = 1260 + 1260 × 0.7116 ≈ 2156.57 CHF/mois
+//          Échelle 44 concave lookup: 67'000 falls in bracket [57'600→2'098, 68'400→2'194]
+//          interpolation → renteFromRAMD ≈ 2'187.0 CHF/mois
 //          currentYears = 43-20 = 23, futureYears = 65-43 = 22 → total 45,
-//          capped at 44 → gapFactor = 1.0 → rente ≈ 2156.57 CHF/mois
+//          capped at 44 → gapFactor = 1.0 → rente ≈ 2'187.0 CHF/mois
 //
-//  Couple sum = 2520 + 2156.57 = 4676.57 > cap 3780
+//  Couple sum = 2520 + 2187.0 = 4707.0 > cap 3780
 //          → cap applies (LAVS art. 35)
 //          → total = 3780 CHF/mois (= 45'360 CHF/an with 13th rente)
 //
@@ -98,14 +98,14 @@ void main() {
     });
 
     test('G1.2 Lauren renteFromRAMD interpolates correctly', () {
-      // salary 67'000 → fraction = (67000-14700)/(88200-14700) ≈ 0.7116
-      // → 1260 + 1260 × 0.7116 ≈ 2156.57 CHF/mois
+      // salary 67'000 → Échelle 44 concave lookup in bracket [57'600→2'098, 68'400→2'194]
+      // → interpolation yields ≈ 2'187.0 CHF/mois
       final rente = AvsCalculator.renteFromRAMD(kLaurenSalary);
-      const expectedApprox = 2156.57;
+      const expectedApprox = 2187.0;
       expect(
         rente,
         closeTo(expectedApprox, 5.0),
-        reason: 'Lauren RAMD interpolation should yield ~2156 CHF/mois',
+        reason: 'Lauren RAMD interpolation should yield ~2187 CHF/mois',
       );
       expect(rente, greaterThan(avsRenteMinMensuelle),
           reason: 'Lauren rente must be above minimum (1260)');
@@ -132,7 +132,7 @@ void main() {
 
     test('G1.4 Lauren computeMonthlyRente — expat_us, arrivalAge 20, retirement 65', () {
       // Lauren: arrived at 20, currentYears = 43-20 = 23, future = 22 → 45, capped 44
-      // gapFactor = 1.0 → full RAMD-based rente ≈ 2156.57
+      // gapFactor = 1.0 → full RAMD-based rente ≈ 2187.0 (Échelle 44)
       final rente = AvsCalculator.computeMonthlyRente(
         currentAge: kLaurenAge,
         retirementAge: kLaurenRetirementAge,
@@ -142,8 +142,8 @@ void main() {
       );
       expect(
         rente,
-        closeTo(2156.57, 5.0),
-        reason: 'Lauren full contribution + 67k salary → ~2156 CHF/mois',
+        closeTo(2187.0, 5.0),
+        reason: 'Lauren full contribution + 67k salary → ~2187 CHF/mois',
       );
     });
 
@@ -210,7 +210,7 @@ void main() {
       expect(
         sum,
         greaterThan(avsRenteCoupleMaxMensuelle),
-        reason: '2520 + ~2156 = ~4676 > 3780 — cap must trigger',
+        reason: '2520 + ~2187 = ~4707 > 3780 — cap must trigger',
       );
     });
 
@@ -786,9 +786,9 @@ void main() {
       expect(result.marriagePenalty, isNull);
     });
 
-    test('G9.2 conjoint salary 0 → returns empty, no crash', () {
-      // Conjoint with zero salary is unusable for tax comparisons.
-      // The guard in optimize() must catch this and return empty.
+    test('G9.2 conjoint salary 0 → AVS cap still computed (W16 fix)', () {
+      // W16: Conjoint with zero salary should still trigger AVS cap analysis
+      // and marriage penalty when the main user has income.
       const conjointZeroSalary = ConjointProfile(
         birthYear: 1982,
         salaireBrutMensuel: 0,
@@ -797,12 +797,10 @@ void main() {
         mainUser: julienProfile(),
         conjoint: conjointZeroSalary,
       );
-      expect(result.hasResults, isFalse,
-          reason: 'Conjoint salary=0 → no usable income → empty result');
-      expect(result.lppBuybackOrder, isNull);
-      expect(result.pillar3aOrder, isNull);
-      expect(result.avsCap, isNull);
-      expect(result.marriagePenalty, isNull);
+      expect(result.hasResults, isTrue,
+          reason: 'Conjoint salary=0 → AVS cap still applies');
+      expect(result.avsCap, isNotNull,
+          reason: 'AVS couple cap applies regardless of conjoint salary');
     });
   });
 

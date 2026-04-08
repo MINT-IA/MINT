@@ -69,7 +69,7 @@ class StaggeredWithdrawalResult:
     canton: str
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     alerts: List[str] = field(default_factory=list)
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
@@ -181,12 +181,12 @@ class MultiAccountService:
 
         # 6. Chiffre choc
         if economy > 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Economie fiscale estimee : {economy:,.0f} CHF "
                 f"grace a l'echelonnement sur {nb_comptes_effectif} comptes"
             ).replace(",", "'")
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Impot total estime au retrait : {total_staggered_tax:,.0f} CHF"
             ).replace(",", "'")
 
@@ -216,7 +216,7 @@ class MultiAccountService:
             avoir_total=avoir_total,
             nb_comptes=nb_comptes_effectif,
             canton=canton_upper,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             alerts=alerts,
             sources=sources,
             disclaimer=DISCLAIMER,

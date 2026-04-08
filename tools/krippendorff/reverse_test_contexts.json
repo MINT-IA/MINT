@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "purpose": "10 trigger contexts for the reverse-Krippendorff generation test (Phase 11 / VOICE-06). Each context is derived from the Julien+Lauren golden fixtures (test/golden/) and covers a distinct life event. The runner forces N4 register and captures Claude's generated reply for blind tester rating. Pass gate: ≥7/10 outputs majority-classified as N4.",
+  "profile_refs": {
+    "julien": "test/golden/julien_2026.json (age 49, VS, swiss_native, salary 122'207, LPP 70'377)",
+    "lauren": "test/golden/lauren_2026.json (age 43, VS, expat_us, salary 67'000, LPP 19'620, FATCA)"
+  },
+  "contexts": [
+    {
+      "id": "ctx_01",
+      "scenario_label": "3a gap — Julien",
+      "life_event": "retirement",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "J'ai 32'000 sur mon 3a et je verse 6'000 par an. C'est suffisant ou pas ?"
+    },
+    {
+      "id": "ctx_02",
+      "scenario_label": "EPL question — Julien+Lauren",
+      "life_event": "housingPurchase",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "On regarde un appartement à 850'000 à Sion. Je peux retirer combien de mon 2e pilier sans casser ma retraite ?"
+    },
+    {
+      "id": "ctx_03",
+      "scenario_label": "LPP split rente vs capital — Julien",
+      "life_event": "retirement",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "À 65 ans, je prends rente, capital, ou les deux ? Mon avoir projeté c'est 677'000."
+    },
+    {
+      "id": "ctx_04",
+      "scenario_label": "Expat FATCA — Lauren",
+      "life_event": "countryMove",
+      "profile_snapshot_ref": "lauren",
+      "user_turn_fr": "Je suis citoyenne américaine en CH. Mon 3a et mon 2e pilier sont impactés par la FATCA, oui ou non ?"
+    },
+    {
+      "id": "ctx_05",
+      "scenario_label": "Job loss — Julien",
+      "life_event": "jobLoss",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "Je viens de perdre mon poste. Mon LPP, qu'est-ce qui se passe pendant la transition ?"
+    },
+    {
+      "id": "ctx_06",
+      "scenario_label": "Birth — Julien+Lauren",
+      "life_event": "birth",
+      "profile_snapshot_ref": "lauren",
+      "user_turn_fr": "On attend un bébé pour septembre. Qu'est-ce que je dois changer côté assurances et 3a ?"
+    },
+    {
+      "id": "ctx_07",
+      "scenario_label": "Mortgage capacity — Julien+Lauren",
+      "life_event": "housingPurchase",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "Avec nos deux salaires combinés, on peut emprunter combien sans dépasser le 1/3 ?"
+    },
+    {
+      "id": "ctx_08",
+      "scenario_label": "Divorce hypothesis — Julien",
+      "life_event": "divorce",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "Si on divorçait, mon 2e pilier accumulé pendant le mariage serait splité comment ?"
+    },
+    {
+      "id": "ctx_09",
+      "scenario_label": "Inheritance — Julien",
+      "life_event": "inheritance",
+      "profile_snapshot_ref": "julien",
+      "user_turn_fr": "Mon père m'a laissé 180'000. Je le mets sur le 3a, je rembourse l'hypothèque, je rachète du LPP ?"
+    },
+    {
+      "id": "ctx_10",
+      "scenario_label": "Cross-border (frontalier hypothesis) — Lauren",
+      "life_event": "cantonMove",
+      "profile_snapshot_ref": "lauren",
+      "user_turn_fr": "Si on déménageait à Évian et que je devenais frontalière, ma fiscalité change comment ?"
+    }
+  ]
+}

@@ -5,14 +5,19 @@ Phase 0: BYOK (Bring Your Own Key) — user provides their own LLM API key.
 MINT never stores API keys; they are used per-request only.
 """
 
+import asyncio
 import logging
 import os
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
+from app.services.reengagement.consent_manager import ConsentManager
+from app.services.reengagement.reengagement_models import ConsentType
 
 from app.schemas.rag import (
     ExtractedDocumentField,
@@ -26,6 +31,11 @@ from app.schemas.rag import (
     RAGVisionResponse,
     VISION_PROVIDERS,
 )
+from app.services.coach.claude_coach_service import (
+    INTENSITY_MAP,
+    LLM_ANTI_PATTERNS,
+)
+from app.services.feature_flags import FeatureFlags
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +44,12 @@ router = APIRouter()
 # Lazy-initialized singleton for the vector store and orchestrator
 _vector_store = None
 _orchestrator = None
+# P1-10: asyncio.Lock to prevent race condition during singleton initialization
+_init_lock = asyncio.Lock()
 
 
 def _get_vector_store():
-    """Get or create the singleton vector store instance."""
+    """Get or create the singleton vector store instance (sync, for non-async callers)."""
     global _vector_store
     if _vector_store is None:
         try:
@@ -53,12 +65,46 @@ def _get_vector_store():
             raise HTTPException(
                 status_code=503,
                 detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+                headers={"X-Error-Code": "rag_failure"},
             )
     return _vector_store
 
 
+async def _get_vector_store_safe():
+    """Get or create the singleton vector store with async lock protection."""
+    global _vector_store
+    if _vector_store is not None:
+        return _vector_store
+    async with _init_lock:
+        if _vector_store is not None:
+            return _vector_store
+        return _get_vector_store()
+
+
+async def _get_orchestrator_safe():
+    """Get or create the singleton orchestrator with async lock protection."""
+    global _orchestrator
+    if _orchestrator is not None:
+        return _orchestrator
+    async with _init_lock:
+        if _orchestrator is not None:
+            return _orchestrator
+        try:
+            from app.services.rag.orchestrator import RAGOrchestrator
+
+            vs = _get_vector_store()
+            _orchestrator = RAGOrchestrator(vector_store=vs)
+        except ImportError:
+            raise HTTPException(
+                status_code=503,
+                detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+                headers={"X-Error-Code": "rag_failure"},
+            )
+        return _orchestrator
+
+
 def _get_orchestrator():
-    """Get or create the singleton orchestrator instance."""
+    """Get or create the singleton orchestrator instance (sync fallback)."""
     global _orchestrator
     if _orchestrator is None:
         try:
@@ -69,13 +115,14 @@ def _get_orchestrator():
             raise HTTPException(
                 status_code=503,
                 detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+                headers={"X-Error-Code": "rag_failure"},
             )
     return _orchestrator
 
 
 @router.post("/query", response_model=RAGQueryResponse)
 @limiter.limit("20/minute")
-async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depends(require_current_user)):
+async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depends(require_current_user), db: Session = Depends(get_db)):
     """
     Main RAG query endpoint.
 
@@ -84,12 +131,38 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
 
     The API key is used for a single request and never stored.
     """
-    orchestrator = _get_orchestrator()
+    # nLPD art. 6 al. 7: Without byok_data_sharing consent, RAG only searches
+    # the public MINT knowledge base — user-uploaded documents are excluded.
+    has_byok_consent = ConsentManager.is_consent_given(
+        str(_user.id), ConsentType.byok_data_sharing, db=db
+    )
+
+    orchestrator = await _get_orchestrator_safe()
 
     # Build profile context dict if provided
     profile_ctx = None
     if body.profile_context:
         profile_ctx = body.profile_context.model_dump(exclude_none=True)
+
+    # nLPD: only pass user_id (for user-doc retrieval) if consent granted
+    effective_user_id = _user.id if (_user and has_byok_consent) else None
+
+    # Build voice intensity block and append to the guardrails system prompt.
+    # This ensures the RAG response adopts the MINT voice at the requested
+    # intensity while preserving all compliance guardrails.
+    clamped_level = max(1, min(5, body.cash_level))
+    intensity_instruction = INTENSITY_MAP.get(clamped_level, INTENSITY_MAP[3])
+    anti_patterns_text = "\n".join(f"- {ap}" for ap in LLM_ANTI_PATTERNS)
+    voice_block = (
+        f"\n\n## VOIX — Intensité {clamped_level}/5\n{intensity_instruction}\n"
+        f"\nANTI-PATTERNS (ne fais JAMAIS) :\n{anti_patterns_text}\n"
+    )
+    # Build the full guardrails prompt and append voice block.
+    guardrails_prompt = orchestrator.guardrails.build_system_prompt(
+        body.language.value,
+        profile_context=profile_ctx if has_byok_consent else None,
+    )
+    enriched_prompt = guardrails_prompt + voice_block
 
     try:
         result = await orchestrator.query(
@@ -97,18 +170,26 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
             api_key=body.api_key,
             provider=body.provider.value,
             model=body.model,
-            profile_context=profile_ctx,
+            profile_context=profile_ctx if has_byok_consent else None,
             language=body.language.value,
+            user_id=effective_user_id,
+            system_prompt=enriched_prompt,
+            tools=body.tools,
         )
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
     except ImportError:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="Service temporarily unavailable",
+            headers={"X-Error-Code": "service_unavailable"},
+        )
     except Exception as e:
         logger.error("RAG query failed: %s", e)
         raise HTTPException(
             status_code=502,
             detail="External service unavailable",
+            headers={"X-Error-Code": "rag_failure"},
         )
 
     return RAGQueryResponse(
@@ -116,6 +197,7 @@ async def rag_query(request: Request, body: RAGQueryRequest, _user: User = Depen
         sources=[RAGSource(**s) for s in result.get("sources", [])],
         disclaimers=result.get("disclaimers", []),
         tokens_used=result.get("tokens_used", 0),
+        tool_calls=result.get("tool_calls"),
     )
 
 
@@ -162,7 +244,7 @@ async def rag_vision(request: Request, body: RAGVisionRequest, _user: User = Dep
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid base64 image data")
 
-    orchestrator = _get_orchestrator()
+    orchestrator = await _get_orchestrator_safe()
 
     profile_ctx = None
     if body.profile_context:
@@ -182,12 +264,17 @@ async def rag_vision(request: Request, body: RAGVisionRequest, _user: User = Dep
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
     except ImportError:
-        raise HTTPException(status_code=503, detail="Service temporarily unavailable")
+        raise HTTPException(
+            status_code=503,
+            detail="Service temporarily unavailable",
+            headers={"X-Error-Code": "service_unavailable"},
+        )
     except Exception as e:
         logger.error("RAG vision query failed: %s", e)
         raise HTTPException(
             status_code=502,
             detail="External service unavailable",
+            headers={"X-Error-Code": "rag_failure"},
         )
 
     return RAGVisionResponse(
@@ -211,6 +298,7 @@ async def rag_ingest(request: Request, body: RAGIngestRequest, _user: User = Dep
     Ingests markdown files from the specified directory into the vector store.
     Only admin users (email ending with @mint.ch) can use this endpoint.
     """
+    FeatureFlags.require_flag("enable_admin_screens")
     # Admin gate: only @mint.ch emails can ingest
     if not _user.email or not _user.email.endswith("@mint.ch"):
         raise HTTPException(

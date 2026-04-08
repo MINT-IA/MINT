@@ -11,9 +11,8 @@ void main() {
         years: 10,
       );
 
-      // 10000 * (1 + 0.05/12)^120 ≈ 16470
-      expect(result['finalValue'], greaterThan(16000));
-      expect(result['finalValue'], lessThan(17000));
+      // 10000 * (1 + 0.05/12)^120 ≈ 16470.09
+      expect(result['finalValue'], closeTo(16470, 10));
       expect(result['totalInvested'], equals(10000));
       expect(result['gains'], greaterThan(6000));
     });

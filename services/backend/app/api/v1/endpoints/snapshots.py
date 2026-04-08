@@ -19,8 +19,10 @@ Sources:
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.user import User
 
@@ -83,7 +85,7 @@ def _snapshot_to_response(snapshot) -> SnapshotResponse:
 
 @router.post("", response_model=SnapshotResponse)
 @limiter.limit("30/minute")
-def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, response: Response, current_user: User = Depends(require_current_user)) -> SnapshotResponse:
+def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> SnapshotResponse:
     """Creer un snapshot financier.
 
     Capture l'etat financier de l'utilisateur a un moment donne,
@@ -96,7 +98,7 @@ def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, res
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     # Consent guard: snapshot_storage consent required (nLPD)
-    if not ConsentManager.is_consent_given(current_user.id, ConsentType.snapshot_storage):
+    if not ConsentManager.is_consent_given(current_user.id, ConsentType.snapshot_storage, db=db):
         raise HTTPException(
             status_code=403,
             detail=(
@@ -110,6 +112,7 @@ def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, res
             user_id=current_user.id,
             trigger=body.trigger,
             profile_data=body.profile_data,
+            db=db,
         )
         return _snapshot_to_response(snapshot)
 
@@ -124,6 +127,7 @@ def get_user_snapshots(
     response: Response,
     limit: int = Query(default=10, ge=1, le=100, description="Nombre max de snapshots"),
     current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> SnapshotListResponse:
     """Recuperer les snapshots de l'utilisateur authentifie.
 
@@ -136,7 +140,7 @@ def get_user_snapshots(
         SnapshotListResponse avec la liste des snapshots.
     """
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
-    snapshots = get_snapshots(user_id=current_user.id, limit=limit)
+    snapshots = get_snapshots(user_id=current_user.id, limit=limit, db=db)
     return SnapshotListResponse(
         snapshots=[_snapshot_to_response(s) for s in snapshots],
         count=len(snapshots),
@@ -145,7 +149,7 @@ def get_user_snapshots(
 
 @router.delete("", response_model=DeleteSnapshotsResponse)
 @limiter.limit("30/minute")
-def delete_user_snapshots(request: Request, response: Response, current_user: User = Depends(require_current_user)) -> DeleteSnapshotsResponse:
+def delete_user_snapshots(request: Request, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> DeleteSnapshotsResponse:
     """Supprimer tous les snapshots de l'utilisateur authentifie.
 
     Conformite LPD (Loi sur la protection des donnees) — droit a l'effacement.
@@ -154,7 +158,7 @@ def delete_user_snapshots(request: Request, response: Response, current_user: Us
         DeleteSnapshotsResponse avec le nombre de snapshots supprimes.
     """
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
-    count = delete_all_snapshots(user_id=current_user.id)
+    count = delete_all_snapshots(user_id=current_user.id, db=db)
     return DeleteSnapshotsResponse(
         deleted_count=count,
         message=f"{count} snapshot(s) supprime(s).",
@@ -171,6 +175,7 @@ def get_user_evolution(
         description="Metrique a suivre (replacement_ratio, months_liquidity, etc.)",
     ),
     current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> EvolutionResponse:
     """Recuperer la serie temporelle d'une metrique financiere.
 
@@ -185,7 +190,7 @@ def get_user_evolution(
     """
     response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
     try:
-        data_points = get_evolution(user_id=current_user.id, field=field)
+        data_points = get_evolution(user_id=current_user.id, field=field, db=db)
         return EvolutionResponse(
             field=field,
             data_points=[

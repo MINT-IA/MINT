@@ -3,7 +3,7 @@ Audit event model for security/compliance traceability.
 """
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, Text
 from app.core.database import Base
 
@@ -22,4 +22,4 @@ class AuditEventModel(Base):
     ip_address = Column(String, nullable=True)
     user_agent = Column(String, nullable=True)
     details_json = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False, index=True)

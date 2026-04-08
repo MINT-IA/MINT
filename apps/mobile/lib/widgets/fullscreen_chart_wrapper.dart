@@ -45,6 +45,8 @@ class FullscreenChartWrapper extends StatelessWidget {
     );
   }
 
+  // GoRouter: intentional overlay — Navigator.push is intentional here,
+  // fullscreen dialog overlay, not a navigable route.
   void _openFullscreen(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(

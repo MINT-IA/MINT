@@ -52,7 +52,7 @@ class EnrichmentCta extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     s.enrichmentCtaMissing(missingFieldsCount),
-                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                   ),
                 ],
               ),

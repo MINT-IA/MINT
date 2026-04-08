@@ -20,6 +20,7 @@ from app.schemas.analytics import (
     FunnelQueryResponse,
     FunnelStepResponse,
 )
+from app.services.feature_flags import FeatureFlags
 
 router = APIRouter()
 
@@ -114,6 +115,7 @@ def get_analytics_summary(
     Returns:
         AnalyticsSummaryResponse with summary statistics
     """
+    FeatureFlags.require_flag("enable_admin_screens")
     _require_admin_user(current_user)
     # Determine date range
     if start_date:
@@ -146,7 +148,7 @@ def get_analytics_summary(
     ).filter(
         AnalyticsEvent.timestamp >= date_range_start,
         AnalyticsEvent.timestamp <= date_range_end
-    ).group_by(AnalyticsEvent.event_category).all()
+    ).group_by(AnalyticsEvent.event_category).limit(100).all()
 
     events_by_category = {category: count for category, count in category_counts}
 
@@ -158,7 +160,7 @@ def get_analytics_summary(
         AnalyticsEvent.timestamp >= date_range_start,
         AnalyticsEvent.timestamp <= date_range_end,
         AnalyticsEvent.screen_name.isnot(None)
-    ).group_by(AnalyticsEvent.screen_name).all()
+    ).group_by(AnalyticsEvent.screen_name).limit(100).all()
 
     events_by_screen = {screen: count for screen, count in screen_counts}
 
@@ -202,6 +204,7 @@ def get_funnel_analysis(
     Example:
         GET /analytics/funnel?steps=landing_view,onboarding_start,wizard_started,wizard_completed
     """
+    FeatureFlags.require_flag("enable_admin_screens")
     _require_admin_user(current_user)
     # Parse steps
     step_names = [s.strip() for s in steps.split(',') if s.strip()]

@@ -10,7 +10,7 @@ source: "LIFD art. 38, LIFD art. 36"
 ## Trigger
 L'utilisateur veut savoir combien d'impôt il paiera en retirant son capital LPP ou 3a.
 
-## Chiffre Choc
+## Premier Éclairage
 Pour un retrait de CHF 500'000, l'impôt fédéral seul est d'environ CHF 12'500 (taux 1/5e du barème ordinaire). Avec l'impôt cantonal et communal, le total varie de CHF 25'000 (Zoug) à CHF 60'000 (Genève).
 
 ## Niveau 0

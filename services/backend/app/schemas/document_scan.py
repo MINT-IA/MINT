@@ -9,7 +9,7 @@ See: MINT_FINAL_EXECUTION_SYSTEM.md §13.11 (Chantier 4)
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
 from typing import List, Optional, Union
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 
@@ -23,12 +23,31 @@ class DocumentType(str, Enum):
     lease_contract = "lease_contract"
     lpp_plan = "lpp_plan"
     insurance_contract = "insurance_contract"
+    # Mobile-originated types (unified contract)
+    pillar_3a_attestation = "pillar_3a_attestation"
+    mortgage_attestation = "mortgage_attestation"
+    insurance_policy = "insurance_policy"
+    lease = "lease"
+    lamal_statement = "lamal_statement"
+    other = "other"
 
 
 class ConfidenceLevel(str, Enum):
     high = "high"
     medium = "medium"
     low = "low"
+
+
+class LppPlanType(str, Enum):
+    """LPP plan type classification (DOC-04).
+
+    - legal: minimum LPP (taux conversion 6.8%)
+    - surobligatoire: enveloping plan (higher contributions, may have lower conversion)
+    - plan_1e: individual investment plan (NO guaranteed conversion rate)
+    """
+    legal = "legal"
+    surobligatoire = "surobligatoire"
+    plan_1e = "1e"
 
 
 class ExtractedFieldConfirmation(BaseModel):
@@ -66,7 +85,7 @@ class DocumentScanConfirmation(BaseModel):
         "ocr_mlkit",
         description="How the data was extracted: ocr_mlkit, claude_vision, manual",
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class DocumentScanResponse(BaseModel):
@@ -82,6 +101,26 @@ class DocumentScanResponse(BaseModel):
     message: str = "Scan data synced to profile"
 
 
+class DocumentClassificationResult(BaseModel):
+    """Result of pre-extraction document classification (DOC-10).
+
+    Determines whether an uploaded image is a Swiss financial document
+    before running full extraction.
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    is_financial: bool = Field(..., description="Whether document is a Swiss financial document")
+    detected_type: Optional[str] = Field(None, description="Detected document type if financial")
+    confidence: ConfidenceLevel = ConfidenceLevel.medium
+    rejection_reason: Optional[str] = Field(
+        None,
+        description="Reason for rejection (set when is_financial=False)",
+    )
+
+
 class VisionExtractionRequest(BaseModel):
     """Request to extract data from a document image using Claude Vision."""
     model_config = ConfigDict(
@@ -92,6 +131,7 @@ class VisionExtractionRequest(BaseModel):
     document_type: DocumentType
     image_base64: str = Field(
         ...,
+        max_length=5_000_000,  # ~3.75 MB raw image (base64 overhead ~33%)
         description="Base64-encoded document image (JPEG/PNG)",
     )
     canton: Optional[str] = Field(
@@ -101,6 +141,79 @@ class VisionExtractionRequest(BaseModel):
     language_hint: Optional[str] = Field(
         None,
         description="Expected language: fr, de, it",
+    )
+
+
+class PremierEclairageRequest(BaseModel):
+    """Request for document-specific premier eclairage generation (DOC-07).
+
+    After document extraction, sends extracted fields to generate a
+    personalized 4-layer insight using the MINT insight engine.
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    document_type: DocumentType
+    extracted_fields: List[ExtractedFieldConfirmation]
+    overall_confidence: float = Field(
+        ...,
+        ge=0.0,
+        le=1.0,
+        description="Overall extraction confidence (0-1)",
+    )
+    plan_type: Optional[str] = Field(
+        None,
+        description="LPP plan type: legal, surobligatoire, 1e",
+    )
+    plan_type_warning: Optional[str] = Field(
+        None,
+        description="Warning for 1e plans",
+    )
+    canton: Optional[str] = Field(
+        None,
+        description="User's canton for regional context",
+    )
+
+
+class PremierEclairageResponse(BaseModel):
+    """Response with 4-layer premier eclairage from document data (DOC-07).
+
+    Structure follows the MINT 4-layer insight engine:
+    1. Factual extraction (what the document says)
+    2. Human translation (what it means in plain language)
+    3. Personal perspective (what it implies for YOU)
+    4. Questions to ask (before signing/acting)
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        alias_generator=to_camel,
+    )
+
+    factual_extraction: str = Field(
+        ...,
+        description="Layer 1: key facts extracted from the document",
+    )
+    human_translation: str = Field(
+        ...,
+        description="Layer 2: plain language explanation, no jargon",
+    )
+    personal_perspective: str = Field(
+        ...,
+        description="Layer 3: what this implies for the user personally",
+    )
+    questions_to_ask: List[str] = Field(
+        ...,
+        description="Layer 4: questions to ask before signing/acting",
+    )
+    disclaimer: str = Field(
+        ...,
+        description="Mandatory LSFin disclaimer",
+    )
+    sources: List[str] = Field(
+        ...,
+        description="Legal references (LPP art. X, LIFD art. Y, etc.)",
     )
 
 
@@ -118,4 +231,16 @@ class VisionExtractionResponse(BaseModel):
     raw_analysis: Optional[str] = Field(
         None,
         description="Claude's natural language analysis of the document",
+    )
+    plan_type: Optional[str] = Field(
+        None,
+        description="LPP plan type: legal, surobligatoire, 1e (DOC-04)",
+    )
+    plan_type_warning: Optional[str] = Field(
+        None,
+        description="Warning message for 1e plans (no guaranteed conversion rate)",
+    )
+    coherence_warnings: List[str] = Field(
+        default_factory=list,
+        description="Cross-field coherence warnings (DOC-05)",
     )

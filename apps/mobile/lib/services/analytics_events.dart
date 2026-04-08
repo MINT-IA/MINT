@@ -28,10 +28,10 @@ const String kEventOnboardingCompleted = 'onboarding_completed';
 // ════════════════════════════════════════════════════════════════
 
 /// Chiffre choc reveal animation played.
-const String kEventChiffreChocViewed = 'chiffre_choc_viewed';
+const String kEventPremierEclairageViewed = 'premier_eclairage_viewed';
 
-/// User taps the share button on the chiffre choc card.
-const String kEventChiffreChocShared = 'chiffre_choc_shared';
+/// User taps the share button on the premier éclairage card.
+const String kEventPremierEclairageShared = 'premier_eclairage_shared';
 
 // ════════════════════════════════════════════════════════════════
 //  JIT EXPLANATION

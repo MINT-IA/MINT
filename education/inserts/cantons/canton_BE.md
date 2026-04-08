@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Berne"
 ## Trigger
 L'utilisateur réside à Berne ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Berne est dans la fourchette haute de la moyenne suisse : le multiplicateur cantonal se situe autour de 130 %.
 
 ## Niveau 0

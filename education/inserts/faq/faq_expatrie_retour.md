@@ -10,7 +10,7 @@ source: "LAVS art. 1a, LPP art. 79b, Conventions bilatérales CH-UE"
 ## Trigger
 L'utilisateur revient en Suisse après une période d'expatriation et souhaite comprendre les implications financières.
 
-## Chiffre Choc
+## Premier Éclairage
 Un·e expatrié·e qui revient en Suisse après 10 ans a typiquement des lacunes AVS qui réduisent sa rente de ~23 %. Mais un rachat LPP avantageux peut compenser une partie de cette perte.
 
 ## Niveau 0

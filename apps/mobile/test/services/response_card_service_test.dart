@@ -15,7 +15,7 @@ final _l = SFr();
 CoachProfile _makeProfile({
   String? firstName,
   double salaire = 0,
-  int nombreDeMois = 12,
+  double nombreDeMois = 12.0,
   double? bonusPourcentage,
   String canton = '',
   int birthYear = 1980,
@@ -51,35 +51,35 @@ CoachProfile _makeProfile({
 
 void main() {
   // ════════════════════════════════════════════════════════════
-  //  MODEL — ResponseCard, ChiffreChoc
+  //  MODEL — ResponseCard, PremierEclairage
   // ════════════════════════════════════════════════════════════
 
-  group('ChiffreChoc', () {
+  group('PremierEclairage', () {
     test('CHF formatting with Swiss apostrophe', () {
-      const c = ChiffreChoc(value: 12450, unit: 'CHF', explanation: 'test');
+      const c = PremierEclairage(value: 12450, unit: 'CHF', explanation: 'test');
       expect(c.formatted, "12'450 CHF");
     });
 
     test('CHF large number formatting', () {
-      const c = ChiffreChoc(value: 539414, unit: 'CHF', explanation: 'test');
+      const c = PremierEclairage(value: 539414, unit: 'CHF', explanation: 'test');
       expect(c.formatted, "539'414 CHF");
     });
 
     test('percentage formatting', () {
-      const c = ChiffreChoc(value: 65.5, unit: '%', explanation: 'test');
+      const c = PremierEclairage(value: 65.5, unit: '%', explanation: 'test');
       expect(c.formatted, '65.5%');
     });
 
     test('years formatting', () {
-      const c = ChiffreChoc(value: 3, unit: 'ans', explanation: 'test');
+      const c = PremierEclairage(value: 3, unit: 'ans', explanation: 'test');
       expect(c.formatted, '3 ans');
     });
 
     test('serialization roundtrip', () {
       const original =
-          ChiffreChoc(value: 7258, unit: 'CHF', explanation: 'plafond 3a');
+          PremierEclairage(value: 7258, unit: 'CHF', explanation: 'plafond 3a');
       final json = original.toJson();
-      final restored = ChiffreChoc.fromJson(json);
+      final restored = PremierEclairage.fromJson(json);
 
       expect(restored.value, 7258);
       expect(restored.unit, 'CHF');
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('negative value formatting', () {
-      const c = ChiffreChoc(value: -5000, unit: 'CHF', explanation: 'test');
+      const c = PremierEclairage(value: -5000, unit: 'CHF', explanation: 'test');
       expect(c.formatted, "-5'000 CHF");
     });
   });
@@ -99,8 +99,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        chiffreChoc:
-            ChiffreChoc(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage:
+            PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
         cta: CardCta(label: 'Go', route: '/test'),
         disclaimer: 'test disclaimer',
       );
@@ -114,8 +114,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        chiffreChoc:
-            const ChiffreChoc(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage:
+            const PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
         cta: const CardCta(label: 'Go', route: '/test'),
         deadline: DateTime.now().add(const Duration(days: 15)),
         disclaimer: 'test',
@@ -132,8 +132,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        chiffreChoc:
-            const ChiffreChoc(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage:
+            const PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
         cta: const CardCta(label: 'Go', route: '/test'),
         deadline: DateTime.now().add(const Duration(days: 90)),
         disclaimer: 'test',
@@ -147,8 +147,8 @@ void main() {
         type: ResponseCardType.pillar3a,
         title: 'Test',
         subtitle: 'Sub',
-        chiffreChoc:
-            const ChiffreChoc(value: 100, unit: 'CHF', explanation: 'test'),
+        premierEclairage:
+            const PremierEclairage(value: 100, unit: 'CHF', explanation: 'test'),
         cta: const CardCta(label: 'Go', route: '/test'),
         deadline: DateTime.now().subtract(const Duration(days: 5)),
         disclaimer: 'test',
@@ -162,8 +162,8 @@ void main() {
         type: ResponseCardType.lppBuyback,
         title: 'Rachat LPP',
         subtitle: 'Potentiel',
-        chiffreChoc:
-            ChiffreChoc(value: 539414, unit: 'CHF', explanation: 'max'),
+        premierEclairage:
+            PremierEclairage(value: 539414, unit: 'CHF', explanation: 'max'),
         cta: CardCta(label: 'Simuler', route: '/rachat-lpp'),
         disclaimer: 'Outil educatif',
         sources: ['LPP art. 79b'],

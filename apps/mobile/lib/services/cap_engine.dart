@@ -145,9 +145,16 @@ class CapEngine {
     }
 
     // ── 4. Fiscal window: 3a before year-end ──
+    // P1-7: Suppress 3a for retirees (age >= 65 or status retraite).
+    // 3a contributions are only possible while actively employed.
+    final isRetired = profile.age >= 65 ||
+        profile.employmentStatus == 'retraite';
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
-    if (daysToYearEnd <= 90 && daysToYearEnd >= 0) {
+    // FATCA: US persons CAN contribute to 3a (Swiss law allows it),
+    // but some providers refuse US persons due to PFIC/FATCA reporting.
+    // We show the cap but the FATCA guidance in fallback_templates warns about restrictions.
+    if (daysToYearEnd <= 90 && daysToYearEnd >= 0 && !isRetired) {
       final cards3a =
           ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.pillar3a)
@@ -170,8 +177,8 @@ class CapEngine {
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
           coachPrompt: l.capCoachPrompt3a,
-          expectedImpact: card.chiffreChoc.value > 0
-              ? 'jusqu\u2019à ${card.chiffreChoc.formatted} d\u2019économie'
+          expectedImpact: card.premierEclairage.value > 0
+              ? 'jusqu\u2019à ${card.premierEclairage.formatted} d\u2019économie'
               : null,
           sourceCards: [card.id],
         ));
@@ -179,8 +186,11 @@ class CapEngine {
     }
 
     // ── 5. LPP buyback opportunity ──
+    // P1-13: Hide rachat after retirement (age >= 65 or status retraite).
     final rachatMax = profile.prevoyance.rachatMaximum ?? 0;
-    if (rachatMax > 5000) {
+    if (rachatMax > 5000 &&
+        profile.age < 65 &&
+        profile.employmentStatus != 'retraite') {
       candidates.add(CapDecision(
         id: 'lpp_buyback',
         kind: CapKind.optimize,
@@ -203,13 +213,16 @@ class CapEngine {
     }
 
     // ── 6. Budget deficit → reframing rule ──
-    if (profile.totalDepensesMensuelles > 0 &&
-        profile.salaireBrutMensuel > 0) {
-      final netMensuel = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: profile.age,
-      ).monthlyNetPayslip;
+    // FIX-100: Use revenuBrutAnnuel (handles independants).
+    final grossAnnualForBudget = profile.revenuBrutAnnuel;
+    if (profile.totalDepensesMensuelles > 0 && grossAnnualForBudget > 0) {
+      final netMensuel = profile.employmentStatus == 'independant'
+          ? grossAnnualForBudget * 0.90 / 12
+          : NetIncomeBreakdown.compute(
+              grossSalary: grossAnnualForBudget,
+              canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
+              age: profile.age,
+            ).monthlyNetPayslip;
       final libre = netMensuel - profile.totalDepensesMensuelles;
       if (libre < 0) {
         candidates.add(CapDecision(
@@ -235,6 +248,28 @@ class CapEngine {
       }
     }
 
+    // ── 6b. Spending anomaly ──
+    if (memory.hasSpendingAnomaly) {
+      candidates.add(CapDecision(
+        id: 'spending_anomaly',
+        kind: CapKind.alert,
+        priorityScore: _score(
+          impact: 0.7,
+          urgency: 0.85,
+          confidencePenalty: 1.0,
+          readiness: 1.0,
+          recency: _recencyModifier('spending_anomaly', memory, now),
+        ),
+        headline: memory.lastAnomalyInsight ?? 'Dépense inhabituelle détectée',
+        whyNow: 'Une transaction récente sort de tes habitudes. '
+            'Vérifie si c\u2019est intentionnel.',
+        ctaLabel: 'Voir le détail',
+        ctaMode: CtaMode.route,
+        ctaRoute: '/budget',
+        sourceCards: const [],
+      ));
+    }
+
     // ── 7. Replacement rate warning (45+) ──
     if (profile.age >= 45 && profile.salaireBrutMensuel > 0) {
       final rateCards =
@@ -243,7 +278,7 @@ class CapEngine {
               .toList();
       if (rateCards.isNotEmpty) {
         final card = rateCards.first;
-        final rate = card.chiffreChoc.value;
+        final rate = card.premierEclairage.value;
         if (rate > 0 && rate < 65) {
           candidates.add(CapDecision(
             id: 'replacement_rate',
@@ -313,6 +348,36 @@ class CapEngine {
                 'et si une IJM est utile dans mon cas.'
             : null,
         sourceCards: const [],
+      ));
+    }
+
+    // ── 8b. Succession planning (65+ or veuf/veuve) ──
+    // P1-8: Estate planning is relevant from retirement age, not 75.
+    // Also relevant when widowed (testament update, survivor rights).
+    final isVeuf = profile.etatCivil == CoachCivilStatus.veuf;
+    if ((profile.age >= 65 || isVeuf) &&
+        !memory.completedActions.contains('estate_planning')) {
+      candidates.add(CapDecision(
+        id: 'estate_planning',
+        kind: CapKind.prepare,
+        priorityScore: _score(
+          impact: 0.65,
+          urgency: isVeuf ? 0.8 : 0.5,
+          confidencePenalty: _confPenalty(confidence.score),
+          readiness: 1.0,
+          recency: _recencyModifier('estate_planning', memory, now),
+        ),
+        headline: l.capEstatePlanningHeadline,
+        whyNow: isVeuf
+            ? l.capEstatePlanningWhyNowVeuf
+            : l.capEstatePlanningWhyNow,
+        ctaLabel: l.capEstatePlanningCtaLabel,
+        ctaMode: CtaMode.route,
+        ctaRoute: '/life-event/deces-proche',
+        coachPrompt: 'Aide-moi \u00e0 comprendre ce que je dois pr\u00e9voir '
+            'pour la transmission de mon patrimoine\u00a0: testament, '
+            'pacte successoral, b\u00e9n\u00e9ficiaires LPP et 3a.',
+        sourceCards: const ['estate_planning'],
       ));
     }
 
@@ -391,7 +456,26 @@ class CapEngine {
     }
 
     // Sort by priority and return the winner.
-    candidates.sort((a, b) => b.priorityScore.compareTo(a.priorityScore));
+    if (candidates.isEmpty) {
+      return CapDecision(
+        id: 'no_cap_available',
+        kind: CapKind.prepare,
+        priorityScore: 0,
+        // Neutral fallback — cohort-safe (FIX-155)
+        headline: l.capNoCapHeadline,
+        whyNow: l.capNoCapWhyNow,
+        ctaLabel: l.capHonestyCtaLabel,
+        ctaRoute: '/coach/chat',
+        ctaMode: CtaMode.route,
+        expectedImpact: l.capHonestyExpectedImpact,
+        coachPrompt: null,
+      );
+    }
+    // P0-14: Deterministic tie-breaking — use id hashCode as secondary sort
+    candidates.sort((a, b) {
+      final cmp = b.priorityScore.compareTo(a.priorityScore);
+      return cmp != 0 ? cmp : a.id.compareTo(b.id); // Lexicographic — stable across versions
+    });
 
     // Enrich the winner with supporting signals from other candidates.
     final winner = candidates.first;
@@ -698,7 +782,7 @@ class CapEngine {
           headline: l.capLeSelfEmploymentHeadline,
           whyNow: l.capLeSelfEmploymentWhyNow,
           ctaLabel: l.capLeSelfEmploymentCtaLabel,
-          route: '/independants/lpp-volontaire',
+          route: '/segments/independant',
         ),
       'retirement' => _LifeEventMapping(
           headline: l.capLeRetirementHeadline,
@@ -716,19 +800,19 @@ class CapEngine {
           headline: l.capLeDeathOfRelativeHeadline,
           whyNow: l.capLeDeathOfRelativeWhyNow,
           ctaLabel: l.capLeDeathOfRelativeCtaLabel,
-          route: '/deces-proche',
+          route: '/life-event/deces-proche',
         ),
       'newJob' => _LifeEventMapping(
           headline: l.capLeNewJobHeadline,
           whyNow: l.capLeNewJobWhyNow,
           ctaLabel: l.capLeNewJobCtaLabel,
-          route: '/job-comparison',
+          route: '/simulator/job-comparison',
         ),
       'housingSale' => _LifeEventMapping(
           headline: l.capLeHousingSaleHeadline,
           whyNow: l.capLeHousingSaleWhyNow,
           ctaLabel: l.capLeHousingSaleCtaLabel,
-          route: '/housing-sale',
+          route: '/life-event/housing-sale',
         ),
       'inheritance' => _LifeEventMapping(
           headline: l.capLeInheritanceHeadline,
@@ -740,7 +824,7 @@ class CapEngine {
           headline: l.capLeDonationHeadline,
           whyNow: l.capLeDonationWhyNow,
           ctaLabel: l.capLeDonationCtaLabel,
-          route: '/donation',
+          route: '/life-event/donation',
         ),
       'disability' => _LifeEventMapping(
           headline: l.capLeDisabilityHeadline,
@@ -752,13 +836,13 @@ class CapEngine {
           headline: l.capLeCantonMoveHeadline,
           whyNow: l.capLeCantonMoveWhyNow,
           ctaLabel: l.capLeCantonMoveCtaLabel,
-          route: '/demenagement-cantonal',
+          route: '/life-event/demenagement-cantonal',
         ),
       'countryMove' => _LifeEventMapping(
           headline: l.capLeCountryMoveHeadline,
           whyNow: l.capLeCountryMoveWhyNow,
           ctaLabel: l.capLeCountryMoveCtaLabel,
-          route: '/expat',
+          route: '/expatriation',
         ),
       'debtCrisis' => _LifeEventMapping(
           headline: l.capLeDebtCrisisHeadline,
@@ -828,6 +912,7 @@ class CapEngine {
       GoalAType.debtFree => {
           'debt_correct',
           'budget_deficit',
+          'spending_anomaly',
         },
       GoalAType.custom => <String>{},
     };
@@ -862,9 +947,13 @@ class CapEngine {
 
     // ── Couple 3a: conjoint has no declared 3a ──
     // If FATCA blocks 3a, skip (canContribute3a == false).
+    // P1-7: Also suppress for retired conjoint (age >= 65 or status retraite).
     final conjoint3a = conjoint.prevoyance?.totalEpargne3a ?? 0;
     final conjointCan3a = conjoint.canContribute3a;
-    if (conjoint3a == 0 && conjointCan3a) {
+    final conjointAge = conjoint.age ?? 99;
+    final conjointIsRetired = conjointAge >= 65 ||
+        conjoint.employmentStatus == 'retraite';
+    if (conjoint3a == 0 && conjointCan3a && !conjointIsRetired) {
       caps.add(CapDecision(
         id: 'couple_3a',
         kind: CapKind.optimize,
@@ -887,8 +976,9 @@ class CapEngine {
     }
 
     // ── Couple LPP buyback: conjoint has significant rachat room ──
+    // P1-13: Hide rachat after retirement.
     final conjointRachat = conjoint.prevoyance?.rachatMaximum ?? 0;
-    if (conjointRachat > 10000) {
+    if (conjointRachat > 10000 && !conjointIsRetired) {
       caps.add(CapDecision(
         id: 'couple_lpp_buyback',
         kind: CapKind.optimize,
@@ -992,15 +1082,15 @@ class CapEngine {
                 : 0.4,
         confidencePenalty: _confPenalty(confidenceScore),
         readiness: 1.0,
-        recency: _recencyModifier(card.id, memory, now),
+        recency: _recencyModifier('rc_${card.id}', memory, now),
       ),
       headline: card.title,
       whyNow: card.subtitle,
       ctaLabel: card.cta.label,
       ctaMode: CtaMode.route,
       ctaRoute: card.cta.route,
-      expectedImpact: card.chiffreChoc.value > 0
-          ? card.chiffreChoc.formatted
+      expectedImpact: card.premierEclairage.value > 0
+          ? card.premierEclairage.formatted
           : null,
       sourceCards: [card.id],
     );
@@ -1080,22 +1170,16 @@ class CapEngine {
     if (isDebtOverwhelmed) {
       headline = l.capHonestyDebtHeadline;
       whyNow = l.capHonestyDebtWhyNow;
-      coachPrompt = 'Ma dette dépasse largement mon revenu annuel. '
-          'Les simulateurs ne suffisent plus. '
-          'Oriente-moi vers un\u00b7e spécialiste en désendettement.';
+      coachPrompt = l.capHonestyDebtCoachPrompt;
     } else if (isCrossBorderLateLpp) {
       headline = l.capHonestryCrossBorderHeadline;
       whyNow = l.capHonestryCrossBorderWhyNow;
-      coachPrompt = 'Je suis frontalier\u00b7ère proche de la retraite '
-          'sans LPP. Quelles options réalistes existent\u00a0? '
-          'Oriente-moi vers un\u00b7e spécialiste.';
+      coachPrompt = l.capHonestyCrossBorderCoachPrompt;
     } else {
       // Senior no LPP
       headline = l.capHonestyNoLppHeadline;
       whyNow = l.capHonestyNoLppWhyNow;
-      coachPrompt = 'J\u2019approche de la retraite avec peu de 2e pilier. '
-          'Aide-moi à comprendre ce qui est acquis '
-          'et oriente-moi vers un\u00b7e spécialiste.';
+      coachPrompt = l.capHonestyNoLppCoachPrompt;
     }
 
     return CapDecision(
@@ -1234,8 +1318,10 @@ String? _capSemanticTopic(String capId) {
       lower.contains('bebe')) {
     return 'birth_costs';
   }
-  // Job comparison
-  if (lower.contains('job_comparison') || lower.contains('comparaison_offre')) {
+  // Job comparison — includes life_event newJob caps
+  if (lower.contains('job_comparison') || lower.contains('comparaison_offre') ||
+      lower.contains('newjob') || lower.contains('new_job') ||
+      lower.contains('life_event_newjob')) {
     return 'job_comparison';
   }
   // Estate planning

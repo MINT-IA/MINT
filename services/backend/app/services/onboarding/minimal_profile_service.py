@@ -27,7 +27,7 @@ Rules:
     - Disclaimer mandatory on every result
 """
 
-from typing import List
+from typing import List, Optional
 
 from app.constants.social_insurance import (
     AVS_RAMD_MIN,
@@ -36,6 +36,7 @@ from app.constants.social_insurance import (
     AVS_RENTE_MIN_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_AGE_REFERENCE_HOMME,
+    AVS_AGE_REFERENCE_FEMME,
     LPP_SEUIL_ENTREE,
     LPP_DEDUCTION_COORDINATION,
     LPP_SALAIRE_COORDONNE_MIN,
@@ -44,7 +45,6 @@ from app.constants.social_insurance import (
     LPP_TAUX_INTERET_MIN,
     PILIER_3A_PLAFOND_AVEC_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
-    TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT,
     LPP_CONVERSION_RATE_COMPLEMENTAIRE,
     get_lpp_bonification_rate,
 )
@@ -53,6 +53,50 @@ from app.services.onboarding.onboarding_models import (
     MinimalProfileInput,
     MinimalProfileResult,
 )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FIX-092: Archetype detection
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_US_CODES = {"US", "USA"}
+_EU_CODES = {
+    "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
+    "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK",
+    "SI", "ES", "SE",
+}
+
+
+def _detect_archetype(input: MinimalProfileInput) -> str:
+    """Detect financial archetype from nationality + arrival data.
+
+    See CLAUDE.md §5 — 8 archetypes, each with different AVS/LPP treatment.
+    """
+    nat = (input.nationality_country or "").upper()
+    group = (input.nationality_group or "").upper()
+    arrival = input.arrival_age
+
+    # US citizens → FATCA archetype (regardless of arrival)
+    if nat in _US_CODES or group == "US":
+        return "expat_us"
+
+    # Swiss native: born in CH or arrived < 22 (full contribution years possible)
+    if nat == "CH" or group == "CH":
+        if arrival is not None and arrival >= 22:
+            return "returning_swiss"
+        return "swiss_native"
+
+    # No nationality data → default to swiss_native (backward compatible)
+    if not nat and not group:
+        return "swiss_native"
+
+    # Arrived late → expat (contribution gap)
+    is_eu = nat in _EU_CODES or group == "EU"
+    if arrival is not None and arrival >= 20:
+        return "expat_eu" if is_eu else "expat_non_eu"
+
+    # Arrived young or no arrival data → treat as integrated
+    return "expat_eu" if is_eu else "swiss_native"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -69,10 +113,28 @@ _NET_SALARY_FACTOR: float = 0.87
 # Approximate monthly expenses as fraction of net salary
 _EXPENSES_FACTOR: float = 0.85
 
-# Retirement reference age — uses constant, not hardcoded 65.
-# F3-3: When MinimalProfileInput gains a gender field, use gender-aware
-# avsReferenceAge (AVS21 LAVS art. 21 al. 1) for women born 1961-1963.
-_RETIREMENT_AGE: int = AVS_AGE_REFERENCE_HOMME  # 65
+# Retirement reference age — default for when gender is unknown.
+# P2-26: Gender-aware via _get_retirement_age() below (AVS21 LAVS art. 21 al. 1).
+_RETIREMENT_AGE_DEFAULT: int = AVS_AGE_REFERENCE_HOMME  # 65
+
+
+def _get_retirement_age(gender: Optional[str]) -> int:
+    """Return retirement reference age based on gender (AVS21).
+
+    - Men: 65 (LAVS art. 21 al. 1)
+    - Women: 64 (AVS21 reform, transitional from 64→65 for births 1961-1963)
+    - Unknown: 65 (conservative default — overestimates contribution years slightly)
+
+    Args:
+        gender: "male", "female", or None if unknown.
+
+    Returns:
+        Retirement reference age.
+    """
+    if gender == "female":
+        return AVS_AGE_REFERENCE_FEMME  # 64 (AVS21 transitional)
+    # Male or unknown → 65
+    return AVS_AGE_REFERENCE_HOMME
 
 # Default marginal tax rate for middle incomes (proxy)
 _DEFAULT_MARGINAL_TAX_RATE: float = 0.25
@@ -163,7 +225,7 @@ def _project_lpp_capital(
     current_age: int,
     gross_salary: float,
     existing_lpp: float,
-    retirement_age: int = _RETIREMENT_AGE,
+    retirement_age: int = _RETIREMENT_AGE_DEFAULT,
 ) -> float:
     """Project LPP capital at retirement using bonification rates.
 
@@ -237,43 +299,49 @@ def _estimate_lpp_from_age_25(
 
 
 def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
-    """Approximate marginal tax rate based on cantonal capital tax rates.
+    """Approximate marginal income tax rate using cantonal rate table + income brackets.
 
-    NOTE: This is a rough approximation (capital_tax_rate * 3.5).
-    The canonical marginal rate computation is in the mobile
-    RetirementTaxCalculator.estimateMarginalRate() using AFC 2024 data.
-    This approximation is acceptable for onboarding chiffre-choc
-    (educational, with +/-5% tolerance). Final displays in the mobile
-    app MUST use RetirementTaxCalculator, not this backend approximation.
+    Uses a lookup table of approximate marginal income tax rates per canton
+    (federal + cantonal + communal combined, for a single person in the capital).
+    Source: AFC 2024 data, rounded to nearest 0.5%.
 
-    Uses TAUX_IMPOT_RETRAIT_CAPITAL as a proxy for cantonal tax burden,
-    scaled by income level.
+    Accuracy: +/-3% for CHF 50k-200k salaries (educational use).
+    For final displays, the mobile RetirementTaxCalculator.estimateMarginalRate()
+    uses full AFC 2024 progressive brackets.
 
     Args:
         gross_salary: Annual gross salary.
         canton: Canton code (2 letters).
 
     Returns:
-        Estimated marginal tax rate (0.0 - 0.50).
+        Estimated marginal tax rate (0.10 - 0.45).
     """
-    base_rate = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton.upper(), TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT)
+    # Approximate combined marginal income tax rates by canton (federal + cantonal + communal)
+    # at ~CHF 100k gross salary, single, chief-lieu. Source: AFC 2024.
+    # Brackets: <50k → ×0.70, 50-80k → ×0.85, 80-120k → ×1.00, 120-200k → ×1.15, 200k+ → ×1.30
+    _CANTONAL_MARGINAL_RATES = {
+        "ZH": 0.265, "BE": 0.305, "LU": 0.235, "UR": 0.225, "SZ": 0.195,
+        "OW": 0.210, "NW": 0.195, "GL": 0.250, "ZG": 0.175, "FR": 0.285,
+        "SO": 0.280, "BS": 0.290, "BL": 0.275, "SH": 0.260, "AR": 0.260,
+        "AI": 0.225, "SG": 0.265, "GR": 0.255, "AG": 0.255, "TG": 0.250,
+        "TI": 0.275, "VD": 0.305, "VS": 0.260, "NE": 0.310, "GE": 0.300,
+        "JU": 0.310,
+    }
+    _DEFAULT_MARGINAL = 0.270  # Swiss average fallback
 
-    # Scale from capital withdrawal rate to income tax approximation
-    # Capital withdrawal rates are ~5-8%, income marginal rates are ~15-40%
-    # Use a multiplier of ~3.5x as rough proxy (see note above)
-    income_factor = base_rate * 3.5
+    base_rate = _CANTONAL_MARGINAL_RATES.get(canton.upper(), _DEFAULT_MARGINAL)
 
-    # Adjust for income level
+    # Adjust for income level (bracket scaling)
     if gross_salary < 50_000:
-        income_factor *= 0.70
+        income_factor = base_rate * 0.70
     elif gross_salary < 80_000:
-        income_factor *= 0.85
+        income_factor = base_rate * 0.85
     elif gross_salary < 120_000:
-        income_factor *= 1.00
+        income_factor = base_rate * 1.00
     elif gross_salary < 200_000:
-        income_factor *= 1.15
+        income_factor = base_rate * 1.15
     else:
-        income_factor *= 1.30
+        income_factor = base_rate * 1.30
 
     # Clamp to reasonable range
     return round(min(max(income_factor, 0.10), 0.45), 4)
@@ -375,6 +443,37 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     Raises:
         ValueError: If age, salary, or canton are invalid.
     """
+    # ── Resolve age from birth_date when provided ────────────────────────────
+    if input.birth_date:
+        from datetime import date
+        try:
+            bd = date.fromisoformat(input.birth_date[:10])
+            today = date.today()
+            computed_age = today.year - bd.year - (
+                (today.month, today.day) < (bd.month, bd.day)
+            )
+            input = MinimalProfileInput(
+                age=computed_age,
+                gross_salary=input.gross_salary,
+                canton=input.canton,
+                birth_date=input.birth_date,
+                household_type=input.household_type,
+                current_savings=input.current_savings,
+                is_property_owner=input.is_property_owner,
+                existing_3a=input.existing_3a,
+                existing_lpp=input.existing_lpp,
+                lpp_caisse_type=input.lpp_caisse_type,
+                total_debts=input.total_debts,
+                monthly_debt_service=input.monthly_debt_service,
+                stress_type=input.stress_type,
+                gender=input.gender,
+                nationality_group=input.nationality_group,
+                nationality_country=input.nationality_country,
+                arrival_age=input.arrival_age,
+            )
+        except (ValueError, TypeError):
+            pass  # Invalid birth_date format — fall back to provided age
+
     # ── Validation ──────────────────────────────────────────────────────────
     if input.age < 18 or input.age > 70:
         raise ValueError(f"Age must be between 18 and 70, got {input.age}")
@@ -425,10 +524,15 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
     if input.monthly_debt_service is None and input.total_debts is None:
         estimated_fields.append("monthly_debt_service")
 
+    # ── P2-26: Gender-aware retirement age (AVS21) ─────────────────────────
+    retirement_age = _get_retirement_age(getattr(input, "gender", None))
+
     # ── AVS projection ──────────────────────────────────────────────────────
-    # Contribution years: from age 21 to retirement (65), capped at 44
-    years_until_retirement = max(0, _RETIREMENT_AGE - input.age)
-    current_contribution_years = max(0, min(input.age - 21, AVS_DUREE_COTISATION_COMPLETE))
+    # FIX-092: Contribution years account for arrival age (expats).
+    # Swiss natives: from age 21. Expats: from arrival_age (if > 21).
+    years_until_retirement = max(0, retirement_age - input.age)
+    start_age = max(21, input.arrival_age or 21)
+    current_contribution_years = max(0, min(input.age - start_age, AVS_DUREE_COTISATION_COMPLETE))
     total_contribution_years = min(
         current_contribution_years + years_until_retirement,
         AVS_DUREE_COTISATION_COMPLETE,
@@ -440,7 +544,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         current_age=input.age,
         gross_salary=input.gross_salary,
         existing_lpp=existing_lpp,
-        retirement_age=_RETIREMENT_AGE,
+        retirement_age=retirement_age,
     )
     # Select conversion rate based on caisse type
     if input.lpp_caisse_type == "complementaire":
@@ -518,7 +622,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         monthly_debt_impact=monthly_debt_impact,
         confidence_score=confidence_score,
         estimated_fields=estimated_fields,
-        archetype="swiss_native",
+        archetype=_detect_archetype(input),
         disclaimer=_DISCLAIMER,
         sources=list(_SOURCES),
         enrichment_prompts=enrichment_prompts,

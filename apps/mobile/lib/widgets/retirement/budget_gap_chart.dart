@@ -106,7 +106,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
           const SizedBox(width: 8),
           Text(
             'Taux de remplacement : ${rate.toStringAsFixed(0)}%',
-            style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -130,7 +130,7 @@ class _BudgetGapChartState extends State<BudgetGapChart>
           Expanded(
             child: Text(
               text,
-              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
           ),
         ],
@@ -271,7 +271,7 @@ class _WaterfallPainter extends CustomPainter {
       final labelTP = TextPainter(
         text: TextSpan(
           text: step.label,
-          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -286,7 +286,7 @@ class _WaterfallPainter extends CustomPainter {
         final amtTP = TextPainter(
           text: TextSpan(
             text: amtStr,
-            style: MintTextStyles.micro(color: step.color).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: step.color).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();

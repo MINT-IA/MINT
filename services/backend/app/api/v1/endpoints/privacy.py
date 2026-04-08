@@ -14,8 +14,10 @@ client-supplied profile_id to prevent IDOR vulnerabilities.
 """
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.models.user import User
 
 from app.schemas.privacy import (
@@ -48,7 +50,11 @@ DISCLAIMER = (
 # ---------------------------------------------------------------------------
 
 @router.post("/export", response_model=DataExportResponse)
-def export_user_data(request: DataExportRequest, _user: User = Depends(require_current_user)) -> DataExportResponse:
+def export_user_data(
+    request: DataExportRequest,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> DataExportResponse:
     """Exporte toutes les donnees personnelles d'un utilisateur.
 
     Conforme a nLPD art. 25 (droit d'acces) et art. 28 (portabilite).
@@ -64,20 +70,136 @@ def export_user_data(request: DataExportRequest, _user: User = Depends(require_c
     # V12-1: Use authenticated user ID, never client-supplied profile_id.
     user_id = _user.id
 
-    # In production, these would be fetched from the database.
-    # Here we simulate with sample data to demonstrate the structure.
-    sample_profile = {
-        "profile_id": user_id,
-        "status": "active",
+    # P2-18 nLPD art. 25: Fetch ALL user data from database for complete DSAR export.
+    # W12: Add LIMIT to all queries to prevent OOM on large datasets.
+    MAX_EXPORT_ROWS = 10_000  # Analytics events (highest volume)
+
+    from app.models.profile_model import ProfileModel
+    from app.models.document import DocumentModel
+    from app.models.snapshot import SnapshotModel
+    from app.models.analytics_event import AnalyticsEvent
+
+    # Profile data
+    profiles = db.query(ProfileModel).filter(ProfileModel.user_id == user_id).limit(1000).all()
+    profile_data = {
+        "user_id": user_id,
+        "email": _user.email,
+        "display_name": getattr(_user, "display_name", None),
+        "created_at": str(getattr(_user, "created_at", None)),
+        "profiles": [
+            {"id": p.id, "data": p.data if hasattr(p, "data") else None}
+            for p in profiles
+        ],
     }
+
+    # Sessions data
+    sessions_data = []
+    if request.include_sessions:
+        from app.models.session_model import SessionModel
+        profile_ids = [p.id for p in profiles]
+        if profile_ids:
+            sessions = db.query(SessionModel).filter(
+                SessionModel.profile_id.in_(profile_ids)
+            ).all()
+            sessions_data = [
+                {"id": s.id, "profile_id": s.profile_id, "created_at": str(s.created_at)}
+                for s in sessions
+            ]
+
+    # Documents data
+    documents_data = []
+    if request.include_documents:
+        docs = db.query(DocumentModel).filter(DocumentModel.user_id == user_id).limit(1000).all()
+        documents_data = [
+            {
+                "id": d.id,
+                "document_type": d.document_type,
+                "upload_date": str(d.upload_date) if d.upload_date else None,
+                "confidence": d.confidence,
+                "extracted_fields": d.extracted_fields,
+            }
+            for d in docs
+        ]
+
+    # Snapshots data (included in reports)
+    reports_data = []
+    if request.include_reports:
+        snapshots = db.query(SnapshotModel).filter(SnapshotModel.user_id == user_id).limit(1000).all()
+        reports_data = [
+            {
+                "id": s.id,
+                "created_at": str(s.created_at),
+                "trigger": s.trigger,
+                "fri_total": s.fri_total,
+                "replacement_ratio": s.replacement_ratio,
+            }
+            for s in snapshots
+        ]
+
+    # Analytics data
+    analytics_data = []
+    if request.include_analytics:
+        events = db.query(AnalyticsEvent).filter(
+            AnalyticsEvent.user_id == user_id
+        ).order_by(AnalyticsEvent.timestamp.desc()).limit(MAX_EXPORT_ROWS).all()
+        analytics_data = [
+            {"id": e.id, "event_type": e.event_type, "created_at": str(e.created_at)}
+            for e in events
+        ]
+
+    # P1-nLPD: Conversation memory — consent records (coach memory consent state)
+    from app.models.consent import ConsentModel
+    consent_data = []
+    consents = db.query(ConsentModel).filter(ConsentModel.user_id == user_id).limit(100).all()
+    consent_data = [
+        {
+            "id": c.id,
+            "consent_type": c.consent_type,
+            "enabled": c.enabled,
+            "updated_at": str(c.updated_at),
+        }
+        for c in consents
+    ]
+
+    # P1-nLPD: Coach memory — embedded insights stored in pgvector (RAG memory).
+    # These represent the coach's "memory" of user conversations and insights.
+    coach_memory_data = []
+    try:
+        from sqlalchemy import text as sa_text
+        rows = db.execute(
+            sa_text(
+                "SELECT doc_id, title, content, metadata, created_at "
+                "FROM document_embeddings "
+                "WHERE metadata::jsonb->>'user_id' = :uid "
+                "AND doc_type = 'memory'"
+            ),
+            {"uid": user_id},
+        ).fetchall()
+        coach_memory_data = [
+            {
+                "doc_id": row[0],
+                "title": row[1],
+                "content": row[2],
+                "metadata": row[3],
+                "created_at": str(row[4]) if row[4] else None,
+            }
+            for row in rows
+        ]
+    except Exception:
+        # pgvector not available (dev/CI with SQLite) — skip gracefully
+        pass
+
+    # P1-nLPD: Enrich profile_data with conversation history and coach memory
+    profile_data["consents"] = consent_data
+    profile_data["coach_memory"] = coach_memory_data
 
     result = service.export_user_data(
         profile_id=user_id,
-        profile_data=sample_profile,
-        sessions_data=[],
-        reports_data=[],
-        documents_data=[],
-        analytics_data=[],
+        profile_data=profile_data,
+        sessions_data=sessions_data,
+        reports_data=reports_data,
+        documents_data=documents_data,
+        analytics_data=analytics_data,
         include_sessions=request.include_sessions,
         include_reports=request.include_reports,
         include_documents=request.include_documents,
@@ -107,7 +229,7 @@ def export_user_data(request: DataExportRequest, _user: User = Depends(require_c
         donnees_analytics=result.donnees_analytics,
         politique_conservation=result.politique_conservation,
         responsable_traitement=result.responsable_traitement,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -165,7 +287,7 @@ def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require
         total_enregistrements_supprimes=result.total_enregistrements_supprimes,
         donnees_conservees_obligation_legale=result.donnees_conservees_obligation_legale,
         explication_conservation=result.explication_conservation,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
         alertes=result.alertes,
@@ -216,7 +338,7 @@ def get_consent_status(_user: User = Depends(require_current_user)) -> ConsentSt
         consentements=consentements_schema,
         nb_consentements_actifs=result.nb_consentements_actifs,
         nb_consentements_optionnels=result.nb_consentements_optionnels,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )

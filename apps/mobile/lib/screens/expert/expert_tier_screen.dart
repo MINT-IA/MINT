@@ -98,7 +98,7 @@ class _ExpertTierScreenState extends State<ExpertTierScreen> {
     final provider = context.read<CoachProfileProvider>();
     if (!provider.hasProfile) {
       // Redirect to onboarding if no profile exists.
-      context.push('/onboarding/quick');
+      context.push('/onboarding/intent');
       return;
     }
 
@@ -646,9 +646,9 @@ class _DossierItemRow extends StatelessWidget {
                     ),
                     child: Text(
                       estimatedLabel,
-                      style: MintTextStyles.labelSmall(
+                      style: MintTextStyles.labelTiny(
                         color: MintColors.warning,
-                      ).copyWith(fontSize: 9),
+                      ),
                     ),
                   ),
                 ],

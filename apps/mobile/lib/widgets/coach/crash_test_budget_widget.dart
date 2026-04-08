@@ -321,7 +321,7 @@ class CrashTestBudgetWidget extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   label,
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),

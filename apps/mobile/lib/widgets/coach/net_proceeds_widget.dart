@@ -139,7 +139,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                 ),
                 Text(
                   '"30% en dessous de ce que tu imagines."',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -160,7 +160,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
           children: [
             Flexible(child: Text(
               'Prix de vente : ${formatChfWithPrefix(widget.salePrice)}',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               overflow: TextOverflow.ellipsis,
             )),
             const SizedBox(width: 8),
@@ -240,7 +240,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                 ),
                 Text(
                   'Tu croyais toucher ${formatChfWithPrefix(_perceivedNet)} — tu touches ${formatChfWithPrefix(_netProceeds)}.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -292,7 +292,7 @@ class _NetProceedsWidgetState extends State<NetProceedsWidget> {
                         children: [
                           Text(
                             d.label,
-                            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                            style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                           ),
                           Text(
                             d.ref,

@@ -84,7 +84,7 @@ class CantonRankingBar extends StatelessWidget {
             width: 24,
             child: Text(
               '$rang',
-              style: MintTextStyles.bodySmall(color: isHighlighted ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: isHighlighted ? MintColors.primary : MintColors.textMuted).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           // Canton code badge
@@ -109,7 +109,7 @@ class CantonRankingBar extends StatelessWidget {
             width: 90,
             child: Text(
               cantonName,
-              style: MintTextStyles.bodySmall(color: isHighlighted ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w400),
+              style: MintTextStyles.labelMedium(color: isHighlighted ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: isHighlighted ? FontWeight.w600 : FontWeight.w400),
               overflow: TextOverflow.ellipsis,
             ),
           ),

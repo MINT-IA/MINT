@@ -8,7 +8,7 @@ tags: [patrimoine, fonds_urgence, epargne, precaution, liquidite, securite]
 ## Trigger
 L'utilisateur n'a pas de réserve de trésorerie, vient de subir un imprévu financier, ou se demande combien garder en liquidité.
 
-## Chiffre Choc
+## Premier Éclairage
 37 % des ménages suisses ne pourraient pas faire face à une dépense imprévue de CHF 2'500 sans emprunter. Un fonds d'urgence de 3 à 6 mois de dépenses (CHF 15'000 à 30'000 pour un ménage moyen) est la première fondation d'une santé financière solide.
 
 ## Niveau 0

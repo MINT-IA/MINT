@@ -58,7 +58,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       label: 'Tarif horaire v\u00e9rit\u00e9. '
-          'Minimum\u00a0: ${_hourlyRate.toStringAsFixed(0)} CHF/h.',
+          'Minimum\u00a0: ${formatChf(_hourlyRate)} CHF/h.',
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -77,7 +77,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Pour un net de ${formatChfWithPrefix(desiredNetAnnual)}/an',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 20),
 
@@ -86,7 +86,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    '${_hourlyRate.toStringAsFixed(0)} CHF/h',
+                    '${formatChf(_hourlyRate)} CHF/h',
                     style: MintTextStyles.displayMedium(color: MintColors.primary).copyWith(fontSize: 36, fontWeight: FontWeight.w800),
                   ),
                   Text(
@@ -111,12 +111,12 @@ class TrueHourlyRateWidget extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                '${_hourlyRate.toStringAsFixed(0)} CHF/h '
-                '\u2260 ${_hourlyRate.toStringAsFixed(0)} CHF dans ta poche.\n'
-                '${_chargesPerHour.toStringAsFixed(0)} CHF partent en charges. '
-                'En dessous de ${_hourlyRate.toStringAsFixed(0)} CHF/h, '
+                '${formatChf(_hourlyRate)} CHF/h '
+                '\u2260 ${formatChf(_hourlyRate)} CHF dans ta poche.\n'
+                '${formatChf(_chargesPerHour)} CHF partent en charges. '
+                'En dessous de ${formatChf(_hourlyRate)} CHF/h, '
                 'tu t\u2019appauvris.',
-                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+                style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -149,7 +149,7 @@ class TrueHourlyRateWidget extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 30, top: 2),
           child: Text(
-            '\u00f7 $billableHours h = ${_hourlyRate.toStringAsFixed(0)} CHF/h',
+            '\u00f7 $billableHours h = ${formatChf(_hourlyRate)} CHF/h',
             style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w400),
           ),
         ),

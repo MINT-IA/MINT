@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/leasing_cost_widget.dart';
@@ -26,7 +26,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
 
   Map<String, dynamic>? _result;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Uses centralized formatChfWithPrefix from chf_formatter.dart
 
   @override
   void initState() {
@@ -138,7 +138,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           min: 100,
           max: 1500,
           divisions: 28,
-          format: (v) => _currencyFormat.format(v),
+          format: (v) => formatChfWithPrefix(v),
           onChanged: (v) {
             _monthlyPayment = v;
             _calculate();
@@ -219,9 +219,9 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
           Text(S.of(context)!.leasingCoutOpportunite20, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
           Semantics(
-            label: '${S.of(context)!.leasingCoutOpportunite20}: ${_currencyFormat.format(opportunityCost20)}',
+            label: '${S.of(context)!.leasingCoutOpportunite20}: ${formatChfWithPrefix(opportunityCost20)}',
             child: Text(
-              _currencyFormat.format(opportunityCost20),
+              formatChfWithPrefix(opportunityCost20),
               style: MintTextStyles.displayMedium(color: MintColors.error),
             ),
           ),
@@ -244,7 +244,7 @@ class _SimulatorLeasingScreenState extends State<SimulatorLeasingScreen> {
                 const SizedBox(width: MintSpacing.sm),
                 Expanded(
                   child: Text(
-                    S.of(context)!.leasingFondsPropres(_currencyFormat.format(opportunityCost20 * 0.2)),
+                    S.of(context)!.leasingFondsPropres(formatChfWithPrefix(opportunityCost20 * 0.2)),
                     style: MintTextStyles.bodySmall(color: MintColors.error).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),

@@ -78,7 +78,7 @@ class RetirementChecklistCard extends StatelessWidget {
                     ),
                     Text(
                       'Actions personnalis\u00e9es pour ta situation',
-                      style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                     ),
                   ],
                 ),

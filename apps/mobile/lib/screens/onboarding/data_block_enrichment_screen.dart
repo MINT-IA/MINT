@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -90,7 +91,7 @@ class _DataBlockEnrichmentScreenState
         ),
         title: Text(
           meta.title,
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
       ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
@@ -102,11 +103,11 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 16),
 
               // ── Block score indicator ────────────────────────────
-              if (bloc != null) _BlockScoreBar(bloc: bloc),
+              if (bloc != null) MintEntrance(child: _BlockScoreBar(bloc: bloc)),
               const SizedBox(height: 24),
 
               // ── Coach mode toggle ───────────────────────────────
-              _CoachModeToggle(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _CoachModeToggle(
                 isCoachMode: _showCoachMode,
                 coachAvailable: coachAvailable,
                 onToggle: (value) {
@@ -118,21 +119,21 @@ class _DataBlockEnrichmentScreenState
                     setState(() => _showCoachMode = false);
                   }
                 },
-              ),
+              )),
               const SizedBox(height: 16),
 
               // ── Description ─────────────────────────────────────
               ...[
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 150), child: Text(
                   meta.description,
                   style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
-                ),
+                )),
                 const SizedBox(height: 24),
               ],
 
               // ── Enrichment prompts for this block ────────────────
               if (profile != null) ...[
-                _buildPrompts(profile, canonicalBlockType, bloc),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
               ],
 
               // ── Cross-validation alerts ────────────────────────────
@@ -143,10 +144,14 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 32),
 
               // ── CTA ──────────────────────────────────────────────
-              SizedBox(
+              Semantics(
+                button: true,
+                label: meta.ctaLabel,
+                child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () {
+                    HapticFeedback.lightImpact();
                     // Navigate to the appropriate enrichment flow
                     final route = _enrichmentRoute(canonicalBlockType);
                     if (route != null) {
@@ -168,7 +173,7 @@ class _DataBlockEnrichmentScreenState
                     style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 16),
 
               // ── Disclaimer ───────────────────────────────────────
@@ -194,13 +199,9 @@ class _DataBlockEnrichmentScreenState
     if (relevant.isEmpty) {
       final isComplete = bloc?.status == 'complete';
       if (!isComplete) {
-        return Container(
+        return MintSurface(
+          tone: MintSurfaceTone.peche,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.warning.withAlpha(12),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.warning.withAlpha(48)),
-          ),
           child: Row(
             children: [
               const Icon(Icons.info_outline,
@@ -216,12 +217,9 @@ class _DataBlockEnrichmentScreenState
           ),
         );
       }
-      return Container(
+      return MintSurface(
+        tone: MintSurfaceTone.sauge,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.success.withAlpha(15),
-          borderRadius: BorderRadius.circular(12),
-        ),
         child: Row(
           children: [
             const Icon(Icons.check_circle_outline,
@@ -382,7 +380,7 @@ class _DataBlockEnrichmentScreenState
 
   String? _enrichmentRoute(String type) {
     const routes = {
-      'revenu': '/onboarding/quick',
+      'revenu': '/coach/chat', // P10-02b: was /onboarding/quick (deleted)
       'lpp': '/scan',
       'avs': '/document-scan/avs-guide',
       '3a': '/pilier-3a',

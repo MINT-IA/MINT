@@ -15,8 +15,14 @@ import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/providers/anticipation_provider.dart';
+import 'package:mint_mobile/providers/contextual_card_provider.dart';
+import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/providers/subscription_provider.dart';
+import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/models/profile.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -73,6 +79,12 @@ Widget _buildRouterHarness({required String initialLocation}) {
       ChangeNotifierProvider<UserActivityProvider>(create: (_) => UserActivityProvider()),
       ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
       ChangeNotifierProvider<MintStateProvider>(create: (_) => MintStateProvider()),
+      ChangeNotifierProvider<SubscriptionProvider>(create: (_) => SubscriptionProvider()),
+      ChangeNotifierProvider<CoachEntryPayloadProvider>(create: (_) => CoachEntryPayloadProvider()),
+      ChangeNotifierProvider<FinancialPlanProvider>(create: (_) => FinancialPlanProvider()),
+      ChangeNotifierProvider<BiographyProvider>(create: (_) => BiographyProvider()),
+      ChangeNotifierProvider<AnticipationProvider>(create: (_) => AnticipationProvider()),
+      ChangeNotifierProvider<ContextualCardProvider>(create: (_) => ContextualCardProvider()),
     ],
     child: MaterialApp.router(
       locale: const Locale('fr'),
@@ -134,19 +146,14 @@ void main() {
           reason: 'Explorer Semantics widget should be selected for tab=2');
     });
 
-    testWidgets('/home?tab=3 opens Dossier tab', (tester) async {
+    testWidgets('/home?tab=3 opens drawer (shell renders without crash)', (tester) async {
       await tester.pumpWidget(
           _buildRouterHarness(initialLocation: '/home?tab=3'));
       await tester.pump(const Duration(seconds: 2));
 
+      // tab=3 now opens the ProfileDrawer instead of selecting a tab.
+      // Verify the shell renders without crashing.
       expect(find.byType(MainNavigationShell), findsOneWidget);
-      final dossierSemantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .where((s) =>
-              s.properties.label == 'Dossier' &&
-              (s.properties.selected ?? false));
-      expect(dossierSemantics, isNotEmpty,
-          reason: 'Dossier Semantics widget should be selected for tab=3');
     });
 
     testWidgets('/home?tab=1 opens MINT (Coach) tab', (tester) async {
@@ -197,19 +204,14 @@ void main() {
   });
 
   group('Tab deep-link — /app/* convenience aliases', () {
-    testWidgets('/app/dossier redirects to tab 3 (Dossier)', (tester) async {
+    testWidgets('/app/dossier redirects to tab 3 (drawer, shell renders)', (tester) async {
       await tester.pumpWidget(
           _buildRouterHarness(initialLocation: '/app/dossier'));
       await tester.pump(const Duration(seconds: 2));
 
+      // tab=3 now opens the ProfileDrawer instead of selecting a tab.
+      // Verify the shell renders without crashing.
       expect(find.byType(MainNavigationShell), findsOneWidget);
-      final dossierSemantics = tester
-          .widgetList<Semantics>(find.byType(Semantics))
-          .where((s) =>
-              s.properties.label == 'Dossier' &&
-              (s.properties.selected ?? false));
-      expect(dossierSemantics, isNotEmpty,
-          reason: '/app/dossier should redirect to tab=3');
     });
 
     testWidgets('/app/explore redirects to tab 2 (Explorer)', (tester) async {

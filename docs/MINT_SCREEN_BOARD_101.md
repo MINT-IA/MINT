@@ -1,5 +1,7 @@
 # MINT Screen Board 113
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Statut: board de référence pour la migration UX des surfaces MINT
 > Source: codebase actuel + `MINT_UX_GRAAL_MASTERPLAN.md`
 > Usage: savoir quel template appliquer à chaque écran et dans quel ordre le migrer
@@ -122,7 +124,7 @@ Les templates maîtres et les behaviors d'orchestration sont deux axes orthogona
 |---|---|---:|---:|---:|---:|---|
 | Aujourd'hui / Pulse | `pulse/pulse_screen.dart` | HP | T1-T5 | 8/10 | A | réponse inline — score, cap du jour |
 | Quick Start | `onboarding/quick_start_screen.dart` | RF | T1-T5 | 10/10 | — | onboarding, non routable depuis chat |
-| Chiffre-Choc | `onboarding/chiffre_choc_screen.dart` | HP | T1-T5 | 10/10 | — | non routable depuis chat |
+| Premier Éclairage (legacy: Premier-Éclairage) | `onboarding/premier_eclairage_screen.dart` | HP | T1-T5 | 10/10 | — | non routable depuis chat. Code migration pending. |
 | Smart Onboarding | `onboarding/smart_onboarding_screen.dart` | RF | T6-B | — | — | 7-step value-first onboarding flow (Lot 2 + P8-2), non routable depuis chat |
 | Data Block Enrichment | `onboarding/data_block_enrichment_screen.dart` | RF | T6-A | — | D | capture, déclenché par readiness bloquante |
 | Score Reveal | `advisor/score_reveal_screen.dart` | HP | T6-A | — | — | non routable depuis chat |

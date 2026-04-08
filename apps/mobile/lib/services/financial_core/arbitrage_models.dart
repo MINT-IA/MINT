@@ -80,7 +80,7 @@ class ArbitrageResult {
   final int? breakevenYear;
 
   /// One impactful number with context.
-  final String chiffreChoc;
+  final String premierEclairage;
 
   /// Summary text for display.
   final String displaySummary;
@@ -132,7 +132,7 @@ class ArbitrageResult {
   const ArbitrageResult({
     required this.options,
     required this.breakevenYear,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.displaySummary,
     required this.hypotheses,
     required this.disclaimer,

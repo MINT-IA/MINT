@@ -4,10 +4,10 @@ description: "Autonomous coaching content optimizer. Scores text MECHANICALLY (g
 compatibility: Requires Flutter SDK
 metadata:
   author: mint-team
-  version: "3.0"
+  version: "4.0"
 ---
 
-# Autoresearch Coach Evolution v3 — Karpathy Content Optimizer
+# Autoresearch Coach Evolution v4 — Karpathy Content Optimizer
 
 > "Coaching content must fight drop-off. Pattern: concret → émotionnel → actionnable."
 
@@ -18,6 +18,30 @@ metadata:
 - **Threshold**: +5 minimum improvement. Below → discard all variants, move on.
 - **Single target**: ONE coaching text per iteration.
 - **Guard**: `flutter gen-l10n` must succeed. `flutter test` every 5 optimizations.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Mechanical Scoring (immutable eval — agent CANNOT modify these rules)
 
@@ -57,17 +81,24 @@ voice=$(echo "$TEXT" | grep -oiE "tu |pourrait|envisager|une option|un·e spéci
 # TOTAL = concrete + jargon_free + brevity + actions + emotion + voice (max 100)
 ```
 
-## Lifecycle Phase Adjustment
+## Context-Based Weight Adjustment
 
-| Phase | Age | Adjustment |
-|-------|-----|------------|
-| Démarrage | 22-28 | Standard weights |
-| Construction | 28-35 | Standard weights |
-| Accélération | 35-45 | Concreteness weight ×1.25 |
-| Consolidation | 45-55 | Concreteness weight ×1.25 |
-| Transition | 55-65 | Actionability weight ×1.25 |
-| Retraite | 65-80 | Jargon-free weight ×1.5, brevity weight ×1.5 |
-| Transmission | 75-99 | Jargon-free weight ×1.5, brevity weight ×1.5 |
+> Segmentation by life event and literacy level — NEVER by age (CLAUDE.md §1).
+
+| Context | Trigger (life event or literacy) | Adjustment |
+|---------|----------------------------------|------------|
+| First financial event | `firstJob`, first `housingPurchase` | Standard weights |
+| Building phase | `marriage`, `birth`, `housingPurchase`, `concubinage` | Concreteness weight ×1.25 |
+| Complexity peak | `selfEmployment`, `inheritance`, `divorce`, `countryMove` | Concreteness ×1.25, Guardrail ×1.25 |
+| Transition event | `retirement`, `jobLoss`, `disability`, `housingSale` | Actionability weight ×1.25 |
+| Mobility event | `cantonMove`, `countryMove` | Standard weights (concreteness ×1.1 for tax implications) |
+| Legacy event | `donation`, `deathOfRelative` | Jargon-free ×1.5, brevity ×1.5 |
+| Career change | `newJob` | Standard weights |
+| Literacy: beginner | `literacy_level = beginner` | Jargon-free weight ×1.5 |
+| Literacy: advanced | `literacy_level = advanced` | Concreteness weight ×1.5 |
+| Crisis mode | `debtCrisis`, Safe Mode active | Brevity ×1.5, Actionability ×1.5, emotion = empathy only |
+
+**Precedence (when multiple events):** Crisis mode > Complexity peak > Transition > Building > Mobility > Standard. Apply the HIGHEST-priority context's weights. Do NOT stack multipliers.
 
 ## The Loop
 
@@ -133,6 +164,52 @@ voice=$(echo "$TEXT" | grep -oiE "tu |pourrait|envisager|une option|un·e spéci
 - **NBSP before double punctuation** — `\u00a0` before `!?:;%`
 - **Preserve placeholders** — {amount}, {name} must survive
 - **Keep under 100 words** when possible
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY optimization, before reporting it as kept:
+
+1. **RUN** the mechanical scoring commands fresh on the NEW text. Not from memory.
+2. **PASTE** the exact score breakdown (concrete, jargon, brevity, actions, emotion, voice) in your log.
+3. **COMPARE** numerically: new_score - old_score >= +5? If not → DISCARD. No exceptions.
+4. **RUN** `flutter gen-l10n` if ARB changed. Paste output. Every 5 optimizations → `flutter test`.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The text reads better now" | Score it mechanically. Feelings are not data. |
+| "The LLM would prefer this version" | LLM opinion is not a metric. grep/wc only. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. Return to the Loop and retry with a different variant. If stuck 3x on same text → log as `discard` and move to next target.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Score improved" | Delta >= +5, measured by grep/wc | "Reads better", LLM self-evaluation |
+| "Compliance clean" | 0 banned terms in fresh grep | Previous check, "should pass" |
+| "gen-l10n succeeds" | Fresh `flutter gen-l10n` output: exit 0 | Previous run, assumed OK |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Score + compliance + gen-l10n all green | Green from previous iteration |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

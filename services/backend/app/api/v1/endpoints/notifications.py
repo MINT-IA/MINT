@@ -11,9 +11,11 @@ Sources:
     - LSFin art. 3 (obligation d'information)
 """
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 
+from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
+from app.models.user import User
 
 from app.schemas.notifications import (
     CalendarNotificationRequest,
@@ -65,6 +67,7 @@ def _milestone_to_response(ms) -> MilestoneResponse:
 def generate_calendar_notifications(
     request: Request,
     body: CalendarNotificationRequest,
+    _user: User = Depends(require_current_user),
 ) -> CalendarNotificationsResponse:
     """Generer les notifications calendaires (Tier 1).
 
@@ -89,6 +92,7 @@ def generate_calendar_notifications(
 def generate_event_notifications(
     request: Request,
     body: EventNotificationRequest,
+    _user: User = Depends(require_current_user),
 ) -> EventNotificationsResponse:
     """Generer les notifications evenementielles (Tier 2).
 
@@ -114,6 +118,7 @@ def generate_event_notifications(
 def check_milestones(
     request: Request,
     body: MilestoneCheckRequest,
+    _user: User = Depends(require_current_user),
 ) -> MilestoneCheckResponse:
     """Detecter les milestones nouvellement franchis.
 

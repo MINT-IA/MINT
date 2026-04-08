@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -19,11 +18,9 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/coach/coach_helpers.dart';
 import 'package:mint_mobile/widgets/coach/milestone_celebration_sheet.dart';
 import 'package:mint_mobile/widgets/coach/micro_action_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/monthly_briefing_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHECK-IN SCREEN — Sprint C6 / MINT Coach
@@ -454,7 +451,7 @@ Reponds uniquement avec le texte final.
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -466,7 +463,7 @@ Reponds uniquement avec le texte final.
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -480,7 +477,7 @@ Reponds uniquement avec le texte final.
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => Navigator.of(context).pop(),
       ),
       title: Text(
         s.checkinTitle(_currentMonthLabel).toUpperCase(),
@@ -625,24 +622,30 @@ Reponds uniquement avec le texte final.
       button: true,
       child: GestureDetector(
         onTap: _showAddContributionSheet,
-        child: MintSurface(
-          tone: MintSurfaceTone.blanc,
+        child: Container(
           padding: const EdgeInsets.symmetric(vertical: 14),
-          radius: 16,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.add_circle_outline,
-                  color: MintColors.coachAccent, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                s.checkinAddContribution,
-                style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
+        decoration: BoxDecoration(
+          color: MintColors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: MintColors.coachAccent.withValues(alpha: 0.3),
+            style: BorderStyle.solid,
           ),
         ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.add_circle_outline,
+                color: MintColors.coachAccent, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              s.checkinAddContribution,
+              style: MintTextStyles.bodyMedium(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
+    ),
     );
   }
 
@@ -713,7 +716,7 @@ Reponds uniquement avec le texte final.
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Handle
-                  MintEntrance(child: Center(
+                  Center(
                     child: Container(
                       width: 40,
                       height: 4,
@@ -722,21 +725,21 @@ Reponds uniquement avec le texte final.
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
-                  )),
+                  ),
                   const SizedBox(height: 20),
-                  MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
+                  Text(
                     s.checkinAddContribution,
                     style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-                  )),
+                  ),
                   const SizedBox(height: 20),
 
                   // Category chips
-                  MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
+                  Text(
                     s.checkinCategoryLabel,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
-                  )),
+                  ),
                   const SizedBox(height: 8),
-                  MintEntrance(delay: const Duration(milliseconds: 300), child: Wrap(
+                  Wrap(
                     spacing: 8,
                     runSpacing: 8,
                     children: categories.map((cat) {
@@ -789,14 +792,14 @@ Reponds uniquement avec le texte final.
                       ),
                       );
                     }).toList(),
-                  )),
+                  ),
                   const SizedBox(height: 18),
 
                   // Label
-                  MintEntrance(delay: const Duration(milliseconds: 400), child: Text(
+                  Text(
                     s.checkinLabelField,
                     style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
-                  )),
+                  ),
                   const SizedBox(height: MintSpacing.sm),
                   TextFormField(
                     controller: labelController,
@@ -901,7 +904,7 @@ Reponds uniquement avec le texte final.
                           isAutomatic: isAutomatic,
                         );
 
-                        ctx.pop();
+                        Navigator.of(ctx).pop();
                         _addContribution(contribution);
                       },
                       style: ElevatedButton.styleFrom(
@@ -949,10 +952,13 @@ Reponds uniquement avec le texte final.
     required IconData icon,
     required Color color,
   }) {
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
       padding: const EdgeInsets.all(16),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1137,7 +1143,7 @@ Reponds uniquement avec le texte final.
         width: double.infinity,
         height: 56,
         child: ElevatedButton(
-          onPressed: () => context.pop(),
+          onPressed: () => Navigator.of(context).pop(),
           style: ElevatedButton.styleFrom(
             backgroundColor: MintColors.primary,
             foregroundColor: MintColors.white,
@@ -1438,10 +1444,13 @@ Reponds uniquement avec le texte final.
   // ── Disclaimer ─────────────────────────────────────────────
   Widget _buildDisclaimer() {
     final s = S.of(context)!;
-    return MintSurface(
-      tone: MintSurfaceTone.blanc,
+    return Container(
       padding: const EdgeInsets.all(16),
-      radius: 16,
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1486,11 +1495,20 @@ class _ContributionRow extends StatelessWidget {
 
     return Stack(
       children: [
-        MintSurface(
-          tone: MintSurfaceTone.blanc,
+        Container(
           padding: const EdgeInsets.all(16),
-          radius: 16,
-          elevated: true,
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.lightBorder),
+            boxShadow: [
+              BoxShadow(
+                color: MintColors.primary.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: Row(
             children: [
               // Category icon

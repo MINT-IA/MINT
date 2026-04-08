@@ -48,11 +48,25 @@ class SessionDelta {
   final double fhsDelta;
   final Duration timeSinceLastVisit;
 
+  /// Why the delta happened: 'inaction', 'macro', or 'user_action'.
+  final String cause;
+
+  /// Linear extrapolation: projected retirement income in 30 days
+  /// if nothing changes. Only meaningful when cause == 'inaction'.
+  final double? projected30d;
+
+  /// Linear extrapolation: projected retirement income in 6 months
+  /// if nothing changes. Only meaningful when cause == 'inaction'.
+  final double? projected6m;
+
   const SessionDelta({
     required this.confidenceDelta,
     required this.retirementIncomeDelta,
     required this.fhsDelta,
     required this.timeSinceLastVisit,
+    this.cause = 'inaction',
+    this.projected30d,
+    this.projected6m,
   });
 
   /// True if any delta is significant enough to show to the user.

@@ -28,7 +28,8 @@ void main() {
       ),
       prevoyance: const PrevoyanceProfile(
         avoirLppTotal: 80000,
-        totalEpargne3a: 15000,
+        totalEpargne3a: 2000, // Below 3a ceiling → triggers 3a_not_maxed tip year-round
+        nombre3a: 1,
         tauxConversion: 0.068,
         rendementCaisse: 0.02,
       ),
@@ -193,9 +194,9 @@ void main() {
         ),
         prevoyance: const PrevoyanceProfile(
           avoirLppTotal: 200000,
-          totalEpargne3a: 50000,
+          totalEpargne3a: 3000, // Below 3a ceiling → triggers 3a_not_maxed year-round
           nombre3a: 1,
-          rachatMaximum: 0,
+          rachatMaximum: 50000, // Triggers LPP buyback tip
         ),
         patrimoine: const PatrimoineProfile(
           epargneLiquide: 60000,

@@ -215,6 +215,14 @@ CHARGES_SOCIALES_PAYS = {
         # Source: ASVG (Allgemeines Sozialversicherungsgesetz)
         "source": "ASVG §§ 51ff (Sozialversicherung AT)",
     },
+    # FIX-163: Liechtenstein frontaliers (EEA member, Swiss customs union)
+    "LI": {
+        "label": "Liechtenstein",
+        "taux_employe_total": 0.12,  # ~12% (AHV/IV/FAK + ALV)
+        "taux_employeur_total": 0.15,  # ~15%
+        # Source: AHVG (LI), bilateral CH-LI social security agreement
+        "source": "AHVG LI, accord bilatéral CH-LI",
+    },
 }
 
 # ---------------------------------------------------------------------------
@@ -250,6 +258,9 @@ ASSURANCE_RESIDENCE_PRIMES = {
     "AT": {"prime_mensuelle": 0.0, "cotisation_pct": 0.077,
             "source": "ASVG § 51 (Krankenversicherung ~7.7% du salaire brut)"},
     # AT: couverture maladie incluse dans les cotisations sociales
+    # FIX-163: Liechtenstein
+    "LI": {"prime_mensuelle": 350.0, "cotisation_pct": 0.0,
+            "source": "KVG LI (assurance maladie obligatoire, ~350 CHF/mois)"},
 }
 
 

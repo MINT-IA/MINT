@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -8,6 +10,7 @@ import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
 ///
@@ -99,6 +102,8 @@ class AuthProvider extends ChangeNotifier {
         _email = await AuthService.getUserEmail();
         _displayName = await AuthService.getDisplayName();
         _isLoggedIn = true;
+        // FIX-W11-7: Set user prefix for conversation isolation.
+        ConversationStore.setCurrentUserId(_userId);
         _error = null;
       }
       // F3-2: Restore email verification state from SharedPreferences.
@@ -148,6 +153,8 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: response['refresh_token'] as String?,
         );
         _isLoggedIn = true;
+        // FIX-W11-7: Set user prefix for conversation isolation.
+        ConversationStore.setCurrentUserId(userId);
       } else {
         _isLoggedIn = false;
       }
@@ -206,11 +213,96 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
+      // FIX-W11-7: Set user prefix for conversation isolation.
+      ConversationStore.setCurrentUserId(userId);
       _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
 
       await _migrateLocalDataIfNeeded();
+      // FIX-W11-5: Hydrate local state from backend on new device login
+      await _hydrateProfileFromBackend();
+
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Send a magic link to the given email address.
+  Future<bool> sendMagicLink(String email) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await ApiService.sendMagicLink(email);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Verify a magic link token and complete authentication.
+  Future<bool> verifyMagicLink(String token) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await ApiService.verifyMagicLink(token);
+
+      // Backend returns camelCase: { accessToken, tokenType }
+      final accessToken = (response['accessToken'] ?? response['access_token']) as String;
+
+      // Get user info from the JWT to populate auth state.
+      // For now, store the token and fetch user info separately.
+      await AuthService.saveToken(
+        accessToken,
+        '', // userId will be populated from /me endpoint
+        '', // email will be populated from /me endpoint
+      );
+
+      // Fetch user info with the new token
+      try {
+        final userInfo = await ApiService.getMe();
+        final userId = userInfo['id']?.toString() ?? '';
+        final userEmail = userInfo['email']?.toString() ?? '';
+        final displayName = userInfo['display_name'] as String?;
+
+        await AuthService.saveToken(
+          accessToken,
+          userId,
+          userEmail,
+          displayName: displayName,
+        );
+
+        _userId = userId;
+        _email = userEmail;
+        _displayName = displayName;
+      } catch (_) {
+        // Best-effort: token is valid even if /me fails
+      }
+
+      _isLoggedIn = true;
+      _requiresEmailVerification = false;
+      _error = null;
+      _isLoading = false;
+
+      if (_userId != null) {
+        ConversationStore.setCurrentUserId(_userId);
+        await _migrateLocalDataIfNeeded();
+        await _hydrateProfileFromBackend();
+      }
 
       notifyListeners();
       return true;
@@ -230,6 +322,8 @@ class AuthProvider extends ChangeNotifier {
       await ApiService.deleteAccount();
       await AuthService.logout();
       // V6-4 audit fix: purge ALL local data on account deletion
+      // FIX-W11-7: Clear user prefix on account deletion.
+      ConversationStore.setCurrentUserId(null);
       await _purgeLocalData();
       _isLoggedIn = false;
       _userId = null;
@@ -325,6 +419,8 @@ class AuthProvider extends ChangeNotifier {
   /// cross-account data bleed on shared devices.
   Future<void> logout() async {
     await AuthService.logout();
+    // FIX-W11-7: Clear user prefix on logout.
+    ConversationStore.setCurrentUserId(null);
     await _purgeLocalData();
     _isLoggedIn = false;
     _userId = null;
@@ -339,10 +435,15 @@ class AuthProvider extends ChangeNotifier {
   /// cross-account data bleed on shared devices.
   /// Same purge sequence as profile_screen.dart deleteAccount flow.
   Future<void> _purgeLocalData() async {
+    // TODO(P2): Implement cloud backup of conversations/check-ins before purge
     try {
+      // FIX-W11-2: Log purge scope for observability before destroying data
       // Purge conversation history
       final store = ConversationStore();
       final conversations = await store.listConversations();
+      debugPrint(
+        '[Auth] Purging ${conversations.length} conversations (not backed up)',
+      );
       for (final conv in conversations) {
         await store.deleteConversation(conv.id);
       }
@@ -352,6 +453,9 @@ class AuthProvider extends ChangeNotifier {
       await CapMemoryStore.clear();
       // Purge analytics queue
       await AnalyticsService().clearLocalQueue();
+      // F2: Purge BYOK API keys from secure storage (prevents cross-account key bleed)
+      const secureStorage = FlutterSecureStorage();
+      await secureStorage.deleteAll();
       // Clear account-specific SharedPreferences while preserving device prefs.
       // Save device-level prefs, clear everything, then restore them.
       // This is safer than selective removal (new keys are auto-cleared).
@@ -419,15 +523,78 @@ class AuthProvider extends ChangeNotifier {
         return;
       }
 
-      // Mark migration as complete — actual cloud sync will happen
-      // when the sync service is implemented (post-V1).
-      // For now we just tag local data with the user ID so it can
-      // be associated later.
+      // Push local wizard data to backend via claimLocalData.
+      // Best-effort: failure does not block the auth flow.
+      try {
+        final answers = await ReportPersistenceService.loadAnswers();
+        if (answers.isNotEmpty) {
+          var deviceId = prefs.getString('_mint_device_id');
+          if (deviceId == null) {
+            deviceId = const Uuid().v4();
+            await prefs.setString('_mint_device_id', deviceId);
+          }
+          await ApiService.claimLocalData(
+            localDataVersion: 1,
+            deviceId: deviceId,
+            wizardAnswers: answers,
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('[AuthProvider] claimLocalData sync failed: $e');
+        }
+      }
+
       await prefs.setString('local_data_owner', currentUserId);
       await prefs.setBool('local_data_migrated_$currentUserId', true);
     } catch (e) {
       // Migration is best-effort — never block auth flow
       if (kDebugMode) debugPrint('[AuthProvider] Local data migration failed: $e');
+    }
+  }
+
+  /// FIX-W11-5: Hydrate key profile fields from backend on login.
+  ///
+  /// On a new device the local SharedPreferences are empty. This fetches
+  /// the cloud profile and seeds the most critical fields so screens
+  /// don't show an empty state.
+  Future<void> _hydrateProfileFromBackend() async {
+    try {
+      final profileData = await ApiService.get('/profiles/me');
+      if (profileData.isEmpty) return;
+      final data = profileData['data'] as Map<String, dynamic>?;
+      if (data == null) return;
+
+      final prefs = await SharedPreferences.getInstance();
+      if (data['birthYear'] != null) {
+        await prefs.setInt('q_birth_year', data['birthYear'] as int);
+      }
+      if (data['canton'] != null) {
+        await prefs.setString('q_canton', data['canton'] as String);
+      }
+      if (data['incomeGrossYearly'] != null) {
+        await prefs.setDouble(
+          'q_gross_salary',
+          (data['incomeGrossYearly'] as num).toDouble() / 12,
+        );
+      }
+      if (data['incomeNetMonthly'] != null) {
+        await prefs.setDouble(
+          'q_net_income_period_chf',
+          (data['incomeNetMonthly'] as num).toDouble(),
+        );
+      }
+      if (data['householdType'] != null) {
+        await prefs.setString(
+          'q_household_type',
+          data['householdType'] as String,
+        );
+      }
+    } catch (e) {
+      // Hydration is best-effort — never block login flow
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Profile hydration failed: $e');
+      }
     }
   }
 

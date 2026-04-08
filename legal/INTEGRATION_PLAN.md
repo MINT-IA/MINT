@@ -322,4 +322,4 @@ Tu peux aussi nous contacter : privacy@mint-app.ch
 
 ---
 
-*MINT — « Juste quand il faut : une explication, une action, un rappel. »*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

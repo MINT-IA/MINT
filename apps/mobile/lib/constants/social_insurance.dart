@@ -162,6 +162,39 @@ const double avsRAMDMin = 14700.0;
 /// RAMD maximum pour rente maximale (LAVS art. 34, echelle 44).
 const double avsRAMDMax = 88200.0;
 
+/// Echelle 44 complete (OFAS 2025) — fallback when backend is unreachable.
+/// Format: [[RAMD, rente_mensuelle], ...].
+/// Updated every 2 years by Federal Council (mixed index).
+/// Source: LAVS art. 34, OFAS tables de rentes 2023/2025.
+const List<List<double>> avsEchelle44 = [
+  [14700, 1260],
+  [17640, 1299],
+  [20580, 1338],
+  [23520, 1377],
+  [26460, 1416],
+  [29400, 1470],
+  [32340, 1524],
+  [35280, 1578],
+  [38220, 1632],
+  [41160, 1686],
+  [44100, 1743],
+  [47040, 1800],
+  [49980, 1857],
+  [52920, 1914],
+  [55860, 1971],
+  [58800, 2028],
+  [61740, 2085],
+  [64680, 2142],
+  [67620, 2199],
+  [70560, 2256],
+  [73500, 2313],
+  [76440, 2370],
+  [79380, 2427],
+  [82320, 2462],
+  [85260, 2491],
+  [88200, 2520],
+];
+
 /// Franchise AVS pour retraites actifs, mensuelle.
 const double avsFranchiseRetraiteMensuelle = 1400.0;
 
@@ -434,6 +467,13 @@ const int friThresholdBon = 60;
 
 /// FRI >= 40 : Attention (orange)
 const int friThresholdAttention = 40;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Echelle 44 — Table officielle OFAS (rentes mensuelles AVS/AI)
+// Base legale: LAVS art. 34, Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// avsEchelle44 — defined above (line ~169). Do not duplicate.
 
 // ══════════════════════════════════════════════════════════════════════════════
 // Projection — Hypothèses par défaut

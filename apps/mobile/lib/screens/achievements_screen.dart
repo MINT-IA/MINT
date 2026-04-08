@@ -133,7 +133,9 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -182,7 +184,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             ],
           ],
         ),
-      ))),
+      )))),
     );
   }
 
@@ -238,7 +240,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                   _dailyStreak == 1
                       ? s.achievementsDaysSingular
                       : s.achievementsDaysPlural,
-                  style: MintTextStyles.headlineMedium(color: MintColors.textSecondary).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -325,9 +327,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         children: [
           Icon(icon, size: 14, color: MintColors.textMuted),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+          Flexible(
+            child: Text(
+              label,
+              style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -356,7 +362,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
         final isToday = index == 6;
 
         return Semantics(
-          label: '${dayLabels[date.weekday - 1]} ${isEngaged ? "actif" : "inactif"}',
+          label: '${dayLabels[date.weekday - 1]} ${isEngaged ? S.of(context)!.semanticsActive : S.of(context)!.semanticsInactive}',
           child: Column(
             children: [
               Text(
@@ -445,7 +451,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       children: [
         Text(
           s.achievementsBadgesTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         const SizedBox(height: MintSpacing.xs),
         Text(
@@ -534,6 +540,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                     ? MintColors.textPrimary
                     : MintColors.textMuted,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: MintSpacing.xs),
             Text(
@@ -550,6 +558,10 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
   void _showBadgeDetail(_BadgeInfo badge) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -571,7 +583,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             const SizedBox(height: MintSpacing.md),
             MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               badge.label,
-              style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+              style: MintTextStyles.headlineSmall(),
             )),
             const SizedBox(height: MintSpacing.sm),
             MintEntrance(delay: const Duration(milliseconds: 300), child: Text(
@@ -677,7 +689,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
       children: [
         Text(
           s.achievementsMilestonesTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         const SizedBox(height: MintSpacing.xs),
         Text(
@@ -711,9 +723,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             children: [
               Icon(category.icon, color: category.color, size: 20),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                category.title,
-                style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              Flexible(
+                child: Text(
+                  category.title,
+                  style: MintTextStyles.labelLarge(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -726,7 +742,7 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
 
   Widget _buildMilestoneRow(MintMilestone milestone) {
     return Semantics(
-      label: '${milestone.label} ${milestone.isReached ? "atteint" : "non atteint"}',
+      label: '${milestone.label} ${milestone.isReached ? S.of(context)!.semanticsReached : S.of(context)!.semanticsNotReached}',
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -760,6 +776,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                           ? MintColors.textPrimary
                           : MintColors.textMuted,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Text(
                     milestone.description,
@@ -791,9 +809,13 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
             children: [
               Icon(category.icon, color: category.color, size: 20),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                category.title,
-                style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              Flexible(
+                child: Text(
+                  category.title,
+                  style: MintTextStyles.labelLarge(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -830,6 +852,8 @@ class _AchievementsScreenState extends State<AchievementsScreen> {
                 Text(
                   info.label,
                   style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Text(
                   info.description,

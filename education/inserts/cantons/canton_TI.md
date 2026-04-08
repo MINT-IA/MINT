@@ -11,7 +11,7 @@ source: "Administration fiscale du canton du Tessin"
 ## Trigger
 L'utilisateur réside au Tessin ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale au Tessin est moyenne à légèrement supérieure : le multiplicateur cantonal se situe autour de 115-120 %.
 
 ## Niveau 0

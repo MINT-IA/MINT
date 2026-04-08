@@ -250,12 +250,12 @@ class CouplePatrimoineCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   l.patrimoineNetLabel,
-                  style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Text(
                 formatChfWithPrefix(patrimoineNet),
-                style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                style: MintTextStyles.titleLarge(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -378,7 +378,7 @@ class CouplePatrimoineCard extends StatelessWidget {
         ),
         Text(
           _fmt(value),
-          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+          style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
       ],
     );
@@ -392,12 +392,12 @@ class CouplePatrimoineCard extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
           Text(
             formatChfWithPrefix(amount),
-            style: MintTextStyles.bodySmall(color: valueColor ?? MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+            style: MintTextStyles.bodySmall(color: valueColor ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -428,14 +428,14 @@ class CouplePatrimoineCard extends StatelessWidget {
           ),
           child: Text(
             l.patrimoineLtvDisplay('$ltvPercent'),
-            style: MintTextStyles.micro(color: ltvColor).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: ltvColor).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
         ),
         const SizedBox(width: 4),
         Expanded(
           child: Text(
             advice,
-            style: MintTextStyles.micro(color: ltvColor).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: ltvColor).copyWith(fontStyle: FontStyle.normal),
             overflow: TextOverflow.ellipsis,
           ),
         ),

@@ -1,5 +1,7 @@
 # BLUEPRINT : MINT Coach AI Layer — Mission Document
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
 > **Companions**: `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (couche orchestration), `MINT_UX_GRAAL_MASTERPLAN.md` (vision umbrella).
 > **Note statut (2026-03-21)**: Partiellement à jour. Les fichiers `coach_dashboard_screen.dart` et `coach_agir_screen.dart` référencés dans §CONVENTIONS ont été remplacés par `CoachChatScreen` + `MainNavigationShell`. Les services listés comme "NOUVEAUX" ont été implémentés. Voir `docs/DOC_STATUS_MATRIX.md` pour le détail.
@@ -17,7 +19,7 @@
 CoachNarrativeService (NOUVEAU)
 ├── Input: CoachProfile + ScoreHistory + CheckIns + UserActivity + DateTime.now()
 ├── Engine: BYOK via RagService (si configure) OU templates statiques (fallback)
-├── Output: CoachNarrative (greeting, scoreSummary, tips enrichis, chiffreChoc, trendMessage, milestoneAlert, scenarioNarration)
+├── Output: CoachNarrative (greeting, scoreSummary, tips enrichis, premierEclairage, trendMessage, milestoneAlert, scenarioNarration)
 ├── Cache: SharedPreferences, 24h TTL, cle = "coach_narrative_{yyyy-MM-dd}"
 └── Guardrails: Compliance filter + disclaimers (existants dans coach_llm_service.dart)
 ```
@@ -305,16 +307,16 @@ if (_tips != null && _tips!.isNotEmpty) {
 
 ---
 
-## TACHE T3 — Chiffre Choc Emotionnel
+## TACHE T3 — Premier Éclairage Emotionnel
 
-### Fichier : `lib/widgets/coach/chiffre_choc_card.dart` (MODIFIER)
+### Fichier : `lib/widgets/coach/premier_eclairage_card.dart` (MODIFIER) — legacy name, canonical: `premier_eclairage_card`
 
 ### Specification
 
-Le `ChiffreChocCard` accepte deja `value`, `message`, `source`, `ctaLabel`, `ctaRoute`. Ajouter un champ optionnel `narrativeMessage` :
+Le `PremierEclairageCard` accepte deja `value`, `message`, `source`, `ctaLabel`, `ctaRoute`. Ajouter un champ optionnel `narrativeMessage` :
 
 ```dart
-class ChiffreChocCard extends StatelessWidget {
+class PremierEclairageCard extends StatelessWidget {
   final double value;
   final String message;          // message actuel (statique)
   final String? narrativeMessage; // NOUVEAU : message LLM (si BYOK)

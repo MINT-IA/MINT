@@ -1,14 +1,17 @@
+// Phase 7 — L1.7 Landing v2 "calm promise surface".
+//
+// NON-NEGOTIABLE invariants (enforced by CI gates in tools/checks/):
+//   • No `financial_core` / services / providers / models imports.
+//   • No digits anywhere in this file.
+//   • No retirement / banned-term vocabulary.
+//
+// Spec: .planning/phases/07-l1.7-landing-v2/CONTEXT.md §2 D-01..D-13.
+// Copy is LOCKED in ARB (landingV2Paragraph/Cta/Privacy/Legal).
+
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/theme/mint_text_styles.dart';
-import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:mint_mobile/services/report_persistence_service.dart';
-import 'package:mint_mobile/services/analytics_service.dart';
-import 'package:mint_mobile/widgets/analytics_consent_banner.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -18,400 +21,163 @@ class LandingScreen extends StatefulWidget {
 }
 
 class _LandingScreenState extends State<LandingScreen>
-    with TickerProviderStateMixin {
-  final AnalyticsService _analytics = AnalyticsService();
-
-  late final AnimationController _heroController;
-  late final AnimationController _translatorController;
-  late final AnimationController _footerController;
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _paragraphOpacity;
+  late final Animation<Offset> _paragraphOffset;
+  late final Animation<double> _ctaOpacity;
+  late final Animation<double> _legalOpacity;
 
   @override
   void initState() {
     super.initState();
-    _analytics.trackScreenView('/');
-
-    _heroController = AnimationController(
+    _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _translatorController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _footerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 700),
     );
 
-    _heroController.forward();
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (mounted) _translatorController.forward();
-    });
-    Future.delayed(const Duration(milliseconds: 900), () {
-      if (mounted) _footerController.forward();
+    // D-08 motion: paragraph 120–370ms, CTA+privacy 400–650ms, legal 600–700ms.
+    _paragraphOpacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.17, 0.53, curve: Curves.easeOutCubic),
+    );
+    _paragraphOffset = Tween<Offset>(
+      begin: const Offset(0, 0.04),
+      end: Offset.zero,
+    ).animate(_paragraphOpacity);
+    _ctaOpacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.57, 0.93, curve: Curves.easeOutCubic),
+    );
+    _legalOpacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.86, 1.0, curve: Curves.easeOutCubic),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final mq = MediaQuery.of(context);
+      if (mq.disableAnimations || mq.accessibleNavigation) {
+        _controller.value = 1.0;
+      } else {
+        _controller.forward();
+      }
     });
   }
 
   @override
   void dispose() {
-    _heroController.dispose();
-    _translatorController.dispose();
-    _footerController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  void _onCtaTap() async {
-    _analytics.trackCTAClick('cta_commencer_clicked', screenName: '/');
-    final isCompleted = await ReportPersistenceService.isCompleted();
-    final isMiniCompleted =
-        await ReportPersistenceService.isMiniOnboardingCompleted();
-    if (mounted) {
-      if (isCompleted || isMiniCompleted) {
-        context.go('/home');
-      } else {
-        context.go('/onboarding/smart');
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = S.of(context)!;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: MintColors.porcelaine,
-      body: Stack(
-        children: [
-          MintEntrance(child: SafeArea(
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 480),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xl),
+      backgroundColor: MintColors.craie,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Spacer(flex: 2),
+                  // Wordmark — long-press routes to /auth/login (D-12 hidden affordance).
+                  Center(
+                    child: Semantics(
+                      header: true,
+                      label: 'MINT',
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onLongPress: () => context.go('/auth/login'),
+                        child: Text(
+                          'MINT',
+                          style: textTheme.titleMedium?.copyWith(
+                            color: MintColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 4,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(flex: 3),
+                  // Paragraphe-mère (D-01, D-07).
+                  FadeTransition(
+                    opacity: _paragraphOpacity,
+                    child: SlideTransition(
+                      position: _paragraphOffset,
+                      child: Semantics(
+                        container: true,
+                        label: l10n.landingV2Paragraph,
+                        child: Text(
+                          l10n.landingV2Paragraph,
+                          textAlign: TextAlign.center,
+                          style: textTheme.headlineSmall?.copyWith(
+                            color: MintColors.textPrimary,
+                            fontWeight: FontWeight.w500,
+                            height: 1.45,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(flex: 1),
+                  // CTA + privacy micro-phrase (D-02, D-03).
+                  FadeTransition(
+                    opacity: _ctaOpacity,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _buildHeader(),
-                        const SizedBox(height: MintSpacing.xxxxl),
-                        _buildHeroPunchline(),
-                        const SizedBox(height: MintSpacing.xxxl),
-                        _buildTranslator(),
-                        const SizedBox(height: MintSpacing.xxxl),
-                        _buildHiddenNumber(),
-                        const SizedBox(height: MintSpacing.xxl),
-                        _buildCta(),
-                        const SizedBox(height: MintSpacing.xxl),
-                        _buildTrustBar(),
-                        const SizedBox(height: MintSpacing.sm),
-                        _buildLegalFooter(),
-                        const SizedBox(height: MintSpacing.xxxxl),
+                        Semantics(
+                          button: true,
+                          label: l10n.landingV2Cta,
+                          child: FilledButton(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: MintColors.textPrimary,
+                              foregroundColor: MintColors.craie,
+                              minimumSize: const Size.fromHeight(56),
+                              shape: const StadiumBorder(),
+                              textStyle: textTheme.labelLarge,
+                            ),
+                            onPressed: () => context.go('/onboarding/intent'),
+                            child: Text(l10n.landingV2Cta),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.landingV2Privacy,
+                          textAlign: TextAlign.center,
+                          style: textTheme.bodySmall?.copyWith(
+                            color: MintColors.textSecondaryAaa,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-          )),
-
-          // Analytics consent
-          const AnalyticsConsentBanner(),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Header — MINT wordmark + ghost login
-  // ---------------------------------------------------------------------------
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.only(top: MintSpacing.sm, bottom: MintSpacing.sm),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            'MINT',
-            style: MintTextStyles.brandLogo(),
-          ),
-          TextButton(
-            onPressed: () {
-              _analytics.trackCTAClick('cta_login_clicked', screenName: '/');
-              context.go('/auth/login');
-            },
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: MintSpacing.sm),
-            ),
-            child: Text(
-              S.of(context)!.authLogin,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
-                  .copyWith(fontWeight: FontWeight.w500),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Section 1: Hero — two-line punchline, warm coral on line 2
-  // ---------------------------------------------------------------------------
-  Widget _buildHeroPunchline() {
-    final l10n = S.of(context)!;
-    return FadeTransition(
-      opacity: CurvedAnimation(
-        parent: _heroController,
-        curve: Curves.easeOut,
-      ),
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.12),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: _heroController,
-          curve: Curves.easeOut,
-        )),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              l10n.landingPunchline1,
-              style: MintTextStyles.headlineLarge(color: MintColors.textPrimary),
-            ),
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              l10n.landingPunchline2,
-              style: MintTextStyles.headlineLarge(color: MintColors.corailDiscret),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Section 2: Translator — 3 jargon/clear pairs in individual MintSurface cards
-  // ---------------------------------------------------------------------------
-  Widget _buildTranslator() {
-    final l10n = S.of(context)!;
-
-    // Indices 0, 3, 2 from original list:
-    // "Deduction de coordination", "Lacune de prevoyance", "Taux marginal"
-    final pairs = [
-      (l10n.landingJargon1, l10n.landingClear1),
-      (l10n.landingJargon4, l10n.landingClear4),
-      (l10n.landingJargon3, l10n.landingClear3),
-    ];
-
-    return AnimatedBuilder(
-      animation: _translatorController,
-      builder: (context, _) {
-        return Column(
-          children: [
-            for (int i = 0; i < pairs.length; i++) ...[
-              _buildTranslatorCard(pairs[i].$1, pairs[i].$2, i),
-              if (i < pairs.length - 1)
-                const SizedBox(height: MintSpacing.md),
-            ],
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildTranslatorCard(String jargon, String clear, int index) {
-    // Stagger: each card appears 150ms after the previous
-    final staggerDelay = index * 0.25; // 0.25 of total animation = ~150ms
-    final begin = staggerDelay;
-    final end = (staggerDelay + 0.75).clamp(0.0, 1.0);
-
-    final opacity = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _translatorController,
-        curve: Interval(begin, end, curve: Curves.easeOut),
-      ),
-    );
-
-    final offset = Tween<Offset>(
-      begin: const Offset(0, 0.08),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _translatorController,
-        curve: Interval(begin, end, curve: Curves.easeOut),
-      ),
-    );
-
-    return FadeTransition(
-      opacity: opacity,
-      child: SlideTransition(
-        position: offset,
-        child: MintSurface(
-          tone: MintSurfaceTone.sauge,
-          padding: const EdgeInsets.all(MintSpacing.md),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Jargon — struck through, muted
-              Expanded(
-                child: Text(
-                  jargon,
-                  style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(
-                    decoration: TextDecoration.lineThrough,
-                    decorationColor: MintColors.textMuted.withValues(alpha: 0.4),
+                  const Spacer(flex: 2),
+                  // Legal footer (D-04).
+                  FadeTransition(
+                    opacity: _legalOpacity,
+                    child: Text(
+                      l10n.landingV2Legal,
+                      textAlign: TextAlign.center,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: MintColors.textMutedAaa,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-              // Arrow — coral
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-                child: Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 15,
-                  color: MintColors.corailDiscret,
-                ),
-              ),
-              // Clear translation — bold, primary
-              Expanded(
-                child: Text(
-                  clear,
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary),
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Section 3: Hidden number — CHF ···· teaser
-  // ---------------------------------------------------------------------------
-  Widget _buildHiddenNumber() {
-    final l10n = S.of(context)!;
-    return FadeTransition(
-      opacity: CurvedAnimation(
-        parent: _footerController,
-        curve: Curves.easeOut,
-      ),
-      child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.08),
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: _footerController,
-          curve: Curves.easeOut,
-        )),
-        child: MintSurface(
-          tone: MintSurfaceTone.peche,
-          child: Column(
-            children: [
-              Text(
-                l10n.landingHiddenAmount,
-                style: MintTextStyles.displayMedium(color: MintColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                l10n.landingHiddenSubtitle,
-                style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // CTA — pill-shaped filled button
-  // ---------------------------------------------------------------------------
-  Widget _buildCta() {
-    final l10n = S.of(context)!;
-    return SizedBox(
-      width: double.infinity,
-      child: Semantics(
-        label: l10n.landingCtaCommencer,
-        button: true,
-        child: FilledButton(
-          onPressed: _onCtaTap,
-          style: FilledButton.styleFrom(
-            backgroundColor: MintColors.primary,
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(vertical: MintSpacing.md + 2, horizontal: MintSpacing.xl),
-          ),
-          child: Text(
-            l10n.landingCtaCommencer,
-            style: MintTextStyles.titleMedium(color: MintColors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Trust bar
-  // ---------------------------------------------------------------------------
-  Widget _buildTrustBar() {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _buildTrustChip(
-              Icons.shield_outlined, S.of(context)!.landingTrustSwiss),
-          _trustDot(),
-          _buildTrustChip(
-              Icons.lock_outline_rounded, S.of(context)!.landingTrustPrivate),
-          _trustDot(),
-          _buildTrustChip(Icons.check_circle_outline_rounded,
-              S.of(context)!.landingTrustNoCommitment),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTrustChip(IconData icon, String label) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12, color: MintColors.textMuted.withValues(alpha: 0.6)),
-        const SizedBox(width: MintSpacing.xs),
-        Text(
-          label,
-          style: MintTextStyles.labelSmall(color: MintColors.textMuted.withValues(alpha: 0.6)),
-        ),
-      ],
-    );
-  }
-
-  Widget _trustDot() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm),
-      child: Container(
-        width: 3,
-        height: 3,
-        decoration: BoxDecoration(
-          color: MintColors.textMuted.withValues(alpha: 0.6),
-          shape: BoxShape.circle,
-        ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // Legal footer
-  // ---------------------------------------------------------------------------
-  Widget _buildLegalFooter() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-        child: Text(
-          S.of(context)!.landingLegalFooterShort,
-          textAlign: TextAlign.center,
-          style: MintTextStyles.micro(color: MintColors.textMuted.withValues(alpha: 0.6)),
         ),
       ),
     );

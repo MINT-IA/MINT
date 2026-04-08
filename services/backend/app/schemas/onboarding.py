@@ -6,7 +6,7 @@ API convention: camelCase field names via alias_generator, ConfigDict.
 Covers:
     - MinimalProfileRequest: input for minimal profile computation (3 required + 8 optional)
     - MinimalProfileResponse: full projection result with confidence scoring
-    - ChiffreChocResponse: single impactful number with educational context
+    - PremierEclairageResponse: single impactful number with educational context
 """
 
 from typing import List, Optional
@@ -39,8 +39,13 @@ class MinimalProfileRequest(OnboardingBaseModel):
         ..., ge=18, le=70,
         description="Age de l'utilisateur (18-70)",
     )
+    birth_date: Optional[str] = Field(
+        default=None,
+        pattern=r"^\d{4}-\d{2}-\d{2}",
+        description="Date de naissance ISO 8601 (ex: 1981-06-15). Si fourni, age est calcule automatiquement.",
+    )
     gross_salary: float = Field(
-        ..., ge=0,
+        ..., ge=0, le=10_000_000,
         description="Salaire brut annuel en CHF",
     )
     canton: str = Field(
@@ -84,6 +89,21 @@ class MinimalProfileRequest(OnboardingBaseModel):
         default=None,
         pattern=r"^(stress_retraite|stress_impots|stress_budget|stress_patrimoine|stress_couple|stress_general)$",
         description="Intention declaree par l'utilisateur a l'onboarding",
+    )
+    # FIX-093: Archetype detection fields (expat, cross-border, returning Swiss)
+    # FIX-130: Validate against known groups.
+    nationality_group: Optional[str] = Field(
+        default=None,
+        pattern=r"^(CH|EU|non_EU|US)$",
+        description="Groupe de nationalite: CH, EU, non_EU, US",
+    )
+    nationality_country: Optional[str] = Field(
+        default=None, max_length=3,
+        description="Code ISO pays de nationalite (ex: FR, DE, US)",
+    )
+    arrival_age: Optional[int] = Field(
+        default=None, ge=0, le=70,
+        description="Age d'arrivee en Suisse (None = ne en Suisse)",
     )
 
 
@@ -158,7 +178,7 @@ class MinimalProfileResponse(OnboardingBaseModel):
     )
 
 
-class ChiffreChocResponse(OnboardingBaseModel):
+class PremierEclairageResponse(OnboardingBaseModel):
     """Chiffre choc: un nombre marquant avec contexte educatif."""
 
     category: str = Field(

@@ -8,7 +8,7 @@ tags: [lpp, capital, rente, decision, retraite, comparaison]
 ## Trigger
 L'utilisateur approche de la retraite et doit choisir entre retirer son 2e pilier en capital, en rente, ou un mix des deux.
 
-## Chiffre Choc
+## Premier Éclairage
 Le point de bascule (breakeven) se situe en moyenne autour de 18-20 ans après la retraite. Si tu vis au-delà de 83-85 ans, la rente t'aura rapporté plus que le capital. Avant cet âge, le capital aurait été plus avantageux — mais personne ne connaît sa date de décès.
 
 ## Niveau 0

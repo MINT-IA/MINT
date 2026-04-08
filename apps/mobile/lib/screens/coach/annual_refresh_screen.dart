@@ -8,9 +8,6 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  ANNUAL REFRESH SCREEN — T6 / MINT Coach
@@ -242,7 +239,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -258,15 +255,15 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   key: _formKey,
                   child: Column(
                     children: [
-                      MintEntrance(child: _buildSalaireCard()),
+                      _buildSalaireCard(),
                       const SizedBox(height: 16),
-                      MintEntrance(delay: const Duration(milliseconds: 100), child: _buildEmploiCard()),
+                      _buildEmploiCard(),
                       const SizedBox(height: 16),
-                      MintEntrance(delay: const Duration(milliseconds: 200), child: _buildLppCard()),
+                      _buildLppCard(),
                       const SizedBox(height: 16),
-                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildThreeACard()),
+                      _buildThreeACard(),
                       const SizedBox(height: 16),
-                      MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRealEstateCard()),
+                      _buildRealEstateCard(),
                       const SizedBox(height: 16),
                       _buildFamilyCard(),
                       const SizedBox(height: 16),
@@ -283,7 +280,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -319,14 +316,19 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       title: S.of(context)!.annualRefreshQ1,
       child: Column(
         children: [
-          MintPremiumSlider(
-            label: 'Salaire brut mensuel',
+          Text(
+            '${_salaireBrutMensuel.toInt()} CHF / mois',
+            style: MintTextStyles.displayMedium(color: MintColors.coachAccent).copyWith(fontSize: 24),
+          ),
+          const SizedBox(height: 12),
+          Slider(
             value: _salaireBrutMensuel.clamp(0, 30000),
             min: 0,
             max: 30000,
             divisions: 300,
             activeColor: MintColors.coachAccent,
-            formatValue: (v) => '${v.toInt()} CHF / mois',
+            inactiveColor: MintColors.coachAccent.withAlpha(40),
+            label: '${_salaireBrutMensuel.toInt()} CHF',
             onChanged: (v) => setState(() => _salaireBrutMensuel = v),
           ),
           Row(
@@ -667,7 +669,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -712,10 +714,20 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                 ),
                 const SizedBox(height: 24),
                 // Score comparison card
-                MintSurface(
+                Container(
                   padding: const EdgeInsets.all(24),
-                  radius: 16,
-                  elevated: true,
+                  decoration: BoxDecoration(
+                    color: MintColors.card,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: MintColors.lightBorder),
+                    boxShadow: [
+                      BoxShadow(
+                        color: MintColors.black.withAlpha(8),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
                   child: Column(
                     children: [
                       Row(
@@ -788,7 +800,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -822,10 +834,20 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
     String? helpText,
     required Widget child,
   }) {
-    return MintSurface(
+    return Container(
       padding: const EdgeInsets.all(20),
-      radius: 16,
-      elevated: true,
+      decoration: BoxDecoration(
+        color: MintColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: MintColors.lightBorder),
+        boxShadow: [
+          BoxShadow(
+            color: MintColors.black.withAlpha(5),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

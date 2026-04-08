@@ -192,7 +192,7 @@ class ExportResult:
     donnees_analytics: List[Dict]
     politique_conservation: Dict[str, str]
     responsable_traitement: str
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str] = field(default_factory=list)
 
@@ -218,7 +218,7 @@ class DeletionResult:
     total_enregistrements_supprimes: int
     donnees_conservees_obligation_legale: bool
     explication_conservation: Optional[str]
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str] = field(default_factory=list)
     alertes: List[str] = field(default_factory=list)
@@ -246,7 +246,7 @@ class ConsentStatusResult:
     consentements: List[ConsentCategoryInfo]
     nb_consentements_actifs: int
     nb_consentements_optionnels: int
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str] = field(default_factory=list)
 
@@ -373,7 +373,7 @@ class PrivacyService:
         # Count total records
         total_records = sum(c.nombre_enregistrements for c in categories)
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"Ton profil MINT contient {total_records} enregistrement(s) "
             f"repartis en {len(categories)} categorie(s) de donnees. "
             f"Chaque categorie a une base legale et une duree de conservation definies "
@@ -392,7 +392,7 @@ class PrivacyService:
             donnees_analytics=_analytics,
             politique_conservation=RETENTION_POLICIES,
             responsable_traitement=RESPONSABLE_TRAITEMENT,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=SOURCES_EXPORT,
         )
@@ -503,7 +503,7 @@ class PrivacyService:
             "Aucune donnee personnelle identifiable n'est conservee au-dela de la suppression."
         )
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"{total_supprime} enregistrement(s) "
             f"{'supprime(s) immediatement' if is_immediate else f'marque(s) pour suppression dans {grace_days} jours'}. "
             f"La nLPD te donne le droit de demander la suppression de tes donnees a tout moment."
@@ -519,7 +519,7 @@ class PrivacyService:
             total_enregistrements_supprimes=total_supprime,
             donnees_conservees_obligation_legale=True,
             explication_conservation=explication_conservation,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=SOURCES_DELETION,
             alertes=alertes,
@@ -580,7 +580,7 @@ class PrivacyService:
                 impact_retrait=cat_config["impact_retrait"],
             ))
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"Tu as {nb_actifs} traitement(s) actif(s) sur {len(CONSENT_CATEGORIES)}. "
             f"{nb_optionnels} sont optionnels et tu peux les desactiver a tout moment. "
             f"La nLPD te donne un controle total sur tes donnees."
@@ -592,7 +592,7 @@ class PrivacyService:
             consentements=consentements,
             nb_consentements_actifs=nb_actifs,
             nb_consentements_optionnels=nb_optionnels,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=SOURCES_CONSENT,
         )

@@ -203,7 +203,7 @@ class _CantonAllocationMapState extends State<CantonAllocationMap>
                 ),
                 Text(
                   'par canton (par enfant/mois)',
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),

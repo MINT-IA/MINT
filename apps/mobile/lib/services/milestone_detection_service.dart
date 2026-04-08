@@ -4,6 +4,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
 //  MILESTONE DETECTION SERVICE — T5 / Coach AI Layer + S36
@@ -407,6 +408,7 @@ class MilestoneDetectionService {
     Map<String, double> previous = const {},
     int checkInStreak = 0,
     int arbitrageCount = 0,
+    String employmentStatus = 'salarie',
     DateTime? now,
   }) {
     final detectedAt = now ?? DateTime.now();
@@ -442,15 +444,20 @@ class MilestoneDetectionService {
     final cur3a = current['threeAContribution'] ?? 0;
     final prev3a = previous['threeAContribution'] ?? 0;
     final taxSaving3a = current['taxSaving3a'] ?? 0;
+    // Use correct ceiling: CHF 7'258 (salarié LPP) vs CHF 36'288 (indépendant sans LPP)
+    final plafond3a = employmentStatus == 'independant'
+        ? _plafond3aIndependant
+        : _plafond3aSalarie;
 
-    if (cur3a >= _plafond3aSalarie && prev3a < _plafond3aSalarie) {
-      final savingStr = _formatChf(taxSaving3a);
+    if (cur3a >= plafond3a && prev3a < plafond3a) {
+      final plafondStr = chf.formatChf(plafond3a);
+      final savingStr = chf.formatChf(taxSaving3a);
       results.add(DetectedMilestone(
         type: MilestoneType.threeAMaxReached,
         celebrationText:
-            'Plafond 3a atteint — CHF 7\'258. '
+            'Plafond 3a atteint — CHF $plafondStr. '
             'Economie fiscale estimee : ~CHF $savingStr.',
-        concreteValue: 'CHF 7\'258',
+        concreteValue: 'CHF $plafondStr',
         detectedAt: detectedAt,
       ));
     }
@@ -526,9 +533,9 @@ class MilestoneDetectionService {
       results.add(DetectedMilestone(
         type: MilestoneType.patrimoine50k,
         celebrationText:
-            'Patrimoine estime : CHF ${_formatChf(curPat)}. '
+            'Patrimoine estime : CHF ${chf.formatChf(curPat)}. '
             'Un cap symbolique franchi.',
-        concreteValue: 'CHF ${_formatChf(curPat)}',
+        concreteValue: 'CHF ${chf.formatChf(curPat)}',
         detectedAt: detectedAt,
       ));
     }
@@ -537,9 +544,9 @@ class MilestoneDetectionService {
       results.add(DetectedMilestone(
         type: MilestoneType.patrimoine100k,
         celebrationText:
-            'Patrimoine estime : CHF ${_formatChf(curPat)}. '
+            'Patrimoine estime : CHF ${chf.formatChf(curPat)}. '
             'Seuil des 100k atteint.',
-        concreteValue: 'CHF ${_formatChf(curPat)}',
+        concreteValue: 'CHF ${chf.formatChf(curPat)}',
         detectedAt: detectedAt,
       ));
     }
@@ -548,9 +555,9 @@ class MilestoneDetectionService {
       results.add(DetectedMilestone(
         type: MilestoneType.patrimoine250k,
         celebrationText:
-            'Patrimoine estime : CHF ${_formatChf(curPat)}. '
+            'Patrimoine estime : CHF ${chf.formatChf(curPat)}. '
             'Un quart de million.',
-        concreteValue: 'CHF ${_formatChf(curPat)}',
+        concreteValue: 'CHF ${chf.formatChf(curPat)}',
         detectedAt: detectedAt,
       ));
     }
@@ -598,16 +605,5 @@ class MilestoneDetectionService {
     return results;
   }
 
-  // ── S36 Formatting helper ──────────────────────────────────
-
-  /// Format a CHF amount with Swiss apostrophe as thousands separator.
-  ///
-  /// Example: 1820.5 -> "1'820", 7258.0 -> "7'258"
-  static String _formatChf(double amount) {
-    final intStr = amount.toStringAsFixed(0);
-    return intStr.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}\'',
-    );
-  }
+  // F3: _formatChf removed — use centralized chf.formatChf()
 }

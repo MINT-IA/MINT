@@ -1,14 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
-import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
-import 'package:mint_mobile/services/coach/compliance_guard.dart';
+// FIX-P1-7: Removed direct import of coach_orchestrator.dart to break
+// circular dependency (coach_llm ↔ orchestrator). The orchestrator is
+// now resolved lazily at call time via _resolveOrchestrator().
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
-import 'package:mint_mobile/services/consent_manager.dart';
-import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
 
 // ────────────────────────────────────────────────────────────
 //  COACH LLM SERVICE — Sprint C8 / MINT Coach
@@ -160,6 +161,10 @@ class DocumentToolPayload {
 
 /// Message dans l'historique de conversation
 class ChatMessage {
+  /// Schema version for migration support.
+  /// Increment when breaking changes are made to serialization format.
+  static const int schemaVersion = 1;
+
   final String role; // 'user', 'assistant', 'system'
   final String content;
   final DateTime timestamp;
@@ -248,15 +253,33 @@ class CoachResponse {
   });
 }
 
+/// Signature for the orchestrator's generateChat, used to break the
+/// circular dependency between coach_llm_service ↔ coach_orchestrator.
+typedef OrchestratorChatFn = Future<CoachResponse> Function({
+  required String userMessage,
+  required List<ChatMessage> history,
+  required CoachContext ctx,
+  LlmConfig? byokConfig,
+  String? memoryBlock,
+  String language,
+  int cashLevel,
+});
+
 /// Service de chat LLM pour le Coach MINT
 class CoachLlmService {
-  /// Disclaimer standard
-  static const _disclaimer =
-      'Outil educatif — ne constitue pas un conseil financier. LSFin.';
+  /// FIX-P1-7: Late-bound orchestrator function to break circular import.
+  /// Set once at app init by [CoachOrchestrator.init()] or by tests.
+  static OrchestratorChatFn? _orchestratorChatFn;
+
+  /// Register the orchestrator's generateChat function.
+  /// Called once at startup (e.g. from main.dart or CoachOrchestrator.init).
+  static void registerOrchestrator(OrchestratorChatFn fn) {
+    _orchestratorChatFn = fn;
+  }
 
   /// Envoie un message et recoit une reponse du coach
   ///
-  /// Délègue à [CoachOrchestrator] pour la chaîne SLM → BYOK → mock.
+  /// Delegates to the registered orchestrator for the SLM → BYOK → mock chain.
   /// ComplianceGuard est appliqué centralement dans l'orchestrateur.
   ///
   /// Si BYOK est configure (config.hasApiKey), route via le backend RAG
@@ -269,27 +292,38 @@ class CoachLlmService {
     required LlmConfig config,
     String? memoryBlock,
     Map<String, dynamic>? enrichedContext,
+    String language = 'fr',
+    int cashLevel = 3,
   }) async {
     final coachCtx = _buildCoachContext(profile);
 
-    // Delegate to CoachOrchestrator (SLM → BYOK → fallback chain).
-    // If SLM is available, it will be tried first (zero-network, privacy-first).
-    // BYOK is passed when config.hasApiKey, otherwise skipped.
-    // memoryBlock (S58) provides lifecycle, goals, and conversation history context.
-    final orchestratorResponse = await CoachOrchestrator.generateChat(
+    // FIX-P1-7: Use late-bound orchestrator instead of direct import.
+    if (_orchestratorChatFn == null) {
+      // Graceful fallback if orchestrator not yet registered.
+      return const CoachResponse(
+        message: 'Service en cours d\'initialisation. Reessaie dans un instant.',
+        disclaimer: 'Outil educatif — ne constitue pas un conseil financier. LSFin.',
+      );
+    }
+
+    final orchestratorResponse = await _orchestratorChatFn!(
       userMessage: userMessage,
       history: history,
       ctx: coachCtx,
       byokConfig: config.hasApiKey ? config : null,
       memoryBlock: memoryBlock,
+      language: language,
+      cashLevel: cashLevel,
     );
 
-    // If orchestrator returned a non-fallback response (SLM or BYOK succeeded),
-    // return it directly.
-    // The mock path is used as the final fallback by CoachOrchestrator itself,
-    // but we check here to add suggested actions via _inferSuggestedActions.
-    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // suggestedActions are resolved at the screen layer (CoachChatScreen)
     // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
+    //
+    // STAB-03 / STAB-04: re-expose `toolCalls` on the return so the chat
+    // screen can dispatch structured tool_use blocks (generate_financial_plan,
+    // record_check_in, route_to_screen, generate_document) to WidgetRenderer.
+    // Before this fix, the orchestrator populated toolCalls but this rebuild
+    // silently dropped them — the canonical "facade sans cablage" symptom.
     return CoachResponse(
       message: orchestratorResponse.message,
       suggestedActions: null,
@@ -297,127 +331,8 @@ class CoachLlmService {
       sources: orchestratorResponse.sources,
       disclaimers: orchestratorResponse.disclaimers,
       wasFiltered: orchestratorResponse.wasFiltered,
+      toolCalls: orchestratorResponse.toolCalls,
     );
-  }
-
-  /// Mode RAG direct (BYOK configure) — conservé pour compatibilité.
-  ///
-  /// Appelé par l'orchestrateur via [CoachOrchestrator._tryByokChat].
-  /// Reste accessible pour les tests unitaires de la couche RAG.
-  @Deprecated('Utilise CoachOrchestrator.generateChat() à la place.')
-  static Future<CoachResponse> chatViaRagDirect({
-    required String userMessage,
-    required CoachProfile profile,
-    required LlmConfig config,
-    required List<ChatMessage> history,
-  }) async {
-    return _chatViaRag(
-      userMessage: userMessage,
-      profile: profile,
-      config: config,
-      history: history,
-    );
-  }
-
-  /// Appel reel via le backend RAG (BYOK)
-  static Future<CoachResponse> _chatViaRag({
-    required String userMessage,
-    required CoachProfile profile,
-    required LlmConfig config,
-    required List<ChatMessage> history,
-    Map<String, dynamic>? enrichedContext,
-  }) async {
-    final ragService = RagService();
-    final String provider;
-    switch (config.provider) {
-      case LlmProvider.anthropic:
-        provider = 'claude';
-        break;
-      case LlmProvider.mistral:
-        provider = 'mistral';
-        break;
-      case LlmProvider.openai:
-        provider = 'openai';
-        break;
-    }
-    // V5-3 audit fix: check BYOK consent before sending profileContext.
-    // If user has not consented to ai_context, send empty profile.
-    final hasAiConsent = await ConsentManager.isConsentGiven(
-      ConsentType.byokDataSharing,
-    );
-    final profileContext = hasAiConsent
-        ? {
-            ..._buildProfileContext(profile),
-            if (enrichedContext != null) ...enrichedContext,
-          }
-        : <String, dynamic>{};
-
-    // Injecter le contexte conversationnel dans la question
-    final augmentedQuestion = _buildConversationContext(history, userMessage);
-
-    final ragResponse = await ragService.query(
-      question: augmentedQuestion,
-      apiKey: config.apiKey,
-      provider: provider,
-      model: config.model,
-      profileContext: profileContext,
-    );
-
-    // Validate through ComplianceGuard (5-layer) in addition to backend filtering.
-    // CRIT #6: try-catch to prevent crashes on edge cases.
-    ComplianceResult result;
-    try {
-      final coachCtx = _buildCoachContext(profile);
-      result = ComplianceGuard.validate(
-        ragResponse.answer,
-        context: coachCtx,
-        componentType: ComponentType.general,
-      );
-    } catch (_) {
-      return CoachResponse(
-        message: _safeChatFallback(),
-        disclaimer: _disclaimer,
-        wasFiltered: true,
-      );
-    }
-
-    final isFallback = result.useFallback;
-    final message = isFallback ? _safeChatFallback() : result.sanitizedText;
-
-    // Note: suggestedActions are resolved at the screen layer (CoachChatScreen)
-    // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
-    return CoachResponse(
-      message: message,
-      suggestedActions: null,
-      disclaimer: _disclaimer,
-      sources: isFallback ? const [] : ragResponse.sources,
-      disclaimers: isFallback ? const [] : ragResponse.disclaimers,
-      wasFiltered: !result.isCompliant,
-    );
-  }
-
-  /// Construit le contexte conversationnel pour le RAG (multi-turn client-side).
-  ///
-  /// Le backend /rag/query est single-turn par design (stateless, privacy).
-  /// On resume les derniers echanges dans la question elle-meme.
-  static String _buildConversationContext(
-      List<ChatMessage> history, String currentMessage) {
-    // Filtrer les messages systeme et ne garder que user/assistant
-    final relevant = history.where((m) => m.isUser || m.isAssistant).toList();
-
-    // Si pas d'historique significatif, retourner le message tel quel
-    if (relevant.length <= 1) return currentMessage;
-
-    // Prendre les 4 derniers echanges (8 messages max)
-    final tail =
-        relevant.length > 8 ? relevant.sublist(relevant.length - 8) : relevant;
-
-    final buf = StringBuffer('Contexte de la conversation :\n');
-    for (final msg in tail) {
-      buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: ${msg.content}');
-    }
-    buf.writeln('\nNouvelle question :\n$currentMessage');
-    return buf.toString();
   }
 
   /// Converts an exact CHF amount to a privacy-safe range string.
@@ -448,123 +363,6 @@ class CoachLlmService {
       buf.write(str[i]);
     }
     return '~$buf CHF';
-  }
-
-  /// Convertit le profil coach en contexte riche pour le backend RAG.
-  ///
-  /// Le champ `financial_summary` est injecte dans le system prompt
-  /// du backend (guardrails.py) pour personnaliser les reponses LLM.
-  static Map<String, dynamic> _buildProfileContext(CoachProfile profile) {
-    final parts = <String>[];
-    parts.add('Age : ${profile.age} ans');
-    parts.add('Canton : ${profile.canton}');
-    parts.add('Statut : ${profile.etatCivil.name}');
-
-    // Revenus
-    if (profile.salaireBrutMensuel > 0) {
-      parts.add('Salaire brut : ${_toRange(profile.salaireBrutMensuel)}/mois');
-    }
-
-    // Prevoyance
-    final prev = profile.prevoyance;
-    if (prev.totalEpargne3a > 0) {
-      parts.add('Avoir 3a : ${_toRange(prev.totalEpargne3a)}');
-    }
-    if (prev.nombre3a > 0) {
-      parts.add('Nombre de comptes 3a : ${prev.nombre3a}');
-    }
-    if (prev.avoirLppTotal != null && prev.avoirLppTotal! > 0) {
-      parts.add('Avoir LPP : ${_toRange(prev.avoirLppTotal!)}');
-    }
-    if (prev.lacuneRachatRestante > 0) {
-      parts.add('Lacune rachat LPP : ${_toRange(prev.lacuneRachatRestante)}');
-    }
-
-    // Patrimoine + dettes
-    final pat = profile.patrimoine;
-    if (pat.totalPatrimoine > 0) {
-      parts.add('Patrimoine : ${_toRange(pat.totalPatrimoine)}');
-    }
-    if (profile.dettes.totalDettes > 0) {
-      parts.add('Dettes : ${_toRange(profile.dettes.totalDettes)}');
-    }
-
-    // Depenses
-    final dep = profile.depenses;
-    if (dep.loyer > 0) {
-      parts.add('Loyer : ${_toRange(dep.loyer)}/mois');
-    }
-    if (dep.assuranceMaladie > 0) {
-      parts.add('Assurance maladie : ${_toRange(dep.assuranceMaladie)}/mois');
-    }
-
-    // Versements planifies
-    if (profile.plannedContributions.isNotEmpty) {
-      final contribs = profile.plannedContributions
-          .map((c) => '${c.label} (${_toRange(c.amount)}/mois)')
-          .join(', ');
-      parts.add('Versements : $contribs');
-    }
-
-    // Check-ins recents
-    if (profile.checkIns.isNotEmpty) {
-      final recent = profile.checkIns.length > 3
-          ? profile.checkIns.sublist(profile.checkIns.length - 3)
-          : profile.checkIns;
-      final summary = recent.map((ci) {
-        final month = '${ci.month.month}/${ci.month.year}';
-        return '$month: ${_toRange(ci.totalVersements)}';
-      }).join(', ');
-      parts.add('Derniers check-ins : $summary');
-    }
-
-    // Score fitness (wrapped in try-catch)
-    try {
-      final score = FinancialFitnessService.calculate(profile: profile);
-      parts.add('Score fitness : ${score.global}/100 '
-          '(Budget ${score.budget.score}, '
-          'Prevoyance ${score.prevoyance.score}, '
-          'Patrimoine ${score.patrimoine.score})');
-    } catch (_) {}
-
-    // Projection retraite (wrapped in try-catch)
-    try {
-      final proj = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      parts.add(
-          'Capital projete retraite : ${_toRange(proj.base.capitalFinal)}');
-      parts.add(
-          'Taux de remplacement : ${proj.tauxRemplacementBase.toStringAsFixed(1)}%');
-    } catch (_) {}
-
-    // Conjoint
-    if (profile.isCouple && profile.conjoint != null) {
-      final c = profile.conjoint!;
-      parts.add(
-          'Conjoint·e : ${c.firstName ?? "conjoint·e"}, ${c.age ?? 0} ans');
-      if (c.isFatcaResident) parts.add('Conjoint·e FATCA');
-    }
-
-    // Objectif
-    parts.add('Objectif : ${profile.goalA.label}');
-
-    // Instructions de structure pour le LLM (injectees via le system prompt backend)
-    parts.add('');
-    parts.add('STRUCTURE DE TA REPONSE :');
-    parts.add('- Commence par une synthese en 1-2 phrases.');
-    parts.add('- Si pertinent, liste les options avec leur impact en CHF.');
-    parts.add('- Mentionne les risques et points d\'attention.');
-    parts.add('- Cite tes sources legales (LPP art. X, LIFD art. Y, etc.).');
-
-    return {
-      'canton': profile.canton,
-      'age': profile.age,
-      'civil_status': profile.etatCivil.name,
-      if (profile.firstName != null) 'first_name': profile.firstName,
-      'financial_summary': parts.join('\n'),
-    };
   }
 
   /// Infere les actions suggerees a partir du message utilisateur.
@@ -613,7 +411,9 @@ class CoachLlmService {
       budgetScore = score.budget.score;
       prevoyanceScore = score.prevoyance.score;
       patrimoineScore = score.patrimoine.score;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] System prompt FRI error: $e');
+    }
 
     try {
       final projection = ForecasterService.project(
@@ -622,7 +422,9 @@ class CoachLlmService {
       );
       capitalBase = _toRange(projection.base.capitalFinal);
       tauxRemplacement = projection.tauxRemplacementBase.toStringAsFixed(1);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] System prompt projection error: $e');
+    }
 
     final buffer = StringBuffer();
     buffer.writeln(
@@ -736,7 +538,9 @@ class CoachLlmService {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] CoachContext FRI error: $e');
+    }
 
     try {
       final proj = ForecasterService.project(
@@ -747,7 +551,9 @@ class CoachLlmService {
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[CoachLLM] CoachContext projection error: $e');
+    }
 
     final epargne3a = profile.prevoyance.totalEpargne3a;
     if (epargne3a.isFinite && epargne3a > 0) {
@@ -764,13 +570,6 @@ class CoachLlmService {
       canton: profile.canton,
       knownValues: knownValues,
     );
-  }
-
-  /// Safe fallback when ComplianceGuard rejects LLM output.
-  static String _safeChatFallback() {
-    return 'Je préfère rester net sur celle-ci. '
-        'Reformule ta question, ou passe par un simulateur pour un chiffre plus direct.\n\n'
-        '_${ComplianceGuard.standardDisclaimer}_';
   }
 
   /// Message d'accueil initial du coach.

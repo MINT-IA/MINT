@@ -98,7 +98,7 @@ class AvancementHoirieWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Ce que tu donnes aujourd\'hui sera déduit de la part à ton décès · CC art. 626',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -132,7 +132,7 @@ class AvancementHoirieWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Patrimoine restant : ${formatChfWithPrefix(totalPatrimoine - donationAmount)}',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -148,12 +148,12 @@ class AvancementHoirieWidget extends StatelessWidget {
         children: [
           Text(
             'Masse de calcul : ${formatChfWithPrefix(totalPatrimoine - donationAmount)} + ${formatChfWithPrefix(donationAmount)} (rapporté)',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 2),
           Text(
             '= ${formatChfWithPrefix(totalPatrimoine)} partagé en ${children.length}',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 10),
           ...children.asMap().entries.map((e) {
@@ -206,7 +206,7 @@ class AvancementHoirieWidget extends StatelessWidget {
         children: [
           Text(
             actLabel,
-            style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.3),
+            style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w800, letterSpacing: 0.3),
           ),
           const SizedBox(height: 10),
           child,

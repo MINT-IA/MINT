@@ -102,6 +102,49 @@ class ConsentResponse(BaseModel):
 
 
 # ===========================================================================
+# Consent Revoke Response
+# ===========================================================================
+
+class ConsentRevokeResponse(BaseModel):
+    """Response after revoking a banking consent."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    status: str = Field(..., description="Statut du consentement apres revocation")
+    consentId: str = Field(..., description="Identifiant du consentement revoque")
+
+
+# ===========================================================================
+# Paginated Consent List Response
+# ===========================================================================
+
+class PaginatedConsentsResponse(BaseModel):
+    """Paginated list of consents."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    items: List[ConsentResponse] = Field(..., description="Liste des consentements")
+    total: int = Field(..., description="Nombre total de consentements")
+    limit: int = Field(..., description="Limite par page")
+    offset: int = Field(..., description="Offset courant")
+
+
+# ===========================================================================
+# Paginated Transaction List Response
+# ===========================================================================
+
+class PaginatedTransactionsResponse(BaseModel):
+    """Paginated list of transactions."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    items: List[TransactionResponse] = Field(..., description="Liste des transactions")
+    total: int = Field(..., description="Nombre total de transactions")
+    limit: int = Field(..., description="Limite par page")
+    offset: int = Field(..., description="Offset courant")
+
+
+# ===========================================================================
 # Aggregated View Schemas
 # ===========================================================================
 

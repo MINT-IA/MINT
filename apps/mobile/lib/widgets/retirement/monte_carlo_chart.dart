@@ -52,7 +52,7 @@ class MonteCarloChart extends StatelessWidget {
         Text(
           l.monteCarloSubtitle(result.numSimulations),
           style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
-              .copyWith(fontSize: 13, height: 1.4),
+              .copyWith(height: 1.4),
         ),
         const SizedBox(height: 20),
 
@@ -72,7 +72,7 @@ class MonteCarloChart extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: MintTextStyles.bodySmall(
                   color: MintColors.textSecondary,
-                ).copyWith(fontSize: 13, height: 1.4),
+                ).copyWith(height: 1.4),
               ),
             ],
           ),
@@ -84,11 +84,14 @@ class MonteCarloChart extends StatelessWidget {
           height: 260,
           child: LayoutBuilder(
             builder: (context, constraints) {
-              return CustomPaint(
-                size: Size(constraints.maxWidth, 260),
-                painter: _MonteCarloFanPainter(
-                  points: result.projection,
-                  currentMonthlyIncome: currentMonthlyIncome,
+              return Semantics(
+                label: 'Monte Carlo projection chart',
+                child: CustomPaint(
+                  size: Size(constraints.maxWidth, 260),
+                  painter: _MonteCarloFanPainter(
+                    points: result.projection,
+                    currentMonthlyIncome: currentMonthlyIncome,
+                  ),
                 ),
               );
             },
@@ -107,8 +110,8 @@ class MonteCarloChart extends StatelessWidget {
         // -- Disclaimer --
         Text(
           l.monteCarloDisclaimer,
-          style: MintTextStyles.micro(color: MintColors.textMuted)
-              .copyWith(fontSize: 10, fontStyle: FontStyle.normal, height: 1.4),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted)
+              .copyWith(fontStyle: FontStyle.normal, height: 1.4),
         ),
       ],
     );
@@ -246,9 +249,9 @@ class MonteCarloChart extends StatelessWidget {
                   flex: 5,
                   child: Text(
                     l.monteCarloSuccessLabel,
-                    style: MintTextStyles.bodyMedium(
+                    style: MintTextStyles.labelMedium(
                       color: MintColors.textSecondary,
-                    ).copyWith(fontSize: 12, height: 1.35),
+                    ).copyWith(height: 1.35),
                   ),
                 ),
                 Expanded(
@@ -286,8 +289,8 @@ class MonteCarloChart extends StatelessWidget {
           flex: 5,
           child: Text(
             label,
-            style: MintTextStyles.bodyMedium(color: MintColors.textSecondary)
-                .copyWith(fontSize: 12, height: 1.35),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary)
+                .copyWith(height: 1.35),
           ),
         ),
         Expanded(
@@ -494,8 +497,8 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: MintTextStyles.micro(color: MintColors.textMuted)
-              .copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted)
+              .copyWith(fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -642,8 +645,8 @@ class _MonteCarloFanPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: '$age',
-          style: MintTextStyles.micro(color: MintColors.textMuted)
-              .copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted)
+              .copyWith(fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -663,8 +666,8 @@ class _MonteCarloFanPainter extends CustomPainter {
     final ansTp = TextPainter(
       text: TextSpan(
         text: 'ans',
-        style: MintTextStyles.micro(color: MintColors.textMuted)
-            .copyWith(fontSize: 9),
+        style: MintTextStyles.labelTiny(color: MintColors.textMuted)
+            ,
       ),
       textDirection: TextDirection.ltr,
     )..layout();

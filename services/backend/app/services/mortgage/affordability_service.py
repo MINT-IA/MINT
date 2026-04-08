@@ -53,7 +53,7 @@ class DecompositionCharges:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -83,7 +83,7 @@ class AffordabilityResult:
     montant_hypothecaire: float
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Metadata
     prix_achat: float
@@ -166,7 +166,11 @@ class AffordabilityService:
         # Solve for max price from equity constraint
         if FONDS_PROPRES_MIN_PCT > 0:
             # Case A: assumes LPP covers full 10% contribution
-            prix_max_case_a = fp_base / (FONDS_PROPRES_MIN_PCT - PART_2E_PILIER_MAX)  # fp_base / 0.10
+            denominator = FONDS_PROPRES_MIN_PCT - PART_2E_PILIER_MAX
+            if denominator <= 0:
+                prix_max_case_a = 0.0  # Safety: impossible equity split
+            else:
+                prix_max_case_a = fp_base / denominator  # fp_base / 0.10
             # Check if LPP actually covers 10% at this price
             if avoir_lpp >= prix_max_case_a * PART_2E_PILIER_MAX:
                 prix_max_equity = prix_max_case_a
@@ -247,7 +251,7 @@ class AffordabilityService:
                 gap_ou_marge = round(
                     (revenu_brut_annuel * RATIO_CHARGES_MAX - charges_annuelles) / 12, 2
                 )
-                chiffre_choc = ChiffreChoc(
+                premier_eclairage = PremierEclairage(
                     montant=gap_ou_marge,
                     texte=(
                         f"Bonne nouvelle : il te reste {gap_ou_marge:.0f} CHF/mois "
@@ -257,7 +261,7 @@ class AffordabilityService:
             else:
                 if not fonds_propres_suffisants:
                     gap_fp = round(fonds_propres_requis - fonds_propres_total, 2)
-                    chiffre_choc = ChiffreChoc(
+                    premier_eclairage = PremierEclairage(
                         montant=gap_fp,
                         texte=(
                             f"Il te manque {gap_fp:.0f} CHF de fonds propres "
@@ -267,7 +271,7 @@ class AffordabilityService:
                 else:
                     revenu_requis = round(charges_annuelles / RATIO_CHARGES_MAX, 2)
                     gap_revenu = round(revenu_requis - revenu_brut_annuel, 2)
-                    chiffre_choc = ChiffreChoc(
+                    premier_eclairage = PremierEclairage(
                         montant=gap_revenu,
                         texte=(
                             f"Il te faudrait {gap_revenu:.0f} CHF de revenu brut "
@@ -275,7 +279,7 @@ class AffordabilityService:
                         ),
                     )
         else:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=prix_max,
                 texte=(
                     f"Avec ton revenu et tes fonds propres, tu peux viser un bien "
@@ -318,7 +322,7 @@ class AffordabilityService:
             capacite_ok=capacite_ok,
             decomposition_charges=decomposition,
             montant_hypothecaire=round(montant_hypothecaire, 2),
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             prix_achat=prix_achat if prix_achat > 0 else prix_max,
             revenu_brut_annuel=revenu_brut_annuel,
             canton=canton,

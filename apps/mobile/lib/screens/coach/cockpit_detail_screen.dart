@@ -21,8 +21,8 @@ import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
-import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
 import 'package:mint_mobile/widgets/coach/confidence_blocks_bar.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
 import 'package:mint_mobile/widgets/coach/impact_mint_card.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
@@ -39,7 +39,6 @@ import 'package:mint_mobile/widgets/dashboard/couple_action_plan.dart';
 import 'package:mint_mobile/widgets/dashboard/couple_phase_timeline.dart';
 import 'package:mint_mobile/widgets/dashboard/replacement_ratio_badge.dart';
 import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COCKPIT DETAIL SCREEN
@@ -74,6 +73,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   RetirementProjectionResult? _retirementProjection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  EnhancedConfidence? _enhancedConfidence;
   Map<String, BlockScore> _confidenceBlocs = const {};
   DashboardProjectionSnapshot? _snapshot;
 
@@ -100,6 +100,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       _profile = null;
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
       _monteCarloResult = null;
@@ -126,6 +127,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       );
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+      _enhancedConfidence = ConfidenceScorer.scoreEnhanced(_profile!);
       _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
 
       // Detailed retirement projection (budget gap, phases, etc.)
@@ -140,8 +142,10 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
         _baselineProjection = null;
       }
 
-      // Monte Carlo + Tornado (State A only, confidence >= 70%)
-      _computeMonteCarloAndTornado(_profile!);
+      // Monte Carlo + Tornado (State A only, confidence >= 70%) — async
+      _computeMonteCarloAndTornado(_profile!).then((_) {
+        if (mounted) setState(() {});
+      });
 
       // FRI + Plan tracking
       _computeFri(_profile!);
@@ -152,6 +156,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       _projection = null;
       _snapshot = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
       _monteCarloResult = null;
@@ -165,7 +170,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   //  MONTE CARLO + TORNADO COMPUTATION
   // ────────────────────────────────────────────────────────────
 
-  void _computeMonteCarloAndTornado(CoachProfile profile) {
+  Future<void> _computeMonteCarloAndTornado(CoachProfile profile) async {
     // Only compute for confidence >= 70%
     if (_confidenceScore < 70) {
       _monteCarloResult = null;
@@ -174,7 +179,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
     }
 
     try {
-      _monteCarloResult = MonteCarloProjectionService.simulate(
+      _monteCarloResult = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: profile.effectiveRetirementAge,
       );
@@ -311,27 +316,38 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── Confidence Bar ──────────────────────────
-                MintEntrance(child: ConfidenceBar(score: _confidenceScore)),
-                const SizedBox(height: 16),
+                // ── MintTrameConfiance (detail) ─────────────
+                // Plan 08a-02 Batch A: MTC replaces the legacy
+                // ConfidenceBar. Standalone screen → firstAppearance.
+                if (_enhancedConfidence != null) ...[
+                  MintTrameConfiance.detail(
+                    confidence: _enhancedConfidence!,
+                    bloomStrategy: BloomStrategy.firstAppearance,
+                    hypotheses: const [],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
-                // ── Confidence Blocks Bar (per-category) ────
+                // ── Data-block completeness (extraction) ────
+                // Sibling of MTC per AUDIT-01: this is an
+                // extraction-confidence visualisation, not a
+                // calculation-confidence one.
                 if (_confidenceBlocs.isNotEmpty) ...[
-                  ConfidenceBlocksBar(blocs: _confidenceBlocs),
+                  DataBlockConfidenceBar(blocs: _confidenceBlocs),
                   const SizedBox(height: 16),
                 ],
 
                 // ── Replacement Ratio Badge ─────────────────
-                MintEntrance(delay: const Duration(milliseconds: 100), child: ReplacementRatioBadge(
+                ReplacementRatioBadge(
                   ratio: proj.tauxRemplacementBase,
-                )),
+                ),
                 const SizedBox(height: 16),
 
                 // ── Budget Gap Card ─────────────────────────
@@ -341,7 +357,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Monte Carlo Toggle Section ──────────────
-                MintEntrance(delay: const Duration(milliseconds: 200), child: MonteCarloToggleSection(
+                MonteCarloToggleSection(
                   monteCarloResult: _monteCarloResult,
                   currentMonthlyIncome:
                       _snapshot?.currentHouseholdNetMonthly ??
@@ -355,7 +371,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                     profile: profile,
                     projection: proj,
                   ),
-                )),
+                ),
                 const SizedBox(height: 16),
 
                 // ── Sensitivity Snippet (top 3 tornado) ─────
@@ -400,14 +416,14 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Pillar Decomposition ────────────────────
-                MintEntrance(delay: const Duration(milliseconds: 300), child: PillarDecomposition(
+                PillarDecomposition(
                   avsMonthly: avsUserMonthly,
                   lppMonthly: lppUserMonthly,
                   threeAMonthly: threeAMonthly,
                   freeMonthly: freeMonthly,
                   avsConjointMonthly: avsConjointMonthly,
                   lppConjointMonthly: lppConjointMonthly,
-                )),
+                ),
                 const SizedBox(height: 16),
 
                 // ── Arbitrage Teaser (age >= 45) ────────────
@@ -439,7 +455,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                 ],
 
                 // ── Retirement Checklist ────────────────────
-                MintEntrance(delay: const Duration(milliseconds: 400), child: RetirementChecklistCard(profile: profile)),
+                RetirementChecklistCard(profile: profile),
                 const SizedBox(height: 16),
 
                 // ── Impact MINT Card ────────────────────────
@@ -483,7 +499,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -515,7 +531,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   Widget _buildEmptyState() {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
+      body: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverFillRemaining(
@@ -532,25 +548,21 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
                     ),
                     const SizedBox(height: MintSpacing.md),
                     Text(
-                      S.of(context)!.cockpitDetailEmptyState,
+                      'Compl\u00e8te ton profil pour acc\u00e9der au cockpit d\u00e9taill\u00e9.',
                       textAlign: TextAlign.center,
                       style: MintTextStyles.bodyMedium(),
                     ),
                     const SizedBox(height: 20),
-                    Semantics(
-                      button: true,
-                      label: S.of(context)!.cockpitDetailEnrichProfile,
-                      child: FilledButton.icon(
-                        onPressed: () => context.push('/scan'),
-                        icon: const Icon(Icons.edit_outlined, size: 18),
-                        label: Text(
-                          S.of(context)!.cockpitDetailEnrichProfile,
+                    FilledButton.icon(
+                      onPressed: () => context.push('/scan'),
+                      icon: const Icon(Icons.edit_outlined, size: 18),
+                      label: Text(
+                        'Enrichir mon profil',
                         style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       style: FilledButton.styleFrom(
                         backgroundColor: MintColors.primary,
                       ),
-                    ),
                     ),
                   ],
                 ),
@@ -558,7 +570,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             ),
           ),
         ],
-      ))),
+      ),
     );
   }
 
@@ -568,7 +580,8 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
 
   Widget _buildDisclaimer() {
     return Text(
-      S.of(context)!.cockpitDetailDisclaimer,
+      'Outil \u00e9ducatif simplifi\u00e9. Ne constitue pas un conseil financier (LSFin). '
+      'Sources\u00a0: LAVS art. 21-29, LPP art. 14, OPP3 art. 7.',
       textAlign: TextAlign.center,
       style: MintTextStyles.micro(),
     );

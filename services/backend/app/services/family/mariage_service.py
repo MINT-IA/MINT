@@ -131,7 +131,7 @@ class FiscalComparison:
     detail_celibataire_2: float          # Impot celibataire personne 2
     revenus_cumules: float               # Revenu total combine
     deductions_mariage: float            # Total des deductions specifiques au mariage
-    chiffre_choc: str                    # Chiffre choc pedagogique
+    premier_eclairage: str                    # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -156,7 +156,7 @@ class SurvivorBenefits:
     rente_survivant_lpp_annuelle: float      # Rente LPP survivant annuelle
     total_survivant_mensuel: float           # Total mensuel
     total_survivant_annuel: float            # Total annuel
-    chiffre_choc: str                        # Chiffre choc pedagogique
+    premier_eclairage: str                        # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -167,7 +167,7 @@ class ChecklistMariage:
     priorite_haute: List[str]              # Actions urgentes
     priorite_moyenne: List[str]            # Actions importantes
     priorite_basse: List[str]              # Actions de confort
-    chiffre_choc: str                      # Chiffre choc pedagogique
+    premier_eclairage: str                      # Chiffre choc pedagogique
     disclaimer: str                        # Avertissement legal
     sources: List[str] = field(default_factory=list)
 
@@ -229,12 +229,12 @@ class MariageService:
         est_penalite = difference > 0
 
         if est_penalite:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Penalite du mariage : tu paierais ~CHF {abs(difference):,.0f}/an "
                 f"de plus en impots en te mariant. Revenus combines: CHF {revenu_combine:,.0f}"
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Bonus du mariage : tu economiserais ~CHF {abs(difference):,.0f}/an "
                 f"d'impots en te mariant. Revenus combines: CHF {revenu_combine:,.0f}"
             )
@@ -256,7 +256,7 @@ class MariageService:
             detail_celibataire_2=impot_2,
             revenus_cumules=revenu_combine,
             deductions_mariage=deductions_mariage,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -374,7 +374,7 @@ class MariageService:
         total_mensuel = round(surv_avs_mensuel + surv_lpp_mensuel, 2)
         total_annuel = round(surv_avs_annuel + surv_lpp_annuel, 2)
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"En cas de deces de ton conjoint, tu recevrais environ "
             f"CHF {total_mensuel:,.0f}/mois (AVS {surv_avs_mensuel:,.0f} + "
             f"LPP {surv_lpp_mensuel:,.0f}). "
@@ -394,7 +394,7 @@ class MariageService:
             rente_survivant_lpp_annuelle=surv_lpp_annuel,
             total_survivant_mensuel=total_mensuel,
             total_survivant_annuel=total_annuel,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -476,7 +476,7 @@ class MariageService:
         # Chiffre choc personnalise
         nb_items = len(items)
         nb_haute = len(priorite_haute)
-        chiffre_choc = (
+        premier_eclairage = (
             f"Le mariage implique {nb_items} demarches cles, dont {nb_haute} "
             f"a effectuer avant ou juste apres la ceremonie. "
             f"Le regime matrimonial par defaut (participation aux acquets) s'applique "
@@ -497,7 +497,7 @@ class MariageService:
             priorite_haute=priorite_haute,
             priorite_moyenne=priorite_moyenne,
             priorite_basse=priorite_basse,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=sources,
         )

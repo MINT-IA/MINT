@@ -30,8 +30,9 @@ import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_progress_arc.dart';
-import 'package:mint_mobile/widgets/premium/mint_confidence_notice.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/glossary_term.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -75,6 +76,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   ProjectionResult? _projection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  EnhancedConfidence? _enhancedConfidence;
 
   // ── Coach narrative state ──────────────────────────────
   CoachNarrative? _narrative;
@@ -116,6 +118,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _profile = null;
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _scoreHistorySignature = null;
       _narrativeGeneration++;
@@ -144,6 +147,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       _projection = ForecasterService.project(profile: _profile!);
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+      _enhancedConfidence = ConfidenceScorer.scoreEnhanced(_profile!);
 
       final tips = _buildCoachingTips(_profile!);
       _curateDashboardContent(tips);
@@ -153,6 +157,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       debugPrint('RetirementDashboard: projection error: $e');
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _narrativeGeneration++;
       _narrative = null;
@@ -375,10 +380,15 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  UNIFIED DASHBOARD (State A + B — same layout, different emphasis)
   // ────────────────────────────────────────────────────────────
 
+  /// Whether the projection should surface enrichment hints
+  /// (uncertainty band in the hero, enrichment action cards, MTC detail).
+  /// Derived from the combined confidence score via a helper so the
+  /// screen no longer carries a hard-coded `< 70` literal (D-07 grep).
+  bool get _showEnrichment => _confidenceScore.round() <= 69;
+
   Widget _buildDashboard() {
     final proj = _projection!;
     final profile = _profile!;
-    final isApproximate = _confidenceScore < 70;
 
     final monthlyBase = proj.base.revenuAnnuelRetraite / 12;
     final monthlyPrudent = proj.prudent.revenuAnnuelRetraite / 12;
@@ -437,12 +447,26 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
 
                 // Position 1: Hero — Replacement rate arc (the single moment hero)
                 MintEntrance(child: Center(
-                  child: MintProgressArc(
-                    value: proj.tauxRemplacementBase,
-                    maxValue: 100,
-                    label: '${proj.tauxRemplacementBase.round()}\u00a0%',
-                    subtitle: l.dashboardMetricReplacementRate,
-                    size: 200,
+                  child: Column(
+                    children: [
+                      MintProgressArc(
+                        value: proj.tauxRemplacementBase,
+                        maxValue: 100,
+                        label: '${proj.tauxRemplacementBase.round()}\u00a0%',
+                        subtitle: l.jargonReplacementRate,
+                        size: 200,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        proj.tauxRemplacementBase >= 80
+                            ? l.replacementRateContextGood
+                            : proj.tauxRemplacementBase >= 60
+                                ? l.replacementRateContextAverage
+                                : l.replacementRateContextLow,
+                        style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
                 )),
                 const SizedBox(height: MintSpacing.md),
@@ -461,7 +485,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   deltaSinceLastVisit: _computeDelta(),
                   currentAge: profile.age,
                   retirementAge: profile.effectiveRetirementAge,
-                  isApproximate: isApproximate,
+                  isApproximate: _showEnrichment,
                   isCouple: isCouple,
                   partnerName: profile.conjoint?.firstName,
                   partnerMonthlyIncome: partnerMonthly,
@@ -494,41 +518,63 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                   child: Column(
                     children: [
                       MintSignalRow(
-                        label: 'AVS',
+                        label: l.jargonAvs,
                         value: 'CHF\u00a0${avs.round()}',
                         valueColor: MintColors.retirementAvs,
                       ),
                       MintSignalRow(
-                        label: 'LPP',
+                        label: l.jargonLpp,
                         value: 'CHF\u00a0${lpp.round()}',
                         valueColor: MintColors.retirementLpp,
                       ),
                       if (troisA > 0)
                         MintSignalRow(
-                          label: '3a',
+                          label: l.jargon3a,
                           value: 'CHF\u00a0${troisA.round()}',
                           valueColor: MintColors.retirement3a,
                         ),
                     ],
                   ),
                 )),
-                const SizedBox(height: MintSpacing.xl),
+                // Glossary shortcuts for pillar terms
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: MintSpacing.sm,
+                    bottom: MintSpacing.xl,
+                  ),
+                  child: Wrap(
+                    spacing: MintSpacing.md,
+                    runSpacing: MintSpacing.sm,
+                    children: [
+                      GlossaryTerm(
+                        term: 'Taux de conversion',
+                        style: MintTextStyles.labelSmall(color: MintColors.primary),
+                      ),
+                      GlossaryTerm(
+                        term: 'Taux de remplacement',
+                        style: MintTextStyles.labelSmall(color: MintColors.primary),
+                      ),
+                    ],
+                  ),
+                ),
 
-                // Position 2c: Confidence notice (premium)
-                if (isApproximate)
+                // Position 2c: MintTrameConfiance (Plan 08a-02 Batch C)
+                // replaces the legacy MintConfidenceNotice. Always rendered
+                // when the 4-axis confidence is available — MTC itself
+                // decides its empty/inline/detail shape via density tokens.
+                // Standalone screen → firstAppearance.
+                if (_enhancedConfidence != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: MintSpacing.xl),
-                    child: MintConfidenceNotice(
-                      percent: _confidenceScore.round(),
-                      message: l.dashboardCurrentConfidence(
-                          _confidenceScore.round()),
-                      ctaLabel: l.dashboardImproveAccuracyTitle,
-                      onTap: () => _showEnrichmentSheet(context),
+                    child: MintTrameConfiance.detail(
+                      confidence: _enhancedConfidence!,
+                      bloomStrategy: BloomStrategy.firstAppearance,
+                      hypotheses: const [],
                     ),
                   ),
 
                 // Position 3: Action Cards (max 2)
-                ..._buildActionCards(isApproximate, l),
+                ..._buildActionCards(_showEnrichment, l),
 
                 // Position 4: Smart Shortcuts
                 SmartShortcuts(
@@ -540,6 +586,10 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 // Position 5: Related sections (hub)
                 _buildRelatedSections(l),
                 const SizedBox(height: MintSpacing.xl),
+
+                // Position 5b: Data origin (calculated with)
+                _buildDataOrigin(profile, l),
+                const SizedBox(height: MintSpacing.md),
 
                 // Position 6: Footer — disclaimer
                 _buildDisclaimer(),
@@ -602,7 +652,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
       flexibleSpace: FlexibleSpaceBar(
         title: Text(
           title,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         ),
         titlePadding: const EdgeInsets.only(
           left: MintSpacing.lg,
@@ -732,7 +782,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
             const SizedBox(height: MintSpacing.md),
             Text(
               l.dashboardImproveAccuracyTitle,
-              style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+              style: MintTextStyles.titleLarge(),
             ),
             const SizedBox(height: MintSpacing.xs),
             Text(
@@ -848,7 +898,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
           Text(
             l.dashboardOnboardingHeroTitle,
             textAlign: TextAlign.center,
-            style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+            style: MintTextStyles.headlineSmall(),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -873,8 +923,8 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 ),
                 child: Text(
                   l.dashboardOnboardingCta,
-                  style: MintTextStyles.titleMedium(color: MintColors.white)
-                      .copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: MintColors.white)
+                      ,
                 ),
               ),
             ),
@@ -925,9 +975,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                     ),
                     Text(
                       l.dashboardEducationSubtitle,
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.textSecondary,
-                      ).copyWith(fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
@@ -995,11 +1045,95 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
+  Widget _buildDataOrigin(CoachProfile profile, S l) {
+    final revenuAnnuel = profile.revenuBrutAnnuel;
+    final revenuFormatted = formatChf(revenuAnnuel);
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.primary.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.border.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l.dataOriginTitle,
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 12,
+            runSpacing: 4,
+            children: [
+              Text(
+                l.dataOriginAge(profile.age),
+                style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+              ),
+              if (revenuAnnuel > 0)
+                Text(
+                  l.dataOriginRevenu(revenuFormatted),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                ),
+              if (profile.canton.isNotEmpty)
+                Text(
+                  l.dataOriginCanton(profile.canton),
+                  style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          GestureDetector(
+            onTap: () => context.push('/profile'),
+            child: Text(
+              l.dataOriginModify,
+              style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDisclaimer() {
-    return Text(
-      S.of(context)!.dashboardDisclaimer,
-      textAlign: TextAlign.center,
-      style: MintTextStyles.micro(),
+    final l = S.of(context)!;
+    return Column(
+      children: [
+        Text(
+          l.disclaimerShort,
+          textAlign: TextAlign.center,
+          style: MintTextStyles.micro(),
+        ),
+        const SizedBox(height: 2),
+        GestureDetector(
+          onTap: () => _showDisclaimerFull(context),
+          child: Text(
+            l.disclaimerLearnMore,
+            textAlign: TextAlign.center,
+            style: MintTextStyles.micro(color: MintColors.primary).copyWith(
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showDisclaimerFull(BuildContext context) {
+    final l = S.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Text(
+          l.disclaimerFull,
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+        ),
+      ),
     );
   }
 }
@@ -1118,9 +1252,9 @@ class _ActionCard extends StatelessWidget {
                     const SizedBox(height: MintSpacing.xs),
                     Text(
                       card.message,
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.textSecondary,
-                      ).copyWith(fontSize: 12, height: 1.4),
+                      ).copyWith(height: 1.4),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1222,9 +1356,9 @@ class _DataEnrichmentCard extends StatelessWidget {
                     ),
                     Text(
                       l.dashboardPrecisionGainPercent(prompt.impact),
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.success,
-                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),

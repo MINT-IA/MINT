@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///   - Proactive trigger cooldown (intensity 1→7 days, 3→1 day, 5→every session)
 ///   - Memory recall depth in coach context (fewer/more past references)
 ///   - Nudge frequency
+///   - Voice intensity via [cashLevel] (1-5, see VOICE_SYSTEM.md §11)
 ///
 /// Two sources of signal:
 ///   - Explicit: user sets [intensity] via settings slider
@@ -23,6 +24,15 @@ class CoachingPreference {
   /// 4 = attentif
   /// 5 = proactif (triggers every session, rich recall)
   final int intensity;
+
+  /// Voice intensity level (1-5). Default: 2 (Clair).
+  ///
+  /// 1 = Tranquille: chiffres seuls, pas d'opinion
+  /// 2 = Clair: chiffres + une phrase de contexte (default)
+  /// 3 = Direct: comparaisons concrètes, questions franches
+  /// 4 = Cash: dit ce que l'ami cultivé penserait
+  /// 5 = Brut: aucun filtre de politesse, pique et fait sourire (settings only)
+  final int cashLevel;
 
   /// Per-trigger-type engagement score (0.0 to 1.0).
   ///
@@ -41,6 +51,7 @@ class CoachingPreference {
 
   const CoachingPreference({
     this.intensity = 3,
+    this.cashLevel = 2,
     this.triggerEngagement = const {},
     this.totalGreetingsShown = 0,
     this.totalGreetingsEngaged = 0,
@@ -48,6 +59,23 @@ class CoachingPreference {
 
   /// Default preference — balanced coaching.
   static const CoachingPreference balanced = CoachingPreference();
+
+  /// Creates a copy with updated fields.
+  CoachingPreference copyWith({
+    int? intensity,
+    int? cashLevel,
+    Map<String, double>? triggerEngagement,
+    int? totalGreetingsShown,
+    int? totalGreetingsEngaged,
+  }) {
+    return CoachingPreference(
+      intensity: intensity ?? this.intensity,
+      cashLevel: cashLevel ?? this.cashLevel,
+      triggerEngagement: triggerEngagement ?? this.triggerEngagement,
+      totalGreetingsShown: totalGreetingsShown ?? this.totalGreetingsShown,
+      totalGreetingsEngaged: totalGreetingsEngaged ?? this.totalGreetingsEngaged,
+    );
+  }
 
   // ── Derived values ─────────────────────────────────────────
 
@@ -121,6 +149,7 @@ class CoachingPreference {
     updated[triggerType] = (current * 0.8 + 0.2).clamp(0.0, 1.0);
     return CoachingPreference(
       intensity: intensity,
+      cashLevel: cashLevel,
       triggerEngagement: updated,
       totalGreetingsShown: totalGreetingsShown + 1,
       totalGreetingsEngaged: totalGreetingsEngaged + 1,
@@ -135,6 +164,7 @@ class CoachingPreference {
     updated[triggerType] = (current * 0.8).clamp(0.0, 1.0);
     return CoachingPreference(
       intensity: intensity,
+      cashLevel: cashLevel,
       triggerEngagement: updated,
       totalGreetingsShown: totalGreetingsShown + 1,
       totalGreetingsEngaged: totalGreetingsEngaged,
@@ -144,6 +174,7 @@ class CoachingPreference {
   /// Create a copy with a new explicit intensity setting.
   CoachingPreference withIntensity(int newIntensity) => CoachingPreference(
         intensity: newIntensity.clamp(1, 5),
+        cashLevel: cashLevel,
         triggerEngagement: triggerEngagement,
         totalGreetingsShown: totalGreetingsShown,
         totalGreetingsEngaged: totalGreetingsEngaged,
@@ -155,14 +186,18 @@ class CoachingPreference {
 
   Map<String, dynamic> toJson() => {
         'intensity': intensity,
+        'cashLevel': cashLevel,
         'triggerEngagement': triggerEngagement,
         'totalGreetingsShown': totalGreetingsShown,
         'totalGreetingsEngaged': totalGreetingsEngaged,
       };
 
   factory CoachingPreference.fromJson(Map<String, dynamic> json) {
+    final rawCash = json['cashLevel'] ?? json['cash_level'] ?? 2;
+    final cashLvl = (rawCash is int) ? rawCash : int.tryParse('$rawCash') ?? 2;
     return CoachingPreference(
       intensity: (json['intensity'] as int?) ?? 3,
+      cashLevel: cashLvl.clamp(1, 5),
       triggerEngagement: json['triggerEngagement'] != null
           ? Map<String, double>.from(
               (json['triggerEngagement'] as Map).map(
@@ -195,6 +230,20 @@ class CoachingPreference {
 
   @override
   String toString() => 'CoachingPreference(intensity: $intensity, '
+      'cashLevel: $cashLevel, '
       'engagement: ${engagementRate.toStringAsFixed(2)}, '
       'shown: $totalGreetingsShown, engaged: $totalGreetingsEngaged)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CoachingPreference &&
+          runtimeType == other.runtimeType &&
+          intensity == other.intensity &&
+          cashLevel == other.cashLevel &&
+          totalGreetingsShown == other.totalGreetingsShown &&
+          totalGreetingsEngaged == other.totalGreetingsEngaged;
+
+  @override
+  int get hashCode => Object.hash(intensity, cashLevel, totalGreetingsShown, totalGreetingsEngaged);
 }

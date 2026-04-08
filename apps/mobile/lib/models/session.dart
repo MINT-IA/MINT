@@ -24,7 +24,7 @@ class Session {
     return Session(
       id: json['id'],
       profileId: json['profileId'],
-      createdAt: DateTime.parse(json['createdAt']),
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       answers: Map<String, dynamic>.from(json['answers']),
       selectedFocusKinds: List<String>.from(json['selectedFocusKinds']),
       recommendedGoalTemplateId: json['recommendedGoalTemplateId'],
@@ -42,9 +42,9 @@ class ScoreboardItem {
 
   factory ScoreboardItem.fromJson(Map<String, dynamic> json) {
     return ScoreboardItem(
-      label: json['label'],
-      value: json['value'],
-      note: json['note'] ?? '',
+      label: json['label'] as String? ?? '',
+      value: json['value'] as String? ?? '',
+      note: json['note'] as String? ?? '',
     );
   }
 }
@@ -143,7 +143,7 @@ class SessionReport {
       topActions: (json['topActions'] as List).map((a) => TopAction.fromJson(a)).toList(),
       recommendations: (json['recommendations'] as List).map((r) => Recommendation.fromJson(r)).toList(),
       disclaimers: List<String>.from(json['disclaimers']),
-      generatedAt: DateTime.parse(json['generatedAt']),
+      generatedAt: DateTime.tryParse(json['generatedAt'] ?? '') ?? DateTime.now(),
     );
   }
 }

@@ -27,7 +27,7 @@ class FuturDrawerContent extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Text(
           S.of(context)!.financialSummaryNoProfile,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13),
+          style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
         ),
       );
     }

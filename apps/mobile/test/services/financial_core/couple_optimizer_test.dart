@@ -227,13 +227,15 @@ void main() {
       expect(mp.tradeOff, contains('canton'));
     });
 
-    test('conjoint without income → null result', () {
+    test('conjoint without income → penalty still computed (W16 fix)', () {
       const conj = ConjointProfile(birthYear: 1985, salaireBrutMensuel: 0);
       final result = CoupleOptimizer.optimize(
         mainUser: _julien(),
         conjoint: conj,
       );
-      expect(result.marriagePenalty, isNull);
+      // W16: Marriage penalty applies even with single-earner couple.
+      // The penalty compares married filing (combined) vs two singles.
+      expect(result.marriagePenalty, isNotNull);
     });
 
     test('tradeOff mentions penalty or bonus', () {

@@ -46,7 +46,7 @@ class CollapsibleSection extends StatelessWidget {
           subtitle: subtitle != null
               ? Text(
                   subtitle!,
-                  style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 )
               : null,
           children: [child],

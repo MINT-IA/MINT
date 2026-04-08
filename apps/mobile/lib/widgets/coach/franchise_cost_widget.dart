@@ -133,7 +133,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           const SizedBox(height: 6),
           Text(
             'Scénario : maladie ou accident nécessitant 2 ans de soins',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -249,7 +249,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
             child: Text(
               '-${_fmt(savings)}/an',
               textAlign: TextAlign.center,
-              style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           SizedBox(
@@ -257,7 +257,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
             child: Text(
               normalCost >= 0 ? '+${_fmt(normalCost)}' : '-${_fmt(normalCost.abs())}',
               textAlign: TextAlign.center,
-              style: MintTextStyles.labelSmall(color: normalCost <= 0 ? MintColors.scoreExcellent : MintColors.scoreAttention).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: normalCost <= 0 ? MintColors.scoreExcellent : MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -305,7 +305,7 @@ class _FranchiseCostWidgetState extends State<FranchiseCostWidget> {
           Text(
             'Règle : si tu vas chez le médecin plus de 2× par an,\n'
             'la franchise basse te coûte moins cher.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, height: 1.5),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, height: 1.5),
           ),
         ],
       ),

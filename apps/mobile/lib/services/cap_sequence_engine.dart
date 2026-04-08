@@ -13,17 +13,19 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 //  Job: "Given what the user has done and what we know about them,
 //        show a coherent multi-step plan toward their declared goal."
 //
-//  Three goal families:
+//  Five goal families:
 //    - retirement_choice  → 10 steps
 //    - budget_overview    → 6 steps
 //    - housing_purchase   → 7 steps
+//    - first_job          → 5 steps
+//    - new_job            → 5 steps
 //
 //  Completion detection uses memory.completedActions (string IDs).
 //  Profile field presence is used as a secondary signal.
 //
 //  ARB keys follow the pattern:
 //    capStep{Goal}{NN}Title / capStep{Goal}{NN}Desc
-//  where {Goal} = Retirement | Budget | Housing
+//  where {Goal} = Retirement | Budget | Housing | FirstJob | NewJob
 //  and {NN} = 01..10
 //
 //  ARCH NOTE — intentTag values in CapStep:
@@ -43,6 +45,8 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 const _kGoalRetirement = 'retirement_choice';
 const _kGoalBudget = 'budget_overview';
 const _kGoalHousing = 'housing_purchase';
+const _kGoalFirstJob = 'first_job';
+const _kGoalNewJob = 'new_job';
 
 class CapSequenceEngine {
   CapSequenceEngine._();
@@ -70,6 +74,8 @@ class CapSequenceEngine {
       _kGoalRetirement => _buildRetirement(profile, memory),
       _kGoalBudget => _buildBudget(profile, memory),
       _kGoalHousing => _buildHousing(profile, memory),
+      _kGoalFirstJob => _buildFirstJob(profile, memory),
+      _kGoalNewJob => _buildNewJob(profile, memory),
       _ => CapSequence.fromSteps(goalId: goalIntentTag, steps: const []),
     };
   }
@@ -423,7 +429,7 @@ class CapSequenceEngine {
             : hasMortgage
                 ? CapStepStatus.upcoming
                 : CapStepStatus.blocked,
-        intentTag: '/location-vs-propriete',
+        intentTag: '/arbitrage/location-vs-propriete',
         impactEstimate: null,
       ),
       CapStep(
@@ -440,6 +446,160 @@ class CapSequenceEngine {
     ];
 
     return CapSequence.fromSteps(goalId: _kGoalHousing, steps: steps);
+  }
+
+  // ── FIRST JOB SEQUENCE ───────────────────────────────────────
+
+  /// 5-step first job financial onboarding sequence.
+  static CapSequence _buildFirstJob(CoachProfile profile, CapMemory memory) {
+    final done = memory.completedActions;
+    final prev = profile.prevoyance;
+
+    final hasSalary = profile.salaireBrutMensuel > 0;
+    final hasSalaryXray = done.contains('first_job_salary');
+    final hasLpp = (prev.avoirLppTotal ?? 0) > 0 || done.contains('lpp_verified');
+    final has3a = done.contains('pillar_3a') || (prev.totalEpargne3a) > 0;
+
+    final steps = <CapStep>[
+      CapStep(
+        id: 'fj_01_income',
+        order: 1,
+        titleKey: 'capStepFirstJob01Title',
+        descriptionKey: 'capStepFirstJob01Desc',
+        status: hasSalary ? CapStepStatus.completed : CapStepStatus.upcoming,
+        intentTag: '/profile',
+        impactEstimate: null,
+      ),
+      CapStep(
+        id: 'fj_02_salary_xray',
+        order: 2,
+        titleKey: 'capStepFirstJob02Title',
+        descriptionKey: 'capStepFirstJob02Desc',
+        status: hasSalaryXray
+            ? CapStepStatus.completed
+            : hasSalary
+                ? CapStepStatus.upcoming
+                : CapStepStatus.blocked,
+        intentTag: '/first-job',
+        impactEstimate: null,
+      ),
+      CapStep(
+        id: 'fj_03_lpp',
+        order: 3,
+        titleKey: 'capStepFirstJob03Title',
+        descriptionKey: 'capStepFirstJob03Desc',
+        status: hasLpp
+            ? CapStepStatus.completed
+            : hasSalary
+                ? CapStepStatus.upcoming
+                : CapStepStatus.blocked,
+        intentTag: '/rachat-lpp',
+        impactEstimate: _estimateLppMonthly(profile),
+      ),
+      CapStep(
+        id: 'fj_04_3a',
+        order: 4,
+        titleKey: 'capStepFirstJob04Title',
+        descriptionKey: 'capStepFirstJob04Desc',
+        status: has3a
+            ? CapStepStatus.completed
+            : hasSalary
+                ? CapStepStatus.upcoming
+                : CapStepStatus.blocked,
+        intentTag: '/pilier-3a',
+        impactEstimate: _estimate3aImpact(profile),
+      ),
+      CapStep(
+        id: 'fj_05_specialist',
+        order: 5,
+        titleKey: 'capStepFirstJob05Title',
+        descriptionKey: 'capStepFirstJob05Desc',
+        status: done.contains('specialist_consulted')
+            ? CapStepStatus.completed
+            : CapStepStatus.upcoming,
+        intentTag: null, // Opens coach
+        impactEstimate: null,
+      ),
+    ];
+
+    return CapSequence.fromSteps(goalId: _kGoalFirstJob, steps: steps);
+  }
+
+  // ── NEW JOB SEQUENCE ──────────────────────────────────────────
+
+  /// 5-step new job / job change financial review sequence.
+  static CapSequence _buildNewJob(CoachProfile profile, CapMemory memory) {
+    final done = memory.completedActions;
+    final prev = profile.prevoyance;
+
+    final hasSalary = profile.salaireBrutMensuel > 0;
+    final hasSalaryCompared = done.contains('salary_compared');
+    final hasLppTransfer = done.contains('lpp_transfer_checked');
+    final has3a = done.contains('3a_optimized') || prev.totalEpargne3a > 0;
+
+    final steps = <CapStep>[
+      CapStep(
+        id: 'nj_01_income',
+        order: 1,
+        titleKey: 'capStepNewJob01Title',
+        descriptionKey: 'capStepNewJob01Desc',
+        status: hasSalary ? CapStepStatus.completed : CapStepStatus.upcoming,
+        intentTag: '/profile',
+        impactEstimate: null,
+      ),
+      CapStep(
+        id: 'nj_02_compare',
+        order: 2,
+        titleKey: 'capStepNewJob02Title',
+        descriptionKey: 'capStepNewJob02Desc',
+        status: hasSalaryCompared
+            ? CapStepStatus.completed
+            : hasSalary
+                ? CapStepStatus.upcoming
+                : CapStepStatus.blocked,
+        intentTag: '/rente-vs-capital',
+        impactEstimate: null,
+      ),
+      CapStep(
+        id: 'nj_03_lpp_transfer',
+        order: 3,
+        titleKey: 'capStepNewJob03Title',
+        descriptionKey: 'capStepNewJob03Desc',
+        status: hasLppTransfer
+            ? CapStepStatus.completed
+            : hasSalary
+                ? CapStepStatus.upcoming
+                : CapStepStatus.blocked,
+        intentTag: '/rachat-lpp',
+        impactEstimate: _estimateLppMonthly(profile),
+      ),
+      CapStep(
+        id: 'nj_04_3a',
+        order: 4,
+        titleKey: 'capStepNewJob04Title',
+        descriptionKey: 'capStepNewJob04Desc',
+        status: has3a
+            ? CapStepStatus.completed
+            : hasSalary
+                ? CapStepStatus.upcoming
+                : CapStepStatus.blocked,
+        intentTag: '/pilier-3a',
+        impactEstimate: _estimate3aImpact(profile),
+      ),
+      CapStep(
+        id: 'nj_05_specialist',
+        order: 5,
+        titleKey: 'capStepNewJob05Title',
+        descriptionKey: 'capStepNewJob05Desc',
+        status: done.contains('specialist_consulted')
+            ? CapStepStatus.completed
+            : CapStepStatus.upcoming,
+        intentTag: null, // Opens coach
+        impactEstimate: null,
+      ),
+    ];
+
+    return CapSequence.fromSteps(goalId: _kGoalNewJob, steps: steps);
   }
 
   // ── IMPACT ESTIMATES ─────────────────────────────────────────

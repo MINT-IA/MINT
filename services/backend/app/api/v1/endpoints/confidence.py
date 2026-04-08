@@ -15,7 +15,8 @@ Sources:
     - LIFD art. 38 (imposition du capital)
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+from app.core.rate_limit import limiter
 
 from app.schemas.confidence import (
     ConfidenceScoreRequest,
@@ -92,7 +93,8 @@ def _parse_field_sources(raw_sources: list) -> list[FieldSource]:
 # ============================================================================
 
 @router.post("/score", response_model=ConfidenceScoreResponse)
-def score_confidence(request: ConfidenceScoreRequest) -> ConfidenceScoreResponse:
+@limiter.limit("30/minute")
+def score_confidence(request: Request, body: ConfidenceScoreRequest) -> ConfidenceScoreResponse:
     """Calcule le score de confiance complet sur 4 axes.
 
     Combine completeness, accuracy, freshness et understanding
@@ -103,8 +105,8 @@ def score_confidence(request: ConfidenceScoreRequest) -> ConfidenceScoreResponse
         ConfidenceScoreResponse avec breakdown, enrichment_prompts,
         feature_gates, disclaimer et sources legales.
     """
-    profile = {k: v for k, v in request.profile.items() if v is not None}
-    field_sources = _parse_field_sources(request.field_sources)
+    profile = {k: v for k, v in body.profile.items() if v is not None}
+    field_sources = _parse_field_sources(body.field_sources)
 
     result = compute_confidence(profile, field_sources)
 
@@ -137,7 +139,8 @@ def score_confidence(request: ConfidenceScoreRequest) -> ConfidenceScoreResponse
 # ============================================================================
 
 @router.post("/enrichments", response_model=EnrichmentResponse)
-def get_enrichments(request: EnrichmentRequest) -> EnrichmentResponse:
+@limiter.limit("30/minute")
+def get_enrichments(request: Request, body: EnrichmentRequest) -> EnrichmentResponse:
     """Retourne les top actions pour ameliorer la precision du profil.
 
     Classe les actions d'enrichissement par impact decroissant.
@@ -146,11 +149,11 @@ def get_enrichments(request: EnrichmentRequest) -> EnrichmentResponse:
     Returns:
         EnrichmentResponse avec prompts, current confidence, disclaimer.
     """
-    profile = {k: v for k, v in request.profile.items() if v is not None}
-    field_sources = _parse_field_sources(request.field_sources)
+    profile = {k: v for k, v in body.profile.items() if v is not None}
+    field_sources = _parse_field_sources(body.field_sources)
 
     result = compute_confidence(profile, field_sources)
-    prompts = result.enrichment_prompts[:request.max_prompts]
+    prompts = result.enrichment_prompts[:body.max_prompts]
 
     return EnrichmentResponse(
         enrichment_prompts=[
@@ -174,11 +177,12 @@ def get_enrichments(request: EnrichmentRequest) -> EnrichmentResponse:
 # ============================================================================
 
 @router.post("/gates", response_model=FeatureGatesResponse)
-def get_feature_gates(request: FeatureGatesRequest) -> FeatureGatesResponse:
+@limiter.limit("30/minute")
+def get_feature_gates(request: Request, body: FeatureGatesRequest) -> FeatureGatesResponse:
     """Retourne les fonctionnalites debloquees selon le niveau de confiance.
 
     Feature gates:
-        < 30%:  basic_chiffre_choc_only
+        < 30%:  basic_premier_eclairage_only
         30-50%: + standard_projections
         50-70%: + arbitrage_comparisons (with uncertainty bands)
         70-85%: + precise_arbitrage + fri_scoring
@@ -187,8 +191,8 @@ def get_feature_gates(request: FeatureGatesRequest) -> FeatureGatesResponse:
     Returns:
         FeatureGatesResponse avec gates, overall, et progression.
     """
-    profile = {k: v for k, v in request.profile.items() if v is not None}
-    field_sources = _parse_field_sources(request.field_sources)
+    profile = {k: v for k, v in body.profile.items() if v is not None}
+    field_sources = _parse_field_sources(body.field_sources)
 
     result = compute_confidence(profile, field_sources)
     overall = result.breakdown.overall

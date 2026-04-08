@@ -5,7 +5,7 @@ GET  /api/v1/educational-content/         — liste tous les inserts educatifs
 GET  /api/v1/educational-content/{question_id} — retourne un insert par question_id
 GET  /api/v1/educational-content/phase/{phase} — retourne les inserts par phase
 
-Sert le contenu educatif (chiffre choc, objectifs d'apprentissage, disclaimer,
+Sert le contenu educatif (premier éclairage, objectifs d'apprentissage, disclaimer,
 sources legales) pour chaque question du wizard MINT.
 
 All endpoints are stateless (no data storage). Pure read from in-memory data.
@@ -32,7 +32,7 @@ def _to_response(insert) -> InsertContentResponse:
     return InsertContentResponse(
         question_id=insert.question_id,
         title=insert.title,
-        chiffre_choc=insert.chiffre_choc,
+        premier_eclairage=insert.premier_eclairage,
         learning_goals=insert.learning_goals,
         disclaimer=insert.disclaimer,
         sources=insert.sources,

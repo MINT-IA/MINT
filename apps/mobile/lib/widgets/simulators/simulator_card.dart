@@ -93,7 +93,7 @@ class SimulatorCard extends StatelessWidget {
                         const SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                         ),
                       ],
                     ],

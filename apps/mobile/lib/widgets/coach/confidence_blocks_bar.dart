@@ -4,7 +4,12 @@ import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
-/// Horizontal confidence blocks bar showing per-category data completeness.
+/// Horizontal per-category data-completeness bar.
+///
+/// Per AUDIT-01 / Plan 08a-02 carve-out: this surface is an **extraction**
+/// visualization (per-block enrichment state), NOT a calculation-confidence
+/// renderer. It is intentionally a sibling of [MintTrameConfiance], and
+/// MUST NOT import it.
 ///
 /// Each block represents a scoring category from [ConfidenceScorer.scoreAsBlocs()].
 /// Tapping a block navigates to the corresponding data enrichment screen.
@@ -12,10 +17,10 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// Displays 5 main user-facing blocks (Base, Objectif, Menage, LPP, 3a).
 /// Technical blocks (archetype, taux_conversion, foreign_pension) are merged
 /// into their parent categories for UX clarity.
-class ConfidenceBlocksBar extends StatelessWidget {
+class DataBlockConfidenceBar extends StatelessWidget {
   final Map<String, BlockScore> blocs;
 
-  const ConfidenceBlocksBar({super.key, required this.blocs});
+  const DataBlockConfidenceBar({super.key, required this.blocs});
 
   static const _displayBlocks = [
     _DisplayBlock(
@@ -134,6 +139,11 @@ class ConfidenceBlocksBar extends StatelessWidget {
     );
   }
 }
+
+/// Back-compat alias. New code MUST use [DataBlockConfidenceBar].
+/// Slated for removal in Phase 11 (see Plan 08a-03 CI gate).
+@Deprecated('Use DataBlockConfidenceBar — sibling of MintTrameConfiance (AUDIT-01 extraction carve-out).')
+typedef ConfidenceBlocksBar = DataBlockConfidenceBar;
 
 class _DisplayBlock {
   final List<String> keys;

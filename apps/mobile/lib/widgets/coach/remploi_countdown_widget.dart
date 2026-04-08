@@ -108,7 +108,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
                   isExpired
                       ? 'Délai écoulé — l\'impôt est dû.'
                       : 'Tu as $_remploidDeadlineYears ans pour racheter une résidence principale.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -141,7 +141,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
             const SizedBox(height: 8),
             Text(
               'Impôt dû : ${formatChfWithPrefix(widget.deferredTax)}',
-              style: MintTextStyles.headlineMedium(color: MintColors.scoreCritique).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+              style: MintTextStyles.titleLarge(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
             ),
           ],
         ),
@@ -247,7 +247,7 @@ class _RemploiCountdownWidgetState extends State<RemploiCountdownWidget> {
                   : 'Si tu achètes une nouvelle résidence principale avant le ${_formatDate(_deadline)}, '
                     'l\'impôt de ${formatChfWithPrefix(widget.deferredTax)} est différé. '
                     'LIFD art. 12 al. 3.',
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

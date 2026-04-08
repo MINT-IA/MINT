@@ -243,7 +243,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
               ),
               Text(
                 l?.scoreGaugeSubtitle ?? 'Score composite \u00b7 3 piliers',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -257,7 +257,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
           ),
           child: Text(
             levelLabel,
-            style: MintTextStyles.labelSmall(color: _scoreColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: _scoreColor).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -284,13 +284,16 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             alignment: Alignment.center,
             children: [
               // Custom painted arc
-              CustomPaint(
-                painter: _ScoreGaugePainter(
-                  score: widget.score,
-                  progress: _fillAnimation.value,
-                  scoreColor: _scoreColor,
+              Semantics(
+                label: 'Score gauge chart: ${widget.score}%',
+                child: CustomPaint(
+                  painter: _ScoreGaugePainter(
+                    score: widget.score,
+                    progress: _fillAnimation.value,
+                    scoreColor: _scoreColor,
+                  ),
+                  size: Size(gaugeSize, gaugeSize),
                 ),
-                size: Size(gaugeSize, gaugeSize),
               ),
               // Center content
               Column(
@@ -449,7 +452,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         children: [
           Text(
             l?.scoreGaugeGainTitle ?? 'Ce qui t\u2019a fait monter',
-            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           ...widget.recentGains!.take(3).map((gain) => Padding(
@@ -462,12 +465,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                     Expanded(
                       child: Text(
                         gain['label'] as String? ?? '',
-                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                       ),
                     ),
                     Text(
                       '+${gain['points'] ?? 0} pts',
-                      style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.labelMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -493,7 +496,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         children: [
           Text(
             l?.scoreGaugeNextTitle ?? 'Pour monter encore',
-            style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           ...widget.nextActions!.take(3).map((action) => Padding(
@@ -506,12 +509,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                     Expanded(
                       child: Text(
                         action['label'] as String? ?? '',
-                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                       ),
                     ),
                     Text(
                       '+${action['points'] ?? 0} pts',
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -666,7 +669,7 @@ class _ScoreGaugePainter extends CustomPainter {
       final labelTp = TextPainter(
         text: TextSpan(
           text: '$labelValue',
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );

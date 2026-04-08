@@ -75,7 +75,7 @@ class _AxisRow extends StatelessWidget {
             ),
             Text(
               '${pct.toStringAsFixed(0)}%',
-              style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),

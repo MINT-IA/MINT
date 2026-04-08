@@ -17,7 +17,9 @@ References:
     - LPD art. 6 (data processing principles)
 """
 
+import logging
 import re
+import unicodedata
 from typing import Optional
 
 from app.services.coach.coach_models import (
@@ -27,6 +29,8 @@ from app.services.coach.coach_models import (
     COMPONENT_WORD_LIMITS,
 )
 from app.services.coach.hallucination_detector import HallucinationDetector
+
+logger = logging.getLogger(__name__)
 
 
 class ComplianceGuard:
@@ -80,6 +84,18 @@ class ComplianceGuard:
         "idéale",
         # Superlative form of "meilleur" (GAP #4: "le mieux" bypass)
         "le mieux",
+        # Conditional/subjunctive forms (GAP #5: conjugation bypass)
+        "garantirait",
+        "garantiraient",
+        "serait garanti",
+        "serait garantie",
+        "seraient garantis",
+        "seraient garanties",
+        "assurerait",
+        "assureront",
+        # Infinitive prescriptive bypass
+        "garantir un rendement",
+        "assurer un retour",
     ]
 
     # Pre-compiled word-boundary patterns (French-aware: includes À-ÿ).
@@ -147,6 +163,17 @@ class ComplianceGuard:
         "idéale": "adaptée",
         # Superlative form
         "le mieux": "une option pertinente",
+        # Conditional/subjunctive forms
+        "garantirait": "pourrait permettre",
+        "garantiraient": "pourraient permettre",
+        "serait garanti": "serait envisageable",
+        "serait garantie": "serait envisageable",
+        "seraient garantis": "seraient envisageables",
+        "seraient garanties": "seraient envisageables",
+        "assurerait": "pourrait offrir",
+        "assureront": "pourraient offrir",
+        "garantir un rendement": "viser un rendement",
+        "assurer un retour": "viser un retour",
     }
 
     # ═══════════════════════════════════════════════════════════════════
@@ -178,6 +205,61 @@ class ComplianceGuard:
     # Layer 4: Disclaimer keywords (trigger disclaimer injection)
     # ═══════════════════════════════════════════════════════════════════
 
+    # ═══════════════════════════════════════════════════════════════════
+    # Layer 2b: High-register drift (N4/N5 only) — Phase 11 / VOICE-08
+    # ═══════════════════════════════════════════════════════════════════
+    #
+    # These patterns activate ONLY when the caller passes cursor_level in
+    # {"N4","N5"}. They harden the guard against the specific drift modes
+    # that high-register voice tends to produce: imperatives without hedge,
+    # judging the emitter, social/age shaming, and named-product drift.
+    #
+    # Each entry is (pattern, failure_category, label) so the audit log
+    # records WHICH adversarial mode tripped.
+
+    HIGH_REGISTER_DRIFT_PATTERNS: list = [
+        # ── imperative_no_hedge ──────────────────────────────────────
+        (re.compile(r"\barr[êe]te\s+de\b", re.IGNORECASE), "imperative_no_hedge", "arrête de"),
+        (re.compile(r"\bferme\s+(?:ce|cette|ton|ta)\b", re.IGNORECASE), "imperative_no_hedge", "ferme ce/cette"),
+        (re.compile(r"\bchange-en\b", re.IGNORECASE), "imperative_no_hedge", "change-en"),
+        (re.compile(r"\bquitte\s+(?:cette|ta|ton)\b", re.IGNORECASE), "imperative_no_hedge", "quitte cette"),
+        # ── judging the emitter (doctrine: never judge the issuer) ──
+        (re.compile(r"\barnaque\b", re.IGNORECASE), "imperative_no_hedge", "arnaque"),
+        (re.compile(r"\bc['\u2018\u2019]est\s+nul\b", re.IGNORECASE), "imperative_no_hedge", "c'est nul"),
+        (re.compile(r"\bc['\u2018\u2019]est\s+inutile\b", re.IGNORECASE), "imperative_no_hedge", "c'est inutile"),
+        # ── shame_vector: social comparison + age shaming ───────────
+        (re.compile(r"\bton\s+voisin\b", re.IGNORECASE), "shame_vector", "ton voisin"),
+        (re.compile(r"\bgens\s+de\s+ton\s+[âa]ge\b", re.IGNORECASE), "shame_vector", "gens de ton âge"),
+        (re.compile(r"\bsuisses\s+de\s+ton\s+[âa]ge\b", re.IGNORECASE), "shame_vector", "Suisses de ton âge"),
+        (re.compile(r"\btous\s+les\s+suisses\b", re.IGNORECASE), "shame_vector", "tous les Suisses"),
+        (re.compile(r"\bcomme\s+les\s+suisses\s+qui\b", re.IGNORECASE), "shame_vector", "comme les Suisses qui"),
+        (re.compile(r"\btu\s+vas\s+finir\s+comme\b", re.IGNORECASE), "shame_vector", "tu vas finir comme"),
+        (re.compile(r"\b(?:tu\s+es\s+)?en\s+retard\b", re.IGNORECASE), "shame_vector", "en retard"),
+        (re.compile(r"\d+\s*%\s+de\s+plus\s+que\s+toi", re.IGNORECASE), "shame_vector", "X% de plus que toi"),
+        (re.compile(r"\d+\s*%\s+des\s+gens\b", re.IGNORECASE), "shame_vector", "% des gens"),
+        # ── prescription_drift: named products + FOMO urgency ───────
+        (re.compile(r"\bbitcoin\b", re.IGNORECASE), "prescription_drift", "Bitcoin"),
+        (re.compile(r"\bnestl[ée]\b", re.IGNORECASE), "prescription_drift", "Nestlé"),
+        (re.compile(r"\broche\b", re.IGNORECASE), "prescription_drift", "Roche"),
+        (re.compile(r"\bnovartis\b", re.IGNORECASE), "prescription_drift", "Novartis"),
+        (re.compile(r"\bubs\b", re.IGNORECASE), "prescription_drift", "UBS"),
+        (re.compile(r"\bmsci\s+world\b", re.IGNORECASE), "prescription_drift", "MSCI World"),
+        (re.compile(r"\bsinon\s+tu\s+rateras\b", re.IGNORECASE), "prescription_drift", "sinon tu rateras"),
+        (re.compile(r"\brater(?:as|a|ait)?\s+le\s+train\b", re.IGNORECASE), "prescription_drift", "rater le train"),
+    ]
+
+    # Negated-guarantee whitelist: phrases like "rien n'est garanti" or
+    # "n'est jamais garanti" are IN-DOCTRINE (anti-promise) but contain the
+    # banned root "garanti". Strip them from a working copy used only for
+    # banned-term scanning so they don't trigger Layer 1.
+    _NEGATED_GUARANTEE_PATTERNS = [
+        re.compile(r"rien\s+n['\u2018\u2019]est\s+garanti(?:e|s|es)?\b", re.IGNORECASE),
+        re.compile(r"n['\u2018\u2019]est\s+jamais\s+garanti(?:e|s|es)?\b", re.IGNORECASE),
+        re.compile(r"n['\u2018\u2019]est\s+pas\s+garanti(?:e|s|es)?\b", re.IGNORECASE),
+        re.compile(r"\bnon\s+garanti(?:e|s|es)?\b", re.IGNORECASE),
+        re.compile(r"\bjamais\s+garanti(?:e|s|es)?\b", re.IGNORECASE),
+    ]
+
     PROJECTION_KEYWORDS = [
         "projection", "simulation", "scénario", "scenario",
         "estimé", "estimée", "estimation", "prévision",
@@ -201,6 +283,8 @@ class ComplianceGuard:
         llm_output: str,
         context: Optional[CoachContext] = None,
         component_type: ComponentType = ComponentType.general,
+        user_id: Optional[str] = None,
+        cursor_level: Optional[str] = None,
     ) -> ComplianceResult:
         """Validate LLM output through 5 compliance layers.
 
@@ -208,6 +292,7 @@ class ComplianceGuard:
             llm_output: Raw LLM-generated text.
             context: CoachContext with known values for hallucination detection.
             component_type: Type of component (for length limits).
+            user_id: Optional anonymized user ID for compliance audit trail.
 
         Returns:
             ComplianceResult with compliance status and sanitized text.
@@ -235,6 +320,10 @@ class ComplianceGuard:
                 use_fallback=True,
             )
 
+        # ── NFKC normalization: converts Cyrillic/homoglyph lookalikes to Latin ──
+        # Prevents banned-term bypass via Unicode homoglyphs (e.g. Cyrillic "а" → Latin "a").
+        text = unicodedata.normalize("NFKC", text)
+
         # ── Pre-check: wrong language (basic heuristic) ──
         language_violations = self._check_language(text)
         if language_violations:
@@ -242,24 +331,49 @@ class ComplianceGuard:
             use_fallback = True
 
         # ── Layer 1: Banned terms ──
-        banned_found = self._check_banned_terms(text)
+        # Strip negated guarantees (e.g. "rien n'est garanti") from the
+        # working copy used for banned-term scanning. The user-visible text
+        # is preserved — only Layer 1 detection sees the masked version.
+        scan_text = text
+        for neg in self._NEGATED_GUARANTEE_PATTERNS:
+            scan_text = neg.sub("", scan_text)
+        banned_found = self._check_banned_terms(scan_text)
         if banned_found:
+            logger.warning("ComplianceGuard L1: banned terms %s in %s user=%s", banned_found, component_type, user_id or "anonymous")
             violations.extend(
                 [f"Terme interdit: '{term}'" for term in banned_found]
             )
             if len(banned_found) > 2:
                 use_fallback = True
             else:
-                # Attempt sanitization
                 text = self._sanitize_banned_terms(text)
 
         # ── Layer 2: Prescriptive patterns ──
         prescriptive_found = self._check_prescriptive(text)
         if prescriptive_found:
+            logger.warning("ComplianceGuard L2: prescriptive %s in %s user=%s", prescriptive_found, component_type, user_id or "anonymous")
             violations.extend(
                 [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
             )
-            use_fallback = True  # Prescriptive = always fallback
+            use_fallback = True
+
+        # ── Layer 2b: High-register drift (N4/N5 only) ──
+        # Phase 11 / VOICE-08. Activates only when caller signals the
+        # generation was attempted at high register. These rules catch
+        # imperative-without-hedge, judging the emitter, social/age
+        # shaming, and named-product drift — the failure modes that
+        # high-register voice tends to produce. See HIGH_REGISTER_DRIFT_PATTERNS.
+        if cursor_level in ("N4", "N5"):
+            drift_found = self._check_high_register_drift(text)
+            if drift_found:
+                logger.warning(
+                    "ComplianceGuard L2b: high-register drift %s level=%s in %s user=%s",
+                    drift_found, cursor_level, component_type, user_id or "anonymous",
+                )
+                violations.extend(
+                    [f"Drift {cat}: '{label}'" for (cat, label) in drift_found]
+                )
+                use_fallback = True
 
         # ── Layer 3: Hallucination detection ──
         if context and context.known_values:
@@ -326,7 +440,8 @@ class ComplianceGuard:
 
     # Regex patterns for fuzzy banned term matching (catches variants)
     BANNED_PATTERNS = [
-        (re.compile(r"sans\s+(?:\w+\s+)*risque", re.IGNORECASE), "sans risque"),
+        # FIX: ReDoS — replaced (?:\w+\s+)* (exponential backtracking) with bounded {0,3}
+        (re.compile(r"sans\s+(?:\w+\s+){0,3}risque", re.IGNORECASE), "sans risque"),
     ]
 
     def _check_banned_terms(self, text: str) -> list:
@@ -357,6 +472,18 @@ class ComplianceGuard:
             if p:
                 result = p.sub(replacement, result)
         return result
+
+    def _check_high_register_drift(self, text: str) -> list:
+        """Layer 2b: Detect N4/N5 drift modes.
+
+        Returns list of (failure_category, label) tuples — empty if clean.
+        Only invoked by validate() when cursor_level in {"N4","N5"}.
+        """
+        found: list = []
+        for pattern, category, label in self.HIGH_REGISTER_DRIFT_PATTERNS:
+            if pattern.search(text):
+                found.append((category, label))
+        return found
 
     def _check_prescriptive(self, text: str) -> list:
         """Layer 2: Check for prescriptive financial language."""

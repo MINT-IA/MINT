@@ -145,7 +145,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
               'différence cumulée de ${RetirementProjectionService.formatChf(diff.abs())} '
               'sur l\'espérance de vie. '
               '${isNeg ? "Tu reçois moins longtemps mais tu pars plus tôt." : "Tu reçois plus longtemps."}',
-              style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
           ),
         ],
@@ -169,7 +169,7 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
           Text(
             'Retraite à ${scenario.retirementAge} ans — '
             '${RetirementProjectionService.formatChf(scenario.totalMonthly)}/mois',
-            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           ...scenario.sources.map((s) => Padding(
@@ -188,12 +188,12 @@ class _EarlyRetirementChartState extends State<EarlyRetirementChart>
                     Expanded(
                       child: Text(
                         s.label,
-                        style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                       ),
                     ),
                     Text(
                       RetirementProjectionService.formatChf(s.monthlyAmount),
-                      style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -251,7 +251,7 @@ class _EarlyRetirementPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: _formatK(val),
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -335,7 +335,7 @@ class _EarlyRetirementPainter extends CustomPainter {
         final badgeTP = TextPainter(
           text: TextSpan(
             text: '$sign${adjPct.toStringAsFixed(1)}%',
-            style: MintTextStyles.micro(color: adjPct < 0 ? MintColors.error : MintColors.success).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: adjPct < 0 ? MintColors.error : MintColors.success).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();
@@ -347,7 +347,7 @@ class _EarlyRetirementPainter extends CustomPainter {
         final refTP = TextPainter(
           text: TextSpan(
             text: 'ref.',
-            style: MintTextStyles.micro(color: MintColors.coachAccent).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: MintColors.coachAccent).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         )..layout();

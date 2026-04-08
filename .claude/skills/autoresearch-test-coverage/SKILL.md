@@ -4,10 +4,10 @@ description: "Test coverage auditor. Maps services to tests, flags under-tested 
 compatibility: Requires Flutter SDK and Python 3.10+
 metadata:
   author: mint-team
-  version: "3.0"
+  version: "4.0"
 ---
 
-# Autoresearch Test Coverage v3 — Karpathy Gap Auditor
+# Autoresearch Test Coverage v4 — Karpathy Gap Auditor
 
 > "You can't improve what you don't measure."
 
@@ -17,6 +17,30 @@ metadata:
 - **This skill is AUDIT-ONLY**: never modify source code, never create test files.
 - **Output**: coverage report + `test_gaps.json` for `/autoresearch-test-generation` to consume.
 - **CLAUDE.md requirement**: service files need minimum 10 unit tests.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Scan Phases
 
@@ -105,6 +129,28 @@ After generating, run `/autoresearch-test-generation` to fill gaps.
 - **NEVER create test files** — delegate to `/autoresearch-test-generation`
 - Count `test(` and `testWidgets(` calls (not `group(`)
 - Exclude `integration_test/`
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+This skill is audit-only, but audit accuracy is equally critical:
+
+1. **RUN** each count command fresh. Do not estimate or recall from memory.
+2. **PASTE** the exact terminal output for every count in your report. "About N tests" is FORBIDDEN.
+3. **CROSS-CHECK**: for each file in test_gaps.json, verify the test count by running `grep -c "test(" <file>`.
+4. If a count looks wrong → re-run the command. Do not guess.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should be about N tests" | RUN the count. Paste exact number. |
+| "The file is well-covered by integration tests" | Count UNIT tests. Integration is not unit. |
+| "10 tests per service is arbitrary" | 10 is the CLAUDE.md requirement. Not negotiable. |
+| "I already counted earlier" | Files may have changed. Count AGAIN. |
+
+**If a count looks wrong:** Re-run the command. If `test_gaps.json` contains a file that no longer exists → remove it. If a test count disagrees between grep and manual read → trust the manual read and investigate.
+
+An inaccurate audit is worse than no audit — it creates false confidence.
 
 ## Final Report
 

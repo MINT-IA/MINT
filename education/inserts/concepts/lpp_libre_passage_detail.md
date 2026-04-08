@@ -8,7 +8,7 @@ tags: [lpp, libre_passage, changement_emploi, fondation_lp, transfert]
 ## Trigger
 L'utilisateur change d'employeur, perd son emploi, ou veut comprendre ce qui arrive à son 2e pilier quand il quitte une entreprise.
 
-## Chiffre Choc
+## Premier Éclairage
 Plus de CHF 60 milliards dorment sur des comptes de libre passage en Suisse, souvent oubliés par leurs propriétaires. Certains de ces comptes rapportent moins de 0.5 %/an — bien en dessous de l'inflation.
 
 ## Niveau 0

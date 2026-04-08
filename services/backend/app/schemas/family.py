@@ -55,7 +55,7 @@ class MariageFiscalRequest(FamilyBaseModel):
         description="Code canton (2 lettres)",
     )
     enfants: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants a charge",
     )
 
@@ -87,7 +87,7 @@ class MariageFiscalResponse(FamilyBaseModel):
     deductions_mariage: float = Field(
         ..., description="Total des deductions specifiques au mariage (CHF)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -188,7 +188,7 @@ class SurvivorBenefitsResponse(FamilyBaseModel):
     total_survivant_annuel: float = Field(
         ..., description="Total annuel (CHF)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -244,7 +244,7 @@ class CongeParentalResponse(FamilyBaseModel):
     est_plafonne: bool = Field(
         ..., description="True si le max CHF 220/jour est atteint",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -351,7 +351,7 @@ class ImpactFiscalEnfantResponse(FamilyBaseModel):
     economie_impot_estimee: float = Field(
         ..., description="Economie d'impot estimee (CHF)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -408,7 +408,7 @@ class CareerGapResponse(FamilyBaseModel):
     perte_revenu_totale: float = Field(
         ..., description="Perte totale de revenu (CHF)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -440,7 +440,7 @@ class ConcubinageCompareRequest(FamilyBaseModel):
         description="Code canton (2 lettres)",
     )
     enfants: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants",
     )
     patrimoine: float = Field(
@@ -487,7 +487,7 @@ class ConcubinageCompareResponse(FamilyBaseModel):
     synthese: str = Field(
         ..., description="Synthese pedagogique",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -544,7 +544,7 @@ class SuccessionResponse(FamilyBaseModel):
     taux_concubin: float = Field(
         ..., description="Taux effectif concubin",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -624,7 +624,7 @@ class ChecklistMariageResponse(FamilyBaseModel):
     priorite_basse: List[str] = Field(
         ..., description="Actions de confort",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -676,7 +676,7 @@ class ChecklistNaissanceResponse(FamilyBaseModel):
     priorite_basse: List[str] = Field(
         ..., description="Actions de confort / optimisation",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(

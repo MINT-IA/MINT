@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool _consentNotifications = false;
   bool _consentAnalytics = false;
 
+  /// P2-17: Guard to prevent concurrent SharedPreferences writes.
+  bool _isWriting = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +55,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _handleRegister() async {
     if (!_formKey.currentState!.validate()) return;
+    // P2-17: Prevent concurrent writes
+    if (_isWriting) return;
+    _isWriting = true;
 
+    try {
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.register(
       _emailController.text.trim(),
@@ -71,7 +79,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (_dateOfBirth != null) {
           // Store both for backward compatibility
           answers['q_birth_year'] = _dateOfBirth!.year;
-          answers['q_date_of_birth'] = _dateOfBirth!.toIso8601String();
+          answers['q_date_of_birth'] =
+              _dateOfBirth!.toIso8601String().split('T').first;
         }
         await ReportPersistenceService.saveAnswers(answers);
       }
@@ -99,9 +108,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (redirect != null && redirect.startsWith('/')) {
           context.go(Uri.decodeComponent(redirect));
         } else {
-          context.go('/home');
+          // Post-auth routing: new users -> onboarding, returning -> home
+          final completed = await ReportPersistenceService.isMiniOnboardingCompleted();
+          if (!mounted) return;
+          if (completed) {
+            context.go('/home');
+          } else {
+            context.go('/onboarding/intent');
+          }
         }
       }
+    }
+    } finally {
+      _isWriting = false;
     }
   }
 
@@ -156,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       Text(
                         l10n.authWhyCreateAccount,
-                        style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
+                        style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: MintSpacing.sm),
                       _RegisterBenefitRow(text: l10n.authBenefitProjections),
@@ -198,6 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     controller: _displayNameController,
                     autofillHints: const [AutofillHints.givenName],
                     textCapitalization: TextCapitalization.words,
+                    maxLength: 50, // FIX-079
                     decoration: InputDecoration(
                       labelText: l10n.authFirstName,
                       prefixIcon: const Icon(Icons.person_outline),
@@ -553,7 +573,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   label: l10n.authCreateAccount,
                   button: true,
                   child: FilledButton(
-                    onPressed: (_acceptedCgu && _confirmed18Plus && !authProvider.isLoading) ? _handleRegister : null,
+                    onPressed: (_acceptedCgu &&
+                            _confirmed18Plus &&
+                            !authProvider.isLoading)
+                        ? () {
+                            HapticFeedback.lightImpact();
+                            _handleRegister();
+                          }
+                        : null,
                     child: authProvider.isLoading
                         ? const SizedBox(
                             height: 20,
@@ -575,7 +602,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: authProvider.isLoading
                         ? null
                         : () {
-                            context.go('/onboarding/quick');
+                            context.go('/onboarding/intent');
                           },
                     child: Text(l10n.authContinueLocal),
                   ),

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Housing cost calculator for retirement projections (P2).
@@ -146,7 +147,7 @@ class HousingCostCalculator {
       final amortYears = min(yearsToRetirement, 15);
       monthlyAmortization = excessMortgage / (amortYears * 12);
       assumptions.add(
-        'Amortissement 2e rang: CHF ${excessMortgage.toStringAsFixed(0)} '
+        'Amortissement 2e rang: ${formatChfWithPrefix(excessMortgage)} '
         'sur $amortYears ans (LTV > 65%)',
       );
     }
@@ -196,7 +197,7 @@ class HousingCostCalculator {
 
     if (mortgage > 0) {
       assumptions.add(
-        'Hypotheque CHF ${mortgage.toStringAsFixed(0)} '
+        'Hypotheque ${formatChfWithPrefix(mortgage)} '
         'a ${(rate * 100).toStringAsFixed(1)}%',
       );
     } else {

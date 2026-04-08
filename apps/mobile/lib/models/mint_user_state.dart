@@ -26,6 +26,7 @@ import 'package:mint_mobile/services/coach/proactive_trigger_service.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/nudge/nudge_engine.dart';
 import 'package:mint_mobile/services/retirement_projection_service.dart';
+import 'package:mint_mobile/services/session_snapshot_service.dart';
 
 /// The unified user state.
 ///
@@ -116,6 +117,15 @@ class MintUserState {
   /// Evaluated with a per-day cooldown by [ProactiveTriggerService].
   final ProactiveTrigger? pendingTrigger;
 
+  // ── Session Delta (Wire Spec V2) ─────────────────────────────────────
+
+  /// Delta from the user's last visit. Null on first-ever session.
+  ///
+  /// Populated by [SessionSnapshotService.computeDelta] during
+  /// [MintStateEngine.compute]. Surfaces "since last visit" data
+  /// on MintHomeScreen's chiffre vivant.
+  final SessionDelta? sessionDelta;
+
   // ── Metadata ─────────────────────────────────────────────────────────────
 
   /// When this state snapshot was assembled.
@@ -138,6 +148,7 @@ class MintUserState {
     required this.capMemory,
     this.activeNudges = const [],
     this.pendingTrigger,
+    this.sessionDelta,
     required this.computedAt,
   });
 
@@ -172,6 +183,9 @@ class MintUserState {
 
   /// True when a proactive trigger is waiting to fire.
   bool get hasPendingTrigger => pendingTrigger != null;
+
+  /// True when there's a significant delta from the last session.
+  bool get hasSessionDelta => sessionDelta != null && sessionDelta!.isSignificant;
 
   /// True when confidence is high enough for projections to be meaningful.
   ///
@@ -210,6 +224,7 @@ class MintUserState {
     CapMemory? capMemory,
     List<Nudge>? activeNudges,
     Object? pendingTrigger = _undefined,
+    Object? sessionDelta = _undefined,
     DateTime? computedAt,
   }) {
     return MintUserState(
@@ -243,6 +258,9 @@ class MintUserState {
       pendingTrigger: pendingTrigger == _undefined
           ? this.pendingTrigger
           : pendingTrigger as ProactiveTrigger?,
+      sessionDelta: sessionDelta == _undefined
+          ? this.sessionDelta
+          : sessionDelta as SessionDelta?,
       computedAt: computedAt ?? this.computedAt,
     );
   }

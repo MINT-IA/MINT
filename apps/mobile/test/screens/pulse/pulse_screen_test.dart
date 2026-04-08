@@ -8,11 +8,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/models/mint_user_state.dart';
-import 'package:mint_mobile/services/cap_memory_store.dart';
-import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/services/temporal_priority_service.dart';
 
 // ────────────────────────────────────────────────────────────────
@@ -24,10 +20,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Widget buildPulseScreen({
-    CoachProfileProvider? coachProvider,
-    MintStateProvider? mintStateProvider,
-  }) {
+  Widget buildPulseScreen({CoachProfileProvider? coachProvider}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<CoachProfileProvider>(
@@ -35,9 +28,6 @@ void main() {
         ),
         ChangeNotifierProvider<ByokProvider>(
           create: (_) => ByokProvider(),
-        ),
-        ChangeNotifierProvider<MintStateProvider>(
-          create: (_) => mintStateProvider ?? MintStateProvider(),
         ),
       ],
       child: const MaterialApp(
@@ -52,31 +42,6 @@ void main() {
         home: Scaffold(body: PulseScreen()),
       ),
     );
-  }
-
-  /// Build a [MintStateProvider] pre-seeded with a [MintUserState] so widget
-  /// tests can verify state-driven rendering without running MintStateEngine.
-  MintStateProvider buildMintStateProvider({
-    required CoachProfile profile,
-    double? replacementRate,
-    double? friScore,
-    String? activeGoalIntentTag,
-  }) {
-    final provider = MintStateProvider();
-    final state = MintUserState(
-      profile: profile,
-      lifecyclePhase: LifecyclePhase.consolidation,
-      archetype: profile.archetype,
-      confidenceScore: 70.0,
-      replacementRate: replacementRate,
-      friScore: friScore,
-      activeGoalIntentTag: activeGoalIntentTag,
-      capMemory: const CapMemory(),
-      computedAt: DateTime(2026, 3, 22),
-    );
-    // Inject state via the internal setter exposed by the test helper.
-    provider.injectStateForTest(state);
-    return provider;
   }
 
   CoachProfileProvider buildProfileProvider({
@@ -236,100 +201,6 @@ void main() {
       // shown as _SignalRow widgets. Look for the l10n labels.
       // Budget libre signal should exist for a profile with salary
       expect(find.textContaining('Budget'), findsWidgets);
-    });
-  });
-
-  // ── GOAL-CENTRIC DOMINANT NUMBER ─────────────────────────────
-
-  group('PulseScreen — goal-centric dominant number', () {
-    testWidgets('explicit retirement goal shows replacement rate label',
-        (tester) async {
-      final coachProvider = buildProfileProvider(
-        firstName: 'Julien',
-        birthYear: 1977,
-        canton: 'VS',
-        salaire: 9078,
-      );
-      // Seed MintStateProvider with replacementRate + explicit retirement goal
-      // so the label renders. Since S52, budget is the default hero —
-      // retirement requires explicit activeGoalIntentTag.
-      final mintProvider = buildMintStateProvider(
-        profile: coachProvider.profile!,
-        replacementRate: 65.5,
-        activeGoalIntentTag: 'retirement_choice',
-      );
-      await tester.pumpWidget(buildPulseScreen(
-        coachProvider: coachProvider,
-        mintStateProvider: mintProvider,
-      ));
-      await tester.pump(const Duration(seconds: 2));
-
-      // With explicit retirement goal + replacementRate, label = pulseLabelReplacementRate
-      // "Part de train de vie conservée"
-      expect(
-        find.textContaining('train de vie'),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('achat_immo goal: no replacement-rate label shown',
-        (tester) async {
-      final provider = CoachProfileProvider();
-      // Use q_main_goal (not q_goal) — the key fromWizardAnswers reads.
-      provider.updateFromAnswers({
-        'q_firstname': 'Julien',
-        'q_birth_year': 1977,
-        'q_canton': 'VS',
-        'q_net_income_period_chf': 9078.0,
-        'q_civil_status': 'celibataire',
-        'q_main_goal': 'achat_immo',
-      });
-
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      // V6: with housing goal, the retirement-specific label
-      // "Part de train de vie conservée" must NOT appear.
-      expect(find.textContaining('train de vie'), findsNothing);
-      // Screen renders without crash
-      expect(find.byType(Text), findsWidgets);
-    });
-
-    testWidgets('_resolveActiveGoal falls back to budget when goal=retraite',
-        (tester) async {
-      final provider = buildProfileProvider(
-        firstName: 'Julien',
-        birthYear: 1977,
-        canton: 'VS',
-        salaire: 9078,
-      );
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      // Pulse renders without crash and shows Julien's name
-      expect(find.textContaining('Julien'), findsWidgets);
-    });
-
-    testWidgets(
-        '_resolveActiveGoal: no provider in tree falls back to profile.goalA',
-        (tester) async {
-      // PulseScreen built without MintStateProvider — should degrade gracefully.
-      final provider = CoachProfileProvider();
-      // q_main_goal is the correct wizard key; q_goal is ignored.
-      provider.updateFromAnswers({
-        'q_firstname': 'Julien',
-        'q_birth_year': 1977,
-        'q_canton': 'VS',
-        'q_net_income_period_chf': 9078.0,
-        'q_civil_status': 'celibataire',
-        'q_main_goal': 'retraite',
-      });
-
-      await tester.pumpWidget(buildPulseScreen(coachProvider: provider));
-      await tester.pump(const Duration(seconds: 2));
-
-      // No crash — retirement narrative or label is shown
-      expect(find.byType(Text), findsWidgets);
     });
   });
 

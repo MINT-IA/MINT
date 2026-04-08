@@ -1,4 +1,7 @@
 # MINT — Autoresearch Agents pour le Développement
+
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 ## Agents autonomes pour construire Mint plus vite et mieux
 
 **Date** : Mars 2026

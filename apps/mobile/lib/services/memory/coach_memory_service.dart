@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
@@ -65,7 +66,7 @@ class CoachMemoryService {
 
     // Sync to backend RAG vector store (fire-and-forget, Phase 3.1).
     // Embeds the insight so the coach can retrieve it semantically.
-    _syncToBackend(insight).catchError((_) {});
+    _syncToBackend(insight).catchError((e) { debugPrint('[CoachMemory] Sync failed: $e'); });
   }
 
   /// Sync insight to backend for RAG embedding (fire-and-forget).
@@ -86,13 +87,37 @@ class CoachMemoryService {
           'topic': insight.topic,
           'summary': insight.summary,
           'insight_type': insight.type.name,
-          if (insight.metadata != null) 'metadata': insight.metadata,
+          if (insight.metadata != null) 'metadata': _filterMetadata(insight.metadata!),
           'created_at': insight.createdAt.toUtc().toIso8601String(),
         }),
       );
     } catch (_) {
       // Fire-and-forget: sync failure is not user-facing.
     }
+  }
+
+  /// FIX-068: Notify backend to remove orphaned embedding after local prune.
+  static Future<void> _syncRemoveToBackend(String insightId) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return;
+      await http.delete(
+        Uri.parse('$baseUrl/api/v1/coach/sync-insight/$insightId'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+    } catch (_) {
+      // Fire-and-forget: cleanup failure is not user-facing.
+    }
+  }
+
+  /// Filter metadata before sending to backend (defense-in-depth).
+  /// Only safe keys are transmitted — PII never leaves the device.
+  static Map<String, dynamic> _filterMetadata(Map<String, dynamic> meta) {
+    const safeKeys = {'templateId', 'stepCount', 'documentType', 'sequenceId'};
+    return Map.fromEntries(
+      meta.entries.where((e) => safeKeys.contains(e.key)),
+    );
   }
 
   // ── Read ─────────────────────────────────────────────────
@@ -134,9 +159,15 @@ class CoachMemoryService {
 
     if (insights.length <= _maxInsights) return;
 
-    // Already sorted most-recent-first; keep head
+    // FIX-068: Identify pruned insights for backend cleanup.
     final pruned = insights.take(_maxInsights).toList();
+    final removed = insights.skip(_maxInsights).toList();
     await _save(sp, pruned);
+
+    // Fire-and-forget: notify backend to remove orphaned embeddings.
+    for (final insight in removed) {
+      _syncRemoveToBackend(insight.id).catchError((e) { debugPrint('[CoachMemory] Remove sync failed: $e'); });
+    }
   }
 
   /// Clear all stored insights.

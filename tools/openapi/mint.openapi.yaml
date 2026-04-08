@@ -1,0 +1,459 @@
+openapi: 3.0.3
+info:
+  title: Mint API
+  version: 0.1.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/v1/profiles:
+    post:
+      operationId: createProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileCreate"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
+  /api/v1/profiles/{profileId}:
+    get:
+      operationId: getProfile
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+    patch:
+      operationId: updateProfile
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+
+  /api/v1/sessions:
+    post:
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionCreate"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+
+  /api/v1/sessions/{sessionId}/report:
+    get:
+      operationId: getSessionReport
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionReport"
+
+  /api/v1/scenarios:
+    post:
+      operationId: createScenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScenarioCreate"
+      responses:
+        "200":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Scenario"
+
+  /api/v1/profiles/{profileId}/scenarios:
+    get:
+      operationId: listScenarios
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Scenario"
+
+  /api/v1/recommendations/preview:
+    post:
+      operationId: previewRecommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RecommendationPreviewRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Recommendation"
+
+  /api/v1/partners:
+    get:
+      operationId: listPartners
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Partner"
+
+  /api/v1/partners/click:
+    post:
+      operationId: partnerClick
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PartnerClick"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, example: ok }
+
+    OkResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean, example: true }
+
+    HouseholdType:
+      type: string
+      enum: [single, couple, family]
+
+    Goal:
+      type: string
+      enum: [house, retire, emergency, invest, optimize_taxes, other]
+
+    Profile:
+      type: object
+      required: [id, householdType, goal, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        birthYear: { type: integer, nullable: true }
+        canton: { type: string, nullable: true }
+        commune: { type: string, nullable: true, description: "NPA ou nom commune pour multiplicateur fiscal précis" }
+        isChurchMember: { type: boolean, default: false, description: "Impôt ecclésiastique" }
+        pillar3aAnnual: { type: number, nullable: true, description: "Versement annuel 3a (déduction fiscale)" }
+        householdType: { $ref: "#/components/schemas/HouseholdType" }
+        incomeNetMonthly: { type: number, nullable: true }
+        savingsMonthly: { type: number, nullable: true }
+        goal: { $ref: "#/components/schemas/Goal" }
+        createdAt: { type: string, format: date-time }
+
+    ProfileCreate:
+      type: object
+      required: [householdType, goal]
+      properties:
+        birthYear: { type: integer, nullable: true }
+        canton: { type: string, nullable: true }
+        commune: { type: string, nullable: true }
+        isChurchMember: { type: boolean, default: false }
+        pillar3aAnnual: { type: number, nullable: true }
+        householdType: { $ref: "#/components/schemas/HouseholdType" }
+        incomeNetMonthly: { type: number, nullable: true }
+        savingsMonthly: { type: number, nullable: true }
+        goal: { $ref: "#/components/schemas/Goal" }
+
+    ProfileUpdate:
+      type: object
+      properties:
+        birthYear: { type: integer, nullable: true }
+        canton: { type: string, nullable: true }
+        commune: { type: string, nullable: true }
+        isChurchMember: { type: boolean }
+        pillar3aAnnual: { type: number, nullable: true }
+        householdType: { $ref: "#/components/schemas/HouseholdType" }
+        incomeNetMonthly: { type: number, nullable: true }
+        savingsMonthly: { type: number, nullable: true }
+        goal: { $ref: "#/components/schemas/Goal" }
+
+    Session:
+      type: object
+      required: [id, profileId, createdAt, answers, selectedFocusKinds, recommendedGoalTemplateId]
+      properties:
+        id: { type: string, format: uuid }
+        profileId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        answers: { type: object, additionalProperties: true }
+        selectedFocusKinds: { type: array, items: { type: string } }
+        recommendedGoalTemplateId: { type: string }
+        selectedGoalTemplateId: { type: string, nullable: true }
+
+    SessionCreate:
+      type: object
+      required: [profileId, answers, selectedFocusKinds]
+      properties:
+        profileId: { type: string, format: uuid }
+        answers: { type: object, additionalProperties: true }
+        selectedFocusKinds: { type: array, items: { type: string } }
+        selectedGoalTemplateId: { type: string, nullable: true }
+
+    ScoreboardItem:
+      type: object
+      required: [label, value, note]
+      properties:
+        label: { type: string }
+        value: { type: string }
+        note: { type: string }
+
+    TopAction:
+      type: object
+      required: [effortTag, label, why, ifThen, nextAction]
+      properties:
+        effortTag:
+          type: string
+          enum: ["5 min", "30 min", "1 semaine"]
+        label: { type: string }
+        why: { type: string }
+        ifThen: { type: string, example: "SI je verse 605 CHF/mois, ALORS j'économise 1500 CHF d'impôts." }
+        nextAction: { $ref: "#/components/schemas/NextAction" }
+
+    GoalTemplate:
+      type: object
+      required: [id, label]
+      properties:
+        id: { type: string }
+        label: { type: string }
+
+    SessionReportOverview:
+      type: object
+      required: [canton, householdType, goalRecommendedLabel, assumptions]
+      properties:
+        canton: { type: string }
+        householdType: { type: string }
+        goalRecommendedLabel: { type: string }
+        horizonHint: { type: string, nullable: true }
+        assumptions: { type: array, items: { type: string } }
+
+    SessionReport:
+      type: object
+      required: [id, sessionId, title, overview, scoreboard, recommendedGoalTemplate, alternativeGoalTemplates, topActions, recommendations, disclaimers, generatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        sessionId: { type: string, format: uuid }
+        title: { type: string }
+        overview: { $ref: "#/components/schemas/SessionReportOverview" }
+        scoreboard:
+          type: array
+          minItems: 4
+          maxItems: 6
+          items: { $ref: "#/components/schemas/ScoreboardItem" }
+        recommendedGoalTemplate: { $ref: "#/components/schemas/GoalTemplate" }
+        alternativeGoalTemplates:
+          type: array
+          maxItems: 2
+          items: { $ref: "#/components/schemas/GoalTemplate" }
+        topActions:
+          type: array
+          minItems: 3
+          maxItems: 3
+          items: { $ref: "#/components/schemas/TopAction" }
+        recommendations:
+          type: array
+          items: { $ref: "#/components/schemas/Recommendation" }
+        disclaimers:
+          type: array
+          minItems: 3
+          items: { type: string }
+        generatedAt: { type: string, format: date-time }
+        appendix: { type: object, additionalProperties: true }
+
+    ScenarioKind:
+      type: string
+      enum:
+        - compound_interest
+        - leasing
+        - pillar3a
+        - lpp_buyback
+        - mortgage
+        - avs_gap
+        - house_savings
+        - retirement
+        - succession
+        - consumer_credit
+        - debt_risk
+
+    Scenario:
+      type: object
+      required: [id, profileId, kind, inputs, outputs, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        profileId: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/ScenarioKind" }
+        inputs: { type: object, additionalProperties: true }
+        outputs: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }
+
+    ScenarioCreate:
+      type: object
+      required: [profileId, kind, inputs]
+      properties:
+        profileId: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/ScenarioKind" }
+        inputs: { type: object, additionalProperties: true }
+
+    Period:
+      type: string
+      enum: [monthly, yearly, oneoff]
+
+    Impact:
+      type: object
+      required: [amountCHF, period]
+      properties:
+        amountCHF: { type: number }
+        period: { $ref: "#/components/schemas/Period" }
+
+    NextActionType:
+      type: string
+      enum: [learn, simulate, checklist, partner_handoff, external_resource]
+
+    NextAction:
+      type: object
+      required: [type, label]
+      properties:
+        type: { $ref: "#/components/schemas/NextActionType" }
+        label: { type: string }
+        deepLink: { type: string, nullable: true }
+        partnerId: { type: string, nullable: true }
+
+    Recommendation:
+      type: object
+      required: [id, kind, title, summary, why, assumptions, impact, risks, alternatives, nextActions]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { type: string }
+        title: { type: string }
+        summary: { type: string, maxLength: 240 }
+        why:
+          type: array
+          items: { type: string }
+        assumptions:
+          type: array
+          items: { type: string }
+        impact:
+          $ref: "#/components/schemas/Impact"
+        risks:
+          type: array
+          items: { type: string }
+        alternatives:
+          type: array
+          items: { type: string }
+        nextActions:
+          type: array
+          minItems: 1
+          maxItems: 3
+          items:
+            $ref: "#/components/schemas/NextAction"
+
+    RecommendationPreviewRequest:
+      type: object
+      required: [profileId]
+      properties:
+        profileId: { type: string, format: uuid }
+        focusKind: { type: string, nullable: true }
+
+    PartnerKind:
+      type: string
+      enum: [pillar3a, mortgage, taxes, insurance, investing]
+
+    Partner:
+      type: object
+      required: [id, kind, name, disclosure, url]
+      properties:
+        id: { type: string }
+        kind: { $ref: "#/components/schemas/PartnerKind" }
+        name: { type: string }
+        disclosure: { type: string }
+        url: { type: string }
+
+    PartnerClick:
+      type: object
+      required: [profileId, partnerId, kind]
+      properties:
+        profileId: { type: string, format: uuid }
+        partnerId: { type: string }
+        kind: { type: string }

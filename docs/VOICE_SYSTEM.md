@@ -1,5 +1,7 @@
 # MINT Voice System
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > **Statut** : Référence éditoriale. Tout texte visible par l'utilisateur passe ce filtre.
 > **Gouvernance** : Complète DESIGN_SYSTEM.md §6. En cas de doute sur le ton, ce document tranche.
 > **Source de vérité** : oui, pour le ton, la microcopy et les tournures autorisées/interdites.
@@ -598,3 +600,53 @@ String narrativeFor(CoachProfile profile) {
   return '${profile.firstName}, ton avenir financier commence ici. Un chiffre à la fois.';
 }
 ```
+
+---
+
+## 11. CURSEUR D'INTENSITÉ & VOIX RÉGIONALE
+
+### 11.1 Niveaux d'intensité
+L'utilisateur choisit son niveau de franchise. Par défaut : 3.
+
+| Niveau | Nom | Registre |
+|--------|-----|----------|
+| 1 | Tranquille | Chiffres seuls. Pas d'opinion. Pas de comparaison. |
+| 2 | Clair | Chiffres + contexte. Une phrase d'interprétation max. |
+| 3 | Direct | Comparaisons concrètes. Questions franches. Le ton MINT standard. |
+| 4 | Cash | Dit ce que l'ami cultivé penserait mais n'oserait pas toujours dire. |
+| 5 | Brut | Aucun filtre de politesse. Pique, surprend, fait sourire et réfléchir. |
+
+#### Règles par niveau
+- **1-2** : jamais de jugement implicite
+- **3** : jugement OK si factuel
+- **4-5** : jugement OK s'il mène à une action
+- **5** : ironie, absurde, provocation bienveillante autorisés
+- **Tous niveaux** : JAMAIS de conseil produit, JAMAIS de promesse
+
+#### Exemples — gap retraite 340'000 CHF, canton VS, 49 ans
+**Niveau 1** : "Écart de prévoyance estimé : CHF 340'000."
+**Niveau 2** : "Il te manque 340'000 francs. À la retraite, ton revenu passe de 10'000 à 4'200 par mois."
+**Niveau 3** : "De 10'000 à 4'200 par mois. C'est un 2 pièces à Sion, pas la maison. 16 ans pour agir."
+**Niveau 4** : "4'200 balles par mois. T'as 16 ans pour bouger. Chaque année que tu perds, c'est 20'000 de moins sur la table. Là, maintenant, tu perds."
+**Niveau 5** : "340'000 francs. Tu sais combien ça fait en raclette ? On s'en fout, c'est pas le sujet. Le sujet c'est que t'es à 49 ans avec le plan retraite d'un stagiaire de 25 ans. La bonne nouvelle c'est que t'es pas à 64. La mauvaise c'est que t'es déjà à 49. Mais bon — t'es là, tu lis ça, c'est déjà mieux que 90% des gens."
+
+### 11.2 Anti-patterns LLM (interdits à tous les niveaux)
+| Interdit | Alternative |
+|----------|-------------|
+| "Je comprends que..." | Passe direct au sujet. |
+| "Il est important de noter que..." | Supprime. Dis le truc. |
+| "N'hésite pas à..." | "Tu peux..." ou rien. |
+| "Effectivement..." / "Absolument !" | Supprime. |
+| "Voici 3 points clés..." | Varie : narration, question, chiffre seul. |
+| "C'est une excellente question" | Réponds directement. |
+| "En conclusion..." | Finis. Point. |
+| "voyage/chemin/aventure" | Comparaison locale concrète. |
+| Toute phrase > 30 mots | Coupe. Raccourcis. |
+
+### 11.3 Marqueurs régionaux
+**VD** : Ironie sèche, détendu. "Ouais bon", "C'est pas faux". Comparaisons : prix au m² à Morges, abonnement TL.
+**GE** : Cosmopolite, un rien snob. "Quand même". Comparaisons : loyer aux Eaux-Vives, frontaliers.
+**VS** : Direct, montagnard, pragmatique. "Faut ce qu'il faut". Comparaisons : mazot, cave à vin, bisses.
+**ZH** : Efficace, finance-savvy. "Eifach mache". Comparaisons : Üetliberg, Znüni, Bahnhofstrasse.
+**BE** : Gemütlich, patient. "Mir wei luege". Comparaisons : Zytglogge, Bundeshaus.
+**TI** : Chaleureux, familial. "Dai, facciamo i conti". Comparaisons : grotto, lago, polenta.

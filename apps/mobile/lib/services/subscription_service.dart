@@ -225,6 +225,7 @@ class SubscriptionState {
       other is SubscriptionState &&
           runtimeType == other.runtimeType &&
           tier == other.tier &&
+          expiresAt == other.expiresAt &&
           isTrialActive == other.isTrialActive &&
           trialDaysRemaining == other.trialDaysRemaining &&
           source == other.source;
@@ -232,6 +233,7 @@ class SubscriptionState {
   @override
   int get hashCode =>
       tier.hashCode ^
+      expiresAt.hashCode ^
       isTrialActive.hashCode ^
       trialDaysRemaining.hashCode ^
       source.hashCode;
@@ -288,11 +290,13 @@ class SubscriptionService {
         ..clear()
         ..addAll((data['features'] as List?)?.cast<String>() ?? const []);
 
+      // Use a single DateTime.now() for consistent trial calculation
+      final now = DateTime.now();
       _state = SubscriptionState(
         tier: tier,
         source: SubscriptionSource.backend,
         isTrialActive: isTrial,
-        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial),
+        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial, now),
         expiresAt: periodEnd,
       );
       return _state;
@@ -301,9 +305,9 @@ class SubscriptionService {
     }
   }
 
-  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial) {
+  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial, [DateTime? now]) {
     if (!isTrial || periodEnd == null) return 0;
-    final days = periodEnd.difference(DateTime.now()).inDays;
+    final days = periodEnd.difference(now ?? DateTime.now()).inDays;
     return days < 0 ? 0 : days;
   }
 
@@ -332,15 +336,14 @@ class SubscriptionService {
       return purchased;
     }
 
-    // V6-2 audit fix: non-iOS paid upgrades require backend verification
-    // in release mode. Local mock grants only allowed in debug mode.
-    if (tier.isPaid && !kDebugMode) {
+    // Non-iOS paid upgrades ALWAYS require backend verification.
+    // SECURITY: No local mock grants for paid tiers, even in debug.
+    if (tier.isPaid) {
       final refreshed = await refreshFromBackend();
       return refreshed.tier.rank >= tier.rank;
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 100));
-
+    // Free tier downgrade — always allowed
     if (tier == SubscriptionTier.free) {
       _state = const SubscriptionState(
         tier: SubscriptionTier.free,
@@ -350,7 +353,8 @@ class SubscriptionService {
       return true;
     }
 
-    // Debug-only mock grant (never reached in release builds)
+    // Unreachable for paid tiers (guarded above)
+    assert(false, 'Unexpected tier: $tier');
     _state = SubscriptionState(
       tier: tier,
       isTrialActive: false,

@@ -5,7 +5,9 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RETIREMENT PROJECTION SERVICE
@@ -209,23 +211,14 @@ class RetirementProjectionService {
     final revenuMensuel =
         incomes.fold(0.0, (sum, s) => sum + s.monthlyAmount);
 
-    // Pre-retirement income (net) via NetIncomeBreakdown
-    final userBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.revenuBrutAnnuel,
-      canton: profile.canton,
-      age: profile.age,
+    // FIX-074: Use GROSS income for taux de remplacement (standard suisse).
+    // FIX-P1-3: Delegate to ForecasterService.safeReplacementRate (canonical).
+    final revenuBrutMensuel = profile.revenuBrutAnnuel / 12 +
+        (profile.conjoint?.revenuBrutAnnuel ?? 0) / 12;
+    final tauxRemplacement = ForecasterService.safeReplacementRate(
+      annualRetirementIncome: revenuMensuel * 12,
+      annualCurrentIncome: revenuBrutMensuel * 12,
     );
-    final conjBreakdown = profile.conjoint != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: profile.conjoint!.revenuBrutAnnuel,
-            canton: profile.canton,
-            age: profile.conjoint!.age ?? 45,
-          )
-        : null;
-    final revenuPreRetraite = userBreakdown.monthlyNetPayslip +
-        (conjBreakdown?.monthlyNetPayslip ?? 0);
-    final tauxRemplacement =
-        revenuPreRetraite > 0 ? revenuMensuel / revenuPreRetraite * 100 : 0.0;
 
     // 2. Couple phases
     final phases = _computePhases(
@@ -261,7 +254,7 @@ class RetirementProjectionService {
     return RetirementProjectionResult(
       revenuMensuelAt65: revenuMensuel,
       tauxRemplacement: tauxRemplacement,
-      revenuPreRetraiteMensuel: revenuPreRetraite,
+      revenuPreRetraiteMensuel: revenuBrutMensuel,
       isCouple: profile.isCouple && profile.conjoint != null,
       phases: phases,
       earlyRetirementComparisons: earlyComparisons,
@@ -733,7 +726,9 @@ class RetirementProjectionService {
     final tpIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
 
     if (userRetiresFirst) {
-      // User AVS (no couple cap — only user receives)
+      // User AVS — no couple cap during transition (LAVS art. 35 al. 1).
+      // The cap (150%) applies only when BOTH spouses receive a pension.
+      // During transition, only the retired spouse receives → individual rente.
       // Apply 13th rente (LAVS art. 34 nouveau): effective monthly = annual / 12.
       final avsUser = AvsCalculator.annualRente(AvsCalculator.computeMonthlyRente(
         currentAge: profile.age,
@@ -1088,15 +1083,25 @@ class RetirementProjectionService {
         : null;
     final revenuPreRetraite =
         userBkdn.monthlyNetPayslip + (conjBkdn?.monthlyNetPayslip ?? 0);
-    final tauxRemplacement =
-        revenuPreRetraite > 0 ? totalRevenus / revenuPreRetraite * 100 : 0.0;
+    // FIX-P1-3: Delegate to ForecasterService.safeReplacementRate (canonical).
+    final tauxRemplacement = ForecasterService.safeReplacementRate(
+      annualRetirementIncome: totalRevenus * 12,
+      annualCurrentIncome: revenuPreRetraite * 12,
+    );
 
     final solde = totalRevenus - impotMensuel - depensesMensuelles;
 
     final alertes = <String>[];
+    // Guard: canton not provided → ZH default used silently
+    if (profile.canton.isEmpty) {
+      alertes.add(
+        'Canton non renseign\u00e9 \u2014 taux fiscaux de Zurich utilis\u00e9s par d\u00e9faut. '
+        'Renseigne ton canton pour une estimation plus pr\u00e9cise.',
+      );
+    }
     if (solde < 0) {
       alertes.add(
-        'Deficit mensuel estime de CHF ${solde.abs().toStringAsFixed(0)}. '
+        'Deficit mensuel estime de ${formatChfWithPrefix(solde.abs())}. '
         'Des ajustements de budget ou de prevoyance pourraient etre envisages.',
       );
     }

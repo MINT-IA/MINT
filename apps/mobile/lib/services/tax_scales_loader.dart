@@ -61,6 +61,14 @@ class TaxScalesLoader {
     _isLoaded = true;
   }
 
+  /// Force-reload tax scales (e.g. after canton change).
+  /// Clears cached state so the next load() re-reads the asset.
+  static Future<void> reload() async {
+    _isLoaded = false;
+    _cache = {};
+    await load();
+  }
+
   /// Loads the tax scales from the JSON asset.
   static Future<void> load() async {
     if (_isLoaded) return;

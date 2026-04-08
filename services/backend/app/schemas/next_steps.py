@@ -38,7 +38,7 @@ class NextStepsRequest(NextStepsBaseModel):
         description="Etat civil: single, married, divorced, widowed, registered_partnership, concubinage",
     )
     children_count: int = Field(
-        ..., ge=0,
+        ..., ge=0, le=20,
         description="Nombre d'enfants a charge",
     )
     employment_status: str = Field(

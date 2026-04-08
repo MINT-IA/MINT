@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Schaffhouse"
 ## Trigger
 L'utilisateur réside à Schaffhouse ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Schaffhouse est modérée à compétitive : le multiplicateur cantonal se situe autour de 100-105 %.
 
 ## Niveau 0

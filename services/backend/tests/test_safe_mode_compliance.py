@@ -291,7 +291,7 @@ class TestSafeModeComplianceBannedTerms:
         for insert in inserts:
             all_text = " ".join([
                 insert.title,
-                insert.chiffre_choc,
+                insert.premier_eclairage,
                 insert.safe_mode,
                 insert.action_label,
                 " ".join(insert.learning_goals),

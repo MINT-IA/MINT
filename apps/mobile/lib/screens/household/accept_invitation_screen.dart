@@ -45,23 +45,26 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
     final household = context.watch<HouseholdProvider>();
     final l = S.of(context)!;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          l.acceptInvitationTitle,
-          style: MintTextStyles.titleMedium(),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            l.acceptInvitationTitle,
+            style: MintTextStyles.titleMedium(),
+          ),
+          backgroundColor: MintColors.white,
+          surfaceTintColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
         ),
-        backgroundColor: MintColors.white,
-        surfaceTintColor: MintColors.white,
-        foregroundColor: MintColors.textPrimary,
-        elevation: 0,
+        body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          child: _accepted
+              ? _buildSuccess(context, l)
+              : _buildForm(context, household, l),
+        ))),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Padding(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        child: _accepted
-            ? _buildSuccess(context, l)
-            : _buildForm(context, household, l),
-      ))),
     );
   }
 
@@ -75,7 +78,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
         MintEntrance(child: Text(
           l.acceptInvitationPrompt,
           textAlign: TextAlign.center,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(),
         )),
         const SizedBox(height: MintSpacing.sm),
         MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
@@ -88,7 +91,7 @@ class _AcceptInvitationScreenState extends State<AcceptInvitationScreen> {
           controller: _codeController,
           textAlign: TextAlign.center,
           textCapitalization: TextCapitalization.characters,
-          style: MintTextStyles.headlineLarge().copyWith(fontSize: 28, letterSpacing: 6),
+          style: MintTextStyles.displaySmall().copyWith(letterSpacing: 6),
           decoration: InputDecoration(
             hintText: l.householdAcceptCodeHint,
             hintStyle: MintTextStyles.headlineLarge(color: MintColors.greyBorder).copyWith(

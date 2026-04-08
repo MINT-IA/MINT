@@ -9,7 +9,7 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from sqlalchemy import Column, String, Boolean, DateTime, Index
 from app.core.database import Base
@@ -23,7 +23,7 @@ class ConsentModel(Base):
     user_id = Column(String, nullable=False, index=True)
     consent_type = Column(String, nullable=False)  # byok_data_sharing, snapshot_storage, notifications
     enabled = Column(Boolean, default=False, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         Index("ix_consents_user_type", "user_id", "consent_type", unique=True),

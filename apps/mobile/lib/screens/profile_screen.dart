@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
@@ -26,25 +28,6 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final coachProvider = context.watch<CoachProfileProvider>();
-    final coachProfile = coachProvider.profile;
-    final double precision = coachProvider.profileCompleteness;
-
-    // Compute real completion for each FactFind section
-    final identityComplete =
-        coachProfile != null && coachProfile.canton.isNotEmpty;
-
-    final incomeComplete =
-        coachProfile != null && coachProfile.salaireBrutMensuel > 0;
-
-    final pensionComplete = coachProfile != null &&
-        (coachProfile.prevoyance.avoirLppTotal ?? 0) > 0;
-
-    final propertyComplete = coachProfile != null &&
-        (coachProfile.patrimoine.totalPatrimoine > 0 ||
-            coachProvider.hasFullProfile);
-
     final l = S.of(context)!;
 
     return Scaffold(
@@ -59,10 +42,20 @@ class ProfileScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Identity card (compact) ───────────────
-                  if (coachProfile != null)
-                    MintEntrance(child: _buildIdentityCard(context, coachProfile)),
-                  if (coachProfile != null)
-                    const SizedBox(height: MintSpacing.md + MintSpacing.xs),
+                  // P0-8: Use Selector to avoid full-screen rebuild on any
+                  // profile change. Only rebuilds when profile identity changes.
+                  Selector<CoachProfileProvider, ({dynamic profile, bool hasProfile})>(
+                    selector: (_, p) => (profile: p.profile, hasProfile: p.hasProfile),
+                    builder: (ctx, data, _) {
+                      if (data.profile == null) return const SizedBox.shrink();
+                      return Column(
+                        children: [
+                          MintEntrance(child: _buildIdentityCard(ctx, data.profile)),
+                          const SizedBox(height: MintSpacing.md + MintSpacing.xs),
+                        ],
+                      );
+                    },
+                  ),
 
                   // ══════════════════════════════════════════
                   //  SECTION: Mon dossier
@@ -70,25 +63,42 @@ class ProfileScreen extends StatelessWidget {
                   _buildSectionHeader(l.profileSectionMyFile),
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
-                  // Inline progress bar
-                  _buildInlineProgress(
-                    context,
-                    precision: precision,
-                    identityComplete: identityComplete,
-                    incomeComplete: incomeComplete,
-                    pensionComplete: pensionComplete,
-                    propertyComplete: propertyComplete,
+                  // P0-8 / P0-11: Completion progress uses Selector —
+                  // only rebuilds when completeness fields change.
+                  Selector<CoachProfileProvider, _ProfileCompletionData>(
+                    selector: (_, p) => _computeCompletionData(p),
+                    builder: (ctx, data, _) => _buildInlineProgress(
+                      ctx,
+                      precision: data.precision,
+                      identityComplete: data.identityComplete,
+                      incomeComplete: data.incomeComplete,
+                      pensionComplete: data.pensionComplete,
+                      propertyComplete: data.propertyComplete,
+                    ),
                   ),
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
                   // Annual refresh nudge (if stale data)
-                  if (_shouldShowAnnualRefresh(coachProvider)) ...[
-                    _buildAnnualRefreshCard(context, coachProvider),
-                    const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
-                  ],
+                  Selector<CoachProfileProvider, bool>(
+                    selector: (_, p) => _shouldShowAnnualRefresh(p),
+                    builder: (ctx, showRefresh, _) {
+                      if (!showRefresh) return const SizedBox.shrink();
+                      return Consumer<CoachProfileProvider>(
+                        builder: (ctx2, provider, _) => Column(
+                          children: [
+                            _buildAnnualRefreshCard(ctx2, provider),
+                            const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
                   // Mon aperçu financier
-                  _buildBilanLink(context, coachProfile != null),
+                  Selector<CoachProfileProvider, bool>(
+                    selector: (_, p) => p.hasProfile,
+                    builder: (ctx, hasProfile, _) => _buildBilanLink(ctx, hasProfile),
+                  ),
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
                   // Documents
@@ -96,12 +106,31 @@ class ProfileScreen extends StatelessWidget {
                   const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
 
                   // Couple / Family
+                  Selector<CoachProfileProvider, bool>(
+                    selector: (_, p) => p.profile?.isCouple ?? false,
+                    builder: (ctx, isCouple, _) => _buildFactFindSection(
+                      title: l.profileFamilySection,
+                      status: isCouple ? l.profileFamilyCouple : l.profileFamilySingle,
+                      isComplete: false,
+                      icon: Icons.people_outline,
+                      onTap: () => ctx.push('/couple'),
+                    ),
+                  ),
+
+                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+
+                  // Voice intensity
+                  _VoiceIntensitySection(),
+
+                  const SizedBox(height: MintSpacing.sm + MintSpacing.xs),
+
+                  // Data transparency
                   _buildFactFindSection(
-                    title: l.profileFamilySection,
-                    status: (coachProfile?.isCouple ?? false) ? l.profileFamilyCouple : l.profileFamilySingle,
-                    isComplete: false,
-                    icon: Icons.people_outline,
-                    onTap: () => context.push('/couple'),
+                    title: l.dataTransparencyTitle,
+                    status: '',
+                    isComplete: true,
+                    icon: Icons.visibility_outlined,
+                    onTap: () => context.push('/profile/data-transparency'),
                   ),
 
                   // ══════════════════════════════════════════
@@ -111,10 +140,18 @@ class ProfileScreen extends StatelessWidget {
                   // as rows in the Réglages section of the Dossier tab.
 
                   // Account (if logged in)
-                  if (authProvider.isLoggedIn) ...[
-                    const SizedBox(height: MintSpacing.lg),
-                    _buildAuthSection(context, authProvider),
-                  ],
+                  Selector<AuthProvider, bool>(
+                    selector: (_, a) => a.isLoggedIn,
+                    builder: (ctx, isLoggedIn, _) {
+                      if (!isLoggedIn) return const SizedBox.shrink();
+                      return Consumer<AuthProvider>(
+                        builder: (ctx2, authProvider, _) => Padding(
+                          padding: const EdgeInsets.only(top: MintSpacing.lg),
+                          child: _buildAuthSection(ctx2, authProvider),
+                        ),
+                      );
+                    },
+                  ),
 
                   // Danger zone
                   const SizedBox(height: MintSpacing.md),
@@ -126,6 +163,20 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ))),
+    );
+  }
+
+  /// P0-11: Extract completion calculation out of build() into a pure function
+  /// used by Selector to only rebuild when completion data actually changes.
+  static _ProfileCompletionData _computeCompletionData(CoachProfileProvider p) {
+    final profile = p.profile;
+    return _ProfileCompletionData(
+      precision: p.profileCompleteness,
+      identityComplete: profile != null && profile.canton.isNotEmpty,
+      incomeComplete: profile != null && profile.salaireBrutMensuel > 0,
+      pensionComplete: profile != null && (profile.prevoyance.avoirLppTotal ?? 0) > 0,
+      propertyComplete: profile != null &&
+          (profile.patrimoine.totalPatrimoine > 0 || p.hasFullProfile),
     );
   }
 
@@ -153,10 +204,13 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: MintSpacing.xs),
-      child: Text(
-        title,
-        style: MintTextStyles.bodySmall(
-          color: MintColors.textMuted,
+      child: Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: MintTextStyles.bodySmall(
+            color: MintColors.textMuted,
+          ),
         ),
       ),
     );
@@ -395,6 +449,8 @@ class ProfileScreen extends StatelessWidget {
                     style: MintTextStyles.titleMedium(
                       color: MintColors.textPrimary,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 const SizedBox(height: 2),
                 Text(
@@ -404,6 +460,8 @@ class ProfileScreen extends StatelessWidget {
                   style: MintTextStyles.bodySmall(
                     color: MintColors.textSecondary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -454,6 +512,8 @@ class ProfileScreen extends StatelessWidget {
                       style: MintTextStyles.bodySmall(
                         color: MintColors.white,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -463,6 +523,8 @@ class ProfileScreen extends StatelessWidget {
                       style: MintTextStyles.labelSmall(
                         color: MintColors.white70,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -514,10 +576,14 @@ class ProfileScreen extends StatelessWidget {
               const Icon(Icons.update_outlined,
                   size: 16, color: MintColors.warning),
               const SizedBox(width: MintSpacing.sm),
-              Text(
-                l.profileAnnualRefreshTitle,
-                style: MintTextStyles.bodySmall(
-                  color: MintColors.textPrimary,
+              Flexible(
+                child: Text(
+                  l.profileAnnualRefreshTitle,
+                  style: MintTextStyles.bodySmall(
+                    color: MintColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -587,14 +653,18 @@ class ProfileScreen extends StatelessWidget {
                       Text(title,
                           style: MintTextStyles.bodySmall(
                             color: MintColors.textPrimary,
-                          )),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 2),
                       Text(status,
                           style: MintTextStyles.labelSmall(
                             color: isComplete
                                 ? MintColors.success
                                 : MintColors.textMuted,
-                          )),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
@@ -659,6 +729,8 @@ class ProfileScreen extends StatelessWidget {
                       style: MintTextStyles.titleMedium(
                         color: MintColors.textPrimary,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     if (authProvider.displayName != null)
                       Text(
@@ -666,6 +738,8 @@ class ProfileScreen extends StatelessWidget {
                         style: MintTextStyles.labelSmall(
                           color: MintColors.textMuted,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                   ],
                 ),
@@ -677,6 +751,9 @@ class ProfileScreen extends StatelessWidget {
             onPressed: () async {
               await authProvider.logout();
               if (context.mounted) {
+                try {
+                  context.read<MintStateProvider>().clear();
+                } catch (_) {}
                 context.go('/');
               }
             },
@@ -689,28 +766,30 @@ class ProfileScreen extends StatelessWidget {
                   const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
             ),
           ),
-          TextButton.icon(
-            onPressed: () => context.push('/profile/admin-observability'),
-            icon: const Icon(Icons.analytics_outlined, size: 18),
-            label: Text(S.of(context)!.profileAdminObservability,
-                style: MintTextStyles.bodySmall()),
-            style: TextButton.styleFrom(
-              foregroundColor: MintColors.primary,
-              padding:
-                  const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+          if (FeatureFlags.enableAdminScreens) ...[
+            TextButton.icon(
+              onPressed: () => context.push('/profile/admin-observability'),
+              icon: const Icon(Icons.analytics_outlined, size: 18),
+              label: Text(S.of(context)!.profileAdminObservability,
+                  style: MintTextStyles.bodySmall()),
+              style: TextButton.styleFrom(
+                foregroundColor: MintColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+              ),
             ),
-          ),
-          TextButton.icon(
-            onPressed: () => context.push('/profile/admin-analytics'),
-            icon: const Icon(Icons.bar_chart_rounded, size: 18),
-            label: Text(S.of(context)!.profileAnalyticsBeta,
-                style: MintTextStyles.bodySmall()),
-            style: TextButton.styleFrom(
-              foregroundColor: MintColors.primary,
-              padding:
-                  const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+            TextButton.icon(
+              onPressed: () => context.push('/profile/admin-analytics'),
+              icon: const Icon(Icons.bar_chart_rounded, size: 18),
+              label: Text(S.of(context)!.profileAnalyticsBeta,
+                  style: MintTextStyles.bodySmall()),
+              style: TextButton.styleFrom(
+                foregroundColor: MintColors.primary,
+                padding:
+                    const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),
+              ),
             ),
-          ),
+          ],
           TextButton.icon(
             onPressed: authProvider.isLoading
                 ? null
@@ -775,6 +854,11 @@ class ProfileScreen extends StatelessWidget {
       final prefs = await SharedPreferences.getInstance();
       await PrecomputedInsightsService.clear(prefs);
       await prefs.clear(); // Nuclear option — clears all SharedPreferences
+      if (context.mounted) {
+        try {
+          context.read<MintStateProvider>().clear();
+        } catch (_) {}
+      }
     }
 
     if (!context.mounted) return;
@@ -917,6 +1001,167 @@ class ProfileScreen extends StatelessWidget {
           },
         );
       },
+    ).whenComplete(() => controller.dispose());
+  }
+}
+
+/// P0-11: Immutable data holder for profile completion — used by Selector
+/// to avoid rebuilding the entire ProfileScreen on unrelated profile changes.
+class _ProfileCompletionData {
+  final double precision;
+  final bool identityComplete;
+  final bool incomeComplete;
+  final bool pensionComplete;
+  final bool propertyComplete;
+
+  const _ProfileCompletionData({
+    required this.precision,
+    required this.identityComplete,
+    required this.incomeComplete,
+    required this.pensionComplete,
+    required this.propertyComplete,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _ProfileCompletionData &&
+          precision == other.precision &&
+          identityComplete == other.identityComplete &&
+          incomeComplete == other.incomeComplete &&
+          pensionComplete == other.pensionComplete &&
+          propertyComplete == other.propertyComplete;
+
+  @override
+  int get hashCode => Object.hash(
+        precision, identityComplete, incomeComplete,
+        pensionComplete, propertyComplete,
+      );
+}
+
+/// Voice intensity radio group for coaching preferences.
+///
+/// Self-contained StatefulWidget that reads/writes SharedPreferences.
+/// Levels: 1 (Tranquille) to 5 (Brut).
+class _VoiceIntensitySection extends StatefulWidget {
+  @override
+  State<_VoiceIntensitySection> createState() => _VoiceIntensitySectionState();
+}
+
+class _VoiceIntensitySectionState extends State<_VoiceIntensitySection> {
+  static const String _key = 'mint_coach_cash_level';
+  int _level = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final v = prefs.getInt(_key);
+      if (v != null && mounted) {
+        setState(() => _level = v.clamp(1, 5));
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _save(int level) async {
+    setState(() => _level = level);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_key, level);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context)!;
+    final labels = <int, String>{
+      1: s.intensityTranquille,
+      2: s.intensityClair,
+      3: s.intensityDirect,
+      4: s.intensityCash,
+      5: s.intensityBrut,
+    };
+
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      padding: const EdgeInsets.all(MintSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.record_voice_over_outlined,
+                  color: MintColors.primary, size: 20),
+              const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s.cashModeTitle,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      s.cashModeSubtitle,
+                      style: MintTextStyles.bodySmall(
+                        color: MintColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: MintSpacing.md),
+          ...labels.entries.map((entry) {
+            final isSelected = _level == entry.key;
+            return GestureDetector(
+              onTap: () => _save(entry.key),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected
+                              ? MintColors.primary
+                              : MintColors.textMuted.withValues(alpha: 0.3),
+                          width: isSelected ? 6 : 1.5,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: MintSpacing.sm + MintSpacing.xs),
+                    Text(
+                      '${entry.key} \u2014 ${entry.value}',
+                      style: MintTextStyles.bodyMedium(
+                        color: isSelected
+                            ? MintColors.textPrimary
+                            : MintColors.textSecondary,
+                      ).copyWith(
+                        fontWeight:
+                            isSelected ? FontWeight.w600 : FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
     );
   }
 }

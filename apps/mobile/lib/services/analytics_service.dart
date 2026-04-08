@@ -30,6 +30,7 @@ class AnalyticsService {
   bool _isEnabled = false;
   final List<Map<String, dynamic>> _eventQueue = [];
   bool _isInitialized = false;
+  final List<Map<String, dynamic>> _preInitBuffer = [];
 
   /// Initialize the analytics service
   /// Loads session ID and consent status from SharedPreferences
@@ -61,6 +62,14 @@ class AnalyticsService {
     }
 
     _isInitialized = true;
+
+    // Replay buffered pre-init events ONLY if consent is given (nLPD art. 6)
+    if (_isEnabled) {
+      for (final e in _preInitBuffer) {
+        trackEvent(e['name'] as String, category: e['category'] as String? ?? 'engagement', data: e['data'] as Map<String, dynamic>?, screenName: e['screenName'] as String?);
+      }
+    }
+    _preInitBuffer.clear(); // Always clear — never send without consent
 
     // Auto-flush persisted events on init if consent is given
     if (_isEnabled && _eventQueue.isNotEmpty) {
@@ -109,7 +118,8 @@ class AnalyticsService {
     String? screenName,
   }) {
     if (!_isInitialized) {
-      // Drop event — service not initialized yet
+      // Buffer pre-init events — flushed after init() completes
+      _preInitBuffer.add({'name': name, 'category': category, 'data': data, 'screenName': screenName});
       return;
     }
 

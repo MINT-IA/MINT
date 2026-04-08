@@ -10,7 +10,7 @@ source: "LAVS art. 29ter, LAVS art. 40"
 ## Trigger
 L'utilisateur se demande s'il a des lacunes de cotisation AVS, quel impact elles ont sur sa rente, ou comment les combler.
 
-## Chiffre Choc
+## Premier Éclairage
 Chaque année de cotisation AVS manquante réduit ta rente d'environ 2.3 %. Avec 3 ans de lacune, tu perds environ CHF 700/an de rente — à vie.
 
 ## Niveau 0

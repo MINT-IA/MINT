@@ -304,6 +304,8 @@ void main() {
     testWidgets('shows canton selector', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
+      await tester.pump();
       expect(find.textContaining('Canton'), findsWidgets);
     });
 
@@ -391,7 +393,7 @@ void main() {
       expect(find.textContaining('proche'), findsWidgets);
     });
 
-    testWidgets('shows chiffre choc hero', (tester) async {
+    testWidgets('shows premier éclairage hero', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // Hero shows CHF amount
