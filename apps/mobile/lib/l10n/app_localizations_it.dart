@@ -22248,4 +22248,20 @@ class SIt extends S {
 
   @override
   String get voiceCursorPreferenceUnfiltered => 'Senza filtro';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Calcolato su quello che sappiamo oggi — qualche pezzo manca ancora.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'Una cifra chiave poggia su un\'ipotesi fragile — Mint resta prudente.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Dati raccolti un po\' di tempo fa — Mint preferisce ridirlo.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'Il calcolo è fatto, l\'idea merita ancora una conversazione.';
 }

@@ -22189,4 +22189,20 @@ class SFr extends S {
 
   @override
   String get voiceCursorPreferenceUnfiltered => 'Sans filtre';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Calculé sur ce qu\'on connaît aujourd\'hui — quelques pièces manquent encore.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'Hypothèse fragile sur un chiffre clé — Mint reste prudent.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Données récoltées il y a un moment — Mint préfère le redire.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'Le calcul est posé, l\'idée mérite encore qu\'on en parle.';
 }

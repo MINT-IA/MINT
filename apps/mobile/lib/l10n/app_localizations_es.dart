@@ -22192,4 +22192,20 @@ class SEs extends S {
 
   @override
   String get voiceCursorPreferenceUnfiltered => 'Sin filtro';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Calculado con lo que sabemos hoy — todavía faltan algunas piezas.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'Una cifra clave se apoya en una hipótesis frágil — Mint se mantiene prudente.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Datos recogidos hace un tiempo — Mint prefiere repetirlo.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'El cálculo está hecho, la idea aún merece una conversación.';
 }

@@ -10203,5 +10203,9 @@
   "voiceCursorPreferenceLabel": "Tone",
   "voiceCursorPreferenceSoft": "Soft",
   "voiceCursorPreferenceDirect": "Direct",
-  "voiceCursorPreferenceUnfiltered": "Unfiltered"
+  "voiceCursorPreferenceUnfiltered": "Unfiltered",
+  "mtcSummaryWeakCompleteness": "Calculated from what we know today — a few pieces are still missing.",
+  "mtcSummaryWeakAccuracy": "One key figure rests on a fragile assumption — Mint stays cautious.",
+  "mtcSummaryWeakFreshness": "Data gathered a while ago — Mint would rather double-check.",
+  "mtcSummaryWeakUnderstanding": "The math is settled, the idea still deserves a conversation."
 }

@@ -38930,6 +38930,30 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sans filtre'**
   String get voiceCursorPreferenceUnfiltered;
+
+  /// MTC one-line summary when completeness is the weakest axis. Anti-shame: MINT as subject.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculé sur ce qu\'on connaît aujourd\'hui — quelques pièces manquent encore.'**
+  String get mtcSummaryWeakCompleteness;
+
+  /// MTC one-line summary when accuracy is the weakest axis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse fragile sur un chiffre clé — Mint reste prudent.'**
+  String get mtcSummaryWeakAccuracy;
+
+  /// MTC one-line summary when freshness is the weakest axis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données récoltées il y a un moment — Mint préfère le redire.'**
+  String get mtcSummaryWeakFreshness;
+
+  /// MTC one-line summary when understanding is the weakest axis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le calcul est posé, l\'idée mérite encore qu\'on en parle.'**
+  String get mtcSummaryWeakUnderstanding;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

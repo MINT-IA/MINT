@@ -10203,5 +10203,9 @@
   "voiceCursorPreferenceLabel": "Tonfall",
   "voiceCursorPreferenceSoft": "Sanft",
   "voiceCursorPreferenceDirect": "Direkt",
-  "voiceCursorPreferenceUnfiltered": "Ungefiltert"
+  "voiceCursorPreferenceUnfiltered": "Ungefiltert",
+  "mtcSummaryWeakCompleteness": "Berechnet auf Basis dessen, was wir heute wissen — ein paar Teile fehlen noch.",
+  "mtcSummaryWeakAccuracy": "Eine Schl\u00fcsselzahl beruht auf einer fragilen Annahme — Mint bleibt vorsichtig.",
+  "mtcSummaryWeakFreshness": "Daten vor einiger Zeit erhoben — Mint sagt es lieber noch einmal.",
+  "mtcSummaryWeakUnderstanding": "Die Rechnung steht, die Idee verdient noch ein Gespr\u00e4ch."
 }

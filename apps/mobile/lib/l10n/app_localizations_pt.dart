@@ -22195,4 +22195,20 @@ class SPt extends S {
 
   @override
   String get voiceCursorPreferenceUnfiltered => 'Sem filtro';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Calculado com o que sabemos hoje — algumas peças ainda faltam.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'Um número-chave assenta numa hipótese frágil — Mint mantém-se prudente.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Dados recolhidos há algum tempo — Mint prefere voltar a dizer.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'O cálculo está feito, a ideia ainda merece conversa.';
 }

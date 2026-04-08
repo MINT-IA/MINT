@@ -22238,4 +22238,20 @@ class SDe extends S {
 
   @override
   String get voiceCursorPreferenceUnfiltered => 'Ungefiltert';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Berechnet auf Basis dessen, was wir heute wissen — ein paar Teile fehlen noch.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'Eine Schlüsselzahl beruht auf einer fragilen Annahme — Mint bleibt vorsichtig.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Daten vor einiger Zeit erhoben — Mint sagt es lieber noch einmal.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'Die Rechnung steht, die Idee verdient noch ein Gespräch.';
 }

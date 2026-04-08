@@ -10203,5 +10203,9 @@
   "voiceCursorPreferenceLabel": "Tono",
   "voiceCursorPreferenceSoft": "Suave",
   "voiceCursorPreferenceDirect": "Directo",
-  "voiceCursorPreferenceUnfiltered": "Sin filtro"
+  "voiceCursorPreferenceUnfiltered": "Sin filtro",
+  "mtcSummaryWeakCompleteness": "Calculado con lo que sabemos hoy — todav\u00eda faltan algunas piezas.",
+  "mtcSummaryWeakAccuracy": "Una cifra clave se apoya en una hip\u00f3tesis fr\u00e1gil — Mint se mantiene prudente.",
+  "mtcSummaryWeakFreshness": "Datos recogidos hace un tiempo — Mint prefiere repetirlo.",
+  "mtcSummaryWeakUnderstanding": "El c\u00e1lculo est\u00e1 hecho, la idea a\u00fan merece una conversaci\u00f3n."
 }

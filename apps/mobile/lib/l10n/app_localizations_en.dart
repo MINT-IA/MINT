@@ -22076,4 +22076,20 @@ class SEn extends S {
 
   @override
   String get voiceCursorPreferenceUnfiltered => 'Unfiltered';
+
+  @override
+  String get mtcSummaryWeakCompleteness =>
+      'Calculated from what we know today — a few pieces are still missing.';
+
+  @override
+  String get mtcSummaryWeakAccuracy =>
+      'One key figure rests on a fragile assumption — Mint stays cautious.';
+
+  @override
+  String get mtcSummaryWeakFreshness =>
+      'Data gathered a while ago — Mint would rather double-check.';
+
+  @override
+  String get mtcSummaryWeakUnderstanding =>
+      'The math is settled, the idea still deserves a conversation.';
 }

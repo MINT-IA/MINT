@@ -10203,5 +10203,9 @@
   "voiceCursorPreferenceLabel": "Tom",
   "voiceCursorPreferenceSoft": "Suave",
   "voiceCursorPreferenceDirect": "Direto",
-  "voiceCursorPreferenceUnfiltered": "Sem filtro"
+  "voiceCursorPreferenceUnfiltered": "Sem filtro",
+  "mtcSummaryWeakCompleteness": "Calculado com o que sabemos hoje — algumas pe\u00e7as ainda faltam.",
+  "mtcSummaryWeakAccuracy": "Um n\u00famero-chave assenta numa hip\u00f3tese fr\u00e1gil — Mint mant\u00e9m-se prudente.",
+  "mtcSummaryWeakFreshness": "Dados recolhidos h\u00e1 algum tempo — Mint prefere voltar a dizer.",
+  "mtcSummaryWeakUnderstanding": "O c\u00e1lculo est\u00e1 feito, a ideia ainda merece conversa."
 }

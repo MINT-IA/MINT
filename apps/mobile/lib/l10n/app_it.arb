@@ -10203,5 +10203,9 @@
   "voiceCursorPreferenceLabel": "Tono",
   "voiceCursorPreferenceSoft": "Dolce",
   "voiceCursorPreferenceDirect": "Diretto",
-  "voiceCursorPreferenceUnfiltered": "Senza filtro"
+  "voiceCursorPreferenceUnfiltered": "Senza filtro",
+  "mtcSummaryWeakCompleteness": "Calcolato su quello che sappiamo oggi — qualche pezzo manca ancora.",
+  "mtcSummaryWeakAccuracy": "Una cifra chiave poggia su un'ipotesi fragile — Mint resta prudente.",
+  "mtcSummaryWeakFreshness": "Dati raccolti un po' di tempo fa — Mint preferisce ridirlo.",
+  "mtcSummaryWeakUnderstanding": "Il calcolo \u00e8 fatto, l'idea merita ancora una conversazione."
 }

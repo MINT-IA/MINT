@@ -10739,5 +10739,13 @@
   "voiceCursorPreferenceDirect": "Direct",
   "@voiceCursorPreferenceDirect": {"description": "Default tone option."},
   "voiceCursorPreferenceUnfiltered": "Sans filtre",
-  "@voiceCursorPreferenceUnfiltered": {"description": "Most direct tone option. Calm, no shame for choosing it."}
+  "@voiceCursorPreferenceUnfiltered": {"description": "Most direct tone option. Calm, no shame for choosing it."},
+  "mtcSummaryWeakCompleteness": "Calculé sur ce qu'on connaît aujourd'hui — quelques pièces manquent encore.",
+  "@mtcSummaryWeakCompleteness": {"description": "MTC one-line summary when completeness is the weakest axis. Anti-shame: MINT as subject."},
+  "mtcSummaryWeakAccuracy": "Hypothèse fragile sur un chiffre clé — Mint reste prudent.",
+  "@mtcSummaryWeakAccuracy": {"description": "MTC one-line summary when accuracy is the weakest axis."},
+  "mtcSummaryWeakFreshness": "Données récoltées il y a un moment — Mint préfère le redire.",
+  "@mtcSummaryWeakFreshness": {"description": "MTC one-line summary when freshness is the weakest axis."},
+  "mtcSummaryWeakUnderstanding": "Le calcul est posé, l'idée mérite encore qu'on en parle.",
+  "@mtcSummaryWeakUnderstanding": {"description": "MTC one-line summary when understanding is the weakest axis."}
 }
