@@ -28,6 +28,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/services/coach/coach_fallback_messages.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach/fallback_templates.dart';
@@ -233,7 +234,7 @@ class CoachOrchestrator {
     }
 
     // 3. Mock fallback (no LLM, keyword-based)
-    return _chatFallback();
+    return _chatFallback(language);
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -770,16 +771,19 @@ class CoachOrchestrator {
   }
 
   /// Safe chat fallback — honest message when no LLM is available.
-  // TODO(S57-i18n): migrate hardcoded FR strings — service has no BuildContext;
-  // requires static localisation accessor or caller-injected strings (Phase 1.3).
-  static CoachResponse _chatFallback() {
-    return const CoachResponse(
-      message: 'Le coach IA n\'est pas disponible pour le moment.\n\n'
-          'En attendant, tu peux :\n'
-          '• Explorer tes simulateurs (3a, LPP, retraite)\n'
-          '• Consulter les fiches éducatives\n'
-          '• Enrichir ton profil pour des projections plus précises\n\n'
-          '_${ComplianceGuard.standardDisclaimer}_',
+  ///
+  /// Resolves KNOWN_GAPS_v2.2.md Cat 7 (P2 — FR-only fallback). The
+  /// orchestrator is a static service with no `BuildContext`, so we
+  /// dispatch on the ISO 639-1 [languageCode] via
+  /// [CoachFallbackMessages]. Anti-shame doctrine: MINT is the subject
+  /// of the unavailability, never the user. CLAUDE.md §7 compliant.
+  static CoachResponse _chatFallback(String languageCode) {
+    final message = CoachFallbackMessages.chatUnavailable(
+      languageCode,
+      ComplianceGuard.standardDisclaimer,
+    );
+    return CoachResponse(
+      message: message,
       disclaimer: ComplianceGuard.standardDisclaimer,
       wasFiltered: false,
     );
