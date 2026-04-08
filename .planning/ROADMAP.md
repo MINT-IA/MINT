@@ -288,7 +288,13 @@
   6. Auto-fragility detector: ≥3 G2/G3 events in 14 days → fragile mode (N3 cap, 30 days); user-visible "MINT a remarqué…" disclosure logged to biography.
   7. `@meta level:` annotation required on every new ARB phrase; CI grep gate rejects additions without it.
 **Pitfalls to watch**: P1 tone-locking; P3 N5 editorial cap; P9 ComplianceGuard drift; P15 editorial drift; P17 sample size.
-**Plans**: TBD
+**Plans:** 5 plans
+Plans:
+- [ ] 11-01-PLAN.md — Mine + audit + rewrite 30 coach phrases (docs/VOICE_PASS_LAYER1.md)
+- [ ] 11-02-PLAN.md — Tester pool recruitment infra + blind classification static UI
+- [ ] 11-03-PLAN.md — N5 server-side hard gate + auto-fragility detector backend
+- [ ] 11-04-PLAN.md — ComplianceGuard adversarial extension + reverse-Krippendorff generation test
+- [ ] 11-05-PLAN.md — @meta level ARB lint + Krippendorff α report runner (docs/VOICE_CURSOR_TEST.md)
 
 ### Phase 12: L1.6c "Ton" UX Setting + "Ready for Humans" Ship Gate (rescoped 2026-04-07)
 **Goal**: Expose the user-facing "Ton" setting (soft/direct/unfiltered) wired to `Profile.voiceCursorPreference`. Close all CI gates. Run the deferred-from-Phase-1 manual gates (STAB-18 walkthrough + Galaxy A14 perf baseline) — now framed as "is v2.2 ready to be shown to a real human?", not "TestFlight ASAP".
