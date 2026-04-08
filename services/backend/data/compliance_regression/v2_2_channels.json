@@ -1,0 +1,138 @@
+{
+  "version": "v2.2",
+  "description": "Plan 12-04 — Final ComplianceGuard regression run on every output channel touched in v2.0/v2.1/v2.2. Every sample MUST pass ComplianceGuard with zero violations. Samples with cursor_level set are validated at that level (activates Layer 2b high-register drift).",
+  "generated_for": "Phase 12 ship gate / audit fix B4",
+  "channels": [
+    {
+      "id": "alerts_mint_alert_object",
+      "name": "MintAlertObject (Phase 9) — Gravity G2/G3 x VoiceLevel N1-N5",
+      "description": "10 cells covering the Phase 9 alert grammar (fact / cause / nextMoment) at every gravity x voice combination.",
+      "samples": [
+        {"id": "ALERT-G2-N1-001", "cursor_level": "N1", "text": "Petit point sur ta couverture LPP. Cette annee, le coordonne a legerement change. On en reparle quand tu veux, sans urgence."},
+        {"id": "ALERT-G2-N2-001", "cursor_level": "N2", "text": "Mint a remarque une variation sur ton certificat LPP. La part coordonnee a baisse de 320 francs. On peut y revenir avant la fin du mois si tu le souhaites."},
+        {"id": "ALERT-G2-N3-001", "cursor_level": "N3", "text": "Ta couverture LPP a bouge cette annee. Le motif: ton certificat 2025 montre 3'200 francs de salaire coordonne en moins. Le bon moment pour en reparler: avant la declaration d'impots."},
+        {"id": "ALERT-G2-N4-001", "cursor_level": "N4", "text": "Ton certificat LPP a change. La part coordonnee a baisse de 3'200 francs sur l'annee. On peut regarder ensemble ce que cela implique avant la prochaine declaration."},
+        {"id": "ALERT-G2-N5-001", "cursor_level": "N5", "text": "Ta LPP bouge: 3'200 francs de coordonne en moins. Cela merite un regard attentif avant la declaration. On peut y revenir maintenant ou plus tard."},
+        {"id": "ALERT-G3-N1-001", "cursor_level": "N1", "text": "Mint souhaite attirer ton attention sur un point. Ton 3e pilier n'a pas recu de versement cette annee. Quand tu veux en parler, on est la."},
+        {"id": "ALERT-G3-N2-001", "cursor_level": "N2", "text": "Une chose importante a regarder: ton 3a 2025 est encore vide. Le plafond actuel pour un salarie LPP est de 7'258 francs. On peut en discuter quand cela t'arrange."},
+        {"id": "ALERT-G3-N3-001", "cursor_level": "N3", "text": "Ton 3e pilier 2025 est encore vide. La cause: aucun versement enregistre depuis janvier. Le moment cle: avant le 31 decembre pour qu'il compte sur cette annee fiscale."},
+        {"id": "ALERT-G3-N4-001", "cursor_level": "N4", "text": "Ton 3a 2025 reste a zero. Le plafond pour cette annee est de 7'258 francs pour un salarie LPP. La fenetre pour agir se referme fin decembre. On peut en reparler des que tu es pret."},
+        {"id": "ALERT-G3-N5-001", "cursor_level": "N5", "text": "3a 2025: zero verse. Plafond: 7'258 francs. Fenetre: 31 decembre. On en parle quand tu veux."}
+      ]
+    },
+    {
+      "id": "biography_facts",
+      "name": "Biography / BiographyFact entries (Phase 9 ack, Phase 11 fragility, v2.0 narrative)",
+      "description": "User-visible biography fragments produced by the v2.0 narrative engine and Phase 9 acknowledgements.",
+      "samples": [
+        {"id": "BIO-ACK-001", "text": "Bien recu. Mint a note ton nouveau salaire. C'est une information utile pour la suite."},
+        {"id": "BIO-ACK-002", "text": "Mint a enregistre ton certificat LPP 2025. Cela permet de mieux comprendre ta situation actuelle."},
+        {"id": "BIO-NARRATIVE-001", "text": "Tu as commence un nouveau poste cette annee. C'est un moment qui peut changer plusieurs choses dans ton equilibre financier."},
+        {"id": "BIO-FRAGILITY-001", "text": "Ces derniers mois ont demande beaucoup. Mint avance avec toi a ton rythme, sans pression."},
+        {"id": "BIO-FRAGILITY-002", "text": "C'est correct de faire une pause. Mint reste disponible, et reprend le fil quand tu reviens."},
+        {"id": "BIO-NARRATIVE-002", "text": "Ton parcours a connu plusieurs etapes importantes. Mint garde la memoire de ce qui compte pour toi."}
+      ]
+    },
+    {
+      "id": "openers_first_message",
+      "name": "Coach openers / first-message templates (claude_coach_service)",
+      "description": "Greeting and first-touch templates from the Claude coach service.",
+      "samples": [
+        {"id": "OPEN-001", "text": "Salut. Mint est la, tranquillement. Par quoi as-tu envie de commencer aujourd'hui?"},
+        {"id": "OPEN-002", "text": "Bonjour. On peut prendre quelques minutes pour regarder ce qui te trotte en tete, ou simplement faire un petit point ensemble."},
+        {"id": "OPEN-003", "text": "Re-bonjour. La derniere fois, on parlait de ton 3e pilier. Tu veux qu'on y revienne, ou on regarde autre chose?"},
+        {"id": "OPEN-004", "text": "Hello. Pas d'urgence aujourd'hui. Si tu as une question, je suis la. Sinon, on peut juste regarder un point ensemble."},
+        {"id": "OPEN-005", "text": "Bonsoir. Mint reste disponible quand tu veux. Tu as quelque chose en tete ce soir?"}
+      ]
+    },
+    {
+      "id": "extraction_summaries",
+      "name": "Document extraction summaries / educational inserts",
+      "description": "Outputs produced when MINT reads a certificate or document and resumes the content for the user.",
+      "samples": [
+        {"id": "EXT-001", "text": "Mint a lu ton certificat LPP. On y voit: salaire coordonne, avoir de vieillesse, et taux de conversion applique a 65 ans. Ces trois chiffres permettent une projection educative."},
+        {"id": "EXT-002", "text": "Sur ton avis de taxation, Mint a repere le revenu impose et le canton. Ces deux elements suffisent pour amorcer une simulation simplifiee."},
+        {"id": "EXT-003", "text": "Le document 3a recu de ta banque indique le solde au 31.12. Mint l'a enregistre. Cela permet de suivre l'evolution annuelle de ton 3e pilier."},
+        {"id": "EXT-INSERT-001", "text": "Petit insert educatif: la LPP est le 2e pilier. Elle complete l'AVS. Le taux de conversion sert a transformer l'avoir en rente annuelle. Ces notions sont utiles pour lire ton certificat."},
+        {"id": "EXT-INSERT-002", "text": "A savoir: un retrait de capital du 2e pilier est impose separement, selon un bareme progressif (LIFD art. 38). C'est independant de ton revenu de l'annee."}
+      ]
+    },
+    {
+      "id": "alert_grammar_triples",
+      "name": "MintAlertObject grammar (fact / cause / nextMoment) — 5 alert types",
+      "description": "Sample triples for the Phase 9 alert grammar across different alert types.",
+      "samples": [
+        {"id": "GRAMMAR-LPP-001", "text": "Fait: ton avoir LPP a augmente de 4'100 francs cette annee. Cause: bonifications de vieillesse plus interets crediteurs. Prochain moment: au prochain certificat annuel."},
+        {"id": "GRAMMAR-3A-001", "text": "Fait: tu as verse 5'000 francs sur ton 3a en 2025. Cause: virement enregistre en mars. Prochain moment: tu peux completer jusqu'au plafond avant le 31 decembre."},
+        {"id": "GRAMMAR-IMPOTS-001", "text": "Fait: ta declaration d'impots est attendue. Cause: la date cantonale approche. Prochain moment: tu peux commencer a rassembler tes documents quand tu veux."},
+        {"id": "GRAMMAR-AVS-001", "text": "Fait: ton extrait AVS montre une lacune en 2018. Cause: une annee sans cotisation enregistree. Prochain moment: tu peux verifier aupres de ta caisse cantonale quand tu en as l'energie."},
+        {"id": "GRAMMAR-PROPRIETE-001", "text": "Fait: tes fonds propres atteignent maintenant 18 pour cent du prix vise. Cause: epargne reguliere et bonifications LPP. Prochain moment: a 20 pour cent, on peut regarder ensemble les scenarios."}
+      ]
+    },
+    {
+      "id": "rewritten_coach_phrases",
+      "name": "Plan 11-01 rewritten coach phrases (subset, multi-level rendering)",
+      "description": "Sample of the 30 rewritten L1.6b coach phrases, rendered at multiple voice levels where applicable.",
+      "samples": [
+        {"id": "COACH-RW-01-N2", "cursor_level": "N2", "text": "Mint avance avec toi, sans pression. Ce que tu vois ici est une lecture, pas un verdict."},
+        {"id": "COACH-RW-02-N2", "cursor_level": "N2", "text": "Pas de course. On regarde simplement ce qui est utile aujourd'hui pour toi."},
+        {"id": "COACH-RW-03-N3", "cursor_level": "N3", "text": "Ton 3e pilier est une piste possible. Mint t'explique comment il fonctionne, et tu decides ensuite ce qui te convient."},
+        {"id": "COACH-RW-04-N3", "cursor_level": "N3", "text": "Le retrait en capital et la rente sont deux options a considerer. Mint te montre les deux cote a cote, sans en privilegier une."},
+        {"id": "COACH-RW-05-N3", "cursor_level": "N3", "text": "Voici une piste educative possible. Une analyse personnalisee aupres d'un specialiste peut completer cette lecture."},
+        {"id": "COACH-RW-06-N4", "cursor_level": "N4", "text": "Mint te montre les chiffres clairement. Ton certificat indique un coordonne de 62'000 francs. C'est la base de la projection."},
+        {"id": "COACH-RW-07-N4", "cursor_level": "N4", "text": "Voici ce que dit ton document, en clair: ton avoir LPP au 31.12 etait de 84'200 francs. Pas d'interpretation cachee."},
+        {"id": "COACH-RW-08-N4", "cursor_level": "N4", "text": "Mint preferre un mot honnete a un mot doux. Ton 3a 2025 est encore vide. La fenetre se ferme fin decembre."},
+        {"id": "COACH-RW-09-N5", "cursor_level": "N5", "text": "Donnees brutes. Coordonne: 62'000 francs. Avoir: 84'200 francs. Taux applique: 6.0 pour cent. Lecture: 5'052 francs par an a 65 ans."},
+        {"id": "COACH-RW-10-N5", "cursor_level": "N5", "text": "Trois chiffres. Plafond 3a: 7'258 francs. Verse a ce jour: 0 franc. Restant possible avant decembre: 7'258 francs."}
+      ]
+    },
+    {
+      "id": "voice_cursor_outputs",
+      "name": "Voice cursor outputs at all 5 levels (Phase 5 — VOICE_CURSOR_SPEC)",
+      "description": "Sample phrases produced at each of the 5 voice levels (N1=tres doux, N5=tres direct).",
+      "samples": [
+        {"id": "VCO-N1-001", "cursor_level": "N1", "text": "Tout doucement: Mint est la pour t'accompagner. Quand tu te sens pret, on regarde ensemble. Aucune urgence."},
+        {"id": "VCO-N1-002", "cursor_level": "N1", "text": "Prends ton temps. Mint avance a ton rythme. Si aujourd'hui ce n'est pas le bon jour, c'est correct."},
+        {"id": "VCO-N2-001", "cursor_level": "N2", "text": "Mint te propose un petit point tranquille. Cela peut t'eclairer sans te demander beaucoup."},
+        {"id": "VCO-N2-002", "cursor_level": "N2", "text": "On peut regarder cela calmement ensemble. Quelques minutes suffisent pour avoir une premiere lecture."},
+        {"id": "VCO-N3-001", "cursor_level": "N3", "text": "Mint te montre les chiffres et te laisse decider. C'est ta vie, tes priorites, tes choix."},
+        {"id": "VCO-N3-002", "cursor_level": "N3", "text": "Voici les elements cles, presentes simplement. Tu peux poser des questions a tout moment."},
+        {"id": "VCO-N4-001", "cursor_level": "N4", "text": "Pour avancer concretement: ton 3a 2025 est a 0 franc. Le plafond est de 7'258 francs. La fenetre se ferme fin decembre. A toi de voir."},
+        {"id": "VCO-N4-002", "cursor_level": "N4", "text": "Sans detour: ta couverture LPP a baisse de 3'200 francs cette annee. Cela merite un regard attentif avant la declaration."},
+        {"id": "VCO-N5-001", "cursor_level": "N5", "text": "Trois chiffres. 3a: 0 franc. Plafond: 7'258 francs. Echeance: 31 decembre. On en reparle quand tu veux."},
+        {"id": "VCO-N5-002", "cursor_level": "N5", "text": "Coordonne LPP: 62'000 francs. Avoir: 84'200 francs. Lecture: 5'052 francs par an a 65 ans, hors revalorisation."}
+      ]
+    },
+    {
+      "id": "ton_chooser_micro_examples",
+      "name": "Ton chooser micro-examples (D-06)",
+      "description": "Three micro-examples shown in the Ton chooser UI to illustrate voice levels.",
+      "samples": [
+        {"id": "TON-SOFT", "cursor_level": "N2", "text": "Mint t'accompagne tranquillement. On regarde ensemble, sans pression, ce qui est utile pour toi aujourd'hui."},
+        {"id": "TON-DIRECT", "cursor_level": "N4", "text": "Mint te dit les choses clairement. Ton 3a 2025 est a zero. La fenetre se ferme fin decembre."},
+        {"id": "TON-UNFILTERED", "cursor_level": "N5", "text": "3a 2025: 0 franc. Echeance: 31 decembre. A toi de voir."}
+      ]
+    },
+    {
+      "id": "regional_voice_overlays",
+      "name": "Regional voice overlays (Romandie / Deutschschweiz / Ticino)",
+      "description": "Sample outputs adapted to regional Swiss linguistic identity.",
+      "samples": [
+        {"id": "RV-ROMANDIE-001", "text": "Mint a regarde ton dossier. On en discute septante secondes, et tu verras plus clair pour la suite."},
+        {"id": "RV-DEUTSCH-001", "text": "Mint a fait un petit point sur ton dossier. Une lecture rapide, comme un Znueni vite fait, et on continue."},
+        {"id": "RV-TICINO-001", "text": "Mint a jete un oeil a ton dossier. On en parle calmement, comme au bord du lac, sans precipitation."}
+      ]
+    },
+    {
+      "id": "landing_onboarding_copy",
+      "name": "Landing v2 + Onboarding v2 copy",
+      "description": "Public-facing landing and first-run onboarding strings.",
+      "samples": [
+        {"id": "LAND-001", "text": "Mint te dit ce que personne n'a interet a te dire. Calmement. Sans jugement."},
+        {"id": "LAND-002", "text": "Une intelligence financiere de poche, qui t'aide a comprendre tes documents et a poser les bonnes questions."},
+        {"id": "ONBOARD-001", "text": "Bienvenue. Mint avance a ton rythme. Trois informations suffisent pour commencer: ton age, ton revenu, et ton canton."},
+        {"id": "ONBOARD-002", "text": "Pas besoin de tout savoir aujourd'hui. Mint apprend avec toi, au fil de tes documents et de tes questions."}
+      ]
+    }
+  ]
+}
