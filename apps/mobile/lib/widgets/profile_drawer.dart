@@ -114,9 +114,7 @@ class ProfileDrawer extends StatelessWidget {
               context,
               icon: Icons.language_outlined,
               title: l10n.drawerLanguage,
-              onTap: () {
-                // TODO: inline language picker
-              },
+              onTap: () => _navigate(context, '/settings/langue'),
             ),
             _buildSection(
               context,
