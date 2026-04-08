@@ -26,6 +26,7 @@ import 'package:mint_mobile/models/coaching_preference.dart';
 import 'package:mint_mobile/services/biography/anonymized_biography_service.dart';
 import 'package:mint_mobile/services/biography/biography_repository.dart';
 import 'package:mint_mobile/services/biography/biography_refresh_detector.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONTEXT INJECTOR SERVICE — S58 / AI Memory
@@ -356,11 +357,14 @@ class ContextInjectorService {
     }
 
     // ── Onboarding payload (one-shot) ────────────────────────
-    // Inject premier éclairage + emotion from onboarding so the coach
-    // can react to the user's first impression. Cleared after read.
+    // Phase 10-02a: SharedPrefs onboarding readers dropped (screens that
+    // wrote onboarding_choc_* / onboarding_emotion / onboarding_birth_year
+    // are being deleted in split 10-02b). Emotion dropped entirely.
+    // birthYear now sourced from CoachProfile. Premier éclairage snapshot
+    // is read from ReportPersistenceService (still written by intent_screen).
     String onboardingBlock = '';
     try {
-      onboardingBlock = await _buildOnboardingBlock(sp);
+      onboardingBlock = await _buildOnboardingBlock(profile);
     } catch (_) {
       // Graceful degradation: coach works without onboarding context.
     }
@@ -453,38 +457,33 @@ class ContextInjectorService {
 
   /// Build the one-shot onboarding context block.
   ///
-  /// Reads premier éclairage type/value and user emotion from [prefs].
-  /// Returns an empty string when no onboarding data is present,
-  /// ensuring zero impact on existing behavior.
-  static Future<String> _buildOnboardingBlock(SharedPreferences prefs) async {
-    final chocType = prefs.getString('onboarding_choc_type');
-    if (chocType == null) return '';
+  /// Phase 10-02a: SharedPrefs onboarding readers removed. Reads the
+  /// premier éclairage snapshot written by intent_screen (still live)
+  /// and the user's age from [profile]. Emotion is dropped entirely —
+  /// the coach reacts to facts, not to a pre-captured mood.
+  /// Returns an empty string when no premier éclairage snapshot is present.
+  static Future<String> _buildOnboardingBlock(CoachProfile? profile) async {
+    final snapshot =
+        await ReportPersistenceService.loadPremierEclairageSnapshot();
+    if (snapshot == null) return '';
 
-    final chocValue = prefs.getDouble('onboarding_choc_value');
-    final emotion = prefs.getString('onboarding_emotion');
-    final birthYear = prefs.getInt('onboarding_birth_year');
+    final title = snapshot['title'] as String?;
+    final value = snapshot['value'];
 
     final buf = StringBuffer();
     buf.writeln('--- CONTEXTE ONBOARDING ---');
-    buf.writeln('Chiffre choc montr\u00e9\u00a0: $chocType '
-        '(valeur\u00a0: ${chocValue?.toStringAsFixed(0) ?? "??"})');
-    if (emotion != null && emotion.isNotEmpty) {
-      buf.writeln('R\u00e9action utilisateur\u00a0: "$emotion"');
+    if (title != null && title.isNotEmpty) {
+      buf.writeln('Premier \u00e9clairage montr\u00e9\u00a0: $title '
+          '(valeur\u00a0: ${value ?? "??"})');
     }
-    if (birthYear != null) {
-      final age = DateTime.now().year - birthYear;
+    final age = profile?.age;
+    if (age != null && age > 0) {
       buf.writeln('\u00c2ge\u00a0: $age ans');
     }
-    buf.writeln('INSTRUCTION\u00a0: R\u00e9agis au premier éclairage et \u00e0 '
-        'l\'\u00e9motion. Propose 3 actions concr\u00e8tes avec des chiffres. '
+    buf.writeln('INSTRUCTION\u00a0: R\u00e9agis au premier \u00e9clairage. '
+        'Propose 3 actions concr\u00e8tes avec des chiffres. '
         'Ne redemande PAS les informations d\u00e9j\u00e0 connues.');
     buf.writeln('--- FIN ONBOARDING ---');
-
-    // Clear one-shot onboarding data after reading.
-    // Permanent profile data (birth_year, salary, canton) is NOT cleared.
-    await prefs.remove('onboarding_choc_type');
-    await prefs.remove('onboarding_choc_value');
-    await prefs.remove('onboarding_emotion');
 
     return buf.toString().trim();
   }
