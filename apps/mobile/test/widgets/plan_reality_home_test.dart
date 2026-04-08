@@ -10,10 +10,8 @@ import 'package:mint_mobile/models/financial_plan.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
-import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
-import 'package:mint_mobile/widgets/coach/streak_badge.dart';
 
 // ────────────────────────────────────────────────────────────
 //  PLAN REALITY HOME TEST — Phase 5 / SUI-03, SUI-05
@@ -221,54 +219,11 @@ void main() {
       expect(find.byType(PlanRealityCard), findsOneWidget);
     });
 
-    testWidgets(
-        'StreakBadgeWidget is rendered INSIDE PlanRealityCard (as descendant)',
-        (tester) async {
-      final checkIn = MonthlyCheckIn(
-        month: DateTime(2026, 3, 1),
-        versements: {'3a': 500.0},
-        completedAt: DateTime(2026, 3, 5),
-      );
-      final contribution = PlannedMonthlyContribution(
-        id: '3a',
-        label: '3a Julien',
-        amount: 500.0,
-        category: '3a',
-      );
-      final profile = _profileWithData(
-        checkIns: [checkIn],
-        contributions: [contribution],
-      );
-      final coachProvider = _providerWithProfile(profile);
-      final planProvider = FinancialPlanProvider();
-      final streak = StreakService.compute(profile);
-
-      await tester.pumpWidget(_buildTestApp(
-        coachProvider: coachProvider,
-        planProvider: planProvider,
-        sectionBuilder: (ctx) {
-          return PlanRealityCard(
-            status: _testStatus(),
-            compoundImpact: 50000.0,
-            monthsToRetirement: 240,
-            streakBadge: StreakBadgeWidget(streak: streak),
-          );
-        },
-      ));
-      await tester.pump();
-
-      final planRealityFinder = find.byType(PlanRealityCard);
-      final streakBadgeFinder = find.byType(StreakBadgeWidget);
-
-      expect(planRealityFinder, findsOneWidget);
-      expect(
-        find.descendant(
-          of: planRealityFinder,
-          matching: streakBadgeFinder,
-        ),
-        findsOneWidget,
-        reason: 'StreakBadgeWidget must be INSIDE PlanRealityCard, not above it',
-      );
-    });
+    // P-S2-01 (Phase 8c hot-fix): StreakBadgeWidget removed from
+    // mint_home_screen + widget file deleted. Streaks tied to check-in
+    // cadence are explicitly on the anti-shame doctrine "will never
+    // ship" list. The previous test ("StreakBadgeWidget is rendered
+    // INSIDE PlanRealityCard") is intentionally removed; the absence
+    // of the widget is now the doctrinal contract.
   });
 }

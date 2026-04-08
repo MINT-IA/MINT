@@ -29,14 +29,12 @@ import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
-import 'package:mint_mobile/services/streak_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/animated_progress_bar.dart';
 import 'package:mint_mobile/widgets/coach/first_check_in_cta_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_reality_card.dart';
-import 'package:mint_mobile/widgets/coach/streak_badge.dart';
 import 'package:mint_mobile/widgets/home/action_opportunity_card.dart';
 import 'package:mint_mobile/widgets/home/anticipation_signal_card.dart';
 import 'package:mint_mobile/widgets/home/contextual_overflow.dart';
@@ -350,12 +348,13 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                         );
                       }
 
-                      // Active state: PlanRealityCard with streak badge INSIDE header
+                      // P-S2-01 (Phase 8c hot-fix): StreakBadgeWidget removed.
+                      // "Streaks tied to knowledge / check-in cadence" is on
+                      // the anti-shame doctrine "will never ship" list.
                       final status = PlanTrackingService.evaluate(
                         checkIns: profile.checkIns,
                         contributions: profile.plannedContributions,
                       );
-                      final streak = StreakService.compute(profile);
                       final birthYear =
                           profile.birthYear;
                       final monthsToRetirement =
@@ -379,7 +378,6 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                 monthsToRetirement > 0
                                     ? monthsToRetirement
                                     : 12,
-                            streakBadge: StreakBadgeWidget(streak: streak),
                           ),
                         ),
                       );
