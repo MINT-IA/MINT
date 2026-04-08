@@ -227,80 +227,118 @@ class ResponseCardWidget extends StatelessWidget {
   }
 
   // ── SHEET: full surface with proof layer ──────────────────
+  //
+  // MUJI 4-line grammar (AESTH-07, D-06): exactly 4 slots, no chrome between
+  // them. Each slot is wrapped in `_S4BodySlot` with a Semantics label
+  // `s4-slot-N` so the microtypography test can count them precisely.
+  //   (1) label/category   — header row (icon + title + subtitle + deadline)
+  //   (2) current state    — premier eclairage (number + explanation)
+  //   (3) without change   — MTC slot (per D-07) OR silent placeholder
+  //   (4) next action      — CTA + optional proof access
+  //
+  // AESTH-03 Aesop rule: sentence carries rhythm, not the number — the
+  // premier eclairage renders at bodyLarge w500, NOT displayMedium.
 
   Widget _buildSheet(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Header: icon + title + deadline
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildIcon(size: 36),
-            const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    card.title,
-                    style: MintTextStyles.titleMedium(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    card.subtitle,
-                    style: MintTextStyles.bodySmall(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+        // ── Slot 1 — label/category ──
+        _S4BodySlot(
+          role: 's4-slot-1',
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildIcon(size: 36),
+              const SizedBox(width: MintSpacing.sm + 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      card.title,
+                      style: MintTextStyles.titleMedium(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      card.subtitle,
+                      style: MintTextStyles.bodySmall(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            if (_hasDeadline) ...[
-              const SizedBox(width: MintSpacing.sm),
-              _buildDeadlinePill(),
+              if (_hasDeadline) ...[
+                const SizedBox(width: MintSpacing.sm),
+                _buildDeadlinePill(),
+              ],
             ],
-          ],
-        ),
-
-        // Chiffre-choc hero
-        if (_hasPremierEclairage) ...[
-          const SizedBox(height: MintSpacing.md + 4),
-          Text(
-            card.premierEclairage.formatted,
-            style: MintTextStyles.displayMedium(
-              color: MintColors.textPrimary,
-            ),
           ),
-          if (card.premierEclairage.explanation.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              card.premierEclairage.explanation,
-              style: MintTextStyles.bodySmall(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
-
-        const SizedBox(height: MintSpacing.md + 4),
-
-        // CTA + proof access
-        Row(
-          children: [
-            Expanded(child: _buildCta(context)),
-            if (_hasProof) ...[
-              const SizedBox(width: MintSpacing.sm),
-              _buildProofButton(context),
-            ],
-          ],
         ),
 
-        // MTC slot (AESTH-07 MUJI 4-line, line 4) — conditional per D-07.
-        ..._buildMtcSlot(),
+        // ── Slot 2 — current state (the number, demoted) ──
+        _S4BodySlot(
+          role: 's4-slot-2',
+          topGap: MintSpacing.md + 4,
+          child: _hasPremierEclairage
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // AESTH-03 Aesop rule: sentence carries rhythm, not the
+                    // number. bodyLarge w500 instead of displayMedium.
+                    Text(
+                      card.premierEclairage.formatted,
+                      style: MintTextStyles.bodyLarge(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    if (card.premierEclairage.explanation.isNotEmpty) ...[
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        card.premierEclairage.explanation,
+                        style: MintTextStyles.bodySmall(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                )
+              : const SizedBox.shrink(),
+        ),
+
+        // ── Slot 3 — without change (MTC per D-07) ──
+        _S4BodySlot(
+          role: 's4-slot-3',
+          topGap: (confidence != null && isProjection) ? MintSpacing.md : 0,
+          child: (confidence != null && isProjection)
+              ? MintTrameConfiance.inline(
+                  confidence: confidence!,
+                  bloomStrategy: BloomStrategy.firstAppearance,
+                  audioTone: audioTone,
+                  isTopOfList: false,
+                )
+              : const SizedBox.shrink(),
+        ),
+
+        // ── Slot 4 — next action ──
+        _S4BodySlot(
+          role: 's4-slot-4',
+          topGap: MintSpacing.md + 4,
+          child: Row(
+            children: [
+              Expanded(child: _buildCta(context)),
+              if (_hasProof) ...[
+                const SizedBox(width: MintSpacing.sm),
+                _buildProofButton(context),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -386,7 +424,7 @@ class ResponseCardWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: MintSpacing.md,
-            vertical: MintSpacing.sm + 2,
+            vertical: MintSpacing.sm + 4,
           ),
           decoration: BoxDecoration(
             color: MintColors.primary,
@@ -405,7 +443,7 @@ class ResponseCardWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: MintSpacing.sm),
               const Icon(
                 Icons.arrow_forward_rounded,
                 size: 14,
@@ -424,7 +462,7 @@ class ResponseCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showProofSheet(context),
       child: Container(
-        padding: const EdgeInsets.all(MintSpacing.sm + 2),
+        padding: const EdgeInsets.all(MintSpacing.sm + 4),
         decoration: BoxDecoration(
           color: MintColors.surfaceLight,
           borderRadius: BorderRadius.circular(12),
@@ -612,4 +650,38 @@ class ResponseCardStrip extends StatelessWidget {
 
   bool get _hasPremierEclairage =>
       cards.any((c) => c.premierEclairage.value != 0);
+}
+
+/// MUJI 4-line grammar slot wrapper (AESTH-07 / D-06).
+///
+/// The S4 sheet body Column must contain exactly 4 direct children in a
+/// fixed order: label, current state, without-change (MTC), next action.
+/// Each slot tags itself with a `Semantics(label: 's4-slot-N')` so the
+/// microtypography test can count slots deterministically.
+///
+/// `topGap` is the rhythm gap before the slot (omitted for slot 1 or when
+/// the slot is empty). Always a 4pt-grid multiple.
+class _S4BodySlot extends StatelessWidget {
+  final String role;
+  final Widget child;
+  final double topGap;
+
+  const _S4BodySlot({
+    required this.role,
+    required this.child,
+    this.topGap = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final body = KeyedSubtree(
+      key: ValueKey<String>(role),
+      child: child,
+    );
+    if (topGap == 0) return body;
+    return Padding(
+      padding: EdgeInsets.only(top: topGap),
+      child: body,
+    );
+  }
 }

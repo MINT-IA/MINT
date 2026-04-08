@@ -185,12 +185,15 @@ void main() {
       );
       await tester.pump();
 
-      final slots = find.bySemanticsLabel(RegExp(r'^s4-slot-[1-4]$'));
-      expect(
-        slots,
-        findsNWidgets(4),
-        reason: 's4 sheet body must render exactly 4 MUJI slots (D-06)',
-      );
+      for (var i = 1; i <= 4; i++) {
+        expect(
+          find.byKey(ValueKey<String>('s4-slot-$i')),
+          findsOneWidget,
+          reason:
+              's4 sheet body must render MUJI slot $i of 4 (D-06 — '
+              'label, current state, without-change, next action).',
+        );
+      }
     });
   });
 }

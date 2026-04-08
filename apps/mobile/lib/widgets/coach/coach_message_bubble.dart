@@ -53,11 +53,13 @@ class CoachMessageBubble extends StatelessWidget {
             children: [
               // Coach avatar — refined 24px dot
               const CoachAvatar(),
-              const SizedBox(width: 10),
+              const SizedBox(width: MintSpacing.md - 4),
               Flexible(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: MintSpacing.md,
+                    vertical: MintSpacing.md,
+                  ),
                   decoration: const BoxDecoration(
                     color: MintColors.porcelaine,
                     borderRadius: BorderRadius.only(
@@ -98,9 +100,9 @@ class CoachMessageBubble extends StatelessWidget {
           if (!isStreamingThis &&
               msg.tier != ChatTier.none &&
               messageIndex > 0) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: MintSpacing.xs),
             Padding(
-              padding: const EdgeInsets.only(left: 42),
+              padding: const EdgeInsets.only(left: 44),
               child: CoachTierBadge(tier: msg.tier),
             ),
           ],
@@ -109,9 +111,9 @@ class CoachMessageBubble extends StatelessWidget {
               hasToolCalls &&
               !(isAskUserInput && isInputAnswered)) ...[
             for (final toolCall in msg.richToolCalls) ...[
-              const SizedBox(height: 10),
+              const SizedBox(height: MintSpacing.md - 4),
               Padding(
-                padding: const EdgeInsets.only(left: 42, right: 16),
+                padding: const EdgeInsets.only(left: 44, right: MintSpacing.md),
                 child: WidgetRenderer.build(
                       context,
                       toolCall,
@@ -125,25 +127,25 @@ class CoachMessageBubble extends StatelessWidget {
           ],
           // Sources
           if (msg.sources.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: MintSpacing.md - 4),
             Padding(
-              padding: const EdgeInsets.only(left: 42, right: 48),
+              padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
               child: CoachSourcesSection(sources: msg.sources),
             ),
           ],
           // Disclaimers (from RAG backend)
           if (msg.disclaimers.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: MintSpacing.sm),
             Padding(
-              padding: const EdgeInsets.only(left: 42, right: 48),
+              padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
               child: CoachDisclaimersSection(disclaimers: msg.disclaimers),
             ),
           ],
           // Response Cards (Phase 1 — inline strip)
           if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: MintSpacing.md - 4),
             Padding(
-              padding: const EdgeInsets.only(left: 42),
+              padding: const EdgeInsets.only(left: 44),
               child: ResponseCardStrip(cards: msg.responseCards),
             ),
           ],
@@ -151,9 +153,9 @@ class CoachMessageBubble extends StatelessWidget {
           if (!isStreamingThis &&
               msg.suggestedActions != null &&
               msg.suggestedActions!.isNotEmpty) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: MintSpacing.md),
             Padding(
-              padding: const EdgeInsets.only(left: 42),
+              padding: const EdgeInsets.only(left: 44),
               child: CoachSuggestedActions(
                 actions: msg.suggestedActions!,
                 onActionTap: onActionTap,
@@ -183,8 +185,10 @@ class UserMessageBubble extends StatelessWidget {
           const SizedBox(width: 72),
           Flexible(
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md,
+                vertical: MintSpacing.md,
+              ),
               decoration: const BoxDecoration(
                 color: MintColors.primary,
                 borderRadius: BorderRadius.only(
@@ -219,7 +223,10 @@ class SystemMessageBubble extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(
+            horizontal: MintSpacing.md - 4,
+            vertical: MintSpacing.xs,
+          ),
           decoration: BoxDecoration(
             color: MintColors.porcelaine.withValues(alpha: 0.6),
             borderRadius: BorderRadius.circular(12),
@@ -306,7 +313,7 @@ class CoachTierBadge extends StatelessWidget {
         Icon(icon,
             // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
             size: 9, color: MintColors.textMutedAaa.withValues(alpha: 0.5)),
-        const SizedBox(width: 3),
+        const SizedBox(width: MintSpacing.xs),
         Text(
           label,
           style: MintTextStyles.micro(
@@ -350,7 +357,10 @@ class CoachSourcesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.md - 4,
+        vertical: MintSpacing.md - 4,
+      ),
       decoration: BoxDecoration(
         color: MintColors.bleuAir.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
@@ -371,7 +381,7 @@ class CoachSourcesSection extends StatelessWidget {
           const SizedBox(height: MintSpacing.xs),
           for (final source in sources)
             Padding(
-              padding: const EdgeInsets.only(bottom: 3),
+              padding: const EdgeInsets.only(bottom: MintSpacing.xs),
               child: Semantics(
                 label: source.title,
                 button: true,
@@ -385,7 +395,7 @@ class CoachSourcesSection extends StatelessWidget {
                           // AESTH-05 per AUDIT_RETRAIT S3 R1 (D-03 swap map)
                           color: MintColors.textSecondaryAaa
                               .withValues(alpha: 0.6)),
-                      const SizedBox(width: 5),
+                      const SizedBox(width: MintSpacing.xs),
                       Expanded(
                         child: Text(
                           '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
@@ -419,7 +429,10 @@ class CoachDisclaimersSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.md - 4,
+        vertical: MintSpacing.md - 4,
+      ),
       decoration: BoxDecoration(
         color: MintColors.pecheDouce.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
@@ -430,7 +443,7 @@ class CoachDisclaimersSection extends StatelessWidget {
           Icon(Icons.info_outline_rounded,
               // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
               size: 13, color: MintColors.textMutedAaa.withValues(alpha: 0.6)),
-          const SizedBox(width: 6),
+          const SizedBox(width: MintSpacing.sm),
           Expanded(
             child: Text(
               disclaimers.join('\n'),
@@ -469,8 +482,10 @@ class CoachSuggestedActions extends StatelessWidget {
         return GestureDetector(
           onTap: () => onActionTap?.call(action),
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md,
+              vertical: MintSpacing.md - 4,
+            ),
             decoration: BoxDecoration(
               color: isLifeEvent
                   ? MintColors.pecheDouce.withValues(alpha: 0.18)
