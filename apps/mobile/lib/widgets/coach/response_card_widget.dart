@@ -357,8 +357,10 @@ class ResponseCardWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
+        // AESTH-06 per AUDIT_RETRAIT S4 (D-04 one-color-one-meaning:
+        // urgent deadline = verifiable fact requiring attention → warningAaa)
         color: isUrgent
-            ? MintColors.error.withValues(alpha: 0.08)
+            ? MintColors.warningAaa.withValues(alpha: 0.08)
             : MintColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
@@ -368,7 +370,8 @@ class ResponseCardWidget extends StatelessWidget {
       child: Text(
         badge,
         style: MintTextStyles.labelSmall(
-          color: isUrgent ? MintColors.error : MintColors.primary,
+          // AESTH-06 per AUDIT_RETRAIT S4 (D-04: warningAaa = only semantic color)
+          color: isUrgent ? MintColors.warningAaa : MintColors.primary,
         ),
       ),
     );
@@ -429,7 +432,8 @@ class ResponseCardWidget extends StatelessWidget {
         child: const Icon(
           Icons.info_outline_rounded,
           size: 18,
-          color: MintColors.textMuted,
+          // AESTH-05 per AUDIT_RETRAIT S4 R3 (D-03 swap map)
+          color: MintColors.textMutedAaa,
         ),
       ),
     );
@@ -476,7 +480,8 @@ class ResponseCardWidget extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: MintSpacing.sm),
                   padding: const EdgeInsets.all(MintSpacing.sm + 4),
                   decoration: BoxDecoration(
-                    color: MintColors.warning.withValues(alpha: 0.06),
+                    // AESTH-06 per AUDIT_RETRAIT S4 R5 (D-04 warningAaa)
+                    color: MintColors.warningAaa.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -485,14 +490,16 @@ class ResponseCardWidget extends StatelessWidget {
                       Icon(
                         Icons.info_outline_rounded,
                         size: 16,
-                        color: MintColors.warning.withValues(alpha: 0.7),
+                        // AESTH-06 per AUDIT_RETRAIT S4 R5 (D-04 warningAaa)
+                        color: MintColors.warningAaa.withValues(alpha: 0.7),
                       ),
                       const SizedBox(width: MintSpacing.sm),
                       Expanded(
                         child: Text(
                           a,
                           style: MintTextStyles.bodySmall(
-                            color: MintColors.textSecondary,
+                            // AESTH-05 per AUDIT_RETRAIT S4 R6 (D-03 swap map)
+                            color: MintColors.textSecondaryAaa,
                           ),
                         ),
                       ),

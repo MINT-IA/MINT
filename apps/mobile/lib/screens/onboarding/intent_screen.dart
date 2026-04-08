@@ -129,7 +129,8 @@ class IntentScreen extends StatelessWidget {
                     Text(
                       l10n.intentScreenSubtitle,
                       style: MintTextStyles.bodyLarge(
-                        color: MintColors.textSecondary,
+                        // AESTH-05 per AUDIT_RETRAIT S1 (D-03 swap map)
+                        color: MintColors.textSecondaryAaa,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -163,7 +164,8 @@ class IntentScreen extends StatelessWidget {
                       child: Text(
                         l10n.intentScreenMicrocopy,
                         style: MintTextStyles.bodySmall(
-                          color: MintColors.textMuted,
+                          // AESTH-05 per AUDIT_RETRAIT S1 (D-03 swap map)
+                          color: MintColors.textMutedAaa,
                         ),
                         textAlign: TextAlign.center,
                       ),

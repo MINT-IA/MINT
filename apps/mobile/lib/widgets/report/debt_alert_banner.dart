@@ -21,23 +21,27 @@ class DebtAlertBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
+        // AESTH-06 per AUDIT_RETRAIT S5 (D-04 destructive-confirm exception:
+        // debt banner is the single allowed errorAaa surface on S0-S5)
         gradient: LinearGradient(
-          colors: [MintColors.error.withValues(alpha: 0.12), MintColors.error.withValues(alpha: 0.06)],
+          colors: [MintColors.errorAaa.withValues(alpha: 0.12), MintColors.errorAaa.withValues(alpha: 0.06)],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.error.withValues(alpha: 0.3)),
+        border: Border.all(color: MintColors.errorAaa.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.warning_rounded, color: MintColors.error, size: 22),
+              // AESTH-06 per AUDIT_RETRAIT S5 (D-04 destructive-confirm exception)
+              const Icon(Icons.warning_rounded, color: MintColors.errorAaa, size: 22),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Priorit\u00e9 : r\u00e9duire tes dettes',
-                  style: MintTextStyles.labelLarge(color: MintColors.error),
+                  // AESTH-06 per AUDIT_RETRAIT S5 (D-04 destructive-confirm exception)
+                  style: MintTextStyles.labelLarge(color: MintColors.errorAaa),
                 ),
               ),
             ],
@@ -52,7 +56,8 @@ class DebtAlertBanner extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Remboursement : ${formatChfWithPrefix(monthlyPayment!)}/mois',
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              // AESTH-05 per AUDIT_RETRAIT S5 (D-03 swap map)
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondaryAaa),
             ),
           ],
           const SizedBox(height: 12),
@@ -66,7 +71,8 @@ class DebtAlertBanner extends StatelessWidget {
                 style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
               ),
               style: FilledButton.styleFrom(
-                backgroundColor: MintColors.error,
+                // AESTH-06 per AUDIT_RETRAIT S5 (D-04 destructive-confirm exception)
+                backgroundColor: MintColors.errorAaa,
                 foregroundColor: MintColors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

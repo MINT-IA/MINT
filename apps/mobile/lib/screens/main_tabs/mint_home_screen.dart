@@ -164,7 +164,8 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                         child: const Icon(
                           Icons.person_outline_rounded,
                           size: 20,
-                          color: MintColors.textSecondary,
+                          // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                          color: MintColors.textSecondaryAaa,
                         ),
                       ),
                     ),
@@ -237,7 +238,8 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                   const Icon(
                                     Icons.wb_sunny_outlined,
                                     size: 48,
-                                    color: MintColors.textMuted,
+                                    // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                                    color: MintColors.textMutedAaa,
                                   ),
                                   const SizedBox(height: MintSpacing.md),
                                   Text(
@@ -249,7 +251,8 @@ class _MintHomeScreenState extends State<MintHomeScreen> {
                                   Text(
                                     l.ctxEmptyBody,
                                     style: MintTextStyles.bodyMedium(
-                                      color: MintColors.textSecondary,
+                                      // AESTH-05 per AUDIT_RETRAIT S2 R2 (D-03 swap map)
+                                      color: MintColors.textSecondaryAaa,
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -524,7 +527,8 @@ class _ItineraireAlternatifCard extends StatelessWidget {
         children: [
           Text(
             l10n.mintHomeAlternativeRoute,
-            style: MintTextStyles.labelMedium(color: MintColors.textMuted),
+            // AESTH-05 per AUDIT_RETRAIT S2 R4 (D-03 swap map)
+            style: MintTextStyles.labelMedium(color: MintColors.textMutedAaa),
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
@@ -535,7 +539,9 @@ class _ItineraireAlternatifCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.xs),
             Text(
               cap.expectedImpact!,
-              style: MintTextStyles.bodyMedium(color: MintColors.success),
+              // AESTH-06 per AUDIT_RETRAIT S2 R6 (D-04 one-color-one-meaning:
+              // success info-bearing text demoted to textSecondaryAaa)
+              style: MintTextStyles.bodyMedium(color: MintColors.textSecondaryAaa),
             ),
           ],
           const SizedBox(height: MintSpacing.md),
@@ -644,7 +650,8 @@ class _CoachInputBarState extends State<_CoachInputBar> {
         // ── Accroche phrase ──
         Text(
           l10n.mintHomeWhatscoming,
-          style: MintTextStyles.titleMedium(color: MintColors.textMuted),
+          // AESTH-05 per AUDIT_RETRAIT S2 R7 (D-03 swap map)
+          style: MintTextStyles.titleMedium(color: MintColors.textMutedAaa),
         ),
         const SizedBox(height: MintSpacing.sm),
 
@@ -668,7 +675,8 @@ class _CoachInputBarState extends State<_CoachInputBar> {
                   decoration: InputDecoration(
                     hintText: l10n.mintHomeAskQuestion,
                     hintStyle: MintTextStyles.bodyMedium(
-                      color: MintColors.textMuted,
+                      // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                      color: MintColors.textMutedAaa,
                     ),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(
@@ -790,7 +798,8 @@ class _SuggestionChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+          // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondaryAaa),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -849,7 +858,8 @@ class _JourneyStepsCard extends StatelessWidget {
               Text(
                 '${sequence.completedCount}/${sequence.totalCount}',
                 style:
-                    MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                    // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                    MintTextStyles.labelSmall(color: MintColors.textSecondaryAaa),
               ),
             ],
           ),
@@ -943,13 +953,15 @@ class _JourneyStepsCard extends StatelessWidget {
                         TextSpan(
                           text: '${l.homeJourneyUpcoming}\u00a0:\u00a0',
                           style: MintTextStyles.bodySmall(
-                            color: MintColors.textMuted,
+                            // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                            color: MintColors.textMutedAaa,
                           ),
                         ),
                         TextSpan(
                           text: _resolveTitle(l, next.titleKey),
                           style: MintTextStyles.bodySmall(
-                            color: MintColors.textMuted,
+                            // AESTH-05 per AUDIT_RETRAIT S2 (D-03 swap map)
+                            color: MintColors.textMutedAaa,
                           ),
                         ),
                       ],

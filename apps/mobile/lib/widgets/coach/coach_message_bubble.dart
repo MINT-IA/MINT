@@ -226,7 +226,8 @@ class SystemMessageBubble extends StatelessWidget {
           ),
           child: Text(
             message.content,
-            style: MintTextStyles.micro(color: MintColors.textMuted)
+            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+            style: MintTextStyles.micro(color: MintColors.textMutedAaa)
                 .copyWith(fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
@@ -303,12 +304,14 @@ class CoachTierBadge extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon,
-            size: 9, color: MintColors.textMuted.withValues(alpha: 0.5)),
+            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+            size: 9, color: MintColors.textMutedAaa.withValues(alpha: 0.5)),
         const SizedBox(width: 3),
         Text(
           label,
           style: MintTextStyles.micro(
-            color: MintColors.textMuted.withValues(alpha: 0.5),
+            // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+            color: MintColors.textMutedAaa.withValues(alpha: 0.5),
           ).copyWith(fontWeight: FontWeight.w400),
         ),
       ],
@@ -358,7 +361,8 @@ class CoachSourcesSection extends StatelessWidget {
           Text(
             S.of(context)!.coachSources,
             style: MintTextStyles.micro(
-              color: MintColors.textMuted,
+              // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+              color: MintColors.textMutedAaa,
             ).copyWith(
               fontWeight: FontWeight.w600,
               letterSpacing: 0.3,
@@ -378,18 +382,20 @@ class CoachSourcesSection extends StatelessWidget {
                     children: [
                       Icon(Icons.description_outlined,
                           size: 12,
-                          color: MintColors.textSecondary
+                          // AESTH-05 per AUDIT_RETRAIT S3 R1 (D-03 swap map)
+                          color: MintColors.textSecondaryAaa
                               .withValues(alpha: 0.6)),
                       const SizedBox(width: 5),
                       Expanded(
                         child: Text(
                           '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
                           style: MintTextStyles.micro(
-                            color: MintColors.textSecondary,
+                            // AESTH-05 per AUDIT_RETRAIT S3 R1 (D-03 swap map)
+                            color: MintColors.textSecondaryAaa,
                           ).copyWith(
                             decoration: TextDecoration.underline,
                             decorationColor:
-                                MintColors.textSecondary.withValues(alpha: 0.3),
+                                MintColors.textSecondaryAaa.withValues(alpha: 0.3),
                           ),
                         ),
                       ),
@@ -422,13 +428,15 @@ class CoachDisclaimersSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.info_outline_rounded,
-              size: 13, color: MintColors.textMuted.withValues(alpha: 0.6)),
+              // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+              size: 13, color: MintColors.textMutedAaa.withValues(alpha: 0.6)),
           const SizedBox(width: 6),
           Expanded(
             child: Text(
               disclaimers.join('\n'),
               style: MintTextStyles.micro(
-                color: MintColors.textMuted,
+                // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                color: MintColors.textMutedAaa,
               ).copyWith(height: 1.4),
             ),
           ),
@@ -532,7 +540,8 @@ class _BlinkingCursorState extends State<BlinkingCursor>
         width: 2,
         height: 14,
         decoration: BoxDecoration(
-          color: MintColors.textSecondary.withValues(alpha: 0.5),
+          // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+          color: MintColors.textSecondaryAaa.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(1),
         ),
       ),
