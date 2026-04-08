@@ -7,11 +7,9 @@
 name: Match Regen (TEMPORARY)
 
 on:
-  workflow_dispatch:
-    inputs:
-      confirm:
-        description: "Type REGEN to confirm"
-        required: true
+  push:
+    branches:
+      - ci/match-regen-run
 
 concurrency:
   group: match-regen
@@ -24,7 +22,7 @@ jobs:
     timeout-minutes: 20
     environment:
       name: staging
-    if: ${{ github.event.inputs.confirm == 'REGEN' }}
+    if: ${{ contains(github.event.head_commit.message, '[regen-ok]') }}
 
     defaults:
       run:
