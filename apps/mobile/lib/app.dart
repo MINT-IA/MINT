@@ -103,12 +103,8 @@ import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
-import 'package:mint_mobile/screens/onboarding/premier_eclairage_screen.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
-import 'package:mint_mobile/screens/onboarding/plan_screen.dart';
-import 'package:mint_mobile/screens/onboarding/promise_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -842,26 +838,20 @@ final _router = GoRouter(
     ),
 
     // ── ONBOARDING ───────────────────────────────────────────
+    // P10-02b: legacy onboarding screens removed. Routes kept as redirect
+    // shims → /coach/chat so existing call sites keep working. The coach
+    // chat surface handles missing query params gracefully.
     GoRoute(
       path: '/onboarding/quick',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final section = state.uri.queryParameters['section'];
-        return QuickStartScreen(initialSection: section);
-      },
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/onboarding/quick-start',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final section = state.uri.queryParameters['section'];
-        return QuickStartScreen(initialSection: section);
-      },
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/onboarding/premier-eclairage',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PremierEclairageScreen(),
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/onboarding/intent',
@@ -870,13 +860,11 @@ final _router = GoRouter(
     ),
     GoRoute(
       path: '/onboarding/promise',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PromiseScreen(),
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/onboarding/plan',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PlanScreen(),
+      redirect: (_, __) => '/coach/chat',
     ),
     GoRoute(
       path: '/data-block/:type',

@@ -13,7 +13,6 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
-import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -169,6 +168,8 @@ void main() {
         tester.view.resetDevicePixelRatio();
       });
 
+      // P10-02b: QuickStartScreen deleted. Profile identity tap now lands on
+      // /coach/chat via the redirect shim chain.
       final router = GoRouter(
         initialLocation: '/profile',
         routes: [
@@ -182,7 +183,13 @@ void main() {
           ),
           GoRoute(
             path: '/onboarding/quick',
-            builder: (context, state) => const QuickStartScreen(),
+            redirect: (context, state) => '/coach/chat',
+          ),
+          GoRoute(
+            path: '/coach/chat',
+            builder: (context, state) => const Scaffold(
+              body: Center(child: Text('COACH_CHAT_STUB')),
+            ),
           ),
         ],
       );
@@ -249,8 +256,9 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       await tester.pump(const Duration(milliseconds: 300));
-      final foundQuick = find.byType(QuickStartScreen).evaluate().isNotEmpty;
-      expect(foundQuick, isTrue);
+      // P10-02b: assert the redirect landed on the coach chat stub instead
+      // of the deleted QuickStartScreen.
+      expect(find.text('COACH_CHAT_STUB'), findsOneWidget);
       expect(find.textContaining('Cette page n'), findsNothing);
     });
   });

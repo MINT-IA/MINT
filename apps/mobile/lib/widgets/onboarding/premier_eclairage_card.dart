@@ -134,7 +134,9 @@ class _PremierEclairageCardState extends State<PremierEclairageCard>
           const SizedBox(height: MintSpacing.md),
           _CtaButton(
             label: l10n.premierEclairageCardCtaPersonalize,
-            onTap: () => widget.onNavigate('/onboarding/quick-start'),
+            // P10-02b: quick-start screen removed → route directly to coach chat
+            // (source: premier_eclairage_intent).
+            onTap: () => widget.onNavigate('/coach/chat'),
           ),
           const SizedBox(height: MintSpacing.sm),
           _DisclaimerText(text: l10n.premierEclairageDisclaimer),
