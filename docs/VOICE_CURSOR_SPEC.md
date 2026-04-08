@@ -543,17 +543,17 @@ Per D-05, the few-shot block is **3 × N4 + 3 × N5 verbatim phrases** (selected
 ```
 <voice_examples>
 [N4 — G2 gravity, calm relation, non-sensitive, intermediate mastery]
-<!-- Phase 5 Plan 02 will inject frozen phrase N4-003 here -->
+<!-- Phase 11 will inject frozen phrase N4-003 ("Retirer ton 2e pilier pour l'achat...") verbatim -->
 [N4 — G2 gravity, calm relation, non-sensitive, advanced mastery]
-<!-- Phase 5 Plan 02 will inject frozen phrase N4-007 here -->
+<!-- Phase 11 will inject frozen phrase N4-007 ("Avec un enfant, ta couverture décès...") verbatim -->
 [N4 — G3 gravity, established relation, non-sensitive, intermediate mastery]
-<!-- Phase 5 Plan 02 will inject frozen phrase N4-009 here -->
+<!-- Phase 11 will inject frozen phrase N4-009 ("Mint voit dans tes chiffres une dette...") verbatim -->
 [N5 — G3 gravity, established relation, non-sensitive, intermediate mastery]
-<!-- Phase 5 Plan 02 will inject frozen phrase N5-002 here -->
+<!-- Phase 11 will inject frozen phrase N5-002 ("Sur 44 ans de cotisation, il t'en...") verbatim -->
 [N5 — G3 gravity, established relation, non-sensitive, advanced mastery]
-<!-- Phase 5 Plan 02 will inject frozen phrase N5-005 here -->
+<!-- Phase 11 will inject frozen phrase N5-005 ("Mariés, vous perdez environ 400 francs...") verbatim -->
 [N5 — G3 gravity, established relation, non-sensitive, advanced mastery]
-<!-- Phase 5 Plan 02 will inject frozen phrase N5-008 here -->
+<!-- Phase 11 will inject frozen phrase N5-008 ("Ton héritage arrive sans testament...") verbatim -->
 </voice_examples>
 ```
 

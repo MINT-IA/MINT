@@ -207,7 +207,7 @@ verifies this checksum before starting the α study. If the hash does not match,
 drifted and the study is aborted pending errata review.
 
 ```
-frozen_phrases_v1.json sha256 = 7c45ca2afa8d9ba9f6081866a8ec2f43b98b0f30f4dbd65c95abf20e42df3bc0
+frozen_phrases_v1.json sha256 = 75293279916f5cd860db99289c7d78d89bb1dd65c9970b404d4684a49e0eea3a
 ```
 
 Compute command:
