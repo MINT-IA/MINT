@@ -127,6 +127,11 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/no_legacy_confidence_render.py
 
+      # ─── Phase 12 / PERF-05: no implicit BloomStrategy on MTC ──────
+      - name: No implicit BloomStrategy on MTC (PERF-05)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_implicit_bloom_strategy.py
+
       # ─── Phase 8a / TRUST-02 + Phase 9 / ALERT-02: sentence-subject ARB lint ─
       - name: ARB sentence-subject lint (TRUST-02 + ALERT-02)
         working-directory: ${{ github.workspace }}
