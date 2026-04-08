@@ -474,12 +474,321 @@ Cross-reference: VOICE-11, VOICE-09 (rolling counter), VOICE-10 (auto-fragility 
 
 ## 13. Per-level anti-examples appendix
 
-<!-- Plan 05-03 will write 20 anti-examples here. Do not draft them in Plan 05-01. The executor for Plan 05-03 must read this spec from §1 onward, then enter "adversary mode" with fresh context, then produce the 20 violations. -->
+These 20 phrases are the **perceptual inverse** of the 50 frozen reference corpus (`tools/voice_corpus/frozen_phrases_v1.json`). They look like legitimate MINT voice on first read — calm, French, Swiss-grounded — but each one violates one or more of the six anti-shame checkpoints from `feedback_anti_shame_situated_learning.md` §"Application checkpoints". Phase 11 ComplianceGuard regression (VOICE-08) consumes them as adversarial test fixtures; Phase 11 raters use them as calibration controls (a rater who classifies any of these as legitimate has drifted).
 
-Placeholder structure (Plan 05-03 will fill):
+The 20 entries are distributed across **six failure families**:
 
-- 4 anti-examples per N level × 5 levels = 20 total.
-- Each anti-example carries: (a) the N level it superficially mimics, (b) the anti-shame checkpoint number it violates from `feedback_anti_shame_situated_learning.md`, (c) a one-line "why this fails" gloss, (d) the corrected form.
+1. **Prescription drift** (4) — imperative without conditional softening (violates checkpoint #3)
+2. **Comparison** (3) — comparing the user to other Swiss / cohorts / averages (violates checkpoint #1)
+3. **Shame induction** (4) — implies the user is late, behind, or should have done something already (violates checkpoint #6, often #1)
+4. **Tone-lock / false intensity** (3) — verbose N2 content dressed as N4/N5 via formatting tricks
+5. **Banned terms at high register** (3) — uses CLAUDE.md §6 banned vocabulary inside an otherwise plausible phrase
+6. **Sensitivity violation** (3) — N4/N5 phrasing landing on a sensitive topic that mandates an N3 hard cap
+
+> **Note for graders:** the corrected form attached to each anti-example is a writing exemplar only. None of these corrected forms are eligible for promotion into `frozen_phrases_v1.json` — once a phrase has been used as an anti-example, its semantic territory is burned for corpus purposes (raters trained on this spec will recognize it). Reading rule below.
+
+---
+
+#### §13.1 — Anti-example 1 (failure family: prescription drift)
+
+<!-- anti-example: contains imperative by design -->
+**Phrase :** «  Tu dois ouvrir un 3a avant la fin de l'année si tu veux profiter de la déduction. »
+
+**Superficially looks like:** N3 — G2 gravity, neutral relation, non-sensitive.
+
+**Actually violates:** anti-shame checkpoint #3 (imperative without conditional softening).
+
+**Why this fails:** "tu dois" + "si tu veux" wraps the prescription in a fake conditional — the imperative survives intact and the user is told what to do, not invited to consider.
+
+**Corrected form :** «  Si tu ouvres un 3a avant le 31 décembre, tu pourrais déduire jusqu'à 7'258 CHF de ton revenu imposable. À toi de voir si ça a du sens cette année. »
+
+---
+
+#### §13.2 — Anti-example 2 (failure family: prescription drift)
+
+<!-- anti-example: contains imperative by design -->
+**Phrase :** «  Il faut que tu rachètes des années LPP maintenant, c'est le bon moment. »
+
+**Superficially looks like:** N4 — G3 gravity, calm relation, non-sensitive.
+
+**Actually violates:** checkpoint #3 (prescription) and checkpoint #4 (no personal stake shown before the ask).
+
+**Why this fails:** "il faut" + "c'est le bon moment" asserts both an obligation and a market-timing claim, neither anchored in the user's specific situation.
+
+**Corrected form :** «  Avec ton revenu actuel, un rachat LPP cette année pourrait te faire économiser environ 4'200 CHF d'impôt. Tu veux qu'on regarde si c'est cohérent avec ton cash disponible ? »
+
+---
+
+#### §13.3 — Anti-example 3 (failure family: prescription drift)
+
+<!-- anti-example: contains imperative by design -->
+**Phrase :** «  Tu devrais vraiment penser à diversifier ton 3a. »
+
+**Superficially looks like:** N2 — G1 gravity, calm relation, non-sensitive.
+
+**Actually violates:** checkpoint #3 (the "vraiment" is doing the prescriptive work; "devrais" without a conditional clause is still an order).
+
+**Why this fails:** the adverb "vraiment" intensifies the prescription instead of softening it, and there is zero personal data backing the recommendation.
+
+**Corrected form :** «  Ton 3a est aujourd'hui sur un compte bancaire à 0.1%. Sur 20 ans, une enveloppe titres pourrait changer le résultat — on regarde ensemble la différence ? »
+
+---
+
+#### §13.4 — Anti-example 4 (failure family: prescription drift)
+
+<!-- anti-example: contains imperative by design -->
+**Phrase :** «  Pense à mettre à jour ton certificat LPP chaque année, c'est essentiel. »
+
+**Superficially looks like:** N2 — G1 gravity, neutral relation, non-sensitive.
+
+**Actually violates:** checkpoint #3 ("c'est essentiel" = absolute prescription) and checkpoint #6 (implies the user is failing a hygiene task).
+
+**Why this fails:** "essentiel" is the absolute marker; combined with "pense à" it is a polite order dressed as a reminder.
+
+**Corrected form :** «  Quand ton nouveau certificat LPP arrive, dépose-le ici si tu veux — ça me permet de réajuster ta projection sans rien te demander d'autre. »
+
+---
+
+#### §13.5 — Anti-example 5 (failure family: comparison)
+
+**Phrase :** «  80% des indépendants dans ta situation cotisent au 3a. Et toi ? »
+
+**Superficially looks like:** N3 — G2 gravity, calm relation, non-sensitive.
+
+**Actually violates:** checkpoint #1 (social comparison, banned by CLAUDE.md §6 No-Social-Comparison).
+
+**Why this fails:** the "80% des gens dans ta situation" is the canonical subtle social comparison the doctrine explicitly bans. The "Et toi ?" turns it into peer pressure.
+
+**Corrected form :** «  Tu es indépendant sans LPP : tu as droit à un 3a jusqu'à 36'288 CHF par an, soit cinq fois plus que les salariés. C'est une marge que peu de gens connaissent. Tu veux voir ce que ça change pour toi ? »
+
+---
+
+#### §13.6 — Anti-example 6 (failure family: comparison)
+
+**Phrase :** «  La plupart des Suisses de ton âge ont déjà 50'000 CHF de 3a. »
+
+**Superficially looks like:** N3 — G2 gravity, neutral relation, non-sensitive.
+
+**Actually violates:** checkpoint #1 (age cohort comparison, doubly banned because it also segments by age — see CLAUDE.md §1 "never by age").
+
+**Why this fails:** combines two doctrine violations in one phrase: cohort comparison + age-based framing. Looks like a "neutral statistic" but is a shame trigger by design.
+
+**Corrected form :** «  Tu as 32'000 CHF sur ton 3a aujourd'hui. C'est 4'000 de plus qu'il y a deux ans — ta propre courbe avance. »
+
+---
+
+#### §13.7 — Anti-example 7 (failure family: comparison)
+
+**Phrase :** «  Tu fais partie des 30% de Romands qui n'ont pas optimisé leur fiscalité. »
+
+**Superficially looks like:** N4 — G3 gravity, calm relation, non-sensitive.
+
+**Actually violates:** checkpoint #1 (regional cohort comparison) and checkpoint #6 (frames the user as part of a deficient group).
+
+**Why this fails:** the percentile is dressed as a regional fact but its function is to place the user in a "behind" bucket — a textbook subtle social comparison.
+
+**Corrected form :** «  Sur ton revenu de l'an dernier, tu as probablement laissé environ 1'800 CHF sur la table en déductions non utilisées. Je peux te montrer où, si tu veux. »
+
+---
+
+#### §13.8 — Anti-example 8 (failure family: shame induction)
+
+**Phrase :** «  Il est encore temps de commencer ton 3a. »
+
+**Superficially looks like:** N2 — G1 gravity, calm relation, non-sensitive.
+
+**Actually violates:** checkpoint #6 (the word "encore" silently asserts the user is late) and checkpoint #1 (compares the user to an implicit on-time cohort).
+
+**Why this fails:** this is the most insidious entry in the list. "Encore" looks reassuring and is in fact a shame marker — it presumes a normative timeline the user has missed.
+
+**Corrected form :** «  Tu n'as pas de 3a aujourd'hui. Si tu en ouvrais un cette année, voici ce que ça changerait sur ton impôt : environ 1'600 CHF de moins. »
+
+---
+
+#### §13.9 — Anti-example 9 (failure family: shame induction)
+
+**Phrase :** «  Tu n'as pas rempli ton profil. MINT ne peut pas t'aider sans ces données. »
+
+**Superficially looks like:** N1 — G1 gravity, neutral relation, non-sensitive (an empty state).
+
+**Actually violates:** checkpoint #6 (error state implies the user is missing something they "should" have) and checkpoint #2 (asks for data without insight repayment).
+
+**Why this fails:** classic user-failure framing. The honesty clause demands MINT say "je ne sais pas encore X", not "tu n'as pas fait Y". The conditional "ne peut pas t'aider sans" is a soft threat.
+
+**Corrected form :** «  Je ne connais pas encore ton revenu, donc je ne peux pas chiffrer ton 3a précisément. Si tu me le glisses, je te montre tout de suite ce que ça donne. »
+
+---
+
+#### §13.10 — Anti-example 10 (failure family: shame induction)
+
+**Phrase :** «  Tu aurais dû commencer à cotiser plus tôt, mais ce n'est pas trop tard. »
+
+**Superficially looks like:** N3 — G2 gravity, calm relation, non-sensitive.
+
+**Actually violates:** checkpoint #6 (explicit "you should have"), checkpoint #3 (past-conditional prescription), checkpoint #1 (implicit comparison to an on-time self).
+
+**Why this fails:** the "mais ce n'est pas trop tard" pivot is fake reassurance — the first half of the sentence has already done the shaming.
+
+**Corrected form :** «  À partir d'aujourd'hui, chaque année de cotisation 3a te fait gagner environ 200 CHF par mois à la retraite. Voilà ce que ça donne sur ta situation. »
+
+---
+
+#### §13.11 — Anti-example 11 (failure family: shame induction)
+
+**Phrase :** «  Beaucoup d'utilisateurs négligent leur LPP. Ne fais pas la même erreur. »
+
+**Superficially looks like:** N3 — G2 gravity, neutral relation, non-sensitive.
+
+**Actually violates:** checkpoint #1 (cohort comparison) and checkpoint #6 (presupposes the user is about to fail).
+
+**Why this fails:** combines a comparison setup with a preemptive shame trigger ("la même erreur" — what error? the user hasn't done anything yet).
+
+**Corrected form :** «  Ton certificat LPP contient une ligne — le salaire assuré — qui décide de presque toute ta retraite future. Tu veux que je te montre la tienne ? »
+
+---
+
+#### §13.12 — Anti-example 12 (failure family: tone-lock / false intensity)
+
+**Phrase :** «  Attention.
+
+C'est important.
+
+Vraiment. »
+
+**Superficially looks like:** N5 — G4 gravity, sharp relation, non-sensitive.
+
+**Actually violates:** checkpoint #4 (intensity from punctuation, not from a personal stake) — this is the exact failure mode VOICE-06 reverse-Krippendorff is built to catch.
+
+**Why this fails:** the breath separators and short fragments mimic N5 cadence, but there is zero meaning carried — three sentences that say nothing about the user. Tone-lock by formatting.
+
+**Corrected form :** «  [N5] Tu signes mardi. Ton conseiller touche 4'200 CHF de commission sur ce contrat. Lis la clause 7. »
+
+---
+
+#### §13.13 — Anti-example 13 (failure family: tone-lock / false intensity)
+
+**Phrase :** «  Ce point — et c'est crucial, vraiment crucial — mérite toute ton attention dès maintenant. »
+
+**Superficially looks like:** N4 — G3 gravity, sharp relation, non-sensitive.
+
+**Actually violates:** checkpoint #4 (false intensity — the em-dashes and the doubled "crucial" do all the work; no fact, no number, no personal stake).
+
+**Why this fails:** verbose N2 content wearing N4 punctuation. Strip the dashes and "vraiment" and the sentence collapses to "ce point mérite ton attention", which is filler.
+
+**Corrected form :** «  Sur ton contrat, la clause 12 prévoit une pénalité de 8% si tu sors avant 5 ans. Tu prévois de rester combien de temps ? »
+
+---
+
+#### §13.14 — Anti-example 14 (failure family: tone-lock / false intensity)
+
+**Phrase :** «  Stop.
+
+Respire.
+
+On reprend depuis le début. »
+
+**Superficially looks like:** N5 — fragile relation, sensitive context.
+
+**Actually violates:** checkpoint #4 (cadence without content) and the spec §10 hard rule that N5 must carry a load-bearing fact.
+
+**Why this fails:** mimics the breath-rhythm of an N5 emergency without any of the substance. A real N5 phrase carries a number, a name, or a deadline; this carries a posture only.
+
+**Corrected form :** «  [N1] Tu n'as pas à décider aujourd'hui. Ton délai légal pour répondre court jusqu'au 28. On a le temps. »
+
+---
+
+#### §13.15 — Anti-example 15 (failure family: banned terms at high register)
+
+<!-- anti-example: contains banned terms by design -->
+**Phrase :** «  Cette stratégie 3a est optimale pour toi : un rendement garanti à long terme. »
+
+**Superficially looks like:** N3 — G2 gravity, calm relation, non-sensitive.
+
+**Actually violates:** CLAUDE.md §6 banned terms ("optimale", "garanti") + checkpoint #3 (absolute-framing prescription) + No-Promise compliance rule.
+
+**Why this fails:** double compliance violation in eleven words. Looks like a confident MINT recommendation; is in fact a textbook LSFin breach.
+
+**Corrected form :** «  Sur les 20 dernières années, une enveloppe 3a en titres a en moyenne dépassé un compte bancaire de 2 à 4% par an — sans garantie, et avec des années négatives. C'est un pari, pas une certitude. »
+
+---
+
+#### §13.16 — Anti-example 16 (failure family: banned terms at high register)
+
+<!-- anti-example: contains banned terms by design -->
+**Phrase :** «  Parle à ton conseiller pour choisir le meilleur produit, sans risque. »
+
+**Superficially looks like:** N2 — G1 gravity, calm relation, non-sensitive.
+
+**Actually violates:** banned terms ("conseiller" → use "spécialiste"; "meilleur" as absolute; "sans risque") + No-Advice rule.
+
+**Why this fails:** three banned terms in one sentence, each individually subtle, collectively a No-Advice + No-Promise breach. The "parle à ton conseiller" framing also outsources MINT's role.
+
+**Corrected form :** «  Si tu veux creuser, un·e spécialiste indépendant·e peut comparer plusieurs produits avec toi. MINT ne te dit pas lequel choisir — mais peut te dire quoi vérifier avant de signer. »
+
+---
+
+#### §13.17 — Anti-example 17 (failure family: banned terms at high register)
+
+<!-- anti-example: contains banned terms by design -->
+**Phrase :** «  C'est la solution parfaite pour ta situation, tu peux y aller en toute sécurité. »
+
+**Superficially looks like:** N3 — G2 gravity, calm relation, non-sensitive.
+
+**Actually violates:** banned terms ("parfaite", "toute sécurité") + checkpoint #3 (absolute prescription) + No-Promise rule.
+
+**Why this fails:** "parfaite" is a forbidden absolute and "toute sécurité" is a guarantee in disguise. The whole sentence is a recommendation MINT is structurally forbidden from making.
+
+**Corrected form :** «  Cette option colle à ce que tu m'as dit de tes priorités. Avant de la confirmer, voici les trois questions à poser au vendeur : [...]. »
+
+---
+
+#### §13.18 — Anti-example 18 (failure family: sensitivity violation)
+
+**Phrase :** «  Maintenant qu'il est parti, tu vas devoir te remettre vite. Voici tes priorités : 1, 2, 3. »
+
+**Superficially looks like:** N4 — G4 gravity, sharp relation, sensitive (deuil).
+
+**Actually violates:** spec §5 hard N3 cap on sensitive topics (deuil) + checkpoint #3 (imperative) + checkpoint #4 (no personal stake, just a generic checklist).
+
+**Why this fails:** N4 register on a `deathOfRelative` event is a hard ban — the sensitive-topic cap precedes everything else. "Te remettre vite" adds insult by minimizing the grief timeline.
+
+**Corrected form :** «  [N1, deuil cap] Il n'y a rien à faire dans l'urgence cette semaine. Quand tu seras prêt·e, je t'aiderai à comprendre ce qui change pour toi côté finances — pas avant. »
+
+---
+
+#### §13.19 — Anti-example 19 (failure family: sensitivity violation)
+
+**Phrase :** «  Tu viens de perdre ton emploi : agis vite, chaque jour compte. Voici un plan en 5 étapes. »
+
+**Superficially looks like:** N5 — G4 gravity, sharp relation, sensitive (perteEmploi).
+
+**Actually violates:** §5 N3 cap on `jobLoss` + checkpoint #3 (imperative under stress) + checkpoint #6 (implies the user is already failing by not having a plan).
+
+**Why this fails:** the urgency framing is exactly what the sensitive-topic cap exists to prevent. A user in job-loss stress needs N1-N2 calm, not a 5-step ultimatum.
+
+**Corrected form :** «  [N2, jobLoss cap] Tu as 90 jours pour t'inscrire au chômage et 30 jours pour ta caisse-maladie. C'est tout pour cette semaine. Le reste, on regardera quand tu auras la tête. »
+
+---
+
+#### §13.20 — Anti-example 20 (failure family: sensitivity violation)
+
+**Phrase :** «  Le divorce est l'occasion parfaite pour repartir sur de bonnes bases financières. »
+
+**Superficially looks like:** N4 — G3 gravity, calm relation, sensitive (divorce).
+
+**Actually violates:** §5 N3 cap on `divorce` + banned term ("parfaite") + checkpoint #4 (recasts a painful event as an opportunity without the user asking) + No-Promise.
+
+**Why this fails:** the "occasion parfaite" framing is the silver-lining trap — it sounds positive and is in fact a denial of the user's emotional reality. On a sensitive topic this is doubly forbidden.
+
+**Corrected form :** «  [N2, divorce cap] Le partage du 2e pilier suit une règle précise : tout ce qui a été cotisé pendant le mariage est divisé. Quand tu voudras, je te montrerai ce que ça donne sur tes chiffres. Pas d'urgence. »
+
+---
+
+### §13.R — Reading rule (anti-example reuse policy)
+
+The 20 corrected forms above are **writing exemplars**, not corpus candidates. They are intentionally excluded from `tools/voice_corpus/frozen_phrases_v1.json` and they will remain excluded even if they would otherwise pass all six anti-shame checkpoints. Rationale: any phrase that has been printed in §13 has been seen by Phase 11 raters during their training pass on this spec. A rater who later encounters the same phrase as a corpus item would classify it from memory, not from the rubric — that is calibration drift by construction. Authors who want to reuse the *idea* of a corrected form should rewrite it from scratch, with different vocabulary, before considering it for corpus inclusion. The semantic territory of each anti-example is burned for corpus purposes; the doctrinal lesson it carries is not.
+
+A second reading rule: §13 is the **only** place in this spec where banned terms (per CLAUDE.md §6) may legally appear, and only inside anti-example phrases marked with the HTML comment `<!-- anti-example: contains banned terms by design -->`. Any future grep-based compliance lint must skip lines preceded by that marker. Banned terms appearing anywhere else in the spec, or inside a corrected form, are bugs.
 
 ---
 
