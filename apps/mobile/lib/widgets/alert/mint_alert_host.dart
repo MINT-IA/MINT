@@ -128,9 +128,17 @@ class _MintAlertHostState extends State<MintAlertHost> {
     super.dispose();
   }
 
-  AnnounceFn get _announce =>
-      // ignore: deprecated_member_use
-      widget.announce ?? SemanticsService.announce;
+  /// Default announce implementation using the non-deprecated
+  /// [SemanticsService.sendAnnouncement] API. Falls back to a no-op if
+  /// no [View] is attached (very early frames under some test bindings).
+  void _defaultAnnounce(String message, TextDirection direction) {
+    if (!mounted) return;
+    final view = View.maybeOf(context);
+    if (view == null) return;
+    SemanticsService.sendAnnouncement(view, message, direction);
+  }
+
+  AnnounceFn get _announce => widget.announce ?? _defaultAnnounce;
 
   Future<void> _defaultRecordAck(BiographyFact fact) async {
     final repo = await BiographyRepository.instance();
