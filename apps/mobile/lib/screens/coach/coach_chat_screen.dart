@@ -36,6 +36,7 @@ import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -457,7 +458,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           if (mounted) _sendMessage(message);
         },
         onNavigate: (route) {
-          if (mounted) context.push(route);
+          if (!mounted) return;
+          // CHAT-02: Open as drawer over chat instead of full-page push.
+          final widget = ChatDrawerHost.resolveDrawerWidget(route);
+          if (widget != null) {
+            showChatDrawer(context: context, child: widget);
+          }
         },
       ),
     );
@@ -1326,7 +1332,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
     final route = _routeForAction(action);
     if (route != null) {
-      context.push(route);
+      // CHAT-02: Open as drawer over chat instead of full-page push.
+      final drawerWidget = ChatDrawerHost.resolveDrawerWidget(route);
+      if (drawerWidget != null) {
+        showChatDrawer(context: context, child: drawerWidget);
+      }
     } else {
       _sendMessage(action);
     }
