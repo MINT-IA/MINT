@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: Simplification Radicale
-status: Roadmap created — Phase 1 not started
-stopped_at: ROADMAP.md + REQUIREMENTS.md traceability written, awaiting /gsd-plan-phase 1
+status: Phase 1 in progress — sub-plan 01-01a complete (scope infra + router migration + guard)
+stopped_at: Completed 01-01a-PLAN.md, next is 01-01b (tests) then 01-01c (verification)
 last_updated: "2026-04-09T00:00:00.000Z"
 last_activity: 2026-04-09 — gsd-roadmapper created 6 phases, 33/33 requirements mapped
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
+  total_plans: 1
   completed_plans: 0
   percent: 0
 ---
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 1 — Architectural foundation (not started)
-Plan: —
-Status: Roadmap created, awaiting `/gsd-plan-phase 1`
-Last activity: 2026-04-09 — Roadmap written: 6 phases, 33/33 requirements mapped
+Phase: 1 — Architectural foundation (in progress)
+Plan: 01-01a COMPLETE, 01-01b next
+Status: Sub-plan 01-01a executed — RouteScope + ScopedGoRoute + scope-based guard live
+Last activity: 2026-04-09 — 01-01a executed: 144 routes migrated, scope-based guard replaces protectedPrefixes
 
 ## Phase Map (v2.3)
 
@@ -79,7 +79,7 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 
 ### Pending Todos
 
-- Run `/gsd-plan-phase 1` to decompose Phase 1 into plans
+- Run `/gsd-execute-phase 1` to execute 01-01-PLAN.md
 
 ### Blockers/Concerns
 
@@ -88,5 +88,5 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 ## Session Continuity
 
 Last session: 2026-04-09
-Stopped at: Roadmap created, 33/33 requirements mapped, Phase 1 ready to plan
-Resume file: None — next step is `/gsd-plan-phase 1`
+Stopped at: Completed 01-01a-PLAN.md (scope infra + router migration + guard replacement)
+Resume file: .planning/phases/01-architectural-foundation/01-01b-PLAN.md
