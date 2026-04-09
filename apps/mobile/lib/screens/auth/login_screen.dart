@@ -50,9 +50,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final completed = await ReportPersistenceService.isMiniOnboardingCompleted();
     if (!mounted) return;
     if (completed) {
-      context.go('/home');
+      context.go('/coach/chat');
     } else {
-      context.go('/onboarding/intent');
+      context.go('/coach/chat?prompt=onboarding');
     }
   }
 
@@ -476,7 +476,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: authProvider.isLoading
                                 ? null
                                 : () {
-                                    context.go('/onboarding/intent');
+                                    context.go('/coach/chat');
                                   },
                             child: Text(l10n.authContinueLocal),
                           ),

@@ -282,8 +282,8 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CockpitDetailScreen(),
     ),
-    // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to Coach tab.
-    ScopedGoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
+    // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
+    ScopedGoRoute(path: '/coach/checkin', redirect: (_, __) => '/coach/chat'),
     ScopedGoRoute(
       path: '/coach/refresh',
       parentNavigatorKey: _rootNavigatorKey,
@@ -611,7 +611,24 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final extra = state.extra as Map<String, dynamic>? ?? {};
-        return FinancialReportScreenV2(wizardAnswers: extra);
+        if (extra.isNotEmpty) {
+          return FinancialReportScreenV2(wizardAnswers: extra);
+        }
+        // Fallback: load persisted wizard answers when navigating
+        // back to /rapport without state.extra (e.g. deep link, back nav).
+        return FutureBuilder<Map<String, dynamic>>(
+          future: ReportPersistenceService.loadAnswers(),
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return FinancialReportScreenV2(
+              wizardAnswers: snapshot.data ?? {},
+            );
+          },
+        );
       },
     ),
     ScopedGoRoute(path: '/report', redirect: (_, __) => '/rapport'),
@@ -778,8 +795,8 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AskMintScreen(),
     ),
-    // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to Coach tab.
-    ScopedGoRoute(path: '/tools', redirect: (_, __) => '/home?tab=1'),
+    // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
+    ScopedGoRoute(path: '/tools', redirect: (_, __) => '/coach/chat'),
     ScopedGoRoute(
       path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,
@@ -898,16 +915,18 @@ final _router = GoRouter(
     ),
 
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
-    ScopedGoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
-    ScopedGoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
+    // NAV-AUDIT: all legacy routes now redirect directly to /coach/chat
+    // (previously multi-hop via /home or /onboarding/quick — params were lost)
+    ScopedGoRoute(path: '/advisor', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/coach/chat'),
     ScopedGoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
-      if (section == null || section.isEmpty) return '/onboarding/quick';
-      return '/onboarding/quick?section=$section';
+      if (section == null || section.isEmpty) return '/coach/chat';
+      return '/coach/chat?prompt=$section';
     }),
-    ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/onboarding/quick'),
-    ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, __) => '/onboarding/quick'),
+    ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
     ScopedGoRoute(path: '/onboarding/enrichment', scope: RouteScope.onboarding, redirect: (_, __) => '/profile/bilan'),
   ],
 );
@@ -1183,9 +1202,10 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
           await ReportPersistenceService.isMiniOnboardingCompleted();
       if (!mounted) return;
       if (completed) {
-        context.go('/home');
+        context.go('/coach/chat');
       } else {
-        context.go('/onboarding/intent');
+        // NAV-AUDIT: welcome prompt triggers onboarding flow in coach
+        context.go('/coach/chat?prompt=onboarding');
       }
     } else {
       setState(() {
@@ -1273,8 +1293,8 @@ class _MintErrorScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
-                onPressed: () => context.go('/home'),
-                icon: const Icon(Icons.home_outlined),
+                onPressed: () => context.go('/coach/chat'),
+                icon: const Icon(Icons.chat_outlined),
                 label: const Text('Retour à l\'accueil'),
               ),
             ],

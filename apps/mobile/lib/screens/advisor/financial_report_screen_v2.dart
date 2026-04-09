@@ -65,7 +65,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new),
-            onPressed: () => context.go('/home'),
+            onPressed: () => context.go('/coach/chat'),
           ),
         ),
         body: MintEmptyState(
@@ -73,7 +73,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
           title: S.of(context)!.financialReportEmptyTitle,
           subtitle: S.of(context)!.financialReportEmptySubtitle,
           ctaLabel: S.of(context)!.financialReportEmptyCta,
-          onCta: () => context.go('/onboarding/intent'),
+          onCta: () => context.go('/coach/chat'),
         ),
       );
     }
@@ -91,7 +91,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.go('/coach/chat'),
         ),
         actions: [
           IconButton(

@@ -359,7 +359,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
         Icons.favorite_outline,
         l.b2bModuleWellness,
         l.b2bModuleWellnessSubtitle,
-        '/home',
+        '/coach/chat',
       ),
       '3a' => (
         Icons.savings_outlined,
@@ -377,7 +377,7 @@ class _B2bHubScreenState extends State<B2bHubScreen> {
         Icons.extension_outlined,
         module,
         '',
-        '/home',
+        '/coach/chat',
       ),
     };
 

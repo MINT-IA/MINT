@@ -98,7 +98,7 @@ class _ExpertTierScreenState extends State<ExpertTierScreen> {
     final provider = context.read<CoachProfileProvider>();
     if (!provider.hasProfile) {
       // Redirect to onboarding if no profile exists.
-      context.push('/onboarding/intent');
+      context.push('/coach/chat');
       return;
     }
 

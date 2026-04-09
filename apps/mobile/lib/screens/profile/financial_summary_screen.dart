@@ -85,7 +85,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         title: S.of(context)!.financialSummaryNoProfile,
         subtitle: '', // No subtitle in original
         ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
-        onCta: () => context.push('/onboarding/intent'),
+        onCta: () => context.push('/coach/chat'),
       ),
     );
   }
@@ -323,7 +323,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                   await ReportPersistenceService.clear();
                   await SmartOnboardingDraftService.clearDraft();
                   if (context.mounted) {
-                    context.push('/onboarding/quick');
+                    context.push('/coach/chat');
                   }
                 },
                 icon: const Icon(Icons.refresh, size: 18),

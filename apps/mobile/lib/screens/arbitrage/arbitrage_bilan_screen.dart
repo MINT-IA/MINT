@@ -50,7 +50,7 @@ class ArbitrageBilanScreen extends StatelessWidget {
                 )),
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: FilledButton(
-                  onPressed: () => context.push('/onboarding/quick'),
+                  onPressed: () => context.push('/coach/chat'),
                   child: Text(S.of(context)!.reportCommencer),
                 )),
               ],

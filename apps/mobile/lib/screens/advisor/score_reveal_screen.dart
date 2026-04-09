@@ -259,66 +259,82 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
           _pulseController,
         ]),
         builder: (context, _) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.lerp(
-                    MintColors.white,
-                    MintColors.nearBlack,
-                    _backgroundOpacity.value,
-                  )!,
-                  Color.lerp(
-                    MintColors.white,
-                    MintColors.darkNight,
-                    _backgroundOpacity.value,
-                  )!,
-                  Color.lerp(
-                    MintColors.white,
-                    MintColors.darkDeep,
-                    _backgroundOpacity.value,
-                  )!,
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
-            child: SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).padding.top -
-                        MediaQuery.of(context).padding.bottom,
+          return Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.lerp(
+                        MintColors.white,
+                        MintColors.nearBlack,
+                        _backgroundOpacity.value,
+                      )!,
+                      Color.lerp(
+                        MintColors.white,
+                        MintColors.darkNight,
+                        _backgroundOpacity.value,
+                      )!,
+                      Color.lerp(
+                        MintColors.white,
+                        MintColors.darkDeep,
+                        _backgroundOpacity.value,
+                      )!,
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: MintSpacing.xxl),
-                        MintEntrance(child: _buildPhase1Title()),
-                        const SizedBox(height: MintSpacing.xl + 4),
-                        MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPhase2Gauge()),
-                        const SizedBox(height: MintSpacing.xl),
-                        MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPhase3SubScores()),
-                        const SizedBox(height: MintSpacing.lg + 4),
-                        MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPhase4CoachMessage()),
-                        const SizedBox(height: MintSpacing.xl),
-                        MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPhase5Cta()),
-                        const SizedBox(height: MintSpacing.xxl),
-                        _buildDisclaimer(),
-                        const SizedBox(height: MintSpacing.lg),
-                      ],
+                ),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height -
+                            MediaQuery.of(context).padding.top -
+                            MediaQuery.of(context).padding.bottom,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: MintSpacing.xxl),
+                            MintEntrance(child: _buildPhase1Title()),
+                            const SizedBox(height: MintSpacing.xl + 4),
+                            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPhase2Gauge()),
+                            const SizedBox(height: MintSpacing.xl),
+                            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPhase3SubScores()),
+                            const SizedBox(height: MintSpacing.lg + 4),
+                            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPhase4CoachMessage()),
+                            const SizedBox(height: MintSpacing.xl),
+                            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPhase5Cta()),
+                            const SizedBox(height: MintSpacing.xxl),
+                            _buildDisclaimer(),
+                            const SizedBox(height: MintSpacing.lg),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              // ── Always-visible close button (escape hatch) ──
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                right: 16,
+                child: IconButton(
+                  onPressed: () => context.canPop()
+                      ? context.pop()
+                      : context.go('/coach/chat'),
+                  icon: const Icon(Icons.close, color: Colors.white70, size: 24),
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -683,7 +699,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
               width: double.infinity,
               child: FilledButton(
               onPressed: _ctaOpacity.value > 0.5
-                  ? () => context.go('/home')
+                  ? () => context.go('/coach/chat')
                   : null,
               style: FilledButton.styleFrom(
                 backgroundColor: _scoreColor,

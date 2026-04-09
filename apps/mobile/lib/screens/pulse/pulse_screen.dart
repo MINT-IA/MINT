@@ -735,7 +735,7 @@ class _PulseScreenState extends State<PulseScreen> {
                 width: double.infinity,
                 height: 52,
                 child: FilledButton(
-                  onPressed: () => context.push('/onboarding/quick'),
+                  onPressed: () => context.push('/coach/chat'),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
                     shape: RoundedRectangleBorder(

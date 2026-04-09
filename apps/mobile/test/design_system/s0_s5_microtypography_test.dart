@@ -31,7 +31,7 @@ import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 const List<String> _s0s5Files = <String>[
   'lib/screens/landing_screen.dart',
   // KILL-01: intent_screen.dart deleted (Phase 2)
-  'lib/screens/main_tabs/mint_home_screen.dart',
+  // KILL-07: mint_home_screen.dart deleted (nav-audit-fixes)
   'lib/widgets/coach/coach_message_bubble.dart',
   'lib/widgets/coach/response_card_widget.dart',
   // Phase 9 D-08: debt_alert_banner.dart deleted; mint_alert_object.dart

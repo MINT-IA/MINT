@@ -575,7 +575,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
                 confidenceDelta: _deltaPoints / 100.0,
               ),
             );
-            context.go('/home');
+            context.go('/coach/chat');
           },
           icon: const Icon(Icons.dashboard_outlined, size: 22),
           label: Text(
@@ -623,7 +623,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         child: OutlinedButton.icon(
           onPressed: () {
             // Navigate to coach tab to discuss the impact.
-            context.go('/home?tab=1');
+            context.go('/coach/chat');
           },
           icon: const Icon(Icons.chat_bubble_outline_rounded, size: 20),
           label: Text(

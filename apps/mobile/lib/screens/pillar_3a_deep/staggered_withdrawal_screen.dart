@@ -180,7 +180,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           title: S.of(context)!.staggeredWithdrawalEmptyTitle,
           subtitle: S.of(context)!.staggeredWithdrawalEmptySubtitle,
           ctaLabel: S.of(context)!.staggeredWithdrawalEmptyCta,
-          onCta: () => context.push('/onboarding/quick'),
+          onCta: () => context.push('/coach/chat'),
         ),
       );
     }
