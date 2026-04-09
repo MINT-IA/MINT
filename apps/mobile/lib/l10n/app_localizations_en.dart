@@ -7714,7 +7714,8 @@ class SEn extends S {
       'Connection error. Check your internet connection or API key.';
 
   @override
-  String get coachSuggestSimulate3a => 'How much do I save if I max out my 3a?';
+  String get coachSuggestSimulate3a =>
+      'If I put more into my 3a, what changes?';
 
   @override
   String get coachSuggestView3a => 'How much is in my 3a accounts?';
@@ -7730,20 +7731,22 @@ class SEn extends S {
   String get coachSuggestTrajectory => 'How bad is it if I do nothing?';
 
   @override
-  String get coachSuggestScenarios => 'Annuity or lump sum — what suits me?';
+  String get coachSuggestScenarios =>
+      'Pension or capital — show me both side by side';
 
   @override
-  String get coachSuggestDeductions => 'How much tax can I get back this year?';
+  String get coachSuggestDeductions => 'How much could I get back this year?';
 
   @override
   String get coachSuggestTaxImpact => 'How much less tax with a buyback?';
 
   @override
-  String get coachSuggestFitness => 'Am I on track for my goal?';
+  String get coachSuggestFitness =>
+      'Where am I, compared to what I\'d told myself?';
 
   @override
   String get coachSuggestRetirement =>
-      'Will I have enough to live on in retirement?';
+      'At retirement, what will I have left each month?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -7777,7 +7780,7 @@ class SEn extends S {
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'A question about your finances?';
+  String get coachInputHint => 'Tell me what\'s on your mind.';
 
   @override
   String get coachUserMessage => 'Your message';
@@ -14849,7 +14852,7 @@ class SEn extends S {
 
   @override
   String get coachPulseDisclaimer =>
-      'Educational estimates — not financial advice. Past returns do not predict future returns. Consult a specialist for a personalized plan. FinSA.';
+      'Mint sheds light, Mint promises nothing. Estimates here are educational and do not constitute financial advice. Past returns do not predict future returns. For a personalized plan, talk to a specialist. FinSA.';
 
   @override
   String get coachingDescAttentif =>
@@ -20443,14 +20446,14 @@ class SEn extends S {
 
   @override
   String get coachDisclaimer =>
-      'Educational tool — answers do not constitute financial advice (FinSA art. 3). Consult a specialist for important decisions.';
+      'Mint sheds light, Mint does not advise. Answers here are educational and do not constitute financial advice under FinSA (art. 3). For an important decision, talk to a specialist.';
 
   @override
   String get coachFallbackName => 'friend';
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Hi $name. I’m looking at your numbers — tell me what’s on your mind.$scoreSuffix';
+    return 'Hi $name. Mint is looking through your numbers calmly — whenever you want, we can talk about it.$scoreSuffix';
   }
 
   @override
@@ -20874,7 +20877,8 @@ class SEn extends S {
   String get instantPremierEclairageComeBack => 'Come back anytime';
 
   @override
-  String get coachSilentOpenerQuestion => 'Want to talk about it?';
+  String get coachSilentOpenerQuestion =>
+      'Mint is here whenever you want to talk about it.';
 
   @override
   String get coachProactiveOptIn =>
@@ -21211,7 +21215,7 @@ class SEn extends S {
 
   @override
   String get coachInterruptFullCapitalRisk =>
-      '100% capital = 0 guaranteed pension. Sure?';
+      'Mint notices: 100% as capital means no monthly pension for life. Want to look at what that implies?';
 
   @override
   String get coachInterruptEplBlock => 'Warning: EPL lock-in for 3 years.';
@@ -21317,7 +21321,7 @@ class SEn extends S {
       'You can always rephrase in your own words later.';
 
   @override
-  String get intentChip3a => 'I was offered a 3a plan';
+  String get intentChip3a => 'Someone just brought up a 3a with me';
 
   @override
   String get intentChipBilan => 'I want to see where I stand';
@@ -21326,7 +21330,7 @@ class SEn extends S {
   String get intentChipPrevoyance => 'I don\'t really get my pension setup';
 
   @override
-  String get intentChipFiscalite => 'I want to stop wasting money on taxes';
+  String get intentChipFiscalite => 'I want to see clearly through my taxes';
 
   @override
   String get intentChipProjet => 'I have a project in mind';
@@ -21381,7 +21385,7 @@ class SEn extends S {
 
   @override
   String get coachOpenerIntentChangement =>
-      'You\'re going through a life change — here\'s what MINT found for you.';
+      'You\'re going through a change — Mint has looked at what it might touch, without deciding anything for you.';
 
   @override
   String get coachOpenerIntentAutre =>
@@ -21777,7 +21781,7 @@ class SEn extends S {
 
   @override
   String get coachCheckInWelcome =>
-      'Hi! I\'m here. Let\'s look at what matters to you together.';
+      'Hi! Mint is here. Whenever you want, we look together at what matters this month.';
 
   @override
   String get docNotFinancial =>
@@ -22142,4 +22146,44 @@ class SEn extends S {
 
   @override
   String get landingV2CtaSober => 'Get started';
+
+  String get tonChooserTitle => 'Pick how Mint speaks to you';
+
+  @override
+  String get tonChooserSubtitle =>
+      'How Mint talks to you. You can change this anytime.';
+
+  @override
+  String get tonSoftLabel => 'Gentle';
+
+  @override
+  String get tonDirectLabel => 'Direct';
+
+  @override
+  String get tonUnfilteredLabel => 'Unfiltered';
+
+  @override
+  String get tonSoftExample => 'We\'ll take it slow.';
+
+  @override
+  String get tonDirectExample => 'Here\'s what it actually means.';
+
+  @override
+  String get tonUnfilteredExample => 'No filter. You want to know.';
+
+  @override
+  String get tonSkipLater => 'Later';
+
+  @override
+  String get tonSyncFailedToast =>
+      'Mint couldn\'t save that choice. We\'ll try again later.';
+
+  @override
+  String get tonSelectedSemantics => 'Selected';
+
+  @override
+  String get tonNotSelectedSemantics => 'Not selected';
+
+  @override
+  String get tonSectionLabel => 'Voice';
 }

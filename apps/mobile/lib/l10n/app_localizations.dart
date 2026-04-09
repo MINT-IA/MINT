@@ -13785,7 +13785,7 @@ abstract class S {
   /// No description provided for @coachSuggestSimulate3a.
   ///
   /// In fr, this message translates to:
-  /// **'Combien j’économise si je verse le max ?'**
+  /// **'Si je verse plus sur mon 3a, ça change quoi ?'**
   String get coachSuggestSimulate3a;
 
   /// No description provided for @coachSuggestView3a.
@@ -13815,13 +13815,13 @@ abstract class S {
   /// No description provided for @coachSuggestScenarios.
   ///
   /// In fr, this message translates to:
-  /// **'Rente ou capital — qu’est-ce qui me convient ?'**
+  /// **'Rente ou capital — montre-moi les deux côte à côte'**
   String get coachSuggestScenarios;
 
   /// No description provided for @coachSuggestDeductions.
   ///
   /// In fr, this message translates to:
-  /// **'Combien je récupère cette année ?'**
+  /// **'Combien je pourrais récupérer cette année ?'**
   String get coachSuggestDeductions;
 
   /// No description provided for @coachSuggestTaxImpact.
@@ -13833,13 +13833,13 @@ abstract class S {
   /// No description provided for @coachSuggestFitness.
   ///
   /// In fr, this message translates to:
-  /// **'Je suis où par rapport à mon objectif ?'**
+  /// **'Je suis où, par rapport à ce que je m\'étais dit ?'**
   String get coachSuggestFitness;
 
   /// No description provided for @coachSuggestRetirement.
   ///
   /// In fr, this message translates to:
-  /// **'J’aurai assez pour vivre à la retraite ?'**
+  /// **'À la retraite, il me restera quoi chaque mois ?'**
   String get coachSuggestRetirement;
 
   /// No description provided for @coachEmptyStateMessage.
@@ -13905,7 +13905,7 @@ abstract class S {
   /// No description provided for @coachInputHint.
   ///
   /// In fr, this message translates to:
-  /// **'Une question sur tes finances ?'**
+  /// **'Dis-moi ce qui te trotte dans la tête.'**
   String get coachInputHint;
 
   /// No description provided for @coachUserMessage.
@@ -16774,7 +16774,7 @@ abstract class S {
   /// No description provided for @genderGapIntro.
   ///
   /// In fr, this message translates to:
-  /// **'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le curseur pour voir l\'impact.'**
+  /// **'La déduction de coordination (CHF 26\'460) n\'est pas proratisée pour le temps partiel, ce qui pénalise davantage les personnes travaillant à temps réduit. Déplace le sélecteur pour voir l\'impact.'**
   String get genderGapIntro;
 
   /// No description provided for @genderGapTauxActivite.
@@ -26366,7 +26366,7 @@ abstract class S {
   /// No description provided for @coachPulseDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Estimations éducatives — ne constitue pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Consulte un·e spécialiste pour un plan personnalisé. LSFin.'**
+  /// **'Mint éclaire, Mint ne promet rien. Les estimations ici sont éducatives et ne constituent pas un conseil financier. Les rendements passés ne présagent pas des rendements futurs. Pour un plan personnalisé, parle à un·e spécialiste. LSFin.'**
   String get coachPulseDisclaimer;
 
   /// No description provided for @coachingDescAttentif.
@@ -36180,7 +36180,7 @@ abstract class S {
   /// No description provided for @coachDisclaimer.
   ///
   /// In fr, this message translates to:
-  /// **'Outil éducatif — les réponses ne constituent pas un conseil financier (LSFin art. 3). Consulte un·e spécialiste pour les décisions importantes.'**
+  /// **'Mint éclaire, Mint n\'avise pas. Les réponses ici sont éducatives et ne constituent pas un conseil financier au sens de la LSFin (art. 3). Pour une décision importante, parle à un·e spécialiste.'**
   String get coachDisclaimer;
 
   /// No description provided for @coachFallbackName.
@@ -36192,7 +36192,7 @@ abstract class S {
   /// No description provided for @coachGreetingDefault.
   ///
   /// In fr, this message translates to:
-  /// **'Salut {name}. Je regarde tes chiffres — dis-moi ce qui te trotte dans la tête.{scoreSuffix}'**
+  /// **'Salut {name}. Mint regarde tes chiffres tranquillement — quand tu veux, on en parle.{scoreSuffix}'**
   String coachGreetingDefault(String name, String scoreSuffix);
 
   /// No description provided for @coachGreetingSlm.
@@ -36906,7 +36906,7 @@ abstract class S {
   /// No description provided for @coachSilentOpenerQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'Tu veux en parler ?'**
+  /// **'Mint est là quand tu veux en parler.'**
   String get coachSilentOpenerQuestion;
 
   /// No description provided for @coachProactiveOptIn.
@@ -37464,7 +37464,7 @@ abstract class S {
   /// No description provided for @coachInterruptFullCapitalRisk.
   ///
   /// In fr, this message translates to:
-  /// **'100 % capital = 0 rente garantie. Sûr ?'**
+  /// **'Mint observe : 100 % en capital, c\'est zéro rente mensuelle à vie. Tu veux qu\'on regarde ce que ça implique ?'**
   String get coachInterruptFullCapitalRisk;
 
   /// No description provided for @coachInterruptEplBlock.
@@ -37638,7 +37638,7 @@ abstract class S {
   /// No description provided for @intentChip3a.
   ///
   /// In fr, this message translates to:
-  /// **'On m\'a proposé un 3a'**
+  /// **'On vient de me parler d\'un 3a'**
   String get intentChip3a;
 
   /// No description provided for @intentChipBilan.
@@ -37656,7 +37656,7 @@ abstract class S {
   /// No description provided for @intentChipFiscalite.
   ///
   /// In fr, this message translates to:
-  /// **'Je veux payer moins bêtement'**
+  /// **'Mes impôts, j\'aimerais y voir clair'**
   String get intentChipFiscalite;
 
   /// No description provided for @intentChipProjet.
@@ -37752,7 +37752,7 @@ abstract class S {
   /// No description provided for @coachOpenerIntentChangement.
   ///
   /// In fr, this message translates to:
-  /// **'Tu vis un changement de vie — voici ce que MINT a trouvé pour toi.'**
+  /// **'Tu vis un changement — Mint a regardé ce que ça pourrait toucher, sans rien décider à ta place.'**
   String get coachOpenerIntentChangement;
 
   /// No description provided for @coachOpenerIntentAutre.
@@ -38442,7 +38442,7 @@ abstract class S {
   /// No description provided for @coachCheckInWelcome.
   ///
   /// In fr, this message translates to:
-  /// **'Salut ! Je suis là. On regarde ensemble ce qui compte pour toi ?'**
+  /// **'Salut ! Mint est là. Quand tu veux, on regarde ensemble ce qui compte ce mois-ci.'**
   String get coachCheckInWelcome;
 
   /// No description provided for @docNotFinancial.
@@ -39038,6 +39038,84 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Commencer'**
   String get landingV2CtaSober;
+
+  /// Phase 12-01 — TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis le ton de Mint'**
+  String get tonChooserTitle;
+
+  /// Phase 12-01 — TonChooser subtitle (anti-shame: all 3 options equally legitimate).
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment Mint te parle. Tu peux changer à tout moment.'**
+  String get tonChooserSubtitle;
+
+  /// Phase 12-01 — Ton option 1 label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doux'**
+  String get tonSoftLabel;
+
+  /// Phase 12-01 — Ton option 2 label (default).
+  ///
+  /// In fr, this message translates to:
+  /// **'Direct'**
+  String get tonDirectLabel;
+
+  /// Phase 12-01 — Ton option 3 label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non filtré'**
+  String get tonUnfilteredLabel;
+
+  /// Phase 12-01 — Ton soft micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'On y va doucement.'**
+  String get tonSoftExample;
+
+  /// Phase 12-01 — Ton direct micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'Voici ce que ça veut dire.'**
+  String get tonDirectExample;
+
+  /// Phase 12-01 — Ton unfiltered micro-example (≤60 chars).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de filtre. Tu veux savoir.'**
+  String get tonUnfilteredExample;
+
+  /// Phase 12-01 — TonChooserSheet skip CTA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get tonSkipLater;
+
+  /// Phase 12-01 — Neutral toast on optimistic rollback (no banned terms).
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint n\'a pas pu enregistrer ce choix. On réessaie plus tard.'**
+  String get tonSyncFailedToast;
+
+  /// Phase 12-01 — a11y suffix for selected Ton cell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionné'**
+  String get tonSelectedSemantics;
+
+  /// Phase 12-01 — a11y suffix for unselected Ton cell.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non sélectionné'**
+  String get tonNotSelectedSemantics;
+
+  /// Phase 12-01 — ProfileDrawer section heading for Ton chooser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix'**
+  String get tonSectionLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

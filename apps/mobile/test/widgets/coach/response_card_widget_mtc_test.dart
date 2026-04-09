@@ -310,6 +310,82 @@ void main() {
   });
 
   // ──────────────────────────────────────────────────────────────
+  //  p8a-wire — card.confidence fallback (façade-sans-câblage fix)
+  // ──────────────────────────────────────────────────────────────
+
+  group('card.confidence fallback', () {
+    ResponseCard _cardWithConfidence(EnhancedConfidence c) {
+      final base = _makeCard();
+      return ResponseCard(
+        id: base.id,
+        type: base.type,
+        title: base.title,
+        subtitle: base.subtitle,
+        premierEclairage: base.premierEclairage,
+        cta: base.cta,
+        urgency: base.urgency,
+        deadline: base.deadline,
+        disclaimer: base.disclaimer,
+        sources: base.sources,
+        confidence: c,
+      );
+    }
+
+    testWidgets(
+        'renders MTC from card.confidence when confidence param is null',
+        (tester) async {
+      final card = _cardWithConfidence(_mockConfidence());
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: card,
+          variant: ResponseCardVariant.sheet,
+          isProjection: true,
+          // confidence: param intentionally omitted — fallback kicks in.
+        ),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(MintTrameConfiance), findsOneWidget);
+    });
+
+    testWidgets('explicit confidence param overrides card.confidence',
+        (tester) async {
+      final cardConf = _mockConfidence(completeness: 20); // sparse → empty
+      final override = _mockConfidence(
+        completeness: 90,
+        accuracy: 90,
+        freshness: 90,
+        understanding: 90,
+      );
+      final card = _cardWithConfidence(cardConf);
+      await tester.pumpWidget(_wrap(
+        ResponseCardWidget(
+          card: card,
+          variant: ResponseCardVariant.sheet,
+          confidence: override,
+          isProjection: true,
+        ),
+      ));
+      await tester.pumpAndSettle();
+      final mtc = tester.widget<MintTrameConfiance>(
+        find.byType(MintTrameConfiance),
+      );
+      // If override wins we don't get the sparse `empty` factory.
+      expect(mtc.debugKind, isNot(MtcKind.empty));
+    });
+
+    testWidgets(
+        'ResponseCardStrip forwards isProjection when card has confidence',
+        (tester) async {
+      final card = _cardWithConfidence(_mockConfidence());
+      await tester.pumpWidget(_wrap(
+        ResponseCardStrip(cards: [card]),
+      ));
+      await tester.pumpAndSettle();
+      expect(find.byType(MintTrameConfiance), findsOneWidget);
+    });
+  });
+
+  // ──────────────────────────────────────────────────────────────
   //  TASK 2 — ARB resolution for oneLineConfidenceSummary
   // ──────────────────────────────────────────────────────────────
 

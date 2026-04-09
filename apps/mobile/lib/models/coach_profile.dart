@@ -1409,6 +1409,13 @@ class CoachProfile {
   /// (see fragilityCap rule in voice_cursor_contract.dart).
   final DateTime? fragileModeEnteredAt;
 
+  /// Phase 11 (VOICE-09/10) — rolling 30-day gravity event log.
+  /// Each entry: {"ts": ISO8601 String, "gravity": "G1"|"G2"|"G3"}.
+  /// Server-authoritative: client mirrors for offline read-only display;
+  /// the fragility detector lives backend-side (fragility_detector_service).
+  /// No PII: only the gravity label + timestamp are persisted.
+  final List<Map<String, dynamic>> recentGravityEvents;
+
   CoachProfile({
     this.firstName,
     required this.birthYear,
@@ -1450,6 +1457,7 @@ class CoachProfile {
     this.voiceCursorPreference = VoicePreference.direct,
     this.n5IssuedThisWeek = 0,
     this.fragileModeEnteredAt,
+    this.recentGravityEvents = const [],
   })  : createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
@@ -1557,6 +1565,7 @@ class CoachProfile {
           voiceCursorPreference == other.voiceCursorPreference &&
           n5IssuedThisWeek == other.n5IssuedThisWeek &&
           fragileModeEnteredAt == other.fragileModeEnteredAt &&
+          listEquals(recentGravityEvents, other.recentGravityEvents) &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
 
@@ -1571,6 +1580,7 @@ class CoachProfile {
         providers3a.length, arrivalAge, residencePermit, familyChange,
         gender, targetRetirementAge,
         voiceCursorPreference, n5IssuedThisWeek, fragileModeEnteredAt,
+        recentGravityEvents.length,
         createdAt, updatedAt,
       ]);
 
@@ -1791,6 +1801,7 @@ class CoachProfile {
     VoicePreference? voiceCursorPreference,
     int? n5IssuedThisWeek,
     DateTime? fragileModeEnteredAt,
+    List<Map<String, dynamic>>? recentGravityEvents,
   }) {
     return CoachProfile(
       firstName: firstName ?? this.firstName,
@@ -1843,6 +1854,7 @@ class CoachProfile {
           voiceCursorPreference ?? this.voiceCursorPreference,
       n5IssuedThisWeek: n5IssuedThisWeek ?? this.n5IssuedThisWeek,
       fragileModeEnteredAt: fragileModeEnteredAt ?? this.fragileModeEnteredAt,
+      recentGravityEvents: recentGravityEvents ?? this.recentGravityEvents,
     );
   }
 
@@ -2059,6 +2071,10 @@ class CoachProfile {
       fragileModeEnteredAt: json['fragileModeEnteredAt'] != null
           ? DateTime.tryParse(json['fragileModeEnteredAt'] as String)
           : null,
+      recentGravityEvents: (json['recentGravityEvents'] as List?)
+              ?.map((e) => Map<String, dynamic>.from(e as Map))
+              .toList() ??
+          const [],
     );
   }
 
@@ -2117,6 +2133,7 @@ class CoachProfile {
         'voiceCursorPreference': voiceCursorPreference.name,
         'n5IssuedThisWeek': n5IssuedThisWeek,
         'fragileModeEnteredAt': fragileModeEnteredAt?.toIso8601String(),
+        'recentGravityEvents': recentGravityEvents,
       };
 
   // ════════════════════════════════════════════════════════════════

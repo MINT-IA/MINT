@@ -128,9 +128,15 @@ class _MintAlertHostState extends State<MintAlertHost> {
     super.dispose();
   }
 
-  AnnounceFn get _announce =>
-      // ignore: deprecated_member_use
-      widget.announce ?? SemanticsService.announce;
+  /// Default announce implementation using [SemanticsService.announce] —
+  /// the stable API on Flutter 3.27.x pinned by CI. `sendAnnouncement`
+  /// only exists on newer Flutter versions and breaks the build.
+  void _defaultAnnounce(String message, TextDirection direction) {
+    if (!mounted) return;
+    SemanticsService.announce(message, direction);
+  }
+
+  AnnounceFn get _announce => widget.announce ?? _defaultAnnounce;
 
   Future<void> _defaultRecordAck(BiographyFact fact) async {
     final repo = await BiographyRepository.instance();

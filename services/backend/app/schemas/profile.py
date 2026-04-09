@@ -83,6 +83,14 @@ class ProfileBase(BaseModel):
         default=None,
         description="Timestamp when fragile mode was entered. Null = not active.",
     )
+    # ⭐ Phase 11 (VOICE-09/10) — rolling 30-day gravity event log.
+    # Each entry: {"ts": ISO8601, "gravity": "G1"|"G2"|"G3"}.
+    # Used by fragility_detector_service to detect ≥3 G2/G3 in a 14-day window.
+    # No PII: only the gravity label + timestamp are persisted.
+    recentGravityEvents: list[dict] = Field(
+        default_factory=list,
+        description="Rolling 30-day list of gravity events (Phase 11 fragility detector).",
+    )
 
     @model_validator(mode='after')
     def validate_employment_lpp_consistency(self):
@@ -159,6 +167,7 @@ class ProfileUpdate(BaseModel):
     voiceCursorPreference: Optional[VoicePreference] = None
     n5IssuedThisWeek: Optional[int] = Field(None, ge=0)
     fragileModeEnteredAt: Optional[datetime] = None
+    recentGravityEvents: Optional[list[dict]] = None
 
 
 class Profile(ProfileBase):

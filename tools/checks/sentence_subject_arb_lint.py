@@ -109,10 +109,143 @@ def scan(repo_root: Path) -> list[tuple[str, str, str, str]]:
     return violations
 
 
+# =============================================================================
+# Phase 11 Plan 11-05 — VOICE-14: @meta level annotation enforcement
+# =============================================================================
+#
+# Doctrine: every NEW user-facing coach/chat/alert ARB phrase must declare its
+# voice-cursor level (N1..N5) in its @meta block as
+#     "@<key>": { "x-mint-meta": { "level": "N3", ... } }
+# so the Phase 11 voice cursor stays auditable. Pre-Phase-11 keys are
+# grandfathered via tools/checks/arb_meta_level_grandfathered.txt.
+#
+# A NEW key in scope without an @meta level => exit 1 (CI red).
+# Grandfathered key without annotation => allowed (warning in --verbose).
+
+LEVEL_SCOPE = re.compile(r"^(coach|chat|messageCoach|intentChip|mintHome|alert)")
+LEVEL_VALUE_RE = re.compile(r"^N[1-5]$")
+GRANDFATHER_FILE = "tools/checks/arb_meta_level_grandfathered.txt"
+
+
+def _scoped_keys(arb_data: dict) -> list[str]:
+    return [
+        k
+        for k in arb_data
+        if not k.startswith("@") and isinstance(arb_data[k], str) and LEVEL_SCOPE.match(k)
+    ]
+
+
+def _key_level(arb_data: dict, key: str) -> str | None:
+    meta = arb_data.get("@" + key)
+    if not isinstance(meta, dict):
+        return None
+    xmeta = meta.get("x-mint-meta")
+    if isinstance(xmeta, dict) and isinstance(xmeta.get("level"), str):
+        return xmeta["level"]
+    if isinstance(meta.get("level"), str):
+        return meta["level"]
+    return None
+
+
+def _load_grandfather(repo_root: Path) -> set[str]:
+    p = repo_root / GRANDFATHER_FILE
+    if not p.exists():
+        return set()
+    out: set[str] = set()
+    for line in p.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if not s or s.startswith("#"):
+            continue
+        out.add(s)
+    return out
+
+
+def check_level_annotation(repo_root: Path) -> list[tuple[str, str]]:
+    """Return list of (key, reason) for scoped keys missing a valid @meta level
+    annotation and not present in the grandfather allowlist."""
+    arb_path = repo_root / ARB_FILE
+    if not arb_path.exists():
+        return []
+    data = json.loads(arb_path.read_text(encoding="utf-8"))
+    grandfather = _load_grandfather(repo_root)
+    failures: list[tuple[str, str]] = []
+    for key in _scoped_keys(data):
+        if key in grandfather:
+            continue
+        level = _key_level(data, key)
+        if level is None:
+            failures.append(
+                (
+                    key,
+                    "missing @meta level — add "
+                    '"@' + key + '": { "x-mint-meta": { "level": "N3" } } '
+                    "(N1=murmure … N5=tonnerre)",
+                )
+            )
+            continue
+        if not LEVEL_VALUE_RE.match(level):
+            failures.append(
+                (key, f"invalid level {level!r} — must match ^N[1-5]$")
+            )
+    return failures
+
+
+def generate_grandfather(repo_root: Path) -> int:
+    """Write the grandfather allowlist for every currently-unannotated scoped
+    key. Returns the count written."""
+    arb_path = repo_root / ARB_FILE
+    data = json.loads(arb_path.read_text(encoding="utf-8"))
+    missing = sorted(
+        k for k in _scoped_keys(data) if _key_level(data, k) is None
+    )
+    out = repo_root / GRANDFATHER_FILE
+    out.parent.mkdir(parents=True, exist_ok=True)
+    header = (
+        "# grandfathered Phase 11 baseline; new keys must annotate\n"
+        "# format: one ARB key per line; lines starting with # are comments.\n"
+        "# regenerate via: python3 tools/checks/sentence_subject_arb_lint.py "
+        "--generate-grandfather\n"
+    )
+    out.write_text(header + "\n".join(missing) + "\n", encoding="utf-8")
+    return len(missing)
+
+
 def main() -> int:
+    if "--generate-grandfather" in sys.argv:
+        repo_root = Path(__file__).resolve().parents[2]
+        n = generate_grandfather(repo_root)
+        print(
+            f"sentence_subject_arb_lint: wrote {n} grandfathered keys to "
+            f"{GRANDFATHER_FILE}"
+        )
+        return 0
+
     verbose = "--verbose" in sys.argv
     repo_root = Path(__file__).resolve().parents[2]
     violations = scan(repo_root)
+
+    # @meta level annotation enforcement (VOICE-14)
+    level_failures = check_level_annotation(repo_root)
+    if level_failures:
+        print(
+            f"sentence_subject_arb_lint: FAIL — {len(level_failures)} VOICE-14 "
+            "@meta level annotation violation(s):",
+            file=sys.stderr,
+        )
+        for key, reason in level_failures:
+            print(f"  {ARB_FILE} :: {key}", file=sys.stderr)
+            print(f"    fix: {reason}", file=sys.stderr)
+        print(
+            "\nVOICE-14 rule: every new coach/chat/messageCoach/intentChip/"
+            "mintHome/alert ARB key must declare its voice-cursor level in its "
+            "@meta block. Pre-Phase-11 keys are grandfathered in "
+            f"{GRANDFATHER_FILE}.",
+            file=sys.stderr,
+        )
+        # fall through to report scan() violations too, then exit 1.
+        level_fail = True
+    else:
+        level_fail = False
 
     if verbose:
         path = repo_root / ARB_FILE
@@ -125,9 +258,12 @@ def main() -> int:
             )
 
     if not violations:
+        if level_fail:
+            return 1
         print(
             "sentence_subject_arb_lint: OK — "
-            "no banned user-as-subject patterns in scoped confidence keys"
+            "no banned user-as-subject patterns in scoped confidence keys "
+            "and all scoped coach/chat/alert keys carry @meta level (or are grandfathered)"
         )
         return 0
 

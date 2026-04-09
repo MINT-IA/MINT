@@ -449,3 +449,117 @@ def _build_context_section(ctx: CoachContext) -> str:
     )
 
     return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# N5 hard gate (Phase 11 / VOICE-09)
+# ---------------------------------------------------------------------------
+#
+# Server-authoritative cap: at most 1 N5 response per user per rolling
+# 7-day window. Per CONTEXT D-05, the "downgrade" is a deterministic
+# template-level rewrite (we simply pick N4 for generation), NOT a
+# re-LLM call. The downgrade hook MUST run BEFORE the LLM is invoked
+# AND BEFORE ComplianceGuard. The increment hook is called ONLY when
+# an N5 actually emits — never on the downgraded path.
+#
+# Storage layout (lives inside Profile.recentGravityEvents-style JSON):
+#   Profile.n5IssuedThisWeek : int  (denormalised counter — len of log
+#       after stale-purge). Updated by `register_n5_emission`.
+#
+# This module exposes pure helpers; the request pipeline (coach API
+# endpoint) is responsible for calling them around its level selection
+# and response-emit phases.
+
+import logging as _n5_logging
+from datetime import datetime as _n5_dt, timedelta as _n5_td, timezone as _n5_tz
+
+_n5_logger = _n5_logging.getLogger(__name__)
+
+N5_WINDOW_DAYS = 7
+N5_MAX_PER_WINDOW = 1
+N5_LEVEL = 5
+N5_DOWNGRADE_TARGET = 4
+
+
+def downgrade_n5_if_capped(level: int, n5_issued_this_week: int) -> int:
+    """Deterministic N5 → N4 downgrade when the rolling cap is reached.
+
+    Per CONTEXT D-05 this is a template/level swap, NOT a re-LLM call.
+    The caller passes the resulting level to the LLM/template stage.
+
+    Args:
+        level: The level the level-selector chose (1..5).
+        n5_issued_this_week: Profile.n5IssuedThisWeek (already purged).
+
+    Returns:
+        Downgraded level if the cap is hit, else `level` unchanged.
+    """
+    if level == N5_LEVEL and n5_issued_this_week >= N5_MAX_PER_WINDOW:
+        _n5_logger.info(
+            "n5_downgraded reason=weekly_cap level=%d->%d count=%d",
+            level,
+            N5_DOWNGRADE_TARGET,
+            n5_issued_this_week,
+        )
+        return N5_DOWNGRADE_TARGET
+    return level
+
+
+def purge_stale_n5_marks(
+    n5_marks: list[str],
+    now: Optional[_n5_dt] = None,
+) -> list[str]:
+    """Drop N5 emission timestamps older than the rolling window.
+
+    The Profile-level counter is `len(purged_marks)`. We keep timestamps
+    (not just an int) so the rolling window resets event-by-event rather
+    than via a fragile weekly cron.
+    """
+    now = now or _n5_dt.now(_n5_tz.utc)
+    cutoff = now - _n5_td(days=N5_WINDOW_DAYS)
+    fresh: list[str] = []
+    for raw in n5_marks:
+        try:
+            ts = _n5_dt.fromisoformat(str(raw).replace("Z", "+00:00"))
+            if ts.tzinfo is None:
+                ts = ts.replace(tzinfo=_n5_tz.utc)
+            if ts >= cutoff:
+                fresh.append(raw)
+        except (ValueError, TypeError):
+            continue
+    return fresh
+
+
+def register_n5_emission(
+    n5_marks: list[str],
+    now: Optional[_n5_dt] = None,
+) -> list[str]:
+    """Append a fresh N5 timestamp; called only on actual N5 send path.
+
+    Returns the updated marks list (caller persists to Profile).
+    """
+    now = now or _n5_dt.now(_n5_tz.utc)
+    fresh = purge_stale_n5_marks(n5_marks, now=now)
+    fresh.append(now.isoformat())
+    _n5_logger.info("n5_emitted count=%d", len(fresh))
+    return fresh
+
+
+def n5_count_for_profile(
+    n5_marks: list[str],
+    now: Optional[_n5_dt] = None,
+) -> int:
+    """Convenience: rolling-window N5 count after purge."""
+    return len(purge_stale_n5_marks(n5_marks, now=now))
+
+
+__all__ = list(set(__all__ + [
+    "downgrade_n5_if_capped",
+    "purge_stale_n5_marks",
+    "register_n5_emission",
+    "n5_count_for_profile",
+    "N5_WINDOW_DAYS",
+    "N5_MAX_PER_WINDOW",
+    "N5_LEVEL",
+    "N5_DOWNGRADE_TARGET",
+]))

@@ -7757,7 +7757,8 @@ class SPt extends S {
       'Erro de conexão. Verifica a tua ligação à internet ou a tua chave API.';
 
   @override
-  String get coachSuggestSimulate3a => 'Quanto poupo se contribuir o máximo?';
+  String get coachSuggestSimulate3a =>
+      'Se contribuir mais para o meu 3a, o que muda?';
 
   @override
   String get coachSuggestView3a => 'Quanto tenho nas minhas contas 3a?';
@@ -7772,10 +7773,11 @@ class SPt extends S {
   String get coachSuggestTrajectory => 'É grave se eu não fizer nada?';
 
   @override
-  String get coachSuggestScenarios => 'Renda ou capital — o que me convém?';
+  String get coachSuggestScenarios =>
+      'Renda ou capital — mostra-me ambos lado a lado';
 
   @override
-  String get coachSuggestDeductions => 'Quanto recupero de impostos este ano?';
+  String get coachSuggestDeductions => 'Quanto poderia recuperar este ano?';
 
   @override
   String get coachSuggestTaxImpact =>
@@ -7783,11 +7785,11 @@ class SPt extends S {
 
   @override
   String get coachSuggestFitness =>
-      'Estou no caminho certo para o meu objetivo?';
+      'Onde estou, em relação ao que tinha dito a mim mesmo?';
 
   @override
   String get coachSuggestRetirement =>
-      'Vou ter o suficiente para viver reformado?';
+      'Na reforma, o que me restará todos os meses?';
 
   @override
   String get coachEmptyStateMessage =>
@@ -7821,7 +7823,7 @@ class SPt extends S {
   String get coachSources => 'Fontes';
 
   @override
-  String get coachInputHint => 'Uma pergunta sobre as tuas finanças?';
+  String get coachInputHint => 'Diz-me o que te anda na cabeça.';
 
   @override
   String get coachUserMessage => 'A tua mensagem';
@@ -14919,7 +14921,7 @@ class SPt extends S {
 
   @override
   String get coachPulseDisclaimer =>
-      'Estimativas educativas — não constitui aconselhamento financeiro. Os rendimentos passados não pressupõem rendimentos futuros. Consulta um especialista. LSFin.';
+      'Mint esclarece, Mint não promete nada. As estimativas aqui são educativas e não constituem aconselhamento financeiro. Os rendimentos passados não pressupõem rendimentos futuros. Para um plano personalizado, fala com um·a especialista. LSFin.';
 
   @override
   String get coachingDescAttentif =>
@@ -20555,14 +20557,14 @@ class SPt extends S {
 
   @override
   String get coachDisclaimer =>
-      'Ferramenta educativa — as respostas não constituem aconselhamento financeiro (LSFin art. 3). Consulta um especialista para decisões importantes.';
+      'Mint esclarece, Mint não aconselha. As respostas aqui são educativas e não constituem aconselhamento financeiro no sentido da LSFin (art. 3). Para uma decisão importante, fala com um·a especialista.';
 
   @override
   String get coachFallbackName => 'amigo/a';
 
   @override
   String coachGreetingDefault(String name, String scoreSuffix) {
-    return 'Olá $name. Estou a ver os teus números — diz-me o que te preocupa.$scoreSuffix';
+    return 'Olá $name. Mint está a olhar para os teus números com calma — quando quiseres, falamos disso.$scoreSuffix';
   }
 
   @override
@@ -20989,7 +20991,8 @@ class SPt extends S {
   String get instantPremierEclairageComeBack => 'Volta quando quiseres';
 
   @override
-  String get coachSilentOpenerQuestion => 'Queres falar sobre isto?';
+  String get coachSilentOpenerQuestion =>
+      'Mint está aqui quando quiseres falar disso.';
 
   @override
   String get coachProactiveOptIn =>
@@ -21329,7 +21332,7 @@ class SPt extends S {
 
   @override
   String get coachInterruptFullCapitalRisk =>
-      '100 % capital = 0 renda garantida. Tens a certeza?';
+      'Mint observa: 100 % em capital significa zero renda mensal para toda a vida. Queres que vejamos o que isso implica?';
 
   @override
   String get coachInterruptEplBlock => 'Atenção: bloqueio EPL durante 3 anos.';
@@ -21436,7 +21439,7 @@ class SPt extends S {
       'Podes reformular com as tuas próprias palavras depois.';
 
   @override
-  String get intentChip3a => 'Propuseram-me um 3a';
+  String get intentChip3a => 'Alguém acabou de me falar de um 3a';
 
   @override
   String get intentChipBilan => 'Quero ver onde estou';
@@ -21445,7 +21448,7 @@ class SPt extends S {
   String get intentChipPrevoyance => 'Não percebo bem a minha previdência';
 
   @override
-  String get intentChipFiscalite => 'Quero deixar de pagar impostos à toa';
+  String get intentChipFiscalite => 'Quero ver com clareza nos meus impostos';
 
   @override
   String get intentChipProjet => 'Tenho um projeto em mente';
@@ -21500,7 +21503,7 @@ class SPt extends S {
 
   @override
   String get coachOpenerIntentChangement =>
-      'Estás a viver uma mudança de vida — aqui está o que o MINT encontrou para ti.';
+      'Estás a viver uma mudança — Mint olhou para o que pode tocar, sem decidir nada por ti.';
 
   @override
   String get coachOpenerIntentAutre =>
@@ -21896,7 +21899,7 @@ class SPt extends S {
 
   @override
   String get coachCheckInWelcome =>
-      'Olá! Estou aqui. Vamos ver juntos o que importa para ti?';
+      'Olá! Mint está aqui. Quando quiseres, olhamos juntos para o que importa este mês.';
 
   @override
   String get docNotFinancial =>
@@ -22261,4 +22264,44 @@ class SPt extends S {
 
   @override
   String get landingV2CtaSober => 'Começar';
+
+  String get tonChooserTitle => 'Escolhe como o Mint te fala';
+
+  @override
+  String get tonChooserSubtitle =>
+      'Como o Mint te fala. Podes mudar quando quiseres.';
+
+  @override
+  String get tonSoftLabel => 'Suave';
+
+  @override
+  String get tonDirectLabel => 'Direto';
+
+  @override
+  String get tonUnfilteredLabel => 'Sem filtro';
+
+  @override
+  String get tonSoftExample => 'Vamos com calma.';
+
+  @override
+  String get tonDirectExample => 'Eis o que isto significa.';
+
+  @override
+  String get tonUnfilteredExample => 'Sem filtro. Queres saber.';
+
+  @override
+  String get tonSkipLater => 'Mais tarde';
+
+  @override
+  String get tonSyncFailedToast =>
+      'O Mint não conseguiu guardar essa escolha. Tentamos mais tarde.';
+
+  @override
+  String get tonSelectedSemantics => 'Selecionado';
+
+  @override
+  String get tonNotSelectedSemantics => 'Não selecionado';
+
+  @override
+  String get tonSectionLabel => 'Voz';
 }

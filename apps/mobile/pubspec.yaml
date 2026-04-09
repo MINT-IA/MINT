@@ -2,7 +2,7 @@ name: mint_mobile
 description: Mint - Financial mentor mobile app
 publish_to: 'none'
 
-version: 1.0.0+12
+version: 2.2.0+1
 
 environment:
   sdk: ^3.6.0
@@ -18,7 +18,7 @@ dependencies:
   go_router: ^13.2.0
   intl: any  # Pinned by flutter_localizations SDK — do not constrain further
   url_launcher: ^6.2.0
-  google_fonts: ^6.1.0
+  google_fonts: ^6.3.3  # 6.3.3+ required for Dart 3.11 / Flutter 3.41 (FontWeight const map fix)
   uuid: ^4.0.0
   pdf: ^3.10.8
   printing: ^5.12.0

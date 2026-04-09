@@ -314,10 +314,12 @@ class ResponseCardWidget extends StatelessWidget {
         // ── Slot 3 — without change (MTC per D-07) ──
         _S4BodySlot(
           role: 's4-slot-3',
-          topGap: (confidence != null && isProjection) ? MintSpacing.md : 0,
-          child: (confidence != null && isProjection)
+          topGap: (_effectiveConfidence != null && isProjection)
+              ? MintSpacing.md
+              : 0,
+          child: (_effectiveConfidence != null && isProjection)
               ? MintTrameConfiance.inline(
-                  confidence: confidence!,
+                  confidence: _effectiveConfidence!,
                   bloomStrategy: BloomStrategy.firstAppearance,
                   audioTone: audioTone,
                   isTopOfList: false,
@@ -343,6 +345,13 @@ class ResponseCardWidget extends StatelessWidget {
     );
   }
 
+  /// Resolved confidence: explicit [confidence] param wins, otherwise falls
+  /// back to [card.confidence] (Phase 8a wired the model field). This fixes
+  /// the "façade sans câblage" bug where [ResponseCardStrip] never forwarded
+  /// the confidence param and the MTC slot stayed invisible even when the
+  /// data was present on the card model.
+  EnhancedConfidence? get _effectiveConfidence => confidence ?? card.confidence;
+
   // ── MTC SLOT ──────────────────────────────────────────────
   //
   // Plan 04-02 / CONTEXT.md D-07: mount `MintTrameConfiance.inline` at the
@@ -356,7 +365,7 @@ class ResponseCardWidget extends StatelessWidget {
   // model field, Phase 4 ships the slot infrastructure.
 
   List<Widget> _buildMtcSlot() {
-    final c = confidence;
+    final c = _effectiveConfidence;
     if (c == null || !isProjection) return const [];
     return [
       const SizedBox(height: MintSpacing.sm + 4),
@@ -611,7 +620,11 @@ class ResponseCardStrip extends StatelessWidget {
     if (cards.length == 1) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-        child: ResponseCardWidget(card: cards.first, variant: variant),
+        child: ResponseCardWidget(
+          card: cards.first,
+          variant: variant,
+          isProjection: cards.first.confidence != null,
+        ),
       );
     }
 
@@ -629,7 +642,11 @@ class ResponseCardStrip extends StatelessWidget {
                 const SizedBox(width: MintSpacing.sm + 4),
             itemBuilder: (_, index) => SizedBox(
               width: cardWidth,
-              child: ResponseCardWidget(card: cards[index], variant: variant),
+              child: ResponseCardWidget(
+                card: cards[index],
+                variant: variant,
+                isProjection: cards[index].confidence != null,
+              ),
             ),
           ),
         );

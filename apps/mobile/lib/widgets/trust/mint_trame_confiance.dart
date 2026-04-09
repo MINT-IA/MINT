@@ -140,7 +140,12 @@ double _weakestValue(EnhancedConfidence c) {
 String oneLineConfidenceSummary(
   EnhancedConfidence confidence, {
   S? l10n,
-  // ignore: avoid_unused_constructor_parameters
+  // ignore: unused_element_parameter
+  // Reason: D-06 API-stability stub. The audioTone axis will drive
+  // N1/N2 calmer vs N4/N5 more direct phrasing in a future iteration;
+  // Phase 4 ships the neutral N3 variant only. Keeping the parameter
+  // now avoids a breaking signature change at every call site later.
+  // Tracked: docs/KNOWN_GAPS_v2.2.md Cat 3 (P2 — unjustified ignore).
   VoiceLevel? audioTone,
 }) {
   final axis = _weakestAxis(confidence);
@@ -436,6 +441,9 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
     final label = l10n != null
         ? oneLineConfidenceSummary(c, l10n: l10n, audioTone: widget.audioTone)
         : 'mtc-confidence';
+    // Use `SemanticsService.announce` — the stable API on Flutter 3.27.x
+    // pinned by CI. `sendAnnouncement(view, ...)` only exists on newer
+    // Flutter versions and breaks the build under 3.27.4.
     SemanticsService.announce(label, TextDirection.ltr);
     MintTrameConfiance.debugAnnounceCount++;
   }

@@ -67,6 +67,14 @@ EXCLUDE_FILES = {
     "CLAUDE.md",  # legacy note line 3 is intentional
 }
 
+# Glob-like substrings: any file whose relative path contains one of these
+# substrings is excluded. Used for audit / pre-audit / ship-gate docs that
+# legitimately reference the legacy term in historical context.
+EXCLUDE_FILE_SUBSTRINGS = (
+    "PRE_AUDIT",
+    "SHIP_GATE_v2.2",
+)
+
 # File extensions that we actually read as text.
 TEXT_EXTS = {
     ".py",
@@ -87,6 +95,9 @@ def is_excluded(path: Path, repo_root: Path) -> bool:
             return True
     if rel in EXCLUDE_FILES:
         return True
+    for sub in EXCLUDE_FILE_SUBSTRINGS:
+        if sub in rel:
+            return True
     return False
 
 
