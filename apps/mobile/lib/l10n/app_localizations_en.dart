@@ -22135,4 +22135,11 @@ class SEn extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT has spotted an important point that needs your attention.';
+
+  @override
+  String get landingV2PromiseSober =>
+      'Mint tells you what nobody has an interest in telling you.';
+
+  @override
+  String get landingV2CtaSober => 'Get started';
 }

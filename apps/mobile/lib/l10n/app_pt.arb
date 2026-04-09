@@ -10220,5 +10220,7 @@
   "mintAlertDebtCause": "É o que MINT nota quando o reembolso mensal ultrapassa o limiar de respiração do orçamento.",
   "mintAlertDebtNextMoment": "Podemos olhar juntos para um plano de saída, ao teu ritmo.",
   "mintAlertAnnounceG3": "MINT detetou um ponto importante que precisa da tua atenção.",
-  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."}
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."},
+  "landingV2PromiseSober": "Mint diz-te o que ningu\u00e9m tem interesse em dizer-te.",
+  "landingV2CtaSober": "Come\u00e7ar"
 }

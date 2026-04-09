@@ -10773,5 +10773,9 @@
   "mintAlertDebtNextMoment": "On peut regarder ensemble un plan de sortie, à ton rythme.",
   "@mintAlertDebtNextMoment": {"description": "MintAlertObject debt G3 next-moment invitation — never imperative."},
   "mintAlertAnnounceG3": "MINT a repéré un point important qui demande ton attention.",
-  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."}
+  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."},
+  "landingV2PromiseSober": "Mint te dit ce que personne n\u2019a int\u00e9r\u00eat \u00e0 te dire.",
+  "@landingV2PromiseSober": {"description": "Landing v2 sober promise — single sentence, no list. Phase 5 POLISH-01."},
+  "landingV2CtaSober": "Commencer",
+  "@landingV2CtaSober": {"description": "Landing v2 sober CTA — just 'Commencer', not apologetic. Phase 5 POLISH-01."}
 }

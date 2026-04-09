@@ -22248,4 +22248,11 @@ class SFr extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT a repéré un point important qui demande ton attention.';
+
+  @override
+  String get landingV2PromiseSober =>
+      'Mint te dit ce que personne n’a intérêt à te dire.';
+
+  @override
+  String get landingV2CtaSober => 'Commencer';
 }

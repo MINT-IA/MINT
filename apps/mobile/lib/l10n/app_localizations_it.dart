@@ -22307,4 +22307,11 @@ class SIt extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT ha individuato un punto importante che richiede la tua attenzione.';
+
+  @override
+  String get landingV2PromiseSober =>
+      'Mint ti dice ciò che nessuno ha interesse a dirti.';
+
+  @override
+  String get landingV2CtaSober => 'Inizia';
 }

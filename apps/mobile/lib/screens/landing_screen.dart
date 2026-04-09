@@ -108,16 +108,16 @@ class _LandingScreenState extends State<LandingScreen>
                     ),
                   ),
                   const Spacer(flex: 3),
-                  // Paragraphe-mère (D-01, D-07).
+                  // Promise — single sentence (POLISH-01).
                   FadeTransition(
                     opacity: _paragraphOpacity,
                     child: SlideTransition(
                       position: _paragraphOffset,
                       child: Semantics(
                         container: true,
-                        label: l10n.landingV2Paragraph,
+                        label: l10n.landingV2PromiseSober,
                         child: Text(
-                          l10n.landingV2Paragraph,
+                          l10n.landingV2PromiseSober,
                           textAlign: TextAlign.center,
                           style: textTheme.headlineSmall?.copyWith(
                             color: MintColors.textPrimary,
@@ -130,36 +130,23 @@ class _LandingScreenState extends State<LandingScreen>
                     ),
                   ),
                   const Spacer(flex: 1),
-                  // CTA + privacy micro-phrase (D-02, D-03).
+                  // CTA (POLISH-01 — no privacy subtitle).
                   FadeTransition(
                     opacity: _ctaOpacity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Semantics(
-                          button: true,
-                          label: l10n.landingV2Cta,
-                          child: FilledButton(
-                            style: FilledButton.styleFrom(
-                              backgroundColor: MintColors.textPrimary,
-                              foregroundColor: MintColors.craie,
-                              minimumSize: const Size.fromHeight(56),
-                              shape: const StadiumBorder(),
-                              textStyle: textTheme.labelLarge,
-                            ),
-                            onPressed: () => context.go('/coach/chat'),
-                            child: Text(l10n.landingV2Cta),
-                          ),
+                    child: Semantics(
+                      button: true,
+                      label: l10n.landingV2CtaSober,
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: MintColors.textPrimary,
+                          foregroundColor: MintColors.craie,
+                          minimumSize: const Size.fromHeight(56),
+                          shape: const StadiumBorder(),
+                          textStyle: textTheme.labelLarge,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          l10n.landingV2Privacy,
-                          textAlign: TextAlign.center,
-                          style: textTheme.bodySmall?.copyWith(
-                            color: MintColors.textSecondaryAaa,
-                          ),
-                        ),
-                      ],
+                        onPressed: () => context.go('/coach/chat'),
+                        child: Text(l10n.landingV2CtaSober),
+                      ),
                     ),
                   ),
                   const Spacer(flex: 2),

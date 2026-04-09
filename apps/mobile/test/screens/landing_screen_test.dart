@@ -62,23 +62,24 @@ Widget _wrap({MediaQueryData? mediaQuery}) {
 
 void main() {
   group('LandingScreen — calm promise surface', () {
-    testWidgets('renders 4 text surfaces and privacy line', (tester) async {
+    testWidgets('renders 3 elements: wordmark + promise + CTA + legal',
+        (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
       // Wordmark
       expect(find.text('MINT'), findsOneWidget);
-      // Paragraphe-mère (partial match — fr master text)
+      // Promise — single sentence (POLISH-01)
       expect(
         find.textContaining("Mint te dit ce que personne"),
         findsOneWidget,
       );
-      // CTA
-      expect(find.textContaining('Continuer'), findsOneWidget);
-      // Privacy micro-phrase
+      // CTA — "Commencer" (not "Continuer (sans compte)")
+      expect(find.text('Commencer'), findsOneWidget);
+      // No privacy subtitle
       expect(
         find.textContaining('Rien ne sort de ton téléphone'),
-        findsOneWidget,
+        findsNothing,
       );
       // Legal footer
       expect(find.textContaining('LSFin'), findsOneWidget);
@@ -89,7 +90,6 @@ void main() {
       await tester.pumpAndSettle();
 
       const banned = <String>[
-        'Commencer',
         'Démarrer',
         'Découvrir',
         'Explorer',
@@ -133,7 +133,7 @@ void main() {
         find.textContaining("Mint te dit ce que personne"),
         findsOneWidget,
       );
-      expect(find.textContaining('Continuer'), findsOneWidget);
+      expect(find.text('Commencer'), findsOneWidget);
     });
   });
 }

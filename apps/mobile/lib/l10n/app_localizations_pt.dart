@@ -22254,4 +22254,11 @@ class SPt extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT detetou um ponto importante que precisa da tua atenção.';
+
+  @override
+  String get landingV2PromiseSober =>
+      'Mint diz-te o que ninguém tem interesse em dizer-te.';
+
+  @override
+  String get landingV2CtaSober => 'Começar';
 }

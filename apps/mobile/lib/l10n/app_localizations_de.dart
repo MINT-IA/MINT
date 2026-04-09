@@ -22297,4 +22297,11 @@ class SDe extends S {
   @override
   String get mintAlertAnnounceG3 =>
       'MINT hat einen wichtigen Punkt entdeckt, der deine Aufmerksamkeit braucht.';
+
+  @override
+  String get landingV2PromiseSober =>
+      'Mint sagt dir, was dir sonst niemand sagen will.';
+
+  @override
+  String get landingV2CtaSober => 'Loslegen';
 }

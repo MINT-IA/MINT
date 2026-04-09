@@ -39026,6 +39026,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'MINT a repéré un point important qui demande ton attention.'**
   String get mintAlertAnnounceG3;
+
+  /// Landing v2 sober promise — single sentence, no list. Phase 5 POLISH-01.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mint te dit ce que personne n’a intérêt à te dire.'**
+  String get landingV2PromiseSober;
+
+  /// Landing v2 sober CTA — just 'Commencer', not apologetic. Phase 5 POLISH-01.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get landingV2CtaSober;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
