@@ -70,6 +70,7 @@
 **UI hint**: yes
 
 ### Phase 4: Residual bugs & i18n hygiene
+**Plans:** 1 plan
 **Goal**: Close the bugs that did not dissolve via deletion and finish the nav cleanup that the deletion spree started.
 **Depends on**: Phase 3
 **Requirements**: BUG-03, BUG-04, NAV-03, NAV-04, NAV-05, NAV-06
@@ -79,7 +80,8 @@
   3. Legal pages (CGU, politique de confidentialité) are public-scope screens reachable inline from register via `context.push`, never through the authenticated shell
   4. Final route-graph verification: zero non-whitelisted cycles, every reachable route has at least one forward exit edge to `/coach/chat`, zero `Navigator.push` / `Navigator.of(context).push` legacy calls remain
   5. Creator-device Gate 0 screenshots confirm French diacritics render correctly on every surviving surface and every tone/consent moment behaves as specified
-**Plans**: TBD
+Plans:
+- [ ] 04-01-PLAN.md — Verify-and-fix: diacritics (BUG-03), TonChooser deletion (BUG-04), legal scope (NAV-03), cycle gate (NAV-04), reachability gate (NAV-05), Navigator.push cleanup (NAV-06)
 
 ### Phase 5: Sober visual polish
 **Goal**: On a sane architecture, apply sober visual polish only to surviving surfaces. No Aesop chase. Sober is the goal.
@@ -112,7 +114,7 @@
 | 1. Architectural foundation | 3/3 | Complete | 2026-04-09 |
 | 2. Deletion spree | 0/1 | Planned | - |
 | 3. Chat-as-shell rebuild | 0/2 | Planned | - |
-| 4. Residual bugs & i18n hygiene | 0/0 | Not started | - |
+| 4. Residual bugs & i18n hygiene | 0/1 | Planned | - |
 | 5. Sober visual polish | 0/0 | Not started | - |
 | 6. End-to-end device walkthrough & ship gate | 0/0 | Not started | - |
 
