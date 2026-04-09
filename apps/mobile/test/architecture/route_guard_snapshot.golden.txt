@@ -9,7 +9,6 @@
 //admin-observability | public
 //bilan | public
 //byok | public
-//consent | public
 //privacy-control | public
 //slm | public
 /3a-deep/comparator | authenticated
@@ -40,7 +39,7 @@
 /cantonal-benchmark | authenticated
 /check/debt | authenticated
 /coach/agir | authenticated
-/coach/chat | authenticated
+/coach/chat | public
 /coach/checkin | authenticated
 /coach/cockpit | authenticated
 /coach/dashboard | authenticated
@@ -152,6 +151,5 @@ admin-analytics | authenticated
 admin-observability | authenticated
 bilan | authenticated
 byok | authenticated
-consent | authenticated
 privacy-control | authenticated
 slm | authenticated
