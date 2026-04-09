@@ -32,11 +32,11 @@ Clean the route graph. Make scope leaks and cycles impossible by construction, n
 
 The 5 mechanical tests that would have caught the 4 P0 bugs before ship. Become permanent CI gates blocking merge.
 
-- [ ] **GATE-01**: Cycle DFS test runs in CI on the route graph and fails the build on any non-whitelisted strongly-connected component
-- [ ] **GATE-02**: Scope-leak test runs in CI and fails the build on any edge crossing from public/onboarding scope into authenticated scope
-- [ ] **GATE-03**: Empty-state-with-payload test runs in CI and verifies that any screen receiving a navigation payload consumes it before short-circuiting to an empty state
-- [ ] **GATE-04**: Guard-list snapshot test runs in CI and fails on any unreviewed change to the auth guard's protected scopes
-- [ ] **GATE-05**: Doctrine-string lint runs in CI on every routed widget and flags banned terms (gamified completion %, level numbering exposed, social comparison, raw nLPD article references in user-facing copy)
+- [x] **GATE-01**: Cycle DFS test runs in CI on the route graph and fails the build on any non-whitelisted strongly-connected component
+- [x] **GATE-02**: Scope-leak test runs in CI and fails the build on any edge crossing from public/onboarding scope into authenticated scope
+- [x] **GATE-03**: Empty-state-with-payload test runs in CI and verifies that any screen receiving a navigation payload consumes it before short-circuiting to an empty state
+- [x] **GATE-04**: Guard-list snapshot test runs in CI and fails on any unreviewed change to the auth guard's protected scopes
+- [x] **GATE-05**: Doctrine-string lint runs in CI on every routed widget and flags banned terms (gamified completion %, level numbering exposed, social comparison, raw nLPD article references in user-facing copy)
 
 ### Radical Deletion (KILL)
 
@@ -127,11 +127,11 @@ Each v1 requirement maps to exactly one phase.
 | NAV-04 | Phase 4 | Pending |
 | NAV-05 | Phase 4 | Pending |
 | NAV-06 | Phase 4 | Pending |
-| GATE-01 | Phase 1 | Pending |
-| GATE-02 | Phase 1 | Pending |
-| GATE-03 | Phase 1 | Pending |
-| GATE-04 | Phase 1 | Pending |
-| GATE-05 | Phase 1 | Pending |
+| GATE-01 | Phase 1 | Complete |
+| GATE-02 | Phase 1 | Complete |
+| GATE-03 | Phase 1 | Complete |
+| GATE-04 | Phase 1 | Complete |
+| GATE-05 | Phase 1 | Complete |
 | KILL-01 | Phase 2 | Pending |
 | KILL-02 | Phase 2 | Pending |
 | KILL-03 | Phase 2 | Pending |

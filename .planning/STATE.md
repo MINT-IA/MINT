@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.3
-milestone_name: Simplification Radicale
-status: Phase 1 in progress — sub-plan 01-01a complete (scope infra + router migration + guard)
-stopped_at: Completed 01-01a-PLAN.md, next is 01-01b (tests) then 01-01c (verification)
-last_updated: "2026-04-09T00:00:00.000Z"
-last_activity: 2026-04-09 — gsd-roadmapper created 6 phases, 33/33 requirements mapped
+milestone_name: milestone
+status: Sub-plan 01-01a executed — RouteScope + ScopedGoRoute + scope-based guard live
+stopped_at: Completed 01-01b-PLAN.md, next is 01-01c (verification)
+last_updated: "2026-04-09T11:24:48.339Z"
+last_activity: "2026-04-09 — 01-01a executed: 144 routes migrated, scope-based guard replaces protectedPrefixes"
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 1
-  completed_plans: 0
-  percent: 0
+  total_plans: 4
+  completed_plans: 2
+  percent: 50
 ---
 
 # GSD State
@@ -87,6 +87,6 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 
 ## Session Continuity
 
-Last session: 2026-04-09
-Stopped at: Completed 01-01a-PLAN.md (scope infra + router migration + guard replacement)
-Resume file: .planning/phases/01-architectural-foundation/01-01b-PLAN.md
+Last session: 2026-04-09T11:24:48.336Z
+Stopped at: Completed 01-01b-PLAN.md, next is 01-01c (verification)
+Resume file: None

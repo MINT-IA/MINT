@@ -28,6 +28,7 @@
 ## Phase Details
 
 ### Phase 1: Architectural foundation
+**Plans:** 1 plan
 **Goal**: Make scope leaks and nav regressions mechanically impossible before any deletion begins. This is the safety net for everything that follows.
 **Depends on**: Nothing (first phase)
 **Requirements**: NAV-01, NAV-02, GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, DEVICE-01
@@ -36,7 +37,8 @@
   2. ProfileDrawer is only mounted inside authenticated scope (unreachable from landing, register, onboarding, or any public/onboarding route)
   3. Running `flutter test` on the new nav suite fails the build on: any non-whitelisted route cycle, any cross-scope edge into `authenticated`, any screen ignoring a navigation payload, any unreviewed change to the auth guard snapshot, any banned doctrine string in routed widgets
   4. Creator-device screenshots show that a cold-started unauthenticated user cannot reach `/profile/*`, `/home`, or `/explore/*` through any tap path (including legal links from register)
-**Plans**: TBD
+**Plans**:
+- [ ] 01-01-PLAN.md — Scope-tagged routes + scope-based guard + 5 mechanical CI gates with would-have-fired fixtures
 
 ### Phase 2: Deletion spree
 **Goal**: Remove ~70% of v2.2 destination surface area. Bug 1 and Bug 3 dissolve as side effect; Bug 2 is fixed mechanically at its file:line root cause.
@@ -102,7 +104,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Architectural foundation | 0/0 | Not started | - |
+| 1. Architectural foundation | 0/1 | Not started | - |
 | 2. Deletion spree | 0/0 | Not started | - |
 | 3. Chat-as-shell rebuild | 0/0 | Not started | - |
 | 4. Residual bugs & i18n hygiene | 0/0 | Not started | - |
