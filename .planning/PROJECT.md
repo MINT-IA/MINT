@@ -8,36 +8,46 @@ Swiss financial protection & education app (Flutter + FastAPI) that tells users 
 
 A user opens MINT and within 3 minutes receives a personalized, surprising insight about their financial situation that they couldn't have found elsewhere — then knows exactly what to do next.
 
-## Current Milestone: v2.2 La Beauté de Mint (Design v0.2.3)
+## Current Milestone: v2.3 Simplification Radicale
 
-**Goal:** Élever la beauté, le design, l'UI, l'UX et la voix de Mint — calme dans la main, vif dans la voix, curseur d'intensité 5 niveaux. Layer 1: 5 surfaces immuables (S1-S5), 7 chantiers (Phase 0 stabilisation gate + 6 design chantiers).
+**Goal:** Inverser l'architecture. Le chat EST le shell, pas une feature. Tout écran "destination" qui échoue au test 3 secondes no-finance-human est supprimé, pas refait. Les 4 bugs P0 trouvés sur device le 2026-04-09 dissolvent comme effet de bord.
+
+**Doctrine (les 2 principes fondateurs):**
+1. **Test 3 secondes no-finance-human** — un humain qui ne comprend rien à la finance, à qui on montre l'écran 3s, doit pouvoir dire ce qu'il voit et ce qu'il doit faire. Sinon → écran mort, on le supprime. Remplace tous les autres ship gates UI.
+2. **Le chat EST l'app (inversion architecturale)** — le chat est le shell, l'entrée, la navigation, le distributeur, le planificateur, le support. Tout autre écran est un tiroir contextuel que le chat ouvre à la demande. Pas de home tab, pas d'explorer, pas de profile dashboard, pas de centre de contrôle comme destinations.
+
+**Inputs critiques (à lire avant toute phase):**
+- `.planning/v2.3-handoff/HANDOFF.md` — contexte complet de l'inversion
+- `.planning/v2.3-handoff/screenshots/WALKTHROUGH_NOTES.md` — diagnostic device
+- `docs/NAVIGATION_MAP_v2.2_REALITY.md` — root-causes file:line des 4 P0
+- `docs/AESTHETIC_AUDIT_v2.2_BRUTAL.md` — verdict simplification
+
+**Priorités ordonnées (NE PAS inverser):**
+1. **Architecture & navigation propres** — 0 cycle, 0 scope leak, scope-based guards (pas operation-based), 5 tests mécaniques en CI Gate (cycle DFS, scope-leak, empty-state-with-payload, guard snapshot, doctrine-string lint)
+2. **Suppression radicale** — delete les écrans qui échouent au test 3s, ne pas les redesigner. Centre de contrôle, Moi dashboard, intent screen, "Faire mon diagnostic", "Créer ton compte" → supprimés ou réduits à des drawers chat-summoned
+3. **4 bugs P0 dissolvent** — Bug 1 (auth leak) et Bug 3 (centre de contrôle) disparaissent par suppression. Bug 2 (loop) requiert fix mécanique explicite à coach_chat_screen.dart:1317. Bug 4 (créer ton compte) disparaît : account creation devient flow chat optionnel.
+4. **Visuel sobre** — vient en dernier, sur base saine. Pas de chase Aesop/Arc tant que l'archi n'est pas juste.
+
+**Gate 0 (mandatory, every phase):** creator-device annotated screenshots avant tout PR. Non-skippable. Tests verts ≠ app fonctionnelle (leçon v2.2).
+
+**Why this milestone:** v2.2 a shippé 9326 tests verts + 18/18 ship gates + audit A-. Julien a installé sur iPhone et trouvé 4 bugs bloquants en 4 minutes. La gap entre "tests verts" et "app fonctionnelle" est exactement la gap entre "le widget render" et "l'utilisateur atteint son but". v2.3 répare l'archi qui a permis ce drift.
 
 **Doctrine (immuable):**
 - Mint protège sans juger. Mint prouve sans surjouer. Mint parle peu — mais avec l'intensité juste, du murmure au coup de poing verbal.
 - 4 principes fondateurs (P1 éclairer pas juger, P2 incertitude visible, P3 une idée par écran, P4 voix vivante avec curseur d'intensité)
 
-**Surfaces Layer 1 (5):**
-1. S1 — `apps/mobile/lib/screens/onboarding/intent_screen.dart` (AAA)
-2. S2 — `apps/mobile/lib/screens/main_tabs/mint_home_screen.dart` (AAA)
-3. S3 — `apps/mobile/lib/widgets/coach/coach_message_bubble.dart` (AAA)
-4. S4 — `apps/mobile/lib/widgets/coach/response_card_widget.dart` (AAA)
-5. S5 — `apps/mobile/lib/widgets/mint_alert_object.dart` — à créer (AAA)
+**Surfaces survivantes (post-suppression):**
+- **Chat** (`coach_chat_screen.dart`) — devient le shell, l'entrée, le distributeur. Toute logique d'orientation y vit.
+- **S0 Landing** — cold-start airlock minimaliste. 1 promesse, 1 CTA → chat direct.
+- **Drawers chat-summoned** : tous les anciens écrans destinations (Moi, Centre de contrôle, simulateurs, profile) deviennent des bottom-sheets/overlays que le chat ouvre quand il en a besoin.
 
-**Chantiers Layer 1 (7, with expert challenge applied):**
-- **L1.0 — Phase 0 stabilisation gate** (carryover v2.1): STAB-17 manual tap-to-render walkthrough by Julien on real device, blocks TestFlight. Galaxy A14 device provisioned + perf baseline documented (cold start, scroll FPS, MTC bloom timing). VoiceCursorContract extracted as Dart const + Pydantic model — single source of truth for L1.5 + L1.6. Krippendorff α tooling provisioned for L1.6 metric work.
-- **L1.1 — Audit du retrait sur S1-S5** (-20% éléments visuels). Includes deletion of legacy confidence rendering on S4 to make room for MTC.
-- **L1.2a — MintTrameConfiance v1 component + S4 migration**: composant unique rendant `EnhancedConfidence` (4-axis) en ligne + détail tappable + version "1 ligne audio" pour TalkBack/VoiceOver + bloom 250ms ease-out. C'est le SEUL geste "mécanisme visible au tap" de Layer 1 — le horlogère vit ici, nulle part ailleurs.
-- **L1.2b — MTC migration sur surfaces décisionnelles restantes** (~12 écrans de projection consommant `confidence_scorer.dart`). Élimine le dual-system legacy badges + MTC. Peut tourner en parallèle de L1.3/L1.4.
-- **L1.3 — Microtypographie pass sur S1-S5**: Montserrat/Inter, paragraphes 45-75 char, max 80, hiérarchie 3 niveaux. Tests Galaxy A14 + simulation DMLA + simulation dyslexie. Référence Spiekermann (Edenspiekermann/FF Meta) sur micro-typographie haute-densité.
-- **L1.4 — Voix régionale VS/ZH/TI**: 30 microcopies par canton, base languages uniquement (fr-CH pour VS, de-CH pour ZH, it-CH pour TI). Stockage `app_regional_<canton>.arb` séparé du namespace ARB principal. Validation par natifs locaux. Étend `RegionalVoiceService.forCanton()`. ComplianceGuard sur tout.
-- **L1.5 — MintAlertObject (G2/G3 implémenté)**: composant Flutter réutilisable. Importe `VoiceCursorContract` (sortie de L1.0) — ne hardcode pas la matrice. G2 = soulignement direct dans grammaire calme. G3 = rupture grammaticale. Tests Patrol obligatoires.
-- **L1.6 — Voice Pass: Curseur d'Intensité v1**: trois sous-chantiers (a) `docs/VOICE_CURSOR_SPEC.md` + 50 phrases-types (10 par niveau) + matrice routage Gravité×Relation + garde-fous, (b) réécriture des 30 phrases coach les plus utilisées avec validation Krippendorff α≥0.67 (15 testeurs × 20 phrases, weighted ordinal IRR) une fois pour valider le spec, puis revue éditoriale Julien + 2 copywriters francophones pour les itérations, (c) réglage utilisateur "Ton" dans intent_screen + ProfileDrawer (`soft`/`direct`/`unfiltered`, default `direct`), backend `Profile.voiceCursorPreference` Pydantic v2, garde-fous immuables (jamais sous N2 sur G3, jamais au-dessus de N3 sur sujets sensibles, mode fragile plafonne N3 30j).
-
-**Cut from Layer 1 (R&D library, pas de scope drift):**
-- ❌ "Précision horlogère secondaire à la demande" → cut. Le seul geste "mécanisme visible au tap" Layer 1 vit dans MTC bloom (L1.2a). Toute autre instance = dérive d'inconsistance.
-- ❌ MINT Signature v0 (générative), palate cleansers comme écrans dédiés, Lock Screen widget, archétype "grand frère" → restent en R&D (déjà tués au brief).
-
-**Why this milestone:** v2.0 a montré que Mint marche. v2.1 a prouvé que les fils sont bien soudés. v2.2 répond à la question "et est-ce que c'est beau, calme, vif au bon moment?" — la dernière mile entre "ça fonctionne" et "on sent que c'est Mint".
+**Suppressions confirmées (par les 2 audits):**
+- ❌ Intent screen (`/onboarding/intent`) — la conversation EST le diagnostic
+- ❌ "Faire mon diagnostic" CoachEmptyState — dead-end widget, source du Bug 2 loop
+- ❌ Centre de contrôle comme destination (`/profile/consent`) — consents demandés contextuellement par le chat au moment où la feature en a besoin
+- ❌ Moi dashboard avec gamification 0% / +15% / +10% — anti-shame violation par construction
+- ❌ Account creation comme étape onboarding — devient flow chat optionnel pour cloud sync
+- ❌ ProfileDrawer comme menu global — démonté ou re-mounted derrière auth guard scope-based
 
 ## Requirements
 
@@ -74,16 +84,15 @@ Defined in `.planning/REQUIREMENTS.md` (see Phase 0 carryover + 6 design chantie
 
 <!-- Explicit boundaries for v2.2 + standing exclusions. -->
 
-**v2.2 design milestone exclusions:**
-- Layer 2 prototypes (Lock Screen widget, ambient computing, voice AI surfaces) — internal only, ne ship pas
-- Layer 3 R&D bibliothèque (MINT Signature générative, halo sacré, parfumerie, gastronomie, cinéma de plans dramatiques, palate cleansers comme écrans dédiés, archétype "grand frère") — documentés, non shippés
-- "Précision horlogère" mécanisme visible au tap au-delà du MTC bloom — cut, scope drift
-- Touch-up sur surfaces hors S1-S5 — interdit ce milestone, sauf migration MTC L1.2b sur écrans de projection
-- Ajout d'une 6e surface Layer 1 — interdit, viendra en remplacement d'une existante seulement
-- Voix régionale au-delà de VS/ZH/TI — autres cantons en v2.3
-- Régional microcopy traduit hors langue de base (fr-CH, de-CH, it-CH) — translating Valaisan en portugais = noise
-- Galaxy A14 perf en Android-in-CI automatisée — manuel par Julien ce milestone, automation v2.3 (Firebase Test Lab investigation)
-- 12 orphan GoRouter routes documentés en v2.1 AUDIT_ORPHAN_ROUTES.md — déférés v3.0 sauf si chantier touche le code
+**v2.3 milestone exclusions:**
+- Chase esthétique pixel-perfect (Aesop/Things 3/Arc references) — l'aesthetic audit est un signal "pas ça", pas une cible. Vient après que l'archi soit juste. Visuel restera sobre.
+- Nouvelles features (life events, calculatrices, capacités coach) — milestone de réparation, pas d'ajout
+- Backend au-delà des bug fixes — coach service, voice cursor, MTC, regional voice, compliance guard restent intouchés
+- ACCESS-01 a11y partner sessions — déféré v2.4 ou descopé via ACCESS-09
+- Krippendorff α validation (15 testeurs) — infra prête, déférée v2.4
+- Refonte visuelle des écrans supprimés — on supprime, on ne refait pas
+- Multi-LLM routing — Phase 3 roadmap
+- Re-introduction d'écrans destinations (home dashboard, explorer hubs comme nav cible) — interdit toute la durée v2.3, contredit Principe #2
 
 **Standing exclusions (compliance/identity, never):**
 - bLink production (requires SFTI membership + per-bank contracts) — v3.0+
@@ -147,6 +156,13 @@ Defined in `.planning/REQUIREMENTS.md` (see Phase 0 carryover + 6 design chantie
 | v2.2 Krippendorff α≥0.67 (weighted ordinal) pour valider spec curseur, puis revue éditoriale | IRR statistique honnête une fois, jugement humain ensuite. 80% naive % agreement = broken sur ordinal 5-level | — Pending (expert challenge point 1) |
 | v2.2 Précision horlogère cut de Layer 1 | Le seul "mécanisme visible au tap" autorisé Layer 1 = MTC bloom (250ms ease-out). Tout autre = scope drift | — Pending (expert challenge point 6) |
 | v2.2 décision politique (Stiegler) | (b) solidarité cible, (a) adaptation défaut tant que partenaires non signés. MintAlertObject G3 propose info seule par défaut | — Pending |
+| v2.3 chat-as-shell inversion | v2.2 a build dashboard-with-chat-feature. Device walkthrough 2026-04-09 a prouvé que c'est faux. Le chat doit être le shell. | — Pending |
+| v2.3 test 3s remplace tous les ship gates UI | Tests verts ≠ app fonctionnelle. Le seul gate UI honest = un humain non-finance qui comprend en 3s. | — Pending |
+| v2.3 Gate 0 creator-device par phase | Non-skippable. Annotated screenshots avant tout PR. Leçon v2.2 : 18/18 automated gates verts + 4 P0 sur device en 4 min. | — Pending |
+| v2.3 reset phase numbering à 1 | Cohérent avec "Simplification Radicale" = nouveau départ. v2.2 phases archivées. | — Pending |
+| v2.3 5 tests mécaniques nav en CI Gate | Cycle DFS, scope-leak, empty-state-with-payload, guard snapshot, doctrine-string lint. ~200 LOC Dart auraient catché les 4 P0 avant ship. | — Pending |
+| v2.3 scope-based auth guard (pas operation-based) | app.dart:167 protectedPrefixes était une whitelist d'opérations → leak Bug 1. Remplacer par tagging de scope (public/onboarding/authenticated) sur chaque route. | — Pending |
+| v2.3 visuel en dernier, sobre | Refaire du beau sur archi cassée = peinture sur façade. L'aesthetic audit est un signal "pas ça", pas une cible. | — Pending |
 
 ## Evolution
 
@@ -166,4 +182,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-07 after v2.1 archived + v2.2 La Beauté de Mint initialized (with expert challenge applied)*
+*Last updated: 2026-04-09 after v2.2 device walkthrough revealed 4 P0 + v2.3 Simplification Radicale initialized (chat-as-shell inversion, reset phase numbering)*
