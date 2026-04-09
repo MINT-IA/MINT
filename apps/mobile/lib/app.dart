@@ -161,28 +161,39 @@ final _router = GoRouter(
   initialLocation: '/',
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
+    // ── Scope-based auth guard ───────────────────────────────
+    // Reads RouteScope from the matched ScopedGoRoute instead of
+    // maintaining a manual prefix whitelist. Fail-closed: unknown
+    // routes default to authenticated.
     final auth = context.read<AuthProvider>();
     final isLoggedIn = auth.isLoggedIn;
     final path = state.uri.path;
 
-    // Routes that REQUIRE auth (data-writing operations)
-    const protectedPrefixes = [
-      '/scan',        // document scanning
-      '/coach/chat',  // AI coach (token consumption)
-      '/couple',      // household/couple features
-      '/byok',        // API key management
-      '/bank-import', // bank statement import
-    ];
+    // Determine scope from matched route (fail-closed default)
+    final topRoute = state.topRoute;
+    final scope = topRoute is ScopedGoRoute
+        ? topRoute.scope
+        : RouteScope.authenticated;
 
-    // Check if current path is protected
-    final isProtected = protectedPrefixes.any((p) => path.startsWith(p));
+    switch (scope) {
+      case RouteScope.public:
+        // Always allowed — no auth check
+        return null;
 
-    // If protected and not logged in, redirect to register with return URL
-    if (isProtected && !isLoggedIn) {
-      return '/auth/register?redirect=${Uri.encodeComponent(path)}';
+      case RouteScope.onboarding:
+        // Onboarding routes are accessible without full auth;
+        // no redirect needed here (onboarding completion check
+        // is handled by individual screens).
+        return null;
+
+      case RouteScope.authenticated:
+        // Require signed-in user; localAnonymous mode also passes
+        // (users who skipped registration still access simulators).
+        if (!isLoggedIn) {
+          return '/auth/register?redirect=${Uri.encodeComponent(path)}';
+        }
+        return null;
     }
-
-    return null; // No redirect needed
   },
   routes: [
     // ── Landing + Auth (public — no auth required) ─────────────
