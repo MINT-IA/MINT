@@ -29,7 +29,6 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
-import 'package:mint_mobile/widgets/coach/coach_empty_state.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
@@ -43,7 +42,7 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 //
 //  Extracted components (W13 refactoring, 4193→836 lines):
 //  - CoachAppBar         → widgets/coach/coach_app_bar.dart
-//  - CoachEmptyState     → widgets/coach/coach_empty_state.dart
+//  - CoachEmptyState     → DELETED (KILL-02, Phase 2)
 //  - CoachInputBar       → widgets/coach/coach_input_bar.dart
 //  - CoachLoadingIndicator → widgets/coach/coach_loading_indicator.dart
 //  - CoachMessageBubble  → widgets/coach/coach_message_bubble.dart
@@ -1314,15 +1313,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Bug 2 fix: only show empty state when there is NO incoming payload.
-    // A valid entryPayload or initialPrompt must always win over the
-    // profile check — otherwise new users entering from intent_screen
-    // get trapped in the CoachEmptyState -> intent -> CoachEmptyState loop.
-    if (!_hasProfile &&
-        widget.entryPayload == null &&
-        widget.initialPrompt == null) {
-      return const CoachEmptyState();
-    }
+    // CoachEmptyState deleted (KILL-02). Chat always renders — coach speaks first.
 
     return Scaffold(
       backgroundColor: MintColors.craie,
