@@ -428,7 +428,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             decoration: TextDecoration.underline,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () => context.go('/profile/consent'),
+                            ..onTap = () => context.push('/about'),
                         ),
                         TextSpan(
                           text: l10n.authCguAndPrivacy,
@@ -442,7 +442,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             decoration: TextDecoration.underline,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () => context.go('/profile/consent'),
+                            ..onTap = () => context.push('/about'),
                         ),
                         const TextSpan(text: ' *'),
                       ],

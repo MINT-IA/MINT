@@ -19,7 +19,7 @@ import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
-import 'package:mint_mobile/screens/consent_dashboard_screen.dart';
+// consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
 import 'package:mint_mobile/screens/profile_screen.dart';
@@ -669,10 +669,7 @@ final _router = GoRouter(
               FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminAnalyticsScreen(),
         ),
-        ScopedGoRoute(
-          path: 'consent',
-          builder: (context, state) => const ConsentDashboardScreen(),
-        ),
+        // KILL-03: consent dashboard deleted (Phase 2). Route removed.
         ScopedGoRoute(
           path: 'byok',
           builder: (context, state) => const ByokSettingsScreen(),
