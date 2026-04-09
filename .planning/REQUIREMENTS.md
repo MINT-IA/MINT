@@ -82,7 +82,7 @@ Visual polish comes last, on a sane base. No Aesop chase. Sober is the goal.
 
 Gate 0 is non-negotiable. Tests green ≠ app functional.
 
-- [ ] **DEVICE-01**: Every phase ships with creator-device annotated screenshots (iPhone, real TestFlight build) demonstrating the user reaches the value moment; PR cannot merge without them
+- [x] **DEVICE-01**: Every phase ships with creator-device annotated screenshots (iPhone, real TestFlight build) demonstrating the user reaches the value moment; PR cannot merge without them
 - [ ] **DEVICE-02**: The full v2.3 onboarding flow (cold start → first coach turn) is walked end-to-end on device by Julien at the end of the milestone, with zero P0/P1 issues, before the v2.3 → staging promotion PR
 
 ## v2 Requirements
@@ -152,7 +152,7 @@ Each v1 requirement maps to exactly one phase.
 | POLISH-02 | Phase 5 | Pending |
 | POLISH-03 | Phase 5 | Pending |
 | POLISH-04 | Phase 5 | Pending |
-| DEVICE-01 | Phase 1 (recurring Gate 0 in Phases 1-5) | Pending |
+| DEVICE-01 | Phase 1 (recurring Gate 0 in Phases 1-5) | Complete |
 | DEVICE-02 | Phase 6 | Pending |
 
 **Coverage:**
