@@ -3,6 +3,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/router/route_scope.dart';
+import 'package:mint_mobile/router/scoped_go_route.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
@@ -183,132 +185,138 @@ final _router = GoRouter(
     return null; // No redirect needed
   },
   routes: [
-    // ── Landing + Auth ────────────────────────────────────────
-    GoRoute(
+    // ── Landing + Auth (public — no auth required) ─────────────
+    ScopedGoRoute(
       path: '/',
+      scope: RouteScope.public, // Landing page
       builder: (context, state) => const LandingScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/auth/login',
+      scope: RouteScope.public, // Auth flow
       builder: (context, state) => const LoginScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/auth/register',
+      scope: RouteScope.public, // Auth flow
       builder: (context, state) => const RegisterScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/auth/forgot-password',
+      scope: RouteScope.public, // Auth flow
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/auth/verify-email',
+      scope: RouteScope.public, // Auth flow
       builder: (context, state) => const VerifyEmailScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/auth/verify',
+      scope: RouteScope.public, // Magic link verification
       builder: (context, state) => _MagicLinkVerifyScreen(
         token: state.uri.queryParameters['token'],
       ),
     ),
 
     // ── Main Shell (4 tabs: Aujourd'hui, Coach, Explorer, Dossier) ──
-    GoRoute(
+    ScopedGoRoute(
       path: '/home',
       builder: (context, state) => const MainNavigationShell(),
     ),
 
     // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/retraite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RetraiteHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/famille',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const FamilleHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/travail',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const TravailHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/logement',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LogementHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/fiscalite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const FiscaliteHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/patrimoine',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const PatrimoineHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/explore/sante',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SanteHubScreen(),
     ),
 
     // ── RETRAITE & PREVOYANCE ────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/retraite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RetirementDashboardScreen(),
     ),
     // Legacy redirects
-    GoRoute(path: '/coach/dashboard', redirect: (_, __) => '/retraite'),
-    GoRoute(path: '/retirement', redirect: (_, __) => '/retraite'),
-    GoRoute(path: '/retirement/projection', redirect: (_, __) => '/retraite'),
+    ScopedGoRoute(path: '/coach/dashboard', redirect: (_, __) => '/retraite'),
+    ScopedGoRoute(path: '/retirement', redirect: (_, __) => '/retraite'),
+    ScopedGoRoute(path: '/retirement/projection', redirect: (_, __) => '/retraite'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/rente-vs-capital',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RenteVsCapitalScreen(),
     ),
-    GoRoute(path: '/arbitrage/rente-vs-capital', redirect: (_, __) => '/rente-vs-capital'),
-    GoRoute(path: '/simulator/rente-capital', redirect: (_, __) => '/rente-vs-capital'),
+    ScopedGoRoute(path: '/arbitrage/rente-vs-capital', redirect: (_, __) => '/rente-vs-capital'),
+    ScopedGoRoute(path: '/simulator/rente-capital', redirect: (_, __) => '/rente-vs-capital'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/rachat-lpp',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RachatEchelonneScreen(),
     ),
-    GoRoute(path: '/lpp-deep/rachat', redirect: (_, __) => '/rachat-lpp'),
-    GoRoute(path: '/arbitrage/rachat-vs-marche', redirect: (_, __) => '/rachat-lpp'),
+    ScopedGoRoute(path: '/lpp-deep/rachat', redirect: (_, __) => '/rachat-lpp'),
+    ScopedGoRoute(path: '/arbitrage/rachat-vs-marche', redirect: (_, __) => '/rachat-lpp'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/epl',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EplScreen(),
     ),
-    GoRoute(path: '/lpp-deep/epl', redirect: (_, __) => '/epl'),
+    ScopedGoRoute(path: '/lpp-deep/epl', redirect: (_, __) => '/epl'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/decaissement',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const OptimisationDecaissementScreen(),
     ),
-    GoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
-    GoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
+    ScopedGoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
+    ScopedGoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/coach/cockpit',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CockpitDetailScreen(),
     ),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to Coach tab.
-    GoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
-    GoRoute(
+    ScopedGoRoute(path: '/coach/checkin', redirect: (_, __) => '/home?tab=1'),
+    ScopedGoRoute(
       path: '/coach/refresh',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/coach/chat',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -320,225 +328,225 @@ final _router = GoRouter(
         );
       },
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/coach/history',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConversationHistoryScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/succession',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SuccessionPatrimoineScreen(),
     ),
-    GoRoute(path: '/coach/succession', redirect: (_, __) => '/succession'),
-    GoRoute(path: '/life-event/succession', redirect: (_, __) => '/succession'),
+    ScopedGoRoute(path: '/coach/succession', redirect: (_, __) => '/succession'),
+    ScopedGoRoute(path: '/life-event/succession', redirect: (_, __) => '/succession'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/libre-passage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LibrePassageScreen(),
     ),
-    GoRoute(path: '/lpp-deep/libre-passage', redirect: (_, __) => '/libre-passage'),
+    ScopedGoRoute(path: '/lpp-deep/libre-passage', redirect: (_, __) => '/libre-passage'),
 
     // ── FISCALITE ────────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/pilier-3a',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Simulator3aScreen(),
     ),
-    GoRoute(path: '/simulator/3a', redirect: (_, __) => '/pilier-3a'),
+    ScopedGoRoute(path: '/simulator/3a', redirect: (_, __) => '/pilier-3a'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/3a-deep/comparator',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ProviderComparatorScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/3a-deep/real-return',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RealReturnScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/3a-deep/staggered-withdrawal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const StaggeredWithdrawalScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/3a-retroactif',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Retroactive3aScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/fiscal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const FiscalComparatorScreen(),
     ),
 
     // ── IMMOBILIER ───────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/hypotheque',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AffordabilityScreen(),
     ),
-    GoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
+    ScopedGoRoute(path: '/mortgage/affordability', redirect: (_, __) => '/hypotheque'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/mortgage/amortization',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AmortizationScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/mortgage/epl-combined',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const EplCombinedScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/mortgage/imputed-rental',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ImputedRentalScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/mortgage/saron-vs-fixed',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SaronVsFixedScreen(),
     ),
 
     // ── BUDGET & DETTE ───────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/budget',
       builder: (context, state) => const BudgetContainerScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/check/debt',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DebtRiskCheckScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/debt/ratio',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DebtRatioScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/debt/help',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HelpResourcesScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/debt/repayment',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const RepaymentScreen(),
     ),
 
     // ── FAMILLE ──────────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/divorce',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DivorceSimulatorScreen(),
     ),
-    GoRoute(path: '/life-event/divorce', redirect: (_, __) => '/divorce'),
+    ScopedGoRoute(path: '/life-event/divorce', redirect: (_, __) => '/divorce'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/mariage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const MariageScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/naissance',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const NaissanceScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/concubinage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConcubinageScreen(),
     ),
 
     // ── EMPLOI & STATUT ──────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/unemployment',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const UnemploymentScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/first-job',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const FirstJobScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/expatriation',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ExpatScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/simulator/job-comparison',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const JobComparisonScreen(),
     ),
 
     // ── INDEPENDANTS ─────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/segments/independant',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const IndependantScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/independants/avs',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AvsCotisationsScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/independants/ijm',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const IjmScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/independants/3a',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const Pillar3aIndepScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/independants/dividende-salaire',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DividendeVsSalaireScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/independants/lpp-volontaire',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LppVolontaireScreen(),
     ),
 
     // ── ASSURANCE & SANTE ────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/invalidite',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DisabilityGapScreen(),
     ),
-    GoRoute(path: '/disability/gap', redirect: (_, __) => '/invalidite'),
-    GoRoute(path: '/simulator/disability-gap', redirect: (_, __) => '/invalidite'),
+    ScopedGoRoute(path: '/disability/gap', redirect: (_, __) => '/invalidite'),
+    ScopedGoRoute(path: '/simulator/disability-gap', redirect: (_, __) => '/invalidite'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/disability/insurance',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DisabilityInsuranceScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/disability/self-employed',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DisabilitySelfEmployedScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/assurances/lamal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LamalFranchiseScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/assurances/coverage',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CoverageCheckScreen(),
     ),
 
     // ── DOCUMENTS & SCAN ─────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/scan',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -547,15 +555,15 @@ final _router = GoRouter(
         return DocumentScanScreen(initialType: initialType);
       },
     ),
-    GoRoute(path: '/document-scan', redirect: (_, __) => '/scan'),
+    ScopedGoRoute(path: '/document-scan', redirect: (_, __) => '/scan'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/scan/avs-guide',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AvsGuideScreen(),
     ),
-    GoRoute(path: '/document-scan/avs-guide', redirect: (_, __) => '/scan/avs-guide'),
-    GoRoute(
+    ScopedGoRoute(path: '/document-scan/avs-guide', redirect: (_, __) => '/scan/avs-guide'),
+    ScopedGoRoute(
       path: '/scan/review',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -568,7 +576,7 @@ final _router = GoRouter(
         return ExtractionReviewScreen(result: result);
       },
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/scan/impact',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -587,12 +595,12 @@ final _router = GoRouter(
       },
     ),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/documents',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DocumentsScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/documents/:id',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -602,14 +610,14 @@ final _router = GoRouter(
     ),
 
     // ── COUPLE ────────────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/couple',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HouseholdScreen(),
     ),
-    GoRoute(path: '/household', redirect: (_, __) => '/couple'),
+    ScopedGoRoute(path: '/household', redirect: (_, __) => '/couple'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/couple/accept',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -617,13 +625,13 @@ final _router = GoRouter(
         return AcceptInvitationScreen(initialCode: code);
       },
     ),
-    GoRoute(path: '/household/accept', redirect: (context, state) {
+    ScopedGoRoute(path: '/household/accept', redirect: (context, state) {
       final code = state.uri.queryParameters['code'];
       return code != null ? '/couple/accept?code=$code' : '/couple/accept';
     }),
 
     // ── RAPPORT & PROFIL ─────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/rapport',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -631,42 +639,42 @@ final _router = GoRouter(
         return FinancialReportScreenV2(wizardAnswers: extra);
       },
     ),
-    GoRoute(path: '/report', redirect: (_, __) => '/rapport'),
-    GoRoute(path: '/report/v2', redirect: (_, __) => '/rapport'),
+    ScopedGoRoute(path: '/report', redirect: (_, __) => '/rapport'),
+    ScopedGoRoute(path: '/report/v2', redirect: (_, __) => '/rapport'),
 
-    GoRoute(
+    ScopedGoRoute(
       path: '/profile',
       builder: (context, state) => const ProfileScreen(),
       routes: [
-        GoRoute(
+        ScopedGoRoute(
           path: 'admin-observability',
           redirect: (context, state) =>
               FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminObservabilityScreen(),
         ),
-        GoRoute(
+        ScopedGoRoute(
           path: 'admin-analytics',
           redirect: (context, state) =>
               FeatureFlags.enableAdminScreens ? null : '/',
           builder: (context, state) => const AdminAnalyticsScreen(),
         ),
-        GoRoute(
+        ScopedGoRoute(
           path: 'consent',
           builder: (context, state) => const ConsentDashboardScreen(),
         ),
-        GoRoute(
+        ScopedGoRoute(
           path: 'byok',
           builder: (context, state) => const ByokSettingsScreen(),
         ),
-        GoRoute(
+        ScopedGoRoute(
           path: 'slm',
           builder: (context, state) => const SlmSettingsScreen(),
         ),
-        GoRoute(
+        ScopedGoRoute(
           path: 'bilan',
           builder: (context, state) => const FinancialSummaryScreen(),
         ),
-        GoRoute(
+        ScopedGoRoute(
           path: 'privacy-control',
           builder: (context, state) => const PrivacyControlScreen(),
         ),
@@ -674,44 +682,44 @@ final _router = GoRouter(
     ),
 
     // ── SEGMENTS ─────────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/segments/gender-gap',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const GenderGapScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/segments/frontalier',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const FrontalierScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/life-event/housing-sale',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const HousingSaleScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/life-event/donation',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DonationScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/life-event/deces-proche',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DecesProcheScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/life-event/demenagement-cantonal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const DemenagementCantonalScreen(),
     ),
 
     // ── EDUCATION ────────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/education/hub',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ComprendreHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/education/theme/:id',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -721,41 +729,41 @@ final _router = GoRouter(
     ),
 
     // ── SIMULATEURS (accessibles directement) ────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/simulator/compound',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SimulatorCompoundScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/simulator/leasing',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const SimulatorLeasingScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/simulator/credit',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ConsumerCreditSimulatorScreen(),
     ),
 
     // ── ARBITRAGE (restants) ─────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/arbitrage/bilan',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const ArbitrageBilanScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/arbitrage/allocation-annuelle',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AllocationAnnuelleScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/arbitrage/location-vs-propriete',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
 
     // ── ACHIEVEMENTS ──────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/achievements',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AchievementsScreen(),
@@ -765,45 +773,46 @@ final _router = GoRouter(
     // callers; deleted per AUDIT_ORPHAN_ROUTES row 90.
 
     // ── CANTONAL BENCHMARKS ──────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/cantonal-benchmark',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const CantonalBenchmarkScreen(),
     ),
 
     // ── SETTINGS ────────────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/settings/langue',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const LangueSettingsScreen(),
     ),
 
-    // ── ABOUT ────────────────────────────────────────────────
-    GoRoute(
+    // ── ABOUT (public) ─────────────────────────────────────────
+    ScopedGoRoute(
       path: '/about',
+      scope: RouteScope.public, // Legal/info page
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AboutScreen(),
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/ask-mint',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AskMintScreen(),
     ),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to Coach tab.
-    GoRoute(path: '/tools', redirect: (_, __) => '/home?tab=1'),
-    GoRoute(
+    ScopedGoRoute(path: '/tools', redirect: (_, __) => '/home?tab=1'),
+    ScopedGoRoute(
       path: '/portfolio',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const PortfolioScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const TimelineScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/confidence',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -817,7 +826,7 @@ final _router = GoRouter(
         return ConfidenceDashboardScreen(result: result);
       },
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/score-reveal',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
@@ -840,33 +849,35 @@ final _router = GoRouter(
     // P10-02b: legacy onboarding screens removed. Routes kept as redirect
     // shims → /coach/chat so existing call sites keep working. The coach
     // chat surface handles missing query params gracefully.
-    GoRoute(
+    ScopedGoRoute(
       path: '/onboarding/quick',
       redirect: (_, __) => '/coach/chat',
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/onboarding/quick-start',
       redirect: (_, __) => '/coach/chat',
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/onboarding/premier-eclairage',
       redirect: (_, __) => '/coach/chat',
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/onboarding/intent',
+      scope: RouteScope.onboarding, // Onboarding flow
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const IntentScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/onboarding/promise',
       redirect: (_, __) => '/coach/chat',
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/onboarding/plan',
       redirect: (_, __) => '/coach/chat',
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/data-block/:type',
+      scope: RouteScope.onboarding, // Onboarding enrichment flow
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final type = state.pathParameters['type'] ?? 'revenu';
@@ -875,45 +886,45 @@ final _router = GoRouter(
     ),
 
     // ── OPEN BANKING (post-V1, FINMA gate) ───────────────────
-    GoRoute(
+    ScopedGoRoute(
       path: '/open-banking',
       parentNavigatorKey: _rootNavigatorKey,
       redirect: (context, state) =>
           FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const OpenBankingHubScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/open-banking/transactions',
       parentNavigatorKey: _rootNavigatorKey,
       redirect: (context, state) =>
           FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const TransactionListScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/open-banking/consents',
       parentNavigatorKey: _rootNavigatorKey,
       redirect: (context, state) =>
           FeatureFlags.enableOpenBanking ? null : '/',
       builder: (context, state) => const ConsentScreen(),
     ),
-    GoRoute(
+    ScopedGoRoute(
       path: '/bank-import',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BankImportScreen(),
     ),
 
     // ── LEGACY REDIRECTS (backwards compat) ──────────────────
-    GoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
-    GoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
-    GoRoute(path: '/advisor/wizard', redirect: (context, state) {
+    ScopedGoRoute(path: '/advisor', redirect: (_, __) => '/onboarding/quick'),
+    ScopedGoRoute(path: '/advisor/plan-30-days', redirect: (_, __) => '/home'),
+    ScopedGoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
       if (section == null || section.isEmpty) return '/onboarding/quick';
       return '/onboarding/quick?section=$section';
     }),
-    GoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    GoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
-    GoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
-    GoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
+    ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
+    ScopedGoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
+    ScopedGoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
+    ScopedGoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
   ],
 );
 
