@@ -169,14 +169,14 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
                 context,
                 l,
                 l.privacyControlSectionLifeEvents,
-                grouped['Evenements de vie'] ?? [],
+                grouped['Événements de vie'] ?? [],
                 provider,
               ),
               _buildSection(
                 context,
                 l,
                 l.privacyControlSectionDecisions,
-                grouped['Decisions'] ?? [],
+                grouped['Décisions'] ?? [],
                 provider,
               ),
 
