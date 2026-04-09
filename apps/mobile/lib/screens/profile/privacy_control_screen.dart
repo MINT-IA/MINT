@@ -162,7 +162,7 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
                 context,
                 l,
                 l.privacyControlSectionFinancial,
-                grouped['Donnees financieres'] ?? [],
+                grouped['Données financières'] ?? [],
                 provider,
               ),
               _buildSection(

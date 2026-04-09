@@ -69,14 +69,14 @@ class BiographyProvider extends ChangeNotifier {
   /// Facts grouped by display category.
   ///
   /// Categories:
-  /// - 'Donnees financieres': salary, LPP, 3a, AVS, tax, mortgage
-  /// - 'Evenements de vie': lifeEvent, civilStatus, employmentStatus, canton
-  /// - 'Decisions': userDecision, coachPreference
+  /// - 'Données financières': salary, LPP, 3a, AVS, tax, mortgage
+  /// - 'Événements de vie': lifeEvent, civilStatus, employmentStatus, canton
+  /// - 'Décisions': userDecision, coachPreference
   Map<String, List<BiographyFact>> get factsByCategory {
     final result = <String, List<BiographyFact>>{
-      'Donnees financieres': [],
-      'Evenements de vie': [],
-      'Decisions': [],
+      'Données financières': [],
+      'Événements de vie': [],
+      'Décisions': [],
     };
 
     for (final fact in _facts) {
@@ -97,15 +97,15 @@ class BiographyProvider extends ChangeNotifier {
       case FactType.avsContributionYears:
       case FactType.taxRate:
       case FactType.mortgageDebt:
-        return 'Donnees financieres';
+        return 'Données financières';
       case FactType.lifeEvent:
       case FactType.civilStatus:
       case FactType.employmentStatus:
       case FactType.canton:
-        return 'Evenements de vie';
+        return 'Événements de vie';
       case FactType.userDecision:
       case FactType.coachPreference:
-        return 'Decisions';
+        return 'Décisions';
       case FactType.alertAcknowledged:
         return 'Interactions';
     }

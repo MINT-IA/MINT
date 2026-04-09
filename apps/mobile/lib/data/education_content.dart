@@ -154,14 +154,14 @@ class EducationContentData {
         options: ['30 ans', '40 ans', '44 ans', '50 ans'],
         correctIndex: 2,
         explanation:
-            '44 annees completes de cotisation sont necessaires pour la rente '
-            'maximale (LAVS art. 29). De 21 a 65 ans = 44 ans. Une seule '
-            'annee manquante = rente reduite a vie.',
+            '44 années complètes de cotisation sont nécessaires pour la rente '
+            'maximale (LAVS art. 29). De 21 à 65 ans = 44 ans. Une seule '
+            'année manquante = rente réduite à vie.',
       ),
       funFact:
-          '44 annees de cotisation completes sont necessaires pour la rente '
-          'maximale. Une seule annee manquante la reduit definitivement. '
-          'Verifie ton extrait — ca prend 5 minutes en ligne.',
+          '44 années de cotisation complètes sont nécessaires pour la rente '
+          'maximale. Une seule année manquante la réduit définitivement. '
+          'Vérifie ton extrait — ça prend 5 minutes en ligne.',
       sources: [
         'LAVS art. 29 (Duree de cotisation)',
         'LAVS art. 30 (Calcul de la rente)',

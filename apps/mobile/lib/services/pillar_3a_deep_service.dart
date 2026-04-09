@@ -398,7 +398,7 @@ class RealReturnCalculator {
 
 enum ProfilRisque { prudent, equilibre, dynamique }
 
-/// Donnees d'un provider 3a
+/// Données d'un provider 3a
 class Provider3a {
   final String nom;
   final String type; // fintech, banque, assurance

@@ -27,7 +27,7 @@ enum HeroCardMode {
   /// Projection partielle — fourchette affichee.
   range,
 
-  /// Donnees insuffisantes — aucun chiffre, CTA uniquement.
+  /// Données insuffisantes — aucun chiffre, CTA uniquement.
   educational,
 }
 

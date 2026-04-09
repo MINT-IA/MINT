@@ -36,7 +36,7 @@ enum ProfileDataSource {
   userInput, // Saisi manuellement (confiance 0.60)
   crossValidated, // Saisie + verification croisee (confiance 0.70)
   certificate, // Extrait d'un certificat scanne (confiance 0.95)
-  openBanking, // Donnees bancaires live bLink/SFTI (confiance 1.00)
+  openBanking, // Données bancaires live bLink/SFTI (confiance 1.00)
 }
 
 /// Type d'objectif principal (Goal A)
@@ -1283,7 +1283,7 @@ class PlannedMonthlyContribution {
 
 /// Profil financier complet pour MINT Coach.
 ///
-/// Contient toutes les donnees necessaires au ForecasterService
+/// Contient toutes les données nécessaires au ForecasterService
 /// et au FinancialFitnessScore. Persiste localement (SharedPreferences
 /// ou Hive) et peut etre exporte en JSON.
 class CoachProfile {

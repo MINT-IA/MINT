@@ -103,26 +103,26 @@ class ExpatService {
 
   /// Cantonal forfait minimums (depenses de vie minimum).
   /// null means abolished / not available.
-  /// Source: LIFD art. 14 al. 3 (base federale CHF 400'000), lois cantonales.
+  /// Source: LIFD art. 14 al. 3 (base fédérale CHF 400'000), lois cantonales.
   static const Map<String, double?> forfaitMinimumByCanton = {
     'VD': 1000000.0,  // LI-VD art. 60
     'GE': 600000.0,   // LIPP-GE art. 15
     'VS': 250000.0,   // LF-VS art. 12
     'ZG': 500000.0,   // StG-ZG § 12
     'FR': 400000.0,   // LICD-FR art. 12
-    'LU': 400000.0,   // StG-LU § 14 (base federale)
+    'LU': 400000.0,   // StG-LU § 14 (base fédérale)
     'BE': 400000.0,   // StG-BE art. 14
     'NE': 500000.0,   // LCdir-NE art. 14
-    'TI': 400000.0,   // LT-TI art. 7 (base federale)
+    'TI': 400000.0,   // LT-TI art. 7 (base fédérale)
     'GR': 400000.0,   // StG-GR art. 11
     'SG': 400000.0,   // StG-SG art. 12
     'TG': 400000.0,   // StG-TG § 12
     'AG': 400000.0,   // StG-AG § 12
     'SO': 400000.0,   // StG-SO § 11
-    'OW': 400000.0,   // StG-OW art. 12 (base federale)
-    'NW': 400000.0,   // StG-NW art. 12 (base federale)
-    'GL': 400000.0,   // StG-GL art. 12 (base federale)
-    'UR': 400000.0,   // StG-UR art. 12 (base federale)
+    'OW': 400000.0,   // StG-OW art. 12 (base fédérale)
+    'NW': 400000.0,   // StG-NW art. 12 (base fédérale)
+    'GL': 400000.0,   // StG-GL art. 12 (base fédérale)
+    'UR': 400000.0,   // StG-UR art. 12 (base fédérale)
     'SZ': 400000.0,   // StG-SZ § 12
     'JU': 400000.0,   // LI-JU art. 12
     // Abolished:
