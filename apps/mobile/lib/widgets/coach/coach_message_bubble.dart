@@ -44,7 +44,7 @@ class CoachMessageBubble extends StatelessWidget {
         msg.richToolCalls.any((tc) => tc.name == 'ask_user_input');
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -184,7 +184,7 @@ class UserMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -227,7 +227,7 @@ class SystemMessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(

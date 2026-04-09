@@ -25,18 +25,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 //  CONSENT MANAGER — S40 / Reengagement + Consent
 // ────────────────────────────────────────────────────────────
 //
-// Sept consentements granulaires, independants, revocables :
+// Sept consentements granulaires, indépendants, révocables :
 //
-// 1. byokDataSharing  — Envoi des donnees agregees au fournisseur IA
+// 1. byokDataSharing  — Envoi des données agrégées au fournisseur IA
 // 2. snapshotStorage   — Conservation de l'historique de projections
-// 3. notifications     — Rappels personnalises avec chiffres
-// 4. analytics         — Statistiques anonymisees
-// 5. ragQueries        — Questions posees au coach IA
+// 3. notifications     — Rappels personnalisés avec chiffres
+// 4. analytics         — Statistiques anonymisées
+// 5. ragQueries        — Questions posées au coach IA
 // 6. openBanking       — Connexion lecture seule aux comptes
-// 7. documentUpload    — Certificats et releves analyses par OCR
+// 7. documentUpload    — Certificats et relevés analysés par OCR
 //
-// Tous OFF par defaut (privacy by design).
-// Revocation immediate sans consequence sur le service de base.
+// Tous OFF par défaut (privacy by design).
+// Révocation immédiate sans conséquence sur le service de base.
 // ────────────────────────────────────────────────────────────
 
 /// The independent consent types.
@@ -202,10 +202,10 @@ class ConsentManager {
           type: ConsentType.byokDataSharing,
           enabled: false,
           label: l?.consentLabelByok ?? 'Personnalisation IA',
-          detail: 'Envoyer tes donnees financieres agregees a ton fournisseur IA '
+          detail: 'Envoyer tes données financières agrégées à ton fournisseur IA '
               'pour personnaliser les textes du coach.',
           neverSent: 'Ton salaire exact, tes soldes bancaires, ton employeur, '
-              'ton adresse et tes donnees familiales ne sont jamais envoyes.',
+              'ton adresse et tes données familiales ne sont jamais envoyés.',
         ),
         ConsentState(
           type: ConsentType.snapshotStorage,
@@ -213,50 +213,50 @@ class ConsentManager {
           label: l?.consentLabelSnapshot ?? 'Historique de progression',
           detail: 'Conserver l\'historique de tes projections pour suivre '
               'ta progression dans le temps.',
-          neverSent: 'Tes donnees brutes ne sont pas stockees. '
-              'Seuls les resultats agreges sont conserves.',
+          neverSent: 'Tes données brutes ne sont pas stockées. '
+              'Seuls les résultats agrégés sont conservés.',
         ),
         ConsentState(
           type: ConsentType.notifications,
           enabled: false,
-          label: l?.consentLabelNotifications ?? 'Rappels personnalises',
+          label: l?.consentLabelNotifications ?? 'Rappels personnalisés',
           detail: 'Recevoir des rappels avec tes chiffres personnels '
-              '(3a, impots, check-in).',
+              '(3a, impôts, check-in).',
           neverSent: 'Aucune notification ne contient ton salaire, '
-              'tes soldes ou tes donnees sensibles.',
+              'tes soldes ou tes données sensibles.',
         ),
         const ConsentState(
           type: ConsentType.analytics,
           enabled: false,
           label: 'Analyse d\'utilisation',
-          detail: 'Statistiques anonymisees pour ameliorer l\'app.',
-          neverSent: 'Aucune donnee personnelle n\'est incluse '
-              'dans les statistiques agregees.',
+          detail: 'Statistiques anonymisées pour améliorer l\'app.',
+          neverSent: 'Aucune donnée personnelle n\'est incluse '
+              'dans les statistiques agrégées.',
         ),
         const ConsentState(
           type: ConsentType.ragQueries,
           enabled: false,
-          label: 'Questions a l\'assistant',
-          detail: 'Historique des questions posees au coach IA '
+          label: 'Questions à l\'assistant',
+          detail: 'Historique des questions posées au coach IA '
               '(BYOK — ta propre cle API).',
           neverSent: 'Les questions ne contiennent ni ton salaire, '
-              'ni tes soldes, ni tes donnees sensibles.',
+              'ni tes soldes, ni tes données sensibles.',
         ),
         const ConsentState(
           type: ConsentType.openBanking,
           enabled: false,
-          label: 'Donnees bancaires (bLink)',
-          detail: 'Connexion lecture seule a tes comptes bancaires '
+          label: 'Données bancaires (bLink)',
+          detail: 'Connexion lecture seule à tes comptes bancaires '
               'pour importer automatiquement tes transactions.',
           neverSent: 'Tes identifiants bancaires ne transitent jamais '
-              'par nos serveurs. Seules les transactions sont importees.',
+              'par nos serveurs. Seules les transactions sont importées.',
         ),
         const ConsentState(
           type: ConsentType.documentUpload,
           enabled: false,
-          label: 'Documents uploades',
-          detail: 'Certificats LPP, releves bancaires analyses par OCR '
-              'pour pre-remplir tes donnees de prevoyance.',
+          label: 'Documents uploadés',
+          detail: 'Certificats LPP, relevés bancaires analysés par OCR '
+              'pour pré-remplir tes données de prévoyance.',
           neverSent: 'Les documents originaux sont supprimes apres analyse. '
               'Seules les donnees extraites sont conservees localement.',
         ),

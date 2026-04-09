@@ -9728,7 +9728,7 @@
   "instantPremierEclairageConfidence": "Estimate ±15% — create an account for more accuracy",
   "instantPremierEclairageNothingStored": "No account. Nothing stored.",
   "instantPremierEclairageComeBack": "Come back anytime",
-  "coachSilentOpenerQuestion": "Mint is here whenever you want to talk about it.",
+  "coachSilentOpenerQuestion": "Want to talk about it?",
   "@coachSilentOpenerQuestion": {
     "x-mint-meta": { "level": "N1", "phase": "11-01" }
   },
@@ -10309,6 +10309,8 @@
   "mintAlertDebtNextMoment": "We can look at an exit plan together, at your own pace.",
   "mintAlertAnnounceG3": "MINT has spotted an important point that needs your attention.",
   "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."},
+  "landingV2PromiseSober": "Mint tells you what nobody has an interest in telling you.",
+  "landingV2CtaSober": "Get started",
   "tonChooserTitle": "Pick how Mint speaks to you",
   "@tonChooserTitle": {"description": "Phase 12-01 \u2014 TonChooserSheet title."},
   "tonChooserSubtitle": "How Mint talks to you. You can change this anytime.",

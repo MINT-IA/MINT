@@ -129,8 +129,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
       // Silent opener copy (coachSilentOpenerQuestion):
-      // "Mint est là quand tu veux en parler." — lowercase 't' post-Phase-12.
-      expect(find.textContaining('tu veux en parler'), findsOneWidget);
+      // "Tu veux en parler ?" — current ARB value.
+      expect(find.textContaining('veux en parler'), findsOneWidget);
     });
 
     testWidgets('shows silent opener with financial data', (tester) async {
@@ -146,8 +146,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      // coachInputHint post-Phase-12: "Dis-moi ce qui te trotte dans la tête."
-      expect(find.textContaining('trotte'), findsWidgets);
+      // coachInputHint: "Une question sur tes finances ?"
+      expect(find.textContaining('question sur tes finances'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {

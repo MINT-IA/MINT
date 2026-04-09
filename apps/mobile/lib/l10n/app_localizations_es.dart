@@ -22255,6 +22255,12 @@ class SEs extends S {
       'MINT ha detectado un punto importante que necesita tu atención.';
 
   @override
+  String get landingV2PromiseSober =>
+      'Mint te dice lo que nadie tiene interés en decirte.';
+
+  @override
+  String get landingV2CtaSober => 'Empezar';
+
   String get tonChooserTitle => 'Elige cómo te habla Mint';
 
   @override

@@ -42,10 +42,10 @@ GoRouter _buildTestRouter() {
       GoRoute(
           path: '/onboarding/promise', redirect: (_, __) => '/coach/chat'),
       GoRoute(path: '/onboarding/plan', redirect: (_, __) => '/coach/chat'),
-      // Surviving real routes
+      // KILL-01: intent_screen deleted, now a redirect shim
       GoRoute(
           path: '/onboarding/intent',
-          builder: (_, __) => const _Stub('intent')),
+          redirect: (_, __) => '/coach/chat'),
       GoRoute(
           path: '/data-block/:type',
           builder: (_, s) => _Stub('data_block_${s.pathParameters['type']}')),
@@ -68,12 +68,12 @@ void main() {
       expect(find.byKey(const Key('stub_landing')), findsOneWidget);
     });
 
-    testWidgets('/onboarding/intent resolves to intent screen',
+    testWidgets('/onboarding/intent redirects to /coach/chat (KILL-01)',
         (tester) async {
       final router = _buildTestRouter();
       await tester.pumpWidget(MaterialApp.router(routerConfig: router));
       await _pumpAndGo(tester, router, '/onboarding/intent');
-      expect(find.byKey(const Key('stub_intent')), findsOneWidget);
+      expect(find.byKey(const Key('stub_coach_chat')), findsOneWidget);
     });
 
     testWidgets('/coach/chat resolves', (tester) async {

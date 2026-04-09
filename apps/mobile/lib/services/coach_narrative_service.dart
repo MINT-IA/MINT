@@ -393,7 +393,7 @@ class CoachNarrativeService {
       );
 
       // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
-      // Tente d'ameliorer le narratif statique si BYOK est configure.
+      // Tente d'améliorer le narratif statique si BYOK est configuré.
       // En cas d'echec, le narratif statique reste intact.
       if (byokConfig != null &&
           byokConfig.hasApiKey &&
@@ -1078,7 +1078,7 @@ class CoachNarrativeService {
           '- Aucune donnee certifiee par document. '
           'Toutes les projections sont basees sur des estimations.\n'
           '- Suggere a l\'utilisateur de scanner son certificat LPP ou '
-          'son extrait AVS pour ameliorer la precision.\n\n';
+          'son extrait AVS pour améliorer la précision.\n\n';
     }
 
     final certified = <String>[];

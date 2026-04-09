@@ -29,7 +29,6 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
-import 'package:mint_mobile/widgets/coach/coach_empty_state.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
@@ -37,13 +36,16 @@ import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
+import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
 //
 //  Extracted components (W13 refactoring, 4193→836 lines):
 //  - CoachAppBar         → widgets/coach/coach_app_bar.dart
-//  - CoachEmptyState     → widgets/coach/coach_empty_state.dart
+//  - CoachEmptyState     → DELETED (KILL-02, Phase 2)
 //  - CoachInputBar       → widgets/coach/coach_input_bar.dart
 //  - CoachLoadingIndicator → widgets/coach/coach_loading_indicator.dart
 //  - CoachMessageBubble  → widgets/coach/coach_message_bubble.dart
@@ -305,6 +307,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             _sendMessage(prompt);
           });
         }
+      } else {
+        // CHAT-01: Anonymous user (no profile) — show silent opener
+        // with the question text. The opener invites the user to type,
+        // and data capture (CHAT-04) will collect profile data inline.
+        if (!_isResumingConversation) {
+          setState(() {
+            _showSilentOpener = true;
+          });
+        }
       }
     }
   }
@@ -449,7 +460,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           if (mounted) _sendMessage(message);
         },
         onNavigate: (route) {
-          if (mounted) context.push(route);
+          if (!mounted) return;
+          // CHAT-02: Open as drawer over chat instead of full-page push.
+          final widget = ChatDrawerHost.resolveDrawerWidget(route);
+          if (widget != null) {
+            showChatDrawer(context: context, child: widget);
+          }
         },
       ),
     );
@@ -610,6 +626,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_entryPayloadContext != null) {
       memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
       _entryPayloadContext = null; // one-shot: clear after first use
+    }
+
+    // CHAT-01: Ensure a profile exists for the coach context.
+    // Anonymous users get a minimal profile on first message.
+    if (_profile == null) {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) {
+        // Create minimal profile — data capture (CHAT-04) will fill in details.
+        provider.mergeAnswers({
+          'q_birth_year': DateTime.now().year - 35,
+          'q_canton': 'VD',
+          'q_net_income_period_chf': 0.0,
+        });
+      }
+      _profile = provider.profile;
+      _hasProfile = provider.hasProfile;
     }
 
     // Try SLM streaming first.
@@ -1302,7 +1334,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
     final route = _routeForAction(action);
     if (route != null) {
-      context.push(route);
+      // CHAT-02: Open as drawer over chat instead of full-page push.
+      final drawerWidget = ChatDrawerHost.resolveDrawerWidget(route);
+      if (drawerWidget != null) {
+        showChatDrawer(context: context, child: drawerWidget);
+      }
     } else {
       _sendMessage(action);
     }
@@ -1314,9 +1350,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_hasProfile) {
-      return const CoachEmptyState();
-    }
+    // CoachEmptyState deleted (KILL-02). Chat always renders — coach speaks first.
 
     return Scaffold(
       backgroundColor: MintColors.craie,
@@ -1336,7 +1370,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ),
           Expanded(
             child: _showSilentOpener
-                ? _buildSilentOpener()
+                ? _buildSilentOpenerWithTone()
                 : _buildMessageList(),
           ),
           if (_isLoading) const CoachLoadingIndicator(),
@@ -1349,6 +1383,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
+  // ════════════════════════════════════════════════════════════
+
+  /// CHAT-05: Wraps the silent opener with tone preference chips
+  /// if the user hasn't chosen a tone yet.
+  Widget _buildSilentOpenerWithTone() {
+    final opener = _buildSilentOpener();
+    if (_intensityChosen || !_cashLevelLoaded) return opener;
+
+    return Column(
+      children: [
+        Expanded(child: opener),
+        Padding(
+          padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
+          child: _buildIntensityChips(),
+        ),
+      ],
     );
   }
 
@@ -1464,7 +1519,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       child: ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.md, vertical: MintSpacing.md),
+          horizontal: MintSpacing.md, vertical: 24),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
@@ -1557,47 +1612,95 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  /// Build inline intensity picker chips.
+  /// CHAT-05: Build tone preference chips (Doux / Direct / Sans filtre).
+  ///
+  /// Shown once in the first conversation after the first assistant message.
+  /// Maps to VoicePreference enum and persists via CoachProfileProvider.
   Widget _buildIntensityChips() {
-    final s = S.of(context)!;
-    // Level 5 (Brut) is excluded from first-chat chips — accessible via settings only.
-    final chips = <MapEntry<int, String>>[
-      MapEntry(1, s.intensityTranquille),
-      MapEntry(2, s.intensityClair),
-      MapEntry(3, s.intensityDirect),
-      MapEntry(4, s.intensityCash),
+    final chips = <MapEntry<VoicePreference, String>>[
+      const MapEntry(VoicePreference.soft, 'Doux'),
+      const MapEntry(VoicePreference.direct, 'Direct'),
+      const MapEntry(VoicePreference.unfiltered, 'Sans filtre'),
     ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 10,
-      children: chips.map((entry) {
-        return GestureDetector(
-          onTap: () => _onIntensitySelected(entry.key),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: MintColors.porcelaine,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.3),
-                width: 0.5,
-              ),
-            ),
-            child: Text(
-              entry.value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                height: 1.3,
-                color: MintColors.textPrimary,
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Au fait, tu pr\u00e9f\u00e8res que je sois plut\u00f4t\u2026',
+          style: TextStyle(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+            height: 1.4,
           ),
-        );
-      }).toList(),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: chips.map((entry) {
+            return GestureDetector(
+              onTap: () => _onTonePreferenceSelected(entry.key),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: MintColors.porcelaine,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: MintColors.border.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  entry.value,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
+  }
+
+  /// CHAT-05: Handle tone preference chip selection.
+  void _onTonePreferenceSelected(VoicePreference pref) {
+    final int level;
+    final String confirmation;
+    switch (pref) {
+      case VoicePreference.soft:
+        level = 1;
+        confirmation = 'Not\u00e9. Je serai tout en douceur.';
+      case VoicePreference.direct:
+        level = 3;
+        confirmation = 'Compris. Je vais droit au but.';
+      case VoicePreference.unfiltered:
+        level = 5;
+        confirmation = 'OK. Accroche-toi, je ne filtre rien.';
+    }
+
+    final provider = context.read<CoachProfileProvider>();
+    provider.setVoiceCursorPreference(pref);
+
+    setState(() {
+      _cashLevel = level;
+      _intensityChosen = true;
+      _showSilentOpener = false;
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: confirmation,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _saveCashLevel(level);
+    _scrollToBottom();
   }
 }
 

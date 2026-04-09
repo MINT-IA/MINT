@@ -22253,6 +22253,12 @@ class SFr extends S {
       'MINT a repéré un point important qui demande ton attention.';
 
   @override
+  String get landingV2PromiseSober =>
+      'Mint te dit ce que personne n’a intérêt à te dire.';
+
+  @override
+  String get landingV2CtaSober => 'Commencer';
+
   String get tonChooserTitle => 'Choisis le ton de Mint';
 
   @override

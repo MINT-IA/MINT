@@ -1,135 +1,143 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.2
-milestone_name: La Beauté de Mint
-status: Code-complete on feature branch, pending dev merge + human gates
-stopped_at: 16-phase roadmap executed end-to-end on feature/v2.2-p0a-code-unblockers; 18/18 automated ship gates PASS at HEAD; 6 human gates pending
-last_updated: "2026-04-08T16:30:00.000Z"
-last_activity: 2026-04-08 — Pre-dev-merge cleanup sweep (SHIP_GATE regen, SemanticsService deprecation fix, patrol deferred doc, wording honesty pass, working-tree cleanup)
+milestone: v2.3
+milestone_name: milestone
+status: awaiting_gate0
+stopped_at: Phase 6 automated verification complete — awaiting Julien Gate 0
+last_updated: "2026-04-09T13:46:17Z"
+last_activity: "2026-04-09 — Phase 6 automated verification: 34/34 gates green, 9254/9276 tests pass, 149 routes inventoried. Awaiting creator-device walkthrough."
 progress:
-  total_phases: 16
-  completed_phases: 14
-  total_plans: 0
-  completed_plans: 0
-  percent: 88
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 9
+  completed_plans: 9
+  percent: 95
 ---
 
 # GSD State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-07)
+See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.2 La Beauté de Mint — code-complete on `feature/v2.2-p0a-code-unblockers`, pending dev merge + 6 human gates.
+**Current focus:** v2.3 Simplification Radicale — Phase 5 complete. Ready for Phase 6 device walkthrough.
 
 ## Current Position
 
-Phase: 12 (L1.6c Ton UX + Ship Gate) — code-side CLOSED, Plan 12-06 awaits human gates
-Plan: 12-06 (human-gated walkthroughs + ACCESS-01 + Krippendorff)
-Status: Pre-dev-merge cleanup finished. Branch `feature/v2.2-p0a-code-unblockers` ~170 commits ahead of dev, not yet pushed, not yet merged.
-Last activity: 2026-04-08 — Pre-dev-merge fixes (SHIP_GATE regen 17/18 → 18/18, a11y deprecation migration, patrol investigation deferred to v2.3, SUMMARY wording honesty pass, 9 untracked design-brief/audit docs committed)
+Phase: 6 — E2E device walkthrough & ship gate **AUTOMATED COMPLETE**
+Plan: Phase 6 automated verification done. Awaiting Julien Gate 0.
+Status: Phase 1-5 complete. Phase 6 automated verification done. Awaiting creator-device walkthrough.
+Last activity: 2026-04-09 — Phase 6 automated verification: 34/34 gates, 9254/9276 tests, 149 routes.
 
-Progress: [█████████░] ~88% (14 full phases + 2 partial: 8b, 11)
+## Phase Map (v2.3)
 
-## Phase status (16 phases — 1, 1.5, 2, 3, 4, 5, 6, 7, 8a, 8b, 8c, 9, 10, 10.5-prep, 11, 12)
+1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01 **COMPLETE**
+2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
+3. Chat-as-shell rebuild — CHAT-01..05 **COMPLETE**
+4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06 **COMPLETE**
+5. Sober visual polish — POLISH-01..04 **COMPLETE**
+6. End-to-end device walkthrough & ship gate — DEVICE-02
 
-| # | Phase dir | Status | Notes |
-|---|---|---|---|
-| 1 | 01-p0a-code-unblockers | CODE-COMPLETE | SUMMARY present |
-| 1.5 | 01.5-chiffre-choc-domain-rename | CODE-COMPLETE | SUMMARY present |
-| 2 | 02-p0b-contracts-and-audits | CODE-COMPLETE | SUMMARY present (+ 02-01 sub) |
-| 3 | 03-p3-audit-retrait | CODE-COMPLETE | per ROADMAP |
-| 4 | 04-p4-mtc-component-s4-migration | CODE-COMPLETE | SUMMARY present |
-| 5 | 05-l1.6a-voice-cursor-spec | CODE-COMPLETE | SUMMARY present (+ 05-02 sub) |
-| 6 | 06-l1.4-voix-regionale | CODE-COMPLETE | SUMMARY present |
-| 7 | 07-l1.7-landing-v2 | CODE-COMPLETE | SUMMARY present |
-| 8a | 08a-l1.2b-mtc-11-surface-migration | CODE-COMPLETE | SUMMARY present |
-| 8b | 08b-l1.3-microtypo-aaa-a11y | PARTIAL CODE-COMPLETE | 3/4 plans closed, Plan 08b-04 (live a11y session) deferred into Phase 12 per Fork B |
-| 8c | 08c-polish-pass-1 | CODE-COMPLETE | SUMMARY + HOTFIX SUMMARY present |
-| 9 | 09-l1.5-mint-alert-object | CODE-COMPLETE | SUMMARY present |
-| 10 | 10-l1.8-onboarding-v2 | CODE-COMPLETE | SUMMARY present, 6/6 ROADMAP SC met |
-| 10.5 | 10.5-friction-pass-1 | CODE-SIDE PREP DONE | Walkthrough T4 pending human |
-| 11 | 11-l1.6b-phrase-rewrite-krippendorff | PARTIAL CODE-COMPLETE | 4/5 plans closed, Plan 11-02 (tester recruitment + α validation) deferred to Phase 12 window |
-| 12 | 12-l1.6c-ton-ux-ship-gate | CODE-SIDE CLOSED | 5/6 plans + hotfix sweep landed; Plan 12-06 awaits human gates |
+## Accumulated Context
 
-## Pending human gates (Plan 12-06)
+### v2.2 outcome (carryover)
 
-| # | Gate | Owner | Status |
-|---|---|---|---|
-| T4 | Phase 10.5 friction walkthrough (Galaxy A14, ~30 min) | Julien | PENDING |
-| T5 | STAB-18 tap-render walkthrough on A14 (~60 min) | Julien | PENDING |
-| T6 | PERF-01..04 baseline capture (cold start, scroll, bloom, ~45 min) | Julien | PENDING |
-| T7 | Final "ready for humans" sign-off (~20 min) | Julien | PENDING |
-| H-ACCESS-01 | 6 a11y partner recruitment emails + live sessions | Julien / partners | PENDING |
-| H-Krippendorff | 15 testers classify 50 phrases + α validation | Tester pool | PENDING |
+- 15 phases shipped, 175+ commits, 9326 Flutter tests + 5246 backend tests, 18/18 automated ship gates green, audit grade A-
+- TestFlight build 2026-04-08 — Julien device walkthrough 2026-04-09 found 4 P0 bugs in 4 minutes
+- Lesson: tests green ≠ app functional. Gate 0 (creator-device walkthrough) becomes mandatory non-skippable per phase from v2.3 forward.
 
-## Ship gate status (automated, code-side)
+### v2.3 inputs (read before any phase)
 
-**18/18 PASS at HEAD** — regenerated 2026-04-08 via `python3 tools/ship_gate/gate_matrix.py`.
-See `docs/SHIP_GATE_v2.2.md`.
+- `.planning/v2.3-handoff/HANDOFF.md` — full context + 2 founding principles
+- `.planning/v2.3-handoff/screenshots/WALKTHROUGH_NOTES.md` — device diagnosis
+- `docs/NAVIGATION_MAP_v2.2_REALITY.md` — file:line root-causes for 4 P0
+- `docs/AESTHETIC_AUDIT_v2.2_BRUTAL.md` — 7/10 screens to delete as destinations
 
-Gate 2 (full flutter test suite) previously failing on 21 PremierEclairageCard contract-drift failures from Phases 7/8c/12. Cleared by test-side hotfix (commits ~3392abb7 / a40669a3 / 34d4393f), zero production code touched.
+### Phase 1 outcome
 
-## Branch state
+- All 144 routes migrated to ScopedGoRoute with explicit RouteScope (public/onboarding/authenticated)
+- Scope-based guard replaces operation-based protectedPrefixes whitelist
+- 5 CI mechanical gates installed and passing (cycle DFS, scope-leak, empty-state-with-payload, guard snapshot, doctrine-string lint)
+- BUG-01 (infinite loop) patched: coach_chat_screen.dart payload guard checks widget.entryPayload before short-circuiting
+- ProfileDrawer mounted only inside authenticated scope
 
-- Branch: `feature/v2.2-p0a-code-unblockers`
-- Ahead of dev: ~170 commits (168 original + cleanup-sweep commits from 2026-04-08)
-- Pushed to remote: **NO**
-- Merged to dev: **NO**
-- Next step: orchestrator opens PR feature → dev after this cleanup report
+### Phase 2 outcome
 
-## Performance Metrics
+- 14 files deleted (6 screens + 8 test files), 11 routes redirected to /coach/chat, 1 route removed
+- CoachEmptyState deleted -- BUG-01 loop structurally impossible
+- intent_screen, consent_dashboard, profile_screen, main_navigation_shell, explore_tab all deleted
+- /coach/chat scope changed to public (users reach chat without account creation)
+- 6 auth leak tombstone tests prove BUG-02 impossible by construction
+- Guard snapshot golden file updated
+- App is now: landing -> chat. No tabs, no drawer, no profile destination.
+- Hub screen files preserved for Phase 3 (chat-summoned drawers)
 
-- Flutter tests: **9326 passing** / 8 skipped / 0 failed (at HEAD, via gate 2 run)
-- Backend tests: **5246 passing** (at HEAD, via gate 3 run)
-- Total: **14'572 green**
-- `flutter analyze lib/`: 0 errors (info-level `prefer_const_constructors` noise only)
-- Backend ruff: 0 errors
-- Ship gate matrix: 18/18 PASS
+### Phase 4 outcome
 
-## v2.2 targets (carried from original roadmap)
+- BUG-03: ~40 diacritics fixed across 14 Dart files (Donnees->Donnees, ameliorer->ameliorer, etc.)
+- BUG-04: TonChooser already deleted from git in Phase 2; untracked filesystem remnants removed
+- NAV-03: /about confirmed public-scope, scope-leak CI gate green
+- NAV-04: Route cycle DFS CI gate green post-Phase 2+3
+- NAV-05: New route reachability CI gate added (BFS to /coach/chat)
+- NAV-06: Zero Navigator.push except whitelisted fullscreen overlay
+- flutter analyze: 0 errors (870 macOS conflict duplicate files also cleaned)
+- All 34 architecture tests pass
 
-- Galaxy A14 cold start: `timeToFirstFrameMicros < 2500ms` (deliverable T6 — pending human)
-- Scroll FPS on Aujourd'hui: median ≥ 55, p95 ≥ 50 (pending T6)
-- MTC bloom: 0 dropped frames over 250ms (pending T6)
-- WCAG 2.1 AA on every touched surface: 100% (gate 8 green)
-- WCAG 2.1 AAA on S0-S5: gate 15 `s0_s5_aaa_only` green
-- Krippendorff α on voice cursor spec: ≥ 0.67 overall + per-level N4 + per-level N5 (pending H-Krippendorff)
-- Reverse-Krippendorff on generation: ≥ 70% N4 classification (runner ready, pending tester pool)
-- 0 phrases G3 routées N1/N2 (hard floor — gated in ComplianceGuard)
-- 0 phrases sujets sensibles routées N4/N5 (hard floor — gated in ComplianceGuard)
-- 3 live accessibility sessions minimum (pending H-ACCESS-01)
-- Screens-before-first-insight: 2 (down from 5, verified in Phase 10)
+### 4 P0 bugs (from device walkthrough)
 
-## Decisions (v2.2 — cumulative)
+1. **Auth leak** — dissolves via Phase 1 (scope-based guard) + Phase 2 deletion of /profile/consent
+2. **Infinite loop** — Phase 1 patched payload guard; Phase 2 deletes CoachEmptyState entirely (structural elimination)
+3. **Centre de controle catastrophe** — dissolves via Phase 2 KILL-03
+4. **Creer ton compte horrible** — dissolves via Phase 2 KILL-05
 
-- Phase numbering reset to 1 (`--reset-phase-numbers`) at milestone start
-- 16 phases derived from 10 chantiers + P0 two-phase split + 1.5 domain rename + 8c polish + 10.5 friction insert
-- Phase 13 ship gate folded into Phase 12 for cleanliness
-- L1.2b + L1.3 co-located in Phase 8 per SUMMARY §3 dependency note (same files)
-- 2026-04-08 cleanup: `SemanticsService.announce` migrated to `sendAnnouncement` across trust+alert widgets; deprecation warnings cleared on touched files
+### 2 founding principles (apply to every phase)
 
-## Carryover from v2.1 (TestFlight gate) — status
+1. **3-second no-finance-human test** — replaces all UI ship gates
+2. **Chat EST l'app (chat-as-shell inversion)** — every destination screen is suspect
 
-- **STAB-17 manual tap-to-render walkthrough** — tracked as T5 (pending)
-- 12 orphan GoRouter routes: deferred to v3.0 (opportunistic triage happened in Phase 3)
-- ~65 NEEDS-VERIFY try/except blocks: opportunistic, not gating
-- 1 stale test in `chat_tool_dispatcher_test.dart`: tracked
+### Gate 0 reminder
 
-## Pending Todos
+DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creator-device annotated screenshots showing the flow works on a real iPhone.
 
-- Orchestrator: open PR `feature/v2.2-p0a-code-unblockers` → `dev` after cleanup verification
-- After dev merge: run human gates per Plan 12-06
-- v2.3 QA track: resurrect 2 skipped patrol tests once CI emulator infra (QA-04/QA-05) exists — see `.planning/phases/12-l1.6c-ton-ux-ship-gate/12-PATROL-DEFERRED.md`
+### Carryover technical debt
 
-## Blockers/Concerns
+- 12 orphan GoRouter routes (v2.1) — absorbed by Phase 2 deletion spree
+- ~65 NEEDS-VERIFY try/except blocks — out of scope for v2.3
+- ACCESS-01 a11y partner emails never sent (deferred v2.4)
+- Krippendorff alpha validation infra ready but never run (deferred v2.4)
 
-- None code-side. All automated gates green.
-- 6 human gates remain the only path to full v2.2 ship.
+### Phase 5 outcome
+
+- Landing rebuilt to 3 elements: wordmark + single-sentence promise + "Commencer" CTA + legal footer
+- Privacy subtitle removed (coach explains when relevant)
+- Chat breathing room: 24px between turns (was 20px), ListView 24px vertical (was 16px)
+- Phase 3 widgets (chat_drawer_host, chat_consent_chip) tokenized with MintTextStyles
+- Token audit clean: zero Color(0xFF) outside colors.dart, zero Outfit, zero deprecated widgets
+- ARB keys added to all 6 locales, tests updated
+- 4 commits: 67457421, 6000eb76, 2ae9c6c9, e10b264c
+
+### Phase 6 outcome
+
+- Automated verification complete: flutter analyze 0 errors, 34/34 architecture gates green
+- Full suite: 9276 tests (9254 passed, 6 skipped, 16 expected failures from golden/layout changes)
+- Route inventory: 149 routes (14 public, 10 onboarding, 125 authenticated)
+- v2.3 changelog: 32 commits, 13 files deleted, 11 created, -3552 net lines
+- VERIFICATION.md and MILESTONE-SUMMARY.md written
+- Commit: ce0fe678
+
+### Pending Todos
+
+- Julien Gate 0 device walkthrough (TestFlight install, cold-start -> landing -> chat -> coach)
+- Regenerate golden test master images (landing changed in Phase 5)
+- Update 7 test expectations to match v2.3 reality
+
+### Blockers/Concerns
+
+- None. Phase 6 can begin immediately.
 
 ## Session Continuity
 
-Last session: 2026-04-08T16:30:00.000Z
-Stopped at: Pre-dev-merge cleanup complete — ready for dev PR
-Resume file: `docs/PRE_DEV_MERGE_FIXES.md`
+Last session: 2026-04-09T13:46:17Z
+Stopped at: Phase 6 automated verification complete — awaiting Julien Gate 0
+Resume file: None

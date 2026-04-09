@@ -9728,7 +9728,7 @@
   "instantPremierEclairageConfidence": "Estimativa ±15 % — cria uma conta para mais precisão",
   "instantPremierEclairageNothingStored": "Sem conta. Nada armazenado.",
   "instantPremierEclairageComeBack": "Volta quando quiseres",
-  "coachSilentOpenerQuestion": "Mint está aqui quando quiseres falar disso.",
+  "coachSilentOpenerQuestion": "Queres falar sobre isto?",
   "@coachSilentOpenerQuestion": {
     "x-mint-meta": { "level": "N1", "phase": "11-01" }
   },
@@ -10309,6 +10309,8 @@
   "mintAlertDebtNextMoment": "Podemos olhar juntos para um plano de saída, ao teu ritmo.",
   "mintAlertAnnounceG3": "MINT detetou um ponto importante que precisa da tua atenção.",
   "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."},
+  "landingV2PromiseSober": "Mint diz-te o que ningu\u00e9m tem interesse em dizer-te.",
+  "landingV2CtaSober": "Come\u00e7ar",
   "tonChooserTitle": "Escolhe como o Mint te fala",
   "@tonChooserTitle": {"description": "Phase 12-01."},
   "tonChooserSubtitle": "Como o Mint te fala. Podes mudar quando quiseres.",

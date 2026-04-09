@@ -22259,6 +22259,12 @@ class SPt extends S {
       'MINT detetou um ponto importante que precisa da tua atenção.';
 
   @override
+  String get landingV2PromiseSober =>
+      'Mint diz-te o que ninguém tem interesse em dizer-te.';
+
+  @override
+  String get landingV2CtaSober => 'Começar';
+
   String get tonChooserTitle => 'Escolhe como o Mint te fala';
 
   @override

@@ -22304,6 +22304,12 @@ class SDe extends S {
       'MINT hat einen wichtigen Punkt entdeckt, der deine Aufmerksamkeit braucht.';
 
   @override
+  String get landingV2PromiseSober =>
+      'Mint sagt dir, was dir sonst niemand sagen will.';
+
+  @override
+  String get landingV2CtaSober => 'Loslegen';
+
   String get tonChooserTitle => 'Wähle, wie Mint mit dir spricht';
 
   @override

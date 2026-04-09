@@ -49,7 +49,7 @@ import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
 //  "Voir le cockpit detaille" sur le dashboard principal.
 //
 //  Lit le CoachProfile depuis Provider et recalcule toutes
-//  les donnees necessaires (projection, confidence, FRI,
+//  les données nécessaires (projection, confidence, FRI,
 //  Monte Carlo, etc.) exactement comme le dashboard.
 //
 //  Accessible via un lien depuis le tableau de bord simplifie.

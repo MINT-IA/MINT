@@ -35,7 +35,7 @@ class VisibilityAxis {
   final double score; // 0-25
   final double maxScore; // 25 in Phase 0
   final String status; // 'complete', 'partial', 'missing'
-  final String hint; // courte action pour ameliorer
+  final String hint; // courte action pour améliorer
 
   const VisibilityAxis({
     required this.id,
