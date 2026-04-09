@@ -36,6 +36,8 @@ import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -1368,7 +1370,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ),
           Expanded(
             child: _showSilentOpener
-                ? _buildSilentOpener()
+                ? _buildSilentOpenerWithTone()
                 : _buildMessageList(),
           ),
           if (_isLoading) const CoachLoadingIndicator(),
@@ -1381,6 +1383,27 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
+  // ════════════════════════════════════════════════════════════
+
+  /// CHAT-05: Wraps the silent opener with tone preference chips
+  /// if the user hasn't chosen a tone yet.
+  Widget _buildSilentOpenerWithTone() {
+    final opener = _buildSilentOpener();
+    if (_intensityChosen || !_cashLevelLoaded) return opener;
+
+    return Column(
+      children: [
+        Expanded(child: opener),
+        Padding(
+          padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
+          child: _buildIntensityChips(),
+        ),
+      ],
     );
   }
 
@@ -1589,47 +1612,95 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  /// Build inline intensity picker chips.
+  /// CHAT-05: Build tone preference chips (Doux / Direct / Sans filtre).
+  ///
+  /// Shown once in the first conversation after the first assistant message.
+  /// Maps to VoicePreference enum and persists via CoachProfileProvider.
   Widget _buildIntensityChips() {
-    final s = S.of(context)!;
-    // Level 5 (Brut) is excluded from first-chat chips — accessible via settings only.
-    final chips = <MapEntry<int, String>>[
-      MapEntry(1, s.intensityTranquille),
-      MapEntry(2, s.intensityClair),
-      MapEntry(3, s.intensityDirect),
-      MapEntry(4, s.intensityCash),
+    final chips = <MapEntry<VoicePreference, String>>[
+      const MapEntry(VoicePreference.soft, 'Doux'),
+      const MapEntry(VoicePreference.direct, 'Direct'),
+      const MapEntry(VoicePreference.unfiltered, 'Sans filtre'),
     ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 10,
-      children: chips.map((entry) {
-        return GestureDetector(
-          onTap: () => _onIntensitySelected(entry.key),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: MintColors.porcelaine,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: MintColors.border.withValues(alpha: 0.3),
-                width: 0.5,
-              ),
-            ),
-            child: Text(
-              entry.value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                height: 1.3,
-                color: MintColors.textPrimary,
-              ),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Au fait, tu pr\u00e9f\u00e8res que je sois plut\u00f4t\u2026',
+          style: TextStyle(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+            height: 1.4,
           ),
-        );
-      }).toList(),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: chips.map((entry) {
+            return GestureDetector(
+              onTap: () => _onTonePreferenceSelected(entry.key),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: MintColors.porcelaine,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: MintColors.border.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  entry.value,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
+  }
+
+  /// CHAT-05: Handle tone preference chip selection.
+  void _onTonePreferenceSelected(VoicePreference pref) {
+    final int level;
+    final String confirmation;
+    switch (pref) {
+      case VoicePreference.soft:
+        level = 1;
+        confirmation = 'Not\u00e9. Je serai tout en douceur.';
+      case VoicePreference.direct:
+        level = 3;
+        confirmation = 'Compris. Je vais droit au but.';
+      case VoicePreference.unfiltered:
+        level = 5;
+        confirmation = 'OK. Accroche-toi, je ne filtre rien.';
+    }
+
+    final provider = context.read<CoachProfileProvider>();
+    provider.setVoiceCursorPreference(pref);
+
+    setState(() {
+      _cashLevel = level;
+      _intensityChosen = true;
+      _showSilentOpener = false;
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: confirmation,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _saveCashLevel(level);
+    _scrollToBottom();
   }
 }
 
