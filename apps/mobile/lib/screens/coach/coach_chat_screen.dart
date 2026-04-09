@@ -304,6 +304,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             _sendMessage(prompt);
           });
         }
+      } else {
+        // CHAT-01: Anonymous user (no profile) — show silent opener
+        // with the question text. The opener invites the user to type,
+        // and data capture (CHAT-04) will collect profile data inline.
+        if (!_isResumingConversation) {
+          setState(() {
+            _showSilentOpener = true;
+          });
+        }
       }
     }
   }
@@ -609,6 +618,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_entryPayloadContext != null) {
       memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
       _entryPayloadContext = null; // one-shot: clear after first use
+    }
+
+    // CHAT-01: Ensure a profile exists for the coach context.
+    // Anonymous users get a minimal profile on first message.
+    if (_profile == null) {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) {
+        // Create minimal profile — data capture (CHAT-04) will fill in details.
+        provider.mergeAnswers({
+          'q_birth_year': DateTime.now().year - 35,
+          'q_canton': 'VD',
+          'q_net_income_period_chf': 0.0,
+        });
+      }
+      _profile = provider.profile;
+      _hasProfile = provider.hasProfile;
     }
 
     // Try SLM streaming first.
