@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/consent_manager.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -40,11 +41,9 @@ class ChatConsentChip extends StatelessWidget {
           // Human sentence
           Text(
             _consentSentence(consentType),
-            style: const TextStyle(
-              fontSize: 15,
+            style: MintTextStyles.bodyMedium(
               color: MintColors.textPrimary,
-              height: 1.5,
-            ),
+            ).copyWith(height: 1.5),
           ),
           const SizedBox(height: 12),
           // Accept / Decline chips — equally prominent
@@ -87,12 +86,9 @@ class ChatConsentChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            height: 1.3,
+          style: MintTextStyles.bodySmall(
             color: MintColors.textPrimary,
-          ),
+          ).copyWith(fontWeight: FontWeight.w500, height: 1.3),
         ),
       ),
     );

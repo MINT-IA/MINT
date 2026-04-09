@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CHAT DRAWER HOST — CHAT-02 (Phase 3)
@@ -76,11 +77,9 @@ class ChatDrawerHost extends StatelessWidget {
                     const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                 child: Text(
                   title!,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textPrimary,
-                  ),
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             // Content
