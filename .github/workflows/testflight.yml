@@ -242,21 +242,6 @@ jobs:
           [[ -n "$key_content" ]] || { echo "::error::Missing secret: APP_STORE_CONNECT_API_KEY_CONTENT (or APP_STORE_CONNECT_API_KEY/APP_STORE_CONNECT_PRIVATE_KEY/ASC_API_KEY_CONTENT)"; exit 1; }
           echo "App Store secrets precheck: OK"
 
-      # ── Fix GitHub Actions credential helper (interferes with match git_basic_authorization) ──
-      - name: Configure git credentials for match
-        env:
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-        run: |
-          # GitHub Actions sets a credential helper that overrides match's Authorization header.
-          # Remove ALL extraheaders and credential helpers at every level, then set our own.
-          git config --global --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-          git config --system --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-          git config --local --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-          git config --global --unset-all credential.helper 2>/dev/null || true
-          git config --system --unset-all credential.helper 2>/dev/null || true
-          # Set our authorization header explicitly for the certificates repo
-          git config --global http.https://github.com/Julienbatt/mint-certificates.git.extraheader "Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}"
-
       # ── Fastlane: sign + upload ──
       - name: "Build & Upload to TestFlight (${{ steps.env-config.outputs.env_label }})"
         working-directory: apps/mobile/ios
