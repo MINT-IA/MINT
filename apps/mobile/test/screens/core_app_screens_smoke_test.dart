@@ -12,7 +12,7 @@ import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/screens/main_navigation_shell.dart';
+// KILL-07: main_navigation_shell.dart deleted (Phase 2)
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -318,36 +318,6 @@ void main() {
   });
 
   // ===========================================================================
-  // 7. MAIN NAVIGATION SHELL
+  // 7. MAIN NAVIGATION SHELL — DELETED (KILL-07, Phase 2)
   // ===========================================================================
-
-  group('MainNavigationShell', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byType(MainNavigationShell), findsOneWidget);
-    });
-
-    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      // Wire Spec V2: 3-tab layout — Aujourd'hui, MINT (Coach), Explorer
-      // Dossier moved to ProfileDrawer (tab=3 opens drawer)
-      expect(find.textContaining('ujourd'), findsWidgets);
-      expect(find.text('Mint'), findsOneWidget);
-      expect(find.text('Explorer'), findsOneWidget);
-    });
-
-    testWidgets('shows tab icons', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      // Wire Spec V2: 3 tabs — today (active), coach, explore
-      expect(find.byIcon(Icons.today), findsOneWidget); // Active
-      expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
-      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
-    });
-  });
 }

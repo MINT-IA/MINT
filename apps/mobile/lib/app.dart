@@ -25,7 +25,7 @@ import 'package:mint_mobile/screens/portfolio_screen.dart';
 // profile_screen.dart DELETED (KILL-04, Phase 2)
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
-import 'package:mint_mobile/screens/main_navigation_shell.dart';
+// main_navigation_shell.dart DELETED (KILL-07, Phase 2)
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
@@ -131,13 +131,8 @@ import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
 import 'package:mint_mobile/screens/achievements_screen.dart';
 import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
-import 'package:mint_mobile/screens/explore/retraite_hub_screen.dart';
-import 'package:mint_mobile/screens/explore/famille_hub_screen.dart';
-import 'package:mint_mobile/screens/explore/travail_hub_screen.dart';
-import 'package:mint_mobile/screens/explore/logement_hub_screen.dart';
-import 'package:mint_mobile/screens/explore/fiscalite_hub_screen.dart';
-import 'package:mint_mobile/screens/explore/patrimoine_hub_screen.dart';
-import 'package:mint_mobile/screens/explore/sante_hub_screen.dart';
+// KILL-07: Explorer hub screen imports removed (Phase 2).
+// Hub screen FILES preserved for Phase 3 chat-summoned drawers.
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -230,48 +225,15 @@ final _router = GoRouter(
       ),
     ),
 
-    // ── Main Shell (4 tabs: Aujourd'hui, Coach, Explorer, Dossier) ──
-    ScopedGoRoute(
-      path: '/home',
-      builder: (context, state) => const MainNavigationShell(),
-    ),
-
-    // ── EXPLORER HUBS (7 thematic hubs) ──────────────────────
-    ScopedGoRoute(
-      path: '/explore/retraite',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const RetraiteHubScreen(),
-    ),
-    ScopedGoRoute(
-      path: '/explore/famille',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FamilleHubScreen(),
-    ),
-    ScopedGoRoute(
-      path: '/explore/travail',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const TravailHubScreen(),
-    ),
-    ScopedGoRoute(
-      path: '/explore/logement',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const LogementHubScreen(),
-    ),
-    ScopedGoRoute(
-      path: '/explore/fiscalite',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const FiscaliteHubScreen(),
-    ),
-    ScopedGoRoute(
-      path: '/explore/patrimoine',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PatrimoineHubScreen(),
-    ),
-    ScopedGoRoute(
-      path: '/explore/sante',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const SanteHubScreen(),
-    ),
+    // ── KILL-07: Shell collapsed. /home + Explorer hubs redirect to /coach/chat ──
+    ScopedGoRoute(path: '/home', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/retraite', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/famille', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/travail', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/logement', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/fiscalite', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/patrimoine', redirect: (_, __) => '/coach/chat'),
+    ScopedGoRoute(path: '/explore/sante', redirect: (_, __) => '/coach/chat'),
 
     // ── RETRAITE & PREVOYANCE ────────────────────────────────
     ScopedGoRoute(
@@ -857,7 +819,8 @@ final _router = GoRouter(
                 extra['wizardAnswers'] as Map<String, dynamic>? ?? {},
           );
         }
-        return const MainNavigationShell();
+        // KILL-07: Shell deleted. Fallback redirects to chat.
+        return const CoachChatScreen();
       },
     ),
 
