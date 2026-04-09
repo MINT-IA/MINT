@@ -8,7 +8,7 @@ tags: [lpp, 1e, haut_revenu, investissement, choix, surobligatoire]
 ## Trigger
 L'utilisateur a un salaire élevé (au-delà du seuil LPP de CHF 88'200 ou du seuil 1e), ou son employeur propose un plan 1e avec choix d'investissement.
 
-## Chiffre Choc
+## Premier Éclairage
 Avec un plan 1e, tu peux choisir entre différentes stratégies d'investissement pour la part surobligatoire de ton 2e pilier. La différence entre une stratégie conservatrice et une stratégie dynamique peut atteindre CHF 200'000+ de capital supplémentaire sur 20 ans — mais aussi CHF 200'000 de moins en cas de mauvais marchés.
 
 ## Niveau 0

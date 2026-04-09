@@ -70,7 +70,7 @@ class RepaymentPlanResult:
     nb_dettes: int
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
 
@@ -87,7 +87,7 @@ class RepaymentComparisonResult:
     difference_mois: int           # Avalanche is this many months faster
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str = DISCLAIMER
 
 
@@ -233,7 +233,7 @@ class RepaymentService:
 
         # Chiffre choc
         strat_label = "avalanche" if strategie == "avalanche" else "boule de neige"
-        chiffre_choc = (
+        premier_eclairage = (
             f"Libere de toutes tes dettes dans {mois} mois "
             f"({total_interest:,.0f} CHF d'interets avec la strategie {strat_label})"
         ).replace(",", "'")
@@ -256,7 +256,7 @@ class RepaymentService:
             payoffs=payoffs,
             budget_mensuel=budget,
             nb_dettes=len(debt_items),
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
             disclaimer=DISCLAIMER,
         )
@@ -281,7 +281,7 @@ class RepaymentService:
         diff_interets = round(boule.total_interets - avalanche.total_interets, 2)
         diff_mois = boule.duree_mois - avalanche.duree_mois
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"Libere de toutes tes dettes dans {avalanche.duree_mois} mois "
             f"({diff_interets:,.0f} CHF d'interets economises avec la strategie avalanche)"
         ).replace(",", "'")
@@ -291,7 +291,7 @@ class RepaymentService:
             boule_de_neige=boule,
             difference_interets=diff_interets,
             difference_mois=diff_mois,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
         )
 
@@ -306,7 +306,7 @@ class RepaymentService:
             payoffs=[],
             budget_mensuel=budget,
             nb_dettes=0,
-            chiffre_choc="Aucune dette a rembourser — felicitations!",
+            premier_eclairage="Aucune dette a rembourser — felicitations!",
             sources=[],
             disclaimer=DISCLAIMER,
         )

@@ -340,8 +340,8 @@ def _calculate_breakeven(option_a: TrajectoireOption, option_b: TrajectoireOptio
     return -1
 
 
-def _build_chiffre_choc(options: List[TrajectoireOption], horizon: int) -> str:
-    """Build the most striking delta as chiffre choc.
+def _build_premier_eclairage(options: List[TrajectoireOption], horizon: int) -> str:
+    """Build the most striking delta as premier éclairage.
 
     Compares terminal values between options A and B.
     """
@@ -488,7 +488,7 @@ def compare_rente_vs_capital(
     breakeven_year = _calculate_breakeven(option_a, option_b)
 
     # Chiffre choc
-    chiffre_choc = _build_chiffre_choc(options, horizon)
+    premier_eclairage = _build_premier_eclairage(options, horizon)
 
     # Display summary
     display_summary = (
@@ -599,7 +599,7 @@ def compare_rente_vs_capital(
     return ArbitrageResult(
         options=options,
         breakeven_year=breakeven_year,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         display_summary=display_summary,
         hypotheses=hypotheses,
         disclaimer=_DISCLAIMER,

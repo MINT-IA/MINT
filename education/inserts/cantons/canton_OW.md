@@ -11,7 +11,7 @@ source: "Administration fiscale du canton d'Obwald"
 ## Trigger
 L'utilisateur réside à Obwald ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Obwald est très basse, avec un barème dégressif : le multiplicateur cantonal se situe autour de 80-85 %.
 
 ## Niveau 0

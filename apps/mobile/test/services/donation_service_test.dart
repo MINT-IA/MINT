@@ -10,7 +10,7 @@ import 'package:mint_mobile/services/donation_service.dart';
 ///   - Avancement d'hoirie vs hors avancement
 ///   - Impact succession
 ///   - Checklist et alertes
-///   - Compliance (disclaimer, sources, chiffre choc)
+///   - Compliance (disclaimer, sources, premier éclairage)
 ///
 /// Legal references: CC art. 457-471, CC art. 522 ss, CO art. 239 ss
 void main() {
@@ -371,7 +371,7 @@ void main() {
       expect(result.sources, anyElement(contains('CC art. 522')));
     });
 
-    test('chiffre choc mentionne impot ou exoneration', () {
+    test('premier éclairage mentionne impot ou exoneration', () {
       // Cas exonere
       final resultExonere = DonationService.calculate(
         montant: 100000,
@@ -379,7 +379,7 @@ void main() {
         lienParente: 'conjoint',
         canton: 'ZH',
       );
-      expect(resultExonere.chiffreChoc, contains('exoneree'));
+      expect(resultExonere.premierEclairage, contains('exoneree'));
 
       // Cas impose
       final resultImpose = DonationService.calculate(
@@ -388,7 +388,7 @@ void main() {
         lienParente: 'tiers',
         canton: 'GE',
       );
-      expect(resultImpose.chiffreChoc, contains('Impot'));
+      expect(resultImpose.premierEclairage, contains('Impot'));
     });
   });
 }

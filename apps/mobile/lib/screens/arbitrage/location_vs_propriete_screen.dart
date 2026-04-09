@@ -236,7 +236,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                   const SizedBox(height: 20),
 
                   // ── Chiffre choc ──
-                  _buildChiffreChocCard(),
+                  _buildPremierEclairageCard(),
                   const SizedBox(height: 20),
 
                   // ── Hypothesis sliders ──
@@ -544,7 +544,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   //  CHIFFRE CHOC CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildChiffreChocCard() {
+  Widget _buildPremierEclairageCard() {
     if (_result == null) return const SizedBox.shrink();
     return MintSurface(
       padding: const EdgeInsets.all(20),
@@ -566,7 +566,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _result!.chiffreChoc,
+            _result!.premierEclairage,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             textAlign: TextAlign.center,
           ),

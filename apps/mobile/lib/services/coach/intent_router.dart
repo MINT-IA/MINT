@@ -4,7 +4,7 @@
 ///
 /// Used by IntentScreen._onChipTap() to:
 ///   - Write goalIntentTag to CapMemoryStore.declaredGoals
-///   - Select stressType for ChiffreChocSelector.select()
+///   - Select stressType for PremierEclairageSelector.select()
 ///   - Navigate to suggestedRoute on MintHomeScreen CTA
 ///
 /// IMPORTANT: Keys are ARB identifiers (e.g. 'intentChip3a'), NOT resolved

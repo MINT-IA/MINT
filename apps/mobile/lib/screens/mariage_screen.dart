@@ -466,7 +466,7 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // Chiffre choc
-        _buildChiffreChocRegime(),
+        _buildPremierEclairageRegime(),
         const SizedBox(height: MintSpacing.lg),
 
         // ── Couple Narrative Timeline ─────────────────────────
@@ -593,7 +593,7 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
-  Widget _buildChiffreChocRegime() {
+  Widget _buildPremierEclairageRegime() {
     final total = _patrimoine1 + _patrimoine2;
     if (total <= 0) return const SizedBox.shrink();
 
@@ -613,11 +613,11 @@ class _MariageScreenState extends State<MariageScreen>
       eyebrow: S.of(context)!.mariageRegimeMatrimonial,
       primaryValue: FamilyService.formatChf(acquetsPartage),
       primaryLabel: _selectedRegime == 0
-          ? S.of(context)!.mariageChiffreChocDefault
-          : S.of(context)!.mariageChiffreChocCommunaute,
+          ? S.of(context)!.mariagePremierEclairageDefault
+          : S.of(context)!.mariagePremierEclairageCommunaute,
       narrative: _selectedRegime == 0
-          ? S.of(context)!.mariageChiffreChocDefault
-          : S.of(context)!.mariageChiffreChocCommunaute,
+          ? S.of(context)!.mariagePremierEclairageDefault
+          : S.of(context)!.mariagePremierEclairageCommunaute,
       tone: MintSurfaceTone.peche,
     );
   }

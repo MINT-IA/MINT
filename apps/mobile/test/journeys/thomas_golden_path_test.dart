@@ -1,7 +1,7 @@
 // thomas_golden_path_test.dart
 //
 // Integration test: Thomas golden path — independent_with_lpp, 3a intent.
-// Traces: intent -> quick_start -> chiffre_choc -> plan -> coach.
+// Traces: intent -> quick_start -> premier_eclairage -> plan -> coach.
 //
 // Thomas persona: 42 ans, BE (Bern), 3a intent, 120'000 CHF/an.
 // Service-level tests (not widget E2E) — consistent with project convention.
@@ -15,7 +15,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -90,7 +90,7 @@ void main() {
         canton: thomasCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_budget',
       );
@@ -100,14 +100,14 @@ void main() {
       expect(choc.rawValue, isNonZero);
     });
 
-    test('Thomas chiffre choc has valid label and subtitle', () {
+    test('Thomas premier éclairage has valid label and subtitle', () {
       final profile = MinimalProfileService.compute(
         age: thomasAge,
         grossSalary: thomasSalary,
         canton: thomasCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_budget',
       );
@@ -230,15 +230,15 @@ void main() {
 
   group('Thomas golden path - error recovery', () {
     test(
-        'ChiffreChocSelector.select with age=18 (boundary, just started working) '
-        'produces valid chiffre choc without crash', () {
+        'PremierEclairageSelector.select with age=18 (boundary, just started working) '
+        'produces valid premier éclairage without crash', () {
       final profile = MinimalProfileService.compute(
         age: 18,
         grossSalary: thomasSalary,
         canton: thomasCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_budget',
       );

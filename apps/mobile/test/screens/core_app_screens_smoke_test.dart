@@ -7,13 +7,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // Screens under test
-import 'package:mint_mobile/screens/profile_screen.dart';
+// KILL-04: profile_screen.dart deleted (Phase 2)
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/screens/main_navigation_shell.dart';
-import 'package:mint_mobile/screens/onboarding/quick_start_screen.dart';
+// KILL-07: main_navigation_shell.dart deleted (Phase 2)
 
 // Providers
 import 'package:mint_mobile/providers/profile_provider.dart';
@@ -106,154 +105,8 @@ void main() {
   }
 
   // ===========================================================================
-  // 2. PROFILE SCREEN
+  // 2. PROFILE SCREEN — DELETED (KILL-04, Phase 2)
   // ===========================================================================
-
-  group('ProfileScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(ProfileScreen), findsOneWidget);
-    });
-
-    testWidgets('displays profile title', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('Moi'), findsWidgets);
-    });
-
-    testWidgets('shows profile completion progress', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Phase 2: Precision Index replaced by inline completion progress
-      expect(find.textContaining('Compl'), findsWidgets);
-      expect(find.byType(LinearProgressIndicator), findsWidgets);
-    });
-
-    testWidgets('shows FactFind sections', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Foyer'), findsWidgets);
-      expect(find.textContaining('Revenus'), findsWidgets);
-      expect(find.textContaining('LPP'), findsWidgets);
-    });
-
-    testWidgets('shows identity card (settings moved to SettingsSheet)',
-        (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Settings section removed (now in SettingsSheet via gear icon).
-      // Identity card should be present instead.
-      expect(find.byType(ProfileScreen), findsOneWidget);
-    });
-
-    testWidgets('shows delete data button', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Supprimer'), findsOneWidget);
-    });
-
-    testWidgets(
-        'navigates to quick start onboarding from FactFind CTAs (no grey error screen)',
-        (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      final router = GoRouter(
-        initialLocation: '/profile',
-        routes: [
-          GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
-          ),
-          GoRoute(
-            path: '/advisor/wizard',
-            redirect: (context, state) => '/onboarding/quick',
-          ),
-          GoRoute(
-            path: '/onboarding/quick',
-            builder: (context, state) => const QuickStartScreen(),
-          ),
-        ],
-      );
-
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<ProfileProvider>(create: (_) {
-              final p = ProfileProvider();
-              p.setProfile(Profile(
-                id: 'test-user',
-                householdType: HouseholdType.single,
-                goal: Goal.emergency,
-                createdAt: DateTime(2025, 1, 1),
-                birthYear: 1990,
-                canton: 'VD',
-                incomeNetMonthly: 6000,
-              ));
-              return p;
-            }),
-            ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-            ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
-            ChangeNotifierProvider<DocumentProvider>(
-                create: (_) => DocumentProvider()),
-            ChangeNotifierProvider<BudgetProvider>(
-                create: (_) => BudgetProvider()),
-            ChangeNotifierProvider<SubscriptionProvider>(
-                create: (_) => SubscriptionProvider()),
-            ChangeNotifierProvider<CoachProfileProvider>(
-                create: (_) => CoachProfileProvider()),
-            ChangeNotifierProvider<LocaleProvider>(
-                create: (_) => LocaleProvider()),
-            ChangeNotifierProvider<UserActivityProvider>(
-                create: (_) => UserActivityProvider()),
-            ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
-            ChangeNotifierProvider<MintStateProvider>(
-                create: (_) => MintStateProvider()),
-            ChangeNotifierProvider<CoachEntryPayloadProvider>(
-                create: (_) => CoachEntryPayloadProvider()),
-          ],
-          child: MaterialApp.router(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            routerConfig: router,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      // Phase 2: completion rows use GestureDetector, not InkWell
-      final identityLabel = find.textContaining('Foyer').last;
-      await tester.ensureVisible(identityLabel);
-      final identitySection = find.ancestor(
-        of: identityLabel,
-        matching: find.byType(GestureDetector),
-      );
-      await tester.tap(identitySection.first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pump(const Duration(milliseconds: 300));
-      final foundQuick = find.byType(QuickStartScreen).evaluate().isNotEmpty;
-      expect(foundQuick, isTrue);
-      expect(find.textContaining('Cette page n'), findsNothing);
-    });
-  });
 
   // ===========================================================================
   // 3. DOCUMENTS SCREEN
@@ -411,8 +264,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingPunchline1 = "Le système financier suisse est puissant."
-      expect(find.textContaining('financier suisse'), findsOneWidget);
+      // Phase 5 POLISH-01: single-sentence promise (landingV2PromiseSober).
+      expect(find.textContaining('personne n\u2019a int\u00e9r\u00eat'), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
@@ -425,16 +278,15 @@ void main() {
       expect(find.text('MINT'), findsOneWidget);
     });
 
-    testWidgets('shows trust bar with icons', (tester) async {
+    testWidgets('no privacy subtitle (POLISH-01 removed it)', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
+      // Phase 5 POLISH-01: privacy subtitle removed — coach explains when relevant.
+      expect(find.textContaining('Rien ne sort de ton t\u00e9l\u00e9phone'), findsNothing);
     });
 
     testWidgets('shows CTA button with Commencer', (tester) async {
@@ -444,52 +296,26 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingCtaCommencer = "Commencer"
+      // Phase 5 POLISH-01: landingV2CtaSober = "Commencer".
       expect(find.text('Commencer'), findsOneWidget);
     });
 
-    testWidgets('shows login button', (tester) async {
+    testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('connecter'), findsOneWidget);
+      // Phase 7 Landing v2: no visible login button. The login affordance
+      // is a long-press on the MINT wordmark (routes to /auth/login).
+      expect(find.textContaining('connecter'), findsNothing);
+      // The MINT wordmark still renders as the hidden entry point.
+      expect(find.text('MINT'), findsOneWidget);
     });
   });
 
   // ===========================================================================
-  // 7. MAIN NAVIGATION SHELL
+  // 7. MAIN NAVIGATION SHELL — DELETED (KILL-07, Phase 2)
   // ===========================================================================
-
-  group('MainNavigationShell', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      expect(find.byType(MainNavigationShell), findsOneWidget);
-    });
-
-    testWidgets('shows bottom navigation with 3 tabs', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      // Wire Spec V2: 3-tab layout — Aujourd'hui, MINT (Coach), Explorer
-      // Dossier moved to ProfileDrawer (tab=3 opens drawer)
-      expect(find.textContaining('ujourd'), findsWidgets);
-      expect(find.text('Mint'), findsOneWidget);
-      expect(find.text('Explorer'), findsOneWidget);
-    });
-
-    testWidgets('shows tab icons', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const MainNavigationShell()));
-      await tester.pump(const Duration(seconds: 1));
-
-      // Wire Spec V2: 3 tabs — today (active), coach, explore
-      expect(find.byIcon(Icons.today), findsOneWidget); // Active
-      expect(find.byIcon(Icons.chat_bubble_outline), findsOneWidget);
-      expect(find.byIcon(Icons.explore_outlined), findsOneWidget);
-    });
-  });
 }

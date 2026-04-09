@@ -8,7 +8,7 @@ tags: [immobilier, hypotheque, amortissement, 3a, fiscalite, nantissement]
 ## Trigger
 L'utilisateur doit choisir comment amortir sa 2e hypothèque, ou se demande quelle méthode est la plus avantageuse fiscalement.
 
-## Chiffre Choc
+## Premier Éclairage
 L'amortissement indirect via le pilier 3a peut te faire économiser CHF 50'000 à CHF 100'000+ d'impôts sur 20 ans par rapport à l'amortissement direct, selon ton taux marginal d'imposition et le canton.
 
 ## Niveau 0

@@ -39,6 +39,8 @@ import 'package:mint_mobile/services/lifecycle/lifecycle_detector.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
 import 'package:mint_mobile/models/coaching_preference.dart';
 import 'package:mint_mobile/services/sequence/sequence_store.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_signal.dart';
 
 // ════════════════════════════════════════════════════════════════
 //  MODELS
@@ -107,6 +109,40 @@ class ProactiveTrigger {
 /// All methods are static — no instantiation needed.
 class ProactiveTriggerService {
   ProactiveTriggerService._();
+
+  // ── Phase 9 / L1.5 MintAlertObject feeder wiring (D-09) ──
+
+  /// Convert a [ProactiveTrigger] into a [MintAlertSignal] for consumption
+  /// by S5 widgets that build a [MintAlertObject]. Returns `null` when the
+  /// input is `null` (no trigger fired this session).
+  ///
+  /// Mapping rules:
+  ///   * `contractDeadlineApproaching` → `Gravity.g3`
+  ///     (rachat / lease deadlines are time-critical)
+  ///   * `inactivityReturn`            → `Gravity.g2`
+  ///   * everything else               → `Gravity.g1`
+  ///
+  /// Keys are ARB keys (no resolved strings). NEVER call from a
+  /// `claude_*_service.dart` file (Phase 9 D-07; enforced by
+  /// `tools/checks/no_llm_alert.py` in Plan 09-03).
+  static Stream<MintAlertSignal> alertSignalsFrom(
+    ProactiveTrigger? trigger,
+  ) async* {
+    if (trigger == null) return;
+    yield MintAlertSignal(
+      gravity: switch (trigger.type) {
+        ProactiveTriggerType.contractDeadlineApproaching => Gravity.g3,
+        ProactiveTriggerType.inactivityReturn => Gravity.g2,
+        _ => Gravity.g1,
+      },
+      factKey: trigger.messageKey,
+      causeKey: trigger.messageKey,
+      nextMomentKey: 'alertGenericNextMomentPrefix',
+      topicTag: trigger.type.name,
+      alertId: 'proactive:${trigger.type.name}:'
+          '${trigger.triggeredAt.toIso8601String().substring(0, 10)}',
+    );
+  }
 
   // ── SharedPreferences keys ────────────────────────────────
 

@@ -160,7 +160,7 @@ class TestComputeConfidence:
 
     def test_gate_thresholds_low_profile(self):
         result = compute_confidence({}, [])
-        assert result.feature_gates["basic_chiffre_choc_only"] is True
+        assert result.feature_gates["basic_premier_eclairage_only"] is True
         assert result.feature_gates["standard_projections"] is False
         assert result.feature_gates["arbitrage_comparisons"] is False
 

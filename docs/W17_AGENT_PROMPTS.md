@@ -1,6 +1,6 @@
 # W17 — "MINT POUR TOUS" — Agent Prompts
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "chiffre choc" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Sprint history. Uses "premier éclairage" (legacy → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 >
 > **Diagnostic** : MINT est une app de retraite déguisée en app de vie financière.
 > 45% des écrans sont centrés retraite. 0 écran s'adapte par âge.
@@ -108,12 +108,12 @@ grep -n "LifecyclePhaseService" apps/mobile/lib/screens/main_tabs/explore_tab.da
 ## P3 — ONBOARDING REWIRE (Dart Agent)
 
 ### Fichier scope EXCLUSIF
-- `apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart`
+- `apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart`
 - `apps/mobile/lib/screens/landing_screen.dart`
 - ARB files : 6 nouvelles clés `chocQuestion*` dans les 6 fichiers `lib/l10n/app_*.arb`
 
 ### Problème (3 câbles coupés)
-1. L'instant chiffre choc ne call PAS `ChiffreChocSelector` → 18 ans voit "retraite"
+1. L'instant premier éclairage ne call PAS `PremierEclairageSelector` → 18 ans voit "retraite"
 2. La question post-chiffre-choc est générique ("Qu'est-ce que tu ressens ?")
 3. L'émotion post-chiffre-choc va à `/auth/register` → perdue
 4. Le landing ne passe PAS `birthYear` dans le route extra de "Calculer"
@@ -127,7 +127,7 @@ Ajouter `'birthYear': _birthYear!` dans le map `extra`.
 
 **2. Landing : "Commencer" utilise les données si disponibles**
 
-Méthode `_onCtaTap()` (lignes 85-97). Si les 3 champs sont remplis (`_canCalculate == true`), appeler `_onCalculate()` au lieu de `/onboarding/quick`. L'utilisateur passe par le chiffre choc, pas par le QuickStart.
+Méthode `_onCtaTap()` (lignes 85-97). Si les 3 champs sont remplis (`_canCalculate == true`), appeler `_onCalculate()` au lieu de `/onboarding/quick`. L'utilisateur passe par le premier éclairage, pas par le QuickStart.
 
 ```dart
 void _onCtaTap() async {
@@ -145,21 +145,21 @@ void _onCtaTap() async {
 }
 ```
 
-**3. Instant chiffre choc : appeler ChiffreChocSelector**
+**3. Instant premier éclairage : appeler PremierEclairageSelector**
 
-Dans `instant_chiffre_choc_screen.dart`, remplacer l'affichage hardcodé par le `ChiffreChoc` sélectionné.
+Dans `instant_premier_eclairage_screen.dart`, remplacer l'affichage hardcodé par le `PremierEclairage` sélectionné.
 
 a) Ajouter les imports :
 ```dart
 import 'package:mint_mobile/services/minimal_profile_service.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 ```
 
 b) Ajouter des champs d'état :
 ```dart
-ChiffreChoc? _choc;
+PremierEclairage? _choc;
 int? _birthYear;
 double _grossSalary = 0;
 ```
@@ -170,13 +170,13 @@ _birthYear = extra['birthYear'] as int?;
 _grossSalary = (extra['grossSalary'] as num?)?.toDouble() ?? 0;
 final age = _birthYear != null ? DateTime.now().year - _birthYear! : 35;
 
-// Construire un profil minimal et sélectionner le chiffre choc
+// Construire un profil minimal et sélectionner le premier éclairage
 final profile = MinimalProfileService.computeLocally(
   age: age,
   grossAnnualSalary: _grossSalary,
   canton: _canton,
 );
-_choc = ChiffreChocSelector.select(profile);
+_choc = PremierEclairageSelector.select(profile);
 ```
 
 ATTENTION : Vérifier la signature exacte de `MinimalProfileService.computeLocally()`. Lire le fichier `minimal_profile_service.dart` pour confirmer. Si la méthode est async, utiliser `await` et convertir `_loadFromRouteExtra` en `Future<void>`.
@@ -215,20 +215,20 @@ Pour les 5 fichiers non-FR (en, de, es, it, pt) : traduire les questions. Pas de
 
 Mapper dans le code :
 ```dart
-String _questionForChoc(ChiffreChoc choc, S l10n) {
+String _questionForChoc(PremierEclairage choc, S l10n) {
   return switch (choc.type) {
-    ChiffreChocType.compoundGrowth => l10n.chocQuestionCompoundGrowth,
-    ChiffreChocType.taxSaving3a => l10n.chocQuestionTaxSaving(choc.value),
-    ChiffreChocType.retirementGap => l10n.chocQuestionRetirementGap(choc.value),
-    ChiffreChocType.retirementIncome => l10n.chocQuestionRetirementIncome(
+    PremierEclairageType.compoundGrowth => l10n.chocQuestionCompoundGrowth,
+    PremierEclairageType.taxSaving3a => l10n.chocQuestionTaxSaving(choc.value),
+    PremierEclairageType.retirementGap => l10n.chocQuestionRetirementGap(choc.value),
+    PremierEclairageType.retirementIncome => l10n.chocQuestionRetirementIncome(
         '${(_choc!.rawValue > 0 && _grossSalary > 0 ? ((_choc!.rawValue / (_grossSalary / 12)) * 100).round() : 0)}'),
-    ChiffreChocType.liquidityAlert => l10n.chocQuestionLiquidity(choc.value),
-    ChiffreChocType.hourlyRate => l10n.chocQuestionHourlyRate(choc.value),
+    PremierEclairageType.liquidityAlert => l10n.chocQuestionLiquidity(choc.value),
+    PremierEclairageType.hourlyRate => l10n.chocQuestionHourlyRate(choc.value),
   };
 }
 ```
 
-Remplacer `l10n.chiffreChocSilenceQuestion` par `_questionForChoc(_choc!, l10n)` dans le moment de silence.
+Remplacer `l10n.premierEclairageSilenceQuestion` par `_questionForChoc(_choc!, l10n)` dans le moment de silence.
 
 **5. Stocker les données d'onboarding + router vers la promesse**
 
@@ -270,16 +270,16 @@ NB : On route vers `/auth/register` (pas `/onboarding/promise`). L'écran promes
 grep -n "'birthYear'" apps/mobile/lib/screens/landing_screen.dart
 # ✅ Doit trouver 'birthYear': _birthYear!
 
-# Câble 2 : ChiffreChocSelector appelé dans instant flow
-grep -n "ChiffreChocSelector" apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart
-# ✅ Doit trouver ChiffreChocSelector.select
+# Câble 2 : PremierEclairageSelector appelé dans instant flow
+grep -n "PremierEclairageSelector" apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart
+# ✅ Doit trouver PremierEclairageSelector.select
 
 # Câble 3 : Question ciblée (plus de générique)
-grep -n "chiffreChocSilenceQuestion" apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart
+grep -n "premierEclairageSilenceQuestion" apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart
 # ✅ NE DOIT PAS trouver (remplacé par chocQuestion*)
 
 # Câble 4 : Émotion stockée dans SharedPreferences
-grep -n "onboarding_emotion" apps/mobile/lib/screens/onboarding/instant_chiffre_choc_screen.dart
+grep -n "onboarding_emotion" apps/mobile/lib/screens/onboarding/instant_premier_eclairage_screen.dart
 # ✅ Doit trouver prefs.setString('onboarding_emotion'
 ```
 
@@ -380,7 +380,7 @@ grep -n "onboarding_birth_year\|onboarding_gross_salary\|onboarding_canton" apps
 - `apps/mobile/lib/services/coach/context_injector_service.dart`
 
 ### Problème
-Le coach ne sait RIEN de ce qui s'est passé avant (chiffre choc vu, émotion, type de choc). Toute la richesse de l'onboarding est perdue quand l'utilisateur arrive au chat. L'infrastructure existe (`ContextInjectorService.buildContext()`) mais aucun block "onboarding" n'est injecté.
+Le coach ne sait RIEN de ce qui s'est passé avant (premier éclairage vu, émotion, type de choc). Toute la richesse de l'onboarding est perdue quand l'utilisateur arrive au chat. L'infrastructure existe (`ContextInjectorService.buildContext()`) mais aucun block "onboarding" n'est injecté.
 
 ### Tâche
 
@@ -429,7 +429,7 @@ if (widget.initialPrompt == null && _onboardingEmotion != null && _onboardingEmo
 }
 ```
 
-Ainsi, le premier message du coach RÉAGIT à ce que l'utilisateur a ressenti au chiffre choc.
+Ainsi, le premier message du coach RÉAGIT à ce que l'utilisateur a ressenti au premier éclairage.
 
 **3. Injecter le block onboarding dans le system prompt**
 
@@ -456,7 +456,7 @@ static Future<String> _buildOnboardingBlock() async {
     final age = DateTime.now().year - birthYear;
     buf.writeln('Âge : $age ans');
   }
-  buf.writeln('INSTRUCTION : Réagis au chiffre choc et à l\'émotion. Propose 3 actions concrètes avec des chiffres. Ne redemande PAS les informations déjà connues.');
+  buf.writeln('INSTRUCTION : Réagis au premier éclairage et à l\'émotion. Propose 3 actions concrètes avec des chiffres. Ne redemande PAS les informations déjà connues.');
   buf.writeln('--- FIN ONBOARDING ---');
   return buf.toString();
 }

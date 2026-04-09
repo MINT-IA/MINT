@@ -8,7 +8,7 @@ tags: [3a, retroactif, rattrapage, 2025, lacune, versement]
 ## Trigger
 L'utilisateur n'a pas versé le maximum 3a les années précédentes et veut savoir s'il peut rattraper, ou a entendu parler du nouveau mécanisme de rachat rétroactif.
 
-## Chiffre Choc
+## Premier Éclairage
 Dès 2025, tu pourras potentiellement rattraper jusqu'à 10 ans de versements 3a manqués. Pour un·e salarié·e avec LPP, cela représente jusqu'à CHF 72'580 de rachats rétroactifs — entièrement déductibles des impôts.
 
 ## Niveau 0

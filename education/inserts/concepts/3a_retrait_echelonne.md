@@ -8,7 +8,7 @@ tags: [3a, retrait, echelonne, optimisation, fiscale, timing]
 ## Trigger
 L'utilisateur approche de la retraite et veut planifier le retrait de ses avoirs 3a, ou cherche à minimiser l'impôt sur le retrait de capital.
 
-## Chiffre Choc
+## Premier Éclairage
 Retirer CHF 200'000 d'un seul coup peut coûter environ CHF 12'000-18'000 d'impôts (selon le canton). Retirer 4× CHF 50'000 sur 4 années différentes pourrait réduire la facture à CHF 6'000-10'000 au total — une économie de CHF 4'000 à 8'000 grâce à l'échelonnement.
 
 ## Niveau 0

@@ -169,7 +169,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  MintEntrance(child: _buildChiffreChoc(content, theme)),
+                  MintEntrance(child: _buildPremierEclairage(content, theme)),
                   MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro(content)),
                   MintEntrance(delay: const Duration(milliseconds: 200), child: _buildKeyFacts(content, theme)),
                   MintEntrance(delay: const Duration(milliseconds: 300), child: _buildQuiz(content, theme)),
@@ -226,8 +226,8 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
     );
   }
 
-  // ─── Chiffre Choc ───
-  Widget _buildChiffreChoc(EducationTopicContent content, EducationalTheme theme) {
+  // ─── Premier Éclairage ───
+  Widget _buildPremierEclairage(EducationTopicContent content, EducationalTheme theme) {
     return Container(
       margin: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 0),
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -264,12 +264,12 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
               textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  content.chiffreChoc,
+                  content.premierEclairage,
                   style: MintTextStyles.displayLarge(color: theme.color),
                 ),
                 const SizedBox(width: MintSpacing.sm),
                 Text(
-                  content.chiffreChocUnit,
+                  content.premierEclairageUnit,
                   style: MintTextStyles.titleMedium(
                     color: theme.color.withValues(alpha: 0.7),
                   ),
@@ -279,7 +279,7 @@ class _ThemeDetailScreenState extends State<ThemeDetailScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            content.chiffreChocLabel,
+            content.premierEclairageLabel,
             style: MintTextStyles.bodyMedium(),
             textAlign: TextAlign.center,
           ),

@@ -15,7 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de calcul de la valeur locative et de son impact fiscal.
 ///
-/// Affiche la decomposition valeur locative vs deductions avec un chiffre choc.
+/// Affiche la decomposition valeur locative vs deductions avec un premier éclairage.
 /// Base legale : LIFD art. 21 al. 1 let. b (valeur locative).
 class ImputedRentalScreen extends StatefulWidget {
   const ImputedRentalScreen({super.key});
@@ -107,7 +107,7 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildChiffreChocCard(result)),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairageCard(result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Decomposition
@@ -154,15 +154,15 @@ class _ImputedRentalScreenState extends State<ImputedRentalScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(ImputedRentalResult result) {
+  Widget _buildPremierEclairageCard(ImputedRentalResult result) {
     return MintResultHeroCard(
       eyebrow: S.of(context)!.imputedRentalEyebrow,
       primaryValue: 'CHF\u00a0${formatChf(result.impotSupplementaire.abs())}/an',
-      primaryLabel: result.chiffreChocPositif
+      primaryLabel: result.premierEclairagePositif
           ? S.of(context)!.imputedRentalSavingsLabel
           : S.of(context)!.imputedRentalTaxLabel,
-      narrative: result.chiffreChocTexte,
-      accentColor: result.chiffreChocPositif
+      narrative: result.premierEclairageTexte,
+      accentColor: result.premierEclairagePositif
           ? MintColors.success
           : MintColors.error,
       tone: MintSurfaceTone.porcelaine,

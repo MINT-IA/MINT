@@ -211,7 +211,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc
-                _buildChiffreChoc(result, l),
+                _buildPremierEclairage(result, l),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Introduction
@@ -243,7 +243,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(StaggeredWithdrawalResult result, S l) {
+  Widget _buildPremierEclairage(StaggeredWithdrawalResult result, S l) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(

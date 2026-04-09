@@ -8,7 +8,7 @@ tags: [lpp, divorce, partage, prestation_sortie, cc]
 ## Trigger
 L'utilisateur divorce ou envisage un divorce et souhaite comprendre l'impact sur son 2e pilier, ou est en procédure de partage des avoirs.
 
-## Chiffre Choc
+## Premier Éclairage
 En cas de divorce, les avoirs LPP accumulés pendant le mariage sont partagés à 50/50. Si tu as accumulé CHF 300'000 pendant tes 15 ans de mariage et ton ex-conjoint·e CHF 50'000, tu devras transférer CHF 125'000 à son 2e pilier. Un impact considérable sur ta rente future.
 
 ## Niveau 0

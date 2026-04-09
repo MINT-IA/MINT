@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 class NarrativeHeader extends StatelessWidget {
   final String? firstName;
@@ -10,7 +12,12 @@ class NarrativeHeader extends StatelessWidget {
   final double freeMargin;
   final double patrimoineNet;
   final double replacementRate;
-  final double confidenceScore;
+
+  /// 4-axis confidence (Plan 08a-02 Batch B). Optional: null = no MTC slot.
+  /// Replaces the legacy `confidenceScore: double` API. Zero callers in
+  /// production at the time of migration — clean API swap allowed.
+  final EnhancedConfidence? confidence;
+
   final int? confidenceBoostAvailable;
   final String? boostAction;
   final VoidCallback? onBoostTap;
@@ -22,7 +29,7 @@ class NarrativeHeader extends StatelessWidget {
     required this.freeMargin,
     required this.patrimoineNet,
     required this.replacementRate,
-    required this.confidenceScore,
+    this.confidence,
     this.confidenceBoostAvailable,
     this.boostAction,
     this.onBoostTap,
@@ -74,7 +81,6 @@ class NarrativeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final clampedScore = confidenceScore.clamp(0.0, 100.0);
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -90,47 +96,34 @@ class NarrativeHeader extends StatelessWidget {
             _buildNarrative(l),
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500, height: 1.5),
           ),
-          const SizedBox(height: 14),
-
-          // Confidence bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: SizedBox(
-              height: 6,
-              child: LinearProgressIndicator(
-                value: clampedScore / 100,
-                backgroundColor: MintColors.lightBorder,
-                valueColor:
-                    const AlwaysStoppedAnimation<Color>(MintColors.primary),
-              ),
+          if (confidence != null) ...[
+            const SizedBox(height: 14),
+            // MintTrameConfiance (Plan 08a-02 Batch B) — replaces the legacy
+            // LinearProgressIndicator + percent label. Renders the WEAKEST
+            // axis only via oneLineConfidenceSummary. firstAppearance because
+            // the narrative header is a standalone surface.
+            MintTrameConfiance.inline(
+              confidence: confidence!,
+              bloomStrategy: BloomStrategy.firstAppearance,
             ),
-          ),
-          const SizedBox(height: 6),
-
-          // Confidence label + boost action
-          Row(
-            children: [
-              Text(
-                l.narrativeConfidenceLabel('${clampedScore.round()}'),
-                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
-              ),
-              if (boostAction != null &&
-                  confidenceBoostAvailable != null) ...[
-                const Spacer(),
-                Semantics(
-                  label: 'Améliorer la confiance',
-                  button: true,
-                  child: GestureDetector(
-                    onTap: onBoostTap,
-                    child: Text(
+          ],
+          if (boostAction != null && confidenceBoostAvailable != null) ...[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Semantics(
+                label: 'Améliorer la confiance',
+                button: true,
+                child: GestureDetector(
+                  onTap: onBoostTap,
+                  child: Text(
                     '\u{1F4C4} $boostAction (+$confidenceBoostAvailable%)',
                     style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w500),
                   ),
                 ),
-                ),
-              ],
-            ],
-          ),
+              ),
+            ),
+          ],
         ],
       ),
     );

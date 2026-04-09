@@ -36,13 +36,13 @@ class WithdrawalYearPlan {
   });
 }
 
-/// Resultat du chiffre choc pour le retrait echelonne
-class ChiffreChoc {
+/// Resultat du premier éclairage pour le retrait echelonne
+class PremierEclairage {
   final double montant;
   final String texte;
   final bool isPositive;
 
-  const ChiffreChoc({
+  const PremierEclairage({
     required this.montant,
     required this.texte,
     required this.isPositive,
@@ -56,7 +56,7 @@ class StaggeredWithdrawalResult {
   final double economie;
   final int nbComptesOptimal;
   final List<WithdrawalYearPlan> planAnnuel;
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
   final String disclaimer;
 
   const StaggeredWithdrawalResult({
@@ -65,7 +65,7 @@ class StaggeredWithdrawalResult {
     required this.economie,
     required this.nbComptesOptimal,
     required this.planAnnuel,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -154,7 +154,7 @@ class StaggeredWithdrawalSimulator {
       economie: economie,
       nbComptesOptimal: optimalComptes,
       planAnnuel: plan,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         montant: economie,
         texte: 'Economie : CHF ${formatChf(economie)}',
         isPositive: economie > 0,
@@ -218,7 +218,7 @@ class RealReturnResult {
   final double rendementEpargne;
   final double economieFiscaleTotale;
   final double gainVsEpargne;
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
   final String disclaimer;
 
   const RealReturnResult({
@@ -230,7 +230,7 @@ class RealReturnResult {
     required this.rendementEpargne,
     required this.economieFiscaleTotale,
     required this.gainVsEpargne,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -300,7 +300,7 @@ class RealReturnCalculator {
       rendementEpargne: rendEpargne,
       economieFiscaleTotale: totalEconomieFiscale,
       gainVsEpargne: gainVsEpargne,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         montant: gainVsEpargne,
         texte: 'Rendement reel : ${rendReelPct.toStringAsFixed(1)}% vs '
             '${rendNominal.toStringAsFixed(1)}% sans avantage fiscal',
@@ -398,7 +398,7 @@ class RealReturnCalculator {
 
 enum ProfilRisque { prudent, equilibre, dynamique }
 
-/// Donnees d'un provider 3a
+/// Données d'un provider 3a
 class Provider3a {
   final String nom;
   final String type; // fintech, banque, assurance
@@ -444,13 +444,13 @@ class ProviderResult {
 class ProviderComparisonResult {
   final List<ProviderResult> providers;
   final double differenceMax;
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
   final String disclaimer;
 
   const ProviderComparisonResult({
     required this.providers,
     required this.differenceMax,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -620,7 +620,7 @@ class ProviderComparator {
     return ProviderComparisonResult(
       providers: badgedResults,
       differenceMax: difference,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         montant: difference,
         texte:
             'Difference sur $clampedDuree ans : CHF ${formatChf(difference)}',

@@ -27,7 +27,7 @@ status: "READY"
 - Le statut de commercant professionnel de titres (LIFD art. 18 al. 2) n'est pas evalue.
 - Les instruments complexes (options, futures, crypto) ont des regles fiscales specifiques non couvertes.
 
-## Chiffre Choc
+## Premier Éclairage
 "En Suisse, les gains en capital prives sont exoneres d'impot (LIFD art. 16 al. 3) — mais les dividendes et interets sont imposes a 100%. Placer 100'000 CHF en valeurs mobilieres plutot que sur un compte d'epargne peut generer 3'000 a 5'000 CHF/an de rendement supplementaire."
 
 ## Learning Goals

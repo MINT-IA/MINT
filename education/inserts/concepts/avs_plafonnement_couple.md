@@ -8,7 +8,7 @@ tags: [avs, couple, plafonnement, 150pourcent, mariage, lavs]
 ## Trigger
 L'utilisateur est marié·e et simule la rente AVS du couple, ou découvre que la somme des deux rentes individuelles est réduite.
 
-## Chiffre Choc
+## Premier Éclairage
 Un couple marié ne peut jamais toucher plus de 150 % de la rente maximale individuelle, soit CHF 3'780/mois (CHF 45'360/an). Deux concubin·e·s pourraient toucher jusqu'à CHF 5'040/mois (2× CHF 2'520) — une différence de CHF 1'260/mois, soit CHF 15'120/an.
 
 ## Niveau 0

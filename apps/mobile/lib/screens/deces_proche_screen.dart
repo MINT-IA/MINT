@@ -81,8 +81,8 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Hero: chiffre choc ──
-              MintEntrance(child: _buildChiffreChoc(s)),
+              // ── Hero: premier éclairage ──
+              MintEntrance(child: _buildPremierEclairage(s)),
               const SizedBox(height: 24),
 
               // ── Urgences 48h ──
@@ -118,7 +118,7 @@ class _DecesProcheScreenState extends State<DecesProcheScreen> {
     );
   }
 
-  Widget _buildChiffreChoc(S s) {
+  Widget _buildPremierEclairage(S s) {
     const delaiRepudiation = 3; // mois — CC art. 567
     return Container(
       padding: const EdgeInsets.all(20),

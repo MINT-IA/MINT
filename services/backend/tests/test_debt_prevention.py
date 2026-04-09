@@ -6,7 +6,7 @@ Covers:
     - Repayment service — 8 tests
     - Resources service — 5 tests
     - API endpoints (integration) — 3 tests
-    - Compliance (banned terms, disclaimer, chiffre_choc) — 4 tests
+    - Compliance (banned terms, disclaimer, premier_eclairage) — 4 tests
 
 Target: 28 tests.
 
@@ -235,14 +235,14 @@ class TestRepayment:
         assert result.nb_dettes == 1
         assert len(result.payoffs) == 1
 
-    def test_comparison_chiffre_choc(self, repayment_service):
-        """Comparison should include a chiffre_choc."""
+    def test_comparison_premier_eclairage(self, repayment_service):
+        """Comparison should include a premier_eclairage."""
         comparison = repayment_service.compare_strategies(
             dettes=self.SAMPLE_DEBTS,
             budget_mensuel_remboursement=800,
         )
-        assert len(comparison.chiffre_choc) > 10
-        assert "mois" in comparison.chiffre_choc.lower()
+        assert len(comparison.premier_eclairage) > 10
+        assert "mois" in comparison.premier_eclairage.lower()
 
 
 # ===========================================================================
@@ -309,7 +309,7 @@ class TestDebtPreventionEndpoints:
         data = response.json()
         assert "ratioEndettement" in data
         assert "niveauRisque" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert "minimumVital" in data
 
@@ -329,7 +329,7 @@ class TestDebtPreventionEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["dureeMois"] > 0
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert len(data["payoffs"]) == 2
 
@@ -342,7 +342,7 @@ class TestDebtPreventionEndpoints:
         data = response.json()
         assert len(data["resources"]) >= 3
         assert data["canton"] == "VD"
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
 
 
@@ -388,24 +388,24 @@ class TestDebtPreventionCompliance:
                 f"Disclaimer should use gender-neutral language: {disclaimer}"
             )
 
-    def test_chiffre_choc_always_present(self, ratio_service, repayment_service, resources_service):
-        """All service results should include a chiffre_choc."""
+    def test_premier_eclairage_always_present(self, ratio_service, repayment_service, resources_service):
+        """All service results should include a premier_eclairage."""
         r1 = ratio_service.calculate_debt_ratio(
             revenus_mensuels=5000,
             charges_dette_mensuelles=800,
             loyer=1500,
             autres_charges_fixes=200,
         )
-        assert len(r1.chiffre_choc) > 10
+        assert len(r1.premier_eclairage) > 10
 
         r2 = repayment_service.plan_repayment(
             dettes=[{"nom": "Test", "montant": 5000, "taux": 0.08, "mensualite_min": 200}],
             budget_mensuel_remboursement=500,
         )
-        assert len(r2.chiffre_choc) > 10
+        assert len(r2.premier_eclairage) > 10
 
         r3 = resources_service.get_help_resources(canton="VD")
-        assert len(r3.chiffre_choc) > 10
+        assert len(r3.premier_eclairage) > 10
 
     def test_no_banned_terms_in_api_responses(self, client):
         """No API response should contain banned terms."""

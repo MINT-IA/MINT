@@ -8,7 +8,7 @@ tags: [3a, beneficiaire, deces, heritage, clause, succession]
 ## Trigger
 L'utilisateur souhaite savoir qui touchera son pilier 3a en cas de décès, ou veut modifier la clause bénéficiaire.
 
-## Chiffre Choc
+## Premier Éclairage
 Sans clause bénéficiaire spécifique, ton ou ta concubin·e n'a AUCUN droit sur ton 3a en cas de décès. L'argent ira à tes héritier·ère·s légaux (enfants, parents) — même si tu vis depuis 20 ans avec ton ou ta partenaire.
 
 ## Niveau 0

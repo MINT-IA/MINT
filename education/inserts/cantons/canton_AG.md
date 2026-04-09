@@ -11,7 +11,7 @@ source: "Administration fiscale du canton d'Argovie"
 ## Trigger
 L'utilisateur réside en Argovie ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 Le multiplicateur cantonal d'Argovie se situe autour de 105 % — un positionnement modéré qui place le canton dans la moyenne suisse en termes de charge fiscale globale.
 
 ## Niveau 0

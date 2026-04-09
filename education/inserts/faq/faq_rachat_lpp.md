@@ -10,7 +10,7 @@ source: "LPP art. 79b, LIFD art. 33 al. 1 let. d"
 ## Trigger
 L'utilisateur veut savoir comment racheter des années de cotisation LPP, combien il peut racheter, ou quel est l'impact fiscal.
 
-## Chiffre Choc
+## Premier Éclairage
 Un rachat LPP de CHF 50'000 peut générer une économie d'impôt de CHF 15'000 à 20'000 selon le canton — et cet argent travaille ensuite dans ta caisse de pension.
 
 ## Niveau 0

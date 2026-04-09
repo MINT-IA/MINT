@@ -8,7 +8,7 @@ tags: [assurance, responsabilite_civile, rc, dommage, protection]
 ## Trigger
 L'utilisateur s'interroge sur l'assurance RC privée, ou cause un dommage à un tiers et se demande s'il est couvert.
 
-## Chiffre Choc
+## Premier Éclairage
 Une assurance RC privée coûte environ CHF 100 à CHF 200/an pour un ménage — soit moins de CHF 0.55/jour. Sans elle, un simple dégât des eaux chez ton voisin pourrait te coûter CHF 50'000+ de ta poche.
 
 ## Niveau 0

@@ -10,7 +10,7 @@ tags: [lpp, epl, rachat, immobilier, blocage, opp2]
 - Le coach détecte un potentiel de rachat LPP combiné à un projet immobilier actif.
 - L'utilisateur demande comment utiliser son LPP pour un EPL.
 
-## Chiffre Choc
+## Premier Éclairage
 "Si tu rachètes ton LPP en 2025 et veux utiliser l'EPL pour acheter un logement en 2027, tu dois rembourser le rachat avec intérêts — la règle des 3 ans s'applique même si tu n'as pas encore acheté."
 
 ## Niveau 0

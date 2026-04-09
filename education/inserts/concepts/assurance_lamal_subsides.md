@@ -8,7 +8,7 @@ tags: [assurance, lamal, subside, prime, reduction, caisse_maladie, sante]
 ## Trigger
 L'utilisateur paie des primes LAMal élevées et cherche des moyens de les réduire, ou ne connaît pas les subsides disponibles.
 
-## Chiffre Choc
+## Premier Éclairage
 La prime LAMal moyenne en Suisse dépasse CHF 400/mois pour un adulte en 2025. Mais environ 1 personne sur 4 a droit à un subside (réduction de prime) et ne le demande pas. Selon le canton et le revenu, le subside peut couvrir 30 à 80 % de la prime.
 
 ## Niveau 0

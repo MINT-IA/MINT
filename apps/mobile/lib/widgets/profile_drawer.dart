@@ -7,6 +7,8 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/widgets/voice/ton_chooser.dart';
 
 /// Right-side drawer replacing DossierTab.
 ///
@@ -77,6 +79,11 @@ class ProfileDrawer extends StatelessWidget {
 
             const Divider(height: 1, color: MintColors.ardoise),
 
+            // ── Voix (Phase 12-01 — Ton chooser) ──
+            if (profile != null) _buildTonSection(context, profile, l10n),
+
+            const Divider(height: 1, color: MintColors.ardoise),
+
             // ── Paramètres ──
             Padding(
               padding: const EdgeInsets.fromLTRB(
@@ -107,9 +114,7 @@ class ProfileDrawer extends StatelessWidget {
               context,
               icon: Icons.language_outlined,
               title: l10n.drawerLanguage,
-              onTap: () {
-                // TODO: inline language picker
-              },
+              onTap: () => _navigate(context, '/settings/langue'),
             ),
             _buildSection(
               context,
@@ -217,6 +222,59 @@ class ProfileDrawer extends StatelessWidget {
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: MintSpacing.md,
+      ),
+    );
+  }
+
+  /// Phase 12-01 — Voix section with inline TonChooser.
+  Widget _buildTonSection(
+    BuildContext context,
+    CoachProfile profile,
+    S l10n,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        MintSpacing.md,
+        MintSpacing.md,
+        MintSpacing.md,
+        MintSpacing.md,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+            child: Text(
+              l10n.tonSectionLabel,
+              style: MintTextStyles.labelMedium(color: MintColors.ardoise),
+            ),
+          ),
+          TonChooser(
+            current: profile.voiceCursorPreference,
+            onChanged: (next) async {
+              final from = profile.voiceCursorPreference;
+              if (from == next) return;
+              final ok = await context
+                  .read<CoachProfileProvider>()
+                  .setVoiceCursorPreference(next);
+              if (ok) {
+                AnalyticsService().trackEvent(
+                  'voice_ton_changed_settings',
+                  category: 'settings',
+                  data: {
+                    'from': from.name,
+                    'to': next.name,
+                    'source': 'settings',
+                  },
+                );
+              } else if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(l10n.tonSyncFailedToast)),
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

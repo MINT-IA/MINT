@@ -1,0 +1,5 @@
+# Friction Pass 1 — exclude bulky recording artifacts
+*.mp4
+*.mov
+*.mkv
+frames_*/

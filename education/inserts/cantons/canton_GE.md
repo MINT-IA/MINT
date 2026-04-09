@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Genève"
 ## Trigger
 L'utilisateur réside à Genève ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Genève est parmi les plus élevées de Suisse : le multiplicateur cantonal se situe autour de 140-145 %. Mais un bouclier fiscal limite la charge combinée à 60 % du revenu net.
 
 ## Niveau 0

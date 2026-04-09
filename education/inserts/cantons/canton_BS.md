@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Bâle-Ville"
 ## Trigger
 L'utilisateur réside à Bâle-Ville ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Bâle-Ville est plutôt élevée, compensée par les hauts revenus de la région : le multiplicateur cantonal se situe autour de 120 %.
 
 ## Niveau 0

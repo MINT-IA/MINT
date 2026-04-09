@@ -6,7 +6,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Hero card showing the GAP between current income and projected retirement.
 ///
-/// Displays a chiffre choc (gap amount), before/after comparison,
+/// Displays a premier éclairage (gap amount), before/after comparison,
 /// a relatable metaphor, confidence bar, and optional scan CTA.
 class HeroGapCard extends StatelessWidget {
   final double currentMonthlyNet;

@@ -535,7 +535,7 @@ Le masterplan impose les templates d'expérience à l'échelle produit.
 Usage:
 - Aujourd'hui
 - Retirement Dashboard
-- Chiffre-Choc
+- Premier-Éclairage
 - Budget
 - Fiscal comparator hero
 - Gender Gap hero
@@ -740,7 +740,7 @@ Le plan doit être:
 
 - `Aujourd'hui / Pulse` -> `Hero Plan`
 - `Quick Start` -> `Roadmap Flow` en mode onboarding
-- `Chiffre-Choc` -> `Hero Plan`
+- `Premier-Éclairage` -> `Hero Plan`
 - `Profile` -> `Quiet Utility`
 - `Coach Chat` -> hybride `Coach Orchestrator`
 - `Budget` -> `Hero Plan` + `Decision Canvas`

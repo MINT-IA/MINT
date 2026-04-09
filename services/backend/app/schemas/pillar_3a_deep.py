@@ -119,8 +119,8 @@ class StaggeredWithdrawalResponse(BaseModel):
     canton: str = Field(..., description="Canton utilise")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc pour l'utilisateur"
     )
     alerts: List[str] = Field(default_factory=list)
@@ -211,8 +211,8 @@ class RealReturnResponse(BaseModel):
     tauxMarginal: float = Field(..., alias="tauxMarginal")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)
@@ -300,8 +300,8 @@ class ProviderCompareResponse(BaseModel):
     profilRisque: str = Field(..., alias="profilRisque")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     baseLegale: str = Field(..., alias="baseLegale")

@@ -47,7 +47,7 @@ FORFAIT_ENTRETIEN_ANCIEN = 0.20  # 20% if property >= 10 years old
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -78,7 +78,7 @@ class ImputedRentalResult:
     recommandation_forfait_vs_reel: str   # "forfait" or "reel"
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Input metadata
     valeur_venale: float
@@ -176,7 +176,7 @@ class ImputedRentalService:
         # 7. Chiffre choc
         if est_avantage:
             economie = abs(impact_fiscal_net)
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=economie,
                 texte=(
                     f"Tes deductions depassent ta valeur locative : tu economises "
@@ -184,7 +184,7 @@ class ImputedRentalService:
                 ),
             )
         else:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=abs(impact_fiscal_net),
                 texte=(
                     f"La valeur locative te coute environ {abs(impact_fiscal_net):,.0f} CHF "
@@ -214,7 +214,7 @@ class ImputedRentalService:
             forfait_entretien_applicable=forfait_pct,
             forfait_entretien_montant=forfait_montant,
             recommandation_forfait_vs_reel=recommandation,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             valeur_venale=valeur_venale,
             canton=canton,
             age_bien_ans=age_bien_ans,

@@ -1,0 +1,22 @@
+# Phase 6 — L1.4 Regional Voice — secondary gen_l10n config (reference only).
+#
+# The primary app l10n lives in apps/mobile/lib/l10n/ (see apps/mobile/l10n.yaml).
+# This file documents the intended gen_l10n config for the VS/ZH/TI regional
+# carve-out. In practice Plan 06-03 ships the fallback path from the planner:
+# a hand-written RegionalLocalizations class (regional_localizations_delegate.dart)
+# that loads the sparse ARB files via rootBundle — no code generation needed.
+#
+# Why fallback: running `flutter gen-l10n` with a second config alongside the
+# primary one is flaky in CI (locale auto-discovery collisions with a 10k-line
+# app_fr.arb template), and the sparse override use case (~25 keys per canton)
+# does not benefit from generated lookup classes. The hand-written delegate is
+# ~60 LOC, canton-aware, silent-fallback to base AppLocalizations, and fully
+# covered by widget tests.
+#
+# Reference only — do NOT wire this into build.
+arb-dir: lib/l10n_regional
+template-arb-file: app_regional_vs.arb
+output-localization-file: regional_localizations.dart
+output-class: RegionalLocalizations
+nullable-getter: true
+synthetic-package: false

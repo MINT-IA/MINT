@@ -91,7 +91,7 @@ void main() {
       expect(find.textContaining('LPP'), findsWidgets);
     });
 
-    testWidgets('shows chiffre choc with economies fiscales', (tester) async {
+    testWidgets('shows premier éclairage with economies fiscales', (tester) async {
       await tester.pumpWidget(_buildScreen());
       await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));

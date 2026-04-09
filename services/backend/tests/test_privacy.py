@@ -471,30 +471,30 @@ class TestComplianceChecks:
         assert "nLPD" in source_text
         assert "CO art. 127" in source_text
 
-    def test_export_chiffre_choc_has_content(self, privacy_service):
-        """Export chiffre choc should mention enregistrement(s)."""
+    def test_export_premier_eclairage_has_content(self, privacy_service):
+        """Export premier éclairage should mention enregistrement(s)."""
         result = privacy_service.export_user_data(
             profile_id="u1",
             profile_data={"age": 30},
             sessions_data=[{"s": 1}, {"s": 2}],
         )
-        assert "enregistrement" in result.chiffre_choc.lower()
-        assert "categorie" in result.chiffre_choc.lower()
+        assert "enregistrement" in result.premier_eclairage.lower()
+        assert "categorie" in result.premier_eclairage.lower()
 
-    def test_deletion_chiffre_choc_has_content(self, privacy_service):
-        """Deletion chiffre choc should mention the count and nLPD."""
+    def test_deletion_premier_eclairage_has_content(self, privacy_service):
+        """Deletion premier éclairage should mention the count and nLPD."""
         result = privacy_service.delete_user_data(
             profile_id="u1", mode="immediate",
             nb_sessions=5, nb_reports=2,
         )
-        assert "enregistrement" in result.chiffre_choc.lower()
-        assert "nLPD" in result.chiffre_choc
+        assert "enregistrement" in result.premier_eclairage.lower()
+        assert "nLPD" in result.premier_eclairage
 
-    def test_consent_chiffre_choc_has_content(self, privacy_service):
-        """Consent chiffre choc should mention traitement(s) and nLPD."""
+    def test_consent_premier_eclairage_has_content(self, privacy_service):
+        """Consent premier éclairage should mention traitement(s) and nLPD."""
         result = privacy_service.get_consent_status(profile_id="u1")
-        assert "traitement" in result.chiffre_choc.lower()
-        assert "nLPD" in result.chiffre_choc
+        assert "traitement" in result.premier_eclairage.lower()
+        assert "nLPD" in result.premier_eclairage
 
 
 # ===========================================================================
@@ -529,7 +529,7 @@ class TestPrivacyEndpoints:
         assert "donneesProfilel" in data or "donneesProfil" in data
         assert "disclaimer" in data
         assert "sources" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "responsableTraitement" in data
 
     def test_export_endpoint_camelcase(self, client):

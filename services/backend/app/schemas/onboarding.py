@@ -6,7 +6,7 @@ API convention: camelCase field names via alias_generator, ConfigDict.
 Covers:
     - MinimalProfileRequest: input for minimal profile computation (3 required + 8 optional)
     - MinimalProfileResponse: full projection result with confidence scoring
-    - ChiffreChocResponse: single impactful number with educational context
+    - PremierEclairageResponse: single impactful number with educational context
 """
 
 from typing import List, Optional
@@ -178,7 +178,7 @@ class MinimalProfileResponse(OnboardingBaseModel):
     )
 
 
-class ChiffreChocResponse(OnboardingBaseModel):
+class PremierEclairageResponse(OnboardingBaseModel):
     """Chiffre choc: un nombre marquant avec contexte educatif."""
 
     category: str = Field(

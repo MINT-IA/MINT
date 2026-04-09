@@ -20,7 +20,7 @@ class BudgetService {
   ///
   /// Permet a l'utilisateur de visualiser en un chiffre la part de son
   /// revenu absorbee par les charges incompressibles.
-  static String chiffreChoc(BudgetInputs inputs) {
+  static String premierEclairage(BudgetInputs inputs) {
     if (inputs.netIncome <= 0) return '0% de ton revenu part en charges fixes';
     final totalCharges = inputs.housingCost +
         inputs.debtPayments +

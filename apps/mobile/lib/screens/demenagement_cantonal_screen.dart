@@ -122,13 +122,13 @@ class _DemenagementCantonalScreenState
               MintEntrance(child: MintHeroNumber(
                 value: '${estPositif ? '+\u00a0' : ''}'
                     '${formatChfWithPrefix(economieTotal)}',
-                caption: s.demenagementChiffreChocSousTitre,
+                caption: s.demenagementPremierEclairageSousTitre,
                 color: estPositif ? MintColors.success : MintColors.error,
                 semanticsLabel: s.demenagementBilanTotal,
               )),
               const SizedBox(height: MintSpacing.sm),
               MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
-                s.demenagementChiffreChocDetail(_cantonDepart, _cantonArrivee),
+                s.demenagementPremierEclairageDetail(_cantonDepart, _cantonArrivee),
                 style: MintTextStyles.bodySmall(color: MintColors.textMuted),
               )),
               const SizedBox(height: MintSpacing.xxl),

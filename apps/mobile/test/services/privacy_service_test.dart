@@ -191,7 +191,7 @@ void main() {
     test('getCategoryById returns correct category', () {
       final cat = PrivacyService.getCategoryById('open_banking');
       expect(cat, isNotNull);
-      expect(cat!['label'], 'Donnees bancaires (bLink)');
+      expect(cat!['label'], 'Données bancaires (bLink)');
     });
 
     test('getCategoryById returns null for unknown ID', () {

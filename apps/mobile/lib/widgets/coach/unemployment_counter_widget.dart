@@ -75,7 +75,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
                   const SizedBox(height: 20),
                   _buildAgeTable(age),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -303,7 +303,7 @@ class UnemploymentCounterWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

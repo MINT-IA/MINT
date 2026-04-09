@@ -1,10 +1,10 @@
 /// Rich educational content for each topic in the "J'y comprends rien" hub.
-/// Each topic has a chiffre choc, explanation, key facts, quiz, fun fact,
+/// Each topic has a premier éclairage, explanation, key facts, quiz, fun fact,
 /// legal sources, and a compliance disclaimer.
 class EducationTopicContent {
-  final String chiffreChoc;
-  final String chiffreChocUnit;
-  final String chiffreChocLabel;
+  final String premierEclairage;
+  final String premierEclairageUnit;
+  final String premierEclairageLabel;
   final String intro;
   final List<String> keyFacts;
   final QuizQuestion quiz;
@@ -12,9 +12,9 @@ class EducationTopicContent {
   final List<String> sources;
 
   const EducationTopicContent({
-    required this.chiffreChoc,
-    required this.chiffreChocUnit,
-    required this.chiffreChocLabel,
+    required this.premierEclairage,
+    required this.premierEclairageUnit,
+    required this.premierEclairageLabel,
     required this.intro,
     required this.keyFacts,
     required this.quiz,
@@ -49,9 +49,9 @@ class EducationContentData {
   static const Map<String, EducationTopicContent> _content = {
     // ─── 3a : Le 3e pilier ───
     '3a': EducationTopicContent(
-      chiffreChoc: "7'258",
-      chiffreChocUnit: 'CHF/an',
-      chiffreChocLabel: 'Plafond annuel 3a pour un\u00b7e salarie\u00b7e affilie\u00b7e LPP',
+      premierEclairage: "7'258",
+      premierEclairageUnit: 'CHF/an',
+      premierEclairageLabel: 'Plafond annuel 3a pour un\u00b7e salarie\u00b7e affilie\u00b7e LPP',
       intro:
           'Le 3e pilier (3a) est un compte epargne retraite qui te permet de '
           'reduire tes impots chaque annee. Chaque franc verse est deduit de '
@@ -87,9 +87,9 @@ class EducationContentData {
 
     // ─── LPP : La caisse de pension ───
     'lpp': EducationTopicContent(
-      chiffreChoc: '50%',
-      chiffreChocUnit: 'minimum',
-      chiffreChocLabel:
+      premierEclairage: '50%',
+      premierEclairageUnit: 'minimum',
+      premierEclairageLabel:
           'Part payee par ton employeur sur tes cotisations LPP',
       intro:
           'La caisse de pension (LPP, 2e pilier) est ta retraite '
@@ -133,9 +133,9 @@ class EducationContentData {
 
     // ─── AVS : Les lacunes ───
     'avs': EducationTopicContent(
-      chiffreChoc: '2.3%',
-      chiffreChocUnit: 'de rente en moins',
-      chiffreChocLabel:
+      premierEclairage: '2.3%',
+      premierEclairageUnit: 'de rente en moins',
+      premierEclairageLabel:
           'Reduction de ta rente AVS pour chaque annee de cotisation manquante',
       intro:
           'L\'AVS (1er pilier) est la base de ta retraite. Chaque annee ou '
@@ -154,14 +154,14 @@ class EducationContentData {
         options: ['30 ans', '40 ans', '44 ans', '50 ans'],
         correctIndex: 2,
         explanation:
-            '44 annees completes de cotisation sont necessaires pour la rente '
-            'maximale (LAVS art. 29). De 21 a 65 ans = 44 ans. Une seule '
-            'annee manquante = rente reduite a vie.',
+            '44 années complètes de cotisation sont nécessaires pour la rente '
+            'maximale (LAVS art. 29). De 21 à 65 ans = 44 ans. Une seule '
+            'année manquante = rente réduite à vie.',
       ),
       funFact:
-          '44 annees de cotisation completes sont necessaires pour la rente '
-          'maximale. Une seule annee manquante la reduit definitivement. '
-          'Verifie ton extrait — ca prend 5 minutes en ligne.',
+          '44 années de cotisation complètes sont nécessaires pour la rente '
+          'maximale. Une seule année manquante la réduit définitivement. '
+          'Vérifie ton extrait — ça prend 5 minutes en ligne.',
       sources: [
         'LAVS art. 29 (Duree de cotisation)',
         'LAVS art. 30 (Calcul de la rente)',
@@ -172,9 +172,9 @@ class EducationContentData {
 
     // ─── Emergency : Le fonds d'urgence ───
     'emergency': EducationTopicContent(
-      chiffreChoc: '3 a 6',
-      chiffreChocUnit: 'mois',
-      chiffreChocLabel:
+      premierEclairage: '3 a 6',
+      premierEclairageUnit: 'mois',
+      premierEclairageLabel:
           'D\'épargne de sécurité recommandée (charges mensuelles)',
       intro:
           'Le fonds d\'urgence, c\'est ton filet de sécurité. Si tu perds ton '
@@ -216,9 +216,9 @@ class EducationContentData {
 
     // ─── Debt : Les dettes ───
     'debt': EducationTopicContent(
-      chiffreChoc: '9.9%',
-      chiffreChocUnit: 'taux moyen',
-      chiffreChocLabel:
+      premierEclairage: '9.9%',
+      premierEclairageUnit: 'taux moyen',
+      premierEclairageLabel:
           'Taux d\'interet moyen d\'un credit a la consommation en Suisse',
       intro:
           'Les dettes a la consommation (credit, leasing) sont les ennemies '
@@ -261,9 +261,9 @@ class EducationContentData {
 
     // ─── Mortgage : L'hypotheque ───
     'mortgage': EducationTopicContent(
-      chiffreChoc: '5%',
-      chiffreChocUnit: 'taux theorique',
-      chiffreChocLabel:
+      premierEclairage: '5%',
+      premierEclairageUnit: 'taux theorique',
+      premierEclairageLabel:
           'Utilise par les banques pour calculer ta capacite d\'emprunt',
       intro:
           'En Suisse, les banques ne regardent pas le taux reel de ton '
@@ -303,9 +303,9 @@ class EducationContentData {
 
     // ─── Budget : Le reste a vivre ───
     'budget': EducationTopicContent(
-      chiffreChoc: '50/30/20',
-      chiffreChocUnit: 'regle d\'or',
-      chiffreChocLabel:
+      premierEclairage: '50/30/20',
+      premierEclairageUnit: 'regle d\'or',
+      premierEclairageLabel:
           '50% charges fixes, 30% envies, 20% epargne',
       intro:
           'Le reste a vivre, c\'est ce qui te reste apres les charges fixes '
@@ -349,9 +349,9 @@ class EducationContentData {
     // ─── LAMal : Les subsides ───
     // ─── Fiscal : La fiscalité suisse ───
     'fiscal': EducationTopicContent(
-      chiffreChoc: '~35%',
-      chiffreChocUnit: 'du revenu',
-      chiffreChocLabel:
+      premierEclairage: '~35%',
+      premierEclairageUnit: 'du revenu',
+      premierEclairageLabel:
           'Pression fiscale moyenne en Suisse (federal + cantonal + communal)',
       intro:
           'En Suisse, tu payes des impots a 3 niveaux : federal, cantonal et '
@@ -394,9 +394,9 @@ class EducationContentData {
     ),
 
     'lamal': EducationTopicContent(
-      chiffreChoc: '~350',
-      chiffreChocUnit: 'CHF/mois',
-      chiffreChocLabel:
+      premierEclairage: '~350',
+      premierEclairageUnit: 'CHF/mois',
+      premierEclairageLabel:
           'Prime moyenne LAMal en Suisse pour un adulte (franchise 300)',
       intro:
           'L\'assurance maladie (LAMal) est obligatoire en Suisse, mais les '

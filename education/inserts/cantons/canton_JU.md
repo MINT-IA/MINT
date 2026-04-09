@@ -11,7 +11,7 @@ source: "Administration fiscale du canton du Jura"
 ## Trigger
 L'utilisateur réside dans le Jura ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale dans le Jura est élevée, compensée par un coût de la vie bas : le multiplicateur cantonal se situe autour de 130-135 %.
 
 ## Niveau 0

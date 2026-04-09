@@ -11,8 +11,8 @@ class PrivacyService {
       'id': 'core_profile',
       'label': 'Profil de base',
       'description':
-          'Donnees necessaires au fonctionnement de l\'app (age, canton, revenu).',
-      'legalBasis': 'Execution du contrat (nLPD art. 31 al. 1)',
+          'Données nécessaires au fonctionnement de l\'app (age, canton, revenu).',
+      'legalBasis': 'Exécution du contrat (nLPD art. 31 al. 1)',
       'required': true,
       'retentionDays': 365,
     },
@@ -20,7 +20,7 @@ class PrivacyService {
       'id': 'byok_data_sharing',
       'label': 'Personnalisation IA',
       'description':
-          'Envoi de donnees financieres agregees a ton fournisseur IA '
+          'Envoi de données financières agrégées à ton fournisseur IA '
           'pour personnaliser les textes du coach.',
       'legalBasis': 'Consentement (nLPD art. 6 al. 6)',
       'required': false,
@@ -39,7 +39,7 @@ class PrivacyService {
     {
       'id': 'analytics',
       'label': 'Analyse d\'utilisation',
-      'description': 'Statistiques anonymisees pour ameliorer l\'app.',
+      'description': 'Statistiques anonymisées pour améliorer l\'app.',
       'legalBasis': 'Consentement (nLPD art. 6 al. 6)',
       'required': false,
       'retentionDays': 90,
@@ -55,7 +55,7 @@ class PrivacyService {
     },
     {
       'id': 'open_banking',
-      'label': 'Donnees bancaires (bLink)',
+      'label': 'Données bancaires (bLink)',
       'description': 'Connexion lecture seule a tes comptes bancaires.',
       'legalBasis': 'Consentement explicite (nLPD art. 6 al. 7)',
       'required': false,
@@ -180,20 +180,20 @@ class PrivacyService {
 
   /// Disclaimer nLPD
   static const String disclaimer =
-      'MINT respecte la nLPD (Loi federale sur la protection des donnees, '
+      'MINT respecte la nLPD (Loi fédérale sur la protection des données, '
       'entree en vigueur le 1er septembre 2023). '
-      'Tes donnees personnelles ne sont jamais vendues ni partagees '
+      'Tes données personnelles ne sont jamais vendues ni partagées '
       'avec des tiers sans ton consentement explicite. '
-      'Tu peux a tout moment exporter ou supprimer tes donnees.';
+      'Tu peux à tout moment exporter ou supprimer tes données.';
 
   /// Sources legales
   static const List<String> sources = [
-    'nLPD (RS 235.1) -- Loi federale sur la protection des donnees',
+    'nLPD (RS 235.1) -- Loi fédérale sur la protection des données',
     'nLPD art. 6 -- Principes (consentement)',
     'nLPD art. 19 -- Devoir d\'informer',
-    'nLPD art. 25 -- Droit d\'acces',
-    'nLPD art. 28 -- Droit a la remise ou a la transmission des donnees (portabilite)',
+    'nLPD art. 25 -- Droit d\'accès',
+    'nLPD art. 28 -- Droit à la remise ou à la transmission des données (portabilité)',
     'nLPD art. 32 -- Droit de demander l\'effacement',
-    'OPDo (RS 235.11) -- Ordonnance sur la protection des donnees',
+    'OPDo (RS 235.11) -- Ordonnance sur la protection des données',
   ];
 }

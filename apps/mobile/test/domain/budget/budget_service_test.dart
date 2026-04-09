@@ -8,7 +8,7 @@ import 'package:mint_mobile/domain/budget/budget_service.dart';
 //
 //  Covers:
 //   A. BudgetPlan model
-//   B. BudgetService.chiffreChoc()
+//   B. BudgetService.premierEclairage()
 //   C. BudgetService.computePlan() — justAvailable style
 //   D. BudgetService.computePlan() — envelopes3 style (no overrides)
 //   E. BudgetService.computePlan() — envelopes3 style (with overrides)
@@ -146,10 +146,10 @@ void main() {
   });
 
   // ════════════════════════════════════════════════════════════
-  //  B. BudgetService.chiffreChoc()
+  //  B. BudgetService.premierEclairage()
   // ════════════════════════════════════════════════════════════
 
-  group('BudgetService.chiffreChoc', () {
+  group('BudgetService.premierEclairage', () {
     test('zero income returns 0% message', () {
       const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
@@ -157,7 +157,7 @@ void main() {
         housingCost: 1000,
         debtPayments: 0,
       );
-      expect(BudgetService.chiffreChoc(inputs),
+      expect(BudgetService.premierEclairage(inputs),
           '0% de ton revenu part en charges fixes');
     });
 
@@ -168,7 +168,7 @@ void main() {
         housingCost: 0,
         debtPayments: 0,
       );
-      expect(BudgetService.chiffreChoc(inputs),
+      expect(BudgetService.premierEclairage(inputs),
           '0% de ton revenu part en charges fixes');
     });
 
@@ -179,7 +179,7 @@ void main() {
         housingCost: 2000,
         debtPayments: 0,
       );
-      expect(BudgetService.chiffreChoc(inputs),
+      expect(BudgetService.premierEclairage(inputs),
           '50% de ton revenu part en charges fixes');
     });
 
@@ -192,7 +192,7 @@ void main() {
         taxProvision: 200,
       );
       // totalCharges = 2200; pct = round(2200/2000 * 100) = 110
-      expect(BudgetService.chiffreChoc(inputs),
+      expect(BudgetService.premierEclairage(inputs),
           '110% de ton revenu part en charges fixes');
     });
 
@@ -208,7 +208,7 @@ void main() {
         healthInsurance: 450,
         otherFixedCosts: 200,
       );
-      final choc = BudgetService.chiffreChoc(inputs);
+      final choc = BudgetService.premierEclairage(inputs);
       // totalCharges = 3350; pct = round(3350/8100 * 100) = 41
       expect(choc, '41% de ton revenu part en charges fixes');
     });
@@ -704,14 +704,14 @@ void main() {
       );
     });
 
-    test('chiffreChoc never returns a promised return or banned term', () {
+    test('premierEclairage never returns a promised return or banned term', () {
       const inputs = BudgetInputs(
         payFrequency: PayFrequency.monthly,
         netIncome: 5000,
         housingCost: 1500,
         debtPayments: 0,
       );
-      final choc = BudgetService.chiffreChoc(inputs);
+      final choc = BudgetService.premierEclairage(inputs);
       const bannedTerms = [
         'garanti',
         'certain',
@@ -722,7 +722,7 @@ void main() {
       ];
       for (final term in bannedTerms) {
         expect(choc.toLowerCase(), isNot(contains(term)),
-            reason: 'chiffreChoc contains banned term: $term');
+            reason: 'premierEclairage contains banned term: $term');
       }
     });
   });

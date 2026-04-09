@@ -109,7 +109,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildChiffreChocCard(s, result)),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPremierEclairageCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Graphique
@@ -214,8 +214,8 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(S s, AmortizationResult result) {
-    final isPositive = result.chiffreChocPositif;
+  Widget _buildPremierEclairageCard(S s, AmortizationResult result) {
+    final isPositive = result.premierEclairagePositif;
 
     return MintResultHeroCard(
       eyebrow: s.amortizationEyebrow,
@@ -223,7 +223,7 @@ class _AmortizationScreenState extends State<AmortizationScreen> {
       primaryLabel: isPositive
           ? s.amortizationSavingsLabel
           : s.amortizationDifferenceLabel,
-      narrative: result.chiffreChocTexte,
+      narrative: result.premierEclairageTexte,
       accentColor: isPositive ? MintColors.success : MintColors.info,
       tone: MintSurfaceTone.porcelaine,
     );

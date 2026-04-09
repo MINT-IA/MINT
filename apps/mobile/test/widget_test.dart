@@ -30,9 +30,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(LandingScreen), findsOneWidget);
-    // landingCtaCommencer = "Commencer"
+    // Phase 5 POLISH-01: CTA is landingV2CtaSober = "Commencer".
     expect(find.text('Commencer'), findsOneWidget);
-    // MINT logo text in header
+    // MINT wordmark remains in header.
     expect(find.text('MINT'), findsOneWidget);
   });
 }

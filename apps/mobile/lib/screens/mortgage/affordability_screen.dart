@@ -277,17 +277,17 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
                 // SECTION 2 — LE RESULTAT : consequence financiere
                 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
                 MintResultHeroCard(
-                  eyebrow: result.chiffreChocPositif
+                  eyebrow: result.premierEclairagePositif
                       ? l.affordabilityParameters
                       : l.affordabilityInsightEquityTitle,
-                  primaryValue: result.chiffreChocPositif
+                  primaryValue: result.premierEclairagePositif
                       ? 'CHF\u00a0${formatChf(result.prixMaxAccessible)}'
                       : 'CHF\u00a0${formatChf(result.manqueFondsPropres)}',
-                  primaryLabel: result.chiffreChocPositif
+                  primaryLabel: result.premierEclairagePositif
                       ? l.affordabilityCalculationDetail
                       : l.affordabilityExceeded,
-                  narrative: result.chiffreChocTexte,
-                  accentColor: result.chiffreChocPositif
+                  narrative: result.premierEclairageTexte,
+                  accentColor: result.premierEclairagePositif
                       ? MintColors.success
                       : MintColors.error,
                   tone: MintSurfaceTone.porcelaine,

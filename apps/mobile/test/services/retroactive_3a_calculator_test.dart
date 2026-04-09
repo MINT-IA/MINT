@@ -104,16 +104,16 @@ void main() {
     });
 
     // ── 8. Chiffre choc contains CHF and year count ──
-    test('chiffreChoc contains CHF amount and year count', () {
+    test('premierEclairage contains CHF amount and year count', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 5,
         tauxMarginal: 0.30,
         referenceYear: futureRef,
       );
 
-      expect(result.chiffreChoc, contains('CHF'));
-      expect(result.chiffreChoc, contains('5 ans'));
-      expect(result.chiffreChoc, contains('$futureRef'));
+      expect(result.premierEclairage, contains('CHF'));
+      expect(result.premierEclairage, contains('5 ans'));
+      expect(result.premierEclairage, contains('$futureRef'));
     });
 
     // ── 9. Disclaimer contains required terms ──
@@ -231,14 +231,14 @@ void main() {
     });
 
     // ── 17. Chiffre choc singular for 1 year ──
-    test('chiffreChoc uses singular "an" for 1 year', () {
+    test('premierEclairage uses singular "an" for 1 year', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 1,
         tauxMarginal: 0.30,
       );
 
-      expect(result.chiffreChoc, contains('1 an '));
-      expect(result.chiffreChoc, isNot(contains('1 ans')));
+      expect(result.premierEclairage, contains('1 an '));
+      expect(result.premierEclairage, isNot(contains('1 ans')));
     });
 
     // ── 18. Year < 2025 guard: referenceYear 2026 caps at 1 ──

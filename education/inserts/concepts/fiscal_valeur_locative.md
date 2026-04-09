@@ -8,7 +8,7 @@ tags: [fiscal, valeur_locative, immobilier, proprietaire, lifd, revenu_imposable
 ## Trigger
 L'utilisateur est propriétaire (ou envisage de le devenir) et découvre qu'il devra déclarer un "revenu fictif" pour son propre logement.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, si tu habites ton propre logement, le fisc ajoute un "loyer fictif" à ton revenu imposable. Pour un appartement dont le loyer de marché serait CHF 2'000/mois, ta valeur locative pourrait être de CHF 16'800 à CHF 21'600/an — un revenu que tu n'as jamais touché mais sur lequel tu paies des impôts.
 
 ## Niveau 0

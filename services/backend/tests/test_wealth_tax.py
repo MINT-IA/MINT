@@ -8,7 +8,7 @@ Covers:
     - Comparison rankings
     - Move simulations
     - Church tax estimation (all cantons, mandatory vs voluntary)
-    - Compliance checks (disclaimer, sources, chiffre_choc, banned terms)
+    - Compliance checks (disclaimer, sources, premier_eclairage, banned terms)
     - Edge cases (zero, negative, invalid canton)
 
 Sources tested:
@@ -361,7 +361,7 @@ class TestWealthTaxConvenienceFunctions:
         assert "impot_fortune" in result
         assert "disclaimer" in result
         assert "sources" in result
-        assert "chiffre_choc" in result
+        assert "premier_eclairage" in result
 
     def test_comparer_fortune_cantons(self):
         """Test the convenience comparison function returns ranked dict."""
@@ -495,7 +495,7 @@ class TestChurchTaxEdgeCases:
 
 
 # ===========================================================================
-# COMPLIANCE — Disclaimer, sources, chiffre_choc, banned terms
+# COMPLIANCE — Disclaimer, sources, premier_eclairage, banned terms
 # ===========================================================================
 
 class TestComplianceWealth:
@@ -527,31 +527,31 @@ class TestComplianceWealth:
         assert "lhid" in source_text
         assert "fortune" in source_text
 
-    def test_chiffre_choc_present(self, wealth_service):
-        """Every wealth tax estimate must have a chiffre_choc."""
+    def test_premier_eclairage_present(self, wealth_service):
+        """Every wealth tax estimate must have a premier_eclairage."""
         result = wealth_service.estimate_wealth_tax(500_000, "ZH")
-        assert result.chiffre_choc
-        assert len(result.chiffre_choc) > 10
+        assert result.premier_eclairage
+        assert len(result.premier_eclairage) > 10
 
-    def test_chiffre_choc_for_zero_fortune(self, wealth_service):
+    def test_premier_eclairage_for_zero_fortune(self, wealth_service):
         """Chiffre choc should be meaningful even for 0 fortune."""
         result = wealth_service.estimate_wealth_tax(0, "ZH")
-        assert result.chiffre_choc
-        assert "0 CHF" in result.chiffre_choc
+        assert result.premier_eclairage
+        assert "0 CHF" in result.premier_eclairage
 
-    def test_chiffre_choc_for_below_exemption(self, wealth_service):
+    def test_premier_eclairage_for_below_exemption(self, wealth_service):
         """Chiffre choc for fortune below exemption should mention it."""
         result = wealth_service.estimate_wealth_tax(50_000, "ZH")
-        assert result.chiffre_choc
-        assert "exoneration" in result.chiffre_choc.lower()
+        assert result.premier_eclairage
+        assert "exoneration" in result.premier_eclairage.lower()
 
     def test_move_simulation_compliance(self, wealth_service):
-        """Move simulation must have disclaimer, sources, chiffre_choc."""
+        """Move simulation must have disclaimer, sources, premier_eclairage."""
         sim = wealth_service.simulate_move_wealth(500_000, "ZH", "ZG")
         assert sim.disclaimer
         assert len(sim.sources) >= 2
-        assert sim.chiffre_choc
-        assert len(sim.chiffre_choc) > 10
+        assert sim.premier_eclairage
+        assert len(sim.premier_eclairage) > 10
 
     def test_no_banned_terms_in_wealth_outputs(self, wealth_service):
         """Scan wealth tax outputs for banned terms."""
@@ -563,7 +563,7 @@ class TestComplianceWealth:
         result = wealth_service.estimate_wealth_tax(500_000, "ZH")
         all_text = (
             result.disclaimer
-            + result.chiffre_choc
+            + result.premier_eclairage
             + " ".join(result.sources)
         ).lower()
 
@@ -582,7 +582,7 @@ class TestComplianceWealth:
         result = church_service.estimate_church_tax(10_000, "ZH")
         all_text = (
             result.disclaimer
-            + result.chiffre_choc
+            + result.premier_eclairage
             + " ".join(result.sources)
         ).lower()
 
@@ -606,11 +606,11 @@ class TestComplianceChurch:
         result = church_service.estimate_church_tax(10_000, "ZH")
         assert len(result.sources) >= 2
 
-    def test_church_chiffre_choc_present(self, church_service):
-        """Every church tax estimate must have a chiffre_choc."""
+    def test_church_premier_eclairage_present(self, church_service):
+        """Every church tax estimate must have a premier_eclairage."""
         result = church_service.estimate_church_tax(10_000, "ZH")
-        assert result.chiffre_choc
-        assert len(result.chiffre_choc) > 10
+        assert result.premier_eclairage
+        assert len(result.premier_eclairage) > 10
 
     def test_church_uses_specialiste_not_conseiller(self, church_service):
         """Disclaimer must use 'specialiste' not 'conseiller'."""

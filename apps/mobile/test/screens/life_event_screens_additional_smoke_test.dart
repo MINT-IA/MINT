@@ -393,7 +393,7 @@ void main() {
       expect(find.textContaining('proche'), findsWidgets);
     });
 
-    testWidgets('shows chiffre choc hero', (tester) async {
+    testWidgets('shows premier éclairage hero', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
       // Hero shows CHF amount

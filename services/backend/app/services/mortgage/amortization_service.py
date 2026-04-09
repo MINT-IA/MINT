@@ -51,7 +51,7 @@ class GrapheEntry:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -91,7 +91,7 @@ class AmortizationComparisonResult:
     methode_avantageuse: str   # "direct" or "indirect"
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Graph data
     graphe_data: List[GrapheEntry]
@@ -208,7 +208,7 @@ class AmortizationService:
 
         # ---- CHIFFRE CHOC ----
         if difference > 0:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=abs(difference),
                 texte=(
                     f"L'amortissement indirect te fait economiser "
@@ -217,7 +217,7 @@ class AmortizationService:
                 ),
             )
         elif difference < 0:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=abs(difference),
                 texte=(
                     f"L'amortissement direct est plus avantageux de "
@@ -225,7 +225,7 @@ class AmortizationService:
                 ),
             )
         else:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=0.0,
                 texte=(
                     "Les deux methodes sont equivalentes dans ce scenario. "
@@ -246,7 +246,7 @@ class AmortizationService:
             indirect=indirect,
             difference_nette=difference,
             methode_avantageuse=methode_avantageuse,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             graphe_data=graphe,
             montant_hypothecaire=montant_hypothecaire,
             taux_interet=taux_interet,

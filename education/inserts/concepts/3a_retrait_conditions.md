@@ -8,7 +8,7 @@ tags: [3a, retrait, conditions, opp3, deblocage]
 ## Trigger
 L'utilisateur se demande quand et comment il peut retirer son pilier 3a, ou cherche à comprendre les cas de déblocage anticipé.
 
-## Chiffre Choc
+## Premier Éclairage
 En Suisse, environ CHF 7 milliards sont retirés chaque année du pilier 3a — mais beaucoup de personnes ignorent qu'il n'existe que 5 cas légaux de retrait. En dehors de ces cas, ton argent est bloqué jusqu'à la retraite — c'est justement cette contrainte qui te donne l'avantage fiscal.
 
 ## Niveau 0

@@ -1,6 +1,6 @@
 # Transformation Sprint — Expert Review & Corrections
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term.
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "premier éclairage" comme legacy term.
 > Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`).
 >
 > Résultat du review par 4 experts (Swiss strategist, Cleo analyst,
@@ -11,10 +11,10 @@
 
 ## 7 CORRECTIONS aux prompts de docs/TRANSFORMATION_SPRINT_PROMPTS.md
 
-### CORRECTION 1 : Ajouter canton au 2-tap chiffre choc (Prompt 2)
+### CORRECTION 1 : Ajouter canton au 2-tap premier éclairage (Prompt 2)
 
 Le canton est la variable #1 des calculs fiscaux suisses. Sans canton,
-le chiffre choc est imprécis de 8-10%.
+le premier éclairage est imprécis de 8-10%.
 
 **Modifier Prompt 2 :**
 - Ajouter un 3ème champ "Canton" (dropdown des 26 cantons, ou auto-detect)
@@ -58,10 +58,10 @@ Violation i18n (6 langues).
 ### CORRECTION 5 : Couple preview personnalisée (Prompt 5)
 
 Les exemples génériques (120k+80k) sont faibles. Si l'utilisateur a
-déjà entré son salaire dans le 2-tap chiffre choc, utiliser SES données.
+déjà entré son salaire dans le 2-tap premier éclairage, utiliser SES données.
 
 **Modifier Prompt 5 :**
-- Si salary disponible (via le chiffre choc instantané) : calculer SA pénalité mariage
+- Si salary disponible (via le premier éclairage instantané) : calculer SA pénalité mariage
 - Afficher : "Avec ton revenu de {salary}, la pénalité mariage serait d'environ {penalty}/an"
 - Ajouter un signal d'espoir : "3 leviers existent pour la réduire"
 - Si salary non disponible : fallback aux exemples statiques
@@ -88,7 +88,7 @@ de savoir si les transformations fonctionnent.
 
 **Ajouter dans CHAQUE prompt :**
 - Prompt 1 (Coach proactif) : `trackEvent('coach_opener_shown', {capId, cashLevel})`
-- Prompt 2 (Chiffre choc) : `trackEvent('instant_chiffre_choc', {age, salary, result})`
+- Prompt 2 (Chiffre choc) : `trackEvent('instant_premier_eclairage', {age, salary, result})`
 - Prompt 3 (Action engine) : `trackEvent('action_cta_tapped', {screen, action, route})`
 - Prompt 4 (Day-1 hook) : `trackEvent('day1_notification_tapped')` + `trackEvent('confidence_bar_shown', {pct})`
 - Prompt 5 (Couple preview) : `trackEvent('couple_preview_shown', {salary, penalty})`
@@ -116,4 +116,4 @@ de savoir si les transformations fonctionnent.
 ### Du Tech architect :
 - Opener coach pré-généré en background (cache 4h) pour éviter 5s de latence
 - Deep link notification → vérifier que le profil est chargé AVANT de naviguer
-- Le couple preview ET le chiffre choc 2-tap modifient landing_screen.dart → conflit de merge probable
+- Le couple preview ET le premier éclairage 2-tap modifient landing_screen.dart → conflit de merge probable

@@ -1,120 +1,143 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.2
-milestone_name: La Beauté de Mint
-status: Roadmap created for v2.2
-stopped_at: v2.2 roadmap written + expert-audit patched, 96/96 REQs mapped to 15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), awaiting /gsd-plan-phase 1
-last_updated: "2026-04-07T13:30:00.000Z"
-last_activity: 2026-04-07 — Roadmap created + expert-audit patched (15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), reset numbering)
+milestone: v2.3
+milestone_name: milestone
+status: awaiting_gate0
+stopped_at: Phase 6 automated verification complete — awaiting Julien Gate 0
+last_updated: "2026-04-09T13:46:17Z"
+last_activity: "2026-04-09 — Phase 6 automated verification: 34/34 gates green, 9254/9276 tests pass, 149 routes inventoried. Awaiting creator-device walkthrough."
 progress:
-  total_phases: 15
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  total_phases: 6
+  completed_phases: 5
+  total_plans: 9
+  completed_plans: 9
+  percent: 95
 ---
 
 # GSD State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-07)
+See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.2 La Beauté de Mint — 12-phase roadmap created, ready for phase planning
+**Current focus:** v2.3 Simplification Radicale — Phase 5 complete. Ready for Phase 6 device walkthrough.
 
 ## Current Position
 
-Phase: 1 (P0a — Unblockers & Perf Baseline) — not started
-Plan: —
-Status: Roadmap created, awaiting `/gsd-plan-phase 1`
-Last activity: 2026-04-07 — Roadmap created for v2.2 (15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), reset)
+Phase: 6 — E2E device walkthrough & ship gate **AUTOMATED COMPLETE**
+Plan: Phase 6 automated verification done. Awaiting Julien Gate 0.
+Status: Phase 1-5 complete. Phase 6 automated verification done. Awaiting creator-device walkthrough.
+Last activity: 2026-04-09 — Phase 6 automated verification: 34/34 gates, 9254/9276 tests, 149 routes.
 
-Progress: [░░░░░░░░░░] 0% (0/15 phases (incl. Phase 8c polish + Phase 10.5 friction passes))
+## Phase Map (v2.3)
 
-## Performance Metrics
-
-**Baseline (carried from v2.1):**
-
-- Flutter tests: 8137 green
-- Backend tests: 4755 green
-- Total: 12'892 green
-- flutter analyze lib/: 0 warnings
-- backend ruff: 0 errors
-- CI dev: green on all jobs
-
-**v2.2 targets:**
-
-- Galaxy A14 cold start: `timeToFirstFrameMicros < 2500ms` (Phase 1 baseline deliverable)
-- Scroll FPS on Aujourd'hui: median ≥ 55, p95 ≥ 50
-- MTC bloom: 0 dropped frames over 250ms
-- WCAG 2.1 AA on every touched surface: 100% bloquant CI (Phase 12 gate)
-- WCAG 2.1 AAA on S0-S5: 100% cible (or documented AA descope per ACCESS-09)
-- Krippendorff α on voice cursor spec: ≥ 0.67 overall + per-level N4 + per-level N5 (weighted ordinal)
-- Reverse-Krippendorff on generation: ≥ 70% N4 classification
-- 0 phrases G3 routées N1/N2 (hard floor)
-- 0 phrases sujets sensibles routées N4/N5 (hard floor)
-- 3 live accessibility sessions minimum (Phase 8 + Phase 12)
-- Screens-before-first-insight: 2 (down from 5)
+1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01 **COMPLETE**
+2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
+3. Chat-as-shell rebuild — CHAT-01..05 **COMPLETE**
+4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06 **COMPLETE**
+5. Sober visual polish — POLISH-01..04 **COMPLETE**
+6. End-to-end device walkthrough & ship gate — DEVICE-02
 
 ## Accumulated Context
 
-### Roadmap shape (15 phases (incl. Phase 8c polish + Phase 10.5 friction passes), reset numbering)
+### v2.2 outcome (carryover)
 
-| # | Phase | Chantier | REQs |
-|---|---|---|---|
-| 1 | P0a Unblockers & Perf Baseline | STAB carryover + A14 baseline + a11y recruit | 9 |
-| 2 | P0b Contracts & Audits | VoiceCursorContract + Profile field + AUDIT-01/02 | 8 |
-| 3 | L1.1 Audit du Retrait | DELETE/KEEP list, -20% | 2 |
-| 4 | L1.2a MTC Component + S4 | MintTrameConfiance v1, first consumer | 11 |
-| 5 | L1.6a Voice Cursor Spec | Spec doc + 50 frozen phrases + narrator wall | 6 |
-| 6 | L1.4 Voix Régionale | ARB carve-out + backend dual-system kill | 7 |
-| 7 | L1.7 Landing v2 | S0 rebuild, Variante A | 6 |
-| 8 | L1.2b + L1.3 Migration + Microtypo + AAA | 11-surface MTC migration + tokens + live a11y | 16 |
-| 9 | L1.5 MintAlertObject | S5 typed API + G2/G3 grammar | 11 |
-| 10 | L1.8 Onboarding v2 | Delete 5 screens, intent → chat | 11 |
-| 11 | L1.6b Rewrite + Krippendorff | 30 phrases rewritten, α validation | 7 |
-| 12 | L1.6c "Ton" + Ship Gate | User setting + all CI/manual gates green | 3 |
+- 15 phases shipped, 175+ commits, 9326 Flutter tests + 5246 backend tests, 18/18 automated ship gates green, audit grade A-
+- TestFlight build 2026-04-08 — Julien device walkthrough 2026-04-09 found 4 P0 bugs in 4 minutes
+- Lesson: tests green ≠ app functional. Gate 0 (creator-device walkthrough) becomes mandatory non-skippable per phase from v2.3 forward.
 
-**Coverage:** 96/96 REQs mapped, 0 orphans, 0 duplicates.
+### v2.3 inputs (read before any phase)
 
-### Critical path
+- `.planning/v2.3-handoff/HANDOFF.md` — full context + 2 founding principles
+- `.planning/v2.3-handoff/screenshots/WALKTHROUGH_NOTES.md` — device diagnosis
+- `docs/NAVIGATION_MAP_v2.2_REALITY.md` — file:line root-causes for 4 P0
+- `docs/AESTHETIC_AUDIT_v2.2_BRUTAL.md` — 7/10 screens to delete as destinations
 
-**P0a (Phase 1) → P0b (Phase 2) → L1.6a (Phase 5) → L1.6b (Phase 11) → L1.6c (Phase 12)** is the longest chain. L1.6b is the bottleneck (Krippendorff validation + editorial review). Phase 1 is sequential gate; Phases 2-6 can overlap per the DAG in SUMMARY §6.
+### Phase 1 outcome
 
-### Top 3 schedule risks (from PITFALLS.md top 10)
+- All 144 routes migrated to ScopedGoRoute with explicit RouteScope (public/onboarding/authenticated)
+- Scope-based guard replaces operation-based protectedPrefixes whitelist
+- 5 CI mechanical gates installed and passing (cycle DFS, scope-leak, empty-state-with-payload, guard snapshot, doctrine-string lint)
+- BUG-01 (infinite loop) patched: coach_chat_screen.dart payload guard checks widget.entryPayload before short-circuiting
+- ProfileDrawer mounted only inside authenticated scope
 
-1. **P1 Tone-locking (CRITICAL)** — Claude may silently regress to polite register under N4/N5 instructions. Mitigated by Phase 5 (few-shot VOICE-07) + Phase 11 (reverse-Krippendorff VOICE-06). If Phase 11 reverse-test fails, system prompt rework pushes L1.6b by 3-5 days → L1.6c slips.
-2. **P14 Live a11y tests start too late (HIGH)** — Recruitment lead time 2-4 weeks via SBV-FSA/ASPEDAH/Caritas. Phase 1 kicks off emails day 1 (ACCESS-01) but live sessions don't land until Phase 8. If recruitment slips past Phase 8, Phase 12 ship gate cannot meet the 3-session target and ACCESS-09 descope activates.
-3. **P11 Regional validator recruitment (HIGH)** — 3 native validators (VS/ZH/TI) must sign off before Phase 6 merges. If any validator ghost, Phase 6 blocks, impacting Phase 11 regional phrase validation in 3 langs.
+### Phase 2 outcome
 
-### Decisions (v2.2)
+- 14 files deleted (6 screens + 8 test files), 11 routes redirected to /coach/chat, 1 route removed
+- CoachEmptyState deleted -- BUG-01 loop structurally impossible
+- intent_screen, consent_dashboard, profile_screen, main_navigation_shell, explore_tab all deleted
+- /coach/chat scope changed to public (users reach chat without account creation)
+- 6 auth leak tombstone tests prove BUG-02 impossible by construction
+- Guard snapshot golden file updated
+- App is now: landing -> chat. No tabs, no drawer, no profile destination.
+- Hub screen files preserved for Phase 3 (chat-summoned drawers)
 
-- Phase numbering reset to 1 (--reset-phase-numbers)
-- 15 phases (incl. Phase 8c polish + Phase 10.5 friction passes) derived from 10 chantiers + P0 two-phase split
-- Phase 13 ship gate folded into Phase 12 for cleanliness
-- L1.2b + L1.3 co-located in Phase 8 per SUMMARY §3 dependency note (same files)
+### Phase 4 outcome
 
-### Carryover from v2.1 (TestFlight gate)
+- BUG-03: ~40 diacritics fixed across 14 Dart files (Donnees->Donnees, ameliorer->ameliorer, etc.)
+- BUG-04: TonChooser already deleted from git in Phase 2; untracked filesystem remnants removed
+- NAV-03: /about confirmed public-scope, scope-leak CI gate green
+- NAV-04: Route cycle DFS CI gate green post-Phase 2+3
+- NAV-05: New route reachability CI gate added (BFS to /coach/chat)
+- NAV-06: Zero Navigator.push except whitelisted fullscreen overlay
+- flutter analyze: 0 errors (870 macOS conflict duplicate files also cleaned)
+- All 34 architecture tests pass
 
-- **STAB-17 manual tap-to-render walkthrough** → Phase 1 success criterion #1. Blocks TestFlight.
-- 12 orphan GoRouter routes deferred to v3.0 (opportunistic during Phase 3 audit)
-- ~65 NEEDS-VERIFY try/except blocks (opportunistic)
-- 1 stale test in `chat_tool_dispatcher_test.dart`
+### 4 P0 bugs (from device walkthrough)
+
+1. **Auth leak** — dissolves via Phase 1 (scope-based guard) + Phase 2 deletion of /profile/consent
+2. **Infinite loop** — Phase 1 patched payload guard; Phase 2 deletes CoachEmptyState entirely (structural elimination)
+3. **Centre de controle catastrophe** — dissolves via Phase 2 KILL-03
+4. **Creer ton compte horrible** — dissolves via Phase 2 KILL-05
+
+### 2 founding principles (apply to every phase)
+
+1. **3-second no-finance-human test** — replaces all UI ship gates
+2. **Chat EST l'app (chat-as-shell inversion)** — every destination screen is suspect
+
+### Gate 0 reminder
+
+DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creator-device annotated screenshots showing the flow works on a real iPhone.
+
+### Carryover technical debt
+
+- 12 orphan GoRouter routes (v2.1) — absorbed by Phase 2 deletion spree
+- ~65 NEEDS-VERIFY try/except blocks — out of scope for v2.3
+- ACCESS-01 a11y partner emails never sent (deferred v2.4)
+- Krippendorff alpha validation infra ready but never run (deferred v2.4)
+
+### Phase 5 outcome
+
+- Landing rebuilt to 3 elements: wordmark + single-sentence promise + "Commencer" CTA + legal footer
+- Privacy subtitle removed (coach explains when relevant)
+- Chat breathing room: 24px between turns (was 20px), ListView 24px vertical (was 16px)
+- Phase 3 widgets (chat_drawer_host, chat_consent_chip) tokenized with MintTextStyles
+- Token audit clean: zero Color(0xFF) outside colors.dart, zero Outfit, zero deprecated widgets
+- ARB keys added to all 6 locales, tests updated
+- 4 commits: 67457421, 6000eb76, 2ae9c6c9, e10b264c
+
+### Phase 6 outcome
+
+- Automated verification complete: flutter analyze 0 errors, 34/34 architecture gates green
+- Full suite: 9276 tests (9254 passed, 6 skipped, 16 expected failures from golden/layout changes)
+- Route inventory: 149 routes (14 public, 10 onboarding, 125 authenticated)
+- v2.3 changelog: 32 commits, 13 files deleted, 11 created, -3552 net lines
+- VERIFICATION.md and MILESTONE-SUMMARY.md written
+- Commit: ce0fe678
 
 ### Pending Todos
 
-- Run `/gsd-plan-phase 1` to decompose Phase 1 into plans
-- Resolve Open Decision Gate #1 (VZ app teardown) before Phase 4 coding starts
-- Resolve Open Decision Gate #2 (brand palette AAA sign-off) before Phase 8 merge
+- Julien Gate 0 device walkthrough (TestFlight install, cold-start -> landing -> chat -> coach)
+- Regenerate golden test master images (landing changed in Phase 5)
+- Update 7 test expectations to match v2.3 reality
 
 ### Blockers/Concerns
 
-- None at roadmap level. Phase 1 is self-contained and can start immediately.
-- Recruitment lead time (P14) is the earliest time-bomb — Phase 1 must send emails on day 1.
+- None. Phase 6 can begin immediately.
 
 ## Session Continuity
 
-Last session: 2026-04-07T13:00:00.000Z
-Stopped at: ROADMAP.md written, REQUIREMENTS.md traceability filled, 96/96 mapped
-Resume file: None — next step is `/gsd-plan-phase 1`
+Last session: 2026-04-09T13:46:17Z
+Stopped at: Phase 6 automated verification complete — awaiting Julien Gate 0
+Resume file: None

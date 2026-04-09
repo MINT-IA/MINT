@@ -30,7 +30,7 @@ extension FitnessLevelExtension on FitnessLevel {
       case FitnessLevel.critique:
         return 'Priorite : stabilisons tes bases.';
       case FitnessLevel.attention:
-        return 'Attention : quelques points a ameliorer.';
+        return 'Attention : quelques points à améliorer.';
       case FitnessLevel.bon:
         return 'Bien ! Tu es sur la bonne voie.';
       case FitnessLevel.excellent:
@@ -505,7 +505,7 @@ class FinancialFitnessService {
       detailTrajectoire = '$streak mois consecutifs on-track';
     } else {
       pointsTrajectoire = 8;
-      detailTrajectoire = '$checkIns check-in(s) — continue pour ameliorer';
+      detailTrajectoire = '$checkIns check-in(s) — continue pour améliorer';
     }
     criteria.add(ScoreCriterion(
       id: 'trajectoire',

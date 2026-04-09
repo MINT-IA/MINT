@@ -618,7 +618,7 @@ class ResponseCardService {
       type: ResponseCardType.pillar3a,
       title: l.rcPillar3aTitle(now.year.toString()),
       subtitle: l.rcPillar3aSubtitle,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: taxSaving,
         unit: 'CHF',
         explanation: l.rcPillar3aExplanation(plafond.round().toString()),
@@ -662,7 +662,7 @@ class ResponseCardService {
       type: ResponseCardType.lppBuyback,
       title: l.rcLppBuybackTitle,
       subtitle: l.rcLppBuybackSubtitle,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: rachatMax,
         unit: 'CHF',
         explanation: l.rcLppBuybackExplanation(
@@ -718,7 +718,7 @@ class ResponseCardService {
       title: l.rcReplacementRateTitle,
       subtitle: l.rcReplacementRateSubtitle(
           profile.effectiveRetirementAge.toString()),
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: replacementRate,
         unit: '%',
         explanation: l.rcReplacementRateExplanation(
@@ -758,7 +758,7 @@ class ResponseCardService {
       type: ResponseCardType.avsGap,
       title: l.rcAvsGapTitle,
       subtitle: l.rcAvsGapSubtitle(lacunes.toString()),
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: monthlyLoss * 12,
         unit: 'CHF/an',
         explanation: l.rcAvsGapExplanation,
@@ -796,7 +796,7 @@ class ResponseCardService {
         score.coupleWeakName!,
         score.coupleWeakScore!.round().toString(),
       ),
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: gap,
         unit: l.rcUnitPts,
         explanation: l.rcCoupleAlertExplanation(gap.round().toString()),
@@ -827,7 +827,7 @@ class ResponseCardService {
       type: ResponseCardType.independant,
       title: l.rcIndependantTitle,
       subtitle: l.rcIndependantSubtitle,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: max3a,
         unit: 'CHF/an',
         explanation: l.rcIndependantExplanation(
@@ -875,7 +875,7 @@ class ResponseCardService {
       type: ResponseCardType.taxOptimization,
       title: l.rcTaxOptTitle,
       subtitle: l.rcTaxOptSubtitle,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: totalSaving,
         unit: 'CHF',
         explanation: l.rcTaxOptExplanation(plafond3a.round().toString()),
@@ -914,7 +914,7 @@ class ResponseCardService {
       subtitle: isUnderCushion
           ? l.rcPatrimoineSubtitleLow
           : l.rcPatrimoineSubtitleOk,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: total,
         unit: 'CHF',
         explanation: isUnderCushion
@@ -961,7 +961,7 @@ class ResponseCardService {
           .pillar3a, // generic — type is secondary for simple cards
       title: title,
       subtitle: subtitle,
-      chiffreChoc: const ChiffreChoc(
+      premierEclairage: const PremierEclairage(
         value: 0,
         unit: '',
         explanation: '',
@@ -991,7 +991,7 @@ class ResponseCardService {
       type: ResponseCardType.mortgage,
       title: l.rcMortgageTitle,
       subtitle: l.rcMortgageSubtitle(ltv.toStringAsFixed(0)),
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         value: mortgage,
         unit: 'CHF',
         explanation:

@@ -57,7 +57,7 @@ class HorizonLineWidget extends StatelessWidget {
                   const SizedBox(height: 24),
                   _buildAfterLine(),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -223,7 +223,7 @@ class HorizonLineWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

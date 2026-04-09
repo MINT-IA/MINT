@@ -8,7 +8,7 @@ tags: [succession, testament, heritage, planification, reserve, cc]
 ## Trigger
 L'utilisateur veut protéger ses proches, se demande qui hérite sans testament, ou souhaite comprendre la marge de manœuvre pour répartir son patrimoine.
 
-## Chiffre Choc
+## Premier Éclairage
 Sans testament, le droit suisse donne automatiquement 50 % de ta succession à tes enfants et 50 % à ton ou ta conjoint·e. Ton ou ta concubin·e ne reçoit RIEN — même après 30 ans de vie commune. Un testament simple (même manuscrit) suffit pour changer cela.
 
 ## Niveau 0

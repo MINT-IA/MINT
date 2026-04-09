@@ -1,6 +1,6 @@
 /// PremierEclairageCard — first-time user insight card (Plan 03-03, D-04).
 ///
-/// Shows the persisted ChiffreChoc number, title, subtitle, and a Comprendre
+/// Shows the persisted PremierEclairage number, title, subtitle, and a Comprendre
 /// CTA derived from [ReportPersistenceService.loadPremierEclairageSnapshot].
 ///
 /// States:
@@ -9,7 +9,7 @@
 ///   - Error: empty-profile fallback with Personnaliser CTA
 ///
 /// Threat T-03-07: reads only display fields from snapshot (no PII).
-/// Threat T-03-08: mandatory [chiffreChocDisclaimer] per CLAUDE.md §6.
+/// Threat T-03-08: mandatory [premierEclairageDisclaimer] per CLAUDE.md §6.
 library;
 
 import 'package:flutter/material.dart';
@@ -134,10 +134,12 @@ class _PremierEclairageCardState extends State<PremierEclairageCard>
           const SizedBox(height: MintSpacing.md),
           _CtaButton(
             label: l10n.premierEclairageCardCtaPersonalize,
-            onTap: () => widget.onNavigate('/onboarding/quick-start'),
+            // P10-02b: quick-start screen removed → route directly to coach chat
+            // (source: premier_eclairage_intent).
+            onTap: () => widget.onNavigate('/coach/chat'),
           ),
           const SizedBox(height: MintSpacing.sm),
-          _DisclaimerText(text: l10n.chiffreChocDisclaimer),
+          _DisclaimerText(text: l10n.premierEclairageDisclaimer),
         ],
       ),
     );
@@ -222,7 +224,7 @@ class _PremierEclairageCardState extends State<PremierEclairageCard>
           const SizedBox(height: MintSpacing.sm),
 
           // ── Mandatory disclaimer (T-03-08, CLAUDE.md §6) ──
-          _DisclaimerText(text: l10n.chiffreChocDisclaimer),
+          _DisclaimerText(text: l10n.premierEclairageDisclaimer),
         ],
       ),
     );

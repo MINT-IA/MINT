@@ -320,13 +320,13 @@ def compare_location_vs_propriete(
     # Chiffre choc
     delta = abs(option_a.terminal_value - option_b.terminal_value)
     if option_b.terminal_value > option_a.terminal_value:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule sur {horizon_annees} ans, l'achat "
             f"pourrait representer {delta:,.0f} CHF de plus en patrimoine net "
             f"que la location — mais avec moins de flexibilite."
         )
     else:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule sur {horizon_annees} ans, la location + "
             f"investissement pourrait representer {delta:,.0f} CHF de plus en "
             f"patrimoine net que l'achat."
@@ -457,7 +457,7 @@ def compare_location_vs_propriete(
     return ArbitrageResult(
         options=options,
         breakeven_year=breakeven_year,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         display_summary=display_summary,
         hypotheses=hypotheses,
         disclaimer=_DISCLAIMER,

@@ -129,7 +129,7 @@ class DisabilityGapResponse(DisabilityGapBaseModel):
     )
 
     # Compliance
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc: un nombre marquant avec explication",
     )
     disclaimer: str = Field(

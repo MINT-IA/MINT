@@ -8,7 +8,7 @@ tags: [3a, multi_comptes, optimisation, fiscale, strategie, echelonnement]
 ## Trigger
 L'utilisateur se demande combien de comptes 3a il peut ou devrait ouvrir, ou veut préparer le retrait échelonné.
 
-## Chiffre Choc
+## Premier Éclairage
 Avec 5 comptes 3a au lieu d'un seul, tu pourrais économiser entre CHF 3'000 et CHF 10'000 d'impôts au moment du retrait, simplement en échelonnant les retraits sur 5 ans. C'est une stratégie simple, légale, et méconnue.
 
 ## Niveau 0

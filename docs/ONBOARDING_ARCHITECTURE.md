@@ -4,7 +4,7 @@
 > Statut : **AUTORITATIF** — Ce document décrit l'architecture réelle de l'onboarding.
 > Remplace les sections onboarding de `ONBOARDING_ARBITRAGE_ENGINE.md` (archive).
 >
-> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise le terme "chiffre choc" qui est un legacy term technique.
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise le terme "premier éclairage" qui est un legacy term technique.
 > Le concept canonique est désormais **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`).
 > Le premier éclairage n'est pas nécessairement un nombre — c'est un insight personnalisé
 > (nombre, angle mort, implication cachée, ou question à poser). Migration code à planifier.
@@ -17,7 +17,7 @@ L'onboarding a **deux chemins** :
 - **Chemin primaire** : API backend (authoritative)
 - **Chemin fallback** : calcul local (offline, instantané)
 
-Les deux chemins utilisent le **même algorithme** (S57 — ChiffreChoc V2).
+Les deux chemins utilisent le **même algorithme** (S57 — PremierEclairage V2).
 
 ```
 Utilisateur
@@ -31,9 +31,9 @@ StepQuestions (3-5 inputs)
     ▼
 SmartOnboardingViewModel.compute()
     │  ├─ MinimalProfileService.compute() → MinimalProfileResult
-    │  └─ ChiffreChocSelector.select(profile, stressType: stressType)
+    │  └─ PremierEclairageSelector.select(profile, stressType: stressType)
     ▼
-StepChiffreChoc (reveal)
+StepPremierEclairage (reveal)
     │  ├─ Nombre animé (counter 0 → rawValue)
     │  ├─ Barre de confiance (% données fournies)
     │  ├─ Caveat pédagogique (si confidenceMode == pedagogical)
@@ -55,13 +55,13 @@ StepNextStep (enrichir OU dashboard)
 ### Chemin primaire (API)
 
 ```
-ChiffreChocScreen → ApiService.computeOnboardingChiffreChoc(
+PremierEclairageScreen → ApiService.computeOnboardingPremierEclairage(
     age, grossSalary, canton, ..., stressType
-) → POST /api/v1/onboarding/chiffre-choc
+) → POST /api/v1/onboarding/premier-eclairage
     → MinimalProfileInput (avec stress_type)
     → compute_minimal_profile(input) → MinimalProfileResult
-    → select_chiffre_choc(profile, stress_type=input.stress_type) → ChiffreChoc
-    → ChiffreChocResponse (avec confidence_mode)
+    → select_premier_eclairage(profile, stress_type=input.stress_type) → PremierEclairage
+    → PremierEclairageResponse (avec confidence_mode)
 ← Client lit category, primaryNumber, displayText, confidenceMode
 ```
 
@@ -70,8 +70,8 @@ ChiffreChocScreen → ApiService.computeOnboardingChiffreChoc(
 ```
 SmartOnboardingViewModel.compute()
     → MinimalProfileService.compute(age, grossSalary, canton, ...)
-    → ChiffreChocSelector.select(profile, stressType: stressType)
-    → ChiffreChoc (avec confidenceMode)
+    → PremierEclairageSelector.select(profile, stressType: stressType)
+    → PremierEclairage (avec confidenceMode)
 ```
 
 ### Contrat de non-divergence
@@ -86,7 +86,7 @@ SmartOnboardingViewModel.compute()
 
 ---
 
-## 3. ChiffreChoc V2 — Sélection
+## 3. PremierEclairage V2 — Sélection
 
 ### Hiérarchie de sélection (4 phases)
 
@@ -128,7 +128,7 @@ Phase 4 : LIFECYCLE FALLBACK
 
 ---
 
-## 4. Types de chiffre choc
+## 4. Types de premier éclairage
 
 | Type | Catégorie API | Icône | Couleur | Pour qui |
 |---|---|---|---|---|
@@ -143,14 +143,14 @@ Phase 4 : LIFECYCLE FALLBACK
 
 ## 5. Garde-fous
 
-### Ce que le chiffre choc ne fait JAMAIS
+### Ce que le premier éclairage ne fait JAMAIS
 
 - Montrer un gap retraite précis à un 22 ans (trop abstrait → compoundGrowth)
 - Montrer une alerte liquidité sur des données estimées sauf crise sévère (< 1 mois)
 - Utiliser des termes interdits ("garanti", "optimal", "meilleur", "conseiller")
 - Promettre un rendement ("ton 3a rapportera X" → "pourrait économiser ~X d'impôts")
 
-### Ce que le chiffre choc fait TOUJOURS
+### Ce que le premier éclairage fait TOUJOURS
 
 - Respecter l'intention de l'utilisateur (stressType)
 - Adapter par phase de vie (lifecycle)
@@ -162,7 +162,7 @@ Phase 4 : LIFECYCLE FALLBACK
 
 ## 6. Enrichissement post-onboarding
 
-Après le chiffre choc, l'enrichissement se fait par :
+Après le premier éclairage, l'enrichissement se fait par :
 
 1. **Coach conversationnel** : pose les questions contextuelles (`ask_user_*` tools)
 2. **Scan documentaire** : certificat LPP (+25-30 pts confiance), déclaration fiscale, extrait AVS

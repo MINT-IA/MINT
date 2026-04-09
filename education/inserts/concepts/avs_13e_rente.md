@@ -8,7 +8,7 @@ tags: [avs, 13e_rente, votation, rente, augmentation, lavs]
 ## Trigger
 L'utilisateur mentionne la 13e rente AVS, la votation de mars 2024, ou se demande combien il touchera en plus grâce à cette mesure.
 
-## Chiffre Choc
+## Premier Éclairage
 Dès 2026, chaque retraité·e recevra un 13e versement de rente AVS. Pour une personne touchant la rente maximale, cela représente CHF 2'520 de plus par an — soit environ CHF 210/mois en plus si lissé sur l'année.
 
 ## Niveau 0

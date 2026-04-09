@@ -8,7 +8,7 @@ tags: [concubinage, couple, risques, prevoyance, succession, cc, lavs]
 ## Trigger
 L'utilisateur vit en union libre et s'interroge sur les conséquences financières, ou compare mariage vs concubinage.
 
-## Chiffre Choc
+## Premier Éclairage
 Si ton/ta partenaire décède et que vous n'êtes pas marié·e·s, tu n'as droit à aucune rente AVS de survivant·e (CHF 0), aucune part automatique de l'héritage, et ta part successorale pourrait être taxée jusqu'à 50 % selon le canton — contre 0 % pour un·e conjoint·e marié·e.
 
 ## Niveau 0

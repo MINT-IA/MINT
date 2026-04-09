@@ -1,6 +1,6 @@
 # CLAUDE.md — MINT Project Context (auto-loaded)
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **DOMAIN RENAME (2026-04-07, Phase 1.5):** The legacy `chiffre_choc` / `ChiffreChoc` / `chiffreChoc` tokens have been renamed to `premier_eclairage` / `PremierEclairage` / `premierEclairage` across backend, mobile, ARB, OpenAPI, URL routes, and live docs. The previous "LEGACY NOTE" flag is cleared. CI gate `tools/checks/no_chiffre_choc.py` enforces zero residue in scoped paths.
 
 > Loaded automatically at every session start. Single source of truth for all agents.
 > For conflict resolution: `rules.md` (tier 1) > this file (tier 2). See § HIERARCHY.

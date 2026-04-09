@@ -139,7 +139,7 @@ class DonationResult:
     alerts: List[str]                                  # Warning messages
     disclaimer: str                                    # Legal disclaimer
     sources: List[str]                                 # Legal references
-    chiffre_choc: dict                                 # Impact number
+    premier_eclairage: dict                                 # Impact number
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -194,7 +194,7 @@ class DonationService:
         alerts = self._generate_alerts(
             input_data, taux, donation_depasse, depassement, quotite_disponible,
         )
-        chiffre_choc = self._generate_chiffre_choc(
+        premier_eclairage = self._generate_premier_eclairage(
             input_data.montant, impot, taux, input_data.lien_parente,
         )
 
@@ -211,7 +211,7 @@ class DonationService:
             alerts=alerts,
             disclaimer=DISCLAIMER,
             sources=SOURCES,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
         )
 
     # ------------------------------------------------------------------
@@ -512,14 +512,14 @@ class DonationService:
 
         return alerts
 
-    def _generate_chiffre_choc(
+    def _generate_premier_eclairage(
         self,
         montant: float,
         impot: float,
         taux: float,
         lien_parente: str,
     ) -> dict:
-        """Generate the impact number (chiffre choc).
+        """Generate the impact number (premier éclairage).
 
         Returns:
             dict with montant and texte.

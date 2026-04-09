@@ -8,7 +8,7 @@ tags: [lpp, deduction_coordination, salaire_coordonne, temps_partiel, acces]
 ## Trigger
 L'utilisateur s'interroge sur le calcul de son salaire assuré au 2e pilier, le coach détecte un salaire brut proche du seuil LPP (CHF 22'680), ou l'utilisateur travaille à temps partiel ou a plusieurs employeurs.
 
-## Chiffre Choc
+## Premier Éclairage
 Sur un salaire de CHF 40'000, le 2e pilier ne calcule tes bonifications que sur CHF 13'540 — moins d'un tiers de ton salaire réel. En dessous de CHF 22'680 de salaire annuel, tu n'as même pas accès au LPP obligatoire.
 
 ## Niveau 0

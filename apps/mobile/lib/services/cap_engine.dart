@@ -177,8 +177,8 @@ class CapEngine {
           ctaMode: CtaMode.route,
           ctaRoute: '/pilier-3a',
           coachPrompt: l.capCoachPrompt3a,
-          expectedImpact: card.chiffreChoc.value > 0
-              ? 'jusqu\u2019à ${card.chiffreChoc.formatted} d\u2019économie'
+          expectedImpact: card.premierEclairage.value > 0
+              ? 'jusqu\u2019à ${card.premierEclairage.formatted} d\u2019économie'
               : null,
           sourceCards: [card.id],
         ));
@@ -278,7 +278,7 @@ class CapEngine {
               .toList();
       if (rateCards.isNotEmpty) {
         final card = rateCards.first;
-        final rate = card.chiffreChoc.value;
+        final rate = card.premierEclairage.value;
         if (rate > 0 && rate < 65) {
           candidates.add(CapDecision(
             id: 'replacement_rate',
@@ -1089,8 +1089,8 @@ class CapEngine {
       ctaLabel: card.cta.label,
       ctaMode: CtaMode.route,
       ctaRoute: card.cta.route,
-      expectedImpact: card.chiffreChoc.value > 0
-          ? card.chiffreChoc.formatted
+      expectedImpact: card.premierEclairage.value > 0
+          ? card.premierEclairage.formatted
           : null,
       sourceCards: [card.id],
     );

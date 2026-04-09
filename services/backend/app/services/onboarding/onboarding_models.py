@@ -1,12 +1,12 @@
 """
-Onboarding Models — Dataclasses for minimal profile and chiffre choc.
+Onboarding Models — Dataclasses for minimal profile and premier éclairage.
 
 Sprint S31 — Onboarding Redesign.
 
 These models define the input/output contracts for the onboarding flow:
 - MinimalProfileInput: 3 required fields + optional enrichment fields
 - MinimalProfileResult: full projection with confidence scoring
-- ChiffreChoc: single impactful number with educational context
+- PremierEclairage: single impactful number with educational context
 
 Sources:
     - LAVS art. 21-29 (rente AVS)
@@ -75,12 +75,12 @@ class MinimalProfileResult:
     disclaimer: str
     sources: List[str]
     enrichment_prompts: List[str]
-    age: int = 30  # user's age — used by lifecycle-aware chiffre choc selector
+    age: int = 30  # user's age — used by lifecycle-aware premier éclairage selector
     gross_annual_salary: float = 0.0  # gross salary — used by hourly rate choc + archetype alerts
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Single impactful number with educational context.
 
     Represents the ONE number that will capture the user's attention

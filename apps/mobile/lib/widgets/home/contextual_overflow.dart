@@ -141,6 +141,10 @@ class _ContextualOverflowState extends State<ContextualOverflow> {
         ContextualOverflowCard _ =>
           // Nested overflow not supported
           const SizedBox.shrink(),
+        // Phase 9 D-05: alert cards never appear in overflow — they are
+        // floated to the top of the visible feed by card_ranking_service.
+        // Render an empty box as a defensive fallback.
+        ContextualAlertCard _ => const SizedBox.shrink(),
       },
     );
   }

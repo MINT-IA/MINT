@@ -10,7 +10,7 @@ source: "LPP art. 37, LIFD art. 22 et 38"
 ## Trigger
 L'utilisateur hésite entre prendre sa retraite en rente, en capital, ou un mix des deux.
 
-## Chiffre Choc
+## Premier Éclairage
 Avec un avoir LPP de CHF 500'000, la rente à 6.8 % donne CHF 2'833/mois à vie. Le capital, placé à 3 % avec un retrait de 4 %/an, dure environ 30 ans — mais tu gardes la flexibilité.
 
 ## Niveau 0

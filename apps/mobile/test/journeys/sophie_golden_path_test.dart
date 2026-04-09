@@ -1,7 +1,7 @@
 // sophie_golden_path_test.dart
 //
 // Integration test: Sophie golden path — expat_eu, housing intent.
-// Traces: intent -> quick_start -> chiffre_choc -> plan -> coach.
+// Traces: intent -> quick_start -> premier_eclairage -> plan -> coach.
 //
 // Sophie persona: 35 ans, GE (Geneva), housing purchase intent, 95'000 CHF/an.
 // Service-level tests (not widget E2E) — consistent with project convention.
@@ -15,7 +15,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/minimal_profile_models.dart';
-import 'package:mint_mobile/services/chiffre_choc_selector.dart';
+import 'package:mint_mobile/services/premier_eclairage_selector.dart';
 import 'package:mint_mobile/services/coach/intent_router.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -90,7 +90,7 @@ void main() {
         canton: sophieCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_patrimoine',
       );
@@ -103,14 +103,14 @@ void main() {
       // still provides educational value via tax saving or retirement projection.
     });
 
-    test('Sophie chiffre choc has valid label and subtitle', () {
+    test('Sophie premier éclairage has valid label and subtitle', () {
       final profile = MinimalProfileService.compute(
         age: sophieAge,
         grossSalary: sophieSalary,
         canton: sophieCanton,
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_patrimoine',
       );
@@ -250,14 +250,14 @@ void main() {
       expect(flavor.region, equals(SwissRegion.unknown));
     });
 
-    test('ChiffreChocSelector handles empty-canton profile gracefully', () {
+    test('PremierEclairageSelector handles empty-canton profile gracefully', () {
       final profile = MinimalProfileService.compute(
         age: sophieAge,
         grossSalary: sophieSalary,
         canton: '',
       );
 
-      final choc = ChiffreChocSelector.select(
+      final choc = PremierEclairageSelector.select(
         profile,
         stressType: 'stress_patrimoine',
       );

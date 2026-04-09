@@ -161,7 +161,7 @@ class ProviderComparisonResult:
     profil_risque: str
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     base_legale: str
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
@@ -253,7 +253,7 @@ class ProviderComparatorService:
         difference = round(plus_haut.capital_final - plus_bas.capital_final, 2)
 
         # Chiffre choc
-        chiffre_choc = (
+        premier_eclairage = (
             f"\u00c9cart entre le capital le plus haut et le plus bas sur {duree} ans : "
             f"{difference:,.0f} CHF"
         ).replace(",", "'")
@@ -276,7 +276,7 @@ class ProviderComparatorService:
             versement_annuel=versement_annuel,
             duree=duree,
             profil_risque=profil_risque,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             base_legale=base_legale,
             sources=sources,
             disclaimer=DISCLAIMER,

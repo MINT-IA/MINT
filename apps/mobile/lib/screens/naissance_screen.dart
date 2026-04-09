@@ -181,9 +181,9 @@ class _NaissanceScreenState extends State<NaissanceScreen>
         ),
         const SizedBox(height: MintSpacing.xl),
 
-        // Hero: chiffre choc APG
+        // Hero: premier éclairage APG
         if (_congeResult != null) ...[
-          _buildCongeChiffreChoc(),
+          _buildCongePremierEclairage(),
           const SizedBox(height: MintSpacing.xl),
         ],
 
@@ -412,7 +412,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     );
   }
 
-  Widget _buildCongeChiffreChoc() {
+  Widget _buildCongePremierEclairage() {
     final result = _congeResult!;
     final totalApg = result['totalApg'] as double;
     final weeks = result['dureeSemaines'] as int;
@@ -426,7 +426,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       primaryLabel: S.of(context)!.naissanceTotalApg,
       secondaryValue: S.of(context)!.naissanceWeeks(weeks),
       secondaryLabel: S.of(context)!.naissanceCongeLabel(typeLabel),
-      narrative: S.of(context)!.naissanceChiffreChocText(typeLabel, FamilyService.formatChf(totalApg), weeks),
+      narrative: S.of(context)!.naissancePremierEclairageText(typeLabel, FamilyService.formatChf(totalApg), weeks),
       tone: MintSurfaceTone.peche,
     );
   }
@@ -453,7 +453,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          _buildAllocChiffreChoc(),
+          _buildAllocPremierEclairage(),
           const SizedBox(height: MintSpacing.lg),
         ],
 
@@ -644,7 +644,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     );
   }
 
-  Widget _buildAllocChiffreChoc() {
+  Widget _buildAllocPremierEclairage() {
     final result = _allocResult!;
     final diff = result['differenceVsBest'] as double;
     final bestCanton = result['bestCantonNom'] as String;

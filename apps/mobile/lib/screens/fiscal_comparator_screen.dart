@@ -915,7 +915,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
       children: [
-        // Ecart max chiffre choc
+        // Ecart max premier éclairage
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -1090,7 +1090,7 @@ class _FiscalComparatorScreenState extends State<FiscalComparatorScreen>
             economieAnnuelle: _moveResult!['economieAnnuelle'] as double,
             economieMensuelle: _moveResult!['economieMensuelle'] as double,
             economie10Ans: _moveResult!['economie10Ans'] as double,
-            chiffreChoc: _moveResult!['chiffreChoc'] as String,
+            premierEclairage: _moveResult!['premierEclairage'] as String,
           ),
         if (_fortune > 0) ...[
           const SizedBox(height: 16),

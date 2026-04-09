@@ -8,7 +8,7 @@ tags: [avs, rente, calcul, ramd, echelle44, cotisation, lavs]
 ## Trigger
 L'utilisateur veut comprendre comment sa rente AVS est calculée, consulte une simulation de rente, ou se demande pourquoi sa rente est inférieure à la rente maximale.
 
-## Chiffre Choc
+## Premier Éclairage
 La rente AVS maximale est de CHF 2'520/mois (CHF 30'240/an en 2025). Mais seule 1 personne sur 8 environ la touche au maximum — la majorité reçoit moins à cause de lacunes de cotisation ou d'un revenu annuel moyen déterminant (RAMD) insuffisant.
 
 ## Niveau 0

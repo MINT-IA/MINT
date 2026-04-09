@@ -1,6 +1,6 @@
 # MINT — WIRE SPEC V1 : Le document de construction
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 
 > **Ce document n'est PAS un flowchart.** C'est une spec d'ingénierie.
 > Chaque flèche = un appel de fonction. Chaque boîte = un état avec ses données.
@@ -33,13 +33,13 @@
 ```
 ROUTES PUBLIQUES (pas d'auth requise):
   /                          → LandingScreen
-  /chiffre-choc-instant      → InstantChiffreChocScreen
+  /premier-eclairage-instant      → InstantPremierEclairageScreen
   /auth/login                → LoginScreen
   /auth/register             → RegisterScreen
   /auth/forgot-password      → ForgotPasswordScreen
   /auth/verify-email         → VerifyEmailScreen
   /onboarding/quick          → QuickStartScreen
-  /onboarding/chiffre-choc   → ChiffreChocScreen
+  /onboarding/premier-eclairage   → PremierEclairageScreen
 
 ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
   /home                      → MainNavigationShell (4 tabs)
@@ -138,7 +138,7 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 │  [S3] CHIFFRE_CHOC_INSTANT                   │   │
 │                                              │   │
 │  📍 screens/onboarding/                      │   │
-│     instant_chiffre_choc_screen.dart         │   │
+│     instant_premier_eclairage_screen.dart         │   │
 │                                              │   │
 │  ENTRÉE (route extra depuis landing) :       │   │
 │  📦 {                                        │   │
@@ -149,10 +149,10 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 │                                              │   │
 │  TRAITEMENT :                                │   │
 │  1. Construit MinimalProfileResult           │   │
-│  2. Appelle ChiffreChocSelector.select()     │   │
-│     📍 chiffre_choc_selector.dart:30-68      │   │
-│  3. Reçoit ChiffreChoc {                     │   │
-│       type: ChiffreChocType,                 │   │
+│  2. Appelle PremierEclairageSelector.select()     │   │
+│     📍 premier_eclairage_selector.dart:30-68      │   │
+│  3. Reçoit PremierEclairage {                     │   │
+│       type: PremierEclairageType,                 │   │
 │       rawValue: double,                      │   │
 │       title: String,                         │   │
 │       subtitle: String                       │   │
@@ -162,7 +162,7 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 │  - Révélation 5 temps (setup→silence→        │   │
 │    countup→ligne→contexte)                   │   │
 │  - 3.9s silence                              │   │
-│  - Question ciblée par ChiffreChocType       │   │
+│  - Question ciblée par PremierEclairageType       │   │
 │  - Chips contextuels (3 options)             │   │
 │                                              │   │
 │  CAPTURE :                                   │   │
@@ -177,9 +177,9 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 │    onboarding_choc_value   → double          │   │
 │    onboarding_emotion      → String          │   │
 │                                              │   │
-│  🧪 test_chiffre_choc_19yo_sees_compound     │   │
-│  🧪 test_chiffre_choc_35yo_sees_tax_saving   │   │
-│  🧪 test_chiffre_choc_49yo_sees_gap          │   │
+│  🧪 test_premier_eclairage_19yo_sees_compound     │   │
+│  🧪 test_premier_eclairage_35yo_sees_tax_saving   │   │
+│  🧪 test_premier_eclairage_49yo_sees_gap          │   │
 │  🧪 test_emotion_stored_in_prefs             │   │
 │  🧪 test_choc_selector_called_not_direct     │   │
 │                                              │   │
@@ -300,7 +300,7 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 │     émotion, choc_type, choc_value)                                  │
 │  3. MintStateProvider.recompute() triggered par CoachProfileProvider  │
 │  4. Tab 0 (MINT Home) affiche immédiatement :                        │
-│     - Le chiffre du jour (= le chiffre choc vu en onboarding)        │
+│     - Le chiffre du jour (= le premier éclairage vu en onboarding)        │
 │     - Le levier #1 (calculé par CapEngine)                           │
 │     - Le signal proactif (3a non versé, certificat à scanner...)     │
 │                                                                      │
@@ -327,7 +327,7 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 │  DONNÉES LUES (providers) :                                          │
 │  - CoachProfileProvider.profile → CoachProfile                       │
 │  - MintStateProvider.state → MintUserState                           │
-│    .chiffreDuJour → ChiffreChoc                                      │
+│    .chiffreDuJour → PremierEclairage                                      │
 │    .topLever → CapRecommendation                                     │
 │    .signals → List<ProactiveSignal>                                  │
 │    .confidenceScore → EnhancedConfidence                             │
@@ -716,13 +716,13 @@ ROUTES PROTÉGÉES (auth guard dans app.dart:166-221):
 
 ## 3. WIRE SPEC — Chaque câble
 
-### 3.1 Câble : Landing → Chiffre Choc Instant
+### 3.1 Câble : Landing → Premier Éclairage Instant
 
 ```
 SOURCE     : screens/landing_screen.dart
 FONCTION   : _onCalculate()
-DESTINATION: screens/onboarding/instant_chiffre_choc_screen.dart
-MÉTHODE    : context.push('/chiffre-choc-instant', extra: payload)
+DESTINATION: screens/onboarding/instant_premier_eclairage_screen.dart
+MÉTHODE    : context.push('/premier-eclairage-instant', extra: payload)
 
 📦 PAYLOAD :
 {
@@ -738,18 +738,18 @@ RÉCEPTION :
   _canton = extra?['canton'] as String?;
 
 🧪 TEST :
-  testWidgets('landing passes 3 fields to chiffre choc', (tester) async {
+  testWidgets('landing passes 3 fields to premier éclairage', (tester) async {
     // Remplir les 3 champs
     // Tap "Calculer"
-    // Vérifier que InstantChiffreChocScreen reçoit les 3 valeurs
-    // Vérifier que ChiffreChocSelector.select() est appelé (pas de calcul direct)
+    // Vérifier que InstantPremierEclairageScreen reçoit les 3 valeurs
+    // Vérifier que PremierEclairageSelector.select() est appelé (pas de calcul direct)
   });
 ```
 
-### 3.2 Câble : Chiffre Choc → Promesse
+### 3.2 Câble : Premier Éclairage → Promesse
 
 ```
-SOURCE     : screens/onboarding/instant_chiffre_choc_screen.dart
+SOURCE     : screens/onboarding/instant_premier_eclairage_screen.dart
 FONCTION   : _onEmotionCaptured()
 DESTINATION: screens/onboarding/promise_screen.dart (À CRÉER)
 MÉTHODE    : context.push('/onboarding/promise')
@@ -768,7 +768,7 @@ PRÉ-CONDITION :
   SharedPreferences contient les 6 clés (écrites juste avant le push).
 
 🧪 TEST :
-  testWidgets('chiffre choc stores emotion then pushes promise', (tester) async {
+  testWidgets('premier éclairage stores emotion then pushes promise', (tester) async {
     // Simuler le flow complet
     // Vérifier SharedPrefs contiennent les 6 clés
     // Vérifier navigation vers /onboarding/promise
@@ -944,7 +944,7 @@ SUPPRIMER (30 routes) :
 
   DÉPLACÉS (plus des routes top-level, deviennent des sous-écrans) :
   /onboarding/quick      → supprimé (onboarding = chat ou landing)
-  /onboarding/chiffre-choc → supprimé (unifié dans /chiffre-choc-instant)
+  /onboarding/premier-eclairage → supprimé (unifié dans /premier-eclairage-instant)
   /coach/history         → déplacé dans tiroir profil
   /coach/checkin         → supprimé (remplacé par signaux proactifs)
   /coach/refresh         → supprimé (fonctionnalité inutile)
@@ -965,7 +965,7 @@ GARDER (routes actives post-refactor) :
 
   ONBOARDING (4) :
   /                          → LandingScreen
-  /chiffre-choc-instant      → InstantChiffreChocScreen
+  /premier-eclairage-instant      → InstantPremierEclairageScreen
   /onboarding/promise        → PromiseScreen (NOUVEAU)
   /auth/register             → RegisterScreen
 
@@ -1102,7 +1102,7 @@ CRÉER (1) :
       int? birthYear;
       double? grossSalary;
       String? canton;
-      ChiffreChocType? chocType;
+      PremierEclairageType? chocType;
       double? chocValue;
       String? emotion;
       bool get isComplete => birthYear != null && grossSalary != null;
@@ -1114,7 +1114,7 @@ MODIFIER (2) :
   - CoachProfileProvider   → absorbe ProfileProvider
   - MintStateProvider      → ajoute chiffreDuJour, topLever, signals
     📦 MintUserState (enrichi) {
-      ChiffreChoc chiffreDuJour;         // rotation quotidienne
+      PremierEclairage chiffreDuJour;         // rotation quotidienne
       CapRecommendation topLever;         // meilleur levier
       List<ProactiveSignal> signals;      // alertes actives
       EnhancedConfidence confidenceScore; // score global
@@ -1150,15 +1150,15 @@ Chaque test vérifie qu'un objet Dart transite correctement d'un point A à un p
 
 group('Onboarding → Coach wire', () {
 
-  testWidgets('W1: Landing passes 3 fields to ChiffreChocInstant', (t) async {
+  testWidgets('W1: Landing passes 3 fields to PremierEclairageInstant', (t) async {
     // GIVEN: landing with birthYear=1977, salary=122207, canton=VS
     // WHEN: tap "Calculer"
-    // THEN: InstantChiffreChocScreen receives these 3 values via route extra
-    // AND: ChiffreChocSelector.select() is called (not direct AVS calc)
+    // THEN: InstantPremierEclairageScreen receives these 3 values via route extra
+    // AND: PremierEclairageSelector.select() is called (not direct AVS calc)
   });
 
-  testWidgets('W2: ChiffreChoc stores 6 keys in SharedPreferences', (t) async {
-    // GIVEN: InstantChiffreChocScreen with profile data
+  testWidgets('W2: PremierEclairage stores 6 keys in SharedPreferences', (t) async {
+    // GIVEN: InstantPremierEclairageScreen with profile data
     // WHEN: user selects emotion chip
     // THEN: SharedPreferences contains all 6 onboarding_* keys
     // AND: values match what was entered/calculated
@@ -1166,13 +1166,13 @@ group('Onboarding → Coach wire', () {
 
   testWidgets('W3: 19yo sees compound growth, not retirement', (t) async {
     // GIVEN: birthYear=2007 (age 19)
-    // WHEN: ChiffreChocSelector.select(profile)
-    // THEN: result.type == ChiffreChocType.compoundGrowth
+    // WHEN: PremierEclairageSelector.select(profile)
+    // THEN: result.type == PremierEclairageType.compoundGrowth
     // AND: displayed text contains "intérêts composés" not "retraite"
   });
 
   testWidgets('W4: Emotion survives registration', (t) async {
-    // GIVEN: user completed chiffre choc with emotion="C'est flippant"
+    // GIVEN: user completed premier éclairage with emotion="C'est flippant"
     // WHEN: user registers (email/password)
     // THEN: SharedPreferences still contains onboarding_emotion
     // AND: coach's first context includes the emotion
@@ -1344,7 +1344,7 @@ Durée estimée : 1 sprint
 
   P0.3 — Enrichir MintStateProvider
          Ajouter : chiffreDuJour, topLever, signals
-         chiffreDuJour = ChiffreChocSelector.select(profile) avec rotation
+         chiffreDuJour = PremierEclairageSelector.select(profile) avec rotation
          topLever = CapEngine.topRecommendation(profile)
          signals = ProactiveTriggerService.evaluate(profile)
          🧪 test: recompute produit chiffreDuJour correct
@@ -1393,8 +1393,8 @@ Dépend de : P0.2 (OnboardingProvider)
          2 boutons : Allons-y → register, Juste les chiffres → home libre
          🧪 tests W6, promise_text_adapts_to_age
 
-  P2.2 — Réparer le flux Chiffre Choc → Promesse → Register
-         Modifier instant_chiffre_choc_screen.dart :
+  P2.2 — Réparer le flux Premier Éclairage → Promesse → Register
+         Modifier instant_premier_eclairage_screen.dart :
            post-émotion → context.push('/onboarding/promise')
            (au lieu de context.go('/auth/register'))
          Modifier register_screen.dart :

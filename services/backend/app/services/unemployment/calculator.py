@@ -229,7 +229,7 @@ class UnemploymentCalculator:
 
         # 11. Chiffre choc
         perte_mensuelle = round(gain_retenu - indemnite_mensuelle, 2)
-        chiffre_choc = (
+        premier_eclairage = (
             f"Ton revenu baisse de {perte_mensuelle:,.0f} CHF/mois "
             f"(de {gain_retenu:,.0f} a {indemnite_mensuelle:,.0f} CHF). "
             f"Adapte ton budget des maintenant."
@@ -248,7 +248,7 @@ class UnemploymentCalculator:
             "timeline": timeline,
             "checklist": checklist,
             "alertes": alertes,
-            "chiffre_choc": chiffre_choc,
+            "premier_eclairage": premier_eclairage,
             "disclaimer": DISCLAIMER,
             "sources": list(SOURCES),
         }
@@ -396,7 +396,7 @@ class UnemploymentCalculator:
             "timeline": [],
             "checklist": [],
             "alertes": alertes or [],
-            "chiffre_choc": "Tu n'es pas eligible aux indemnites de chomage dans cette configuration.",
+            "premier_eclairage": "Tu n'es pas eligible aux indemnites de chomage dans cette configuration.",
             "disclaimer": DISCLAIMER,
             "sources": list(SOURCES),
         }

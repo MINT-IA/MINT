@@ -280,7 +280,7 @@ void main() {
     final ctx = _ctx();
 
     final out = await CoachOrchestrator.generateNarrativeComponent(
-      componentType: ComponentType.chiffreChoc,
+      componentType: ComponentType.premierEclairage,
       ctx: ctx,
       byokConfig: null,
     );

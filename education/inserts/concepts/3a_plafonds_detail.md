@@ -8,7 +8,7 @@ tags: [3a, plafond, salarie, independant, deduction, opp3]
 ## Trigger
 L'utilisateur veut savoir combien il peut verser au maximum dans son pilier 3a, ou est indépendant·e et s'interroge sur le plafond applicable.
 
-## Chiffre Choc
+## Premier Éclairage
 Le plafond 3a pour un·e salarié·e affilié·e à une caisse LPP est de CHF 7'258/an (2025). Un·e indépendant·e sans LPP peut verser jusqu'à CHF 36'288/an — 5 fois plus. Chaque franc versé est entièrement déductible de ton revenu imposable.
 
 ## Niveau 0

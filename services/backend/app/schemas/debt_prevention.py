@@ -96,8 +96,8 @@ class DebtRatioResponse(BaseModel):
     )
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     recommandations: List[str] = Field(default_factory=list)
@@ -215,8 +215,8 @@ class RepaymentPlanResponse(BaseModel):
     nbDettes: int = Field(..., alias="nbDettes")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)
@@ -255,8 +255,8 @@ class HelpResourcesResponse(BaseModel):
     situation: str
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)

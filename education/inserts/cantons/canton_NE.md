@@ -11,7 +11,7 @@ source: "Administration fiscale du canton de Neuchâtel"
 ## Trigger
 L'utilisateur réside à Neuchâtel ou envisage d'y déménager et souhaite connaître les particularités fiscales cantonales.
 
-## Chiffre Choc
+## Premier Éclairage
 La charge fiscale à Neuchâtel est élevée : le multiplicateur cantonal se situe autour de 130 %.
 
 ## Niveau 0

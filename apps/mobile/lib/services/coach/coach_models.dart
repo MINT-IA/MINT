@@ -9,7 +9,7 @@ enum ComponentType {
   greeting,          // max 30 words
   scoreSummary,      // max 80 words
   tip,               // max 120 words
-  chiffreChoc,       // max 100 words
+  premierEclairage,       // max 100 words
   scenario,          // max 150 words
   enrichmentGuide,   // max 150 words — data block conversational guide
   chatSystem,        // max 300 words — main chat system prompt (S51)
@@ -25,7 +25,7 @@ const Map<ComponentType, int> componentWordLimits = {
   ComponentType.greeting: 30,
   ComponentType.scoreSummary: 80,
   ComponentType.tip: 120,
-  ComponentType.chiffreChoc: 100,
+  ComponentType.premierEclairage: 100,
   ComponentType.scenario: 150,
   ComponentType.enrichmentGuide: 150,
   ComponentType.chatSystem: 300,

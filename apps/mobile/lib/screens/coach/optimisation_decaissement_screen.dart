@@ -93,7 +93,7 @@ class _OptimisationDecaissementScreenState
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Chiffre choc ─────────────────────────────
-                _ChiffreChocCard(
+                _PremierEclairageCard(
                   chiffre: l.optimDecaissementChiffre,
                   explication: l.optimDecaissementChiffreExplication,
                 ),
@@ -181,11 +181,11 @@ class _OptimisationDecaissementScreenState
 
 // ── Widgets internes ─────────────────────────────────────────
 
-class _ChiffreChocCard extends StatelessWidget {
+class _PremierEclairageCard extends StatelessWidget {
   final String chiffre;
   final String explication;
 
-  const _ChiffreChocCard({required this.chiffre, required this.explication});
+  const _PremierEclairageCard({required this.chiffre, required this.explication});
 
   @override
   Widget build(BuildContext context) {

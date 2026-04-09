@@ -23,7 +23,7 @@ lifeEvent: "marriage"
 - Montant de la penalite ou du bonus mariage.
 - Detail des deductions accessibles aux maries.
 
-## Chiffre choc
+## Premier éclairage
 "Un couple marie avec 2 revenus peut payer jusqu'a CHF 3'000 de plus par an qu'en concubinage -- c'est la fameuse 'penalite de mariage'."
 
 ## Contenu educatif

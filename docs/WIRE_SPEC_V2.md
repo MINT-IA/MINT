@@ -3,7 +3,7 @@
 > **V2** — Intègre : Wire Spec V1 + contre-audit (7 corrections) + itération créative
 > (7 idées enrichies) + audit expert final (8 corrections de précision).
 >
-> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "chiffre choc" comme legacy term technique.
+> **⚠️ LEGACY NOTE (2026-04-05):** Ce document utilise "premier éclairage" comme legacy term technique.
 > Concept canonique : **"premier éclairage"** (voir `docs/MINT_IDENTITY.md`). Migration code à planifier.
 >
 > **Ce document n'est PAS un flowchart.** C'est une spec d'ingénierie.
@@ -133,7 +133,7 @@
                  (voir §3.4)                 (voir §3.3)
 ```
 
-### 3.3 Onboarding Hinge (Landing → Chiffre Choc → Promesse → Home)
+### 3.3 Onboarding Hinge (Landing → Premier Éclairage → Promesse → Home)
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
@@ -181,7 +181,7 @@
 │                                                                      │
 │  🧪 W30: test_hinge_prompt_1_adapts_label_to_birth_year             │
 │  🧪 W31: test_hinge_prompt_2_microinsight_adapts_to_salary          │
-│  🧪 W1: test_landing_passes_3_fields_to_chiffre_choc (maj.)        │
+│  🧪 W1: test_landing_passes_3_fields_to_premier_eclairage (maj.)        │
 │                                                                      │
 └──────────────────┬───────────────────────────────────────────────────┘
                    │
@@ -191,15 +191,15 @@
 ┌──────────────────────────────────────────────────────────────────────┐
 │  [S3] CHIFFRE CHOC INSTANT                                          │
 │                                                                      │
-│  📍 screens/onboarding/instant_chiffre_choc_screen.dart              │
+│  📍 screens/onboarding/instant_premier_eclairage_screen.dart              │
 │                                                                      │
 │  ENTRÉE : lit OnboardingProvider (birthYear, grossSalary, canton)    │
 │                                                                      │
 │  TRAITEMENT :                                                        │
 │  1. Construit MinimalProfileResult depuis OnboardingProvider         │
-│  2. Appelle ChiffreChocSelector.select(profile)                     │
-│     📍 chiffre_choc_selector.dart:30-68                              │
-│  3. Reçoit ChiffreChoc { type, rawValue, title, subtitle }          │
+│  2. Appelle PremierEclairageSelector.select(profile)                     │
+│     📍 premier_eclairage_selector.dart:30-68                              │
+│  3. Reçoit PremierEclairage { type, rawValue, title, subtitle }          │
 │                                                                      │
 │  AFFICHAGE — Révélation en 5 temps :                                 │
 │  1. Setup text (350ms fade in)                                       │
@@ -208,7 +208,7 @@
 │  4. MintLigne (1px, 400ms)                                          │
 │  5. Contexte + question ciblée (350ms)                               │
 │                                                                      │
-│  QUESTION CIBLÉE par ChiffreChocType :                               │
+│  QUESTION CIBLÉE par PremierEclairageType :                               │
 │  | Type              | Question                                     │
 │  |-------------------|----------------------------------------------|
 │  | compoundGrowth    | "Tu savais que le temps comptait autant ?"   │
@@ -226,7 +226,7 @@
 │  CAPTURE ÉMOTION : via OnboardingProvider.setEmotion(chip/text)     │
 │  CAPTURE CHOC : via OnboardingProvider.setChoc(type, value)         │
 │                                                                      │
-│  🧪 W2: test_chiffre_choc_stores_6_fields_in_onboarding_provider    │
+│  🧪 W2: test_premier_eclairage_stores_6_fields_in_onboarding_provider    │
 │  🧪 W3: test_19yo_sees_compound_growth_not_retirement                │
 │  🧪 W4: test_emotion_survives_registration                          │
 │  🧪 W5: test_coach_receives_full_onboarding_context                 │
@@ -644,8 +644,8 @@
 
 *(Identiques au V1 §3.1-3.6 avec les ajustements suivants :)*
 
-- **§3.1** : Landing → Chiffre Choc : utilise `OnboardingProvider` au lieu de SharedPrefs
-- **§3.2** : Chiffre Choc → Promesse : `OnboardingProvider.setEmotion()` au lieu de `prefs.setString()`
+- **§3.1** : Landing → Premier Éclairage : utilise `OnboardingProvider` au lieu de SharedPrefs
+- **§3.2** : Premier Éclairage → Promesse : `OnboardingProvider.setEmotion()` au lieu de `prefs.setString()`
 - **§3.4** : MintHome → Coach : `switch tab 1` au lieu de `context.push('/coach/chat')`
 - **§3.6** : Tool calls : ajout note "templates contraints + financial_core"
 
@@ -731,7 +731,7 @@ CRÉER (1) :
       double? grossSalary;
       String? canton;
       String? anxietyLevel;     // 🆕 'far'|'mid'|'close' (Hinge prompt 1)
-      ChiffreChocType? chocType;
+      PremierEclairageType? chocType;
       double? chocValue;
       String? emotion;
     }
@@ -761,7 +761,7 @@ RÉSULTAT : 12 → 11 providers
 
 ```
 W1:  test_landing_passes_3_fields_via_onboarding_provider
-W2:  test_chiffre_choc_stores_6_fields_in_onboarding_provider
+W2:  test_premier_eclairage_stores_6_fields_in_onboarding_provider
 W3:  test_19yo_sees_compound_growth_not_retirement
 W4:  test_emotion_survives_registration
 W5:  test_coach_receives_full_onboarding_context
@@ -900,7 +900,7 @@ P2.2  PromiseScreen
       Texte adapté par LifecyclePhase
       DÉPEND DE P2.1
 
-P2.3  Fix flux chiffre choc → promesse → register
+P2.3  Fix flux premier éclairage → promesse → register
       Post-émotion → context.push('/onboarding/promise')
       Register ne redemande PAS âge/salaire/canton
       DÉPEND DE P2.2

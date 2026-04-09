@@ -1,6 +1,6 @@
 # DATA_ACQUISITION_STRATEGY.md — Precision Through Better Inputs
 
-> **⚠️ LEGACY NOTE (2026-04-05):** Uses "chiffre choc" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 
 > How MINT evolves from "user guesses" to "verified financial state"
 > without becoming a bank, without requiring aggregation licenses,

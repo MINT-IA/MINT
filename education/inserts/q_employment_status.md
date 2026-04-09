@@ -26,7 +26,7 @@ status: "READY"
 - Les cas de pluriactivite (salarie + independant) ne sont pas traites dans le wizard de base.
 - Le statut de frontalier a des regles specifiques non couvertes ici.
 
-## Chiffre Choc
+## Premier Éclairage
 "Un independant sans LPP volontaire peut cotiser jusqu'a 36'288 CHF/an au 3a — soit 5x plus qu'un salarie (7'258 CHF). Mais il perd l'assurance invalidite LPP."
 
 ## Learning Goals

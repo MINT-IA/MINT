@@ -68,7 +68,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
                 children: [
                   _buildBalanceChip(),
                   const SizedBox(height: 20),
-                  _buildChiffreChoc(partner),
+                  _buildPremierEclairage(partner),
                   const SizedBox(height: 16),
                   _buildClauseQuestion(s),
                   const SizedBox(height: 12),
@@ -139,7 +139,7 @@ class _Clause3aWidgetState extends State<Clause3aWidget> {
     );
   }
 
-  Widget _buildChiffreChoc(String partner) {
+  Widget _buildPremierEclairage(String partner) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

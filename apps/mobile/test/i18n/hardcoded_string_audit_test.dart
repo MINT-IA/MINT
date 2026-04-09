@@ -21,10 +21,8 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// Only includes files that exist in the codebase.
 const _phase1to5Files = [
-  'lib/screens/onboarding/intent_screen.dart',
-  'lib/screens/onboarding/quick_start_screen.dart',
-  'lib/screens/onboarding/chiffre_choc_screen.dart',
-  'lib/screens/onboarding/plan_screen.dart',
+  // KILL-01: intent_screen.dart deleted (Phase 2)
+  // P10-02b: quick_start_screen, premier_eclairage_screen, plan_screen deleted.
   'lib/screens/profile/privacy_control_screen.dart',
   'lib/widgets/home/anticipation_signal_card.dart',
   'lib/widgets/home/hero_stat_card.dart',
