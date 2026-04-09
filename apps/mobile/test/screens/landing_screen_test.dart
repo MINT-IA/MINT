@@ -4,7 +4,7 @@
 //   • The 4 text surfaces render (wordmark, paragraphe-mère, CTA, legal).
 //   • Privacy micro-phrase is present.
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates to /onboarding/intent.
+//   • CTA navigates to /coach/chat (KILL-05: no mandatory account creation).
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -26,9 +26,9 @@ GoRouter _buildRouter() {
         builder: (_, __) => const LandingScreen(),
       ),
       GoRoute(
-        path: '/onboarding/intent',
+        path: '/coach/chat',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('INTENT_STUB')),
+          body: Center(child: Text('COACH_CHAT_STUB')),
         ),
       ),
       GoRoute(
@@ -110,14 +110,14 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /onboarding/intent', (tester) async {
+    testWidgets('CTA routes to /coach/chat (KILL-05)', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('INTENT_STUB'), findsOneWidget);
+      expect(find.text('COACH_CHAT_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {

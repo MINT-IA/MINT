@@ -147,7 +147,7 @@ class _LandingScreenState extends State<LandingScreen>
                               shape: const StadiumBorder(),
                               textStyle: textTheme.labelLarge,
                             ),
-                            onPressed: () => context.go('/onboarding/intent'),
+                            onPressed: () => context.go('/coach/chat'),
                             child: Text(l10n.landingV2Cta),
                           ),
                         ),

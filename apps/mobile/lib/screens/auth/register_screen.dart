@@ -108,14 +108,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (redirect != null && redirect.startsWith('/')) {
           context.go(Uri.decodeComponent(redirect));
         } else {
-          // Post-auth routing: new users -> onboarding, returning -> home
-          final completed = await ReportPersistenceService.isMiniOnboardingCompleted();
-          if (!mounted) return;
-          if (completed) {
-            context.go('/home');
-          } else {
-            context.go('/onboarding/intent');
-          }
+          // KILL-05: all post-auth routing goes to /coach/chat
+          context.go('/coach/chat');
         }
       }
     }
@@ -602,7 +596,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onPressed: authProvider.isLoading
                         ? null
                         : () {
-                            context.go('/onboarding/intent');
+                            context.go('/coach/chat');
                           },
                     child: Text(l10n.authContinueLocal),
                   ),

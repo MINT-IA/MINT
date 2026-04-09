@@ -327,8 +327,10 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
+    // KILL-05: chat accessible without account (was authenticated, now public)
     ScopedGoRoute(
       path: '/coach/chat',
+      scope: RouteScope.public,
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) {
         final prompt = state.uri.queryParameters['prompt'];
