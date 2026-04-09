@@ -18,7 +18,7 @@
 
 ## Phases
 
-- [ ] **Phase 1: Architectural foundation** — Scope-tagged routes, scope-based guard, 5 CI mechanical gates
+- [x] **Phase 1: Architectural foundation** — Scope-tagged routes, scope-based guard, 5 CI mechanical gates
 - [ ] **Phase 2: Deletion spree** — Kill dead destinations + fix loop + verify auth leak gone
 - [ ] **Phase 3: Chat-as-shell rebuild** — Chat becomes the entry, distributor, consent surface
 - [ ] **Phase 4: Residual bugs & i18n hygiene** — Diacritics, Navigator.push cleanup, legal public pages, final nav verification
@@ -38,9 +38,10 @@
   3. Running `flutter test` on the new nav suite fails the build on: any non-whitelisted route cycle, any cross-scope edge into `authenticated`, any screen ignoring a navigation payload, any unreviewed change to the auth guard snapshot, any banned doctrine string in routed widgets
   4. Creator-device screenshots show that a cold-started unauthenticated user cannot reach `/profile/*`, `/home`, or `/explore/*` through any tap path (including legal links from register)
 **Plans**:
-- [ ] 01-01-PLAN.md — Scope-tagged routes + scope-based guard + 5 mechanical CI gates with would-have-fired fixtures
+- [x] 01-01-PLAN.md — Scope-tagged routes + scope-based guard + 5 mechanical CI gates with would-have-fired fixtures
 
 ### Phase 2: Deletion spree
+**Plans:** 1 plan
 **Goal**: Remove ~70% of v2.2 destination surface area. Bug 1 and Bug 3 dissolve as side effect; Bug 2 is fixed mechanically at its file:line root cause.
 **Depends on**: Phase 1 (safety net must exist before destructive changes)
 **Requirements**: KILL-01, KILL-02, KILL-03, KILL-04, KILL-05, KILL-06, KILL-07, BUG-01, BUG-02
@@ -49,7 +50,8 @@
   2. A freshly-registered or anonymous user entering `/coach/chat` with a `CoachEntryPayload` lands on a working conversation (no empty-state short-circuit at `coach_chat_screen.dart:1317`, no loop back to intent)
   3. An integration test proves the CGU / privacy link from register cannot reach any authenticated route (Bug 1 auth leak gone by construction)
   4. Creator-device Gate 0 screenshots demonstrate the shrunken surface: cold-start → chat, no intent picker, no Moi dashboard, no Centre de contrôle as destination
-**Plans**: TBD
+**Plans**:
+- [ ] 02-01-PLAN.md — 8-task deletion spree: KILL-01..07 + BUG-01 verify + BUG-02 tombstone test + golden snapshot update
 
 ### Phase 3: Chat-as-shell rebuild
 **Goal**: The chat becomes the entry, the distributor, the consent surface, the data-capture surface, the tone-setter. Every former destination becomes a chat-summoned contextual drawer.
@@ -104,8 +106,8 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Architectural foundation | 0/1 | Not started | - |
-| 2. Deletion spree | 0/0 | Not started | - |
+| 1. Architectural foundation | 3/3 | Complete | 2026-04-09 |
+| 2. Deletion spree | 0/1 | Planned | - |
 | 3. Chat-as-shell rebuild | 0/0 | Not started | - |
 | 4. Residual bugs & i18n hygiene | 0/0 | Not started | - |
 | 5. Sober visual polish | 0/0 | Not started | - |

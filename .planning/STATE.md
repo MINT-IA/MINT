@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: Sub-plan 01-01a executed — RouteScope + ScopedGoRoute + scope-based guard live
-stopped_at: Completed 01-01c-PLAN.md — Phase 1 closed
-last_updated: "2026-04-09T11:33:16.125Z"
-last_activity: "2026-04-09 — 01-01a executed: 144 routes migrated, scope-based guard replaces protectedPrefixes"
+status: Phase 2 planned — 02-01-PLAN.md ready for execution
+stopped_at: Phase 2 planned, ready for /gsd-execute-phase 02-deletion-spree
+last_updated: "2026-04-09T12:00:00.000Z"
+last_activity: "2026-04-09 — Phase 2 planned: 1 plan, 8 tasks, 9 requirements (KILL-01..07 + BUG-01 + BUG-02)"
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 4
+  completed_phases: 1
+  total_plans: 5
   completed_plans: 3
-  percent: 75
+  percent: 60
 ---
 
 # GSD State
@@ -21,19 +21,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.3 Simplification Radicale — Phase 1 (Architectural foundation) ready to plan
+**Current focus:** v2.3 Simplification Radicale — Phase 2 (Deletion spree) planned, ready for execution
 
 ## Current Position
 
-Phase: 1 — Architectural foundation (in progress)
-Plan: 01-01a COMPLETE, 01-01b next
-Status: Sub-plan 01-01a executed — RouteScope + ScopedGoRoute + scope-based guard live
-Last activity: 2026-04-09 — 01-01a executed: 144 routes migrated, scope-based guard replaces protectedPrefixes
+Phase: 2 — Deletion spree (planned)
+Plan: 02-01-PLAN.md ready for execution
+Status: Phase 1 complete (3 sub-plans). Phase 2 planned (1 plan, 8 tasks).
+Last activity: 2026-04-09 — Phase 2 planned: 8-task deletion spree covering KILL-01..07 + BUG-01 verify + BUG-02 tombstone test
 
 ## Phase Map (v2.3)
 
-1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01
-2. Deletion spree — KILL-01..07, BUG-01, BUG-02
+1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01 **COMPLETE**
+2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **PLANNED**
 3. Chat-as-shell rebuild — CHAT-01..05
 4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06
 5. Sober visual polish — POLISH-01..04
@@ -54,12 +54,27 @@ Last activity: 2026-04-09 — 01-01a executed: 144 routes migrated, scope-based 
 - `docs/NAVIGATION_MAP_v2.2_REALITY.md` — file:line root-causes for 4 P0
 - `docs/AESTHETIC_AUDIT_v2.2_BRUTAL.md` — 7/10 screens to delete as destinations
 
+### Phase 1 outcome
+
+- All 144 routes migrated to ScopedGoRoute with explicit RouteScope (public/onboarding/authenticated)
+- Scope-based guard replaces operation-based protectedPrefixes whitelist
+- 5 CI mechanical gates installed and passing (cycle DFS, scope-leak, empty-state-with-payload, guard snapshot, doctrine-string lint)
+- BUG-01 (infinite loop) patched: coach_chat_screen.dart payload guard checks widget.entryPayload before short-circuiting
+- ProfileDrawer mounted only inside authenticated scope
+
+### Phase 2 plan overview
+
+- 8 tasks, 1 plan, wave 1 (sequential commits for git bisect)
+- Deletion order: CoachEmptyState -> intent screen -> consent dashboard -> Moi dashboard + voice cursor -> account creation mandatory step -> Explorer hubs + shell collapse
+- Then: BUG-02 tombstone test + guard snapshot golden update
+- Post-phase: app is landing -> chat. No tabs, no drawer, no profile destination.
+
 ### 4 P0 bugs (from device walkthrough)
 
-1. **Auth leak** — dissolves via Phase 1 (scope-based guard) + Phase 2 deletion
-2. **Infinite loop** — fixed in Phase 2 at `coach_chat_screen.dart:1317` (BUG-01)
-3. **Centre de contrôle catastrophe** — dissolves via Phase 2 KILL-03
-4. **Créer ton compte horrible** — dissolves via Phase 2 KILL-05
+1. **Auth leak** — dissolves via Phase 1 (scope-based guard) + Phase 2 deletion of /profile/consent
+2. **Infinite loop** — Phase 1 patched payload guard; Phase 2 deletes CoachEmptyState entirely (structural elimination)
+3. **Centre de controle catastrophe** — dissolves via Phase 2 KILL-03
+4. **Creer ton compte horrible** — dissolves via Phase 2 KILL-05
 
 ### 2 founding principles (apply to every phase)
 
@@ -79,14 +94,14 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 
 ### Pending Todos
 
-- Run `/gsd-execute-phase 1` to execute 01-01-PLAN.md
+- Run `/gsd-execute-phase 02-deletion-spree` to execute 02-01-PLAN.md
 
 ### Blockers/Concerns
 
-- None. Phase 1 can begin immediately.
+- None. Phase 2 can begin immediately.
 
 ## Session Continuity
 
-Last session: 2026-04-09T11:33:16.123Z
-Stopped at: Completed 01-01c-PLAN.md — Phase 1 closed
+Last session: 2026-04-09T12:00:00.000Z
+Stopped at: Phase 2 planned, ready for /gsd-execute-phase 02-deletion-spree
 Resume file: None
