@@ -22,7 +22,7 @@ import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 // consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/portfolio_screen.dart';
-import 'package:mint_mobile/screens/profile_screen.dart';
+// profile_screen.dart DELETED (KILL-04, Phase 2)
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/main_navigation_shell.dart';
@@ -653,9 +653,15 @@ final _router = GoRouter(
     ScopedGoRoute(path: '/report', redirect: (_, __) => '/rapport'),
     ScopedGoRoute(path: '/report/v2', redirect: (_, __) => '/rapport'),
 
+    // KILL-04: ProfileScreen deleted (Phase 2). /profile redirects to /coach/chat.
+    // Sub-routes (byok, slm, bilan, privacy-control, admin) preserved.
     ScopedGoRoute(
       path: '/profile',
-      builder: (context, state) => const ProfileScreen(),
+      redirect: (_, state) {
+        // Only redirect if exact /profile match; sub-routes pass through
+        if (state.uri.path == '/profile') return '/coach/chat';
+        return null;
+      },
       routes: [
         ScopedGoRoute(
           path: 'admin-observability',

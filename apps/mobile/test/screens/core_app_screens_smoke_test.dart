@@ -7,7 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
 // Screens under test
-import 'package:mint_mobile/screens/profile_screen.dart';
+// KILL-04: profile_screen.dart deleted (Phase 2)
 import 'package:mint_mobile/screens/documents_screen.dart';
 import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
@@ -105,163 +105,8 @@ void main() {
   }
 
   // ===========================================================================
-  // 2. PROFILE SCREEN
+  // 2. PROFILE SCREEN — DELETED (KILL-04, Phase 2)
   // ===========================================================================
-
-  group('ProfileScreen', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.byType(ProfileScreen), findsOneWidget);
-    });
-
-    testWidgets('displays profile title', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.text('Moi'), findsWidgets);
-    });
-
-    testWidgets('shows profile completion progress', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Phase 2: Precision Index replaced by inline completion progress
-      expect(find.textContaining('Compl'), findsWidgets);
-      expect(find.byType(LinearProgressIndicator), findsWidgets);
-    });
-
-    testWidgets('shows FactFind sections', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Foyer'), findsWidgets);
-      expect(find.textContaining('Revenus'), findsWidgets);
-      expect(find.textContaining('LPP'), findsWidgets);
-    });
-
-    testWidgets('shows identity card (settings moved to SettingsSheet)',
-        (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      // Settings section removed (now in SettingsSheet via gear icon).
-      // Identity card should be present instead.
-      expect(find.byType(ProfileScreen), findsOneWidget);
-    });
-
-    testWidgets('shows delete data button', (tester) async {
-      await tester.pumpWidget(buildTestableScreen(const ProfileScreen()));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
-
-      expect(find.textContaining('Supprimer'), findsOneWidget);
-    });
-
-    testWidgets(
-        'navigates to quick start onboarding from FactFind CTAs (no grey error screen)',
-        (tester) async {
-      tester.view.physicalSize = const Size(800, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-
-      // P10-02b: QuickStartScreen deleted. Profile identity tap now lands on
-      // /coach/chat via the redirect shim chain.
-      final router = GoRouter(
-        initialLocation: '/profile',
-        routes: [
-          GoRoute(
-            path: '/profile',
-            builder: (context, state) => const ProfileScreen(),
-          ),
-          GoRoute(
-            path: '/advisor/wizard',
-            redirect: (context, state) => '/onboarding/quick',
-          ),
-          GoRoute(
-            path: '/onboarding/quick',
-            redirect: (context, state) => '/coach/chat',
-          ),
-          GoRoute(
-            path: '/coach/chat',
-            builder: (context, state) => const Scaffold(
-              body: Center(child: Text('COACH_CHAT_STUB')),
-            ),
-          ),
-        ],
-      );
-
-      await tester.pumpWidget(
-        MultiProvider(
-          providers: [
-            ChangeNotifierProvider<ProfileProvider>(create: (_) {
-              final p = ProfileProvider();
-              p.setProfile(Profile(
-                id: 'test-user',
-                householdType: HouseholdType.single,
-                goal: Goal.emergency,
-                createdAt: DateTime(2025, 1, 1),
-                birthYear: 1990,
-                canton: 'VD',
-                incomeNetMonthly: 6000,
-              ));
-              return p;
-            }),
-            ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
-            ChangeNotifierProvider<ByokProvider>(create: (_) => ByokProvider()),
-            ChangeNotifierProvider<DocumentProvider>(
-                create: (_) => DocumentProvider()),
-            ChangeNotifierProvider<BudgetProvider>(
-                create: (_) => BudgetProvider()),
-            ChangeNotifierProvider<SubscriptionProvider>(
-                create: (_) => SubscriptionProvider()),
-            ChangeNotifierProvider<CoachProfileProvider>(
-                create: (_) => CoachProfileProvider()),
-            ChangeNotifierProvider<LocaleProvider>(
-                create: (_) => LocaleProvider()),
-            ChangeNotifierProvider<UserActivityProvider>(
-                create: (_) => UserActivityProvider()),
-            ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
-            ChangeNotifierProvider<MintStateProvider>(
-                create: (_) => MintStateProvider()),
-            ChangeNotifierProvider<CoachEntryPayloadProvider>(
-                create: (_) => CoachEntryPayloadProvider()),
-          ],
-          child: MaterialApp.router(
-            locale: const Locale('fr'),
-            localizationsDelegates: const [
-              S.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: S.supportedLocales,
-            routerConfig: router,
-          ),
-        ),
-      );
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-
-      // Phase 2: completion rows use GestureDetector, not InkWell
-      final identityLabel = find.textContaining('Foyer').last;
-      await tester.ensureVisible(identityLabel);
-      final identitySection = find.ancestor(
-        of: identityLabel,
-        matching: find.byType(GestureDetector),
-      );
-      await tester.tap(identitySection.first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      await tester.pump(const Duration(milliseconds: 300));
-      // P10-02b: assert the redirect landed on the coach chat stub instead
-      // of the deleted QuickStartScreen.
-      expect(find.text('COACH_CHAT_STUB'), findsOneWidget);
-      expect(find.textContaining('Cette page n'), findsNothing);
-    });
-  });
 
   // ===========================================================================
   // 3. DOCUMENTS SCREEN
@@ -419,8 +264,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingPunchline1 = "Le système financier suisse est puissant."
-      expect(find.textContaining('financier suisse'), findsOneWidget);
+      // Phase 7 Landing v2: paragraphe-mère (landingV2Paragraph) replaces
+      // legacy "Le système financier suisse est puissant." punchline.
+      expect(find.textContaining('personne n\'a intérêt'), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
@@ -440,9 +286,9 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.lock_outline_rounded), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
+      // Phase 7 Landing v2 removed the trust bar (shield/lock/check icons).
+      // The privacy reassurance is now a single micro-phrase (landingV2Privacy).
+      expect(find.textContaining('Rien ne sort de ton téléphone'), findsOneWidget);
     });
 
     testWidgets('shows CTA button with Commencer', (tester) async {
@@ -452,18 +298,22 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // landingCtaCommencer = "Commencer"
-      expect(find.text('Commencer'), findsOneWidget);
+      // Phase 7 Landing v2: landingV2Cta = "Continuer (sans compte)".
+      expect(find.textContaining('Continuer'), findsOneWidget);
     });
 
-    testWidgets('shows login button', (tester) async {
+    testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.textContaining('connecter'), findsOneWidget);
+      // Phase 7 Landing v2: no visible login button. The login affordance
+      // is a long-press on the MINT wordmark (routes to /auth/login).
+      expect(find.textContaining('connecter'), findsNothing);
+      // The MINT wordmark still renders as the hidden entry point.
+      expect(find.text('MINT'), findsOneWidget);
     });
   });
 
