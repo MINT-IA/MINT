@@ -81,7 +81,7 @@ jobs:
           java-version: "17"
 
       # ── Setup Flutter ──
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2
         with:
           flutter-version: "3.41.4"
           channel: stable
@@ -102,11 +102,15 @@ jobs:
 
       # ── Decode keystore from secret ──
       - name: Decode Android keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > android/upload-keystore.jks
-          echo "storePassword=${{ secrets.ANDROID_KEY_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > android/upload-keystore.jks
+          echo "storePassword=$ANDROID_KEY_PASSWORD" > android/key.properties
+          echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
           echo "storeFile=../upload-keystore.jks" >> android/key.properties
 
       # ── Build ──
@@ -128,11 +132,13 @@ jobs:
 
       # ── Upload to Play Store ──
       - name: Decode Play Store service account
+        env:
+          PLAY_STORE_SERVICE_ACCOUNT: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}
         run: |
-          echo "${{ secrets.PLAY_STORE_SERVICE_ACCOUNT }}" | base64 --decode > play-store-key.json
+          echo "$PLAY_STORE_SERVICE_ACCOUNT" | base64 --decode > play-store-key.json
 
       - name: Upload to Play Store
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@0250910c30c1c098744c510e32e1659c6af78eb6  # v1
         with:
           serviceAccountJson: apps/mobile/play-store-key.json
           packageName: ch.mint.coach

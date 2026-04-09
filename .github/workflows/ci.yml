@@ -25,7 +25,7 @@ jobs:
       flutter: ${{ steps.filter.outputs.flutter }}
     steps:
       - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36  # v3
         id: filter
         with:
           filters: |
@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2
         with:
           flutter-version: '3.41.4'
           cache: true
@@ -111,7 +111,7 @@ jobs:
           python-version: "3.11"
       - name: Python WCAG AA hardcoded-color gate
         run: python3 tools/checks/wcag_aa_all_touched.py
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2
         with:
           flutter-version: '3.41.4'
           cache: true
@@ -308,7 +308,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2
         with:
           flutter-version: '3.41.4'  # matches local dev; AppDelegate.swift uses FlutterImplicitEngineDelegate (3.41+)
           cache: true

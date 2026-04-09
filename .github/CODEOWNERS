@@ -1,0 +1,2 @@
+# CI/CD workflow files require owner review before merge
+/.github/workflows/ @julienbattaglia
