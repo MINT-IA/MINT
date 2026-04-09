@@ -125,7 +125,7 @@ class MintAmountField extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   void _applyValue(String text, BuildContext ctx) {

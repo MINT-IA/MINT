@@ -113,7 +113,7 @@ class ConversationStore {
 
   /// Maximum conversations retained in SharedPreferences.
   /// Oldest conversations are pruned when this limit is exceeded.
-  static const _maxConversations = 50;
+  static const _maxConversations = 20;
 
   /// Maximum title length (characters).
   static const _maxTitleLength = 50;
@@ -143,10 +143,15 @@ class ConversationStore {
 
     final prefs = await SharedPreferences.getInstance();
 
+    // Memory fix: prune to last 80 messages to bound SharedPreferences size.
+    final pruned = messages.length > 80
+        ? messages.sublist(messages.length - 80)
+        : messages;
+
     // FIX-W11-1: Atomic write — temp key first, then real key, then remove temp.
     final key = '${_userPrefix()}$_messagesPrefix$conversationId';
     final tempKey = '${key}_tmp';
-    final messagesJson = messages.map(_messageToJson).toList();
+    final messagesJson = pruned.map(_messageToJson).toList();
     final encoded = jsonEncode(messagesJson);
     await prefs.setString(tempKey, encoded);
     await prefs.setString(key, encoded);

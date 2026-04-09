@@ -35,6 +35,13 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   bool _showSimulation = false;
   late bool _showEducationalInsert = widget.defaultExpanded;
   String? _inputError;
+  TextEditingController? _textInputController;
+
+  @override
+  void dispose() {
+    _textInputController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -469,11 +476,13 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   }
 
   Widget _buildTextInput() {
-    final controller = TextEditingController(
+    final isNumberInput = widget.question.type == QuestionType.number;
+
+    // Lazily create the controller; reuse across rebuilds, dispose in dispose().
+    _textInputController ??= TextEditingController(
       text: widget.currentAnswer?.toString() ?? '',
     );
-
-    final isNumberInput = widget.question.type == QuestionType.number;
+    final controller = _textInputController!;
 
     return Column(
       children: [
