@@ -42,13 +42,13 @@ The 5 mechanical tests that would have caught the 4 P0 bugs before ship. Become 
 
 Delete destination screens that fail the 3s test. Don't redesign them.
 
-- [ ] **KILL-01**: `/onboarding/intent` screen is deleted; the conversation IS the diagnostic
-- [ ] **KILL-02**: `CoachEmptyState` widget ("Faire mon diagnostic") is deleted; coach chat handles its own empty state by starting the conversation
-- [ ] **KILL-03**: `/profile/consent` Centre de contrôle is deleted as a destination route; consent management becomes contextual
-- [ ] **KILL-04**: Moi dashboard gamification (`0% — il manque...`, `+15%`, `+10%` badges) is deleted; replaced with neutral state language respecting anti-shame doctrine
-- [ ] **KILL-05**: Account creation as a mandatory onboarding step is deleted; cloud sync becomes an optional flow the chat surfaces only when the user expresses intent for it
-- [ ] **KILL-06**: Internal voice cursor naming (`N1 — Tranquille`, `N2 — Clair`, `N3 — Direct` radio buttons) is removed from any user-facing surface
-- [ ] **KILL-07**: Explorer hub screens that exist purely as navigation destinations (without their own value moment) are removed from the navigation surface; underlying calculators remain reachable as drawers via the chat
+- [x] **KILL-01**: `/onboarding/intent` screen is deleted; the conversation IS the diagnostic
+- [x] **KILL-02**: `CoachEmptyState` widget ("Faire mon diagnostic") is deleted; coach chat handles its own empty state by starting the conversation
+- [x] **KILL-03**: `/profile/consent` Centre de contrôle is deleted as a destination route; consent management becomes contextual
+- [x] **KILL-04**: Moi dashboard gamification (`0% — il manque...`, `+15%`, `+10%` badges) is deleted; replaced with neutral state language respecting anti-shame doctrine
+- [x] **KILL-05**: Account creation as a mandatory onboarding step is deleted; cloud sync becomes an optional flow the chat surfaces only when the user expresses intent for it
+- [x] **KILL-06**: Internal voice cursor naming (`N1 — Tranquille`, `N2 — Clair`, `N3 — Direct` radio buttons) is removed from any user-facing surface
+- [x] **KILL-07**: Explorer hub screens that exist purely as navigation destinations (without their own value moment) are removed from the navigation surface; underlying calculators remain reachable as drawers via the chat
 
 ### Chat-as-Shell (CHAT)
 
@@ -64,8 +64,8 @@ The chat becomes the entry, the distributor, the planner. Every former destinati
 
 Bugs that don't dissolve via deletion still need explicit mechanical fixes.
 
-- [ ] **BUG-01**: Bug 2 infinite loop fixed at `coach_chat_screen.dart:1317` — chat consumes the navigation payload before any `_hasProfile` short-circuit; a freshly-registered or anonymous user lands on a working conversation, never on an empty state that loops back
-- [ ] **BUG-02**: Bug 1 auth leak verified gone — deleted Centre de contrôle plus scope-based guards (NAV-01, NAV-02) make the leak impossible to reintroduce; integration test proves CGU link from a public scope cannot reach `/profile/*` `/home` `/explore/*`
+- [x] **BUG-01**: Bug 2 infinite loop fixed at `coach_chat_screen.dart:1317` — chat consumes the navigation payload before any `_hasProfile` short-circuit; a freshly-registered or anonymous user lands on a working conversation, never on an empty state that loops back
+- [x] **BUG-02**: Bug 1 auth leak verified gone — deleted Centre de contrôle plus scope-based guards (NAV-01, NAV-02) make the leak impossible to reintroduce; integration test proves CGU link from a public scope cannot reach `/profile/*` `/home` `/explore/*`
 - [ ] **BUG-03**: i18n diacritic regression on Centre de contrôle text path is rooted-out — `Donnees`, `necessaires`, `Execution`, `agregees`, `ameliorer`, `federale` etc. trace back to the encoding/font fallback bug and fix is applied wherever else it leaks
 - [ ] **BUG-04**: "Ton de Mint" segmented control truncation is fixed — bottom sheet either drops subtitles or stacks vertically (whichever survives KILL/CHAT)
 
@@ -132,20 +132,20 @@ Each v1 requirement maps to exactly one phase.
 | GATE-03 | Phase 1 | Complete |
 | GATE-04 | Phase 1 | Complete |
 | GATE-05 | Phase 1 | Complete |
-| KILL-01 | Phase 2 | Pending |
-| KILL-02 | Phase 2 | Pending |
-| KILL-03 | Phase 2 | Pending |
-| KILL-04 | Phase 2 | Pending |
-| KILL-05 | Phase 2 | Pending |
-| KILL-06 | Phase 2 | Pending |
-| KILL-07 | Phase 2 | Pending |
+| KILL-01 | Phase 2 | Complete |
+| KILL-02 | Phase 2 | Complete |
+| KILL-03 | Phase 2 | Complete |
+| KILL-04 | Phase 2 | Complete |
+| KILL-05 | Phase 2 | Complete |
+| KILL-06 | Phase 2 | Complete |
+| KILL-07 | Phase 2 | Complete |
 | CHAT-01 | Phase 3 | Pending |
 | CHAT-02 | Phase 3 | Pending |
 | CHAT-03 | Phase 3 | Pending |
 | CHAT-04 | Phase 3 | Pending |
 | CHAT-05 | Phase 3 | Pending |
-| BUG-01 | Phase 2 | Pending |
-| BUG-02 | Phase 2 | Pending |
+| BUG-01 | Phase 2 | Complete |
+| BUG-02 | Phase 2 | Complete |
 | BUG-03 | Phase 4 | Pending |
 | BUG-04 | Phase 4 | Pending |
 | POLISH-01 | Phase 5 | Pending |

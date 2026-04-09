@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: Phase 2 planned — 02-01-PLAN.md ready for execution
-stopped_at: Phase 2 planned, ready for /gsd-execute-phase 02-deletion-spree
-last_updated: "2026-04-09T12:00:00.000Z"
-last_activity: "2026-04-09 — Phase 2 planned: 1 plan, 8 tasks, 9 requirements (KILL-01..07 + BUG-01 + BUG-02)"
+status: Phase 2 complete — ready for Phase 3
+stopped_at: Completed 02-01-PLAN.md (deletion spree). 14 files deleted, 11 routes redirected, app is landing->chat.
+last_updated: "2026-04-09T12:12:28.351Z"
+last_activity: "2026-04-09 — Phase 2 executed: 8 tasks, 8 commits, 14 files deleted. KILL-01..07 + BUG-01 + BUG-02 verified."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # GSD State
@@ -21,19 +21,19 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.3 Simplification Radicale — Phase 2 (Deletion spree) planned, ready for execution
+**Current focus:** v2.3 Simplification Radicale — Phase 2 complete. Phase 3 (Chat-as-shell rebuild) next.
 
 ## Current Position
 
-Phase: 2 — Deletion spree (planned)
-Plan: 02-01-PLAN.md ready for execution
-Status: Phase 1 complete (3 sub-plans). Phase 2 planned (1 plan, 8 tasks).
-Last activity: 2026-04-09 — Phase 2 planned: 8-task deletion spree covering KILL-01..07 + BUG-01 verify + BUG-02 tombstone test
+Phase: 2 — Deletion spree **COMPLETE**
+Plan: 02-01-PLAN.md executed (8/8 tasks, 8 commits)
+Status: Phase 1 complete (3 sub-plans). Phase 2 complete (1 plan, 8 tasks). Phase 3 next.
+Last activity: 2026-04-09 — Phase 2 executed: 14 files deleted, 11 routes redirected, 6 tombstone tests added
 
 ## Phase Map (v2.3)
 
 1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01 **COMPLETE**
-2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **PLANNED**
+2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
 3. Chat-as-shell rebuild — CHAT-01..05
 4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06
 5. Sober visual polish — POLISH-01..04
@@ -62,12 +62,16 @@ Last activity: 2026-04-09 — Phase 2 planned: 8-task deletion spree covering KI
 - BUG-01 (infinite loop) patched: coach_chat_screen.dart payload guard checks widget.entryPayload before short-circuiting
 - ProfileDrawer mounted only inside authenticated scope
 
-### Phase 2 plan overview
+### Phase 2 outcome
 
-- 8 tasks, 1 plan, wave 1 (sequential commits for git bisect)
-- Deletion order: CoachEmptyState -> intent screen -> consent dashboard -> Moi dashboard + voice cursor -> account creation mandatory step -> Explorer hubs + shell collapse
-- Then: BUG-02 tombstone test + guard snapshot golden update
-- Post-phase: app is landing -> chat. No tabs, no drawer, no profile destination.
+- 14 files deleted (6 screens + 8 test files), 11 routes redirected to /coach/chat, 1 route removed
+- CoachEmptyState deleted -- BUG-01 loop structurally impossible
+- intent_screen, consent_dashboard, profile_screen, main_navigation_shell, explore_tab all deleted
+- /coach/chat scope changed to public (users reach chat without account creation)
+- 6 auth leak tombstone tests prove BUG-02 impossible by construction
+- Guard snapshot golden file updated
+- App is now: landing -> chat. No tabs, no drawer, no profile destination.
+- Hub screen files preserved for Phase 3 (chat-summoned drawers)
 
 ### 4 P0 bugs (from device walkthrough)
 
@@ -102,6 +106,6 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 
 ## Session Continuity
 
-Last session: 2026-04-09T12:00:00.000Z
-Stopped at: Phase 2 planned, ready for /gsd-execute-phase 02-deletion-spree
+Last session: 2026-04-09T12:12:28.348Z
+Stopped at: Completed 02-01-PLAN.md (deletion spree)
 Resume file: None

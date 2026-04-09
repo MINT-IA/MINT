@@ -51,7 +51,7 @@
   3. An integration test proves the CGU / privacy link from register cannot reach any authenticated route (Bug 1 auth leak gone by construction)
   4. Creator-device Gate 0 screenshots demonstrate the shrunken surface: cold-start → chat, no intent picker, no Moi dashboard, no Centre de contrôle as destination
 **Plans**:
-- [ ] 02-01-PLAN.md — 8-task deletion spree: KILL-01..07 + BUG-01 verify + BUG-02 tombstone test + golden snapshot update
+- [x] 02-01-PLAN.md — 8-task deletion spree: KILL-01..07 + BUG-01 verify + BUG-02 tombstone test + golden snapshot update
 
 ### Phase 3: Chat-as-shell rebuild
 **Goal**: The chat becomes the entry, the distributor, the consent surface, the data-capture surface, the tone-setter. Every former destination becomes a chat-summoned contextual drawer.
