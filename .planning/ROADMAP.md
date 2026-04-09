@@ -84,6 +84,7 @@ Plans:
 - [x] 04-01-PLAN.md — Verify-and-fix: diacritics (BUG-03), TonChooser deletion (BUG-04), legal scope (NAV-03), cycle gate (NAV-04), reachability gate (NAV-05), Navigator.push cleanup (NAV-06)
 
 ### Phase 5: Sober visual polish
+**Plans:** 1 plan
 **Goal**: On a sane architecture, apply sober visual polish only to surviving surfaces. No Aesop chase. Sober is the goal.
 **Depends on**: Phase 4
 **Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04
@@ -93,7 +94,8 @@ Plans:
   3. Banned visual fragments are removed from every surviving surface (3D logo cube, bordered gray ghost chips, generic Material 3 admin drawer styling)
   4. Token audit passes: every surviving surface uses `MintColors.*` and Montserrat/Inter only; zero hardcoded `Color(0xFF...)`, zero `Outfit` font references
   5. Creator-device Gate 0 screenshots demonstrate each polished surface and confirm the 3-second test passes on landing and chat
-**Plans**: TBD
+**Plans**:
+- [ ] 05-01-PLAN.md — Landing rebuild + chat breathing room + banned fragments removal + token audit (POLISH-01..04)
 **UI hint**: yes
 
 ### Phase 6: End-to-end device walkthrough & ship gate
@@ -115,7 +117,7 @@ Plans:
 | 2. Deletion spree | 0/1 | Planned | - |
 | 3. Chat-as-shell rebuild | 0/2 | Planned | - |
 | 4. Residual bugs & i18n hygiene | 0/1 | Planned | - |
-| 5. Sober visual polish | 0/0 | Not started | - |
+| 5. Sober visual polish | 0/1 | Planned | - |
 | 6. End-to-end device walkthrough & ship gate | 0/0 | Not started | - |
 
 ## Coverage

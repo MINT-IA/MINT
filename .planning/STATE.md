@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: Phase 4 complete — ready for Phase 5
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-04-09T13:12:44.968Z"
-last_activity: "2026-04-09 — Phase 4 executed: 6 tasks, 2 commits. BUG-03/04, NAV-03..06 all closed."
+status: Phase 5 planned — ready for execution
+stopped_at: Created 05-01-PLAN.md
+last_updated: "2026-04-09T14:00:00.000Z"
+last_activity: "2026-04-09 — Phase 5 planned: 1 plan, 4 tasks (POLISH-01..04)."
 progress:
   total_phases: 6
   completed_phases: 4
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.3 Simplification Radicale — Phase 4 complete. Phase 5 (sober visual polish) next.
+**Current focus:** v2.3 Simplification Radicale — Phase 5 planned (sober visual polish). Ready for execution.
 
 ## Current Position
 
-Phase: 4 — Residual bugs & i18n hygiene **COMPLETE**
-Plan: 04-01-PLAN.md executed (6/6 tasks, 2 commits)
-Status: Phase 1-4 complete. Phase 5 (sober visual polish) next.
-Last activity: 2026-04-09 — Phase 4 executed: 6 tasks, 2 commits. BUG-03/04, NAV-03..06 all closed.
+Phase: 5 — Sober visual polish **PLANNED**
+Plan: 05-01-PLAN.md created (4 tasks: landing rebuild, chat breathing room, banned fragments, token audit)
+Status: Phase 1-4 complete. Phase 5 planned and ready for execution.
+Last activity: 2026-04-09 — Phase 5 planned: 1 plan, 4 tasks (POLISH-01..04).
 
 ## Phase Map (v2.3)
 
@@ -36,7 +36,7 @@ Last activity: 2026-04-09 — Phase 4 executed: 6 tasks, 2 commits. BUG-03/04, N
 2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
 3. Chat-as-shell rebuild — CHAT-01..05 **COMPLETE**
 4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06 **COMPLETE**
-5. Sober visual polish — POLISH-01..04
+5. Sober visual polish — POLISH-01..04 **PLANNED**
 6. End-to-end device walkthrough & ship gate — DEVICE-02
 
 ## Accumulated Context
@@ -75,7 +75,7 @@ Last activity: 2026-04-09 — Phase 4 executed: 6 tasks, 2 commits. BUG-03/04, N
 
 ### Phase 4 outcome
 
-- BUG-03: ~40 diacritics fixed across 14 Dart files (Donnees->Données, ameliorer->améliorer, etc.)
+- BUG-03: ~40 diacritics fixed across 14 Dart files (Donnees->Donnees, ameliorer->ameliorer, etc.)
 - BUG-04: TonChooser already deleted from git in Phase 2; untracked filesystem remnants removed
 - NAV-03: /about confirmed public-scope, scope-leak CI gate green
 - NAV-04: Route cycle DFS CI gate green post-Phase 2+3
@@ -105,18 +105,18 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 - 12 orphan GoRouter routes (v2.1) — absorbed by Phase 2 deletion spree
 - ~65 NEEDS-VERIFY try/except blocks — out of scope for v2.3
 - ACCESS-01 a11y partner emails never sent (deferred v2.4)
-- Krippendorff α validation infra ready but never run (deferred v2.4)
+- Krippendorff alpha validation infra ready but never run (deferred v2.4)
 
 ### Pending Todos
 
-- Run `/gsd-execute-phase 02-deletion-spree` to execute 02-01-PLAN.md
+- Run `/gsd-execute-phase 05-sober-visual-polish` to execute 05-01-PLAN.md
 
 ### Blockers/Concerns
 
-- None. Phase 2 can begin immediately.
+- None. Phase 5 can begin immediately.
 
 ## Session Continuity
 
-Last session: 2026-04-09T13:12:44.965Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-04-09T14:00:00.000Z
+Stopped at: Created 05-01-PLAN.md
 Resume file: None
