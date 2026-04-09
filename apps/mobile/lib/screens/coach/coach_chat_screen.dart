@@ -1314,7 +1314,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_hasProfile) {
+    // Bug 2 fix: only show empty state when there is NO incoming payload.
+    // A valid entryPayload or initialPrompt must always win over the
+    // profile check — otherwise new users entering from intent_screen
+    // get trapped in the CoachEmptyState -> intent -> CoachEmptyState loop.
+    if (!_hasProfile &&
+        widget.entryPayload == null &&
+        widget.initialPrompt == null) {
       return const CoachEmptyState();
     }
 
