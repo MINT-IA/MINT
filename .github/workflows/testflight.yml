@@ -104,7 +104,7 @@ jobs:
 
       # ── Xcode / iOS SDK setup (App Store requirement) ──
       - name: Setup latest stable Xcode
-        uses: maxim-lobanov/setup-xcode@v1
+        uses: maxim-lobanov/setup-xcode@1242409711ff5721add51979e9e11e23ebb7e5a4  # v1
         with:
           xcode-version: latest-stable
 
@@ -124,7 +124,7 @@ jobs:
           echo "SDK requirement satisfied: iOS SDK ${SDK_VERSION}"
 
       # ── Flutter setup ──
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2  # v2
         with:
           flutter-version: '3.41.4'
           cache: true
@@ -171,6 +171,7 @@ jobs:
         env:
           HUGGINGFACE_TOKEN: ${{ secrets.HUGGINGFACE_TOKEN }}
           SLM_MODEL_URL: ${{ secrets.SLM_MODEL_URL }}
+          SENTRY_DSN_MOBILE: ${{ secrets.SENTRY_DSN_MOBILE }}
         run: |
           API_URL="${{ steps.env-config.outputs.api_url }}"
           EXTRA_DEFINES=""
@@ -180,8 +181,8 @@ jobs:
           if [[ -n "$SLM_MODEL_URL" ]]; then
             EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SLM_MODEL_URL=$SLM_MODEL_URL"
           fi
-          if [[ -n "${{ secrets.SENTRY_DSN_MOBILE }}" ]]; then
-            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=${{ secrets.SENTRY_DSN_MOBILE }}"
+          if [[ -n "$SENTRY_DSN_MOBILE" ]]; then
+            EXTRA_DEFINES="$EXTRA_DEFINES --dart-define=SENTRY_DSN=$SENTRY_DSN_MOBILE"
           fi
           flutter build ios --release --no-codesign --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES
 
@@ -209,7 +210,7 @@ jobs:
 
       # ── Ruby + Fastlane ──
       - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@e65c17d16e57e481586a6a5a0282698790062f92  # v1
         with:
           ruby-version: "3.2"
           bundler-cache: true
