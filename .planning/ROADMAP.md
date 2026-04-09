@@ -54,6 +54,7 @@
 - [x] 02-01-PLAN.md — 8-task deletion spree: KILL-01..07 + BUG-01 verify + BUG-02 tombstone test + golden snapshot update
 
 ### Phase 3: Chat-as-shell rebuild
+**Plans:** 2 plans
 **Goal**: The chat becomes the entry, the distributor, the consent surface, the data-capture surface, the tone-setter. Every former destination becomes a chat-summoned contextual drawer.
 **Depends on**: Phase 2 (destinations must be gone before chat can absorb their responsibilities)
 **Requirements**: CHAT-01, CHAT-02, CHAT-03, CHAT-04, CHAT-05
@@ -63,7 +64,9 @@
   3. Consents are asked inline in the chat, one at a time, one human sentence each, at the moment the feature needs them — never as a standalone screen
   4. Profile data entry and tone preference (`voiceCursorPreference`) are captured through chat conversation (not through a form or an onboarding bottom sheet)
   5. Creator-device Gate 0 screenshots demonstrate a full cold-start → first insight flow that never leaves the chat surface except to open a drawer and return
-**Plans**: TBD
+**Plans**:
+- [ ] 03-01-PLAN.md — Cold-start verification + drawer summon mechanism (CHAT-01, CHAT-02)
+- [ ] 03-02-PLAN.md — Inline consent + data capture + tone preference (CHAT-03, CHAT-04, CHAT-05)
 **UI hint**: yes
 
 ### Phase 4: Residual bugs & i18n hygiene
@@ -108,7 +111,7 @@
 |-------|----------------|--------|-----------|
 | 1. Architectural foundation | 3/3 | Complete | 2026-04-09 |
 | 2. Deletion spree | 0/1 | Planned | - |
-| 3. Chat-as-shell rebuild | 0/0 | Not started | - |
+| 3. Chat-as-shell rebuild | 0/2 | Planned | - |
 | 4. Residual bugs & i18n hygiene | 0/0 | Not started | - |
 | 5. Sober visual polish | 0/0 | Not started | - |
 | 6. End-to-end device walkthrough & ship gate | 0/0 | Not started | - |
