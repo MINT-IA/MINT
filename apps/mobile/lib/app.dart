@@ -862,14 +862,17 @@ final _router = GoRouter(
     // chat surface handles missing query params gracefully.
     ScopedGoRoute(
       path: '/onboarding/quick',
+      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, __) => '/coach/chat',
     ),
     ScopedGoRoute(
       path: '/onboarding/quick-start',
+      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, __) => '/coach/chat',
     ),
     ScopedGoRoute(
       path: '/onboarding/premier-eclairage',
+      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, __) => '/coach/chat',
     ),
     ScopedGoRoute(
@@ -880,10 +883,12 @@ final _router = GoRouter(
     ),
     ScopedGoRoute(
       path: '/onboarding/promise',
+      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, __) => '/coach/chat',
     ),
     ScopedGoRoute(
       path: '/onboarding/plan',
+      scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, __) => '/coach/chat',
     ),
     ScopedGoRoute(
@@ -933,9 +938,9 @@ final _router = GoRouter(
       return '/onboarding/quick?section=$section';
     }),
     ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/home'),
-    ScopedGoRoute(path: '/onboarding/smart', redirect: (_, __) => '/onboarding/quick'),
-    ScopedGoRoute(path: '/onboarding/minimal', redirect: (_, __) => '/onboarding/quick'),
-    ScopedGoRoute(path: '/onboarding/enrichment', redirect: (_, __) => '/profile/bilan'),
+    ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/onboarding/quick'),
+    ScopedGoRoute(path: '/onboarding/minimal', scope: RouteScope.onboarding, redirect: (_, __) => '/onboarding/quick'),
+    ScopedGoRoute(path: '/onboarding/enrichment', scope: RouteScope.onboarding, redirect: (_, __) => '/profile/bilan'),
   ],
 );
 
