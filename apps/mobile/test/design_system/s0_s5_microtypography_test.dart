@@ -30,7 +30,7 @@ import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 
 const List<String> _s0s5Files = <String>[
   'lib/screens/landing_screen.dart',
-  'lib/screens/onboarding/intent_screen.dart',
+  // KILL-01: intent_screen.dart deleted (Phase 2)
   'lib/screens/main_tabs/mint_home_screen.dart',
   'lib/widgets/coach/coach_message_bubble.dart',
   'lib/widgets/coach/response_card_widget.dart',

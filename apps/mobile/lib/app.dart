@@ -106,7 +106,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
-import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
+// intent_screen.dart DELETED (KILL-01, Phase 2)
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/allocation_annuelle_screen.dart';
@@ -875,11 +875,11 @@ final _router = GoRouter(
       scope: RouteScope.onboarding, // Redirect shim — scope consistent with path
       redirect: (_, __) => '/coach/chat',
     ),
+    // KILL-01: intent_screen deleted. Redirect shim for deep links.
     ScopedGoRoute(
       path: '/onboarding/intent',
-      scope: RouteScope.onboarding, // Onboarding flow
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const IntentScreen(),
+      scope: RouteScope.onboarding,
+      redirect: (_, __) => '/coach/chat',
     ),
     ScopedGoRoute(
       path: '/onboarding/promise',

@@ -25,7 +25,7 @@ import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';
-import 'package:mint_mobile/screens/onboarding/intent_screen.dart';
+// KILL-01: intent_screen.dart deleted (Phase 2)
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
 
@@ -194,55 +194,8 @@ void main() {
   });
 
   // =========================================================================
-  // 2. IntentScreen
+  // 2. IntentScreen — DELETED (KILL-01, Phase 2)
   // =========================================================================
-
-  group('Golden Screenshots — IntentScreen', () {
-    testWidgets('intent — iPhone 15 FR', (tester) async {
-      _setViewport(tester, _kIPhone15);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(
-        tester,
-        _buildLocalizedWidget(const IntentScreen()),
-      );
-
-      await expectLater(
-        find.byType(IntentScreen),
-        matchesGoldenFile('goldens/intent_15_fr.png'),
-      );
-    });
-
-    testWidgets('intent — iPhone SE FR', (tester) async {
-      _setViewport(tester, _kIPhoneSE);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(
-        tester,
-        _buildLocalizedWidget(const IntentScreen()),
-      );
-
-      await expectLater(
-        find.byType(IntentScreen),
-        matchesGoldenFile('goldens/intent_se_fr.png'),
-      );
-    });
-
-    testWidgets('intent — iPhone 15 DE', (tester) async {
-      _setViewport(tester, _kIPhone15);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(
-        tester,
-        _buildDeWidget(const IntentScreen()),
-      );
-
-      await expectLater(
-        find.byType(IntentScreen),
-        matchesGoldenFile('goldens/intent_15_de.png'),
-      );
-    });
-  });
 
   // =========================================================================
   // 3. PremierEclairageCard
