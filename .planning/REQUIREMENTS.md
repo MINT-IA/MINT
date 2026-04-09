@@ -117,17 +117,49 @@ Explicitly excluded for v2.3.
 
 ## Traceability
 
-Filled by gsd-roadmapper. Each requirement maps to exactly one phase.
+Each v1 requirement maps to exactly one phase.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (filled by roadmapper) | | |
+| NAV-01 | Phase 1 | Pending |
+| NAV-02 | Phase 1 | Pending |
+| NAV-03 | Phase 4 | Pending |
+| NAV-04 | Phase 4 | Pending |
+| NAV-05 | Phase 4 | Pending |
+| NAV-06 | Phase 4 | Pending |
+| GATE-01 | Phase 1 | Pending |
+| GATE-02 | Phase 1 | Pending |
+| GATE-03 | Phase 1 | Pending |
+| GATE-04 | Phase 1 | Pending |
+| GATE-05 | Phase 1 | Pending |
+| KILL-01 | Phase 2 | Pending |
+| KILL-02 | Phase 2 | Pending |
+| KILL-03 | Phase 2 | Pending |
+| KILL-04 | Phase 2 | Pending |
+| KILL-05 | Phase 2 | Pending |
+| KILL-06 | Phase 2 | Pending |
+| KILL-07 | Phase 2 | Pending |
+| CHAT-01 | Phase 3 | Pending |
+| CHAT-02 | Phase 3 | Pending |
+| CHAT-03 | Phase 3 | Pending |
+| CHAT-04 | Phase 3 | Pending |
+| CHAT-05 | Phase 3 | Pending |
+| BUG-01 | Phase 2 | Pending |
+| BUG-02 | Phase 2 | Pending |
+| BUG-03 | Phase 4 | Pending |
+| BUG-04 | Phase 4 | Pending |
+| POLISH-01 | Phase 5 | Pending |
+| POLISH-02 | Phase 5 | Pending |
+| POLISH-03 | Phase 5 | Pending |
+| POLISH-04 | Phase 5 | Pending |
+| DEVICE-01 | Phase 1 (recurring Gate 0 in Phases 1-5) | Pending |
+| DEVICE-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 33 total (NAV 6, GATE 5, KILL 7, CHAT 5, BUG 4, POLISH 4, DEVICE 2)
-- Mapped to phases: 0
-- Unmapped: 33 ⚠️
+- Mapped to phases: 33
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-09*
-*Last updated: 2026-04-09 after v2.3 milestone start*
+*Last updated: 2026-04-09 — traceability filled by gsd-roadmapper*
