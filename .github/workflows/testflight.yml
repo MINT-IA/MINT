@@ -286,7 +286,10 @@ jobs:
           ASC_API_KEY_CONTENT: ${{ secrets.ASC_API_KEY_CONTENT }}
           MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          # NOTE: MATCH_GIT_BASIC_AUTHORIZATION intentionally NOT passed here.
+          # Match auto-reads it from env and uses -c http.extraheader which is
+          # overridden by macOS credential helpers. Instead, credentials are in
+          # ~/.git-credentials (set by "Configure git credentials" step above).
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           DART_DEFINES: ${{ env.DART_DEFINES }}
           CI: "true"
