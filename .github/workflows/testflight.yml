@@ -109,24 +109,25 @@ jobs:
       #    prevents checkout from writing credentials, and we inject our own below.
       - name: Configure git credentials for certificates repo
         env:
-          MATCH_AUTH: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_AUTH_B64: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
         run: |
-          # GitHub Actions macOS runners have osxkeychain + actions credential helpers
-          # that intercept ALL github.com HTTPS requests and override match's
-          # Authorization: Basic header. Nuclear option: blank the credential helper
-          # at EVERY level so nothing can intercept.
-          git config --system credential.helper "" 2>/dev/null || sudo git config --system credential.helper ""
-          git config --global credential.helper ""
-          # Also remove any extraheaders injected by actions/checkout
+          # GitHub Actions macOS runners have a credential helper that overrides
+          # match's Authorization header. Solution: replace it with credential store
+          # containing our token, and remove git_basic_authorization from Fastfile
+          # so match uses the credential store instead of the header.
+          #
+          # 1. Replace credential helpers with store
+          git config --system credential.helper store 2>/dev/null || sudo git config --system credential.helper store
+          git config --global credential.helper store
+          # 2. Remove any extraheaders from actions/checkout
           git config --global --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-          # Verify: git should now have NO credential helpers
-          echo "Credential helpers after cleanup:"
-          git config --list --show-scope | grep credential || echo "(none — good)"
-          # Verify access using the same method match will use (via env var, not inline secret)
-          echo "Testing match-style clone..."
-          git clone https://github.com/Julienbatt/mint-certificates.git /tmp/test-match \
-            -c "http.extraheader=Authorization: Basic ${MATCH_AUTH}" \
-            --depth 1 2>&1 && echo "✓ Match-style clone works" || echo "✗ Match-style clone FAILED"
+          # 3. Write credentials file
+          TOKEN=$(echo "${MATCH_AUTH_B64}" | base64 -d | cut -d: -f2)
+          echo "https://Julienbatt:${TOKEN}@github.com" > ~/.git-credentials
+          chmod 600 ~/.git-credentials
+          # 4. Verify
+          echo "Testing clone..."
+          git clone https://github.com/Julienbatt/mint-certificates.git /tmp/test-match --depth 1 2>&1 && echo "✓ Clone works" || echo "✗ Clone FAILED"
           rm -rf /tmp/test-match
 
       # ── Xcode / iOS SDK setup (App Store requirement) ──

@@ -77,9 +77,11 @@ platform :ios do
       api_key: api_key,
       readonly: true,
     }
-    if ENV["CI"] && ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
-      match_params[:git_basic_authorization] = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
-    end
+    # NOTE: Do NOT pass git_basic_authorization here. It triggers match's internal
+    # -c http.extraheader which is overridden by macOS credential helpers on GitHub
+    # Actions runners. Instead, credentials are in ~/.git-credentials (set up by
+    # the "Configure git credentials" workflow step). Match clones using the
+    # system credential store, which works reliably.
     match(match_params)
 
     # ── 4. Auto-increment build number ──
