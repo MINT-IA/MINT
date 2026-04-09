@@ -1519,7 +1519,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       child: ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.md, vertical: MintSpacing.md),
+          horizontal: MintSpacing.md, vertical: 24),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
