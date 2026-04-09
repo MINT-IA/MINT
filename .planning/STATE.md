@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: Phase 3 complete — ready for Phase 4
-stopped_at: Completed 03-01-PLAN.md and 03-02-PLAN.md (chat-as-shell rebuild). 5 tasks, 5 commits, 46 tests added.
-last_updated: "2026-04-09T12:44:42Z"
-last_activity: "2026-04-09 — Phase 3 executed: 5 tasks, 5 commits. CHAT-01..05 implemented. Chat is now the shell."
+status: Phase 4 complete — ready for Phase 5
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-04-09T13:12:44.968Z"
+last_activity: "2026-04-09 — Phase 4 executed: 6 tasks, 2 commits. BUG-03/04, NAV-03..06 all closed."
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 7
-  completed_plans: 6
-  percent: 86
+  completed_phases: 4
+  total_plans: 8
+  completed_plans: 7
+  percent: 88
 ---
 
 # GSD State
@@ -21,21 +21,21 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.3 Simplification Radicale — Phase 2 complete. Phase 3 (Chat-as-shell rebuild) next.
+**Current focus:** v2.3 Simplification Radicale — Phase 4 complete. Phase 5 (sober visual polish) next.
 
 ## Current Position
 
-Phase: 3 — Chat-as-shell rebuild **COMPLETE**
-Plan: 03-02-PLAN.md executed (3/3 tasks, 3 commits)
-Status: Phase 1-3 complete. Phase 4 (residual bugs + i18n) next.
-Last activity: 2026-04-09 — Phase 3 executed: 5 tasks, 5 commits, 46 tests. CHAT-01..05 implemented.
+Phase: 4 — Residual bugs & i18n hygiene **COMPLETE**
+Plan: 04-01-PLAN.md executed (6/6 tasks, 2 commits)
+Status: Phase 1-4 complete. Phase 5 (sober visual polish) next.
+Last activity: 2026-04-09 — Phase 4 executed: 6 tasks, 2 commits. BUG-03/04, NAV-03..06 all closed.
 
 ## Phase Map (v2.3)
 
 1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01 **COMPLETE**
 2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
 3. Chat-as-shell rebuild — CHAT-01..05 **COMPLETE**
-4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06
+4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06 **COMPLETE**
 5. Sober visual polish — POLISH-01..04
 6. End-to-end device walkthrough & ship gate — DEVICE-02
 
@@ -73,6 +73,17 @@ Last activity: 2026-04-09 — Phase 3 executed: 5 tasks, 5 commits, 46 tests. CH
 - App is now: landing -> chat. No tabs, no drawer, no profile destination.
 - Hub screen files preserved for Phase 3 (chat-summoned drawers)
 
+### Phase 4 outcome
+
+- BUG-03: ~40 diacritics fixed across 14 Dart files (Donnees->Données, ameliorer->améliorer, etc.)
+- BUG-04: TonChooser already deleted from git in Phase 2; untracked filesystem remnants removed
+- NAV-03: /about confirmed public-scope, scope-leak CI gate green
+- NAV-04: Route cycle DFS CI gate green post-Phase 2+3
+- NAV-05: New route reachability CI gate added (BFS to /coach/chat)
+- NAV-06: Zero Navigator.push except whitelisted fullscreen overlay
+- flutter analyze: 0 errors (870 macOS conflict duplicate files also cleaned)
+- All 34 architecture tests pass
+
 ### 4 P0 bugs (from device walkthrough)
 
 1. **Auth leak** — dissolves via Phase 1 (scope-based guard) + Phase 2 deletion of /profile/consent
@@ -106,6 +117,6 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 
 ## Session Continuity
 
-Last session: 2026-04-09T12:12:28.348Z
-Stopped at: Completed 02-01-PLAN.md (deletion spree)
+Last session: 2026-04-09T13:12:44.965Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None

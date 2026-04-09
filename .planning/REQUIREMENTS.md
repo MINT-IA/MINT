@@ -23,10 +23,10 @@ Clean the route graph. Make scope leaks and cycles impossible by construction, n
 
 - [ ] **NAV-01**: GoRouter routes are tagged with explicit scope (`public` / `onboarding` / `authenticated`) and the redirect guard enforces scope-based protection (not operation-based whitelist)
 - [ ] **NAV-02**: ProfileDrawer is mounted only inside the authenticated scope; it is unreachable from any public or onboarding route
-- [ ] **NAV-03**: Every onboarding-scope link to legal pages (CGU, politique de confidentialité) opens an inline public-scope screen, never the authenticated shell
-- [ ] **NAV-04**: The route graph contains zero non-trivial cycles; the only legitimate bidirectional edges are explicitly whitelisted
-- [ ] **NAV-05**: Every reachable route has at least one forward exit edge to `/coach/chat` (no dead-end widgets)
-- [ ] **NAV-06**: All `Navigator.push` / `Navigator.of(context).push` legacy calls are removed in favor of `context.go` / `context.push` through GoRouter
+- [x] **NAV-03**: Every onboarding-scope link to legal pages (CGU, politique de confidentialité) opens an inline public-scope screen, never the authenticated shell
+- [x] **NAV-04**: The route graph contains zero non-trivial cycles; the only legitimate bidirectional edges are explicitly whitelisted
+- [x] **NAV-05**: Every reachable route has at least one forward exit edge to `/coach/chat` (no dead-end widgets)
+- [x] **NAV-06**: All `Navigator.push` / `Navigator.of(context).push` legacy calls are removed in favor of `context.go` / `context.push` through GoRouter
 
 ### CI Mechanical Gates (GATE)
 
@@ -66,8 +66,8 @@ Bugs that don't dissolve via deletion still need explicit mechanical fixes.
 
 - [x] **BUG-01**: Bug 2 infinite loop fixed at `coach_chat_screen.dart:1317` — chat consumes the navigation payload before any `_hasProfile` short-circuit; a freshly-registered or anonymous user lands on a working conversation, never on an empty state that loops back
 - [x] **BUG-02**: Bug 1 auth leak verified gone — deleted Centre de contrôle plus scope-based guards (NAV-01, NAV-02) make the leak impossible to reintroduce; integration test proves CGU link from a public scope cannot reach `/profile/*` `/home` `/explore/*`
-- [ ] **BUG-03**: i18n diacritic regression on Centre de contrôle text path is rooted-out — `Donnees`, `necessaires`, `Execution`, `agregees`, `ameliorer`, `federale` etc. trace back to the encoding/font fallback bug and fix is applied wherever else it leaks
-- [ ] **BUG-04**: "Ton de Mint" segmented control truncation is fixed — bottom sheet either drops subtitles or stacks vertically (whichever survives KILL/CHAT)
+- [x] **BUG-03**: i18n diacritic regression on Centre de contrôle text path is rooted-out — `Donnees`, `necessaires`, `Execution`, `agregees`, `ameliorer`, `federale` etc. trace back to the encoding/font fallback bug and fix is applied wherever else it leaks
+- [x] **BUG-04**: "Ton de Mint" segmented control truncation is fixed — bottom sheet either drops subtitles or stacks vertically (whichever survives KILL/CHAT)
 
 ### Sober Visual (POLISH)
 
@@ -123,10 +123,10 @@ Each v1 requirement maps to exactly one phase.
 |-------------|-------|--------|
 | NAV-01 | Phase 1 | Pending |
 | NAV-02 | Phase 1 | Pending |
-| NAV-03 | Phase 4 | Pending |
-| NAV-04 | Phase 4 | Pending |
-| NAV-05 | Phase 4 | Pending |
-| NAV-06 | Phase 4 | Pending |
+| NAV-03 | Phase 4 | Complete |
+| NAV-04 | Phase 4 | Complete |
+| NAV-05 | Phase 4 | Complete |
+| NAV-06 | Phase 4 | Complete |
 | GATE-01 | Phase 1 | Complete |
 | GATE-02 | Phase 1 | Complete |
 | GATE-03 | Phase 1 | Complete |
@@ -146,8 +146,8 @@ Each v1 requirement maps to exactly one phase.
 | CHAT-05 | Phase 3 | Pending |
 | BUG-01 | Phase 2 | Complete |
 | BUG-02 | Phase 2 | Complete |
-| BUG-03 | Phase 4 | Pending |
-| BUG-04 | Phase 4 | Pending |
+| BUG-03 | Phase 4 | Complete |
+| BUG-04 | Phase 4 | Complete |
 | POLISH-01 | Phase 5 | Pending |
 | POLISH-02 | Phase 5 | Pending |
 | POLISH-03 | Phase 5 | Pending |

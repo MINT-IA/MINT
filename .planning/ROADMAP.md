@@ -81,7 +81,7 @@
   4. Final route-graph verification: zero non-whitelisted cycles, every reachable route has at least one forward exit edge to `/coach/chat`, zero `Navigator.push` / `Navigator.of(context).push` legacy calls remain
   5. Creator-device Gate 0 screenshots confirm French diacritics render correctly on every surviving surface and every tone/consent moment behaves as specified
 Plans:
-- [ ] 04-01-PLAN.md — Verify-and-fix: diacritics (BUG-03), TonChooser deletion (BUG-04), legal scope (NAV-03), cycle gate (NAV-04), reachability gate (NAV-05), Navigator.push cleanup (NAV-06)
+- [x] 04-01-PLAN.md — Verify-and-fix: diacritics (BUG-03), TonChooser deletion (BUG-04), legal scope (NAV-03), cycle gate (NAV-04), reachability gate (NAV-05), Navigator.push cleanup (NAV-06)
 
 ### Phase 5: Sober visual polish
 **Goal**: On a sane architecture, apply sober visual polish only to surviving surfaces. No Aesop chase. Sober is the goal.
