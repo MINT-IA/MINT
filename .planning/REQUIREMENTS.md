@@ -73,10 +73,10 @@ Bugs that don't dissolve via deletion still need explicit mechanical fixes.
 
 Visual polish comes last, on a sane base. No Aesop chase. Sober is the goal.
 
-- [ ] **POLISH-01**: S0 Landing is rebuilt minimaliste — 1 promesse (≤2 lignes), 1 CTA, 1 footer légal; passes the 3s test
-- [ ] **POLISH-02**: Coach chat surface inherits the breathing room freed by deletions — generous vertical rhythm, clear focal point per turn, no competing UI chrome
-- [ ] **POLISH-03**: Banned visual fragments removed from surviving surfaces — 3D logo cube on signup (deleted with KILL-05), bordered gray ghost chips on intent (deleted with KILL-01), generic Material 3 admin styling on any drawer
-- [ ] **POLISH-04**: Color/typography tokens audit — every surviving surface uses `MintColors.*` and Montserrat/Inter only, zero hardcoded `Color(0xFF...)`, zero remaining `Outfit` font references
+- [x] **POLISH-01**: S0 Landing is rebuilt minimaliste — 1 promesse (≤2 lignes), 1 CTA, 1 footer légal; passes the 3s test
+- [x] **POLISH-02**: Coach chat surface inherits the breathing room freed by deletions — generous vertical rhythm, clear focal point per turn, no competing UI chrome
+- [x] **POLISH-03**: Banned visual fragments removed from surviving surfaces — 3D logo cube on signup (deleted with KILL-05), bordered gray ghost chips on intent (deleted with KILL-01), generic Material 3 admin styling on any drawer
+- [x] **POLISH-04**: Color/typography tokens audit — every surviving surface uses `MintColors.*` and Montserrat/Inter only, zero hardcoded `Color(0xFF...)`, zero remaining `Outfit` font references
 
 ### Creator Device Gate (DEVICE)
 
@@ -148,10 +148,10 @@ Each v1 requirement maps to exactly one phase.
 | BUG-02 | Phase 2 | Complete |
 | BUG-03 | Phase 4 | Complete |
 | BUG-04 | Phase 4 | Complete |
-| POLISH-01 | Phase 5 | Pending |
-| POLISH-02 | Phase 5 | Pending |
-| POLISH-03 | Phase 5 | Pending |
-| POLISH-04 | Phase 5 | Pending |
+| POLISH-01 | Phase 5 | Complete |
+| POLISH-02 | Phase 5 | Complete |
+| POLISH-03 | Phase 5 | Complete |
+| POLISH-04 | Phase 5 | Complete |
 | DEVICE-01 | Phase 1 (recurring Gate 0 in Phases 1-5) | Complete |
 | DEVICE-02 | Phase 6 | Pending |
 

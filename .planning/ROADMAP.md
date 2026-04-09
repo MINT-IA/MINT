@@ -95,7 +95,7 @@ Plans:
   4. Token audit passes: every surviving surface uses `MintColors.*` and Montserrat/Inter only; zero hardcoded `Color(0xFF...)`, zero `Outfit` font references
   5. Creator-device Gate 0 screenshots demonstrate each polished surface and confirm the 3-second test passes on landing and chat
 **Plans**:
-- [ ] 05-01-PLAN.md — Landing rebuild + chat breathing room + banned fragments removal + token audit (POLISH-01..04)
+- [x] 05-01-PLAN.md — Landing rebuild + chat breathing room + banned fragments removal + token audit (POLISH-01..04)
 **UI hint**: yes
 
 ### Phase 6: End-to-end device walkthrough & ship gate

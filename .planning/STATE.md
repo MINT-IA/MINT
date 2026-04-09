@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: Phase 5 planned — ready for execution
-stopped_at: Created 05-01-PLAN.md
-last_updated: "2026-04-09T14:00:00.000Z"
-last_activity: "2026-04-09 — Phase 5 planned: 1 plan, 4 tasks (POLISH-01..04)."
+status: completed
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-04-09T13:31:58.136Z"
+last_activity: "2026-04-09 — Phase 5 executed: 4/4 tasks complete (POLISH-01..04). Landing minimal, chat breathing, tokens clean."
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 8
-  completed_plans: 7
-  percent: 88
+  total_plans: 9
+  completed_plans: 8
+  percent: 89
 ---
 
 # GSD State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-09)
 
 **Core value:** User opens MINT and within 3 minutes receives a personalized, surprising insight — then knows exactly what to do next.
-**Current focus:** v2.3 Simplification Radicale — Phase 5 planned (sober visual polish). Ready for execution.
+**Current focus:** v2.3 Simplification Radicale — Phase 5 complete. Ready for Phase 6 device walkthrough.
 
 ## Current Position
 
-Phase: 5 — Sober visual polish **PLANNED**
-Plan: 05-01-PLAN.md created (4 tasks: landing rebuild, chat breathing room, banned fragments, token audit)
-Status: Phase 1-4 complete. Phase 5 planned and ready for execution.
-Last activity: 2026-04-09 — Phase 5 planned: 1 plan, 4 tasks (POLISH-01..04).
+Phase: 5 — Sober visual polish **COMPLETE**
+Plan: 05-01-PLAN.md executed (4/4 tasks: POLISH-01..04)
+Status: Phase 1-5 complete. Ready for Phase 6 (DEVICE-02).
+Last activity: 2026-04-09 — Phase 5 executed: landing minimal, chat breathing, tokens clean.
 
 ## Phase Map (v2.3)
 
@@ -36,7 +36,7 @@ Last activity: 2026-04-09 — Phase 5 planned: 1 plan, 4 tasks (POLISH-01..04).
 2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
 3. Chat-as-shell rebuild — CHAT-01..05 **COMPLETE**
 4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06 **COMPLETE**
-5. Sober visual polish — POLISH-01..04 **PLANNED**
+5. Sober visual polish — POLISH-01..04 **COMPLETE**
 6. End-to-end device walkthrough & ship gate — DEVICE-02
 
 ## Accumulated Context
@@ -107,16 +107,27 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 - ACCESS-01 a11y partner emails never sent (deferred v2.4)
 - Krippendorff alpha validation infra ready but never run (deferred v2.4)
 
+### Phase 5 outcome
+
+- Landing rebuilt to 3 elements: wordmark + single-sentence promise + "Commencer" CTA + legal footer
+- Privacy subtitle removed (coach explains when relevant)
+- Chat breathing room: 24px between turns (was 20px), ListView 24px vertical (was 16px)
+- Phase 3 widgets (chat_drawer_host, chat_consent_chip) tokenized with MintTextStyles
+- Token audit clean: zero Color(0xFF) outside colors.dart, zero Outfit, zero deprecated widgets
+- ARB keys added to all 6 locales, tests updated
+- 4 commits: 67457421, 6000eb76, 2ae9c6c9, e10b264c
+
 ### Pending Todos
 
-- Run `/gsd-execute-phase 05-sober-visual-polish` to execute 05-01-PLAN.md
+- Plan and execute Phase 6 (DEVICE-02): end-to-end device walkthrough and ship gate
+- Regenerate golden test master images (landing changed)
 
 ### Blockers/Concerns
 
-- None. Phase 5 can begin immediately.
+- None. Phase 6 can begin immediately.
 
 ## Session Continuity
 
-Last session: 2026-04-09T14:00:00.000Z
-Stopped at: Created 05-01-PLAN.md
+Last session: 2026-04-09T13:31:58.133Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
