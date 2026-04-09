@@ -36906,7 +36906,7 @@ abstract class S {
   /// No description provided for @coachSilentOpenerQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'Mint est là quand tu veux en parler.'**
+  /// **'Tu veux en parler ?'**
   String get coachSilentOpenerQuestion;
 
   /// No description provided for @coachProactiveOptIn.
@@ -39027,16 +39027,16 @@ abstract class S {
   /// **'MINT a repéré un point important qui demande ton attention.'**
   String get mintAlertAnnounceG3;
 
-  /// Landing v2 sober promise — single sentence, no list. Phase 5 POLISH-01.
+  /// Landing v2 hero — alliance + empowerment. 4 words. Matches MINT doctrine (eclaire, ne conseille pas). Phase 5 POLISH-01.
   ///
   /// In fr, this message translates to:
-  /// **'Mint te dit ce que personne n’a intérêt à te dire.'**
+  /// **'On éclaire. Tu décides.'**
   String get landingV2PromiseSober;
 
-  /// Landing v2 sober CTA — just 'Commencer', not apologetic. Phase 5 POLISH-01.
+  /// Landing v2 CTA — conversational, not generic. Phase 5 POLISH-01.
   ///
   /// In fr, this message translates to:
-  /// **'Commencer'**
+  /// **'Parle à Mint'**
   String get landingV2CtaSober;
 
   /// Phase 12-01 — TonChooserSheet title (first launch). Word 'curseur' BANNED in user-facing copy.

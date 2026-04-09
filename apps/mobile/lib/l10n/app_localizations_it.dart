@@ -21045,7 +21045,7 @@ class SIt extends S {
   String get instantPremierEclairageComeBack => 'Torna quando vuoi';
 
   @override
-  String get coachSilentOpenerQuestion => 'Mint è qui quando vuoi parlarne.';
+  String get coachSilentOpenerQuestion => 'Vuoi parlarne?';
 
   @override
   String get coachProactiveOptIn =>
@@ -22312,12 +22312,12 @@ class SIt extends S {
       'MINT ha individuato un punto importante che richiede la tua attenzione.';
 
   @override
-  String get landingV2PromiseSober =>
-      'Mint ti dice ciò che nessuno ha interesse a dirti.';
+  String get landingV2PromiseSober => 'Noi chiariamo. Tu decidi.';
 
   @override
-  String get landingV2CtaSober => 'Inizia';
+  String get landingV2CtaSober => 'Parla con Mint';
 
+  @override
   String get tonChooserTitle => 'Scegli come Mint ti parla';
 
   @override

@@ -20984,8 +20984,7 @@ class SFr extends S {
   String get instantPremierEclairageComeBack => 'Reviens quand tu veux';
 
   @override
-  String get coachSilentOpenerQuestion =>
-      'Mint est là quand tu veux en parler.';
+  String get coachSilentOpenerQuestion => 'Tu veux en parler ?';
 
   @override
   String get coachProactiveOptIn =>
@@ -22253,12 +22252,12 @@ class SFr extends S {
       'MINT a repéré un point important qui demande ton attention.';
 
   @override
-  String get landingV2PromiseSober =>
-      'Mint te dit ce que personne n’a intérêt à te dire.';
+  String get landingV2PromiseSober => 'On éclaire. Tu décides.';
 
   @override
-  String get landingV2CtaSober => 'Commencer';
+  String get landingV2CtaSober => 'Parle à Mint';
 
+  @override
   String get tonChooserTitle => 'Choisis le ton de Mint';
 
   @override
