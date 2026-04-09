@@ -17,14 +17,9 @@ import 'package:provider/single_child_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/contextual_card_provider.dart';
-import 'package:mint_mobile/providers/financial_plan_provider.dart';
-import 'package:mint_mobile/providers/mint_state_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:mint_mobile/screens/main_tabs/mint_home_screen.dart';
+// KILL-07: mint_home_screen.dart + 5 unused provider imports deleted (nav-audit-fixes)
 // KILL-01: intent_screen.dart deleted (Phase 2)
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/widgets/onboarding/premier_eclairage_card.dart';
@@ -131,67 +126,8 @@ void main() {
   });
 
   // =========================================================================
-  // 1. MintHomeScreen (empty state)
+  // 1. MintHomeScreen — DELETED (KILL-07, nav-audit-fixes)
   // =========================================================================
-
-  group('Golden Screenshots — MintHomeScreen (empty state)', () {
-    List<SingleChildWidget> homeProviders() => [
-          ChangeNotifierProvider<MintStateProvider>(
-            create: (_) => MintStateProvider(),
-          ),
-          ChangeNotifierProvider<ContextualCardProvider>(
-            create: (_) => ContextualCardProvider(),
-          ),
-          ChangeNotifierProvider<AnticipationProvider>(
-            create: (_) => AnticipationProvider(),
-          ),
-          ChangeNotifierProvider<BiographyProvider>(
-            create: (_) => BiographyProvider(),
-          ),
-          ChangeNotifierProvider<UserActivityProvider>(
-            create: (_) => UserActivityProvider(),
-          ),
-          ChangeNotifierProvider<FinancialPlanProvider>(
-            create: (_) => FinancialPlanProvider(),
-          ),
-        ];
-
-    testWidgets('home empty — iPhone SE FR', (tester) async {
-      _setViewport(tester, _kIPhoneSE);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(
-        tester,
-        _buildLocalizedWidget(
-          const MintHomeScreen(),
-          extraProviders: homeProviders(),
-        ),
-      );
-
-      await expectLater(
-        find.byType(MintHomeScreen),
-        matchesGoldenFile('goldens/home_empty_se_fr.png'),
-      );
-    });
-
-    testWidgets('home empty — iPhone 15 FR', (tester) async {
-      _setViewport(tester, _kIPhone15);
-      addTearDown(() => tester.view.resetPhysicalSize());
-
-      await pumpGoldenWidget(
-        tester,
-        _buildLocalizedWidget(
-          const MintHomeScreen(),
-          extraProviders: homeProviders(),
-        ),
-      );
-
-      await expectLater(
-        find.byType(MintHomeScreen),
-        matchesGoldenFile('goldens/home_empty_15_fr.png'),
-      );
-    });
-  });
 
   // =========================================================================
   // 2. IntentScreen — DELETED (KILL-01, Phase 2)

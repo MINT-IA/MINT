@@ -197,7 +197,7 @@ class _BudgetScreenState extends State<BudgetScreen>
     return ActionInsightWidget(
       contextLine: '',
       actionLine: l.actionInsightFallback,
-      route: '/onboarding/quick',
+      route: '/coach/chat',
     );
   }
 
@@ -238,7 +238,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           title: S.of(context)!.budgetEmptyTitle,
           subtitle: S.of(context)!.budgetEmptySubtitle,
           ctaLabel: S.of(context)!.budgetEmptyCta,
-          onCta: () => context.push('/onboarding/quick'),
+          onCta: () => context.push('/coach/chat'),
         ),
       );
     }

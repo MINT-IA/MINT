@@ -76,7 +76,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             pinned: true,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
+              onPressed: () => context.canPop() ? context.pop() : context.go('/coach/chat'),
             ),
             title: Text(
               S.of(context)!.benchmarkAppBarTitle,

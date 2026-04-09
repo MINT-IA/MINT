@@ -913,7 +913,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
               button: true,
               label: l.dashboardOnboardingCta,
               child: FilledButton(
-                onPressed: () => context.push('/onboarding/quick'),
+                onPressed: () => context.push('/coach/chat'),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),

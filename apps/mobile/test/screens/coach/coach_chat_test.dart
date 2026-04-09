@@ -146,8 +146,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      // coachInputHint: "Une question sur tes finances ?"
-      expect(find.textContaining('question sur tes finances'), findsWidgets);
+      // coachInputHint: "Dis-moi ce qui te trotte dans la tête."
+      expect(find.textContaining('trotte dans la tête'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {

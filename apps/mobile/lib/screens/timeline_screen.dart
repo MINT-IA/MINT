@@ -250,7 +250,7 @@ List<_QuickAction> _buildQuickActionItems(BuildContext context) {
       title: s.timelineQuickCheckupTitle,
       subtitle: s.timelineQuickCheckupSub,
       icon: Icons.shield_outlined,
-      route: '/onboarding/quick',
+      route: '/coach/chat',
       color: MintColors.primary,
     ),
     _QuickAction(

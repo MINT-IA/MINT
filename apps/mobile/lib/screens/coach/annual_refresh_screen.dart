@@ -779,7 +779,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () => context.go('/home'),
+                    onPressed: () => context.go('/coach/chat'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: MintColors.coachAccent,
                       foregroundColor: MintColors.white,
