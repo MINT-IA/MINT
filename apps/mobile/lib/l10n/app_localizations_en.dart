@@ -20877,8 +20877,7 @@ class SEn extends S {
   String get instantPremierEclairageComeBack => 'Come back anytime';
 
   @override
-  String get coachSilentOpenerQuestion =>
-      'Mint is here whenever you want to talk about it.';
+  String get coachSilentOpenerQuestion => 'Want to talk about it?';
 
   @override
   String get coachProactiveOptIn =>
@@ -22141,12 +22140,12 @@ class SEn extends S {
       'MINT has spotted an important point that needs your attention.';
 
   @override
-  String get landingV2PromiseSober =>
-      'Mint tells you what nobody has an interest in telling you.';
+  String get landingV2PromiseSober => 'We clarify. You decide.';
 
   @override
-  String get landingV2CtaSober => 'Get started';
+  String get landingV2CtaSober => 'Talk to Mint';
 
+  @override
   String get tonChooserTitle => 'Pick how Mint speaks to you';
 
   @override
