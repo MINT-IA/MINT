@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: completed
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-04-09T13:31:58.136Z"
-last_activity: "2026-04-09 — Phase 5 executed: 4/4 tasks complete (POLISH-01..04). Landing minimal, chat breathing, tokens clean."
+status: awaiting_gate0
+stopped_at: Phase 6 automated verification complete — awaiting Julien Gate 0
+last_updated: "2026-04-09T13:46:17Z"
+last_activity: "2026-04-09 — Phase 6 automated verification: 34/34 gates green, 9254/9276 tests pass, 149 routes inventoried. Awaiting creator-device walkthrough."
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 9
-  completed_plans: 8
-  percent: 89
+  completed_plans: 9
+  percent: 95
 ---
 
 # GSD State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 5 — Sober visual polish **COMPLETE**
-Plan: 05-01-PLAN.md executed (4/4 tasks: POLISH-01..04)
-Status: Phase 1-5 complete. Ready for Phase 6 (DEVICE-02).
-Last activity: 2026-04-09 — Phase 5 executed: landing minimal, chat breathing, tokens clean.
+Phase: 6 — E2E device walkthrough & ship gate **AUTOMATED COMPLETE**
+Plan: Phase 6 automated verification done. Awaiting Julien Gate 0.
+Status: Phase 1-5 complete. Phase 6 automated verification done. Awaiting creator-device walkthrough.
+Last activity: 2026-04-09 — Phase 6 automated verification: 34/34 gates, 9254/9276 tests, 149 routes.
 
 ## Phase Map (v2.3)
 
@@ -117,10 +117,20 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 - ARB keys added to all 6 locales, tests updated
 - 4 commits: 67457421, 6000eb76, 2ae9c6c9, e10b264c
 
+### Phase 6 outcome
+
+- Automated verification complete: flutter analyze 0 errors, 34/34 architecture gates green
+- Full suite: 9276 tests (9254 passed, 6 skipped, 16 expected failures from golden/layout changes)
+- Route inventory: 149 routes (14 public, 10 onboarding, 125 authenticated)
+- v2.3 changelog: 32 commits, 13 files deleted, 11 created, -3552 net lines
+- VERIFICATION.md and MILESTONE-SUMMARY.md written
+- Commit: ce0fe678
+
 ### Pending Todos
 
-- Plan and execute Phase 6 (DEVICE-02): end-to-end device walkthrough and ship gate
-- Regenerate golden test master images (landing changed)
+- Julien Gate 0 device walkthrough (TestFlight install, cold-start -> landing -> chat -> coach)
+- Regenerate golden test master images (landing changed in Phase 5)
+- Update 7 test expectations to match v2.3 reality
 
 ### Blockers/Concerns
 
@@ -128,6 +138,6 @@ DEVICE-01 is a recurring Gate 0 on every phase (1-5). No PR merges without creat
 
 ## Session Continuity
 
-Last session: 2026-04-09T13:31:58.133Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-09T13:46:17Z
+Stopped at: Phase 6 automated verification complete — awaiting Julien Gate 0
 Resume file: None
