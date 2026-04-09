@@ -77,10 +77,9 @@ platform :ios do
       api_key: api_key,
       readonly: true,
     }
-    # NOTE: git_basic_authorization is NOT used because GitHub Actions macOS
-    # runners have a credential helper that overrides the Authorization header.
-    # Instead, credentials are embedded directly in MATCH_GIT_URL (as a secret).
-    # See: fix(ci) commit for details on the credential helper conflict.
+    if ENV["CI"] && ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+      match_params[:git_basic_authorization] = ENV["MATCH_GIT_BASIC_AUTHORIZATION"]
+    end
     match(match_params)
 
     # ── 4. Auto-increment build number ──
