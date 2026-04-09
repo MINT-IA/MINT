@@ -264,9 +264,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 7 Landing v2: paragraphe-mère (landingV2Paragraph) replaces
-      // legacy "Le système financier suisse est puissant." punchline.
-      expect(find.textContaining('personne n\'a intérêt'), findsOneWidget);
+      // Phase 5 POLISH-01: single-sentence promise (landingV2PromiseSober).
+      expect(find.textContaining('personne n\u2019a int\u00e9r\u00eat'), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
@@ -279,16 +278,15 @@ void main() {
       expect(find.text('MINT'), findsOneWidget);
     });
 
-    testWidgets('shows trust bar with icons', (tester) async {
+    testWidgets('no privacy subtitle (POLISH-01 removed it)', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 7 Landing v2 removed the trust bar (shield/lock/check icons).
-      // The privacy reassurance is now a single micro-phrase (landingV2Privacy).
-      expect(find.textContaining('Rien ne sort de ton téléphone'), findsOneWidget);
+      // Phase 5 POLISH-01: privacy subtitle removed — coach explains when relevant.
+      expect(find.textContaining('Rien ne sort de ton t\u00e9l\u00e9phone'), findsNothing);
     });
 
     testWidgets('shows CTA button with Commencer', (tester) async {
@@ -298,8 +296,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 7 Landing v2: landingV2Cta = "Continuer (sans compte)".
-      expect(find.textContaining('Continuer'), findsOneWidget);
+      // Phase 5 POLISH-01: landingV2CtaSober = "Commencer".
+      expect(find.text('Commencer'), findsOneWidget);
     });
 
     testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {
