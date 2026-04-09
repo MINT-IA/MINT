@@ -107,6 +107,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   CoachProfile? _profile;
   bool _hasProfile = false;
   final List<ChatMessage> _messages = [];
+  /// Maximum messages kept in memory to prevent Watchdog RAM termination.
+  static const int _maxMessages = 150;
+
+  /// Remove oldest messages when list exceeds [_maxMessages].
+  void _trimMessages() {
+    if (_messages.length > _maxMessages) {
+      _messages.removeRange(0, _messages.length - _maxMessages);
+    }
+  }
+
   bool _isLoading = false;
   bool _isStreaming = false;
   final StringBuffer _streamBuffer = StringBuffer();
@@ -252,6 +262,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (messages.isNotEmpty && mounted) {
       setState(() {
         _messages.addAll(messages);
+        _trimMessages();
         _profileInitialized = true; // Skip greeting for resumed conversations
       });
     }
@@ -780,6 +791,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         richToolCalls: richCalls,
       );
       _isStreaming = false;
+      _trimMessages();
     });
     _scrollToBottom();
 
@@ -849,6 +861,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           richToolCalls: richCalls,
         ));
         _isLoading = false;
+        _trimMessages();
       });
       _scrollToBottom();
 

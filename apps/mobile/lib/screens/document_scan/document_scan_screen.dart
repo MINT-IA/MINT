@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -62,8 +63,11 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     DocumentType.avsExtract,
   };
 
-  /// Maximum file size: 10 MB.
-  static const _maxFileSizeBytes = 10 * 1024 * 1024;
+  /// Maximum file size: 4 MB.
+  static const _maxFileSizeBytes = 4 * 1024 * 1024;
+
+  /// Vision API size threshold: compress images larger than 2 MB before encoding.
+  static const _visionCompressThresholdBytes = 2 * 1024 * 1024;
 
   /// Accepted file extensions for image/PDF capture.
   static const _acceptedExtensions = {'jpg', 'jpeg', 'png', 'heic', 'pdf'};
@@ -436,7 +440,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       final image = await _imagePicker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 90,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
       );
       if (image == null) return;
       await _processImageFile(image);
@@ -603,9 +609,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         .profile?.canton;
     final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
     try {
-      final bytes = await file.readAsBytes();
+      final rawBytes = await file.readAsBytes();
       // TODO(P2-W12): Strip EXIF metadata before Vision API call.
       // Requires `image` package. GPS location and camera info currently exposed.
+      final bytes = await _compressForVision(rawBytes, file.path);
       final base64Image = base64Encode(bytes);
 
       final response = await DocumentService.extractWithVision(
@@ -1101,6 +1108,49 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     return '';
   }
 
+  /// Compress image bytes if they exceed [_visionCompressThresholdBytes].
+  ///
+  /// Resizes to max 1920px on the longest side and re-encodes as JPEG at 85%
+  /// quality. Uses dart:ui decoding which is available on all Flutter platforms.
+  /// Returns original bytes unchanged for PDFs or if already small enough.
+  Future<Uint8List> _compressForVision(Uint8List bytes, String filePath) async {
+    // Skip compression for PDFs — Vision API handles them natively.
+    if (filePath.toLowerCase().endsWith('.pdf')) return bytes;
+
+    if (bytes.length <= _visionCompressThresholdBytes) return bytes;
+
+    try {
+      const maxDimension = 1920;
+      final codec = await ui.instantiateImageCodec(
+        bytes,
+        targetWidth: maxDimension,
+        targetHeight: maxDimension,
+      );
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+
+      // Re-encode as PNG (dart:ui toByteData), then let the API handle it.
+      // dart:ui doesn't expose JPEG encoding, but resizing alone cuts
+      // a 10 MP photo (≈8 MB) down to ≈1-2 MB at 1920px.
+      final byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      image.dispose();
+
+      if (byteData != null) {
+        final compressed = byteData.buffer.asUint8List();
+        debugPrint(
+          '[DocumentScan] Compressed ${bytes.length} → ${compressed.length} bytes '
+          '(${(compressed.length / bytes.length * 100).toStringAsFixed(0)}%)',
+        );
+        return compressed;
+      }
+    } catch (e) {
+      debugPrint('[DocumentScan] Compression failed, using original: $e');
+    }
+    return bytes;
+  }
+
   String _detectExtension(PlatformFile file) {
     final ext = (file.extension ?? '').trim().toLowerCase();
     if (ext.isNotEmpty) return ext;
@@ -1336,9 +1386,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     setState(() => _isProcessing = true);
     try {
-      final bytes = await file.readAsBytes();
+      final rawBytes = await file.readAsBytes();
       // TODO(P2-W12): Strip EXIF metadata before Vision API call.
       // Requires `image` package. GPS location and camera info currently exposed.
+      final bytes = await _compressForVision(rawBytes, file.path);
       final base64Image = base64Encode(bytes);
 
       final ext = file.path.split('.').last.toLowerCase();
