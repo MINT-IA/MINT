@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: milestone
-status: Phase 2 complete — ready for Phase 3
-stopped_at: Completed 02-01-PLAN.md (deletion spree). 14 files deleted, 11 routes redirected, app is landing->chat.
-last_updated: "2026-04-09T12:12:28.351Z"
-last_activity: "2026-04-09 — Phase 2 executed: 8 tasks, 8 commits, 14 files deleted. KILL-01..07 + BUG-01 + BUG-02 verified."
+status: Phase 3 complete — ready for Phase 4
+stopped_at: Completed 03-01-PLAN.md and 03-02-PLAN.md (chat-as-shell rebuild). 5 tasks, 5 commits, 46 tests added.
+last_updated: "2026-04-09T12:44:42Z"
+last_activity: "2026-04-09 — Phase 3 executed: 5 tasks, 5 commits. CHAT-01..05 implemented. Chat is now the shell."
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 5
-  completed_plans: 4
-  percent: 80
+  completed_phases: 3
+  total_plans: 7
+  completed_plans: 6
+  percent: 86
 ---
 
 # GSD State
@@ -25,16 +25,16 @@ See: .planning/PROJECT.md (updated 2026-04-09)
 
 ## Current Position
 
-Phase: 2 — Deletion spree **COMPLETE**
-Plan: 02-01-PLAN.md executed (8/8 tasks, 8 commits)
-Status: Phase 1 complete (3 sub-plans). Phase 2 complete (1 plan, 8 tasks). Phase 3 next.
-Last activity: 2026-04-09 — Phase 2 executed: 14 files deleted, 11 routes redirected, 6 tombstone tests added
+Phase: 3 — Chat-as-shell rebuild **COMPLETE**
+Plan: 03-02-PLAN.md executed (3/3 tasks, 3 commits)
+Status: Phase 1-3 complete. Phase 4 (residual bugs + i18n) next.
+Last activity: 2026-04-09 — Phase 3 executed: 5 tasks, 5 commits, 46 tests. CHAT-01..05 implemented.
 
 ## Phase Map (v2.3)
 
 1. Architectural foundation — NAV-01, NAV-02, GATE-01..05, DEVICE-01 **COMPLETE**
 2. Deletion spree — KILL-01..07, BUG-01, BUG-02 **COMPLETE**
-3. Chat-as-shell rebuild — CHAT-01..05
+3. Chat-as-shell rebuild — CHAT-01..05 **COMPLETE**
 4. Residual bugs & i18n hygiene — BUG-03, BUG-04, NAV-03..06
 5. Sober visual polish — POLISH-01..04
 6. End-to-end device walkthrough & ship gate — DEVICE-02
