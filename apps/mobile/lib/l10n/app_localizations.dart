@@ -38967,6 +38967,12 @@ abstract class S {
   /// **'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.'**
   String get landingV2Legal;
 
+  /// Landing screen — visible login entry point (AUTH-01). Underlined text link below legal footer.
+  ///
+  /// In fr, this message translates to:
+  /// **'J’ai déjà un compte'**
+  String get landingV2LoginLink;
+
   /// MintAlertObject default fact prefix (anti-shame: MINT is subject).
   ///
   /// In fr, this message translates to:

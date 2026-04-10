@@ -10842,6 +10842,8 @@
   "@landingV2Privacy": {"description": "Landing v2 privacy micro-phrase below CTA (LOCKED per D-03)."},
   "landingV2Legal": "Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.",
   "@landingV2Legal": {"description": "Landing v2 legal footer (LOCKED per D-04). Compliance anchor."},
+  "landingV2LoginLink": "J\u2019ai déjà un compte",
+  "@landingV2LoginLink": {"description": "Landing screen — visible login entry point (AUTH-01). Underlined text link below legal footer."},
   "alertGenericFactPrefix": "MINT a remarqué",
   "@alertGenericFactPrefix": {"description": "MintAlertObject default fact prefix (anti-shame: MINT is subject)."},
   "alertGenericCausePrefix": "Pourquoi",

@@ -971,7 +971,11 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) {
+          final auth = AuthProvider();
+          auth.checkAuth(); // AUTH-03: Restore JWT from SecureStorage on cold start
+          return auth;
+        }),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) {

@@ -22269,6 +22269,9 @@ class SDe extends S {
       'Bildungstool. Keine Finanzberatung im Sinne des FIDLEG.';
 
   @override
+  String get landingV2LoginLink => 'Ich habe bereits ein Konto';
+
+  @override
   String get alertGenericFactPrefix => 'MINT hat bemerkt';
 
   @override
