@@ -80,6 +80,11 @@ Plans:
 
 **Requirements:** AUTH-01, AUTH-02, AUTH-03, AUTH-04
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 03-01-PLAN.md — Fix logout purge, add visible login link, call checkAuth at startup
+
 **Success criteria:**
 - [ ] Landing screen has a visible, discoverable login entry point
 - [ ] profile_drawer.dart logout calls AuthProvider.logout() before navigating
@@ -207,4 +212,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-04-10*
-*Last updated: 2026-04-10 after Phase 2 planning*
+*Last updated: 2026-04-10 after Phase 3 planning*
