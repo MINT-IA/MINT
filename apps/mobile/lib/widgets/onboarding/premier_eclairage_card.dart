@@ -153,7 +153,7 @@ class _PremierEclairageCardState extends State<PremierEclairageCard>
     final title = snapshot['title']?.toString() ?? '';
     final subtitle = snapshot['subtitle']?.toString();
     final suggestedRoute =
-        snapshot['suggestedRoute']?.toString() ?? '/bilan-retraite';
+        snapshot['suggestedRoute']?.toString() ?? '/retraite';
 
     final numberColor =
         isPedagogical ? MintColors.textMuted : MintColors.textPrimary;

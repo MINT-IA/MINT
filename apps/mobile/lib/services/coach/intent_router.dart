@@ -42,31 +42,31 @@ class IntentRouter {
     'intentChipBilan': IntentMapping(
       goalIntentTag: 'retirement_choice',
       stressType: 'stress_retraite',
-      suggestedRoute: '/bilan-retraite',
+      suggestedRoute: '/retraite',
       lifeEventFamily: 'professionnel',
     ),
     'intentChipPrevoyance': IntentMapping(
       goalIntentTag: 'retirement_choice',
       stressType: 'stress_retraite',
-      suggestedRoute: '/prevoyance-overview',
+      suggestedRoute: '/retraite',
       lifeEventFamily: 'professionnel',
     ),
     'intentChipFiscalite': IntentMapping(
       goalIntentTag: 'budget_overview',
       stressType: 'stress_impots',
-      suggestedRoute: '/fiscalite-overview',
+      suggestedRoute: '/fiscal',
       lifeEventFamily: 'patrimoine',
     ),
     'intentChipProjet': IntentMapping(
       goalIntentTag: 'housing_purchase',
       stressType: 'stress_patrimoine',
-      suggestedRoute: '/achat-immobilier',
+      suggestedRoute: '/hypotheque',
       lifeEventFamily: 'patrimoine',
     ),
     'intentChipChangement': IntentMapping(
       goalIntentTag: 'budget_overview',
       stressType: 'stress_budget',
-      suggestedRoute: '/life-events',
+      suggestedRoute: '/coach/chat',
       lifeEventFamily: 'professionnel',
     ),
     'intentChipPremierEmploi': IntentMapping(
@@ -84,7 +84,7 @@ class IntentRouter {
     'intentChipAutre': IntentMapping(
       goalIntentTag: 'retirement_choice',
       stressType: 'stress_retraite',
-      suggestedRoute: '/bilan-retraite',
+      suggestedRoute: '/retraite',
       lifeEventFamily: 'professionnel',
     ),
   };
