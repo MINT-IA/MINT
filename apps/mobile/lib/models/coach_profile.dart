@@ -317,6 +317,7 @@ class PrevoyanceProfile {
   final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
   final double? salaireAssure; // salaire assure LPP (from certificate)
+  final double? bonificationRate; // taux bonification total (from certificate, e.g. CPE 24%)
 
   // --- AVS (from extraction) ---
   final double? ramd; // revenu annuel moyen determinant (AVS)
@@ -351,6 +352,7 @@ class PrevoyanceProfile {
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
     this.salaireAssure,
+    this.bonificationRate,
     this.ramd,
     this.bonificationsEducatives,
     this.projectedRenteLpp,
@@ -383,7 +385,8 @@ class PrevoyanceProfile {
   bool get isLppFromCertificate =>
       salaireAssure != null ||
       avoirLppObligatoire != null ||
-      tauxConversionSuroblig != null;
+      tauxConversionSuroblig != null ||
+      bonificationRate != null;
 
   /// True when LPP data exists but is estimated (not from certificate).
   /// This is the condition where MINT should show "estimation basée sur
@@ -422,6 +425,7 @@ class PrevoyanceProfile {
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
       rendementCaisse: (json['rendementCaisse'] as num?)?.toDouble() ?? 0.02,
       salaireAssure: (json['salaireAssure'] as num?)?.toDouble(),
+      bonificationRate: (json['bonificationRate'] as num?)?.toDouble(),
       ramd: (json['ramd'] as num?)?.toDouble(),
       bonificationsEducatives: json['bonificationsEducatives'] as int?,
       projectedRenteLpp: (json['projectedRenteLpp'] as num?)?.toDouble(),
@@ -456,6 +460,7 @@ class PrevoyanceProfile {
     double? tauxConversionSuroblig,
     double? rendementCaisse,
     double? salaireAssure,
+    double? bonificationRate,
     double? ramd,
     int? bonificationsEducatives,
     double? projectedRenteLpp,
@@ -482,6 +487,7 @@ class PrevoyanceProfile {
       tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
       rendementCaisse: rendementCaisse ?? this.rendementCaisse,
       salaireAssure: salaireAssure ?? this.salaireAssure,
+      bonificationRate: bonificationRate ?? this.bonificationRate,
       ramd: ramd ?? this.ramd,
       bonificationsEducatives: bonificationsEducatives ?? this.bonificationsEducatives,
       projectedRenteLpp: projectedRenteLpp ?? this.projectedRenteLpp,
@@ -510,6 +516,7 @@ class PrevoyanceProfile {
         'tauxConversionSuroblig': tauxConversionSuroblig,
         'rendementCaisse': rendementCaisse,
         'salaireAssure': salaireAssure,
+        'bonificationRate': bonificationRate,
         'ramd': ramd,
         'bonificationsEducatives': bonificationsEducatives,
         'projectedRenteLpp': projectedRenteLpp,
@@ -541,6 +548,7 @@ class PrevoyanceProfile {
           tauxConversionSuroblig == other.tauxConversionSuroblig &&
           rendementCaisse == other.rendementCaisse &&
           salaireAssure == other.salaireAssure &&
+          bonificationRate == other.bonificationRate &&
           ramd == other.ramd &&
           nombre3a == other.nombre3a &&
           totalEpargne3a == other.totalEpargne3a &&
@@ -568,6 +576,7 @@ class PrevoyanceProfile {
         tauxConversionSuroblig,
         rendementCaisse,
         salaireAssure,
+        bonificationRate,
         ramd,
         nombre3a,
         totalEpargne3a,
