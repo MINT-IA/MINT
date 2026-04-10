@@ -1077,8 +1077,12 @@ async def coach_chat(
         503: RAG dependencies not installed.
     """
     # Entitlement gate: coachLlm requires Premium or higher.
+    # TODO(billing): Re-enable full entitlement gate when billing goes live.
+    # BETA EXCEPTION: When using server-side API key (no BYOK), allow all
+    # authenticated users. The server key is the entitlement for beta.
     effective_tier, active_features = recompute_entitlements(db, str(_user.id))
-    if "coachLlm" not in active_features:
+    is_using_server_key = not body.api_key or not body.api_key.strip()
+    if "coachLlm" not in active_features and not is_using_server_key:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Un abonnement Premium est requis pour le coaching IA.",
