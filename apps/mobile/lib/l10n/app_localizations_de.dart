@@ -21034,8 +21034,7 @@ class SDe extends S {
       'Komm zurück, wann immer du willst';
 
   @override
-  String get coachSilentOpenerQuestion =>
-      'Mint ist da, wann immer du darüber sprechen willst.';
+  String get coachSilentOpenerQuestion => 'Möchtest du darüber reden?';
 
   @override
   String get coachProactiveOptIn =>
@@ -22304,12 +22303,12 @@ class SDe extends S {
       'MINT hat einen wichtigen Punkt entdeckt, der deine Aufmerksamkeit braucht.';
 
   @override
-  String get landingV2PromiseSober =>
-      'Mint sagt dir, was dir sonst niemand sagen will.';
+  String get landingV2PromiseSober => 'Wir klären auf. Du entscheidest.';
 
   @override
-  String get landingV2CtaSober => 'Loslegen';
+  String get landingV2CtaSober => 'Sprich mit Mint';
 
+  @override
   String get tonChooserTitle => 'Wähle, wie Mint mit dir spricht';
 
   @override

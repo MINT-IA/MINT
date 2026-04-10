@@ -1,132 +1,205 @@
-# Roadmap: MINT v2.3 Simplification Radicale
+# Roadmap: MINT Recovery
 
-**Milestone:** v2.3 Simplification Radicale
-**Created:** 2026-04-09
-**Granularity:** standard
-**Phase numbering:** Reset to 1 (v2.2 phases archived to `.planning/milestones/v2.2-phases/`)
-**Coverage:** 33/33 v1 requirements mapped
+**Created:** 2026-04-10
+**Core Value:** A real user can cold-start MINT, talk to AI coach, get correct insights, navigate without dead ends.
+**Phases:** 8 (fine-grained, sequential)
+**Execution:** Sequential (one plan at a time)
+**Verification:** Device gate after each phase (flutter run --release on iPhone)
 
-## Founding principles (apply to every phase)
+## Phase Overview
 
-1. **3-second no-finance-human test** — replaces all UI ship gates
-2. **Chat EST l'app** — every destination screen is a drawer or is deleted
-3. **Gate 0 (DEVICE-01)** — creator-device annotated screenshots per phase, non-skippable
-
-## Priority order (immutable)
-
-1. Architecture & nav clean → 2. Radical deletion → 3. Chat-as-shell rebuild → 4. Lingering bugs & i18n → 5. Sober visual → 6. End-to-end device walkthrough
-
-## Phases
-
-- [x] **Phase 1: Architectural foundation** — Scope-tagged routes, scope-based guard, 5 CI mechanical gates
-- [ ] **Phase 2: Deletion spree** — Kill dead destinations + fix loop + verify auth leak gone
-- [ ] **Phase 3: Chat-as-shell rebuild** — Chat becomes the entry, distributor, consent surface
-- [ ] **Phase 4: Residual bugs & i18n hygiene** — Diacritics, Navigator.push cleanup, legal public pages, final nav verification
-- [ ] **Phase 5: Sober visual polish** — Minimaliste S0, chat breathing room, token audit, banned fragments removed
-- [ ] **Phase 6: End-to-end device walkthrough & ship gate** — Full E2E on iPhone, zero P0/P1, promotion-ready
-
-## Phase Details
-
-### Phase 1: Architectural foundation
-**Plans:** 1 plan
-**Goal**: Make scope leaks and nav regressions mechanically impossible before any deletion begins. This is the safety net for everything that follows.
-**Depends on**: Nothing (first phase)
-**Requirements**: NAV-01, NAV-02, GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, DEVICE-01
-**Success Criteria** (what must be TRUE):
-  1. Every GoRoute carries an explicit scope tag (`public` / `onboarding` / `authenticated`); the redirect guard denies any unauthenticated access to `authenticated` scope routes
-  2. ProfileDrawer is only mounted inside authenticated scope (unreachable from landing, register, onboarding, or any public/onboarding route)
-  3. Running `flutter test` on the new nav suite fails the build on: any non-whitelisted route cycle, any cross-scope edge into `authenticated`, any screen ignoring a navigation payload, any unreviewed change to the auth guard snapshot, any banned doctrine string in routed widgets
-  4. Creator-device screenshots show that a cold-started unauthenticated user cannot reach `/profile/*`, `/home`, or `/explore/*` through any tap path (including legal links from register)
-**Plans**:
-- [x] 01-01-PLAN.md — Scope-tagged routes + scope-based guard + 5 mechanical CI gates with would-have-fired fixtures
-
-### Phase 2: Deletion spree
-**Plans:** 1 plan
-**Goal**: Remove ~70% of v2.2 destination surface area. Bug 1 and Bug 3 dissolve as side effect; Bug 2 is fixed mechanically at its file:line root cause.
-**Depends on**: Phase 1 (safety net must exist before destructive changes)
-**Requirements**: KILL-01, KILL-02, KILL-03, KILL-04, KILL-05, KILL-06, KILL-07, BUG-01, BUG-02
-**Success Criteria** (what must be TRUE):
-  1. `/onboarding/intent`, `CoachEmptyState`, `/profile/consent` as a destination, Moi-dashboard gamification, mandatory account creation, internal voice-cursor naming (`N1/N2/N3`), and Explorer-hub destination screens are all deleted from the codebase and route graph
-  2. A freshly-registered or anonymous user entering `/coach/chat` with a `CoachEntryPayload` lands on a working conversation (no empty-state short-circuit at `coach_chat_screen.dart:1317`, no loop back to intent)
-  3. An integration test proves the CGU / privacy link from register cannot reach any authenticated route (Bug 1 auth leak gone by construction)
-  4. Creator-device Gate 0 screenshots demonstrate the shrunken surface: cold-start → chat, no intent picker, no Moi dashboard, no Centre de contrôle as destination
-**Plans**:
-- [x] 02-01-PLAN.md — 8-task deletion spree: KILL-01..07 + BUG-01 verify + BUG-02 tombstone test + golden snapshot update
-
-### Phase 3: Chat-as-shell rebuild
-**Plans:** 2 plans
-**Goal**: The chat becomes the entry, the distributor, the consent surface, the data-capture surface, the tone-setter. Every former destination becomes a chat-summoned contextual drawer.
-**Depends on**: Phase 2 (destinations must be gone before chat can absorb their responsibilities)
-**Requirements**: CHAT-01, CHAT-02, CHAT-03, CHAT-04, CHAT-05
-**Success Criteria** (what must be TRUE):
-  1. Cold start (post-landing) routes the user directly into `coach_chat_screen.dart` with a context-appropriate opener — no intent picker between landing and chat
-  2. A `summon` mechanism in the chat opens contextual drawers (calculators, simulators, profile, document upload) on demand and dismisses back to the conversation
-  3. Consents are asked inline in the chat, one at a time, one human sentence each, at the moment the feature needs them — never as a standalone screen
-  4. Profile data entry and tone preference (`voiceCursorPreference`) are captured through chat conversation (not through a form or an onboarding bottom sheet)
-  5. Creator-device Gate 0 screenshots demonstrate a full cold-start → first insight flow that never leaves the chat surface except to open a drawer and return
-**Plans**:
-- [ ] 03-01-PLAN.md — Cold-start verification + drawer summon mechanism (CHAT-01, CHAT-02)
-- [ ] 03-02-PLAN.md — Inline consent + data capture + tone preference (CHAT-03, CHAT-04, CHAT-05)
-**UI hint**: yes
-
-### Phase 4: Residual bugs & i18n hygiene
-**Plans:** 1 plan
-**Goal**: Close the bugs that did not dissolve via deletion and finish the nav cleanup that the deletion spree started.
-**Depends on**: Phase 3
-**Requirements**: BUG-03, BUG-04, NAV-03, NAV-04, NAV-05, NAV-06
-**Success Criteria** (what must be TRUE):
-  1. The diacritic encoding regression (`Donnees`, `necessaires`, `Execution`, `agregees`, `ameliorer`, `federale`) is root-caused and fixed wherever it leaks; no user-facing French string ships without its diacritics
-  2. The "Ton de Mint" segmented-control truncation is fixed (or the surface is deleted by KILL/CHAT and the requirement is closed as dissolved)
-  3. Legal pages (CGU, politique de confidentialité) are public-scope screens reachable inline from register via `context.push`, never through the authenticated shell
-  4. Final route-graph verification: zero non-whitelisted cycles, every reachable route has at least one forward exit edge to `/coach/chat`, zero `Navigator.push` / `Navigator.of(context).push` legacy calls remain
-  5. Creator-device Gate 0 screenshots confirm French diacritics render correctly on every surviving surface and every tone/consent moment behaves as specified
-Plans:
-- [x] 04-01-PLAN.md — Verify-and-fix: diacritics (BUG-03), TonChooser deletion (BUG-04), legal scope (NAV-03), cycle gate (NAV-04), reachability gate (NAV-05), Navigator.push cleanup (NAV-06)
-
-### Phase 5: Sober visual polish
-**Plans:** 1 plan
-**Goal**: On a sane architecture, apply sober visual polish only to surviving surfaces. No Aesop chase. Sober is the goal.
-**Depends on**: Phase 4
-**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04
-**Success Criteria** (what must be TRUE):
-  1. S0 Landing is rebuilt minimaliste: 1 promesse (≤2 lignes), 1 CTA, 1 legal footer — passes the 3-second no-finance-human test
-  2. Coach chat surface inherits the breath freed by deletions — generous vertical rhythm, one clear focal point per turn, no competing chrome
-  3. Banned visual fragments are removed from every surviving surface (3D logo cube, bordered gray ghost chips, generic Material 3 admin drawer styling)
-  4. Token audit passes: every surviving surface uses `MintColors.*` and Montserrat/Inter only; zero hardcoded `Color(0xFF...)`, zero `Outfit` font references
-  5. Creator-device Gate 0 screenshots demonstrate each polished surface and confirm the 3-second test passes on landing and chat
-**Plans**:
-- [x] 05-01-PLAN.md — Landing rebuild + chat breathing room + banned fragments removal + token audit (POLISH-01..04)
-**UI hint**: yes
-
-### Phase 6: End-to-end device walkthrough & ship gate
-**Goal**: Julien walks the full v2.3 onboarding flow (cold start → first coach turn) end-to-end on a real iPhone TestFlight build with zero P0/P1 issues, clearing the v2.3 → staging promotion.
-**Depends on**: Phase 5
-**Requirements**: DEVICE-02
-**Success Criteria** (what must be TRUE):
-  1. A fresh TestFlight build is installed on iPhone; cold start → first coach value moment completes with zero P0 and zero P1 findings
-  2. Annotated screenshots for every step of the flow are attached to the promotion PR
-  3. All Phase 1 CI gates (cycle, scope-leak, empty-state-with-payload, guard snapshot, doctrine-string) remain green on `dev`
-  4. Staging promotion PR is opened and ready for merge
-**Plans**: TBD
-
-## Progress
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Architectural foundation | 3/3 | Complete | 2026-04-09 |
-| 2. Deletion spree | 0/1 | Planned | - |
-| 3. Chat-as-shell rebuild | 0/2 | Planned | - |
-| 4. Residual bugs & i18n hygiene | 0/1 | Planned | - |
-| 5. Sober visual polish | 0/1 | Planned | - |
-| 6. End-to-end device walkthrough & ship gate | 0/0 | Not started | - |
-
-## Coverage
-
-- v1 requirements: 33 (NAV 6, GATE 5, KILL 7, CHAT 5, BUG 4, POLISH 4, DEVICE 2)
-- Mapped: 33/33
-- Unmapped: 0
-
-Note: DEVICE-01 is formally owned by Phase 1 for traceability, but operates as a **recurring success criterion** ("Gate 0 — creator-device annotated screenshots, non-skippable") on every phase 1-5. DEVICE-02 is the final E2E ship gate owned by Phase 6.
+| Phase | Goal | Requirements | Depends on |
+|-------|------|-------------|------------|
+| 1 | Unblock CI/CD pipeline | INFRA-01, INFRA-02, INFRA-03 | — |
+| 2 | Fix financial calculations | CALC-01..05 | — |
+| 3 | Fix authentication | AUTH-01..04 | — |
+| 4 | Wire coach AI to server key | COACH-01..04 | Phase 1 (needs working CI) |
+| 5 | Fix dead routes (services) | NAV-01..05 | — |
+| 6 | Fix dead routes (UI) | NAV-06..08 | Phase 5 |
+| 7 | Device walkthrough gate | GATE-01..05 | Phase 1-6 |
+| 8 | Commit uncommitted changes + cleanup | — | Phase 7 |
 
 ---
-*Roadmap created 2026-04-09 by gsd-roadmapper*
+
+## Phase 1: Unblock CI/CD Pipeline
+
+**Goal:** Get dev and staging branches green. TestFlight builds again.
+
+**Why first:** Nothing can ship until CI works. The 9 credential fix commits on feature/cso-security-fixes need to reach dev/staging.
+
+**Requirements:** INFRA-01, INFRA-02, INFRA-03
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Merge CI fixes to staging, verify TestFlight, create staging-to-main PR
+
+**Success criteria:**
+- [ ] feature/cso-security-fixes PR merged to dev
+- [ ] dev CI passes (flutter analyze + test + pytest)
+- [ ] dev merged to staging
+- [ ] staging CI passes
+- [ ] TestFlight build triggered and succeeds
+- [ ] staging → main sync initiated (resolve 674-commit divergence)
+
+**Verification:** GitHub Actions green on dev and staging. TestFlight build in App Store Connect.
+
+---
+
+## Phase 2: Fix Financial Calculations
+
+**Goal:** Golden couple Julien+Lauren — all 19 tests pass. LPP projections correct.
+
+**Why second:** The core value proposition of MINT is financial insights. If the numbers are wrong, nothing else matters. This phase is independent of CI.
+
+**Requirements:** CALC-01, CALC-02, CALC-03, CALC-04, CALC-05
+
+**Success criteria:**
+- [ ] Root cause identified in lpp_calculator.dart:67-123 (bonificationRateOverride + salaireAssureOverride interaction)
+- [ ] Fix applied — LPP projection for CPE Plan Maxi yields correct values
+- [ ] Test 2a: Julien LPP rente = ~33'892 CHF/an (±2%)
+- [ ] Test 2b: Lauren LPP balance @65 = ~153'000 CHF (±5%)
+- [ ] Test 4: Taux remplacement couple = ~65.5% (±2%)
+- [ ] All 19 golden couple tests pass
+- [ ] flutter test completes with 0 failures (currently 11)
+
+**Verification:** `flutter test test/golden/golden_couple_validation_test.dart` — 19/19 pass.
+
+---
+
+## Phase 3: Fix Authentication
+
+**Goal:** Login visible, logout purges data, auth state persists across restarts.
+
+**Why:** Users can't trust an app where logout doesn't work and login is hidden.
+
+**Requirements:** AUTH-01, AUTH-02, AUTH-03, AUTH-04
+
+**Success criteria:**
+- [ ] Landing screen has a visible, discoverable login entry point
+- [ ] profile_drawer.dart logout calls AuthProvider.logout() before navigating
+- [ ] AuthProvider.logout() purges: tokens, conversations, BYOK keys, coach memory, analytics
+- [ ] main.dart or app.dart calls checkAuth() at startup to restore JWT from SecureStorage
+- [ ] Route guard (GoRouter redirect) correctly reads restored auth state
+- [ ] After login → restart app → user is still logged in
+- [ ] After logout → tokens gone, BYOK keys gone, conversations gone
+
+**Verification:** Manual test sequence: login → restart → still logged in → logout → restart → logged out, no data from previous session.
+
+---
+
+## Phase 4: Wire Coach AI to Server Key
+
+**Goal:** User without BYOK key gets real AI responses via server-side Anthropic key.
+
+**Why:** This is the #1 user-facing broken feature. Without this, the coach is a static template machine.
+
+**Requirements:** COACH-01, COACH-02, COACH-03, COACH-04
+**Depends on:** Phase 1 (need CI to deploy backend changes if any)
+
+**Success criteria:**
+- [ ] Flutter orchestrator has a "server-key" tier between BYOK and fallback
+- [ ] When no BYOK key: Flutter calls /api/v1/coach/chat (which has ANTHROPIC_API_KEY fallback)
+- [ ] OR: /api/v1/rag/query modified to accept empty api_key and use server key
+- [ ] Response includes: text + sources + disclaimers + tool_calls
+- [ ] ComplianceGuard validates server-key responses same as BYOK
+- [ ] Coach system prompt covers all 18 life events, not just retirement
+- [ ] Backend coach narrative endpoints return generated content (not always used_fallback=True)
+
+**Verification:** Open app without BYOK key configured → type "Comment optimiser mon 3e pilier ?" → get real AI response with sources and disclaimer. Then "Je vais acheter un appartement" → get real response about housing. Not templates.
+
+---
+
+## Phase 5: Fix Dead Routes (Services)
+
+**Goal:** All routes emitted by backend services and contextual engines exist in app.dart.
+
+**Why:** These are invisible — the app looks fine until a contextual card or intent chip sends you to a dead route.
+
+**Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05
+
+**Success criteria:**
+- [ ] intent_router.dart: /bilan-retraite → /retraite, /fiscalite-overview → /fiscal, /achat-immobilier → /hypotheque, /prevoyance-overview → valid route or removed, /life-events → valid route or removed
+- [ ] action_opportunity_detector.dart: /documents/capture → /scan
+- [ ] progress_milestone_detector.dart: /profile/privacy → /profile/privacy-control
+- [ ] hero_stat_resolver.dart: /retirement/projection → /retraite
+- [ ] /onboarding/quick?section=profile → proper redirect that preserves intent (e.g., /coach/chat?prompt=profile or /data-block/revenu)
+- [ ] Grep for all dead routes returns 0 matches
+
+**Verification:** `grep -rn '/bilan-retraite\|/prevoyance-overview\|/fiscalite-overview\|/achat-immobilier\|/life-events\|/documents/capture\|/profile/privacy[^-]\|/retirement/projection' apps/mobile/lib/` returns nothing.
+
+---
+
+## Phase 6: Fix Dead Routes (UI)
+
+**Goal:** Profile drawer and settings sheet — every menu item leads somewhere real.
+
+**Why:** These are visible — user taps a menu item and gets "Page introuvable" or nothing happens.
+
+**Requirements:** NAV-06, NAV-07, NAV-08
+**Depends on:** Phase 5
+
+**Success criteria:**
+- [ ] profile_drawer.dart: /profile/consent either created as route or redirected to /profile/privacy-control
+- [ ] profile_drawer.dart: /profile/data-transparency either created as route or removed from drawer
+- [ ] settings_sheet.dart: /profile/consent fixed (same as drawer)
+- [ ] screen_registry.dart: no entries for non-existent routes
+- [ ] Every menu item in profile drawer navigates to a real screen
+
+**Verification:** Open profile drawer, tap every single item — none leads to error or no-op.
+
+---
+
+## Phase 7: Device Walkthrough Gate
+
+**Goal:** Creator (Julien) cold-starts app on iPhone and walks through every core flow.
+
+**Why:** This is the only gate that matters. 9256 tests + audit ≠ app works. Device proves it.
+
+**Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05
+**Depends on:** Phase 1-6 all complete
+
+**Success criteria:**
+- [ ] `flutter run --release -d <iphone>` builds and installs successfully
+- [ ] Cold start: landing screen loads, CTA visible
+- [ ] Tap CTA → coach opens
+- [ ] Type message → get AI response (not template), with sources
+- [ ] Open profile drawer → tap each item → all navigate to real screens
+- [ ] Login → restart app → still logged in
+- [ ] Logout → all data cleared → back to landing
+- [ ] Type financial question → get correct numbers (not inflated LPP)
+
+**Verification:** Julien annotated screenshots or verbal confirmation of each checkpoint.
+
+---
+
+## Phase 8: Commit & Cleanup
+
+**Goal:** All uncommitted changes properly committed, branch merged, clean state.
+
+**Why:** There are 39 uncommitted files (safePop additions) plus all recovery fixes. Need clean git history.
+
+**Success criteria:**
+- [ ] All recovery fixes committed with clear messages
+- [ ] safePop uncommitted changes reviewed and committed (or reverted if superseded)
+- [ ] feature branch merged to dev via PR
+- [ ] dev CI green
+- [ ] No leftover debug code, no temporary hacks
+
+**Verification:** `git status` clean, dev CI green, PR approved.
+
+---
+
+## Risk Register
+
+| Risk | Mitigation |
+|------|-----------|
+| Coach wiring requires backend changes that break staging | Test on dev first, verify /health endpoint before merge |
+| LPP fix cascades to other calculators | Run full test suite after fix, not just golden couple |
+| Auth changes break existing login flows (magic link, Apple Sign-In) | Test each auth method individually |
+| Route fixes break tests that reference old routes | Update tests alongside route fixes |
+| Device gate reveals new issues not caught by audit | Budget Phase 7 for iteration, not just checkbox |
+
+---
+*Roadmap created: 2026-04-10*
+*Last updated: 2026-04-10 after Phase 1 planning*

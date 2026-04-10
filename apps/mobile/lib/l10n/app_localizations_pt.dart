@@ -20991,8 +20991,7 @@ class SPt extends S {
   String get instantPremierEclairageComeBack => 'Volta quando quiseres';
 
   @override
-  String get coachSilentOpenerQuestion =>
-      'Mint está aqui quando quiseres falar disso.';
+  String get coachSilentOpenerQuestion => 'Queres falar sobre isto?';
 
   @override
   String get coachProactiveOptIn =>
@@ -22259,12 +22258,12 @@ class SPt extends S {
       'MINT detetou um ponto importante que precisa da tua atenção.';
 
   @override
-  String get landingV2PromiseSober =>
-      'Mint diz-te o que ninguém tem interesse em dizer-te.';
+  String get landingV2PromiseSober => 'Nós esclarecemos. Tu decides.';
 
   @override
-  String get landingV2CtaSober => 'Começar';
+  String get landingV2CtaSober => 'Fala com o Mint';
 
+  @override
   String get tonChooserTitle => 'Escolhe como o Mint te fala';
 
   @override
