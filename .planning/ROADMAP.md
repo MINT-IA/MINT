@@ -107,10 +107,14 @@ Plans:
 **Requirements:** COACH-01, COACH-02, COACH-03, COACH-04
 **Depends on:** Phase 1 (need CI to deploy backend changes if any)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Create CoachChatApiService, wire server-key tier into orchestrator, bypass entitlement gate for beta, wire narrative LLM generation
+
 **Success criteria:**
 - [ ] Flutter orchestrator has a "server-key" tier between BYOK and fallback
 - [ ] When no BYOK key: Flutter calls /api/v1/coach/chat (which has ANTHROPIC_API_KEY fallback)
-- [ ] OR: /api/v1/rag/query modified to accept empty api_key and use server key
 - [ ] Response includes: text + sources + disclaimers + tool_calls
 - [ ] ComplianceGuard validates server-key responses same as BYOK
 - [ ] Coach system prompt covers all 18 life events, not just retirement
@@ -212,4 +216,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-04-10*
-*Last updated: 2026-04-10 after Phase 3 planning*
+*Last updated: 2026-04-10 after Phase 4 planning*
