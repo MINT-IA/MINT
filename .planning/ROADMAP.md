@@ -29,6 +29,11 @@
 
 **Requirements:** INFRA-01, INFRA-02, INFRA-03
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 01-01-PLAN.md — Merge CI fixes to staging, verify TestFlight, create staging-to-main PR
+
 **Success criteria:**
 - [ ] feature/cso-security-fixes PR merged to dev
 - [ ] dev CI passes (flutter analyze + test + pytest)
@@ -197,4 +202,4 @@
 
 ---
 *Roadmap created: 2026-04-10*
-*Last updated: 2026-04-10 after initialization*
+*Last updated: 2026-04-10 after Phase 1 planning*
