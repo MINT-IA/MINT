@@ -29,7 +29,7 @@ void main() {
 
       expect(cards, isNotEmpty);
       final scanCard = cards.firstWhere(
-        (c) => c.route == '/documents/capture',
+        (c) => c.route == '/scan',
         orElse: () => throw StateError('No scan card found'),
       );
       expect(scanCard.icon, Icons.document_scanner_outlined);
@@ -55,7 +55,7 @@ void main() {
       );
 
       final profileCard = cards.firstWhere(
-        (c) => c.route.contains('onboarding'),
+        (c) => c.route.contains('coach/chat'),
         orElse: () => throw StateError('No profile card found'),
       );
       expect(profileCard.icon, Icons.person_add_outlined);
