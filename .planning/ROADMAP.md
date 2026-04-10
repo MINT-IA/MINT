@@ -54,6 +54,11 @@ Plans:
 
 **Requirements:** CALC-01, CALC-02, CALC-03, CALC-04, CALC-05
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 02-01-PLAN.md — Fix LPP overrides wiring, correct golden couple test expectations, tighten assertions
+
 **Success criteria:**
 - [ ] Root cause identified in lpp_calculator.dart:67-123 (bonificationRateOverride + salaireAssureOverride interaction)
 - [ ] Fix applied — LPP projection for CPE Plan Maxi yields correct values
@@ -202,4 +207,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-04-10*
-*Last updated: 2026-04-10 after Phase 1 planning*
+*Last updated: 2026-04-10 after Phase 2 planning*
