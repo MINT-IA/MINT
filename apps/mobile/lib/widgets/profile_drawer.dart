@@ -107,21 +107,9 @@ class ProfileDrawer extends StatelessWidget {
             ),
             _buildSection(
               context,
-              icon: Icons.shield_outlined,
-              title: l10n.drawerPrivacy,
-              onTap: () => _navigate(context, '/profile/consent'),
-            ),
-            _buildSection(
-              context,
               icon: Icons.language_outlined,
               title: l10n.drawerLanguage,
               onTap: () => _navigate(context, '/settings/langue'),
-            ),
-            _buildSection(
-              context,
-              icon: Icons.visibility_outlined,
-              title: l10n.drawerDataTransparency,
-              onTap: () => _navigate(context, '/profile/data-transparency'),
             ),
             _buildSection(
               context,
