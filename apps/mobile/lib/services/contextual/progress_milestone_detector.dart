@@ -46,7 +46,7 @@ class ProgressMilestoneDetector {
         description:
             '${completeness.toStringAsFixed(0)}\u00a0% de tes donnees sont a jour.',
         percent: completeness,
-        route: '/onboarding/quick?section=profile',
+        route: '/coach/chat?prompt=profile',
         priorityScore: 0.5,
       ));
     }
@@ -60,7 +60,7 @@ class ProgressMilestoneDetector {
         description:
             'MINT connait $count elements de ton histoire financiere.',
         percent: percent,
-        route: '/profile/privacy',
+        route: '/profile/privacy-control',
         priorityScore: 0.4,
       ));
     }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -122,7 +124,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         S.of(context)!.extractionReviewAppBar,

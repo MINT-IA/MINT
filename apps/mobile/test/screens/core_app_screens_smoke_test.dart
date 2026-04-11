@@ -264,8 +264,8 @@ void main() {
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 5 POLISH-01: single-sentence promise (landingV2PromiseSober).
-      expect(find.textContaining('personne n\u2019a int\u00e9r\u00eat'), findsOneWidget);
+      // landingV2PromiseSober = "On éclaire. Tu décides."
+      expect(find.textContaining('\u00e9claire'), findsOneWidget);
     });
 
     testWidgets('shows MINT logo text', (tester) async {
@@ -289,15 +289,15 @@ void main() {
       expect(find.textContaining('Rien ne sort de ton t\u00e9l\u00e9phone'), findsNothing);
     });
 
-    testWidgets('shows CTA button with Commencer', (tester) async {
+    testWidgets('shows CTA button Parle a Mint', (tester) async {
       setLandingViewport(tester);
       addTearDown(() => resetLandingViewport(tester));
 
       await tester.pumpWidget(buildTestableScreen(const LandingScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      // Phase 5 POLISH-01: landingV2CtaSober = "Commencer".
-      expect(find.text('Commencer'), findsOneWidget);
+      // landingV2CtaSober = "Parle à Mint"
+      expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
     });
 
     testWidgets('hides login behind wordmark long-press (D-12 hidden affordance)', (tester) async {

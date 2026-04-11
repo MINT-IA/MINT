@@ -54,6 +54,11 @@ Plans:
 
 **Requirements:** CALC-01, CALC-02, CALC-03, CALC-04, CALC-05
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 02-01-PLAN.md — Fix LPP overrides wiring, correct golden couple test expectations, tighten assertions
+
 **Success criteria:**
 - [ ] Root cause identified in lpp_calculator.dart:67-123 (bonificationRateOverride + salaireAssureOverride interaction)
 - [ ] Fix applied — LPP projection for CPE Plan Maxi yields correct values
@@ -74,6 +79,11 @@ Plans:
 **Why:** Users can't trust an app where logout doesn't work and login is hidden.
 
 **Requirements:** AUTH-01, AUTH-02, AUTH-03, AUTH-04
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 03-01-PLAN.md — Fix logout purge, add visible login link, call checkAuth at startup
 
 **Success criteria:**
 - [ ] Landing screen has a visible, discoverable login entry point
@@ -97,10 +107,14 @@ Plans:
 **Requirements:** COACH-01, COACH-02, COACH-03, COACH-04
 **Depends on:** Phase 1 (need CI to deploy backend changes if any)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Create CoachChatApiService, wire server-key tier into orchestrator, bypass entitlement gate for beta, wire narrative LLM generation
+
 **Success criteria:**
 - [ ] Flutter orchestrator has a "server-key" tier between BYOK and fallback
 - [ ] When no BYOK key: Flutter calls /api/v1/coach/chat (which has ANTHROPIC_API_KEY fallback)
-- [ ] OR: /api/v1/rag/query modified to accept empty api_key and use server key
 - [ ] Response includes: text + sources + disclaimers + tool_calls
 - [ ] ComplianceGuard validates server-key responses same as BYOK
 - [ ] Coach system prompt covers all 18 life events, not just retirement
@@ -202,4 +216,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-04-10*
-*Last updated: 2026-04-10 after Phase 1 planning*
+*Last updated: 2026-04-10 after Phase 4 planning*

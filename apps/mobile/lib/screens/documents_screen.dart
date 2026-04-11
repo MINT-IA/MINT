@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -63,7 +65,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => safePop(context),
         ),
         title: Text(
           s.vaultTitle,
@@ -663,7 +665,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                context.pop();
+                safePop(context);
                 CoachPaywallSheet.show(context);
               },
               style: FilledButton.styleFrom(

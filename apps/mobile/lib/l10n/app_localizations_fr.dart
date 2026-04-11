@@ -22218,6 +22218,9 @@ class SFr extends S {
       'Outil éducatif. Ne constitue pas un conseil financier au sens de la LSFin.';
 
   @override
+  String get landingV2LoginLink => 'J’ai déjà un compte';
+
+  @override
   String get alertGenericFactPrefix => 'MINT a remarqué';
 
   @override

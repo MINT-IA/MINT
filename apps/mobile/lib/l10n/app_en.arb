@@ -10298,6 +10298,7 @@
   "landingV2Cta": "Continue (no account)",
   "landingV2Privacy": "Nothing leaves your phone until you decide it does.",
   "landingV2Legal": "Educational tool. Not financial advice under LSFin.",
+  "landingV2LoginLink": "I already have an account",
   "alertGenericFactPrefix": "MINT noticed",
   "alertGenericCausePrefix": "Why",
   "alertGenericNextMomentPrefix": "When we come back to it",

@@ -36,7 +36,7 @@ void main() {
       );
 
       final completenessCard = cards.where(
-        (c) => c.route.contains('onboarding'),
+        (c) => c.route.contains('coach/chat'),
       );
       expect(completenessCard, isNotEmpty);
 

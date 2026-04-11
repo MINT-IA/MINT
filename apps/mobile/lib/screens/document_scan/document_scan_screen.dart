@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'dart:io';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
@@ -145,7 +147,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         S.of(context)!.docScanAppBarTitle,

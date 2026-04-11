@@ -1,6 +1,8 @@
 import 'dart:math' show min;
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -200,7 +202,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.pop(),
+            onPressed: () => safePop(context),
           ),
           title: Text(S.of(context)!.retroactive3aTitle,
               style: MintTextStyles.titleMedium()),
@@ -229,7 +231,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
             foregroundColor: MintColors.textPrimary,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: () => safePop(context),
             ),
             title: Text(
               S.of(context)!.retroactive3aTitle,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -91,7 +93,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: () => safePop(context),
             ),
             title: Text(
               l.librePassageAppBarTitle,
