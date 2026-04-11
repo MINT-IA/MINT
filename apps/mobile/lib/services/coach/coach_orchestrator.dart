@@ -28,6 +28,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/coach_fallback_messages.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
@@ -231,6 +232,21 @@ class CoachOrchestrator {
         cashLevel: cashLevel,
       );
       if (byokResponse != null) return byokResponse;
+    }
+
+    // 2.5. Server-key tier — calls /coach/chat (uses Railway ANTHROPIC_API_KEY)
+    // Only attempted when BYOK is not configured (no double-call).
+    if (!FeatureFlags.safeModeDegraded &&
+        (byokConfig == null || !byokConfig.hasApiKey)) {
+      final serverKeyResponse = await _tryServerKeyChat(
+        userMessage: userMessage,
+        history: history,
+        ctx: ctx,
+        memoryBlock: memoryBlock,
+        language: language,
+        cashLevel: cashLevel,
+      );
+      if (serverKeyResponse != null) return serverKeyResponse;
     }
 
     // 3. Mock fallback (no LLM, keyword-based)
@@ -721,6 +737,96 @@ class CoachOrchestrator {
       wasFiltered: !compliance.isCompliant,
       toolCalls: ragResponse.toolCalls,
     );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  //  INTERNAL — Server-key tier (COACH-01)
+  // ══════════════════════════════════════════════════════════════
+
+  /// Attempt server-key chat via /coach/chat endpoint.
+  ///
+  /// The backend uses its own ANTHROPIC_API_KEY when no api_key is provided.
+  /// Requires JWT auth (user must be logged in).
+  /// Returns null on any error (orchestrator falls through to fallback).
+  static Future<CoachResponse?> _tryServerKeyChat({
+    required String userMessage,
+    required List<ChatMessage> history,
+    required CoachContext ctx,
+    String? memoryBlock,
+    String language = 'fr',
+    int cashLevel = 3,
+  }) async {
+    final service = CoachChatApiService();
+
+    try {
+      final response = await service.chat(
+        message: userMessage,
+        profileContext: {
+          'first_name': ctx.firstName,
+          'age': ctx.age,
+          'canton': ctx.canton,
+          'archetype': ctx.archetype,
+          'fri_total': ctx.friTotal,
+          'replacement_ratio':
+              ctx.replacementRatio > 0 ? ctx.replacementRatio / 100.0 : null,
+          'confidence_score':
+              ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+          ...ctx.knownValues.map(
+              (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null)),
+        },
+        memoryBlock: memoryBlock,
+        language: language,
+        cashLevel: cashLevel,
+      ).timeout(_byokTimeout);
+
+      // Apply ComplianceGuard (same as BYOK path)
+      ComplianceResult compliance;
+      try {
+        compliance = ComplianceGuard.validate(
+          response.message,
+          context: ctx,
+          componentType: ComponentType.general,
+        );
+      } catch (_) {
+        return null;
+      }
+
+      if (compliance.useFallback) return null;
+
+      var text = compliance.sanitizedText.isNotEmpty
+          ? compliance.sanitizedText
+          : response.message;
+
+      // Transform tool_calls into inline markers (same as BYOK path)
+      for (final toolCall in response.toolCalls) {
+        if (toolCall.name == 'route_to_screen') {
+          final markerJson = '{"intent":"${toolCall.input['intent']}",'
+              '"confidence":${toolCall.input['confidence']},'
+              '"context_message":"${_escapeJson(toolCall.input['context_message'] as String? ?? '')}"}';
+          text = '$text\n[ROUTE_TO_SCREEN:$markerJson]';
+        } else if (toolCall.name == 'generate_document') {
+          final markerJson =
+              '{"document_type":"${_escapeJson(toolCall.input['document_type'] as String? ?? '')}",'
+              '"context":"${_escapeJson(toolCall.input['context'] as String? ?? '')}"}';
+          text = '$text\n[GENERATE_DOCUMENT:$markerJson]';
+        }
+      }
+
+      return CoachResponse(
+        message: text,
+        disclaimer: ComplianceGuard.standardDisclaimer,
+        sources: response.sources,
+        disclaimers: response.disclaimers,
+        wasFiltered: !compliance.isCompliant,
+        toolCalls: response.toolCalls,
+      );
+    } on TimeoutException {
+      debugPrint('[Orchestrator] Server-key chat timed out');
+      return null;
+    } catch (e) {
+      debugPrint('[Orchestrator] Server-key chat error: $e');
+      return null;
+    }
   }
 
   /// Escape a string for safe JSON embedding.

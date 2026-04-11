@@ -5,6 +5,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
@@ -106,21 +107,9 @@ class ProfileDrawer extends StatelessWidget {
             ),
             _buildSection(
               context,
-              icon: Icons.shield_outlined,
-              title: l10n.drawerPrivacy,
-              onTap: () => _navigate(context, '/profile/consent'),
-            ),
-            _buildSection(
-              context,
               icon: Icons.language_outlined,
               title: l10n.drawerLanguage,
               onTap: () => _navigate(context, '/settings/langue'),
-            ),
-            _buildSection(
-              context,
-              icon: Icons.visibility_outlined,
-              title: l10n.drawerDataTransparency,
-              onTap: () => _navigate(context, '/profile/data-transparency'),
             ),
             _buildSection(
               context,
@@ -136,9 +125,13 @@ class ProfileDrawer extends StatelessWidget {
               context,
               icon: Icons.logout_outlined,
               title: l10n.drawerLogout,
-              onTap: () {
+              onTap: () async {
                 Navigator.of(context).pop();
-                context.go('/');
+                final auth = context.read<AuthProvider>();
+                await auth.logout();
+                if (context.mounted) {
+                  context.go('/');
+                }
               },
               textColor: MintColors.corailDiscret,
             ),

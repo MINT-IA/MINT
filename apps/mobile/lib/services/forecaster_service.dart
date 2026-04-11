@@ -678,6 +678,8 @@ class ForecasterService {
         age: userAge,
         grossAnnualSalary: profile.salaireBrutMensuel * 12,
         monthlyReturn: lppMonthlyRate,
+        salaireAssureOverride: profile.prevoyance.salaireAssure,
+        bonificationRateOverride: profile.prevoyance.bonificationRate,
       );
       final lppReturn = lppBalance - lppBefore;
 
@@ -699,6 +701,8 @@ class ForecasterService {
         age: conjAge,
         grossAnnualSalary: conjAnnualSalary,
         monthlyReturn: conjLppMonthlyRate,
+        salaireAssureOverride: profile.conjoint?.prevoyance?.salaireAssure,
+        bonificationRateOverride: profile.conjoint?.prevoyance?.bonificationRate,
       );
       final conjLppReturn = conjLppBalance - conjLppBefore;
 

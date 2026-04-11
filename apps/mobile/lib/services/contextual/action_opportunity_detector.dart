@@ -45,7 +45,7 @@ class ActionOpportunityDetector {
       cards.add(const ContextualActionCard(
         title: 'Scanner un document',
         body: 'Un certificat LPP ou de salaire affine tes projections.',
-        route: '/documents/capture',
+        route: '/scan',
         icon: Icons.document_scanner_outlined,
         priorityScore: 0.7,
       ));
@@ -60,7 +60,7 @@ class ActionOpportunityDetector {
           title: 'Completer ton profil',
           body:
               'Quelques informations de plus pour des projections fiables.',
-          route: '/onboarding/quick?section=profile',
+          route: '/coach/chat?prompt=profile',
           icon: Icons.person_add_outlined,
           priorityScore: 0.6,
         ));

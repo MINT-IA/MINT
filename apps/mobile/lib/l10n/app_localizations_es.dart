@@ -22220,6 +22220,9 @@ class SEs extends S {
       'Herramienta educativa. No constituye asesoramiento financiero según la LSFin.';
 
   @override
+  String get landingV2LoginLink => 'Ya tengo una cuenta';
+
+  @override
   String get alertGenericFactPrefix => 'MINT observó';
 
   @override

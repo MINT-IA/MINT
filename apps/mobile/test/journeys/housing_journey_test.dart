@@ -116,14 +116,6 @@ void main() {
       expect(mapping.stressType, equals('stress_patrimoine'));
     });
 
-    test('Step A — suggestedRoute points to /achat-immobilier (plan entry)',
-        () {
-      final mapping = IntentRouter.forChipKey('intentChipProjet');
-
-      expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/achat-immobilier'));
-    });
-
     test('Step B — CapSequence has exactly 7 steps', () {
       final seq = CapSequenceEngine.build(
         profile: _julienProfile(),

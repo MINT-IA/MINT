@@ -22224,6 +22224,9 @@ class SPt extends S {
       'Ferramenta educativa. Não constitui aconselhamento financeiro nos termos da LSFin.';
 
   @override
+  String get landingV2LoginLink => 'Já tenho uma conta';
+
+  @override
   String get alertGenericFactPrefix => 'A MINT reparou';
 
   @override

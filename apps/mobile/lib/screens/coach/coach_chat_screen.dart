@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1372,7 +1374,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           CoachAppBar(
             isEmbeddedInTab: widget.isEmbeddedInTab,
             hasUserMessages: _messages.any((m) => m.isUser),
-            onBack: () => context.pop(),
+            onBack: () => safePop(context),
             onHistory: () async {
               final router = GoRouter.of(context);
               await _autoSaveConversation();

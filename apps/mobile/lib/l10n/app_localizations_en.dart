@@ -22106,6 +22106,9 @@ class SEn extends S {
       'Educational tool. Not financial advice under LSFin.';
 
   @override
+  String get landingV2LoginLink => 'I already have an account';
+
+  @override
   String get alertGenericFactPrefix => 'MINT noticed';
 
   @override
