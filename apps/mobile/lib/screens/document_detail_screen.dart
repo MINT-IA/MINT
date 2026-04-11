@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
@@ -59,7 +61,7 @@ class DocumentDetailScreen extends StatelessWidget {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         s.documentsLppCertificate,
@@ -283,7 +285,7 @@ class DocumentDetailScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12)),
                 ),
               );
-              context.pop();
+              safePop(context);
             },
             child: Text(
               s.documentsConfirmButton,
@@ -523,7 +525,7 @@ class DocumentDetailScreen extends StatelessWidget {
     if (confirm == true && context.mounted) {
       final success = await docProvider.deleteDocument(documentId);
       if (success && context.mounted) {
-        context.pop();
+        safePop(context);
       }
     }
   }

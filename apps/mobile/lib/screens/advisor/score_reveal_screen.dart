@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -328,7 +330,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 right: 16,
                 child: IconButton(
                   onPressed: () => context.canPop()
-                      ? context.pop()
+                      ? safePop(context)
                       : context.go('/coach/chat'),
                   icon: const Icon(Icons.close, color: Colors.white70, size: 24),
                   tooltip: MaterialLocalizations.of(context).closeButtonTooltip,

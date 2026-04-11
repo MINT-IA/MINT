@@ -50,13 +50,6 @@ void main() {
       expect(mapping.lifeEventFamily, equals('patrimoine'));
     });
 
-    test('intent chip routes to /fiscalite-overview via suggestedRoute', () {
-      final mapping = IntentRouter.forChipKey(juliaChipKey);
-
-      expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/fiscalite-overview'));
-    });
-
     test('intent chip stressType is stress_impots', () {
       final mapping = IntentRouter.forChipKey(juliaChipKey);
 

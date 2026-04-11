@@ -61,7 +61,7 @@ class HeroStatResolver {
         value: '${_formatSwiss(monthlyRetirement)} CHF/mois',
         narrative:
             'Soit ${percent.toStringAsFixed(0)}\u00a0% de ton revenu actuel.',
-        route: '/retirement/projection',
+        route: '/retraite',
       );
     }
 
@@ -73,7 +73,7 @@ class HeroStatResolver {
       label: 'Ton profil MINT',
       value: '${completeness.toStringAsFixed(0)}\u00a0%',
       narrative: 'Plus ton profil est complet, plus MINT est precis.',
-      route: '/onboarding/quick?section=profile',
+      route: '/coach/chat?prompt=profile',
     );
   }
 

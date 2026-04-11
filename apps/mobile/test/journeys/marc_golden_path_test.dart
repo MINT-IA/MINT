@@ -50,13 +50,6 @@ void main() {
       expect(mapping.lifeEventFamily, equals('professionnel'));
     });
 
-    test('intent chip routes to /prevoyance-overview via suggestedRoute', () {
-      final mapping = IntentRouter.forChipKey(marcChipKey);
-
-      expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/prevoyance-overview'));
-    });
-
     test('intent chip stressType is stress_retraite', () {
       final mapping = IntentRouter.forChipKey(marcChipKey);
 

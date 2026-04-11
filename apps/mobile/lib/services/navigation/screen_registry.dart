@@ -1039,7 +1039,7 @@ class MintScreenRegistry extends ScreenRegistry {
   );
 
   static const ScreenEntry _consent = ScreenEntry(
-    route: '/profile/consent',
+    route: '/profile/privacy-control',
     intentTag: 'consent_settings',
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],

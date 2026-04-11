@@ -161,6 +161,23 @@ class _LandingScreenState extends State<LandingScreen>
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  // AUTH-01: Visible login entry point
+                  FadeTransition(
+                    opacity: _legalOpacity,
+                    child: GestureDetector(
+                      onTap: () => context.go('/auth/login'),
+                      child: Text(
+                        l10n.landingV2LoginLink,
+                        textAlign: TextAlign.center,
+                        style: textTheme.bodySmall?.copyWith(
+                          color: MintColors.textPrimary,
+                          decoration: TextDecoration.underline,
+                          decorationColor: MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

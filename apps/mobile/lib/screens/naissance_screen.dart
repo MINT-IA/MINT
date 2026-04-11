@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
@@ -136,7 +138,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       surfaceTintColor: MintColors.porcelaine,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
