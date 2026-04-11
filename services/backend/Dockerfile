@@ -10,9 +10,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install deps from pyproject.toml (single source of truth)
+# CRITICAL: [rag] extra includes chromadb, openai, tiktoken which are required
+# by coach_chat.py / rag.py. Without this extra, the RAG orchestrator
+# cannot initialize and returns 503 "RAG dependencies not installed".
 COPY pyproject.toml .
 COPY app/ app/
-RUN pip install --no-cache-dir . && python -c "import anthropic; print('anthropic', anthropic.__version__)"
+RUN pip install --no-cache-dir ".[rag]" && python -c "import anthropic, chromadb; print('anthropic', anthropic.__version__, '/ chromadb', chromadb.__version__)"
 
 # --- Stage 2: Production ---
 FROM python:3.12-slim AS production
