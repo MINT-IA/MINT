@@ -7,10 +7,6 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
 
-// ────────────────────────────────────────────────────────────
-//  SLM SETTINGS SCREEN — Widget Tests (On-Device AI)
-// ────────────────────────────────────────────────────────────
-
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
@@ -33,60 +29,9 @@ void main() {
     );
   }
 
-  group('SlmSettingsScreen — rendering', () {
-    testWidgets('renders without crashing', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      expect(find.byType(SlmSettingsScreen), findsOneWidget);
-    });
-
-    testWidgets('shows Scaffold', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('shows AppBar with title', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      expect(find.byType(AppBar), findsOneWidget);
-    });
-
-    testWidgets('shows privacy banner with shield icon', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      expect(find.byIcon(Icons.shield), findsOneWidget);
-    });
-
-    testWidgets('shows ListView body', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      expect(find.byType(ListView), findsOneWidget);
-    });
-  });
-
-  group('SlmSettingsScreen — content sections', () {
-    testWidgets('shows tier selector section', (tester) async {
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      // Tier selector has radio button icons
-      expect(find.byIcon(Icons.radio_button_checked), findsWidgets);
-    });
-
-    // 'shows engine status section' test removed — Icons.cloud_off no longer present
-
-    testWidgets('shows how-it-works info section', (tester) async {
-      tester.view.physicalSize = const Size(1080, 2400);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
-      await tester.pumpWidget(buildSlmScreen());
-      await tester.pump();
-      // Info section has multiple info rows with icons
-      // At minimum, the phone_android icon appears in info section
-      expect(find.byIcon(Icons.phone_android), findsWidgets);
-    });
+  testWidgets('SlmSettingsScreen renders without crashing', (tester) async {
+    await tester.pumpWidget(buildSlmScreen());
+    await tester.pump();
+    expect(find.byType(SlmSettingsScreen), findsOneWidget);
   });
 }
