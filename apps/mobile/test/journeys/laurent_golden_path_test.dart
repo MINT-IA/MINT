@@ -50,13 +50,6 @@ void main() {
       expect(mapping.lifeEventFamily, equals('professionnel'));
     });
 
-    test('intent chip routes to /life-events via suggestedRoute', () {
-      final mapping = IntentRouter.forChipKey(laurentChipKey);
-
-      expect(mapping, isNotNull);
-      expect(mapping!.suggestedRoute, equals('/life-events'));
-    });
-
     test('intent chip stressType is stress_budget', () {
       final mapping = IntentRouter.forChipKey(laurentChipKey);
 

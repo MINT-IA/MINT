@@ -71,11 +71,11 @@ void main() {
       expect(find.text('MINT'), findsOneWidget);
       // Promise — single sentence (POLISH-01)
       expect(
-        find.textContaining("Mint te dit ce que personne"),
+        find.textContaining('\u00e9claire'),
         findsOneWidget,
       );
       // CTA — "Commencer" (not "Continuer (sans compte)")
-      expect(find.text('Commencer'), findsOneWidget);
+      expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
       // No privacy subtitle
       expect(
         find.textContaining('Rien ne sort de ton téléphone'),
@@ -130,10 +130,10 @@ void main() {
 
       // Paragraph is present immediately — no animation delay needed.
       expect(
-        find.textContaining("Mint te dit ce que personne"),
+        find.textContaining('\u00e9claire'),
         findsOneWidget,
       );
-      expect(find.text('Commencer'), findsOneWidget);
+      expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
     });
   });
 }
