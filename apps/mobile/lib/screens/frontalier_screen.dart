@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -134,7 +136,7 @@ class _FrontalierScreenState extends State<FrontalierScreen>
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => safePop(context),
         ),
       ),
       title: Text(

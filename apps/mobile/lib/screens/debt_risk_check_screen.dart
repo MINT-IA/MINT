@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/domain/calculators.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -281,7 +283,7 @@ class _DebtRiskCheckScreenState extends State<DebtRiskCheckScreen> {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: () => context.pop(),
+            onPressed: () => safePop(context),
             icon: const Icon(Icons.check_circle_outline),
             label: Text(S.of(context)!.debtCheckValidateButton),
           ),
