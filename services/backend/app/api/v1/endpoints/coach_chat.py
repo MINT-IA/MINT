@@ -86,29 +86,36 @@ _init_lock = asyncio.Lock()
 # ---------------------------------------------------------------------------
 
 
-async def _get_vector_store():
-    """Get or create the singleton vector store instance (async-safe)."""
+def _get_vector_store():
+    """Get or create the singleton vector store instance.
+
+    Synchronous to avoid deadlock with the shared _init_lock used by
+    _get_orchestrator. MintVectorStore.__init__ is sync anyway.
+
+    FIX (2026-04-11): Previously `async def` + `async with _init_lock`.
+    When `_get_orchestrator` held the lock and awaited this function,
+    this function tried to re-acquire the SAME (non-reentrant) asyncio.Lock,
+    causing an infinite deadlock. Every coach_chat request hung forever.
+    Coach AI has been broken in the app since 2026-03-22 because of this.
+    """
     global _vector_store
     if _vector_store is not None:
         return _vector_store
-    async with _init_lock:
-        if _vector_store is not None:
-            return _vector_store
-        try:
-            from app.services.rag.vector_store import MintVectorStore
+    try:
+        from app.services.rag.vector_store import MintVectorStore
 
-            backend_dir = os.path.dirname(
-                os.path.dirname(
-                    os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-                )
+        backend_dir = os.path.dirname(
+            os.path.dirname(
+                os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
             )
-            persist_dir = os.path.join(backend_dir, "data", "chromadb")
-            _vector_store = MintVectorStore(persist_directory=persist_dir)
-        except ImportError:
-            raise HTTPException(
-                status_code=503,
-                detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
-            )
+        )
+        persist_dir = os.path.join(backend_dir, "data", "chromadb")
+        _vector_store = MintVectorStore(persist_directory=persist_dir)
+    except ImportError:
+        raise HTTPException(
+            status_code=503,
+            detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+        )
     return _vector_store
 
 
@@ -152,7 +159,7 @@ async def _get_orchestrator():
         try:
             from app.services.rag.orchestrator import RAGOrchestrator
 
-            vs = await _get_vector_store()
+            vs = _get_vector_store()
             hybrid = _get_hybrid_search()
             _orchestrator = RAGOrchestrator(vector_store=vs, hybrid_search=hybrid)
             if hybrid:
