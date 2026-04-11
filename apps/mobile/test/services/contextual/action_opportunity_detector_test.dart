@@ -109,7 +109,7 @@ void main() {
       );
 
       // With documents present, scan action should NOT appear
-      final scanCards = cards.where((c) => c.route == '/documents/capture');
+      final scanCards = cards.where((c) => c.route == '/scan');
       expect(scanCards, isEmpty,
           reason: 'Scan action should not appear when documents exist');
 

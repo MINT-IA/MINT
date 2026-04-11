@@ -79,7 +79,7 @@ void main() {
 
       expect(card, isA<ContextualHeroCard>());
       expect(card.priorityScore, 1.0);
-      expect(card.route, contains('retire'));
+      expect(card.route, contains('retrai'));
     });
 
     test('profile with very low completeness (<40%) -> profile completeness hero', () {
@@ -103,7 +103,7 @@ void main() {
 
       expect(card, isA<ContextualHeroCard>());
       expect(card.priorityScore, 1.0);
-      expect(card.route, contains('onboarding'));
+      expect(card.route, contains('coach/chat'));
     });
 
     test('always returns priorityScore = 1.0 (hero always slot 1)', () {
