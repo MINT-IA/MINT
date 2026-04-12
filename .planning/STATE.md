@@ -4,7 +4,7 @@ milestone: v2.4
 milestone_name: milestone
 status: verifying
 stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-04-12T10:34:06.488Z"
+last_updated: "2026-04-12T10:37:03.603Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 4
@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 11 (La navigation) — EXECUTING
-Plan: 2 of 2
+Phase: 12
+Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 3
+- Total plans completed: 5
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | 10 | 1 | - | - |
 | Phase 11-la-navigation P01 | 11min | 2 tasks | 6 files |
 | Phase 11-la-navigation P02 | 5min | 2 tasks | 5 files |
+| 11 | 2 | - | - |
 
 ## Accumulated Context
 
