@@ -22437,4 +22437,54 @@ class SDe extends S {
 
   @override
   String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Erreicht';
+
+  @override
+  String get tensionPulsingTitle => 'Laufend';
+
+  @override
+  String get tensionGhostedTitle => 'Bevorstehend';
+
+  @override
+  String get tensionEarnedCommitment => 'Verpflichtung erfüllt';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Erstes Gespräch';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Laufende Verpflichtung';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Mit dem Coach sprechen';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Nächster Meilenstein: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Deine finanzielle Zukunft';
+
+  @override
+  String get tensionEmptyWelcome => 'Beginne mit einem Gespräch mit dem Coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Deine ersten Spannungen erscheinen hier.';
+
+  @override
+  String get cleoLoopInsight => 'Insight erhalten';
+
+  @override
+  String get cleoLoopPlan => 'Plan läuft';
+
+  @override
+  String get cleoLoopConversation => 'Gespräch';
+
+  @override
+  String get cleoLoopAction => 'Aktion läuft';
+
+  @override
+  String get cleoLoopMemory => 'Speicher aktualisiert';
 }

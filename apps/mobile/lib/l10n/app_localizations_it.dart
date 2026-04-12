@@ -22445,4 +22445,54 @@ class SIt extends S {
 
   @override
   String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Ottenuto';
+
+  @override
+  String get tensionPulsingTitle => 'In corso';
+
+  @override
+  String get tensionGhostedTitle => 'In arrivo';
+
+  @override
+  String get tensionEarnedCommitment => 'Impegno mantenuto';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Prima conversazione';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Impegno attivo';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Parla con il coach';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Prossimo traguardo: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Il tuo futuro finanziario';
+
+  @override
+  String get tensionEmptyWelcome => 'Inizia parlando con il coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Le tue prime tensioni appariranno qui.';
+
+  @override
+  String get cleoLoopInsight => 'Insight ricevuto';
+
+  @override
+  String get cleoLoopPlan => 'Piano in corso';
+
+  @override
+  String get cleoLoopConversation => 'Conversazione';
+
+  @override
+  String get cleoLoopAction => 'Azione in corso';
+
+  @override
+  String get cleoLoopMemory => 'Memoria aggiornata';
 }

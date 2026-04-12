@@ -22384,4 +22384,54 @@ class SEs extends S {
 
   @override
   String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Logrado';
+
+  @override
+  String get tensionPulsingTitle => 'En curso';
+
+  @override
+  String get tensionGhostedTitle => 'Próximamente';
+
+  @override
+  String get tensionEarnedCommitment => 'Compromiso cumplido';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Primera conversación';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Compromiso activo';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Habla con el coach';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Próximo hito: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Tu futuro financiero';
+
+  @override
+  String get tensionEmptyWelcome => 'Empieza hablando con el coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Tus primeras tensiones aparecerán aquí.';
+
+  @override
+  String get cleoLoopInsight => 'Insight recibido';
+
+  @override
+  String get cleoLoopPlan => 'Plan en curso';
+
+  @override
+  String get cleoLoopConversation => 'Conversación';
+
+  @override
+  String get cleoLoopAction => 'Acción en curso';
+
+  @override
+  String get cleoLoopMemory => 'Memoria actualizada';
 }

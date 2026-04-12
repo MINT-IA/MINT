@@ -22274,4 +22274,54 @@ class SEn extends S {
 
   @override
   String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Earned';
+
+  @override
+  String get tensionPulsingTitle => 'In progress';
+
+  @override
+  String get tensionGhostedTitle => 'Coming up';
+
+  @override
+  String get tensionEarnedCommitment => 'Commitment kept';
+
+  @override
+  String get tensionEarnedFirstConvo => 'First conversation';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Active commitment';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Talk to coach';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Next milestone: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Your financial future';
+
+  @override
+  String get tensionEmptyWelcome => 'Start by talking to the coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Your first tensions will appear here.';
+
+  @override
+  String get cleoLoopInsight => 'Insight received';
+
+  @override
+  String get cleoLoopPlan => 'Plan in progress';
+
+  @override
+  String get cleoLoopConversation => 'Conversation';
+
+  @override
+  String get cleoLoopAction => 'Action in progress';
+
+  @override
+  String get cleoLoopMemory => 'Memory updated';
 }

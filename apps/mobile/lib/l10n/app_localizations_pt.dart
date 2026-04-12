@@ -22389,4 +22389,55 @@ class SPt extends S {
 
   @override
   String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Conquistado';
+
+  @override
+  String get tensionPulsingTitle => 'Em andamento';
+
+  @override
+  String get tensionGhostedTitle => 'A caminho';
+
+  @override
+  String get tensionEarnedCommitment => 'Compromisso cumprido';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Primeira conversa';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Compromisso ativo';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Fale com o coach';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Próximo marco: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'O seu futuro financeiro';
+
+  @override
+  String get tensionEmptyWelcome => 'Comece por falar com o coach.';
+
+  @override
+  String get tensionEmptySubtitle =>
+      'As suas primeiras tensões aparecerão aqui.';
+
+  @override
+  String get cleoLoopInsight => 'Insight recebido';
+
+  @override
+  String get cleoLoopPlan => 'Plano em andamento';
+
+  @override
+  String get cleoLoopConversation => 'Conversa';
+
+  @override
+  String get cleoLoopAction => 'Ação em andamento';
+
+  @override
+  String get cleoLoopMemory => 'Memória atualizada';
 }

@@ -22386,4 +22386,54 @@ class SFr extends S {
 
   @override
   String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Acquis';
+
+  @override
+  String get tensionPulsingTitle => 'En cours';
+
+  @override
+  String get tensionGhostedTitle => 'À venir';
+
+  @override
+  String get tensionEarnedCommitment => 'Engagement tenu';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Première conversation';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Engagement en cours';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Parle au coach';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Prochain jalon : $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Ton avenir financier';
+
+  @override
+  String get tensionEmptyWelcome => 'Commence par parler au coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Tes premières tensions apparaîtront ici.';
+
+  @override
+  String get cleoLoopInsight => 'Insight reçu';
+
+  @override
+  String get cleoLoopPlan => 'Plan en cours';
+
+  @override
+  String get cleoLoopConversation => 'Conversation';
+
+  @override
+  String get cleoLoopAction => 'Action en cours';
+
+  @override
+  String get cleoLoopMemory => 'Mémoire mise à jour';
 }

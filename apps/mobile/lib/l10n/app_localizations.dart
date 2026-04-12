@@ -39278,6 +39278,102 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'MINT'**
   String get freshStartNotificationTitle;
+
+  /// Tension card — earned section title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Acquis'**
+  String get tensionEarnedTitle;
+
+  /// Tension card — pulsing section title.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get tensionPulsingTitle;
+
+  /// Tension card — ghosted section title.
+  ///
+  /// In fr, this message translates to:
+  /// **'À venir'**
+  String get tensionGhostedTitle;
+
+  /// Tension card — earned commitment label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement tenu'**
+  String get tensionEarnedCommitment;
+
+  /// Tension card — earned first conversation label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Première conversation'**
+  String get tensionEarnedFirstConvo;
+
+  /// Tension card — pulsing active commitment label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement en cours'**
+  String get tensionPulsingActiveCommitment;
+
+  /// Tension card — pulsing talk to coach label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Parle au coach'**
+  String get tensionPulsingTalkToCoach;
+
+  /// Tension card — ghosted landmark label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochain jalon : {landmark}'**
+  String tensionGhostedLandmark(String landmark);
+
+  /// Tension card — ghosted future label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton avenir financier'**
+  String get tensionGhostedFuture;
+
+  /// Tension card — empty state welcome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commence par parler au coach.'**
+  String get tensionEmptyWelcome;
+
+  /// Tension card — empty state subtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes premières tensions apparaîtront ici.'**
+  String get tensionEmptySubtitle;
+
+  /// Cleo loop indicator — insight position.
+  ///
+  /// In fr, this message translates to:
+  /// **'Insight reçu'**
+  String get cleoLoopInsight;
+
+  /// Cleo loop indicator — plan position.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plan en cours'**
+  String get cleoLoopPlan;
+
+  /// Cleo loop indicator — conversation position.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversation'**
+  String get cleoLoopConversation;
+
+  /// Cleo loop indicator — action position.
+  ///
+  /// In fr, this message translates to:
+  /// **'Action en cours'**
+  String get cleoLoopAction;
+
+  /// Cleo loop indicator — memory position.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mémoire mise à jour'**
+  String get cleoLoopMemory;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
