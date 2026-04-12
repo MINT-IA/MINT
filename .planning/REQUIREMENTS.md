@@ -10,8 +10,8 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 ### Anonymous Hook & Auth Bridge
 
 - [x] **ANON-01**: Anonymous user can send messages to coach via rate-limited public endpoint (3 messages/session by IP)
-- [ ] **ANON-02**: Anonymous user tapping a felt-state pill on intent screen arrives in coach chat with that intent as context
-- [ ] **ANON-03**: After 3 value exchanges, MINT surfaces a natural auth gate ("Je peux garder tout ca en memoire pour toi")
+- [x] **ANON-02**: Anonymous user tapping a felt-state pill on intent screen arrives in coach chat with that intent as context
+- [x] **ANON-03**: After 3 value exchanges, MINT surfaces a natural auth gate ("Je peux garder tout ca en memoire pour toi")
 - [ ] **ANON-04**: Anonymous conversation history is transferred to persistent storage after user creates account (zero message loss)
 - [x] **ANON-05**: Backend anonymous endpoint uses "mode decouverte" system prompt (respond to intent, don't ask for profile)
 - [x] **ANON-06**: Anonymous session is device-scoped (SecureStorage session token) to prevent rate-limit evasion
@@ -41,7 +41,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Cleo Loop Navigation (transversal)
 
-- [ ] **LOOP-01**: After each coach insight, MINT suggests the next step in the loop (plan, action, or document) — never a dead end
+- [x] **LOOP-01**: After each coach insight, MINT suggests the next step in the loop (plan, action, or document) — never a dead end
 - [ ] **LOOP-02**: After each user action (document upload, commitment accepted, pre-mortem completed), coach acknowledges and updates the memory visibly ("J'ai note, je m'en souviendrai")
 - [ ] **LOOP-03**: The Insight→Plan→Conversation→Action→Memory cycle is visible in the UX — user can see where they are in the loop (coach state indicator or contextual next-step chips)
 
@@ -87,8 +87,8 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ANON-01 | Phase 13 | Complete |
-| ANON-02 | Phase 13 | Pending |
-| ANON-03 | Phase 13 | Pending |
+| ANON-02 | Phase 13 | Complete |
+| ANON-03 | Phase 13 | Complete |
 | ANON-04 | Phase 13 | Pending |
 | ANON-05 | Phase 13 | Complete |
 | ANON-06 | Phase 13 | Complete |
@@ -111,7 +111,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | TIME-03 | Phase 18 | Pending |
 | TIME-04 | Phase 18 | Pending |
 | TIME-05 | Phase 18 | Pending |
-| LOOP-01 | Phase 13, 14, 15 | Pending |
+| LOOP-01 | Phase 13, 14, 15 | Complete |
 | LOOP-02 | Phase 14, 15 | Pending |
 | LOOP-03 | Phase 17, 18 | Pending |
 

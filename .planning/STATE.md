@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
 status: executing
-stopped_at: Completed 13-01-PLAN.md
-last_updated: "2026-04-12T14:26:24.766Z"
+stopped_at: Completed 13-02-PLAN.md
+last_updated: "2026-04-12T14:38:14.890Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
-  percent: 33
+  completed_plans: 2
+  percent: 67
 ---
 
 # GSD State: MINT v2.5 — Transformation
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 ## Current Position
 
 Phase: 13 (Anonymous Hook & Auth Bridge) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-12
 
@@ -48,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 | 10 — Les connexions | 1 | 6min | 6min |
 | 11 — La navigation | 2 | 16min | 8min |
 | Phase 13 P01 | 9min | 1 tasks | 5 files |
+| Phase 13 P02 | 9min | 2 tasks | 18 files |
 
 ## Accumulated Context
 
@@ -60,6 +61,8 @@ Progress: [░░░░░░░░░░] 0%
 - Facade-without-wiring is the #1 risk — every phase must be E2E testable
 - [Phase 13]: Discovery prompt written from scratch (not derived from auth prompt) to prevent info disclosure
 - [Phase 13]: Separate _NoRagOrchestrator in anonymous_chat.py — full isolation from authenticated path
+- [Phase 13]: Anonymous chat route outside ShellRoute for clean pre-auth UX
+- [Phase 13]: Auth gate as conversational bottom sheet (coach avatar + message, not system interrupt)
 
 ### From Previous Milestones
 
@@ -75,8 +78,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T14:26:24.763Z
-Stopped at: Completed 13-01-PLAN.md
+Last session: 2026-04-12T14:38:14.887Z
+Stopped at: Completed 13-02-PLAN.md
 Resume file: None
 
 ---
