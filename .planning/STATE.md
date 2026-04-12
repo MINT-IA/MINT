@@ -76,6 +76,13 @@ Progress: [░░░░░░░░░░] 0%
 - Anonymous endpoint needs "mode decouverte" system prompt (reduced tools, no profile questions)
 - Session migration on auth (conversation claim) is highest-risk technical challenge
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260412-kue | Implement first anonymous intent screen with felt-state pills | 2026-04-12 | 3acab9c4 | [260412-kue](./quick/260412-kue-implement-first-anonymous-intent-screen-/) |
+| 260412-n09 | Fix: landing stays, animation added, pills move to coach chat | 2026-04-12 | 4dba643d | [260412-n09](./quick/260412-n09-fix-anonymous-screen-landing-stays-anima/) |
+
 ## Session Continuity
 
 Last session: 2026-04-12T14:38:14.887Z
