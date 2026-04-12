@@ -41,6 +41,7 @@ from app.api.v1.endpoints import (
     coach,
     coach_chat,
     commitment,
+    fresh_start,
     notifications,
     scenario_narration,
     fri,
@@ -205,4 +206,7 @@ api_router.include_router(
 )
 api_router.include_router(
     commitment.router, prefix="/coach/commitment", tags=["Commitment P14"]
+)
+api_router.include_router(
+    fresh_start.router, prefix="/coach/fresh-start", tags=["Fresh Start P14"]
 )
