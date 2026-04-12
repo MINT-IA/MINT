@@ -421,3 +421,233 @@ class TestBuildIntelligenceMemoryBlock:
         result = _build_intelligence_memory_block("user-1", mock_db)
         assert "chez" not in result
         assert "ma soeur" in result
+
+
+# ===========================================================================
+# Integration tests: round-trip provenance/earmark flow (Plan 15-02)
+# ===========================================================================
+
+import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from app.core.database import Base
+from app.models.user import User
+
+
+@pytest.fixture
+def integration_db():
+    """Create an in-memory SQLite database with all tables for integration tests."""
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
+    Base.metadata.create_all(bind=engine)
+    _Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = _Session()
+    # Insert a test user (FK target for provenance/earmark records)
+    user = User(id="test-user-intg", email="test@mint.ch", hashed_password="hashed")
+    session.add(user)
+    session.commit()
+    yield session
+    session.close()
+    engine.dispose()
+
+
+class TestProvenanceRoundtrip:
+    """Verify save_provenance handler writes to DB and _build_intelligence_memory_block reads it back."""
+
+    def test_provenance_roundtrip_formats_correctly(self, integration_db):
+        """Create ProvenanceRecord via handler, call memory block builder, verify output."""
+        from app.api.v1.endpoints.coach_chat import (
+            _execute_internal_tool,
+            _build_intelligence_memory_block,
+        )
+
+        # Step 1: Write via handler
+        result = _execute_internal_tool(
+            tool_call={
+                "name": "save_provenance",
+                "input": {
+                    "product_type": "3a",
+                    "recommended_by": "mon banquier",
+                    "institution": "UBS",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+        assert "Provenance notée" in result
+
+        # Step 2: Read via memory block builder
+        block = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "PROVENANCE CONNUE" in block
+        assert "3a" in block
+        assert "mon banquier" in block
+        assert "chez UBS" in block
+
+    def test_earmark_roundtrip_formats_correctly(self, integration_db):
+        """Create EarmarkTag via handler, call memory block builder, verify output."""
+        from app.api.v1.endpoints.coach_chat import (
+            _execute_internal_tool,
+            _build_intelligence_memory_block,
+        )
+
+        result = _execute_internal_tool(
+            tool_call={
+                "name": "save_earmark",
+                "input": {
+                    "label": "l'argent de mamie",
+                    "source_description": "heritage 2019",
+                    "amount_hint": "environ 50k",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+        assert "Marquage enregistré" in result
+
+        block = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "ARGENT MARQUÉ" in block
+        assert "l'argent de mamie" in block
+        assert "environ 50k" in block
+        assert "heritage 2019" in block
+
+    def test_earmark_with_amount_hint_shows_in_block(self, integration_db):
+        """Earmark with amount_hint includes approximate amount with ~ prefix."""
+        from app.api.v1.endpoints.coach_chat import (
+            _execute_internal_tool,
+            _build_intelligence_memory_block,
+        )
+
+        _execute_internal_tool(
+            tool_call={
+                "name": "save_earmark",
+                "input": {
+                    "label": "le compte pour les enfants",
+                    "amount_hint": "~30'000",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+
+        block = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "~30'000" in block
+        assert "le compte pour les enfants" in block
+
+    def test_remove_earmark_handler_deletes_from_db(self, integration_db):
+        """Simulate remove_earmark tool call, verify tag is deleted from DB."""
+        from app.api.v1.endpoints.coach_chat import (
+            _execute_internal_tool,
+            _build_intelligence_memory_block,
+        )
+
+        # Create earmark
+        _execute_internal_tool(
+            tool_call={
+                "name": "save_earmark",
+                "input": {"label": "argent vacances"},
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+        # Verify it exists
+        block_before = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "argent vacances" in block_before
+
+        # Remove it
+        result = _execute_internal_tool(
+            tool_call={
+                "name": "remove_earmark",
+                "input": {"label": "argent vacances"},
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+        assert "supprimé" in result
+
+        # Verify it's gone
+        block_after = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "argent vacances" not in block_after
+
+    def test_provenance_dedup_by_product(self, integration_db):
+        """Two provenances for same product_type both appear (multiple recommendations)."""
+        from app.api.v1.endpoints.coach_chat import (
+            _execute_internal_tool,
+            _build_intelligence_memory_block,
+        )
+
+        _execute_internal_tool(
+            tool_call={
+                "name": "save_provenance",
+                "input": {
+                    "product_type": "3a",
+                    "recommended_by": "mon banquier",
+                    "institution": "UBS",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+        _execute_internal_tool(
+            tool_call={
+                "name": "save_provenance",
+                "input": {
+                    "product_type": "3a",
+                    "recommended_by": "Uncle Patrick",
+                    "institution": "PostFinance",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+
+        block = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "mon banquier" in block
+        assert "Uncle Patrick" in block
+        assert block.count("3a") >= 2
+
+    def test_mixed_provenance_and_earmarks(self, integration_db):
+        """Insert both provenance and earmark, verify both sections appear in memory block."""
+        from app.api.v1.endpoints.coach_chat import (
+            _execute_internal_tool,
+            _build_intelligence_memory_block,
+        )
+
+        _execute_internal_tool(
+            tool_call={
+                "name": "save_provenance",
+                "input": {
+                    "product_type": "hypotheque",
+                    "recommended_by": "un ami",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+        _execute_internal_tool(
+            tool_call={
+                "name": "save_earmark",
+                "input": {
+                    "label": "le compte pour les enfants",
+                    "source_description": "epargne depuis naissance",
+                },
+            },
+            memory_block=None,
+            user_id="test-user-intg",
+            db=integration_db,
+        )
+
+        block = _build_intelligence_memory_block("test-user-intg", integration_db)
+        assert "PROVENANCE CONNUE" in block
+        assert "ARGENT MARQUÉ" in block
+        assert "hypotheque" in block
+        assert "un ami" in block
+        assert "le compte pour les enfants" in block
+        assert "epargne depuis naissance" in block
