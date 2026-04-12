@@ -74,7 +74,7 @@ Plans:
 
 Plans:
 - [x] 14-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext injection
-- [ ] 14-02-PLAN.md -- Frontend: CommitmentCard widget, persistence endpoint, notification scheduling
+- [x] 14-02-PLAN.md -- Frontend: CommitmentCard widget, persistence endpoint, notification scheduling
 - [ ] 14-03-PLAN.md -- Fresh-start anchors: landmark detection, personalized messages, proactive notifications
 
 ### Phase 15: Coach Intelligence
@@ -144,7 +144,7 @@ Each phase must pass device gate before the next begins.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
-| 14. Commitment Devices | v2.5 | 1/3 | In Progress|  |
+| 14. Commitment Devices | v2.5 | 2/3 | In Progress|  |
 | 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
