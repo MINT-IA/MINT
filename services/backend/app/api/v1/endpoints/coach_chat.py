@@ -562,8 +562,10 @@ def _handle_retrieve_memories(
 # Agent loop — tool_use -> execute -> re-call LLM
 # ---------------------------------------------------------------------------
 
-MAX_AGENT_LOOP_ITERATIONS = 5
+MAX_AGENT_LOOP_ITERATIONS = 3  # Reduced from 5: 3 iterations sufficient for tool_use + response
 MAX_AGENT_LOOP_TOKENS = 8000
+AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
+AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
 
 
@@ -989,17 +991,27 @@ async def _run_agent_loop(
             final_answer = answer_text
             break
 
-        result = await orchestrator.query(
-            question=current_question,
-            api_key=api_key,
-            provider=provider,
-            model=model,
-            profile_context=profile_context,
-            language=language,
-            tools=stripped_tools,
-            system_prompt=system_prompt,
-            user_id=user_id,
-        )
+        try:
+            result = await asyncio.wait_for(
+                orchestrator.query(
+                    question=current_question,
+                    api_key=api_key,
+                    provider=provider,
+                    model=model,
+                    profile_context=profile_context,
+                    language=language,
+                    tools=stripped_tools,
+                    system_prompt=system_prompt,
+                    user_id=user_id,
+                ),
+                timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
+            )
+        except asyncio.TimeoutError:
+            logger.warning(
+                "Agent iteration %d timed out after %ds for user %s",
+                iteration, AGENT_ITERATION_TIMEOUT_SECONDS, user_id,
+            )
+            break  # Exit loop — use whatever partial answer we have
 
         # Accumulate metadata across iterations
         iteration_tokens = result.get("tokens_used", 0)
@@ -1265,18 +1277,35 @@ async def coach_chat(
     # returned in the response without re-calling the LLM.
     # ------------------------------------------------------------------
     try:
-        loop_result = await _run_agent_loop(
-            orchestrator=orchestrator,
-            question=body.message,
-            api_key=effective_api_key,
-            provider=body.provider,
-            model=body.model,
-            profile_context=safe_profile,
-            language=body.language,
-            memory_block=effective_memory_block,
-            system_prompt=system_prompt,
-            user_id=_user.id if _user else None,
+        loop_result = await asyncio.wait_for(
+            _run_agent_loop(
+                orchestrator=orchestrator,
+                question=body.message,
+                api_key=effective_api_key,
+                provider=body.provider,
+                model=body.model,
+                profile_context=safe_profile,
+                language=body.language,
+                memory_block=effective_memory_block,
+                system_prompt=system_prompt,
+                user_id=_user.id if _user else None,
+            ),
+            timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
+    except asyncio.TimeoutError:
+        logger.warning(
+            "Agent loop total timeout (%ds) for user %s",
+            AGENT_LOOP_DEADLINE_SECONDS,
+            _user.id if _user else "anonymous",
+        )
+        loop_result = {
+            "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
+                      "Repose ta question, je serai plus rapide.",
+            "tool_calls": [],
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 0,
+        }
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
     except ImportError:

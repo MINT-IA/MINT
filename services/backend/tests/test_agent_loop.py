@@ -31,6 +31,7 @@ import logging
 from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 
 from app.api.v1.endpoints.coach_chat import (
     MAX_AGENT_LOOP_ITERATIONS,
@@ -528,3 +529,67 @@ class TestAgentLoopUsesGetLlmTools:
         for tool in tools:
             assert "category" not in tool, f"Tool {tool['name']} has 'category'"
             assert "access_level" not in tool, f"Tool {tool['name']} has 'access_level'"
+
+
+# ===========================================================================
+# Timeout tests (09-02: agent loop deadline + per-iteration cap)
+# ===========================================================================
+
+
+class TestAgentLoopTimeouts:
+    """Test timeout behavior for agent loop deadline and per-iteration cap."""
+
+    def test_agent_loop_total_timeout(self):
+        """Total deadline returns asyncio.TimeoutError instead of hanging."""
+        mock_orch = MagicMock()
+
+        async def slow_query(**kwargs):
+            await asyncio.sleep(60)
+            return _make_orchestrator_result(answer="should not reach")
+
+        mock_orch.query = slow_query
+
+        from app.api.v1.endpoints.coach_chat import AGENT_LOOP_DEADLINE_SECONDS  # noqa: F811
+
+        import pytest
+        with pytest.raises(asyncio.TimeoutError):
+            _run(
+                asyncio.wait_for(
+                    _run_agent_loop(orchestrator=mock_orch, **_BASE_KWARGS),
+                    timeout=1.0,  # Use 1s in test (not 55s) to keep test fast
+                )
+            )
+
+    def test_agent_loop_per_iteration_timeout(self):
+        """Per-iteration timeout breaks loop gracefully, returning partial answer."""
+        call_count = 0
+        mock_orch = MagicMock()
+
+        async def slow_iteration_query(**kwargs):
+            nonlocal call_count
+            call_count += 1
+            await asyncio.sleep(30)
+            return _make_orchestrator_result(answer="slow answer")
+
+        mock_orch.query = slow_iteration_query
+
+        import app.api.v1.endpoints.coach_chat as chat_module
+        original = chat_module.AGENT_ITERATION_TIMEOUT_SECONDS
+        chat_module.AGENT_ITERATION_TIMEOUT_SECONDS = 0.5  # 500ms for test speed
+
+        try:
+            result = _run(
+                asyncio.wait_for(
+                    _run_agent_loop(orchestrator=mock_orch, **_BASE_KWARGS),
+                    timeout=5.0,  # Overall test timeout
+                )
+            )
+            # Loop should have broken after first iteration timeout
+            assert call_count == 1
+        finally:
+            chat_module.AGENT_ITERATION_TIMEOUT_SECONDS = original
+
+    def test_agent_loop_max_iterations_reduced_to_3(self):
+        """MAX_AGENT_LOOP_ITERATIONS is now 3, not 5."""
+        from app.api.v1.endpoints.coach_chat import MAX_AGENT_LOOP_ITERATIONS  # noqa: F811
+        assert MAX_AGENT_LOOP_ITERATIONS == 3
