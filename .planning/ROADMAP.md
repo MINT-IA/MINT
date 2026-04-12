@@ -41,10 +41,11 @@ MINT compiles with 9256 tests passing but is non-functional for real users. The 
   3. Agent loop returns a partial response with a timeout message after 55s instead of a 502 Bad Gateway
   4. Education inserts (103 docs) are accessible inside the Docker container and auto-ingested at startup
   5. Missing OPENAI_API_KEY produces a startup warning in Railway logs (not a silent embedding failure on first user request)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: TBD
+- [ ] 09-01-PLAN.md — Config guards (SQLite fail-fast, OPENAI_API_KEY) + RAG persistence (ChromaDB volume, education Docker path)
+- [ ] 09-02-PLAN.md — Agent loop timeout (55s total deadline + 25s per-iteration cap)
 
 ### Phase 10: Les connexions
 **Goal**: Every Flutter-to-backend API call reaches its endpoint and returns structured data — zero 404, zero silent failure, tool calling works on server-key path
@@ -100,7 +101,7 @@ Each phase must be deployed and verified before the next begins.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 9. Les tuyaux | v2.4 | 0/TBD | Not started | - |
+| 9. Les tuyaux | v2.4 | 0/2 | Planning complete | - |
 | 10. Les connexions | v2.4 | 0/TBD | Not started | - |
 | 11. La navigation | v2.4 | 0/TBD | Not started | - |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |
