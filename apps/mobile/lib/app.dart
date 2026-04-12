@@ -10,6 +10,7 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
+import 'package:mint_mobile/screens/anonymous/anonymous_intent_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -201,7 +202,13 @@ final _router = GoRouter(
     ScopedGoRoute(
       path: '/',
       scope: RouteScope.public, // Landing page
-      builder: (context, state) => const LandingScreen(),
+      builder: (context, state) {
+        final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+        if (isLoggedIn) {
+          return const LandingScreen();
+        }
+        return const AnonymousIntentScreen();
+      },
     ),
     ScopedGoRoute(
       path: '/auth/login',
