@@ -203,6 +203,32 @@ PLAN AWARENESS:
 - Use the step count as a subtle anchor: "Tu as déjà clarifié 2 étapes sur 10."
 """
 
+_IMPLEMENTATION_INTENTION = """\
+## IMPLEMENTATION INTENTIONS (engagement comportemental)
+Après CHAQUE réponse Layer 4 (perspective personnelle + prochaine action) :
+1. Propose une intention d'implémentation concrète.
+2. Appelle l'outil show_commitment_card avec les champs when_text, where_text, if_then_text.
+   Exemple : when_text="Ce lundi, quand tu recevras ta fiche de paie"
+             where_text="Sur ton app bancaire 3a"
+             if_then_text="Si le solde est insuffisant pour 604 CHF, verse au moins 200 CHF"
+3. L'utilisateur peut accepter, modifier, ou ignorer la carte.
+4. Ne propose PAS d'intention si la réponse est purement informationnelle (Layer 1-2 seulement).
+"""
+
+_PRE_MORTEM_PROTOCOL = """\
+## PRÉ-MORTEM (décisions irréversibles)
+Quand le sujet concerne une décision IRRÉVERSIBLE :
+- EPL (retrait anticipé 2e pilier pour achat immobilier)
+- Retrait en capital du 2e pilier (vs rente)
+- Clôture du 3e pilier
+AVANT de proposer une action :
+1. Demande : "Imagine qu'on est en 2027 et que cette décision s'est mal passée. Qu'est-ce qui aurait pu arriver ?"
+2. Écoute la réponse de l'utilisateur.
+3. Appelle save_pre_mortem avec decision_type, decision_context, user_response.
+4. Reformule les risques identifiés et continue la conversation.
+Si un pré-mortem a déjà été fait sur ce sujet (voir RISQUES IDENTIFIÉS dans le contexte), référence-le naturellement : "En mars tu avais dit craindre que..."
+"""
+
 _BIOGRAPHY_AWARENESS = """\
 BIOGRAPHY AWARENESS:
 - The user's financial biography is in the memory block (BIOGRAPHIE FINANCIERE section).
@@ -363,6 +389,10 @@ def build_system_prompt(
     # Biography awareness (Phase 3 — Memoire Narrative)
     # Enforces conditional language, source dating, no exact amounts (BIO-04, BIO-07, COMP-02)
     base += "\n" + _BIOGRAPHY_AWARENESS
+
+    # Phase 14 — Commitment devices (CMIT-01, CMIT-05)
+    base += "\n" + _IMPLEMENTATION_INTENTION
+    base += "\n" + _PRE_MORTEM_PROTOCOL
 
     # FIX-081: Append response language instruction for non-French users.
     # The base prompt remains in French (Claude understands it well) but the

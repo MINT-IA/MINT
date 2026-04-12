@@ -72,6 +72,9 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "set_goal",
     "mark_step_completed",
     "save_insight",
+    # P14 commitment devices: ack-only handlers (persistence via dedicated endpoint in Plan 02)
+    "record_commitment",
+    "save_pre_mortem",
 ]
 
 # ---------------------------------------------------------------------------
@@ -719,6 +722,128 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["document_type", "context"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # record_commitment — WRITE/INTERNAL: persist implementation intention
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "record_commitment",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Record an implementation intention (WHEN/WHERE/IF-THEN) after a "
+            "Layer 4 insight. The backend acknowledges and persists the commitment. "
+            "This tool is handled internally by the backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "when_text": {
+                    "type": "string",
+                    "description": (
+                        "WHEN part of the intention "
+                        "(e.g. 'Ce lundi, quand tu recevras ta fiche de paie')."
+                    ),
+                },
+                "where_text": {
+                    "type": "string",
+                    "description": (
+                        "WHERE part of the intention "
+                        "(e.g. 'Sur ton app bancaire 3a')."
+                    ),
+                },
+                "if_then_text": {
+                    "type": "string",
+                    "description": (
+                        "IF-THEN part of the intention "
+                        "(e.g. 'Si le solde est insuffisant pour 604 CHF, verse au moins 200 CHF')."
+                    ),
+                },
+                "reminder_at": {
+                    "type": "string",
+                    "description": (
+                        "Optional ISO 8601 datetime for a reminder "
+                        "(e.g. '2026-04-15T09:00:00Z'). Omit if no reminder needed."
+                    ),
+                },
+            },
+            "required": ["when_text", "where_text", "if_then_text"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_pre_mortem — WRITE/INTERNAL: persist pre-mortem risk scenario
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_pre_mortem",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Save a pre-mortem risk scenario before an irrevocable financial "
+            "decision (EPL, capital withdrawal, 3a closure). The backend "
+            "acknowledges and persists the entry. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "decision_type": {
+                    "type": "string",
+                    "enum": ["epl", "capital_withdrawal", "pillar_3a_closure"],
+                    "description": (
+                        "Type of irrevocable decision: "
+                        "'epl' = EPL (retrait anticipé 2e pilier pour achat immobilier), "
+                        "'capital_withdrawal' = retrait en capital du 2e pilier, "
+                        "'pillar_3a_closure' = clôture du 3e pilier."
+                    ),
+                },
+                "decision_context": {
+                    "type": "string",
+                    "description": (
+                        "Optional context about the decision being considered "
+                        "(e.g. 'Achat appartement à Sion, EPL de 50k envisagé')."
+                    ),
+                },
+                "user_response": {
+                    "type": "string",
+                    "description": (
+                        "The user's response to the pre-mortem prompt: what could "
+                        "go wrong if this decision turns out badly."
+                    ),
+                },
+            },
+            "required": ["decision_type", "user_response"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # show_commitment_card — READ: Flutter-bound editable commitment card
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "show_commitment_card",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Display an editable commitment card (WHEN/WHERE/IF-THEN) inline "
+            "in chat. The user can accept, edit, or dismiss the commitment. "
+            "This tool is forwarded to Flutter for rendering — the backend "
+            "does NOT handle it internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "when_text": {
+                    "type": "string",
+                    "description": "WHEN part of the intention.",
+                },
+                "where_text": {
+                    "type": "string",
+                    "description": "WHERE part of the intention.",
+                },
+                "if_then_text": {
+                    "type": "string",
+                    "description": "IF-THEN part of the intention.",
+                },
+            },
+            "required": ["when_text", "where_text", "if_then_text"],
         },
     },
 ]
