@@ -22442,4 +22442,7 @@ class SIt extends S {
   @override
   String get commitmentReminderBody =>
       'È il momento di mantenere il tuo impegno.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
 }

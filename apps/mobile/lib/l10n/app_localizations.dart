@@ -39272,6 +39272,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'C’est le moment de tenir ton engagement.'**
   String get commitmentReminderBody;
+
+  /// Fresh-start landmark — notification title.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT'**
+  String get freshStartNotificationTitle;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

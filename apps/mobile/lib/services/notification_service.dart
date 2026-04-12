@@ -773,6 +773,72 @@ class NotificationService {
     await _plugin!.cancel(_idCommitmentBase + (commitmentId % 1000));
   }
 
+  // ── Fresh-start anchors (Phase 14 / CMIT-03 + CMIT-04) ───
+
+  /// ID base for fresh-start landmark notifications.
+  static const _idFreshStartBase = 6000;
+
+  /// Map landmark type to a stable sub-offset for unique notification IDs.
+  static const _freshStartTypeOffset = <String, int>{
+    'birthday': 0,
+    'month_start': 1,
+    'year_start': 2,
+    'job_anniversary': 3,
+    'mint_anniversary': 4,
+  };
+
+  /// Schedule a local notification for a fresh-start landmark.
+  ///
+  /// Fires at 09:00 local time on [date]. Deeplinks to coach chat
+  /// with fresh-start intent and landmark type context.
+  ///
+  /// Respects notification consent (ConsentManager). Returns silently
+  /// if consent is not given, on web, or if plugin is unavailable.
+  Future<void> scheduleFreshStart({
+    required String landmarkType,
+    required DateTime date,
+    required String title,
+    required String body,
+  }) async {
+    if (kIsWeb || _plugin == null) return;
+    if (!_isInitialized) await init();
+
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) return;
+
+    final offset = _freshStartTypeOffset[landmarkType] ?? 0;
+    final notifId = _idFreshStartBase + offset;
+
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      date.year,
+      date.month,
+      date.day,
+      9, // 09:00 local time
+    );
+
+    // Only schedule if in the future
+    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    await _scheduleNotification(
+      id: notifId,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
+      payload: '/home?tab=1&intent=freshStart&type=$landmarkType',
+    );
+  }
+
+  /// Cancel all scheduled fresh-start notifications.
+  Future<void> cancelAllFreshStarts() async {
+    if (_plugin == null) return;
+    for (final offset in _freshStartTypeOffset.values) {
+      await _plugin!.cancel(_idFreshStartBase + offset);
+    }
+  }
+
   // ── Cancel ────────────────────────────────────────────────
 
   /// Cancel all scheduled notifications

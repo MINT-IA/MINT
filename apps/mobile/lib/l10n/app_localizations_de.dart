@@ -22434,4 +22434,7 @@ class SDe extends S {
 
   @override
   String get commitmentReminderBody => 'Zeit, deine Verpflichtung einzulösen.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
 }

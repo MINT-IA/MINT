@@ -22386,4 +22386,7 @@ class SPt extends S {
 
   @override
   String get commitmentReminderBody => 'É hora de cumprir o seu compromisso.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
 }

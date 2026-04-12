@@ -10945,5 +10945,7 @@
   "commitmentReminderTitle": "Rappel MINT",
   "@commitmentReminderTitle": {"description": "Commitment reminder \u2014 notification title."},
   "commitmentReminderBody": "C\u2019est le moment de tenir ton engagement.",
-  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."}
+  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."},
+  "freshStartNotificationTitle": "MINT",
+  "@freshStartNotificationTitle": {"description": "Fresh-start landmark \u2014 notification title."}
 }

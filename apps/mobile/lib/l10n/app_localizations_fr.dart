@@ -22383,4 +22383,7 @@ class SFr extends S {
   @override
   String get commitmentReminderBody =>
       'C’est le moment de tenir ton engagement.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
 }

@@ -10389,5 +10389,7 @@
   "commitmentReminderTitle": "Recordatorio MINT",
   "@commitmentReminderTitle": {"description": "Commitment reminder \u2014 notification title."},
   "commitmentReminderBody": "Es hora de cumplir tu compromiso.",
-  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."}
+  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."},
+  "freshStartNotificationTitle": "MINT",
+  "@freshStartNotificationTitle": {"description": "Fresh-start landmark \u2014 notification title."}
 }

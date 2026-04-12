@@ -22381,4 +22381,7 @@ class SEs extends S {
 
   @override
   String get commitmentReminderBody => 'Es hora de cumplir tu compromiso.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
 }
