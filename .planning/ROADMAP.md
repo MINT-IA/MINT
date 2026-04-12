@@ -25,7 +25,7 @@ MINT compiles with 9256 tests passing but is non-functional for real users. The 
 - Decimal phases (9.1, 10.1): Urgent insertions if needed
 
 - [x] **Phase 9: Les tuyaux** - Backend infra hardening: SQLite fail-fast, RAG persistence, agent timeout, Docker paths (completed 2026-04-12)
-- [ ] **Phase 10: Les connexions** - Front-back wiring: 5x URL double-prefix, camelCase mismatch, DNS cleanup, staging URL
+- [x] **Phase 10: Les connexions** - Front-back wiring: 5x URL double-prefix, camelCase mismatch, DNS cleanup, staging URL (completed 2026-04-12)
 - [ ] **Phase 11: La navigation** - Shell architecture: 3-tab shell, ProfileDrawer, back button, zombie cleanup, Explorer hubs
 - [ ] **Phase 12: La preuve** - End-to-end human validation on real iPhone, 8 flows, annotated screenshots
 
@@ -60,7 +60,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 10-01-PLAN.md — Fix 5 double-prefix URLs, create DELETE /sync-insight endpoint, fix camelCase JSON mismatch, clean URL candidates
+- [x] 10-01-PLAN.md — Fix 5 double-prefix URLs, create DELETE /sync-insight endpoint, fix camelCase JSON mismatch, clean URL candidates
 
 ### Phase 11: La navigation
 **Goal**: User can navigate MINT freely — 3 persistent tabs, ProfileDrawer for settings/profile/logout, working back button, no dead screens, Explorer hubs show real content
@@ -102,7 +102,7 @@ Each phase must be deployed and verified before the next begins.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 9. Les tuyaux | v2.4 | 2/2 | Complete   | 2026-04-12 |
-| 10. Les connexions | v2.4 | 0/1 | Not started | - |
+| 10. Les connexions | v2.4 | 1/1 | Complete   | 2026-04-12 |
 | 11. La navigation | v2.4 | 0/TBD | Not started | - |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |
 

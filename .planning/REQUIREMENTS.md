@@ -17,14 +17,14 @@ Requirements derived from `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` (3
 
 ### Front-Back Connections (PIPE)
 
-- [ ] **PIPE-01**: `document_service.dart:sendScanConfirmation` URL no longer double-prefixes `/api/v1` — request reaches the backend endpoint and returns 200 (P0-PIPE-1)
-- [ ] **PIPE-02**: `document_service.dart:extractWithVision` URL no longer double-prefixes — Claude Vision OCR reaches backend (P0-PIPE-2)
-- [ ] **PIPE-03**: `document_service.dart:fetchPremierEclairage` URL no longer double-prefixes — 4-layer premier eclairage loads after document scan (P0-PIPE-3)
-- [ ] **PIPE-04**: `coach_memory_service.dart:syncInsight` URL no longer double-prefixes — coach insights sync to backend RAG (P0-PIPE-4)
-- [ ] **PIPE-05**: `coach_memory_service.dart:deleteInsight` URL no longer double-prefixes AND backend DELETE `/coach/sync-insight/{id}` endpoint exists (P0-PIPE-5)
-- [ ] **PIPE-06**: `coach_chat_api_service.dart` reads `json['toolCalls']` (camelCase) instead of `json['tool_calls']` — tool calling works on server-key path, verified by integration test (P1-PIPE-1)
-- [ ] **PIPE-07**: `api.mint.ch` removed from URL candidates in `api_service.dart` — eliminates 2s latency from DNS resolution failure (P1-PIPE-2)
-- [ ] **PIPE-08**: Staging Railway URL added to Flutter URL candidates so TestFlight builds can reach staging backend (P2-PIPE-1)
+- [x] **PIPE-01**: `document_service.dart:sendScanConfirmation` URL no longer double-prefixes `/api/v1` — request reaches the backend endpoint and returns 200 (P0-PIPE-1)
+- [x] **PIPE-02**: `document_service.dart:extractWithVision` URL no longer double-prefixes — Claude Vision OCR reaches backend (P0-PIPE-2)
+- [x] **PIPE-03**: `document_service.dart:fetchPremierEclairage` URL no longer double-prefixes — 4-layer premier eclairage loads after document scan (P0-PIPE-3)
+- [x] **PIPE-04**: `coach_memory_service.dart:syncInsight` URL no longer double-prefixes — coach insights sync to backend RAG (P0-PIPE-4)
+- [x] **PIPE-05**: `coach_memory_service.dart:deleteInsight` URL no longer double-prefixes AND backend DELETE `/coach/sync-insight/{id}` endpoint exists (P0-PIPE-5)
+- [x] **PIPE-06**: `coach_chat_api_service.dart` reads `json['toolCalls']` (camelCase) instead of `json['tool_calls']` — tool calling works on server-key path, verified by integration test (P1-PIPE-1)
+- [x] **PIPE-07**: `api.mint.ch` removed from URL candidates in `api_service.dart` — eliminates 2s latency from DNS resolution failure (P1-PIPE-2)
+- [x] **PIPE-08**: Staging Railway URL added to Flutter URL candidates so TestFlight builds can reach staging backend (P2-PIPE-1)
 
 ### Navigation Architecture (NAV)
 
@@ -87,14 +87,14 @@ Explicitly excluded for v2.4. Documented to prevent scope creep.
 | INFRA-03 | Phase 9 | Complete |
 | INFRA-04 | Phase 9 | Complete |
 | INFRA-05 | Phase 9 | Complete |
-| PIPE-01 | Phase 10 | Pending |
-| PIPE-02 | Phase 10 | Pending |
-| PIPE-03 | Phase 10 | Pending |
-| PIPE-04 | Phase 10 | Pending |
-| PIPE-05 | Phase 10 | Pending |
-| PIPE-06 | Phase 10 | Pending |
-| PIPE-07 | Phase 10 | Pending |
-| PIPE-08 | Phase 10 | Pending |
+| PIPE-01 | Phase 10 | Complete |
+| PIPE-02 | Phase 10 | Complete |
+| PIPE-03 | Phase 10 | Complete |
+| PIPE-04 | Phase 10 | Complete |
+| PIPE-05 | Phase 10 | Complete |
+| PIPE-06 | Phase 10 | Complete |
+| PIPE-07 | Phase 10 | Complete |
+| PIPE-08 | Phase 10 | Complete |
 | NAV-01 | Phase 11 | Pending |
 | NAV-02 | Phase 11 | Pending |
 | NAV-03 | Phase 11 | Pending |
