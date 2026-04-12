@@ -1,4 +1,5 @@
 # MINT Backend — Production Dockerfile
+# Build context: REPO ROOT (set via railway.json dockerfilePath)
 # Multi-stage build: install deps in builder, copy to slim runtime
 
 # --- Stage 1: Builder ---
@@ -13,8 +14,8 @@ RUN apt-get update && \
 # CRITICAL: [rag] extra includes chromadb, openai, tiktoken which are required
 # by coach_chat.py / rag.py. Without this extra, the RAG orchestrator
 # cannot initialize and returns 503 "RAG dependencies not installed".
-COPY pyproject.toml .
-COPY app/ app/
+COPY services/backend/pyproject.toml .
+COPY services/backend/app/ app/
 RUN pip install --no-cache-dir ".[rag]" && python -c "import anthropic, chromadb; print('anthropic', anthropic.__version__, '/ chromadb', chromadb.__version__)"
 
 # --- Stage 2: Production ---
@@ -31,12 +32,25 @@ RUN groupadd -r mint && useradd -r -g mint -d /app mint
 
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
-COPY . .
 
-RUN chown -R mint:mint /app
+# Copy backend application code
+COPY services/backend/app/ /app/app/
+COPY services/backend/alembic/ /app/alembic/
+COPY services/backend/alembic.ini /app/alembic.ini
+COPY services/backend/scripts/ /app/scripts/
+COPY services/backend/pyproject.toml /app/pyproject.toml
+
+# Copy education inserts into Docker image (P0-INFRA-2, P1-INFRA-3)
+# Path resolves to /app/education/inserts/ — matches main.py logic
+COPY education/inserts/ /app/education/inserts/
+
+# Create data directory for ChromaDB (Railway volume mounts at /data/chromadb)
+RUN mkdir -p /data/chromadb
+
+RUN chown -R mint:mint /app /data
 USER mint
 
-# Fly.io injects PORT env var; fallback 8080
+# Railway injects PORT env var; fallback 8080
 ENV PORT=8080
 EXPOSE ${PORT}
 
