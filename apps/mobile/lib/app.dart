@@ -124,6 +124,8 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/tension_card_provider.dart';
+import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
@@ -254,7 +256,13 @@ final _router = GoRouter(
           routes: [
             GoRoute(
               path: '/home',
-              builder: (context, state) => const LandingScreen(),
+              builder: (context, state) {
+                final isAuthenticated =
+                    context.watch<AuthProvider>().isLoggedIn;
+                return isAuthenticated
+                    ? const AujourdhuiScreen()
+                    : const LandingScreen();
+              },
             ),
           ],
         ),
@@ -1125,6 +1133,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
         ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
+        ChangeNotifierProvider(create: (_) => TensionCardProvider()),
       ],
       child: Builder(
         builder: (context) {
