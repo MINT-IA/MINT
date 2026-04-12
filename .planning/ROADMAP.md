@@ -24,7 +24,7 @@ MINT compiles with 9256 tests passing but is non-functional for real users. The 
 - Phases 9-12 belong to milestone v2.4 (continuing from v2.1 Phase 8)
 - Decimal phases (9.1, 10.1): Urgent insertions if needed
 
-- [ ] **Phase 9: Les tuyaux** - Backend infra hardening: SQLite fail-fast, RAG persistence, agent timeout, Docker paths
+- [x] **Phase 9: Les tuyaux** - Backend infra hardening: SQLite fail-fast, RAG persistence, agent timeout, Docker paths (completed 2026-04-12)
 - [ ] **Phase 10: Les connexions** - Front-back wiring: 5x URL double-prefix, camelCase mismatch, DNS cleanup, staging URL
 - [ ] **Phase 11: La navigation** - Shell architecture: 3-tab shell, ProfileDrawer, back button, zombie cleanup, Explorer hubs
 - [ ] **Phase 12: La preuve** - End-to-end human validation on real iPhone, 8 flows, annotated screenshots
@@ -45,7 +45,7 @@ MINT compiles with 9256 tests passing but is non-functional for real users. The 
 
 Plans:
 - [x] 09-01-PLAN.md — Config guards (SQLite fail-fast, OPENAI_API_KEY) + RAG persistence (ChromaDB volume, education Docker path)
-- [ ] 09-02-PLAN.md — Agent loop timeout (55s total deadline + 25s per-iteration cap)
+- [x] 09-02-PLAN.md — Agent loop timeout (55s total deadline + 25s per-iteration cap)
 
 ### Phase 10: Les connexions
 **Goal**: Every Flutter-to-backend API call reaches its endpoint and returns structured data — zero 404, zero silent failure, tool calling works on server-key path
@@ -101,7 +101,7 @@ Each phase must be deployed and verified before the next begins.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 9. Les tuyaux | v2.4 | 0/2 | Planning complete | - |
+| 9. Les tuyaux | v2.4 | 2/2 | Complete   | 2026-04-12 |
 | 10. Les connexions | v2.4 | 0/TBD | Not started | - |
 | 11. La navigation | v2.4 | 0/TBD | Not started | - |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |

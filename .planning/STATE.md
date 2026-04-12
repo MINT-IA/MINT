@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.4
 milestone_name: milestone
-status: executing
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-04-12T09:17:36.535Z"
+status: verifying
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-04-12T09:21:05.732Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
-  percent: 50
+  completed_plans: 2
+  percent: 100
 ---
 
 # GSD State: MINT v2.4 — Fondation
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 Phase: 9 (Les tuyaux) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
@@ -49,6 +49,7 @@ Progress: [░░░░░░░░░░] 0%
 | 11 — La navigation | 0/TBD | — | — |
 | 12 — La preuve | 0/TBD | — | — |
 | Phase 09-les-tuyaux P01 | 4min | 2 tasks | 6 files |
+| Phase 09-les-tuyaux P02 | 2min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,7 @@ Recent decisions affecting current work:
 - Backend before frontend (fixing Flutter when backend crashes yields 500s not 404s)
 - Device gate is the only real validation (9256 tests green proved nothing)
 - [Phase 09-les-tuyaux]: Repo-root Docker build context to include education/inserts without symlinks
+- [Phase 09-les-tuyaux]: 55s total + 25s per-iteration timeout on agent loop, graceful French message on timeout
 
 ### From Previous Milestones
 
@@ -75,8 +77,8 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-12T09:17:36.533Z
-Stopped at: Completed 09-01-PLAN.md
+Last session: 2026-04-12T09:21:05.730Z
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
 
 ---
