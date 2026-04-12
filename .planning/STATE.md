@@ -4,7 +4,7 @@ milestone: v2.5
 milestone_name: Transformation
 status: verifying
 stopped_at: Completed 16-02-PLAN.md
-last_updated: "2026-04-12T18:45:27.205Z"
+last_updated: "2026-04-12T18:48:40.782Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 16 (Couple Mode Dissymetrique) — EXECUTING
-Plan: 2 of 2
+Phase: 17
+Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 14 (from v2.4)
+- Total plans completed: 16 (from v2.4)
 - Average duration: ~6 min/plan
 - Total execution time: ~0.5 hours
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | 15 | 2 | - | - |
 | Phase 16-couple-mode-dissymetrique P01 | 4min | 2 tasks | 4 files |
 | Phase 16 P02 | 7min | 2 tasks | 7 files |
+| 16 | 2 | - | - |
 
 ## Accumulated Context
 
