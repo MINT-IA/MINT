@@ -37,5 +37,11 @@ Progress: ░░░░░░░░░░ 0%
 - New PROJECT.md, REQUIREMENTS.md, ROADMAP.md created
 - Config: interactive, fine-grained, sequential, quality (Opus), all workflow agents enabled
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260412-dr1 | Fix 2 Sentry errors blocking coach chat on Railway staging | 2026-04-12 | 11093e46 | [260412-dr1-fix-2-sentry-errors-blocking-coach-chat-](./quick/260412-dr1-fix-2-sentry-errors-blocking-coach-chat-/) |
+
 ---
-*Last updated: 2026-04-10*
+*Last activity: 2026-04-12 - Completed quick task 260412-dr1: Fix 2 Sentry errors blocking coach chat on Railway staging*
