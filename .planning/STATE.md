@@ -4,46 +4,61 @@
 
 See: .planning/PROJECT.md (updated 2026-04-12)
 
-**Core value:** Un humain externe peut ouvrir MINT, naviguer, uploader, recevoir un premier éclairage, parler au coach — zero crash, zero 404, zero boucle.
-**Current focus:** Defining requirements
+**Core value:** Un humain externe peut ouvrir MINT, naviguer, uploader, recevoir un premier eclairage, parler au coach — zero crash, zero 404, zero boucle.
+**Current focus:** Phase 9 — Les tuyaux (backend infra)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-04-12 — Milestone v2.4 started
+Phase: 9 of 12 (Les tuyaux)
+Plan: 0 of TBD in current phase
+Status: Ready to plan
+Last activity: 2026-04-12 — Roadmap created, 28 requirements mapped to 4 phases
 
-## Progress
+Progress: [░░░░░░░░░░] 0%
 
-| Phase | Status | Progress |
-|-------|--------|----------|
-| 1 — Les tuyaux (backend infra) | ○ Pending | 0% |
-| 2 — Les connexions (front-back) | ○ Pending | 0% |
-| 3 — La navigation (architecture) | ○ Pending | 0% |
-| 4 — La preuve (validation humaine) | ○ Pending | 0% |
+## Performance Metrics
 
-Progress: ░░░░░░░░░░ 0%
+**Velocity:**
+- Total plans completed: 0
+- Average duration: —
+- Total execution time: 0 hours
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| 9 — Les tuyaux | 0/TBD | — | — |
+| 10 — Les connexions | 0/TBD | — | — |
+| 11 — La navigation | 0/TBD | — | — |
+| 12 — La preuve | 0/TBD | — | — |
 
 ## Accumulated Context
 
-### From v2.1 Stabilisation
-- 6-axis facade-sans-cablage audit methodology proven
-- 11 dead services deleted, 4 P0 providers registered
-- Coach tool calling wired on BYOK path (but server-key path still broken)
-- CI green on dev
+### Decisions
 
-### From deep audit (2026-04-12)
-- 32 findings documented in .planning/architecture/14-INFRA-AUDIT-FINDINGS.md
-- 2 Sentry errors fixed (RAG graceful fallback)
-- Root causes: double URL prefix, camelCase mismatch, zero shell, ephemeral ChromaDB
+Decisions logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
 
-## Session Log
+- Sequential execution non-negotiable (parallel agents caused the current damage)
+- Backend before frontend (fixing Flutter when backend crashes yields 500s not 404s)
+- Device gate is the only real validation (9256 tests green proved nothing)
 
-### 2026-04-12 — Milestone v2.4 started
-- 3-axis deep audit produced 32 findings (11 P0, 8 P1, 7 P2, 6 P3)
-- GSD quick 260412-dr1: Fixed 2 Sentry errors (RAG graceful fallback)
-- Milestone v2.4 initialized from audit findings
+### From Previous Milestones
+
+- v2.1: Coach tool calling wired on BYOK path, 11 dead services deleted, CI green on dev
+- Deep audit (2026-04-12): 32 findings, 11 P0 — root causes: double URL prefix, camelCase mismatch, zero shell, ephemeral ChromaDB
+
+### Blockers/Concerns
+
+- Railway volume mount permissions (UID) need firsthand verification on staging deploy (Phase 9)
+- ScopedGoRoute compatibility with StatefulShellRoute untested (Phase 11)
+- DELETE /coach/sync-insight/{id} endpoint does not exist yet (Phase 10)
+
+## Session Continuity
+
+Last session: 2026-04-12
+Stopped at: Roadmap created, ready to plan Phase 9
+Resume file: None
 
 ---
-*Last activity: 2026-04-12 — Milestone v2.4 started*
+*Last activity: 2026-04-12 — Roadmap created*

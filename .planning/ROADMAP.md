@@ -1,219 +1,110 @@
-# Roadmap: MINT Recovery
+# Roadmap: MINT v2.4 — Fondation
 
-**Created:** 2026-04-10
-**Core Value:** A real user can cold-start MINT, talk to AI coach, get correct insights, navigate without dead ends.
-**Phases:** 8 (fine-grained, sequential)
-**Execution:** Sequential (one plan at a time)
-**Verification:** Device gate after each phase (flutter run --release on iPhone)
+## Milestones
 
-## Phase Overview
+- ✅ **v1.0 MVP** - Phases 1-8 (shipped 2026-03-20)
+- ✅ **v2.0 Systeme Vivant** - Phases 1-6 (shipped 2026-04-07)
+- ✅ **v2.1 Stabilisation** - Phase 7 (shipped 2026-04-07)
 
-| Phase | Goal | Requirements | Depends on |
-|-------|------|-------------|------------|
-| 1 | Unblock CI/CD pipeline | INFRA-01, INFRA-02, INFRA-03 | — |
-| 2 | Fix financial calculations | CALC-01..05 | — |
-| 3 | Fix authentication | AUTH-01..04 | — |
-| 4 | Wire coach AI to server key | COACH-01..04 | Phase 1 (needs working CI) |
-| 5 | Fix dead routes (services) | NAV-01..05 | — |
-| 6 | Fix dead routes (UI) | NAV-06..08 | Phase 5 |
-| 7 | Device walkthrough gate | GATE-01..05 | Phase 1-6 |
-| 8 | Commit uncommitted changes + cleanup | — | Phase 7 |
+<details>
+<summary>Previous milestones (v1.0, v2.0, v2.1) — see MILESTONES.md</summary>
 
----
+All previous milestone phases (1-8) are documented in `.planning/MILESTONES.md`.
+Phase numbering continues from v2.1's last phase (Phase 8).
 
-## Phase 1: Unblock CI/CD Pipeline
+</details>
 
-**Goal:** Get dev and staging branches green. TestFlight builds again.
+## Overview
 
-**Why first:** Nothing can ship until CI works. The 9 credential fix commits on feature/cso-security-fixes need to reach dev/staging.
+MINT compiles with 9256 tests passing but is non-functional for real users. The backend pipes are broken (RAG ephemeral, URLs 404, tool calling dead), there is zero navigation shell, and users are trapped on a single screen. This milestone fixes all plumbing in strict sequential order: backend infrastructure first, then front-back connections, then navigation architecture, then human validation on a real iPhone. Zero new features. Recovery only.
 
-**Requirements:** INFRA-01, INFRA-02, INFRA-03
+## Phases
 
-**Plans:** 1 plan
+**Phase Numbering:**
+- Phases 9-12 belong to milestone v2.4 (continuing from v2.1 Phase 8)
+- Decimal phases (9.1, 10.1): Urgent insertions if needed
 
-Plans:
-- [ ] 01-01-PLAN.md — Merge CI fixes to staging, verify TestFlight, create staging-to-main PR
+- [ ] **Phase 9: Les tuyaux** - Backend infra hardening: SQLite fail-fast, RAG persistence, agent timeout, Docker paths
+- [ ] **Phase 10: Les connexions** - Front-back wiring: 5x URL double-prefix, camelCase mismatch, DNS cleanup, staging URL
+- [ ] **Phase 11: La navigation** - Shell architecture: 3-tab shell, ProfileDrawer, back button, zombie cleanup, Explorer hubs
+- [ ] **Phase 12: La preuve** - End-to-end human validation on real iPhone, 8 flows, annotated screenshots
 
-**Success criteria:**
-- [ ] feature/cso-security-fixes PR merged to dev
-- [ ] dev CI passes (flutter analyze + test + pytest)
-- [ ] dev merged to staging
-- [ ] staging CI passes
-- [ ] TestFlight build triggered and succeeds
-- [ ] staging → main sync initiated (resolve 674-commit divergence)
+## Phase Details
 
-**Verification:** GitHub Actions green on dev and staging. TestFlight build in App Store Connect.
-
----
-
-## Phase 2: Fix Financial Calculations
-
-**Goal:** Golden couple Julien+Lauren — all 19 tests pass. LPP projections correct.
-
-**Why second:** The core value proposition of MINT is financial insights. If the numbers are wrong, nothing else matters. This phase is independent of CI.
-
-**Requirements:** CALC-01, CALC-02, CALC-03, CALC-04, CALC-05
-
-**Plans:** 1 plan
+### Phase 9: Les tuyaux
+**Goal**: Backend is stable on Railway with persistent RAG corpus, fail-fast guards, and bounded agent loop — deploys survive restarts, crashes are loud not silent
+**Depends on**: Nothing (first phase of v2.4)
+**Requirements**: INFRA-01, INFRA-02, INFRA-03, INFRA-04, INFRA-05
+**Success Criteria** (what must be TRUE):
+  1. Railway staging deploy with SQLite DATABASE_URL crashes at startup with a clear RuntimeError (not silent data loss)
+  2. RAG corpus persists across two consecutive Railway deploys — education insert count is identical before and after redeploy
+  3. Agent loop returns a partial response with a timeout message after 55s instead of a 502 Bad Gateway
+  4. Education inserts (103 docs) are accessible inside the Docker container and auto-ingested at startup
+  5. Missing OPENAI_API_KEY produces a startup warning in Railway logs (not a silent embedding failure on first user request)
+**Plans**: TBD
 
 Plans:
-- [ ] 02-01-PLAN.md — Fix LPP overrides wiring, correct golden couple test expectations, tighten assertions
+- [ ] 09-01: TBD
 
-**Success criteria:**
-- [ ] Root cause identified in lpp_calculator.dart:67-123 (bonificationRateOverride + salaireAssureOverride interaction)
-- [ ] Fix applied — LPP projection for CPE Plan Maxi yields correct values
-- [ ] Test 2a: Julien LPP rente = ~33'892 CHF/an (±2%)
-- [ ] Test 2b: Lauren LPP balance @65 = ~153'000 CHF (±5%)
-- [ ] Test 4: Taux remplacement couple = ~65.5% (±2%)
-- [ ] All 19 golden couple tests pass
-- [ ] flutter test completes with 0 failures (currently 11)
-
-**Verification:** `flutter test test/golden/golden_couple_validation_test.dart` — 19/19 pass.
-
----
-
-## Phase 3: Fix Authentication
-
-**Goal:** Login visible, logout purges data, auth state persists across restarts.
-
-**Why:** Users can't trust an app where logout doesn't work and login is hidden.
-
-**Requirements:** AUTH-01, AUTH-02, AUTH-03, AUTH-04
-
-**Plans:** 1 plan
+### Phase 10: Les connexions
+**Goal**: Every Flutter-to-backend API call reaches its endpoint and returns structured data — zero 404, zero silent failure, tool calling works on server-key path
+**Depends on**: Phase 9
+**Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06, PIPE-07, PIPE-08
+**Success Criteria** (what must be TRUE):
+  1. Document scan flow completes end-to-end: scan confirmation, Vision OCR extraction, and premier eclairage all return 200 from staging backend
+  2. Coach insights sync to backend RAG and can be deleted — both syncInsight and deleteInsight return 200
+  3. Tool calling works on server-key path: user sends a message, backend returns toolCalls array, Flutter parses and executes tools
+  4. First API call to staging completes in under 3s (no 2s DNS timeout from dead api.mint.ch domain)
+  5. TestFlight build can reach staging backend (staging Railway URL present in URL candidates)
+**Plans**: TBD
 
 Plans:
-- [ ] 03-01-PLAN.md — Fix logout purge, add visible login link, call checkAuth at startup
+- [ ] 10-01: TBD
 
-**Success criteria:**
-- [ ] Landing screen has a visible, discoverable login entry point
-- [ ] profile_drawer.dart logout calls AuthProvider.logout() before navigating
-- [ ] AuthProvider.logout() purges: tokens, conversations, BYOK keys, coach memory, analytics
-- [ ] main.dart or app.dart calls checkAuth() at startup to restore JWT from SecureStorage
-- [ ] Route guard (GoRouter redirect) correctly reads restored auth state
-- [ ] After login → restart app → user is still logged in
-- [ ] After logout → tokens gone, BYOK keys gone, conversations gone
-
-**Verification:** Manual test sequence: login → restart → still logged in → logout → restart → logged out, no data from previous session.
-
----
-
-## Phase 4: Wire Coach AI to Server Key
-
-**Goal:** User without BYOK key gets real AI responses via server-side Anthropic key.
-
-**Why:** This is the #1 user-facing broken feature. Without this, the coach is a static template machine.
-
-**Requirements:** COACH-01, COACH-02, COACH-03, COACH-04
-**Depends on:** Phase 1 (need CI to deploy backend changes if any)
-
-**Plans:** 1 plan
+### Phase 11: La navigation
+**Goal**: User can navigate MINT freely — 3 persistent tabs, ProfileDrawer for settings/profile/logout, working back button, no dead screens, Explorer hubs show real content
+**Depends on**: Phase 10
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, NAV-05, NAV-06, NAV-07
+**Success Criteria** (what must be TRUE):
+  1. User sees 3 tabs (Aujourd'hui, Coach, Explorer) as a bottom navigation bar and can switch between them without losing scroll position or chat state
+  2. User can open ProfileDrawer from any tab, access profile/documents/settings/logout, and close it to return to previous tab
+  3. Back button on any screen navigates to a sensible parent — never loops infinitely, never teleports to chat from unrelated screens
+  4. All 7 Explorer hubs (/explore/retraite, /explore/famille, etc.) load real hub screens with meaningful content
+  5. Tapping "Mon profil" in drawer opens /profile/bilan (not redirect to /coach/chat)
+**Plans**: TBD
+**UI hint**: yes
 
 Plans:
-- [ ] 04-01-PLAN.md — Create CoachChatApiService, wire server-key tier into orchestrator, bypass entitlement gate for beta, wire narrative LLM generation
+- [ ] 11-01: TBD
 
-**Success criteria:**
-- [ ] Flutter orchestrator has a "server-key" tier between BYOK and fallback
-- [ ] When no BYOK key: Flutter calls /api/v1/coach/chat (which has ANTHROPIC_API_KEY fallback)
-- [ ] Response includes: text + sources + disclaimers + tool_calls
-- [ ] ComplianceGuard validates server-key responses same as BYOK
-- [ ] Coach system prompt covers all 18 life events, not just retirement
-- [ ] Backend coach narrative endpoints return generated content (not always used_fallback=True)
+### Phase 12: La preuve
+**Goal**: Creator (Julien) cold-starts MINT on a real iPhone and completes 8 end-to-end flows without help — the only gate that matters
+**Depends on**: Phase 11
+**Requirements**: VALID-01, VALID-02, VALID-03, VALID-04, VALID-05, VALID-06, VALID-07, VALID-08
+**Success Criteria** (what must be TRUE):
+  1. Cold start to AI coach response with working tool calling completes without crash or error
+  2. Document upload produces a 4-layer premier eclairage insight on screen (not a 404, not a spinner forever)
+  3. All 3 tabs load, all 7 Explorer hubs show content, ProfileDrawer opens and every item navigates somewhere real
+  4. Coach remembers context from previous messages (RAG corpus persisted, not empty after deploy)
+  5. All 8 flows validated by Julien on real iPhone via flutter run --release, with annotated screenshots committed to .planning/walkthroughs/v2.4/
+**Plans**: TBD
 
-**Verification:** Open app without BYOK key configured → type "Comment optimiser mon 3e pilier ?" → get real AI response with sources and disclaimer. Then "Je vais acheter un appartement" → get real response about housing. Not templates.
+Plans:
+- [ ] 12-01: TBD
 
----
+## Progress
 
-## Phase 5: Fix Dead Routes (Services)
+**Execution Order:**
+Phases execute sequentially: 9 -> 10 -> 11 -> 12
+Each phase must be deployed and verified before the next begins.
 
-**Goal:** All routes emitted by backend services and contextual engines exist in app.dart.
-
-**Why:** These are invisible — the app looks fine until a contextual card or intent chip sends you to a dead route.
-
-**Requirements:** NAV-01, NAV-02, NAV-03, NAV-04, NAV-05
-
-**Success criteria:**
-- [ ] intent_router.dart: /bilan-retraite → /retraite, /fiscalite-overview → /fiscal, /achat-immobilier → /hypotheque, /prevoyance-overview → valid route or removed, /life-events → valid route or removed
-- [ ] action_opportunity_detector.dart: /documents/capture → /scan
-- [ ] progress_milestone_detector.dart: /profile/privacy → /profile/privacy-control
-- [ ] hero_stat_resolver.dart: /retirement/projection → /retraite
-- [ ] /onboarding/quick?section=profile → proper redirect that preserves intent (e.g., /coach/chat?prompt=profile or /data-block/revenu)
-- [ ] Grep for all dead routes returns 0 matches
-
-**Verification:** `grep -rn '/bilan-retraite\|/prevoyance-overview\|/fiscalite-overview\|/achat-immobilier\|/life-events\|/documents/capture\|/profile/privacy[^-]\|/retirement/projection' apps/mobile/lib/` returns nothing.
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 9. Les tuyaux | v2.4 | 0/TBD | Not started | - |
+| 10. Les connexions | v2.4 | 0/TBD | Not started | - |
+| 11. La navigation | v2.4 | 0/TBD | Not started | - |
+| 12. La preuve | v2.4 | 0/TBD | Not started | - |
 
 ---
-
-## Phase 6: Fix Dead Routes (UI)
-
-**Goal:** Profile drawer and settings sheet — every menu item leads somewhere real.
-
-**Why:** These are visible — user taps a menu item and gets "Page introuvable" or nothing happens.
-
-**Requirements:** NAV-06, NAV-07, NAV-08
-**Depends on:** Phase 5
-
-**Success criteria:**
-- [ ] profile_drawer.dart: /profile/consent either created as route or redirected to /profile/privacy-control
-- [ ] profile_drawer.dart: /profile/data-transparency either created as route or removed from drawer
-- [ ] settings_sheet.dart: /profile/consent fixed (same as drawer)
-- [ ] screen_registry.dart: no entries for non-existent routes
-- [ ] Every menu item in profile drawer navigates to a real screen
-
-**Verification:** Open profile drawer, tap every single item — none leads to error or no-op.
-
----
-
-## Phase 7: Device Walkthrough Gate
-
-**Goal:** Creator (Julien) cold-starts app on iPhone and walks through every core flow.
-
-**Why:** This is the only gate that matters. 9256 tests + audit ≠ app works. Device proves it.
-
-**Requirements:** GATE-01, GATE-02, GATE-03, GATE-04, GATE-05
-**Depends on:** Phase 1-6 all complete
-
-**Success criteria:**
-- [ ] `flutter run --release -d <iphone>` builds and installs successfully
-- [ ] Cold start: landing screen loads, CTA visible
-- [ ] Tap CTA → coach opens
-- [ ] Type message → get AI response (not template), with sources
-- [ ] Open profile drawer → tap each item → all navigate to real screens
-- [ ] Login → restart app → still logged in
-- [ ] Logout → all data cleared → back to landing
-- [ ] Type financial question → get correct numbers (not inflated LPP)
-
-**Verification:** Julien annotated screenshots or verbal confirmation of each checkpoint.
-
----
-
-## Phase 8: Commit & Cleanup
-
-**Goal:** All uncommitted changes properly committed, branch merged, clean state.
-
-**Why:** There are 39 uncommitted files (safePop additions) plus all recovery fixes. Need clean git history.
-
-**Success criteria:**
-- [ ] All recovery fixes committed with clear messages
-- [ ] safePop uncommitted changes reviewed and committed (or reverted if superseded)
-- [ ] feature branch merged to dev via PR
-- [ ] dev CI green
-- [ ] No leftover debug code, no temporary hacks
-
-**Verification:** `git status` clean, dev CI green, PR approved.
-
----
-
-## Risk Register
-
-| Risk | Mitigation |
-|------|-----------|
-| Coach wiring requires backend changes that break staging | Test on dev first, verify /health endpoint before merge |
-| LPP fix cascades to other calculators | Run full test suite after fix, not just golden couple |
-| Auth changes break existing login flows (magic link, Apple Sign-In) | Test each auth method individually |
-| Route fixes break tests that reference old routes | Update tests alongside route fixes |
-| Device gate reveals new issues not caught by audit | Budget Phase 7 for iteration, not just checkbox |
-
----
-*Roadmap created: 2026-04-10*
-*Last updated: 2026-04-10 after Phase 4 planning*
+*Roadmap created: 2026-04-12*
+*Last updated: 2026-04-12*
