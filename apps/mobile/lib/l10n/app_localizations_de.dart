@@ -22382,4 +22382,32 @@ class SDe extends S {
 
   @override
   String get anonymousIntentFreeTextHint => 'Oder sag es so, wie du willst…';
+
+  @override
+  String get anonymousChatBack => 'Zurück';
+
+  @override
+  String get anonymousChatLocked =>
+      'Ich bin immer noch da, wenn du weitermachen willst.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Konto erstellen';
+
+  @override
+  String get anonymousChatError =>
+      'Ich habe ein technisches Problem. Versuch es gleich nochmal.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'Wir haben bereits 3 Dinge zusammen entdeckt. Wenn du willst, dass ich mich daran erinnere…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Ich kann das alles für dich speichern — erstelle einfach ein Konto.';
+
+  @override
+  String get authGateLater => 'Später';
+
+  @override
+  String get authGateMagicLink => 'Link erhalten';
 }

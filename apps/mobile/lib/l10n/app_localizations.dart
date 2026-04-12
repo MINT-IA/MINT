@@ -39176,6 +39176,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ou dis-le comme tu veux…'**
   String get anonymousIntentFreeTextHint;
+
+  /// Anonymous chat — back button tooltip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get anonymousChatBack;
+
+  /// Anonymous chat — message shown when input is locked after dismissing auth gate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis toujours là quand tu voudras continuer.'**
+  String get anonymousChatLocked;
+
+  /// Anonymous chat — CTA button to create account.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer un compte'**
+  String get anonymousChatCreateAccount;
+
+  /// Anonymous chat — fallback error message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je rencontre un problème technique. Réessaie dans un instant.'**
+  String get anonymousChatError;
+
+  /// Anonymous chat — coach message before auth gate after 3rd response.
+  ///
+  /// In fr, this message translates to:
+  /// **'On a déjà découvert 3 choses ensemble. Si tu veux que je m’en souvienne…'**
+  String get anonymousChatConversionPrompt;
+
+  /// Auth gate bottom sheet — coach conversion message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je peux garder tout ça en mémoire pour toi — il te suffit de créer un compte.'**
+  String get authGateConversionMessage;
+
+  /// Auth gate bottom sheet — dismiss button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get authGateLater;
+
+  /// Auth gate bottom sheet — magic link button.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir un lien'**
+  String get authGateMagicLink;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

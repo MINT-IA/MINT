@@ -22334,4 +22334,32 @@ class SPt extends S {
 
   @override
   String get anonymousIntentFreeTextHint => 'Ou diz como quiseres…';
+
+  @override
+  String get anonymousChatBack => 'Voltar';
+
+  @override
+  String get anonymousChatLocked =>
+      'Ainda estou aqui quando quiseres continuar.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Criar uma conta';
+
+  @override
+  String get anonymousChatError =>
+      'Estou com um problema técnico. Tenta novamente num instante.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'Já descobrimos 3 coisas juntos. Se quiseres que eu me lembre…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Posso guardar tudo isto na memória para ti — basta criares uma conta.';
+
+  @override
+  String get authGateLater => 'Mais tarde';
+
+  @override
+  String get authGateMagicLink => 'Receber um link';
 }

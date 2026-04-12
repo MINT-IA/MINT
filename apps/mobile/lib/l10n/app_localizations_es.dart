@@ -22330,4 +22330,31 @@ class SEs extends S {
 
   @override
   String get anonymousIntentFreeTextHint => 'O dilo a tu manera…';
+
+  @override
+  String get anonymousChatBack => 'Volver';
+
+  @override
+  String get anonymousChatLocked => 'Sigo aquí cuando quieras continuar.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Crear una cuenta';
+
+  @override
+  String get anonymousChatError =>
+      'Tengo un problema técnico. Inténtalo de nuevo en un momento.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'Ya hemos descubierto 3 cosas juntos. Si quieres que las recuerde…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Puedo guardar todo esto en memoria para ti — solo crea una cuenta.';
+
+  @override
+  String get authGateLater => 'Más tarde';
+
+  @override
+  String get authGateMagicLink => 'Recibir un enlace';
 }

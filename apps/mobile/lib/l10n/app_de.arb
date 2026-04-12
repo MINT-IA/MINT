@@ -10355,5 +10355,22 @@
   "anonymousIntentPill6": "Ich will einfach Klarheit",
   "@anonymousIntentPill6": {"description": "Anonymous intent \u2014 felt-state pill 6."},
   "anonymousIntentFreeTextHint": "Oder sag es so, wie du willst\u2026",
-  "@anonymousIntentFreeTextHint": {"description": "Anonymous intent \u2014 free text input hint."}
+  "@anonymousIntentFreeTextHint": {"description": "Anonymous intent \u2014 free text input hint."},
+
+  "anonymousChatBack": "Zur\u00fcck",
+  "@anonymousChatBack": {"description": "Anonymous chat \u2014 back button tooltip."},
+  "anonymousChatLocked": "Ich bin immer noch da, wenn du weitermachen willst.",
+  "@anonymousChatLocked": {"description": "Anonymous chat \u2014 message shown when input is locked after dismissing auth gate."},
+  "anonymousChatCreateAccount": "Konto erstellen",
+  "@anonymousChatCreateAccount": {"description": "Anonymous chat \u2014 CTA button to create account."},
+  "anonymousChatError": "Ich habe ein technisches Problem. Versuch es gleich nochmal.",
+  "@anonymousChatError": {"description": "Anonymous chat \u2014 fallback error message."},
+  "anonymousChatConversionPrompt": "Wir haben bereits 3 Dinge zusammen entdeckt. Wenn du willst, dass ich mich daran erinnere\u2026",
+  "@anonymousChatConversionPrompt": {"description": "Anonymous chat \u2014 coach message before auth gate after 3rd response."},
+  "authGateConversionMessage": "Ich kann das alles f\u00fcr dich speichern \u2014 erstelle einfach ein Konto.",
+  "@authGateConversionMessage": {"description": "Auth gate bottom sheet \u2014 coach conversion message."},
+  "authGateLater": "Sp\u00e4ter",
+  "@authGateLater": {"description": "Auth gate bottom sheet \u2014 dismiss button."},
+  "authGateMagicLink": "Link erhalten",
+  "@authGateMagicLink": {"description": "Auth gate bottom sheet \u2014 magic link button."}
 }

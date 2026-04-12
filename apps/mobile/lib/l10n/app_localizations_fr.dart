@@ -22330,4 +22330,32 @@ class SFr extends S {
 
   @override
   String get anonymousIntentFreeTextHint => 'Ou dis-le comme tu veux…';
+
+  @override
+  String get anonymousChatBack => 'Retour';
+
+  @override
+  String get anonymousChatLocked =>
+      'Je suis toujours là quand tu voudras continuer.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Créer un compte';
+
+  @override
+  String get anonymousChatError =>
+      'Je rencontre un problème technique. Réessaie dans un instant.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'On a déjà découvert 3 choses ensemble. Si tu veux que je m’en souvienne…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Je peux garder tout ça en mémoire pour toi — il te suffit de créer un compte.';
+
+  @override
+  String get authGateLater => 'Plus tard';
+
+  @override
+  String get authGateMagicLink => 'Recevoir un lien';
 }

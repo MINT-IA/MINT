@@ -22390,4 +22390,31 @@ class SIt extends S {
 
   @override
   String get anonymousIntentFreeTextHint => 'Oppure dillo come vuoi tu…';
+
+  @override
+  String get anonymousChatBack => 'Indietro';
+
+  @override
+  String get anonymousChatLocked => 'Sono ancora qui quando vorrai continuare.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Crea un account';
+
+  @override
+  String get anonymousChatError =>
+      'Ho un problema tecnico. Riprova tra un momento.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'Abbiamo già scoperto 3 cose insieme. Se vuoi che le ricordi…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Posso tenere tutto questo in memoria per te — basta creare un account.';
+
+  @override
+  String get authGateLater => 'Più tardi';
+
+  @override
+  String get authGateMagicLink => 'Ricevi un link';
 }

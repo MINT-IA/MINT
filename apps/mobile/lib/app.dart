@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_intent_screen.dart';
+import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -238,7 +239,17 @@ final _router = GoRouter(
       ),
     ),
 
-    // ── SHELL: 3-tab persistent navigation ──────────────────
+    // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
+    ScopedGoRoute(
+      path: '/anonymous/chat',
+      scope: RouteScope.public,
+      builder: (context, state) {
+        final intent = state.uri.queryParameters['intent'];
+        return AnonymousChatScreen(intent: intent);
+      },
+    ),
+
+    // ── SHELL: 3-tab persistent navigation ───���─────���────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => MintShell(
         navigationShell: navigationShell,

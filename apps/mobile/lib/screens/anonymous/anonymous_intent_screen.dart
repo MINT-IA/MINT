@@ -90,7 +90,7 @@ class _AnonymousIntentScreenState extends State<AnonymousIntentScreen>
   void _navigateWithPrompt(String text) {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
-    context.go('/coach/chat?prompt=${Uri.encodeComponent(trimmed)}');
+    context.go('/anonymous/chat?intent=${Uri.encodeComponent(trimmed)}');
   }
 
   @override

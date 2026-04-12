@@ -22218,4 +22218,32 @@ class SEn extends S {
 
   @override
   String get anonymousIntentFreeTextHint => 'Or say it in your own words…';
+
+  @override
+  String get anonymousChatBack => 'Back';
+
+  @override
+  String get anonymousChatLocked =>
+      'I’m still here whenever you want to continue.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Create an account';
+
+  @override
+  String get anonymousChatError =>
+      'I’m having a technical issue. Try again in a moment.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'We’ve already discovered 3 things together. If you want me to remember them…';
+
+  @override
+  String get authGateConversionMessage =>
+      'I can keep all of this in memory for you — just create an account.';
+
+  @override
+  String get authGateLater => 'Later';
+
+  @override
+  String get authGateMagicLink => 'Get a link';
 }
