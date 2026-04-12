@@ -918,6 +918,48 @@ class ConfidenceScorer {
     return math.exp(exponent * math.log(base));
   }
 
+  // ── COUP-03: Partner estimate confidence degradation ──────────
+
+  /// Apply partner estimate degradation to a projection confidence.
+  ///
+  /// COUP-03: Estimated partner data = source 0.25, degrading overall score.
+  /// [partnerConfidence] ranges 0.0 to 0.25 (from [PartnerEstimate.confidence]).
+  ///
+  /// If [partnerConfidence] is 0 (no partner declared), returns [base] unchanged.
+  /// Otherwise blends via geometric mean: sqrt(base.score * partnerAdjusted).
+  static ProjectionConfidence degradeForPartnerEstimate(
+    ProjectionConfidence base,
+    double partnerConfidence,
+  ) {
+    if (partnerConfidence <= 0) return base;
+
+    // partnerConfidence 0.25 at best → scale to 0-25 range
+    final partnerScore = partnerConfidence * 100; // 0-25 range
+    final blended = math.sqrt(base.score * math.max(partnerScore, 1.0));
+    final level = blended >= 70
+        ? 'high'
+        : (blended >= 40 ? 'medium' : 'low');
+
+    return ProjectionConfidence(
+      score: blended.clamp(0, 100),
+      level: level,
+      prompts: [
+        ...base.prompts,
+        const EnrichmentPrompt(
+          label: 'Pr\u00e9ciser les donn\u00e9es du/de la conjoint\u00b7e',
+          impact: 15,
+          category: 'couple',
+          action:
+              'Demandez les 5 questions \u00e0 votre conjoint\u00b7e pour affiner les projections.',
+        ),
+      ],
+      assumptions: [
+        ...base.assumptions,
+        'Projections couple bas\u00e9es sur des estimations '
+            '(confiance ${(partnerConfidence * 100).toStringAsFixed(0)}\u00a0%)',
+      ],
+    );
+  }
 }
 
 /// Enhanced 4-axis confidence result (S46 + Phase 2).

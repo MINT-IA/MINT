@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
 
 /// HTTP client for POST /api/v1/coach/chat — the server-key tier.
@@ -54,7 +55,21 @@ class CoachChatApiService {
       'cash_level': cashLevel.clamp(1, 5),
     };
 
-    if (profileContext != null) body['profile_context'] = profileContext;
+    if (profileContext != null) {
+      // P16 COUP-04: Inject partner aggregate flags (actual data stays in
+      // SecureStorage — only partner_declared and partner_confidence go to backend)
+      try {
+        final partnerAggregate =
+            await PartnerEstimateService.aggregateForCoachContext();
+        profileContext['partner_declared'] =
+            partnerAggregate['partner_declared'];
+        profileContext['partner_confidence'] =
+            partnerAggregate['partner_confidence'];
+      } catch (_) {
+        // Best-effort — partner flags are optional enrichment
+      }
+      body['profile_context'] = profileContext;
+    }
     if (memoryBlock != null && memoryBlock.isNotEmpty) {
       body['memory_block'] = memoryBlock;
     }
