@@ -56,7 +56,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 **UI hint**: yes
 
 Plans:
-- [ ] 13-01-PLAN.md -- Backend anonymous chat endpoint with rate limiting and discovery system prompt
+- [x] 13-01-PLAN.md -- Backend anonymous chat endpoint with rate limiting and discovery system prompt
 - [ ] 13-02-PLAN.md -- Frontend anonymous chat screen, session service, and auth gate UX
 - [ ] 13-03-PLAN.md -- Conversation migration on auth and device verification
 
@@ -142,7 +142,7 @@ Each phase must pass device gate before the next begins.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 13. Anonymous Hook & Auth Bridge | v2.5 | 0/3 | Planning complete | - |
+| 13. Anonymous Hook & Auth Bridge | v2.5 | 1/3 | In Progress|  |
 | 14. Commitment Devices | v2.5 | 0/TBD | Not started | - |
 | 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |

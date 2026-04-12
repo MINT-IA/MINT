@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v2.5
+milestone_name: Transformation
+status: executing
+stopped_at: Completed 13-01-PLAN.md
+last_updated: "2026-04-12T14:26:24.766Z"
+last_activity: 2026-04-12
+progress:
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 1
+  percent: 33
+---
+
 # GSD State: MINT v2.5 — Transformation
 
 ## Project Reference
@@ -9,16 +25,17 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 13 (1 of 6 in v2.5) — Anonymous Hook & Auth Bridge
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-04-12 — Roadmap created for v2.5 Transformation
+Phase: 13 (Anonymous Hook & Auth Bridge) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 5 (from v2.4)
 - Average duration: ~6 min/plan
 - Total execution time: ~0.5 hours
@@ -30,6 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 | 9 — Les tuyaux | 2 | 6min | 3min |
 | 10 — Les connexions | 1 | 6min | 6min |
 | 11 — La navigation | 2 | 16min | 8min |
+| Phase 13 P01 | 9min | 1 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -40,6 +58,8 @@ Progress: [░░░░░░░░░░] 0%
 - Premium/monetisation deferred to v2.6 (zero external users yet)
 - Anonymous intent screen already built (quick-260412-kue) — ANON-02 partially done
 - Facade-without-wiring is the #1 risk — every phase must be E2E testable
+- [Phase 13]: Discovery prompt written from scratch (not derived from auth prompt) to prevent info disclosure
+- [Phase 13]: Separate _NoRagOrchestrator in anonymous_chat.py — full isolation from authenticated path
 
 ### From Previous Milestones
 
@@ -55,8 +75,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12
-Stopped at: Roadmap created for v2.5 Transformation
+Last session: 2026-04-12T14:26:24.763Z
+Stopped at: Completed 13-01-PLAN.md
 Resume file: None
 
 ---

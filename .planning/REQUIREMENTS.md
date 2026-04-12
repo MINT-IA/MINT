@@ -9,12 +9,12 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Anonymous Hook & Auth Bridge
 
-- [ ] **ANON-01**: Anonymous user can send messages to coach via rate-limited public endpoint (3 messages/session by IP)
+- [x] **ANON-01**: Anonymous user can send messages to coach via rate-limited public endpoint (3 messages/session by IP)
 - [ ] **ANON-02**: Anonymous user tapping a felt-state pill on intent screen arrives in coach chat with that intent as context
 - [ ] **ANON-03**: After 3 value exchanges, MINT surfaces a natural auth gate ("Je peux garder tout ca en memoire pour toi")
 - [ ] **ANON-04**: Anonymous conversation history is transferred to persistent storage after user creates account (zero message loss)
-- [ ] **ANON-05**: Backend anonymous endpoint uses "mode decouverte" system prompt (respond to intent, don't ask for profile)
-- [ ] **ANON-06**: Anonymous session is device-scoped (SecureStorage session token) to prevent rate-limit evasion
+- [x] **ANON-05**: Backend anonymous endpoint uses "mode decouverte" system prompt (respond to intent, don't ask for profile)
+- [x] **ANON-06**: Anonymous session is device-scoped (SecureStorage session token) to prevent rate-limit evasion
 
 ### Commitment Devices
 
@@ -86,12 +86,12 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ANON-01 | Phase 13 | Pending |
+| ANON-01 | Phase 13 | Complete |
 | ANON-02 | Phase 13 | Pending |
 | ANON-03 | Phase 13 | Pending |
 | ANON-04 | Phase 13 | Pending |
-| ANON-05 | Phase 13 | Pending |
-| ANON-06 | Phase 13 | Pending |
+| ANON-05 | Phase 13 | Complete |
+| ANON-06 | Phase 13 | Complete |
 | CMIT-01 | Phase 14 | Pending |
 | CMIT-02 | Phase 14 | Pending |
 | CMIT-03 | Phase 14 | Pending |
