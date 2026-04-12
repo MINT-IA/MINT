@@ -471,30 +471,30 @@ class TestComplianceChecks:
         assert "nLPD" in source_text
         assert "CO art. 127" in source_text
 
-    def test_export_chiffre_choc_has_content(self, privacy_service):
-        """Export chiffre choc should mention enregistrement(s)."""
+    def test_export_premier_eclairage_has_content(self, privacy_service):
+        """Export premier éclairage should mention enregistrement(s)."""
         result = privacy_service.export_user_data(
             profile_id="u1",
             profile_data={"age": 30},
             sessions_data=[{"s": 1}, {"s": 2}],
         )
-        assert "enregistrement" in result.chiffre_choc.lower()
-        assert "categorie" in result.chiffre_choc.lower()
+        assert "enregistrement" in result.premier_eclairage.lower()
+        assert "categorie" in result.premier_eclairage.lower()
 
-    def test_deletion_chiffre_choc_has_content(self, privacy_service):
-        """Deletion chiffre choc should mention the count and nLPD."""
+    def test_deletion_premier_eclairage_has_content(self, privacy_service):
+        """Deletion premier éclairage should mention the count and nLPD."""
         result = privacy_service.delete_user_data(
             profile_id="u1", mode="immediate",
             nb_sessions=5, nb_reports=2,
         )
-        assert "enregistrement" in result.chiffre_choc.lower()
-        assert "nLPD" in result.chiffre_choc
+        assert "enregistrement" in result.premier_eclairage.lower()
+        assert "nLPD" in result.premier_eclairage
 
-    def test_consent_chiffre_choc_has_content(self, privacy_service):
-        """Consent chiffre choc should mention traitement(s) and nLPD."""
+    def test_consent_premier_eclairage_has_content(self, privacy_service):
+        """Consent premier éclairage should mention traitement(s) and nLPD."""
         result = privacy_service.get_consent_status(profile_id="u1")
-        assert "traitement" in result.chiffre_choc.lower()
-        assert "nLPD" in result.chiffre_choc
+        assert "traitement" in result.premier_eclairage.lower()
+        assert "nLPD" in result.premier_eclairage
 
 
 # ===========================================================================
@@ -505,11 +505,13 @@ class TestPrivacyEndpoints:
     """Integration tests for privacy FastAPI endpoints."""
 
     def test_export_endpoint_200(self, client):
-        """POST /privacy/export should return 200."""
+        """POST /privacy/export should return 200.
+
+        V12-1: profileId in request body is ignored; server uses _user.id.
+        """
         response = client.post(
             "/api/v1/privacy/export",
             json={
-                "profileId": "test-user-123",
                 "includeSessions": True,
                 "includeReports": True,
                 "includeDocuments": True,
@@ -519,20 +521,22 @@ class TestPrivacyEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "profileId" in data
+        # V12-1: profileId in response is now the authenticated user's ID
+        assert data["profileId"] == "test-user-id"
         assert "dateExport" in data
         assert "formatDonnees" in data
         assert "categories" in data
         assert "donneesProfilel" in data or "donneesProfil" in data
         assert "disclaimer" in data
         assert "sources" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "responsableTraitement" in data
 
     def test_export_endpoint_camelcase(self, client):
         """Export response should use camelCase aliases."""
         response = client.post(
             "/api/v1/privacy/export",
-            json={"profileId": "u1"},
+            json={},
         )
         assert response.status_code == 200
         data = response.json()
@@ -541,12 +545,22 @@ class TestPrivacyEndpoints:
         assert "formatDonnees" in data
         assert "politiqueConservation" in data
 
+    def test_export_ignores_client_supplied_profile_id(self, client):
+        """V12-1: Even if client sends profileId, server uses _user.id."""
+        response = client.post(
+            "/api/v1/privacy/export",
+            json={"profileId": "attacker-supplied-id"},
+        )
+        assert response.status_code == 200
+        data = response.json()
+        # Must be the authenticated user's ID, not the attacker's
+        assert data["profileId"] == "test-user-id"
+
     def test_delete_endpoint_grace_period(self, client):
         """POST /privacy/delete with grace period should return 200."""
         response = client.post(
             "/api/v1/privacy/delete",
             json={
-                "profileId": "test-user-123",
                 "mode": "grace_period",
             },
         )
@@ -556,13 +570,14 @@ class TestPrivacyEndpoints:
         assert data["delaiGraceJours"] == 30
         assert "categoriesTraitees" in data
         assert "disclaimer" in data
+        # V12-1: profileId in response is the authenticated user's ID
+        assert data["profileId"] == "test-user-id"
 
     def test_delete_endpoint_immediate(self, client):
         """POST /privacy/delete with immediate mode should return 200."""
         response = client.post(
             "/api/v1/privacy/delete",
             json={
-                "profileId": "test-user-123",
                 "mode": "immediate",
             },
         )
@@ -570,16 +585,18 @@ class TestPrivacyEndpoints:
         data = response.json()
         assert data["mode"] == "immediate"
         assert data["delaiGraceJours"] == 0
+        assert data["profileId"] == "test-user-id"
 
     def test_consent_status_endpoint(self, client):
-        """GET /privacy/consent-status should return 200."""
-        response = client.get(
-            "/api/v1/privacy/consent-status",
-            params={"profile_id": "test-user-123"},
-        )
+        """GET /privacy/consent-status should return 200.
+
+        V12-1: No longer takes profile_id as query param; uses _user.id.
+        """
+        response = client.get("/api/v1/privacy/consent-status")
         assert response.status_code == 200
         data = response.json()
         assert "profileId" in data
+        assert data["profileId"] == "test-user-id"
         assert "consentements" in data
         assert len(data["consentements"]) == 6
         assert "nbConsentementsActifs" in data
@@ -589,10 +606,7 @@ class TestPrivacyEndpoints:
 
     def test_consent_status_has_6_categories(self, client):
         """Consent status should list exactly 6 categories."""
-        response = client.get(
-            "/api/v1/privacy/consent-status",
-            params={"profile_id": "u1"},
-        )
+        response = client.get("/api/v1/privacy/consent-status")
         assert response.status_code == 200
         data = response.json()
         categories = [c["categorie"] for c in data["consentements"]]
@@ -605,11 +619,13 @@ class TestPrivacyEndpoints:
         assert "rag_queries" in categories
 
     def test_consent_update_activate(self, client):
-        """POST /privacy/consent-update should activate a consent."""
+        """POST /privacy/consent-update should activate a consent.
+
+        V12-1: profileId in request body is ignored; server uses _user.id.
+        """
         response = client.post(
             "/api/v1/privacy/consent-update",
             json={
-                "profileId": "test-user-123",
                 "categorie": "analytics",
                 "estActif": True,
             },
@@ -618,6 +634,7 @@ class TestPrivacyEndpoints:
         data = response.json()
         assert data["estActif"] is True
         assert data["categorie"] == "analytics"
+        assert data["profileId"] == "test-user-id"
         assert "dateModification" in data
         assert "disclaimer" in data
 
@@ -626,7 +643,6 @@ class TestPrivacyEndpoints:
         response = client.post(
             "/api/v1/privacy/consent-update",
             json={
-                "profileId": "test-user-123",
                 "categorie": "core_profile",
                 "estActif": False,
             },

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Insert didactique pour q_has_3a
 /// Mini-simulateur d'économie fiscale 3a avec sliders
@@ -27,8 +27,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
   double _taxRateMin = 0.20;
   double _taxRateMax = 0.30;
 
-  final _currencyFormat =
-      NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Using centralized formatChfWithPrefix from chf_formatter.dart
 
   @override
   void initState() {
@@ -120,7 +119,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                     children: [
                       Text(
                         'Optimisation 3a',
-                        style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                       ),
                       Text(
                         'Ton allié fiscal',
@@ -194,7 +193,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        _currencyFormat.format(_monthlyIncome),
+                        formatChfWithPrefix(_monthlyIncome),
                         style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -233,7 +232,7 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                                _currencyFormat.format(_max3aContribution),
+                                formatChfWithPrefix(_max3aContribution),
                                 style: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.w600)),
                           ),
                         ],
@@ -246,12 +245,12 @@ class _TaxSavingsInsertWidgetState extends State<TaxSavingsInsertWidget> {
                       const SizedBox(height: 8),
                       // Hero Number - Clean Anthracite
                       Text(
-                        '~${_currencyFormat.format((_taxSavingsMin + _taxSavingsMax) / 2)}',
+                        '~${formatChfWithPrefix((_taxSavingsMin + _taxSavingsMax) / 2)}',
                         style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 38, fontWeight: FontWeight.bold, letterSpacing: -1.5),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Soit ${(((_taxSavingsMin + _taxSavingsMax) / 2) / 12).toStringAsFixed(0)} CHF de plus par mois',
+                        'Soit ${formatChf(((_taxSavingsMin + _taxSavingsMax) / 2) / 12)} CHF de plus par mois',
                         style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ],

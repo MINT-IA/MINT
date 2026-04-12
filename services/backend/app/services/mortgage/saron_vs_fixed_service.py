@@ -60,7 +60,7 @@ class GrapheEntry:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -96,7 +96,7 @@ class SaronVsFixedResult:
     economie_max: float            # Max savings vs fixed (CHF)
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Input metadata
     montant_hypothecaire: float
@@ -152,14 +152,21 @@ class SaronVsFixedService:
 
         if taux_saron_actuel is None:
             taux_saron_actuel = TAUX_DEFAUT["saron_compose"]
+        # Normalize: if caller passes percentage (e.g. 1.25) instead of decimal (0.0125)
+        if taux_saron_actuel > 0.30:
+            taux_saron_actuel = taux_saron_actuel / 100.0
         taux_saron_actuel = max(0.0, min(0.10, taux_saron_actuel))
 
         if marge_banque is None:
             marge_banque = TAUX_DEFAUT["marge_banque"]
+        if marge_banque > 0.30:
+            marge_banque = marge_banque / 100.0
         marge_banque = max(0.0, min(0.05, marge_banque))
 
         if taux_fixe is None:
             taux_fixe = self._select_fixed_rate(duree_ans)
+        if taux_fixe > 0.30:
+            taux_fixe = taux_fixe / 100.0
         taux_fixe = max(0.0, min(0.10, taux_fixe))
 
         # 1. Fixed rate calculation
@@ -190,7 +197,7 @@ class SaronVsFixedService:
 
         # 4. Chiffre choc
         if economie_max > 0:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=economie_max,
                 texte=(
                     f"Dans le meilleur scenario ({meilleur.label}), le SARON "
@@ -200,7 +207,7 @@ class SaronVsFixedService:
             )
         else:
             surcharge = abs(economie_max)
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=surcharge,
                 texte=(
                     f"Meme dans le meilleur scenario SARON, le taux fixe est "
@@ -223,7 +230,7 @@ class SaronVsFixedService:
             scenarios=scenario_results,
             meilleur_scenario=meilleur.nom,
             economie_max=economie_max,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             montant_hypothecaire=montant_hypothecaire,
             duree_ans=duree_ans,
             taux_saron_actuel=taux_saron_actuel,

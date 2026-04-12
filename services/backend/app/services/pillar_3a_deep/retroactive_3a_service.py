@@ -69,7 +69,7 @@ class Retroactive3aResult:
     total_contribution: float
     economies_fiscales: float
     breakdown: List[YearlyRetroactiveEntry]
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str = DISCLAIMER
     sources: List[str] = field(default_factory=lambda: list(SOURCES))
 
@@ -91,7 +91,7 @@ def calculate_retroactive_3a(
         reference_year: Year of retroactive contribution (default 2026).
 
     Returns:
-        Retroactive3aResult with full breakdown and chiffre choc.
+        Retroactive3aResult with full breakdown and premier éclairage.
     """
     effective_gap = max(1, min(gap_years, MAX_RETROACTIVE_YEARS))
     # Clamp taux marginal to valid range to prevent absurd results.
@@ -143,7 +143,7 @@ def calculate_retroactive_3a(
     # Chiffre choc
     savings_formatted = _format_chf(economies_fiscales)
     plural = "s" if effective_gap > 1 else ""
-    chiffre_choc = (
+    premier_eclairage = (
         f"Tu peux rattraper {effective_gap}\u00a0an{plural} "
         f"d'\u00e9pargne 3a et \u00e9conomiser {savings_formatted} "
         f"d'imp\u00f4ts en {reference_year}."
@@ -156,7 +156,7 @@ def calculate_retroactive_3a(
         total_contribution=round(total_contribution, 2),
         economies_fiscales=round(economies_fiscales, 2),
         breakdown=breakdown,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
     )
 
 

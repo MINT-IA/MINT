@@ -11,7 +11,7 @@
 - OpenAPI contract-first
 
 ## Contrats
-- tools/openapi/mint.openapi.yaml = contrat d’intégration
+- tools/openapi/mint.openapi.canonical.json = contrat d’intégration (CI-protected)
 - SOT.md = contraintes métier + types canon
 ## Data Connectivity Layer (Couche d'intégration)
 

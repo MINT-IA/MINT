@@ -1,3 +1,6 @@
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
+
 // ────────────────────────────────────────────────────────────
 //  DIVORCE SERVICE
 // ────────────────────────────────────────────────────────────
@@ -171,8 +174,11 @@ class DivorceService {
     // Married couples benefit from ~15-25% effective discount (splitting).
     // After divorce, each is taxed individually.
     final combinedIncome = input.incomeConjoint1 + input.incomeConjoint2;
-    // Simplified progressive rate: ~20% effective for married on combined income
-    final taxMarried = combinedIncome * 0.18;
+    // Married rate via centralized calculator (splitting + canton-average)
+    final marriedRate = RetirementTaxCalculator.estimateMarginalRate(
+      combinedIncome, 'ZH', isMarried: true,
+    );
+    final taxMarried = combinedIncome * marriedRate;
     // Individual rates slightly higher per person
     final taxC1 = _estimateIndividualTax(input.incomeConjoint1);
     final taxC2 = _estimateIndividualTax(input.incomeConjoint2);
@@ -216,7 +222,7 @@ class DivorceService {
     if (lppTransfer > 100000) {
       alerts.add(
         'Le transfert LPP est significatif ('
-        '${_formatChf(lppTransfer)}). Verifiez les montants exacts '
+        '${chf.formatChfWithPrefix(lppTransfer)}). Verifiez les montants exacts '
         'aupres de ta caisse de pension.',
       );
     }
@@ -231,7 +237,7 @@ class DivorceService {
     if (taxImpact.delta > 5000) {
       alerts.add(
         'L\'impact fiscal du divorce est important : '
-        '+${_formatChf(taxImpact.delta)}/an. Anticipez ce surcout '
+        '+${chf.formatChfWithPrefix(taxImpact.delta)}/an. Anticipez ce surcout '
         'dans ton budget.',
       );
     }
@@ -284,30 +290,23 @@ class DivorceService {
   }
 
   /// Simplified individual tax estimation (Swiss progressive).
+  ///
+  /// Delegates to RetirementTaxCalculator.estimateMarginalRate for the
+  /// income-based marginal rate, then applies it as an effective rate.
+  /// Canton defaults to 'ZH' (median tax burden) since the divorce
+  /// service does not have canton in scope here.
+  /// TODO(profile-injection): Pass canton from DivorceInput when available.
   static double _estimateIndividualTax(double income) {
     if (income <= 0) return 0;
-    // Simplified progressive brackets (federal + cantonal average)
-    if (income <= 30000) return income * 0.05;
-    if (income <= 60000) return 1500 + (income - 30000) * 0.12;
-    if (income <= 100000) return 5100 + (income - 60000) * 0.18;
-    if (income <= 150000) return 12300 + (income - 100000) * 0.22;
-    if (income <= 250000) return 23300 + (income - 150000) * 0.28;
-    return 51300 + (income - 250000) * 0.33;
+    // Use centralized marginal rate (AFC taux marginaux 2025).
+    // 'ZH' is used as a median proxy — not exact, but avoids fabricated brackets.
+    final marginalRate =
+        RetirementTaxCalculator.estimateMarginalRate(income, 'ZH');
+    // Effective tax ≈ ~60-70% of marginal rate for progressive systems.
+    // This approximation aligns with the old bracket-based approach.
+    return income * marginalRate * 0.65;
   }
 
-  /// Format CHF with Swiss apostrophe.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }
 
 // ────────────────────────────────────────────────────────────
@@ -479,7 +478,7 @@ class SuccessionService {
         (input.civilStatus == CivilStatus.concubinage ||
             input.civilStatus == CivilStatus.celibataire)) {
       alerts.add(
-        'Tes avoirs 3a (${_formatChf(input.avoirs3a)}) suivent '
+        'Tes avoirs 3a (${chf.formatChfWithPrefix(input.avoirs3a)}) suivent '
         'l\'ordre de beneficiaires OPP3, pas ton testament. '
         'Verifie tes clauses beneficiaires aupres de ta '
         'fondation 3a.',
@@ -488,7 +487,7 @@ class SuccessionService {
 
     if (input.capitalDecesLpp > 0) {
       alerts.add(
-        'Le capital-deces LPP (${_formatChf(input.capitalDecesLpp)}) '
+        'Le capital-deces LPP (${chf.formatChfWithPrefix(input.capitalDecesLpp)}) '
         'n\'entre pas dans la masse successorale. Il est verse '
         'selon le reglement de ta caisse de pension.',
       );
@@ -814,17 +813,4 @@ class SuccessionService {
     }
   }
 
-  /// Format CHF with Swiss apostrophe.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }

@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -77,7 +78,7 @@ class CoachNarrative {
 
   /// Contextual narration for the chiffre-choc screen (max ~100 words).
   /// Example: "A 58 ans, tu as encore 7 ans pour combler un ecart de CHF 850/mois."
-  final String? chiffreChocNarration;
+  final String? premierEclairageNarration;
 
   /// Retirement countdown phrase for 45-60 dashboard header.
   /// Example: "Plus que 84 mois avant ta retraite a 63 ans. Taux de remplacement : ~52%."
@@ -104,7 +105,7 @@ class CoachNarrative {
     this.urgentAlert,
     this.milestoneMessage,
     this.scenarioNarrations,
-    this.chiffreChocNarration,
+    this.premierEclairageNarration,
     this.retirementCountdown,
     this.monthlyComparison,
     this.versementsTrend,
@@ -121,7 +122,7 @@ class CoachNarrative {
         'urgentAlert': urgentAlert,
         'milestoneMessage': milestoneMessage,
         'scenarioNarrations': scenarioNarrations,
-        'chiffreChocNarration': chiffreChocNarration,
+        'premierEclairageNarration': premierEclairageNarration,
         'retirementCountdown': retirementCountdown,
         'monthlyComparison': monthlyComparison,
         'versementsTrend': versementsTrend,
@@ -141,7 +142,7 @@ class CoachNarrative {
       scenarioNarrations: (json['scenarioNarrations'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      chiffreChocNarration: json['chiffreChocNarration'] as String?,
+      premierEclairageNarration: json['premierEclairageNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
       monthlyComparison: json['monthlyComparison'] as String?,
       versementsTrend: json['versementsTrend'] as String?,
@@ -208,7 +209,7 @@ class CoachNarrativeService {
 
     // Tax saving potential (3a margin × estimated marginal rate)
     final plafond3a =
-        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final verse3a = profile.total3aMensuel * 12;
     final marge3a = (plafond3a - verse3a).clamp(0, plafond3a);
     final taxSaving = marge3a * 0.30; // ~30% marginal estimate
@@ -258,13 +259,14 @@ class CoachNarrativeService {
     double replacementRatio = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      if (salary > 0 && profile.age < 65) {
+      final refAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      if (salary > 0 && profile.age < refAge) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
           currentAge: profile.age,
-          retirementAge: 65,
+          retirementAge: refAge,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
           conversionRate: profile.prevoyance.tauxConversion,
@@ -391,7 +393,7 @@ class CoachNarrativeService {
       );
 
       // Tier 3: BYOK cloud LLM (optionnel, opt-in explicite)
-      // Tente d'ameliorer le narratif statique si BYOK est configure.
+      // Tente d'améliorer le narratif statique si BYOK est configuré.
       // En cas d'echec, le narratif statique reste intact.
       if (byokConfig != null &&
           byokConfig.hasApiKey &&
@@ -495,7 +497,7 @@ class CoachNarrativeService {
     // Enhanced with personalized tax savings estimate (M6C)
     if (now.month >= 10 && now.month <= 12) {
       final plafond =
-          profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+          profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
       final verseAnnuel = profile.total3aMensuel * 12;
       final marge = plafond - verseAnnuel;
       if (marge > 0) {
@@ -505,8 +507,8 @@ class CoachNarrativeService {
         final tauxEstime = profile.canton.isNotEmpty ? 0.30 : 0.28;
         final economie = marge * tauxEstime;
         urgentAlert = 'Il te reste $joursRestants jours pour verser '
-            'CHF ${marge.toStringAsFixed(0)} en 3a et economiser '
-            '~CHF ${economie.toStringAsFixed(0)} d\'impots '
+            '${formatChfWithPrefix(marge)} en 3a et economiser '
+            '~${formatChfWithPrefix(economie)} d\'impots '
             '(canton ${profile.canton.isNotEmpty ? profile.canton : "CH"}). '
             '\u2014 OPP3 art. 7';
       }
@@ -526,15 +528,31 @@ class CoachNarrativeService {
       }
     }
 
-    // ── chiffreChocNarration + retirementCountdown (static fallback) ──
+    // ── premierEclairageNarration + retirementCountdown (static fallback) ──
     // Chiffre choc — confidence-aware via FallbackTemplates
-    final chiffreChocNarration = FallbackTemplates.chiffreChocReframe(ctx);
+    final premierEclairageNarration = FallbackTemplates.premierEclairageReframe(ctx);
     String? retirementCountdown;
     if (profile.age >= 45) {
       final yearsLeft = profile.anneesAvantRetraite;
       final retAge = profile.effectiveRetirementAge;
-      retirementCountdown = 'Plus que ${yearsLeft * 12} mois avant ta retraite '
-          'a $retAge ans.';
+      // When less than 2 years away, show months for precision.
+      // Integer year truncation can mislead (e.g. 64.9 → "12 mois" instead of "1 mois").
+      if (yearsLeft <= 1 && profile.dateOfBirth != null) {
+        final now = DateTime.now();
+        final retirementDate = DateTime(
+          profile.dateOfBirth!.year + retAge,
+          profile.dateOfBirth!.month,
+          profile.dateOfBirth!.day,
+        );
+        final monthsLeft = ((retirementDate.difference(now).inDays) / 30.44).round().clamp(0, 999);
+        if (monthsLeft > 0) {
+          retirementCountdown = 'Plus que $monthsLeft mois avant ta retraite '
+              '\u00e0 $retAge ans.';
+        }
+      } else {
+        retirementCountdown = 'Plus que $yearsLeft ans avant ta retraite '
+            '\u00e0 $retAge ans.';
+      }
     }
 
     // ── Monthly briefing N vs N-1 (Coach Vivant Track A) ──
@@ -562,7 +580,7 @@ class CoachNarrativeService {
       milestoneMessage:
           null, // Milestones: async detection, handled in generate()
       scenarioNarrations: scenarioNarrations,
-      chiffreChocNarration: chiffreChocNarration,
+      premierEclairageNarration: premierEclairageNarration,
       retirementCountdown: retirementCountdown,
       monthlyComparison: monthlyComparison,
       versementsTrend: versementsTrend,
@@ -680,7 +698,7 @@ class CoachNarrativeService {
         urgentAlert: narrative.urgentAlert,
         milestoneMessage: narrative.milestoneMessage,
         scenarioNarrations: narrative.scenarioNarrations,
-        chiffreChocNarration: narrative.chiffreChocNarration,
+        premierEclairageNarration: narrative.premierEclairageNarration,
         retirementCountdown: narrative.retirementCountdown,
         monthlyComparison: narrative.monthlyComparison,
         versementsTrend: narrative.versementsTrend,
@@ -777,7 +795,7 @@ class CoachNarrativeService {
     // Prevoyance
     final montant3a = profile.prevoyance.totalEpargne3a;
     final plafond3a =
-        profile.employmentStatus == 'independant' ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+        profile.employmentStatus == 'independant' ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final nombre3a = profile.prevoyance.nombre3a;
     final avoirLpp = profile.prevoyance.avoirLppTotal ?? 0;
     final lacuneLpp = profile.prevoyance.lacuneRachatRestante;
@@ -801,7 +819,7 @@ class CoachNarrativeService {
       final i = entry.key + 1;
       final tip = entry.value;
       return '#$i [${tip.priority.name}] ${tip.title}: ${tip.message} '
-          '(Impact: ${tip.estimatedImpactChf?.toStringAsFixed(0) ?? "N/A"} CHF, '
+          '(Impact: ${tip.estimatedImpactChf != null ? '${formatChf(tip.estimatedImpactChf!)} CHF' : 'N/A'}, '
           'Source: ${tip.source})';
     }).join('\n');
 
@@ -814,15 +832,15 @@ class CoachNarrativeService {
     buffer.writeln(
         '- Score Financial Fitness : $scoreValue/100 (tendance : $trendText)');
     buffer.writeln(
-        '- Revenu brut annuel : CHF ${profile.revenuBrutAnnuel.toStringAsFixed(0)}');
+        '- Revenu brut annuel : CHF ~${_salaryRange(profile.revenuBrutAnnuel)} (estimation arrondie, confidentiel)');
     buffer.writeln(
-        '- 3a : ${montant3a.toStringAsFixed(0)}/${plafond3a.toStringAsFixed(0)} CHF (nombre comptes : $nombre3a)');
+        '- 3a : ${formatChf(montant3a)}/${formatChf(plafond3a)} CHF (nombre comptes : $nombre3a)');
     buffer.writeln(
-        '- LPP : avoir CHF ${avoirLpp.toStringAsFixed(0)}, lacune rachat CHF ${lacuneLpp.toStringAsFixed(0)}');
-    buffer.writeln('- Patrimoine total : CHF ${patrimoine.toStringAsFixed(0)}');
+        '- LPP : avoir ${formatChfWithPrefix(avoirLpp)}, lacune rachat ${formatChfWithPrefix(lacuneLpp)}');
+    buffer.writeln('- Patrimoine total : ${formatChfWithPrefix(patrimoine)}');
     buffer.writeln(
         '- Fonds urgence : ${moisCouverts.toStringAsFixed(1)} mois (objectif : 3-6 mois)');
-    buffer.writeln('- Dettes : CHF ${dettes.toStringAsFixed(0)}');
+    buffer.writeln('- Dettes : ${formatChfWithPrefix(dettes)}');
     buffer.writeln(
         '- Streak check-in : ${streak.currentStreak} mois consecutifs');
     buffer.writeln('- Dernier check-in : $dernierCheckIn');
@@ -852,7 +870,7 @@ class CoachNarrativeService {
     if (ctx.knownValues.isNotEmpty) {
       buffer.writeln('VALEURS DE REFERENCE (ne pas inventer de chiffres differents) :');
       for (final entry in ctx.knownValues.entries) {
-        buffer.writeln('- ${entry.key}: ${entry.value.toStringAsFixed(0)}');
+        buffer.writeln('- ${entry.key}: ${formatChf(entry.value)}');
       }
       buffer.writeln('Tolerance : ±5% pour les CHF, ±2 points pour les scores/pourcentages.');
       buffer.writeln();
@@ -863,7 +881,7 @@ class CoachNarrativeService {
     buffer.writeln();
     buffer.writeln('INSTRUCTIONS :');
     buffer.writeln(
-        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), chiffreChocNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
+        '1. Genere un JSON avec les champs : greeting, scoreSummary, trendMessage, topTipNarrative, urgentAlert (null si aucune urgence), milestoneMessage (null si aucun nouveau milestone), scenarioNarrations (liste de 3 paragraphes: prudent, base, optimiste), premierEclairageNarration (null si age < 45, sinon max 100 mots contextualisant le chiffre-choc), retirementCountdown (null si age < 45, sinon phrase de countdown retraite)');
     buffer.writeln(
         '2. Le greeting doit etre personnel et chaleureux (max 2 phrases)');
     buffer.writeln(
@@ -878,7 +896,7 @@ class CoachNarrativeService {
     buffer.writeln(
         '8. Cite les sources legales quand pertinent (LPP art. X, LIFD art. Y)');
     buffer.writeln(
-        '9. Ton educatif, jamais prescriptif. "Tu pourrais" et non "Tu dois"');
+        '9. Ton educatif, JAMAIS prescriptif. Utilise "Tu pourrais" au conditionnel');
     buffer.writeln('10. Reponds UNIQUEMENT en JSON valide');
     buffer.writeln(
         '11. Utilise UNIQUEMENT les valeurs de reference ci-dessus — ne pas halluciner de montants');
@@ -908,13 +926,14 @@ class CoachNarrativeService {
     double replacementRate = 0;
     try {
       final salary = profile.revenuBrutAnnuel;
-      if (salary > 0 && profile.age < 65) {
+      final refAge2 = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+      if (salary > 0 && profile.age < refAge2) {
         final avsMonthly = AvsCalculator.renteFromRAMD(salary);
         final lppBalance = (profile.prevoyance.avoirLppTotal ?? 0).toDouble();
         final lppAnnual = LppCalculator.projectToRetirement(
           currentBalance: lppBalance,
           currentAge: profile.age,
-          retirementAge: 65,
+          retirementAge: refAge2,
           grossAnnualSalary: salary,
           caisseReturn: 0.01,
           conversionRate: profile.prevoyance.tauxConversion,
@@ -934,9 +953,10 @@ class CoachNarrativeService {
       buffer.writeln(
           '- Taux de remplacement estime : ~${(replacementRate * 100).toStringAsFixed(0)}%');
     }
-    if (retirementAge < 65) {
+    final refAgeEarly = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    if (retirementAge < refAgeEarly) {
       buffer.writeln(
-          '- Retraite anticipee : penalite AVS de ${((65 - retirementAge) * 6.8).toStringAsFixed(1)}% '
+          '- Retraite anticipee : penalite AVS de ${((refAgeEarly - retirementAge) * 6.8).toStringAsFixed(1)}% '
           '+ taux conversion LPP reduit');
     }
     buffer.writeln();
@@ -953,10 +973,11 @@ class CoachNarrativeService {
 
     // 3a not maxed out
     final cotisation3a = profile.total3aMensuel * 12;
-    if (cotisation3a < pilier3aPlafondAvecLpp && profile.prevoyance.canContribute3a) {
-      final marge = pilier3aPlafondAvecLpp - cotisation3a;
+    final plafond3aSnippet = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+    if (cotisation3a < plafond3aSnippet && profile.prevoyance.canContribute3a) {
+      final marge = plafond3aSnippet - cotisation3a;
       snippets.add(
-          'SNIPPET 3A: Il reste CHF ${marge.toStringAsFixed(0)} de marge 3a '
+          'SNIPPET 3A: Il reste ${formatChfWithPrefix(marge)} de marge 3a '
           'cette annee (plafond 7\'258 CHF, OPP3 art. 7).');
     }
 
@@ -964,7 +985,7 @@ class CoachNarrativeService {
     final lacune = profile.prevoyance.lacuneRachatRestante;
     if (lacune > 5000) {
       snippets.add(
-          'SNIPPET LPP: Lacune de rachat LPP de CHF ${lacune.toStringAsFixed(0)} '
+          'SNIPPET LPP: Lacune de rachat LPP de ${formatChfWithPrefix(lacune)} '
           '— deductible a 100% du revenu imposable (LPP art. 79b).');
     }
 
@@ -1008,7 +1029,7 @@ class CoachNarrativeService {
   /// "If you had started at 30 → +X CHF. But contributing Y more years → +Z CHF."
   /// Pure compound interest: annual 7258 CHF at 2% average return.
   static String? _buildTimeMachineInsight(CoachProfile profile) {
-    const plafond = pilier3aPlafondAvecLpp;
+    final plafond = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     const avgReturn = 0.02; // Conservative 3a average
 
     final retAge = profile.effectiveRetirementAge;
@@ -1033,11 +1054,11 @@ class CoachNarrativeService {
     final buffer = StringBuffer('TIME MACHINE 3A: ');
     if (yearsIfStarted30 > 0 && regretBalance > 10000) {
       buffer.write('Si tu avais verse 7\'258 CHF/an depuis 30 ans → '
-          'CHF ${regretBalance.toStringAsFixed(0)} aujourd\'hui. ');
+          '${formatChfWithPrefix(regretBalance)} aujourd\'hui. ');
     }
     if (yearsForward > 0) {
       buffer.write('En versant le max pendant $yearsForward ans → '
-          '+CHF ${hopeBalance.toStringAsFixed(0)} a la retraite.');
+          '+${formatChfWithPrefix(hopeBalance)} a la retraite.');
     }
     return buffer.toString();
   }
@@ -1057,7 +1078,7 @@ class CoachNarrativeService {
           '- Aucune donnee certifiee par document. '
           'Toutes les projections sont basees sur des estimations.\n'
           '- Suggere a l\'utilisateur de scanner son certificat LPP ou '
-          'son extrait AVS pour ameliorer la precision.\n\n';
+          'son extrait AVS pour améliorer la précision.\n\n';
     }
 
     final certified = <String>[];
@@ -1145,7 +1166,7 @@ class CoachNarrativeService {
 
     if (profile.salaireBrutMensuel > 0) {
       parts.add(
-          'Salaire brut : ${profile.salaireBrutMensuel.toStringAsFixed(0)} CHF/mois');
+          'Revenu brut : CHF ~${_salaryRange(profile.salaireBrutMensuel * 12)}/an (estimation arrondie)');
     }
 
     final prev = profile.prevoyance;
@@ -1218,7 +1239,7 @@ class CoachNarrativeService {
       scenarioNarrations: (json['scenarioNarrations'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
-      chiffreChocNarration: json['chiffreChocNarration'] as String?,
+      premierEclairageNarration: json['premierEclairageNarration'] as String?,
       retirementCountdown: json['retirementCountdown'] as String?,
       monthlyComparison: json['monthlyComparison'] as String?,
       versementsTrend: json['versementsTrend'] as String?,
@@ -1247,8 +1268,8 @@ class CoachNarrativeService {
       scenarioNarrations: narrative.scenarioNarrations
           ?.map((s) => _filterBannedTerms(s))
           .toList(),
-      chiffreChocNarration: narrative.chiffreChocNarration != null
-          ? _filterBannedTerms(narrative.chiffreChocNarration!)
+      premierEclairageNarration: narrative.premierEclairageNarration != null
+          ? _filterBannedTerms(narrative.premierEclairageNarration!)
           : null,
       retirementCountdown: narrative.retirementCountdown != null
           ? _filterBannedTerms(narrative.retirementCountdown!)
@@ -1260,6 +1281,22 @@ class CoachNarrativeService {
       isLlmGenerated: narrative.isLlmGenerated,
       generatedAt: narrative.generatedAt,
     );
+  }
+
+  /// Convert annual salary to a 25k-wide range bracket (privacy — CLAUDE.md §7).
+  ///
+  /// NEVER exposes exact salary in any LLM context. Used wherever salary
+  /// would otherwise be injected verbatim into a system prompt.
+  static String _salaryRange(double annualSalary) {
+    if (annualSalary <= 0) return '0';
+    if (annualSalary < 50000) return '<50k';
+    if (annualSalary < 75000) return '50–75k';
+    if (annualSalary < 100000) return '75–100k';
+    if (annualSalary < 125000) return '100–125k';
+    if (annualSalary < 150000) return '125–150k';
+    if (annualSalary < 200000) return '150–200k';
+    if (annualSalary < 300000) return '200–300k';
+    return '>300k';
   }
 
   /// Filtre les termes bannis d'un texte.

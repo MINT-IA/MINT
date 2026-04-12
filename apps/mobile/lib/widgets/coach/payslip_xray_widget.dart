@@ -78,7 +78,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
             const SizedBox(height: 4),
             Text(
               'Tape sur chaque ligne pour comprendre',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
@@ -118,7 +118,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                         'Ton vrai salaire\u00a0: '
                         '${formatChfWithPrefix(widget.employerHiddenCost!)} '
                         '(cotisations employeur incluses)',
-                        style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -203,7 +203,7 @@ class _PayslipXRayWidgetState extends State<PayslipXRayWidget> {
                 child: Text(
                   line.explanation +
                       (line.legalRef != null ? ' (${line.legalRef})' : ''),
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ),
             ],

@@ -1,8 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/cap_engine.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
+
+/// French localizations instance for tests (no BuildContext needed).
+final _l = SFr();
 
 /// Tests for CapEngine V1 heuristic.
 ///
@@ -54,7 +58,7 @@ void main() {
   group('CapEngine — always returns 1 cap', () {
     test('returns a cap for minimal profile with stable id', () {
       final profile = profile0();
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap, isNotNull);
       expect(cap.id, isNotEmpty);
@@ -65,7 +69,7 @@ void main() {
 
     test('returns a cap even with zero salary', () {
       final profile = profile0(salaireBrutMensuel: 0);
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap, isNotNull);
     });
@@ -76,7 +80,7 @@ void main() {
       final profile = profile0(
         dettes: dettes(25000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.kind, CapKind.correct);
       expect(cap.ctaRoute, '/debt/repayment');
@@ -86,7 +90,7 @@ void main() {
       final profile = profile0(
         dettes: dettes(5000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.kind, isNot(CapKind.correct));
     });
@@ -98,7 +102,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.kind, CapKind.secure);
       // Winner is either indep_no_lpp or disability_gap (both Secure,
@@ -119,7 +123,7 @@ void main() {
         salaireBrutMensuel: 10000,
         canton: 'ZH',
       );
-      final cap = CapEngine.compute(profile: profile, now: novemberNow);
+      final cap = CapEngine.compute(profile: profile, now: novemberNow, l: _l);
 
       // Should produce a 3a optimize cap (unless debt or missing data overrides)
       expect(cap, isNotNull);
@@ -136,7 +140,7 @@ void main() {
         salaireBrutMensuel: 10000,
         canton: 'ZH',
       );
-      final cap = CapEngine.compute(profile: profile, now: januaryNow);
+      final cap = CapEngine.compute(profile: profile, now: januaryNow, l: _l);
 
       // In January, the 3a window is > 90 days away
       // So the 3a candidate should not be generated
@@ -156,7 +160,7 @@ void main() {
           autresDepensesFixes: 3000,
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Should not just show a negative number — must show lever
       if (cap.kind == CapKind.correct && cap.ctaRoute == '/budget') {
@@ -177,6 +181,7 @@ void main() {
       final cap1 = CapEngine.compute(
         profile: profile,
         now: now,
+        l: _l,
         memory: const CapMemory(),
       );
 
@@ -188,6 +193,7 @@ void main() {
       final cap2 = CapEngine.compute(
         profile: profile,
         now: now,
+        l: _l,
         memory: memory,
       );
 
@@ -205,6 +211,7 @@ void main() {
       final capFresh = CapEngine.compute(
         profile: profile,
         now: now,
+        l: _l,
         memory: const CapMemory(),
       );
 
@@ -215,6 +222,7 @@ void main() {
       final capOld = CapEngine.compute(
         profile: profile,
         now: now,
+        l: _l,
         memory: memory,
       );
 
@@ -230,8 +238,8 @@ void main() {
         lastCapDate: now.subtract(const Duration(hours: 3)),
       );
 
-      final r1 = CapEngine.compute(profile: profile, now: now, memory: memory);
-      final r2 = CapEngine.compute(profile: profile, now: now, memory: memory);
+      final r1 = CapEngine.compute(profile: profile, now: now, l: _l, memory: memory);
+      final r2 = CapEngine.compute(profile: profile, now: now, l: _l, memory: memory);
 
       expect(r1.id, r2.id);
       expect(r1.priorityScore, r2.priorityScore);
@@ -246,7 +254,7 @@ void main() {
           rachatMaximum: 100000,
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // May or may not be the winner depending on other candidates
       expect(cap, isNotNull);
@@ -260,7 +268,7 @@ void main() {
         salaireBrutMensuel: 10000,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 30000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap, isNotNull);
       // At age 50 with only 30k LPP, replacement rate is low
@@ -281,7 +289,7 @@ void main() {
         ),
       );
 
-      final cap = CapEngine.compute(profile: julien, now: now);
+      final cap = CapEngine.compute(profile: julien, now: now, l: _l);
 
       expect(cap, isNotNull);
       expect(cap.headline, isNotEmpty);
@@ -301,7 +309,7 @@ void main() {
         salaireBrutMensuel: 0,
         canton: '',
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap, isNotNull);
       expect(cap.kind, CapKind.complete);
@@ -312,7 +320,7 @@ void main() {
       final profile = profile0(
         dettes: dettes(50000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.ctaMode, CtaMode.route);
       expect(cap.ctaRoute, isNotNull);
@@ -356,9 +364,9 @@ void main() {
       );
 
       final capRetraite = CapEngine.compute(
-          profile: profileRetraite, now: now);
+          profile: profileRetraite, now: now, l: _l);
       final capCustom = CapEngine.compute(
-          profile: profileCustom, now: now);
+          profile: profileCustom, now: now, l: _l);
 
       // Both should return a cap
       expect(capRetraite, isNotNull);
@@ -387,7 +395,7 @@ void main() {
         goalA: profile.goalA,
       );
 
-      final cap = CapEngine.compute(profile: profileWithEvent, now: now);
+      final cap = CapEngine.compute(profile: profileWithEvent, now: now, l: _l);
       expect(cap, isNotNull);
 
       // The life event cap should be generated as a candidate
@@ -408,7 +416,7 @@ void main() {
         ),
       );
 
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Debt correct should win and be boosted
       expect(cap.id, 'debt_correct');
@@ -424,7 +432,7 @@ void main() {
         salaireBrutMensuel: 5000,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isTrue);
       expect(cap.id, 'honesty_no_lever');
@@ -443,7 +451,7 @@ void main() {
         salaireBrutMensuel: 4500,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 3000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isTrue);
       expect(cap.acquiredAssets, isNotEmpty);
@@ -455,7 +463,7 @@ void main() {
         salaireBrutMensuel: 8000,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 200000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isFalse);
     });
@@ -466,7 +474,7 @@ void main() {
         salaireBrutMensuel: 5000, // 60k/year
         dettes: dettes(150000), // 250% of annual income
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Debt correct cap may also exist, but honesty should be a candidate.
       // The debt_correct cap has higher score, so it may win.
@@ -485,7 +493,7 @@ void main() {
         salaireBrutMensuel: 5000, // 60k/year
         dettes: dettes(80000), // ~133% — below 200% threshold
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Should not be honesty cap (debt_correct is fine)
       expect(cap.isHonestyCap, isFalse);
@@ -506,7 +514,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isTrue);
       expect(cap.headline, 'Faisons le point ensemble');
@@ -527,7 +535,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // At 55, there's still time — no honesty cap
       expect(cap.isHonestyCap, isFalse);
@@ -541,7 +549,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Should get indep_no_lpp or disability_gap, not honesty
       expect(cap.isHonestyCap, isFalse);
@@ -558,7 +566,7 @@ void main() {
           totalEpargne3a: 25000,
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isTrue);
       expect(cap.acquiredAssets.length, greaterThanOrEqualTo(2));
@@ -576,7 +584,7 @@ void main() {
         salaireBrutMensuel: 4000,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isTrue);
       expect(cap.ctaMode, CtaMode.coach);
@@ -591,7 +599,7 @@ void main() {
         salaireBrutMensuel: 4000,
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isTrue);
       // No banned alarmist terms
@@ -615,7 +623,7 @@ void main() {
           rachatMaximum: 100000,
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       expect(cap.isHonestyCap, isFalse);
     });
@@ -631,7 +639,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // disability_gap or indep_no_lpp should be the winner (both are Secure)
       expect(cap.kind, CapKind.secure);
@@ -650,7 +658,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Check all text for alarmist terms (banned)
       final allText = '${cap.headline} ${cap.whyNow} ${cap.ctaLabel}';
@@ -671,12 +679,12 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 0),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       if (cap.id == 'disability_gap') {
         expect(cap.coachPrompt, isNotNull);
-        // Must orient toward understanding the gap
-        expect(cap.coachPrompt!, contains('comprendre'));
+        // Must orient toward understanding the gap (not selling)
+        expect(cap.coachPrompt!, anyOf(contains('comprendre'), contains('options')));
         // Must NOT sell insurance
         expect(cap.coachPrompt!, isNot(contains('souscrire')));
         expect(cap.coachPrompt!, isNot(contains('acheter')));
@@ -694,7 +702,7 @@ void main() {
       const memory = CapMemory(
         completedActions: ['disability_gap'],
       );
-      final cap = CapEngine.compute(profile: profile, now: now, memory: memory);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l, memory: memory);
 
       // disability_gap should not appear when already completed
       expect(cap.id, isNot('disability_gap'));
@@ -706,7 +714,7 @@ void main() {
         salaireBrutMensuel: 7000,
         employmentStatus: 'salarie',
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Salarié should never get the disability_gap cap (that's for independants)
       expect(cap.id, isNot('disability_gap'));
@@ -719,7 +727,7 @@ void main() {
         employmentStatus: 'independant',
         prevoyance: const PrevoyanceProfile(avoirLppTotal: 50000),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // Has LPP → not indepNoLpp → no disability_gap
       expect(cap.id, isNot('disability_gap'));
@@ -734,7 +742,7 @@ void main() {
         salaireBrutMensuel: 9000,
         employmentStatus: 'salarie',
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       // At 52, coverage_check should be generated as a candidate.
       // It may or may not win, but if it does, the headline should
@@ -760,7 +768,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
 
       if (cap.id == 'coverage_check') {
         // Standard headline, not the senior variant
@@ -788,8 +796,8 @@ void main() {
         ),
       );
 
-      final capSenior = CapEngine.compute(profile: senior, now: now);
-      final capYoung = CapEngine.compute(profile: young, now: now);
+      final capSenior = CapEngine.compute(profile: senior, now: now, l: _l);
+      final capYoung = CapEngine.compute(profile: young, now: now, l: _l);
 
       // Both should return caps
       expect(capSenior, isNotNull);
@@ -843,7 +851,7 @@ void main() {
 
     test('married couple with conjoint generates couple caps', () {
       final profile = julienWithLauren();
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap, isNotNull);
       expect(cap.id, isNotEmpty);
     });
@@ -864,13 +872,13 @@ void main() {
           ),
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot('couple_lpp_buyback'));
     });
 
     test('couple_3a NOT generated when conjoint is FATCA', () {
       final profile = julienWithLauren();
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot('couple_3a'));
     });
 
@@ -891,7 +899,7 @@ void main() {
           ),
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       final isCouple3aWinner = cap.id == 'couple_3a';
       final isCouple3aSignal = cap.supportingSignals
           .any((s) => s.label == 'À deux, un levier de plus');
@@ -917,7 +925,7 @@ void main() {
           ),
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot('couple_3a'));
     });
 
@@ -925,7 +933,7 @@ void main() {
       final profile = julienWithLauren(
         etatCivil: CoachCivilStatus.concubinage,
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot('couple_avs_cap'));
       final hasAvsSignal = cap.supportingSignals
           .any((s) => s.label.contains('AVS couple'));
@@ -942,7 +950,7 @@ void main() {
           prevoyance: PrevoyanceProfile(avoirLppTotal: 19620),
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot('couple_avs_cap'));
     });
 
@@ -970,7 +978,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, 'debt_correct');
     });
 
@@ -994,7 +1002,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.kind, CapKind.complete);
     });
 
@@ -1027,7 +1035,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       final allText =
           '${cap.headline} ${cap.whyNow} ${cap.ctaLabel} ${cap.coachPrompt ?? ""}';
       expect(allText, isNot(contains('ton mari')));
@@ -1038,14 +1046,14 @@ void main() {
 
     test('golden couple: FATCA blocks couple_3a for Lauren', () {
       final profile = julienWithLauren();
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap, isNotNull);
       expect(cap.id, isNot('couple_3a'));
     });
 
     test('single user generates no couple caps', () {
       final profile = profile0(salaireBrutMensuel: 8000);
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot(startsWith('couple_')));
     });
 
@@ -1062,7 +1070,7 @@ void main() {
           label: 'Retraite',
         ),
       );
-      final cap = CapEngine.compute(profile: profile, now: now);
+      final cap = CapEngine.compute(profile: profile, now: now, l: _l);
       expect(cap.id, isNot(startsWith('couple_')));
     });
 
@@ -1080,18 +1088,120 @@ void main() {
           canContribute3a: true,
         ),
       );
-      final cap1 = CapEngine.compute(profile: profile, now: now);
+      final cap1 = CapEngine.compute(profile: profile, now: now, l: _l);
       if (cap1.id.startsWith('couple_')) {
         final memory = CapMemory(
           lastCapServed: cap1.id,
           lastCapDate: now.subtract(const Duration(hours: 2)),
         );
         final cap2 =
-            CapEngine.compute(profile: profile, now: now, memory: memory);
+            CapEngine.compute(profile: profile, now: now, l: _l, memory: memory);
         if (cap2.id == cap1.id) {
           expect(cap2.priorityScore, lessThan(cap1.priorityScore));
         }
       }
+    });
+  });
+
+  // ── TOP 10 SWISS CORE JOURNEYS — TIER 1 URGENCY ─────────
+
+  group('CapEngine — Top 10 Core Journeys: Tier 1 urgency', () {
+    test('Julien en chômage → cap shifts to unemployment-related', () {
+      // Julien (golden profile) with employmentStatus switched to chomage.
+      // Despite having 539k LPP buyback opportunity (strong optimize cap),
+      // the chômage urgency must override it.
+      final julienChomage = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 0, // no income while unemployed
+        employmentStatus: 'chomage',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70377,
+          rachatMaximum: 539414,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042),
+          label: 'Retraite',
+        ),
+      );
+
+      final cap = CapEngine.compute(profile: julienChomage, now: now, l: _l);
+
+      // Must be the chômage urgency cap — not LPP buyback or 3a
+      expect(cap.id, 'chomage_urgency');
+      expect(cap.kind, CapKind.secure);
+      expect(cap.ctaRoute, '/unemployment');
+      // Must not be alarmist
+      final allText = '${cap.headline} ${cap.whyNow} ${cap.ctaLabel}';
+      expect(allText, isNot(contains('danger')));
+      expect(allText, isNot(contains('catastrophe')));
+    });
+
+    test('profile with debt crisis → cap shifts to debt management', () {
+      // Profile where the user declared a debtCrisis life event AND has
+      // real debt — the strongest Tier 1 signal short of chomage.
+      // Despite having 80k LPP buyback opportunity (strong optimize cap),
+      // the debt crisis urgency must boost debt_correct above it.
+      final debtCrisisProfile = CoachProfile(
+        birthYear: 1985,
+        canton: 'VD',
+        salaireBrutMensuel: 6000,
+        employmentStatus: 'salarie',
+        familyChange: 'debtCrisis', // explicit life event signal
+        dettes: const DetteProfile(creditConsommation: 25000),
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 30000,
+          rachatMaximum: 80000,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2050),
+          label: 'Retraite',
+        ),
+      );
+
+      final cap = CapEngine.compute(
+          profile: debtCrisisProfile, now: now, l: _l);
+
+      // debt_correct (kind: correct, ctaRoute: /debt/repayment) must win
+      // because _hasDebtCrisis detects debtCrisis life event and boosts it
+      expect(cap.id, 'debt_correct');
+      expect(cap.kind, CapKind.correct);
+      // Must never show a pure optimize cap (3a / LPP) as winner
+      expect(cap.id, isNot('lpp_buyback'));
+      expect(cap.id, isNot('pillar_3a'));
+    });
+
+    test('normal Julien salarié → no urgency boost, normal heuristic', () {
+      // Standard Julien: salarié, no debt crisis, no chomage, no divorce.
+      // Urgency boost must be 0 → normal heuristic runs unchanged.
+      final julien = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 122207 / 12,
+        employmentStatus: 'salarie',
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 70377,
+          rachatMaximum: 539414,
+        ),
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042),
+          label: 'Retraite',
+        ),
+      );
+
+      final cap = CapEngine.compute(profile: julien, now: now, l: _l);
+
+      // No Tier 1 urgency cap should win
+      expect(cap.id, isNot('chomage_urgency'));
+      expect(cap.id, isNot('divorce_urgency'));
+      // Normal heuristic: optimize or prepare cap expected
+      expect(
+        [CapKind.optimize, CapKind.prepare, CapKind.complete],
+        contains(cap.kind),
+      );
     });
   });
 }

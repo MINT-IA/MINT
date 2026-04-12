@@ -1,5 +1,7 @@
 # CLAUDE.md — MINT Project Context (auto-loaded)
 
+> **DOMAIN RENAME (2026-04-07, Phase 1.5):** The legacy `chiffre_choc` / `ChiffreChoc` / `chiffreChoc` tokens have been renamed to `premier_eclairage` / `PremierEclairage` / `premierEclairage` across backend, mobile, ARB, OpenAPI, URL routes, and live docs. The previous "LEGACY NOTE" flag is cleared. CI gate `tools/checks/no_chiffre_choc.py` enforces zero residue in scoped paths.
+
 > Loaded automatically at every session start. Single source of truth for all agents.
 > For conflict resolution: `rules.md` (tier 1) > this file (tier 2). See § HIERARCHY.
 
@@ -7,11 +9,20 @@
 
 ## 1. IDENTITY
 
-**MINT** — Swiss financial education app (Flutter + FastAPI).
-**Mission**: "Juste quand il faut: une explication, une action, un rappel."
-**Target V1**: 45-60 yo Swiss residents preparing retirement (couple focus). Secondary: 22-45 yo.
-**Design for ALL ages**: UX, copy, and features MUST work for 22-65+. Never design screens, landing pages, or flows that exclude an age group. Segment by life event, not demographics.
-**Model**: Read-only, education-first. No money movement. No investment advice.
+> **Source of truth for identity & positioning: `docs/MINT_IDENTITY.md`**
+
+**MINT** — Swiss financial protection & education app (Flutter + FastAPI).
+**Mission**: "Mint te dit ce que personne n'a intérêt à te dire."
+**Positioning**: Protection-first. MINT is NOT a retirement app, NOT a calculator, NOT a dashboard. MINT is a calm, intimate, reliable intelligence in your pocket that protects users against poorly aligned financial products and decisions.
+**Doctrine**: "Mint n'accuse pas. Mint éclaire. Mint ne juge pas l'émetteur. Mint explicite le contrat. Mint ne dit pas 'c'est nul'. Mint dit 'voici ce que cela implique pour toi'."
+**4-layer insight engine**: (1) Factual extraction → (2) Human translation → (3) Personal perspective → (4) Questions to ask before signing. See `docs/MINT_IDENTITY.md` for full spec.
+**5 principles**: (1) Speak human — no jargon without translation. (2) Reduce shame — never make user feel behind. (3) Dialogue, not lecture. (4) Immediate grip — always a danger avoided, a trap illuminated, a next step. (5) Gentle but sharp — never aggressive, never soft.
+**Service loop** (internal, NOT the tagline): "Juste quand il faut: une explication, une action, un rappel."
+**Target**: ALL Swiss residents (18-99). No primary/secondary segmentation.
+**Segmentation**: By life event and lifecycle phase, NEVER by age or demographics. A 25-year-old starting their first job and a 55-year-old planning retirement are equally important users.
+**Design for ALL**: UX, copy, and features MUST work for 18-99. Never design screens, landing pages, or flows that exclude an age group or suggest MINT is "a retirement app" or any single-topic app.
+**Model**: Read-only, protection-first, education-first. No money movement. No investment advice. No product recommendations. No ranking.
+**NEVER**: frame MINT as a retirement app, use "chiffre choc" (legacy term → "premier éclairage"), default to retirement projections, compare named competitors, recommend specific products.
 
 ---
 
@@ -49,7 +60,7 @@ legal/                    # CGU, Privacy, Disclaimer, Mentions légales
 
 > **ADR**: `decisions/ADR-20260223-unified-financial-engine.md`
 
-**All AVS, LPP, and tax calculations MUST use these centralized calculators.**
+**All financial calculations MUST use these centralized calculators.**
 
 | Calculator | Key Methods | Source |
 |-----------|-------------|--------|
@@ -58,12 +69,14 @@ legal/                    # CGU, Privacy, Disclaimer, Mentions légales
 | `tax_calculator.dart` | `capitalWithdrawalTax()`, `progressiveTax()`, `estimateMonthlyIncomeTax()` | LIFD art. 38 |
 | `confidence_scorer.dart` | `EnhancedConfidence` — 4-axis: completeness × accuracy × freshness × understanding | Profile completeness |
 | `arbitrage_engine.dart` | `compareLumpSumVsAnnuity()`, `compareHousingOptions()` | Side-by-side scenarios |
-| `monte_carlo_service.dart` | `runSimulation()` — 1000+ stochastic projections | Retirement probability |
-| `withdrawal_sequencing_service.dart` | `optimizeWithdrawalOrder()` — LIFO/FIFO tax optimization | Withdrawal planning |
+| `monte_carlo_service.dart` | `runSimulation()` — 1000+ stochastic projections | Financial planning probability |
+| `withdrawal_sequencing_service.dart` | `optimizeWithdrawalOrder()` — LIFO/FIFO tax optimization | Capital planning |
 | `tornado_sensitivity_service.dart` | `computeSensitivity()` — what-if ±1-5% analysis | Sensitivity charts |
 
+These calculators serve ALL life events — not just retirement. A 28-year-old buying property uses `tax_calculator`, `arbitrage_engine`, and `confidence_scorer` exactly like a 58-year-old planning retirement.
+
 **Consumers** (must import `financial_core.dart`, never reimplement):
-`retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`
+`retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`, `budget_service`
 
 ---
 
@@ -125,9 +138,7 @@ feature/* ──PR──> dev ──PR──> staging ──PR──> main
 
 **Pillar 3a**: Salarié LPP: **7'258 CHF/an** | Indépendant sans LPP: **20% revenu net, max 36'288 CHF/an**
 
-**LPP**: Seuil d'accès: **22'680** (art. 7) | Coordination: **26'460** (art. 8) | Min coordonné: **3'780** | Conversion minimale obligatoire: **6.8%** (art. 14, part obligatoire uniquement) | Bonif.: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65) | EPL min: **20'000** (OPP2 art. 5) | EPL blocage: **3 ans** (art. 79b al. 3)
-
-**Règle LPP**: Ne jamais appliquer implicitement `6.8%` à tout le capital LPP. Distinguer la part obligatoire et la part surobligatoire ou enveloppante. Sans certificat LPP, les projections détaillées restent des fourchettes indicatives.
+**LPP**: Seuil d'accès: **22'680** (art. 7) | Coordination: **26'460** (art. 8) | Min coordonné: **3'780** | Conversion: **6.8%** (art. 14) | Bonif.: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65) | EPL min: **20'000** (OPP2 art. 5) | EPL blocage: **3 ans** (art. 79b al. 3)
 
 **AVS**: Taux total: **10.60%** (5.30+5.30) | Rente max: **30'240 CHF/an** | Cotisation min indép.: **530 CHF/an**
 
@@ -138,9 +149,10 @@ feature/* ──PR──> dev ──PR──> staging ──PR──> main
 
 ### Financial Archetypes (8 types)
 
-> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md`
+> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md` (legacy name — applies to ALL projections, not just retirement)
 
 Every projection MUST account for archetype. NEVER assume "Swiss native salarié".
+Archetypes affect ALL domains: tax, housing, 3a, LPP, family — not just retirement.
 
 | Archetype | Detection | Key difference |
 |-----------|-----------|----------------|
@@ -170,11 +182,13 @@ Crise:         debtCrisis
 - Data sources: estimated(0.25), userInput(0.60), crossValidated(0.70), certificate(0.95), openBanking(1.00)
 - Understanding axis: financial literacy engagement (beginner/intermediate/advanced + coach session bonus)
 
-### Capital vs Rente Taxation (CRITICAL)
+### Key Tax Rules (CRITICAL)
 - **Rente LPP** = revenu imposable annuel (LIFD art. 22)
-- **Capital retiré** = taxé séparément au retrait (LIFD art. 38)
+- **Capital retiré (2e/3a pilier)** = taxé séparément au retrait (LIFD art. 38) — applies at ANY age (EPL, retirement, departure)
 - **SWR withdrawals** = consommation de patrimoine, PAS un revenu imposable
 - **NEVER double-tax**: retrait tax + income tax on SWR
+- **EPL (propriété)** = retrait anticipé du 2e pilier pour achat immobilier — taxé comme capital (LIFD art. 38), même logique
+- **3a retrait** = taxé comme capital, même barème progressif — pertinent dès le premier emploi
 
 ---
 
@@ -197,7 +211,7 @@ Crise:         debtCrisis
 ### Required in Every Calculator/Service Output
 - `disclaimer` — "outil éducatif", "ne constitue pas un conseil", "LSFin"
 - `sources` — Legal references (LPP art. X, LIFD art. Y)
-- `chiffre_choc` — One impactful number with explanatory text
+- `premier_eclairage` — First personalized insight (number, blind spot, implication, or question to ask). Replaces legacy `chiffre_choc`.
 - `alertes` — Warnings when thresholds are crossed
 
 ### Swiss Law References
@@ -210,6 +224,15 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - Non-breaking space (`\u00a0`) before `!`, `?`, `:`, `;`, `%`
 - Voice: calme, précis, fin, rassurant, net. Jamais générique, jamais infantilisant.
 - Adapt by context (discovery/stress/victory), mastery level, and product moment — NOT by age.
+
+### Regional Swiss Voice Identity (NON-NEGOTIABLE)
+- **MINT must sound locally rooted** per the user's canton and linguistic region.
+- **Suisse Romande** (VD, GE, NE, JU, VS, FR): "septante/nonante", dry humor, pragmatic. VS = direct/montagnard, GE = cosmopolite, VD = détendu.
+- **Deutschschweiz** (ZH, BE, LU, ZG, AG, SG, etc.): "Znüni", savings culture, practical wisdom. ZH = urban/finance-savvy, BE = gemütlich, ZG = tax pride.
+- **Svizzera Italiana** (TI, GR partly): warm Mediterranean flair + Swiss rigor, family savings, grotto references, lake life.
+- **Implementation**: `RegionalVoiceService.forCanton()` → injects regional prompt into coach system prompt via `context_injector_service.dart`.
+- **Rule**: NEVER caricature. Always subtle — like an inside joke between locals. The kind of thing that makes someone smile and think "this app really knows my region."
+- **Backend**: `claude_coach_service.py` system prompt includes REGIONAL IDENTITY section guiding Claude's tone adaptation.
 
 ---
 
@@ -232,21 +255,23 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 - **Run `flutter gen-l10n`** after modifying ARB files
 - **French diacritics mandatory**: é, è, ê, ô, ù, ç, à — ASCII "e" for accented = bug
 
-### Navigation Architecture (target — S52+)
+### Navigation Architecture (Wire Spec V2 — current)
 - **Full spec**: `docs/NAVIGATION_GRAAL_V10.md`
-- **Philosophy**: Plan-first, coach-orchestrated. AI-as-layer, NOT chatbot-first.
-- **Shell**: 4 tabs — Aujourd'hui | Coach | Explorer | Dossier
+- **Philosophy**: Coach-first, UI-assisted. AI-as-layer, NOT chatbot-first.
+- **Shell**: 3 tabs + drawer — Aujourd'hui | Coach | Explorer + ProfileDrawer (endDrawer)
+- **Deep-link compat**: `/home?tab=3` opens ProfileDrawer (backward compat for old Dossier tab)
 - **Capture**: Contextual bottom sheet (scan, import, add data) — NOT a global FAB
 - **Explorer**: 7 hubs (Retraite, Famille, Travail & Statut, Logement, Fiscalité, Patrimoine & Succession, Santé & Protection)
 - **Screen types**: Destination (user mental map), Flow (triggered by intent), Tool (opened contextually), Alias (legacy compat)
 - **Internal taxonomies** (`arbitrage`, `lpp-deep`, `3a-deep`, `segments`) are NOT visible in user navigation
 - **All 67 canonical routes remain as deep links** — restructuring is UX surface, not route deletion
+- **Archived routes** (Wire Spec V2 P4): `/ask-mint`, `/tools`, `/coach/cockpit`, `/coach/checkin`, `/coach/refresh` → redirect to `/home?tab=N`
 
 ### UX Principles (from `rules.md`)
 - Progressive disclosure — no bank connection upfront
 - 1 screen = 1 intention
 - Each recommendation → 1-3 concrete next actions
-- Onboarding minimal: 3 questions + revenu before first chiffre choc
+- Onboarding minimal: intent + 3 inputs (age, revenu, canton) before first premier éclairage
 - Precision progressive: ask data when it matters, not during onboarding
 - Score FRI: never "bon/mauvais", always "progression personnelle"
 
@@ -263,6 +288,7 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 ## 8. GOLDEN TEST COUPLE: Julien + Lauren
 
 > Source of truth: `test/golden/` (xlsx + PDF certificats + JPEG)
+> This couple tests MULTIPLE life events, not just retirement: housing (EPL), tax optimization (3a), couple dynamics (married caps), archetype differences (swiss_native vs expat_us/FATCA).
 
 | | Julien | Lauren |
 |--|--------|--------|
@@ -273,12 +299,25 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 | Nationalité | CH | US (FATCA) |
 | Archetype | swiss_native | expat_us |
 | Caisse LPP | **CPE** (rémun. 5%) | **HOTELA** |
+| Salaire assuré LPP | **91'967 CHF** (CPE Plan Maxi) | standard coordonné |
+| Bonif. vieillesse caisse | **24%** (CPE Plan Maxi, part vieillesse) | standard légal |
 | Avoir LPP | **70'377 CHF** | **19'620 CHF** |
 | Rachat max LPP | **539'414 CHF** | **52'949 CHF** |
 | LPP projeté 65 | 677'847 (rente ~33'892/an) | ~153'000 |
 | 3a capital | 32'000 | 14'000 |
-| AVS couple | 2'500 CHF/mois |
+| AVS couple (marié, cap 150%) | **3'780 CHF/mois** (LAVS art. 35) |
 | Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
+
+**Multi-domain test coverage** (not just retirement):
+- **Tax**: capital withdrawal tax comparison, income tax estimation, FATCA implications (Lauren)
+- **Housing**: EPL eligibility (min 20k), mortgage capacity (1/3 rule with combined income)
+- **3a**: annual max (7'258 salarié LPP), retrait anticipé scenarios
+- **Couple**: married AVS cap 150%, splitting rules, concubinage comparison
+- **Archetype**: swiss_native vs expat_us — different projections, different risks
+
+> Note : le taux de 65.5% utilise le revenu net combiné du couple (Julien + Lauren).
+> Le code peut produire un résultat différent selon la projection LPP utilisée
+> (formule légale standard vs certificat CPE Plan Maxi).
 
 ---
 
@@ -292,13 +331,14 @@ LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral)
 6. **Promise returns** — use scenarios + disclaimers
 7. **Commit non-sprint files** — surgical `git add`
 8. **Assume Swiss native** — always check archetype
-9. **Projection without confidence score** — always include uncertainty band
+9. **Projection without confidence score** — always include uncertainty band (ALL projections, not just retirement)
 10. **Double-tax capital** — capital taxed at withdrawal (LIFD art. 38), SWR ≠ income
 11. **Duplicate calculation logic** — NEVER create `_calculate*()` in services. Use `financial_core/`.
 12. **Ignore future AVS years** — `AvsCalculator` adds future years. Don't use raw `contributionYears / 44`.
 13. **Apply married AVS cap to concubins** — LAVS art. 35 cap (150%) = married only.
 14. **Hardcode strings** — ALL user-facing text in ARB files via `AppLocalizations`
 15. **Hardcode colors** — NEVER `Color(0xFF...)`, always `MintColors.*`
+16. **Frame MINT as retirement app** — MINT covers ALL life events (housing, family, tax, career, debt). Retirement is ONE of 18 life events, not the primary use case. Every screen, prompt, and feature MUST serve 22-65+ equally.
 
 ---
 
@@ -351,9 +391,9 @@ If code contradicts 1-9: fix the code OR write an ADR.
 
 | Phase | Sprints | Focus | Key Features |
 |-------|---------|-------|-------------|
-| 1 "Le Plan Vivant" | S51-S56 | MINT priorise | Chat AI (done), CapEngine+UX (done), Gate Closer (done), Plan du jour, Top 10 irréprochables, Coach contextuel |
-| 2 "Le Compagnon" | S57-S62 | MINT s'adapte | Lifecycle Engine, OB-ready architecture, Weekly Recap, cantonal benchmarks, JITAI nudges, caps ménage avancés |
-| 3 "L'Expert" | S63-S68 | MINT indispensable | Voice AI sobre (FR+DE), multi-LLM, Expert tier (human advisors), mise en scène premium |
+| 1 "Le Conversationnel" | S51-S56 | MINT parle | Chat AI, 3a rétroactif, 13e rente AVS, Financial Health Score, streaks+milestones, RAG v1 |
+| 2 "Le Compagnon" | S57-S62 | MINT s'adapte | Lifecycle Engine (7 phases), AI memory, Weekly Recap, cantonal benchmarks, JITAI nudges |
+| 3 "L'Expert" | S63-S68 | MINT indispensable | Voice AI, multi-LLM, Expert tier (human advisors), advanced gamification |
 | 4 "La Référence" | S69+ | Standard suisse | Institutional APIs, B2B caisses+RH, Open Finance, expansion DACH |
 
 **Execution method**: All sprints use autoresearch dev skills (`visions/MINT_Autoresearch_Dev_Agents.md`).
@@ -365,21 +405,25 @@ If code contradicts 1-9: fix the code OR write an ADR.
 | Document | Purpose |
 |----------|---------|
 | `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
-| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy (13 active docs) |
-| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
-| `docs/ROADMAP_V2.md` | Strategic roadmap V2.1 (post-S53, 4 phases) |
-| `docs/TOP_10_SWISS_CORE_JOURNEYS.md` | 10+1 parcours coeur, état actuel, gaps, séquence retraite |
-| `docs/MINT_CAP_ENGINE_SPEC.md` | CapEngine: scoring, séquences V2, clause d'honnêteté |
-| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories |
-| `docs/VOICE_SYSTEM.md` | Brand voice, tone by context, microcopy, 50 avant/après |
-| `docs/S53_GATE_CLOSER_AGENT_PROMPT.md` | Prompt opérable pour agents d'exécution |
-| `docs/MINT_SCREEN_BOARD_101.md` | Board des 101 écrans, template par écran |
-| `docs/NAVIGATION_GRAAL_V10.md` | Routes, hubs, shell 4 tabs |
-| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI, mémoire, orchestration |
-| `docs/CICD_ARCHITECTURE.md` | Pipeline CI/CD, Railway, TestFlight |
-| `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, Open Banking, enrichment |
+| `docs/MINT_IDENTITY.md` | **Identity, mission, positioning, 5 principles, 4-layer engine, compliance messaging** |
+| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy |
 | `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
 | `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
-| `visions/` | Product vision, compliance vision, benchmark, autoresearch agents |
+| `DefinitionOfDone.md` | Sprint completion criteria |
+| `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
+| `docs/archive/VISION_UNIFIEE_V1.md` | Historical strategic vision (ARCHIVED); useful principles, obsolete IA |
+| `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
+| `docs/archive/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs (ARCHIVED) |
+| `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
+| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
+| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
+| `docs/VOICE_SYSTEM.md` | Editorial system: brand voice, tone by context, microcopy, 50 avant/après |
+| `docs/NAVIGATION_GRAAL_V10.md` | Detailed target IA; subordinate to masterplan for product direction |
+| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI implementation blueprint; subordinate to masterplan |
+| `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
+| `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
+| `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |
+| `visions/MINT_Autoresearch_Agents.md` | 10 veille agents (post-launch) |
+| `visions/vision_product.md` | Core promise, acquisition strategy |
+| `visions/vision_compliance.md` | LSFin, FINMA, nLPD framework |
 | `legal/DISCLAIMER.md` | User-facing educational disclaimer |
-| `docs/archive/` | 66 documents historiques (ne gouvernent plus) |

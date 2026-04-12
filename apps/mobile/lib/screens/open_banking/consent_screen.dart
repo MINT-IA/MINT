@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  CONSENT MANAGEMENT SCREEN — Sprint S14
@@ -72,7 +76,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -117,7 +121,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -135,7 +139,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
           if (_showNewConsentFlow) {
             _cancelNewConsentFlow();
           } else {
-            context.pop();
+            safePop(context);
           }
         },
       ),
@@ -228,22 +232,10 @@ class _ConsentScreenState extends State<ConsentScreen> {
   Widget _buildConsentCard(int index, BankingConsent consent) {
     final statusConfig = _getStatusConfig(consent.statusKey);
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -393,7 +385,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
               const SizedBox(width: 10),
               Text(
                 S.of(context)!.consentNlpdTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.tealDark).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelLarge(color: MintColors.tealDark).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),
@@ -551,14 +543,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
   // ── Step 1: Select Bank ────────────────────────────────────
 
   Widget _buildStepSelectBank() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -653,54 +639,46 @@ class _ConsentScreenState extends State<ConsentScreen> {
   // ── Step 2: Select Scopes ──────────────────────────────────
 
   Widget _buildStepSelectScopes() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.consentSelectScopesTitle,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: MintSpacing.xs),
-          Text(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
             S.of(context)!.consentSelectedBankLabel(_selectedBankName ?? ''),
             style: MintTextStyles.bodySmall(),
-          ),
+          )),
           const SizedBox(height: 16),
 
           // Checkboxes — NOT pre-checked (nLPD compliance)
-          _buildScopeCheckbox(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildScopeCheckbox(
             value: _scopeAccounts,
             label: S.of(context)!.consentScopeAccountsDesc,
             onChanged: (v) => setState(() => _scopeAccounts = v ?? false),
-          ),
-          _buildScopeCheckbox(
+          )),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildScopeCheckbox(
             value: _scopeBalances,
             label: S.of(context)!.consentScopeBalancesDesc,
             onChanged: (v) => setState(() => _scopeBalances = v ?? false),
-          ),
-          _buildScopeCheckbox(
+          )),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildScopeCheckbox(
             value: _scopeTransactions,
             label: S.of(context)!.consentScopeTransactionsDesc,
             onChanged: (v) => setState(() => _scopeTransactions = v ?? false),
-          ),
+          )),
 
           const SizedBox(height: 16),
 
           // Info
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(10),
-            ),
+            radius: 10,
             child: Row(
               children: [
                 Icon(Icons.info_outline,
@@ -793,14 +771,8 @@ class _ConsentScreenState extends State<ConsentScreen> {
     if (_scopeBalances) scopes.add(S.of(context)!.consentScopeSoldes);
     if (_scopeTransactions) scopes.add(S.of(context)!.consentScopeTransactions);
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

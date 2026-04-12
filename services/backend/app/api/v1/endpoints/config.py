@@ -2,7 +2,11 @@
 Config endpoints -- feature flags (INV-10).
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
+
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 from pydantic import BaseModel
 from app.services.feature_flags import FeatureFlags
 
@@ -15,10 +19,18 @@ class FeatureFlagsResponse(BaseModel):
     enableDecisionScaffold: bool
     valeurLocative2028Reform: bool
     safeModeDegraded: bool
+    enableOpenBanking: bool
+    enablePensionFundConnect: bool
+    enableExpertTier: bool
+    enableAdminScreens: bool
 
 
 @router.get("/feature-flags", response_model=FeatureFlagsResponse)
-def get_feature_flags() -> FeatureFlagsResponse:
+@limiter.limit("60/minute")
+def get_feature_flags(
+    request: Request,
+    _user: User = Depends(require_current_user),
+) -> FeatureFlagsResponse:
     flags = FeatureFlags.get_flags()
     return FeatureFlagsResponse(
         enableCouplePlusTier=flags["enable_couple_plus_tier"],
@@ -26,4 +38,8 @@ def get_feature_flags() -> FeatureFlagsResponse:
         enableDecisionScaffold=flags["enable_decision_scaffold"],
         valeurLocative2028Reform=flags["valeur_locative_2028_reform"],
         safeModeDegraded=flags["safe_mode_degraded"],
+        enableOpenBanking=flags["enable_blink_production"],
+        enablePensionFundConnect=flags["enable_caisse_pension_api"],
+        enableExpertTier=flags["enable_expert_tier"],
+        enableAdminScreens=flags["enable_admin_screens"],
     )

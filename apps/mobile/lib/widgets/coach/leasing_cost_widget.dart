@@ -148,7 +148,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
       ),
       child: Text(
         label,
-        style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+        style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -282,7 +282,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
           Text(
             'Si tu avais investi CHF ${_fmt(_monthly)}/mois sur ${widget.leasingDurationMonths ~/ 12} ans '
             'à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}%/an :',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 8),
           Row(
@@ -290,11 +290,11 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
             children: [
               Text(
                 'Capital accumulé',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
               Text(
                 'CHF ${_fmt(fv)}',
-                style: MintTextStyles.headlineMedium(color: MintColors.scoreExcellent).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                style: MintTextStyles.titleLarge(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -304,7 +304,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
             children: [
               Text(
                 'Au lieu du leasing',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
               Text(
                 '− CHF ${_fmt(_totalLeasing)}',
@@ -322,7 +322,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
               ),
               Text(
                 'CHF ${_fmt(_opportunityCost + _totalLeasing)}',
-                style: MintTextStyles.headlineMedium(color: MintColors.scoreCritique).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                style: MintTextStyles.headlineSmall(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -340,7 +340,7 @@ class _LeasingCostWidgetState extends State<LeasingCostWidget> {
     return Text(
       'Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. '
       'Source : CO art. 255 (leasing). '
-      'Rendement simulé à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}% — ne garantit pas de rendement futur.',
+      'Rendement simulé à ${(widget.annualReturnRate * 100).toStringAsFixed(0)}% — ne présage pas du rendement futur.',
       style: MintTextStyles.micro(color: MintColors.textSecondary),
     );
   }

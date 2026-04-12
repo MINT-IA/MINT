@@ -512,25 +512,25 @@ class TestDonationEdgeCases:
         age_alerts = [a for a in result.alerts if "deces" in a.lower()]
         assert len(age_alerts) > 0
 
-    def test_chiffre_choc_with_tax(self, service):
+    def test_premier_eclairage_with_tax(self, service):
         """Chiffre choc should mention tax amount when > 0."""
         inp = DonationInput(
             montant=100_000, donateur_age=50,
             lien_parente="concubin", canton="GE",
         )
         result = service.calculate(inp)
-        assert "montant" in result.chiffre_choc
-        assert "texte" in result.chiffre_choc
-        assert result.chiffre_choc["montant"] > 0
+        assert "montant" in result.premier_eclairage
+        assert "texte" in result.premier_eclairage
+        assert result.premier_eclairage["montant"] > 0
 
-    def test_chiffre_choc_exempt(self, service):
+    def test_premier_eclairage_exempt(self, service):
         """Chiffre choc for tax-exempt donation."""
         inp = DonationInput(
             montant=100_000, donateur_age=55,
             lien_parente="descendant", canton="ZH",
         )
         result = service.calculate(inp)
-        assert "exoneree" in result.chiffre_choc["texte"]
+        assert "exoneree" in result.premier_eclairage["texte"]
 
     def test_schwyz_concubin_zero_tax(self, service):
         """SZ: even concubin pays zero tax."""

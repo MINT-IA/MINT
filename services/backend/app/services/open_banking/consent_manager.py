@@ -10,6 +10,11 @@ Rules (nLPD / Nouvelle Loi sur la Protection des Donnees):
 
 Sprint S14 — Open Banking infrastructure.
 Updated P7 — Migrated from in-memory to DB persistence (BankingConsentModel).
+
+WARNING (V12-2): When db=None (sandbox/tests), this service uses an in-memory
+fallback dict. Data will NOT survive restart. Feature-gated pending full DB
+migration (see migrations/004_snapshots.sql). The endpoint layer adds an
+X-Storage-Mode: in-memory response header to signal this to clients.
 """
 
 import json

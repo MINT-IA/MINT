@@ -126,7 +126,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
           const SizedBox(height: 8),
           Text(
             S.of(context)!.firstSalaryFilmSubtitle(_fmt(widget.grossMonthly)),
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
         ],
       ),
@@ -182,7 +182,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct1Quote(_fmt(_totalDeductions)),
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
         const SizedBox(height: 16),
         _buildSalaryBar(),
@@ -200,7 +200,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(S.of(context)!.firstSalaryGross(_fmt(widget.grossMonthly)), style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
+            Text(S.of(context)!.firstSalaryGross(_fmt(widget.grossMonthly)), style: MintTextStyles.labelMedium(color: MintColors.textSecondary)),
             Text(S.of(context)!.firstSalaryNet(_fmt(_netMonthly)), style: MintTextStyles.bodySmall(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800)),
           ],
         ),
@@ -242,8 +242,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Expanded(child: Text(r.$1, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12))),
-            Text('− CHF ${_fmt(r.$2)}', style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700)),
+            Expanded(child: Text(r.$1, style: MintTextStyles.labelMedium(color: MintColors.textPrimary))),
+            Text('− CHF ${_fmt(r.$2)}', style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(width: 8),
             Text(r.$3, style: MintTextStyles.micro(color: MintColors.textSecondary)),
           ],
@@ -263,7 +263,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct2Quote(_fmt(_totalEmployerCost)),
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
         const SizedBox(height: 16),
         _buildIcebergCards(),
@@ -292,7 +292,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               Text(S.of(context)!.firstSalaryTotalEmployerCost, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
               Text(
                 'CHF ${_fmt(_totalEmployerCost)}/mois',
-                style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 15, fontWeight: FontWeight.w800),
+                style: MintTextStyles.labelLarge(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -316,14 +316,14 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600)),
+                Text(label, style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600)),
                 Text(sub, style: MintTextStyles.micro(color: MintColors.textSecondary)),
               ],
             ),
           ),
           Text(
             'CHF ${_fmt(amount)}',
-            style: MintTextStyles.bodySmall(color: color).copyWith(fontSize: 13, fontWeight: FontWeight.w800),
+            style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -345,7 +345,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct3Quote(_fmt(_monthly3a)),
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
         const SizedBox(height: 16),
         _buildProjectionBar(S.of(context)!.firstSalaryAt30, at30, at65),
@@ -377,8 +377,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
-            Text('CHF ${_fmt(value)}', style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w800)),
+            Text(label, style: MintTextStyles.labelMedium(color: MintColors.textSecondary)),
+            Text('CHF ${_fmt(value)}', style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800)),
           ],
         ),
         const SizedBox(height: 4),
@@ -412,7 +412,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct4Quote,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
         const SizedBox(height: 16),
         ...franchises.map((f) => Padding(
@@ -436,7 +436,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(S.of(context)!.firstSalaryFranchiseLabel(f.label), style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700)),
+                      Text(S.of(context)!.firstSalaryFranchiseLabel(f.label), style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
                       Text(f.advice, style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
                     ],
                   ),
@@ -477,7 +477,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
         const SizedBox(height: 4),
         Text(
           S.of(context)!.firstSalaryAct5Quote,
-          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
         ),
         const SizedBox(height: 16),
         ...checklist.map((item) => Padding(
@@ -502,7 +502,7 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
               Expanded(
                 child: Text(
                   item.task,
-                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
                 ),
               ),
             ],
@@ -523,8 +523,8 @@ class _FirstSalaryFilmWidgetState extends State<FirstSalaryFilmWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(S.of(context)!.firstSalaryBadgeTitle, style: MintTextStyles.bodyMedium(color: MintColors.scoreExcellent).copyWith(fontSize: 14, fontWeight: FontWeight.w800)),
-                    Text(S.of(context)!.firstSalaryBadgeSubtitle, style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
+                    Text(S.of(context)!.firstSalaryBadgeTitle, style: MintTextStyles.bodyMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800)),
+                    Text(S.of(context)!.firstSalaryBadgeSubtitle, style: MintTextStyles.labelMedium(color: MintColors.textSecondary)),
                   ],
                 ),
               ),

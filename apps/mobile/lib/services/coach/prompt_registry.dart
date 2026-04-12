@@ -164,17 +164,17 @@ Ancre sur un chiffre concret. Utilise le conditionnel.
 Le tip doit être actionnable (ex: "Tu pourrais simuler...").
 ''';
 
-  /// Prompt for chiffre choc narrative.
-  static String chiffreChocNarrative(CoachContext ctx) => '''
+  /// Prompt for premier éclairage narrative.
+  static String premierEclairageNarrative(CoachContext ctx) => '''
 $baseSystemPrompt
 
 CONTEXTE UTILISATEUR :
 - Prénom : ${ctx.firstName}
-- Chiffre clé : ${ctx.knownValues['chiffre_choc_value'] ?? 'N/A'}
-- Catégorie : ${ctx.knownValues['chiffre_choc_category'] ?? 'N/A'}
+- Chiffre clé : ${ctx.knownValues['premier_eclairage_value'] ?? 'N/A'}
+- Catégorie : ${ctx.knownValues['premier_eclairage_category'] ?? 'N/A'}
 - Score confiance : ${ctx.knownValues['confidence_score'] ?? 0}%
 
-TÂCHE : Commente le chiffre choc en 2-3 phrases (max 100 mots).
+TÂCHE : Commente le premier éclairage en 2-3 phrases (max 100 mots).
 Contextualise le chiffre. Mentionne le niveau de confiance.
 Suggère une simulation (pas un conseil).
 ''';
@@ -238,7 +238,7 @@ TÂCHE : Guide l'utilisateur pour compléter le bloc "$blockType".
       '3a' => 'DONNÉES CONNUES :\n'
           '- Nombre de comptes 3a : ${ctx.knownValues['nombre_3a']?.toInt() ?? 0}\n'
           '- Total épargne 3a : ${ctx.knownValues['epargne_3a'] != null ? '${_toRange(ctx.knownValues['epargne_3a'])} CHF' : '0 CHF'}\n'
-          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? pilier3aPlafondAvecLpp} CHF/an\n'
+          '- Plafond applicable : ${ctx.knownValues['plafond_3a'] ?? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)} CHF/an\n'
           '\n'
           'OBJECTIF : Connaître le solde exact et le provider de chaque compte 3a.\n'
           'Un versement 3a est déductible des impôts. Impact sur confiance : +8 pts.',
@@ -499,8 +499,8 @@ MINT est un outil éducatif. Consulte un·e spécialiste pour toute décision im
         return scoreSummary(ctx);
       case 'tip':
         return dailyTip(ctx);
-      case 'chiffre_choc':
-        return chiffreChocNarrative(ctx);
+      case 'premier_eclairage':
+        return premierEclairageNarrative(ctx);
       case 'scenario':
         return scenarioNarration(ctx);
       case 'enrichment_guide':

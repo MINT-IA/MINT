@@ -73,7 +73,7 @@ class SourceTaxRequest(ExpatBaseModel):
     """Requete pour le calcul d'impot a la source frontalier."""
 
     salary: float = Field(
-        ..., ge=0,
+        ..., ge=0, le=10_000_000,
         description="Salaire brut annuel (CHF)",
     )
     canton: str = Field(
@@ -85,7 +85,7 @@ class SourceTaxRequest(ExpatBaseModel):
         description="Etat civil (celibataire ou marie)",
     )
     children: int = Field(
-        default=0, ge=0,
+        default=0, ge=0, le=20,
         description="Nombre d'enfants a charge",
     )
     church_tax: bool = Field(

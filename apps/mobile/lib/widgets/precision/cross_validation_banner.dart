@@ -147,7 +147,7 @@ class _CrossValidationBannerState extends State<CrossValidationBanner>
                   Expanded(
                     child: Text(
                       widget.alert.suggestion,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                     ),
                   ),
                   if (widget.onAction != null)

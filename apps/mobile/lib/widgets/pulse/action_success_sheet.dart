@@ -59,6 +59,18 @@ class ActionSuccessData {
       completedCapId: completedCap.id,
     );
   }
+
+  /// Override the action label when the completed cap's headline differs
+  /// from _cachedCap (e.g. cap changed after recomputation).
+  ActionSuccessData withOverriddenHeadline(String headline) {
+    return ActionSuccessData(
+      actionLabel: headline,
+      impactLabel: impactLabel,
+      nextLabel: nextLabel,
+      nextRoute: nextRoute,
+      completedCapId: completedCapId,
+    );
+  }
 }
 
 /// Shows the Action Success bottom sheet.
@@ -70,6 +82,10 @@ Future<void> showActionSuccessSheet(
 ) {
   return showModalBottomSheet(
     context: context,
+    isScrollControlled: true,
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.85,
+    ),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -175,7 +191,7 @@ class _ActionSuccessContent extends StatelessWidget {
             GestureDetector(
               onTap: data.nextRoute != null
                   ? () {
-                      Navigator.of(context).pop();
+                      context.pop();
                       context.push(data.nextRoute!);
                     }
                   : null,
@@ -215,7 +231,7 @@ class _ActionSuccessContent extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               style: FilledButton.styleFrom(
                 backgroundColor: MintColors.primary,
                 padding: const EdgeInsets.symmetric(vertical: MintSpacing.sm + 4),

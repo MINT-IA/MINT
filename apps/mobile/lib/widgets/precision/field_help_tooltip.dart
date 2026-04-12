@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/services/precision/precision_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -65,6 +66,9 @@ class FieldHelpTooltip extends StatelessWidget {
       context: context,
       backgroundColor: MintColors.white,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -96,7 +100,7 @@ class FieldHelpTooltip extends StatelessWidget {
               // Title
               Text(
                 'Ou trouver ce chiffre ?',
-                style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
               ),
               const SizedBox(height: 16),
 
@@ -152,7 +156,7 @@ class FieldHelpTooltip extends StatelessWidget {
                           width: double.infinity,
                           child: OutlinedButton(
                             onPressed: () {
-                              Navigator.of(ctx).pop();
+                              ctx.pop();
                               onUseEstimate?.call();
                             },
                             style: OutlinedButton.styleFrom(

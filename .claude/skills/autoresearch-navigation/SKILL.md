@@ -4,10 +4,10 @@ description: "Autonomous navigation auditor & fixer. Detects orphan screens, Nav
 compatibility: Requires Flutter SDK + GoRouter
 metadata:
   author: mint-team
-  version: "1.0"
+  version: "2.0"
 ---
 
-# Autoresearch Navigation v1 — Karpathy Navigation Auditor & Fixer
+# Autoresearch Navigation v2 — Karpathy Navigation Auditor & Fixer
 
 > "Every screen must be reachable. Every route must lead somewhere. Every life event must have a home."
 
@@ -23,6 +23,30 @@ The agent modifies ONE navigation element per iteration, measures the gap count,
 - **Single target**: ONE issue per iteration. Fix -> verify -> commit -> next.
 - **Guard**: `flutter analyze` (0 new errors) + `flutter test` (no regressions).
 - **Scope**: navigation structure ONLY. Never change business logic, UI design, or add features.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Violation Types (7 categories, all automatable)
 
@@ -145,7 +169,7 @@ LifeEventType.debtCrisis       -> /check/debt
 │    3. Add GoRoute in app.dart at the correct location
 │    4. Add i18n keys to ALL 6 ARB files
 │    5. Wire response card in response_card_service.dart
-│    ⚠ Screen must include: disclaimer, sources, chiffre_choc pattern
+│    ⚠ Screen must include: disclaimer, sources, premier_eclairage pattern
 │    ⚠ NEVER hardcode French strings — use S.of(context)!.key
 │
 │  V4 (Raw Material colors):
@@ -235,7 +259,7 @@ class NewLifeEventScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Hero chiffre choc
+              // Hero premier éclairage
               // Educational content
               // Action cards
               // Disclaimer
@@ -261,6 +285,52 @@ class NewLifeEventScreen extends StatelessWidget {
 - **ALWAYS include disclaimer widget** in new screens (compliance)
 - **Defer bulk i18n** to `/autoresearch-i18n` if >10 strings needed
 - **Defer bulk Colors fixes** to `/autoresearch-ux-polish` if >5 files affected
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY navigation fix, before reporting it as done:
+
+1. **RUN** `flutter analyze 2>&1 | tail -10` AND `flutter test 2>&1 | tail -10` fresh.
+2. **RUN** the detection command for the fixed category. Confirm count decreased.
+3. **PASTE** all three outputs in your experiment log. "Should pass" is FORBIDDEN.
+4. If count did NOT decrease → the fix is incomplete or wrong. Investigate.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "Navigator.push works fine here" | GoRouter is the rule. No exceptions except dialogs (see Safe List). |
+| "This screen is rarely used" | Every screen must be properly routed. Frequency is irrelevant. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If fix caused cascading issues → revert ALL and skip this issue. Return to the Loop.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Route fixed" | `flutter analyze` clean + route accessible at runtime | Code compiles, route "should work" |
+| "No regressions" | Full suite run: same or fewer failures | Running only analyze |
+| "Gap count decreased" | Fresh detection command count < previous | "I fixed 3 violations" without re-counting |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Verify + analyze + test all green, this iteration | Green from previous iteration |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

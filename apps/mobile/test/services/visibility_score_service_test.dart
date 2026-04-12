@@ -9,7 +9,7 @@ import 'package:mint_mobile/services/visibility_score_service.dart';
 CoachProfile _makeProfile({
   String? firstName,
   double salaire = 0,
-  int nombreDeMois = 12,
+  double nombreDeMois = 12.0,
   double? bonusPourcentage,
   String canton = '',
   int birthYear = 1980,
@@ -238,7 +238,7 @@ void main() {
       final profile = _makeProfile(
         firstName: 'Julien',
         salaire: 9078,
-        nombreDeMois: 13,
+        nombreDeMois: 13.0,
         canton: 'VS',
         birthYear: 1977,
         employmentStatus: 'salarie',
@@ -288,7 +288,7 @@ void main() {
       final user = _makeProfile(
         firstName: 'Alice',
         salaire: 8000,
-        nombreDeMois: 13,
+        nombreDeMois: 13.0,
         canton: 'VD',
         birthYear: 1975,
         employmentStatus: 'salarie',
@@ -298,7 +298,7 @@ void main() {
       final conjoint = _makeProfile(
         firstName: 'Bob',
         salaire: 5000,
-        nombreDeMois: 12,
+        nombreDeMois: 12.0,
         canton: 'VD',
         birthYear: 1980,
         employmentStatus: 'salarie',
@@ -396,7 +396,7 @@ void main() {
       final user13 = _makeProfile(
         firstName: 'A',
         salaire: 8000,
-        nombreDeMois: 13, // revenuBrutAnnuel = 104'000
+        nombreDeMois: 13.0, // revenuBrutAnnuel = 104'000
         canton: 'VD',
         birthYear: 1975,
         employmentStatus: 'salarie',
@@ -409,7 +409,7 @@ void main() {
       final user12 = _makeProfile(
         firstName: 'A',
         salaire: 8000,
-        nombreDeMois: 12, // revenuBrutAnnuel = 96'000
+        nombreDeMois: 12.0, // revenuBrutAnnuel = 96'000
         canton: 'VD',
         birthYear: 1975,
         employmentStatus: 'salarie',

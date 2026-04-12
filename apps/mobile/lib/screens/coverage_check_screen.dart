@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:flutter/services.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COVERAGE CHECK SCREEN — Sprint S13 / Chantier 7
@@ -29,7 +37,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   bool _aFamille = false;
   bool _estLocataire = true;
   bool _voyagesFrequents = false;
-  final String _canton = 'VD';
+  String _canton = 'ZH';
 
   // ── State — Current coverage ───────────────────────────────
   bool _aIjmCollective = true;
@@ -45,7 +53,40 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
     _compute();
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        if (profile.employmentStatus == 'independant') {
+          _statut = 'independant';
+        } else if (profile.employmentStatus == 'chomage') {
+          _statut = 'sans_emploi';
+        }
+        if (profile.canton.isNotEmpty) {
+          _canton = profile.canton;
+        }
+        if (profile.dettes.hypotheque != null &&
+            profile.dettes.hypotheque! > 0) {
+          _aHypotheque = true;
+        }
+        if (profile.nombreEnfants > 0 ||
+            profile.conjoint != null) {
+          _aFamille = true;
+        }
+        if (profile.housingStatus == 'proprietaire') {
+          _estLocataire = false;
+        }
+      });
+      _compute();
+    } catch (_) {}
   }
 
   void _compute() {
@@ -74,7 +115,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -82,6 +123,13 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildDemoModeBadge(),
+                const SizedBox(height: 12),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeCoverageHeadline,
+                  body: S.of(context)!.narrativeCoverageBody,
+                  tone: MintSurfaceTone.bleu,
+                  badge: S.of(context)!.narrativeCoverageBadge,
+                )),
                 const SizedBox(height: 12),
                 _buildHeader(),
                 const SizedBox(height: 20),
@@ -115,7 +163,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -130,7 +178,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         s.coverageCheckAppBarTitle,
@@ -201,21 +249,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   // ── Profile section ────────────────────────────────────────
 
   Widget _buildProfileSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -274,6 +310,7 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
       button: true,
       child: GestureDetector(
       onTap: () {
+        HapticFeedback.lightImpact();
         _statut = value;
         // Reset related switches when changing status
         if (value == 'independant') {
@@ -327,45 +364,33 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   // ── Coverage section ───────────────────────────────────────
 
   Widget _buildCoverageSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.coverageCheckCouvertureActuelle,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCoverageSwitch(S.of(context)!.coverageCheckIjm, _aIjmCollective, (v) {
             _aIjmCollective = v;
             _compute();
-          }),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
+          })),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCoverageSwitch(S.of(context)!.coverageCheckLaa, _aLaa, (v) {
             _aLaa = v;
             _compute();
-          }),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckRcPrivee, _aRcPrivee, (v) {
+          })),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCoverageSwitch(S.of(context)!.coverageCheckRcPrivee, _aRcPrivee, (v) {
             _aRcPrivee = v;
             _compute();
-          }),
-          _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
+          })),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCoverageSwitch(S.of(context)!.coverageCheckMenage, _aMenage, (v) {
             _aMenage = v;
             _compute();
-          }),
+          })),
           _buildCoverageSwitch(S.of(context)!.coverageCheckProtJuridique, _aProtectionJuridique, (v) {
             _aProtectionJuridique = v;
             _compute();
@@ -416,21 +441,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
             ? MintColors.warning
             : MintColors.success;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      elevated: true,
       child: Column(
         children: [
           Text(
@@ -542,13 +555,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
   }
 
   Widget _buildChecklistCard(CoverageCheckItem item) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -675,13 +684,9 @@ class _CoverageCheckScreenState extends State<CoverageCheckScreen> {
         const SizedBox(height: 12),
         ...result.recommandations.map((rec) => Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: Container(
+          child: MintSurface(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-            ),
+            radius: 16,
             child: Text(
               rec,
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),

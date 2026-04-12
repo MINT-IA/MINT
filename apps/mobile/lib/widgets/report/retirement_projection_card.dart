@@ -3,6 +3,7 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class RetirementProjectionCard extends StatelessWidget {
   final RetirementProjection projection;
@@ -33,26 +34,27 @@ class RetirementProjectionCard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Breakdown
-        _infoRow('Rente AVS mensuelle', 'CHF ${projection.monthlyAvsRent.toStringAsFixed(0)}'),
+        _infoRow('Rente AVS mensuelle', formatChfWithPrefix(projection.monthlyAvsRent)),
         const SizedBox(height: 6),
-        _infoRow('Rente LPP mensuelle', 'CHF ${projection.monthlyLppRent.toStringAsFixed(0)}'),
+        _infoRow('Rente LPP mensuelle', formatChfWithPrefix(projection.monthlyLppRent)),
         const Divider(height: 20),
-        _infoRow('TOTAL mensuel estim\u00e9', 'CHF ${totalMonthly.toStringAsFixed(0)}', isBold: true),
+        _infoRow('TOTAL mensuel estim\u00e9', formatChfWithPrefix(totalMonthly), isBold: true),
         const SizedBox(height: 12),
         // Replacement rate
         Row(
           children: [
-            Text(
+            Flexible(child: Text(
               'Taux de remplacement : ',
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
-            ),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
+              overflow: TextOverflow.ellipsis,
+            )),
             Text(
               '${replacementRate.toStringAsFixed(0)}%',
-              style: MintTextStyles.bodySmall(color: rateColor).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: rateColor).copyWith(fontWeight: FontWeight.w700),
             ),
             Text(
               ' (cible : 60-80%)',
-              style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -117,7 +119,7 @@ class RetirementProjectionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   tip,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4, fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4, fontWeight: tip == tips.first ? FontWeight.w600 : FontWeight.w400),
                 ),
               ),
             ],
@@ -144,7 +146,7 @@ class RetirementProjectionCard extends StatelessWidget {
             child: Text(
               'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour v\u00e9rifier tes lacunes AVS. '
               'Chaque ann\u00e9e manquante = \u22122.3% de rente \u00e0 vie.',
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

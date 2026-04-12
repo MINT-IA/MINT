@@ -8,6 +8,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
 import 'package:mint_mobile/widgets/coach/franchise_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — COUVERTURE INVALIDITÉ
@@ -168,7 +171,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -200,7 +203,7 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -240,30 +243,28 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
           ),
         ),
       ),
-      title: Text(
-        S.of(context)!.disabilityInsAppBarTitle,
-        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+      title: Semantics(
+        header: true,
+        child: Text(
+          S.of(context)!.disabilityInsAppBarTitle,
+          style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
 
   Widget _buildInputsCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.disabilityInsRefineSituation,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
-          ),
+          )),
           const SizedBox(height: 16),
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: S.of(context)!.disabilityInsGrossSalary,
             value: _grossMonthly,
             min: 2000,
@@ -271,9 +272,9 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             divisions: 46,
             format: (v) => "CHF ${_fmtChf(v)}",
             onChanged: (v) => setState(() => _grossMonthly = v),
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: S.of(context)!.disabilityInsSavings,
             value: _savings,
             min: 0,
@@ -281,19 +282,19 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
             divisions: 40,
             format: (v) => "CHF ${_fmtChf(v)}",
             onChanged: (v) => setState(() => _savings = v),
-          ),
+          )),
           const SizedBox(height: 16),
-          _buildToggleRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildToggleRow(
             label: S.of(context)!.disabilityInsIjmEmployer,
             value: _hasIjm,
             onChanged: (v) => setState(() => _hasIjm = v),
-          ),
+          )),
           const SizedBox(height: 8),
-          _buildToggleRow(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggleRow(
             label: S.of(context)!.disabilityInsPrivateLossInsurance,
             value: _hasPrivateInsurance,
             onChanged: (v) => setState(() => _hasPrivateInsurance = v),
-          ),
+          )),
         ],
       ),
     );
@@ -308,39 +309,14 @@ class _DisabilityInsuranceScreenState extends State<DisabilityInsuranceScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(label,
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary)),
-            ),
-            Text(
-              format(value),
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      onChanged: onChanged,
     );
   }
 

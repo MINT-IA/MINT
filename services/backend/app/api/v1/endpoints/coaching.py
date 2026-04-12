@@ -6,7 +6,9 @@ POST /api/v1/coaching/tips — Generate personalized coaching tips
 Sprint S11.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+
+from app.core.rate_limit import limiter
 from app.schemas.coaching import (
     CoachingProfileRequest,
     CoachingTipResponse,
@@ -26,8 +28,10 @@ DISCLAIMER = (
 
 
 @router.post("/tips", response_model=CoachingResponse)
+@limiter.limit("30/minute")
 def generate_coaching_tips(
-    request: CoachingProfileRequest,
+    request: Request,
+    body: CoachingProfileRequest,
 ) -> CoachingResponse:
     """Generate personalized coaching tips based on profile.
 
@@ -35,21 +39,21 @@ def generate_coaching_tips(
     on the fly from the provided inputs.
     """
     profile = CoachingProfile(
-        age=request.age,
-        canton=request.canton,
-        revenu_annuel=request.revenuAnnuel,
-        has_3a=request.has3a,
-        montant_3a=request.montant3a,
-        has_lpp=request.hasLpp,
-        avoir_lpp=request.avoirLpp,
-        lacune_lpp=request.lacuneLpp,
-        taux_activite=request.tauxActivite,
-        charges_fixes_mensuelles=request.chargesFixesMensuelles,
-        epargne_disponible=request.epargneDisponible,
-        dette_totale=request.detteTotale,
-        has_budget=request.hasBudget,
-        employment_status=request.employmentStatus.value,
-        etat_civil=request.etatCivil.value,
+        age=body.age,
+        canton=body.canton,
+        revenu_annuel=body.revenuAnnuel,
+        has_3a=body.has3a,
+        montant_3a=body.montant3a,
+        has_lpp=body.hasLpp,
+        avoir_lpp=body.avoirLpp,
+        lacune_lpp=body.lacuneLpp,
+        taux_activite=body.tauxActivite,
+        charges_fixes_mensuelles=body.chargesFixesMensuelles,
+        epargne_disponible=body.epargneDisponible,
+        dette_totale=body.detteTotale,
+        has_budget=body.hasBudget,
+        employment_status=body.employmentStatus.value,
+        etat_civil=body.etatCivil.value,
     )
 
     tips = _engine.generate_tips(profile)

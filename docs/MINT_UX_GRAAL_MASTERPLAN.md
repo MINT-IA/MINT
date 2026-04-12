@@ -3,7 +3,7 @@
 > Statut: document maître produit / UX / visual / voice
 > Horizon: 2026-2027
 > Portée: 109 surfaces actives MINT (`105 *_screen.dart` + `4` shell/tabs)
-> Compagnons détaillés: `DESIGN_SYSTEM.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`, `BLUEPRINT_COACH_AI_LAYER.md`
+> Compagnons détaillés: `DESIGN_SYSTEM.md`, `NAVIGATION_GRAAL_V10.md`, `VOICE_SYSTEM.md`, `BLUEPRINT_COACH_AI_LAYER.md`, `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`
 > Lire aussi: `DOCUMENTATION_OPERATING_SYSTEM.md`
 
 ---
@@ -157,24 +157,41 @@ Mémoire + Confiance + Projections
 -> retourne dans Aujourd'hui
 ```
 
-### Mapping avec l'existant
+### État actuel (2026-03-21)
 
-Ce que MINT possède déjà partiellement:
-- `Profile / Dossier data`
-- `ForecasterService`
-- `PulseHeroEngine`
-- `ResponseCardService`
-- `SLM + BYOK + RAG`
-- `dataTimestamps`
-- `confidence score`
-- `coach conversation persistence`
-- `routes spécialisées`
+Ce que MINT possède et qui est fonctionnel en production:
+- `Profile / Dossier data` — profil complet, couple, documents
+- `ForecasterService` — projections retraite multi-scénarios
+- `PulseHeroEngine` — moteur de données pour Aujourd'hui
+- `ResponseCardService` — cards inline dans le chat
+- `CoachChatScreen` — Claude API live, tool calling, compliance guard
+- `ConversationMemoryService` — persistance cross-session (historique textuel)
+- `RAG` — `RagRetrievalService` keyword-based sur 3 pools (concepts, cantons, FAQ)
+- `dataTimestamps` — horodatage par champ de profil
+- `EnhancedConfidenceService` — 4 axes, score 0-100%
+- `CapEngine` (12 règles heuristiques) + `CapMemoryStore` (persistance SharedPreferences)
+- `GoalTrackerService` — suivi objectif actif, boost x1.3 sur caps alignés
+- `ActionSuccess` bottom sheet — feedback action + impact + next step
+- `LifecycleDetector` + `LifecyclePhase` (7 phases) + `LifecycleContentService`
+- `ScreenRegistry` (109 surfaces, intentTag/behavior/requiredFields)
+- `ReadinessGate` (3 niveaux: Ready/Partial/Blocked)
+- `RoutePlanner` — service de routage chat → écran
+- `ProactiveTriggerService` (7 triggers: lifecycle change, weekly recap, goal milestone, seasonal, inactivity, confidence improvement, new cap)
+- `RegionalVoiceService` (26 cantons — flavor texte pour system prompt, pas audio)
+- `JitaiNudgeService` — triggers contextuels (paie, délai fiscal, anniversaire)
+- `CantonalBenchmarkService` + `CantonalBenchmarkScreen`
+- `WeeklyRecapService` + `WeeklyRecapScreen`
+- `MultiLlmService` — Claude primary + GPT-4o fallback (config)
+- `VoiceService` — structure stub, pas de STT/TTS réel intégré
 
-Ce qu'il faut rendre explicite:
-- `Goal Selection`
-- `Conversation Plan`
-- `Action Success`
-- `Plan Memory`
+Ce qui reste à construire ou finaliser:
+- `ReturnContract` / `ScreenReturn` model — contrat de retour écran → coach (non confirmé en code)
+- Vector store cross-session — `ConversationMemoryService` gère l'historique, pas le recall sémantique
+- RAG v2 embeddings — retrieval keyword fonctionne; embeddings vectoriels non implémentés
+- 13e rente AVS dans `AvsCalculator` — non encore implémenté
+- STT/TTS réel dans `VoiceService` — stub uniquement
+- Expert tier (advisor matching, dossier prep humain)
+- Agent autonome (form pre-fill, lettre caisse de pension)
 
 ### Objet central à construire
 
@@ -229,6 +246,39 @@ Règle couple:
 - dans les sujets où le ménage change réellement la décision, le couple n'est pas un simple mode d'affichage;
 - le couple devient une unité de décision à part entière.
 - les caps peuvent donc être individuels ou ménage, selon l'impact réel sur AVS, LPP, fiscalité, logement et succession.
+
+### Orchestration chat-to-screen
+
+> Spec complète : `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (source de vérité pour cette couche).
+
+Le coach peut ouvrir des surfaces MINT depuis le chat. Ce routage ne doit pas être ad hoc.
+
+**Formule d'orchestration** :
+```text
+message utilisateur
+  → IntentResolver (LLM)
+  → RoutePlanner (readiness check)
+  → meilleure surface (ou réponse inline)
+  → ReturnContract
+  → boucle vivante
+```
+
+**5 composants de la couche** :
+- `RoutePlanner` — décide quelle action prendre selon l'intention et la readiness. Implémenté comme tool Claude `route_to_screen`.
+- `ScreenRegistry` — carte officielle des 109 surfaces avec `intentTag`, `behavior`, `requiredFields`, `fallbackRoute`.
+- `ReadinessGate` — vérifie si les données utilisateur suffisent avant d'ouvrir une surface (3 niveaux : Ready / Partial / Blocked).
+- `ReturnContract` — contrat de retour standardisé quand l'utilisateur revient d'un écran vers le coach. Nourrit `CapMemory`.
+
+**5 comportements de surface** (chaque surface appartient à exactement l'un d'eux) :
+- `A` — Direct Answer : réponse inline dans le chat (widget, fait, comparaison rapide)
+- `B` — Decision Canvas : ouvrir un écran de simulation/arbitrage
+- `C` — Roadmap Flow : ouvrir un parcours de vie
+- `D` — Capture / Utility : donnée manquante ou document à fournir
+- `E` — Conversation pure : pas de surface, texte + éventuellement un fait éducatif
+
+**Principe fondamental** : le LLM décide de l'intention, le code décide du routage. Le LLM ne retourne jamais un `context.push('/route')` brut.
+
+**Plan d'implémentation** : Phase 1 `ScreenRegistry + ReadinessGate` (S57) → Phase 2 `RoutePlanner + route_to_screen + ReturnContract` (S58).
 
 ---
 
@@ -485,7 +535,7 @@ Le masterplan impose les templates d'expérience à l'échelle produit.
 Usage:
 - Aujourd'hui
 - Retirement Dashboard
-- Chiffre-Choc
+- Premier-Éclairage
 - Budget
 - Fiscal comparator hero
 - Gender Gap hero
@@ -690,7 +740,7 @@ Le plan doit être:
 
 - `Aujourd'hui / Pulse` -> `Hero Plan`
 - `Quick Start` -> `Roadmap Flow` en mode onboarding
-- `Chiffre-Choc` -> `Hero Plan`
+- `Premier-Éclairage` -> `Hero Plan`
 - `Profile` -> `Quiet Utility`
 - `Coach Chat` -> hybride `Coach Orchestrator`
 - `Budget` -> `Hero Plan` + `Decision Canvas`
@@ -859,36 +909,55 @@ Règle:
 
 ## 13. Séquence d'implémentation recommandée
 
-### Phase 0 — Socle technique (DONE)
+### Phase 0 — Socle technique (DONE — S52)
 - navigation cible 4 tabs / 7 hubs / capture contextuelle
 - première vague tokens, i18n, AppBars, voix, conformité
 - migration initiale des tiers S52 déjà traités
 - nettoyage des patterns les plus legacy
 
-### Phase 1 — Verrouiller la grammaire (DONE)
+### Phase 1 — Verrouiller la grammaire (DONE — S52)
 - refonte `ResponseCardWidget` V2 (3 variantes: chat/sheet/compact)
 - création des 4 templates maîtres (HP/DC/RF/QU)
 - composant `Cap du jour` (CapCard + CapEngine)
 
-### Phase 2 — Propager le système (DONE)
+### Phase 2 — Propager le système (DONE — S52)
 - migration des 109 écrans + 192 widgets aux tokens MintTextStyles/MintSpacing/MintColors
 - 0 GoogleFonts résiduel dans lib/ (hors theme/app.dart)
 - nettoyage i18n T6-A (50 clés extraites)
 - nettoyage async (document_scan 16 warnings -> 0)
 
-### Phase 3 — Rendre le système vivant (DONE)
+### Phase 3 — Rendre le système vivant (DONE — S52/S53)
 - `CapEngine` V1 heuristique (12 règles, scoring multiplicatif, pure function)
 - `CapMemory` persistant (lastCapServed, completedActions, abandonedFlows, recentFrictionContext)
 - `Goal Selection` : GoalA aligne les caps (boost x1.3 sur caps alignés)
 - `Action Success` : bottom sheet feedback (action + impact + next step)
-- `Life Events` : 7 événements de vie détectés via profile.familyChange
+- `Life Events` : 18 événements de vie détectés via profile.familyChange
 - Feedback loop : markServed → markCompleted → recompute → nouveau cap
 
-### Phase 4 — Harmonisation finale (IN PROGRESS)
+### Phase 4 — Harmonisation finale (DONE — S52)
 - `MintMotion` tokens (fast/standard/slow + curveStandard/curveEnter/curveExit)
 - suppression `MintGlassCard`, `MintPremiumButton`, `mint_ui_kit.dart`
 - 0 hardcoded hex colors dans screens/ et widgets/
-- screenshot board des 109 surfaces actives (TODO)
+- screenshot board des 109 surfaces actives (TODO — non bloquant)
+
+### Phase 5 — Coach vivant + orchestration (DONE — S56/S57)
+- `CoachChatScreen` avec Claude API live, tool calling
+- `ProactiveTriggerService` (7 triggers proactifs)
+- `RegionalVoiceService` (26 cantons, flavor system prompt)
+- `RagRetrievalService` (3 pools, citations source)
+- `ScreenRegistry` + `ReadinessGate` + `RoutePlanner`
+- `LifecycleDetector` (7 phases) + `LifecycleContentService`
+- `JitaiNudgeService` + `AdaptiveChallengeService`
+- `WeeklyRecapService` + `CantonalBenchmarkService`
+- `MultiLlmService` (Claude primary + fallback)
+
+### Phase 6 — Prochaines priorités (PLANNED)
+- `ReturnContract` / `ScreenReturn` — compléter le contrat de retour écran → coach
+- RAG v2 embeddings — passer du keyword au vectoriel
+- 13e rente AVS dans `AvsCalculator`
+- STT/TTS réel dans `VoiceService`
+- Expert tier (advisor matching)
+- Agent autonome form pre-fill (S68)
 
 ---
 

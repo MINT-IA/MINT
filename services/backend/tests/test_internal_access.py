@@ -10,7 +10,7 @@ Verifies:
 6. Non-regression: billing/household unaffected
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from app.core.config import settings
@@ -38,7 +38,7 @@ def _create_subscription(db, user_id: str, tier: str = "starter") -> None:
         tier=tier,
         status="active",
         source="stripe",
-        current_period_end=datetime.utcnow() + timedelta(days=30),
+        current_period_end=datetime.now(timezone.utc).replace(tzinfo=None) + timedelta(days=30),
     ))
     db.commit()
 

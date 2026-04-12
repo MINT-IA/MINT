@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'dart:io';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -21,6 +25,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DOCUMENT SCAN SCREEN — production flow
@@ -59,9 +65,20 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     DocumentType.avsExtract,
   };
 
+  /// Maximum file size: 4 MB.
+  static const _maxFileSizeBytes = 4 * 1024 * 1024;
+
+  /// Vision API size threshold: compress images larger than 2 MB before encoding.
+  static const _visionCompressThresholdBytes = 2 * 1024 * 1024;
+
+  /// Accepted file extensions for image/PDF capture.
+  static const _acceptedExtensions = {'jpg', 'jpeg', 'png', 'heic', 'pdf'};
+
   final _imagePicker = ImagePicker();
   DocumentType _selectedType = DocumentType.lppCertificate;
   bool _isProcessing = false;
+  String? _preValidationError;
+  String? _preValidationHint;
 
   @override
   void initState() {
@@ -76,7 +93,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Stack(
+        children: [
+          // FIX-064: Show linear progress during Vision extraction (10-30s on 3G)
+          if (_isProcessing)
+            const Positioned(
+              top: 0, left: 0, right: 0,
+              child: LinearProgressIndicator(minHeight: 3),
+            ),
+          Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -84,15 +109,19 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 12),
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 24),
-                _buildDocumentTypeSelector(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDocumentTypeSelector()),
                 const SizedBox(height: 32),
-                _buildDocumentDescription(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildDocumentDescription()),
                 const SizedBox(height: 32),
-                _buildCaptureButtons(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCaptureButtons()),
+                if (_preValidationError != null) ...[
+                  const SizedBox(height: 12),
+                  _buildPreValidationError(),
+                ],
                 const SizedBox(height: 12),
-                _buildPasteTextButton(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPasteTextButton()),
                 if (kDebugMode) ...[
                   const SizedBox(height: 12),
                   _buildDebugExampleButton(),
@@ -103,6 +132,8 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ]),
             ),
           ),
+        ],
+      ))),
         ],
       ),
     );
@@ -116,7 +147,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         S.of(context)!.docScanAppBarTitle,
@@ -235,11 +266,19 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   Widget _buildCaptureButtons() {
     return Column(
       children: [
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: FilledButton.icon(
-            onPressed: _isProcessing ? null : _onCameraPressed,
+        Semantics(
+          button: true,
+          label: S.of(context)!.documentScanTakePhoto,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton.icon(
+              onPressed: _isProcessing
+                  ? null
+                  : () {
+                      HapticFeedback.lightImpact();
+                      _onCameraPressed();
+                    },
             icon: const Icon(
               kIsWeb ? Icons.upload_file_outlined : Icons.camera_alt_outlined,
               size: 22,
@@ -261,12 +300,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             ),
           ),
         ),
+        ),
         const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: OutlinedButton.icon(
-            onPressed: _isProcessing ? null : _onGalleryPressed,
+        Semantics(
+          button: true,
+          label: S.of(context)!.docScanFromGallery,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton.icon(
+              onPressed: _isProcessing ? null : _onGalleryPressed,
             icon: const Icon(Icons.photo_library_outlined, size: 22),
             label: Text(
               S.of(context)!.docScanFromGallery,
@@ -280,6 +323,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
               ),
             ),
           ),
+        ),
         ),
       ],
     );
@@ -330,14 +374,48 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     );
   }
 
-  Widget _buildPrivacyNote() {
+  Widget _buildPreValidationError() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: MintColors.surface,
+        color: MintColors.warning.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: MintColors.warning.withValues(alpha: 0.3)),
       ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber_outlined, size: 18, color: MintColors.warning),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _preValidationError!,
+                  style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+                ),
+                if (_preValidationHint != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    _preValidationHint!,
+                    style: MintTextStyles.bodyMedium(color: MintColors.textSecondary),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPrivacyNote() {
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
+      padding: const EdgeInsets.all(14),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -364,7 +442,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       final image = await _imagePicker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 90,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
       );
       if (image == null) return;
       await _processImageFile(image);
@@ -424,8 +504,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
       await _processImageFile(XFile(localPath));
     } catch (e) {
+      debugPrint('[DocumentScan] Import error: $e');
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanImportError(e.toString()));
+      _showErrorSnack(S.of(context)!.docScanGenericError);
     }
   }
 
@@ -441,11 +522,51 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _processImageFile(XFile file) async {
-    setState(() => _isProcessing = true);
+    // Client-side file validation: size and format checks.
+    if (!kIsWeb) {
+      final fileObj = File(file.path);
+      if (fileObj.existsSync()) {
+        final fileSize = fileObj.lengthSync();
+        if (fileSize > _maxFileSizeBytes) {
+          if (!mounted) return;
+          setState(() {
+            _preValidationError = S.of(context)!.docFileTooLarge;
+            _preValidationHint = null;
+          });
+          return;
+        }
+      }
+      final ext = file.path.split('.').last.toLowerCase();
+      if (!_acceptedExtensions.contains(ext)) {
+        if (!mounted) return;
+        setState(() {
+          _preValidationError = S.of(context)!.docWrongFormat;
+          _preValidationHint = null;
+        });
+        return;
+      }
+    }
+
+    setState(() {
+      _isProcessing = true;
+      _preValidationError = null;
+      _preValidationHint = null;
+    });
 
     try {
-      String extractedText = '';
+      // Strategy: Claude Vision (backend) FIRST, MLKit OCR as fallback.
+      // Vision understands Swiss document context, OCR only reads text.
+      final visionResult = await _tryVisionExtraction(file);
+      if (visionResult != null && mounted) {
+        await context.push('/scan/review', extra: visionResult);
+        return;
+      }
 
+      // If 422 rejection was shown, don't fall through to OCR
+      if (_preValidationError != null) return;
+
+      // Fallback: local MLKit OCR (for offline or when Vision fails)
+      String extractedText = '';
       if (!kIsWeb) {
         final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
         try {
@@ -478,7 +599,99 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
+      _cleanupTempFile(file.path); // FIX-053
     }
+  }
+
+  /// Try Claude Vision extraction via backend API.
+  /// Returns ExtractionResult if successful, null otherwise.
+  Future<ExtractionResult?> _tryVisionExtraction(XFile file) async {
+    // Read context-dependent values BEFORE async gap
+    final canton = Provider.of<CoachProfileProvider>(context, listen: false)
+        .profile?.canton;
+    final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
+    try {
+      final rawBytes = await file.readAsBytes();
+      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
+      // Requires `image` package. GPS location and camera info currently exposed.
+      final bytes = await _compressForVision(rawBytes, file.path);
+      final base64Image = base64Encode(bytes);
+
+      final response = await DocumentService.extractWithVision(
+        imageBase64: base64Image,
+        // Convert camelCase enum to snake_case for backend contract.
+        documentType: _selectedType.name
+            .replaceAllMapped(RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
+        canton: canton,
+        languageHint: 'fr',
+      );
+
+      if (response == null) return null;
+
+      final extractedFields = (response['extractedFields'] as List?)
+          ?.map<ExtractedField>((f) {
+            final map = f as Map<String, dynamic>;
+            final conf = _parseConfidence(map['confidence'] as String?);
+            return ExtractedField(
+              fieldName: map['fieldName'] as String? ?? '',
+              label: map['fieldName'] as String? ?? '',
+              value: map['value'],
+              confidence: conf,
+              sourceText: (map['sourceText'] as String?) ?? '',
+              profileField: map['fieldName'] as String?,
+              needsReview: conf < 0.80,
+            );
+          })
+          .toList();
+
+      if (extractedFields == null || extractedFields.isEmpty) return null;
+
+      return ExtractionResult(
+        documentType: _selectedType,
+        fields: extractedFields,
+        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: _confidenceDeltaForType(_selectedType),
+        warnings: const [],
+        disclaimer: visionDisclaimer,
+        sources: const ['Claude Vision API'],
+        planType: response['planType'] as String?,
+        planTypeWarning: response['planTypeWarning'] as String?,
+        coherenceWarnings: (response['coherenceWarnings'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ?? const [],
+      );
+    } on DocumentServiceException catch (e) {
+      // 422: non-financial document detected by backend (DOC-10)
+      if (e.code == 'not_financial' && mounted) {
+        setState(() {
+          _isProcessing = false;
+          _preValidationError = S.of(context)!.docNotFinancial;
+          _preValidationHint = S.of(context)!.docNotFinancialHint;
+        });
+      }
+      return null;
+    } catch (_) {
+      return null; // Graceful fallback to OCR
+    }
+  }
+
+  double _parseConfidence(String? level) {
+    return switch (level) {
+      'high' => 0.95,
+      'medium' => 0.70,
+      'low' => 0.40,
+      _ => 0.50,
+    };
+  }
+
+  double _confidenceDeltaForType(DocumentType type) {
+    return switch (type) {
+      DocumentType.lppCertificate => 27.0,
+      DocumentType.avsExtract => 22.0,
+      DocumentType.taxDeclaration => 17.0,
+      DocumentType.salaryCertificate => 20.0,
+      _ => 10.0,
+    };
   }
 
   Future<void> _processOcrText(String text) async {
@@ -499,8 +712,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       if (!mounted) return;
       await context.push('/scan/review', extra: result);
     } catch (e) {
+      debugPrint('[DocumentScan] Parsing error: $e');
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanParsingError(e.toString()));
+      _showErrorSnack(S.of(context)!.docScanGenericError);
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -516,6 +730,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final submitted = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
@@ -530,7 +747,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -554,14 +771,14 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => Navigator.of(ctx).pop(false),
+                      onPressed: () => ctx.pop(false),
                       child: Text(S.of(context)!.documentScanCancel),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: FilledButton(
-                      onPressed: () => Navigator.of(ctx).pop(true),
+                      onPressed: () => ctx.pop(true),
                       child: Text(S.of(context)!.documentScanAnalyze),
                     ),
                   ),
@@ -627,6 +844,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
@@ -640,7 +861,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -652,7 +873,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -664,7 +885,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrHint,
@@ -686,6 +907,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
@@ -699,7 +924,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 S.of(context)!.documentScanPdfAuthTitle,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -711,7 +936,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: FilledButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     context.go('/auth/register');
                   },
                   icon: const Icon(Icons.person_add_alt_1_outlined),
@@ -723,7 +948,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -746,6 +971,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     final showVision = imageFile != null && _isVisionAvailable(context);
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
@@ -759,7 +988,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             children: [
               Text(
                 title,
-                style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
@@ -772,7 +1001,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                      Navigator.of(ctx).pop();
+                      ctx.pop();
                       _processImageViaVision(imageFile);
                     },
                     icon: const Icon(Icons.auto_awesome_outlined),
@@ -800,7 +1029,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _onCameraPressed();
                   },
                   icon: const Icon(Icons.camera_alt_outlined),
@@ -812,7 +1041,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
                 width: double.infinity,
                 child: OutlinedButton.icon(
                   onPressed: () {
-                    Navigator.of(ctx).pop();
+                    ctx.pop();
                     _requestManualOcrText(
                       title: S.of(context)!.documentScanOcrTitle,
                       hint: S.of(context)!.documentScanOcrRetryHint,
@@ -866,14 +1095,62 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<String> _readTextFile(PlatformFile file) async {
-    if (file.bytes != null) {
-      return utf8.decode(file.bytes!, allowMalformed: true);
-    }
-    if (file.path != null && file.path!.isNotEmpty) {
-      final bytes = await XFile(file.path!).readAsBytes();
-      return utf8.decode(bytes, allowMalformed: true);
+    // P1-8: Removed allowMalformed: true — reject malformed UTF-8 in scanned docs.
+    try {
+      if (file.bytes != null) {
+        return utf8.decode(file.bytes!);
+      }
+      if (file.path != null && file.path!.isNotEmpty) {
+        final bytes = await XFile(file.path!).readAsBytes();
+        return utf8.decode(bytes);
+      }
+    } on FormatException catch (e) {
+      debugPrint('[DocumentScan] Malformed UTF-8 in file: $e');
     }
     return '';
+  }
+
+  /// Compress image bytes if they exceed [_visionCompressThresholdBytes].
+  ///
+  /// Resizes to max 1920px on the longest side and re-encodes as JPEG at 85%
+  /// quality. Uses dart:ui decoding which is available on all Flutter platforms.
+  /// Returns original bytes unchanged for PDFs or if already small enough.
+  Future<Uint8List> _compressForVision(Uint8List bytes, String filePath) async {
+    // Skip compression for PDFs — Vision API handles them natively.
+    if (filePath.toLowerCase().endsWith('.pdf')) return bytes;
+
+    if (bytes.length <= _visionCompressThresholdBytes) return bytes;
+
+    try {
+      const maxDimension = 1920;
+      final codec = await ui.instantiateImageCodec(
+        bytes,
+        targetWidth: maxDimension,
+        targetHeight: maxDimension,
+      );
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+
+      // Re-encode as PNG (dart:ui toByteData), then let the API handle it.
+      // dart:ui doesn't expose JPEG encoding, but resizing alone cuts
+      // a 10 MP photo (≈8 MB) down to ≈1-2 MB at 1920px.
+      final byteData = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      image.dispose();
+
+      if (byteData != null) {
+        final compressed = byteData.buffer.asUint8List();
+        debugPrint(
+          '[DocumentScan] Compressed ${bytes.length} → ${compressed.length} bytes '
+          '(${(compressed.length / bytes.length * 100).toStringAsFixed(0)}%)',
+        );
+        return compressed;
+      }
+    } catch (e) {
+      debugPrint('[DocumentScan] Compression failed, using original: $e');
+    }
+    return bytes;
   }
 
   String _detectExtension(PlatformFile file) {
@@ -911,6 +1188,17 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return tempFile.path;
     } catch (_) {
       return null;
+    }
+  }
+
+  /// FIX-053: Clean up temporary files created by _resolveLocalPath().
+  void _cleanupTempFile(String? path) {
+    if (path == null || !path.contains('mint_upload_')) return;
+    try {
+      final file = File(path);
+      if (file.existsSync()) file.deleteSync();
+    } catch (_) {
+      // Best-effort cleanup — don't crash on permission issues.
     }
   }
 
@@ -952,14 +1240,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         success: false,
         requiresAuthentication: requiresAuthentication,
         errorMessage: mounted
-            ? S.of(context)!.docScanPdfBackendError(e.toString())
-            : e.toString(),
+            ? S.of(context)!.docScanGenericError
+            : 'PDF parsing error',
       );
     } catch (e) {
       debugPrint('[DocumentScan] Backend PDF parsing unavailable: $e');
       return _PdfParseResult(
         success: false,
-        errorMessage: 'Erreur backend pendant le parsing PDF: $e',
+        errorMessage: mounted
+            ? S.of(context)!.docScanGenericError
+            : 'PDF parsing error',
       );
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -1098,7 +1388,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
 
     setState(() => _isProcessing = true);
     try {
-      final bytes = await file.readAsBytes();
+      final rawBytes = await file.readAsBytes();
+      // TODO(P2-W12): Strip EXIF metadata before Vision API call.
+      // Requires `image` package. GPS location and camera info currently exposed.
+      final bytes = await _compressForVision(rawBytes, file.path);
       final base64Image = base64Encode(bytes);
 
       final ext = file.path.split('.').last.toLowerCase();
@@ -1159,8 +1452,9 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     } on RagApiException catch (e) {
       _showErrorSnack(e.message);
     } catch (e) {
+      debugPrint('[DocumentScan] Vision error: $e');
       if (!mounted) return;
-      _showErrorSnack(S.of(context)!.docScanVisionError(e.toString()));
+      _showErrorSnack(S.of(context)!.docScanGenericError);
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }

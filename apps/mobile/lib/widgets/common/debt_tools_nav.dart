@@ -60,7 +60,7 @@ class DebtToolsNav extends StatelessWidget {
         children: [
           Text(
             'OUTILS DETTE CONNEXES',
-            style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+            style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
           ),
           const SizedBox(height: 4),
           const Text(

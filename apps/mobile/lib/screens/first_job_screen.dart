@@ -1,7 +1,12 @@
 import 'dart:math' show pow;
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -15,6 +20,10 @@ import 'package:mint_mobile/widgets/coach/career_timelapse_widget.dart';
 import 'package:mint_mobile/widgets/coach/payslip_xray_widget.dart';
 import 'package:mint_mobile/widgets/coach/job_change_checklist_widget.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SCREEN — Sprint S19 / Premier emploi
@@ -32,6 +41,11 @@ class FirstJobScreen extends StatefulWidget {
 }
 
 class _FirstJobScreenState extends State<FirstJobScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
   double _salaire = 5000;
   int _age = 25;
   String _canton = 'ZH';
@@ -53,6 +67,47 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   void initState() {
     super.initState();
     _calculate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/first-job',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
+      return;
+    }
+
+    final screenReturn = ScreenReturn.completed(
+      route: '/first-job',
+      stepOutputs: {},
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('first_job', screenReturn);
   }
 
   @override
@@ -85,9 +140,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
@@ -95,16 +154,23 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                 MintSpacing.lg, 0, MintSpacing.lg, MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeFirstJobHeadline,
+                  body: S.of(context)!.narrativeFirstJobBody,
+                  tone: MintSurfaceTone.sauge,
+                  badge: S.of(context)!.narrativeFirstJobBadge,
+                )),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildSalaireSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildAgeSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSalaireSlider()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildCantonAndActivity(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAgeSlider()),
+                const SizedBox(height: MintSpacing.md + 4),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildCantonAndActivity()),
                 const SizedBox(height: MintSpacing.lg),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: MintSpacing.lg),
                   SalaryBreakdownWidget(
                     brut: _result!.brut,
@@ -119,33 +185,27 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     employerHiddenCost: _salaire * 1.13,
                     deductions: [
                       PayslipLine(
-                        label: 'AVS/AI/APG',
+                        label: S.of(context)!.firstJobPayslipAvsLabel,
                         emoji: '\u{1F6E1}\u{FE0F}',
                         amount: _salaire * 0.053,
                         percentage: 5.3,
-                        explanation:
-                            'Cotisation salari\u00e9\u00b7e\u00a0: 5.3% du brut. '
-                            'Ton employeur paie aussi 5.3% en plus.',
+                        explanation: S.of(context)!.firstJobPayslipAvsExplanation,
                         legalRef: 'LAVS art. 5',
                       ),
                       PayslipLine(
-                        label: 'LPP (2e pilier)',
+                        label: S.of(context)!.firstJobPayslipLppLabel,
                         emoji: '\u{1F3E6}',
                         amount: _salaire * 0.08,
                         percentage: 8.0,
-                        explanation:
-                            '\u00c9pargne vieillesse obligatoire d\u00e8s 25 ans. '
-                            'Le taux exact d\u00e9pend de ta caisse et ton \u00e2ge.',
+                        explanation: S.of(context)!.firstJobPayslipLppExplanation,
                         legalRef: 'LPP art. 16',
                       ),
                       PayslipLine(
-                        label: 'Imp\u00f4t \u00e0 la source (estimation)',
+                        label: S.of(context)!.firstJobPayslipImpotLabel,
                         emoji: '\u{1F3DB}\u{FE0F}',
                         amount: _salaire * 0.09,
                         percentage: 9.0,
-                        explanation:
-                            'Retenu directement sur le salaire si tu es impos\u00e9\u00b7e '
-                            '\u00e0 la source. Le taux varie selon canton, statut et revenu.',
+                        explanation: S.of(context)!.firstJobPayslipImpotExplanation,
                         legalRef: 'LIFD art. 83',
                       ),
                     ],
@@ -159,46 +219,40 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   const SizedBox(height: MintSpacing.lg),
                   _buildChecklist(),
                   const SizedBox(height: MintSpacing.lg),
-                  const JobChangeChecklistWidget(
-                    items: [
-                      ChecklistItem(
-                        deadline: 'Avant de quitter',
-                        emoji: '\u{1F4C4}',
-                        action:
-                            'Demande ton certificat LPP \u00e0 ton employeur actuel.',
-                        legalRef: 'LPP art. 3 — libre passage',
-                        consequence:
-                            'Sans certificat, tu ne peux pas v\u00e9rifier que le '
-                            'montant transf\u00e9r\u00e9 est correct.',
-                      ),
-                      ChecklistItem(
-                        deadline: '30 jours',
-                        emoji: '\u{1F3E6}',
-                        action:
-                            'V\u00e9rifie que ton avoir LPP a \u00e9t\u00e9 transf\u00e9r\u00e9 \u00e0 la '
-                            'caisse de ton nouvel employeur.',
-                        legalRef: 'OLP art. 3 — d\u00e9lai de transfert',
-                        consequence:
-                            'Sans transfert, ton capital va \u00e0 la Fondation '
-                            'suppl\u00e9tive \u00e0 un taux de 0.05%.',
-                      ),
-                      ChecklistItem(
-                        deadline: '1 mois',
-                        emoji: '\u{1F6E1}\u{FE0F}',
-                        action:
-                            'Informe ton assurance-maladie LAMal du changement '
-                            'd\'employeur si tu b\u00e9n\u00e9ficiais d\'une couverture collective.',
-                        legalRef: 'LAMal art. 3',
-                      ),
-                      ChecklistItem(
-                        deadline: 'D\u00e8s le premier salaire',
-                        emoji: '\u{1F3E6}',
-                        action:
-                            'Continue tes versements au pilier 3a — '
-                            'l\'interruption te co\u00fbte des d\u00e9ductions fiscales.',
-                        legalRef: 'OPP3 art. 1',
-                      ),
-                    ],
+                  Builder(
+                    builder: (ctx) {
+                      final l = S.of(ctx)!;
+                      return JobChangeChecklistWidget(
+                        items: [
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline1,
+                            emoji: '\u{1F4C4}',
+                            action: l.firstJobChecklistAction1,
+                            legalRef: 'LPP art. 3 — libre passage',
+                            consequence: l.firstJobChecklistConsequence1,
+                          ),
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline2,
+                            emoji: '\u{1F3E6}',
+                            action: l.firstJobChecklistAction2,
+                            legalRef: 'OLP art. 3 — d\u00e9lai de transfert',
+                            consequence: l.firstJobChecklistConsequence2,
+                          ),
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline3,
+                            emoji: '\u{1F6E1}\u{FE0F}',
+                            action: l.firstJobChecklistAction3,
+                            legalRef: 'LAMal art. 3',
+                          ),
+                          ChecklistItem(
+                            deadline: l.firstJobChecklistDeadline4,
+                            emoji: '\u{1F3E6}',
+                            action: l.firstJobChecklistAction4,
+                            legalRef: 'OPP3 art. 1',
+                          ),
+                        ],
+                      );
+                    },
                   ),
                   const SizedBox(height: MintSpacing.lg),
                   _buildEducation(),
@@ -206,13 +260,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   _buildMintAnalysisSection(),
                   const SizedBox(height: MintSpacing.lg),
                 ],
-                _buildDisclaimer(),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
                 const SizedBox(height: 100),
               ]),
             ),
           ),
         ],
-      ),
+      )))),
     );
   }
 
@@ -225,11 +279,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       elevation: 0,
       scrolledUnderElevation: 0.5,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBackButton,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => safePop(context),
         ),
       ),
       title: Text(
@@ -242,13 +296,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   // ── Header ─────────────────────────────────────────────────
 
   Widget _buildHeader() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -280,6 +331,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       max: 15000,
       divisions: 260,
       onChanged: (v) {
+        _hasUserInteracted = true;
         _salaire = v;
         _calculate();
       },
@@ -297,6 +349,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
       max: 30,
       divisions: 12,
       onChanged: (v) {
+        _hasUserInteracted = true;
         _age = v.toInt();
         _calculate();
       },
@@ -314,64 +367,17 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     required int divisions,
     required ValueChanged<double> onChanged,
   }) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary),
-                ),
-              ),
-              Text(
-                valueLabel,
-                style: MintTextStyles.headlineMedium(
-                        color: MintColors.primary)
-                    .copyWith(fontSize: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: title,
-              slider: true,
-              child: Slider(
-                value: value,
-                min: min,
-                max: max,
-                divisions: divisions,
-                onChanged: onChanged,
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(minLabel, style: MintTextStyles.labelSmall()),
-              Text(maxLabel, style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintPremiumSlider(
+        label: title,
+        value: value,
+        min: min,
+        max: max,
+        divisions: divisions,
+        formatValue: (_) => valueLabel,
+        onChanged: onChanged,
       ),
     );
   }
@@ -379,14 +385,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   // ── Canton + Activity Rate ─────────────────────────────────
 
   Widget _buildCantonAndActivity() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -402,14 +403,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
               Semantics(
                 label: S.of(context)!.firstJobCantonLabel,
                 button: true,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(
                       horizontal: MintSpacing.sm + 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: MintColors.border),
-                  ),
+                  radius: 10,
                   child: DropdownButton<String>(
                     value: _canton,
                     underline: const SizedBox.shrink(),
@@ -420,6 +418,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                     }).toList(),
                     onChanged: (v) {
                       if (v != null) {
+                        _hasUserInteracted = true;
                         _canton = v;
                         _calculate();
                       }
@@ -432,63 +431,26 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           const SizedBox(height: MintSpacing.md + 4),
 
           // Activity rate slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                S.of(context)!.firstJobActivityRate,
-                style:
-                    MintTextStyles.titleMedium(color: MintColors.textPrimary),
-              ),
-              Text(
-                '${_tauxActivite.toStringAsFixed(0)}\u00a0%',
-                style: MintTextStyles.headlineMedium(
-                        color: MintColors.primary)
-                    .copyWith(fontSize: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: S.of(context)!.firstJobActivityRate,
-              slider: true,
-              child: Slider(
-                value: _tauxActivite,
-                min: 10,
-                max: 100,
-                divisions: 18,
-                onChanged: (v) {
-                  _tauxActivite = v;
-                  _calculate();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.firstJobActivityMin,
-                  style: MintTextStyles.labelSmall()),
-              Text(S.of(context)!.firstJobActivityMax,
-                  style: MintTextStyles.labelSmall()),
-            ],
+          MintPremiumSlider(
+            label: S.of(context)!.firstJobActivityRate,
+            value: _tauxActivite,
+            min: 10,
+            max: 100,
+            divisions: 18,
+            formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+            onChanged: (v) {
+              _tauxActivite = v;
+              _calculate();
+            },
           ),
         ],
       ),
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
@@ -505,7 +467,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           ),
           const SizedBox(height: MintSpacing.sm),
           Text(
-            r.chiffreChoc,
+            r.premierEclairage,
             style: MintTextStyles.bodyMedium(
                 color: MintColors.white.withValues(alpha: 0.9)),
             textAlign: TextAlign.center,
@@ -519,13 +481,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _build3aRecommendation() {
     final r = _result!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -587,12 +545,10 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   }
 
   Widget _buildMiniMetric(String label, String value) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.sm + 6),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -656,13 +612,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildLamalComparison() {
     final r = _result!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -736,13 +688,13 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
                   Expanded(
                     flex: 3,
                     child: Text(
-                      '${FirstJobService.formatChf(option.primeMensuelle)}/mois',
+                      S.of(context)!.firstJobPrimePerMonth(FirstJobService.formatChf(option.primeMensuelle)),
                       style: MintTextStyles.labelSmall(
                           color: MintColors.textSecondary),
                     ),
                   ),
                   Text(
-                    'Max ${FirstJobService.formatChf(option.coutAnnuelMax)}/an',
+                    S.of(context)!.firstJobCoutMaxPerYear(FirstJobService.formatChf(option.coutAnnuelMax)),
                     style: MintTextStyles.labelSmall(),
                   ),
                 ],
@@ -791,13 +743,9 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
 
   Widget _buildChecklist() {
     final items = _result?.checklist ?? [];
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -930,21 +878,16 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   Widget _buildEduCard(IconData icon, String title, String body) {
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.sm + 4),
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintSurface(
               padding: const EdgeInsets.all(MintSpacing.sm),
-              decoration: BoxDecoration(
-                color: MintColors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
+              radius: 10,
               child: Icon(icon, size: 18, color: MintColors.primary),
             ),
             const SizedBox(width: MintSpacing.sm + 4),
@@ -999,38 +942,54 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   }
 
   Widget _buildBudget503020() {
+    final l10n = S.of(context)!;
     final net = _result?.netEstime ?? _salaire * 0.85;
     final annualSavings = net * 0.20 * 12;
-    final years = (65 - _age).clamp(0, 45);
+    final years = (avsAgeReferenceHomme - _age).clamp(0, 45);
     final fv = _fvAnnuity(annualSavings, years);
     return Budget503020Widget(
       netSalary: net,
       categories: [
         BudgetCategory(
-          label: 'Besoins',
+          label: l10n.firstJobBudgetBesoins,
           emoji: '\u{1F3E0}',
           percent: 50,
           amount: net * 0.50,
-          examples: const ['Loyer', 'LAMal', 'Transport', 'Alimentation'],
+          examples: [
+            l10n.firstJobBudgetLoyer,
+            'LAMal',
+            l10n.firstJobBudgetTransport,
+            l10n.firstJobBudgetAlimentation,
+          ],
         ),
         BudgetCategory(
-          label: 'Envies',
+          label: l10n.firstJobBudgetEnvies,
           emoji: '\u2728',
           percent: 30,
           amount: net * 0.30,
-          examples: const ['Loisirs', 'Restaurants', 'Voyages', 'Shopping'],
+          examples: [
+            l10n.firstJobBudgetLoisirs,
+            l10n.firstJobBudgetRestaurants,
+            l10n.firstJobBudgetVoyages,
+            l10n.firstJobBudgetShopping,
+          ],
         ),
         BudgetCategory(
-          label: '\u00c9pargne & 3a',
+          label: l10n.firstJobBudgetEpargne,
           emoji: '\u{1F3E6}',
           percent: 20,
           amount: net * 0.20,
-          examples: const ['Pilier 3a', '\u00c9pargne', 'Fonds d\'urgence'],
+          examples: [
+            l10n.firstJobBudgetPilier3a,
+            l10n.firstJobBudgetEpargneCourt,
+            l10n.firstJobBudgetFondsUrgence,
+          ],
         ),
       ],
-      chiffreChoc:
-          'Si tu \u00e9pargnes ${(annualSavings.round() ~/ 1000)}\'000 CHF/an '
-          'd\u00e8s maintenant, tu auras ~${(fv.round() ~/ 1000)}\'000 CHF \u00e0 65 ans.',
+      premierEclairage: l10n.firstJobBudgetPremierEclairage(
+        '${(annualSavings.round() ~/ 1000)}\'000',
+        '~${(fv.round() ~/ 1000)}\'000',
+      ),
     );
   }
 
@@ -1044,7 +1003,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final scenarios = scenarioAges
         .map((a) => TimeLapseScenario(
               startAge: a,
-              capitalAt65: _fvAnnuity(annual3a, (65 - a).clamp(0, 45)),
+              capitalAt65: _fvAnnuity(annual3a, (avsAgeReferenceHomme - a).clamp(0, 45)),
             ))
         .toList();
 
@@ -1095,6 +1054,7 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
   }
 
   Widget _buildScenarioChips() {
+    final l10n = S.of(context)!;
     const median = 6500.0;
     final profileVal = _seededFromProfile
         ? context
@@ -1108,19 +1068,19 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
     final scenarios = [
       (
         label: _seededFromProfile
-            ? '\u{1F4CD} Mon salaire'
-            : '\u{1F4CD} D\u00e9faut',
+            ? '\u{1F4CD} ${l10n.firstJobScenarioMySalary}'
+            : '\u{1F4CD} ${l10n.firstJobScenarioDefault}',
         value: profileVal.clamp(2000.0, 15000.0),
         active:
             (_salaire - profileVal.clamp(2000.0, 15000.0)).abs() < 50,
       ),
       (
-        label: '\u{1F1E8}\u{1F1ED} M\u00e9dian CH',
+        label: '\u{1F1E8}\u{1F1ED} ${l10n.firstJobScenarioMedianCH}',
         value: median,
         active: (_salaire - median).abs() < 50,
       ),
       (
-        label: '\u2728 +20%',
+        label: '\u2728 ${l10n.firstJobScenarioBoosted}',
         value: boosted,
         active: (_salaire - boosted).abs() < 50,
       ),
@@ -1133,10 +1093,11 @@ class _FirstJobScreenState extends State<FirstJobScreen> {
           return Padding(
             padding: const EdgeInsets.only(right: MintSpacing.sm),
             child: Semantics(
-              label: 'Sc\u00e9nario salaire\u00a0: ${s.label}',
+              label: l10n.firstJobScenarioSemantics(s.label),
               button: true,
               child: GestureDetector(
                 onTap: () {
+                  HapticFeedback.lightImpact();
                   setState(() => _salaire = s.value);
                   _calculate();
                 },

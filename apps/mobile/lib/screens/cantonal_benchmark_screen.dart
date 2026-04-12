@@ -4,6 +4,7 @@
 // Opt-in only. ZERO ranked comparisons, ZERO social comparison.
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -13,6 +14,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cantonal_benchmark_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class CantonalBenchmarkScreen extends StatefulWidget {
   const CantonalBenchmarkScreen({super.key});
@@ -67,13 +70,13 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
         : null;
 
     return Scaffold(
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
+              onPressed: () => context.canPop() ? context.pop() : context.go('/coach/chat'),
             ),
             title: Text(
               S.of(context)!.benchmarkAppBarTitle,
@@ -86,11 +89,9 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: _loading
-                  ? const Center(
-                      child: Padding(
+                  ? const Padding(
                         padding: EdgeInsets.only(top: 60),
-                        child: CircularProgressIndicator(),
-                      ),
+                        child: MintLoadingSkeleton(),
                     )
                   : _hasError
                       ? Container(
@@ -115,7 +116,7 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // ── Opt-in toggle ──────────────────────────────
-                            _buildOptInCard(),
+                            MintEntrance(child: _buildOptInCard()),
                             const SizedBox(height: 20),
 
                             if (!_optedIn) ...[
@@ -130,18 +131,13 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
   Widget _buildOptInCard() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Row(
         children: [
           Expanded(
@@ -161,15 +157,20 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          Switch.adaptive(
-            value: _optedIn,
-            activeTrackColor: MintColors.primary,
-            onChanged: (value) async {
-              await CantonalBenchmarkService.setOptedIn(value);
-              setState(() {
-                _optedIn = value;
-              });
-            },
+          Semantics(
+            toggled: _optedIn,
+            label: S.of(context)!.semanticsBenchmarkToggle,
+            child: Switch.adaptive(
+              value: _optedIn,
+              activeTrackColor: MintColors.primary,
+              onChanged: (value) async {
+                await CantonalBenchmarkService.setOptedIn(value);
+                if (!mounted) return;
+                setState(() {
+                  _optedIn = value;
+                });
+              },
+            ),
           ),
         ],
       ),
@@ -303,39 +304,38 @@ class _CantonalBenchmarkScreenState extends State<CantonalBenchmarkScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.lightBorder),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 20, color: color),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    metric.label,
-                    style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+      child: Semantics(
+        label: S.of(context)!.semanticsBenchmarkMetric(metric.label, text, _fmt(metric.range.low), _fmt(metric.range.high)),
+        child: MintSurface(
+          padding: const EdgeInsets.all(16),
+          radius: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  ExcludeSemantics(child: Icon(icon, size: 20, color: color)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      metric.label,
+                      style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              text,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-            ),
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              S.of(context)!.benchmarkTypicalRange(_fmt(metric.range.low), _fmt(metric.range.high)),
-              style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                text,
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
+              const SizedBox(height: MintSpacing.sm),
+              Text(
+                S.of(context)!.benchmarkTypicalRange(_fmt(metric.range.low), _fmt(metric.range.high)),
+                style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+              ),
+            ],
+          ),
         ),
       ),
     );

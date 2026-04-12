@@ -1,5 +1,8 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -11,9 +14,10 @@ import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
 import 'package:mint_mobile/widgets/coach/survivor_pension_widget.dart';
 import 'package:mint_mobile/widgets/visualizations/marriage_penalty_gauge.dart';
 import 'package:mint_mobile/widgets/visualizations/regime_matrimonial_pie.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -125,7 +129,7 @@ class _MariageScreenState extends State<MariageScreen>
       surfaceTintColor: MintColors.porcelaine,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
@@ -161,6 +165,15 @@ class _MariageScreenState extends State<MariageScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
+        // Narrative intro
+        MintNarrativeCard(
+          headline: S.of(context)!.narrativeMarriageHeadline,
+          body: S.of(context)!.narrativeMarriageBody,
+          tone: MintSurfaceTone.peche,
+          badge: S.of(context)!.narrativeMarriageBadge,
+        ),
+        const SizedBox(height: MintSpacing.xl),
+
         // Hero: impact fiscal couple (always visible)
         if (_fiscalResult != null) ...[
           _buildFiscalHeroCard(),
@@ -216,34 +229,32 @@ class _MariageScreenState extends State<MariageScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          MintPremiumSlider(
+          MintAmountField(
             label: S.of(context)!.mariageRevenu1,
             value: _revenu1,
-            min: 0,
-            max: 300000,
-            divisions: 60,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
               setState(() {
-                _revenu1 = (v / 5000).round() * 5000.0;
+                _revenu1 = v;
                 _recalculate();
               });
             },
+            min: 0,
+            max: 300000,
           ),
           const SizedBox(height: MintSpacing.lg),
-          MintPremiumSlider(
+          MintAmountField(
             label: S.of(context)!.mariageRevenu2,
             value: _revenu2,
-            min: 0,
-            max: 300000,
-            divisions: 60,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
               setState(() {
-                _revenu2 = (v / 5000).round() * 5000.0;
+                _revenu2 = v;
                 _recalculate();
               });
             },
+            min: 0,
+            max: 300000,
           ),
           const SizedBox(height: MintSpacing.lg),
 
@@ -417,32 +428,30 @@ class _MariageScreenState extends State<MariageScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              MintPremiumSlider(
+              MintAmountField(
                 label: S.of(context)!.mariagePatrimoine1,
                 value: _patrimoine1,
-                min: 0,
-                max: 1000000,
-                divisions: 100,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _patrimoine1 = (v / 10000).round() * 10000.0;
+                    _patrimoine1 = v;
                   });
                 },
+                min: 0,
+                max: 1000000,
               ),
               const SizedBox(height: MintSpacing.lg),
-              MintPremiumSlider(
+              MintAmountField(
                 label: S.of(context)!.mariagePatrimoine2,
                 value: _patrimoine2,
-                min: 0,
-                max: 1000000,
-                divisions: 100,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _patrimoine2 = (v / 10000).round() * 10000.0;
+                    _patrimoine2 = v;
                   });
                 },
+                min: 0,
+                max: 1000000,
               ),
             ],
           ),
@@ -459,7 +468,7 @@ class _MariageScreenState extends State<MariageScreen>
         const SizedBox(height: MintSpacing.lg),
 
         // Chiffre choc
-        _buildChiffreChocRegime(),
+        _buildPremierEclairageRegime(),
         const SizedBox(height: MintSpacing.lg),
 
         // ── Couple Narrative Timeline ─────────────────────────
@@ -515,7 +524,10 @@ class _MariageScreenState extends State<MariageScreen>
       button: true,
       selected: isSelected,
       child: GestureDetector(
-        onTap: () => setState(() => _selectedRegime = index),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          setState(() => _selectedRegime = index);
+        },
         child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(MintSpacing.md),
@@ -555,7 +567,7 @@ class _MariageScreenState extends State<MariageScreen>
                   ),
                   Text(
                     subtitle,
-                    style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                   ),
                   const SizedBox(height: MintSpacing.xs + 2),
                   Text(
@@ -583,7 +595,7 @@ class _MariageScreenState extends State<MariageScreen>
     );
   }
 
-  Widget _buildChiffreChocRegime() {
+  Widget _buildPremierEclairageRegime() {
     final total = _patrimoine1 + _patrimoine2;
     if (total <= 0) return const SizedBox.shrink();
 
@@ -603,11 +615,11 @@ class _MariageScreenState extends State<MariageScreen>
       eyebrow: S.of(context)!.mariageRegimeMatrimonial,
       primaryValue: FamilyService.formatChf(acquetsPartage),
       primaryLabel: _selectedRegime == 0
-          ? S.of(context)!.mariageChiffreChocDefault
-          : S.of(context)!.mariageChiffreChocCommunaute,
+          ? S.of(context)!.mariagePremierEclairageDefault
+          : S.of(context)!.mariagePremierEclairageCommunaute,
       narrative: _selectedRegime == 0
-          ? S.of(context)!.mariageChiffreChocDefault
-          : S.of(context)!.mariageChiffreChocCommunaute,
+          ? S.of(context)!.mariagePremierEclairageDefault
+          : S.of(context)!.mariagePremierEclairageCommunaute,
       tone: MintSurfaceTone.peche,
     );
   }
@@ -639,18 +651,17 @@ class _MariageScreenState extends State<MariageScreen>
         // LPP slider
         MintSurface(
           tone: MintSurfaceTone.blanc,
-          child: MintPremiumSlider(
+          child: MintAmountField(
             label: S.of(context)!.mariageLppRenteLabel,
             value: _renteLpp,
-            min: 0,
-            max: 8000,
-            divisions: 80,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
               setState(() {
-                _renteLpp = (v / 100).round() * 100.0;
+                _renteLpp = v;
               });
             },
+            min: 0,
+            max: 8000,
           ),
         ),
         const SizedBox(height: MintSpacing.xl),
@@ -740,7 +751,7 @@ class _MariageScreenState extends State<MariageScreen>
                 ),
                 Text(
                   subtitle,
-                  style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -1149,7 +1160,7 @@ class _MariageScreenState extends State<MariageScreen>
           width: MintSpacing.xl,
           child: Text(
             '$value',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -1212,7 +1223,7 @@ class _MariageScreenState extends State<MariageScreen>
           Expanded(
             child: Text(
               S.of(context)!.mariageDisclaimer,
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 11, height: 1.5),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],

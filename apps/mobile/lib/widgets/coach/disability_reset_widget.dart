@@ -104,7 +104,7 @@ class DisabilityResetWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'L\'invalidité ne détruit pas que ton revenu actuel — elle rétrécit ta retraite.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -156,7 +156,7 @@ class DisabilityResetWidget extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
               Text(
                 'Salaire ${_fmt(salary)} → bonification LPP : CHF ${_fmt(bonif)}/an',
@@ -231,7 +231,7 @@ class DisabilityResetWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$emoji CHF ${_fmt(amount)}',
-            style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+            style: MintTextStyles.titleMedium(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -254,12 +254,12 @@ class DisabilityResetWidget extends StatelessWidget {
               children: [
                 Text(
                   'Rente mensuelle perdue',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   '-CHF ${_fmt(monthlyDelta)}/mois',
-                  style: MintTextStyles.headlineMedium(color: MintColors.scoreCritique).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.headlineMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
                 ),
               ],
             ),
@@ -269,11 +269,11 @@ class DisabilityResetWidget extends StatelessWidget {
             children: [
               Text(
                 'Chaque mois.',
-                style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
                 'Pour toujours.',
-                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
               ),
             ],
           ),

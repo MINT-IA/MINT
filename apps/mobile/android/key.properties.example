@@ -1,0 +1,16 @@
+# Android release signing configuration
+# Copy this file to key.properties and fill in your values.
+# key.properties is gitignored — NEVER commit it.
+#
+# Generate keystore:
+#   keytool -genkey -v -keystore upload-keystore.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 \
+#     -alias mint-upload \
+#     -storepass YOUR_STORE_PASSWORD \
+#     -keypass YOUR_KEY_PASSWORD \
+#     -dname "CN=MINT-IA, OU=Mobile, O=MINT-IA SA, L=Sion, ST=Valais, C=CH"
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=mint-upload
+storeFile=../upload-keystore.jks

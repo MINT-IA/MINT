@@ -4,10 +4,10 @@ description: "PII leak scanner + autonomous fixer. Scans logs, analytics, LLM pr
 compatibility: Requires Flutter SDK and Python 3.10+
 metadata:
   author: mint-team
-  version: "3.0"
+  version: "4.0"
 ---
 
-# Autoresearch Privacy Guard v3 — Karpathy PII Hunter
+# Autoresearch Privacy Guard v4 — Karpathy PII Hunter
 
 > "If it can identify a user, it must not reach logs, analytics, or LLM."
 
@@ -19,6 +19,30 @@ metadata:
 - **Legal**: nLPD (Swiss Data Protection Act), CLAUDE.md § 6.
 - **NEVER delete functionality** — only redact/anonymize the PII portion.
 - **NEVER fix PII in test files** — fake test data is acceptable.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## PII Detection Patterns
 
@@ -93,6 +117,52 @@ CoachContext sent to LLM must NEVER contain:
 grep -A 20 "CoachContext\|buildCoachContext" apps/mobile/lib/ -r --include="*.dart" \
   | grep -i "salaire\|salary\|savings\|dette\|debt\|npa\|postal\|employer\|employeur\|iban"
 ```
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY PII fix, before reporting it as done:
+
+1. **RUN** `grep -rn "<original_pattern>" <file>` to confirm the PII is gone. Paste output (must be empty).
+2. **RUN** `flutter test 2>&1 | tail -10` if Dart file changed. Paste output.
+3. **RUN** the scan phase command for the fixed category. Confirm hit count decreased.
+4. If pattern still matches → the fix is incomplete. Do not claim otherwise.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the grep. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "This data isn't really PII" | If it can identify a user, it's PII. Period. |
+| "It's only in debug logs" | Debug logs reach crash reporters. Redact it. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If grep still matches the PII pattern → the fix is incomplete. If `flutter test` broke → revert and try a different anonymization approach.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "PII removed" | Fresh grep pattern count = 0 for that file | Code changed, "should be clean" |
+| "No regressions" | `flutter test` output: same or fewer failures | Running only grep |
+| "Violation count decreased" | Fresh full scan count < previous count | "I fixed 3 leaks" without re-scanning |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Grep clean + tests green, this iteration | Clean from previous iteration |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

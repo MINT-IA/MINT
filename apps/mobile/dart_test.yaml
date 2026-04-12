@@ -1,0 +1,4 @@
+# Test configuration — maximize parallelism on multi-core machines.
+# 12 concurrent test suites (matches Mac Mini M-series core count).
+# See: https://dart.dev/tools/dart-test#configuring-tests
+concurrency: 12

@@ -19,17 +19,23 @@ Endpoints:
     POST /categorize                       — Re-categorize transactions
 """
 
+import logging
 import os
-from typing import List, Optional
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
+from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
+from app.core.database import get_db
 from app.models.user import User
 from app.schemas.open_banking import (
     OpenBankingStatusResponse,
     ConsentRequest,
     ConsentResponse,
+    ConsentRevokeResponse,
+    PaginatedConsentsResponse,
+    PaginatedTransactionsResponse,
     BankAccountResponse,
     TransactionResponse,
     BalanceResponse,
@@ -43,7 +49,9 @@ from app.services.open_banking.blink_connector import BLinkConnector
 from app.services.open_banking.consent_manager import ConsentManager
 from app.services.open_banking.transaction_categorizer import TransactionCategorizer
 from app.services.open_banking.account_aggregator import AccountAggregator
+from app.services.feature_flags import FeatureFlags
 
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -59,6 +67,17 @@ _aggregator = AccountAggregator(
     consent_manager=_consent_manager,
     categorizer=_categorizer,
 )
+
+# V12-2: WARNING — In-memory storage. Data will not survive restart.
+# Feature-gated pending DB migration. Consents fall back to in-memory dict
+# when no DB session is provided (sandbox/tests).
+logger.warning(
+    "Open Banking: in-memory fallback active — consents/data will NOT survive "
+    "restart. Feature-gated pending DB migration."
+)
+
+# V12-2: Header injected on affected endpoints to signal in-memory mode.
+_IN_MEMORY_HEADER = ("X-Storage-Mode", "in-memory")
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -80,8 +99,10 @@ DISCLAIMER = (
 def _check_open_banking_enabled():
     """Check if Open Banking is enabled (requires FINMA consultation).
 
-    Raises HTTPException 503 if the feature gate is closed.
+    Raises HTTPException 403 via feature flag if enable_blink_production is off,
+    then 503 if the legacy OPEN_BANKING_ENABLED env var is also off.
     """
+    FeatureFlags.require_flag("enable_blink_production")
     enabled = os.environ.get("OPEN_BANKING_ENABLED", "false").lower() == "true"
     if not enabled:
         raise HTTPException(
@@ -135,13 +156,14 @@ def get_status() -> OpenBankingStatusResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/consent", response_model=ConsentResponse)
-def create_consent(request: ConsentRequest, current_user: User = Depends(require_current_user)) -> ConsentResponse:
+def create_consent(request: ConsentRequest, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> ConsentResponse:
     """Create a new banking consent (nLPD-compliant).
 
     Requires explicit opt-in. Scopes must be explicitly chosen.
     Maximum duration: 90 days. Revocable at any time.
     """
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
     try:
         consent = _consent_manager.create_consent(
@@ -149,9 +171,10 @@ def create_consent(request: ConsentRequest, current_user: User = Depends(require
             bank_id=request.bankId,
             bank_name=request.bankName,
             scopes=request.scopes,
+            db=db,
         )
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc))
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Unprocessable input")
 
     return ConsentResponse(
         consentId=consent.consent_id,
@@ -164,45 +187,68 @@ def create_consent(request: ConsentRequest, current_user: User = Depends(require
     )
 
 
-@router.delete("/consent/{consent_id}")
-def revoke_consent(consent_id: str, current_user: User = Depends(require_current_user)):
+@router.delete("/consent/{consent_id}", response_model=ConsentRevokeResponse)
+def revoke_consent(consent_id: str, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> ConsentRevokeResponse:
     """Revoke a banking consent.
 
     The consent is immediately invalidated. All associated data access stops.
     This action is logged in the audit trail.
     """
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
-    success = _consent_manager.revoke_consent(consent_id)
+    # V3-4: IDOR guard — verify consent belongs to the current user.
+    consent = _consent_manager.get_consent(consent_id, db=db)
+    if not consent:
+        raise HTTPException(status_code=404, detail="Consentement non trouve.")
+    if consent.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Acces interdit.")
+
+    success = _consent_manager.revoke_consent(consent_id, db=db)
     if not success:
         raise HTTPException(status_code=404, detail="Consentement non trouve.")
 
-    return {
-        "ok": True,
-        "message": "Consentement revoque avec succes.",
-        "consentId": consent_id,
-    }
+    return ConsentRevokeResponse(
+        status="revoked",
+        consentId=consent_id,
+    )
 
 
-@router.get("/consents", response_model=List[ConsentResponse])
-def list_consents(current_user: User = Depends(require_current_user)) -> List[ConsentResponse]:
-    """List active consents for the current person."""
+@router.get("/consents", response_model=PaginatedConsentsResponse)
+def list_consents(
+    response: Response,
+    limit: int = Query(default=50, ge=1, le=200, description="Nombre max de resultats"),
+    offset: int = Query(default=0, ge=0, description="Offset pour la pagination"),
+    current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> PaginatedConsentsResponse:
+    """List active consents for the current person (paginated, ordered by grant date desc)."""
     _check_open_banking_enabled()
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
 
-    consents = _consent_manager.get_active_consents(current_user.id)
+    consents = _consent_manager.get_active_consents(current_user.id, db=db)
+    # Order by granted_at descending (most recent first)
+    consents_sorted = sorted(consents, key=lambda c: c.granted_at, reverse=True)
+    total = len(consents_sorted)
+    page = consents_sorted[offset:offset + limit]
 
-    return [
-        ConsentResponse(
-            consentId=c.consent_id,
-            bankId=c.bank_id,
-            bankName=c.bank_name,
-            scopes=c.scopes,
-            grantedAt=c.granted_at,
-            expiresAt=c.expires_at,
-            status="active",
-        )
-        for c in consents
-    ]
+    return PaginatedConsentsResponse(
+        items=[
+            ConsentResponse(
+                consentId=c.consent_id,
+                bankId=c.bank_id,
+                bankName=c.bank_name,
+                scopes=c.scopes,
+                grantedAt=c.granted_at,
+                expiresAt=c.expires_at,
+                status="active",
+            )
+            for c in page
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -253,16 +299,18 @@ def list_accounts(current_user: User = Depends(require_current_user)) -> Aggrega
 
 @router.get(
     "/accounts/{account_id}/transactions",
-    response_model=List[TransactionResponse],
+    response_model=PaginatedTransactionsResponse,
 )
 def list_transactions(
     account_id: str,
     date_from: str = Query("2025-01-01", description="Date de debut (YYYY-MM-DD)"),
     date_to: str = Query("2025-12-31", description="Date de fin (YYYY-MM-DD)"),
     category: Optional[str] = Query(None, description="Filtrer par categorie"),
+    limit: int = Query(default=50, ge=1, le=200, description="Nombre max de resultats"),
+    offset: int = Query(default=0, ge=0, description="Offset pour la pagination"),
     current_user: User = Depends(require_current_user),
-) -> List[TransactionResponse]:
-    """List transactions for an account with optional filters.
+) -> PaginatedTransactionsResponse:
+    """List transactions for an account with optional filters (paginated, ordered by date desc).
 
     Requires an active consent with 'transactions' scope.
     """
@@ -274,20 +322,30 @@ def list_transactions(
     if category:
         categorized = [t for t in categorized if t.category == category]
 
-    return [
-        TransactionResponse(
-            id=t.transaction_id,
-            date=t.date,
-            description=t.description,
-            amount=t.amount,
-            currency=t.currency,
-            category=t.category,
-            merchant=t.merchant,
-            isDebit=t.is_debit,
-            confidence=t.confidence,
-        )
-        for t in categorized
-    ]
+    # Order by date descending (most recent first)
+    categorized_sorted = sorted(categorized, key=lambda t: t.date, reverse=True)
+    total = len(categorized_sorted)
+    page = categorized_sorted[offset:offset + limit]
+
+    return PaginatedTransactionsResponse(
+        items=[
+            TransactionResponse(
+                id=t.transaction_id,
+                date=t.date,
+                description=t.description,
+                amount=t.amount,
+                currency=t.currency,
+                category=t.category,
+                merchant=t.merchant,
+                isDebit=t.is_debit,
+                confidence=t.confidence,
+            )
+            for t in page
+        ],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
 
 
 # ---------------------------------------------------------------------------

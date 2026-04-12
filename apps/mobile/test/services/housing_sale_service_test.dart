@@ -10,7 +10,7 @@ import 'package:mint_mobile/services/housing_sale_service.dart';
 ///   - Remboursement EPL (LPP art. 30d, OPP2 art. 30e)
 ///   - Produit net de la vente
 ///   - Alertes et checklist
-///   - Compliance (disclaimer, sources, chiffre choc)
+///   - Compliance (disclaimer, sources, premier éclairage)
 ///
 /// Legal references: LHID art. 12, LPP art. 30d, OPP2 art. 30e
 void main() {
@@ -455,7 +455,7 @@ void main() {
       expect(result.sources, anyElement(contains('LPP art. 30d')));
     });
 
-    test('chiffre choc positif ou negatif selon produit net', () {
+    test('premier éclairage positif ou negatif selon produit net', () {
       // Cas positif
       final resultPositif = HousingSaleService.calculate(
         prixAchat: 500000,
@@ -464,7 +464,7 @@ void main() {
         anneeVente: 2025,
         canton: 'ZH',
       );
-      expect(resultPositif.chiffreChoc, contains('Produit net'));
+      expect(resultPositif.premierEclairage, contains('Produit net'));
 
       // Cas negatif
       final resultNegatif = HousingSaleService.calculate(
@@ -478,7 +478,7 @@ void main() {
         epl3aUtilise: 20000,
         residencePrincipale: true,
       );
-      expect(resultNegatif.chiffreChoc, contains('negatif'));
+      expect(resultNegatif.premierEclairage, contains('negatif'));
     });
   });
 }

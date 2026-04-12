@@ -2,16 +2,29 @@
 Snapshots endpoints — Sprint S33: Financial Snapshots.
 
 POST   /api/v1/snapshots                    — Create snapshot
-GET    /api/v1/snapshots/{user_id}           — Get snapshots for a user
-DELETE /api/v1/snapshots/{user_id}           — Delete all snapshots (LPD compliance)
-GET    /api/v1/snapshots/{user_id}/evolution — Get evolution time series
+GET    /api/v1/snapshots                    — Get snapshots for authenticated user
+DELETE /api/v1/snapshots                    — Delete all snapshots (LPD compliance)
+GET    /api/v1/snapshots/evolution           — Get evolution time series
+
+WARNING (V12-3): When no DB session is provided, this service uses an in-memory
+fallback dict. Data will NOT survive restart. Feature-gated pending DB migration
+(see migrations/004_snapshots.sql). The endpoint layer adds an
+X-Storage-Mode: in-memory response header to signal this to clients.
 
 Sources:
     - LPD (Loi sur la protection des donnees) — right to erasure
 """
 
 
-from fastapi import APIRouter, HTTPException, Query
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
+from sqlalchemy.orm import Session
+
+from app.core.auth import require_current_user
+from app.core.database import get_db
+from app.core.rate_limit import limiter
+from app.models.user import User
 
 from app.schemas.snapshots import (
     CreateSnapshotRequest,
@@ -31,6 +44,17 @@ from app.services.snapshots import (
 )
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+# V12-3: WARNING — In-memory storage. Data will not survive restart.
+# Feature-gated pending DB migration (see migrations/004_snapshots.sql).
+logger.warning(
+    "Snapshots: in-memory fallback active — snapshot data will NOT survive "
+    "restart. Feature-gated pending DB migration."
+)
+
+# V12-3: Header injected on affected endpoints to signal in-memory mode.
+_IN_MEMORY_HEADER = ("X-Storage-Mode", "in-memory")
 
 
 def _snapshot_to_response(snapshot) -> SnapshotResponse:
@@ -60,7 +84,8 @@ def _snapshot_to_response(snapshot) -> SnapshotResponse:
 
 
 @router.post("", response_model=SnapshotResponse)
-def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotResponse:
+@limiter.limit("30/minute")
+def create_financial_snapshot(request: Request, body: CreateSnapshotRequest, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> SnapshotResponse:
     """Creer un snapshot financier.
 
     Capture l'etat financier de l'utilisateur a un moment donne,
@@ -70,8 +95,10 @@ def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotRespons
     Returns:
         SnapshotResponse avec l'identifiant unique du snapshot.
     """
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
+
     # Consent guard: snapshot_storage consent required (nLPD)
-    if not ConsentManager.is_consent_given(request.user_id, ConsentType.snapshot_storage):
+    if not ConsentManager.is_consent_given(current_user.id, ConsentType.snapshot_storage, db=db):
         raise HTTPException(
             status_code=403,
             detail=(
@@ -82,65 +109,73 @@ def create_financial_snapshot(request: CreateSnapshotRequest) -> SnapshotRespons
 
     try:
         snapshot = create_snapshot(
-            user_id=request.user_id,
-            trigger=request.trigger,
-            profile_data=request.profile_data,
+            user_id=current_user.id,
+            trigger=body.trigger,
+            profile_data=body.profile_data,
+            db=db,
         )
         return _snapshot_to_response(snapshot)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
-@router.get("/{user_id}", response_model=SnapshotListResponse)
+@router.get("", response_model=SnapshotListResponse)
+@limiter.limit("60/minute")
 def get_user_snapshots(
-    user_id: str,
+    request: Request,
+    response: Response,
     limit: int = Query(default=10, ge=1, le=100, description="Nombre max de snapshots"),
+    current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> SnapshotListResponse:
-    """Recuperer les snapshots d'un utilisateur.
+    """Recuperer les snapshots de l'utilisateur authentifie.
 
     Retourne les snapshots les plus recents en premier (ordre chronologique inverse).
 
     Args:
-        user_id: Identifiant de l'utilisateur.
         limit: Nombre maximum de snapshots a retourner (defaut: 10, max: 100).
 
     Returns:
         SnapshotListResponse avec la liste des snapshots.
     """
-    snapshots = get_snapshots(user_id=user_id, limit=limit)
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
+    snapshots = get_snapshots(user_id=current_user.id, limit=limit, db=db)
     return SnapshotListResponse(
         snapshots=[_snapshot_to_response(s) for s in snapshots],
         count=len(snapshots),
     )
 
 
-@router.delete("/{user_id}", response_model=DeleteSnapshotsResponse)
-def delete_user_snapshots(user_id: str) -> DeleteSnapshotsResponse:
-    """Supprimer tous les snapshots d'un utilisateur.
+@router.delete("", response_model=DeleteSnapshotsResponse)
+@limiter.limit("30/minute")
+def delete_user_snapshots(request: Request, response: Response, current_user: User = Depends(require_current_user), db: Session = Depends(get_db)) -> DeleteSnapshotsResponse:
+    """Supprimer tous les snapshots de l'utilisateur authentifie.
 
     Conformite LPD (Loi sur la protection des donnees) — droit a l'effacement.
-
-    Args:
-        user_id: Identifiant de l'utilisateur.
 
     Returns:
         DeleteSnapshotsResponse avec le nombre de snapshots supprimes.
     """
-    count = delete_all_snapshots(user_id=user_id)
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
+    count = delete_all_snapshots(user_id=current_user.id, db=db)
     return DeleteSnapshotsResponse(
         deleted_count=count,
-        message=f"{count} snapshot(s) supprime(s) pour l'utilisateur {user_id}.",
+        message=f"{count} snapshot(s) supprime(s).",
     )
 
 
-@router.get("/{user_id}/evolution", response_model=EvolutionResponse)
+@router.get("/evolution", response_model=EvolutionResponse)
+@limiter.limit("60/minute")
 def get_user_evolution(
-    user_id: str,
+    request: Request,
+    response: Response,
     field: str = Query(
         default="replacement_ratio",
         description="Metrique a suivre (replacement_ratio, months_liquidity, etc.)",
     ),
+    current_user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
 ) -> EvolutionResponse:
     """Recuperer la serie temporelle d'une metrique financiere.
 
@@ -148,14 +183,14 @@ def get_user_evolution(
     pour visualiser l'evolution dans le temps.
 
     Args:
-        user_id: Identifiant de l'utilisateur.
         field: Nom de la metrique a suivre.
 
     Returns:
         EvolutionResponse avec la serie temporelle.
     """
+    response.headers[_IN_MEMORY_HEADER[0]] = _IN_MEMORY_HEADER[1]
     try:
-        data_points = get_evolution(user_id=user_id, field=field)
+        data_points = get_evolution(user_id=current_user.id, field=field, db=db)
         return EvolutionResponse(
             field=field,
             data_points=[
@@ -169,5 +204,5 @@ def get_user_evolution(
             count=len(data_points),
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")

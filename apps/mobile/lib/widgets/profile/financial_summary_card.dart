@@ -132,7 +132,7 @@ class FinancialSummaryCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         scanLabel ?? 'Scanner un certificat',
-                        style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                       ),
                     ],
                   ),
@@ -201,12 +201,12 @@ class FinancialSummaryCard extends StatelessWidget {
           Expanded(
             child: Text(
               line.label,
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           Text(
             line.formattedValue,
-            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+            style: MintTextStyles.bodyLarge(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -250,7 +250,7 @@ class FinancialSummaryCard extends StatelessWidget {
               padding: const EdgeInsets.only(right: 4),
               child: Text(
                 line.isLast ? '\u2514 ' : '\u251C ',
-                style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
               ),
             ),
           // Label

@@ -515,9 +515,9 @@ class TestHousingSaleEdgeCases:
         result = service.calculate(base_input)
         assert len(result.checklist) >= 5
 
-    def test_chiffre_choc_present(self, service, base_input):
+    def test_premier_eclairage_present(self, service, base_input):
         """Chiffre choc should contain montant and texte."""
         result = service.calculate(base_input)
-        assert "montant" in result.chiffre_choc
-        assert "texte" in result.chiffre_choc
-        assert isinstance(result.chiffre_choc["montant"], float)
+        assert "montant" in result.premier_eclairage
+        assert "texte" in result.premier_eclairage
+        assert isinstance(result.premier_eclairage["montant"], float)

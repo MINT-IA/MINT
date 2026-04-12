@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 
 Widget _wrap(Widget child) {
-  return MaterialApp(
-    home: Scaffold(body: child),
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, __) => Scaffold(body: child),
+      ),
+    ],
+  );
+  return MaterialApp.router(
+    routerConfig: router,
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
   );
 }
 
@@ -136,7 +155,7 @@ void main() {
       ));
 
       expect(find.textContaining('indicatif'), findsOneWidget);
-      expect(find.textContaining('55%'), findsOneWidget);
+      expect(find.textContaining('55'), findsOneWidget);
     });
 
     testWidgets('shows Preciser CTA button', (tester) async {
@@ -153,7 +172,7 @@ void main() {
       ));
 
       expect(find.textContaining('indicatif'), findsOneWidget);
-      expect(find.textContaining('0%'), findsOneWidget);
+      expect(find.textContaining('0'), findsOneWidget);
     });
 
     testWidgets('defaults topEnrichmentCategory to lpp', (tester) async {

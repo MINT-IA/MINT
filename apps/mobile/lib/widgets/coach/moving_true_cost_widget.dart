@@ -162,12 +162,12 @@ class MovingTrueCostWidget extends StatelessWidget {
                           children: [
                             Text(
                               item.label,
-                              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                              style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                             ),
                             if (item.note != null)
                               Text(
                                 item.note!,
-                                style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
+                                style: MintTextStyles.labelTiny(color: MintColors.textSecondary).copyWith(fontStyle: FontStyle.normal),
                               ),
                           ],
                         ),
@@ -179,7 +179,7 @@ class MovingTrueCostWidget extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     formatChfWithPrefix(item.monthlyBefore),
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -187,7 +187,7 @@ class MovingTrueCostWidget extends StatelessWidget {
                   flex: 2,
                   child: Text(
                     formatChfWithPrefix(item.monthlyAfter),
-                    style: MintTextStyles.labelSmall(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                    style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w700),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -220,7 +220,7 @@ class MovingTrueCostWidget extends StatelessWidget {
           ),
           Text(
             '$sign ${formatChfWithPrefix(_netMonthly.abs())}',
-            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+            style: MintTextStyles.headlineSmall(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
@@ -245,7 +245,7 @@ class MovingTrueCostWidget extends StatelessWidget {
             child: Text(
               'Frais de déménagement (${formatChfWithPrefix(movingFees)}) remboursés en '
               '${_breakEvenMonths.round()} mois.',
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.4),
             ),
           ),
         ],

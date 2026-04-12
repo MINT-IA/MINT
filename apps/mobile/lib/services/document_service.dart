@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -924,6 +925,7 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
+        // Dynamic interpolation — not extracted
         message: 'Le fichier ($sizeMb Mo) depasse la limite de 20 Mo.',
       );
     }
@@ -964,6 +966,7 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
+        // Dynamic interpolation — not extracted
         message: 'Le fichier ($sizeMb Mo) depasse la limite de 10 Mo.',
       );
     }
@@ -1058,6 +1061,134 @@ class DocumentService {
       final json = jsonDecode(body) as Map<String, dynamic>;
       return json['detail'] as String? ?? json['message'] as String?;
     } catch (_) {
+      return null;
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════
+  //  SCAN SYNC + CLAUDE VISION
+  // ══════════════════════════════════════════════════════════
+
+  /// Sync confirmed scan extraction to backend.
+  /// Called after user reviews and confirms extracted fields.
+  /// Offline-first: failure is logged but never blocks the UX.
+  static Future<Map<String, dynamic>?> sendScanConfirmation({
+    required String documentType,
+    required List<Map<String, dynamic>> confirmedFields,
+    required double overallConfidence,
+    String extractionMethod = 'claude_vision',
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/documents/scan-confirmation'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'confirmedFields': confirmedFields,
+          'overallConfidence': overallConfidence,
+          'extractionMethod': extractionMethod,
+          'timestamp': DateTime.now().toUtc().toIso8601String(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[DocumentService] sendScanConfirmation error: $e');
+      return null;
+    }
+  }
+
+  /// Extract document data using Claude Vision (backend).
+  /// Replaces MLKit OCR — better accuracy for Swiss financial docs.
+  /// Returns structured fields or null on failure.
+  static Future<Map<String, dynamic>?> extractWithVision({
+    required String imageBase64,
+    required String documentType,
+    String? canton,
+    String? languageHint,
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/documents/extract-vision'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'imageBase64': imageBase64,
+          if (canton != null) 'canton': canton,
+          if (languageHint != null) 'languageHint': languageHint,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      if (response.statusCode == 422) {
+        throw const DocumentServiceException(
+          code: 'not_financial',
+          message: 'Document classified as non-financial',
+        );
+      }
+      return null;
+    } catch (e) {
+      if (e is DocumentServiceException) rethrow;
+      debugPrint('[DocumentService] extractWithVision error: $e');
+      return null;
+    }
+  }
+  /// Fetch premier eclairage (4-layer insight) for extracted document data.
+  /// Returns parsed JSON response or null on failure.
+  static Future<Map<String, dynamic>?> fetchPremierEclairage({
+    required String documentType,
+    required List<Map<String, dynamic>> extractedFields,
+    required double overallConfidence,
+    String? planType,
+    String? planTypeWarning,
+    String? canton,
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/documents/premier-eclairage'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'extractedFields': extractedFields,
+          'overallConfidence': overallConfidence,
+          if (planType != null) 'planType': planType,
+          if (planTypeWarning != null) 'planTypeWarning': planTypeWarning,
+          if (canton != null) 'canton': canton,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[DocumentService] fetchPremierEclairage error: $e');
       return null;
     }
   }

@@ -49,6 +49,11 @@ from app.api.v1.endpoints import (
     confidence,
     household,
     config,
+    knowledge,
+    regulatory,
+    bank_import,
+    budget,
+    admin,
 )
 
 api_router = APIRouter()
@@ -181,4 +186,15 @@ api_router.include_router(
 )
 api_router.include_router(
     config.router, prefix="/config", tags=["Config"]
+)
+api_router.include_router(knowledge.router, tags=["Knowledge S67"])
+api_router.include_router(regulatory.router, tags=["Regulatory Core"])
+api_router.include_router(
+    bank_import.router, prefix="/bank-import", tags=["Bank Import"]
+)
+api_router.include_router(
+    budget.router, prefix="/budget", tags=["Budget Anomaly Detection"]
+)
+api_router.include_router(
+    admin.router, prefix="/admin", tags=["Admin"]
 )

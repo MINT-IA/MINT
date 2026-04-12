@@ -9,7 +9,7 @@ import 'package:mint_mobile/screens/mortgage/amortization_screen.dart';
 import 'package:mint_mobile/screens/mortgage/epl_combined_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 
 // =============================================================================
 // SMOKE TESTS — Mortgage Module Screens (5 screens)
@@ -60,7 +60,7 @@ void main() {
       expect(find.textContaining('achat'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc card with CHF amount', (tester) async {
+    testWidgets('displays premier éclairage card with CHF amount', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -112,18 +112,18 @@ void main() {
       expect(find.textContaining('hypoth'), findsWidgets);
     });
 
-    testWidgets('has MintPremiumSlider widgets for input parameters', (tester) async {
+    testWidgets('has MintAmountField widgets for input parameters', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
-      // Sliders are in SECTION 6 (controls), need deep scroll to reach them
+      // Inputs are in SECTION 6 (controls), need deep scroll to reach them
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -600));
       await tester.pump();
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pump();
 
-      // AffordabilityScreen uses MintPremiumSlider (which wraps Slider)
-      expect(find.byType(MintPremiumSlider), findsWidgets);
+      // AffordabilityScreen uses MintAmountField (tappable amount inputs)
+      expect(find.byType(MintAmountField), findsWidgets);
     });
 
     testWidgets('has canton dropdown', (tester) async {
@@ -210,7 +210,7 @@ void main() {
       expect(find.textContaining('SARON'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with CHF amount', (tester) async {
+    testWidgets('displays premier éclairage with CHF amount', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -337,7 +337,7 @@ void main() {
       expect(find.textContaining('locative'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with fiscal impact', (tester) async {
+    testWidgets('displays premier éclairage with fiscal impact', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -456,7 +456,7 @@ void main() {
       expect(find.textContaining('Indirect'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc after scrolling', (tester) async {
+    testWidgets('displays premier éclairage after scrolling', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 
@@ -559,7 +559,7 @@ void main() {
       expect(find.textContaining('EPL'), findsWidgets);
     });
 
-    testWidgets('displays chiffre choc with percentage', (tester) async {
+    testWidgets('displays premier éclairage with percentage', (tester) async {
       await tester.pumpWidget(buildScreen());
       await tester.pump();
 

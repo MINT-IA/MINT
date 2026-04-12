@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
@@ -17,6 +19,11 @@ import 'package:mint_mobile/widgets/profile/patrimoine_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/dettes_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/futur_drawer_content.dart';
 import 'package:mint_mobile/widgets/profile/enrichment_cta.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+
+// NOTE: This screen is a deep-dive view. Primary display is now in PulseScreen
+// via BudgetSnapshot. Keep for /profile/bilan deep link and ProfileScreen access.
 
 /// Écran "Mon aperçu" — Le Gap + 3 Tiroirs
 ///
@@ -33,8 +40,8 @@ class FinancialSummaryScreen extends StatelessWidget {
     final profile = coachProvider.profile;
 
     return Scaffold(
-      backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      backgroundColor: MintColors.porcelaine,
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           if (profile == null)
@@ -42,7 +49,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           else
             _buildContent(context, profile),
         ],
-      ),
+      ))),
     );
   }
 
@@ -53,30 +60,17 @@ class FinancialSummaryScreen extends StatelessWidget {
   Widget _buildAppBar(BuildContext context) {
     return SliverAppBar(
       pinned: true,
-      expandedHeight: 80,
-      backgroundColor: MintColors.primary,
+      backgroundColor: MintColors.porcelaine,
+      surfaceTintColor: MintColors.porcelaine,
+      elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: MintColors.white),
-        onPressed: () => context.pop(),
+        icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
+        onPressed: () => safePop(context),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                MintColors.primary,
-                MintColors.primary.withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
-        titlePadding: const EdgeInsets.only(left: 56, bottom: 14),
-        title: Text(
-          S.of(context)!.financialSummaryTitle,
-          style: MintTextStyles.bodySmall(color: MintColors.white)
-              .copyWith(fontWeight: FontWeight.bold, letterSpacing: 1.2),
+      title: Text(
+        S.of(context)!.financialSummaryTitle,
+        style: MintTextStyles.titleMedium(
+          color: MintColors.textPrimary,
         ),
       ),
     );
@@ -88,25 +82,12 @@ class FinancialSummaryScreen extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     return SliverFillRemaining(
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.person_off_outlined,
-                size: 48, color: MintColors.textMuted),
-            const SizedBox(height: 16),
-            Text(
-              S.of(context)!.financialSummaryNoProfile,
-              style: MintTextStyles.bodyLarge(),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              onPressed: () => context.push('/onboarding/quick'),
-              child:
-                  Text(S.of(context)!.financialSummaryStartDiagnostic),
-            ),
-          ],
-        ),
+      child: MintEmptyState(
+        icon: Icons.person_off_outlined,
+        title: S.of(context)!.financialSummaryNoProfile,
+        subtitle: '', // No subtitle in original
+        ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
+        onCta: () => context.push('/coach/chat'),
       ),
     );
   }
@@ -128,13 +109,16 @@ class FinancialSummaryScreen extends StatelessWidget {
             grossSalary: gross,
             canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
             age: profile.age,
+            // FIX-P1-4: Pass etatCivil + nombreEnfants for correct tax calc.
+            etatCivil: profile.etatCivil.name,
+            nombreEnfants: profile.nombreEnfants,
           )
         : null;
 
     // ── Hero Gap data ──
-    // Use monthlyNetPayslip — same as Pulse and ForecasterService —
-    // for consistent replacement rate denominators across screens.
-    final currentMonthlyNet = breakdown?.monthlyNetPayslip ?? 0.0;
+    final currentMonthlyNet = breakdown != null
+        ? breakdown.disposableIncome / 12
+        : 0.0;
     final renteAvs = prev.renteAVSEstimeeMensuelle ?? 0;
     final renteLpp =
         (prev.avoirLppTotal ?? 0) * prev.tauxConversion / 12;
@@ -177,7 +161,7 @@ class FinancialSummaryScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // ── HERO GAP CARD ──
-            HeroGapCard(
+            MintEntrance(child: HeroGapCard(
               currentMonthlyNet: currentMonthlyNet,
               projectedMonthlyRetirement: projectedMonthly,
               confidencePercent: confidence,
@@ -187,11 +171,11 @@ class FinancialSummaryScreen extends StatelessWidget {
               onScanTap: missingCount > 0
                   ? () => context.push('/scan')
                   : null,
-            ),
+            )),
             const SizedBox(height: 20),
 
             // ── TIROIR 1: Ce que tu as ──
-            FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: FinancialDrawer(
               title: s.drawerCeQueTuAs,
               subtitle: s.drawerCeQueTuAsSubtitle,
               heroValue: formatChfCompact(patrimoineNet),
@@ -233,11 +217,11 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ],
               ),
               content: PatrimoineDrawerContent(profile: profile),
-            ),
+            )),
             const SizedBox(height: 12),
 
             // ── TIROIR 2: Ce que tu dois ──
-            FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: FinancialDrawer(
               title: s.drawerCeQueTuDois,
               subtitle: s.drawerCeQueTuDoisSubtitle,
               heroValue: det.hasDette
@@ -273,11 +257,11 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ],
               ),
               content: DettesDrawerContent(profile: profile),
-            ),
+            )),
             const SizedBox(height: 12),
 
             // ── TIROIR 3: Ce que tu auras ──
-            FinancialDrawer(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: FinancialDrawer(
               title: s.drawerCeQueTuAuras,
               subtitle: s.drawerCeQueTuAurasSubtitle,
               heroValue: projectedMonthly > 0
@@ -317,7 +301,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                 ],
               ),
               content: FuturDrawerContent(profile: profile),
-            ),
+            )),
             const SizedBox(height: 20),
 
             // ── ENRICHMENT CTA ──
@@ -329,7 +313,7 @@ class FinancialSummaryScreen extends StatelessWidget {
             if (missingCount > 0) const SizedBox(height: 16),
 
             // ── DISCLAIMER ──
-            _buildDisclaimer(context),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer(context)),
             const SizedBox(height: 24),
 
             // ── RESTART DIAGNOSTIC ──
@@ -341,7 +325,7 @@ class FinancialSummaryScreen extends StatelessWidget {
                   await ReportPersistenceService.clear();
                   await SmartOnboardingDraftService.clearDraft();
                   if (context.mounted) {
-                    context.push('/onboarding/quick');
+                    context.push('/coach/chat');
                   }
                 },
                 icon: const Icon(Icons.refresh, size: 18),
@@ -406,6 +390,9 @@ class FinancialSummaryScreen extends StatelessWidget {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -454,7 +441,7 @@ class FinancialSummaryScreen extends StatelessWidget {
               FilledButton(
                 onPressed: () {
                   _applyEdits(context, controllers);
-                  Navigator.of(ctx).pop();
+                  ctx.pop();
                 },
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,

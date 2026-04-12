@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/response_card.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  RESPONSE CARD WIDGET — V2 "Calm Narrative"
@@ -54,20 +56,52 @@ class ResponseCardWidget extends StatelessWidget {
   /// Callback when CTA is tapped. Defaults to GoRouter push.
   final VoidCallback? onCtaTap;
 
+  /// Optional confidence for the MTC slot. When non-null AND [isProjection]
+  /// is true, MintTrameConfiance.inline is mounted at the bottom of the card
+  /// (AESTH-07 MUJI 4-line grammar, line 4 = MTC). When null, no slot.
+  ///
+  /// Phase 4 Plan 04-02: the [ResponseCard] model does not yet carry a
+  /// confidence field — callers pass `null` until Phase 8a wires the model.
+  /// The null-safe fallback is a safe no-op (no MTC rendered).
+  final EnhancedConfidence? confidence;
+
+  /// Whether this response is a calculation/projection answer. Only projection
+  /// answers get an MTC slot — chat replies and education content do not.
+  /// See CONTEXT.md D-07.
+  final bool isProjection;
+
+  /// Optional voice level (from [resolveLevel]) to adapt MTC phrasing. The
+  /// level never changes colors or timing — only the one-line summary wording.
+  final VoiceLevel? audioTone;
+
   const ResponseCardWidget({
     super.key,
     required this.card,
     this.variant = ResponseCardVariant.sheet,
     this.onCtaTap,
+    this.confidence,
+    this.isProjection = false,
+    this.audioTone,
   });
 
   /// Shortcut constructors
-  const ResponseCardWidget.chat({super.key, required this.card, this.onCtaTap})
-      : variant = ResponseCardVariant.chat;
+  const ResponseCardWidget.chat({
+    super.key,
+    required this.card,
+    this.onCtaTap,
+    this.confidence,
+    this.isProjection = false,
+    this.audioTone,
+  }) : variant = ResponseCardVariant.chat;
 
-  const ResponseCardWidget.compact(
-      {super.key, required this.card, this.onCtaTap})
-      : variant = ResponseCardVariant.compact;
+  const ResponseCardWidget.compact({
+    super.key,
+    required this.card,
+    this.onCtaTap,
+    this.confidence,
+    this.isProjection = false,
+    this.audioTone,
+  }) : variant = ResponseCardVariant.compact;
 
   @override
   Widget build(BuildContext context) {
@@ -84,16 +118,12 @@ class ResponseCardWidget extends StatelessWidget {
                 ? MintSpacing.sm + 4
                 : MintSpacing.md,
           ),
+          // DELETE #1 (S4 audit): shadow-on-shadow ornament removed. The
+          // border-radius + card surface token is sufficient separation on
+          // porcelaine (D-03.b).
           decoration: BoxDecoration(
             color: MintColors.card,
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: MintColors.black.withValues(alpha: 0.03),
-                blurRadius: 12,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: _buildContent(context),
         ),
@@ -112,40 +142,31 @@ class ResponseCardWidget extends StatelessWidget {
     }
   }
 
-  // ── COMPACT: titre + CTA chevron ──────────────────────────
+  // ── COMPACT: titre seul (audit S4 DELETE #3 + #4) ─────────
+  //
+  // DELETE #3: decorative icon container for compact variant removed —
+  // the compact row is a minimal title+subtitle stack, no pill needed.
+  // DELETE #4: chevron removed — the whole card is tappable, chevron
+  // restates what the tap affordance already implies (D-03.c).
 
   Widget _buildCompact(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        _buildIcon(size: 32),
-        const SizedBox(width: MintSpacing.sm + 4),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                card.title,
-                style: MintTextStyles.titleMedium(),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (card.subtitle.isNotEmpty)
-                Text(
-                  card.subtitle,
-                  style: MintTextStyles.bodySmall(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-            ],
+        Text(
+          card.title,
+          style: MintTextStyles.titleMedium(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (card.subtitle.isNotEmpty)
+          Text(
+            card.subtitle,
+            style: MintTextStyles.bodySmall(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-        const SizedBox(width: MintSpacing.sm),
-        const Icon(
-          Icons.chevron_right_rounded,
-          color: MintColors.textMuted,
-          size: 20,
-        ),
       ],
     );
   }
@@ -184,13 +205,13 @@ class ResponseCardWidget extends StatelessWidget {
         ),
 
         // Chiffre-choc (if meaningful)
-        if (_hasChiffreChoc) ...[
+        if (_hasPremierEclairage) ...[
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
-            card.chiffreChoc.formatted,
-            style: MintTextStyles.displayMedium(
+            card.premierEclairage.formatted,
+            style: MintTextStyles.headlineMedium(
               color: MintColors.textPrimary,
-            ).copyWith(fontSize: 22),
+            ),
           ),
         ],
 
@@ -198,84 +219,163 @@ class ResponseCardWidget extends StatelessWidget {
 
         // CTA
         _buildCta(context),
+
+        // MTC slot (AESTH-07 MUJI 4-line, line 4) — conditional per D-07.
+        ..._buildMtcSlot(),
       ],
     );
   }
 
   // ── SHEET: full surface with proof layer ──────────────────
+  //
+  // MUJI 4-line grammar (AESTH-07, D-06): exactly 4 slots, no chrome between
+  // them. Each slot is wrapped in `_S4BodySlot` with a Semantics label
+  // `s4-slot-N` so the microtypography test can count them precisely.
+  //   (1) label/category   — header row (icon + title + subtitle + deadline)
+  //   (2) current state    — premier eclairage (number + explanation)
+  //   (3) without change   — MTC slot (per D-07) OR silent placeholder
+  //   (4) next action      — CTA + optional proof access
+  //
+  // AESTH-03 Aesop rule: sentence carries rhythm, not the number — the
+  // premier eclairage renders at bodyLarge w500, NOT displayMedium.
 
   Widget _buildSheet(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Header: icon + title + deadline
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildIcon(size: 36),
-            const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    card.title,
-                    style: MintTextStyles.titleMedium(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    card.subtitle,
-                    style: MintTextStyles.bodySmall(),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+        // ── Slot 1 — label/category ──
+        _S4BodySlot(
+          role: 's4-slot-1',
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildIcon(size: 36),
+              const SizedBox(width: MintSpacing.sm + 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      card.title,
+                      style: MintTextStyles.titleMedium(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: MintSpacing.xs),
+                    Text(
+                      card.subtitle,
+                      style: MintTextStyles.bodySmall(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            if (_hasDeadline) ...[
-              const SizedBox(width: MintSpacing.sm),
-              _buildDeadlinePill(),
+              if (_hasDeadline) ...[
+                const SizedBox(width: MintSpacing.sm),
+                _buildDeadlinePill(),
+              ],
             ],
-          ],
+          ),
         ),
 
-        // Chiffre-choc hero
-        if (_hasChiffreChoc) ...[
-          const SizedBox(height: MintSpacing.md + 4),
-          Text(
-            card.chiffreChoc.formatted,
-            style: MintTextStyles.displayMedium(
-              color: MintColors.textPrimary,
-            ),
-          ),
-          if (card.chiffreChoc.explanation.isNotEmpty) ...[
-            const SizedBox(height: MintSpacing.xs),
-            Text(
-              card.chiffreChoc.explanation,
-              style: MintTextStyles.bodySmall(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ],
+        // ── Slot 2 — current state (the number, demoted) ──
+        _S4BodySlot(
+          role: 's4-slot-2',
+          topGap: MintSpacing.md + 4,
+          child: _hasPremierEclairage
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // AESTH-03 Aesop rule: sentence carries rhythm, not the
+                    // number. bodyLarge w500 instead of displayMedium.
+                    Text(
+                      card.premierEclairage.formatted,
+                      style: MintTextStyles.bodyLarge(
+                        color: MintColors.textPrimary,
+                      ).copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    if (card.premierEclairage.explanation.isNotEmpty) ...[
+                      const SizedBox(height: MintSpacing.xs),
+                      Text(
+                        card.premierEclairage.explanation,
+                        style: MintTextStyles.bodySmall(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                )
+              : const SizedBox.shrink(),
+        ),
 
-        const SizedBox(height: MintSpacing.md + 4),
+        // ── Slot 3 — without change (MTC per D-07) ──
+        _S4BodySlot(
+          role: 's4-slot-3',
+          topGap: (_effectiveConfidence != null && isProjection)
+              ? MintSpacing.md
+              : 0,
+          child: (_effectiveConfidence != null && isProjection)
+              ? MintTrameConfiance.inline(
+                  confidence: _effectiveConfidence!,
+                  bloomStrategy: BloomStrategy.firstAppearance,
+                  audioTone: audioTone,
+                  isTopOfList: false,
+                )
+              : const SizedBox.shrink(),
+        ),
 
-        // CTA + proof access
-        Row(
-          children: [
-            Expanded(child: _buildCta(context)),
-            if (_hasProof) ...[
-              const SizedBox(width: MintSpacing.sm),
-              _buildProofButton(context),
+        // ── Slot 4 — next action ──
+        _S4BodySlot(
+          role: 's4-slot-4',
+          topGap: MintSpacing.md + 4,
+          child: Row(
+            children: [
+              Expanded(child: _buildCta(context)),
+              if (_hasProof) ...[
+                const SizedBox(width: MintSpacing.sm),
+                _buildProofButton(context),
+              ],
             ],
-          ],
+          ),
         ),
       ],
     );
+  }
+
+  /// Resolved confidence: explicit [confidence] param wins, otherwise falls
+  /// back to [card.confidence] (Phase 8a wired the model field). This fixes
+  /// the "façade sans câblage" bug where [ResponseCardStrip] never forwarded
+  /// the confidence param and the MTC slot stayed invisible even when the
+  /// data was present on the card model.
+  EnhancedConfidence? get _effectiveConfidence => confidence ?? card.confidence;
+
+  // ── MTC SLOT ──────────────────────────────────────────────
+  //
+  // Plan 04-02 / CONTEXT.md D-07: mount `MintTrameConfiance.inline` at the
+  // bottom of the card body when (confidence != null && isProjection).
+  // The `BloomStrategy.firstAppearance` is used because S4 is a standalone
+  // surface (per CONTEXT.md D-03 / D-07 — feeds use onlyIfTopOfList).
+  //
+  // When the response is not a projection or no confidence is available,
+  // nothing is rendered (safe no-op). The ResponseCard model does not yet
+  // carry a confidence field — this is intentional: Phase 8a wires the
+  // model field, Phase 4 ships the slot infrastructure.
+
+  List<Widget> _buildMtcSlot() {
+    final c = _effectiveConfidence;
+    if (c == null || !isProjection) return const [];
+    return [
+      const SizedBox(height: MintSpacing.sm + 4),
+      MintTrameConfiance.inline(
+        confidence: c,
+        bloomStrategy: BloomStrategy.firstAppearance,
+        audioTone: audioTone,
+        isTopOfList: false,
+      ),
+    ];
   }
 
   // ── SHARED COMPONENTS ─────────────────────────────────────
@@ -304,27 +404,22 @@ class ResponseCardWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
+        // AESTH-06 per AUDIT_RETRAIT S4 (D-04 one-color-one-meaning:
+        // urgent deadline = verifiable fact requiring attention → warningAaa)
         color: isUrgent
-            ? MintColors.error.withValues(alpha: 0.08)
+            ? MintColors.warningAaa.withValues(alpha: 0.08)
             : MintColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.schedule_rounded,
-            size: 12,
-            color: isUrgent ? MintColors.error : MintColors.primary,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            badge,
-            style: MintTextStyles.labelSmall(
-              color: isUrgent ? MintColors.error : MintColors.primary,
-            ),
-          ),
-        ],
+      // DELETE #2 (S4 audit): schedule Icon removed. The badge Text
+      // ("dans N jours" / "J-N" / "Demain") already carries the time
+      // semantic — the icon is redundant ornament (D-03.c).
+      child: Text(
+        badge,
+        style: MintTextStyles.labelSmall(
+          // AESTH-06 per AUDIT_RETRAIT S4 (D-04: warningAaa = only semantic color)
+          color: isUrgent ? MintColors.warningAaa : MintColors.primary,
+        ),
       ),
     );
   }
@@ -338,7 +433,7 @@ class ResponseCardWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(
             horizontal: MintSpacing.md,
-            vertical: MintSpacing.sm + 2,
+            vertical: MintSpacing.sm + 4,
           ),
           decoration: BoxDecoration(
             color: MintColors.primary,
@@ -357,7 +452,7 @@ class ResponseCardWidget extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: MintSpacing.sm),
               const Icon(
                 Icons.arrow_forward_rounded,
                 size: 14,
@@ -376,7 +471,7 @@ class ResponseCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showProofSheet(context),
       child: Container(
-        padding: const EdgeInsets.all(MintSpacing.sm + 2),
+        padding: const EdgeInsets.all(MintSpacing.sm + 4),
         decoration: BoxDecoration(
           color: MintColors.surfaceLight,
           borderRadius: BorderRadius.circular(12),
@@ -384,7 +479,8 @@ class ResponseCardWidget extends StatelessWidget {
         child: const Icon(
           Icons.info_outline_rounded,
           size: 18,
-          color: MintColors.textMuted,
+          // AESTH-05 per AUDIT_RETRAIT S4 R3 (D-03 swap map)
+          color: MintColors.textMutedAaa,
         ),
       ),
     );
@@ -393,6 +489,10 @@ class ResponseCardWidget extends StatelessWidget {
   void _showProofSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -402,27 +502,15 @@ class ResponseCardWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Drag handle
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: MintColors.border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: MintSpacing.md),
-
+            // DELETE #5 (S4 audit): drag handle Container removed.
+            // Native bottom sheets already expose a drag affordance; the
+            // explicit handle is ornament (D-03.b).
             Text(card.title, style: MintTextStyles.titleMedium()),
             const SizedBox(height: MintSpacing.md),
 
-            // Sources
+            // DELETE #6 (S4 audit): "Sources" label Text removed — the
+            // micro-text source rows below self-explain as citation list.
             if (card.sources.isNotEmpty) ...[
-              Text(S.of(context)!.proofSheetSources,
-                  style: MintTextStyles.bodySmall()),
-              const SizedBox(height: MintSpacing.xs),
               ...card.sources.map(
                 (s) => Padding(
                   padding: const EdgeInsets.only(bottom: 4),
@@ -439,7 +527,8 @@ class ResponseCardWidget extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: MintSpacing.sm),
                   padding: const EdgeInsets.all(MintSpacing.sm + 4),
                   decoration: BoxDecoration(
-                    color: MintColors.warning.withValues(alpha: 0.06),
+                    // AESTH-06 per AUDIT_RETRAIT S4 R5 (D-04 warningAaa)
+                    color: MintColors.warningAaa.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -448,14 +537,16 @@ class ResponseCardWidget extends StatelessWidget {
                       Icon(
                         Icons.info_outline_rounded,
                         size: 16,
-                        color: MintColors.warning.withValues(alpha: 0.7),
+                        // AESTH-06 per AUDIT_RETRAIT S4 R5 (D-04 warningAaa)
+                        color: MintColors.warningAaa.withValues(alpha: 0.7),
                       ),
                       const SizedBox(width: MintSpacing.sm),
                       Expanded(
                         child: Text(
                           a,
                           style: MintTextStyles.bodySmall(
-                            color: MintColors.textSecondary,
+                            // AESTH-05 per AUDIT_RETRAIT S4 R6 (D-03 swap map)
+                            color: MintColors.textSecondaryAaa,
                           ),
                         ),
                       ),
@@ -488,7 +579,7 @@ class ResponseCardWidget extends StatelessWidget {
 
   // ── COMPUTED ──────────────────────────────────────────────
 
-  bool get _hasChiffreChoc => card.chiffreChoc.value != 0;
+  bool get _hasPremierEclairage => card.premierEclairage.value != 0;
   bool get _hasDeadline => card.deadlineBadge != null;
   bool get _hasProof =>
       card.sources.isNotEmpty ||
@@ -529,7 +620,11 @@ class ResponseCardStrip extends StatelessWidget {
     if (cards.length == 1) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-        child: ResponseCardWidget(card: cards.first, variant: variant),
+        child: ResponseCardWidget(
+          card: cards.first,
+          variant: variant,
+          isProjection: cards.first.confidence != null,
+        ),
       );
     }
 
@@ -547,7 +642,11 @@ class ResponseCardStrip extends StatelessWidget {
                 const SizedBox(width: MintSpacing.sm + 4),
             itemBuilder: (_, index) => SizedBox(
               width: cardWidth,
-              child: ResponseCardWidget(card: cards[index], variant: variant),
+              child: ResponseCardWidget(
+                card: cards[index],
+                variant: variant,
+                isProjection: cards[index].confidence != null,
+              ),
             ),
           ),
         );
@@ -560,12 +659,46 @@ class ResponseCardStrip extends StatelessWidget {
       case ResponseCardVariant.compact:
         return 72;
       case ResponseCardVariant.chat:
-        return _hasChiffreChoc ? 200 : 160;
+        return _hasPremierEclairage ? 200 : 160;
       case ResponseCardVariant.sheet:
-        return _hasChiffreChoc ? 260 : 200;
+        return _hasPremierEclairage ? 260 : 200;
     }
   }
 
-  bool get _hasChiffreChoc =>
-      cards.any((c) => c.chiffreChoc.value != 0);
+  bool get _hasPremierEclairage =>
+      cards.any((c) => c.premierEclairage.value != 0);
+}
+
+/// MUJI 4-line grammar slot wrapper (AESTH-07 / D-06).
+///
+/// The S4 sheet body Column must contain exactly 4 direct children in a
+/// fixed order: label, current state, without-change (MTC), next action.
+/// Each slot tags itself with a `Semantics(label: 's4-slot-N')` so the
+/// microtypography test can count slots deterministically.
+///
+/// `topGap` is the rhythm gap before the slot (omitted for slot 1 or when
+/// the slot is empty). Always a 4pt-grid multiple.
+class _S4BodySlot extends StatelessWidget {
+  final String role;
+  final Widget child;
+  final double topGap;
+
+  const _S4BodySlot({
+    required this.role,
+    required this.child,
+    this.topGap = 0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final body = KeyedSubtree(
+      key: ValueKey<String>(role),
+      child: child,
+    );
+    if (topGap == 0) return body;
+    return Padding(
+      padding: EdgeInsets.only(top: topGap),
+      child: body,
+    );
+  }
 }

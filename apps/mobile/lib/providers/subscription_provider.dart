@@ -17,10 +17,15 @@ import 'package:mint_mobile/services/subscription_service.dart';
 /// ```
 class SubscriptionProvider extends ChangeNotifier {
   SubscriptionState _state;
+  DateTime _lastRefresh = DateTime.now();
+  bool _isRefreshing = false;
 
   SubscriptionProvider()
       : _state = SubscriptionService.currentState() {
-    refreshFromBackend();
+    // P1-4: Add error handling for fire-and-forget call.
+    refreshFromBackend().catchError(
+      (Object e) => debugPrint('[SubscriptionProvider] refreshFromBackend failed: $e'),
+    );
   }
 
   /// Current subscription state.
@@ -81,7 +86,22 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<void> refreshFromBackend() async {
-    _state = await SubscriptionService.refreshFromBackend();
-    notifyListeners();
+    if (_isRefreshing) return;
+    _isRefreshing = true;
+    try {
+      _state = await SubscriptionService.refreshFromBackend();
+      _lastRefresh = DateTime.now();
+      notifyListeners();
+    } finally {
+      _isRefreshing = false;
+    }
+  }
+
+  /// FIX-083 + FIX-W11-3: Refresh on app resume if last refresh was > 15 min ago.
+  /// Reduced from 1 hour to 15 minutes for cross-device subscription consistency.
+  Future<void> refreshIfStale() async {
+    if (DateTime.now().difference(_lastRefresh).inMinutes >= 15) {
+      await refreshFromBackend();
+    }
   }
 }

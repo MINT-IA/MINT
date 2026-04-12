@@ -18,7 +18,7 @@ void main() {
       expect(inp.replacementRatio, 0);
       expect(inp.archetype, 'swiss_native');
       expect(inp.age, 30);
-      expect(inp.canton, 'VD');
+      expect(inp.canton, 'ZH');
     });
   });
 

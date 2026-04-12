@@ -96,7 +96,7 @@ class CongeParental:
     apg_total: float                     # Total APG sur toute la duree
     perte_revenu: float                  # Difference salaire - APG
     est_plafonne: bool                   # True si le max est atteint
-    chiffre_choc: str                    # Chiffre choc pedagogique
+    premier_eclairage: str                    # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -120,7 +120,7 @@ class ImpactFiscalEnfant:
     deduction_frais_garde: float             # Deduction frais de garde (CHF)
     deduction_totale: float                  # Total deductions (CHF)
     economie_impot_estimee: float            # Economie d'impot estimee (CHF)
-    chiffre_choc: str                        # Chiffre choc pedagogique
+    premier_eclairage: str                        # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -134,7 +134,7 @@ class CareerGapProjection:
     perte_3a_annuelle: float                 # Perte potentielle 3a par annee sans revenu
     perte_3a_totale: float                   # Perte 3a totale sur la duree
     perte_revenu_totale: float               # Perte totale de revenu
-    chiffre_choc: str                        # Chiffre choc pedagogique
+    premier_eclairage: str                        # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -145,7 +145,7 @@ class ChecklistNaissance:
     priorite_haute: List[str]              # Actions urgentes (delais legaux)
     priorite_moyenne: List[str]            # Actions importantes
     priorite_basse: List[str]              # Actions de confort / optimisation
-    chiffre_choc: str                      # Chiffre choc pedagogique
+    premier_eclairage: str                      # Chiffre choc pedagogique
     disclaimer: str                        # Avertissement legal
     sources: List[str] = field(default_factory=list)
 
@@ -207,13 +207,13 @@ class NaissanceService:
         perte_revenu = round((salaire_journalier * duree_jours) - apg_total, 2)
 
         if is_mother:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Conge maternite : {duree_semaines} semaines a "
                 f"CHF {apg_journalier:,.0f}/jour = CHF {apg_total:,.0f} au total. "
                 f"Perte de revenu estimee: CHF {perte_revenu:,.0f}."
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Conge paternite : {duree_semaines} semaines a "
                 f"CHF {apg_journalier:,.0f}/jour = CHF {apg_total:,.0f} au total. "
                 f"Perte de revenu estimee: CHF {perte_revenu:,.0f}."
@@ -233,7 +233,7 @@ class NaissanceService:
             apg_total=apg_total,
             perte_revenu=perte_revenu,
             est_plafonne=est_plafonne,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -320,7 +320,7 @@ class NaissanceService:
         # Economie = deduction * taux marginal
         economie = round(deduction_totale * taux_marginal, 2)
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"Avec {nb_enfants} enfant(s), tu peux deduire "
             f"CHF {deduction_totale:,.0f} de ton revenu imposable. "
             f"Economie estimee: ~CHF {economie:,.0f}/an."
@@ -337,7 +337,7 @@ class NaissanceService:
             deduction_frais_garde=deduction_garde,
             deduction_totale=deduction_totale,
             economie_impot_estimee=economie,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -375,7 +375,7 @@ class NaissanceService:
         # Perte de revenu
         perte_revenu_totale = round(salaire_annuel * duree_interruption_mois / 12, 2)
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"Une interruption de {duree_interruption_mois} mois = "
             f"~CHF {perte_lpp_totale:,.0f} de bonifications LPP perdues + "
             f"~CHF {perte_3a_totale:,.0f} de versements 3a manques. "
@@ -397,7 +397,7 @@ class NaissanceService:
             perte_3a_annuelle=perte_3a_annuelle,
             perte_3a_totale=perte_3a_totale,
             perte_revenu_totale=perte_revenu_totale,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -505,7 +505,7 @@ class NaissanceService:
         # Chiffre choc personnalise
         nb_items = len(items)
         nb_haute = len(priorite_haute)
-        chiffre_choc = (
+        premier_eclairage = (
             f"L'arrivee d'un enfant implique {nb_items} demarches cles, dont {nb_haute} "
             f"avec des delais legaux stricts (3 jours pour l'etat civil, 3 mois pour la LAMal, "
             f"6 mois pour le conge paternite). "
@@ -529,7 +529,7 @@ class NaissanceService:
             priorite_haute=priorite_haute,
             priorite_moyenne=priorite_moyenne,
             priorite_basse=priorite_basse,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=sources,
         )

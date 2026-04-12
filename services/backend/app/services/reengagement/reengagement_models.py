@@ -55,6 +55,8 @@ class ConsentType(str, Enum):
     byok_data_sharing = "byok_data_sharing"
     snapshot_storage = "snapshot_storage"
     notifications = "notifications"
+    document_upload = "document_upload"
+    conversation_memory = "conversation_memory"
 
 
 @dataclass

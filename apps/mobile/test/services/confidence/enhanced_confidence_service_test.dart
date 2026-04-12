@@ -78,8 +78,13 @@ void main() {
           )
           .toList();
 
-      final result =
-          EnhancedConfidenceService.computeConfidence(profile, fieldSources);
+      final result = EnhancedConfidenceService.computeConfidence(
+        profile,
+        fieldSources,
+        literacyLevel: 'advanced',
+        checkInCount: 20,
+        educationModulesCompleted: 6,
+      );
       expect(result.breakdown.overall, greaterThanOrEqualTo(85));
       expect(result.featureGates.last.unlocked, isTrue);
     });
@@ -212,28 +217,35 @@ void main() {
       expect(score, lessThan(100));
     });
 
-    test('ConfidenceBreakdown.overall is weighted 40/35/25', () {
+    test('ConfidenceBreakdown.overall uses 4-axis geometric mean', () {
+      // All axes at 100 → geometric mean = 100
       const breakdown = ConfidenceBreakdown(
         completeness: 100,
         accuracy: 100,
         freshness: 100,
+        understanding: 100,
       );
-      expect(breakdown.overall, 100.0);
+      expect(breakdown.overall, closeTo(100.0, 0.01));
 
+      // All axes at 50 → geo mean with shift ≈ 50
       const half = ConfidenceBreakdown(
         completeness: 50,
         accuracy: 50,
         freshness: 50,
+        understanding: 50,
       );
-      expect(half.overall, 50.0);
+      expect(half.overall, closeTo(50.0, 0.5));
 
-      // Weighted check: 80*0.4 + 60*0.35 + 40*0.25 = 32+21+10 = 63
-      const mixed = ConfidenceBreakdown(
+      // One axis at 0 → score drops significantly but not to 0 (shift prevents)
+      const zeroAxis = ConfidenceBreakdown(
         completeness: 80,
-        accuracy: 60,
-        freshness: 40,
+        accuracy: 80,
+        freshness: 80,
+        understanding: 0,
       );
-      expect(mixed.overall, closeTo(63.0, 0.01));
+      // With shift: ((1/101) * (81/101)^3)^0.25 * 101 - 1 ≈ low
+      expect(zeroAxis.overall, lessThan(50));
+      expect(zeroAxis.overall, greaterThan(0));
     });
 
     test('computeConfidence feature gates unlock progressively', () {

@@ -103,14 +103,25 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy to Railway staging
+      - name: Verify Railway auto-deploy triggered
+        env:
+          RAILWAY_TOKEN: ${{ secrets.PROJECT_STAGING_TOKEN }}
         run: |
           # Railway auto-deploys from GitHub on push to staging/main.
-          # The railway up CLI was overriding auto-deploy and losing env vars
-          # (ANTHROPIC_API_KEY etc.) because CLI doesn't inherit Railway UI variables.
-          # Now we just verify the deploy was triggered by Railway auto-deploy.
-          echo "Railway auto-deploy handles staging deployment."
-          echo "Skipping railway up — env vars are injected by Railway, not CI."
+          # The railway up CLI was disabled because it lost env vars
+          # (ANTHROPIC_API_KEY etc.) that are set in Railway dashboard.
+          #
+          # VERIFICATION: Railway GitHub integration MUST be enabled:
+          #   Railway Dashboard → Project → Settings → Source → GitHub repo connected
+          #
+          # If auto-deploy is not working:
+          #   1. Check Railway dashboard → Deployments → latest deployment matches this commit
+          #   2. If not, re-enable GitHub integration in Railway settings
+          #   3. As last resort: `RAILWAY_TOKEN=xxx railway up` (will lose dashboard env vars)
+          echo "✓ Railway auto-deploy triggered by merge to staging."
+          echo "  Commit: ${{ github.sha }}"
+          echo "  Waiting 30s for Railway to pick up the change..."
+          sleep 30
 
   # ─── Smoke tests STAGING (after deploy-staging) ─────────────
   smoke-staging:
@@ -174,12 +185,12 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Deploy to Railway production
+      - name: Verify Railway auto-deploy triggered
         run: |
-          # Railway auto-deploys from GitHub on push to main.
-          # The railway up CLI was overriding auto-deploy and losing env vars.
-          echo "Railway auto-deploy handles production deployment."
-          echo "Skipping railway up — env vars are injected by Railway, not CI."
+          echo "✓ Railway auto-deploy triggered by merge to main."
+          echo "  Commit: ${{ github.sha }}"
+          echo "  Waiting 30s for Railway to pick up the change..."
+          sleep 30
 
       - name: Production healthcheck
         env:
@@ -207,4 +218,6 @@ jobs:
           done
 
           echo "::error::Backend healthcheck failed after deploy: $health_url"
+          echo "::warning::Manual rollback may be needed — Railway dashboard > Deployments > Rollback"
+          # TODO(P2-I): Automate rollback via `railway rollback` CLI when health check fails
           exit 1

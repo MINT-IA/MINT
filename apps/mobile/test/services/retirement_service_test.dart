@@ -4,127 +4,16 @@ import 'package:mint_mobile/services/retirement_service.dart';
 
 /// Tests unitaires pour RetirementService (Sprint S21).
 ///
-/// Couvre les 3 modules de planification retraite :
-///   1. estimateAvs    — estimation rente AVS (LAVS art. 21-29)
-///   2. compareLpp     — comparaison capital vs rente LPP
-///   3. calculateBudget — budget retraite
+/// Couvre les 2 modules de planification retraite :
+///   1. compareLpp     — comparaison capital vs rente LPP
+///   2. calculateBudget — budget retraite
 ///
 /// Constantes 2025/2026 :
-///   - Rente AVS max : 30'240 CHF/an (2'520 CHF/mois)
 ///   - Taux conversion LPP min : 6.8%
 ///   - Duree cotisation complete : 44 ans
-///   - Penalite anticipation : 6.8%/an
 void main() {
   // ═══════════════════════════════════════════════════════════════════════════
-  //  1. estimateAvs
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  group('estimateAvs — estimation rente AVS', () {
-    test('retraite a 65 ans, sans lacune — rente maximale', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 50,
-        ageRetraite: 65,
-        anneesLacunes: 0,
-      );
-
-      expect(r['scenario'], 'normal');
-      expect(r['facteurAjustement'], 1.0);
-      expect(r['penaliteOuBonusPct'], 0.0);
-      // Rente mensuelle = 2520 (max)
-      expect(r['renteMensuelle'] as double, closeTo(2520.0, 1));
-      // Rente annuelle = 2520 * 13 = 32760 (13th rente since Dec 2026)
-      expect(r['renteAnnuelle'] as double, closeTo(32760.0, 1));
-    });
-
-    test('anticipation 63 ans — penalite 2 x 6.8% = 13.6%', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 50,
-        ageRetraite: 63,
-        anneesLacunes: 0,
-      );
-
-      expect(r['scenario'], 'anticipation');
-      expect((r['facteurAjustement'] as double), closeTo(1.0 - 0.136, 0.001));
-      expect((r['penaliteOuBonusPct'] as double), closeTo(-13.6, 0.1));
-      // Rente reduite
-      expect((r['renteMensuelle'] as double), closeTo(2520 * 0.864, 1));
-    });
-
-    test('ajournement 67 ans — bonus 2 ans (+10.8%)', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 60,
-        ageRetraite: 67,
-        anneesLacunes: 0,
-      );
-
-      expect(r['scenario'], 'ajournement');
-      expect((r['facteurAjustement'] as double), closeTo(1.106, 0.001));
-      expect((r['penaliteOuBonusPct'] as double), closeTo(10.6, 0.1));
-    });
-
-    test('ajournement maximum 70 ans — bonus 5 ans (+31.5%)', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 60,
-        ageRetraite: 70,
-        anneesLacunes: 0,
-      );
-
-      expect(r['scenario'], 'ajournement');
-      expect((r['facteurAjustement'] as double), closeTo(1.315, 0.001));
-    });
-
-    test('lacunes de cotisation — rente reduite proportionnellement', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 50,
-        ageRetraite: 65,
-        anneesLacunes: 4,
-      );
-
-      // gapFactor = (44 - 4) / 44 = 40/44
-      const expectedMensuel = 2520.0 * 40 / 44;
-      expect((r['renteMensuelle'] as double), closeTo(expectedMensuel, 1));
-    });
-
-    test('couple — rente couple plafonnee a 150% de la rente max', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 50,
-        ageRetraite: 65,
-        isCouple: true,
-        anneesLacunes: 0,
-      );
-
-      // Rente couple = min(2520 * 2, 2520 * 1.5) = 3780
-      expect(r['renteCoupleMensuelle'] as double, closeTo(3780.0, 1));
-    });
-
-    test('projection cumul — (esperance - age retraite) x rente annuelle', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 50,
-        ageRetraite: 65,
-        anneesLacunes: 0,
-        esperanceVie: 85,
-      );
-
-      // Duree = 85 - 65 = 20 ans
-      expect(r['dureeEstimeeAns'], 20);
-      // renteAnnuelle = 2520 * 13 = 32760 (13th rente)
-      expect((r['totalCumule'] as double), closeTo(32760.0 * 20, 1));
-    });
-
-    test('anticipation 1 an — penalite 6.8%', () {
-      final r = RetirementService.estimateAvs(
-        ageActuel: 60,
-        ageRetraite: 64,
-        anneesLacunes: 0,
-      );
-
-      expect(r['scenario'], 'anticipation');
-      expect((r['facteurAjustement'] as double), closeTo(0.932, 0.001));
-    });
-  });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  //  2. compareLpp — capital vs rente
+  //  1. compareLpp — capital vs rente
   // ═══════════════════════════════════════════════════════════════════════════
 
   group('compareLpp — capital vs rente', () {

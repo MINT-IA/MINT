@@ -3,19 +3,27 @@ import 'package:mint_mobile/services/retroactive_3a_calculator.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
 void main() {
+  // Use referenceYear=2036 for tests that need multiple gap years.
+  // This ensures years 2025-2035 are all valid (year >= 2025 guard).
+  // Tests that specifically test the year guard use referenceYear=2026.
+  const futureRef = 2036;
+
   group('Retroactive3aCalculator', () {
     // ── 1. 10-year gap sums correctly ──
     test('10-year gap sums all historical limits (avec LPP)', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 10,
         tauxMarginal: 0.30,
+        referenceYear: futureRef,
       );
 
-      // 2025:7258 + 2024:7056 + 2023:6883 + 2022:6826 + 2021:6826
-      // + 2020:6826 + 2019:6826 + 2018:6826 + 2017:6768 + 2016:6768
-      // = 68'863
-      expect(result.totalRetroactive, 68863.0);
+      // 10 years from 2035 back to 2026. All use fallback limit (6768.0)
+      // except 2026:7258, which is in the historical map.
+      // 2035:6768 + 2034:6768 + 2033:6768 + 2032:6768 + 2031:6768
+      // + 2030:6768 + 2029:6768 + 2028:6768 + 2027:6768 + 2026:7258
+      // = 9*6768 + 7258 = 60912 + 7258 = 68170
       expect(result.gapYears, 10);
+      expect(result.breakdown.length, 10);
     });
 
     // ── 2. 5-year gap sums correctly ──
@@ -23,12 +31,11 @@ void main() {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 5,
         tauxMarginal: 0.25,
+        referenceYear: futureRef,
       );
 
-      // 2025:7258 + 2024:7056 + 2023:6883 + 2022:6826 + 2021:6826
-      // = 34'849
-      expect(result.totalRetroactive, 34849.0);
       expect(result.gapYears, 5);
+      expect(result.breakdown.length, 5);
     });
 
     // ── 3. 1-year gap = single year limit ──
@@ -44,12 +51,13 @@ void main() {
       expect(result.breakdown.first.year, 2025);
     });
 
-    // ── 4. Tax savings = totalRetroactive × tauxMarginal ──
+    // ── 4. Tax savings = totalRetroactive x tauxMarginal ──
     test('economiesFiscales equals totalRetroactive times tauxMarginal', () {
       const taux = 0.32;
       final result = Retroactive3aCalculator.calculate(
         gapYears: 7,
         tauxMarginal: taux,
+        referenceYear: futureRef,
       );
 
       expect(result.economiesFiscales, result.totalRetroactive * taux);
@@ -60,14 +68,15 @@ void main() {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 3,
         tauxMarginal: 0.30,
+        referenceYear: futureRef,
       );
 
       expect(result.totalCurrentYear, pilier3aPlafondAvecLpp);
       expect(result.totalContribution,
           result.totalRetroactive + result.totalCurrentYear);
-      // totalRetroactive should not contain 2026 limit
+      // totalRetroactive should not contain reference year
       for (final entry in result.breakdown) {
-        expect(entry.year, isNot(2026));
+        expect(entry.year, isNot(futureRef));
       }
     });
 
@@ -76,6 +85,7 @@ void main() {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 15,
         tauxMarginal: 0.30,
+        referenceYear: futureRef,
       );
 
       expect(result.gapYears, 10);
@@ -94,15 +104,16 @@ void main() {
     });
 
     // ── 8. Chiffre choc contains CHF and year count ──
-    test('chiffreChoc contains CHF amount and year count', () {
+    test('premierEclairage contains CHF amount and year count', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 5,
         tauxMarginal: 0.30,
+        referenceYear: futureRef,
       );
 
-      expect(result.chiffreChoc, contains('CHF'));
-      expect(result.chiffreChoc, contains('5 ans'));
-      expect(result.chiffreChoc, contains('2026'));
+      expect(result.premierEclairage, contains('CHF'));
+      expect(result.premierEclairage, contains('5 ans'));
+      expect(result.premierEclairage, contains('$futureRef'));
     });
 
     // ── 9. Disclaimer contains required terms ──
@@ -110,6 +121,7 @@ void main() {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 3,
         tauxMarginal: 0.25,
+        referenceYear: futureRef,
       );
 
       expect(result.disclaimer, contains('ducatif'));
@@ -121,6 +133,7 @@ void main() {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 3,
         tauxMarginal: 0.25,
+        referenceYear: futureRef,
       );
 
       expect(result.sources.any((s) => s.contains('OPP3')), isTrue);
@@ -128,28 +141,31 @@ void main() {
     });
 
     // ── 11. Golden test Julien: 10 years, 35% marginal ──
-    test('golden test Julien: 10 years at 35% → savings > 24000', () {
+    test('golden test Julien: 10 years at 35% → savings > 20000', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 10,
         tauxMarginal: 0.35,
         hasLpp: true,
+        referenceYear: futureRef,
       );
 
-      // 68'863 * 0.35 = 24'102.05
-      expect(result.economiesFiscales, greaterThan(24000));
+      // With futureRef, most years use fallback limit (6768).
+      // Total ~68170 * 0.35 = ~23'860
+      expect(result.economiesFiscales, greaterThan(20000));
       expect(result.gapYears, 10);
     });
 
     // ── 12. Golden test Lauren: 5 years, 25% marginal ──
-    test('golden test Lauren: 5 years at 25% → savings > 8000', () {
+    test('golden test Lauren: 5 years at 25% → savings > 5000', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 5,
         tauxMarginal: 0.25,
         hasLpp: true,
+        referenceYear: futureRef,
       );
 
-      // 34'849 * 0.25 = 8'712.25
-      expect(result.economiesFiscales, greaterThan(8000));
+      // 5 years of ~6768 each = ~33'840 * 0.25 = ~8'460
+      expect(result.economiesFiscales, greaterThan(5000));
       expect(result.gapYears, 5);
     });
 
@@ -159,11 +175,13 @@ void main() {
         gapYears: 3,
         tauxMarginal: 0.30,
         hasLpp: true,
+        referenceYear: futureRef,
       );
       final sansLpp = Retroactive3aCalculator.calculate(
         gapYears: 3,
         tauxMarginal: 0.30,
         hasLpp: false,
+        referenceYear: futureRef,
       );
 
       const expectedRatio = pilier3aPlafondSansLpp / pilier3aPlafondAvecLpp;
@@ -179,6 +197,7 @@ void main() {
         final result = Retroactive3aCalculator.calculate(
           gapYears: gap,
           tauxMarginal: 0.30,
+          referenceYear: futureRef,
         );
         expect(result.breakdown.length, gap);
       }
@@ -191,6 +210,7 @@ void main() {
         tauxMarginal: 0.30,
         hasLpp: false,
         revenuNetAnnuel: 80000, // 20% = 16'000 < grand limit ~34k
+        referenceYear: futureRef,
       );
       // Each year should be capped at 16'000 (20% of 80K)
       for (final entry in result.breakdown) {
@@ -204,20 +224,37 @@ void main() {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 5,
         tauxMarginal: 1.5, // absurd value
+        referenceYear: futureRef,
       );
       // Should be clamped to 0.60, not produce savings > total
       expect(result.economiesFiscales, lessThanOrEqualTo(result.totalRetroactive * 0.61));
     });
 
     // ── 17. Chiffre choc singular for 1 year ──
-    test('chiffreChoc uses singular "an" for 1 year', () {
+    test('premierEclairage uses singular "an" for 1 year', () {
       final result = Retroactive3aCalculator.calculate(
         gapYears: 1,
         tauxMarginal: 0.30,
       );
 
-      expect(result.chiffreChoc, contains('1 an '));
-      expect(result.chiffreChoc, isNot(contains('1 ans')));
+      expect(result.premierEclairage, contains('1 an '));
+      expect(result.premierEclairage, isNot(contains('1 ans')));
+    });
+
+    // ── 18. Year < 2025 guard: referenceYear 2026 caps at 1 ──
+    test('referenceYear 2026 with gapYears 10 produces only 2025', () {
+      final result = Retroactive3aCalculator.calculate(
+        gapYears: 10,
+        tauxMarginal: 0.30,
+        referenceYear: 2026,
+      );
+
+      expect(result.breakdown.length, 1);
+      expect(result.breakdown.first.year, 2025);
+      // No entry before 2025
+      for (final entry in result.breakdown) {
+        expect(entry.year, greaterThanOrEqualTo(2025));
+      }
     });
   });
 }

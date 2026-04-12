@@ -94,7 +94,7 @@ class CoupleActionPlan extends StatelessWidget {
               ),
               Text(
                 '$userName & $conjName',
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -201,7 +201,7 @@ class CoupleActionPlan extends StatelessWidget {
       ),
       child: Text(
         action.ownerLabel,
-        style: MintTextStyles.micro(color: action.ownerColor).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+        style: MintTextStyles.labelTiny(color: action.ownerColor).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
       ),
     );
   }

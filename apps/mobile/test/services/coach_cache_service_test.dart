@@ -13,7 +13,7 @@ import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 //   5. invalidate(checkIn) removes scoreSummary + tipNarrative only
 //   6. invalidate(profileUpdate) removes ALL components
 //   7. invalidate(newDay) removes greeting only
-//   8. invalidate(arbitrageCompleted) removes chiffreChocReframe only
+//   8. invalidate(arbitrageCompleted) removes premierEclairageReframe only
 //   9. invalidate(manualRefresh) removes ALL components
 //  10. clear() empties entire cache
 // ────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ void main() {
         const Duration(hours: 1),
       );
       CoachCacheService.set(
-        'chiffreChocReframe',
+        'premierEclairageReframe',
         'h1',
         'Chiffre choc',
         const Duration(hours: 1),
@@ -127,9 +127,9 @@ void main() {
 
       CoachCacheService.invalidate(InvalidationTrigger.checkIn);
 
-      // greeting and chiffreChocReframe should survive
+      // greeting and premierEclairageReframe should survive
       expect(CoachCacheService.get('greeting', 'h1'), 'Hello');
-      expect(CoachCacheService.get('chiffreChocReframe', 'h1'), 'Chiffre choc');
+      expect(CoachCacheService.get('premierEclairageReframe', 'h1'), 'Chiffre choc');
       // scoreSummary and tipNarrative should be gone
       expect(CoachCacheService.get('scoreSummary', 'h1'), isNull);
       expect(CoachCacheService.get('tipNarrative', 'h1'), isNull);
@@ -156,7 +156,7 @@ void main() {
         const Duration(hours: 1),
       );
       CoachCacheService.set(
-        'chiffreChocReframe',
+        'premierEclairageReframe',
         'h1',
         'Choc',
         const Duration(hours: 1),
@@ -168,7 +168,7 @@ void main() {
       expect(CoachCacheService.get('greeting', 'h1'), isNull);
       expect(CoachCacheService.get('scoreSummary', 'h1'), isNull);
       expect(CoachCacheService.get('tipNarrative', 'h1'), isNull);
-      expect(CoachCacheService.get('chiffreChocReframe', 'h1'), isNull);
+      expect(CoachCacheService.get('premierEclairageReframe', 'h1'), isNull);
     });
 
     test('invalidate(newDay) removes greeting only', () {
@@ -191,7 +191,7 @@ void main() {
       expect(CoachCacheService.get('scoreSummary', 'h1'), 'Score');
     });
 
-    test('invalidate(arbitrageCompleted) removes chiffreChocReframe only', () {
+    test('invalidate(arbitrageCompleted) removes premierEclairageReframe only', () {
       CoachCacheService.set(
         'greeting',
         'h1',
@@ -199,7 +199,7 @@ void main() {
         const Duration(hours: 1),
       );
       CoachCacheService.set(
-        'chiffreChocReframe',
+        'premierEclairageReframe',
         'h1',
         'Choc',
         const Duration(hours: 1),
@@ -208,7 +208,7 @@ void main() {
       CoachCacheService.invalidate(InvalidationTrigger.arbitrageCompleted);
 
       expect(CoachCacheService.get('greeting', 'h1'), 'Hello');
-      expect(CoachCacheService.get('chiffreChocReframe', 'h1'), isNull);
+      expect(CoachCacheService.get('premierEclairageReframe', 'h1'), isNull);
     });
 
     test('invalidate(manualRefresh) removes ALL components', () {
@@ -231,7 +231,7 @@ void main() {
         const Duration(hours: 1),
       );
       CoachCacheService.set(
-        'chiffreChocReframe',
+        'premierEclairageReframe',
         'h1',
         'Choc',
         const Duration(hours: 1),

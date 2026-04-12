@@ -149,10 +149,10 @@ class ProviderComparisonResult:
 
     projections: List[ProviderProjection]
 
-    # Best/worst
-    meilleur_capital: str        # Name of provider with highest final capital
-    pire_capital: str            # Name of provider with lowest final capital
-    difference_max: float        # CHF difference between best and worst
+    # Highest/lowest
+    capital_plus_haut: str       # Name of provider with highest final capital
+    capital_plus_bas: str        # Name of provider with lowest final capital
+    difference_max: float        # CHF difference between highest and lowest
 
     # Input summary
     age: int
@@ -161,7 +161,7 @@ class ProviderComparisonResult:
     profil_risque: str
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     base_legale: str
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
@@ -228,8 +228,8 @@ class ProviderComparatorService:
                 warning = (
                     f"L'assurance 3a coute environ {perte_vs_fintech:,.0f} CHF de rendement "
                     f"perdu sur {duree} ans par rapport a une solution fintech. "
-                    f"Privilegiez une solution bancaire ou fintech sauf si besoin "
-                    f"specifique (liberation de primes en cas d'invalidite)."
+                    f"Les solutions bancaires et fintech affichent generalement des frais "
+                    f"plus bas que les assurances, mais chaque situation est differente."
                 ).replace(",", "'")
 
             projections.append(ProviderProjection(
@@ -246,15 +246,15 @@ class ProviderComparatorService:
                 warning=warning,
             ))
 
-        # Find best and worst
+        # Find highest and lowest
         projections_sorted = sorted(projections, key=lambda p: p.capital_final, reverse=True)
-        meilleur = projections_sorted[0]
-        pire = projections_sorted[-1]
-        difference = round(meilleur.capital_final - pire.capital_final, 2)
+        plus_haut = projections_sorted[0]
+        plus_bas = projections_sorted[-1]
+        difference = round(plus_haut.capital_final - plus_bas.capital_final, 2)
 
         # Chiffre choc
-        chiffre_choc = (
-            f"Difference entre meilleur fintech et assurance sur {duree} ans : "
+        premier_eclairage = (
+            f"\u00c9cart entre le capital le plus haut et le plus bas sur {duree} ans : "
             f"{difference:,.0f} CHF"
         ).replace(",", "'")
 
@@ -269,14 +269,14 @@ class ProviderComparatorService:
 
         return ProviderComparisonResult(
             projections=projections,
-            meilleur_capital=meilleur.nom,
-            pire_capital=pire.nom,
+            capital_plus_haut=plus_haut.nom,
+            capital_plus_bas=plus_bas.nom,
             difference_max=difference,
             age=age,
             versement_annuel=versement_annuel,
             duree=duree,
             profil_risque=profil_risque,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             base_legale=base_legale,
             sources=sources,
             disclaimer=DISCLAIMER,

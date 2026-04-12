@@ -32,7 +32,7 @@ class SettingsSheet extends StatelessWidget {
         icon: Icons.verified_user_outlined,
         title: s.settingsConsentsTitle,
         subtitle: s.settingsConsentsSubtitle,
-        route: '/profile/consent',
+        route: '/profile/privacy-control',
       ),
       _SettingsItem(
         icon: Icons.smart_toy_outlined,

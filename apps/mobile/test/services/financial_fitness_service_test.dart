@@ -433,7 +433,7 @@ void main() {
   group('FitnessLevel', () {
     test('level labels are in French', () {
       expect(FitnessLevel.critique.label, contains('stabilisons'));
-      expect(FitnessLevel.attention.label, contains('ameliorer'));
+      expect(FitnessLevel.attention.label, contains('améliorer'));
       expect(FitnessLevel.bon.label, contains('bonne voie'));
       expect(FitnessLevel.excellent.label, contains('avance'));
     });

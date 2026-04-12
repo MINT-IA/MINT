@@ -323,4 +323,4 @@ Pour toute question concernant les présentes CGU :
 
 ---
 
-*MINT — « Juste quand il faut : une explication, une action, un rappel. »*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

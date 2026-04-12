@@ -9,8 +9,9 @@ Sprint S16 — Gap G1: 3a Deep.
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.pillar_3a_deep import (
     StaggeredWithdrawalRequest,
     StaggeredWithdrawalResponse,
@@ -39,8 +40,10 @@ _provider_comparator_service = ProviderComparatorService()
 # ---------------------------------------------------------------------------
 
 @router.post("/staggered-withdrawal", response_model=StaggeredWithdrawalResponse)
+@limiter.limit("30/minute")
 def simulate_staggered_withdrawal(
-    request: StaggeredWithdrawalRequest,
+    request: Request,
+    body: StaggeredWithdrawalRequest,
 ) -> StaggeredWithdrawalResponse:
     """Simulate staggered vs bloc 3a withdrawal for tax optimization.
 
@@ -51,12 +54,12 @@ def simulate_staggered_withdrawal(
     Sources: OPP3 art. 1, 3; LIFD art. 33 al. 1 let. e, art. 38.
     """
     result = _multi_account_service.simulate_staggered_withdrawal(
-        avoir_total=request.avoirTotal,
-        nb_comptes=request.nbComptes,
-        canton=request.canton,
-        revenu_imposable=request.revenuImposable,
-        age_retrait_debut=request.ageRetraitDebut,
-        age_retrait_fin=request.ageRetraitFin,
+        avoir_total=body.avoirTotal,
+        nb_comptes=body.nbComptes,
+        canton=body.canton,
+        revenu_imposable=body.revenuImposable,
+        age_retrait_debut=body.ageRetraitDebut,
+        age_retrait_fin=body.ageRetraitFin,
     )
 
     return StaggeredWithdrawalResponse(
@@ -81,7 +84,7 @@ def simulate_staggered_withdrawal(
         avoirTotal=result.avoir_total,
         nbComptes=result.nb_comptes,
         canton=result.canton,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
         alerts=result.alerts,
         sources=result.sources,
         disclaimer=result.disclaimer,
@@ -93,8 +96,10 @@ def simulate_staggered_withdrawal(
 # ---------------------------------------------------------------------------
 
 @router.post("/real-return", response_model=RealReturnResponse)
+@limiter.limit("30/minute")
 def calculate_real_return(
-    request: RealReturnRequest,
+    request: Request,
+    body: RealReturnRequest,
 ) -> RealReturnResponse:
     """Calculate the real return of a 3a investment including tax savings.
 
@@ -105,12 +110,12 @@ def calculate_real_return(
     Sources: LIFD art. 33 al. 1 let. e; OPP3 art. 1.
     """
     result = _real_return_service.calculate_real_return(
-        versement_annuel=request.versementAnnuel,
-        taux_marginal=request.tauxMarginal,
-        rendement_brut=request.rendementBrut,
-        frais_gestion=request.fraisGestion,
-        duree_annees=request.dureeAnnees,
-        inflation=request.inflation,
+        versement_annuel=body.versementAnnuel,
+        taux_marginal=body.tauxMarginal,
+        rendement_brut=body.rendementBrut,
+        frais_gestion=body.fraisGestion,
+        duree_annees=body.dureeAnnees,
+        inflation=body.inflation,
     )
 
     return RealReturnResponse(
@@ -128,7 +133,7 @@ def calculate_real_return(
         avantage3aVsEpargne=result.avantage_3a_vs_epargne,
         dureeAnnees=result.duree_annees,
         tauxMarginal=result.taux_marginal,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
         sources=result.sources,
         disclaimer=result.disclaimer,
     )
@@ -139,8 +144,10 @@ def calculate_real_return(
 # ---------------------------------------------------------------------------
 
 @router.post("/compare-providers", response_model=ProviderCompareResponse)
+@limiter.limit("30/minute")
 def compare_providers(
-    request: ProviderCompareRequest,
+    request: Request,
+    body: ProviderCompareRequest,
 ) -> ProviderCompareResponse:
     """Compare 3a providers (fintech, bank, insurance).
 
@@ -150,10 +157,10 @@ def compare_providers(
     Sources: OPP3; LIFD art. 33 al. 1 let. e; public fee schedules.
     """
     result = _provider_comparator_service.compare_providers(
-        age=request.age,
-        versement_annuel=request.versementAnnuel,
-        duree=request.duree,
-        profil_risque=request.profilRisque,
+        age=body.age,
+        versement_annuel=body.versementAnnuel,
+        duree=body.duree,
+        profil_risque=body.profilRisque,
     )
 
     return ProviderCompareResponse(
@@ -173,14 +180,14 @@ def compare_providers(
             )
             for p in result.projections
         ],
-        meilleurCapital=result.meilleur_capital,
-        pireCapital=result.pire_capital,
+        capitalPlusHaut=result.capital_plus_haut,
+        capitalPlusBas=result.capital_plus_bas,
         differenceMax=result.difference_max,
         age=result.age,
         versementAnnuel=result.versement_annuel,
         duree=result.duree,
         profilRisque=result.profil_risque,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
         baseLegale=result.base_legale,
         sources=result.sources,
         disclaimer=result.disclaimer,

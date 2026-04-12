@@ -213,7 +213,8 @@ class TornadoSensitivityService {
     {
       final baseTaux = profile.prevoyance.tauxConversion;
       const lowTaux = 0.050;
-      final highTaux = baseTaux >= lppTauxConversionMinDecimal ? 0.072 : lppTauxConversionMinDecimal;
+      final convRateMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+      final highTaux = baseTaux >= convRateMin ? 0.072 : convRateMin;
       final low = _projectWithPrevoyance(
         profile,
         _clonePrevoyanceWith(profile.prevoyance, tauxConversion: lowTaux),
@@ -342,8 +343,9 @@ class TornadoSensitivityService {
     {
       final baseYears = profile.prevoyance.anneesContribuees;
       if (baseYears != null && baseYears > 0) {
-        final lowYears = (baseYears - 5).clamp(0, avsDureeCotisationComplete);
-        final highYears = (baseYears + 5).clamp(0, avsDureeCotisationComplete);
+        final fullYears = reg('avs.full_contribution_years', avsDureeCotisationComplete.toDouble()).toInt();
+        final lowYears = (baseYears - 5).clamp(0, fullYears);
+        final highYears = (baseYears + 5).clamp(0, fullYears);
         final low = _projectWithPrevoyance(
           profile,
           _clonePrevoyanceWith(profile.prevoyance,

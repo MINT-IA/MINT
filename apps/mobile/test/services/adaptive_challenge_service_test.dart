@@ -63,7 +63,7 @@ void main() {
   group('AdaptiveChallengeService', () {
     // ── Test 1: returns challenge matching user's phase ──
     test('getWeeklyChallenge returns challenge matching user phase', () async {
-      final profile = _makeProfile(birthYear: 1990); // age ~36 → acceleration
+      final profile = _makeProfile(birthYear: 1986); // age ~40 → acceleration
       final lifecycle = _lifecycle(profile, now: testDate);
       expect(lifecycle.phase, LifecyclePhase.acceleration);
 

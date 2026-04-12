@@ -196,11 +196,14 @@ class ChatGaugeCard extends StatelessWidget {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  CustomPaint(
-                    size: const Size(120, 120),
-                    painter: _GaugePainter(
-                      progress: progress,
-                      color: color,
+                  Semantics(
+                    label: 'Score gauge chart',
+                    child: CustomPaint(
+                      size: const Size(120, 120),
+                      painter: _GaugePainter(
+                        progress: progress,
+                        color: color,
+                      ),
                     ),
                   ),
                   Column(
@@ -208,8 +211,8 @@ class ChatGaugeCard extends StatelessWidget {
                     children: [
                       Text(
                         valueLabel,
-                        style: MintTextStyles.headlineLarge(color: color)
-                            .copyWith(fontSize: 28),
+                        style: MintTextStyles.displaySmall(color: color)
+                            ,
                       ),
                       if (subtitle != null)
                         Text(
@@ -325,8 +328,8 @@ class ChatFactCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.sm),
             Text(
               value,
-              style: MintTextStyles.headlineLarge(color: color)
-                  .copyWith(fontSize: 32),
+              style: MintTextStyles.displaySmall(color: color)
+                  ,
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(

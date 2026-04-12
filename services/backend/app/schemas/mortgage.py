@@ -20,12 +20,12 @@ from typing import List, Optional, Dict
 # Shared sub-schemas
 # ===========================================================================
 
-class ChiffreChocResponse(BaseModel):
+class PremierEclairageResponse(BaseModel):
     """Shock figure with amount and text."""
 
     model_config = ConfigDict(populate_by_name=True)
 
-    montant: float = Field(..., description="Montant du chiffre choc (CHF)")
+    montant: float = Field(..., description="Montant du premier éclairage (CHF)")
     texte: str = Field(..., description="Texte explicatif")
 
 
@@ -132,8 +132,8 @@ class MortgageAffordabilityResponse(BaseModel):
     canton: str
 
     # Compliance
-    chiffreChoc: ChiffreChocResponse = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: PremierEclairageResponse = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     checklist: List[str] = Field(default_factory=list)
@@ -239,8 +239,8 @@ class SaronVsFixedResponse(BaseModel):
     margeBanque: float = Field(..., alias="margeBanque")
 
     # Compliance
-    chiffreChoc: ChiffreChocResponse = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: PremierEclairageResponse = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)
@@ -354,8 +354,8 @@ class ImputedRentalResponse(BaseModel):
     tauxMarginalImposition: float = Field(..., alias="tauxMarginalImposition")
 
     # Compliance
-    chiffreChoc: ChiffreChocResponse = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: PremierEclairageResponse = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)
@@ -500,8 +500,8 @@ class AmortizationComparisonResponse(BaseModel):
     canton: str
 
     # Compliance
-    chiffreChoc: ChiffreChocResponse = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: PremierEclairageResponse = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)
@@ -606,8 +606,8 @@ class EplCombinedResponse(BaseModel):
     )
 
     # Compliance
-    chiffreChoc: ChiffreChocResponse = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: PremierEclairageResponse = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     alertes: List[str] = Field(default_factory=list)

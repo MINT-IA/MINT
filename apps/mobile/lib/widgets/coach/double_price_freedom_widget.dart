@@ -71,7 +71,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Charges totales \u00e0 ${formatChfWithPrefix(grossIncome)} brut/an',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
@@ -101,7 +101,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
                 'de plus (\u00d7${_multiplier.toStringAsFixed(1)}).\n'
                 'Pour garder le m\u00eame net, facture '
                 '+${((_multiplier - 1) * 100).toStringAsFixed(0)}%.',
-                style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+                style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -151,7 +151,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             flex: 3,
             child: Text(
               line.label,
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
             ),
           ),
           Expanded(
@@ -159,7 +159,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             child: Text(
               formatChfWithPrefix(line.employeeAmount),
               textAlign: TextAlign.right,
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
             ),
           ),
           Expanded(
@@ -167,7 +167,7 @@ class DoublePriceFreedomWidget extends StatelessWidget {
             child: Text(
               formatChfWithPrefix(line.selfEmployedAmount),
               textAlign: TextAlign.right,
-              style: MintTextStyles.labelSmall(color: line.selfEmployedAmount > line.employeeAmount ? MintColors.scoreCritique : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+              style: MintTextStyles.labelMedium(color: line.selfEmployedAmount > line.employeeAmount ? MintColors.scoreCritique : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w500),
             ),
           ),
         ],

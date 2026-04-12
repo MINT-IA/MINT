@@ -231,7 +231,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
               Expanded(
                 child: Text(
                   s.earlyRetirementResultLine(scenario.age, formatChfWithPrefix(scenario.monthlyIncome)),
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               Container(
@@ -245,7 +245,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
                 ),
                 child: Text(
                   '${isGain ? "+" : ""}${delta.toStringAsFixed(0)}%',
-                  style: MintTextStyles.labelSmall(color: isGain ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelMedium(color: isGain ? MintColors.scoreExcellent : MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -254,7 +254,7 @@ class _EarlyRetirementSliderState extends State<EarlyRetirementSlider> {
             const SizedBox(height: 6),
             Text(
               _buildNarrative(context, scenario),
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
             ),
           ],
           if (scenario.lifetimeDelta != null) ...[

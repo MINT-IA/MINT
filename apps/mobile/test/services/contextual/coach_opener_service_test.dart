@@ -1,0 +1,221 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/biography/biography_fact.dart';
+import 'package:mint_mobile/services/contextual/coach_opener_service.dart';
+
+void main() {
+  group('CoachOpenerService', () {
+    final now = DateTime(2026, 4, 6);
+
+    CoachProfile _makeProfile({
+      double salaireBrutMensuel = 10000,
+      String employmentStatus = 'salarie',
+      PrevoyanceProfile prevoyance = const PrevoyanceProfile(),
+    }) {
+      return CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: salaireBrutMensuel,
+        employmentStatus: employmentStatus,
+        prevoyance: prevoyance,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042, 1, 12),
+          label: 'Retraite',
+        ),
+      );
+    }
+
+    BiographyFact _salaryFact({
+      DateTime? updatedAt,
+      FactSource source = FactSource.document,
+    }) {
+      return BiographyFact(
+        id: 'salary-1',
+        factType: FactType.salary,
+        value: '130000',
+        source: source,
+        createdAt: now.subtract(const Duration(days: 60)),
+        updatedAt: updatedAt ?? now.subtract(const Duration(days: 10)),
+        sourceDate: now.subtract(const Duration(days: 30)),
+      );
+    }
+
+    BiographyFact _documentFact({
+      FactType factType = FactType.lppCapital,
+      DateTime? updatedAt,
+    }) {
+      return BiographyFact(
+        id: 'doc-1',
+        factType: factType,
+        value: '150000',
+        source: FactSource.document,
+        createdAt: now.subtract(const Duration(days: 20)),
+        updatedAt: updatedAt ?? now.subtract(const Duration(days: 5)),
+        sourceDate: now.subtract(const Duration(days: 10)),
+      );
+    }
+
+    test('salary increase in biography -> opener mentions salary change', () {
+      final profile = _makeProfile(salaireBrutMensuel: 10833);
+      final facts = [_salaryFact()];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      expect(opener, contains('salaire'));
+      expect(opener, contains('Voici ce que cela change'));
+    });
+
+    test('recent document scan -> opener references document', () {
+      // No salary fact but has recent document scan (LPP)
+      final profile = _makeProfile(salaireBrutMensuel: 0);
+      final facts = [_documentFact()];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      expect(opener, contains('certificat'));
+      expect(opener, contains('projections'));
+    });
+
+    test('no biography facts with incomplete profile -> profile opener', () {
+      // Use salary=0 to avoid triggering 3a gap opener.
+      // Profile completeness will be < 50% -> triggers priority 4.
+      final profile = _makeProfile(salaireBrutMensuel: 0);
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: [],
+        now: now,
+      );
+
+      expect(opener, contains('MINT'));
+      expect(opener, contains('précis'));
+    });
+
+    test('no biography facts with complete profile -> fallback or retirement opener', () {
+      // Profile with enough data, 3a fully contributed via plannedContributions
+      final profile = CoachProfile(
+        birthYear: 1977,
+        canton: 'VS',
+        salaireBrutMensuel: 10000,
+        prevoyance: const PrevoyanceProfile(
+          avoirLppTotal: 200000,
+          renteAVSEstimeeMensuelle: 2000,
+        ),
+        plannedContributions: [
+          PlannedMonthlyContribution(
+            id: '3a_1',
+            label: '3a VIAC',
+            amount: 604.83, // 7258 / 12 = maxed out
+            category: '3a',
+          ),
+        ],
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2042, 1, 12),
+          label: 'Retraite',
+        ),
+      );
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: [],
+        now: now,
+      );
+
+      // With maxed 3a and retirement data, either retirement projection
+      // or profile completeness or fallback will trigger.
+      expect(opener, isNotEmpty);
+    });
+
+    test('opener never contains imperative language', () {
+      final profile = _makeProfile();
+      final facts = [_salaryFact(), _documentFact()];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      expect(opener.toLowerCase(), isNot(contains('tu devrais')));
+      expect(opener.toLowerCase(), isNot(contains('tu dois')));
+      expect(opener.toLowerCase(), isNot(contains('fais ceci')));
+    });
+
+    test('opener passes ComplianceGuard validation', () {
+      final profile = _makeProfile();
+      final facts = [_salaryFact()];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      // The opener should be non-empty and compliant
+      expect(opener, isNotEmpty);
+      // No banned terms
+      expect(opener.toLowerCase(), isNot(contains('garanti')));
+      expect(opener.toLowerCase(), isNot(contains('optimal')));
+    });
+
+    test('stale salary fact (>90 days) does not trigger salary opener', () {
+      final profile = _makeProfile(salaireBrutMensuel: 10833);
+      final facts = [
+        _salaryFact(updatedAt: now.subtract(const Duration(days: 100))),
+      ];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      // Should not mention salary progression since document is stale
+      expect(opener, isNot(contains('salaire a progressé')));
+    });
+
+    test('stale document (>30 days) does not trigger document opener', () {
+      final profile = _makeProfile(salaireBrutMensuel: 0);
+      final facts = [
+        _documentFact(updatedAt: now.subtract(const Duration(days: 45))),
+      ];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      // Should not mention certificat since document is stale
+      expect(opener, isNot(contains('certificat')));
+    });
+
+    test('3a gap opener when gap exists and no recent documents', () {
+      // Profile with salary, no 3a contribution, and no recent document scans
+      final profile = _makeProfile(salaireBrutMensuel: 10000);
+      final facts = [
+        _salaryFact(
+          updatedAt: now.subtract(const Duration(days: 100)),
+          source: FactSource.userInput,
+        ),
+      ];
+
+      final opener = CoachOpenerService.generate(
+        profile: profile,
+        facts: facts,
+        now: now,
+      );
+
+      expect(opener, contains('optimiser'));
+      expect(opener, contains('CHF'));
+    });
+  });
+}

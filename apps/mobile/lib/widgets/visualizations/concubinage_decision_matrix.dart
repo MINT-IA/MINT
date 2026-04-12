@@ -161,7 +161,7 @@ class _ConcubinageDecisionMatrixState extends State<ConcubinageDecisionMatrix>
                 ),
                 Text(
                   S.of(context)!.concubinageDecisionMatrixSubtitle,
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),

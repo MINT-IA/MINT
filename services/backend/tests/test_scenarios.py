@@ -73,5 +73,7 @@ def test_list_scenarios(client):
     response = client.get(f"/api/v1/scenarios/{profile_id}")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) >= 1
+    assert "items" in data
+    assert "total" in data
+    assert isinstance(data["items"], list)
+    assert len(data["items"]) >= 1

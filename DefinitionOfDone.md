@@ -14,7 +14,7 @@ A feature or PR is considered "Done" if:
 
 - **Documentation & Contracts**:
   - Vision documents updated (if applicable).
-  - `mint.openapi.yaml` + `SOT.md` updated and perfectly synchronized.
+  - `mint.openapi.canonical.json` + `SOT.md` updated and perfectly synchronized.
 
 - **Compliance & Security**:
   - **LEGAL_RELEASE_CHECK.md must pass.**

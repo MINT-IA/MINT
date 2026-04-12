@@ -103,14 +103,17 @@ class FriComputationService {
     final isIndependantNoLpp =
         profile.employmentStatus == 'independant' &&
             (profile.prevoyance.avoirLppTotal ?? 0) <= 0;
-    final max3a = isIndependantNoLpp ? pilier3aPlafondSansLpp : pilier3aPlafondAvecLpp;
+    final max3a = isIndependantNoLpp ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp) : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     // Rachat: use rachatMaximum (total buyback gap) and rachatEffectue
     final potentielRachat = profile.prevoyance.rachatMaximum ?? 0.0;
     final rachatEffectue = profile.prevoyance.rachatEffectue ?? 0.0;
     // Marginal tax rate from centralized RetirementTaxCalculator
+    final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final tauxMarginal = RetirementTaxCalculator.estimateMarginalRate(
       monthlyGross * profile.nombreDeMois,
       profile.canton,
+      isMarried: isMarried,
+      children: profile.nombreEnfants,
     );
     final isPropertyOwner =
         (profile.patrimoine.immobilier ?? 0) > 0 ||

@@ -116,7 +116,7 @@ class CompoundInterestChart extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques (inflation $inflation%). Les rendements passés ne garantissent pas les rendements futurs.',
+                    'Hypothèses pédagogiques (inflation\u00a0$inflation\u00a0%). Les performances passées ne préjugent pas des performances futures.',
                     style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),

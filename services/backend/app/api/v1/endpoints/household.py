@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.auth import require_current_user
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.models.user import User
 from app.services.household_service import (
     get_household_details,
@@ -15,8 +16,10 @@ from app.services.household_service import (
     accept_invitation,
     revoke_member,
     transfer_ownership,
+    dissolve_household,
     admin_override_cooldown,
 )
+from app.services.feature_flags import FeatureFlags
 from app.schemas.household import (
     HouseholdResponse,
     InviteRequest,
@@ -26,6 +29,7 @@ from app.schemas.household import (
     RevokeResponse,
     TransferRequest,
     TransferResponse,
+    DissolveResponse,
     AdminOverrideCooldownRequest,
     AdminOverrideCooldownResponse,
 )
@@ -34,7 +38,9 @@ router = APIRouter()
 
 
 @router.get("", response_model=HouseholdResponse)
+@limiter.limit("30/minute")
 def get_household(
+    request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> HouseholdResponse:
@@ -43,7 +49,9 @@ def get_household(
 
 
 @router.post("/invite", response_model=InviteResponse, status_code=201)
+@limiter.limit("10/minute")
 def invite(
+    request: Request,
     body: InviteRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -53,7 +61,9 @@ def invite(
 
 
 @router.post("/accept", response_model=AcceptResponse)
+@limiter.limit("10/minute")
 def accept(
+    request: Request,
     body: AcceptRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -63,7 +73,9 @@ def accept(
 
 
 @router.delete("/member/{user_id}", response_model=RevokeResponse)
+@limiter.limit("10/minute")
 def revoke(
+    request: Request,
     user_id: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -73,7 +85,9 @@ def revoke(
 
 
 @router.put("/transfer", response_model=TransferResponse)
+@limiter.limit("5/minute")
 def transfer(
+    request: Request,
     body: TransferRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
@@ -82,24 +96,39 @@ def transfer(
     return TransferResponse(**result)
 
 
+@router.delete("/dissolve", response_model=DissolveResponse)
+@limiter.limit("5/minute")
+def dissolve(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
+) -> DissolveResponse:
+    result = dissolve_household(db, current_user)
+    return DissolveResponse(**result)
+
+
 @router.post("/admin/override-cooldown", response_model=AdminOverrideCooldownResponse)
+@limiter.limit("5/minute")
 def override_cooldown(
     request: Request,
     body: AdminOverrideCooldownRequest,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_current_user),
 ) -> AdminOverrideCooldownResponse:
-    # RBAC check: support both DB role and legacy email allowlist
+    FeatureFlags.require_flag("enable_admin_screens")
+    # RBAC check: require BOTH DB role AND email in allowlist (defense in depth).
+    # P0-4: Previously used OR — a compromised email allowlist alone granted admin.
     has_role = getattr(current_user, 'role', None) == 'support_admin'
     admin_emails = [e.strip() for e in settings.AUTH_ADMIN_EMAIL_ALLOWLIST.split(",") if e.strip()]
     has_email = current_user.email in admin_emails
-    if not has_role and not has_email:
+    if not has_role or not has_email:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Role support_admin requis",
         )
 
-    ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or (
+    # Use RIGHTMOST IP — closest to the server, hardest to spoof
+    ip = request.headers.get("x-forwarded-for", "").split(",")[-1].strip() or (
         request.client.host if request.client else None
     )
     result = admin_override_cooldown(

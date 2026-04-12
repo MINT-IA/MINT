@@ -1,5 +1,7 @@
 # DATA_ACQUISITION_STRATEGY.md — Precision Through Better Inputs
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > How MINT evolves from "user guesses" to "verified financial state"
 > without becoming a bank, without requiring aggregation licenses,
 > and without violating LPD/nLPD.
@@ -548,7 +550,7 @@ Data age          Freshness score
 ```
 Overall Confidence    Features Available
 ──────────────────────────────────────────────
-< 30%                 Basic chiffre choc only (wide ranges)
+< 30%                 Basic premier éclairage only (wide ranges)
 30-50%                Standard projections (3 scenarios)
 50-70%                Arbitrage comparisons (with uncertainty bands)
 70-85%                Precise arbitrage + FRI scoring
@@ -570,7 +572,7 @@ varier de ±15%. Scanne ton certificat LPP pour plus de précision."
 ONBOARDING (30 sec)
   ├── 3 questions (salary, age, canton)
   ├── Confidence: ~25%
-  └── Unlock: chiffre choc + basic projections
+  └── Unlock: premier éclairage + basic projections
 
 FIRST SESSION (5-10 min)
   ├── Progressive enrichment (family, savings, property)
@@ -603,7 +605,7 @@ Users share data when they see IMMEDIATE value. Not "for better accuracy."
 ```
 Trigger                          Incentive shown
 ──────────────────────────────────────────────────────────────────────
-After chiffre choc               "Avec ton vrai certificat LPP,
+After premier éclairage           "Avec ton vrai certificat LPP,
                                   cette estimation deviendrait exacte."
 
 Before arbitrage                 "Pour comparer rente vs capital,

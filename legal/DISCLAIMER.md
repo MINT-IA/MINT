@@ -159,4 +159,4 @@ Pour toute question concernant ce disclaimer ou la nature des services MINT :
 
 *Ce disclaimer fait partie intégrante des [Conditions Générales d'Utilisation](./CGU.md) de MINT.*
 
-*MINT — « Juste quand il faut : une explication, une action, un rappel. »*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

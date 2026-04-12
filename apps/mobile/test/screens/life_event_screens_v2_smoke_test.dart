@@ -67,6 +67,9 @@ void main() {
     testWidgets('Tab 1 (Impots) shows fiscal content', (tester) async {
       await tester.pumpWidget(buildMariageScreen());
       await tester.pumpAndSettle();
+      // Scroll past the narrative card added at the top of Tab 1
+      await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+      await tester.pump();
       // Default tab is Impots — should show revenue sliders and comparison
       expect(find.text('Revenu 1'), findsOneWidget);
       expect(find.text('Revenu 2'), findsOneWidget);
@@ -179,6 +182,9 @@ void main() {
     testWidgets('Tab 1 (Conge) shows parental leave content', (tester) async {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
+      // Scroll past the narrative card added at the top of Tab 1
+      await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+      await tester.pump();
       // Default tab is Conge — should show salary slider and type toggle
       expect(find.text('Type de congé'), findsOneWidget);
       expect(find.text('Salaire mensuel brut'), findsOneWidget);
@@ -187,6 +193,9 @@ void main() {
     testWidgets('Tab 1 (Conge) shows Mere/Pere toggle', (tester) async {
       await tester.pumpWidget(buildNaissanceScreen());
       await tester.pumpAndSettle();
+      // Scroll past the narrative card added at the top of Tab 1
+      await tester.drag(find.byType(ListView).first, const Offset(0, -300));
+      await tester.pump();
       expect(find.text('Mère'), findsOneWidget);
       expect(find.text('Père'), findsOneWidget);
     });

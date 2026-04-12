@@ -1,16 +1,33 @@
+// Budget deep-dive — detailed view of spending breakdown.
+// Primary budget display is now in PulseScreen via BudgetSnapshot.
+// This screen provides the detailed envelope editing.
+//
+// Hero number sourced from BudgetSnapshot.present.monthlyFree (via
+// BudgetLivingEngine) when a CoachProfile is available, ensuring
+// consistency with PulseScreen. Falls back to plan.available when not.
+
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/models/cap_decision.dart';
+import 'package:mint_mobile/services/cap_engine.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/widgets/action_insight_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
+import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
+import 'package:mint_mobile/services/budget_living_engine.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/budget/spending_meter.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
-import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_count_up.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/budget/stop_rule_callout.dart';
 import 'package:mint_mobile/widgets/budget/emergency_fund_ring.dart';
@@ -19,6 +36,10 @@ import 'package:mint_mobile/widgets/coach/budget_sandwich_chart.dart';
 import 'package:mint_mobile/widgets/coach/budget_503020_widget.dart';
 import 'package:mint_mobile/widgets/coach/crash_test_budget_widget.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class BudgetScreen extends StatefulWidget {
   final BudgetInputs inputs;
@@ -34,14 +55,24 @@ class BudgetScreen extends StatefulWidget {
 
 class _BudgetScreenState extends State<BudgetScreen>
     with SingleTickerProviderStateMixin {
+  /// Vertical offset (px) for staggered card slide-up animation.
+  static const double _slideUpOffset = 20;
+
   late AnimationController _staggerController;
   late Animation<double> _staggerAnimation;
   bool _hasError = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  /// BudgetSnapshot from BudgetLivingEngine — provides the authoritative
+  /// hero number (monthlyFree) consistent with PulseScreen.
+  /// Null when CoachProfile is unavailable (graceful degradation to plan.available).
+  BudgetSnapshot? _snapshot;
 
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('budget');
     _staggerController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -51,19 +82,123 @@ class _BudgetScreenState extends State<BudgetScreen>
       curve: Curves.easeOutCubic,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('budget');
+      }
       try {
         context.read<BudgetProvider>().setInputs(widget.inputs);
         _staggerController.forward();
+        _emitScreenReturn({
+          'netIncome': widget.inputs.netIncome,
+          'housingCost': widget.inputs.housingCost,
+          'healthInsurance': widget.inputs.healthInsurance,
+          'taxProvision': widget.inputs.taxProvision,
+        });
       } catch (_) {
         if (mounted) setState(() => _hasError = true);
       }
+      // Resolve BudgetSnapshot — prefer the pre-computed value from
+      // MintStateProvider (single computation source) to avoid duplicating
+      // BudgetLivingEngine.compute(). Fall back to direct computation only
+      // when MintStateProvider is not in the widget tree (e.g. tests).
+      try {
+        final mintSnap =
+            context.read<MintStateProvider>().state?.budgetSnapshot;
+        if (mintSnap != null) {
+          if (mounted) setState(() => _snapshot = mintSnap);
+          return;
+        }
+      } catch (_) {
+        // MintStateProvider not in tree — fall through to direct computation.
+      }
+      try {
+        final profileProvider = context.read<CoachProfileProvider>();
+        if (profileProvider.hasProfile) {
+          final snap =
+              BudgetLivingEngine.compute(profileProvider.profile!);
+          if (mounted) setState(() => _snapshot = snap);
+        }
+      } catch (_) {
+        // Graceful degradation: keep _snapshot null, fall back to plan.available.
+      }
     });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {}
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    final inputs = widget.inputs;
+    final chargesTotal = inputs.housingCost + inputs.healthInsurance +
+        inputs.taxProvision + inputs.otherFixedCosts;
+    ScreenCompletionTracker.markCompletedWithReturn('budget',
+      ScreenReturn.completed(
+        route: '/budget',
+        stepOutputs: {
+          'revenu_net': inputs.netIncome,
+          'charges_totales': chargesTotal,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   @override
   void dispose() {
     _staggerController.dispose();
     super.dispose();
+  }
+
+  void _emitScreenReturn(Map<String, dynamic> updatedFields) {
+    if (_seqRunId != null) return; // Sequence mode: terminal only on pop
+    final screenReturn = ScreenReturn.changedInputs(
+      route: '/budget',
+      updatedFields: updatedFields,
+      confidenceDelta: 0.05,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('budget', screenReturn);
+  }
+
+  Widget _buildActionInsight(S l) {
+    CapDecision? cap;
+    try {
+      final profileProvider = context.read<CoachProfileProvider>();
+      if (profileProvider.hasProfile) {
+        cap = CapEngine.compute(
+          profile: profileProvider.profile!,
+          now: DateTime.now(),
+          l: l,
+          memory: const CapMemory(),
+        );
+      }
+    } catch (_) {
+      // Provider not in tree — graceful degradation.
+    }
+    if (cap != null && cap.ctaRoute != null) {
+      return ActionInsightWidget(
+        contextLine: cap.whyNow,
+        actionLine: cap.ctaLabel,
+        impactLine: cap.expectedImpact,
+        route: cap.ctaRoute,
+      );
+    }
+    return ActionInsightWidget(
+      contextLine: '',
+      actionLine: l.actionInsightFallback,
+      route: '/coach/chat',
+    );
   }
 
   Widget _staggeredEntry({required int index, required Widget child}) {
@@ -76,7 +211,7 @@ class _BudgetScreenState extends State<BudgetScreen>
         return Opacity(
           opacity: cardProgress,
           child: Transform.translate(
-            offset: Offset(0, 20 * (1 - cardProgress)),
+            offset: Offset(0, _slideUpOffset * (1 - cardProgress)),
             child: child,
           ),
         );
@@ -87,7 +222,31 @@ class _BudgetScreenState extends State<BudgetScreen>
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    return Scaffold(
+    if (widget.inputs.netIncome <= 0) {
+      return Scaffold(
+        backgroundColor: MintColors.porcelaine,
+        appBar: AppBar(
+          backgroundColor: MintColors.porcelaine,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          surfaceTintColor: MintColors.transparent,
+          title: Text(l.budgetMonthlyTitle,
+              style: MintTextStyles.headlineMedium()),
+        ),
+        body: MintEmptyState(
+          icon: Icons.account_balance_wallet_outlined,
+          title: S.of(context)!.budgetEmptyTitle,
+          subtitle: S.of(context)!.budgetEmptySubtitle,
+          ctaLabel: S.of(context)!.budgetEmptyCta,
+          onCta: () => context.push('/coach/chat'),
+        ),
+      );
+    }
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.porcelaine,
       appBar: AppBar(
         backgroundColor: MintColors.porcelaine,
@@ -99,7 +258,9 @@ class _BudgetScreenState extends State<BudgetScreen>
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: Consumer<BudgetProvider>(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: Consumer<BudgetProvider>(
         builder: (context, provider, child) {
           if (_hasError) {
             return Center(
@@ -134,8 +295,14 @@ class _BudgetScreenState extends State<BudgetScreen>
           final plan = provider.plan;
 
           if (plan == null) {
-            return const Center(child: CircularProgressIndicator());
+            return const MintLoadingSkeleton();
           }
+
+          // Hero number: BudgetSnapshot.present.monthlyFree when available,
+          // guaranteeing consistency with PulseScreen.
+          // Falls back to plan.available when snapshot is not yet computed.
+          final heroFree =
+              _snapshot?.present.monthlyFree ?? plan.available;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
@@ -153,7 +320,15 @@ class _BudgetScreenState extends State<BudgetScreen>
                 const SizedBox(height: MintSpacing.md),
 
                 // ── ABOVE FOLD: Section 2 — Hero: budget libre (result FIRST) ──
-                _staggeredEntry(index: 0, child: _buildHeader(plan, l)),
+                _staggeredEntry(
+                    index: 0, child: _buildHeader(plan, l, heroFree)),
+                const SizedBox(height: MintSpacing.md),
+
+                // ── ABOVE FOLD: Section 2b — Action insight ──
+                _staggeredEntry(
+                  index: 0,
+                  child: _buildActionInsight(l),
+                ),
                 const SizedBox(height: MintSpacing.xxl),
 
                 // ── ABOVE FOLD: Section 3 — Spending meter ──
@@ -195,10 +370,10 @@ class _BudgetScreenState extends State<BudgetScreen>
                   index: 3,
                   child: Budget503020Widget(
                     netSalary: widget.inputs.netIncome,
-                    chiffreChoc: plan.available > 0
-                        ? l.budgetChiffreChoc503020(
-                            (plan.available * 0.20).toStringAsFixed(0),
-                            (plan.available * 0.20 * 120).toStringAsFixed(0),
+                    premierEclairage: plan.available > 0
+                        ? l.budgetPremierEclairage503020(
+                            formatChf(plan.available * 0.20),
+                            formatChf(plan.available * 0.20 * 120),
                           )
                         : null,
                     categories: [
@@ -352,23 +527,27 @@ class _BudgetScreenState extends State<BudgetScreen>
             ),
           );
         },
-      ),
+      ))))),
     );
   }
 
-  Widget _buildHeader(BudgetPlan plan, S l) {
-    final isPositive = plan.available >= 0;
+  Widget _buildHeader(BudgetPlan plan, S l, double heroFree) {
+    final isPositive = heroFree >= 0;
     final heroColor = isPositive ? MintColors.success : MintColors.warning;
 
     return Column(
       children: [
         // Hero: budget libre — MintHeroNumber (consequence, not output)
-        MintHeroNumber(
-          value: 'CHF\u00a0${plan.available.toStringAsFixed(0)}',
-          caption: l.budgetChiffreChocCaption,
+        // Uses BudgetSnapshot.present.monthlyFree when available for
+        // consistency with PulseScreen, falls back to plan.available.
+        MintCountUp(
+          value: heroFree,
+          prefix: 'CHF\u00a0',
           color: heroColor,
+          showLigne: false,
+          contextText: l.budgetPremierEclairageCaption,
           semanticsLabel:
-              'CHF ${plan.available.toStringAsFixed(0)} ${l.budgetAvailableThisMonth}',
+              '${formatChfWithPrefix(heroFree)} ${l.budgetAvailableThisMonth}',
         ),
         const SizedBox(height: MintSpacing.xl),
 
@@ -491,7 +670,7 @@ class _BudgetScreenState extends State<BudgetScreen>
               ),
             ],
             Text(
-              '$sign CHF\u00a0${amount.toStringAsFixed(0)}',
+              '$sign ${formatChfWithPrefix(amount)}',
               style: MintTextStyles.bodySmall(
                 color: isBold
                     ? MintColors.primary
@@ -565,27 +744,27 @@ class _BudgetScreenState extends State<BudgetScreen>
       BuildContext context, BudgetProvider provider, BudgetPlan plan, S l) {
     return Column(
       children: [
-        MintPremiumSlider(
-          label: l.budgetEnvelopeFuture,
-          value: plan.future,
-          min: 0,
+        // ── Épargne future: tap-to-type ──
+        _BudgetAmountField(
+          label: l.budgetEnvelopeFieldFuture,
+          initialValue: plan.future,
           max: plan.available,
-          formatValue: (v) => 'CHF\u00a0${v.toInt()}',
-          activeColor: MintColors.info,
+          accentColor: MintColors.info,
           onChanged: (val) {
             provider.updateOverride('future', val);
+            _emitScreenReturn({'budgetFuture': val});
           },
         ),
         const SizedBox(height: MintSpacing.lg),
-        MintPremiumSlider(
-          label: l.budgetEnvelopeVariables,
-          value: plan.variables,
-          min: 0,
+        // ── Dépenses variables: tap-to-type ──
+        _BudgetAmountField(
+          label: l.budgetEnvelopeFieldVariables,
+          initialValue: plan.variables,
           max: plan.available,
-          formatValue: (v) => 'CHF\u00a0${v.toInt()}',
-          activeColor: MintColors.success,
+          accentColor: MintColors.success,
           onChanged: (val) {
             provider.updateOverride('variables', val);
+            _emitScreenReturn({'budgetVariables': val});
           },
         ),
       ],
@@ -728,29 +907,29 @@ class _BudgetScreenState extends State<BudgetScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        MintEntrance(child: Text(
           l.budgetExploreAlso,
           style: MintTextStyles.titleMedium(),
-        ),
+        )),
         const SizedBox(height: MintSpacing.sm),
-        CollapsibleSection(
+        MintEntrance(delay: const Duration(milliseconds: 100), child: CollapsibleSection(
           title: l.budgetDebtRatio,
           subtitle: l.budgetDebtRatioSubtitle,
           icon: Icons.warning_amber_rounded,
           child: _buildSectionCta(l.budgetCtaEvaluate, '/debt/ratio'),
-        ),
-        CollapsibleSection(
+        )),
+        MintEntrance(delay: const Duration(milliseconds: 200), child: CollapsibleSection(
           title: l.budgetRepaymentPlan,
           subtitle: l.budgetRepaymentPlanSubtitle,
           icon: Icons.trending_down,
           child: _buildSectionCta(l.budgetCtaPlan, '/debt/repayment'),
-        ),
-        CollapsibleSection(
+        )),
+        MintEntrance(delay: const Duration(milliseconds: 300), child: CollapsibleSection(
           title: l.budgetHelpResources,
           subtitle: l.budgetHelpResourcesSubtitle,
           icon: Icons.help_outline,
           child: _buildSectionCta(l.budgetCtaDiscover, '/debt/help'),
-        ),
+        )),
       ],
     );
   }
@@ -788,6 +967,97 @@ class _BudgetScreenState extends State<BudgetScreen>
         Text(
           l.budgetDisclaimerFormula,
           style: MintTextStyles.micro(),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tap-to-type CHF amount field replacing MintPremiumSlider.
+///
+/// Shows a labelled text field with CHF suffix, constrained to [0, max].
+/// On valid input, calls [onChanged] with the parsed value.
+class _BudgetAmountField extends StatefulWidget {
+  final String label;
+  final double initialValue;
+  final double max;
+  final Color accentColor;
+  final ValueChanged<double> onChanged;
+
+  const _BudgetAmountField({
+    required this.label,
+    required this.initialValue,
+    required this.max,
+    required this.accentColor,
+    required this.onChanged,
+  });
+
+  @override
+  State<_BudgetAmountField> createState() => _BudgetAmountFieldState();
+}
+
+class _BudgetAmountFieldState extends State<_BudgetAmountField> {
+  late final TextEditingController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = TextEditingController(
+      text: widget.initialValue.round().toString(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        TextField(
+          controller: _ctrl,
+          keyboardType: TextInputType.number,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
+          decoration: InputDecoration(
+            suffixText: 'CHF',
+            suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
+            hintText: S.of(context)!.budgetEnvelopeFieldHint,
+            hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md,
+              vertical: MintSpacing.sm,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: widget.accentColor, width: 1.5),
+            ),
+          ),
+          onChanged: (text) {
+            final parsed = double.tryParse(
+              text.replaceAll(RegExp(r"[^0-9.]"), ''),
+            );
+            if (parsed != null) {
+              widget.onChanged(parsed.clamp(0, widget.max));
+            }
+          },
         ),
       ],
     );

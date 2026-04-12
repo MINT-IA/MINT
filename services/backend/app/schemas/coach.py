@@ -116,8 +116,8 @@ class CoachNarrativeResponse(CoachBaseModel):
     tip_narrative: str = Field(
         ..., description="Conseil educatif personnalise",
     )
-    chiffre_choc_reframe: str = Field(
-        ..., description="Recontextualisation du chiffre choc",
+    premier_eclairage_reframe: str = Field(
+        ..., description="Recontextualisation du premier éclairage",
     )
     used_fallback: Dict[str, bool] = Field(
         ..., description="Indique si le fallback a ete utilise par composant",

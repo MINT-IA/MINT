@@ -113,8 +113,8 @@ class FallbackTemplates:
         )
 
     @staticmethod
-    def chiffre_choc_reframe(ctx: CoachContext) -> str:
-        """Reframe a chiffre choc with confidence context.
+    def premier_eclairage_reframe(ctx: CoachContext) -> str:
+        """Reframe a premier éclairage with confidence context.
 
         Anchors on the confidence score to encourage profile enrichment.
         """
@@ -122,4 +122,36 @@ class FallbackTemplates:
             f"Ce chiffre est base sur {ctx.confidence_score:.0f}% "
             "de donnees concretes. "
             "Plus tu precises ton profil, plus l'estimation s'affine."
+        )
+
+    @staticmethod
+    def fatca_fbar_guidance(ctx: CoachContext) -> str:
+        """Generate educational content about FATCA + FBAR for US persons.
+
+        Covers:
+            - FATCA annual reporting to IRS
+            - FBAR (FinCEN Form 114) when foreign accounts > $10,000
+            - PFIC classification of Swiss funds
+            - CH-US double taxation convention
+        """
+        if ctx.archetype != "expat_us":
+            return (
+                f"{ctx.first_name}, certaines regles de prevoyance "
+                "dependent de ta nationalite et de ton parcours. "
+                "Verifie les conventions bilaterales qui pourraient "
+                "s'appliquer a ta situation aupres d'un specialiste."
+            )
+
+        return (
+            f"{ctx.first_name}, en tant que contribuable US en Suisse, "
+            "quelques points educatifs a connaitre. "
+            "Le FATCA impose une declaration annuelle de tes comptes "
+            "suisses a l'IRS. De plus, si la somme de tes comptes "
+            "etrangers depasse $10\u00a0000 a tout moment de l'annee, "
+            "tu es tenu de deposer un FBAR (FinCEN Form 114) avant "
+            "le 15 avril. L'amende pour non-declaration peut atteindre "
+            "$12\u00a0500 par compte. Tes investissements en fonds suisses "
+            "pourraient etre classes PFIC. La convention CH-US prevoit "
+            "des mecanismes pour eviter une double taxation. "
+            "Ref. : FATCA, FBAR (31 USC 5314), Convention CH-US."
         )

@@ -4,6 +4,13 @@
 *.pyc
 *.swp
 .DS_Store
+
+# google_fonts runtime-cache artefacts — emitted at the Flutter app root
+# when widget/integration tests run with allowRuntimeFetching=true and a
+# mocked path_provider (Phase 10 Plan 10-03, onboarding_v2_golden_path_test).
+Inter_*.ttf
+Montserrat_*.ttf
+Outfit_*.ttf
 .atom/
 .build/
 .buildlog/

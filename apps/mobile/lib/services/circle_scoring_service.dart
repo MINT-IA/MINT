@@ -1,5 +1,8 @@
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
+
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 import '../models/circle_score.dart';
 
@@ -18,12 +21,13 @@ class CircleScoringService {
     'LAVS art. 29 (Durée de cotisation AVS — Cercle 2)',
     'LAMal art. 61 (Primes et franchise — Cercle 1)',
   ];
-  /// Calcule le score global à partir des réponses du wizard
-  FinancialHealthScore calculateScore(Map<String, dynamic> answers) {
-    final circle1 = _scoreCircle1Protection(answers);
-    final circle2 = _scoreCircle2Prevoyance(answers);
-    final circle3 = _scoreCircle3Croissance(answers);
-    final circle4 = _scoreCircle4Optimisation(answers);
+  /// Calcule le score global à partir des réponses du wizard.
+  /// [l] — optional localizations; when null (e.g. in tests) French fallbacks are used.
+  FinancialHealthScore calculateScore(Map<String, dynamic> answers, {S? l}) {
+    final circle1 = _scoreCircle1Protection(answers, l);
+    final circle2 = _scoreCircle2Prevoyance(answers, l);
+    final circle3 = _scoreCircle3Croissance(answers, l);
+    final circle4 = _scoreCircle4Optimisation(l);
 
     // Score global = moyenne pondérée (Cercles 1-2 plus importants)
     final overall = (circle1.percentage * 0.35) +
@@ -45,7 +49,7 @@ class CircleScoringService {
   }
 
   /// CERCLE 1 : PROTECTION
-  CircleScore _scoreCircle1Protection(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle1Protection(Map<String, dynamic> answers, S? l) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -61,7 +65,7 @@ class CircleScoringService {
       fundStatus = ItemStatus.critical;
     }
     items.add(ScoreItem(
-      label: 'Fonds d\'urgence',
+      label: l?.circleLabelEmergencyFund ?? 'Fonds d\'urgence',
       status: fundStatus,
       detail: _emergencyFundDetail(hasEmergencyFund),
       weight: 2.0, // Double importance
@@ -73,9 +77,9 @@ class CircleScoringService {
     final hasDebt = answers['q_has_consumer_debt'] == 'yes';
     final debtStatus = hasDebt ? ItemStatus.critical : ItemStatus.perfect;
     items.add(ScoreItem(
-      label: 'Dettes',
+      label: l?.circleLabelDettes ?? 'Dettes',
       status: debtStatus,
-      detail: hasDebt ? 'Crédits en cours' : 'Aucune dette',
+      detail: hasDebt ? 'Crédits en cours' : 'Aucune dette', // Internal detail — not extracted
       weight: 1.5,
     ));
     totalWeight += 1.5;
@@ -87,19 +91,19 @@ class CircleScoringService {
         ? ItemStatus.perfect
         : ItemStatus.unknown;
     items.add(ScoreItem(
-      label: 'Revenu',
+      label: l?.circleLabelRevenu ?? 'Revenu',
       status: incomeStatus,
-      detail: income != null ? 'CHF ${income.toStringAsFixed(0)}/mois' : null,
+      detail: income != null ? '${formatChfWithPrefix(income.toDouble())}/mois' : null, // Formatted number — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
     totalScore += incomeStatus.scoreValue * 1.0;
 
     // 4. Assurances de base (LAMal obligatoire en Suisse)
-    items.add(const ScoreItem(
-      label: 'Assurances obligatoires',
+    items.add(ScoreItem(
+      label: l?.circleLabelAssurancesObligatoires ?? 'Assurances obligatoires',
       status: ItemStatus.perfect,
-      detail: 'LAMal active',
+      detail: 'LAMal active', // Legal identifier — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -108,7 +112,7 @@ class CircleScoringService {
     final percentage = (totalScore / totalWeight) * 100;
 
     return CircleScore(
-      circleName: 'Protection & Sécurité',
+      circleName: l?.circleNameProtection ?? 'Protection & Sécurité',
       circleNumber: 1,
       percentage: percentage,
       level: _percentageToLevel(percentage),
@@ -118,7 +122,7 @@ class CircleScoringService {
   }
 
   /// CERCLE 2 : PRÉVOYANCE
-  CircleScore _scoreCircle2Prevoyance(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle2Prevoyance(Map<String, dynamic> answers, S? l) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -138,7 +142,7 @@ class CircleScoringService {
       accountDetail = 'Aucun 3a';
     }
     items.add(ScoreItem(
-      label: '3a - Optimisation',
+      label: l?.circleLabelTroisaOptimisation ?? '3a - Optimisation',
       status: accountStatus,
       detail: accountDetail,
       weight: 2.0,
@@ -149,7 +153,7 @@ class CircleScoringService {
     // 2. 3a - Versement maximum
     final contribution3a = _parseDouble(answers['q_3a_annual_contribution']);
     final isSalaried = answers['q_employment_status'] == 'employee';
-    final maxContribution = isSalaried ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp;
+    final maxContribution = isSalaried ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
     ItemStatus contributionStatus;
     if (contribution3a != null && contribution3a >= maxContribution * 0.9) {
@@ -163,10 +167,10 @@ class CircleScoringService {
       contributionStatus = ItemStatus.critical;
     }
     items.add(ScoreItem(
-      label: '3a - Versement',
+      label: l?.circleLabelTroisaVersement ?? '3a - Versement',
       status: contributionStatus,
       detail: contribution3a != null
-          ? 'CHF ${contribution3a.toStringAsFixed(0)}/an (max: ${maxContribution.toStringAsFixed(0)})'
+          ? '${formatChfWithPrefix(contribution3a)}/an (max: ${formatChf(maxContribution)})'
           : 'Non renseigné',
       weight: 1.5,
     ));
@@ -185,10 +189,10 @@ class CircleScoringService {
       lppStatus = ItemStatus.unknown;
     }
     items.add(ScoreItem(
-      label: 'LPP - Rachat',
+      label: l?.circleLabelLppRachat ?? 'LPP - Rachat',
       status: lppStatus,
       detail: lppBuyback != null && lppBuyback > 0
-          ? 'CHF ${lppBuyback.toStringAsFixed(0)} disponibles'
+          ? '${formatChfWithPrefix(lppBuyback)} disponibles'
           : 'Aucune lacune',
       weight: 2.0,
     ));
@@ -196,9 +200,10 @@ class CircleScoringService {
     totalScore += lppStatus.scoreValue * 2.0;
 
     // 4. AVS - Lacunes (logique experte : triage + calcul intelligent)
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
+    // CHAOS-78: Never default to 1990 — unknown birthYear = null, skip AVS gap calc.
+    final birthYear = _parseInt(answers['q_birth_year']);
     final civilStatus = answers['q_civil_status'];
-    final avsGapYears = _calculateAvsGaps(answers, birthYear);
+    final avsGapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
 
     // Fallback vers les réponses legacy (q_first_employment_year, q_avs_gaps)
     final legacyFirstEmployment = _parseInt(answers['q_first_employment_year']);
@@ -211,7 +216,7 @@ class CircleScoringService {
     if (avsGapYears != null) {
       // Nouvelle logique experte
       final gap = avsGapYears;
-      final theoreticalYears = _theoreticalAvsYears(birthYear);
+      final theoreticalYears = _theoreticalAvsYears(birthYear!);
       final contributionYears = (theoreticalYears - gap).clamp(0, 44);
       if (gap <= 0) {
         avsStatus = ItemStatus.perfect;
@@ -225,7 +230,9 @@ class CircleScoringService {
       }
     } else if (legacyFirstEmployment != null) {
       // Fallback legacy : q_first_employment_year
-      final startYear = [legacyFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b);
+      final startYear = birthYear != null
+          ? [legacyFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
+          : legacyFirstEmployment;
       final years = (DateTime.now().year - startYear).clamp(0, 44);
       final gap = 44 - years;
       if (gap <= 0) {
@@ -263,7 +270,7 @@ class CircleScoringService {
 
     // Conjoint — même logique experte
     if (civilStatus == 'married') {
-      final spouseGapYears = _calculateSpouseAvsGaps(answers, birthYear);
+      final spouseGapYears = birthYear != null ? _calculateSpouseAvsGaps(answers, birthYear) : null;
 
       // Fallback legacy conjoint
       final legacySpouseFirstEmployment = _parseInt(answers['q_spouse_first_employment_year']);
@@ -273,7 +280,9 @@ class CircleScoringService {
       if (spouseGapYears != null) {
         spouseGap = spouseGapYears;
       } else if (legacySpouseFirstEmployment != null) {
-        final spouseStart = [legacySpouseFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b);
+        final spouseStart = birthYear != null
+            ? [legacySpouseFirstEmployment, birthYear + 21].reduce((a, b) => a > b ? a : b)
+            : legacySpouseFirstEmployment;
         final years = (DateTime.now().year - spouseStart).clamp(0, 44);
         spouseGap = 44 - years;
       } else if (legacySpouseAvsYears != null) {
@@ -289,7 +298,7 @@ class CircleScoringService {
     }
 
     items.add(ScoreItem(
-      label: 'AVS',
+      label: l?.circleLabelAvs ?? 'AVS',
       status: avsStatus,
       detail: avsDetail,
       weight: 1.0,
@@ -300,7 +309,7 @@ class CircleScoringService {
     final percentage = (totalScore / totalWeight) * 100;
 
     return CircleScore(
-      circleName: 'Prévoyance Fiscale',
+      circleName: l?.circleNamePrevoyance ?? 'Prévoyance Fiscale',
       circleNumber: 2,
       percentage: percentage,
       level: _percentageToLevel(percentage),
@@ -310,7 +319,7 @@ class CircleScoringService {
   }
 
   /// CERCLE 3 : CROISSANCE
-  CircleScore _scoreCircle3Croissance(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle3Croissance(Map<String, dynamic> answers, S? l) {
     final items = <ScoreItem>[];
     double totalWeight = 0;
     double totalScore = 0;
@@ -319,9 +328,9 @@ class CircleScoringService {
     final hasInvestments = answers['q_has_investments'] == 'yes';
     final investStatus = hasInvestments ? ItemStatus.good : ItemStatus.warning;
     items.add(ScoreItem(
-      label: 'Investissements',
+      label: l?.circleLabelInvestissements ?? 'Investissements',
       status: investStatus,
-      detail: hasInvestments ? 'Actif' : 'Non diversifié',
+      detail: hasInvestments ? 'Actif' : 'Non diversifié', // Internal detail — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -331,9 +340,9 @@ class CircleScoringService {
     final isOwner = answers['q_housing_status'] == 'owner';
     final ownerStatus = isOwner ? ItemStatus.good : ItemStatus.warning;
     items.add(ScoreItem(
-      label: 'Patrimoine immobilier',
+      label: l?.circleLabelPatrimoineImmobilier ?? 'Patrimoine immobilier',
       status: ownerStatus,
-      detail: isOwner ? 'Propriétaire' : 'Locataire',
+      detail: isOwner ? 'Propriétaire' : 'Locataire', // Internal detail — not extracted
       weight: 1.0,
     ));
     totalWeight += 1.0;
@@ -342,7 +351,7 @@ class CircleScoringService {
     final percentage = (totalScore / totalWeight) * 100;
 
     return CircleScore(
-      circleName: 'Croissance',
+      circleName: l?.circleNameCroissance ?? 'Croissance',
       circleNumber: 3,
       percentage: percentage,
       level: _percentageToLevel(percentage),
@@ -352,15 +361,15 @@ class CircleScoringService {
   }
 
   /// CERCLE 4 : OPTIMISATION
-  CircleScore _scoreCircle4Optimisation(Map<String, dynamic> answers) {
+  CircleScore _scoreCircle4Optimisation(S? l) {
     // Simplifié pour l'instant
-    return const CircleScore(
-      circleName: 'Optimisation & Transmission',
+    return CircleScore(
+      circleName: l?.circleNameOptimisation ?? 'Optimisation & Transmission',
       circleNumber: 4,
       percentage: 20,
       level: ScoreLevel.needsImprovement,
-      items: [],
-      recommendations: ['Cercles 1-3 à compléter en priorité'],
+      items: const [],
+      recommendations: const ['Cercles 1-3 à compléter en priorité'], // Internal — not extracted
     );
   }
 
@@ -425,8 +434,9 @@ class CircleScoringService {
       reco.add(
           'Commande ton extrait de compte individuel (CI) gratuit sur inforegister.ch pour vérifier tes lacunes AVS');
     }
-    final birthYear = _parseInt(answers['q_birth_year']) ?? 1990;
-    final gapYears = _calculateAvsGaps(answers, birthYear);
+    // CHAOS-78: Never default to 1990 — skip AVS gap calc if birth year unknown.
+    final birthYear = _parseInt(answers['q_birth_year']);
+    final gapYears = birthYear != null ? _calculateAvsGaps(answers, birthYear) : null;
     if (gapYears != null && gapYears > 0) {
       reco.add(
           'Tu peux racheter les 5 dernières années de lacune AVS auprès de ta caisse cantonale (LAVS art. 16)');
@@ -477,7 +487,18 @@ class CircleScoringService {
 
   /// Calcule le nombre d'années de lacune AVS depuis les nouvelles questions.
   /// Retourne null si les nouvelles questions n'ont pas été répondues (fallback legacy).
-  int? _calculateAvsGaps(Map<String, dynamic> answers, int birthYear) {
+  int? _calculateAvsGaps(Map<String, dynamic> answers, int birthYear) =>
+      calculateAvsGapsFromAnswers(answers, birthYear);
+
+  int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) =>
+      calculateSpouseAvsGapsFromAnswers(answers, birthYear);
+
+  // ── Shared AVS gap helpers (used by CircleScoringService + FinancialReportService) ──
+
+  /// Calculates AVS gap years from triage answers (LAVS art. 29ter).
+  /// Public static so FinancialReportService can reuse without duplication.
+  static int? calculateAvsGapsFromAnswers(
+      Map<String, dynamic> answers, int birthYear) {
     final status = answers['q_avs_lacunes_status'];
     if (status == null) return null;
 
@@ -485,13 +506,13 @@ class CircleScoringService {
       case 'no_gaps':
         return 0;
       case 'arrived_late':
-        final arrivalYear = _parseInt(answers['q_avs_arrival_year']);
+        final arrivalYear = _parseIntStatic(answers['q_avs_arrival_year']);
         if (arrivalYear == null) return null;
         // Lacunes = années entre 21 ans et l'arrivée en Suisse
         final avsStartAge21 = birthYear + 21;
         return (arrivalYear - avsStartAge21).clamp(0, 44);
       case 'lived_abroad':
-        return _parseInt(answers['q_avs_years_abroad']) ?? 0;
+        return _parseIntStatic(answers['q_avs_years_abroad']) ?? 0;
       case 'unknown':
         // On ne peut pas calculer précisément, mais on signale le risque
         return null;
@@ -500,8 +521,9 @@ class CircleScoringService {
     }
   }
 
-  /// Même logique pour le conjoint.
-  int? _calculateSpouseAvsGaps(Map<String, dynamic> answers, int birthYear) {
+  /// Same logic for spouse.
+  static int? calculateSpouseAvsGapsFromAnswers(
+      Map<String, dynamic> answers, int birthYear) {
     final status = answers['q_spouse_avs_lacunes_status'];
     if (status == null) return null;
 
@@ -509,16 +531,24 @@ class CircleScoringService {
       case 'no_gaps':
         return 0;
       case 'arrived_late':
-        final arrivalYear = _parseInt(answers['q_spouse_avs_arrival_year']);
+        final arrivalYear =
+            _parseIntStatic(answers['q_spouse_avs_arrival_year']);
         if (arrivalYear == null) return null;
         final avsStartAge21 = birthYear + 21;
         return (arrivalYear - avsStartAge21).clamp(0, 44);
       case 'lived_abroad':
-        return _parseInt(answers['q_spouse_avs_years_abroad']) ?? 0;
+        return _parseIntStatic(answers['q_spouse_avs_years_abroad']) ?? 0;
       case 'unknown':
         return null;
       default:
         return null;
     }
+  }
+
+  static int? _parseIntStatic(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value);
+    return null;
   }
 }

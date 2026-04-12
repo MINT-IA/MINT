@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/domain/calculators.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -13,9 +13,15 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/widgets/coach/countdown_3a_widget.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class Simulator3aScreen extends StatefulWidget {
   const Simulator3aScreen({super.key});
@@ -33,46 +39,191 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
   double _annualReturn = 4.0;
 
   Map<String, double>? _result;
+  bool _hasUserInteracted = false;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  /// Sequence IDs read from GoRouter.extra (Tier A when present).
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  // Uses centralized formatChfWithPrefix from chf_formatter.dart
+  late final TextEditingController _contributionCtrl;
+
+  /// True if values were pre-filled from CoachProfile.
+  bool _isPreFilled = false;
+  /// Canton used for estimated marginal rate display.
+  String _profileCanton = '';
+  /// Fields pre-filled from GoRouter coach suggestion.
+  final Set<String> _prefilledFields = {};
 
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('3a');
+    _contributionCtrl = TextEditingController();
     _initializeFromProfile();
+    _contributionCtrl.text = _annualContribution.round().toString();
     _calculate();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('3a');
+      }
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
+      }
+    } catch (_) {}
+  }
+
+  /// Apply prefill values from GoRouter coach suggestion.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      // Monthly → annual (13 months)
+      final annualSalary = salaireBrut.toDouble() * 13;
+      // Re-derive marginal rate if canton is available
+      if (_profileCanton.isNotEmpty) {
+        _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
+          annualSalary,
+          _profileCanton,
+        );
+      }
+      _prefilledFields.add('salaire_brut');
+      changed = true;
+    }
+
+    final canton = prefill['canton'];
+    if (canton is String && canton.isNotEmpty) {
+      _profileCanton = canton.toUpperCase();
+      _prefilledFields.add('canton');
+      changed = true;
+    }
+
+    if (changed) {
+      setState(() {});
+      _calculate();
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('simulator_3a',
+        ScreenReturn.abandoned(
+          route: '/pilier-3a',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final economieFiscale = _result?['annualTaxSaved'] ?? 0.0;
+    ScreenCompletionTracker.markCompletedWithReturn('simulator_3a',
+      ScreenReturn.completed(
+        route: '/pilier-3a',
+        stepOutputs: {
+          'contribution_annuelle': _annualContribution,
+          'economie_fiscale': economieFiscale,
+        },
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
+  }
+
+  @override
+  void dispose() {
+    _contributionCtrl.dispose();
+    super.dispose();
   }
 
   void _initializeFromProfile() {
-    final profileProvider = context.read<ProfileProvider>();
-    if (profileProvider.hasProfile) {
-      final profile = profileProvider.profile!;
-      if (profile.birthYear != null) {
-        final age = DateTime.now().year - profile.birthYear!;
-        _years = (65 - age).clamp(5, 45);
-      }
+    // Try CoachProfileProvider first (richer data), fall back to ProfileProvider.
+    bool filled = false;
+    try {
+      final coachProvider = context.read<CoachProfileProvider>();
+      final coachProfile = coachProvider.profile;
+      if (coachProfile != null) {
+        filled = true;
+        _isPreFilled = true;
 
-      // Independant sans LPP : plafond majore a 36'288 CHF (OPP3 art. 7)
-      if (profile.employmentStatus == EmploymentStatus.selfEmployed &&
-          profile.has2ndPillar != true) {
-        _isIndepSansLpp = true;
-        _plafond3a = pilier3aPlafondSansLpp;
-        _annualContribution = pilier3aPlafondSansLpp;
-      }
+        // Age + years to retirement
+        _years = coachProfile.anneesAvantRetraite.clamp(1, 45);
 
-      // Rough estimate of marginal tax rate based on income if available
-      if (profile.incomeNetMonthly != null) {
-        final annualIncome = profile.incomeNetMonthly! * 12;
-        if (annualIncome > 150000) {
-          _marginalTaxRate = 0.35;
-        } else if (annualIncome > 100000) {
-          _marginalTaxRate = 0.30;
-        } else if (annualIncome > 60000) {
-          _marginalTaxRate = 0.25;
-        } else {
-          _marginalTaxRate = 0.20;
+        // Canton
+        _profileCanton = coachProfile.canton.isNotEmpty
+            ? coachProfile.canton
+            : '';
+
+        // Independent sans LPP
+        if (coachProfile.archetype == FinancialArchetype.independentNoLpp) {
+          _isIndepSansLpp = true;
+          _plafond3a = pilier3aPlafondSansLpp;
+          _annualContribution = pilier3aPlafondSansLpp;
         }
+
+        // Marginal tax rate from TaxCalculator (precise, canton-aware)
+        final grossAnnual = coachProfile.salaireBrutMensuel * 12;
+        if (grossAnnual > 0 && _profileCanton.isNotEmpty) {
+          final isMarried =
+              coachProfile.etatCivil == CoachCivilStatus.marie;
+          _marginalTaxRate = RetirementTaxCalculator.estimateMarginalRate(
+            grossAnnual,
+            _profileCanton,
+            isMarried: isMarried,
+            children: coachProfile.nombreEnfants,
+          );
+        }
+      }
+    } catch (_) {
+      // CoachProfileProvider not in tree — fall back below.
+    }
+
+    if (!filled) {
+      // Legacy fallback: ProfileProvider.
+      try {
+        final profileProvider = context.read<ProfileProvider>();
+        if (profileProvider.hasProfile) {
+          final profile = profileProvider.profile!;
+          if (profile.birthYear != null) {
+            final age = DateTime.now().year - profile.birthYear!;
+            _years = (avsAgeReferenceHomme - age).clamp(5, 45);
+          }
+
+          if (profile.employmentStatus == EmploymentStatus.selfEmployed &&
+              profile.has2ndPillar != true) {
+            _isIndepSansLpp = true;
+            _plafond3a = pilier3aPlafondSansLpp;
+            _annualContribution = pilier3aPlafondSansLpp;
+          }
+
+          if (profile.incomeNetMonthly != null) {
+            final annualIncome = profile.incomeNetMonthly! * 12;
+            if (annualIncome > 150000) {
+              _marginalTaxRate = 0.35;
+            } else if (annualIncome > 100000) {
+              _marginalTaxRate = 0.30;
+            } else if (annualIncome > 60000) {
+              _marginalTaxRate = 0.25;
+            } else {
+              _marginalTaxRate = 0.20;
+            }
+          }
+        }
+      } catch (_) {
+        // No profile provider available.
       }
     }
   }
@@ -86,6 +237,62 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         annualReturn: _annualReturn,
       );
     });
+    if (!_hasUserInteracted) return;
+    _writeBackResult();
+    if (_seqRunId != null) return; // Sequence mode: terminal only on pop
+    final screenReturn = ScreenReturn.completed(
+      route: '/pilier-3a',
+      updatedFields: {'simulated3aAmount': _annualContribution},
+      confidenceDelta: 0.02,
+    );
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'simulator_3a',
+      screenReturn,
+    );
+  }
+
+  /// Write computed 3a simulation results back to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    final result = _result;
+    if (result == null) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      // Write back optimal 3a contribution to profile
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          totalEpargne3a: profile.prevoyance.totalEpargne3a > 0
+              ? profile.prevoyance.totalEpargne3a
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
   }
 
   @override
@@ -93,7 +300,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
     final l = S.of(context)!;
     final hasDebt = context.watch<ProfileProvider>().profile?.hasDebt ?? false;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.background,
       appBar: AppBar(
         backgroundColor: MintColors.white,
@@ -101,14 +312,14 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
         title: Text(l.sim3aTitle, style: MintTextStyles.headlineMedium()),
         actions: const [],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.sm),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildCoachSection(),
+            MintEntrance(child: _buildCoachSection()),
             const SizedBox(height: MintSpacing.xl),
-            _buildInputSection(),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputSection()),
             const SizedBox(height: MintSpacing.xl),
             if (_result != null)
               SafeModeGate(
@@ -118,33 +329,31 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                 child: _buildResultSection(),
               ),
             const SizedBox(height: MintSpacing.xl),
-            SafeModeGate(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: SafeModeGate(
               hasDebt: hasDebt,
               lockedTitle: l.sim3aDebtStrategyTitle,
               lockedMessage: l.sim3aDebtStrategyMessage,
               child: _buildEducationSection(),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xl),
-            _buildRelatedSections(),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildRelatedSections()),
             const SizedBox(height: MintSpacing.xxl),
-            _buildDisclaimer(),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildDisclaimer()),
             const SizedBox(height: MintSpacing.lg),
             _buildCountdown3a(),
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      )))),
     );
   }
 
   Widget _buildCoachSection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -167,104 +376,221 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
 
   Widget _buildInputSection() {
     final l = S.of(context)!;
+
+    // Tax rate chips: common Swiss marginal rates.
+    const taxRateOptions = [0.10, 0.20, 0.25, 0.30, 0.35, 0.40];
+
+    // Return rate chips.
+    const returnOptions = [1.0, 3.0, 5.0, 7.0];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(l.sim3aParamsHeader, style: MintTextStyles.labelSmall()),
+
+        // Pre-filled indicator.
+        if (_isPreFilled) ...[
+          const SizedBox(height: MintSpacing.xs),
+          Row(
+            children: [
+              Icon(Icons.check_circle_outline, size: 14,
+                  color: MintColors.success.withValues(alpha: 0.7)),
+              const SizedBox(width: 4),
+              Text(
+                l.sim3aProfilePreFilled,
+                style: MintTextStyles.labelSmall(color: MintColors.success)
+                    ,
+              ),
+              if (_prefilledFields.isNotEmpty)
+                const SmartDefaultIndicator(
+                  source: 'Depuis ton profil MINT',
+                  confidence: 0.60,
+                ),
+            ],
+          ),
+        ],
+
         const SizedBox(height: MintSpacing.lg),
-        _buildSlider(
-          label: _isIndepSansLpp
+
+        // ── 1. Annual contribution: tap-to-type CHF field ──
+        Text(
+          _isIndepSansLpp
               ? l.sim3aAnnualContributionIndep
-              : l.sim3aAnnualContribution,
-          value: _annualContribution,
-          min: 1000,
-          max: _plafond3a,
-          divisions: ((_plafond3a - 1000) / 50).round(),
-          format: (v) => _currencyFormat.format(v),
-          onChanged: (v) {
-            _annualContribution = (v / 50).round() * 50.0;
-            _calculate();
+              : l.sim3aContributionFieldLabel,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+        ),
+        const SizedBox(height: MintSpacing.xs),
+        TextField(
+          controller: _contributionCtrl,
+          keyboardType: TextInputType.number,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary)
+              .copyWith(fontWeight: FontWeight.w600),
+          decoration: InputDecoration(
+            suffixText: 'CHF',
+            suffixStyle: MintTextStyles.bodySmall(color: MintColors.textMuted),
+            hintText: formatChfWithPrefix(_plafond3a),
+            hintStyle: MintTextStyles.bodyMedium(color: MintColors.textMuted),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: MintSpacing.md, vertical: MintSpacing.sm),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: MintColors.primary, width: 1.5),
+            ),
+          ),
+          onChanged: (text) {
+            final parsed = double.tryParse(text.replaceAll(RegExp(r"[^0-9.]"), ''));
+            if (parsed != null) {
+              _hasUserInteracted = true;
+              _annualContribution = parsed.clamp(0, _plafond3a);
+              _calculate();
+            }
           },
         ),
-        const SizedBox(height: MintSpacing.md),
-        _buildSlider(
-          label: l.sim3aMarginalRate,
-          value: _marginalTaxRate * 100,
-          min: 10,
-          max: 45,
-          divisions: 35,
-          format: (v) => '${v.toStringAsFixed(0)}\u00a0%',
-          onChanged: (v) {
-            _marginalTaxRate = v / 100;
-            _calculate();
-          },
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Text(
+            'Max: ${formatChfWithPrefix(_plafond3a)}',
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted),
+          ),
         ),
-        const SizedBox(height: MintSpacing.md),
-        _buildSlider(
-          label: l.sim3aYearsToRetirement,
-          value: _years.toDouble(),
-          min: 5,
-          max: 45,
-          divisions: 40,
-          format: (v) => l.sim3aYearsSuffix(v.toInt()),
-          onChanged: (v) {
-            _years = v.toInt();
-            _calculate();
-          },
+
+        const SizedBox(height: MintSpacing.lg),
+
+        // ── 2. Marginal tax rate: chips ──
+        Text(
+          l.sim3aTaxRateChipsLabel,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
         ),
-        const SizedBox(height: MintSpacing.md),
-        _buildSlider(
-          label: l.sim3aExpectedReturn,
-          value: _annualReturn,
-          min: 0,
-          max: 10,
-          divisions: 20,
-          format: (v) => '${v.toStringAsFixed(1)}\u00a0%',
-          onChanged: (v) {
-            _annualReturn = v;
-            _calculate();
-          },
+        if (_isPreFilled && _profileCanton.isNotEmpty) ...[
+          const SizedBox(height: 2),
+          Text(
+            l.sim3aProfileEstimatedRate(
+              (_marginalTaxRate * 100).round().toString(),
+              _profileCanton,
+            ),
+            style: MintTextStyles.labelSmall(color: MintColors.textMuted)
+                ,
+          ),
+        ],
+        const SizedBox(height: MintSpacing.sm),
+        Wrap(
+          spacing: MintSpacing.sm,
+          runSpacing: MintSpacing.xs,
+          children: taxRateOptions.map((rate) {
+            final isSelected = (_marginalTaxRate - rate).abs() < 0.01;
+            return ChoiceChip(
+              label: Text('${(rate * 100).round()}\u00a0%'),
+              selected: isSelected,
+              onSelected: (_) {
+                _hasUserInteracted = true;
+                setState(() => _marginalTaxRate = rate);
+                _calculate();
+              },
+              selectedColor: MintColors.primary.withValues(alpha: 0.15),
+              backgroundColor: MintColors.surface,
+              labelStyle: MintTextStyles.bodySmall(
+                color: isSelected ? MintColors.primary : MintColors.textPrimary,
+              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+              side: BorderSide(
+                color: isSelected ? MintColors.primary : MintColors.border,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            );
+          }).toList(),
+        ),
+
+        const SizedBox(height: MintSpacing.lg),
+
+        // ── 3. Years to retirement: read-only (computed from age) ──
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Text(
+                l.sim3aYearsAutoLabel,
+                style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+              ),
+            ),
+            const SizedBox(width: MintSpacing.sm),
+            MintSurface(
+              tone: MintSurfaceTone.porcelaine,
+              padding: const EdgeInsets.symmetric(
+                horizontal: MintSpacing.md, vertical: MintSpacing.xs),
+              radius: 12,
+              child: Text(
+                l.sim3aYearsReadOnly(_years),
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: MintSpacing.lg),
+
+        // ── 4. Expected return: chips ──
+        Text(
+          l.sim3aReturnChipsLabel,
+          style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+        ),
+        const SizedBox(height: MintSpacing.sm),
+        Wrap(
+          spacing: MintSpacing.sm,
+          runSpacing: MintSpacing.xs,
+          children: returnOptions.map((rate) {
+            final isSelected = (_annualReturn - rate).abs() < 0.01;
+            return ChoiceChip(
+              label: Text('${rate.toStringAsFixed(0)}\u00a0%'),
+              selected: isSelected,
+              onSelected: (_) {
+                _hasUserInteracted = true;
+                setState(() => _annualReturn = rate);
+                _calculate();
+              },
+              selectedColor: MintColors.primary.withValues(alpha: 0.15),
+              backgroundColor: MintColors.surface,
+              labelStyle: MintTextStyles.bodySmall(
+                color: isSelected ? MintColors.primary : MintColors.textPrimary,
+              ).copyWith(fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400),
+              side: BorderSide(
+                color: isSelected ? MintColors.primary : MintColors.border,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) format,
-    required void Function(double) onChanged,
-  }) {
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions,
-      formatValue: format,
-      onChanged: onChanged,
-    );
-  }
-
   Widget _buildResultSection() {
     final l = S.of(context)!;
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Column(
         children: [
           Text(l.sim3aAnnualTaxSaved, style: MintTextStyles.bodyMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(
-            _currencyFormat.format(_result!['annualTaxSaved']!),
-            style: MintTextStyles.displayMedium(color: MintColors.primary),
+          Semantics(
+            label: '${l.sim3aAnnualTaxSaved}: ${formatChfWithPrefix(_result!['annualTaxSaved']!)}',
+            child: Text(
+              formatChfWithPrefix(_result!['annualTaxSaved']!),
+              style: MintTextStyles.displayMedium(color: MintColors.primary),
+            ),
           ),
           const SizedBox(height: MintSpacing.lg),
           const Divider(color: MintColors.border),
@@ -283,7 +609,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       children: [
         Flexible(child: Text(label, style: MintTextStyles.bodyMedium())),
         Text(
-          _currencyFormat.format(value),
+          formatChfWithPrefix(value),
           style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
@@ -310,12 +636,10 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            radius: 12,
             child: Icon(icon, color: MintColors.primary, size: 20),
           ),
           const SizedBox(width: MintSpacing.md),
@@ -323,7 +647,7 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: MintTextStyles.titleMedium().copyWith(fontSize: 15)),
+                Text(title, style: MintTextStyles.labelLarge()),
                 const SizedBox(height: MintSpacing.xs),
                 Text(subtitle, style: MintTextStyles.bodyMedium()),
               ],

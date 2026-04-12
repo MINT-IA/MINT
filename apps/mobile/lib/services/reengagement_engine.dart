@@ -19,6 +19,9 @@
 /// - LPD art. 6 (principes de traitement)
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
+
 // ────────────────────────────────────────────────────────────
 //  REENGAGEMENT ENGINE — S40 / Reengagement + Consent
 // ────────────────────────────────────────────────────────────
@@ -120,21 +123,22 @@ class ReengagementEngine {
   /// current month. Multiple messages may apply (e.g. quarterly + monthly).
   static List<ReengagementMessage> generateMessages({
     DateTime? today,
-    String canton = 'VD',
+    String canton = 'ZH',
     double taxSaving3a = 0,
     double friTotal = 0,
     double friDelta = 0,
+    S? l,
   }) {
     final now = today ?? DateTime.now();
     final month = now.month;
-    final savingStr = _formatChf(taxSaving3a);
+    final savingStr = chf.formatChf(taxSaving3a);
     final messages = <ReengagementMessage>[];
 
     // ── January: Nouveaux plafonds 3a ────────────────────────
     if (month == 1) {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.newYear,
-        title: 'Nouveaux plafonds 3a',
+        title: l?.reengagementTitleNewYear ?? 'Nouveaux plafonds 3a',
         body: 'Nouveaux plafonds 3a : CHF 7\'258. '
             'Ton economie potentielle : CHF $savingStr.',
         deeplink: '/pilier-3a',
@@ -148,7 +152,7 @@ class ReengagementEngine {
     if (month == 2) {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.taxPrep,
-        title: 'Declaration fiscale',
+        title: l?.reengagementTitleTaxPrep ?? 'Declaration fiscale',
         body: 'Prepare ta declaration : tes chiffres cles sont disponibles.',
         deeplink: '/tools',
         personalNumber: 'CHF $savingStr',
@@ -162,7 +166,7 @@ class ReengagementEngine {
       final daysLeft = _daysUntilEndOfMonth(now);
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.taxDeadline,
-        title: 'Deadline fiscale',
+        title: l?.reengagementTitleTaxDeadline ?? 'Deadline fiscale',
         body: 'Deadline canton de $canton : '
             'il reste $daysLeft jours.',
         deeplink: '/tools',
@@ -177,7 +181,7 @@ class ReengagementEngine {
       final daysLeft = _daysUntilEndOfYear(now);
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.threeACountdown,
-        title: 'Deadline 3a',
+        title: l?.reengagementTitleThreeA ?? 'Deadline 3a',
         body: 'Il reste $daysLeft jours pour verser ton 3a.',
         deeplink: '/pilier-3a',
         personalNumber: 'CHF $savingStr',
@@ -191,7 +195,7 @@ class ReengagementEngine {
       final daysLeft = _daysUntilEndOfYear(now);
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.threeAUrgency,
-        title: 'Deadline 3a',
+        title: l?.reengagementTitleThreeA ?? 'Deadline 3a',
         body: 'Il reste $daysLeft jours. '
             'Economie estimee : CHF $savingStr.',
         deeplink: '/pilier-3a',
@@ -205,7 +209,7 @@ class ReengagementEngine {
     if (month == 12) {
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.threeAFinal,
-        title: 'Dernier mois 3a',
+        title: l?.reengagementTitleThreeAFinal ?? 'Dernier mois 3a',
         body: 'Dernier mois. CHF $savingStr d\'économie en jeu.',
         deeplink: '/pilier-3a',
         personalNumber: 'CHF $savingStr',
@@ -221,7 +225,7 @@ class ReengagementEngine {
       final deltaStr = '$deltaSign${friDelta.toStringAsFixed(0)}';
       messages.add(ReengagementMessage(
         trigger: ReengagementTrigger.quarterlyFri,
-        title: 'Score de solidite',
+        title: l?.reengagementTitleQuarterlyFri ?? 'Score de solidite',
         body: 'Ton score de solidite : $friStr '
             '($deltaStr ce trimestre).',
         deeplink: '/retraite',
@@ -234,18 +238,7 @@ class ReengagementEngine {
     return messages;
   }
 
-  // ── Formatting helpers ─────────────────────────────────────
-
-  /// Format a CHF amount with Swiss apostrophe as thousands separator.
-  ///
-  /// Example: 1820.5 -> "1'820", 7258.0 -> "7'258"
-  static String _formatChf(double amount) {
-    final intStr = amount.toStringAsFixed(0);
-    return intStr.replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-      (Match m) => '${m[1]}\'',
-    );
-  }
+  // F3: _formatChf removed — use centralized chf.formatChf()
 
   /// Days remaining until end of the current month.
   static int _daysUntilEndOfMonth(DateTime date) {

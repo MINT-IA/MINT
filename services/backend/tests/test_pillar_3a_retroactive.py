@@ -4,7 +4,6 @@ Validates the NEW 2026 law allowing up to 10 years of retroactive
 Pillar 3a contributions with full tax deductibility.
 """
 
-import pytest
 
 from app.services.pillar_3a_deep.retroactive_3a_service import (
     HISTORICAL_3A_LIMITS,
@@ -119,12 +118,12 @@ class TestRetroactive3aSansLpp:
 class TestRetroactive3aCompliance:
     """Compliance and output format."""
 
-    def test_chiffre_choc_contains_key_elements(self):
+    def test_premier_eclairage_contains_key_elements(self):
         """Chiffre choc must contain year count and CHF amount."""
         result = calculate_retroactive_3a(gap_years=5, taux_marginal=0.30)
-        assert "5" in result.chiffre_choc
-        assert "CHF" in result.chiffre_choc
-        assert "2026" in result.chiffre_choc
+        assert "5" in result.premier_eclairage
+        assert "CHF" in result.premier_eclairage
+        assert "2026" in result.premier_eclairage
 
     def test_disclaimer_present(self):
         """Disclaimer must be present and mention educational tool."""
@@ -139,13 +138,13 @@ class TestRetroactive3aCompliance:
         assert "OPP3" in sources_text
         assert "LIFD" in sources_text
 
-    def test_no_banned_terms_in_chiffre_choc(self):
+    def test_no_banned_terms_in_premier_eclairage(self):
         """Chiffre choc must not contain banned terms."""
         banned = ["garanti", "certain", "assur", "sans risque", "optimal", "meilleur"]
         result = calculate_retroactive_3a(gap_years=10, taux_marginal=0.35)
-        lower = result.chiffre_choc.lower()
+        lower = result.premier_eclairage.lower()
         for term in banned:
-            assert term not in lower, f"Banned term '{term}' found in chiffre choc"
+            assert term not in lower, f"Banned term '{term}' found in premier éclairage"
 
 
 class TestRetroactive3aGoldenProfiles:

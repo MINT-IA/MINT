@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COACHING PROACTIF SERVICE — Sprint S11
@@ -128,44 +130,18 @@ class CoachingService {
   // ──────────────────────────────────────────────────────────
 
   /// 3a ceiling for salaried employees (2025/2026, OPP3 art. 7).
-  static const double _plafond3aSalarie = pilier3aPlafondAvecLpp;
+  static double get _plafond3aSalarie => reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
 
   /// 3a ceiling for self-employed without LPP (2025/2026, OPP3 art. 7).
-  static const double _plafond3aIndependant = pilier3aPlafondSansLpp;
+  static double get _plafond3aIndependant => reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp);
 
   /// Swiss legal retirement age (post-AVS21 reform, unified at 65).
-  static const int _ageRetraite = 65;
+  static int get _ageRetraite => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
-  /// Simplified cantonal marginal tax rates for fiscal impact estimation.
-  /// These are rough averages (fed + cantonal + communal) at ~80 kCHF income.
-  static const Map<String, double> _tauxMarginalCantonal = {
-    'ZH': 0.34,
-    'BE': 0.38,
-    'LU': 0.30,
-    'UR': 0.25,
-    'SZ': 0.24,
-    'OW': 0.25,
-    'NW': 0.25,
-    'GL': 0.29,
-    'ZG': 0.22,
-    'FR': 0.35,
-    'SO': 0.35,
-    'BS': 0.37,
-    'BL': 0.35,
-    'SH': 0.33,
-    'AR': 0.30,
-    'AI': 0.27,
-    'SG': 0.33,
-    'GR': 0.32,
-    'AG': 0.33,
-    'TG': 0.31,
-    'TI': 0.35,
-    'VD': 0.37,
-    'VS': 0.32,
-    'NE': 0.38,
-    'GE': 0.37,
-    'JU': 0.38,
-  };
+  // Cantonal marginal tax rates removed — replaced by
+  // RetirementTaxCalculator.estimateMarginalRate(income, canton)
+  // from financial_core/tax_calculator.dart, which accounts for
+  // both income level and canton grouping (high/low tax cantons).
 
   /// Age milestones with coaching relevance.
   static const List<int> _ageMilestones = [25, 35, 45, 50, 55, 58, 63];
@@ -304,7 +280,7 @@ Tu es le coach MINT. Personnalise ce conseil pour $firstName :
 TIP :
 - Titre : ${tip.title}
 - Message : ${tip.message}
-- Impact : ${tip.estimatedImpactChf != null ? 'CHF ${tip.estimatedImpactChf!.toStringAsFixed(0)}' : 'non estime'}
+- Impact : ${tip.estimatedImpactChf != null ? formatChfWithPrefix(tip.estimatedImpactChf!) : 'non estime'}
 - Source : ${tip.source}
 
 PROFIL :
@@ -312,12 +288,12 @@ PROFIL :
 - Canton : ${profile.canton}
 - Statut civil : ${profile.etatCivil.name}
 - Emploi : ${profile.employmentStatus.name} (${profile.tauxActivite}%)
-- Revenu annuel : CHF ${profile.revenuAnnuel.toStringAsFixed(0)}
-- 3a : ${profile.has3a ? 'oui (CHF ${profile.montant3a.toStringAsFixed(0)})' : 'non'}
-- LPP : avoir CHF ${profile.avoirLpp.toStringAsFixed(0)}, lacune CHF ${profile.lacuneLpp.toStringAsFixed(0)}
-- Epargne dispo : CHF ${profile.epargneDispo.toStringAsFixed(0)}
-- Dettes : CHF ${profile.detteTotale.toStringAsFixed(0)}
-- Charges fixes : CHF ${profile.chargesFixesMensuelles.toStringAsFixed(0)}/mois
+- Revenu annuel : ${formatChfWithPrefix(profile.revenuAnnuel)}
+- 3a : ${profile.has3a ? 'oui (${formatChfWithPrefix(profile.montant3a)})' : 'non'}
+- LPP : avoir ${formatChfWithPrefix(profile.avoirLpp)}, lacune ${formatChfWithPrefix(profile.lacuneLpp)}
+- Epargne dispo : ${formatChfWithPrefix(profile.epargneDispo)}
+- Dettes : ${formatChfWithPrefix(profile.detteTotale)}
+- Charges fixes : ${formatChfWithPrefix(profile.chargesFixesMensuelles)}/mois
 
 INSTRUCTIONS :
 R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la situation familiale, l'emploi, l'\u00e2ge et les chiffres. Tutoiement. Ton chaleureux et \u00e9ducatif. JAMAIS : garanti, certain, assur\u00e9, sans risque, optimal, meilleur, parfait. Retourne UNIQUEMENT le nouveau message.''';
@@ -329,7 +305,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   ) {
     return '$firstName, ${profile.age} ans, ${profile.canton}, '
         '${profile.employmentStatus.name}, '
-        'revenu CHF ${profile.revenuAnnuel.toStringAsFixed(0)}';
+        'revenu ${formatChfWithPrefix(profile.revenuAnnuel)}';
   }
 
   /// Filter banned terms from LLM output, replacing with safe alternatives.
@@ -383,7 +359,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final restant = plafond - profile.montant3a;
     if (restant <= 0) return;
 
-    final tauxMarginal = _getTauxMarginal(profile.canton);
+    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = restant * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -392,9 +368,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: CoachingPriority.haute,
       title: 'Versement 3a avant le 31 décembre',
       message:
-          'Il te reste ${_formatChf(restant)} de marge sur ton plafond 3a '
-          '(${_formatChf(plafond)}). Un versement avant le 31 décembre '
-          'pourrait réduire ta charge fiscale de ${_formatChf(impact)} '
+          'Il te reste ${formatChfWithPrefix(restant)} de marge sur ton plafond 3a '
+          '(${formatChfWithPrefix(plafond)}). Un versement avant le 31 décembre '
+          'pourrait réduire ta charge fiscale de ${formatChfWithPrefix(impact)} '
           'environ.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
@@ -417,7 +393,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final plafond = profile.employmentStatus == EmploymentStatus.independant
         ? _plafond3aIndependant
         : _plafond3aSalarie;
-    final tauxMarginal = _getTauxMarginal(profile.canton);
+    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = plafond * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -427,8 +403,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       title: 'Tu n\'as pas de 3e pilier',
       message:
           'Ouvrir un 3e pilier te permettrait de déduire jusqu\'à '
-          '${_formatChf(plafond)} de ton revenu imposable chaque année. '
-          'L\'économie fiscale estimée est de ${_formatChf(impact)} par an '
+          '${formatChfWithPrefix(plafond)} de ton revenu imposable chaque année. '
+          'L\'économie fiscale estimée est de ${formatChfWithPrefix(impact)} par an '
           'dans le canton de ${profile.canton}.',
       action: 'Découvrir le 3e pilier',
       estimatedImpactChf: impact,
@@ -445,7 +421,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     if (!profile.hasLpp) return;
     if (profile.lacuneLpp <= 0) return;
 
-    final tauxMarginal = _getTauxMarginal(profile.canton);
+    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     // Recommend max 20% of income or available lacune, whichever is smaller
     final double rachatRecommande =
         (profile.lacuneLpp).clamp(0.0, profile.revenuAnnuel * 0.2);
@@ -461,9 +437,9 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: priority,
       title: 'Rachat LPP possible',
       message:
-          'Tu as une lacune de prévoyance de ${_formatChf(profile.lacuneLpp)}. '
-          'Un rachat volontaire de ${_formatChf(rachatRecommande)} '
-          'pourrait te faire économiser environ ${_formatChf(impact)} '
+          'Tu as une lacune de prévoyance de ${formatChfWithPrefix(profile.lacuneLpp)}. '
+          'Un rachat volontaire de ${formatChfWithPrefix(rachatRecommande)} '
+          'pourrait te faire économiser environ ${formatChfWithPrefix(impact)} '
           'd\'impôts tout en améliorant ta retraite.',
       action: 'Simuler un rachat LPP',
       estimatedImpactChf: impact,
@@ -560,7 +536,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       message:
           'Ton épargne disponible couvre ${monthsCovered.toStringAsFixed(1)} '
           'mois de charges fixes. Les experts recommandent au moins 3 mois. '
-          'Il te manque environ ${_formatChf(deficit)} pour atteindre '
+          'Il te manque environ ${formatChfWithPrefix(deficit)} pour atteindre '
           'ce seuil de sécurité.',
       action: 'Voir mon budget',
       estimatedImpactChf: deficit,
@@ -642,13 +618,16 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final tauxPct = profile.tauxActivite.toStringAsFixed(0);
     final reductionPct = (100 - profile.tauxActivite).toStringAsFixed(0);
 
-    // Rough estimate: LPP contribution gap
-    final salaireCoordonne = (profile.revenuAnnuel - lppDeductionCoordination).clamp(0, lppSalaireCoordMax.toDouble());
-    final cotisLppAnnuelle = salaireCoordonne * 0.15; // ~15% average
+    // Rough estimate: LPP contribution gap using age-based bonification (LPP art. 16)
+    final lppRate = getLppBonificationRate(profile.age);
+    final deductionCoord = reg('lpp.coordination_deduction', lppDeductionCoordination);
+    final maxCoord = reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
+    final salaireCoordonne = (profile.revenuAnnuel - deductionCoord).clamp(0, maxCoord);
+    final cotisLppAnnuelle = salaireCoordonne * lppRate;
     final cotisPleinTemps =
-        (profile.revenuAnnuel / (profile.tauxActivite / 100) - lppDeductionCoordination)
-                .clamp(0, lppSalaireCoordMax.toDouble()) *
-            0.15;
+        (profile.revenuAnnuel / (profile.tauxActivite / 100) - deductionCoord)
+                .clamp(0, maxCoord) *
+            lppRate;
     final gap = cotisPleinTemps - cotisLppAnnuelle;
 
     tips.add(CoachingTip(
@@ -678,8 +657,8 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
   ) {
     if (profile.employmentStatus != EmploymentStatus.independant) return;
 
-    const plafond3a = _plafond3aIndependant;
-    final tauxMarginal = _getTauxMarginal(profile.canton);
+    final plafond3a = _plafond3aIndependant;
+    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = plafond3a * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -690,7 +669,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       message:
           'En tant qu\'indépendant, tu n\'es pas soumis à la LPP '
           'obligatoire. Ta prévoyance repose sur l\'AVS et ton 3e '
-          'pilier (plafond ${_formatChf(plafond3a)}). Pense à une '
+          'pilier (plafond ${formatChfWithPrefix(plafond3a)}). Pense à une '
           'affiliation volontaire à une caisse de pension ou à maximiser '
           'ton 3a.',
       action: 'Explorer mes options',
@@ -740,7 +719,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     final restant = plafond - profile.montant3a;
     if (restant <= 0) return;
 
-    final tauxMarginal = _getTauxMarginal(profile.canton);
+    final tauxMarginal = _getTauxMarginal(profile.canton, revenuAnnuel: profile.revenuAnnuel);
     final impact = restant * tauxMarginal;
 
     tips.add(CoachingTip(
@@ -749,10 +728,10 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       priority: CoachingPriority.basse,
       title: 'Plafond 3a non atteint',
       message:
-          'Ton versement 3a actuel est de ${_formatChf(profile.montant3a)} '
-          'sur un plafond de ${_formatChf(plafond)}. Verser le solde de '
-          '${_formatChf(restant)} pourrait représenter une économie fiscale '
-          'd\'environ ${_formatChf(impact)}.',
+          'Ton versement 3a actuel est de ${formatChfWithPrefix(profile.montant3a)} '
+          'sur un plafond de ${formatChfWithPrefix(plafond)}. Verser le solde de '
+          '${formatChfWithPrefix(restant)} pourrait représenter une économie fiscale '
+          'd\'environ ${formatChfWithPrefix(impact)}.',
       action: 'Simuler mon 3a',
       estimatedImpactChf: impact,
       source: 'OPP3 art. 7',
@@ -785,7 +764,7 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
       title: 'D\u00e9penses exceptionnelles \u00e9lev\u00e9es',
       message:
           'Tes d\u00e9penses exceptionnelles du dernier mois repr\u00e9sentent '
-          '$ratioPct% de ton revenu mensuel (${_formatChf(depExc)}). '
+          '$ratioPct% de ton revenu mensuel (${formatChfWithPrefix(depExc)}). '
           'V\u00e9rifie que ton budget reste sur les rails et ajuste '
           'si n\u00e9cessaire.',
       action: 'V\u00e9rifier mon budget',
@@ -909,35 +888,24 @@ R\u00e9\u00e9cris le message en 3-4 phrases max. Personnalise en croisant la sit
     return tips.where((t) => categories.contains(t.category)).toList();
   }
 
-  /// Get the estimated marginal tax rate for a canton.
-  static double _getTauxMarginal(String canton) {
-    return _tauxMarginalCantonal[canton.toUpperCase()] ?? 0.33;
+  /// Get the estimated marginal tax rate for a given income and canton.
+  /// Delegates to RetirementTaxCalculator.estimateMarginalRate (financial_core).
+  static double _getTauxMarginal(String canton, {double revenuAnnuel = 80000}) {
+    return RetirementTaxCalculator.estimateMarginalRate(
+        revenuAnnuel, canton);
   }
 
   /// Format a CHF amount with Swiss apostrophe separator.
+  /// F3: Delegates to centralized chf_formatter.dart.
   static String formatChf(double value) {
-    return _formatChf(value);
-  }
-
-  /// Format CHF with Swiss apostrophe (private).
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
+    return formatChfWithPrefix(value);
   }
 
   /// Build a demo profile for preview mode.
   static CoachingProfile buildDemoProfile() {
     return const CoachingProfile(
       age: 35,
-      canton: 'VD',
+      canton: 'ZH',
       revenuAnnuel: 85000,
       has3a: false,
       montant3a: 0,

@@ -6,7 +6,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Hero card showing the GAP between current income and projected retirement.
 ///
-/// Displays a chiffre choc (gap amount), before/after comparison,
+/// Displays a premier éclairage (gap amount), before/after comparison,
 /// a relatable metaphor, confidence bar, and optional scan CTA.
 class HeroGapCard extends StatelessWidget {
   final double currentMonthlyNet;
@@ -52,7 +52,7 @@ class HeroGapCard extends StatelessWidget {
           // Title
           Text(
             hasGap ? s.heroGapTitle : s.heroGapCovered,
-            style: MintTextStyles.bodyLarge(color: MintColors.white70).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+            style: MintTextStyles.labelLarge(color: MintColors.white70).copyWith(fontWeight: FontWeight.w500),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
@@ -68,7 +68,7 @@ class HeroGapCard extends StatelessWidget {
           // Metaphor
           Text(
             _metaphor(s, gap),
-            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(fontSize: 13, fontStyle: FontStyle.italic),
+            style: MintTextStyles.bodySmall(color: MintColors.white70).copyWith(fontStyle: FontStyle.italic),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -112,12 +112,12 @@ class HeroGapCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _miniCard(s, s.heroGapToday, formatChf(currentMonthlyNet)),
+        Flexible(child: _miniCard(s, s.heroGapToday, formatChf(currentMonthlyNet))),
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 12),
           child: Icon(Icons.arrow_forward, color: MintColors.white70, size: 20),
         ),
-        _miniCard(s, s.heroGapRetirement, formatChf(projectedMonthlyRetirement)),
+        Flexible(child: _miniCard(s, s.heroGapRetirement, formatChf(projectedMonthlyRetirement))),
       ],
     );
   }
@@ -138,7 +138,7 @@ class HeroGapCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '$amount${s.heroGapPerMonth}',
-            style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontSize: 16, fontWeight: FontWeight.w700),
+            style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
           ),
         ],
       ),
@@ -160,7 +160,7 @@ class HeroGapCard extends StatelessWidget {
       children: [
         Text(
           '${s.heroGapConfidence} ${pct.toStringAsFixed(0)}\u00a0%',
-          style: MintTextStyles.bodyMedium(color: MintColors.white70).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+          style: MintTextStyles.labelMedium(color: MintColors.white70).copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 6),
         ClipRRect(
@@ -187,10 +187,11 @@ class HeroGapCard extends StatelessWidget {
         children: [
           const Icon(Icons.document_scanner, color: MintColors.white, size: 18),
           const SizedBox(width: 8),
-          Text(
+          Flexible(child: Text(
             s.heroGapScanCta,
-            style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontSize: 13, fontWeight: FontWeight.w500, decoration: TextDecoration.underline, decorationColor: MintColors.white70),
-          ),
+            style: MintTextStyles.bodySmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w500, decoration: TextDecoration.underline, decorationColor: MintColors.white70),
+            overflow: TextOverflow.ellipsis,
+          )),
           if (confidenceBoostPercent != null) ...[
             const SizedBox(width: 8),
             Container(

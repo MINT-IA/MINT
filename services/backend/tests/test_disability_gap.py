@@ -6,7 +6,7 @@ Tests for DisabilityGapService — Simulation du gap financier en cas d'invalidi
     - TestAiRente (5): rente by disability degree (0%, 45%, 55%, 65%, 70%, 100%)
     - TestPhaseCalculation (5): phase 1/2/3 for different employment statuses
     - TestRiskLevel (4): critical, high, medium, low
-    - TestCompliance (3): disclaimer, sources, chiffre_choc, no banned terms
+    - TestCompliance (3): disclaimer, sources, premier_eclairage, no banned terms
     - TestEdgeCases (3): very high income, zero income, student status
 
 Sources:
@@ -265,7 +265,7 @@ class TestRiskLevel:
 # ===========================================================================
 
 class TestCompliance:
-    """Test compliance: disclaimer, sources, chiffre_choc, no banned terms."""
+    """Test compliance: disclaimer, sources, premier_eclairage, no banned terms."""
 
     def test_disclaimer_present(self, employee_vd_result):
         """Result must contain required disclaimer text."""
@@ -283,22 +283,22 @@ class TestCompliance:
         assert "LPP art. 23-26" in sources_text
 
     def test_no_banned_terms(self, employee_vd_result):
-        """No banned terms in disclaimer, chiffre_choc, or alerts."""
+        """No banned terms in disclaimer, premier_eclairage, or alerts."""
         r = employee_vd_result
         all_text = (
             r.disclaimer + " "
-            + r.chiffre_choc + " "
+            + r.premier_eclairage + " "
             + " ".join(r.alerts) + " "
             + " ".join(r.sources)
         ).lower()
         for term in BANNED_TERMS:
             assert term not in all_text, f"Banned term '{term}' found in output"
 
-    def test_chiffre_choc_present(self, employee_vd_result):
+    def test_premier_eclairage_present(self, employee_vd_result):
         """Chiffre choc must be a non-empty string with a CHF amount."""
         r = employee_vd_result
-        assert len(r.chiffre_choc) > 0
-        assert "CHF" in r.chiffre_choc
+        assert len(r.premier_eclairage) > 0
+        assert "CHF" in r.premier_eclairage
 
 
 # ===========================================================================

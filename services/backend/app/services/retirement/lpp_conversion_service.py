@@ -41,14 +41,17 @@ _DEFAULT_TAUX_RETRAIT = 0.065
 class LppConversionResult:
     """Complete result of LPP rente vs capital comparison."""
     capital_total: float               # Total LPP capital (CHF)
-    option_rente_mensuelle: float      # Monthly pension with conversion rate
-    option_rente_annuelle: float       # Annual pension
+    option_rente_brute_mensuelle: float  # Gross monthly pension
+    option_rente_annuelle: float       # Gross annual pension
+    rente_impot_annuel: float          # Estimated annual income tax on rente (LIFD art. 22)
+    option_rente_nette_mensuelle: float  # Net monthly pension after income tax
+    option_rente_nette_annuelle: float   # Net annual pension after income tax
     option_capital_brut: float         # Gross capital amount
     option_capital_impot: float        # Estimated capital withdrawal tax
     option_capital_net: float          # Net capital after tax
-    breakeven_age: int                 # Age where cumulative rente > net capital
+    breakeven_age: int                 # Age where cumulative net rente > net capital
     recommandation_neutre: str         # Neutral comparison text
-    chiffre_choc: str                  # Educational shock figure
+    premier_eclairage: str                  # Educational shock figure
     sources: List[str] = field(default_factory=list)
 
 
@@ -72,6 +75,7 @@ class LppConversionService:
         canton: str = "ZH",
         retirement_age: int = 65,
         life_expectancy: int = 87,
+        taux_marginal_revenu: float = 0.25,
     ) -> LppConversionResult:
         """Compare rente vs capital withdrawal for given LPP capital.
 
@@ -80,6 +84,9 @@ class LppConversionService:
             canton: Canton code for tax estimation.
             retirement_age: Age at retirement.
             life_expectancy: Assumed life expectancy.
+            taux_marginal_revenu: Estimated marginal income tax rate for rente
+                taxation (LIFD art. 22 — rente LPP is taxable income).
+                Default 0.25 (25%) for mid-income retirees.
 
         Returns:
             LppConversionResult with complete comparison.
@@ -87,22 +94,30 @@ class LppConversionService:
         capital_lpp = max(0.0, capital_lpp)
         canton_upper = canton.upper() if canton else "ZH"
 
-        # Rente option
-        rente_annuelle = round(capital_lpp * LPP_CONVERSION_RATE, 2)
-        rente_mensuelle = round(rente_annuelle / 12, 2)
+        # Rente option — gross
+        rente_brute_annuelle = round(capital_lpp * LPP_CONVERSION_RATE, 2)
+        rente_brute_mensuelle = round(rente_brute_annuelle / 12, 2)
+
+        # Rente income tax (LIFD art. 22 — rente LPP is taxable income)
+        taux_marginal = max(0.0, min(0.50, taux_marginal_revenu))
+        rente_impot_annuel = round(rente_brute_annuelle * taux_marginal, 2)
+
+        # Rente net after income tax
+        rente_nette_annuelle = round(rente_brute_annuelle - rente_impot_annuel, 2)
+        rente_nette_mensuelle = round(rente_nette_annuelle / 12, 2)
 
         # Capital option
         taux = TAUX_IMPOT_RETRAIT_CAPITAL.get(canton_upper, _DEFAULT_TAUX_RETRAIT)
         impot = calculate_progressive_capital_tax(capital_lpp, taux)
         capital_net = round(capital_lpp - impot, 2)
 
-        # Breakeven
+        # Breakeven — uses net rente (after tax) vs net capital
         duree = max(0, life_expectancy - retirement_age)
         breakeven = retirement_age
-        if rente_annuelle > 0:
+        if rente_nette_annuelle > 0:
             cumul = 0.0
             for y in range(duree + 1):
-                cumul += rente_annuelle
+                cumul += rente_nette_annuelle
                 if cumul >= capital_net:
                     breakeven = retirement_age + y
                     break
@@ -110,29 +125,34 @@ class LppConversionService:
                 breakeven = life_expectancy  # Never reached
 
         recommandation = (
-            f"La rente LPP te verse CHF {rente_mensuelle:,.0f}/mois a vie. "
-            f"Le capital te donne CHF {capital_net:,.0f} net apres impot. "
-            f"Si tu vis au-dela de {breakeven} ans, la rente est plus avantageuse en cumul. "
+            f"La rente LPP te verse CHF {rente_nette_mensuelle:,.0f}/mois net a vie "
+            f"(brut CHF {rente_brute_mensuelle:,.0f}, impot ~CHF {round(rente_impot_annuel / 12):,.0f}/mois). "
+            f"Le capital te donne CHF {capital_net:,.0f} net apres impot de retrait. "
+            f"Si tu vis au-dela de {breakeven} ans, la rente nette est plus avantageuse en cumul. "
             f"Aucune option n'est universellement meilleure — cela depend de ta situation."
         )
 
-        chiffre_choc = (
-            f"Rente = CHF {rente_mensuelle:,.0f}/mois a vie | "
+        premier_eclairage = (
+            f"Rente = CHF {rente_nette_mensuelle:,.0f}/mois net a vie | "
             f"Capital = CHF {capital_net:,.0f} net (breakeven a {breakeven} ans)"
         )
 
         return LppConversionResult(
             capital_total=capital_lpp,
-            option_rente_mensuelle=rente_mensuelle,
-            option_rente_annuelle=rente_annuelle,
+            option_rente_brute_mensuelle=rente_brute_mensuelle,
+            option_rente_annuelle=rente_brute_annuelle,
+            rente_impot_annuel=rente_impot_annuel,
+            option_rente_nette_mensuelle=rente_nette_mensuelle,
+            option_rente_nette_annuelle=rente_nette_annuelle,
             option_capital_brut=capital_lpp,
             option_capital_impot=impot,
             option_capital_net=capital_net,
             breakeven_age=breakeven,
             recommandation_neutre=recommandation,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=[
                 "LPP art. 14 (taux de conversion 6.8% minimum obligatoire)",
+                "LIFD art. 22 (rente LPP imposable comme revenu)",
                 "LIFD art. 38 (imposition des prestations en capital)",
             ],
         )

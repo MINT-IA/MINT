@@ -96,7 +96,7 @@ class FhsDailyScore {
   /// Deserialize from JSON map.
   factory FhsDailyScore.fromJson(Map<String, dynamic> json) {
     return FhsDailyScore(
-      score: (json['score'] as num).toDouble(),
+      score: (json['score'] as num?)?.toDouble() ?? 0.0,
       level: FhsLevel.values.firstWhere(
         (e) => e.name == json['level'],
         orElse: () => FhsLevel.critical,
@@ -105,13 +105,13 @@ class FhsDailyScore {
         (e) => e.name == json['trend'],
         orElse: () => FhsTrend.stable,
       ),
-      deltaVsYesterday: (json['deltaVsYesterday'] as num).toDouble(),
-      deltaVsWeekAgo: (json['deltaVsWeekAgo'] as num).toDouble(),
-      computedAt: DateTime.parse(json['computedAt'] as String),
-      liquidite: (json['liquidite'] as num).toDouble(),
-      fiscalite: (json['fiscalite'] as num).toDouble(),
-      retraite: (json['retraite'] as num).toDouble(),
-      risque: (json['risque'] as num).toDouble(),
+      deltaVsYesterday: (json['deltaVsYesterday'] as num?)?.toDouble() ?? 0.0,
+      deltaVsWeekAgo: (json['deltaVsWeekAgo'] as num?)?.toDouble() ?? 0.0,
+      computedAt: DateTime.tryParse(json['computedAt'] as String? ?? '') ?? DateTime.now(),
+      liquidite: (json['liquidite'] as num?)?.toDouble() ?? 0.0,
+      fiscalite: (json['fiscalite'] as num?)?.toDouble() ?? 0.0,
+      retraite: (json['retraite'] as num?)?.toDouble() ?? 0.0,
+      risque: (json['risque'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

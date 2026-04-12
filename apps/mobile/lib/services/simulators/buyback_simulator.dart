@@ -50,14 +50,15 @@ class BuybackSimulator {
     // Heuristique simple de l'économie fiscale (Marginal Rate Decay)
     // Saving = Integral of Marginal Rate from (Income - Deduction) to Income.
 
+    final isMarried = civilStatus == 'marie';
     double singleShotSaving =
-        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: totalBuybackAmount, canton: canton);
+        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: totalBuybackAmount, canton: canton, isMarried: isMarried);
 
     // 2. Estimation "Staggered"
     // Deduction par an = Total / Years
     double yearlyDeduction = totalBuybackAmount / years;
     double yearlySaving =
-        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: yearlyDeduction, canton: canton);
+        RetirementTaxCalculator.estimateTaxSaving(income: taxableIncome, deduction: yearlyDeduction, canton: canton, isMarried: isMarried);
 
     double staggeredTotalSaving = yearlySaving * years;
 

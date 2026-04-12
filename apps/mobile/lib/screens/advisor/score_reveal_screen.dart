@@ -1,5 +1,7 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -8,6 +10,7 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
 //  SCORE REVEAL SCREEN — Post-Wizard "Ta-Da" Moment
@@ -258,66 +261,82 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
           _pulseController,
         ]),
         builder: (context, _) {
-          return Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.lerp(
-                    MintColors.white,
-                    MintColors.nearBlack,
-                    _backgroundOpacity.value,
-                  )!,
-                  Color.lerp(
-                    MintColors.white,
-                    MintColors.darkNight,
-                    _backgroundOpacity.value,
-                  )!,
-                  Color.lerp(
-                    MintColors.white,
-                    MintColors.darkDeep,
-                    _backgroundOpacity.value,
-                  )!,
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-            ),
-            child: SafeArea(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: MediaQuery.of(context).size.height -
-                        MediaQuery.of(context).padding.top -
-                        MediaQuery.of(context).padding.bottom,
+          return Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color.lerp(
+                        MintColors.white,
+                        MintColors.nearBlack,
+                        _backgroundOpacity.value,
+                      )!,
+                      Color.lerp(
+                        MintColors.white,
+                        MintColors.darkNight,
+                        _backgroundOpacity.value,
+                      )!,
+                      Color.lerp(
+                        MintColors.white,
+                        MintColors.darkDeep,
+                        _backgroundOpacity.value,
+                      )!,
+                    ],
+                    stops: const [0.0, 0.5, 1.0],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: MintSpacing.xxl),
-                        _buildPhase1Title(),
-                        const SizedBox(height: MintSpacing.xl + 4),
-                        _buildPhase2Gauge(),
-                        const SizedBox(height: MintSpacing.xl),
-                        _buildPhase3SubScores(),
-                        const SizedBox(height: MintSpacing.lg + 4),
-                        _buildPhase4CoachMessage(),
-                        const SizedBox(height: MintSpacing.xl),
-                        _buildPhase5Cta(),
-                        const SizedBox(height: MintSpacing.xxl),
-                        _buildDisclaimer(),
-                        const SizedBox(height: MintSpacing.lg),
-                      ],
+                ),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height -
+                            MediaQuery.of(context).padding.top -
+                            MediaQuery.of(context).padding.bottom,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: MintSpacing.xxl),
+                            MintEntrance(child: _buildPhase1Title()),
+                            const SizedBox(height: MintSpacing.xl + 4),
+                            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPhase2Gauge()),
+                            const SizedBox(height: MintSpacing.xl),
+                            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPhase3SubScores()),
+                            const SizedBox(height: MintSpacing.lg + 4),
+                            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPhase4CoachMessage()),
+                            const SizedBox(height: MintSpacing.xl),
+                            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildPhase5Cta()),
+                            const SizedBox(height: MintSpacing.xxl),
+                            _buildDisclaimer(),
+                            const SizedBox(height: MintSpacing.lg),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              // ── Always-visible close button (escape hatch) ──
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 8,
+                right: 16,
+                child: IconButton(
+                  onPressed: () => context.canPop()
+                      ? safePop(context)
+                      : context.go('/coach/chat'),
+                  icon: const Icon(Icons.close, color: Colors.white70, size: 24),
+                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -409,14 +428,14 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   '$displayScore',
                   style: MintTextStyles.displayLarge(
                     color: MintColors.white,
-                  ).copyWith(fontSize: 56, height: 1.0),
+                  ).copyWith(height: 1.0),
                 ),
                 const SizedBox(height: MintSpacing.xs),
                 Text(
                   '/100',
-                  style: MintTextStyles.bodyLarge(
+                  style: MintTextStyles.labelLarge(
                     color: MintColors.white.withValues(alpha: 0.5),
-                  ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                  ),
                 ),
                 const SizedBox(height: 8),
                 // Level badge
@@ -438,9 +457,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                     ),
                     child: Text(
                       _localizedLevelLabel(context),
-                      style: MintTextStyles.bodySmall(
+                      style: MintTextStyles.labelMedium(
                         color: _scoreColor,
-                      ).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      ).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
@@ -653,9 +672,9 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                   const SizedBox(height: MintSpacing.sm - 2),
                   Text(
                     _displayedMessage.isEmpty ? ' ' : _displayedMessage,
-                    style: MintTextStyles.bodyLarge(
-                      color: MintColors.white.withValues(alpha: 0.85),
-                    ).copyWith(fontSize: 15, fontWeight: FontWeight.w500),
+                    style: MintTextStyles.labelLarge(
+                    color: MintColors.white.withValues(alpha: 0.85),
+                  ),
                   ),
                 ],
               ),
@@ -675,11 +694,14 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
       opacity: _ctaOpacity.value,
       child: Column(
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
+          Semantics(
+            button: true,
+            label: S.of(context)!.scoreRevealCtaDashboard,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
               onPressed: _ctaOpacity.value > 0.5
-                  ? () => context.go('/home')
+                  ? () => context.go('/coach/chat')
                   : null,
               style: FilledButton.styleFrom(
                 backgroundColor: _scoreColor,
@@ -697,6 +719,7 @@ class _ScoreRevealScreenState extends State<ScoreRevealScreen>
                 ).copyWith(fontWeight: FontWeight.w700),
               ),
             ),
+          ),
           ),
           const SizedBox(height: MintSpacing.md - 4),
           // Secondary action

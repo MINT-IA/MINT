@@ -9,8 +9,9 @@ Sprint S15 — Chantier 4: LPP approfondi.
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.lpp_deep import (
     RachatEchelonneRequest,
     RachatEchelonneResponse,
@@ -42,8 +43,10 @@ _epl_service = EPLService()
 # ---------------------------------------------------------------------------
 
 @router.post("/rachat-echelonne", response_model=RachatEchelonneResponse)
+@limiter.limit("30/minute")
 def simulate_rachat_echelonne(
-    request: RachatEchelonneRequest,
+    request: Request,
+    body: RachatEchelonneRequest,
 ) -> RachatEchelonneResponse:
     """Simulate a stepped LPP buyback to optimize tax savings.
 
@@ -53,12 +56,12 @@ def simulate_rachat_echelonne(
     Sources: LPP art. 79b, LIFD art. 33 al. 1 let. d, OPP2 art. 60a.
     """
     result = _rachat_service.simulate(
-        avoir_actuel=request.avoirActuel,
-        rachat_max=request.rachatMax,
-        revenu_imposable=request.revenuImposable,
-        taux_marginal_estime=request.tauxMarginalEstime,
-        canton=request.canton,
-        horizon_rachat_annees=request.horizonRachatAnnees,
+        avoir_actuel=body.avoirActuel,
+        rachat_max=body.rachatMax,
+        revenu_imposable=body.revenuImposable,
+        taux_marginal_estime=body.tauxMarginalEstime,
+        canton=body.canton,
+        horizon_rachat_annees=body.horizonRachatAnnees,
     )
 
     return RachatEchelonneResponse(
@@ -96,8 +99,10 @@ def simulate_rachat_echelonne(
 # ---------------------------------------------------------------------------
 
 @router.post("/libre-passage", response_model=LibrePassageResponse)
+@limiter.limit("30/minute")
 def analyze_libre_passage(
-    request: LibrePassageRequest,
+    request: Request,
+    body: LibrePassageRequest,
 ) -> LibrePassageResponse:
     """Analyze a libre passage (vested benefits) situation.
 
@@ -107,14 +112,14 @@ def analyze_libre_passage(
     Sources: LFLP art. 2-4, LPP art. 25e-25f, OLP art. 8-10.
     """
     result = _libre_passage_service.analyze(
-        statut=request.statut.value,
-        avoir_libre_passage=request.avoirLibrePassage,
-        age=request.age,
-        a_nouveau_employeur=request.aNouvelEmployeur,
-        delai_jours=request.delaiJours,
-        destination=request.destination.value if request.destination else None,
-        avoir_obligatoire=request.avoirObligatoire,
-        avoir_surobligatoire=request.avoirSurobligatoire,
+        statut=body.statut.value,
+        avoir_libre_passage=body.avoirLibrePassage,
+        age=body.age,
+        a_nouveau_employeur=body.aNouvelEmployeur,
+        delai_jours=body.delaiJours,
+        destination=body.destination.value if body.destination else None,
+        avoir_obligatoire=body.avoirObligatoire,
+        avoir_surobligatoire=body.avoirSurobligatoire,
     )
 
     return LibrePassageResponse(
@@ -157,7 +162,8 @@ def analyze_libre_passage(
 # ---------------------------------------------------------------------------
 
 @router.post("/epl", response_model=EPLResponse)
-def simulate_epl(request: EPLRequest) -> EPLResponse:
+@limiter.limit("30/minute")
+def simulate_epl(request: Request, body: EPLRequest) -> EPLResponse:
     """Simulate an EPL (home ownership encouragement) withdrawal from LPP.
 
     Calculates the maximum withdrawable amount, tax impact, and critically
@@ -166,15 +172,15 @@ def simulate_epl(request: EPLRequest) -> EPLResponse:
     Sources: LPP art. 30a-30g, OPP2 art. 5-5f, LPP art. 79b al. 3.
     """
     result = _epl_service.simulate(
-        avoir_lpp_total=request.avoirLppTotal,
-        avoir_obligatoire=request.avoirObligatoire,
-        avoir_surobligatoire=request.avoirSurobligatoire,
-        age=request.age,
-        montant_retrait_souhaite=request.montantRetraitSouhaite,
-        a_rachete_recemment=request.aRacheteRecemment,
-        annees_depuis_dernier_rachat=request.anneesDernierRachat,
-        avoir_a_50_ans=request.avoirA50Ans,
-        canton=request.canton,
+        avoir_lpp_total=body.avoirLppTotal,
+        avoir_obligatoire=body.avoirObligatoire,
+        avoir_surobligatoire=body.avoirSurobligatoire,
+        age=body.age,
+        montant_retrait_souhaite=body.montantRetraitSouhaite,
+        a_rachete_recemment=body.aRacheteRecemment,
+        annees_depuis_dernier_rachat=body.anneesDernierRachat,
+        avoir_a_50_ans=body.avoirA50Ans,
+        canton=body.canton,
     )
 
     return EPLResponse(

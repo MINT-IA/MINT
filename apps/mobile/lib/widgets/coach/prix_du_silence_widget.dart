@@ -97,7 +97,7 @@ class PrixDuSilenceWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Ce que ton statut marital coûte — ou économise — à ta succession.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -116,10 +116,11 @@ class PrixDuSilenceWidget extends StatelessWidget {
         children: [
           const Icon(Icons.account_balance_outlined, color: MintColors.info, size: 18),
           const SizedBox(width: 10),
-          Text(
+          Flexible(child: Text(
             'Patrimoine transmis : CHF ${_fmt(patrimoine)}',
             style: MintTextStyles.bodyMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w700),
-          ),
+            overflow: TextOverflow.ellipsis,
+          )),
         ],
       ),
     );
@@ -147,14 +148,14 @@ class PrixDuSilenceWidget extends StatelessWidget {
                 ),
                 Text(
                   'Impôt succession : ${tax == 0 ? "0" : _fmt(tax)} CHF',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
           ),
           Text(
             tax == 0 ? '0 CHF' : '-CHF ${_fmt(tax)}',
-            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+            style: MintTextStyles.headlineSmall(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),

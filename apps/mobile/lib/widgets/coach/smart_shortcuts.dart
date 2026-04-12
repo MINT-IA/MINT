@@ -105,7 +105,7 @@ class SmartShortcuts extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               s.label,
-              style: MintTextStyles.labelSmall(color: s.color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: s.color).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

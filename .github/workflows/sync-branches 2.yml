@@ -1,0 +1,52 @@
+# Sync branches after promotion merges
+# After staging→main merge: fast-forward staging & dev to main
+# After dev→staging merge: fast-forward dev to staging
+#
+# Uses GITHUB_TOKEN (automatic) — requires "Allow GitHub Actions to
+# create and approve pull requests" enabled in repo Settings > Actions.
+
+name: Sync branches
+
+on:
+  push:
+    branches: [main, staging]
+
+jobs:
+  sync:
+    name: Fast-forward downstream branches
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # ── Push to main triggered (staging→main merge) ──
+      - name: Sync staging ← main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git checkout staging
+          git merge --ff-only origin/main || echo "::warning::Cannot fast-forward staging to main — manual merge needed"
+          git push origin staging || echo "::warning::Push staging failed — check branch protection"
+
+      - name: Sync dev ← main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git checkout dev
+          git merge --ff-only origin/main || echo "::warning::Cannot fast-forward dev to main — manual merge needed"
+          git push origin dev || echo "::warning::Push dev failed — check branch protection"
+
+      # ── Push to staging triggered (dev→staging merge) ──
+      - name: Sync dev ← staging
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          git checkout dev
+          git merge --ff-only origin/staging || echo "::warning::Cannot fast-forward dev to staging — manual merge needed"
+          git push origin dev || echo "::warning::Push dev failed — check branch protection"

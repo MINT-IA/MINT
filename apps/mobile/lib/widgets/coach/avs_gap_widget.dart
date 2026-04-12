@@ -85,7 +85,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
                   const SizedBox(height: 16),
                   _buildComparison(),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -218,14 +218,14 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           const SizedBox(height: 6),
           Text(
             '${formatChfWithPrefix(rente)}/mois',
-            style: MintTextStyles.titleMedium(color: color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+            style: MintTextStyles.titleLarge(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -243,7 +243,7 @@ class _AvsGapWidgetState extends State<AvsGapWidget> {
           const SizedBox(height: 6),
           Text(
             S.of(context)!.avsGapLifetimeLoss(formatChfWithPrefix(_lifetimeLoss)),
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           const SizedBox(height: 4),
           Text(

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
@@ -278,6 +279,7 @@ class ForecasterService {
   static ProjectionResult project({
     required CoachProfile profile,
     DateTime? targetDate,
+    S? l,
   }) {
     final target = targetDate ?? profile.goalA.targetDate;
 
@@ -297,28 +299,14 @@ class ForecasterService {
       targetDate: target,
     );
 
-    // Taux de remplacement base sur le scenario base
-    // Use household income (main + partner) when conjoint exists
-    final mainBreakdown = NetIncomeBreakdown.compute(
-      grossSalary: profile.salaireBrutMensuel * 12,
-      canton: profile.canton,
-      age: profile.age,
-    );
-    final revenuNetMensuel = mainBreakdown.monthlyNetPayslip;
-    final conjoint = profile.conjoint;
-    final partnerNetMensuel = conjoint != null &&
-            conjoint.salaireBrutMensuel != null &&
-            conjoint.age != null
-        ? NetIncomeBreakdown.compute(
-            grossSalary: conjoint.salaireBrutMensuel! * 12,
-            canton: profile.canton,
-            age: conjoint.age!,
-          ).monthlyNetPayslip
-        : 0.0;
-    final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
-    final tauxRemplacement = _safeReplacementRate(
+    // Taux de remplacement — both sides must use the same basis.
+    // revenuAnnuelRetraite is GROSS (AVS + LPP rente + 3a annualized + SWR).
+    // Compare against GROSS household income for consistency.
+    // Previously used householdNetAnnuel (NET) which inflated the ratio.
+    final householdGrossAnnuel = profile.revenuBrutAnnuelCouple;
+    final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
-      annualCurrentIncome: householdNetAnnuel,
+      annualCurrentIncome: householdGrossAnnuel,
     );
 
     // Milestones
@@ -333,7 +321,7 @@ class ForecasterService {
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
       milestones: milestones,
-      disclaimer:
+      disclaimer: l?.forecasterDisclaimer ??
           'Projections educatives basees sur des hypotheses de rendement. '
           'Ne constitue pas un conseil financier. Les rendements passes ne '
           'presagent pas des rendements futurs. Consulte un·e specialiste '
@@ -377,6 +365,7 @@ class ForecasterService {
     required CoachProfile profile,
     required ScenarioAssumptions customBase,
     DateTime? targetDate,
+    S? l,
   }) {
     final target = targetDate ?? profile.goalA.targetDate;
 
@@ -455,7 +444,7 @@ class ForecasterService {
           ).monthlyNetPayslip
         : 0.0;
     final householdNetAnnuel = (revenuNetMensuel + partnerNetMensuel) * 12;
-    final tauxRemplacement = _safeReplacementRate(
+    final tauxRemplacement = safeReplacementRate(
       annualRetirementIncome: scenarioBase.revenuAnnuelRetraite,
       annualCurrentIncome: householdNetAnnuel,
     );
@@ -471,7 +460,8 @@ class ForecasterService {
       optimiste: scenarioOptimiste,
       tauxRemplacementBase: tauxRemplacement,
       milestones: milestones,
-      disclaimer: 'Simulation "Et si..." a titre educatif uniquement. '
+      disclaimer: l?.forecasterEtSiDisclaimer ??
+          'Simulation "Et si..." a titre educatif uniquement. '
           'Hypotheses de rendement ajustees manuellement. '
           'Ne constitue pas un conseil financier (LSFin). '
           'Les rendements passes ne presagent pas des rendements futurs.',
@@ -532,7 +522,7 @@ class ForecasterService {
 
     // Conjoint balances
     double conjLppBalance = profile.conjoint?.prevoyance?.avoirLppTotal ?? 0;
-    double conjSavingsBalance = 0; // Conjoint savings → libre
+    double conjSavingsBalance = profile.conjoint?.patrimoine?.epargneLiquide ?? 0;
 
     // --- Monthly contributions (from planned) ---
     double monthly3a = profile.total3aMensuel;
@@ -565,14 +555,14 @@ class ForecasterService {
       final conjAnnualSalary =
           (profile.conjoint!.salaireBrutMensuel ?? 0) * 12;
       // Partner is salaried with LPP if their salary exceeds the LPP threshold
-      if (conjAnnualSalary > lppSeuilEntree) {
+      if (conjAnnualSalary > reg('lpp.entry_threshold', lppSeuilEntree)) {
         // Check if partner 3a is already in planned contributions
         final hasPartner3a = profile.plannedContributions.any((c) =>
             c.category == '3a' &&
             conjFirstName.isNotEmpty &&
             c.id.toLowerCase().contains(conjFirstName));
         if (!hasPartner3a) {
-          partner3aMonthly = pilier3aPlafondAvecLpp / 12; // 604.83
+          partner3aMonthly = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12; // 604.83
         }
       }
     }
@@ -659,7 +649,7 @@ class ForecasterService {
     double partner3aBalance = 0;
 
     // 3a annual cap tracking
-    const plafond3a = pilier3aPlafondAvecLpp;
+    final plafond3a = reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     double threeAYearContrib = 0;
     double partner3aYearContrib = 0;
     int currentYear = now.year;
@@ -669,7 +659,8 @@ class ForecasterService {
     double totalRendement = 0;
 
     for (int m = 0; m < months; m++) {
-      final date = DateTime(now.year, now.month + m + 1);
+      // FIX-059: was m+1, causing all projections to be shifted by 1 month.
+      final date = DateTime(now.year, now.month + m);
 
       // Reset 3a cap at year boundary
       if (date.year != currentYear) {
@@ -687,6 +678,8 @@ class ForecasterService {
         age: userAge,
         grossAnnualSalary: profile.salaireBrutMensuel * 12,
         monthlyReturn: lppMonthlyRate,
+        salaireAssureOverride: profile.prevoyance.salaireAssure,
+        bonificationRateOverride: profile.prevoyance.bonificationRate,
       );
       final lppReturn = lppBalance - lppBefore;
 
@@ -708,6 +701,8 @@ class ForecasterService {
         age: conjAge,
         grossAnnualSalary: conjAnnualSalary,
         monthlyReturn: conjLppMonthlyRate,
+        salaireAssureOverride: profile.conjoint?.prevoyance?.salaireAssure,
+        bonificationRateOverride: profile.conjoint?.prevoyance?.bonificationRate,
       );
       final conjLppReturn = conjLppBalance - conjLppBefore;
 
@@ -803,6 +798,7 @@ class ForecasterService {
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
 
     // AVS user — RAMD-based, with arrivalAge/lacunes (LAVS art. 34)
+    // F2-4: Pass gender + birthYear for AVS21 transitional reference age
     final avsUserMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: profile.age,
       retirementAge: retirementAge,
@@ -810,6 +806,8 @@ class ForecasterService {
       anneesContribuees: profile.prevoyance.anneesContribuees,
       lacunes: profile.prevoyance.lacunesAVS ?? 0,
       grossAnnualSalary: grossAnnualSalary,
+      isFemale: profile.gender == 'F' ? true : null,
+      birthYear: profile.gender == 'F' ? profile.birthYear : null,
     );
 
     // AVS conjoint — pass anneesContribuees (LAVS art. 29bis)
@@ -826,6 +824,8 @@ class ForecasterService {
         anneesContribuees: profile.conjoint!.prevoyance?.anneesContribuees,
         lacunes: profile.conjoint!.prevoyance?.lacunesAVS ?? 0,
         grossAnnualSalary: conjSalary,
+        isFemale: profile.conjoint!.gender == 'F' ? true : (profile.conjoint!.gender == 'M' ? false : null),
+        birthYear: profile.conjoint!.birthYear,
       );
     }
 
@@ -849,11 +849,11 @@ class ForecasterService {
     //
     // See: CLAUDE.md §5, arbitrage_engine.dart for reference implementation.
     final userConvRateOblig = LppCalculator.adjustedConversionRate(
-      baseRate: lppTauxConversionMinDecimal, // 6.8% — obligatoire only
+      baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal), // 6.8% — obligatoire only
       retirementAge: retirementAge,
     );
     final userConvRateSurob = LppCalculator.adjustedConversionRate(
-      baseRate: profile.prevoyance.tauxConversionSuroblig ?? lppTauxConversionSurobligDecimal,
+      baseRate: profile.prevoyance.tauxConversionSuroblig ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
       retirementAge: retirementAge,
     );
     final double renteLppUser;
@@ -876,9 +876,10 @@ class ForecasterService {
       // Otherwise, use the conservative surobligatoire estimate (5.4%)
       // to avoid silently overstating with the minimum legal rate.
       final profileRate = profile.prevoyance.tauxConversion;
-      final isDefaultRate = (profileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+      final regConvMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+      final isDefaultRate = (profileRate - regConvMin).abs() < 0.001;
       final baseRate = isDefaultRate
-          ? lppTauxConversionSurobligDecimal
+          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
           : profileRate;
       final envelopingRate = LppCalculator.adjustedConversionRate(
         baseRate: baseRate,
@@ -889,11 +890,11 @@ class ForecasterService {
 
     // Conjoint LPP — same oblig/suroblig logic
     final conjConvRateOblig = LppCalculator.adjustedConversionRate(
-      baseRate: lppTauxConversionMinDecimal,
+      baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
       retirementAge: conjRetirementAge,
     );
     final conjConvRateSurob = LppCalculator.adjustedConversionRate(
-      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ?? lppTauxConversionSurobligDecimal,
+      baseRate: profile.conjoint?.prevoyance?.tauxConversionSuroblig ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
       retirementAge: conjRetirementAge,
     );
     final double renteLppConjoint;
@@ -908,11 +909,12 @@ class ForecasterService {
       renteLppConjoint = projectedConjOblig * conjConvRateOblig +
           projectedConjSurob * conjConvRateSurob;
     } else {
+      final regConvMin2 = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
       final conjProfileRate = profile.conjoint?.prevoyance?.tauxConversion
-          ?? lppTauxConversionMinDecimal;
-      final conjIsDefault = (conjProfileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+          ?? regConvMin2;
+      final conjIsDefault = (conjProfileRate - regConvMin2).abs() < 0.001;
       final conjBaseRate = conjIsDefault
-          ? lppTauxConversionSurobligDecimal
+          ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
           : conjProfileRate;
       final conjEnvelopingRate = LppCalculator.adjustedConversionRate(
         baseRate: conjBaseRate,
@@ -1003,7 +1005,12 @@ class ForecasterService {
     return (to.year - from.year) * 12 + (to.month - from.month);
   }
 
-  static double _safeReplacementRate({
+  /// Canonical replacement rate computation with safety guards.
+  ///
+  /// FIX-P1-3: Made public so [RetirementProjectionService] delegates here
+  /// instead of duplicating the formula (which lacked guards).
+  /// Clamps to 0-200%, rejects negative or absurdly low incomes.
+  static double safeReplacementRate({
     required double annualRetirementIncome,
     required double annualCurrentIncome,
   }) {

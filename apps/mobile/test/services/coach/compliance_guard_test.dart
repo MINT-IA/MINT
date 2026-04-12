@@ -753,4 +753,106 @@ void main() {
       expect(result.useFallback, isTrue);
     });
   });
+
+  // ═══════════════════════════════════════════════════════════
+  // validateAlert — Alert-specific validation (layers 1-2 only)
+  // ═══════════════════════════════════════════════════════════
+
+  group('validateAlert', () {
+    test('blocks banned terms (garanti)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Ce rendement est garanti pour toi.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('garanti')));
+    });
+
+    test('blocks banned terms (sans risque)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Un placement sans risque pour ton avenir.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('sans risque')));
+    });
+
+    test('blocks banned terms (optimal)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Le moment optimal pour agir.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('optimal')));
+    });
+
+    test('blocks banned terms (meilleur)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Le meilleur choix pour ton 3a.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('meilleur')));
+    });
+
+    test('blocks prescriptive language (tu devrais)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Tu devrais verser sur ton 3a.',
+      );
+      expect(result.isCompliant, isFalse);
+    });
+
+    test('blocks prescriptive language (tu dois)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Tu dois faire un rachat LPP.',
+      );
+      expect(result.isCompliant, isFalse);
+    });
+
+    test('blocks prescriptive language (verse sur ton)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Verse sur ton 3a le maximum.',
+      );
+      expect(result.isCompliant, isFalse);
+    });
+
+    test('accepts educational text', () {
+      final result = ComplianceGuard.validateAlert(
+        'Le d\u00e9lai pour verser sur ton 3a est le 31 d\u00e9cembre.',
+      );
+      expect(result.isCompliant, isTrue);
+      expect(result.violations, isEmpty);
+    });
+
+    test('accepts factual alert text', () {
+      final result = ComplianceGuard.validateAlert(
+        'Ta bonification LPP passe de 15% \u00e0 18% cette ann\u00e9e (LPP art.\u00a014).',
+      );
+      expect(result.isCompliant, isTrue);
+    });
+
+    test('returns useFallback=true on empty text', () {
+      final result = ComplianceGuard.validateAlert('');
+      expect(result.isCompliant, isFalse);
+      expect(result.useFallback, isTrue);
+      expect(result.violations, anyElement(contains('vide')));
+    });
+
+    test('does NOT inject disclaimer text (skip layers 3-4)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Ta projection de rente montre un montant important.',
+      );
+      // Should be compliant (educational text about projections)
+      // and should NOT have disclaimer injected
+      expect(result.sanitizedText, isNot(contains('Outil \u00e9ducatif')));
+      expect(result.sanitizedText, isNot(contains('LSFin')));
+    });
+
+    test('does NOT run hallucination detection', () {
+      // Even with a fabricated number, validateAlert should not check
+      final result = ComplianceGuard.validateAlert(
+        'Ton avoir LPP projet\u00e9 est de CHF 999999.',
+      );
+      final hallucinations = result.violations
+          .where((v) => v.contains('Hallucination'))
+          .toList();
+      expect(hallucinations, isEmpty);
+    });
+  });
 }

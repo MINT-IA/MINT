@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -39,15 +40,16 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   required String employmentStatus,
   required double monthlyNetIncome,
   required String canton,
+  required S s,
 }) {
   final suggestions = <LifeEventSuggestion>[];
 
   // ── Family ─────────────────────────────────────────────
 
   if (civilStatus == 'single' || civilStatus == 'concubinage') {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Mariage',
-      reason: 'Découvre l\'impact fiscal et sur la prévoyance',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugMariage,
+      reason: s.lifeEventSugMariageReason,
       icon: Icons.favorite_outline,
       route: '/mariage',
       color: MintColors.error,
@@ -55,9 +57,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (civilStatus == 'concubinage') {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Concubinage',
-      reason: 'Attention : aucune protection légale automatique',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugConcubinage,
+      reason: s.lifeEventSugConcubinageReason,
       icon: Icons.people_outline,
       route: '/concubinage',
       color: MintColors.warning,
@@ -65,9 +67,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (civilStatus == 'married' && childrenCount == 0) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Naissance',
-      reason: 'Simule l\'impact financier d\'un enfant',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugNaissance,
+      reason: s.lifeEventSugNaissanceReason,
       icon: Icons.child_care,
       route: '/naissance',
       color: MintColors.info,
@@ -77,9 +79,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Succession / Donation (age-driven) ─────────────────
 
   if (age >= 50 && childrenCount > 0) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Planification successorale',
-      reason: 'Réserves héréditaires et quotité disponible (CC art. 470)',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugSuccession,
+      reason: s.lifeEventSugSuccessionReason,
       icon: Icons.account_balance_outlined,
       route: '/succession',
       color: MintColors.primary,
@@ -87,9 +89,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (age >= 55 && monthlyNetIncome * 12 > 100000) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Donation entre vifs',
-      reason: 'Anticipe ta succession et optimise la fiscalité',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugDonation,
+      reason: s.lifeEventSugDonationReason,
       icon: Icons.card_giftcard,
       route: '/life-event/donation',
       color: MintColors.info,
@@ -99,9 +101,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Professional ───────────────────────────────────────
 
   if (age <= 28) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Premier emploi',
-      reason: 'Pose les bases : AVS, LPP, 3a et budget',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugPremierEmploi,
+      reason: s.lifeEventSugPremierEmploiReason,
       icon: Icons.school_outlined,
       route: '/first-job',
       color: MintColors.info,
@@ -109,9 +111,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (employmentStatus == 'employee' && age >= 30 && age <= 50) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Changement d\'emploi',
-      reason: 'Compare ton LPP avant de signer un nouveau contrat',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugChangementEmploi,
+      reason: s.lifeEventSugChangementEmploiReason,
       icon: Icons.swap_horiz,
       route: '/simulator/job-comparison',
       color: MintColors.primary,
@@ -119,9 +121,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (employmentStatus == 'independent') {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Outils indépendant',
-      reason: 'AVS, LPP volontaire, 3a élargi et dividende vs salaire',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugOutilsIndependant,
+      reason: s.lifeEventSugOutilsIndependantReason,
       icon: Icons.storefront_outlined,
       route: '/segments/independant',
       color: MintColors.success,
@@ -129,9 +131,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   }
 
   if (age >= 55) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Planification retraite',
-      reason: 'Rente vs capital, échelonnement 3a, lacune AVS',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugRetraite,
+      reason: s.lifeEventSugRetraiteReason,
       icon: Icons.elderly,
       route: '/retraite',
       color: MintColors.primary,
@@ -141,9 +143,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Housing ────────────────────────────────────────────
 
   if (monthlyNetIncome >= 5000 && age >= 25 && age <= 50) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Achat immobilier',
-      reason: 'Simule ta capacité d\'emprunt et l\'apport EPL',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugAchatImmo,
+      reason: s.lifeEventSugAchatImmoReason,
       icon: Icons.home_outlined,
       route: '/hypotheque',
       color: MintColors.success,
@@ -155,9 +157,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // High-tax cantons → suggest canton move
   const highTaxCantons = ['GE', 'VD', 'NE', 'JU', 'BE', 'BS'];
   if (highTaxCantons.contains(canton.toUpperCase())) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Déménagement cantonal',
-      reason: 'Ton canton est parmi les plus imposés — compare les 26',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugDemenagement,
+      reason: s.lifeEventSugDemenagementReason,
       icon: Icons.map_outlined,
       route: '/fiscal',
       color: MintColors.warning,
@@ -167,9 +169,9 @@ List<LifeEventSuggestion> buildLifeEventSuggestions({
   // ── Health ─────────────────────────────────────────────
 
   if (childrenCount > 0 || monthlyNetIncome > 6000) {
-    suggestions.add(const LifeEventSuggestion(
-      title: 'Invalidité',
-      reason: 'Vérifie ta couverture AI + LPP en cas d\'accident',
+    suggestions.add(LifeEventSuggestion(
+      title: s.lifeEventSugInvalidite,
+      reason: s.lifeEventSugInvaliditeReason,
       icon: Icons.accessible,
       route: '/invalidite',
       color: MintColors.error,
@@ -219,12 +221,12 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Et ensuite ?',
-                      style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+                      S.of(context)!.lifeEventSuggestionsHeader,
+                      style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                     ),
                     Text(
-                      'Modules adaptés à ton profil',
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      S.of(context)!.lifeEventSuggestionsSubheader,
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                   ],
                 ),
@@ -307,7 +309,7 @@ class LifeEventSuggestionsSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
-                  'Simuler',
+                  S.of(context)!.lifeEventSuggestionsSimuler,
                   style: MintTextStyles.labelSmall(color: suggestion.color).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),

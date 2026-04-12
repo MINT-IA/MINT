@@ -54,28 +54,14 @@ def override_get_db():
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_database():
     """Create database tables once for all tests."""
-    # Import models to ensure they're registered before creating tables
-    from app.models import (
-        User,
-        ProfileModel,
-        SessionModel,
-        AnalyticsEvent,
-        AuditEventModel,
-        LoginSecurityStateModel,
-        PasswordResetTokenModel,
-        EmailVerificationTokenModel,
-        SubscriptionModel,
-        EntitlementModel,
-        BillingTransactionModel,
-        BillingWebhookEventModel,
-        HouseholdModel,
-        HouseholdMemberModel,
-        AdminAuditEventModel,
-        SnapshotModel,
-        ConsentModel,
-    )
-    from app.models.banking_consent import BankingConsentModel
-    from app.models.external_data_source import ExternalDataSourceModel
+    # Import models to ensure they're registered with SQLAlchemy before create_all
+    import app.models.user  # noqa: F401
+    import app.models  # noqa: F401
+    from app.models.banking_consent import BankingConsentModel  # noqa: F401
+    from app.models.external_data_source import ExternalDataSourceModel  # noqa: F401
+    from app.models.token_blacklist import TokenBlacklist  # noqa: F401
+    from app.models.document import DocumentModel  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
@@ -106,8 +92,14 @@ def clean_database():
     )
     from app.models.banking_consent import BankingConsentModel
     from app.models.external_data_source import ExternalDataSourceModel
+    from app.models.token_blacklist import TokenBlacklist
+    from app.models.document import DocumentModel  # noqa: F811
+    from app.models.scenario import ScenarioModel
     db = TestingSessionLocal()
     try:
+        db.query(ScenarioModel).delete()
+        db.query(DocumentModel).delete()
+        db.query(TokenBlacklist).delete()
         db.query(ExternalDataSourceModel).delete()
         db.query(BankingConsentModel).delete()
         db.query(SnapshotModel).delete()

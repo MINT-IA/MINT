@@ -124,7 +124,7 @@ class _EducationalExplanationWidgetState
           if (section.title != null) ...[
             Text(
               section.title!,
-              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
+              style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
             ),
             const SizedBox(height: 8),
           ],

@@ -742,11 +742,11 @@ void main() {
       }
     });
 
-    test('all 26 canton docs have Chiffre Choc section', () {
+    test('all 26 canton docs have Premier Éclairage section', () {
       for (final code in allCantons) {
         final content = cantonFileContents['canton_$code.md'] ?? '';
-        expect(content.contains('Chiffre Choc'), isTrue,
-            reason: 'canton_$code.md missing "Chiffre Choc" section');
+        expect(content.contains('Premier Éclairage'), isTrue,
+            reason: 'canton_$code.md missing "Premier Éclairage" section');
       }
     });
 
@@ -800,11 +800,11 @@ void main() {
       }
     });
 
-    test('all 10 FAQ docs have Chiffre Choc section', () {
+    test('all 10 FAQ docs have Premier Éclairage section', () {
       for (final id in faqIds) {
         final content = faqFileContents['$id.md'] ?? '';
-        expect(content.contains('Chiffre Choc'), isTrue,
-            reason: '$id.md missing "Chiffre Choc" section');
+        expect(content.contains('Premier Éclairage'), isTrue,
+            reason: '$id.md missing "Premier Éclairage" section');
       }
     });
 

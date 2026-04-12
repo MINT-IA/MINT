@@ -12,6 +12,12 @@ import 'package:mint_mobile/widgets/coach/disability_scorecard_widget.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/collapsible_section.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — ÉCRAN PRINCIPAL INVALIDITÉ
@@ -32,6 +38,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   double _savings = 30000;
   bool _hasIjm = true;
   bool _seededFromProfile = false;
+  bool _hasUserInteracted = false;
 
   @override
   void didChangeDependencies() {
@@ -39,15 +46,31 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     if (_seededFromProfile) return;
     _seededFromProfile = true;
     final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
-    setState(() {
-      final salary = profile.salaireBrutMensuel;
-      if (salary > 0) _grossMonthly = salary.clamp(2000.0, 25000.0);
-      final age = DateTime.now().year - profile.birthYear;
-      _age = age.clamp(18, 64);
-      final savings = profile.patrimoine.epargneLiquide;
-      if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
-    });
+    if (profile != null) {
+      setState(() {
+        final salary = profile.salaireBrutMensuel;
+        if (salary > 0) _grossMonthly = salary.clamp(2000.0, 25000.0);
+        final age = DateTime.now().year - profile.birthYear;
+        _age = age.clamp(18, 64);
+        final savings = profile.patrimoine.epargneLiquide;
+        if (savings > 0) _savings = savings.clamp(0.0, 500000.0);
+      });
+    }
+  }
+
+  void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'disability_gap',
+      ScreenReturn.completed(
+        route: '/invalidite',
+        updatedFields: {
+          'disabilityGapMensuel': _grossMonthly - _acts.last.monthlyIncome,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'assurance_invalidite',
+      ),
+    );
   }
 
   // ── Calcul des actes (La Falaise) ─────────────────────────
@@ -71,37 +94,38 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     }
     final act3Income = aiRenteEntiere + lppInvalidity;
 
+    final s = S.of(context)!;
     return [
       DisabilityAct(
-        label: 'ACTE 1 · Employeur',
-        subtitle: S.of(context)!.disabilityGapEmployerSub,
-        durationLabel: 'Semaines 1-26',
+        label: s.disabilityGapAct1Label,
+        subtitle: s.disabilityGapEmployerSub,
+        durationLabel: s.disabilityGapAct1Duration,
         monthlyIncome: act1Income,
         emoji: '🟢',
         color: MintColors.success,
-        detail: '80\u00a0% de ton salaire versé par ton employeur',
+        detail: s.disabilityGapAct1Detail,
       ),
       DisabilityAct(
-        label: _hasIjm ? 'ACTE 2 · IJM (assurance maladie)' : 'ACTE 2 · Pas d\'IJM',
+        label: _hasIjm ? s.disabilityGapAct2LabelIjm : s.disabilityGapAct2LabelNoIjm,
         subtitle: _hasIjm
-            ? 'Assurance collective — 80% pendant 720 jours max'
-            : 'Sans IJM, tu passes directement à l\'AI après l\'employeur',
-        durationLabel: 'Jusqu\'à 24 mois',
+            ? s.disabilityGapAct2SubIjm
+            : s.disabilityGapAct2SubNoIjm,
+        durationLabel: s.disabilityGapAct2Duration,
         monthlyIncome: act2Income,
         emoji: _hasIjm ? '🟡' : '🔴',
         color: _hasIjm ? MintColors.amber : MintColors.error,
         detail: _hasIjm
-            ? '80% du salaire assuré'
-            : 'Aucune couverture — délai AI en cours',
+            ? s.disabilityGapAct2DetailIjm
+            : s.disabilityGapAct2DetailNoIjm,
       ),
       DisabilityAct(
-        label: 'ACTE 3 · AI + LPP (définitif)',
-        subtitle: S.of(context)!.disabilityGapAiDelaySub,
-        durationLabel: 'Après 24 mois',
+        label: s.disabilityGapAct3Label,
+        subtitle: s.disabilityGapAiDelaySub,
+        durationLabel: s.disabilityGapAct3Duration,
         monthlyIncome: act3Income,
         emoji: '🔴',
         color: MintColors.error,
-        detail: 'AI ${_fmtChf(aiRenteEntiere)} + LPP ${_fmtChf(lppInvalidity)} = ${_fmtChf(act3Income)} CHF/mois',
+        detail: s.disabilityGapAct3Detail(_fmtChf(aiRenteEntiere), _fmtChf(lppInvalidity), _fmtChf(act3Income)),
       ),
     ];
   }
@@ -136,11 +160,12 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   // ── Calcul Bulletin scolaire ─────────────────────────────
 
   List<CoverageItem> get _scorecardItems {
+    final s = S.of(context)!;
     // APG/IJM grade
     final ijmGrade = _hasIjm ? 'B+' : 'F';
     final ijmDetail = _hasIjm
-        ? '80% pendant 720 jours — assurance collective'
-        : 'Aucune IJM souscrite — risque maximal';
+        ? s.disabilityGapIjmCoverage
+        : s.disabilityGapNoIjmCoverage;
 
     // AI grade (systemic — everyone gets it)
     const aiGrade = 'C';
@@ -150,8 +175,8 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     final hasLpp = annualGross >= lppSeuilEntree;
     final lppGrade = hasLpp ? 'A-' : 'D';
     final lppDetail = hasLpp
-        ? 'Rente invalidité ≈ 40% salaire coordonné (LPP art. 23)'
-        : 'Salaire sous le seuil LPP — pas de couverture 2e pilier';
+        ? s.disabilityGapLppCovered
+        : s.disabilityGapLppNotCovered;
 
     // Épargne urgence grade
     final monthsReserve = _savings / (_grossMonthly * 0.7);
@@ -168,30 +193,30 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
 
     return [
       CoverageItem(
-        label: 'APG / IJM (perte de gain)',
+        label: s.disabilityGapApgLabel,
         grade: ijmGrade,
         detail: ijmDetail,
         legalRef: 'LAMal art. 67-77',
         emoji: '🛡️',
       ),
       CoverageItem(
-        label: 'AI (assurance invalidité)',
+        label: s.disabilityGapAiLabel,
         grade: aiGrade,
-        detail: 'Max ${_fmtChf(aiRenteEntiere)} CHF/mois — délai ~14 mois',
+        detail: s.disabilityGapAiDetail(_fmtChf(aiRenteEntiere)),
         legalRef: 'LAI art. 28',
         emoji: '🏛️',
       ),
       CoverageItem(
-        label: 'LPP invalidité (2e pilier)',
+        label: s.disabilityGapLppLabel,
         grade: lppGrade,
         detail: lppDetail,
         legalRef: 'LPP art. 23-26',
         emoji: '🏦',
       ),
       CoverageItem(
-        label: 'Réserve d\'urgence',
+        label: s.disabilityGapSavingsLabel,
         grade: savingsGrade,
-        detail: '${monthsReserve.toStringAsFixed(1)} mois de charges couverts',
+        detail: s.disabilityGapSavingsDetail(monthsReserve.toStringAsFixed(1)),
         emoji: '💰',
       ),
     ];
@@ -234,7 +259,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -242,17 +267,24 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                _buildInputsCard(),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeDisabilityHeadline,
+                  body: S.of(context)!.narrativeDisabilityBody,
+                  tone: MintSurfaceTone.peche,
+                  badge: S.of(context)!.narrativeDisabilityBadge,
+                )),
                 const SizedBox(height: 20),
-                DisabilityCliffWidget(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildInputsCard()),
+                const SizedBox(height: 20),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCliffWidget(
                   grossMonthly: _grossMonthly,
                   acts: _acts,
-                ),
+                )),
                 const SizedBox(height: 20),
-                DisabilityCountdownWidget(
+                MintEntrance(delay: const Duration(milliseconds: 300), child: DisabilityCountdownWidget(
                   monthlyExpenses: _grossMonthly * 0.70,
                   initialSavings: _savings,
-                ),
+                )),
                 const SizedBox(height: 20),
                 if (_age >= 35 && _lppCapitalBefore > 0) ...[
                   DisabilityResetWidget(
@@ -264,33 +296,27 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ),
                   const SizedBox(height: 20),
                 ],
-                DisabilityScorecardWidget(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: DisabilityScorecardWidget(
                   items: _scorecardItems,
                   overallGrade: _overallGrade,
                   lifeDropPercent: _lifeDropPercent,
-                ),
+                )),
                 const SizedBox(height: 20),
                 // ── Related sections (hub) ──
-                _buildRelatedSections(),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildRelatedSections()),
                 const SizedBox(height: 20),
-                const EduDisclaimer(
-                  text:
-                      'Outil éducatif — ne constitue pas un conseil en assurance au sens de la LSFin. '
-                      'Tes couvertures réelles dépendent de ton contrat de travail et de ta caisse de pension.',
+                EduDisclaimer(
+                  text: S.of(context)!.disabilityGapDisclaimer,
                 ),
                 const SizedBox(height: 8),
-                const EduLegalSources(
-                  sources:
-                      '• LAI art. 28-29 (rente AI)\n'
-                      '• LPP art. 23-26 (invalidité 2e pilier)\n'
-                      '• CO art. 324a (maintien salaire employeur)\n'
-                      '• LPGA art. 19 (délai de carence)',
+                EduLegalSources(
+                  sources: S.of(context)!.disabilityGapSources,
                 ),
               ]),
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -322,7 +348,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
                   ),
                   Text(
                     S.of(context)!.disabilityStatLine2,
-                    style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                    style: MintTextStyles.titleLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),
@@ -338,12 +364,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   }
 
   Widget _buildInputsCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,7 +381,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             max: 25000,
             divisions: 46,
             format: (v) => "CHF ${_fmtChf(v)}",
-            onChanged: (v) => setState(() => _grossMonthly = v),
+            onChanged: (v) { _hasUserInteracted = true; setState(() => _grossMonthly = v); _emitScreenReturn(); },
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
@@ -369,8 +390,8 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             min: 18,
             max: 64,
             divisions: 46,
-            format: (v) => '${v.toInt()} ans',
-            onChanged: (v) => setState(() => _age = v.toInt()),
+            format: (v) => S.of(context)!.disabilityGapAgeLabel(v.toInt()),
+            onChanged: (v) { _hasUserInteracted = true; setState(() => _age = v.toInt()); _emitScreenReturn(); },
           ),
           const SizedBox(height: 12),
           _buildSliderRow(
@@ -380,7 +401,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
             max: 200000,
             divisions: 40,
             format: (v) => "CHF ${_fmtChf(v)}",
-            onChanged: (v) => setState(() => _savings = v),
+            onChanged: (v) { _hasUserInteracted = true; setState(() => _savings = v); _emitScreenReturn(); },
           ),
           const SizedBox(height: 16),
           Row(
@@ -394,7 +415,7 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
               ),
               Switch(
                 value: _hasIjm,
-                onChanged: (v) => setState(() => _hasIjm = v),
+                onChanged: (v) { _hasUserInteracted = true; setState(() => _hasIjm = v); _emitScreenReturn(); },
                 activeTrackColor: MintColors.primary,
               ),
             ],
@@ -428,11 +449,15 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
   }
 
   Widget _buildSectionCta(String label, String route) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () => context.push(route),
-        child: Text(label),
+    return Semantics(
+      button: true,
+      label: label,
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(
+          onPressed: () => context.push(route),
+          child: Text(label),
+        ),
       ),
     );
   }
@@ -446,41 +471,14 @@ class _DisabilityGapScreenState extends State<DisabilityGapScreen> {
     required String Function(double) format,
     required void Function(double) onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-              ),
-            ),
-            Text(
-              format(value),
-              style: MintTextStyles.bodySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 3,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-            activeTrackColor: MintColors.primary,
-            inactiveTrackColor: MintColors.border,
-            thumbColor: MintColors.primary,
-          ),
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: format,
+      onChanged: onChanged,
     );
   }
 }

@@ -135,4 +135,4 @@ Si tu découvres une faille de sécurité dans MINT, nous te remercions de nous 
 
 ---
 
-*MINT — « Juste quand il faut : une explication, une action, un rappel. »*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

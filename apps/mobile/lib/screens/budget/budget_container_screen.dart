@@ -7,6 +7,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 class BudgetContainerScreen extends StatelessWidget {
   const BudgetContainerScreen({super.key});
@@ -25,13 +26,13 @@ class BudgetContainerScreen extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(S.of(context)!.budgetTitle)),
-      body: Center(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
+              MintEntrance(child: ExcludeSemantics(child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: MintColors.primary.withValues(alpha: 0.1),
@@ -39,36 +40,40 @@ class BudgetContainerScreen extends StatelessWidget {
                 ),
                 child: const Icon(Icons.account_balance_wallet_outlined,
                     size: 48, color: MintColors.primary),
-              ),
+              ))),
               const SizedBox(height: 24),
-              Text(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
                 S.of(context)!.budgetEmptyTitle,
                 textAlign: TextAlign.center,
-                style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-              ),
+                style: MintTextStyles.titleLarge(),
+              )),
               const SizedBox(height: MintSpacing.md),
-              Text(
+              MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
                 S.of(context)!.budgetEmptyBody,
                 textAlign: TextAlign.center,
                 style: MintTextStyles.bodyMedium(),
-              ),
+              )),
               const SizedBox(height: 32),
-              FilledButton.icon(
-                onPressed: () => context.push('/advisor/wizard?section=budget'),
-                icon: const Icon(Icons.play_arrow_rounded),
-                label: Text(S.of(context)!.budgetEmptyAction),
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14)),
+              Semantics(
+                button: true,
+                label: S.of(context)!.semanticsBudgetStartButton,
+                child: FilledButton.icon(
+                  onPressed: () => context.push('/coach/chat?prompt=budget'),
+                  icon: const Icon(Icons.play_arrow_rounded),
+                  label: Text(S.of(context)!.budgetEmptyAction),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14)),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 }

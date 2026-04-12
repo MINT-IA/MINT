@@ -114,7 +114,7 @@ class ReengagementEngine:
                     f"Nouveaux plafonds 3a: CHF {plafond_3a_str}. "
                     f"Ton economie potentielle : CHF {saving_str}."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",
                 time_constraint="Annee fiscale 2026",
                 month=1,
@@ -160,7 +160,7 @@ class ReengagementEngine:
                     f"Il reste {days_left} jours pour verser ton 3a. "
                     f"Economie estimee : CHF {saving_str}."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",
                 time_constraint=f"{days_left} jours restants",
                 month=10,
@@ -175,7 +175,7 @@ class ReengagementEngine:
                     f"Il reste {days_left} jours. "
                     f"Economie estimee : CHF {saving_str}."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",
                 time_constraint=f"{days_left} jours restants",
                 month=11,
@@ -190,7 +190,7 @@ class ReengagementEngine:
                     f"Dernier mois. "
                     f"CHF {saving_str} d'economie en jeu."
                 ),
-                deeplink="/3a",
+                deeplink="/pilier-3a",
                 personal_number=f"CHF {saving_str}",
                 time_constraint="Dernier mois",
                 month=12,
@@ -208,7 +208,7 @@ class ReengagementEngine:
                     f"Ton score de solidite: {fri_str} "
                     f"({delta_str} ce trimestre)."
                 ),
-                deeplink="/dashboard",
+                deeplink="/home?tab=0",
                 personal_number=f"{fri_str}/100",
                 time_constraint="Bilan trimestriel",
                 month=month,

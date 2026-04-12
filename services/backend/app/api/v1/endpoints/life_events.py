@@ -1,15 +1,20 @@
 """
-Life Events endpoints: Divorce Financial Simulator + Succession Simulator.
+Life Events endpoints: Divorce, Succession, Donation, Housing Sale.
 
-POST /api/v1/life-events/divorce/simulate     — Divorce financial simulation
-POST /api/v1/life-events/succession/simulate  — Succession simulation
-GET  /api/v1/life-events/divorce/checklist    — Divorce checklist template
-GET  /api/v1/life-events/succession/checklist — Succession checklist template
+POST /api/v1/life-events/divorce/simulate        — Divorce financial simulation
+POST /api/v1/life-events/succession/simulate     — Succession simulation
+POST /api/v1/life-events/donation/simulate       — Donation simulation
+POST /api/v1/life-events/housing-sale/simulate   — Housing sale simulation
+GET  /api/v1/life-events/divorce/checklist       — Divorce checklist template
+GET  /api/v1/life-events/succession/checklist    — Succession checklist template
 
-Sprint S10.
+Sprint S10 + W15 (donation + housing sale wiring).
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Request
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.life_events import (
     DivorceSimulationRequest,
     DivorceSimulationResponse,
@@ -17,14 +22,22 @@ from app.schemas.life_events import (
     SuccessionSimulationResponse,
     LifeEventChecklistItem,
     LifeEventChecklistResponse,
+    DonationSimulationRequest,
+    DonationSimulationResponse,
+    HousingSaleSimulationRequest,
+    HousingSaleSimulationResponse,
 )
 from app.services.divorce_simulator import DivorceSimulator, DivorceInput
 from app.services.succession_simulator import SuccessionSimulator, SuccessionInput
+from app.services.donation_service import DonationService, DonationInput
+from app.services.housing_sale_service import HousingSaleService, HousingSaleInput
 
 router = APIRouter()
 
 _divorce_sim = DivorceSimulator()
 _succession_sim = SuccessionSimulator()
+_donation_svc = DonationService()
+_housing_sale_svc = HousingSaleService()
 
 
 # ---------------------------------------------------------------------------
@@ -268,4 +281,108 @@ def get_succession_checklist() -> LifeEventChecklistResponse:
             "Elle ne constitue pas un conseil juridique ou fiscal. "
             "Consultez un notaire ou un avocat specialise en droit successoral."
         ),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Donation endpoints
+# ---------------------------------------------------------------------------
+
+@router.post("/donation/simulate", response_model=DonationSimulationResponse)
+@limiter.limit("10/minute")
+def simulate_donation(
+    request: Request,
+    body: DonationSimulationRequest,
+    _user: User = Depends(require_current_user),
+) -> DonationSimulationResponse:
+    """Simulate tax impact of a donation (CC art. 239-252).
+
+    Stateless endpoint — no data storage. All computation is done
+    on the fly from the provided inputs.
+    """
+    input_data = DonationInput(
+        montant=body.montant,
+        donateur_age=body.donateurAge,
+        lien_parente=body.lienParente,
+        canton=body.canton,
+        type_donation=body.typeDonation,
+        valeur_immobiliere=body.valeurImmobiliere,
+        avancement_hoirie=body.avancementHoirie,
+        nb_enfants=body.nbEnfants,
+        fortune_totale_donateur=body.fortuneTotaleDonateur,
+        regime_matrimonial=body.regimeMatrimonial,
+        has_spouse=body.hasSpouse,
+        has_parents=body.hasParents,
+    )
+
+    result = _donation_svc.calculate(input_data)
+
+    return DonationSimulationResponse(
+        montantDonation=result.montant_donation,
+        tauxImposition=result.taux_imposition,
+        impotDonation=result.impot_donation,
+        reserveHereditaireTotale=result.reserve_hereditaire_totale,
+        quotiteDisponible=result.quotite_disponible,
+        donationDepasseQuotite=result.donation_depasse_quotite,
+        montantDepassement=result.montant_depassement,
+        impactSuccession=result.impact_succession,
+        checklist=result.checklist,
+        alerts=result.alerts,
+        disclaimer=result.disclaimer,
+        sources=result.sources,
+        premierEclairage=result.premier_eclairage,
+    )
+
+
+# ---------------------------------------------------------------------------
+# Housing Sale endpoints
+# ---------------------------------------------------------------------------
+
+@router.post("/housing-sale/simulate", response_model=HousingSaleSimulationResponse)
+@limiter.limit("10/minute")
+def simulate_housing_sale(
+    request: Request,
+    body: HousingSaleSimulationRequest,
+    _user: User = Depends(require_current_user),
+) -> HousingSaleSimulationResponse:
+    """Simulate capital gains tax on property sale (LIFD art. 12).
+
+    Stateless endpoint — no data storage. All computation is done
+    on the fly from the provided inputs.
+    """
+    input_data = HousingSaleInput(
+        prix_achat=body.prixAchat,
+        prix_vente=body.prixVente,
+        annee_achat=body.anneeAchat,
+        annee_vente=body.anneeVente,
+        investissements_valorisants=body.investissementsValorisants,
+        frais_acquisition=body.fraisAcquisition,
+        canton=body.canton,
+        residence_principale=body.residencePrincipale,
+        epl_lpp_utilise=body.eplLppUtilise,
+        epl_3a_utilise=body.epl3aUtilise,
+        hypotheque_restante=body.hypothequeRestante,
+        projet_remploi=body.projetRemploi,
+        prix_remploi=body.prixRemploi,
+    )
+
+    result = _housing_sale_svc.calculate(input_data)
+
+    return HousingSaleSimulationResponse(
+        plusValueBrute=result.plus_value_brute,
+        plusValueImposable=result.plus_value_imposable,
+        dureeDetention=result.duree_detention,
+        tauxImpositionPlusValue=result.taux_imposition_plus_value,
+        impotPlusValue=result.impot_plus_value,
+        remploiReport=result.remploi_report,
+        impotEffectif=result.impot_effectif,
+        remboursementEplLpp=result.remboursement_epl_lpp,
+        remboursementEpl3a=result.remboursement_epl_3a,
+        soldeHypotheque=result.solde_hypotheque,
+        produitNet=result.produit_net,
+        checklist=result.checklist,
+        alerts=result.alerts,
+        disclaimer=result.disclaimer,
+        sources=result.sources,
+        premierEclairage=result.premier_eclairage,
     )

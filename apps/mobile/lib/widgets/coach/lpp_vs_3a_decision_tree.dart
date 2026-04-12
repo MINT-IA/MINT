@@ -91,7 +91,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
             const SizedBox(height: 4),
             Text(
               'Le choix strat\u00e9gique de l\u2019ind\u00e9pendant\u00b7e',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
@@ -122,7 +122,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
               child: Text(
                 'Il n\u2019y a pas de mauvais choix. Mais le bon te fait '
                 '\u00e9conomiser 3\u2019000\u20139\u2019000 CHF/an d\u2019imp\u00f4ts.',
-                style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -228,7 +228,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
                 Text(
                   '\u00c9conomie fiscale\u00a0: '
                   '${formatChfWithPrefix(option.annualTaxSavings!)}/an',
-                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
               if (widget.onLearnMore != null) ...[
@@ -238,7 +238,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
                       index == 0 ? 'lpp' : '3a'),
                   child: Text(
                     'En savoir plus \u2192',
-                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),
               ],
@@ -277,7 +277,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
           Text(
             'Plafond ${formatChfWithPrefix(pilier3aPlafondSansLpp)}/an. Cumule avec l\u2019AVS standard. '
             'Projection\u00a0: 500k\u2013800k \u00e0 65 ans selon rendement.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -295,7 +295,7 @@ class _LppVs3aDecisionTreeState extends State<LppVs3aDecisionTree> {
           Expanded(
             child: Text(
               text,
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
         ],

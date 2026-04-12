@@ -69,7 +69,7 @@ class BenchmarkCard extends StatelessWidget {
           // Message
           Text(
             benchmark.message,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
 
           // Source removed — no longer referencing OFS/BFS social comparisons

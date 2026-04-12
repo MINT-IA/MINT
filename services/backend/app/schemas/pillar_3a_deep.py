@@ -37,7 +37,7 @@ class StaggeredWithdrawalRequest(BaseModel):
     )
     revenuImposable: float = Field(
         ..., alias="revenuImposable",
-        description="Revenu imposable annuel (CHF)", ge=0
+        description="Revenu imposable annuel (CHF)", ge=0, le=10_000_000
     )
     ageRetraitDebut: int = Field(
         60, alias="ageRetraitDebut",
@@ -119,8 +119,8 @@ class StaggeredWithdrawalResponse(BaseModel):
     canton: str = Field(..., description="Canton utilise")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc pour l'utilisateur"
     )
     alerts: List[str] = Field(default_factory=list)
@@ -211,8 +211,8 @@ class RealReturnResponse(BaseModel):
     tauxMarginal: float = Field(..., alias="tauxMarginal")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     sources: List[str] = Field(default_factory=list)
@@ -280,17 +280,17 @@ class ProviderCompareResponse(BaseModel):
     projections: List[ProviderProjectionResponse] = Field(
         ..., description="Projections par provider"
     )
-    meilleurCapital: str = Field(
-        ..., alias="meilleurCapital",
-        description="Nom du provider au meilleur capital final"
+    capitalPlusHaut: str = Field(
+        ..., alias="capitalPlusHaut",
+        description="Nom du provider au capital final le plus haut"
     )
-    pireCapital: str = Field(
-        ..., alias="pireCapital",
-        description="Nom du provider au pire capital final"
+    capitalPlusBas: str = Field(
+        ..., alias="capitalPlusBas",
+        description="Nom du provider au capital final le plus bas"
     )
     differenceMax: float = Field(
         ..., alias="differenceMax",
-        description="Difference max entre meilleur et pire (CHF)"
+        description="Ecart max entre le plus haut et le plus bas (CHF)"
     )
 
     # Input summary
@@ -300,8 +300,8 @@ class ProviderCompareResponse(BaseModel):
     profilRisque: str = Field(..., alias="profilRisque")
 
     # Compliance
-    chiffreChoc: str = Field(
-        ..., alias="chiffreChoc",
+    premierEclairage: str = Field(
+        ..., alias="premierEclairage",
         description="Chiffre choc"
     )
     baseLegale: str = Field(..., alias="baseLegale")

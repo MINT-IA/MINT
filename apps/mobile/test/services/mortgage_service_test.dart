@@ -85,7 +85,7 @@ void main() {
       // FP requis = 160000
       expect(r.fondsPropresOk, isFalse);
       expect(r.manqueFondsPropres, closeTo(100000, 1));
-      expect(r.chiffreChocPositif, isFalse);
+      expect(r.premierEclairagePositif, isFalse);
     });
 
     test('LPP est plafonne a 10% du prix d achat', () {
@@ -150,7 +150,7 @@ void main() {
       expect(r.disclaimer, contains('specialiste'));
     });
 
-    test('chiffre choc positif quand capacite et fonds propres ok', () {
+    test('premier éclairage positif quand capacite et fonds propres ok', () {
       final r = AffordabilityCalculator.calculate(
         revenuBrutAnnuel: 300000,
         epargneDispo: 300000,
@@ -162,7 +162,7 @@ void main() {
 
       expect(r.capaciteOk, isTrue);
       expect(r.fondsPropresOk, isTrue);
-      expect(r.chiffreChocPositif, isTrue);
+      expect(r.premierEclairagePositif, isTrue);
     });
   });
 
@@ -193,7 +193,7 @@ void main() {
       );
 
       expect(r.economieSaronStable, greaterThan(0));
-      expect(r.chiffreChocTexte, contains('economise'));
+      expect(r.premierEclairageTexte, contains('economise'));
     });
 
     test('SARON hausse — taux augmente de 0.25% par an', () {
@@ -317,7 +317,7 @@ void main() {
       expect(r.deductionFraisEntretien, closeTo(50000, 1));
     });
 
-    test('impact positif — chiffre choc negatif (impot supplementaire)', () {
+    test('impact positif — premier éclairage negatif (impot supplementaire)', () {
       final r = ImputedRentalCalculator.calculate(
         valeurVenale: 1500000,
         interetsAnnuels: 5000,
@@ -330,7 +330,7 @@ void main() {
       // VL = 1500000 * 0.045 = 67500
       // Deductions faibles => impact net positif => impot supplementaire
       expect(r.impactNet, greaterThan(0));
-      expect(r.chiffreChocPositif, isFalse);
+      expect(r.premierEclairagePositif, isFalse);
     });
 
     test('canton inconnu — taux par defaut 3.5%', () {
@@ -362,7 +362,7 @@ void main() {
 
       // Indirect beneficie de la double deduction (interets + 3a)
       expect(r.economieIndirect, greaterThan(0));
-      expect(r.chiffreChocPositif, isTrue);
+      expect(r.premierEclairagePositif, isTrue);
     });
 
     test('direct — dette diminue chaque annee', () {

@@ -180,7 +180,7 @@ class MoveSimulation:
     economie_annuelle: float
     economie_mensuelle: float
     economie_10_ans: float
-    chiffre_choc: str
+    premier_eclairage: str
     alertes: List[str]
     checklist: List[str]
     disclaimer: str
@@ -342,21 +342,21 @@ class CantonalComparator:
         economie_mensuelle = round(economie_annuelle / 12, 2)
         economie_10_ans = round(economie_annuelle * 10, 2)
 
-        # Build chiffre choc
+        # Build premier éclairage
         if economie_annuelle > 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"En demenageant de {tax_from.canton_name} a {tax_to.canton_name}, "
                 f"tu pourrais economiser environ {abs(economie_annuelle):,.0f} CHF/an "
                 f"d'impots, soit {abs(economie_10_ans):,.0f} CHF sur 10 ans."
             )
         elif economie_annuelle < 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Attention: demenager de {tax_from.canton_name} a {tax_to.canton_name} "
                 f"te couterait environ {abs(economie_annuelle):,.0f} CHF/an de plus "
                 f"en impots, soit {abs(economie_10_ans):,.0f} CHF sur 10 ans."
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"La charge fiscale est quasi identique entre "
                 f"{tax_from.canton_name} et {tax_to.canton_name}."
             )
@@ -379,7 +379,7 @@ class CantonalComparator:
             economie_annuelle=economie_annuelle,
             economie_mensuelle=economie_mensuelle,
             economie_10_ans=economie_10_ans,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             alertes=alertes,
             checklist=checklist,
             disclaimer=DISCLAIMER,
@@ -591,7 +591,7 @@ def simuler_demenagement(
         "economie_annuelle": sim.economie_annuelle,
         "economie_mensuelle": sim.economie_mensuelle,
         "economie_10_ans": sim.economie_10_ans,
-        "chiffre_choc": sim.chiffre_choc,
+        "premier_eclairage": sim.premier_eclairage,
         "alertes": sim.alertes,
         "checklist": sim.checklist,
         "disclaimer": sim.disclaimer,

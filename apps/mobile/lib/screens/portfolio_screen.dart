@@ -7,6 +7,8 @@ import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class PortfolioScreen extends StatelessWidget {
   const PortfolioScreen({super.key});
@@ -20,15 +22,17 @@ class PortfolioScreen extends StatelessWidget {
       backgroundColor: MintColors.background,
       appBar: AppBar(
         title: Text(
-          'Mon patrimoine',
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+          S.of(context)!.portfolioAppBarTitle,
+          style: MintTextStyles.titleLarge(),
         ),
         centerTitle: false,
         elevation: 0,
         backgroundColor: MintColors.white,
         surfaceTintColor: MintColors.white,
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -37,28 +41,27 @@ class PortfolioScreen extends StatelessWidget {
               _buildSafeModeWarning(context),
               const SizedBox(height: 24),
             ],
-            _buildWealthSummary(),
+            MintEntrance(child: _buildWealthSummary(context)),
             const SizedBox(height: 32),
-            _buildReadinessIndex(context, profile),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildReadinessIndex(context, profile)),
             const SizedBox(height: 32),
-            _buildSectionHeader('Répartition par Enveloppe'),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSectionHeader(S.of(context)!.portfolioRepartitionEnveloppe)),
             const SizedBox(height: 12),
-            _buildAccountItem('Libre (Compte Placement)', 'CHF 73\'508.90', icon: Icons.trending_up, color: MintColors.primary),
-            _buildAccountItem('Lié (Pilier 3a)', 'CHF 18\'369.74', icon: Icons.savings_outlined, color: MintColors.success),
-            _buildAccountItem('Réservé (Fonds d\'urgence)', 'CHF 10\'800.00', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
+            // P2-14: Show "—" to indicate no data, not fake amounts
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildAccountItem(S.of(context)!.portfolioLibrePlacement, '\u2014', icon: Icons.trending_up, color: MintColors.primary)),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildAccountItem(S.of(context)!.portfolioLiePilier3a, '\u2014', icon: Icons.savings_outlined, color: MintColors.success)),
+            _buildAccountItem(S.of(context)!.portfolioReserveFondsUrgence, '\u2014', icon: Icons.account_balance_wallet_outlined, color: MintColors.warning),
             const SizedBox(height: 32),
             SafeModeGate(
               hasDebt: hasDebt,
-              lockedTitle: 'Priorite au desendettement',
-              lockedMessage:
-                  'Les conseils d\'allocation sont desactives en mode protection. '
-                  'Ta priorite est de reduire tes dettes avant de reequilibrer ton patrimoine.',
+              lockedTitle: S.of(context)!.portfolioSafeModeLocked,
+              lockedMessage: S.of(context)!.portfolioSafeModeBody,
               child: _buildCoachAdvice(context),
             ),
             const SizedBox(height: 100),
           ],
         ),
-      ),
+      )))),
     );
   }
 
@@ -86,80 +89,52 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildReadinessIndex(BuildContext context, Profile? profile) {
-    return Container(
+    // P2-14: No real readiness data available yet — show empty state
+    // instead of hardcoded fake percentages (65%, 40%, 85%).
+    return MintSurface(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 24,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(S.of(context)!.portfolioReadinessTitle, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold)),
+          Text(S.of(context)!.portfolioReadinessTitle, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
           const SizedBox(height: 16),
-          _readinessRow(S.of(context)!.portfolioPerennite, 0.65),
-          const SizedBox(height: 12),
-          _readinessRow(S.of(context)!.portfolioProjetImmo, 0.40),
-          const SizedBox(height: 12),
-          _readinessRow(S.of(context)!.portfolioProtectionFamille, 0.85),
+          Row(
+            children: [
+              const Icon(Icons.info_outline, size: 18, color: MintColors.textMuted),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  S.of(context)!.portfolioCompleteProfile,
+                  style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _readinessRow(String label, double value) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall()),
-            Text('${(value * 100).toInt()}%', style: MintTextStyles.bodySmall().copyWith(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 4),
-        LinearProgressIndicator(
-          value: value,
-          backgroundColor: MintColors.background,
-          valueColor: AlwaysStoppedAnimation<Color>(value < 0.5 ? MintColors.warning : MintColors.success),
-          minHeight: 4,
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWealthSummary() {
-    return Container(
+  Widget _buildWealthSummary(BuildContext context) {
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 24,
       child: Column(
         children: [
           Text(
-            'Valeur Totale Neté',
+            S.of(context)!.portfolioValeurTotaleNette,
             style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: MintSpacing.sm),
+          // P2-14: Show empty state instead of fake "CHF —" placeholder
+          const Icon(Icons.account_balance_outlined, size: 32, color: MintColors.textMuted),
+          const SizedBox(height: MintSpacing.sm),
           Text(
-            'CHF 102\'678.64',
-            style: MintTextStyles.displayMedium(),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.trending_up, color: MintColors.success, size: 16),
-              const SizedBox(width: 4),
-              Text(
-                '509.30 (0.50%) aujourd\'hui',
-                style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
-              ),
-            ],
+            S.of(context)!.portfolioNoData,
+            style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -174,14 +149,9 @@ class PortfolioScreen extends StatelessWidget {
   }
 
   Widget _buildAccountItem(String title, String balance, {required IconData icon, required Color color}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.5)),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Container(
@@ -196,12 +166,16 @@ class PortfolioScreen extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+              style: MintTextStyles.labelLarge(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
             balance,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),

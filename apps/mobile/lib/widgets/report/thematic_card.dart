@@ -80,7 +80,7 @@ class ThematicCard extends StatelessWidget {
                   ),
                   child: Text(
                     statusLabel,
-                    style: MintTextStyles.bodySmall(color: statusColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: statusColor).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -96,11 +96,11 @@ class ThematicCard extends StatelessWidget {
                   if (keyNumberLabel != null)
                     Text(
                       keyNumberLabel!,
-                      style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                     ),
                   Text(
                     keyNumber!,
-                    style: MintTextStyles.displayMedium(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+                    style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
               ),

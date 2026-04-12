@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -20,6 +22,7 @@ class LifeEventSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context)!;
     return Container(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.7,
@@ -44,15 +47,15 @@ class LifeEventSheet extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-              'Il m\'arrive quelque chose',
-              style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+              s.lifeEventSheetTitle,
+              style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           const SizedBox(height: 4),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Text(
-              'Choisis un evenement pour voir l\'impact financier',
+              s.lifeEventSheetSubtitle,
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
           ),
@@ -62,35 +65,35 @@ class LifeEventSheet extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               shrinkWrap: true,
               children: [
-                _buildSection('Famille', [
-                  const _LifeEvent('💍', 'Je me marie', 'Je me marie, quel impact financier ?'),
-                  const _LifeEvent('💔', 'Je divorce', 'Je divorce, que se passe-t-il avec la LPP et les impots ?'),
-                  const _LifeEvent('👶', 'J\'attends un enfant', 'J\'attends un enfant, quelles aides et deductions ?'),
-                  const _LifeEvent('💑', 'On vit ensemble', 'On n\'est pas maries, comment se proteger ?'),
-                  const _LifeEvent('🕊️', 'Deces d\'un proche', 'Deces d\'un proche, quelles demarches financieres ?'),
+                _buildSection(s.lifeEventSheetSectionFamille, [
+                  _LifeEvent('💍', s.lifeEventLabelMariage, s.lifeEventPromptMariage),
+                  _LifeEvent('💔', s.lifeEventLabelDivorce, s.lifeEventPromptDivorce),
+                  _LifeEvent('👶', s.lifeEventLabelNaissance, s.lifeEventPromptNaissance),
+                  _LifeEvent('💑', s.lifeEventLabelConcubinage, s.lifeEventPromptConcubinage),
+                  _LifeEvent('🕊️', s.lifeEventLabelDeces, s.lifeEventPromptDeces),
                 ]),
-                _buildSection('Professionnel', [
-                  const _LifeEvent('🎓', 'Premier emploi', 'C\'est mon premier job, que dois-je savoir ?'),
-                  const _LifeEvent('💼', 'Nouveau job', 'Je change d\'emploi, comment comparer les offres ?'),
-                  const _LifeEvent('🚀', 'Independant', 'Je me mets a mon compte, quelles options de prevoyance ?'),
-                  const _LifeEvent('📦', 'Perte d\'emploi', 'J\'ai perdu mon emploi, quelles sont mes indemnites ?'),
-                  const _LifeEvent('🏖️', 'Retraite', 'Quand partir a la retraite et combien je toucherai ?'),
+                _buildSection(s.lifeEventSheetSectionPro, [
+                  _LifeEvent('🎓', s.lifeEventLabelPremierEmploi, s.lifeEventPromptPremierEmploi),
+                  _LifeEvent('💼', s.lifeEventLabelNouveauJob, s.lifeEventPromptNouveauJob),
+                  _LifeEvent('🚀', s.lifeEventLabelIndependant, s.lifeEventPromptIndependant),
+                  _LifeEvent('📦', s.lifeEventLabelPerteEmploi, s.lifeEventPromptPerteEmploi),
+                  _LifeEvent('🏖️', s.lifeEventLabelRetraite, s.lifeEventPromptRetraite),
                 ]),
-                _buildSection('Patrimoine', [
-                  const _LifeEvent('🏠', 'Achat immobilier', 'Est-ce que je peux acheter un bien immobilier ?'),
-                  const _LifeEvent('🏷️', 'Vente immobiliere', 'Je vends mon bien, quel impot sur le gain ?'),
-                  const _LifeEvent('🎁', 'Heritage', 'Je recois un heritage, quelles consequences fiscales ?'),
-                  const _LifeEvent('💝', 'Donation', 'Je veux donner a mes enfants, quel impact fiscal ?'),
+                _buildSection(s.lifeEventSheetSectionPatrimoine, [
+                  _LifeEvent('🏠', s.lifeEventLabelAchatImmo, s.lifeEventPromptAchatImmo),
+                  _LifeEvent('🏷️', s.lifeEventLabelVenteImmo, s.lifeEventPromptVenteImmo),
+                  _LifeEvent('🎁', s.lifeEventLabelHeritage, s.lifeEventPromptHeritage),
+                  _LifeEvent('💝', s.lifeEventLabelDonation, s.lifeEventPromptDonation),
                 ]),
-                _buildSection('Mobilite', [
-                  const _LifeEvent('🏔️', 'Demenagement cantonal', 'Je demenage de canton, quel impact fiscal ?'),
-                  const _LifeEvent('✈️', 'Expatriation', 'Je pars a l\'etranger, que faire de ma prevoyance ?'),
+                _buildSection(s.lifeEventSheetSectionMobilite, [
+                  _LifeEvent('🏔️', s.lifeEventLabelDemenagement, s.lifeEventPromptDemenagement),
+                  _LifeEvent('✈️', s.lifeEventLabelExpatriation, s.lifeEventPromptExpatriation),
                 ]),
-                _buildSection('Sante', [
-                  const _LifeEvent('🩺', 'Invalidite', 'Suis-je bien couvert en cas d\'invalidite ?'),
+                _buildSection(s.lifeEventSheetSectionSante, [
+                  _LifeEvent('🩺', s.lifeEventLabelInvalidite, s.lifeEventPromptInvalidite),
                 ]),
-                _buildSection('Crise', [
-                  const _LifeEvent('⚠️', 'Probleme de dettes', 'J\'ai des dettes, comment m\'en sortir ?'),
+                _buildSection(s.lifeEventSheetSectionCrise, [
+                  _LifeEvent('⚠️', s.lifeEventLabelDettes, s.lifeEventPromptDettes),
                 ]),
               ],
             ),
@@ -126,7 +129,7 @@ class LifeEventSheet extends StatelessWidget {
             label: event.label,
             button: true,
             child: InkWell(
-              onTap: () => Navigator.of(context).pop(event.prompt),
+              onTap: () => context.pop(event.prompt),
               borderRadius: BorderRadius.circular(12),
               child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

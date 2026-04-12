@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FIRST JOB SERVICE — Sprint S19 / Chomage (LACI) + Premier emploi
@@ -71,7 +72,7 @@ class FirstJobResult {
   final List<String> checklist;
 
   // Chiffre choc
-  final String chiffreChoc;
+  final String premierEclairage;
 
   const FirstJobResult({
     required this.brut,
@@ -93,7 +94,7 @@ class FirstJobResult {
     required this.economieAnnuelleVs300,
     required this.noteLamal,
     required this.checklist,
-    required this.chiffreChoc,
+    required this.premierEclairage,
   });
 }
 
@@ -130,7 +131,7 @@ class FirstJobService {
 
   /// LPP maximum coordinated salary.
   /// Uses centralized constant from social_insurance.dart.
-  static const double _lppMaxCoordinated = lppSalaireCoordMax;
+  static double get _lppMaxCoordinated => reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
 
   /// LAMal franchise options.
   static const List<int> _lamalFranchises = [300, 500, 1000, 1500, 2000, 2500];
@@ -155,20 +156,22 @@ class FirstJobService {
     // Deductions
     final avs = brut * _avsAiApgRate;
     // AC: standard rate up to ceiling, solidarity 0.5% on excess (LACI art. 3)
-    final ac = annuel <= acPlafondSalaireAssure
-        ? brut * acCotisationSalarie
-        : (acPlafondSalaireAssure * acCotisationSalarie +
-              (annuel - acPlafondSalaireAssure) * 0.005) /
+    final acCeil = reg('ac.salary_ceiling', acPlafondSalaireAssure);
+    final acEmpRate = reg('ac.employee_rate', acCotisationSalarie);
+    final ac = annuel <= acCeil
+        ? brut * acEmpRate
+        : (acCeil * acEmpRate +
+              (annuel - acCeil) * 0.005) /
             12;
     final aanp = brut * _aanpRate;
 
     // LPP
     double lppEmploye = 0;
-    if (annuel >= lppSeuilEntree && age >= 25) {
-      double coordinated = annuel - lppDeductionCoordination;
-      coordinated = max(coordinated, lppSalaireCoordMin);
+    if (annuel >= reg('lpp.entry_threshold', lppSeuilEntree) && age >= 25) {
+      double coordinated = annuel - reg('lpp.coordination_deduction', lppDeductionCoordination);
+      coordinated = max(coordinated, reg('lpp.min_coordinated_salary', lppSalaireCoordMin));
       coordinated = min(coordinated, _lppMaxCoordinated);
-      final lppRate = _getLppRate(age);
+      final lppRate = getLppBonificationRate(age);
       lppEmploye = (coordinated * lppRate) / 12 / 2; // employee half
     }
 
@@ -210,14 +213,17 @@ class FirstJobService {
         ),
     ];
 
-    // 3a recommendation
-    const economie3a = pilier3aPlafondAvecLpp * 0.25; // ~25% marginal tax estimate
+    // 3a recommendation — canton-aware marginal rate
+    final economie3a = RetirementTaxCalculator.estimate3aTaxSaving(
+      grossAnnualSalary: annuel,
+      canton: canton,
+    );
 
     // LAMal franchise comparison
     final franchiseData = _calculateFranchiseOptions(age, canton);
 
     // Chiffre choc
-    final chiffreChoc =
+    final premierEclairage =
         'Ton employeur paie ~${formatChf(employeurTotal)}/mois '
         'en plus de ton salaire — des charges que tu ne vois jamais';
 
@@ -232,8 +238,8 @@ class FirstJobService {
       cotisationsEmployeur: employeurTotal,
       deductionItems: deductionItems,
       eligible3a: true,
-      plafondAnnuel3a: pilier3aPlafondAvecLpp,
-      montantMensuelSuggere3a: pilier3aPlafondAvecLpp / 12,
+      plafondAnnuel3a: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+      montantMensuelSuggere3a: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) / 12,
       economieFiscaleEstimee3a: economie3a,
       alerte3a: 'Évite les 3a liés à une assurance-vie\u00a0! '
           'Privilégie un 3a fintech avec frais < 0,5\u00a0%.',
@@ -244,18 +250,12 @@ class FirstJobService {
           'Si tu es jeune et en bonne sante, la franchise 2500 est souvent '
           'plus avantageuse. Compare sur priminfo.admin.ch pour ton canton.',
       checklist: _buildChecklist(),
-      chiffreChoc: chiffreChoc,
+      premierEclairage: premierEclairage,
     );
   }
 
-  /// Get LPP bonification rate by age.
-  static double _getLppRate(int age) {
-    if (age < 25) return 0.0;
-    if (age <= 34) return 0.07;
-    if (age <= 44) return 0.10;
-    if (age <= 54) return 0.15;
-    return 0.18;
-  }
+  // _getLppRate removed — use centralized getLppBonificationRate(age)
+  // from social_insurance.dart (LPP art. 16).
 
   /// Calculate LAMal franchise options.
   /// Returns (options, recommended franchise, annual savings vs 300).

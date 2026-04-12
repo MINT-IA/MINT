@@ -3,7 +3,7 @@ Auth security models (login protection + password reset tokens).
 """
 
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, Integer
 from app.core.database import Base
 
@@ -18,7 +18,7 @@ class LoginSecurityStateModel(Base):
     failed_attempts = Column(Integer, nullable=False, default=0)
     next_allowed_at = Column(DateTime, nullable=True)
     lockout_until = Column(DateTime, nullable=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 
 class PasswordResetTokenModel(Base):
@@ -31,7 +31,7 @@ class PasswordResetTokenModel(Base):
     token_hash = Column(String, unique=True, nullable=False, index=True)
     expires_at = Column(DateTime, nullable=False)
     used_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
 
 class EmailVerificationTokenModel(Base):
@@ -44,4 +44,4 @@ class EmailVerificationTokenModel(Base):
     token_hash = Column(String, unique=True, nullable=False, index=True)
     expires_at = Column(DateTime, nullable=False)
     used_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

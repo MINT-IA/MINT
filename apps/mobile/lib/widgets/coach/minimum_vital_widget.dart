@@ -105,7 +105,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'LP art. 93 — Ce que tes créanciers ne peuvent PAS toucher',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -131,7 +131,7 @@ class MinimumVitalWidget extends StatelessWidget {
               children: [
                 Text(
                   'Minimum vital protégé',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
                 Text(
                   '${formatChfWithPrefix(_totalProtected)}/mois',
@@ -153,7 +153,7 @@ class MinimumVitalWidget extends StatelessWidget {
               ),
               Text(
                 formatChfWithPrefix(_seizable),
-                style: MintTextStyles.headlineMedium(color: _seizable > 0 ? MintColors.scoreAttention : MintColors.scoreExcellent).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                style: MintTextStyles.titleLarge(color: _seizable > 0 ? MintColors.scoreAttention : MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w800),
               ),
               Text(
                 '/mois max',
@@ -266,11 +266,11 @@ class MinimumVitalWidget extends StatelessWidget {
           children: [
             Text(
               'Salaire brut : ${formatChfWithPrefix(grossMonthly)}/mois',
-              style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
             Text(
               '${(fraction * 100).round()}% saisissable',
-              style: MintTextStyles.labelSmall(color: fraction > 0.4 ? MintColors.scoreCritique : MintColors.scoreAttention).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+              style: MintTextStyles.labelMedium(color: fraction > 0.4 ? MintColors.scoreCritique : MintColors.scoreAttention).copyWith(fontWeight: FontWeight.w700),
             ),
           ],
         ),
@@ -339,7 +339,7 @@ class MinimumVitalWidget extends StatelessWidget {
                 Text(
                   'Contacte un·e avocat·e ou le service des poursuites de ta commune. '
                   'La LP art. 93 est impérative — aucun contrat ne peut y déroger.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),

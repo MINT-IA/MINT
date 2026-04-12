@@ -28,6 +28,12 @@ class MintSpacing {
   /// 48px — large breathing room (Hero screens).
   static const double xxl = 48;
 
+  /// 64px — extra-large spacing (landing hero sections).
+  static const double xxxl = 64;
+
+  /// 80px — maximum spacing (landing top/bottom breathing room).
+  static const double xxxxl = 80;
+
   /// 32px — screen horizontal padding (tablet).
   static const double page = 32;
 

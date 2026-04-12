@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -172,10 +173,33 @@ class ConversationMemoryService {
     return fullText.length > 500 ? '${fullText.substring(0, 497)}...' : fullText;
   }
 
-  /// Sanitize a conversation title to prevent prompt injection.
+  /// Build a 1-line summary of the last check-in for LLM context injection.
   ///
-  /// Strips system markers, triple-dash delimiters, and truncates
-  /// to 100 chars to prevent memory block manipulation.
+  /// T-05-06 (Info Disclosure mitigation): Only includes total CHF amount
+  /// (integer), no contribution_id or detailed breakdown — minimizes PII
+  /// surface in LLM context.
+  ///
+  /// Returns empty string if no check-ins exist.
+  static String buildCheckInSummary(CoachProfile profile) {
+    if (profile.checkIns.isEmpty) return '';
+    final sorted = profile.checkIns.toList()
+      ..sort((a, b) => b.month.compareTo(a.month));
+    final last = sorted.first;
+    final total = last.totalVersements.round();
+    // Month names in French (non-breaking space before colon per MINT voice)
+    const months = [
+      '', 'janvier', 'f\u00e9vrier', 'mars', 'avril', 'mai', 'juin',
+      'juillet', 'ao\u00fbt', 'septembre', 'octobre', 'novembre', 'd\u00e9cembre',
+    ];
+    final monthName = months[last.month.month];
+    final year = last.month.year;
+    return 'Dernier check-in ($monthName $year)\u00a0: $total\u00a0CHF vers\u00e9s au total.';
+  }
+
+  /// Sanitize a conversation title to prevent prompt injection and PII leaks.
+  ///
+  /// Strips system markers, triple-dash delimiters, PII patterns,
+  /// and truncates to 100 chars to prevent memory block manipulation.
   static String _sanitizeTitle(String title) {
     var s = title;
     for (final marker in [
@@ -188,6 +212,8 @@ class ConversationMemoryService {
     }
     s = s.replaceAll(RegExp(r'(?<=\s|^)-{3,}(?=\s|$)'), '');
     s = s.replaceAll(RegExp(r'\s{3,}'), '  ').trim();
+    // V3-5: Scrub PII from titles injected into AI context.
+    s = ConversationStore.scrubPii(s);
     return s.length > 100 ? '${s.substring(0, 97)}...' : s;
   }
 }

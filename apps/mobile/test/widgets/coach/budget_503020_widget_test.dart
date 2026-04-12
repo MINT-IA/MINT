@@ -29,7 +29,7 @@ void main() {
     ),
   ];
 
-  Widget buildWidget({String? chiffreChoc}) => MaterialApp(
+  Widget buildWidget({String? premierEclairage}) => MaterialApp(
         locale: const Locale('fr'),
         localizationsDelegates: const [
           S.delegate,
@@ -42,7 +42,7 @@ void main() {
           body: Budget503020Widget(
             netSalary: 4210,
             categories: categories,
-            chiffreChoc: chiffreChoc,
+            premierEclairage: premierEclairage,
           ),
         ),
       );
@@ -77,7 +77,7 @@ void main() {
   });
 
   testWidgets('shows chiffre-choc when provided', (tester) async {
-    await tester.pumpWidget(buildWidget(chiffreChoc: 'Test chiffre-choc'));
+    await tester.pumpWidget(buildWidget(premierEclairage: 'Test chiffre-choc'));
     expect(find.textContaining('Test chiffre-choc'), findsOneWidget);
   });
 

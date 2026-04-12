@@ -36,13 +36,13 @@ class Budget503020Widget extends StatelessWidget {
   final List<BudgetCategory> categories;
 
   /// Optional highlight: chiffre-choc showing annual savings.
-  final String? chiffreChoc;
+  final String? premierEclairage;
 
   const Budget503020Widget({
     super.key,
     required this.netSalary,
     required this.categories,
-    this.chiffreChoc,
+    this.premierEclairage,
   });
 
   @override
@@ -68,7 +68,7 @@ class Budget503020Widget extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               'Basé sur ${formatChfWithPrefix(netSalary)} net/mois',
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
             const SizedBox(height: 16),
 
@@ -80,7 +80,7 @@ class Budget503020Widget extends StatelessWidget {
             ...categories.map(_buildCategoryCard),
 
             // ── Chiffre-choc ──
-            if (chiffreChoc != null) ...[
+            if (premierEclairage != null) ...[
               const SizedBox(height: 12),
               Container(
                 width: double.infinity,
@@ -92,8 +92,8 @@ class Budget503020Widget extends StatelessWidget {
                       color: MintColors.primary.withValues(alpha: 0.15)),
                 ),
                 child: Text(
-                  chiffreChoc!,
-                  style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  premierEclairage!,
+                  style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
               ),

@@ -149,7 +149,7 @@ void main() {
       } else {
         final warning = service.prerequisiteWarning;
         expect(warning, isNotNull);
-        expect(warning, contains('HUGGINGFACE_TOKEN'));
+        expect(warning, equals('slm_auth_missing'));
       }
     });
   });

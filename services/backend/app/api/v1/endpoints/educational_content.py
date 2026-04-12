@@ -5,13 +5,15 @@ GET  /api/v1/educational-content/         — liste tous les inserts educatifs
 GET  /api/v1/educational-content/{question_id} — retourne un insert par question_id
 GET  /api/v1/educational-content/phase/{phase} — retourne les inserts par phase
 
-Sert le contenu educatif (chiffre choc, objectifs d'apprentissage, disclaimer,
+Sert le contenu educatif (premier éclairage, objectifs d'apprentissage, disclaimer,
 sources legales) pour chaque question du wizard MINT.
 
 All endpoints are stateless (no data storage). Pure read from in-memory data.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+
+from app.core.rate_limit import limiter
 
 from app.schemas.educational_content import (
     InsertContentResponse,
@@ -30,7 +32,7 @@ def _to_response(insert) -> InsertContentResponse:
     return InsertContentResponse(
         question_id=insert.question_id,
         title=insert.title,
-        chiffre_choc=insert.chiffre_choc,
+        premier_eclairage=insert.premier_eclairage,
         learning_goals=insert.learning_goals,
         disclaimer=insert.disclaimer,
         sources=insert.sources,
@@ -42,7 +44,9 @@ def _to_response(insert) -> InsertContentResponse:
 
 
 @router.get("/phase/{phase}", response_model=InsertListResponse)
-def get_inserts_by_phase(phase: str) -> InsertListResponse:
+@limiter.limit("60/minute")
+def get_inserts_by_phase(
+    request: Request, phase: str) -> InsertListResponse:
     """Retourne tous les inserts educatifs pour une phase donnee.
 
     Args:
@@ -57,7 +61,9 @@ def get_inserts_by_phase(phase: str) -> InsertListResponse:
 
 
 @router.get("", response_model=InsertListResponse)
-def list_all_inserts() -> InsertListResponse:
+@limiter.limit("60/minute")
+def list_all_inserts(
+    request: Request) -> InsertListResponse:
     """Retourne tous les inserts educatifs disponibles.
 
     Returns:
@@ -69,7 +75,9 @@ def list_all_inserts() -> InsertListResponse:
 
 
 @router.get("/{question_id}", response_model=InsertContentResponse)
-def get_insert(question_id: str) -> InsertContentResponse:
+@limiter.limit("60/minute")
+def get_insert(
+    request: Request, question_id: str) -> InsertContentResponse:
     """Retourne un insert educatif par son identifiant de question.
 
     Args:

@@ -20,9 +20,11 @@ Sources:
     - FINMA Tragbarkeitsrechnung
 """
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.core.auth import require_current_user
 from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.arbitrage import (
     RenteVsCapitalRequest,
     RenteVsCapitalResponse,
@@ -73,7 +75,7 @@ def _result_to_response(result, response_class):
     return response_class(
         options=[_option_to_schema(o) for o in result.options],
         breakeven_year=result.breakeven_year,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         display_summary=result.display_summary,
         hypotheses=result.hypotheses,
         disclaimer=result.disclaimer,
@@ -85,7 +87,7 @@ def _result_to_response(result, response_class):
 
 @router.post("/rente-vs-capital", response_model=RenteVsCapitalResponse)
 @limiter.limit("10/minute")
-def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) -> RenteVsCapitalResponse:
+def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest, _user: User = Depends(require_current_user)) -> RenteVsCapitalResponse:
     """Compare rente viagere vs retrait en capital vs mixte.
 
     Simule 3 options pour la prevoyance LPP a la retraite:
@@ -152,8 +154,8 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) ->
 
         return _result_to_response(result, RenteVsCapitalResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/allocation-annuelle", response_model=AllocationAnnuelleResponse)
@@ -161,6 +163,7 @@ def arbitrage_rente_vs_capital(request: Request, body: RenteVsCapitalRequest) ->
 def arbitrage_allocation_annuelle(
     request: Request,
     body: AllocationAnnuelleRequest,
+    _user: User = Depends(require_current_user),
 ) -> AllocationAnnuelleResponse:
     """Compare les strategies d'allocation annuelle de l'epargne.
 
@@ -227,8 +230,8 @@ def arbitrage_allocation_annuelle(
 
         return _result_to_response(result, AllocationAnnuelleResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/location-vs-propriete", response_model=LocationVsProprieteResponse)
@@ -236,6 +239,7 @@ def arbitrage_allocation_annuelle(
 def arbitrage_location_vs_propriete(
     request: Request,
     body: LocationVsProprieteRequest,
+    _user: User = Depends(require_current_user),
 ) -> LocationVsProprieteResponse:
     """Compare continuer a louer vs acheter un bien immobilier.
 
@@ -291,8 +295,8 @@ def arbitrage_location_vs_propriete(
 
         return _result_to_response(result, LocationVsProprieteResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/rachat-vs-marche", response_model=RachatVsMarcheResponse)
@@ -300,6 +304,7 @@ def arbitrage_location_vs_propriete(
 def arbitrage_rachat_vs_marche(
     request: Request,
     body: RachatVsMarcheRequest,
+    _user: User = Depends(require_current_user),
 ) -> RachatVsMarcheResponse:
     """Compare rachat LPP vs investissement libre.
 
@@ -349,8 +354,8 @@ def arbitrage_rachat_vs_marche(
 
         return _result_to_response(result, RachatVsMarcheResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
 @router.post("/calendrier-retraits", response_model=CalendrierRetraitsResponse)
@@ -358,6 +363,7 @@ def arbitrage_rachat_vs_marche(
 def arbitrage_calendrier_retraits(
     request: Request,
     body: CalendrierRetraitsRequest,
+    _user: User = Depends(require_current_user),
 ) -> CalendrierRetraitsResponse:
     """Compare retrait total la meme annee vs retraits echelonnes.
 
@@ -365,11 +371,11 @@ def arbitrage_calendrier_retraits(
     - Option A: Tout retirer la meme annee (progressivite maximale)
     - Option B: Echelonner les retraits sur plusieurs annees fiscales
 
-    Le chiffre choc montre l'economie fiscale potentielle, souvent
+    Le premier éclairage montre l'economie fiscale potentielle, souvent
     CHF 15'000 a 40'000+ pour des capitaux importants.
 
     Returns:
-        CalendrierRetraitsResponse avec 2 trajectoires, chiffre choc,
+        CalendrierRetraitsResponse avec 2 trajectoires, premier éclairage,
         disclaimer et sources legales (LIFD art. 38, OPP3, LPP).
     """
     try:
@@ -404,5 +410,5 @@ def arbitrage_calendrier_retraits(
 
         return _result_to_response(result, CalendrierRetraitsResponse)
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")

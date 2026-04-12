@@ -198,13 +198,13 @@ class _TrajectoryComparisonChartState extends State<TrajectoryComparisonChart> {
                     Expanded(
                       child: Text(
                         widget.options[i].label,
-                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                       ),
                     ),
                     Text(
                       _formatChf(
                           widget.options[i].trajectory[idx].netPatrimony),
-                      style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -250,7 +250,7 @@ class _LegendItem extends StatelessWidget {
         Flexible(
           child: Text(
             label,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             overflow: TextOverflow.ellipsis,
           ),
         ),

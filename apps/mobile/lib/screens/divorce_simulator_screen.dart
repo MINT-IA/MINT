@@ -8,7 +8,8 @@ import 'package:mint_mobile/widgets/coach/divorce_film_widget.dart';
 import 'package:mint_mobile/widgets/coach/prix_du_silence_widget.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
 
@@ -234,25 +235,22 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       accentColor: MintColors.purple,
       child: Column(
         children: [
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.divorceDureeMariage,
-            value: _marriageDuration.toDouble(),
-            min: 1,
-            max: 40,
-            divisions: 39,
-            format: (v) => S.of(context)!.divorceYears(v.toInt()),
-            onChanged: (v) => setState(() => _marriageDuration = v.toInt()),
+            value: _marriageDuration,
+            minValue: 1,
+            maxValue: 40,
+            formatValue: (v) => S.of(context)!.divorceYears(v),
+            onChanged: (v) => setState(() => _marriageDuration = v),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildSlider(
+          MintPickerTile(
             label: S.of(context)!.divorceNbEnfants,
-            value: _numberOfChildren.toDouble(),
-            min: 0,
-            max: 5,
-            divisions: 5,
-            format: (v) => '${v.toInt()}',
-            onChanged: (v) =>
-                setState(() => _numberOfChildren = v.toInt()),
+            value: _numberOfChildren,
+            minValue: 0,
+            maxValue: 5,
+            formatValue: (v) => '$v',
+            onChanged: (v) => setState(() => _numberOfChildren = v),
           ),
           const SizedBox(height: MintSpacing.md),
           _buildRegimeChips(),
@@ -337,24 +335,22 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       accentColor: MintColors.purple,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorceConjoint1Revenu,
             value: _incomeConjoint1,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _incomeConjoint1 = v),
             min: 0,
             max: 300000,
-            divisions: 60,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _incomeConjoint1 = v),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorceConjoint2Revenu,
             value: _incomeConjoint2,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _incomeConjoint2 = v),
             min: 0,
             max: 300000,
-            divisions: 60,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _incomeConjoint2 = v),
           ),
         ],
       ),
@@ -370,44 +366,40 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       accentColor: MintColors.purple,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorceLppConjoint1,
             value: _lppConjoint1,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _lppConjoint1 = v),
             min: 0,
             max: 500000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _lppConjoint1 = v),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorceLppConjoint2,
             value: _lppConjoint2,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _lppConjoint2 = v),
             min: 0,
             max: 500000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _lppConjoint2 = v),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorce3aConjoint1,
             value: _pillar3aConjoint1,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _pillar3aConjoint1 = v),
             min: 0,
             max: 200000,
-            divisions: 40,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _pillar3aConjoint1 = v),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorce3aConjoint2,
             value: _pillar3aConjoint2,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _pillar3aConjoint2 = v),
             min: 0,
             max: 200000,
-            divisions: 40,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _pillar3aConjoint2 = v),
           ),
         ],
       ),
@@ -423,24 +415,22 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       accentColor: MintColors.purple,
       child: Column(
         children: [
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorceFortune,
             value: _fortuneCommune,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _fortuneCommune = v),
             min: 0,
             max: 2000000,
-            divisions: 200,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _fortuneCommune = v),
           ),
           const SizedBox(height: MintSpacing.md),
-          _buildSlider(
+          MintAmountField(
             label: S.of(context)!.divorceDettes,
             value: _dettesCommunes,
+            formatValue: (v) => _chfFmt(v),
+            onChanged: (v) => setState(() => _dettesCommunes = v),
             min: 0,
             max: 1000000,
-            divisions: 100,
-            format: (v) => _chfFmt(v),
-            onChanged: (v) => setState(() => _dettesCommunes = v),
           ),
         ],
       ),
@@ -676,7 +666,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   S.of(context)!.divorceSplitC1,
                   style: MintTextStyles.labelSmall(
                     color: MintColors.white,
-                  ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -689,7 +679,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
                   S.of(context)!.divorceSplitC2,
                   style: MintTextStyles.labelSmall(
                     color: MintColors.purple,
-                  ).copyWith(fontSize: 10, fontWeight: FontWeight.w600),
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -725,9 +715,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
               S.of(context)!.divorcePensionMois(
                 _chfFmt(r.pensionAlimentaireMonthly),
               ),
-              style: MintTextStyles.displayMedium(
+              style: MintTextStyles.displaySmall(
                 color: MintColors.textPrimary,
-              ).copyWith(fontSize: 28),
+              ),
             ),
           ),
           const SizedBox(height: MintSpacing.xs),
@@ -742,9 +732,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
           const SizedBox(height: MintSpacing.sm + 4),
           Text(
             S.of(context)!.divorcePensionDescription,
-            style: MintTextStyles.labelSmall(
+            style: MintTextStyles.labelMedium(
               color: MintColors.textMuted,
-            ).copyWith(fontSize: 12, height: 1.5),
+            ).copyWith(height: 1.5),
           ),
         ],
       ),
@@ -759,9 +749,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorcePointsAttention,
-          style: MintTextStyles.labelSmall(
+          style: MintTextStyles.labelMedium(
             color: MintColors.textMuted,
-          ).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+          ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         ...r.alerts.map((alert) => Padding(
@@ -875,9 +865,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
       children: [
         Text(
           S.of(context)!.divorceComprendre,
-          style: MintTextStyles.labelSmall(
+          style: MintTextStyles.labelMedium(
             color: MintColors.textMuted,
-          ).copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1),
+          ).copyWith(fontWeight: FontWeight.w700, letterSpacing: 1),
         ),
         const SizedBox(height: MintSpacing.sm + 4),
         _buildExpandableTile(
@@ -938,9 +928,9 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
             Expanded(
               child: Text(
                 S.of(context)!.divorceDisclaimer,
-                style: MintTextStyles.micro(
+                style: MintTextStyles.labelSmall(
                   color: MintColors.textMuted,
-                ).copyWith(fontSize: 11),
+                ),
               ),
             ),
           ],
@@ -968,28 +958,4 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     );
   }
 
-  // --- Slider (reusable, follows existing simulator pattern) ---
-  Widget _buildSlider({
-    required String label,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String Function(double) format,
-    required void Function(double) onChanged,
-  }) {
-    return MintPremiumSlider(
-      label: label,
-      value: value,
-      min: min,
-      max: max,
-      divisions: divisions,
-      formatValue: format,
-      onChanged: (v) {
-        setState(() {
-          onChanged(v);
-        });
-      },
-    );
-  }
 }

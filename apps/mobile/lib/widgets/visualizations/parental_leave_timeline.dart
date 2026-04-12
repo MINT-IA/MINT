@@ -213,7 +213,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
                 const SizedBox(height: 2),
                 Text(
                   '${widget.weeks.length} semaines  ·  Allocations APG',
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),
@@ -440,7 +440,7 @@ class _ParentalLeaveTimelineState extends State<ParentalLeaveTimeline>
         children: [
           Text(
             'Pont de revenu journalier',
-            style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           // Salary bar

@@ -184,7 +184,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 const SizedBox(height: 4),
                 Text(
                   '${formatChfWithPrefix(_totalDebt)} de dettes · quelle stratégie ?',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -279,7 +279,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 ),
                 child: Text(
                   '${e.key + 1}',
-                  style: MintTextStyles.labelSmall(color: e.key == 0 ? MintColors.white : MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.labelMedium(color: e.key == 0 ? MintColors.white : MintColors.textSecondary).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: 10),
@@ -335,7 +335,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                 ),
                 Text(
                   '${years > 0 ? '${years}a ' : ''}${months > 0 ? '${months}m' : ''}',
-                  style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontSize: 22, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.headlineMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800),
                 ),
                 Text(
                   'pour solder toutes les dettes',
@@ -353,7 +353,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
               ),
               Text(
                 formatChfWithPrefix(result.totalInterest),
-                style: MintTextStyles.titleMedium(color: MintColors.scoreCritique).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                style: MintTextStyles.titleLarge(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -393,7 +393,7 @@ class _DebtRepaymentWidgetState extends State<DebtRepaymentWidget> {
                       ? 'La boule de neige prend $monthsDiff mois de plus, '
                         'mais elle est plus motivante (petites victoires rapides).'
                       : 'Choisis la stratégie qui te motive le plus à tenir.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),

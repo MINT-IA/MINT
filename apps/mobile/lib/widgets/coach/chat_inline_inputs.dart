@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -109,7 +110,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                   final isSelected = age == _selected;
                   return Center(
                     child: Text(
-                      '$age ans',
+                      S.of(context)!.ageYears(age.toString()),
                       style: MintTextStyles.headlineMedium(
                         color: isSelected
                             ? MintColors.textPrimary
@@ -138,7 +139,7 @@ class _ChatAgePickerState extends State<ChatAgePicker> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
-                'OK',
+                MaterialLocalizations.of(context).okButtonLabel,
                 style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
             ),
@@ -201,8 +202,9 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
       _currentValue = 0;
       return;
     }
-    _currentValue = double.parse(digits);
-    final formatted = _formatSwiss(int.parse(digits));
+    // H1: Clamp to max 10'000'000 CHF to prevent unrealistic values
+    _currentValue = double.parse(digits).clamp(0, 10000000);
+    final formatted = _formatSwiss(_currentValue.round());
     _controller.value = TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -246,13 +248,13 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
                   controller: _controller,
                   keyboardType: TextInputType.number,
                   onChanged: _onChanged,
-                  style: MintTextStyles.headlineLarge()
-                      .copyWith(fontSize: 28),
+                  style: MintTextStyles.displaySmall()
+                      ,
                   decoration: InputDecoration(
                     hintText: widget.hint ?? "0",
                     hintStyle: MintTextStyles.headlineLarge(
                       color: MintColors.textMuted.withValues(alpha: 0.4),
-                    ).copyWith(fontSize: 28),
+                    ),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -273,7 +275,7 @@ class _ChatAmountInputState extends State<ChatAmountInput> {
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               child: Text(
-                'OK',
+                MaterialLocalizations.of(context).okButtonLabel,
                 style: MintTextStyles.titleMedium(color: MintColors.white),
               ),
             ),

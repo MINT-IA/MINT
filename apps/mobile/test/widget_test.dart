@@ -30,9 +30,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(LandingScreen), findsOneWidget);
-    // landingCtaCommencer = "Commencer"
-    expect(find.text('Commencer'), findsOneWidget);
-    // MINT logo text in header
+    // landingV2CtaSober = "Parle à Mint"
+    expect(find.text('Parle \u00e0 Mint'), findsOneWidget);
+    // MINT wordmark remains in header.
     expect(find.text('MINT'), findsOneWidget);
   });
 }

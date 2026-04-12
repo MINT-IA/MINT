@@ -32,6 +32,11 @@ class FinancialReport {
 
   // Metadata & Traçabilité (Aligned with SOT.md)
   final DateTime generatedAt;
+
+  /// Timestamp of when the underlying data was last collected/updated.
+  /// Null if unknown (e.g. no wizard answer timestamp available).
+  final DateTime? dataCollectedAt;
+
   final String reportVersion;
   final Map<String, dynamic>? simulationAssumptions;
   final List<Map<String, dynamic>>?
@@ -51,6 +56,7 @@ class FinancialReport {
     this.confidenceScore = 0,
     this.enrichmentPrompts = const [],
     required this.generatedAt,
+    this.dataCollectedAt,
     this.reportVersion = '2.0',
     this.simulationAssumptions,
     this.generatedLetters,
@@ -67,6 +73,15 @@ class UserProfile {
   final String employmentStatus;
   final double monthlyNetIncome;
 
+  /// Gender: 'M', 'F', or null (AVS21 reference age — LAVS art. 21 al. 1).
+  /// When null, AvsCalculator defaults to male reference age (65).
+  final String? gender;
+
+  /// Spouse gender: 'M', 'F', or null.
+  /// Used for AVS21 reference age of spouse. Never inferred from user gender
+  /// — same-sex couples have the same reference age.
+  final String? spouseGender;
+
   // Nouvelle logique AVS : lacunes calculées depuis le triage
   final int? avsGapYears;
   final int? spouseAvsGapYears;
@@ -77,6 +92,12 @@ class UserProfile {
   final int? firstEmploymentYear;
   final int? spouseFirstEmploymentYear;
 
+  /// Spouse birth year (for accurate AVS age calculation).
+  final int? spouseBirthYear;
+
+  /// Spouse monthly net income (for accurate couple AVS computation).
+  final double? spouseMonthlyNetIncome;
+
   const UserProfile({
     this.firstName,
     required this.birthYear,
@@ -85,15 +106,22 @@ class UserProfile {
     required this.childrenCount,
     required this.employmentStatus,
     required this.monthlyNetIncome,
+    this.gender,
+    this.spouseGender,
     this.avsGapYears,
     this.spouseAvsGapYears,
     this.contributionYears,
     this.spouseContributionYears,
     this.firstEmploymentYear,
     this.spouseFirstEmploymentYear,
+    this.spouseBirthYear,
+    this.spouseMonthlyNetIncome,
   });
 
   int get age => DateTime.now().year - birthYear;
+  int? get spouseAge => spouseBirthYear != null
+      ? DateTime.now().year - spouseBirthYear!
+      : null;
   int get yearsToRetirement => 65 - age;
   bool get isMarried => civilStatus == 'married';
   bool get hasChildren => childrenCount > 0;

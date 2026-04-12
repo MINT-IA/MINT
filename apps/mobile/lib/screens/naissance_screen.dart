@@ -1,5 +1,8 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -9,9 +12,10 @@ import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/widgets/coach/baby_cost_widget.dart';
 import 'package:mint_mobile/widgets/coach/budget_bebe_widget.dart';
 import 'package:mint_mobile/widgets/coach/clause_3a_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
-import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -134,7 +138,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       surfaceTintColor: MintColors.porcelaine,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       flexibleSpace: FlexibleSpaceBar(
         titlePadding: const EdgeInsets.only(left: 56, bottom: 56, right: MintSpacing.md),
@@ -170,9 +174,18 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     return ListView(
       padding: const EdgeInsets.fromLTRB(MintSpacing.lg, MintSpacing.lg, MintSpacing.lg, 100),
       children: [
-        // Hero: chiffre choc APG
+        // Narrative intro
+        MintNarrativeCard(
+          headline: S.of(context)!.narrativeBirthHeadline,
+          body: S.of(context)!.narrativeBirthBody,
+          tone: MintSurfaceTone.peche,
+          badge: S.of(context)!.narrativeBirthBadge,
+        ),
+        const SizedBox(height: MintSpacing.xl),
+
+        // Hero: premier éclairage APG
         if (_congeResult != null) ...[
-          _buildCongeChiffreChoc(),
+          _buildCongePremierEclairage(),
           const SizedBox(height: MintSpacing.xl),
         ],
 
@@ -216,7 +229,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 style: SegmentedButton.styleFrom(
                   selectedBackgroundColor: MintColors.primary,
                   selectedForegroundColor: MintColors.white,
-                  textStyle: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                  textStyle: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                 ),
                 segments: [
                   ButtonSegment(
@@ -232,6 +245,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 ],
                 selected: {_isMother},
                 onSelectionChanged: (v) {
+                  HapticFeedback.lightImpact();
                   setState(() {
                     _isMother = v.first;
                     _recalculateConge();
@@ -242,20 +256,19 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           ),
           const SizedBox(height: MintSpacing.lg),
 
-          // Salary slider
-          MintPremiumSlider(
+          // Salary input
+          MintAmountField(
             label: S.of(context)!.naissanceMonthlySalary,
             value: _salaireMensuel,
-            min: 2000,
-            max: 15000,
-            divisions: 52,
             formatValue: (v) => FamilyService.formatChf(v),
             onChanged: (v) {
               setState(() {
-                _salaireMensuel = (v / 250).round() * 250.0;
+                _salaireMensuel = v;
                 _recalculateConge();
               });
             },
+            min: 2000,
+            max: 15000,
           ),
         ],
       ),
@@ -401,7 +414,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     );
   }
 
-  Widget _buildCongeChiffreChoc() {
+  Widget _buildCongePremierEclairage() {
     final result = _congeResult!;
     final totalApg = result['totalApg'] as double;
     final weeks = result['dureeSemaines'] as int;
@@ -415,7 +428,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
       primaryLabel: S.of(context)!.naissanceTotalApg,
       secondaryValue: S.of(context)!.naissanceWeeks(weeks),
       secondaryLabel: S.of(context)!.naissanceCongeLabel(typeLabel),
-      narrative: S.of(context)!.naissanceChiffreChocText(typeLabel, FamilyService.formatChf(totalApg), weeks),
+      narrative: S.of(context)!.naissancePremierEclairageText(typeLabel, FamilyService.formatChf(totalApg), weeks),
       tone: MintSurfaceTone.peche,
     );
   }
@@ -442,7 +455,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Chiffre choc
-          _buildAllocChiffreChoc(),
+          _buildAllocPremierEclairage(),
           const SizedBox(height: MintSpacing.lg),
         ],
 
@@ -633,7 +646,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     );
   }
 
-  Widget _buildAllocChiffreChoc() {
+  Widget _buildAllocPremierEclairage() {
     final result = _allocResult!;
     final diff = result['differenceVsBest'] as double;
     final bestCanton = result['bestCantonNom'] as String;
@@ -709,18 +722,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           tone: MintSurfaceTone.blanc,
           child: Column(
             children: [
-              MintPremiumSlider(
+              MintAmountField(
                 label: S.of(context)!.naissanceRevenuAnnuel,
                 value: _revenuImpact,
-                min: 30000,
-                max: 200000,
-                divisions: 34,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _revenuImpact = (v / 5000).round() * 5000.0;
+                    _revenuImpact = v;
                   });
                 },
+                min: 30000,
+                max: 200000,
               ),
               const SizedBox(height: MintSpacing.lg),
               Row(
@@ -744,18 +756,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 ],
               ),
               const SizedBox(height: MintSpacing.lg),
-              MintPremiumSlider(
+              MintAmountField(
                 label: S.of(context)!.naissanceFraisGarde,
                 value: _fraisGarde,
-                min: 0,
-                max: 3000,
-                divisions: 30,
                 formatValue: (v) => FamilyService.formatChf(v),
                 onChanged: (v) {
                   setState(() {
-                    _fraisGarde = (v / 100).round() * 100.0;
+                    _fraisGarde = v;
                   });
                 },
+                min: 0,
+                max: 3000,
               ),
             ],
           ),
@@ -800,7 +811,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(height: MintSpacing.xs),
             Text(
               S.of(context)!.naissanceAllocContextNote(cantonNom, _nbEnfantsImpact, plural),
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted),
             ),
           ],
         ),
@@ -824,7 +835,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
             const SizedBox(height: MintSpacing.xs),
             Text(
               S.of(context)!.naissanceLppLessContributions,
-              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(height: 1.4),
             ),
           ],
         ),
@@ -857,17 +868,17 @@ class _NaissanceScreenState extends State<NaissanceScreen>
                 child: Text(
                   '${netImpact >= 0 ? "+" : ""}${FamilyService.formatChf(netImpact)}',
                   key: ValueKey(netImpact),
-                  style: MintTextStyles.displayMedium(
+                  style: MintTextStyles.displaySmall(
                     color: netImpact >= 0
                         ? MintColors.success
                         : MintColors.error,
-                  ).copyWith(fontSize: 28, fontWeight: FontWeight.w800),
+                  ).copyWith(fontWeight: FontWeight.w800),
                 ),
               ),
               const SizedBox(height: MintSpacing.sm),
               Text(
                 S.of(context)!.naissanceNetFormula,
-                style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textMuted),
               ),
             ],
           ),
@@ -961,7 +972,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
 
         // ── P8-C : Clause 3a beneficiaire (OPP3 art. 2) ──
         Clause3aWidget(
-          balance3a: _revenuImpact * 0.3, // estimation ~30% du revenu
+          balance3a: _revenuImpact * 0.3, // DECISION: known approximation (~30% du revenu). Accurate 3a projection requires full profile data not available in birth-event context. Acceptable for educational illustration (OPP3).
           hasClause: false,
         ),
         const SizedBox(height: MintSpacing.lg),
@@ -1262,7 +1273,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           width: MintSpacing.xl,
           child: Text(
             '$value',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
             textAlign: TextAlign.center,
           ),
         ),
@@ -1379,7 +1390,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
           Expanded(
             child: Text(
               S.of(context)!.naissanceDisclaimer,
-              style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 11, height: 1.5),
+              style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(height: 1.5),
             ),
           ),
         ],

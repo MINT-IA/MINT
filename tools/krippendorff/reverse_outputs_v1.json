@@ -1,0 +1,219 @@
+{
+  "version": "1.0.0",
+  "frozenAt": "2026-04-07",
+  "phase": "11-l1.6b",
+  "phraseCount": 10,
+  "purpose": "Reverse-Krippendorff generation outputs — Plan 02 testers rate these blind alongside frozen_phrases_v1.json. Pass gate: ≥7/10 majority-classified N4.",
+  "phrases": [
+    {
+      "id": "reverse_01",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "retirement",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "32'000 sur le 3a à 49 ans, 6'000 par an de versements — c'est sérieux, c'est régulier, et ce n'est pas rien. Voici ce que ça implique côté chiffres : à 65 ans, en restant à ce rythme et avec un rendement modéré, tu serais autour de 130'000 sur le 3a. La vraie question n'est pas \"est-ce assez\", c'est \"assez pour quoi\". Si tu peux pousser à 7'258 (le max salarié LPP 2025), tu gagnes du déductible chaque année — à valider avec ta situation fiscale cantonale. Outil éducatif (LSFin), pas un conseil personnalisé.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_01: 3a gap — Julien — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_01"
+    },
+    {
+      "id": "reverse_02",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "housingPurchase",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Un appartement à 850'000 à Sion, avec ton 2e pilier autour de 70'377 — le calcul EPL est faisable, mais il y a trois lignes à lire avant. Un : tu peux retirer au maximum la moitié de tes fonds propres via le 2e pilier, et l'apport total doit être d'au moins 20% (170'000). Deux : un retrait EPL est taxé séparément (LIFD art. 38) — ce n'est pas indolore. Trois : il diminue ta rente future, donc l'écart se voit à 65 ans. Avant de bouger, demande à ta caisse une simulation chiffrée du retrait sur ta rente projetée. Outil éducatif, pas un conseil.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_02: EPL question — Julien+Lauren — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_02"
+    },
+    {
+      "id": "reverse_03",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "retirement",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "677'000 à 65 ans — voici les trois options posées côte à côte, sans classement. Rente intégrale : ~33'892/an à vie (taux conversion 6.8% LPP, plancher légal), revenu garanti tant que tu vis, taxé comme revenu chaque année. Capital intégral : 677'000 versés en une fois, taxés séparément au retrait selon le barème cantonal valaisan (compte ~6 à 9% effectif). Mixte 50/50 : ~16'946 de rente + 338'500 de capital — souplesse + base stable. Le choix dépend de trois choses : ta santé, tes héritiers, et ta tolérance au risque sur le capital. À regarder avec un·e spécialiste avant 64 ans.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_03: LPP split rente vs capital — Julien — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_03"
+    },
+    {
+      "id": "reverse_04",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "countryMove",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Citoyenne US en Suisse — oui, FATCA touche ta situation, et c'est un sujet à traiter sérieusement. Voici ce que ça implique : le 2e pilier suisse n'est PAS reconnu comme retraite qualifiée par l'IRS, ce qui veut dire reporting annuel via FBAR + Form 8938, et selon les structures, possible imposition aux US sur les rendements. Le 3a est dans la même zone grise. Avant tout versement supplémentaire, parle à un·e fiscaliste US-Suisse — ce n'est pas un terrain où improviser. Trois questions à poser : \"Mon 3a génère-t-il du PFIC reporting ?\", \"Quel est mon coût de conformité annuel ?\", \"Y a-t-il une stratégie de sortie avant le départ ?\". Outil éducatif, pas un conseil.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_04: Expat FATCA — Lauren — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_04"
+    },
+    {
+      "id": "reverse_05",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "jobLoss",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Perte de poste — d'abord : ce n'est pas un échec, c'est une transition à gérer proprement. Côté LPP, voici ce qui se passe en pratique : ton avoir de prévoyance ne disparaît pas, il est transféré sur un compte de libre passage (LP) chez une fondation que tu choisis. Tu as 2 ans pour décider, mais le mieux c'est de bouger dans les 30 jours suivant la sortie. Pendant ce temps, plus de cotisation employeur ni salariée — l'avoir continue juste à porter intérêts. Si tu retrouves un poste rapidement, tu pourras transférer ton LP dans la nouvelle caisse. Trois choses à vérifier : le délai de carence chômage, ta couverture risque pendant la transition, et le maintien volontaire LPP (article 47) si tu as ≥58 ans (pas ton cas).",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_05: Job loss — Julien — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_05"
+    },
+    {
+      "id": "reverse_06",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "birth",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Un bébé pour septembre — moment important, et il y a deux ou trois choses concrètes à poser maintenant, pas dans la précipitation. Côté assurances : l'enfant est automatiquement assuré LAMal dès la naissance, à inscrire dans les 3 mois pour rétroactivité. Vérifie ta couverture maternité (LAMat) et l'assurance perte de gain. Côté 3a : pas de changement immédiat, mais c'est le moment de réévaluer le plafond annuel et de penser au 3a de l'autre conjoint si non encore actif. Côté succession : un testament simple devient utile dès le premier enfant. Une question à poser à ton employeur : \"Quelle est ma part patronale d'allocations familiales et combien de semaines de congé maternité/paternité dans mon contrat ?\" Outil éducatif (LSFin).",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_06: Birth — Julien+Lauren — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_06"
+    },
+    {
+      "id": "reverse_07",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "housingPurchase",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Deux salaires combinés : 122'207 + 67'000 = 189'207 brut par an. La règle FINMA/ASB est nette : tes charges hypothécaires théoriques (intérêt 5% + amortissement 1% + frais 1% du prix) ne doivent pas dépasser un tiers de ton revenu brut, soit 63'069/an, soit 5'256/mois. À l'envers : ça te donne une enveloppe de prix de l'ordre de 1.05 million (charges théoriques 7% du prix). Avec 20% de fonds propres requis, ça veut dire 210'000 d'apport minimum, dont au plus la moitié peut venir du 2e pilier. Rien de tout ça n'est une promesse — chaque banque a sa marge d'appréciation et ton profil fiscal pèse aussi. Trois lignes à demander à la banque : taux indicatif actuel, frais de dossier, et pénalité de remboursement anticipé.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_07: Mortgage capacity — Julien+Lauren — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_07"
+    },
+    {
+      "id": "reverse_08",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "divorce",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Divorce hypothétique — la règle de base, c'est l'article 122 du Code civil : tout ce qui a été accumulé sur le 2e pilier pendant le mariage est partagé par moitié, indépendamment de qui l'a versé. Concrètement : on prend ton avoir LPP au jour du dépôt de la requête, on en retire ton avoir au jour du mariage, on partage la différence en deux. Le 3a, lui, suit le régime matrimonial choisi (participation aux acquêts par défaut). Ce n'est ni automatique ni indolore — ça se chiffre en dizaines voire centaines de milliers selon la durée du mariage. Avant toute discussion sérieuse, demande à ta caisse une attestation chiffrée des avoirs au début et à la date courante. Outil éducatif, pas un conseil juridique.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_08: Divorce hypothesis — Julien — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_08"
+    },
+    {
+      "id": "reverse_09",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "inheritance",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "180'000 d'héritage — trois pistes à poser côte à côte, sans classement. Un : rachat LPP (jusqu'à 539'414 disponibles selon ta caisse CPE) — déductible fiscalement, capital bloqué jusqu'à 60 ans, rendement modeste mais sécurisé. Deux : remboursement hypothécaire — réduit ta charge mensuelle, mais perds la déductibilité des intérêts et libère du capital figé. Trois : 3a + investissement long terme — flexibilité, mais exposition marché. Le bon mix dépend de trois choses : ta tranche marginale d'impôt actuelle, ton horizon avant 65, et ta tolérance émotionnelle au risque. À chiffrer avec un·e fiscaliste valaisan·ne avant de signer quoi que ce soit. Outil éducatif (LSFin).",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_09: Inheritance — Julien — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_09"
+    },
+    {
+      "id": "reverse_10",
+      "level": "N4",
+      "_expected_level": "N4",
+      "lifeEvent": "cantonMove",
+      "gravity": "G2",
+      "relation": "context",
+      "sensitiveTopic": null,
+      "frText": "Devenir frontalière — citoyenne US, résidence en France, travail en CH : la fiscalité change vraiment, et il faut le poser proprement. Voici ce qui change. Un : tu deviens contribuable français sur tes revenus mondiaux, avec convention CH-FR pour éviter la double imposition sur le salaire suisse (impôt à la source en CH, crédit en FR). Deux : ta situation US complique TOUT — la France et les US ont une convention, mais le statut de citoyenne US déclenche l'imposition mondiale aux US en parallèle (formulaires 1040, FBAR, 8938). Trois : ton 2e et 3e pilier suisses deviennent des actifs étrangers à déclarer en France ET aux US. Avant tout déménagement, parle à un·e fiscaliste tri-juridiction (CH-FR-US) — ce n'est pas un terrain pour improviser. Outil éducatif, pas un conseil.",
+      "source": "reverse_generation_test:phase-11-plan-04",
+      "rationale": "Reverse-Krippendorff context ctx_10: Cross-border (frontalier hypothesis) — Lauren — forced N4.",
+      "antiShameCheckpointsPassed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "_context_ref": "ctx_10"
+    }
+  ]
+}

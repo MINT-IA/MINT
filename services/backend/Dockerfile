@@ -1,4 +1,5 @@
 # MINT Backend — Production Dockerfile
+# Build context: services/backend/ (Railway Root Directory)
 # Multi-stage build: install deps in builder, copy to slim runtime
 
 # --- Stage 1: Builder ---
@@ -10,9 +11,12 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install deps from pyproject.toml (single source of truth)
+# CRITICAL: [rag] extra includes chromadb, openai, tiktoken which are required
+# by coach_chat.py / rag.py. Without this extra, the RAG orchestrator
+# cannot initialize and returns 503 "RAG dependencies not installed".
 COPY pyproject.toml .
 COPY app/ app/
-RUN pip install --no-cache-dir . && python -c "import anthropic; print('anthropic', anthropic.__version__)"
+RUN pip install --no-cache-dir ".[rag]" && python -c "import anthropic, chromadb; print('anthropic', anthropic.__version__, '/ chromadb', chromadb.__version__)"
 
 # --- Stage 2: Production ---
 FROM python:3.12-slim AS production
@@ -28,12 +32,28 @@ RUN groupadd -r mint && useradd -r -g mint -d /app mint
 
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
-COPY . .
 
-RUN chown -R mint:mint /app
+# Copy backend application code
+COPY app/ /app/app/
+COPY alembic/ /app/alembic/
+COPY alembic.ini /app/alembic.ini
+COPY scripts/ /app/scripts/
+COPY pyproject.toml /app/pyproject.toml
+
+# Copy education inserts into Docker image (P0-INFRA-2, P1-INFRA-3)
+# Build context = services/backend/, so education/ is at ../../education/
+# We copy it during CI or use the startup auto-ingest from the RAG corpus
+# For Railway: education inserts are auto-ingested at startup from the
+# education_inserts/ directory if present, otherwise skipped gracefully
+COPY education_inserts/ /app/education/inserts/
+
+# Create data directory for ChromaDB (Railway volume mounts at /data/chromadb)
+RUN mkdir -p /data/chromadb
+
+RUN chown -R mint:mint /app /data
 USER mint
 
-# Fly.io injects PORT env var; fallback 8080
+# Railway injects PORT env var; fallback 8080
 ENV PORT=8080
 EXPOSE ${PORT}
 

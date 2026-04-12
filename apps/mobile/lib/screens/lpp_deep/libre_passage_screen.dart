@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/widgets/coach/lpp_rescue_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -27,6 +36,37 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   double _avoir = 150000;
   int _age = 35;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+        // Prefer libre passage total if available, otherwise fall back to LPP total
+        final librePassage = profile.prevoyance.totalLibrePassage;
+        if (librePassage > 0) {
+          _avoir = librePassage;
+        } else {
+          final lpp = profile.prevoyance.avoirLppTotal;
+          if (lpp != null && lpp > 0) {
+            _avoir = lpp;
+          }
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
   LibrePassageResult get _result => LibrePassageAdvisor.analyze(
         statut: _statut,
         avoir: _avoir,
@@ -44,7 +84,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -53,7 +93,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: () => safePop(context),
             ),
             title: Text(
               l.librePassageAppBarTitle,
@@ -64,12 +104,21 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeLibrePassageHeadline,
+                  body: S.of(context)!.narrativeLibrePassageBody,
+                  tone: MintSurfaceTone.bleu,
+                  badge: S.of(context)!.narrativeLibrePassageBadge,
+                )),
+                const SizedBox(height: MintSpacing.md),
+
                 // Situation selector
-                _buildSituationSelector(l),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSituationSelector(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // Profile inputs (age + avoir)
-                _buildProfileInputs(l),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildProfileInputs(l)),
                 const SizedBox(height: MintSpacing.md),
 
                 // New employer toggle — only for job change
@@ -86,7 +135,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // Checklist
-                _buildChecklistSection(result.checklist, l),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChecklistSection(result.checklist, l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Recommendations
@@ -96,7 +145,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 ],
 
                 // ── P7-D : Opération sauvetage 2e pilier ─────────
-                LppRescueWidget(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: LppRescueWidget(
                   lppBalance: _avoir,
                   daysElapsed: 10,
                   options: [
@@ -126,11 +175,11 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                       legalRef: 'LFLP art. 4',
                     ),
                   ],
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Link to sfbvg.ch
-                _buildCentrale2ePilier(l),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildCentrale2ePilier(l)),
                 const SizedBox(height: MintSpacing.lg),
 
                 // nLPD / Privacy
@@ -144,18 +193,14 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
   Widget _buildSituationSelector(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -216,13 +261,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildProfileInputs(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -232,44 +273,25 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
           ),
           const SizedBox(height: MintSpacing.md),
           // Age slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l.librePassageLabelAge, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Text(l.librePassageLabelAgeFormat(_age), style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-            ],
-          ),
-          Semantics(
+          MintPremiumSlider(
             label: l.librePassageLabelAge,
-            value: l.librePassageLabelAgeFormat(_age),
-            child: Slider(
-              value: _age.toDouble(),
-              min: 18,
-              max: 65,
-              divisions: 47,
-              activeColor: MintColors.primary,
-              onChanged: (v) => setState(() => _age = v.round()),
-            ),
+            value: _age.toDouble(),
+            min: 18,
+            max: 65,
+            divisions: 47,
+            formatValue: (v) => l.librePassageLabelAgeFormat(v.round()),
+            onChanged: (v) => setState(() => _age = v.round()),
           ),
           const SizedBox(height: MintSpacing.sm),
           // Avoir slider
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(l.librePassageLabelAvoir, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Text('CHF ${(_avoir / 1000).toStringAsFixed(0)}k', style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-            ],
-          ),
-          Semantics(
+          MintPremiumSlider(
             label: l.librePassageLabelAvoir,
-            child: Slider(
-              value: _avoir,
-              min: 0,
-              max: 500000,
-              divisions: 100,
-              activeColor: MintColors.primary,
-              onChanged: (v) => setState(() => _avoir = v),
-            ),
+            value: _avoir,
+            min: 0,
+            max: 500000,
+            divisions: 100,
+            formatValue: (v) => formatChfCompact(v),
+            onChanged: (v) => setState(() => _avoir = v),
           ),
         ],
       ),
@@ -277,13 +299,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildNewEmployerToggle(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Row(
         children: [
           Expanded(
@@ -348,13 +366,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildChecklistSection(List<ChecklistItem> items, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -370,15 +384,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildChecklistCard(ChecklistItem item, int index, S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border(
-          left: BorderSide(color: _urgencyColor(item.urgency), width: 3),
-        ),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -420,13 +429,9 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildRecommendationsSection(List<String> recommendations, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -491,12 +496,10 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
   }
 
   Widget _buildPrivacyNote(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

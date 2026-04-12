@@ -55,11 +55,15 @@ class DeletionMode(str, Enum):
 # ===========================================================================
 
 class DataExportRequest(PrivacyBaseModel):
-    """Requete pour l'export des donnees personnelles (nLPD art. 25)."""
+    """Requete pour l'export des donnees personnelles (nLPD art. 25).
 
-    profile_id: str = Field(
-        ..., min_length=1,
-        description="Identifiant unique du profil utilisateur",
+    V12-1: profile_id is ignored — the server uses the authenticated user's ID.
+    Kept as optional for backward compatibility with existing clients.
+    """
+
+    profile_id: Optional[str] = Field(
+        default=None,
+        description="DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
     )
     include_sessions: bool = Field(
         default=True,
@@ -144,7 +148,7 @@ class DataExportResponse(PrivacyBaseModel):
     responsable_traitement: str = Field(
         ..., description="Responsable du traitement (nLPD art. 19)",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -161,11 +165,15 @@ class DataExportResponse(PrivacyBaseModel):
 # ===========================================================================
 
 class DataDeletionRequest(PrivacyBaseModel):
-    """Requete pour la suppression des donnees personnelles (nLPD art. 32)."""
+    """Requete pour la suppression des donnees personnelles (nLPD art. 32).
 
-    profile_id: str = Field(
-        ..., min_length=1,
-        description="Identifiant unique du profil utilisateur",
+    V12-1: profile_id is ignored — the server uses the authenticated user's ID.
+    Kept as optional for backward compatibility with existing clients.
+    """
+
+    profile_id: Optional[str] = Field(
+        default=None,
+        description="DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
     )
     mode: DeletionMode = Field(
         default=DeletionMode.grace_period,
@@ -230,7 +238,7 @@ class DataDeletionResponse(PrivacyBaseModel):
         default=None,
         description="Explication si des donnees sont conservees",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -251,11 +259,15 @@ class DataDeletionResponse(PrivacyBaseModel):
 # ===========================================================================
 
 class ConsentStatusRequest(PrivacyBaseModel):
-    """Requete pour le statut des consentements (nLPD art. 6)."""
+    """Requete pour le statut des consentements (nLPD art. 6).
 
-    profile_id: str = Field(
-        ..., min_length=1,
-        description="Identifiant unique du profil utilisateur",
+    V12-1: profile_id is ignored — the server uses the authenticated user's ID.
+    Kept as optional for backward compatibility with existing clients.
+    """
+
+    profile_id: Optional[str] = Field(
+        default=None,
+        description="DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
     )
 
 
@@ -313,7 +325,7 @@ class ConsentStatusResponse(PrivacyBaseModel):
         ..., ge=0,
         description="Nombre de consentements optionnels",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -330,11 +342,15 @@ class ConsentStatusResponse(PrivacyBaseModel):
 # ===========================================================================
 
 class ConsentUpdateRequest(PrivacyBaseModel):
-    """Requete pour mettre a jour un consentement (nLPD art. 6 al. 7)."""
+    """Requete pour mettre a jour un consentement (nLPD art. 6 al. 7).
 
-    profile_id: str = Field(
-        ..., min_length=1,
-        description="Identifiant unique du profil utilisateur",
+    V12-1: profile_id is ignored — the server uses the authenticated user's ID.
+    Kept as optional for backward compatibility with existing clients.
+    """
+
+    profile_id: Optional[str] = Field(
+        default=None,
+        description="DEPRECATED — ignored; server uses authenticated user ID (V12-1 IDOR fix)",
     )
     categorie: ConsentCategory = Field(
         ..., description="Categorie de traitement a modifier",

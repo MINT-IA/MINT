@@ -7,6 +7,11 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/mortgage_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de financement EPL multi-sources.
 ///
@@ -25,7 +30,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   double _avoir3a = 60000;
   double _avoirLpp = 200000;
   double _prixCible = 900000;
-  String _canton = 'VD';
+  String _canton = 'ZH';
 
   EplCombinedResult get _result => EplCombinedCalculator.calculate(
         epargneCash: _epargneCash,
@@ -34,6 +39,47 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         prixCible: _prixCible,
         canton: _canton,
       );
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      bool changed = false;
+      if (profile.patrimoine.epargneLiquide > 0) {
+        _epargneCash = profile.patrimoine.epargneLiquide.clamp(0, 500000);
+        changed = true;
+      }
+      if (profile.prevoyance.totalEpargne3a > 0) {
+        _avoir3a = profile.prevoyance.totalEpargne3a.clamp(0, 300000);
+        changed = true;
+      }
+      final lpp = profile.prevoyance.avoirLppTotal;
+      if (lpp != null && lpp > 0) {
+        _avoirLpp = lpp.clamp(0, 500000);
+        changed = true;
+      }
+      final propertyValue = profile.patrimoine.propertyMarketValue;
+      if (propertyValue != null && propertyValue > 0) {
+        _prixCible = propertyValue.clamp(200000, 3000000);
+        changed = true;
+      }
+      if (profile.canton.isNotEmpty) {
+        _canton = profile.canton.toUpperCase();
+        changed = true;
+      }
+      if (changed) setState(() {});
+    } catch (_) {
+      // Provider not available
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,23 +101,23 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
           // Chiffre choc
-          _buildChiffreChocCard(s, result),
+          MintEntrance(child: _buildPremierEclairageCard(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Pie chart
-          _buildPieChartSection(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPieChartSection(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sliders
-          _buildSlidersSection(s),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSlidersSection(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Sources detail
-          _buildSourcesDetail(s, result),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSourcesDetail(s, result)),
           const SizedBox(height: MintSpacing.lg),
 
           // Ordre recommande
-          _buildOrdreRecommande(s),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildOrdreRecommande(s)),
           const SizedBox(height: MintSpacing.lg),
 
           // Alertes
@@ -95,20 +141,16 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
     );
   }
 
-  Widget _buildChiffreChocCard(S s, EplCombinedResult result) {
-    final color = result.chiffreChocPositif
+  Widget _buildPremierEclairageCard(S s, EplCombinedResult result) {
+    final color = result.premierEclairagePositif
         ? MintColors.success
         : MintColors.warning;
 
     return Semantics(
       label: '${result.pourcentageCouvert.toStringAsFixed(1)}%',
-      child: Container(
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
-        ),
+        radius: 16,
         child: Column(
           children: [
             Icon(
@@ -123,7 +165,7 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              result.chiffreChocTexte,
+              result.premierEclairageTexte,
               textAlign: TextAlign.center,
               style: MintTextStyles.bodyMedium(),
             ),
@@ -145,13 +187,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
       return const SizedBox.shrink();
     }
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -238,13 +276,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   Widget _buildSlidersSection(S s) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -371,12 +405,13 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
               ),
             ],
           ),
-          Slider(
+          MintPremiumSlider(
+            label: label,
             value: value,
             min: min,
             max: max,
             divisions: divisions,
-            activeColor: MintColors.primary,
+            formatValue: (_) => format,
             onChanged: onChanged,
           ),
         ],
@@ -385,13 +420,9 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   Widget _buildSourcesDetail(S s, EplCombinedResult result) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -485,13 +516,10 @@ class _EplCombinedScreenState extends State<EplCombinedScreen> {
   }
 
   Widget _buildOrdreRecommande(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

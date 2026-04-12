@@ -27,15 +27,16 @@ DISCLAIMER = (
 @dataclass
 class RetirementBudget:
     """Complete retirement budget reconciliation."""
-    revenus_mensuels: Dict[str, float]    # breakdown by source
-    total_revenus_mensuels: float
+    revenus_garantis: Dict[str, float]    # guaranteed income by source (AVS, LPP rente, other)
+    capital_epuisable: Dict[str, float]   # capital-based income by source (3a mensualisé)
+    total_revenus_mensuels: float         # revenus_garantis + capital_epuisable
     depenses_mensuelles_estimees: float
     solde_mensuel: float                  # positive = surplus, negative = deficit
     taux_remplacement: float              # % of pre-retirement income
     pc_potentiellement_eligible: bool
     duree_capital_3a_ans: float           # how many years 3a capital lasts
     alertes: List[str] = field(default_factory=list)
-    chiffre_choc: str = ""
+    premier_eclairage: str = ""
     checklist: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
     sources: List[str] = field(default_factory=list)
@@ -87,18 +88,23 @@ class RetirementBudgetService:
         Returns:
             RetirementBudget with complete reconciliation.
         """
-        # Income breakdown
-        mensualise_3a = round(
+        # Income breakdown — separated into guaranteed income and depletable capital.
+        # 3a is consumption of capital, NOT guaranteed income like AVS/LPP rente.
+        capital_epuisable_mensuel = round(
             capital_3a_net / (self.DUREE_MENSUALISATION_3A * 12), 2
         ) if capital_3a_net > 0 else 0.0
 
-        revenus = {
+        revenus_garantis = {
             "avs": round(avs_mensuel, 2),
             "lpp": round(lpp_mensuel, 2),
-            "3a_mensualise": mensualise_3a,
             "autres": round(autres_revenus, 2),
         }
-        total_revenus = round(sum(revenus.values()), 2)
+        capital_epuisable = {
+            "3a_mensualise": capital_epuisable_mensuel,
+        }
+        total_revenus = round(
+            sum(revenus_garantis.values()) + sum(capital_epuisable.values()), 2
+        )
         solde = round(total_revenus - depenses_mensuelles, 2)
 
         # Replacement rate
@@ -123,12 +129,12 @@ class RetirementBudgetService:
 
         # Chiffre choc
         if solde >= 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Bonne nouvelle : tes revenus de retraite couvrent tes depenses "
                 f"avec CHF {solde:,.0f}/mois de marge"
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Attention : il te manque CHF {abs(solde):,.0f}/mois a la retraite "
                 f"— soit CHF {abs(solde * 12):,.0f}/an"
             )
@@ -151,7 +157,8 @@ class RetirementBudgetService:
         ]
 
         return RetirementBudget(
-            revenus_mensuels=revenus,
+            revenus_garantis=revenus_garantis,
+            capital_epuisable=capital_epuisable,
             total_revenus_mensuels=total_revenus,
             depenses_mensuelles_estimees=depenses_mensuelles,
             solde_mensuel=solde,
@@ -159,7 +166,7 @@ class RetirementBudgetService:
             pc_potentiellement_eligible=pc_eligible,
             duree_capital_3a_ans=duree_3a,
             alertes=alertes,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             checklist=checklist,
             disclaimer=DISCLAIMER,
             sources=sources,

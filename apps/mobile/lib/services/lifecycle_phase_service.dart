@@ -8,22 +8,22 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 // Detects the user's lifecycle phase (7 phases, age 22-99+)
 // and adapts content tone, complexity, and priorities.
 //
-// Phases:
-//   1. Démarrage    (22-28) — First steps, build habits
-//   2. Construction (28-35) — Career acceleration, family
-//   3. Accélération (35-45) — Peak earning, optimize
-//   4. Consolidation(45-55) — Secure, buyback, plan
-//   5. Transition   (55-65) — Pre-retirement, countdown
-//   6. Retraite     (65-80) — Living off savings
-//   7. Transmission (75-99) — Legacy, estate planning
+// Phases (aligned with LifecycleDetector — canonical age bands):
+//   1. Démarrage    (<25)   — First steps, build habits
+//   2. Construction (25-34) — Career acceleration, family
+//   3. Accélération (35-44) — Peak earning, optimize
+//   4. Consolidation(45-54) — Secure, buyback, plan
+//   5. Transition   (55-64) — Pre-retirement, countdown
+//   6. Retraite     (65-74) — Living off savings
+//   7. Transmission (75+)   — Legacy, estate planning
 //
 // Pure functions — no side effects, deterministic, testable.
 // ────────────────────────────────────────────────────────────
 
 /// Lifecycle phase enum (7 phases covering full adult life).
 enum LifecyclePhase {
-  demarrage,      // 22-28: First job, habits, 3a
-  construction,   // 28-35: Career, family, property
+  demarrage,      // <25: First job, habits, 3a
+  construction,   // 25-34: Career, family, property
   acceleration,   // 35-45: Peak earning, optimization
   consolidation,  // 45-55: Secure position, LPP buyback
   transition,     // 55-65: Pre-retirement planning
@@ -121,7 +121,7 @@ class LifecyclePhaseService {
     // Phase boundaries use wide bands (10+ years), so the ±1 year error
     // does not cause phase misclassification in practice.
     final age = currentDate.year - profile.birthYear;
-    final targetRetirement = profile.targetRetirementAge ?? avsAgeReferenceHomme;
+    final targetRetirement = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsToRetirement = targetRetirement - age;
 
     final phase = _detectPhase(age, profile);
@@ -142,6 +142,9 @@ class LifecyclePhaseService {
 
   /// Core phase detection — age-based with situation overrides.
   ///
+  /// Canonical rule (unified across all classifiers):
+  /// Retirement = avsAgeReferenceHomme (65). Pre-retirement = 5 years before.
+  ///
   /// Age bands overlap at boundaries; situation signals disambiguate:
   /// - Already retired (employmentStatus) → retraite/transmission
   /// - Target retirement < standard age → may shift to transition earlier
@@ -154,18 +157,18 @@ class LifecyclePhaseService {
 
     // Override: early retirement — if target retirement is within 10 years
     // and user is 50+, shift to transition (only if not yet past target)
-    final targetRetirement = profile.targetRetirementAge ?? avsAgeReferenceHomme;
+    final targetRetirement = profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
     final yearsLeft = targetRetirement - age;
     if (age >= 50 && yearsLeft > 0 && yearsLeft <= 10) {
       return LifecyclePhase.transition;
     }
 
-    // Standard age-based detection
-    if (age < 28) return LifecyclePhase.demarrage;
+    // Standard age-based detection (aligned with LifecycleDetector._phaseFromAge)
+    if (age < 25) return LifecyclePhase.demarrage;
     if (age < 35) return LifecyclePhase.construction;
     if (age < 45) return LifecyclePhase.acceleration;
     if (age < 55) return LifecyclePhase.consolidation;
-    if (age < 65) return LifecyclePhase.transition;
+    if (age < reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) return LifecyclePhase.transition;
     if (age < 75) return LifecyclePhase.retraite;
     return LifecyclePhase.transmission;
   }

@@ -335,13 +335,13 @@ class TestFirstJobCompliance:
                 f"Banned pattern '{pattern}' found in disclaimer: {matches}"
             )
 
-    def test_chiffre_choc_present(self, service):
+    def test_premier_eclairage_present(self, service):
         """Chiffre choc should be non-empty."""
         result = service.analyze_salary(
             salaire_brut_mensuel=5000, canton="ZH", age=25,
         )
-        assert len(result["chiffre_choc"]) > 20
-        assert "CHF" in result["chiffre_choc"]
+        assert len(result["premier_eclairage"]) > 20
+        assert "CHF" in result["premier_eclairage"]
 
 
 # ===========================================================================

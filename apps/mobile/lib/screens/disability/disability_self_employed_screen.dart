@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -7,6 +8,9 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/disability_red_screen_widget.dart';
 import 'package:mint_mobile/widgets/coach/disability_countdown_widget.dart';
 import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  P4 — INVALIDITÉ INDÉPENDANT
@@ -45,7 +49,7 @@ class _DisabilitySelfEmployedScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MintColors.redBgLight, // fond rouge très pale
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(),
           SliverPadding(
@@ -53,39 +57,32 @@ class _DisabilitySelfEmployedScreenState
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const SizedBox(height: 20),
-                _buildRevenueSlider(),
+                MintEntrance(child: _buildRevenueSlider()),
                 const SizedBox(height: 20),
-                DisabilityRedScreenWidget(
+                MintEntrance(delay: const Duration(milliseconds: 100), child: DisabilityRedScreenWidget(
                   monthlyExpenses: _monthlyRevenue * 0.70,
                   hasPerteDegain: _hasPerteDegain,
-                ),
+                )),
                 const SizedBox(height: 20),
-                DisabilityCountdownWidget(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCountdownWidget(
                   monthlyExpenses: _monthlyRevenue * 0.70,
                   initialSavings: _monthlyRevenue * 3, // hypothèse 3 mois
-                ),
+                )),
                 const SizedBox(height: 20),
-                _buildPerteDegainToggle(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPerteDegainToggle()),
                 const SizedBox(height: 20),
-                const EduDisclaimer(
-                  text:
-                      'Outil éducatif — ne constitue pas un conseil en assurance. '
-                      'Un·e courtier·ère indépendant·e peut comparer les offres APG '
-                      'de différents assureurs selon ton activité et ton revenu réel.',
-                ),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduDisclaimer(
+                  text: S.of(context)!.disabilitySelfEmployedDisclaimer,
+                )),
                 const SizedBox(height: 8),
-                const EduLegalSources(
-                  sources:
-                      '• LAMal art. 67-77 (assurance maladie perte de gain)\n'
-                      '• CO art. 324a (obligation employeur)\n'
-                      '• LAI art. 28 (rente AI)\n'
-                      '• LAVS art. 2 al. 3 (cotisation depuis l\'étranger)',
+                EduLegalSources(
+                  sources: S.of(context)!.disabilitySelfEmployedSources,
                 ),
               ]),
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -119,7 +116,7 @@ class _DisabilitySelfEmployedScreenState
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '🚨  ALERTE INDÉPENDANT',
+                      S.of(context)!.disabilitySelfEmployedAlertLabel,
                       style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1,
@@ -128,7 +125,7 @@ class _DisabilitySelfEmployedScreenState
                   ),
                   const SizedBox(height: MintSpacing.sm),
                   Text(
-                    'Ton filet n\'existe pas',
+                    S.of(context)!.disabilitySelfEmployedTitle,
                     style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                   ),
                 ],
@@ -138,61 +135,37 @@ class _DisabilitySelfEmployedScreenState
         ),
       ),
       title: Text(
-        'Invalidité — Indépendant·e',
+        S.of(context)!.disabilitySelfEmployedAppBarTitle,
         style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
       ),
     );
   }
 
   Widget _buildRevenueSlider() {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.redBg),
-      ),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton revenu mensuel net',
+            S.of(context)!.disabilitySelfEmployedRevenueTitle,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            'Ajuste pour voir l\'impact sur ta situation réelle',
+            S.of(context)!.disabilitySelfEmployedRevenueHint,
             style: MintTextStyles.labelSmall(),
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Revenu net/mois',
-                style: MintTextStyles.labelSmall(),
-              ),
-              Text(
-                "CHF ${_fmtChf(_monthlyRevenue)}",
-                style: MintTextStyles.bodyMedium(color: MintColors.critical).copyWith(fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 3,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-              activeTrackColor: MintColors.critical,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.critical,
-            ),
-            child: Slider(
-              value: _monthlyRevenue,
-              min: 2000,
-              max: 25000,
-              divisions: 46,
-              onChanged: (v) => setState(() => _monthlyRevenue = v),
-            ),
+          MintPremiumSlider(
+            label: S.of(context)!.disabilitySelfEmployedRevenueLabel,
+            value: _monthlyRevenue,
+            min: 2000,
+            max: 25000,
+            divisions: 46,
+            formatValue: (v) => "CHF ${_fmtChf(v)}",
+            activeColor: MintColors.critical,
+            onChanged: (v) => setState(() => _monthlyRevenue = v),
           ),
         ],
       ),
@@ -200,31 +173,26 @@ class _DisabilitySelfEmployedScreenState
   }
 
   Widget _buildPerteDegainToggle() {
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
+    return MintSurface(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tu as déjà une assurance perte de gain ?',
+            S.of(context)!.disabilitySelfEmployedInsuranceQuestion,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: _buildToggleChip('Oui', _hasPerteDegain,
+                child: _buildToggleChip(S.of(context)!.disabilitySelfEmployedYes, _hasPerteDegain,
                     () => setState(() => _hasPerteDegain = true),
                     color: MintColors.success),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _buildToggleChip('Non / Je ne sais pas', !_hasPerteDegain,
+                child: _buildToggleChip(S.of(context)!.disabilitySelfEmployedNo, !_hasPerteDegain,
                     () => setState(() => _hasPerteDegain = false),
                     color: MintColors.critical),
               ),
@@ -245,8 +213,7 @@ class _DisabilitySelfEmployedScreenState
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      'Une APG individuelle dès CHF 45/mois peut couvrir 80% de ton revenu pendant 720 jours. '
-                      'C\'est le filet le plus efficace pour un·e indépendant·e.',
+                      S.of(context)!.disabilitySelfEmployedApgTip,
                       style: MintTextStyles.labelSmall(color: MintColors.amberDark).copyWith(height: 1.4),
                     ),
                   ),

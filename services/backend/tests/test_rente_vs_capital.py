@@ -284,7 +284,7 @@ class TestCompliance:
     def test_no_banned_terms_in_any_output(self, standard_result):
         """No banned terms in any user-facing output string."""
         all_text = " ".join([
-            standard_result.chiffre_choc,
+            standard_result.premier_eclairage,
             standard_result.display_summary,
             standard_result.disclaimer,
             *standard_result.hypotheses,

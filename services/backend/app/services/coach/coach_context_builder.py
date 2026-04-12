@@ -13,6 +13,8 @@ Sources:
     - LPD art. 6 (protection des donnees)
 """
 
+from typing import List, Optional
+
 from app.services.coach.coach_models import CoachContext
 
 
@@ -33,6 +35,7 @@ def build_coach_context(
     upcoming_event: str = "",
     check_in_streak: int = 0,
     last_milestone: str = "",
+    planned_contributions: Optional[List[dict]] = None,
 ) -> CoachContext:
     """Build CoachContext with known_values populated from financial indicators.
 
@@ -56,6 +59,7 @@ def build_coach_context(
         upcoming_event: Upcoming life event (if any).
         check_in_streak: Consecutive check-in count.
         last_milestone: Last achieved milestone.
+        planned_contributions: List of planned monthly contributions (id, label, amount, category).
 
     Returns:
         CoachContext with all fields and known_values populated.
@@ -85,5 +89,6 @@ def build_coach_context(
         upcoming_event=upcoming_event,
         check_in_streak=check_in_streak,
         last_milestone=last_milestone,
+        planned_contributions=planned_contributions or [],
         known_values=known,
     )

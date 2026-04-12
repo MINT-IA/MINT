@@ -4,7 +4,7 @@ Follow:
 - AGENTS.md
 - rules.md
 - SOT.md
-- tools/openapi/mint.openapi.yaml
+- tools/openapi/mint.openapi.canonical.json
 - visions/vision_features.md
 
 Must:
