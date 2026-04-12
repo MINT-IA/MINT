@@ -1,506 +1,453 @@
-# Stack Research — v2.2 La Beauté de Mint
+# Technology Stack — v2.4 Fondation Infrastructure Fixes
 
-**Domain:** Flutter+FastAPI design/voice/accessibility milestone (additive only)
-**Researched:** 2026-04-07
-**Confidence:** HIGH on items 1, 2, 3, 5, 6, 7. MEDIUM on item 4 (Firebase Test Lab device availability — confirmed via official catalog page but A14 specifically requires `gcloud firebase test android models list` to confirm at provisioning time).
-**Scope rule:** Only NEW additions. Base stack (Flutter, GoRouter, Provider, Material 3, Montserrat/Inter, FastAPI, Pydantic v2, GoogleFonts, GitHub Actions macos-15) is already mature per CLAUDE.md §2 — DO NOT touch.
-
----
-
-## TL;DR — What to add, what to skip
-
-| Item | Decision | Where |
-|------|----------|-------|
-| 1. Krippendorff α | **ADD** `krippendorff` (PyPI, Santiago Castro) — one-shot script in `tools/voice-cursor-irr/` | L1.6a |
-| 2. Patrol | **ADD** `patrol ^4.x` + `patrol_cli` — replaces no existing tool, complements `integration_test` | L1.5, L1.2a |
-| 3. Galaxy A14 perf harness | **DO NOT ADD** anything new — `flutter run --profile` + DevTools (already shipped with Flutter SDK) is sufficient | L1.0 |
-| 4. Firebase Test Lab v2.3 prep | **INVESTIGATE ONLY** — document, do not provision | v2.3 |
-| 5. ARB canton namespaces | **DO NOT ADD** package — custom `LocalizationsDelegate` (40 LOC) on top of existing `flutter_localizations` | L1.4 |
-| 6. VoiceCursorContract codegen | **ADD** single JSON file as source of truth + 2 thin generators (Python `datamodel-code-generator`, Dart hand-rolled script) | L1.0 |
-| 7. AAA contrast tooling | **ADD** Flutter widget test using existing `flutter_test`'s `SemanticsTester` + 30-LOC custom `wcagContrastRatio()` helper. NO new package. | L1.1, L1.3 |
-
-**Net new dependencies: 3** (`krippendorff` python, `patrol` dart, `datamodel-code-generator` python dev). Everything else is glue code on existing infra.
+**Project:** MINT v2.4 Fondation
+**Researched:** 2026-04-12
+**Confidence:** HIGH on all 7 items (verified against Railway docs, GoRouter docs, actual codebase)
+**Scope rule:** Infrastructure FIXES only. Zero new dependencies. Zero version bumps. All fixes are configuration and code patterns using the existing stack.
 
 ---
 
-## 1. Krippendorff α tooling — L1.6a one-shot
+## TL;DR — What to fix, what NOT to touch
 
-### Recommendation
-Use the **`krippendorff`** PyPI package (Santiago Castro, https://pypi.org/project/krippendorff/). NumPy-accelerated, supports `level_of_measurement='ordinal'` natively, returns the weighted ordinal α directly. Active maintenance, ~50k monthly downloads, used by Label Studio and HuggingFace eval pipelines.
+| Fix | New Dep? | Version Change? | Config Change? |
+|-----|----------|-----------------|----------------|
+| 1. ChromaDB persistence | No | No | Railway volume + env var |
+| 2. Education corpus in Docker | No | No | Dockerfile + Railway root dir |
+| 3. Agent loop timeout | No | No | Code change only |
+| 4. StatefulShellRoute (tabs) | No | No (go_router ^13.2.0 sufficient) | Code change only |
+| 5. URL double-prefix (5x 404) | No | No | Code change only |
+| 6. camelCase mismatch | No | No | Code change only |
+| 7. SQLite fail-fast | No | No | Code change only |
 
-**Why this over alternatives:**
-
-| Option | Verdict | Why |
-|--------|---------|-----|
-| `krippendorff` (PyPI) | **CHOSEN** | One-line API: `krippendorff.alpha(reliability_data=matrix, level_of_measurement='ordinal')`. Ordinal metric is the canonical Krippendorff weighting for 5-level Likert. Already in MINT's Python ecosystem. |
-| R `irr` package | Reject | Adds R toolchain to a Python+Dart shop. Zero benefit over the Python pkg for a one-shot run. |
-| ReCal3 (web) | Reject | Web form upload, no audit trail, no reproducibility, no version control of the input matrix. Acceptable for academic one-offs, not for an engineering shop. |
-| `simpledorff` | Reject | Pandas-DataFrame API is nicer for messy data but the Castro package is faster and the input shape (15 raters × 20 phrases) is trivial to express as a NumPy matrix. |
-| Aleph-Alpha fork | Reject | Newer fork with custom annotator weights — feature we don't need. Less battle-tested. |
-
-### Where it lives
-**`tools/voice-cursor-irr/`** — new directory at repo root. NOT a separate repo (overkill for ~50 LOC + one CSV). NOT inside `services/backend/` (it's not a runtime concern, must not bloat backend deps).
-
-```
-tools/voice-cursor-irr/
-  README.md          # protocol: 15 testers × 20 phrases × N1-N5
-  ratings.csv        # rater_id, phrase_id, level (1-5)
-  compute_alpha.py   # ~30 LOC, prints α + 95% bootstrap CI
-  requirements.txt   # krippendorff>=0.6.1, numpy
-```
-
-### Integration cost
-- `pip install krippendorff` (NOT added to backend `pyproject.toml` — isolated venv in `tools/voice-cursor-irr/`)
-- ~30 LOC Python script
-- 1 CSV template
-- README documenting protocol + acceptance gate (α ≥ 0.67)
-- **Estimate: 2 hours, including the bootstrap CI block**
-
-### Version
-`krippendorff>=0.6.1` (current as of 2026-04, verified PyPI). Pin exact version in requirements.txt for reproducibility of the one-shot result.
+**Net new dependencies on running app: ZERO.**
 
 ---
 
-## 2. Patrol — L1.5 + L1.2a integration tests
+## 1. ChromaDB Persistence on Railway
 
-### Recommendation
-**`patrol: ^4.1.1`** (LeanCode) + **`patrol_cli`** as a global Dart tool. Patrol 4.x is current as of 2026-04 (verified leancode.co/v4 docs). Builds on top of `flutter_test` and `integration_test`, adds native interaction + custom finders + hot restart in tests.
+### Problem
+ChromaDB `persist_directory` is a relative path (`data/chromadb`) on Railway's ephemeral filesystem. Every deploy wipes the RAG corpus. 43 education files must be re-ingested each time, and user-uploaded document embeddings are permanently lost.
 
-**Why Patrol over alternatives:**
+### Solution: Railway Persistent Volume
 
-| Option | Verdict | Why |
-|--------|---------|-----|
-| Patrol 4.x | **CHOSEN** | Only Flutter-native E2E framework that handles native pop-ups (TalkBack/VoiceOver permission dialogs are critical for L1.2a "1 ligne audio" verification). Hot restart between tests = 5x faster than vanilla `integration_test`. |
-| `integration_test` only | Reject | Cannot interact with TalkBack overlay or accessibility-tree-only widgets reliably. We need this for MTC's audio-line semantics test. |
-| Maestro (Mobile.dev) | Reject | YAML DSL, not Dart. Adds a second test language to a Dart shop. Strong tool but ceremony cost > value for a 6-week milestone. |
-| Appium | Reject | WebDriver overhead, slow, brittle on Flutter. |
+**Railway Volume Configuration** (via Railway Dashboard > Service > Volumes > Add Volume):
+- Mount path: `/data/chromadb`
+- Railway auto-injects `RAILWAY_VOLUME_MOUNT_PATH` env var at runtime
+- Volume survives deploys and restarts (48-hour recovery grace period on deletion)
+- Single volume per service (Railway limitation — sufficient for our use case)
 
-### Integration with existing test infra
-- `flutter_test` (unit/widget) — unchanged, keeps 8137 tests
-- `integration_test` (E2E lite) — keeps `coach_tool_choreography_test.dart` (4 tools)
-- **NEW:** `patrol/` directory at `apps/mobile/integration_test/patrol/` containing visual + native tests for the 3 v2.2 surfaces
+**Critical constraint:** Volumes mount at **runtime, NOT during build**. Pre-deploy scripts cannot write to the volume. The existing auto-ingest in `main.py:215-239` already runs at app startup — this is the correct pattern, no change needed there.
 
-### Golden screenshot diff config
-Patrol does NOT ship its own golden differ — it delegates to `flutter_test`'s `matchesGoldenFile`. Existing 1.5% tolerance pattern (per CLAUDE.md) is set via `goldenFileComparator = LocalFileComparator(...)` override at test main entry. **Reuse the existing pattern, do not introduce a parallel one.**
+**Config change in `config.py`:**
+```python
+# Add to Settings class
+CHROMADB_PERSIST_DIR: str = "/data/chromadb"  # Railway volume mount point; dev uses default
+```
 
-For the 3 v2.2 targets:
-- **MintAlertObject (L1.5):** 6 golden states (G2 calm, G2 highlighted, G3 break, × 2 themes light/dark). Tap-to-reveal native sheet via Patrol's `$.native.tap()`.
-- **MintTrameConfiance (L1.2a):** 4-axis confidence rendering golden + bloom animation snapshot at t=0, t=125ms, t=250ms (use `tester.binding.scheduler.timeDilation` + `pumpAndSettle`). 1-line audio test asserts `Semantics(label: ...)` matches expected canonical phrase.
-- **intent_screen curseur question (L1.6c):** golden of 3-option chooser; Patrol drives a select-confirm-back round trip and asserts persisted preference.
+**Code change in `main.py` (line ~215):**
+```python
+# Replace:
+persist_dir = os.path.join(backend_dir, "data", "chromadb")
+# With:
+from app.core.config import settings
+persist_dir = settings.CHROMADB_PERSIST_DIR
+```
 
-### Integration cost
-- 1 line in `pubspec.yaml` (`patrol: ^4.1.1` under dev_dependencies)
-- 1 line per test file (`import 'package:patrol/patrol.dart'`)
-- ~80 LOC test file per surface × 3 surfaces = ~240 LOC
-- patrol_cli installed once globally; CI workflow needs `dart pub global activate patrol_cli` step (3-line addition to existing GitHub Actions Flutter job)
-- **Estimate: 1 day for setup + 1 day per surface = 4 days total**
+**Docker permission fix:** The Dockerfile runs as non-root user `mint`. Railway volumes mount as root. Set env var `RAILWAY_RUN_UID=0` in Railway dashboard. This is Railway's documented solution for non-root Docker images with volumes.
 
-### What Patrol does NOT do (and we don't need)
-- Visual regression as a service (Percy/Chromatic) — NOT needed, golden files in repo are fine for a 3-surface scope
-- Cross-device farm — that's item 4
+| Decision | Recommendation | Why |
+|----------|---------------|-----|
+| Volume vs separate ChromaDB service | Volume | Simpler ops for small corpus (~43 files + user docs). Separate service only warranted at >100k vectors. |
+| Volume mount path | `/data/chromadb` | Outside `/app` to avoid conflicts with code deploys |
+| `RAILWAY_RUN_UID` | `0` | Required for non-root Docker images. Railway's single-tenant container model makes this acceptable. |
 
-### Version pin
-`patrol: ^4.1.1` (verified pub.dev as of 2026-04). Requires Android SDK 21+ (already met). Requires patrol_cli matching minor version.
+**Confidence:** HIGH — Railway docs explicitly describe this pattern. Railway's ChromaDB deploy templates use this exact approach.
 
 ---
 
-## 3. Galaxy A14 perf harness for MANUAL gate (L1.0)
+## 2. Education Corpus in Docker Image
 
-### Recommendation
-**DO NOT ADD ANY NEW TOOL.** Use what ships with the Flutter SDK already on Julien's Mac:
-1. `flutter run --profile -d <A14-device-id>` — produces a build with profiling enabled, not debug overhead
-2. `flutter run` opens DevTools URL in terminal — open in browser, attach to running app
-3. **DevTools Performance tab** captures: cold start frame, scroll FPS (Timeline), MTC bloom CPU/GPU frames
-4. **DevTools Memory tab** captures: heap snapshot before/after MTC tap
+### Problem
+`main.py:217-219` looks for education inserts at `../../education/inserts` relative to the backend dir. In Docker (WORKDIR=/app), this resolves to a path outside the container. The `education/` directory is at repo root, outside the Docker build context (`services/backend/`).
 
-### Capture protocol (one-shot, document in `.planning/perf/A14_BASELINE.md`)
-```bash
-# 1. Connect Galaxy A14 over USB, enable USB debugging
-adb devices  # confirm device id
-flutter devices  # confirm Flutter sees it
+### Solution: Expand Docker Build Context to Repo Root
 
-# 2. Profile build (NOT debug — debug is 3-5x slower, results meaningless)
-cd apps/mobile
-flutter run --profile -d <A14_id> --trace-startup
+**Change Railway's Root Directory to `/`** (repo root) via Railway Dashboard > Service > Settings > Source > Root Directory.
 
-# 3. Cold start metric: --trace-startup writes start_up_info.json to build/
-cat build/start_up_info.json
-# Records: engineEnterTimestampMicros, timeToFirstFrameMicros, timeToFirstFrameRasterizedMicros
-
-# 4. Scroll FPS: open DevTools (URL printed by flutter run), Performance tab,
-#    record while scrolling Aujourd'hui home for 10 seconds, export timeline JSON
-
-# 5. MTC bloom: tap a confidence widget, capture frame in Performance tab,
-#    target = 16ms per frame for 250ms = 16 frames. Reject if >2 frames >32ms.
-
-# 6. Save artifacts to .planning/perf/A14_BASELINE_2026-04-XX/
-```
-
-### Why no new tool
-| Option | Verdict | Why |
-|--------|---------|-----|
-| `flutter --profile` + DevTools | **CHOSEN** | Ships with SDK. Zero install. Officially blessed for Flutter perf. |
-| Android Studio Profiler | Reject for Flutter | Reads native traces; for Flutter the Dart timeline is what matters. AS Profiler shows Skia frames but DevTools shows the same with Dart context. |
-| `dart devtools` standalone | Same thing | Just a standalone DevTools launcher; equivalent. |
-| Perfetto direct | Overkill | Lower-level than DevTools' Timeline tab, which already wraps Perfetto traces. |
-
-### Integration cost
-- Zero install
-- ~1 hour to write the protocol doc
-- ~1 hour for Julien's first capture session (then ~15 min per repeat)
-- **Estimate: 2 hours setup, ongoing manual gate per merge to S1-S5**
-
-### Acceptance thresholds (proposed for L1.0 spec)
-- Cold start (`timeToFirstFrameMicros`): **< 2500ms** on A14
-- Scroll FPS on Aujourd'hui home: **median ≥ 55 FPS, p95 ≥ 50 FPS** over 10s
-- MTC bloom: **0 dropped frames** during 250ms ease-out (16/16 frames under 16ms)
-- Memory after MTC tap: **delta < 4 MB** (no leak — re-tap 10× must stay flat)
-
----
-
-## 4. Firebase Test Lab investigation for v2.3 (DOCUMENT ONLY)
-
-### Findings (verified 2026-04 against Firebase docs)
-
-**Pricing model** ([source](https://firebase.google.com/docs/test-lab/usage-quotas-pricing)):
-- Spark plan (free): 5 physical device tests/day, 10 virtual/day
-- Blaze (pay-as-you-go): **$5/device-hour** for physical devices, $1/device-hour for virtual
-- Realistic v2.3 budget for one PR run: 1 device × 15 min = $1.25 per PR. 100 PRs/month = $125/month. Cheap.
-
-**Galaxy A14 availability:**
-- Firebase Test Lab device catalog as of 2026-Q1 includes Samsung A-series, but **Galaxy A14 specifically must be confirmed at provisioning time** via `gcloud firebase test android models list | grep -i a14`. The catalog rotates.
-- If A14 not in catalog: nearest equivalent is **Galaxy A15** (Android 14, 4 GB RAM) — same SoC family (Mediatek Helio G99), behavior delta is small for our 4 metrics.
-- Fallback: **Pixel 4a** (Android 13, 6 GB) — overrepresents perf, would need a deflation factor.
-
-**GitHub Actions integration:**
-- Official action: `google-github-actions/auth@v2` + `gcloud firebase test android run` shell step
-- Requires GCP service account JSON in repo secrets (1 secret)
-- Existing macos-15 runner can call `gcloud` after `setup-gcloud@v2` step (~20 LOC YAML)
-- Total CI time impact: ~5-8 min added per run (upload APK, queue, run, fetch report)
-
-**v2.3 prep checklist (do not execute now):**
-1. Add `tools/perf-baseline/` directory with the metric extraction script (parses Firebase Test Lab `videos.json` + perf stats output)
-2. Provision GCP project + service account with `Firebase Test Lab Admin` role
-3. Confirm A14 or fallback device in catalog at v2.3 kickoff
-4. Estimate budget: ~$150/month at expected PR volume. Negligible vs Anthropic API spend.
-5. Decide PASS/FAIL gate thresholds (likely match item 3's manual thresholds with 10% slack for cloud variance)
-
-**Integration cost when v2.3 lands:** ~1 day (GCP setup + workflow + threshold tuning)
-
-### Sources
-- [Firebase Test Lab pricing](https://firebase.google.com/docs/test-lab/usage-quotas-pricing) — pricing verified
-- [Firebase Test Lab device catalog](https://firebase.google.com/docs/test-lab/android/available-testing-devices) — catalog page (refresh at v2.3 kickoff)
-- [gist: Android device list dump 2026-02](https://gist.github.com/akexorcist/c55af0f438f6ddea6a94e26962ea52ba) — community snapshot, useful sanity check
-
----
-
-## 5. `flutter_localizations` ARB canton namespace pattern (L1.4)
-
-### Recommendation
-**DO NOT ADD A PACKAGE.** Use a **second `LocalizationsDelegate`** alongside the existing one. ~40 LOC custom delegate, no new dependency.
-
-### The pattern
-Flutter's `gen_l10n` tool generates one delegate per ARB family (controlled by `arb-dir` + `template-arb-file` + `output-class` in `l10n.yaml`). You can run `gen_l10n` **twice** with two `l10n.yaml` files to produce two independent localization classes:
-
-**File 1: `apps/mobile/l10n.yaml`** (existing — unchanged)
-```yaml
-arb-dir: lib/l10n
-template-arb-file: app_en.arb
-output-localization-file: app_localizations.dart
-output-class: AppLocalizations
-```
-
-**File 2: `apps/mobile/l10n_regional.yaml`** (NEW)
-```yaml
-arb-dir: lib/l10n_regional
-template-arb-file: app_regional_vs.arb
-output-localization-file: app_regional_localizations.dart
-output-class: AppRegionalLocalizations
-preferred-supported-locales: ["fr_CH", "de_CH", "it_CH"]
-```
-
-**Directory structure:**
-```
-apps/mobile/lib/l10n_regional/
-  app_regional_vs.arb   # fr-CH base, ~30 keys, voix VS
-  app_regional_zh.arb   # de-CH base, ~30 keys, voix ZH
-  app_regional_ti.arb   # it-CH base, ~30 keys, voix TI
-```
-
-**Resolution at runtime:** A custom `RegionalVoiceService.forCanton(canton)` (already exists per CLAUDE.md §6) reads the user's canton from `Profile`, picks the right ARB family by canton key, and exposes a thin lookup `regional.greeting()` that returns from `AppRegionalLocalizations` of the canton-mapped locale. Falls back to base `AppLocalizations` if no regional override exists for that key.
-
-### Why custom delegate over alternatives
-| Option | Verdict | Why |
-|--------|---------|-----|
-| Two `gen_l10n` configs + custom delegate | **CHOSEN** | Zero new dependency. Reuses ARB tooling exactly as designed. Canton scoping happens in app code where it belongs (it's a profile-driven choice, not a locale-driven one). |
-| `slang` package | Reject | Beautiful tool, but adopting a non-flutter_localizations i18n package mid-project means migrating 233 existing keys. Cost > benefit. |
-| Single ARB family with `vs_`/`zh_`/`ti_` key prefixes | Reject | Pollutes the canonical 6-language ARB files with strings that have no business being translated into Portuguese. Violates the carve-out spirit. |
-| Custom JSON loader (no ARB) | Reject | Loses ARB tooling (placeholders, plurals, ICU). |
-
-### Code skeleton (the actual ~40 LOC)
-```dart
-// apps/mobile/lib/services/regional_voice_service.dart (extension)
-class RegionalVoiceService {
-  static String? lookup(BuildContext context, String key, String canton) {
-    final regional = AppRegionalLocalizations.of(context);
-    if (regional == null) return null;
-    return switch (canton) {
-      'VS' => regional.vs(key),
-      'ZH' => regional.zh(key),
-      'TI' => regional.ti(key),
-      _ => null,
-    };
-  }
-}
-
-// In app shell:
-MaterialApp(
-  localizationsDelegates: [
-    AppLocalizations.delegate,         // existing
-    AppRegionalLocalizations.delegate, // NEW
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-  ],
-  supportedLocales: const [
-    Locale('fr'), Locale('en'), Locale('de'), Locale('es'), Locale('it'), Locale('pt'),
-    Locale('fr', 'CH'), Locale('de', 'CH'), Locale('it', 'CH'), // NEW for regional
-  ],
-)
-```
-
-### Integration cost
-- 3 ARB files (~30 keys each, written by Julien + native validators)
-- 1 `l10n_regional.yaml`
-- 1 build script update to run `flutter gen-l10n --config l10n_regional.yaml` after the main one
-- ~40 LOC to extend `RegionalVoiceService`
-- ~10 LOC delegate registration
-- **Estimate: 1 day setup + content writing ongoing per chantier**
-
----
-
-## 6. VoiceCursorContract codegen (Phase 0, L1.0)
-
-### Recommendation
-**Single JSON file as source of truth** + **two thin generators**:
-1. **Source of truth:** `contracts/voice_cursor.json` (committed at repo root, not inside backend or mobile)
-2. **Python generator:** `datamodel-code-generator` (`pip install datamodel-code-generator`) reads JSON Schema → emits Pydantic v2 model. Run via Makefile target `make voice-cursor-py`.
-3. **Dart generator:** Hand-rolled ~60 LOC Dart script (`tools/codegen/voice_cursor_to_dart.dart`) reads same JSON → emits a `const` class. Runs via `dart run tools/codegen/voice_cursor_to_dart.dart`.
-
-Both generators run in CI as a **drift check**: if regenerated output differs from committed file, the build fails. This is the standard contract-codegen guard.
-
-### Why this over alternatives
-| Option | Verdict | Why |
-|--------|---------|-----|
-| JSON schema + 2 thin gens | **CHOSEN** | Single source. Pydantic v2 is fully spec'd from JSON Schema by `datamodel-code-generator` (battle-tested, used by FastAPI ecosystem). Dart side is so small (5 levels, ~10 fields, ~20 garde-fou rules) that hand-rolling a 60-LOC generator is cheaper than learning a heavyweight Dart codegen package. |
-| Hand-written sync (no codegen) | Reject | Drift risk is the entire reason VoiceCursorContract is a Phase 0 deliverable. Manual sync defeats the purpose. |
-| `freezed` + Python codegen | Reject | `freezed` is great for unions but VoiceCursorContract is a const config matrix, not a sum type. Adds build_runner ceremony to mobile. Pydantic side has no equivalent toolchain so we'd still need a second generator. |
-| Protobuf | Reject | Overkill for a config doc. Adds .proto compilation to two languages. The data is read once at app boot, not transmitted on the wire. |
-| OpenAPI extension | Reject | VoiceCursorContract is a config artifact, not an API endpoint. Doesn't belong in `tools/openapi/`. |
-
-### Source-of-truth shape
+**Update `railway.json`:**
 ```json
-// contracts/voice_cursor.json
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "VoiceCursorContract",
-  "version": "1.0.0",
-  "levels": {
-    "N1": { "name": "Neutre", "posture": "factual", "weeklyMax": null },
-    "N2": { "name": "Vif",    "posture": "direct",  "weeklyMax": null },
-    "N3": { "name": "Complice","posture": "warm",   "weeklyMax": null },
-    "N4": { "name": "Piquant","posture": "sharp",   "weeklyMax": null },
-    "N5": { "name": "Cash",   "posture": "blunt",   "weeklyMax": 1   }
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "services/backend/Dockerfile"
   },
-  "routingMatrix": {
-    "G1": { "new": "N1", "established": "N2", "intimate": "N2" },
-    "G2": { "new": "N2", "established": "N3", "intimate": "N4" },
-    "G3": { "new": "N4", "established": "N5", "intimate": "N5" }
-  },
-  "guardrails": {
-    "minOnG3": "N2",
-    "maxOnSensitiveTopics": "N3",
-    "fragileModeMaxDays": 30,
-    "fragileModeCap": "N3",
-    "sensitiveTopics": ["bereavement","divorce","jobLoss","illness"]
-  },
-  "userPreferenceCaps": {
-    "soft": "N3",
-    "direct": "N4",
-    "unfiltered": "N5"
+  "deploy": {
+    "startCommand": "sh -c 'python scripts/railway_pre_deploy_migrate.py && gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8080} --timeout 120 --access-logfile - --error-logfile -'",
+    "healthcheckPath": "/api/v1/health",
+    "healthcheckTimeout": 15,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
   }
 }
 ```
 
-### Generated artifacts
-- `services/backend/app/schemas/voice_cursor.py` (Pydantic v2, do-not-edit header)
-- `apps/mobile/lib/services/voice/voice_cursor_contract.dart` (Dart const, do-not-edit header)
+**Update Dockerfile (key changes only — full file in Phase 1 plan):**
+```dockerfile
+# Stage 1: Builder (build context is now repo root)
+COPY services/backend/pyproject.toml .
+COPY services/backend/app/ app/
+RUN pip install --no-cache-dir ".[rag]"
 
-### Integration cost
-- ~80 LOC JSON
-- ~60 LOC Dart codegen script
-- ~3 LOC Makefile targets (`voice-cursor-py`, `voice-cursor-dart`, `voice-cursor-check`)
-- ~10 LOC GitHub Actions step for drift check (run codegen, `git diff --exit-code`)
-- **Estimate: 0.5 day total**
-- Runtime cost: zero (const data, loaded once)
+# Stage 2: Production
+COPY services/backend/ .
+COPY education/inserts/ /app/education/inserts/
+COPY services/backend/scripts/ /app/scripts/
+COPY services/backend/alembic/ /app/alembic/
+COPY services/backend/alembic.ini /app/alembic.ini
+```
 
-### Version pins
-- `datamodel-code-generator>=0.25` (current, supports JSON Schema draft-07 + Pydantic v2 output cleanly)
-- Add to `services/backend/pyproject.toml` under `[tool.poetry.group.dev.dependencies]`
+**Update `main.py` inserts path:**
+```python
+# Replace ../../education/inserts with path relative to /app
+inserts_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "education", "inserts")
+# Resolves to /app/education/inserts/ in Docker (WORKDIR=/app, __file__=/app/app/main.py)
+```
 
----
+### Alternatives Considered
 
-## 7. AAA contrast tooling (L1.1, L1.3)
-
-### Recommendation
-**DO NOT ADD A PACKAGE.** Write a ~30 LOC pure-Dart `wcagContrastRatio(Color fg, Color bg)` helper + a widget test pattern that traverses MintColors token pairs and asserts ratios. Runs in existing `flutter test` job, blocks CI.
-
-### Why no package
 | Option | Verdict | Why |
 |--------|---------|-----|
-| Custom 30-LOC helper + widget test | **CHOSEN** | WCAG 2.1 contrast formula is 6 lines (relative luminance + (L1+0.05)/(L2+0.05)). Adding a package for 6 lines is silly. Runs in existing `flutter test`. Zero CI infra change. |
-| `axe-core` | Reject | Web/DOM only. Flutter renders to canvas; axe has no Flutter binding. |
-| Stark (Figma plugin) | Reject | Design-time only, not runtime, not CI-able. Useful for designers, not engineers. |
-| `accessibility_test` Dart package | Reject after check | The package exists (pub.dev) but is largely unmaintained, last update 2023, wraps the same `SemanticsTester` we already get from `flutter_test`. No value-add. |
-| Flutter's built-in `accessibilityGuideline` matchers | **PARTIALLY ADOPT** | `meetsGuideline(textContrastGuideline)` exists in `flutter_test` and checks AA, NOT AAA. Use it for AA gating across the whole app, then layer the custom AAA helper on top for S1-S5. |
+| Expand build context to repo root | **CHOSEN** | Idiomatic Docker. Clean. No extra scripts. |
+| Pre-build copy script | Reject | Railway has no pre-build hook. Fragile. |
+| Embed corpus in Python package | Reject | Overcomplicated for 43 markdown files. |
+| Download from S3 at startup | Reject | Adds AWS dependency. Files are in the repo. |
 
-### The 30-LOC helper
-```dart
-// apps/mobile/test/helpers/wcag_contrast.dart
-import 'dart:math';
-import 'package:flutter/material.dart';
+**Confidence:** HIGH — standard Docker multi-stage pattern.
 
-double _luminanceChannel(double c) {
-  c = c / 255.0;
-  return c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4).toDouble();
-}
+---
 
-double _relativeLuminance(Color c) =>
-    0.2126 * _luminanceChannel(c.red.toDouble()) +
-    0.7152 * _luminanceChannel(c.green.toDouble()) +
-    0.0722 * _luminanceChannel(c.blue.toDouble());
+## 3. Agent Loop Timeout Handling
 
-double wcagContrastRatio(Color fg, Color bg) {
-  final l1 = _relativeLuminance(fg);
-  final l2 = _relativeLuminance(bg);
-  final lighter = max(l1, l2);
-  final darker = min(l1, l2);
-  return (lighter + 0.05) / (darker + 0.05);
-}
+### Problem
+`_run_agent_loop` (coach_chat.py:929) can make up to 5 sequential Claude API calls (each 20-30s). No total deadline exists. The finding P1-INFRA-1 claims "Railway 60s timeout" but this is **incorrect** — Railway's actual HTTP timeout is **15 minutes** (confirmed via Railway Help Station: "any limit that is lower than that would be a self imposed limit at the application level"). The real constraints are:
 
-const aaaNormalText = 7.0;
-const aaaLargeText = 4.5;
+1. **Gunicorn worker timeout: 120s** — already configured in `railway.json`, sufficient
+2. **No explicit total deadline on the agent loop** — could exceed 120s on 5 iterations
+3. **UX ceiling: ~60s** — user waiting >60s for chat response assumes the app is broken
+
+### Solution: asyncio.wait_for() Deadline Pattern
+
+**Wrap the agent loop call with a total deadline:**
+```python
+import asyncio
+
+AGENT_LOOP_DEADLINE_SECONDS = 55  # Leave margin for response serialization
+
+async def coach_chat_endpoint(...):
+    try:
+        result = await asyncio.wait_for(
+            _run_agent_loop(...),
+            timeout=AGENT_LOOP_DEADLINE_SECONDS,
+        )
+    except asyncio.TimeoutError:
+        result = {
+            "answer": "Je n'ai pas pu terminer ma recherche dans le temps imparti. "
+                      "Repose ta question, je serai plus rapide.",
+            "tool_calls": [],
+            "sources": [],
+            "disclaimers": [],
+            "tokens_used": 0,
+            "timed_out": True,
+        }
 ```
 
-### The test pattern
-```dart
-// apps/mobile/test/accessibility/aaa_contrast_test.dart
-testWidgets('S1 intent_screen — all text pairs meet AAA', (tester) async {
-  await tester.pumpWidget(const MintApp());
-  await tester.tap(find.byType(IntentScreen));
-  await tester.pumpAndSettle();
+**Per-iteration timeout within the loop (coach_chat.py ~line 992):**
+```python
+for iteration in range(MAX_AGENT_LOOP_ITERATIONS):
+    try:
+        result = await asyncio.wait_for(
+            orchestrator.query(...),
+            timeout=25,  # Per-call cap
+        )
+    except asyncio.TimeoutError:
+        logger.warning("Agent iteration %d timed out for user %s", iteration, user_id)
+        break  # Return partial answer
+```
 
-  // For each Text widget, walk up to the nearest Container background,
-  // compute contrast, assert >= 7.0 (or >= 4.5 if fontSize >= 18sp or >= 14sp bold)
-  final textWidgets = find.byType(Text);
-  for (final element in textWidgets.evaluate()) {
-    final text = element.widget as Text;
-    final fg = (text.style?.color ?? DefaultTextStyle.of(element).style.color)!;
-    final bg = _findNearestBackground(element);
-    final ratio = wcagContrastRatio(fg, bg);
-    final isLarge = (text.style?.fontSize ?? 14) >= 18;
-    final required = isLarge ? aaaLargeText : aaaNormalText;
-    expect(ratio, greaterThanOrEqualTo(required),
-      reason: 'Text "${text.data}" fg=$fg bg=$bg ratio=$ratio < $required');
+**Reduce MAX_AGENT_LOOP_ITERATIONS from 5 to 3:**
+- 3 iterations x 25s max = 75s theoretical max, but early-exit on end_turn typically completes in 1-2 iterations
+- Combined with the 55s total deadline, this prevents runaway loops
+
+| Setting | Current | Recommended | Why |
+|---------|---------|-------------|-----|
+| Gunicorn --timeout | 120s | 120s (keep) | Covers full request lifecycle with margin |
+| Agent loop total deadline | None | 55s | UX ceiling: user perceives >60s as broken |
+| Per-iteration timeout | None | 25s | One hung API call doesn't consume all time |
+| MAX_AGENT_LOOP_ITERATIONS | 5 | 3 | 3 iterations is enough for tool use + response |
+
+**No infrastructure changes needed.** Railway's 15-minute timeout and Gunicorn's 120s timeout are both adequate. The fix is purely in application code.
+
+**Confidence:** HIGH — Railway 15-min limit confirmed from their Help Station. asyncio.wait_for is standard Python stdlib.
+
+---
+
+## 4. Flutter StatefulShellRoute (Persistent Tabs)
+
+### Problem
+Zero shell exists in `app.dart`. All 143 routes are top-level `GoRoute`. No `BottomNavigationBar`, no tabs, no persistent navigation. User is trapped on a single chat screen with no visible way to discover 67+ screens.
+
+### Solution: StatefulShellRoute.indexedStack
+
+**Current go_router version: `^13.2.0`** — `StatefulShellRoute` is available since go_router 7.0+. No version bump needed.
+
+**Architecture:**
+```
+StatefulShellRoute.indexedStack
+  |-- Branch 0: Aujourd'hui (/home)
+  |-- Branch 1: Coach (/coach/chat)
+  |-- Branch 2: Explorer (/explorer)
+  
+All other routes: top-level GoRoute with parentNavigatorKey: _rootNavigatorKey
+  (auth, onboarding, simulators, deep screens = full-screen overlays)
+```
+
+**Shell widget (MintShell):**
+```dart
+class MintShell extends StatelessWidget {
+  final StatefulNavigationShell navigationShell;
+  const MintShell({required this.navigationShell, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: navigationShell,
+      endDrawer: const ProfileDrawer(),  // Fixes P0-NAV-2
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: navigationShell.currentIndex,
+        onDestinationSelected: (index) {
+          navigationShell.goBranch(
+            index,
+            initialLocation: index == navigationShell.currentIndex,
+          );
+        },
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.today), label: "Aujourd'hui"),
+          NavigationDestination(icon: Icon(Icons.chat_bubble_outline), label: 'Coach'),
+          NavigationDestination(icon: Icon(Icons.explore_outlined), label: 'Explorer'),
+        ],
+      ),
+    );
   }
-});
+}
 ```
 
-### What this does NOT cover (and our gaps)
-- **Non-text contrast** (icons, focus rings, dividers) — WCAG 1.4.11 requires 3:1 for non-text UI. Add separate matcher with 3:1 threshold for icon-bearing widgets.
-- **Live overlay states** (focus, hover, pressed) — covered by Patrol golden tests in item 2.
-- **Semantic labels presence** — covered by Flutter's `meetsGuideline(labeledTapTargetGuideline)`.
+**Router integration pattern:**
+```dart
+final _router = GoRouter(
+  navigatorKey: _rootNavigatorKey,
+  initialLocation: '/coach/chat',  // Coach is the center of gravity
+  routes: [
+    // Auth routes (outside shell, no bottom nav)
+    GoRoute(path: '/', builder: (_, __) => const LandingScreen()),
+    GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+    // ... other auth routes
 
-Combine all 4 into one `accessibility_smoke_test.dart` that runs per S1-S5 surface in CI.
+    // THE SHELL (3 tabs with persistent state)
+    StatefulShellRoute.indexedStack(
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state, navigationShell) {
+        return MintShell(navigationShell: navigationShell);
+      },
+      branches: [
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/home', builder: (_, __) => const HomeScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+            path: '/coach/chat',
+            builder: (_, __) => const CoachChatScreen(),
+            routes: [
+              GoRoute(path: 'history', builder: (_, __) => const ConversationHistoryScreen()),
+            ],
+          ),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/explorer', builder: (_, __) => const ExplorerScreen()),
+        ]),
+      ],
+    ),
 
-### Integration cost
-- ~30 LOC helper
-- ~50 LOC test pattern + ~50 LOC per surface × 5 surfaces = ~280 LOC tests
-- 0 new dependencies
-- 0 CI changes (runs in existing `flutter test` job)
-- **Estimate: 1 day total for helper + S1-S5 coverage**
+    // Full-screen routes (outside shell — simulators, detail screens, etc.)
+    GoRoute(path: '/retraite', ...),
+    GoRoute(path: '/hypotheque', ...),
+    // ... all 140+ other routes stay as-is with parentNavigatorKey: _rootNavigatorKey
+  ],
+);
+```
+
+### Key Integration Concerns
+
+| Concern | Solution |
+|---------|----------|
+| 143 existing routes must keep working | Routes outside shell remain top-level. Only 3 root paths go into branches. Deep links unaffected. |
+| Chat state preserved when switching tabs | `StatefulShellRoute.indexedStack` uses `IndexedStack` internally — chat scroll position, input text preserved. |
+| Back button loop (P0-NAV-3) | Shell root tabs: system back exits app. Nested routes: back pops to tab root. |
+| ProfileDrawer (P0-NAV-2) | `endDrawer` on MintShell scaffold. Open via `Scaffold.of(context).openEndDrawer()`. |
+| safePop fallback (P1-NAV-1) | Change 40 call sites: fallback from `/coach/chat` to `/home`. |
+| /profile redirect (P0-NAV-4) | Redirect `/profile` to open ProfileDrawer (via query param or direct route). |
+
+### Anti-Patterns to Avoid
+
+1. **DO NOT nest all 143 routes inside the shell.** Only 3 tab roots go in branches. Everything else is full-screen overlay with `parentNavigatorKey: _rootNavigatorKey`.
+2. **DO NOT use ShellRoute (stateless).** Must be `StatefulShellRoute.indexedStack` to preserve chat state across tab switches.
+3. **DO NOT create a custom IndexedStack.** go_router 13 handles this internally via `.indexedStack()` constructor.
+4. **DO NOT put auth/landing routes inside the shell.** Public scope routes have no bottom nav.
+5. **DO NOT create nested StatefulShellRoute.** One flat shell with 3 branches is sufficient. Sub-navigation within Explorer uses regular `GoRoute` nesting.
+
+**Confidence:** HIGH — go_router ^13.2.0 has stable StatefulShellRoute. Pattern is the standard recommended approach in Flutter ecosystem.
 
 ---
 
-## Installation summary
+## 5. URL Double-Prefix Fix Pattern
 
+### Problem
+5 places in Flutter build URLs as `$baseUrl/api/v1/...` but `baseUrl` already ends with `/api/v1` (enforced by `_normalizeBaseUrl` in `api_service.dart:126-134` which appends `/api/v1` if missing). Result: `/api/v1/api/v1/...` = 404.
+
+### Root Cause
+`ApiService.baseUrl` returns `https://mint-production-3a41.up.railway.app/api/v1`. Some service files (document_service.dart, coach_memory_service.dart) manually prepend `/api/v1/` again.
+
+### Solution: Remove Redundant Prefix + Add Prevention
+
+**Fix pattern (5 locations):**
+```dart
+// WRONG:
+Uri.parse('$baseUrl/api/v1/documents/scan-confirmation')
+// CORRECT:
+Uri.parse('$baseUrl/documents/scan-confirmation')
+```
+
+**All 5 fix locations:**
+
+| File | Line | Current Path | Fixed Path |
+|------|------|-------------|------------|
+| `document_service.dart` | ~1086 | `$baseUrl/api/v1/documents/scan-confirmation` | `$baseUrl/documents/scan-confirmation` |
+| `document_service.dart` | ~1125 | `$baseUrl/api/v1/documents/extract-vision` | `$baseUrl/documents/extract-vision` |
+| `document_service.dart` | ~1169 | `$baseUrl/api/v1/documents/premier-eclairage` | `$baseUrl/documents/premier-eclairage` |
+| `coach_memory_service.dart` | ~80 | `$baseUrl/api/v1/coach/sync-insight` | `$baseUrl/coach/sync-insight` |
+| `coach_memory_service.dart` | ~106 | `$baseUrl/api/v1/coach/sync-insight/$id` | `$baseUrl/coach/sync-insight/$id` |
+
+**Prevention — URL helper method:**
+```dart
+// Add to ApiService
+static Uri endpoint(String path) {
+  assert(!path.startsWith('/api/'),
+    'Do not include /api/v1 prefix — baseUrl already includes it');
+  final cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  return Uri.parse('$baseUrl/$cleanPath');
+}
+```
+
+**Prevention — CI grep gate:**
 ```bash
-# Backend dev tooling (codegen)
-cd services/backend
-poetry add --group dev datamodel-code-generator
-
-# IRR one-shot tool (isolated)
-mkdir -p tools/voice-cursor-irr
-cd tools/voice-cursor-irr
-python3 -m venv .venv && source .venv/bin/activate
-pip install krippendorff>=0.6.1 numpy
-deactivate
-
-# Flutter dev dependency
-cd apps/mobile
-flutter pub add --dev patrol
-dart pub global activate patrol_cli
-
-# CI: add 'dart pub global activate patrol_cli' to .github/workflows/flutter.yml
-# CI: add codegen drift check step to .github/workflows/backend.yml
+# Add to GitHub Actions Flutter workflow
+if grep -rn 'baseUrl/api/v1/' apps/mobile/lib/services/; then
+  echo "FAIL: double-prefix URL detected" && exit 1
+fi
 ```
 
-**Net new dependencies on the running app: ZERO.** All additions are dev/test/tooling. The shipped APK and FastAPI service get nothing new. This is the right shape for a design milestone.
+**Confidence:** HIGH — confirmed by reading the actual code in both `_normalizeBaseUrl` and all 5 call sites.
 
 ---
 
-## What NOT to Use
+## 6. camelCase Mismatch Fix (Tool Calling)
 
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| `easy_localization` package | Would replace `flutter_localizations` and force migrating 233 keys mid-milestone | Custom delegate + second `gen_l10n` config (item 5) |
-| `slang` i18n | Same migration cost, no value for canton scoping | Same |
-| `accessibility_test` pub package | Stale (2023), wraps existing `flutter_test` | 30-LOC helper + native matchers (item 7) |
-| `freezed` for VoiceCursorContract | Build_runner ceremony for a const config | JSON + thin codegen (item 6) |
-| Protobuf for VoiceCursorContract | Not on the wire, two-language compile step | Same |
-| Maestro / Appium | Non-Dart test DSLs, slow | Patrol (item 2) |
-| ReCal3 web tool | No reproducibility, no version control | `krippendorff` PyPI (item 1) |
-| Android Studio Profiler for Flutter perf | Reads native traces; misses Dart context | `flutter --profile` + DevTools (item 3) |
-| Stark / axe-core | Design-time or web-only | Custom WCAG helper (item 7) |
-| Adding Patrol golden differ | Doesn't exist as separate concept | Reuse existing `matchesGoldenFile` 1.5% tolerance (item 2) |
-| Firebase Test Lab NOW | v2.2 is manual gate by decision | v2.3 prep doc only (item 4) |
+### Problem
+Backend sends `toolCalls` (camelCase, from Pydantic `alias_generator = to_camel`). Flutter reads `json['tool_calls']` (snake_case). Key doesn't exist, tool calls silently dropped. Coach tool calling (navigate, simulate) is completely dead.
+
+### Solution
+```dart
+// In coach_chat_api_service.dart ~line 128-150
+// WRONG:
+final toolCalls = json['tool_calls'] as List?;
+// CORRECT (defensive, handles both conventions):
+final toolCalls = (json['toolCalls'] ?? json['tool_calls']) as List?;
+```
+
+The `??` fallback handles both server response (camelCase) and any cached/mocked responses (snake_case). This is the standard defensive pattern for Pydantic v2 backends with `populate_by_name=True`.
+
+**Also grep for other potential mismatches:**
+```bash
+grep -rn "json\['[a-z_]*_[a-z_]*'\]" apps/mobile/lib/services/coach/
+# Any snake_case key access to backend JSON is suspect
+```
+
+**Confidence:** HIGH — verified from audit findings + code inspection of both backend Pydantic schemas and Flutter JSON parsing.
 
 ---
 
-## Version Compatibility Notes
+## 7. SQLite Fail-Fast Guard
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| `patrol ^4.1.1` | Flutter ≥3.16, Android SDK ≥21 | Both already met. patrol_cli must match minor version. |
-| `krippendorff ≥0.6.1` | Python ≥3.8, NumPy ≥1.20 | Isolated venv — no impact on backend `pyproject.toml`. |
-| `datamodel-code-generator ≥0.25` | Pydantic v2 ≥2.0 | Backend already on Pydantic v2 per CLAUDE.md §4. |
-| Custom WCAG helper | Pure Dart, no deps | — |
-| Custom regional delegate | `flutter_localizations` (already in) | Requires running `gen_l10n` twice; document in README. |
+### Problem
+`DATABASE_URL` defaults to `sqlite:///./mint.db` (config.py:17). If Railway env var is missing, app silently uses ephemeral SQLite. All user data lost on every restart.
+
+### Solution
+Add fail-fast guard to `config.py`, matching the existing JWT fail-fast pattern (lines 94-101):
+
+```python
+# Fail-fast: reject SQLite in production/staging
+if (
+    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
+    and settings.DATABASE_URL.startswith("sqlite")
+):
+    raise RuntimeError(
+        "CRITICAL: DATABASE_URL must point to PostgreSQL in production/staging. "
+        "SQLite is ephemeral on Railway and will lose all data on restart."
+    )
+```
+
+**Confidence:** HIGH — mirrors existing pattern in same file. Zero risk.
+
+---
+
+## Bonus: DNS Cleanup (P1-PIPE-2)
+
+### Problem
+`api_service.dart:110` includes `api.mint.ch` as a URL candidate. This domain doesn't resolve. Adds 2s connection timeout latency before falling through to the real Railway URL.
+
+### Solution
+Remove from `_baseUrlCandidates`:
+```dart
+// REMOVE this line until DNS is configured:
+if (kReleaseMode) 'https://api.mint.ch/api/v1',
+```
+
+Also remove any other unreachable fallback URLs. The candidate list should contain ONLY reachable endpoints.
+
+**Confidence:** HIGH — DNS non-resolution is a fact, not opinion.
+
+---
+
+## What NOT to Touch
+
+| Leave Alone | Why |
+|-------------|-----|
+| go_router version (^13.2.0) | StatefulShellRoute is stable in this version. No upgrade needed. |
+| Provider | State management is orthogonal to these infrastructure fixes. |
+| ChromaDB version (^0.5.5) | Persistence is a config issue, not a version issue. |
+| Gunicorn timeout (120s) | Already adequate. Railway allows 15 minutes. |
+| anthropic SDK version | Current version works. Agent loop fix is application logic. |
+| Flutter SDK (^3.6.0) | No Flutter-level changes needed for any fix. |
+| Pydantic v2 | camelCase fix is on Flutter side, not backend side. Backend serialization is correct. |
 
 ---
 
 ## Sources
 
-- **Patrol** — [pub.dev/packages/patrol](https://pub.dev/packages/patrol), [patrol.leancode.co](https://patrol.leancode.co/), [Patrol 4.0 docs](https://patrol.leancode.co/v4) (verified 2026-04-07, version 4.1.1 confirmed)
-- **Krippendorff** — [PyPI krippendorff](https://pypi.org/project/krippendorff/) (Santiago Castro), [Label Studio writeup](https://labelstud.io/blog/how-to-use-krippendorff-s-alpha-to-measure-annotation-agreement/), [Wikipedia: Krippendorff's alpha](https://en.wikipedia.org/wiki/Krippendorff's_alpha) (verified 2026-04-07)
-- **Firebase Test Lab** — [Pricing & quotas](https://firebase.google.com/docs/test-lab/usage-quotas-pricing), [Available devices](https://firebase.google.com/docs/test-lab/android/available-testing-devices), [Device list snapshot 2026-02](https://gist.github.com/akexorcist/c55af0f438f6ddea6a94e26962ea52ba) (verified 2026-04-07; A14 specifically requires runtime confirmation)
-- **datamodel-code-generator** — [koxudaxi/datamodel-code-generator GitHub](https://github.com/koxudaxi/datamodel-code-generator) (Pydantic v2 support stable since 0.21)
-- **WCAG 2.1 contrast formula** — [W3C WCAG 2.1 §1.4.3 / §1.4.6](https://www.w3.org/TR/WCAG21/) (AA = 4.5/3.0, AAA = 7.0/4.5)
-- **Flutter perf** — [docs.flutter.dev/perf/ui-performance](https://docs.flutter.dev/perf/ui-performance), DevTools Performance tab (built-in to Flutter SDK)
-- **Flutter accessibility matchers** — `package:flutter_test`'s `meetsGuideline(textContrastGuideline)` (AA-only, AAA must be custom)
-
-**Confidence:** HIGH on all engineering recommendations (items 1, 2, 3, 5, 6, 7). MEDIUM on item 4 device availability — Firebase Test Lab catalog rotates and Galaxy A14 specifically must be re-confirmed at v2.3 kickoff via `gcloud firebase test android models list`.
-
----
-*Stack research for: MINT v2.2 La Beauté de Mint — additive only*
-*Researched: 2026-04-07*
+- [Railway Volumes reference](https://docs.railway.com/reference/volumes) — persistence, mount path, single-volume-per-service limit
+- [Railway Using Volumes guide](https://docs.railway.com/volumes) — mount at runtime not build, `RAILWAY_RUN_UID=0` for non-root images
+- [Railway ChromaDB deploy template](https://railway.com/deploy/chromadb-1) — confirms volume-based persistence pattern
+- [Railway HTTP timeout = 15 minutes](https://station.railway.com/questions/increase-max-http-timeout-1c360bf9) — "any limit lower is self-imposed at application level"
+- [GoRouter StatefulShellRoute pattern](https://medium.com/@mohitarora7272/stateful-nested-navigation-in-flutter-using-gorouters-statefulshellroute-and-statefulshellbranch-8bb91443edad)
+- [GoRouter StatefulShellRoute complete guide](https://medium.com/@harshhub.414/indexedstack-shellroute-and-statefulshellroute-in-flutter-gorouter-the-complete-guide-to-759b2975808c)
+- [Sentry — FastAPI long-running task timeout](https://sentry.io/answers/make-long-running-tasks-time-out-in-fastapi/) — asyncio.wait_for pattern
+- Codebase inspection: `api_service.dart:126-134` (_normalizeBaseUrl), `config.py:17` (DATABASE_URL default), `coach_chat.py:565-566` (MAX_AGENT_LOOP constants), `main.py:215-239` (ChromaDB init), `railway.json` (gunicorn --timeout 120)

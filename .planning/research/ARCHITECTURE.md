@@ -1,373 +1,444 @@
-# Architecture Patterns — v2.2 La Beauté de Mint
+# Architecture Patterns — v2.4 Fondation (Infrastructure Recovery)
 
-**Domain:** Cross-cutting design/voice/accessibility layer over mature Flutter + FastAPI app
-**Researched:** 2026-04-07
-**Scope:** integration of 3 new contracts (VoiceCursorContract, MintTrameConfiance, regional ARB carve-out) into existing v2.0/v2.1 architecture
-**Confidence:** HIGH (all consumer claims grep-verified against the live tree)
-
----
-
-## 0. Operating constraints (locked, no re-litigation)
-
-- VoiceCursorContract is a Phase 0 deliverable (blocks L1.5 + L1.6)
-- MTC is a single rendering layer everywhere (no dual-system)
-- Regional microcopy = ARB carve-out per canton, base language only
-- Galaxy A14 = manual gate (no Android-in-CI this milestone)
-- Précision horlogère = MTC bloom only
-- Krippendorff α = L1.6 spec validation only
+**Domain:** Infrastructure fix across Flutter + FastAPI app with broken pipes
+**Researched:** 2026-04-12
+**Scope:** 4-phase integration plan to fix backend infra, front-back connections, navigation shell, and end-to-end validation on an existing 143-route GoRouter + Railway-deployed FastAPI backend.
 
 ---
 
-## 1. The 3 cross-cutting contracts at a glance
+## Current Architecture State (Evidence-Based)
 
-| Contract | SoT location | Dart consumers | Python consumers | Generated? |
-|---|---|---|---|---|
-| VoiceCursorContract | `tools/contracts/voice_cursor_contract.json` | 6 (intent_screen, ProfileDrawer, RegionalVoiceService, MintAlertObject, coach_message_bubble, response_card_widget) | 2 (claude_coach_service.py, ComplianceGuard) | YES (codegen → Dart const + Pydantic) |
-| MintTrameConfiance | `lib/widgets/confidence/mint_trame_confiance.dart` (component) + `EnhancedConfidence` model unchanged | ~12 projection surfaces (see §3) | n/a (rendering only; backend `enhanced_confidence_service.py` already produces axes) | NO |
-| Regional microcopy | `lib/l10n/regional/app_regional_<canton>.arb` + Pydantic mirror | RegionalVoiceService (extended), ARB delegate | claude_coach_service.py REGIONAL_MAP must read same source | YES (codegen → Pydantic dict from ARB) |
+### Backend (FastAPI on Railway)
+- **Deploy**: Dockerfile multi-stage build, gunicorn + uvicorn workers, Railway auto-deploy
+- **DB**: PostgreSQL (Railway) with dangerous SQLite fallback in `config.py:17`
+- **RAG**: ChromaDB with `persist_directory` at `services/backend/data/chromadb/` (relative path, ephemeral on Railway)
+- **Education corpus**: path `../../education/inserts` resolves outside Docker context — corpus always empty post-deploy
+- **Router**: FastAPI `api_router` mounted at `/api/v1` via `app.include_router(api_router, prefix=settings.API_V1_STR)`
+- **Agent loop**: 5 max iterations, 8000 token budget, NO asyncio timeout — can exceed Railway's implicit gateway timeout
+- **Gunicorn timeout**: 120s (railway.json), but Railway's reverse proxy likely cuts at 60s for HTTP
+
+### Frontend (Flutter)
+- **API base**: `ApiService.baseUrl` = `https://mint-production-3a41.up.railway.app/api/v1` — already includes `/api/v1`
+- **5 broken services**: `document_service.dart` and `coach_memory_service.dart` build URLs as `$baseUrl/api/v1/...` = double prefix
+- **Tool call parsing**: `coach_chat_api_service.dart:130` reads `json['tool_calls']` (snake_case), backend sends `toolCalls` (camelCase via Pydantic alias)
+- **Router**: 143 flat `ScopedGoRoute` entries, zero `ShellRoute` or `StatefulShellRoute`, zero `BottomNavigationBar`
+- **Navigation fallback**: `safePop()` goes to `/coach/chat` when stack is empty — traps users in infinite loop
+- **ProfileDrawer**: 280-line widget in `widgets/profile_drawer.dart`, zero imports anywhere
+
+### Integration Points Map
+
+```
+Flutter App
+  |
+  +-- ApiService.baseUrl = "https://.../api/v1"
+  |     |
+  |     +-- ApiService.get("/endpoint")    --> "$baseUrl/endpoint"   = CORRECT
+  |     +-- ApiService.post("/endpoint")   --> "$baseUrl/endpoint"   = CORRECT
+  |     |
+  |     +-- document_service.dart (direct http)
+  |     |     +-- "$baseUrl/api/v1/documents/..."  = DOUBLE PREFIX (404)
+  |     |
+  |     +-- coach_memory_service.dart (direct http)
+  |           +-- "$baseUrl/api/v1/coach/..."      = DOUBLE PREFIX (404)
+  |
+  +-- CoachChatApiService
+  |     +-- Reads json['tool_calls']  --> Backend sends json['toolCalls']  = MISMATCH
+  |
+  +-- GoRouter (143 flat routes)
+        +-- No ShellRoute wrapper
+        +-- safePop fallback = /coach/chat (loop)
+        +-- ProfileDrawer never mounted
+        +-- 7 Explorer hubs all redirect to /coach/chat
+```
 
 ---
 
-## A — VoiceCursorContract integration
+## Recommended Architecture: 4-Phase Integration
 
-### A.1 Source-of-truth file
+### Phase Dependency Graph
 
-**Choice:** `tools/contracts/voice_cursor_contract.json` (single JSON), with codegen producing:
-- `apps/mobile/lib/services/voice/voice_cursor_contract.g.dart` (Dart const enums + routing matrix)
-- `services/backend/app/services/coach/voice_cursor_contract.py` (Pydantic model + frozen dict)
+```
+Phase 1 (Backend Infra)
+    |
+    v
+Phase 2 (Front-Back Connections)   <-- Depends on Phase 1: backend must be stable
+    |
+    v
+Phase 3 (Navigation Shell)         <-- Depends on Phase 2: routes must work before shell wraps them
+    |
+    v
+Phase 4 (Validation)               <-- Depends on all: E2E proof
+```
 
-**Why JSON over YAML:** Dart `dart:convert` is stdlib; Python `json` is stdlib. YAML adds a dependency on both sides. JSON also makes the codegen script trivial (`tools/codegen/voice_cursor_codegen.py`).
+**This order is the ONLY safe order.** Rationale:
+1. If backend crashes (SQLite fallback, empty RAG, agent timeout), fixing Flutter URLs is pointless — you get 500s instead of 404s.
+2. If URLs 404, building a shell around them creates a polished cage with dead endpoints.
+3. If navigation works but backend is broken, E2E validation will fail on every path.
 
-**Why not put SoT in Dart:** backend would have to parse Dart. Reverse (SoT in Python) means Flutter codegen depends on Python at build time. JSON is the neutral hub.
+---
 
-**Schema (compact):**
-```json
-{
-  "version": "1.0.0",
-  "levels": {
-    "N1": {"name": "Neutre", "examples": [...10 phrases...]},
-    "N2": {"name": "Vif", ...},
-    "N3": {"name": "Complice", ...},
-    "N4": {"name": "Piquant", ...},
-    "N5": {"name": "Cash", ...}
-  },
-  "gravity": ["G1", "G2", "G3"],
-  "relation": ["new", "established", "intimate"],
-  "routing": {
-    "G1": {"new": "N1", "established": "N2", "intimate": "N2"},
-    "G2": {"new": "N2", "established": "N3", "intimate": "N4"},
-    "G3": {"new": "N4", "established": "N5", "intimate": "N5"}
-  },
-  "guardrails": {
-    "g3_min_level": "N2",
-    "sensitive_topics_max": "N3",
-    "fragile_mode_max": "N3",
-    "fragile_mode_ttl_days": 30,
-    "n5_weekly_cap": 1
-  },
-  "user_preference": {
-    "soft": "N3",
-    "direct": "N4",
-    "unfiltered": "N5"
+## Phase 1 — Les Tuyaux (Backend Infrastructure)
+
+### Component: SQLite Fail-Fast Guard
+
+**Where:** `services/backend/app/core/config.py`
+**What:** Add startup guard after `settings = Settings()`.
+**Integration risk:** LOW. Pure additive. No existing behavior changes in dev mode.
+
+```python
+# After settings = Settings() and before JWT check
+if (
+    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
+    and settings.DATABASE_URL.startswith("sqlite")
+):
+    raise RuntimeError(
+        "CRITICAL: DATABASE_URL is SQLite in production/staging. "
+        "Set DATABASE_URL to a PostgreSQL connection string."
+    )
+```
+
+**Affects:** Only production/staging deploy. Dev keeps SQLite for local testing.
+**Test:** Unit test that config raises in staging+sqlite, passes in staging+postgres, passes in dev+sqlite.
+
+### Component: ChromaDB Persistence Fix
+
+**Where:** `services/backend/app/main.py:214-229` + `Dockerfile`
+**Problem:** Two issues stacked:
+1. `persist_directory` = `services/backend/data/chromadb/` — ephemeral on Railway (filesystem resets on deploy)
+2. Education inserts at `../../education/inserts` — outside Docker build context
+
+**Fix strategy (ordered by reliability):**
+
+**Option A (recommended): Copy education/ into Docker + Railway volume mount**
+- Dockerfile: `COPY education/ /app/education/` (add to build context by adjusting Dockerfile path or copying during build)
+- `main.py`: Change inserts_dir to `/app/education/inserts`
+- Railway: Mount persistent volume at `/app/data/chromadb` (Railway dashboard > Service > Volumes)
+- `main.py`: Use env var `CHROMADB_PERSIST_DIR` defaulting to `os.path.join(backend_dir, "data", "chromadb")`
+
+**Option B (simpler, less durable): Pre-deploy script ingestion**
+- Add ChromaDB ingest to `scripts/railway_pre_deploy_migrate.py`
+- Still needs volume mount for persistence
+
+**Integration risk:** MEDIUM. Requires Railway dashboard change (volume mount). Must verify Docker build context includes `education/` directory.
+
+**Critical path:**
+1. Adjust Dockerfile to copy education inserts
+2. Add `CHROMADB_PERSIST_DIR` env var to Settings
+3. Mount Railway persistent volume
+4. Verify auto-ingest runs on first deploy, skips on subsequent deploys
+
+### Component: Agent Loop Timeout
+
+**Where:** `services/backend/app/api/v1/endpoints/coach_chat.py:929-1105`
+**Problem:** `_run_agent_loop` has iteration and token limits but NO wall-clock timeout. Railway's reverse proxy cuts at ~60s, returning 502 to user.
+**Gunicorn timeout:** 120s (railway.json). But Railway gateway is the bottleneck.
+
+**Fix:** Wrap the agent loop call in `asyncio.wait_for()`:
+
+```python
+# In the chat endpoint, around line 1268:
+import asyncio
+try:
+    loop_result = await asyncio.wait_for(
+        _run_agent_loop(...),
+        timeout=50.0  # 50s < Railway's 60s gateway timeout
+    )
+except asyncio.TimeoutError:
+    # Return a graceful partial response
+    loop_result = {
+        "answer": "Je n'ai pas pu terminer ma reflexion dans le temps imparti. Peux-tu reformuler ta question plus simplement ?",
+        "tool_calls": [],
+        "sources": [],
+        "disclaimers": [],
+        "tokens_used": 0,
+    }
+```
+
+**Integration risk:** LOW. Wraps existing async function. No behavior change when fast. Graceful degradation when slow.
+
+### Component: OPENAI_API_KEY in Settings
+
+**Where:** `services/backend/app/core/config.py`
+**Problem:** `insight_embedder.py:49-50` uses `OPENAI_API_KEY` for ChromaDB embeddings but it is not in Settings.
+**Fix:** Add `OPENAI_API_KEY: str = ""` to Settings + startup warning if RAG is available but key is missing.
+**Integration risk:** LOW. Additive field.
+
+### Component: Education Inserts Docker Path
+
+**Where:** `services/backend/Dockerfile` + `services/backend/app/main.py:217-219`
+**Current Dockerfile context:** `COPY . .` in stage 2 copies the `services/backend/` directory content. Education inserts are at `MINT/education/inserts/` — two directories up, outside the Docker build context.
+
+**Fix:** Either:
+1. Change Docker build context to repo root (affects all COPY paths)
+2. Add a `COPY --from=... education/` step using build args
+3. (Recommended) Add a pre-build script that copies `education/inserts/` into `services/backend/education_corpus/` before Docker build, and update `main.py` path
+
+**Integration risk:** MEDIUM. Docker build context change can have cascading effects. Option 3 is safest.
+
+---
+
+## Phase 2 — Les Connexions (Front-Back Wiring)
+
+### Component: URL Double-Prefix Fix (5 locations)
+
+**Where:** 3 in `document_service.dart`, 2 in `coach_memory_service.dart`
+**Root cause:** These services bypass `ApiService.get()/post()` and build URLs directly using `ApiService.baseUrl` + hardcoded `/api/v1/...`.
+**The central `ApiService` methods already work correctly** — they do `$baseUrl$endpoint` where endpoint is `/documents/...` without prefix.
+
+**Fix pattern (identical for all 5):**
+
+| File | Line | Current | Fixed |
+|------|------|---------|-------|
+| document_service.dart | 1086 | `'$baseUrl/api/v1/documents/scan-confirmation'` | `'$baseUrl/documents/scan-confirmation'` |
+| document_service.dart | 1125 | `'$baseUrl/api/v1/documents/extract-vision'` | `'$baseUrl/documents/extract-vision'` |
+| document_service.dart | 1169 | `'$baseUrl/api/v1/documents/premier-eclairage'` | `'$baseUrl/documents/premier-eclairage'` |
+| coach_memory_service.dart | 80 | `'$baseUrl/api/v1/coach/sync-insight'` | `'$baseUrl/coach/sync-insight'` |
+| coach_memory_service.dart | 106 | `'$baseUrl/api/v1/coach/sync-insight/$insightId'` | `'$baseUrl/coach/sync-insight/$insightId'` |
+
+**Risk of breaking existing working paths:** ZERO for these 5. They are currently producing 404s. There are no working paths to break. The fix makes them match the pattern used by ALL other services that go through `ApiService.get()/post()`.
+
+**Verify after fix:** Confirm `ApiService.baseUrl` ends with `/api/v1` (it does: line 109-111 of api_service.dart). The fixed paths append `/documents/...` to that base, producing the correct full URL `https://.../api/v1/documents/scan-confirmation`.
+
+**Additional fix needed (P0-PIPE-5):** Backend endpoint `DELETE /coach/sync-insight/{id}` does not exist. Must be created in `services/backend/app/api/v1/endpoints/coach_chat.py` or a new `coach.py` endpoint.
+
+**Integration risk:** LOW for URL fixes. MEDIUM for new DELETE endpoint (requires backend route + handler + test).
+
+### Component: camelCase Mismatch Fix
+
+**Where:** `apps/mobile/lib/services/coach/coach_chat_api_service.dart:130`
+**Current:** `json['tool_calls']` — key does not exist in backend response
+**Backend sends:** `toolCalls` (Pydantic v2 with `alias_generator = to_camel`)
+
+**Fix:**
+```dart
+// Line 130: Change from
+toolCalls: (json['tool_calls'] as List?)
+// To
+toolCalls: (json['toolCalls'] as List?)
+```
+
+**Risk of breaking existing working paths:** NONE. The current code silently returns empty list because `json['tool_calls']` is always null. The fix reads the actual data.
+
+**Broader concern:** Check all other JSON deserialization in coach services for the same pattern. The backend consistently uses camelCase aliases. Any Flutter code expecting snake_case from the backend is broken.
+
+**Integration risk:** LOW. One-line change. Currently broken, cannot make it worse.
+
+### Component: DNS Cleanup
+
+**Where:** `apps/mobile/lib/services/api_service.dart:110`
+**Current:** `api.mint.ch/api/v1` is in URL candidates. DNS does not resolve. Adds 2s latency during URL probing.
+**Fix:** Remove from candidates until DNS is configured. Keep Railway URLs only.
+**Integration risk:** LOW. Removes a timeout, does not change behavior.
+
+---
+
+## Phase 3 — La Navigation (Shell Architecture)
+
+### Component: StatefulShellRoute Integration
+
+**This is the highest-risk phase.** The router has 143 routes, all flat (no nesting). Adding a shell requires wrapping a subset of routes while preserving all deep links.
+
+**Strategy: Additive wrapping, not restructuring.**
+
+```dart
+// NEW: Shell wraps 3 tab destinations
+StatefulShellRoute.indexedStack(
+  builder: (context, state, navigationShell) => MintShell(
+    navigationShell: navigationShell,
+  ),
+  branches: [
+    // Tab 0: Aujourd'hui (home/dashboard)
+    StatefulShellBranch(
+      routes: [
+        ScopedGoRoute(
+          path: '/home',
+          builder: (context, state) => const TodayScreen(),
+        ),
+      ],
+    ),
+    // Tab 1: Coach (chat)
+    StatefulShellBranch(
+      navigatorKey: _coachNavigatorKey,
+      routes: [
+        ScopedGoRoute(
+          path: '/coach/chat',
+          scope: RouteScope.public,
+          builder: (context, state) => CoachChatScreen(...),
+        ),
+        // Sub-routes under coach tab
+        ScopedGoRoute(
+          path: '/coach/history',
+          builder: (context, state) => const ConversationHistoryScreen(),
+        ),
+      ],
+    ),
+    // Tab 2: Explorer
+    StatefulShellBranch(
+      routes: [
+        ScopedGoRoute(
+          path: '/explore',
+          builder: (context, state) => const ExplorerScreen(),
+        ),
+      ],
+    ),
+  ],
+),
+
+// ALL existing routes STAY as top-level routes (outside shell)
+// They navigate using _rootNavigatorKey and overlay the shell
+ScopedGoRoute(
+  path: '/retraite',
+  parentNavigatorKey: _rootNavigatorKey,
+  builder: ...,
+),
+// ... (all 130+ other routes unchanged)
+```
+
+**Critical migration rules:**
+1. **DO NOT move existing routes into shell branches** — only `/home`, `/coach/chat`, `/coach/history`, and `/explore` go inside the shell
+2. **All other routes keep `parentNavigatorKey: _rootNavigatorKey`** — they push over the shell as full-screen overlays
+3. **Deep links continue to work** because GoRouter resolves paths globally, shell or not
+4. **The shell only provides persistent bottom navigation** — it does not change route resolution
+
+**ProfileDrawer integration:**
+- `MintShell` scaffold includes `endDrawer: const ProfileDrawer()`
+- Icon button in AppBar opens it via `Scaffold.of(context).openEndDrawer()`
+- No route change needed — drawer is a scaffold feature, not a route
+
+**safePop fix:**
+```dart
+void safePop(BuildContext context) {
+  if (context.canPop()) {
+    context.pop();
+  } else {
+    context.go('/home'); // NOT /coach/chat — go to shell root
   }
 }
 ```
 
-### A.2 Sync without hand-drift
+**Explorer hubs:**
+- Replace 7 redirect-to-chat routes with actual `/explore/*` sub-routes
+- Each hub is a simple list screen that links to existing tool/simulator routes
+- If building hub screens is too costly for this phase, redirect to `/explore` (not `/coach/chat`)
 
-**Pattern:** codegen script + CI guard.
+**Zombie screen cleanup:**
+- Delete files + routes for: achievements, score_reveal, cockpit, annual_refresh (if truly dead), portfolio, ask_mint
+- Add redirects: `/achievements` -> `/home`, `/ask-mint` -> `/coach/chat`, etc.
 
-1. `tools/codegen/voice_cursor_codegen.py` reads JSON → emits Dart `.g.dart` and Python `.py` files with header `// GENERATED — DO NOT EDIT`.
-2. CI step: re-run codegen, `git diff --exit-code` on the two generated files. Drift = red build.
-3. Both generated files committed (no runtime download — works offline, deterministic).
+**Integration risk:** HIGH. GoRouter StatefulShellRoute has specific constraints:
+- Shell branches must have unique paths
+- `initialLocation` must point to a shell branch path
+- Auth redirect logic must account for shell routes
+- Tab state persistence across navigation
 
-**Why codegen over runtime read:** Dart enums must be compile-time const for switch exhaustiveness; Pydantic models benefit from static typing. Runtime JSON parsing forfeits both.
+**Mitigation:** Build shell in isolation first. Wire one branch at a time. Test deep links after each branch addition. Keep all non-shell routes completely unchanged.
 
-### A.3 Consumers (grep-verified)
+### Data Flow After Shell
 
-| File | What it imports today | What it must import |
-|---|---|---|
-| `apps/mobile/lib/screens/onboarding/intent_screen.dart` | (no voice contract) | `voice_cursor_contract.g.dart` for L1.6c "Ton" question |
-| `apps/mobile/lib/widgets/profile_drawer.dart` (or wherever ProfileDrawer lives — verify in plan) | n/a | same, for settings toggle |
-| `apps/mobile/lib/services/voice/regional_voice_service.dart:119` (`forCanton`) | nothing | same, to tag `RegionalFlavor` outputs with default level |
-| `apps/mobile/lib/widgets/mint_alert_object.dart` (NEW — S5) | n/a | same, drives G2/G3 grammar selection |
-| `apps/mobile/lib/widgets/coach/coach_message_bubble.dart` (S3) | n/a | same, reads `level` from message metadata to apply micro-typo variant |
-| `apps/mobile/lib/widgets/coach/response_card_widget.dart` (S4) | n/a | same, for premier éclairage tone |
-| `services/backend/app/services/coach/claude_coach_service.py:133` (`_REGIONAL_IDENTITY`, `REGIONAL_MAP` line 58) | local constant | import generated `voice_cursor_contract.py`, inject level + guardrails into system prompt |
-| `services/backend/app/services/compliance_guard.py` (find canonical path in plan) | n/a | enforce: never N1/N2 on G3, never ≥N4 on sensitive topics, weekly N5 cap |
-
-### A.4 Routing matrix as data, not code
-
-**Choice:** compile-time (codegen emits a `const Map<Gravity, Map<Relation, Level>>`). Resolved via pure function `VoiceCursor.resolve(gravity, relation, userPref)`.
-
-**Why compile-time:** routing is small (3×3=9 cells), changes rarely, and must be exhaustively unit-tested. Runtime reads create a "what version is loaded?" debugging tax for zero benefit.
-
-### A.5 `Profile.voiceCursorPreference` field
-
-**Status:** does not exist in `services/backend/app/schemas/profile.py` (verified — grep returned 0 hits in `services/backend`).
-
-**Add to:**
-- `services/backend/app/schemas/profile.py` `ProfileBase`: `voiceCursorPreference: Literal['soft','direct','unfiltered'] = 'direct'`
-- `apps/mobile/lib/models/coach_profile.dart` (CoachProfile is the live one — `dead_code` audit shows 73 consumers)
-- Migration: nullable column in `profile_model.py` SQLA (default `'direct'`); existing rows migrate at read time.
+```
+User opens app
+  --> GoRouter resolves '/' (landing) or '/home' (if logged in)
+  --> MintShell renders with 3 tabs
+      |
+      Tab 0: TodayScreen (dashboard, cards, recent insights)
+      Tab 1: CoachChatScreen (chat + tool calling + document upload)
+      Tab 2: ExplorerScreen (7 hubs linking to tool screens)
+      |
+      Tapping a tool/simulator link:
+        --> context.go('/retraite') or context.push('/retraite')
+        --> Route resolves with _rootNavigatorKey
+        --> Full-screen overlay above shell
+        --> Back button / safePop returns to shell
+      |
+      ProfileDrawer (endDrawer):
+        --> Profile, Documents, Settings, Logout
+        --> Opened via icon button, not a route
+```
 
 ---
 
-## B — MintTrameConfiance migration architecture
+## Phase 4 — La Preuve (Validation Architecture)
 
-### B.1 Consumers consuming `confidence_scorer.dart` today (grep-verified)
+### E2E Flows That Must Pass
 
-| # | File | Line | What it renders today |
-|---|---|---|---|
-| 1 | `screens/main_navigation_shell.dart` | 18, 230, 263 | Score-only int, used to gate shell behaviors |
-| 2 | `screens/onboarding/data_block_enrichment_screen.dart` | 11, 72, 194 | Per-bloc scoring + score |
-| 3 | `screens/coach/retirement_dashboard_screen.dart` | 14, 146 | Confidence as dashboard hero meta |
-| 4 | `screens/coach/cockpit_detail_screen.dart` | 10, 126, 128 | Score + per-bloc breakdown |
-| 5 | `screens/document_scan/extraction_review_screen.dart` | 8, 636 | Post-extraction delta on `currentConfidence` |
-| 6 | `widgets/home/confidence_score_card.dart` | 18, 22, 84 | Card with axis prompts (rich) |
-| 7 | `widgets/coach/confidence_blocks_bar.dart` | 9 | Bar of `scoreAsBlocs()` blocks |
-| 8 | `widgets/coach/low_confidence_card.dart` | 23 | Score < threshold → low-confidence CTA |
-| 9 | `widgets/coach/lightning_menu.dart` | 74 | Score gates menu items |
-| 10 | `widgets/retirement/confidence_banner.dart` | (whole file) | Banner-style score |
-| 11 | `widgets/profile/trajectory_view.dart` | 336 | Trajectory header confidence |
-| 12 | `widgets/profile/futur_projection_card.dart` | 33,54,125,191,423 | `confidenceScore: double` + uncertainty band rendering |
-| 13 | `widgets/coach/coach_briefing_card.dart` | 25,37,269,270 | Briefing header confidence |
-| 14 | `widgets/coach/retirement_hero_zone.dart` | 45,76,484 | Hero zone score |
-| 15 | `widgets/coach/progressive_dashboard_widget.dart` | 36,43,60,166 | Score pilots progressive disclosure depth |
-| 16 | `widgets/coach/smart_shortcuts.dart` | 27,32,215 | Score gates shortcuts |
-| 17 | `widgets/coach/indicatif_banner.dart` | 16,24,41,77,80 | Inline indicative banner |
-| 18 | `widgets/profile/narrative_header.dart` | 13,25,77 | Narrative header score |
+| # | Flow | Touches | Gate |
+|---|------|---------|------|
+| 1 | Cold start -> landing -> register -> chat | Auth, Router, Backend health | User sees chat with greeting |
+| 2 | Type question -> get coach response | Coach chat, API, Agent loop, RAG | Response in < 10s, no 502 |
+| 3 | Upload document -> scan -> extraction -> premier eclairage | Document service, Vision OCR, 4-layer insight | All 4 layers render |
+| 4 | Navigate tabs (Today/Coach/Explorer) | Shell, BottomNav, tab persistence | Tabs work, state preserved |
+| 5 | Open ProfileDrawer -> view profile -> close | Drawer, profile screen | Profile data visible |
+| 6 | Deep link `/retraite` -> back -> shell | GoRouter, safePop, shell | Returns to shell, not loop |
+| 7 | Tool call in chat -> navigate to screen | camelCase fix, tool_call_parser | Screen opens from chat suggestion |
+| 8 | Background + foreground -> chat state preserved | Provider state, conversation persistence | Messages still visible |
 
-> **Reality check vs brief:** brief said "~12". Actual count is **18** (12 widgets + 5 screens + 1 lightning menu). Two categories:
-> - **Renderers of confidence** (must adopt MTC): #6, #10, #11, #12, #13, #14, #17, #18 — 8 surfaces
-> - **Logic gates on score** (do NOT need MTC, just keep reading the int): #1, #2 (gating), #5 (delta), #8, #9, #15, #16 — 7 surfaces
-> - **Both** (renders AND gates): #3, #4, #7 — 3 surfaces, must migrate the rendering half only
-
-**Net migration target for L1.2b: 11 rendering surfaces** (8 pure renderers + 3 mixed).
-
-### B.2 Migration pattern
-
-**Drop-in widget replacement, NOT consumer refactor.**
-
-Build `MintTrameConfiance` as a single widget with three constructors:
-
-```dart
-class MintTrameConfiance extends StatelessWidget {
-  const MintTrameConfiance.inline({required this.confidence, this.onTap});
-  const MintTrameConfiance.detail({required this.confidence});
-  const MintTrameConfiance.audio({required this.confidence}); // SemanticsLabel only
-}
-```
-
-Each existing renderer becomes a 1-line replacement: `MintTrameConfiance.inline(confidence: ec)`. Score-int gates (#1, #5, #8, #9, #15, #16) stay untouched — they read `confidence.combined` and don't render anything.
-
-**Why drop-in over refactor:** 18 surfaces × refactor = scope explosion + test breakage. Drop-in keeps the data flow identical.
-
-### B.3 Test breakage estimate
-
-`grep -l 'confidence' apps/mobile/test/widgets/` gives a non-trivial count (not exhaustively run here — must be done in plan step). Likely impact:
-- Widget golden tests for `confidence_score_card`, `futur_projection_card`, `retirement_hero_zone`, `coach_briefing_card`, `narrative_header`, `indicatif_banner`, `confidence_banner`, `progressive_dashboard_widget` → **8 golden test files to regenerate**.
-- Behavioral tests reading `find.text('${score}%')` will likely still pass since MTC keeps the percentage in the inline variant.
-
-**Plan must run `flutter test --update-goldens` once after L1.2a, document the diff, then re-bless under Julien's eye.**
-
-### B.4 Bloom animation budget
-
-- **Trigger:** first appearance per session **per surface instance**, not per app session. `AnimatedSwitcher`-style initial-frame detection in `initState`.
-- **Budget on Galaxy A14:** 250ms ease-out on `Transform.scale(0.96 → 1.0)` = ~15 frames at 60fps. A14 sustains 60fps for single-widget transforms; concurrent bloom on a screen with 3 MTC instances = the only risk. Mitigation: stagger blooms 60ms apart. Hard cap: skip bloom if `MediaQuery.disableAnimations` true (accessibility).
-- **Memory:** stateless animation controller per instance, disposed in `dispose()`. Verify no controller leak on hot reload (W14 façade lesson).
+### Validation Method
+- **NOT flutter test** (9256 tests pass, app is broken)
+- **Device walkthrough**: `flutter run --release` on iPhone, connected to staging backend
+- Creator (Julien) performs each flow cold-start, annotates screenshots
+- Any flow failure = milestone not complete
 
 ---
 
-## C — Regional microcopy ARB carve-out
+## Anti-Patterns to Avoid
 
-### C.1 Current ARB structure (verified)
+### Anti-Pattern 1: Fixing URLs in bulk with find-replace
+**What:** Global replacement of `/api/v1/` across all Dart files
+**Why bad:** `ApiService.get("/documents/...")` already works correctly. Only the 5 direct-http calls are broken. A global replace would BREAK the working paths.
+**Instead:** Fix only the 5 identified locations. Verify each one individually.
 
-```
-apps/mobile/lib/l10n/
-  app_fr.arb   (10'735 lines — template)
-  app_en.arb
-  app_de.arb
-  app_es.arb
-  app_it.arb
-  app_pt.arb
-```
+### Anti-Pattern 2: Restructuring all 143 routes into shell branches
+**What:** Moving every route inside StatefulShellRoute branches
+**Why bad:** GoRouter shell branches expect their routes to share a navigator. Tool screens (simulators, deep dives) should push OVER the shell, not inside it.
+**Instead:** Only 3-4 routes go inside shell branches. Everything else stays top-level with `parentNavigatorKey: _rootNavigatorKey`.
 
-Single namespace `AppLocalizations`, generated by `flutter gen-l10n` with default `l10n.yaml`.
+### Anti-Pattern 3: Adding Railway volume mount without testing persistence
+**What:** Configuring ChromaDB persist_directory and assuming it survives deploys
+**Why bad:** Railway volumes must be explicitly mounted. The directory must exist before ChromaDB writes. Permission issues with non-root user.
+**Instead:** Test with a deploy cycle: write data -> redeploy -> verify data persists.
 
-### C.2 Multi-namespace pattern
-
-**Choice:** parallel namespace `AppRegionalLocalizations` + custom `LocalizationsDelegate`, NOT composition into `AppLocalizations`.
-
-**Why parallel:** `flutter gen-l10n` cannot multi-namespace from one config. Two options:
-1. Two `l10n.yaml` files run sequentially (`l10n.yaml` + `l10n_regional.yaml`) → both produce separate generated classes → both registered in `MaterialApp.localizationsDelegates`.
-2. Custom Dart delegate that loads `app_regional_<canton>.arb` from `rootBundle` at runtime, parses, returns a `Map<String, String>` lookup.
-
-**Recommendation: option 1** (two `gen-l10n` runs). Reasons:
-- Stays inside the official toolchain; type-safe accessors; Android Studio jump-to-source works.
-- Adds to `pubspec.yaml`:
-  ```yaml
-  flutter:
-    generate: true
-  ```
-  And a second l10n config (`l10n_regional.yaml`) pointed at `lib/l10n/regional/`.
-
-```
-apps/mobile/lib/l10n/regional/
-  app_regional_vs.arb       (locale fr-CH, but namespaced by canton)
-  app_regional_zh.arb       (locale de-CH)
-  app_regional_ti.arb       (locale it-CH)
-```
-
-**Resolution lookup** at call site:
-```dart
-final regional = AppRegionalLocalizations.forCanton(profile.canton);
-final greeting = regional?.greeting ?? AppLocalizations.of(context)!.greetingDefault;
-```
-
-`forCanton` is a thin static factory that maps canton → `AppRegionalVS` / `AppRegionalZH` / `AppRegionalTI`, returns `null` for unsupported cantons (= silent fallback to base ARB, no surprise translations). It does NOT translate VS strings into IT/PT.
-
-### C.3 Backend mirror
-
-**Current state:** `services/backend/app/services/coach/claude_coach_service.py:58` defines `REGIONAL_MAP` as a hand-coded Python dict, and `_REGIONAL_IDENTITY` (line 133) is a hand-coded Python string. **This is a duplication of `RegionalVoiceService.forCanton()` in Flutter** — exactly the kind of dual-system v2.2 must kill.
-
-**Pattern:** ARB → Pydantic codegen.
-
-1. `tools/codegen/regional_microcopy_codegen.py` reads `app_regional_<canton>.arb` files, emits `services/backend/app/services/coach/regional_microcopy.py` containing:
-   ```python
-   REGIONAL_MICROCOPY: dict[str, RegionalMicrocopy] = { "VS": RegionalMicrocopy(...), ... }
-   ```
-2. `claude_coach_service.py` imports `REGIONAL_MICROCOPY` instead of hardcoding `REGIONAL_MAP` + `_REGIONAL_IDENTITY`. The legacy Python constants get DELETED in the same MR (zero-debt rule).
-3. CI guard same as voice contract: codegen + `git diff --exit-code`.
-
-**Why ARB-as-source over JSON:** L1.4 microcopies are written by Julien + native validators inside ARB (their natural editing format). Forking them to JSON for backend creates two truths.
-
-**Pydantic model:**
-```python
-class RegionalMicrocopy(BaseModel):
-    canton: str
-    base_locale: str  # 'fr-CH' | 'de-CH' | 'it-CH'
-    prompt_addition: str
-    local_expressions: list[str]
-    financial_culture_note: str
-    humor_style: str
-    canton_note: str = ''
-```
-
-In-memory dict, not persisted (3 cantons × few KB = trivial).
+### Anti-Pattern 4: Changing initialLocation before shell is stable
+**What:** Setting `initialLocation: '/home'` before the TodayScreen and shell exist
+**Why bad:** GoRouter will crash if initialLocation points to a route inside a shell that is not fully configured.
+**Instead:** Keep `initialLocation: '/'` until shell is proven stable. Add `/` -> `/home` redirect only after shell works.
 
 ---
 
-## D — Build order DAG and parallelism
+## Scalability Considerations
 
-### D.1 Phase 0 (must ship before any L1.x chantier starts)
-
-| # | Deliverable | Why blocks downstream |
-|---|---|---|
-| P0.1 | STAB-17 manual tap-render walkthrough by Julien on Galaxy A14 | Confirms v2.1 wiring before adding new layers |
-| P0.2 | Galaxy A14 perf baseline doc (cold start, scroll FPS, frame budget at S2 home) | L1.2a bloom budget needs this |
-| P0.3 | `tools/contracts/voice_cursor_contract.json` + codegen scripts + generated Dart/Python files committed | L1.5, L1.6 import these |
-| P0.4 | `Profile.voiceCursorPreference` field added (backend Pydantic + Flutter CoachProfile + SQLA migration) | L1.6c writes to it |
-| P0.5 | 4 broken providers from AUDIT_DEAD_CODE.md (B1-B4: MintStateProvider, FinancialPlanProvider, CoachEntryPayloadProvider, OnboardingProvider) wired into `app.dart` MultiProvider | L1.2b touches `mint_home_screen.dart` which currently relies on try/catch swallow — façade-sans-câblage must die before MTC migration |
-| P0.6 | Krippendorff α tooling provisioned (`tools/voice/krippendorff.py` + 15-tester pipeline) | L1.6a validation gate |
-| P0.7 | Regional ARB infra (l10n_regional.yaml, empty namespace, build wired) | L1.4 writes content into infra |
-
-**Why P0.5 here:** L1.2b migrates `confidence_score_card.dart` which is consumed by `mint_home_screen.dart`. Currently mint_home_screen reads MintStateProvider via try/catch fallback (audit line 41-50). Wiring the provider now means the migration can trust real state, not silent fallback.
-
-### D.2 DAG (after Phase 0)
-
-```
-P0 ─┬─> L1.1 (audit du retrait, S1-S5) ──┬─> L1.3 (microtypo S1-S5) ──┐
-    │                                      │                            │
-    ├─> L1.2a (MTC component + S4) ────────┴─> L1.2b (MTC migrate ×11) ─┤
-    │                                                                    │
-    ├─> L1.4 (regional VS/ZH/TI ARB content) ────────────────────────────┤
-    │                                                                    │
-    ├─> L1.6a (VOICE_CURSOR_SPEC.md + 50 phrases + Krippendorff α) ──┐   │
-    │                                                                 │   │
-    └─> L1.5 (MintAlertObject S5, imports VoiceCursorContract) ──────┤   │
-                                                                      │   │
-                                       L1.6b (rewrite 30 coach phrases)──┤
-                                       L1.6c (intent_screen + drawer)────┤
-                                                                          │
-                                                          v2.2 ship gate ─┘
-                                                          (Julien manual A14 + 3 live a11y sessions)
-```
-
-### D.3 Parallel groups
-
-- **Group α (after P0):** L1.1 (kill old confidence rendering on S4), L1.2a (build MTC + migrate S4), L1.4 (regional content), L1.6a (spec). All four can run in parallel — they touch disjoint files.
-- **Group β (after Group α):** L1.2b (migrate 11 surfaces), L1.3 (microtypo on S1-S5), L1.5 (MintAlertObject), L1.6b (rewrite 30 phrases). These need L1.2a (MTC component exists) + L1.6a (spec exists) + L1.1 (S1-S5 cleaned) + L1.4 (regional content for L1.6b validation in 3 langs).
-- **Group γ (sequential after Group β):** L1.6c (UI for tone setting). Needs L1.6b complete because the setting only makes sense once phrases obey the contract.
-
-### D.4 Critical path
-
-**P0.3 → L1.6a → L1.6b → L1.6c** is the longest chain. L1.6b is the bottleneck: 30 phrases × validation by Julien + 2 copywriters. Estimate: 5-7 working days. Phase 0 = 3-4 days. Group α parallel ≈ 5 days. Group β parallel ≈ 5-7 days. **Total: 4-5 weeks if P0 starts immediately and no Krippendorff α failure forces L1.6a rewrite.**
-
-**Slack:** L1.3 microtypo and L1.4 regional content can absorb a week of slip without affecting ship date.
-
-### D.5 Dependency deadlocks (avoided by design)
-
-- **Risk:** L1.5 MintAlertObject importing VoiceCursorContract before P0.3 ships → blocked. Mitigation: P0.3 is the first deliverable in Phase 0.
-- **Risk:** L1.6b rewriting phrases that reference UI strings later changed by L1.3 microtypo → double work. Mitigation: L1.3 only touches typography (font, size, line-height), never copy text.
-- **Risk:** L1.2b migrating widgets that L1.1 marked for deletion → wasted migration. Mitigation: L1.1 ships first inside Group α and produces a "DELETE / KEEP" list that L1.2b reads on day 1.
+| Concern | Current (broken) | After v2.4 (fixed) | Future (v3.0+) |
+|---------|-------------------|---------------------|-----------------|
+| RAG corpus | Empty (ephemeral) | 103 education docs persisted | User documents + conversations |
+| Agent loop | No timeout, 502s | 50s timeout, graceful fallback | SSE streaming (P3-PIPE-2) |
+| Navigation | 143 flat routes, no shell | Shell + 3 tabs + drawer | Dynamic routes from coach |
+| Tool calling | Dead (camelCase) | Working for server-key path | All 3 tiers (SLM/BYOK/server) |
+| URL construction | Mixed patterns, 5 broken | Consistent via ApiService | OpenAPI-generated client |
 
 ---
 
-## E — Integration with v2.0/v2.1 work
+## Component Boundaries
 
-### E.1 v2.1 STAB-12 coach tools and L1.5 MintAlertObject
-
-`AUDIT_COACH_WIRING.md` confirms 4 tools wired E2E: `route_to_screen`, `generate_document`, `generate_financial_plan`, `record_check_in`.
-
-**Decision:** MintAlertObject is **NOT a new coach tool**. It is a UI primitive that consumes alert objects produced by the existing **anticipation engine** (v2.0) and the **rules engine / nudge engine** (`services/nudge/nudge_engine.dart`, `services/coach/proactive_trigger_service.dart`, `services/contextual/action_opportunity_detector.dart`).
-
-**Wiring:**
-```
-NudgeEngine / ProactiveTriggerService / AnticipationProvider
-        │
-        ▼  produces AlertPayload { gravity: G1|G2|G3, topic, copy, ctas }
-        │
-        ▼  resolved through VoiceCursor.resolve(gravity, profile.relationPhase, profile.voiceCursorPreference)
-        │
-        ▼  rendered by MintAlertObject (S5)
-```
-
-**Why not a tool:** tools are LLM-callable side effects. Alerts are deterministic (rule-based, v2.0 design). Adding a `show_alert` tool would re-introduce LLM-in-the-loop where v2.0 explicitly chose rules.
-
-### E.2 v2.0 anticipation engine routing
-
-`AnticipationProvider` (verified LIVE in AUDIT_DEAD_CODE row 13) currently emits alerts that are consumed by `mint_home_screen.dart`. Today they render as ad-hoc cards.
-
-**Migration:** in L1.5, those rendering call sites switch to `MintAlertObject(payload: anticipation.next)`. The provider contract does not change. Anticipation tags each alert with `gravity` (new field — additive, default G1, backfilled by rule).
-
-### E.3 ContextualCard ranked feed and MTC
-
-`ContextualCardProvider` (LIVE row 14) ranks home cards. **MTC applies to the cards that render confidence**, not to the ranking. Ranking interacts with G1/G2/G3 only insofar as the new `Card.gravity` field becomes a ranking tiebreaker (G3 cards float to top of ranked feed). This is a 1-line change in `card_ranking_service.dart` (verify exact path in plan).
-
-**Anti-pattern to avoid:** letting G1/G2/G3 become a hard sort key. Ranking already balances freshness, relevance, and dismissals; gravity is a tiebreaker, not a primary key.
-
-### E.4 Backend `enhanced_confidence_service.py`
-
-Backend mirror exists (`services/backend/app/services/confidence/enhanced_confidence_service.py`). MTC is a Flutter rendering layer; backend confidence scoring stays untouched. **No backend change for L1.2a/b.**
-
----
-
-## F — Pitfalls flagged here (also in PITFALLS.md)
-
-1. **Codegen drift** — if anyone hand-edits the generated `voice_cursor_contract.g.dart` or `regional_microcopy.py`, the contract diverges silently. Mitigation: file header `// GENERATED — DO NOT EDIT — run tools/codegen/voice_cursor_codegen.py` + CI guard.
-2. **Dual-system MTC** — if even ONE of the 11 rendering surfaces is missed in L1.2b, the legacy `confidence_score_card` shape ships alongside MTC. Mitigation: write a `tools/checks/no_legacy_confidence_render.py` grep that fails CI on any `confidenceScore.toStringAsFixed(0)` outside `mint_trame_confiance.dart`.
-3. **Regional microcopy translated by mistake** — a future translator sees `app_regional_vs.arb` and runs it through DeepL into PT. Mitigation: ARB header comment `// LOCALE-LOCKED: fr-CH only` + lint script that fails build if `app_regional_*.arb` exists in any non-base locale.
-4. **Provider leak via try/catch fallback (P0.5)** — `mint_home_screen.dart:124,638` and friends currently swallow `ProviderNotFoundException`. Wiring the providers is necessary but not sufficient — also remove the try/catch silent fallbacks, or you keep shipping the façade.
-5. **Bloom animation on accessibility-disabled devices** — must respect `MediaQuery.disableAnimations` AND TalkBack/VoiceOver state. Forgetting this fails AAA on S4.
-6. **`claude_coach_service.py` REGIONAL_MAP not deleted** — if codegen ships but the legacy constant stays, drift starts on day 1. Mitigation: L1.4 MR is rejected unless `git grep 'REGIONAL_MAP\s*=' services/backend/` returns 0.
+| Component | Responsibility | Communicates With | Phase |
+|-----------|---------------|-------------------|-------|
+| `config.py` | Environment validation, fail-fast guards | App startup | 1 |
+| `main.py` lifespan | DB check, RAG auto-ingest | ChromaDB, education corpus | 1 |
+| `coach_chat.py` _run_agent_loop | LLM orchestration with timeout | Anthropic API, RAG | 1 |
+| `Dockerfile` | Build context, education corpus inclusion | Railway deploy | 1 |
+| `document_service.dart` (3 methods) | Document scan/extract/insight HTTP calls | Backend `/documents/*` | 2 |
+| `coach_memory_service.dart` (2 methods) | Insight sync HTTP calls | Backend `/coach/*` | 2 |
+| `coach_chat_api_service.dart` | JSON deserialization of coach response | Backend `/coach/chat` | 2 |
+| `api_service.dart` | URL candidate list | Railway endpoints | 2 |
+| `app.dart` GoRouter | Route resolution, shell structure | All screens | 3 |
+| `MintShell` (new) | Persistent bottom nav + drawer scaffold | GoRouter, ProfileDrawer | 3 |
+| `safePop()` | Back navigation fallback | GoRouter | 3 |
+| `ExplorerScreen` (new) | Hub linking to tool screens | GoRouter | 3 |
 
 ---
 
 ## Sources
 
-- Brief: `visions/MINT_DESIGN_BRIEF_v0.2.3.md`
-- Project state: `.planning/PROJECT.md`
-- Façade audit: `.planning/milestones/v2.1-phases/07-stabilisation-v2-0/AUDIT_DEAD_CODE.md`
-- Verified files (grep): `apps/mobile/lib/services/voice/regional_voice_service.dart`, `apps/mobile/lib/services/coach/context_injector_service.dart`, `services/backend/app/services/coach/claude_coach_service.py`, `services/backend/app/schemas/profile.py`, `apps/mobile/lib/l10n/`, all 18 confidence consumers listed in §B.1
-- CLAUDE.md §2 architecture, §6 compliance, §7 i18n
+- **Evidence from codebase**: All findings verified by direct file inspection (2026-04-12 audit)
+- **Railway deployment**: `services/backend/railway.json` — gunicorn 120s timeout, Dockerfile builder
+- **GoRouter StatefulShellRoute**: go_router package documentation (verified pattern for additive shell wrapping)
+- **ChromaDB persistence**: ChromaDB docs — `persist_directory` must exist and be writable
+- **Pydantic v2 aliases**: Backend uses `alias_generator = to_camel` confirmed in CLAUDE.md and code patterns
