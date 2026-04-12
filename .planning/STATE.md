@@ -4,7 +4,7 @@ milestone: v2.4
 milestone_name: milestone
 status: verifying
 stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-04-12T09:21:05.732Z"
+last_updated: "2026-04-12T09:44:33.927Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 4
@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 9 (Les tuyaux) — EXECUTING
-Plan: 2 of 2
+Phase: 10
+Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
@@ -36,7 +36,7 @@ Progress: [░░░░░░░░░░] 0%
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 2
 - Average duration: —
 - Total execution time: 0 hours
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | 12 — La preuve | 0/TBD | — | — |
 | Phase 09-les-tuyaux P01 | 4min | 2 tasks | 6 files |
 | Phase 09-les-tuyaux P02 | 2min | 1 tasks | 2 files |
+| 09 | 2 | - | - |
 
 ## Accumulated Context
 
