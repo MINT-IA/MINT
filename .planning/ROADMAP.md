@@ -86,10 +86,11 @@ Plans:
   2. In a subsequent conversation, coach references stored provenance ("le 3a que ton banquier t'a propose chez UBS...") without the user having to repeat it
   3. When user mentions money with relational meaning ("l'argent de mamie"), coach stores an earmark tag and never aggregates that money into generic "patrimoine total"
   4. Financial analyses and projections respect earmark boundaries -- earmarked funds appear separately, not merged
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 15-01: TBD
+- [ ] 15-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext memory injection
+- [ ] 15-02-PLAN.md -- Integration tests, round-trip verification, full suite validation
 
 ### Phase 16: Couple Mode Dissymetrique
 **Goal**: One partner uses MINT alone and gets couple-aware projections using estimates of their partner's situation -- private, honest about uncertainty, and actionable via "5 questions to ask"
@@ -145,7 +146,7 @@ Each phase must pass device gate before the next begins.
 |-------|-----------|----------------|--------|-----------|
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
-| 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
+| 15. Coach Intelligence | v2.5 | 0/2 | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
