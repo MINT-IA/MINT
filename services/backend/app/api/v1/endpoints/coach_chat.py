@@ -81,6 +81,68 @@ _orchestrator = None
 _init_lock = asyncio.Lock()
 
 
+class _NoRagOrchestrator:
+    """Minimal orchestrator fallback when RAG backends are unavailable.
+
+    Provides the same .query() interface as RAGOrchestrator but skips
+    retrieval entirely. The coach still responds via LLM + system prompt +
+    fallback templates — just without vector search enrichment.
+    """
+
+    async def query(
+        self,
+        question: str,
+        api_key: str,
+        provider: str,
+        model: Optional[str] = None,
+        profile_context: Optional[dict] = None,
+        language: str = "fr",
+        n_results: int = 5,
+        tools: list | None = None,
+        system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None,
+    ) -> dict:
+        from app.services.rag.llm_client import LLMClient
+        from app.services.rag.guardrails import ComplianceGuardrails
+
+        llm_client = LLMClient(provider=provider, api_key=api_key, model=model)
+        guardrails = ComplianceGuardrails()
+
+        if not system_prompt:
+            system_prompt = guardrails.build_system_prompt(
+                language, profile_context=profile_context
+            )
+
+        raw_response = await llm_client.generate(
+            system_prompt=system_prompt,
+            user_message=question,
+            context_chunks=[],  # No RAG context
+            tools=tools,
+        )
+
+        tool_calls = None
+        actual_usage_tokens = None
+        if isinstance(raw_response, dict):
+            response_text = raw_response.get("text", "")
+            tool_calls = raw_response.get("tool_calls")
+            actual_usage_tokens = raw_response.get("usage_tokens")
+        else:
+            response_text = raw_response
+
+        filtered = guardrails.filter_response(response_text, language)
+        tokens_used = actual_usage_tokens if actual_usage_tokens is not None else len(question) // 4
+
+        result = {
+            "answer": filtered["text"],
+            "sources": [],
+            "disclaimers": filtered["disclaimers_added"],
+            "tokens_used": tokens_used,
+        }
+        if tool_calls:
+            result["tool_calls"] = tool_calls
+        return result
+
+
 # ---------------------------------------------------------------------------
 # Lazy RAG initialization — thread-safe with asyncio.Lock
 # ---------------------------------------------------------------------------
@@ -111,11 +173,12 @@ def _get_vector_store():
         )
         persist_dir = os.path.join(backend_dir, "data", "chromadb")
         _vector_store = MintVectorStore(persist_directory=persist_dir)
-    except ImportError:
-        raise HTTPException(
-            status_code=503,
-            detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
-        )
+    except Exception as exc:
+        # FIX (2026-04-12): Catch ALL exceptions (ImportError, PermissionError,
+        # FileNotFoundError, chromadb init errors) instead of just ImportError.
+        # RAG is optional — coach chat must work without it via fallback templates.
+        logger.warning("MintVectorStore init failed (RAG degraded): %s", exc)
+        return None
     return _vector_store
 
 
@@ -139,8 +202,12 @@ def _get_hybrid_search():
         from app.services.rag.hybrid_search_service import HybridSearchService
         _hybrid_search = HybridSearchService(db_url=db_url)
         return _hybrid_search
-    except ImportError:
-        logger.info("HybridSearchService not available -- using ChromaDB only")
+    except Exception as exc:
+        # FIX (2026-04-12): Catch ALL exceptions (ImportError,
+        # psycopg2.errors.UndefinedTable, sqlalchemy.exc.ProgrammingError, etc.)
+        # instead of just ImportError. The document_embeddings table may not
+        # exist if pgvector migration 003 was never run (gated on P3-A).
+        logger.warning("HybridSearchService not available (RAG degraded): %s", exc)
         return None
 
 
@@ -157,20 +224,32 @@ async def _get_orchestrator():
         if _orchestrator is not None:
             return _orchestrator
         try:
-            from app.services.rag.orchestrator import RAGOrchestrator
-
             vs = _get_vector_store()
             hybrid = _get_hybrid_search()
+
+            if vs is None and hybrid is None:
+                # FIX (2026-04-12): No RAG backend available at all.
+                # Coach will use fallback templates only — no vector search.
+                logger.warning(
+                    "No RAG backend available — coach will use fallback templates only"
+                )
+                _orchestrator = _NoRagOrchestrator()
+                return _orchestrator
+
+            from app.services.rag.orchestrator import RAGOrchestrator
+
             _orchestrator = RAGOrchestrator(vector_store=vs, hybrid_search=hybrid)
             if hybrid:
                 logger.info("RAG orchestrator initialized with pgvector (hybrid search)")
             else:
                 logger.info("RAG orchestrator initialized with ChromaDB only (dev/CI)")
-        except ImportError:
-            raise HTTPException(
-                status_code=503,
-                detail="RAG dependencies not installed. Install with: pip install -e '.[rag]'",
+        except Exception as exc:
+            # FIX (2026-04-12): Catch ALL exceptions instead of just ImportError.
+            # RAG is optional — never 503 the entire chat because of RAG init failure.
+            logger.warning(
+                "RAG orchestrator init failed (coach will use fallback templates): %s", exc
             )
+            _orchestrator = _NoRagOrchestrator()
     return _orchestrator
 
 
@@ -1172,11 +1251,11 @@ async def coach_chat(
     # ------------------------------------------------------------------
     try:
         orchestrator = await _get_orchestrator()
-    except HTTPException:
-        raise
     except Exception as exc:
-        logger.error("RAG orchestrator initialization failed: %s", exc)
-        raise HTTPException(status_code=503, detail="RAG service unavailable")
+        # FIX (2026-04-12): Never 503 the chat due to RAG init failure.
+        # Fall back to NO_RAG mode — coach responds without vector search.
+        logger.warning("RAG orchestrator init failed, using fallback: %s", exc)
+        orchestrator = _NoRagOrchestrator()
 
     # ------------------------------------------------------------------
     # Step 4: Agent loop — tool_use -> execute -> re-call LLM
