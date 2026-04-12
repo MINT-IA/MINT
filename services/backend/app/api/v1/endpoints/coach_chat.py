@@ -1423,3 +1423,27 @@ async def sync_insight(
         embedded=success,
         message="Insight embedded in RAG" if success else "Embedding skipped (no vector store)",
     )
+
+
+@router.delete("/sync-insight/{insight_id}")
+@limiter.limit("30/minute")
+async def delete_insight(
+    insight_id: str,
+    request: Request,
+    current_user=Depends(require_current_user),
+):
+    """Remove a CoachInsight embedding from the RAG vector store.
+
+    Called when the mobile app prunes an insight locally (TTL or manual delete).
+    The corresponding embedding is removed from the vector store to prevent
+    stale data polluting RAG retrieval.
+
+    Privacy: Only the insight_id is needed — no PII transmitted.
+    """
+    from app.services.rag.insight_embedder import remove_insight
+
+    success = await remove_insight(insight_id)
+    return {
+        "removed": success,
+        "message": "Insight removed from RAG" if success else "Removal skipped (not found or no vector store)",
+    }
