@@ -79,6 +79,9 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "save_provenance",
     "save_earmark",
     "remove_earmark",
+    # P16 couple mode: ack-only (Flutter persists locally per COUP-04)
+    "save_partner_estimate",
+    "update_partner_estimate",
 ]
 
 # ---------------------------------------------------------------------------
@@ -902,6 +905,86 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["label"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_partner_estimate — WRITE/INTERNAL (ack-only): partner data stays on device
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_partner_estimate",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Store an estimate about the user's partner. "
+            "Backend acknowledges only — actual data persisted by Flutter locally. "
+            "Fields: estimated_salary (annual CHF), estimated_age (int), "
+            "estimated_lpp (CHF), estimated_3a (CHF), estimated_canton (2-letter)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "estimated_salary": {
+                    "type": "number",
+                    "description": "Partner's estimated annual gross salary in CHF",
+                },
+                "estimated_age": {
+                    "type": "integer",
+                    "description": "Partner's estimated age",
+                },
+                "estimated_lpp": {
+                    "type": "number",
+                    "description": "Partner's estimated LPP assets in CHF",
+                },
+                "estimated_3a": {
+                    "type": "number",
+                    "description": "Partner's estimated 3a capital in CHF",
+                },
+                "estimated_canton": {
+                    "type": "string",
+                    "description": "Partner's canton of residence (2-letter, e.g. VS, ZH)",
+                },
+            },
+            "required": [],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # update_partner_estimate — WRITE/INTERNAL (ack-only): update partner estimate
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "update_partner_estimate",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Update a previously stored partner estimate field. "
+            "Backend acknowledges only — actual data persisted by Flutter locally. "
+            "Fields: estimated_salary (annual CHF), estimated_age (int), "
+            "estimated_lpp (CHF), estimated_3a (CHF), estimated_canton (2-letter)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "estimated_salary": {
+                    "type": "number",
+                    "description": "Partner's estimated annual gross salary in CHF",
+                },
+                "estimated_age": {
+                    "type": "integer",
+                    "description": "Partner's estimated age",
+                },
+                "estimated_lpp": {
+                    "type": "number",
+                    "description": "Partner's estimated LPP assets in CHF",
+                },
+                "estimated_3a": {
+                    "type": "number",
+                    "description": "Partner's estimated 3a capital in CHF",
+                },
+                "estimated_canton": {
+                    "type": "string",
+                    "description": "Partner's canton of residence (2-letter, e.g. VS, ZH)",
+                },
+            },
+            "required": [],
         },
     },
     # ─────────────────────────────────────────────────────────────────
