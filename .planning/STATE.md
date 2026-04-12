@@ -1,34 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.4
-milestone_name: milestone
-status: verifying
-stopped_at: Completed quick-260412-kue
-last_updated: "2026-04-12T13:14:04.417Z"
+milestone: v2.5
+milestone_name: Transformation
+status: defining-requirements
+stopped_at: null
+last_updated: "2026-04-12T14:00:00.000Z"
 last_activity: 2026-04-12
 progress:
-  total_phases: 5
-  completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT v2.4 — Fondation
+# GSD State: MINT v2.5 — Transformation
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-04-12)
 
-**Core value:** Un humain externe peut ouvrir MINT, naviguer, uploader, recevoir un premier eclairage, parler au coach — zero crash, zero 404, zero boucle.
-**Current focus:** Phase 11 — La navigation
+**Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
+**Current focus:** Defining requirements
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-12
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-12 — Milestone v2.5 started
 
 Progress: [░░░░░░░░░░] 0%
 
