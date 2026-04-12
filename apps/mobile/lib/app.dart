@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/router/route_scope.dart';
 import 'package:mint_mobile/router/scoped_go_route.dart';
+import 'package:mint_mobile/widgets/mint_shell.dart';
 import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
@@ -135,6 +136,9 @@ import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 // Hub screen FILES preserved for Phase 3 chat-summoned drawers.
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
+final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
+final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellExplorer');
 
 // ════════════════════════════════════════════════════════════
 //  ROUTER — S49 Phase 2: Simplified navigation
@@ -225,15 +229,53 @@ final _router = GoRouter(
       ),
     ),
 
-    // ── KILL-07: Shell collapsed. /home + Explorer hubs redirect to /coach/chat ──
-    ScopedGoRoute(path: '/home', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/retraite', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/famille', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/travail', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/logement', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/fiscalite', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/patrimoine', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(path: '/explore/sante', redirect: (_, __) => '/coach/chat'),
+    // ── SHELL: 3-tab persistent navigation ──────────────────
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) => MintShell(
+        navigationShell: navigationShell,
+      ),
+      branches: [
+        // Tab 0: Aujourd'hui
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorKeyHome,
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => const LandingScreen(),
+            ),
+          ],
+        ),
+        // Tab 1: Coach
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorKeyCoach,
+          routes: [
+            ScopedGoRoute(
+              path: '/coach/chat',
+              scope: RouteScope.public,
+              builder: (context, state) {
+                final prompt = state.uri.queryParameters['prompt'];
+                final conversationId = state.uri.queryParameters['conversationId'];
+                return CoachChatScreen(
+                  initialPrompt: prompt,
+                  conversationId: conversationId,
+                  isEmbeddedInTab: true,
+                );
+              },
+            ),
+          ],
+        ),
+        // Tab 2: Explorer
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorKeyExplorer,
+          routes: [
+            GoRoute(
+              path: '/explore',
+              builder: (context, state) => const _ExplorerPlaceholder(),
+            ),
+          ],
+        ),
+      ],
+    ),
 
     // ── RETRAITE & PREVOYANCE ────────────────────────────────
     ScopedGoRoute(
@@ -289,20 +331,7 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AnnualRefreshScreen(),
     ),
-    // KILL-05: chat accessible without account (was authenticated, now public)
-    ScopedGoRoute(
-      path: '/coach/chat',
-      scope: RouteScope.public,
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final prompt = state.uri.queryParameters['prompt'];
-        final conversationId = state.uri.queryParameters['conversationId'];
-        return CoachChatScreen(
-          initialPrompt: prompt,
-          conversationId: conversationId,
-        );
-      },
-    ),
+    // KILL-05: /coach/chat moved into StatefulShellRoute (Tab 1: Coach)
     ScopedGoRoute(
       path: '/coach/history',
       parentNavigatorKey: _rootNavigatorKey,
@@ -389,6 +418,7 @@ final _router = GoRouter(
     // ── BUDGET & DETTE ───────────────────────────────────────
     ScopedGoRoute(
       path: '/budget',
+      parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BudgetContainerScreen(),
     ),
     ScopedGoRoute(
@@ -634,13 +664,13 @@ final _router = GoRouter(
     ScopedGoRoute(path: '/report', redirect: (_, __) => '/rapport'),
     ScopedGoRoute(path: '/report/v2', redirect: (_, __) => '/rapport'),
 
-    // KILL-04: ProfileScreen deleted (Phase 2). /profile redirects to /coach/chat.
+    // KILL-04: ProfileScreen deleted (Phase 2). /profile redirects to /profile/bilan.
     // Sub-routes (byok, slm, bilan, privacy-control, admin) preserved.
     ScopedGoRoute(
       path: '/profile',
       redirect: (_, state) {
         // Only redirect if exact /profile match; sub-routes pass through
-        if (state.uri.path == '/profile') return '/coach/chat';
+        if (state.uri.path == '/profile') return '/profile/bilan';
         return null;
       },
       routes: [
@@ -1263,6 +1293,28 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
                   ],
                 ),
         ),
+      ),
+    );
+  }
+}
+
+class _ExplorerPlaceholder extends StatelessWidget {
+  const _ExplorerPlaceholder();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Explorer'),
+        backgroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            onPressed: () => MintShell.openDrawer(context),
+          ),
+        ],
+      ),
+      body: const Center(
+        child: Text('Explorer hubs coming in Plan 02'),
       ),
     );
   }
