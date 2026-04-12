@@ -34,7 +34,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 - Decimal phases (13.1, 14.1): Urgent insertions if needed
 
 - [x] **Phase 13: Anonymous Hook & Auth Bridge** - Anonymous user gets value in 20 seconds, converts without losing conversation (completed 2026-04-12)
-- [ ] **Phase 14: Commitment Devices** - Implementation intentions, fresh-start anchors, pre-mortem -- behavioral moat no competitor has
+- [x] **Phase 14: Commitment Devices** - Implementation intentions, fresh-start anchors, pre-mortem -- behavioral moat no competitor has (completed 2026-04-12)
 - [ ] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware
 - [ ] **Phase 16: Couple Mode Dissymetrique** - One partner enters estimates, gets 5 questions to ask, couple projections with honest confidence
 - [ ] **Phase 17: Living Timeline -- 3 Tensions** - Aujourd'hui shows 3 tension cards (past/present/future) as living placeholder
@@ -75,7 +75,7 @@ Plans:
 Plans:
 - [x] 14-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext injection
 - [x] 14-02-PLAN.md -- Frontend: CommitmentCard widget, persistence endpoint, notification scheduling
-- [ ] 14-03-PLAN.md -- Fresh-start anchors: landmark detection, personalized messages, proactive notifications
+- [x] 14-03-PLAN.md -- Fresh-start anchors: landmark detection, personalized messages, proactive notifications
 
 ### Phase 15: Coach Intelligence
 **Goal**: Coach becomes relationally aware -- tracks who recommended what financial product and respects that users mentally separate their monies, without ever asking form-style questions
@@ -144,7 +144,7 @@ Each phase must pass device gate before the next begins.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
-| 14. Commitment Devices | v2.5 | 2/3 | In Progress|  |
+| 14. Commitment Devices | v2.5 | 3/3 | Complete   | 2026-04-12 |
 | 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |

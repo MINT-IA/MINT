@@ -20,8 +20,8 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 - [x] **CMIT-01**: Each Layer 4 insight includes an implementation intention (WHEN/WHERE/IF-THEN) that user can accept or edit
 - [x] **CMIT-02**: Accepted implementation intentions are persisted and surfaced as reminders via notification scheduler
-- [ ] **CMIT-03**: Fresh-start anchor detector identifies landmark dates (birthday, month-1, year-start, 1-year anniversary) from user profile
-- [ ] **CMIT-04**: Fresh-start anchors trigger ONE proactive MINT message at each landmark date
+- [x] **CMIT-03**: Fresh-start anchor detector identifies landmark dates (birthday, month-1, year-start, 1-year anniversary) from user profile
+- [x] **CMIT-04**: Fresh-start anchors trigger ONE proactive MINT message at each landmark date
 - [x] **CMIT-05**: Pre-mortem prompt appears before irrevocable decisions (EPL, capital withdrawal, 3a closure) -- "Imagine qu'on est en 2027 et que cette decision s'est mal passee"
 - [x] **CMIT-06**: Pre-mortem free-text response is stored in dossier and referenced in future related conversations
 
@@ -94,8 +94,8 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | ANON-06 | Phase 13 | Complete |
 | CMIT-01 | Phase 14 | Complete |
 | CMIT-02 | Phase 14 | Complete |
-| CMIT-03 | Phase 14 | Pending |
-| CMIT-04 | Phase 14 | Pending |
+| CMIT-03 | Phase 14 | Complete |
+| CMIT-04 | Phase 14 | Complete |
 | CMIT-05 | Phase 14 | Complete |
 | CMIT-06 | Phase 14 | Complete |
 | INTL-01 | Phase 15 | Pending |
