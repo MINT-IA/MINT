@@ -89,7 +89,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 15-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext memory injection
+- [x] 15-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext memory injection
 - [ ] 15-02-PLAN.md -- Integration tests, round-trip verification, full suite validation
 
 ### Phase 16: Couple Mode Dissymetrique
@@ -146,7 +146,7 @@ Each phase must pass device gate before the next begins.
 |-------|-----------|----------------|--------|-----------|
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
-| 15. Coach Intelligence | v2.5 | 0/2 | Not started | - |
+| 15. Coach Intelligence | v2.5 | 1/2 | In Progress|  |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |

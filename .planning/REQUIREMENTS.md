@@ -27,10 +27,10 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Coach Intelligence
 
-- [ ] **INTL-01**: Coach asks provenance questions naturally in conversation ("au fait, ce 3a, c'est qui qui te l'a propose ?")
-- [ ] **INTL-02**: Provenance tags are stored in backend and injected into CoachContext for future conversations
-- [ ] **INTL-03**: Coach detects implicit earmarks in conversation ("ca c'est l'argent de mamie") and stores them via conversation_memory_service
-- [ ] **INTL-04**: Earmark tags are respected in all future financial analyses (never aggregate earmarked monies into "patrimoine total")
+- [x] **INTL-01**: Coach asks provenance questions naturally in conversation ("au fait, ce 3a, c'est qui qui te l'a propose ?")
+- [x] **INTL-02**: Provenance tags are stored in backend and injected into CoachContext for future conversations
+- [x] **INTL-03**: Coach detects implicit earmarks in conversation ("ca c'est l'argent de mamie") and stores them via conversation_memory_service
+- [x] **INTL-04**: Earmark tags are respected in all future financial analyses (never aggregate earmarked monies into "patrimoine total")
 
 ### Couple Mode Dissymetrique
 
@@ -98,10 +98,10 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | CMIT-04 | Phase 14 | Complete |
 | CMIT-05 | Phase 14 | Complete |
 | CMIT-06 | Phase 14 | Complete |
-| INTL-01 | Phase 15 | Pending |
-| INTL-02 | Phase 15 | Pending |
-| INTL-03 | Phase 15 | Pending |
-| INTL-04 | Phase 15 | Pending |
+| INTL-01 | Phase 15 | Complete |
+| INTL-02 | Phase 15 | Complete |
+| INTL-03 | Phase 15 | Complete |
+| INTL-04 | Phase 15 | Complete |
 | COUP-01 | Phase 16 | Pending |
 | COUP-02 | Phase 16 | Pending |
 | COUP-03 | Phase 16 | Pending |

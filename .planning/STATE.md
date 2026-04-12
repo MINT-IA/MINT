@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
-status: verifying
-stopped_at: Completed 14-03-PLAN.md
-last_updated: "2026-04-12T17:48:11.270Z"
+status: executing
+stopped_at: Completed 15-01-PLAN.md
+last_updated: "2026-04-12T18:09:47.764Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_plans: 9
+  completed_plans: 8
+  percent: 89
 ---
 
 # GSD State: MINT v2.5 — Transformation
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 14 — Commitment Devices
+**Current focus:** Phase 15 — Coach Intelligence
 
 ## Current Position
 
-Phase: 15
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 15 (Coach Intelligence) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 14-commitment-devices P02 | 11min | 2 tasks | 19 files |
 | Phase 14-commitment-devices P03 | 6min | 2 tasks | 17 files |
 | 14 | 3 | - | - |
+| Phase 15-coach-intelligence P01 | 10min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 14-commitment-devices]: Notification scheduling pulled into Task 1 to avoid compile error in widget_renderer
 - [Phase 14-commitment-devices]: Dual rate limiting for fresh-start: server-side primary, client SharedPreferences as UX backup
 - [Phase 14-commitment-devices]: Fresh-start notification IDs in 6000+ range, job anniversary uses July 1 midpoint
+- [Phase 15]: Immediate DB persistence for provenance/earmark tools (not ack-only) — data needed in next conversation
+- [Phase 15]: user_id and db threaded through _run_agent_loop to _execute_internal_tool for DB write access
 
 ### From Previous Milestones
 
@@ -100,8 +103,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T17:44:09.108Z
-Stopped at: Completed 14-03-PLAN.md
+Last session: 2026-04-12T18:09:47.761Z
+Stopped at: Completed 15-01-PLAN.md
 Resume file: None
 
 ---
