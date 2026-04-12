@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
-status: executing
-stopped_at: Completed 15-01-PLAN.md
-last_updated: "2026-04-12T18:09:47.764Z"
+status: verifying
+stopped_at: Completed 15-02-PLAN.md
+last_updated: "2026-04-12T18:16:35.293Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
-  percent: 89
+  completed_plans: 9
+  percent: 100
 ---
 
 # GSD State: MINT v2.5 — Transformation
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 Phase: 15 (Coach Intelligence) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 14-commitment-devices P03 | 6min | 2 tasks | 17 files |
 | 14 | 3 | - | - |
 | Phase 15-coach-intelligence P01 | 10min | 2 tasks | 7 files |
+| Phase 15-coach-intelligence P02 | 4min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 14-commitment-devices]: Fresh-start notification IDs in 6000+ range, job anniversary uses July 1 midpoint
 - [Phase 15]: Immediate DB persistence for provenance/earmark tools (not ack-only) — data needed in next conversation
 - [Phase 15]: user_id and db threaded through _run_agent_loop to _execute_internal_tool for DB write access
+- [Phase 15-coach-intelligence]: Used real SQLite in-memory DB (not mocks) for integration tests to prove actual ORM round-trip
 
 ### From Previous Milestones
 
@@ -103,8 +105,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T18:09:47.761Z
-Stopped at: Completed 15-01-PLAN.md
+Last session: 2026-04-12T18:16:35.291Z
+Stopped at: Completed 15-02-PLAN.md
 Resume file: None
 
 ---

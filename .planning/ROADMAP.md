@@ -35,7 +35,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 
 - [x] **Phase 13: Anonymous Hook & Auth Bridge** - Anonymous user gets value in 20 seconds, converts without losing conversation (completed 2026-04-12)
 - [x] **Phase 14: Commitment Devices** - Implementation intentions, fresh-start anchors, pre-mortem -- behavioral moat no competitor has (completed 2026-04-12)
-- [ ] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware
+- [x] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware (completed 2026-04-12)
 - [ ] **Phase 16: Couple Mode Dissymetrique** - One partner enters estimates, gets 5 questions to ask, couple projections with honest confidence
 - [ ] **Phase 17: Living Timeline -- 3 Tensions** - Aujourd'hui shows 3 tension cards (past/present/future) as living placeholder
 - [ ] **Phase 18: Living Timeline -- Full Timeline** - Single-screen center of gravity aggregating all previous phases into timeline nodes
@@ -90,7 +90,7 @@ Plans:
 
 Plans:
 - [x] 15-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext memory injection
-- [ ] 15-02-PLAN.md -- Integration tests, round-trip verification, full suite validation
+- [x] 15-02-PLAN.md -- Integration tests, round-trip verification, full suite validation
 
 ### Phase 16: Couple Mode Dissymetrique
 **Goal**: One partner uses MINT alone and gets couple-aware projections using estimates of their partner's situation -- private, honest about uncertainty, and actionable via "5 questions to ask"
@@ -146,7 +146,7 @@ Each phase must pass device gate before the next begins.
 |-------|-----------|----------------|--------|-----------|
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
-| 15. Coach Intelligence | v2.5 | 1/2 | In Progress|  |
+| 15. Coach Intelligence | v2.5 | 2/2 | Complete   | 2026-04-12 |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
