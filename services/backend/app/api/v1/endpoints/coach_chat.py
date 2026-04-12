@@ -514,12 +514,65 @@ def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session]
     return "\n\n".join(sections)
 
 
+def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+    """Build memory section with provenance records and earmark tags.
+
+    Returns formatted markdown for injection into system prompt.
+    Per INTL-02/INTL-04: coach references these naturally in conversation.
+    """
+    if not user_id or not db:
+        return ""
+
+    sections: list[str] = []
+
+    try:
+        from app.models.earmark import ProvenanceRecord, EarmarkTag
+
+        # Provenance records (all, most recent first, limit 10)
+        provenances = (
+            db.query(ProvenanceRecord)
+            .filter(ProvenanceRecord.user_id == user_id)
+            .order_by(ProvenanceRecord.created_at.desc())
+            .limit(10)
+            .all()
+        )
+        if provenances:
+            lines = ["PROVENANCE CONNUE:"]
+            for p in provenances:
+                inst_str = f" chez {p.institution}" if p.institution else ""
+                lines.append(f"- {p.product_type}: recommandé par {p.recommended_by}{inst_str}")
+            sections.append("\n".join(lines))
+
+        # Earmark tags (all active, limit 10)
+        earmarks = (
+            db.query(EarmarkTag)
+            .filter(EarmarkTag.user_id == user_id)
+            .order_by(EarmarkTag.created_at.desc())
+            .limit(10)
+            .all()
+        )
+        if earmarks:
+            lines = ["ARGENT MARQUÉ (ne JAMAIS agréger):"]
+            for e in earmarks:
+                amount_str = f" (~{e.amount_hint})" if e.amount_hint else ""
+                source_str = f" — {e.source_description}" if e.source_description else ""
+                lines.append(f"- « {e.label} »{amount_str}{source_str}")
+            sections.append("\n".join(lines))
+
+    except Exception as exc:
+        logger.warning("Could not build intelligence memory block: %s", exc)
+        return ""
+
+    return "\n\n".join(sections)
+
+
 def _build_system_prompt_with_memory(
     coach_ctx,
     memory_block: Optional[str],
     language: str = "fr",
     cash_level: int = 3,
     commitment_block: str = "",
+    intelligence_block: str = "",
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
@@ -532,6 +585,8 @@ def _build_system_prompt_with_memory(
         prompt = prompt + "\n\n" + sanitized
     if commitment_block:
         prompt = prompt + "\n\n" + commitment_block
+    if intelligence_block:
+        prompt = prompt + "\n\n" + intelligence_block
     return prompt
 
 
@@ -637,6 +692,8 @@ def _execute_internal_tool(
     tool_call: dict,
     memory_block: Optional[str],
     profile_context: Optional[dict] = None,
+    user_id: Optional[str] = None,
+    db: Optional[Session] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -745,6 +802,71 @@ def _execute_internal_tool(
         user_response = tool_input.get("user_response", "")
         logger.info("save_pre_mortem ack: type=%s", decision_type[:50])
         return f"Pré-mortem enregistré pour {decision_type}."
+
+    # P15 coach intelligence — provenance and earmark handlers (INTL-01, INTL-02, INTL-03, INTL-04)
+    if name == "save_provenance":
+        product_type = tool_input.get("product_type", "")
+        recommended_by = tool_input.get("recommended_by", "")
+        institution = tool_input.get("institution", "")
+        logger.info("save_provenance: product=%s, by=%s", product_type[:50], recommended_by[:50])
+        if user_id and db:
+            try:
+                from app.models.earmark import ProvenanceRecord
+                record = ProvenanceRecord(
+                    user_id=user_id,
+                    product_type=product_type,
+                    recommended_by=recommended_by,
+                    institution=institution or None,
+                )
+                db.add(record)
+                db.commit()
+            except Exception as exc:
+                logger.warning("Could not persist provenance: %s", exc)
+                db.rollback()
+        return f"Provenance notée : {product_type} recommandé par {recommended_by}."
+
+    if name == "save_earmark":
+        label = tool_input.get("label", "")
+        source_desc = tool_input.get("source_description", "")
+        amount_hint = tool_input.get("amount_hint", "")
+        logger.info("save_earmark: label=%s", label[:50])
+        if user_id and db:
+            try:
+                from app.models.earmark import EarmarkTag
+                tag = EarmarkTag(
+                    user_id=user_id,
+                    label=label,
+                    source_description=source_desc or None,
+                    amount_hint=amount_hint or None,
+                )
+                db.add(tag)
+                db.commit()
+            except Exception as exc:
+                logger.warning("Could not persist earmark: %s", exc)
+                db.rollback()
+        return f"Marquage enregistré : « {label} »."
+
+    if name == "remove_earmark":
+        label = tool_input.get("label", "")
+        logger.info("remove_earmark: label=%s", label[:50])
+        removed = False
+        if user_id and db:
+            try:
+                from app.models.earmark import EarmarkTag
+                tag = db.query(EarmarkTag).filter(
+                    EarmarkTag.user_id == user_id,
+                    EarmarkTag.label == label,
+                ).first()
+                if tag:
+                    db.delete(tag)
+                    db.commit()
+                    removed = True
+            except Exception as exc:
+                logger.warning("Could not remove earmark: %s", exc)
+                db.rollback()
+        if removed:
+            return f"Marquage « {label} » supprimé."
+        return f"Aucun marquage « {label} » trouvé."
 
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
@@ -1018,6 +1140,7 @@ async def _run_agent_loop(
     memory_block: Optional[str],
     system_prompt: Optional[str] = None,
     user_id: Optional[str] = None,
+    db: Optional[Session] = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -1160,7 +1283,7 @@ async def _run_agent_loop(
         # Execute internal tools and collect results
         tool_results: list = []
         for call in internal_calls:
-            result_text = _execute_internal_tool(call, memory_block, profile_context)
+            result_text = _execute_internal_tool(call, memory_block, profile_context, user_id=user_id, db=db)
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
                 result_text = result_text[:500] + "... [tronqué]"
@@ -1327,7 +1450,8 @@ async def coach_chat(
     # and pre-mortem entries so the LLM can reference them naturally.
     # ------------------------------------------------------------------
     commitment_block = _build_commitment_memory_block(str(_user.id), db)
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block)
+    intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
@@ -1371,6 +1495,7 @@ async def coach_chat(
                 memory_block=effective_memory_block,
                 system_prompt=system_prompt,
                 user_id=_user.id if _user else None,
+                db=db,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )
