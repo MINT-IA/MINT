@@ -37,7 +37,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 - [x] **Phase 14: Commitment Devices** - Implementation intentions, fresh-start anchors, pre-mortem -- behavioral moat no competitor has (completed 2026-04-12)
 - [x] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware (completed 2026-04-12)
 - [x] **Phase 16: Couple Mode Dissymetrique** - One partner enters estimates, gets 5 questions to ask, couple projections with honest confidence (completed 2026-04-12)
-- [ ] **Phase 17: Living Timeline -- 3 Tensions** - Aujourd'hui shows 3 tension cards (past/present/future) as living placeholder
+- [x] **Phase 17: Living Timeline -- 3 Tensions** - Aujourd'hui shows 3 tension cards (past/present/future) as living placeholder (completed 2026-04-12)
 - [ ] **Phase 18: Living Timeline -- Full Timeline** - Single-screen center of gravity aggregating all previous phases into timeline nodes
 
 ## Phase Details
@@ -118,7 +118,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 17-01-PLAN.md -- TensionCardProvider, 3 tension card widgets, CleoLoopIndicator, AujourdhuiScreen, router wiring, i18n
+- [x] 17-01-PLAN.md -- TensionCardProvider, 3 tension card widgets, CleoLoopIndicator, AujourdhuiScreen, router wiring, i18n
 
 ### Phase 18: Living Timeline -- Full Timeline
 **Goal**: Aujourd'hui becomes a single-screen center of gravity -- a living timeline with tappable nodes that aggregates documents, conversations, commitments, couple data, and projections into one coherent view
@@ -148,7 +148,7 @@ Each phase must pass device gate before the next begins.
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 16. Couple Mode Dissymetrique | v2.5 | 2/2 | Complete    | 2026-04-12 |
-| 17. Living Timeline -- 3 Tensions | v2.5 | 0/1 | Not started | - |
+| 17. Living Timeline -- 3 Tensions | v2.5 | 1/1 | Complete   | 2026-04-12 |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
 
 ---

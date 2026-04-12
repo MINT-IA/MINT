@@ -43,12 +43,12 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 - [x] **LOOP-01**: After each coach insight, MINT suggests the next step in the loop (plan, action, or document) — never a dead end
 - [x] **LOOP-02**: After each user action (document upload, commitment accepted, pre-mortem completed), coach acknowledges and updates the memory visibly ("J'ai note, je m'en souviendrai")
-- [ ] **LOOP-03**: The Insight→Plan→Conversation→Action→Memory cycle is visible in the UX — user can see where they are in the loop (coach state indicator or contextual next-step chips)
+- [x] **LOOP-03**: The Insight→Plan→Conversation→Action→Memory cycle is visible in the UX — user can see where they are in the loop (coach state indicator or contextual next-step chips)
 
 ### Living Timeline (3 tensions card -> full timeline)
 
-- [ ] **TIME-01**: Aujourd'hui screen shows 3 tension cards (past earned, present pulsing, future ghosted) as living placeholder
-- [ ] **TIME-02**: Tension cards update dynamically based on user interactions, documents uploaded, and coach conversations
+- [x] **TIME-01**: Aujourd'hui screen shows 3 tension cards (past earned, present pulsing, future ghosted) as living placeholder
+- [x] **TIME-02**: Tension cards update dynamically based on user interactions, documents uploaded, and coach conversations
 - [ ] **TIME-03**: Full living timeline replaces Aujourd'hui tab -- single-screen center of gravity with nodes (tap to reveal)
 - [ ] **TIME-04**: Documents, chat history, commitment intentions, couple data feed into timeline nodes
 - [ ] **TIME-05**: Timeline shows earned achievements (past), active tensions (present, pulsing), and projected scenarios (future, ghosted)
@@ -106,14 +106,14 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | COUP-02 | Phase 16 | Complete |
 | COUP-03 | Phase 16 | Complete |
 | COUP-04 | Phase 16 | Complete |
-| TIME-01 | Phase 17 | Pending |
-| TIME-02 | Phase 17 | Pending |
+| TIME-01 | Phase 17 | Complete |
+| TIME-02 | Phase 17 | Complete |
 | TIME-03 | Phase 18 | Pending |
 | TIME-04 | Phase 18 | Pending |
 | TIME-05 | Phase 18 | Pending |
 | LOOP-01 | Phase 13, 14, 15 | Complete |
 | LOOP-02 | Phase 14, 15 | Complete |
-| LOOP-03 | Phase 17, 18 | Pending |
+| LOOP-03 | Phase 17, 18 | Complete |
 
 **Coverage:**
 - v2.5 requirements: 28 total

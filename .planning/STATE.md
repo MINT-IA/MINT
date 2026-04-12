@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
 status: verifying
-stopped_at: Completed 16-02-PLAN.md
-last_updated: "2026-04-12T18:48:40.782Z"
+stopped_at: Completed 17-01-PLAN.md
+last_updated: "2026-04-12T19:04:56.434Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 11
-  completed_plans: 11
+  completed_phases: 5
+  total_plans: 12
+  completed_plans: 12
   percent: 100
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 16 — Couple Mode Dissymetrique
+**Current focus:** Phase 17 — Living Timeline 3 Tensions
 
 ## Current Position
 
-Phase: 17
-Plan: Not started
+Phase: 17 (Living Timeline 3 Tensions) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
@@ -62,6 +62,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 16-couple-mode-dissymetrique P01 | 4min | 2 tasks | 4 files |
 | Phase 16 P02 | 7min | 2 tasks | 7 files |
 | 16 | 2 | - | - |
+| Phase 17 P01 | 6min | 2 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -91,6 +92,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 16]: System prompt asks one question at a time in priority order (salary > age > LPP > 3a > canton)
 - [Phase 16]: Partner aggregate injected in coach_chat_api_service.chat() — single injection point covers all paths
 - [Phase 16]: degradeForPartnerEstimate as static method on ConfidenceScorer — minimal surface, callers opt-in
+- [Phase 17]: Auth-aware GoRoute builder using context.watch<AuthProvider>() for reactive routing
+- [Phase 17]: Tension card i18n keys stored as string IDs in model, resolved at widget level via S.of(context)
 
 ### From Previous Milestones
 
@@ -113,8 +116,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T18:45:27.202Z
-Stopped at: Completed 16-02-PLAN.md
+Last session: 2026-04-12T19:04:56.431Z
+Stopped at: Completed 17-01-PLAN.md
 Resume file: None
 
 ---
