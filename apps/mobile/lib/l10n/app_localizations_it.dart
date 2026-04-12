@@ -22360,4 +22360,34 @@ class SIt extends S {
 
   @override
   String get tonSectionLabel => 'Voce';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'I soldi, in Svizzera, sono il tema di cui nessuno parla.';
+
+  @override
+  String get anonymousIntentLine2 => 'Nemmeno con sé stessi.';
+
+  @override
+  String get anonymousIntentPill1 =>
+      'Pago, firmo, ma non capisco proprio tutto';
+
+  @override
+  String get anonymousIntentPill2 => 'Evito di pensarci';
+
+  @override
+  String get anonymousIntentPill3 => 'Ho paura di fare un errore costoso';
+
+  @override
+  String get anonymousIntentPill4 => 'So che dovrei occuparmene';
+
+  @override
+  String get anonymousIntentPill5 =>
+      'Qualcosa è cambiato e non so da dove cominciare';
+
+  @override
+  String get anonymousIntentPill6 => 'Voglio solo vederci chiaro';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Oppure dillo come vuoi tu…';
 }

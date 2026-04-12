@@ -22351,4 +22351,35 @@ class SDe extends S {
 
   @override
   String get tonSectionLabel => 'Stimme';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'Geld. In der Schweiz redet niemand darüber.';
+
+  @override
+  String get anonymousIntentLine2 => 'Nicht mal mit sich selbst.';
+
+  @override
+  String get anonymousIntentPill1 =>
+      'Ich zahle, ich unterschreibe, aber ich verstehe nicht alles';
+
+  @override
+  String get anonymousIntentPill2 => 'Ich vermeide es, daran zu denken';
+
+  @override
+  String get anonymousIntentPill3 =>
+      'Ich habe Angst, einen teuren Fehler zu machen';
+
+  @override
+  String get anonymousIntentPill4 => 'Ich weiss, ich sollte mich darum kümmern';
+
+  @override
+  String get anonymousIntentPill5 =>
+      'Etwas hat sich geändert und ich weiss nicht, wo anfangen';
+
+  @override
+  String get anonymousIntentPill6 => 'Ich will einfach Klarheit';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Oder sag es so, wie du willst…';
 }

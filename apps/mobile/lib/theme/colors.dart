@@ -56,6 +56,8 @@ class MintColors {
   static const Color pecheDouce = Color(0xFFF5C8AE);
   /// Discreet coral — attention accent, warm emphasis.
   static const Color corailDiscret = Color(0xFFE6855E);
+  /// Warm white — anonymous intent screen background.
+  static const Color warmWhite = Color(0xFFFAF8F5);
 
   // Trajectory colors (MINT Coach)
   // WCAG AA contrast fix: old #1A8A3A (4.43:1) → #157B35 (5.36:1 on white)

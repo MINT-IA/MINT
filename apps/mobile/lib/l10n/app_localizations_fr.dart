@@ -22300,4 +22300,34 @@ class SFr extends S {
 
   @override
   String get tonSectionLabel => 'Voix';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'L\'argent, en Suisse, c\'est le sujet dont personne ne parle.';
+
+  @override
+  String get anonymousIntentLine2 => 'Même pas à soi-même.';
+
+  @override
+  String get anonymousIntentPill1 =>
+      'Je paye, je signe, mais je comprends pas tout';
+
+  @override
+  String get anonymousIntentPill2 => 'J\'évite d\'y penser';
+
+  @override
+  String get anonymousIntentPill3 => 'J\'ai peur de faire une connerie';
+
+  @override
+  String get anonymousIntentPill4 => 'Je sais que je devrais m\'en occuper';
+
+  @override
+  String get anonymousIntentPill5 =>
+      'Un truc a changé et je sais pas par où commencer';
+
+  @override
+  String get anonymousIntentPill6 => 'Je veux juste y voir clair';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Ou dis-le comme tu veux…';
 }

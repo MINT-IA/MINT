@@ -39122,6 +39122,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Voix'**
   String get tonSectionLabel;
+
+  /// Anonymous intent screen — opening line about money taboo in Switzerland.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'argent, en Suisse, c\'est le sujet dont personne ne parle.'**
+  String get anonymousIntentLine1;
+
+  /// Anonymous intent screen — follow-up line.
+  ///
+  /// In fr, this message translates to:
+  /// **'Même pas à soi-même.'**
+  String get anonymousIntentLine2;
+
+  /// Anonymous intent — felt-state pill 1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je paye, je signe, mais je comprends pas tout'**
+  String get anonymousIntentPill1;
+
+  /// Anonymous intent — felt-state pill 2.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'évite d\'y penser'**
+  String get anonymousIntentPill2;
+
+  /// Anonymous intent — felt-state pill 3.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai peur de faire une connerie'**
+  String get anonymousIntentPill3;
+
+  /// Anonymous intent — felt-state pill 4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je sais que je devrais m\'en occuper'**
+  String get anonymousIntentPill4;
+
+  /// Anonymous intent — felt-state pill 5.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un truc a changé et je sais pas par où commencer'**
+  String get anonymousIntentPill5;
+
+  /// Anonymous intent — felt-state pill 6.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je veux juste y voir clair'**
+  String get anonymousIntentPill6;
+
+  /// Anonymous intent — free text input hint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ou dis-le comme tu veux…'**
+  String get anonymousIntentFreeTextHint;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

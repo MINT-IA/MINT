@@ -22188,4 +22188,34 @@ class SEn extends S {
 
   @override
   String get tonSectionLabel => 'Voice';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'Money in Switzerland. The thing nobody talks about.';
+
+  @override
+  String get anonymousIntentLine2 => 'Not even to themselves.';
+
+  @override
+  String get anonymousIntentPill1 =>
+      'I pay, I sign, but I don\'t really get all of it';
+
+  @override
+  String get anonymousIntentPill2 => 'I just avoid thinking about it';
+
+  @override
+  String get anonymousIntentPill3 => 'I\'m scared of making a costly mistake';
+
+  @override
+  String get anonymousIntentPill4 => 'I know I should be on top of this';
+
+  @override
+  String get anonymousIntentPill5 =>
+      'Something changed and I have no idea where to start';
+
+  @override
+  String get anonymousIntentPill6 => 'I just want to see clearly';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Or say it in your own words…';
 }

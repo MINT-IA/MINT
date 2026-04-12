@@ -22302,4 +22302,32 @@ class SEs extends S {
 
   @override
   String get tonSectionLabel => 'Voz';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'El dinero, en Suiza, es el tema del que nadie habla.';
+
+  @override
+  String get anonymousIntentLine2 => 'Ni siquiera con uno mismo.';
+
+  @override
+  String get anonymousIntentPill1 => 'Pago, firmo, pero no entiendo todo';
+
+  @override
+  String get anonymousIntentPill2 => 'Evito pensar en ello';
+
+  @override
+  String get anonymousIntentPill3 => 'Tengo miedo de cometer un error costoso';
+
+  @override
+  String get anonymousIntentPill4 => 'Sé que debería ocuparme de esto';
+
+  @override
+  String get anonymousIntentPill5 => 'Algo cambió y no sé por dónde empezar';
+
+  @override
+  String get anonymousIntentPill6 => 'Solo quiero ver claro';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'O dilo a tu manera…';
 }

@@ -22306,4 +22306,32 @@ class SPt extends S {
 
   @override
   String get tonSectionLabel => 'Voz';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'O dinheiro, na Suíça, é o assunto de que ninguém fala.';
+
+  @override
+  String get anonymousIntentLine2 => 'Nem consigo mesmo.';
+
+  @override
+  String get anonymousIntentPill1 => 'Pago, assino, mas não entendo tudo';
+
+  @override
+  String get anonymousIntentPill2 => 'Evito pensar nisso';
+
+  @override
+  String get anonymousIntentPill3 => 'Tenho medo de cometer um erro caro';
+
+  @override
+  String get anonymousIntentPill4 => 'Sei que devia tratar disto';
+
+  @override
+  String get anonymousIntentPill5 => 'Algo mudou e não sei por onde começar';
+
+  @override
+  String get anonymousIntentPill6 => 'Só quero ver com clareza';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Ou diz como quiseres…';
 }
