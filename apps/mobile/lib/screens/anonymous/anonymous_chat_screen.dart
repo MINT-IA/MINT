@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 
@@ -166,8 +168,47 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     });
   }
 
-  void _onAuthenticated(String userId) {
-    context.go('/home');
+  Future<void> _onAuthenticated(String userId) async {
+    // Save anonymous conversation to SharedPreferences (unprefixed) so the
+    // migration in auth_provider picks it up and moves it to user namespace.
+    // Then append the post-auth welcome message under the user prefix.
+    try {
+      final now = DateTime.now();
+      final conversationId = 'anonymous_${now.millisecondsSinceEpoch}';
+
+      // Convert local _ChatMessage list to ChatMessage for persistence.
+      final chatMessages = _messages
+          .map((m) => ChatMessage(
+                role: m.isUser ? 'user' : 'assistant',
+                content: m.text,
+                timestamp: m.timestamp,
+              ))
+          .toList();
+
+      // Save under anonymous (no prefix) — migration will re-key to user.
+      ConversationStore.setCurrentUserId(null);
+      final store = ConversationStore();
+      await store.saveConversation(conversationId, chatMessages);
+
+      // Migration happens in auth_provider._migrateLocalDataIfNeeded()
+      // which was already called during the auth flow. But since we just
+      // saved the conversation AFTER auth completed, we need to migrate now.
+      await ConversationStore.migrateAnonymousToUser(userId);
+
+      // Append welcome message under user prefix.
+      ConversationStore.setCurrentUserId(userId);
+      chatMessages.add(ChatMessage(
+        role: 'assistant',
+        content: 'Maintenant je me souviendrai de tout.',
+        timestamp: DateTime.now(),
+      ));
+      await store.saveConversation(conversationId, chatMessages);
+    } catch (e) {
+      // Best-effort — never block navigation to home.
+      debugPrint('[AnonymousChat] Post-auth save failed: $e');
+    }
+
+    if (mounted) context.go('/home');
   }
 
   void _scrollToBottom() {

@@ -10,6 +10,7 @@ import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
+import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
@@ -521,6 +522,17 @@ class AuthProvider extends ChangeNotifier {
           );
         }
         return;
+      }
+
+      // Migrate anonymous conversations to authenticated user namespace.
+      // Must happen before wizard data push so conversation history is preserved.
+      try {
+        await ConversationStore.migrateAnonymousToUser(currentUserId);
+        await AnonymousSessionService.clearSession();
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('[AuthProvider] Anonymous conversation migration failed: $e');
+        }
       }
 
       // Push local wizard data to backend via claimLocalData.

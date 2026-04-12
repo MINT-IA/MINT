@@ -129,6 +129,57 @@ class ConversationStore {
   static String _userPrefix() =>
       _currentUserId != null ? '${_currentUserId}_' : '';
 
+  // ── Migration ────────────────────────────────────────────
+
+  /// Migrate anonymous (unprefixed) conversations to a user-prefixed namespace.
+  ///
+  /// Called once after account creation or login. Atomic safety: new keys are
+  /// written before old keys are removed. If migration fails mid-way, anonymous
+  /// data remains intact (harmless duplication, not loss).
+  ///
+  /// Safe no-op if no anonymous data exists.
+  static Future<void> migrateAnonymousToUser(String userId) async {
+    final prefs = await SharedPreferences.getInstance();
+    const oldPrefix = ''; // anonymous = no user prefix
+    final newPrefix = '${userId}_';
+
+    // Step 1: Read anonymous index
+    const oldIndexKey = '$oldPrefix$_indexKey';
+    final indexData = prefs.getString(oldIndexKey);
+    if (indexData == null) return; // Nothing to migrate — safe no-op
+
+    // Step 2: Write new index FIRST (atomic safety)
+    final newIndexKey = '$newPrefix$_indexKey';
+    // Merge with existing user index if user already had conversations
+    final existingIndex = prefs.getString(newIndexKey);
+    List<dynamic> mergedIndex = [];
+    if (existingIndex != null) {
+      mergedIndex = jsonDecode(existingIndex) as List<dynamic>;
+    }
+    final anonEntries = jsonDecode(indexData) as List<dynamic>;
+    mergedIndex.insertAll(0, anonEntries); // anonymous messages at top
+    await prefs.setString(newIndexKey, jsonEncode(mergedIndex));
+
+    // Step 3: Migrate each conversation's messages
+    for (final meta in anonEntries) {
+      final id = (meta as Map<String, dynamic>)['id'] as String;
+      final oldKey = '$oldPrefix$_messagesPrefix$id';
+      final newKey = '$newPrefix$_messagesPrefix$id';
+      final messages = prefs.getString(oldKey);
+      if (messages != null) {
+        await prefs.setString(newKey, messages);
+        // Verify write before delete
+        final verified = prefs.getString(newKey);
+        if (verified != null) {
+          await prefs.remove(oldKey);
+        }
+      }
+    }
+
+    // Step 4: Remove old index LAST
+    await prefs.remove(oldIndexKey);
+  }
+
   // ── Public API ──────────────────────────────────────────
 
   /// Save a conversation (messages + metadata).
