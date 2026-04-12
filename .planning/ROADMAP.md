@@ -57,10 +57,10 @@ Plans:
   3. Tool calling works on server-key path: user sends a message, backend returns toolCalls array, Flutter parses and executes tools
   4. First API call to staging completes in under 3s (no 2s DNS timeout from dead api.mint.ch domain)
   5. TestFlight build can reach staging backend (staging Railway URL present in URL candidates)
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 10-01: TBD
+- [ ] 10-01-PLAN.md — Fix 5 double-prefix URLs, create DELETE /sync-insight endpoint, fix camelCase JSON mismatch, clean URL candidates
 
 ### Phase 11: La navigation
 **Goal**: User can navigate MINT freely — 3 persistent tabs, ProfileDrawer for settings/profile/logout, working back button, no dead screens, Explorer hubs show real content
@@ -102,7 +102,7 @@ Each phase must be deployed and verified before the next begins.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 9. Les tuyaux | v2.4 | 2/2 | Complete   | 2026-04-12 |
-| 10. Les connexions | v2.4 | 0/TBD | Not started | - |
+| 10. Les connexions | v2.4 | 0/1 | Not started | - |
 | 11. La navigation | v2.4 | 0/TBD | Not started | - |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |
 
