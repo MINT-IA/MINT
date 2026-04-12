@@ -44,7 +44,7 @@ MINT compiles with 9256 tests passing but is non-functional for real users. The 
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Config guards (SQLite fail-fast, OPENAI_API_KEY) + RAG persistence (ChromaDB volume, education Docker path)
+- [x] 09-01-PLAN.md — Config guards (SQLite fail-fast, OPENAI_API_KEY) + RAG persistence (ChromaDB volume, education Docker path)
 - [ ] 09-02-PLAN.md — Agent loop timeout (55s total deadline + 25s per-iteration cap)
 
 ### Phase 10: Les connexions

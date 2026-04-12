@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v2.4
+milestone_name: milestone
+status: executing
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-04-12T09:17:36.535Z"
+last_activity: 2026-04-12
+progress:
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 2
+  completed_plans: 1
+  percent: 50
+---
+
 # GSD State: MINT v2.4 — Fondation
 
 ## Project Reference
@@ -5,20 +21,21 @@
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Un humain externe peut ouvrir MINT, naviguer, uploader, recevoir un premier eclairage, parler au coach — zero crash, zero 404, zero boucle.
-**Current focus:** Phase 9 — Les tuyaux (backend infra)
+**Current focus:** Phase 9 — Les tuyaux
 
 ## Current Position
 
-Phase: 9 of 12 (Les tuyaux)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-04-12 — Roadmap created, 28 requirements mapped to 4 phases
+Phase: 9 (Les tuyaux) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: —
 - Total execution time: 0 hours
@@ -31,6 +48,7 @@ Progress: [░░░░░░░░░░] 0%
 | 10 — Les connexions | 0/TBD | — | — |
 | 11 — La navigation | 0/TBD | — | — |
 | 12 — La preuve | 0/TBD | — | — |
+| Phase 09-les-tuyaux P01 | 4min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -42,6 +60,7 @@ Recent decisions affecting current work:
 - Sequential execution non-negotiable (parallel agents caused the current damage)
 - Backend before frontend (fixing Flutter when backend crashes yields 500s not 404s)
 - Device gate is the only real validation (9256 tests green proved nothing)
+- [Phase 09-les-tuyaux]: Repo-root Docker build context to include education/inserts without symlinks
 
 ### From Previous Milestones
 
@@ -56,8 +75,8 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-12
-Stopped at: Roadmap created, ready to plan Phase 9
+Last session: 2026-04-12T09:17:36.533Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
 
 ---

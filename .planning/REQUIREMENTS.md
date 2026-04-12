@@ -9,11 +9,11 @@ Requirements derived from `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` (3
 
 ### Backend Infrastructure (INFRA)
 
-- [ ] **INFRA-01**: If ENVIRONMENT is `production` or `staging` and DATABASE_URL starts with `sqlite`, app raises RuntimeError at startup instead of silently using ephemeral SQLite (P0-INFRA-1)
-- [ ] **INFRA-02**: ChromaDB persist_directory points to a Railway persistent volume mount (`/data/chromadb`) that survives deploys, verified by deploying twice and confirming corpus count is preserved (P0-INFRA-2)
-- [ ] **INFRA-03**: Education inserts (103 docs) are copied into the Docker image via `COPY education/inserts/ /app/education/inserts/` and the auto-ingest path in `main.py` resolves correctly inside the container (P0-INFRA-2, P1-INFRA-3)
+- [x] **INFRA-01**: If ENVIRONMENT is `production` or `staging` and DATABASE_URL starts with `sqlite`, app raises RuntimeError at startup instead of silently using ephemeral SQLite (P0-INFRA-1)
+- [x] **INFRA-02**: ChromaDB persist_directory points to a Railway persistent volume mount (`/data/chromadb`) that survives deploys, verified by deploying twice and confirming corpus count is preserved (P0-INFRA-2)
+- [x] **INFRA-03**: Education inserts (103 docs) are copied into the Docker image via `COPY education/inserts/ /app/education/inserts/` and the auto-ingest path in `main.py` resolves correctly inside the container (P0-INFRA-2, P1-INFRA-3)
 - [ ] **INFRA-04**: Agent loop in `coach_chat.py` is wrapped with `asyncio.wait_for(55s)` so partial results are returned gracefully instead of a 502 Bad Gateway (P1-INFRA-1)
-- [ ] **INFRA-05**: OPENAI_API_KEY is declared in `config.py` Settings with a startup warning if missing, so embedding failures are diagnosed at boot not at first user request (P1-INFRA-2)
+- [x] **INFRA-05**: OPENAI_API_KEY is declared in `config.py` Settings with a startup warning if missing, so embedding failures are diagnosed at boot not at first user request (P1-INFRA-2)
 
 ### Front-Back Connections (PIPE)
 
@@ -82,11 +82,11 @@ Explicitly excluded for v2.4. Documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 9 | Pending |
-| INFRA-02 | Phase 9 | Pending |
-| INFRA-03 | Phase 9 | Pending |
+| INFRA-01 | Phase 9 | Complete |
+| INFRA-02 | Phase 9 | Complete |
+| INFRA-03 | Phase 9 | Complete |
 | INFRA-04 | Phase 9 | Pending |
-| INFRA-05 | Phase 9 | Pending |
+| INFRA-05 | Phase 9 | Complete |
 | PIPE-01 | Phase 10 | Pending |
 | PIPE-02 | Phase 10 | Pending |
 | PIPE-03 | Phase 10 | Pending |
