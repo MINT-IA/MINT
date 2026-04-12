@@ -579,34 +579,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
-    // AUTH GATE: If not logged in, show a clear message instead of
-    // silently falling back to a useless template response.
-    final token = await AuthService.getToken();
-    if (token == null || token.isEmpty) {
-      setState(() {
-        _messages.add(ChatMessage(
-          role: 'user',
-          content: text.trim(),
-          timestamp: DateTime.now(),
-        ));
-      });
-      _controller.clear();
-
-      // Show auth prompt as assistant message with login action
-      if (mounted) {
-        setState(() {
-          _messages.add(ChatMessage(
-            role: 'assistant',
-            content:
-                'Pour te répondre, j\'ai besoin de me connecter à mon cerveau.'
-                '\n\nTape sur •\u200d•\u200d• en haut → Se connecter.',
-            timestamp: DateTime.now(),
-          ));
-        });
-        _scrollToBottom();
-      }
-      return;
-    }
+    // AUTH NOTE: Auth gate was moved AFTER SLM attempt (see _handleStandardResponse).
+    // Anonymous users CAN chat via SLM (on-device, no auth needed).
+    // Auth is only required when falling back to server-key API calls.
 
     // Dismiss silent opener when user types their first message.
     if (_showSilentOpener) {
@@ -1451,16 +1426,84 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// if the user hasn't chosen a tone yet.
   Widget _buildSilentOpenerWithTone() {
     final opener = _buildSilentOpener();
-    if (_intensityChosen || !_cashLevelLoaded) return opener;
+
+    // Felt-state pills when no messages yet.
+    final pills = _messages.isEmpty ? _buildFeltStatePills() : const SizedBox.shrink();
+
+    if (_intensityChosen || !_cashLevelLoaded) {
+      return Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  opener,
+                  pills,
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Column(
       children: [
-        Expanded(child: opener),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                opener,
+                pills,
+              ],
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
           child: _buildIntensityChips(),
         ),
       ],
+    );
+  }
+
+  Widget _buildFeltStatePills() {
+    final s = S.of(context)!;
+    final pills = [
+      s.anonymousIntentPill1,
+      s.anonymousIntentPill2,
+      s.anonymousIntentPill3,
+      s.anonymousIntentPill4,
+      s.anonymousIntentPill5,
+      s.anonymousIntentPill6,
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        alignment: WrapAlignment.center,
+        children: pills.map((pill) => GestureDetector(
+          onTap: () => _sendMessage(pill),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: MintColors.craie,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: MintColors.textSecondary.withValues(alpha: 0.2)),
+            ),
+            child: Text(
+              pill,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: MintColors.textPrimary,
+                height: 1.3,
+              ),
+            ),
+          ),
+        )).toList(),
+      ),
     );
   }
 
