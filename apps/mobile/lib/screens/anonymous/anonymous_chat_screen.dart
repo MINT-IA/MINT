@@ -43,6 +43,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   final List<_ChatMessage> _messages = [];
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final String _conversationId = 'anonymous_${DateTime.now().millisecondsSinceEpoch}';
   bool _isLoading = false;
   bool _isAuthGateLocked = false;
   bool _intentSent = false;
@@ -129,6 +130,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     });
     _scrollToBottom();
 
+    // Persist eagerly after each coach response so messages survive navigation.
+    _persistToSharedPreferences();
+
     // After 3rd response (messagesRemaining == 0), show conversion prompt
     if (messagesRemaining == 0) {
       await Future.delayed(const Duration(milliseconds: 800));
@@ -142,6 +146,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         ));
       });
       _scrollToBottom();
+
+      // Persist again after conversion prompt so it is also saved.
+      _persistToSharedPreferences();
+
       await Future.delayed(const Duration(milliseconds: 600));
       if (mounted) _showAuthGate();
     }
@@ -156,7 +164,6 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (_) => AuthGateBottomSheet(
-        onAuthenticated: _onAuthenticated,
         onDismissed: _onDismissed,
       ),
     );
@@ -168,47 +175,26 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     });
   }
 
-  Future<void> _onAuthenticated(String userId) async {
-    // Save anonymous conversation to SharedPreferences (unprefixed) so the
-    // migration in auth_provider picks it up and moves it to user namespace.
-    // Then append the post-auth welcome message under the user prefix.
-    try {
-      final now = DateTime.now();
-      final conversationId = 'anonymous_${now.millisecondsSinceEpoch}';
+  /// Persist anonymous messages to SharedPreferences (unprefixed keys) so
+  /// auth_provider._migrateLocalDataIfNeeded() can find and migrate them
+  /// after account creation, regardless of navigation path.
+  ///
+  /// Fire-and-forget — never blocks UI. Called after each coach response.
+  void _persistToSharedPreferences() {
+    // Convert local _ChatMessage list to ChatMessage for ConversationStore.
+    final chatMessages = _messages
+        .map((m) => ChatMessage(
+              role: m.isUser ? 'user' : 'assistant',
+              content: m.text,
+              timestamp: m.timestamp,
+            ))
+        .toList();
 
-      // Convert local _ChatMessage list to ChatMessage for persistence.
-      final chatMessages = _messages
-          .map((m) => ChatMessage(
-                role: m.isUser ? 'user' : 'assistant',
-                content: m.text,
-                timestamp: m.timestamp,
-              ))
-          .toList();
-
-      // Save under anonymous (no prefix) — migration will re-key to user.
-      ConversationStore.setCurrentUserId(null);
-      final store = ConversationStore();
-      await store.saveConversation(conversationId, chatMessages);
-
-      // Migration happens in auth_provider._migrateLocalDataIfNeeded()
-      // which was already called during the auth flow. But since we just
-      // saved the conversation AFTER auth completed, we need to migrate now.
-      await ConversationStore.migrateAnonymousToUser(userId);
-
-      // Append welcome message under user prefix.
-      ConversationStore.setCurrentUserId(userId);
-      chatMessages.add(ChatMessage(
-        role: 'assistant',
-        content: 'Maintenant je me souviendrai de tout.',
-        timestamp: DateTime.now(),
-      ));
-      await store.saveConversation(conversationId, chatMessages);
-    } catch (e) {
-      // Best-effort — never block navigation to home.
-      debugPrint('[AnonymousChat] Post-auth save failed: $e');
-    }
-
-    if (mounted) context.go('/home');
+    // Save under anonymous namespace (null userId = unprefixed keys).
+    ConversationStore.setCurrentUserId(null);
+    ConversationStore().saveConversation(_conversationId, chatMessages).catchError((e) {
+      debugPrint('[AnonymousChat] Eager persist failed: $e');
+    });
   }
 
   void _scrollToBottom() {

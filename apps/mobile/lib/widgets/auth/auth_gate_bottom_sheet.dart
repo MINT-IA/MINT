@@ -12,15 +12,11 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// conversational copy), NOT a system interrupt. Offers Apple Sign-In
 /// and magic link, with a soft "Plus tard" dismiss.
 class AuthGateBottomSheet extends StatelessWidget {
-  /// Called when the user successfully authenticates.
-  final ValueChanged<String>? onAuthenticated;
-
   /// Called when the user taps "Plus tard" (dismiss).
   final VoidCallback? onDismissed;
 
   const AuthGateBottomSheet({
     super.key,
-    this.onAuthenticated,
     this.onDismissed,
   });
 
