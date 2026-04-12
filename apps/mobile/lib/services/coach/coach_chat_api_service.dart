@@ -127,7 +127,7 @@ class CoachChatApiResponse {
   factory CoachChatApiResponse.fromJson(Map<String, dynamic> json) {
     return CoachChatApiResponse(
       message: json['message'] as String? ?? '',
-      toolCalls: (json['tool_calls'] as List?)
+      toolCalls: (json['toolCalls'] as List?)
               ?.map((tc) => RagToolCall(
                     name: tc['name'] as String? ?? '',
                     input: (tc['input'] as Map<String, dynamic>?) ?? {},
@@ -146,7 +146,7 @@ class CoachChatApiResponse {
               ?.map((d) => d as String)
               .toList() ??
           const [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      tokensUsed: json['tokensUsed'] as int? ?? 0,
     );
   }
 }

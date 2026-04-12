@@ -24492,6 +24492,52 @@
         ]
       }
     },
+    "/api/v1/coach/sync-insight/{insight_id}": {
+      "delete": {
+        "description": "Remove a CoachInsight embedding from the RAG vector store.\n\nCalled when the mobile app prunes an insight locally (TTL or manual delete).\nThe corresponding embedding is removed from the vector store to prevent\nstale data polluting RAG retrieval.\n\nPrivacy: Only the insight_id is needed — no PII transmitted.",
+        "operationId": "delete_insight_api_v1_coach_sync_insight__insight_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "insight_id",
+            "required": true,
+            "schema": {
+              "title": "Insight Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Insight",
+        "tags": [
+          "Coach Chat S56"
+        ]
+      }
+    },
     "/api/v1/coach/tip": {
       "post": {
         "description": "Generer uniquement le conseil educatif.\n\nReturns:\n    ComponentNarrativeResponse avec le tip narrative.",

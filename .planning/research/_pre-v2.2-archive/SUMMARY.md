@@ -1,159 +1,443 @@
-# Project Research Summary
+# Research Summary — v2.2 La Beauté de Mint (Design v0.2.3)
 
-**Project:** MINT v2.0 Système Vivant
-**Domain:** Swiss fintech mobile app — document intelligence, proactive anticipation, financial biography, contextual UI, Open Banking (bLink)
-**Researched:** 2026-04-06
-**Confidence:** HIGH (grounded in direct codebase audit of 652 Flutter + 293 backend source files, project planning docs, and Swiss compliance framework)
-
----
-
-## Executive Summary
-
-MINT v2.0 adds five capability layers on top of an already-functional Swiss fintech app: document intelligence (photo/PDF ingestion with LLM extraction), an anticipation engine (rule-based proactive fiscal alerts), a financial biography (local-only encrypted narrative memory), contextual smart card ranking for the Aujourd'hui tab, and bLink Open Banking sandbox activation. The architecture is evolutionary, not revolutionary — the codebase already contains 80% of the infrastructure (parsers, OCR, triggers, memory services, banking stubs, dashboard curator) but the pieces are either unwired, feature-flagged off, or missing the final integration layer. The primary engineering challenge is wiring, not building from scratch.
-
-The recommended approach is a strictly ordered build sequence driven by data dependencies: document intelligence and financial biography must precede anticipation engine and card ranking, because the latter two consume the outputs of the former two. bLink is the exception — it is architecturally independent and can run in parallel. The capstone is the 9-persona QA matrix, which gates release by validating all capabilities across the full 8-archetype matrix before any feature reaches production.
-
-The key risks are compliance and data integrity, not technical complexity. Three pitfalls can cause irreversible user trust damage: LLM vision hallucinating financial values that pass range validation (wrong LPP projection the user acts on), document images containing PII leaking to logs (nLPD P0 violation), and the financial biography silently injecting exact salary figures into coach context sent to the Anthropic API (nLPD + CLAUDE.md §6 violation). All three are preventable with specific enforcement patterns defined in PITFALLS.md and must be addressed in Phase 1, not retrofitted.
+**Project:** MINT v2.2 La Beauté de Mint
+**Domain:** Design + voice + accessibility retrofit over mature Flutter + FastAPI fintech codebase (12'892 tests, 18 life events, 8 calculators)
+**Researched:** 2026-04-07
+**Reports synthesized:** 6 (STACK, FEATURES, ARCHITECTURE, PITFALLS, ACCESSIBILITY, LANDING_AND_ONBOARDING)
+**Confidence:** HIGH on architecture/pitfalls (grep-verified against live tree); MEDIUM on voice-level modulation (few-shot literature sparse); HIGH on landing/onboarding audit (line-cited); MEDIUM on accessibility practitioners (some URLs not re-verified end-to-end)
 
 ---
 
-## Key Findings
+## 1. Milestone One-Liner
 
-### Recommended Stack
-
-The stack delta for v2.0 is deliberately minimal — 5 new Flutter packages and 3 backend changes against a large existing dependency tree. The existing infrastructure (Flutter + FastAPI + Pydantic v2 + Anthropic SDK + google_mlkit_text_recognition + flutter_local_notifications + flutter_secure_storage) already covers the majority of what is needed. The additions are surgical gap-fills.
-
-**Core new technologies:**
-- `sqflite ^2.4.1` (Flutter): Local SQLite for FinancialBiography append-only event store — chosen over Hive (fragile encryption adapter), Isar (major API break in v4), and Drift (build_runner overhead)
-- `encrypt ^5.0.3` (Flutter): AES-256-GCM application-layer encryption for biography rows — avoids SQLCipher which would break iOS Podfile.lock and Android NDK config
-- `flutter_image_compress ^2.3.0` (Flutter): Compress camera photos from 3-8 MB to ~800 KB before Claude Vision upload — raw images exceed Claude's 5 MB base64 limit
-- `flutter_web_auth_2 ^4.0.1` (Flutter): OAuth 2.0 PKCE flow for bLink in system browser (not WebView — SIX explicitly prohibits WebView for consent screens)
-- `sqflite_common_ffi ^2.3.4` (Flutter): Desktop/test compatibility for CI on macos-15 runner
-- `pillow >=10.4.0,<12.0.0` (Backend): Server-side image normalization (EXIF rotation, greyscale) — Claude Vision does not auto-correct orientation from EXIF metadata
-- `pdf2image >=1.17.0,<2.0.0` + system `poppler` (Backend): Convert scanned PDFs (images, not text-layer) to PIL images for the Claude Vision path — `pdfplumber` cannot handle scanned PDFs
-- `httpx` promoted from dev to prod (Backend): Async HTTP for bLink API calls — already present in test extras
-
-**Critical implementation note from STACK.md:** Wire the HTTP route to the already-existing `document_vision_service.py` before adding any new packages — the document intelligence backend service exists but has no registered FastAPI endpoint.
-
-### Expected Features
-
-The feature research reveals a consistent pattern: most table-stakes features have existing service shells that are not fully wired. The differentiators require net-new logic but follow established codebase patterns. Anti-features are well-defined and should be enforced as hard constraints from day one.
-
-**Must have (table stakes):**
-- Document scan pipeline E2E: camera → OCR → extraction review screen → profile update → confidence delta display — infrastructure exists, needs wiring
-- LPP certificate parsing validated against top 10 caisses (obligatoire/surobligatoire split) — parser exists, caisse-specific validation is the gap
-- Fiscal calendar alerts (3a deadline Dec 31, cantonal tax deadlines) — highest user value per complexity ratio
-- Max 5 ranked smart cards on Aujourd'hui (urgency > CHF impact > deadline proximity) — `DashboardCuratorService` exists, ranking signal expansion needed
-- Card dismissal/snooze (7 days per card) and empty state ("Tout est en ordre")
-- Lea golden path E2E flawless (28yo, swiss_native, first job, Zurich) — prerequisite gate for all v2.0 features
-
-**Should have (differentiators):**
-- LLM-vision extraction for unknown caisses via BYOK (1'400+ caisses in Switzerland; template matching covers ~60%)
-- AnonymizedBiographySummary injected into coach context — narrative continuity without PII
-- Biography-aware card copy ("Tu n'as pas regarde ton LPP depuis 8 mois" vs generic)
-- Swiss fiscal calendar by canton (26 cantonal deadline variants)
-- Safe Mode anticipation: suppress optimization prompts when debt stress signals detected
-- bLink sandbox: real OAuth flow, consent dashboard wired, salary detection from transaction patterns
-
-**Defer to v3.0+ (explicitly out of scope per PROJECT.md):**
-- Background processing / WorkManager for always-on anticipation
-- bLink production activation (18-24 months SFTI membership + per-bank contracts)
-- Cloud sync for FinancialBiography (requires E2E encryption + server storage — nLPD complexity)
-- Transaction categorization ML model (Cleo/Yuh do this better; MINT's value is pension+tax depth)
-- Predictive ML anticipation (v3.0 scope; v2.0 is deterministic rule-based only)
-
-### Architecture Approach
-
-The architecture is an extension of the existing Flutter Provider + FastAPI pattern, with four new service directories added to the Flutter layer and three new backend service modules. The critical architectural principle is separation of concerns by privacy boundary: `FinancialBiography` is Flutter-only and never sent externally; `AnticipationEngine` is zero-LLM rule evaluation; only the coach narration of alerts passes through `ComplianceGuard`. The `DataIngestionService` uses an adapter pattern to unify four distinct input channels (photo, PDF, bLink, pension stub) behind a single interface, preventing document-type logic from leaking into screens.
-
-**Major components:**
-1. `DataIngestionService` (Flutter) — Adapter facade: detects input type, routes to typed adapter, returns `ProfileEnrichmentDiff`, deletes original image (nLPD)
-2. `FinancialBiography` (Flutter-only) — Local append-only SQLite event store; `BiographyAnonymizer` produces PII-free summary for coach context injection
-3. `AnticipationEngine` (Flutter) — Pure rule evaluation against `CoachProfile` + fiscal calendar JSON; zero LLM; debounced max once/hour; outputs `AnticipationAlert[]`
-4. `CardRankingService` (Flutter) — Scoring formula (urgency x3, CHF impact x2, deadline x2, completeness delta x1, recency penalty x-0.5); max 5 cards; replaces static `DashboardCuratorService` for Aujourd'hui
-5. `BlinkAdapterService` (Flutter + Backend) — OAuth 2.0 PKCE via system browser; backend proxies bLink sandbox API; maps account data to `ProfileEnrichmentDiff`
-6. `DocumentExtractionService` (Backend) — Extends existing `docling/` + `document_parser/` with LLM extraction, `ProfileEnrichmentDiff` output, and `extractedAt` decay model
-7. `ProfileEnrichmentDiff` pattern — All external data sources produce a diff reviewed by the user before any value reaches `CoachProfile` (compliance + OCR error protection)
-
-**`financial_core/` is untouched.** New services are consumers of the 8 existing calculators, not modifiers.
-
-### Critical Pitfalls
-
-1. **LPP 1e plan type blindness** — Applying the 6.8% legal minimum conversion rate to a 1e plan (individual investment risk, no guaranteed rate) produces rente projections 40-60% too high. Prevention: detect plan type (keywords: "enveloppement libre", "1e", "freie Vorsorge") before any conversion-rate extraction; if 1e detected, set `tauxConversion = null` and refuse to project a rente. Address in Phase 1.
-
-2. **LLM Vision hallucinating values that pass range validation** — Claude Vision on a degraded photo returns plausible-but-wrong CHF amounts that pass the existing 0-5M range check. Prevention: require `source_text` for every extracted field; auto-downgrade to LOW confidence if absent; show verbatim source text in confirmation UI. Address in Phase 1.
-
-3. **Document PII leaked to logs or retained after extraction** — `logger.debug()` near base64 image handling writes document fragments (IBANs, names, salaries) to Railway production logs. nLPD art. 6 P0 violation. Prevention: test that log output contains no base64 patterns; explicit `finally` block for temp file deletion. Address in Phase 1.
-
-4. **Alert fatigue from simultaneous rule firing** — New user with complete profile triggers 4-8 rules simultaneously. After two dismissal sessions, MINT has trained the user to ignore all alerts including critical ones. Prevention: hard cap at 3 alert cards (truncation, not guideline); 7-day quiet period per rule post-dismissal; first-session grace (1 alert only). Address in Phase 2.
-
-5. **FinancialBiography leaking PII into coach context** — `saveInsight()` called with unprocessed LLM response injects verbatim salary + employer into the Anthropic API system prompt. Prevention: PII redaction inside `saveInsight()` (non-bypassable); insight summary = topic category + magnitude bucket, never exact CHF amounts. Address in Phase 3.
+v2.2 is the last mile between "ça fonctionne" (v2.0/v2.1) and "on sent que c'est Mint" — a calm visual layer, a 5-level voice intensity dial, a unified confidence component on 11 rendering surfaces, and a rebuilt landing + onboarding flow that deletes 5 screens and routes directly to coach chat. The milestone is additive on stack (3 net-new dev-only deps), surgical on surface (S0–S5 only for AAA, ~11 projection screens for MTC), and blocking on two human-gated processes that must start on day one: live accessibility tester recruitment (6-week lead time) and regional voice validator recruitment (4-6 weeks).
 
 ---
 
-## Implications for Roadmap
+## 2. Surfaces — 6 Immuables (Updated from 5)
 
-Based on research, the dependency graph is unambiguous about phase ordering. FinancialBiography must precede AnticipationEngine and CardRanking (both consume biography signals). Document Intelligence must precede everything else (it feeds biography, boosts confidence, and validates the extraction pipeline the entire app depends on). bLink is independent and can run in parallel. QA is last.
+S0 is the new addition, replacing the current `landing_screen.dart` which violates identity doctrine structurally (imports AVS/LPP/tax calculators, is a retirement quick-calc dressed in calm coral).
 
-### Phase 1: Document Intelligence (Intelligence Documentaire)
-**Rationale:** Highest confidence score impact per user action (+25-30 points from a single LPP cert scan). The pipeline is 80% built — the gap is wiring `document_vision_service.py` to a FastAPI endpoint, adding image compression + normalization, and enforcing the `extractedAt` decay model at extraction time. This is the foundation: every subsequent feature consumes the extracted profile data.
-**Delivers:** Full document scan pipeline E2E (photo → OCR → LLM extraction → review screen → profile update → confidence delta display). LPP certificate parser validated against top 10 caisses. `ProfileEnrichmentDiff` pattern established. `extractedAt` decay model enforced at extraction time.
-**Addresses features:** Camera + gallery picker, extraction review, per-field source badge, confidence delta, document deletion, LPP E2E with obligatoire/surobligatoire split
-**Avoids pitfalls:** Pitfall 1 (1e plan blindness), Pitfall 2 (hallucination + source_text enforcement), Pitfall 3 (PII in logs + temp file cleanup), Pitfall 7 (stale data decay model set at extraction time)
-**Stack needed:** `flutter_image_compress`, `pillow`, `pdf2image`, poppler system dep, wire HTTP route to existing `document_vision_service.py`
+| Surface | File | Status | AAA target |
+|---------|------|--------|-----------|
+| **S0** | `apps/mobile/lib/screens/landing_screen.dart` | **REBUILD** (L1.7) | Yes |
+| **S1** | `apps/mobile/lib/screens/onboarding/intent_screen.dart` | Audit + wire | Yes |
+| **S2** | `apps/mobile/lib/screens/main_tabs/mint_home_screen.dart` | MTC migration only | Yes |
+| **S3** | `apps/mobile/lib/widgets/coach/coach_message_bubble.dart` | Voice cursor + a11y | Yes |
+| **S4** | `apps/mobile/lib/widgets/coach/response_card_widget.dart` | MTC + microtypographie | Yes |
+| **S5** | `apps/mobile/lib/widgets/mint_alert_object.dart` | **CREATE NEW** (L1.5) | Yes |
 
-### Phase 2: Financial Biography (Memoire Narrative)
-**Rationale:** Required by both Phase 3 (AnticipationEngine uses last-action-date triggers from biography) and Phase 4 (CardRankingService uses biography for biography-aware card copy). Cannot skip — it unblocks the two highest-value capabilities.
-**Delivers:** `FinancialBiography` append-only SQLite store with AES-256-GCM encryption. `BiographyEvent` recorded for document scans, life event triggers, and arbitrage decisions. `AnonymizedBiographySummary` injected into coach context via `ContextInjectorService`.
-**Addresses features:** Event log, decision log, milestone log, coach history references, biography-aware card ranking signal
-**Avoids pitfalls:** Pitfall 5 (PII in coach context — `_redactPii()` inside `saveInsight()`, topic + magnitude buckets only)
-**Stack needed:** `sqflite ^2.4.1`, `sqflite_common_ffi ^2.3.4`, `encrypt ^5.0.3`
-
-### Phase 3: Anticipation Engine (Moteur d'Anticipation)
-**Rationale:** Depends on biography (last-action-date triggers) and document pipeline (data freshness signals). By Phase 3, both inputs are stable. The engine itself is pure Dart rule evaluation — zero new packages, zero LLM calls. Core risk is alert fatigue if the hard cap and quiet-period mechanics are not enforced from the first rule added.
-**Delivers:** `AnticipationEngine` with Swiss fiscal calendar (3a Dec 31, cantonal tax deadlines), profile-change triggers (stale certificate, salary gap), and lifecycle triggers (age 54 rachat window). All 8 archetypes filtered correctly. Feeds `CardRankingService` and the coach proactive trigger loop.
-**Addresses features:** Fiscal calendar alerts, profile-change triggers, stale data warnings, lifecycle event detection, Safe Mode debt suppression
-**Avoids pitfalls:** Pitfall 4 (alert fatigue — max 3 cards, 7-day quiet period, first-session grace), Pitfall 8 (archetype filtering — every rule must declare `applicable_archetypes`), Pitfall 7 (staleness alert fires before December deadline)
-**Stack needed:** None (pure code: `assets/config/fiscal_calendar.json` + Dart rule classes)
-
-### Phase 4: Contextual Aujourd'hui — Smart Card Ranking
-**Rationale:** Integration phase — consumes outputs from all three preceding phases. `CardRankingService` is the last piece to build because it depends on biography events (Phase 2), anticipation engine outputs (Phase 3), and confidence enrichments (Phase 1). This phase delivers the v2.0 core promise of a "living" app.
-**Delivers:** `CardRankingService` with multi-signal scoring. Max 5 ranked cards. Biography-aware card copy. Swiss fiscal calendar cards. Empty state. Replaces static `DashboardCuratorService` as the primary Aujourd'hui content source.
-**Addresses features:** Max 5 cards, urgency-ranked order, card dismissal/snooze, empty state, coach input bar preserved, multi-signal relevance scoring, biography-aware copy, confidence gap cards, fiscal calendar cards
-**Stack needed:** None (pure Dart logic consuming Phase 1-3 outputs)
-
-### Phase 5: bLink Open Banking Sandbox
-**Rationale:** Independent from Phases 1-4 — no cross-dependency. Can be developed in parallel if bandwidth allows. Placed last in sequential ordering because it is the most complex OAuth dance and carries the most risk of shaping wrong UX patterns if the OAuth redirect flow is not simulated fully even in sandbox mode.
-**Delivers:** `BlinkAdapterService` with real bLink sandbox API calls. Full OAuth 2.0 PKCE flow via system browser. Consent dashboard wired. Account balance + transaction ingestion. Salary detection, mortgage detection, 3a contribution tracking from transaction patterns. `BankingConsentModel` schema production-ready (nullable OAuth token fields added now). `InstitutionalPensionAdapter` and `CantonalTaxAdapter` interface stubs.
-**Addresses features:** Sandbox activation, consent dashboard, account ingestion, salary detection, confidence score update (+15-25 points on connection), adapter stubs for v3.0
-**Avoids pitfalls:** Pitfall 6 (OAuth gap — schema production-ready with nullable token fields; full redirect flow simulated in sandbox; no in-memory ConsentManager fallback on staging)
-**Stack needed:** `flutter_web_auth_2 ^4.0.1`, `httpx` promoted from dev to prod deps
-
-### Phase 6: 9-Persona QA Profond
-**Rationale:** Gates release. Cannot begin until all 5 capability phases are functional. The Lea golden path (Phase 1 prerequisite) must pass before this phase opens. The 9-persona matrix validates correctness across all 8 archetypes and hostile scenarios.
-**Delivers:** 9 test profiles run against all v2.0 capabilities. ComplianceGuard regression on new LLM output channels. WCAG 2.1 AA audit. i18n validation (6 languages x new ARB keys). Calculation regression gate. Hostile scenario matrix (20 scenarios: debt + disability + expat simultaneously, API down, OCR fails, BYOK invalid key).
-**Stack needed:** None (test tooling only)
+S0 surfaces the fact that the "door" to MINT is broken before any design polish is applied. S5 is the only surface being created from scratch. S1–S4 are iteration targets on existing code.
 
 ---
 
-### Phase Ordering Rationale
+## 3. Chantiers — 10 Total (Updated from 7)
 
-- **Phases 1 to 4 are strictly ordered by data dependency:** Document pipeline produces `extractedAt` decay data and triggers biography events. Biography provides last-action-date signals. Anticipation engine consumes both. Card ranking integrates all three.
-- **Phase 5 is parallel-eligible:** bLink has zero dependency on Phases 1-4. If bandwidth allows, it can start alongside Phase 2 or 3.
-- **Phase 6 is always last:** QA validates all capabilities together and cannot open until all features are stable.
-- **Lea golden path is the Phase 1 exit gate:** If the baseline persona does not flow flawlessly through document scan → premier eclairage → plan → check-in, Phase 2 does not start.
+The expert-approved P0 two-phase split and the L+O Variante 1 decision expand the original 7 chantiers to 10.
 
-### Research Flags
+### P0a — Unblockers (5 deliverables, sequential gate, must ship before any L1.x starts)
 
-Phases likely needing deeper research during planning:
-- **Phase 5 (bLink Sandbox):** bLink/SFTI sandbox API documentation, exact OAuth 2.0 endpoint URLs, required scopes, and sandbox credential provisioning process should be verified against current SFTI docs before implementation. Training knowledge cutoff is Aug 2025 and the bLink API may have changed.
-- **Phase 1 (LPP certificate parser validation):** Top 10 Swiss caisses by market share need actual certificate specimens for parser template validation. Coverage gaps will only be known with real documents.
+| # | Deliverable | Owner | Blocks | File path |
+|---|-------------|-------|--------|-----------|
+| P0a.1 | Recruitment kickoff: 3 accessibility testers (malvoyant·e via SBV-FSA, ADHD via ASPEDAH, français-L2 via Caritas) + 3 regional validators (VS/ZH/TI). Send emails day 1. | Julien | L1.4 content + AAA live tests | `.planning/milestones/v2.2-phases/L1.0-accessibility-recruitment.md` |
+| P0a.2 | STAB-17 manual tap-render walkthrough. Julien walks every primary-depth interactive element on Galaxy A14 (or simulator), fills `AUDIT_TAP_RENDER.md`, signs bottom block. | Julien | TestFlight gate | `.planning/phases/07-stabilisation-v2-0/AUDIT_TAP_RENDER.md` |
+| P0a.3 | `chiffre_choc` → `premier_eclairage` rename sweep. 719 occurrences, 174 files: 5 Dart filenames (`git mv`), 2 Python filenames, 6 ARB × ~25 keys, GoRouter routes, class names, analytics events, OpenAPI endpoint, test files. ~13h. | Agent | L1.7, L1.8, all editorial work | Scope: `apps/mobile/lib/`, `services/backend/app/`, `apps/mobile/lib/l10n/`, tests |
+| P0a.4 | Wire 4 broken providers in `mint_home_screen.dart`: `MintStateProvider`, `FinancialPlanProvider`, `CoachEntryPayloadProvider`, `OnboardingProvider`. Remove try/catch silent fallbacks (not just register — also remove the swallow). | Agent | L1.2b (MTC migration touches home screen) | `apps/mobile/lib/screens/main_tabs/mint_home_screen.dart` lines 124, 638 + `apps/mobile/lib/app.dart` MultiProvider |
+| P0a.5 | Galaxy A14 perf baseline. `flutter run --profile -d <A14_id> --trace-startup`. Document cold start (target <2500ms), scroll FPS (target median ≥55), MTC bloom timing baseline (target 0 dropped frames over 250ms). | Julien | L1.2a bloom budget, L1.3 perf claim | `.planning/perf/A14_BASELINE.md` |
 
-Phases with well-documented patterns (standard implementation, skip deep research):
-- **Phase 2 (Financial Biography):** Append-only local SQLite + AES-256-GCM is a standard local-first app pattern. `sqflite` + `encrypt` has established Flutter ecosystem documentation.
-- **Phase 3 (Anticipation Engine):** Pure Dart rule evaluation with Swiss fiscal calendar constants. No external integration, no ambiguous patterns.
-- **Phase 4 (Card Ranking):** Pure function scoring — deterministic, no external API, well-understood weighted-sum pattern.
-- **Phase 6 (QA):** `test/golden/` patterns already established in the codebase. Julien + Lauren golden couple test infrastructure exists.
+### P0b — Contracts and Audits (5 deliverables, can run parallel to L1.1 once P0a ships)
+
+| # | Deliverable | Owner | Blocks | File path |
+|---|-------------|-------|--------|-----------|
+| P0b.1 | `VoiceCursorContract`: `tools/contracts/voice_cursor.json` (source of truth) + codegen to `apps/mobile/lib/services/voice/voice_cursor_contract.g.dart` + `services/backend/app/schemas/voice_cursor.py` + CI drift guard. | Agent | L1.5, L1.6 | `tools/contracts/`, `tools/codegen/voice_cursor_codegen.py`, `Makefile` |
+| P0b.2 | `Profile.voiceCursorPreference` field: Pydantic v2 (`Literal['soft','direct','unfiltered'] = 'direct'`), CoachProfile Dart field (73 consumers), nullable SQLAlchemy column + read-time migration. | Agent | L1.6c | `services/backend/app/schemas/profile.py`, `apps/mobile/lib/models/coach_profile.dart` |
+| P0b.3 | Krippendorff α tooling: `tools/voice-cursor-irr/` directory, `compute_alpha.py` (~30 LOC), `ratings.csv` template, `requirements.txt` (`krippendorff>=0.6.1`), README with protocol (15 testers × 50 phrases × N1-N5, weighted ordinal). | Agent | L1.6b validation gate | `tools/voice-cursor-irr/` |
+| P0b.4 | `AUDIT_CONFIDENCE_SEMANTICS.md`: classify all ~40 confidence-rendering hits into 3 real semantic categories (`extraction-confidence`, `data-freshness`, `calculation-confidence`). Decide which category MTC absorbs vs. which needs a sibling component. This classification gates L1.2b scope. | Agent | L1.2b migration scope | `.planning/milestones/v2.2-phases/AUDIT_CONFIDENCE_SEMANTICS.md` |
+| P0b.5 | `AUDIT_CONTRAST_MATRIX.md`: enumerate every text/background token pair across S0–S5, compute WCAG contrast ratios. Classify: AAA pass / AA-only / fail. Surface the 6 token upgrades needed (`textSecondaryAaa`, `warningAaa`, etc.). | Agent | L1.1 (knows what to fix before audit) + L1.3 (microtypographie uses same tokens) | `.planning/milestones/v2.2-phases/AUDIT_CONTRAST_MATRIX.md` |
+
+### L1.1 — Audit du Retrait (S0–S5, -20% visual elements)
+
+Source: FEATURES (Hara emptiness principle, Spiekermann one-color rule), PITFALLS (P5 confidence-semantics), ACCESSIBILITY (§3 Roselli AAA pragmatism).
+
+Deliverables: remove 20% of visual elements on each of S0–S5; apply one-color-one-meaning rule (choose one desaturated amber token for "verifiable fact requiring attention", demote all others to neutral); use `AUDIT_CONFIDENCE_SEMANTICS.md` and `AUDIT_CONTRAST_MATRIX.md` (from P0b) as inputs. The L1.1 deliverable includes an explicit DELETE / KEEP list for all confidence rendering surfaces that feeds L1.2b on day 1.
+
+Depends on: P0a complete, P0b.4 and P0b.5 shipped.
+Parallel with: L1.2a, L1.4, L1.6a.
+
+### L1.2a — MintTrameConfiance v1 Component + S4 Migration
+
+Source: ARCHITECTURE (§B.1 grep-verified 18 consumers, §B.2 drop-in pattern), FEATURES (Linear hide-when-low-confidence, VZ hypotheses footer, MUJI 4-line grid), ACCESSIBILITY (§C bloom spec, `oneLineConfidenceSummary()` spec).
+
+Three constructors: `MintTrameConfiance.inline()`, `.detail()`, `.audio()`. Mandatory states: bloom (250ms ease-out with `disableAnimations` fallback to 50ms opacity-only), `MTC.Empty(missingAxis)` (hide projection below floor, show missing-axis prompt instead), hypotheses footer slot (VZ pattern, 3-line max, visible at rest). `BloomStrategy` enum controls bloom in feed contexts (default `onlyIfTopOfList` in lists, `firstAppearance` in standalone). No `score: double` public getter (compliance: no sorting). `oneLineConfidenceSummary(EnhancedConfidence)` pure function with 24 ARB strings (4 weakest-axis × 6 languages). `SemanticsService.announce()` fires exactly once on state change.
+
+Depends on: P0a.5 (bloom budget), P0b.4 (semantic classification).
+Parallel with: L1.1, L1.4, L1.6a.
+
+### L1.2b — MTC Migration (11 Rendering Surfaces)
+
+Source: ARCHITECTURE (§B.1 — 18 total consumers, 11 are rendering surfaces, 7 are logic gates that stay untouched).
+
+**Real count is 11, not 12 (brief said ~12).** Logic gates (`#1, #2 partial, #5, #8, #9, #15, #16`) stay reading the int — no visual change. Rendering surfaces: `confidence_score_card`, `confidence_banner`, `trajectory_view`, `futur_projection_card`, `coach_briefing_card`, `retirement_hero_zone`, `indicatif_banner`, `narrative_header` (8 pure renderers) + `retirement_dashboard_screen`, `cockpit_detail_screen`, `confidence_blocks_bar` (3 mixed). Each migration = 1-line widget replacement. PR gate: MTC-equivalent tests must match or exceed pre-migration test count. Checklist: `.planning/milestones/v2.2-phases/L1.2-MTC-MIGRATION-CHECKLIST.md` with `[ ] swapped [ ] tested [ ] goldens [ ] A14-verified` per surface.
+
+Depends on: L1.2a shipped, L1.1 DELETE/KEEP list.
+Parallel with: L1.3, L1.5.
+
+### L1.3 — Microtypographie Pass (S1–S5) + MintColors *Aaa Tokens
+
+Source: STACK (§7 AAA contrast helper), FEATURES (Spiekermann 4pt baseline grid, Aesop demote-the-number rule), ACCESSIBILITY (§9 MintColors delta, §D AAA token proposals).
+
+Deliverables: apply 4pt baseline grid snap rule across S1–S5; line length 45–75 chars; 3 heading levels max; demote headline numbers to body weight on S4 (Aesop rule: sentence carries rhythm, not the number); add 6 AAA tokens to `colors.dart` (`textSecondaryAaa` #595960, `textMutedAaa` #5C5C61, `successAaa` #0F5E28, `warningAaa` #8C3F06, `errorAaa` #A52121, `infoAaa` #004FA3); migrate S0–S5 only to AAA tokens (no mass migration). Pastels (saugeClaire, bleuAir, pecheDouce, corailDiscret, porcelaine) = background-only, never information-bearing text in S0–S5.
+
+**The Aesop + MUJI 4-line grammar for S4** (deliverable in this chantier, informed by L1.2a component design): (1) What this is, (2) What you're doing now, (3) What happens without change, (4) What you could do next. The MTC sits inline in line 3. Four lines, no chrome.
+
+Depends on: L1.2a (component exists), P0a.5 (Galaxy A14 baseline to validate no regression), P0b.5 (contrast matrix).
+Parallel with: L1.4, L1.6b.
+
+### L1.4 — Voix Régionale VS/ZH/TI + Backend Dual-System Kill
+
+Source: STACK (§5 two-gen-l10n pattern), ARCHITECTURE (§C.3 backend dual-system), PITFALLS (P11 recruitment, P12 dual-system trap).
+
+Deliverables: 3 ARB files (`app_regional_vs.arb`, `app_regional_zh.arb`, `app_regional_ti.arb`) × ~30 keys; `l10n_regional.yaml` second gen-l10n config; extend `RegionalVoiceService.forCanton()` (~40 LOC); `regional_microcopy_codegen.py` (ARB → Pydantic dict) replaces hand-coded `REGIONAL_MAP` + `_REGIONAL_IDENTITY` constants in `claude_coach_service.py` (delete legacy constants in same MR — zero-debt rule); CI guard: any literal from `app_regional_vs.arb` in `claude_coach_service.py` = red build. Validation by 3 named native validators committed by end of P0a.1. Regional microcopy **overrides**, never **introduces** — every regional key has a base-language sibling.
+
+Depends on: P0a.1 (validators recruited), ARB infra from P0b (or build inline here).
+Parallel with: L1.2b, L1.3.
+
+### L1.5 — MintAlertObject G2/G3 with Typed API
+
+Source: FEATURES (Wise 3-part template, Stripe 5-part grammar), ARCHITECTURE (§E.1 — not a coach tool, receives from anticipation engine), ACCESSIBILITY (§B `liveRegion` for announcements).
+
+API: `MintAlertObject({required Gravity gravity, required String fact, required String cause, required String nextMoment})`. Compiler-enforced — no arbitrary `String message`. MINT is always the subject ("MINT n'a pas pu", never "Tu n'as pas pu"). G2 = direct grammar in calm register. G3 = grammatical break + priority float in `ContextualCardProvider` ranking (1-line change in `card_ranking_service.dart`). G3 must persist until acknowledged (no auto-dismiss — COGA Pitfall). Imports `VoiceCursorContract.g.dart` for gravity→level routing. Not an LLM tool: fed by `AnticipationProvider` / `NudgeEngine` / `ProactiveTriggerService` (rule-based). `SemanticsService.announce()` on G2→G3 transitions. Patrol integration tests: 6 golden states.
+
+Depends on: P0b.1 (VoiceCursorContract).
+Parallel with: L1.2b, L1.3.
+
+### L1.6 — Voice Pass: Curseur d'Intensité v1
+
+Source: FEATURES (Headspace narrator wall, pacing/silence rules), PITFALLS (P1 tone-locking, P2 context bleeding, P3 N5 weekly cap, P8 precedence cascade, P9 ComplianceGuard at N4/N5), STACK (§1 Krippendorff tooling).
+
+Three sub-chantiers:
+
+**L1.6a — Spec doc + 50 phrases + routing matrix + garde-fous**
+`docs/VOICE_CURSOR_SPEC.md`. Must include: 5-level definitions (N1–N5); gravity × relation routing matrix; precedence cascade (sensitivity guard → fragility cap → N5 budget → gravity floor → preference cap → matrix default — this ordering is mandatory per PITFALLS P8); narrator wall (explicit list of surfaces exempt from cursor routing: settings, error toasts, network failures, legal disclaimers); sentence-subject rule ("MINT n'a pas pu"); pacing/silence rules per level (line breaks, typing indicator pause); 50 reference phrases (10 per level), frozen pre-validation — no re-rolling; anti-examples per level (what N4 is NOT). Also: `resolveLevel(gravity, relation, preference, sensitiveFlag, fragileFlag, n5Budget) → N1..N5` pure function with 80+ unit tests.
+
+**L1.6b — Rewrite 30 coach phrases + Krippendorff α validation**
+30 most-used coach phrases rewritten per spec. Validation protocol: 15 testers × 50 phrase set (10 per level) × blind classification. Per-level α reported separately — aggregate α alone is insufficient. Target: overall α ≥ 0.67 weighted ordinal AND per-level N4/N5 α ≥ 0.67. **Generation-side test (critical anti-tone-locking measure):** 10 trigger contexts sent to Claude at N4, 10 generated outputs rated blind by same testers — if ≥30% classified as N2/N3, the system prompt is broken before shipping. N5 promoted to backend hard gate: `Profile.n5IssuedThisWeek` rolling counter, auto-downgrade to N4 when ≥1. Auto-fragility detector: ≥3 G2/G3 events in 14 days → auto-enter fragile mode (N3 cap, 30d) without self-declaration. ComplianceGuard extended with 50 adversarial N4/N5 phrases.
+
+**L1.6c — User "Ton" setting in intent_screen + ProfileDrawer**
+3-option chooser (`soft`/`direct`/`unfiltered`, default `direct`). Writes `Profile.voiceCursorPreference` via API. Imports `VoiceCursorContract.g.dart`. Patrol golden test: select-confirm-back round trip + assert persisted preference.
+
+Depends on: P0b.1 (VoiceCursorContract), P0b.2 (Profile field), P0b.3 (Krippendorff tooling), L1.6a before L1.6b, L1.6b before L1.6c.
+Critical path: P0b.3 → L1.6a → L1.6b → L1.6c is the longest chain in the milestone.
+
+### L1.7 — Landing v2 (NEW — S0)
+
+Source: LANDING_AND_ONBOARDING (§C.2 redesign spec), FEATURES (Wise "verb of use" pattern, Linear manifesto pattern).
+
+**Rebuild, not iterate.** New file or complete rewrite of `landing_screen.dart`. Hard rules: zero financial_core imports, zero fields/inputs, zero projected numbers, zero retirement vocabulary. One screen, one idea, one action.
+
+Layout: paragraphe-mère (~30 words) + primary CTA pill ("Continuer (sans compte)") + one privacy micro-phrase ("Rien ne sort de ton téléphone tant que tu ne le décides pas.") + legal footer. Only the `landingTransparency` paragraph from the existing screen survives as source inspiration.
+
+Recommended paragraphe-mère (Variante A — mission verbatim, lowest risk): "Mint te dit ce que personne n'a intérêt à te dire. Sur tes assurances, ton 3a, ton salaire, ton bail, ton couple, tes impôts. Calmement. Sans te vendre quoi que ce soit." Test Variante C as split if Julien agrees.
+
+Banned: "Commencer", "Démarrer", "Voir mon chiffre", "Ton chiffre en X secondes", trust-bar SaaS badges (keep only one honest privacy phrase), hidden-amount dark pattern.
+
+Depends on: P0a.3 (chiffre_choc sweep, else the routes it links to have legacy names).
+Parallel with: L1.1, L1.2a, P0b items.
+
+### L1.8 — Onboarding v2 (NEW — deletes 5 screens)
+
+Source: LANDING_AND_ONBOARDING (§B.2 dual-pipeline audit, §C.3 Variante 1 spec).
+
+**Decision locked: Variante 1 — 3 screens replacing 8.**
+
+New golden path: `S0 landing → /onboarding/intent (1 chip) → coach chat (JIT data collection in-conversation)`.
+
+**Delete these 5 screens + their routes:**
+- `instant_chiffre_choc_screen.dart` + route `/chiffre-choc-instant`
+- `chiffre_choc_screen.dart` + route `/onboarding/chiffre-choc`
+- `quick_start_screen.dart` + route `/onboarding/quick-start`
+- `promise_screen.dart` + route `/onboarding/promise`
+- `plan_screen.dart` + route `/onboarding/plan`
+
+**Wire S1 (intent_screen) directly to coach chat:** `_isFromOnboarding == true` branch routes to `/coach/chat` with chip payload, not to `/onboarding/quick-start`. Remove `chiffre_choc_selector` import (L15 of current `intent_screen.dart`). Fix the `chiffre_choc_screen` split-exit bug (coach-path bypass of `setMiniOnboardingCompleted` — P0a.2 STAB-17 should surface this).
+
+**Deprecate `OnboardingProvider`:** migrate its state to `CoachProfileProvider` + `CapMemoryStore`. `data_block_enrichment_screen.dart` is NOT deleted (it's a JIT deep-link tool, not part of the onboarding pipeline).
+
+**Remove age-segmentation from `promise_screen`** (it violated CLAUDE.md §1 "never by age" — moot once screen is deleted). Verify `app.dart` GoRouter guards don't route post-login users into the deleted screens.
+
+Depends on: L1.7 (landing must exist before onboarding flow has a starting point), P0a.3 (rename sweep).
+Parallel with: L1.3, L1.4, L1.5.
+
+---
+
+## 4. Stack Additions
+
+3 net-new dev-only dependencies. The shipped APK and FastAPI service get zero new runtime deps.
+
+| Package | Type | Purpose | Chantier | Version |
+|---------|------|---------|---------|---------|
+| `patrol: ^4.1.1` | Dart dev_dependency | E2E + native interaction tests (TalkBack pop-ups, voice cursor preference persistence) | L1.5, L1.2a | `^4.1.1`; requires `patrol_cli` global + 3-line CI step |
+| `krippendorff>=0.6.1` | Python tools-only (isolated venv in `tools/voice-cursor-irr/`) | Weighted ordinal IRR for L1.6b validation | L1.6b | Isolated, NOT in `pyproject.toml` |
+| `datamodel-code-generator>=0.25` | Python dev dependency | JSON Schema → Pydantic v2 for VoiceCursorContract codegen | P0b.1 | `pyproject.toml [dev]` |
+
+**No new runtime deps.** AAA contrast helper = 30 LOC pure Dart, no package. ARB regional namespace = second `gen_l10n` config, no package. Galaxy A14 perf = `flutter --profile` + DevTools (already in SDK). Firebase Test Lab = deferred to v2.3 (MEDIUM confidence on Galaxy A14 catalog availability at v2.3 kickoff — must confirm via `gcloud firebase test android models list`).
+
+---
+
+## 5. Features: Table Stakes / Differentiators / Anti-Features
+
+### Table Stakes (must ship — v2.2 is incomplete without these)
+
+- MTC v1 component (4-axis renderer, `MTC.Empty()` state, bloom, 1-line audio)
+- MTC migration on 11 rendering surfaces (dual-system kill)
+- MintAlertObject typed API (fact/cause/nextMoment)
+- Voice cursor 5-level spec + 50 reference phrases + narrator wall + sentence-subject rule
+- Voice cursor user setting "Ton" (soft/direct/unfiltered)
+- Microtypographie pass S0–S5 + 4pt baseline grid
+- Audit du retrait -20% on S0–S5 + one-color-one-meaning rule
+- Voix régionale VS/ZH/TI (30 microcopies × canton, backend dual-system kill)
+- Phase 0 stabilisation gate (STAB-17, A14 baseline, VoiceCursorContract, rename sweep, broken providers)
+- Hypotheses footer on every projection (VZ pattern — 3 lines max, visible at rest)
+- AAA tokens for S0–S5 (6 new token variants, pastels background-only)
+- Landing v2 rebuild (zero financial_core imports, zero fields)
+- Onboarding v2 (3 screens, 5 deleted)
+- `AUDIT_CONFIDENCE_SEMANTICS.md` classification before MTC migration
+- N5 weekly cap promoted to backend hard gate
+- Auto-fragility detector (≥3 G2/G3 in 14 days)
+
+### Differentiators (genuinely net-new vs. all 10 practitioners surveyed)
+
+- **Voix régionale VS/ZH/TI**: no fintech app does this anywhere — risk: native validator recruitment is the schedule constraint
+- **Voice cursor 5 levels with Krippendorff α ≥ 0.67**: Cleo has modes, nobody has measured IRR on the assignment; risk: model may tone-lock at N2-N3 (Pitfall 1)
+- **MintTrameConfiance 4-axis** (completeness × accuracy × freshness × understanding): VZ uses columns, Linear hides, nobody renders 4 axes with a bloom — risk: audio-1-line version is hard (Pitfall 7)
+- **Focus mode (ambient dim at N4/N5)** — Reichenstein iA Writer lesson: dim the surround, not the text; honors "le visuel ne change jamais"; **classified as stretch goal** pending Galaxy A14 perf gate on animating shell opacity
+
+### Anti-Features (do NOT build for v2.2)
+
+| Anti-feature | Why requested | What to do instead |
+|---|---|---|
+| Skin/color shift on cursor levels (Cleo-style) | Cleo does it | Reichenstein focus-mode dim (stretch) or nothing |
+| MTC bloom for all 11 surfaces simultaneously | "Consistent" | `BloomStrategy.onlyIfTopOfList` in feeds |
+| Voice cursor applied to error toasts / settings / legal | "Consistency" | Narrator wall — exemption list in L1.6a spec |
+| Confidence rendered always (no floor) | "Show our work" | `MTC.Empty(missingAxis)` below floor threshold |
+| MintAlertObject with free-form `String message` | "Flexibility" | Typed API: `fact / cause / nextMoment` |
+| Multiple accent colors as hierarchy | "Design richness" | One color, one meaning (Spiekermann) |
+| Quick-calc on landing | "First value fast" | The conv IS the first value — Headspace/VZ pattern |
+| `plan_screen` 4 hardcoded steps regardless of intent | "Onboarding closure" | Delete it; coach chat IS the plan |
+| "ADHD mode" toggle | "Inclusive" | Fix the default; adding a mode confesses the default is bad |
+| Lock Screen widget | Engagement | Galaxy A14 floor, iOS only, brief cut |
+| Firebase Test Lab in v2.2 CI | Automation | Deferred v2.3, manual gate by Julien this milestone |
+
+---
+
+## 6. Architecture
+
+### VoiceCursorContract
+
+Single JSON source of truth at `tools/contracts/voice_cursor.json` (not in mobile, not in backend). Codegen → `apps/mobile/lib/services/voice/voice_cursor_contract.g.dart` (Dart const enums) + `services/backend/app/schemas/voice_cursor.py` (Pydantic). CI drift guard: regenerate + `git diff --exit-code`. Both generated files committed (offline-safe). 6 Dart consumers + 2 Python consumers (grep-verified).
+
+### MTC Migration — 18 Consumers, 11 Rendering Surfaces
+
+**Critical: ARCHITECTURE.md grep-verified 18 consumers total, not ~12 as the brief states.** The 18 split into:
+- 11 rendering surfaces (must migrate) — listed in L1.2b above
+- 7 logic gates that only read `confidence.combined` int (must NOT migrate — leave untouched)
+
+The "confidence is not 1:1 semantically" finding (PITFALLS P5, ARCHITECTURE §B.1) means: `AUDIT_CONFIDENCE_SEMANTICS.md` (P0b.4) must classify each surface before migration. Surfaces rendering data-freshness are NOT the same as surfaces rendering calculation-confidence — merging them into MTC silently destroys information.
+
+### 4 Broken Providers (Extends STAB-17 Scope)
+
+`mint_home_screen.dart` currently reads `MintStateProvider`, `FinancialPlanProvider`, `CoachEntryPayloadProvider`, and `OnboardingProvider` via try/catch silent fallback (lines 124, 638 and related). These were carryover from v2.1 AUDIT_DEAD_CODE. P0a.4 must both register providers in `app.dart` MultiProvider AND remove the try/catch swallow — registering alone is insufficient (the façade stays if the swallow remains). This is why P0a.4 is a P0a blocker, not a later chantier: L1.2b migrating the home screen on top of a try/catch fallback = building on sand.
+
+### Regional Voice — Single Source of Truth
+
+**Current state is a pre-existing dual system.** `claude_coach_service.py:58` defines `REGIONAL_MAP` and `claude_coach_service.py:133` defines `_REGIONAL_IDENTITY` as hard-coded Python strings. `RegionalVoiceService.forCanton()` exists in Flutter. L1.4 adds `app_regional_<canton>.arb`. Decision: ARB files own static microcopy; backend system prompt owns dynamic-generation tone hints (references regional register, does not duplicate strings). L1.4 MR is rejected unless `git grep 'REGIONAL_MAP\s*=' services/backend/` returns 0.
+
+### Build Order DAG (Updated with L+O Scope + P0 Split)
+
+```
+P0a (sequential gate)
+  P0a.1 (recruitment emails, day 1)
+  P0a.2 (STAB-17 walkthrough, Julien)
+  P0a.3 (chiffre_choc rename, ~13h)
+  P0a.4 (wire 4 broken providers)
+  P0a.5 (A14 perf baseline, Julien)
+        │
+        └──────────────────────────────────────────────────────┐
+                                                               │
+P0b (parallel to L1.1 once P0a ships) ────────────────────────┤
+  P0b.1 VoiceCursorContract ──────────────────────────────┐   │
+  P0b.2 Profile.voiceCursorPreference ────────────────┐   │   │
+  P0b.3 Krippendorff tooling ──────────────────────┐  │   │   │
+  P0b.4 AUDIT_CONFIDENCE_SEMANTICS ──────────────┐ │  │   │   │
+  P0b.5 AUDIT_CONTRAST_MATRIX ────────────────┐  │ │  │   │   │
+                                              │  │ │  │   │   │
+GROUP α (parallel after P0a, P0b.4, P0b.5):  │  │ │  │   │   │
+  L1.1 Audit du retrait ─────────────────────┘  │ │  │   │   │
+  L1.2a MTC component ──────────────────────────┘ │  │   │   │
+  L1.4 Regional content ──────────────────────────┘  │   │   │
+  L1.6a Voice cursor spec ──────────────────────────────┐ │   │
+  L1.7 Landing v2 ─────────────────────────────────────── │   │
+                                                         │ │   │
+GROUP β (after GROUP α):                                 │ │   │
+  L1.2b MTC migration ×11 (needs L1.2a + L1.1 list)    │ │   │
+  L1.3 Microtypographie + AAA tokens (needs L1.2a)      │ │   │
+  L1.5 MintAlertObject (needs P0b.1) ────────────────────┘ │   │
+  L1.6b Phrase rewrite + Krippendorff α (needs L1.6a, P0b.3) ┘   │
+  L1.8 Onboarding v2 (needs L1.7 + P0a.3) ────────────────────────┘
+                                           │
+GROUP γ (after GROUP β):                   │
+  L1.6c "Ton" setting (needs L1.6b + P0b.2)
+                                           │
+v2.2 ship gate: Julien Galaxy A14 manual + 3 live a11y sessions
+                (a11y sessions require L1.3 + S5 landed for anything meaningful)
+```
+
+**Critical path:** P0a → P0b.1 → L1.6a → L1.6b → L1.6c. Bottleneck is L1.6b: 50 phrases × 15 testers + generation-side test = 5–7 working days of coordination. L1.7 + L1.8 can absorb schedule slip without affecting voice critical path.
+
+---
+
+## 7. Top 10 Pitfalls (Ranked by Likelihood × Severity)
+
+| Rank | Pitfall | L×S | Owns | Prevention |
+|------|---------|-----|------|-----------|
+| 1 | **Tone-locking** — Claude produces polite N2 regardless of N4/N5 prompt (RLHF base distribution) | HIGH×HIGH | L1.6a + L1.6b | Few-shot examples (3 verbatim N4 per system prompt) + anti-examples + generation-side reverse-Krippendorff test + default cap at N3 until verified |
+| 2 | **N5/ComplianceGuard gap** — piquant register drifts into prescription without tripping ComplianceGuard's regex filters | HIGH×HIGH | L1.6a + L1.6b | Extend ComplianceGuard with 50 adversarial N4/N5 phrases + register-aware imperative-without-hedge rule |
+| 3 | **MTC migration breaks ~40 tests silently** — removing legacy badge removes its tests, coverage drops invisibly, green CI is not coverage | HIGH×MEDIUM | L1.2a (scaffold before L1.2b) | Pre-migration lcov baseline; PR gate requires MTC-equivalent tests; migration checklist per surface |
+| 4 | **MTC is not 1:1 semantically** — 3 distinct confidence concepts (extraction, freshness, calculation) collapsed into one visual without an `AUDIT_CONFIDENCE_SEMANTICS.md` decision | HIGH×MEDIUM-HIGH | P0b.4 + L1.1 | Classify all ~40 consumers before any migration; if sibling component needed, spec it in L1.2a |
+| 5 | **N5 weekly cap is editorial, not technical** — fragile users in crisis get 4 N5 messages in 3 days; each is correct in isolation | HIGH×HIGH | L1.6a (spec) + L1.6b (backend) | Hard backend gate: `Profile.n5IssuedThisWeek` + auto-fragility detector (≥3 G2/G3 in 14 days → N3 cap 30 days, no self-declaration required) |
+| 6 | **Context bleeding** — G3/N5 turn poisons the next G1 turn via LLM context window | HIGH×MEDIUM | L1.0 + L1.6c (backend) | Rebuild system prompt fresh each turn; explicit register-reset clause; `[N5]` tag in conversation history; visual breath separator on G3→G1 |
+| 7 | **MTC bloom jitter in scrollable feed** — 6-8 cards blooming simultaneously on Galaxy A14 = <40fps | MEDIUM-HIGH×MEDIUM | L1.2a | `BloomStrategy` enum; default `onlyIfTopOfList` in feed contexts; stagger 60ms; honor `disableAnimations` |
+| 8 | **AAA contrast vs. brand pastels** — WCAG 7:1 forces darker text, pastels and 7:1 are near-opposite goals | HIGH×MEDIUM | L1.1 + L1.3 | `AUDIT_CONTRAST_MATRIX.md` first; 6 new AAA tokens; pastels = background-only in S0–S5 |
+| 9 | **Accessibility + regional recruitment is the real schedule risk** — 6-week lead time for a malvoyant·e tester; if it starts at L1.6, sessions arrive post-close | HIGH×MEDIUM-HIGH | P0a.1 | Emails to SBV-FSA + ASPEDAH + Caritas on day 1 of Phase 0; budget CHF 800–2'000; if recruitment fails by end of L1.1, descope AAA to "AA bloquant + AAA aspirational" honestly |
+| 10 | **chiffre_choc partial rename** — 719 occurrences in 174 files, half already renamed in some layers, Pydantic `populate_by_name` accepts both silently | HIGH×LOW-MEDIUM | P0a.3 | Single sweep PR; CI grep gate returning 0 in `lib/`, `app/`, `l10n/` (allowed in `.planning/`, `docs/archive/`) |
+
+Additional flags for planner: Pitfall 8 (precedence cascade ambiguity in routing matrix), Pitfall 15 (editorial drift post-validation — add ARB `@meta level:` annotation gate), Pitfall 17 (sample size 30 → spec 50 phrases, freeze pre-validation), Pitfall 19 (Phase 0 bloat — hard cap 5 deliverables, 2-week budget).
+
+---
+
+## 8. Accessibility Reality
+
+**AAA on S0–S5 is achievable but non-trivial.** Honest estimate from ACCESSIBILITY research:
+
+| Surface | AA → AAA work | Estimate |
+|---------|--------------|---------|
+| S0 Landing (new) | Build AAA from day 1; no text contrast debt if using new AAA tokens | 1 day |
+| S1 intent_screen | Persistent labels, reading-level pass, jargon tap-to-define, voice cursor dropdown semantics | 2–3 days |
+| S2 mint_home_screen | Card semantics tree; 7:1 on every metric; alt text on ~40 illustrations; reading level | 3–4 days |
+| S3 coach_message_bubble | `liveRegion` for incoming messages; 7:1; reduced-motion typing indicator | 2 days |
+| S4 response_card + MTC | MTC bloom `oneLineConfidenceSummary()` + announce(); CustomPaint semanticsBuilder; 7:1 | 4–5 days |
+| S5 MintAlertObject (new) | Build AAA from day 1: G2/G3 announce, no auto-dismiss, 7:1, TalkBack 13 | 3 days |
+
+**Total: ~14–17 dev days for AAA on S0–S5** + 3 days palette delta + 5 days live test sessions + remediation. Round to **4 weeks of focused time**, parallelizable with L1.2a/b.
+
+**MintColors palette delta:** 6 tokens need darker AAA variants (listed in §3 L1.3). Pastels (saugeClaire, bleuAir, pecheDouce, corailDiscret) = background-only in S0–S5, never information-bearing. Brand character preserved (delta is 12–18% lighter, hue unchanged). Requires Julien sign-off on brand willingness before L1.1 work starts.
+
+**Open questions for Julien (decision gates for accessibility):**
+1. **Brand sign-off on palette delta** — darkening textSecondary/success/warning/error/info ~15% for AAA on S0–S5. Gate for L1.1 and L1.3.
+2. **Access for All audit?** (Swiss certification body, Zürich, CHF 8–18k for 5 screens + remediation report). Not required for v2.2 but is the only recognized Swiss accessibility credential. Decision needed before TestFlight.
+3. **AAA honesty gate** — if tester recruitment fails by end of L1.1, descope explicitly to "AA bloquant CI + AAA aspirational with known gaps documented". False AAA claim is worse than honest AA.
+4. **SC 3.1.5 reading-level approach** — "rente vieillesse LPP" cannot pass B1. Approach: tap-to-define inline expansion. Must decide before L1.1 write-phase.
+5. **TalkBack 13 on real Galaxy A14** — all 7 widget traps (CustomPaint, IconButton without tooltip, InkWell/GestureDetector, AnimatedSwitcher, TextField obscureText, DropdownMenu) require real device verification, not emulator. STAB-17 walkthrough (P0a.2) should fold in a TalkBack pass.
+
+---
+
+## 9. Landing and Onboarding Pivot
+
+**Verdict from LANDING_AND_ONBOARDING research (HIGH confidence — all findings are line-cited against the actual files):**
+
+Five findings that together mandate a rebuild, not an iteration:
+
+1. **Parallel pipelines (structural):** Two completely separate onboarding flows (path A: intent → quick-start → chiffre-choc → plan; path B: landing quick-calc → instant-chiffre-choc → promise → login) are glued at `promise_screen` and never converge. Path A and path B are two products in one folder.
+
+2. **Age segmentation violation:** `promise_screen` segments body copy into 3 age brackets (<25 / 25-34 / 35+), directly violating CLAUDE.md §1 ("NEVER by age"). Moot once screen is deleted.
+
+3. **`plan_screen` is a façade:** `_stepsForIntent()` returns the same 4 hardcoded steps regardless of the intent chip chosen. The comment in the file says "Future: customize per intent." This is the façade-sans-câblage pattern v2.1 spent a whole audit wave killing, now on the entry flow.
+
+4. **`chiffre_choc_screen` split-exit bug:** The coach-path button (arrow in TextField) routes to `/coach/chat` without calling `setMiniOnboardingCompleted(true)`. On next app start, user is re-routed to onboarding. Confirmed bug.
+
+5. **719 occurrences / 174 files:** The `chiffre_choc` → `premier_eclairage` rename was done in some UI strings but not in filenames, routes, class names, analytics events, or backend API paths. The partial rename has created a dual-vocabulary layer that Pydantic `populate_by_name` silently accepts.
+
+**Variante 1 action plan (user-locked decision):**
+
+New golden path: `S0 → S1 (1 chip) → coach chat`. Three screens. Friction: 15 seconds, 1 chip input. Delete 5 screens + 5 routes + `OnboardingProvider`. Wire S1 directly to coach chat with chip payload. `data_block_enrichment_screen.dart` survives (it's the JIT deep-link mechanism, not part of the pipeline).
+
+---
+
+## 10. Build Order Recommendations for Roadmapper
+
+**Phase 0a** = sequential gate, no design work starts until complete. Must start immediately; recruitment (P0a.1) is the longest lead-time item (6 weeks). STAB-17 (P0a.2) is already scaffolded — Julien just needs to sit down with a device.
+
+**Phase 0b** = parallel to L1.1 once P0a ships. VoiceCursorContract (P0b.1) gates L1.5 + L1.6. The audits (P0b.4, P0b.5) gate L1.2b and L1.1 respectively.
+
+**L1.7 (Landing v2)** has no dependencies beyond P0a.3 (rename sweep). It can start early and is low-risk: zero financial_core imports = zero compliance risk = no compliance review needed beyond the usual disclaimer check.
+
+**L1.8 (Onboarding v2)** depends on L1.7 (landing must link somewhere valid). It is the right moment to also deprecate `OnboardingProvider`.
+
+**L1.1 (audit du retrait)** should ship its DELETE/KEEP list before L1.2b touches a single consumer. L1.1 is a reading chantier, not a writing chantier — it produces a list and a contrast matrix verdict.
+
+**L1.2a before L1.2b** is a hard dependency. No surface should be migrated before the component exists and its API is stable.
+
+**L1.6a before L1.6b before L1.6c** is sequential by design. L1.6b cannot validate phrases that don't match a frozen spec. L1.6c cannot ship a setting that has no validated spec behind it.
+
+---
+
+## 11. Open Questions for Julien (Decision Gates)
+
+Each question is tagged with the chantier it blocks.
+
+| # | Question | Blocks | Expert Recommendation |
+|---|----------|--------|----------------------|
+| 1 | **Landing paragraphe-mère:** Variante A (mission verbatim) vs. Variante C (NOT a retirement app — the "liste négative")? | L1.7 copy | Start with Variante A (lower risk, doctrine-aligned); prepare Variante C as a split test for web landing only |
+| 2 | **Brand palette sign-off:** Accept darkening 6 tokens ~15% for AAA on S0–S5? | L1.1 + L1.3 | Accept. Delta is imperceptible to most users; compliance and EU EAA exposure outweigh the aesthetic cost |
+| 3 | **Access for All audit?** (CHF 8–18k, 6–8 week lead, Swiss accessibility certification) | v2.2 ship positioning | Worth it if you plan to market AAA publicly. If the 3 live sessions are already the evidence, skip the formal cert for v2.2, schedule v2.3 |
+| 4 | **N5 generation-side test consent:** Are the 15 Krippendorff testers the same people who do the generation-side reverse test? | L1.6b | Yes — same testers, but second pass on generated output (not the pre-written phrases). Run the generation test first, before revealing the pre-written validation set |
+| 5 | **VZ app teardown:** Julien screenshots 5 VZ screens (tax estimate, retirement projection, alert, scenario comparison, confidence display) to verify the hypotheses footer pattern before the L1.2a API is finalized? | L1.2a API design | Yes, worth 1 hour before locking the hypotheses footer component spec |
+| 6 | **Focus mode (ambient dim at N4/N5):** Stretch goal or must-ship? | L1.6 scope | Stretch goal. Gate on Galaxy A14 perf (animating shell opacity at N4+ is the risk). If A14 baseline (P0a.5) shows headroom after MTC bloom, promote to GROUP β. Otherwise document for v2.3. |
+| 7 | **`OnboardingProvider` deprecation:** Who owns the migration to `CoachProfileProvider` + `CapMemoryStore`? | L1.8 | Agent-executable once L1.8 scope is confirmed. The provider has state used by `instant_chiffre_choc_screen` (deleted in L1.8) — once those screens are gone, the provider's only remaining consumers should be trivially migratable. |
+
+---
+
+## 12. Metric Targets
+
+| Metric | Target | Gate |
+|--------|--------|------|
+| Krippendorff α overall (50 phrases, 15 testers, weighted ordinal) | ≥ 0.67 | L1.6b ship |
+| Krippendorff α per level N4 and N5 separately | ≥ 0.67 each | L1.6b ship |
+| Generation-side classification: N4 outputs rated N4 by testers | ≥ 70% | L1.6b ship (else prompt broken) |
+| Phrases classified G3 → routed to N1/N2 | 0 | ComplianceGuard |
+| Sensitive topics receiving N4/N5 | 0 | ComplianceGuard + VoiceCursorContract |
+| WCAG contrast on S0–S5 text/icon pairs | ≥ 7:1 (AAA) | L1.3 CI test |
+| WCAG contrast on all other app surfaces touched | ≥ 4.5:1 (AA) | CI flutter test |
+| cold start `timeToFirstFrameMicros` on Galaxy A14 | < 2500ms | P0a.5 + L1.2b merge gate |
+| Scroll FPS on Aujourd'hui home (10s) | median ≥ 55, p95 ≥ 50 | P0a.5 + L1.2b merge gate |
+| MTC bloom frames on Galaxy A14 (250ms = 16 frames at 60fps) | 0 dropped | L1.2a merge gate |
+| `chiffre_choc` occurrences in `lib/`, `app/`, `l10n/` | 0 | P0a.3 CI gate |
+| Legacy confidence rendering (`confidenceScore.toStringAsFixed(0)` outside MTC) | 0 | L1.2b CI grep |
+| MTC instantiations without explicit `BloomStrategy` | 0 | Custom lint |
+| N5 messages per user per rolling 7 days | ≤ 1 | Backend hard gate |
+| Screens before first insight (new golden path) | 2 (landing + intent) | L1.8 E2E test |
+
+---
+
+## 13. Requirements Hint — Suggested REQ-ID Categories
+
+For the roadmapper and requirements step:
+
+| Category | Scope | Example REQ-IDs |
+|----------|-------|----------------|
+| `STAB` | Stabilisation carryover (STAB-17, broken providers, rename) | STAB-17-walkthrough, STAB-providers-wire |
+| `CONTRACT` | VoiceCursorContract, Profile field, codegen, CI drift guard | CONTRACT-voice-cursor-json, CONTRACT-voice-pref-profile |
+| `AUDIT` | AUDIT_CONFIDENCE_SEMANTICS, AUDIT_CONTRAST_MATRIX, retrait -20% | AUDIT-confidence-semantics, AUDIT-contrast-s0-s5 |
+| `MTC` | MintTrameConfiance component + 11-surface migration | MTC-component-v1, MTC-migrate-score-card |
+| `AESTH` | Microtypographie, AAA tokens, one-color rule, 4pt grid | AESTH-baseline-grid, AESTH-aaa-tokens-6 |
+| `VOICE` | Voice cursor spec, 50 phrases, Krippendorff, narrator wall | VOICE-spec-doc, VOICE-irr-validation |
+| `ALERT` | MintAlertObject S5 with typed API | ALERT-component-g2, ALERT-typed-api |
+| `TRUST` | Hypotheses footer, sentence-subject rule, hide-when-low | TRUST-hypotheses-footer, TRUST-mtc-empty-state |
+| `LAND` | Landing v2 rebuild | LAND-rebuild-no-financialcore, LAND-paragraphe-mere |
+| `ONB` | Onboarding v2 (delete 5 screens, wire intent→chat) | ONB-delete-5-screens, ONB-wire-intent-chat |
+| `ACCESS` | AAA on S0–S5, TalkBack 13 fixes, live test sessions, palette | ACCESS-aaa-s4-mtc-announce, ACCESS-talkback-iconbutton |
+| `REGIONAL` | VS/ZH/TI ARB carve-out, backend dual-system kill | REGIONAL-arb-vs-30keys, REGIONAL-backend-kill-map |
+| `PERF` | Galaxy A14 baseline, bloom strategy in feeds | PERF-a14-baseline, PERF-bloom-strategy-feeds |
 
 ---
 
@@ -161,49 +445,45 @@ Phases with well-documented patterns (standard implementation, skip deep researc
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Direct `pubspec.yaml` + `pyproject.toml` audit; existing package versions confirmed; delta packages are established Flutter/Python ecosystem standards |
-| Features | HIGH (table stakes) / MEDIUM (differentiators) | Table stakes grounded in codebase inspection and PROJECT.md; differentiators rely on competitive pattern assessment from pre-Aug 2025 training knowledge |
-| Architecture | HIGH | Direct inspection of 652 Flutter + 293 backend source files; component boundaries match existing codebase patterns; data flow derivable from existing service wiring |
-| Pitfalls | HIGH | Grounded in MINT's own codebase (actual code paths in `document_vision_service.py`, `lpp_certificate_parser.py`, `blink_connector.py`, `coach_memory_service.dart`) and W1-W14 audit history |
-
-**Overall confidence:** HIGH
+| Stack additions | HIGH | All 3 deps verified against live registries (pub.dev, PyPI, GitHub). Zero runtime deps confirmed. |
+| Features | HIGH on table stakes; MEDIUM on differentiators | Practitioner sources HIGH (Linear, Aesop, Stripe, Spiekermann documented); Headspace/Notion MEDIUM (behavioral specifics require app teardown). Notion 2025 quiet UI changes LOW — flag for v3.0 only. |
+| Architecture | HIGH | All consumer counts grep-verified against live tree. 18 consumers confirmed (not ~12). 4 broken providers confirmed. Backend REGIONAL_MAP confirmed present. |
+| Pitfalls | HIGH on codebase-specific (grep-verified); MEDIUM on tone-locking literature (sparse prior art, RLHF dynamics are documented but model-version-dependent) | |
+| Accessibility | MEDIUM-HIGH | Swiss org URLs verified; practitioner theses well-established; A14 TalkBack traps are Flutter-issue-number-cited. |
+| Landing/onboarding | HIGH | All findings line-cited against actual Dart files. 719-occurrence count grep-verified. |
+| Overall | HIGH | |
 
 ### Gaps to Address
 
-- **bLink API current state:** bLink/SFTI sandbox endpoint URLs, current API version, and required scopes should be verified against current SFTI documentation before Phase 5 implementation begins.
-- **`encrypt ^5.0.3` version verification:** Verify this is the current stable version on pub.dev before adding to `pubspec.yaml`. MEDIUM confidence from training data.
-- **`flutter_image_compress` Android NDK compatibility:** Verify against current `apps/mobile/android/` NDK configuration before adding — Android side requires native build setup.
-- **LPP caisse template coverage:** The 60% template-match estimate for known caisses is an approximation. Actual coverage depends on which caisses users have — measure after Phase 1 ships using extraction confidence distribution data.
-- **bLink data scope boundary:** LPP pension details, AVS history, and cantonal tax rates are confirmed to be outside bLink's data scope. Any feature that implies bLink can fetch these must be rejected.
+- **Notion 2024-2025 "quiet UI"**: LOW confidence on 2025 specifics. Flagged as v3.0 input only; do not promote to v2.2 requirements.
+- **VZ app in-screen behavior**: MEDIUM. Julien's 5-screenshot teardown (open question #5) needed before finalizing hypotheses footer API in L1.2a.
+- **tone-locking on Claude Sonnet specifically**: General RLHF literature is well-established, but MINT runs Claude Sonnet (not fine-tuned). The generation-side reverse-Krippendorff test in L1.6b is the live validation. No pre-migration certainty is possible.
+- **Galaxy A14 actual availability**: Device is confirmed as the floor. Perf claims (scroll FPS, bloom frames) cannot be verified until P0a.5 runs.
 
 ---
 
 ## Sources
 
-### Primary (HIGH confidence — direct codebase audit)
-- `apps/mobile/pubspec.yaml` + `services/backend/pyproject.toml` — current dependency inventory
-- `services/backend/app/services/document_vision_service.py` — Vision extraction pipeline (exists, no HTTP route registered)
-- `services/backend/app/services/open_banking/blink_connector.py` — sandbox mock structure, `NotImplementedError` production paths
-- `services/backend/app/services/document_parser/lpp_certificate_parser.py` — LPP field extraction, plan type gap
-- `apps/mobile/lib/services/coach/proactive_trigger_service.dart` — 8 existing triggers, SharedPreferences pattern
-- `apps/mobile/lib/services/memory/coach_memory_service.dart` + `memory_context_builder.dart` — PII defense patterns and their gaps
-- `apps/mobile/lib/services/ocr_sanitizer.dart` — security contract, AVS masking
-- `.planning/PROJECT.md` — feature scope, v2.0 requirements, explicit v3.0 deferrals
-- `CLAUDE.md` §5 (LPP constants, plan types), §6 (compliance rules), §8 (golden couple test parameters)
-- W1-W14 audit findings: `feedback_facade_sans_cablage.md`, `feedback_audit_inter_layer_contracts.md`
+### HIGH confidence
+- STACK.md — all 7 tooling decisions verified against live registries 2026-04-07
+- ARCHITECTURE.md — all 18 confidence consumer claims grep-verified against live tree
+- PITFALLS.md — codebase-specific pitfalls grep-verified; RLHF literature well-cited
+- LANDING_AND_ONBOARDING.md — findings line-cited against actual Dart files
+- ACCESSIBILITY.md — TalkBack traps are Flutter GitHub issue-cited (#147045, #148230, #133742, #99763, #76108)
+- W3C WCAG 2.1 (wcag.com) — contrast ratios, AAA SCs
+- `apps/mobile/lib/theme/colors.dart` — MintColors palette delta computed directly
+- STAB carryover snapshot (`.planning/backlog/STAB-carryover.md`) — 16/17 done, STAB-17 manual gate pending
 
-### Secondary (MEDIUM confidence — established ecosystem standards + Swiss law)
-- Swiss law: LPP art. 14 (6.8% minimum), LPP art. 79b al. 3 (rachat blocking), nLPD art. 6 (data minimization), nLPD art. 24 (breach notification)
-- FINMA Circular 2008/21 (operational risk — document handling)
-- `sqflite ^2.4.1` — stable, widely-used Flutter SQLite package (ecosystem standard)
-- `flutter_web_auth_2 ^4.0.1` — successor to deprecated `flutter_web_auth`; same maintainer
+### MEDIUM confidence
+- FEATURES.md practitioners (VZ, Wise, Headspace) — public site HIGH, in-app behavior MEDIUM; requires Julien teardown to verify behavioral specifics
+- ACCESSIBILITY.md — Access for All specifics are URL-cited; Adrian Roselli back-catalogue partially verified
 
-### Tertiary (LOW-MEDIUM confidence — training knowledge, verify before use)
-- bLink/SFTI sandbox API details (endpoints, scopes, credential provisioning) — training data pre-Aug 2025; verify against current SFTI docs
-- `encrypt ^5.0.3` specific version — verify on pub.dev before pinning
-- `flutter_image_compress` Android NDK compatibility — verify against current project NDK config
+### LOW confidence (do not promote to v2.2 requirements)
+- Notion "quiet UI" 2024-2025 — post-cutoff; v3.0 input only
+- Firebase Test Lab Galaxy A14 catalog — requires runtime confirmation at v2.3 kickoff via `gcloud firebase test android models list`
 
 ---
 
-*Research completed: 2026-04-06*
+*Research synthesized: 2026-04-07*
+*Reports: STACK.md (7 tooling items, 3 net-new deps), FEATURES.md (10 practitioners, table stakes/differentiators/anti-features), ARCHITECTURE.md (3 contracts, 18-consumer grep, DAG), PITFALLS.md (20 pitfalls ranked), ACCESSIBILITY.md (AAA reality, 6-week recruitment, palette delta), LANDING_AND_ONBOARDING.md (5 critical findings, Variante 1 spec)*
 *Ready for roadmap: yes*

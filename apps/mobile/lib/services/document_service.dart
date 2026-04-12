@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -1083,7 +1084,7 @@ class DocumentService {
       if (token == null) return null;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/v1/documents/scan-confirmation'),
+        Uri.parse('$baseUrl/documents/scan-confirmation'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -1101,8 +1102,8 @@ class DocumentService {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
-      // Offline-first: sync failure is not user-facing.
+    } catch (e) {
+      debugPrint('[DocumentService] sendScanConfirmation error: $e');
       return null;
     }
   }
@@ -1122,7 +1123,7 @@ class DocumentService {
       if (token == null) return null;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/v1/documents/extract-vision'),
+        Uri.parse('$baseUrl/documents/extract-vision'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -1147,6 +1148,7 @@ class DocumentService {
       return null;
     } catch (e) {
       if (e is DocumentServiceException) rethrow;
+      debugPrint('[DocumentService] extractWithVision error: $e');
       return null;
     }
   }
@@ -1166,7 +1168,7 @@ class DocumentService {
       if (token == null) return null;
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/v1/documents/premier-eclairage'),
+        Uri.parse('$baseUrl/documents/premier-eclairage'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -1185,7 +1187,8 @@ class DocumentService {
         return jsonDecode(response.body) as Map<String, dynamic>;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[DocumentService] fetchPremierEclairage error: $e');
       return null;
     }
   }

@@ -5,12 +5,6 @@
 # Format: PATH | SCOPE
 #
 / | public
-//admin-analytics | public
-//admin-observability | public
-//bilan | public
-//byok | public
-//privacy-control | public
-//slm | public
 /3a-deep/comparator | authenticated
 /3a-deep/real-return | authenticated
 /3a-deep/staggered-withdrawal | authenticated
@@ -68,16 +62,8 @@
 /education/theme/:id | authenticated
 /epl | authenticated
 /expatriation | authenticated
-/explore/famille | authenticated
-/explore/fiscalite | authenticated
-/explore/logement | authenticated
-/explore/patrimoine | authenticated
-/explore/retraite | authenticated
-/explore/sante | authenticated
-/explore/travail | authenticated
 /first-job | authenticated
 /fiscal | authenticated
-/home | authenticated
 /household | authenticated
 /household/accept | authenticated
 /hypotheque | authenticated
@@ -127,6 +113,12 @@
 /retirement | authenticated
 /retirement/projection | authenticated
 /retraite | authenticated
+/retraite/admin-analytics | authenticated
+/retraite/admin-observability | authenticated
+/retraite/bilan | authenticated
+/retraite/byok | authenticated
+/retraite/privacy-control | authenticated
+/retraite/slm | authenticated
 /scan | authenticated
 /scan/avs-guide | authenticated
 /scan/impact | authenticated

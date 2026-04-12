@@ -1,624 +1,373 @@
-# Architecture Research
+# Architecture Patterns — v2.2 La Beauté de Mint
 
-**Domain:** v2.0 "Mint Système Vivant" — integration of DataIngestionService, AnticipationEngine, FinancialBiography, bLink adapters, and smart card ranking into existing Flutter + FastAPI app
-**Researched:** 2026-04-06
-**Confidence:** HIGH (based on direct codebase inspection across 652 Flutter source files, 293 backend source files, and existing planning documents)
-
----
-
-## Standard Architecture
-
-### System Overview
-
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                         FLUTTER (Client)                                  │
-│                                                                           │
-│  ┌─────────────────┐  ┌────────────────┐  ┌───────────────────────────┐  │
-│  │  Aujourd'hui    │  │  Coach Tab     │  │  Explorer Hubs            │  │
-│  │  (smart cards)  │  │  (chat + nav)  │  │  (7 domains)              │  │
-│  └────────┬────────┘  └───────┬────────┘  └─────────────┬─────────────┘  │
-│           │                   │                          │               │
-│  ┌────────▼───────────────────▼──────────────────────────▼────────────┐  │
-│  │                     PROVIDERS (14 + 3 new)                         │  │
-│  │  CoachProfileProvider  |  AnticipationProvider  |  BiographyProv.  │  │
-│  └────────┬───────────────────────────────────────────────────────────┘  │
-│           │                                                               │
-│  ┌────────▼───────────────────────────────────────────────────────────┐  │
-│  │                    SERVICE LAYER (v2.0 additions)                  │  │
-│  │  DataIngestionService  AnticipationEngine  FinancialBiography      │  │
-│  │  CardRankingService    BlinkAdapterService  DocumentVaultService   │  │
-│  └────────┬──────────────────────────────────┬────────────────────────┘  │
-│           │                                  │                           │
-│  ┌────────▼──────────────┐   ┌───────────────▼────────────────────────┐  │
-│  │   financial_core/     │   │       LOCAL PERSISTENCE                │  │
-│  │  (pure calculators)   │   │  SharedPrefs  |  SecureStorage          │  │
-│  │  unchanged for v2.0   │   │  biography.json (local-only graph)     │  │
-│  └───────────────────────┘   └────────────────────────────────────────┘  │
-└───────────────────────────────────────┬──────────────────────────────────┘
-                                        │ HTTPS REST /api/v1
-┌───────────────────────────────────────▼──────────────────────────────────┐
-│                         FASTAPI (Backend)                                  │
-│                                                                           │
-│  ┌──────────────────────────────────────────────────────────────────────┐ │
-│  │  Endpoints (v2.0 additions)                                          │ │
-│  │  POST /documents/ingest   POST /anticipation/evaluate                │ │
-│  │  GET  /blink/sandbox      GET  /cards/ranked                         │ │
-│  └──────────────────────────────────┬───────────────────────────────────┘ │
-│                                     │                                     │
-│  ┌──────────────────────────────────▼───────────────────────────────────┐ │
-│  │  Services (v2.0 additions)                                           │ │
-│  │  DocumentExtractionService  AnticipationRuleEngine  BlinkAdapter    │ │
-│  │  (extend existing docling + document_parser)                        │ │
-│  └──────────────────────────────────┬───────────────────────────────────┘ │
-│                                     │                                     │
-│  ┌──────────────────────────────────▼───────────────────────────────────┐ │
-│  │  Existing Infrastructure                                             │ │
-│  │  ComplianceGuard  |  CoachTools  |  RAG (ChromaDB)  |  PostgreSQL   │ │
-│  └──────────────────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────────────────────────┘
-```
-
-### Component Responsibilities
-
-| Component | Responsibility | Status |
-|-----------|----------------|--------|
-| `DataIngestionService` (Flutter) | Adapter pattern: unified pipeline for photo/PDF/bLink/pension inputs. Detects document type, routes to correct parser, calls backend for LLM extraction, merges result into CoachProfile | NEW |
-| `AnticipationEngine` (Flutter) | Rule-based trigger evaluation (fiscal deadlines, profile changes, legislative). Zero LLM cost. Runs on app open, writes `AnticipationAlert` list to provider | NEW (extends existing `ProactiveTriggerService`) |
-| `FinancialBiography` (Flutter) | Local-only append-only graph of financial facts, decisions, and life events. Never sent to external APIs. `AnonymizedBiographySummary` generated for coach context injection | NEW |
-| `CardRankingService` (Flutter) | Scores Aujourd'hui cards by relevance (urgency × impact CHF × deadline proximity × profile completeness delta). Max 5 cards. Replaces static card list in `MintHomeScreen` | NEW (extends `DashboardCuratorService`) |
-| `BlinkAdapterService` (Flutter+Backend) | Sandbox-only OAuth adapter for bLink Open Banking. Client initiates consent flow; backend proxies bLink API calls; maps account data to CoachProfile fields | NEW (extends existing `OpenBankingService` stub) |
-| `DocumentExtractionService` (Backend) | LLM-powered field extraction from OCR text. Extends existing `docling/` and `document_parser/` services. Adds ProfileEnrichmentDiff output with `extractedAt` + decay model | EXTEND existing |
-| `AnticipationRuleEngine` (Backend) | Server-side version of anticipation rules for batch evaluation (e.g., legislative changes that affect all users). Writes alerts to DB for client pull | NEW (optional in v2.0) |
+**Domain:** Cross-cutting design/voice/accessibility layer over mature Flutter + FastAPI app
+**Researched:** 2026-04-07
+**Scope:** integration of 3 new contracts (VoiceCursorContract, MintTrameConfiance, regional ARB carve-out) into existing v2.0/v2.1 architecture
+**Confidence:** HIGH (all consumer claims grep-verified against the live tree)
 
 ---
 
-## Recommended Project Structure
+## 0. Operating constraints (locked, no re-litigation)
 
-### Flutter additions
-
-```
-apps/mobile/lib/
-├── services/
-│   ├── ingestion/                    # NEW — DataIngestionService adapter pattern
-│   │   ├── data_ingestion_service.dart       # Entry point: detects type, routes
-│   │   ├── ingestion_adapter.dart            # Abstract adapter interface
-│   │   ├── photo_scan_adapter.dart           # ML Kit OCR → backend LLM extraction
-│   │   ├── pdf_adapter.dart                  # PDF bytes → backend extraction
-│   │   ├── blink_adapter.dart                # bLink OAuth → account data → profile
-│   │   ├── pension_fund_adapter.dart         # Pension API stub (feature-flagged)
-│   │   └── ingestion_models.dart             # IngestionResult, ProfileEnrichmentDiff
-│   │
-│   ├── anticipation/                  # NEW — AnticipationEngine
-│   │   ├── anticipation_engine.dart          # Rule runner, returns AnticipationAlert[]
-│   │   ├── anticipation_rules.dart           # Fiscal, profile, legislative rule defs
-│   │   ├── anticipation_models.dart          # AnticipationAlert, AlertType enum
-│   │   └── anticipation_persistence.dart     # SharedPrefs: seen alerts, last eval date
-│   │
-│   ├── biography/                     # NEW — FinancialBiography
-│   │   ├── financial_biography.dart          # Local append-only graph (local JSON)
-│   │   ├── biography_models.dart             # BiographyFact, BiographyEvent, BiographyDecision
-│   │   └── biography_anonymizer.dart         # AnonymizedBiographySummary for coach context
-│   │
-│   ├── cards/                         # NEW — Smart card ranking
-│   │   ├── card_ranking_service.dart         # Scoring engine (extends DashboardCuratorService)
-│   │   ├── card_models.dart                  # RankedCard, CardScore, CardType enum
-│   │   └── card_registry.dart                # All possible card definitions
-│   │
-│   ├── coach/
-│   │   └── context_injector_service.dart     # MODIFY: add biography summary injection
-│   │
-│   └── document_parser/               # EXISTING — extend, do not restructure
-│       └── document_models.dart              # MODIFY: add ProfileEnrichmentDiff
-│
-├── providers/
-│   ├── anticipation_provider.dart     # NEW — AnticipationAlert[] + loading state
-│   ├── biography_provider.dart        # NEW — FinancialBiography reactive wrapper
-│   └── ingestion_provider.dart        # NEW — IngestionResult + progress state
-│
-├── models/
-│   └── profile_enrichment_diff.dart   # NEW — delta between old/new CoachProfile from ingestion
-│
-└── screens/
-    ├── document_scan/
-    │   └── ingestion_review_screen.dart  # EXTEND existing scan flow to show diff preview
-    └── home/
-        └── mint_home_screen.dart         # MODIFY: feed ranked cards from CardRankingService
-```
-
-### Backend additions
-
-```
-services/backend/app/
-├── api/v1/endpoints/
-│   ├── documents.py                   # EXISTING — add /ingest endpoint
-│   ├── anticipation.py                # NEW — GET /anticipation/alerts
-│   └── blink.py                       # NEW — sandbox OAuth + account data proxy
-│
-├── services/
-│   ├── document_extraction/           # NEW — extends docling + document_parser
-│   │   ├── llm_extractor.py           # LLM call + structured field extraction
-│   │   ├── profile_enrichment.py      # Maps extracted fields → ProfileEnrichmentDiff
-│   │   └── extraction_models.py       # ProfileEnrichmentDiff, FieldWithDecay
-│   │
-│   ├── anticipation/                  # NEW — server-side rule engine (optional batch)
-│   │   ├── rule_engine.py             # Legislative + batch rule evaluator
-│   │   └── anticipation_models.py     # AnticipationAlert dataclass
-│   │
-│   └── blink/                         # NEW — bLink sandbox adapter
-│       ├── blink_client.py            # HTTP client for bLink sandbox API
-│       ├── account_mapper.py          # bLink accounts → CoachProfile fields
-│       └── consent_manager.py         # OAuth token lifecycle (sandbox only)
-│
-├── schemas/
-│   ├── ingestion.py                   # NEW — IngestionRequest, ProfileEnrichmentDiffResponse
-│   ├── anticipation.py                # NEW — AnticipationAlertResponse
-│   └── blink.py                       # NEW — BlinkConsentRequest, AccountSummaryResponse
-│
-└── models/
-    └── anticipation_alert.py          # NEW — SQLAlchemy model (if server-side persistence needed)
-```
-
-### Structure Rationale
-
-- **`services/ingestion/`:** Groups all input channel adapters behind a single interface. Adapter pattern prevents document-type-specific logic from leaking into screens.
-- **`services/anticipation/`:** Isolated from `coach/` because it runs without LLM. Pure rule evaluation that the coach layer then optionally narrates.
-- **`services/biography/`:** Completely local — no backend service equivalent. Separation enforces the privacy constraint: biography data never leaves device.
-- **`services/cards/`:** Split from `DashboardCuratorService` (which is retirement-focused) because v2.0 cards span all 18 life events.
+- VoiceCursorContract is a Phase 0 deliverable (blocks L1.5 + L1.6)
+- MTC is a single rendering layer everywhere (no dual-system)
+- Regional microcopy = ARB carve-out per canton, base language only
+- Galaxy A14 = manual gate (no Android-in-CI this milestone)
+- Précision horlogère = MTC bloom only
+- Krippendorff α = L1.6 spec validation only
 
 ---
 
-## Architectural Patterns
+## 1. The 3 cross-cutting contracts at a glance
 
-### Pattern 1: Adapter Pattern for DataIngestionService
+| Contract | SoT location | Dart consumers | Python consumers | Generated? |
+|---|---|---|---|---|
+| VoiceCursorContract | `tools/contracts/voice_cursor_contract.json` | 6 (intent_screen, ProfileDrawer, RegionalVoiceService, MintAlertObject, coach_message_bubble, response_card_widget) | 2 (claude_coach_service.py, ComplianceGuard) | YES (codegen → Dart const + Pydantic) |
+| MintTrameConfiance | `lib/widgets/confidence/mint_trame_confiance.dart` (component) + `EnhancedConfidence` model unchanged | ~12 projection surfaces (see §3) | n/a (rendering only; backend `enhanced_confidence_service.py` already produces axes) | NO |
+| Regional microcopy | `lib/l10n/regional/app_regional_<canton>.arb` + Pydantic mirror | RegionalVoiceService (extended), ARB delegate | claude_coach_service.py REGIONAL_MAP must read same source | YES (codegen → Pydantic dict from ARB) |
 
-**What:** A single `DataIngestionService` facade accepts any input (photo bytes, PDF bytes, bLink token, pension fund ID) and returns a uniform `IngestionResult` containing a `ProfileEnrichmentDiff`. The facade delegates to typed adapters (`PhotoScanAdapter`, `PdfAdapter`, `BlinkAdapter`, `PensionFundAdapter`).
+---
 
-**When to use:** Any time a new data source is added in v3.0+. Adding a new adapter doesn't touch existing screens.
+## A — VoiceCursorContract integration
 
-**Trade-offs:** Adds one indirection layer. Justified because there are 4 distinct input channels in v2.0, each with different auth/privacy/compliance requirements.
+### A.1 Source-of-truth file
 
-**Example:**
+**Choice:** `tools/contracts/voice_cursor_contract.json` (single JSON), with codegen producing:
+- `apps/mobile/lib/services/voice/voice_cursor_contract.g.dart` (Dart const enums + routing matrix)
+- `services/backend/app/services/coach/voice_cursor_contract.py` (Pydantic model + frozen dict)
 
-```dart
-// ingestion_adapter.dart
-abstract class IngestionAdapter {
-  Future<IngestionResult> ingest(IngestionRequest request);
-  bool canHandle(IngestionRequest request);
-}
+**Why JSON over YAML:** Dart `dart:convert` is stdlib; Python `json` is stdlib. YAML adds a dependency on both sides. JSON also makes the codegen script trivial (`tools/codegen/voice_cursor_codegen.py`).
 
-// data_ingestion_service.dart
-class DataIngestionService {
-  final List<IngestionAdapter> _adapters;
+**Why not put SoT in Dart:** backend would have to parse Dart. Reverse (SoT in Python) means Flutter codegen depends on Python at build time. JSON is the neutral hub.
 
-  Future<IngestionResult> ingest(IngestionRequest request) async {
-    final adapter = _adapters.firstWhere(
-      (a) => a.canHandle(request),
-      orElse: () => throw UnsupportedError('No adapter for ${request.source}'),
-    );
-    final result = await adapter.ingest(request);
-    // After ingestion: delete original (nLPD), return diff
-    return result;
+**Schema (compact):**
+```json
+{
+  "version": "1.0.0",
+  "levels": {
+    "N1": {"name": "Neutre", "examples": [...10 phrases...]},
+    "N2": {"name": "Vif", ...},
+    "N3": {"name": "Complice", ...},
+    "N4": {"name": "Piquant", ...},
+    "N5": {"name": "Cash", ...}
+  },
+  "gravity": ["G1", "G2", "G3"],
+  "relation": ["new", "established", "intimate"],
+  "routing": {
+    "G1": {"new": "N1", "established": "N2", "intimate": "N2"},
+    "G2": {"new": "N2", "established": "N3", "intimate": "N4"},
+    "G3": {"new": "N4", "established": "N5", "intimate": "N5"}
+  },
+  "guardrails": {
+    "g3_min_level": "N2",
+    "sensitive_topics_max": "N3",
+    "fragile_mode_max": "N3",
+    "fragile_mode_ttl_days": 30,
+    "n5_weekly_cap": 1
+  },
+  "user_preference": {
+    "soft": "N3",
+    "direct": "N4",
+    "unfiltered": "N5"
   }
 }
 ```
 
-### Pattern 2: Append-Only Local Graph for FinancialBiography
+### A.2 Sync without hand-drift
 
-**What:** `FinancialBiography` stores an append-only list of `BiographyFact` objects (extracted field + source + timestamp + context), `BiographyEvent` (life event triggered), and `BiographyDecision` (user made a conscious choice — e.g., "chose rente over capital"). Never modified, only appended. Persisted as a local JSON file via `path_provider`.
+**Pattern:** codegen script + CI guard.
 
-**When to use:** Any time a document is ingested, a life event is triggered, or the user makes a significant choice in an arbitrage screen.
+1. `tools/codegen/voice_cursor_codegen.py` reads JSON → emits Dart `.g.dart` and Python `.py` files with header `// GENERATED — DO NOT EDIT`.
+2. CI step: re-run codegen, `git diff --exit-code` on the two generated files. Drift = red build.
+3. Both generated files committed (no runtime download — works offline, deterministic).
 
-**Trade-offs:** Append-only means no field correction — if a field is updated, the newer fact takes precedence by timestamp. Requires a `latestFact(fieldName)` accessor. Size must be capped (e.g., 500 entries max, oldest dropped).
+**Why codegen over runtime read:** Dart enums must be compile-time const for switch exhaustiveness; Pydantic models benefit from static typing. Runtime JSON parsing forfeits both.
 
-**Privacy guarantee:** `FinancialBiographyService` is called locally only. `BiographyAnonymizer` produces an `AnonymizedBiographySummary` (topic-level, no CHF amounts, no IBAN, no employer) that is safe to inject into coach prompts via `ContextInjectorService`.
+### A.3 Consumers (grep-verified)
 
-**Example:**
+| File | What it imports today | What it must import |
+|---|---|---|
+| `apps/mobile/lib/screens/onboarding/intent_screen.dart` | (no voice contract) | `voice_cursor_contract.g.dart` for L1.6c "Ton" question |
+| `apps/mobile/lib/widgets/profile_drawer.dart` (or wherever ProfileDrawer lives — verify in plan) | n/a | same, for settings toggle |
+| `apps/mobile/lib/services/voice/regional_voice_service.dart:119` (`forCanton`) | nothing | same, to tag `RegionalFlavor` outputs with default level |
+| `apps/mobile/lib/widgets/mint_alert_object.dart` (NEW — S5) | n/a | same, drives G2/G3 grammar selection |
+| `apps/mobile/lib/widgets/coach/coach_message_bubble.dart` (S3) | n/a | same, reads `level` from message metadata to apply micro-typo variant |
+| `apps/mobile/lib/widgets/coach/response_card_widget.dart` (S4) | n/a | same, for premier éclairage tone |
+| `services/backend/app/services/coach/claude_coach_service.py:133` (`_REGIONAL_IDENTITY`, `REGIONAL_MAP` line 58) | local constant | import generated `voice_cursor_contract.py`, inject level + guardrails into system prompt |
+| `services/backend/app/services/compliance_guard.py` (find canonical path in plan) | n/a | enforce: never N1/N2 on G3, never ≥N4 on sensitive topics, weekly N5 cap |
+
+### A.4 Routing matrix as data, not code
+
+**Choice:** compile-time (codegen emits a `const Map<Gravity, Map<Relation, Level>>`). Resolved via pure function `VoiceCursor.resolve(gravity, relation, userPref)`.
+
+**Why compile-time:** routing is small (3×3=9 cells), changes rarely, and must be exhaustively unit-tested. Runtime reads create a "what version is loaded?" debugging tax for zero benefit.
+
+### A.5 `Profile.voiceCursorPreference` field
+
+**Status:** does not exist in `services/backend/app/schemas/profile.py` (verified — grep returned 0 hits in `services/backend`).
+
+**Add to:**
+- `services/backend/app/schemas/profile.py` `ProfileBase`: `voiceCursorPreference: Literal['soft','direct','unfiltered'] = 'direct'`
+- `apps/mobile/lib/models/coach_profile.dart` (CoachProfile is the live one — `dead_code` audit shows 73 consumers)
+- Migration: nullable column in `profile_model.py` SQLA (default `'direct'`); existing rows migrate at read time.
+
+---
+
+## B — MintTrameConfiance migration architecture
+
+### B.1 Consumers consuming `confidence_scorer.dart` today (grep-verified)
+
+| # | File | Line | What it renders today |
+|---|---|---|---|
+| 1 | `screens/main_navigation_shell.dart` | 18, 230, 263 | Score-only int, used to gate shell behaviors |
+| 2 | `screens/onboarding/data_block_enrichment_screen.dart` | 11, 72, 194 | Per-bloc scoring + score |
+| 3 | `screens/coach/retirement_dashboard_screen.dart` | 14, 146 | Confidence as dashboard hero meta |
+| 4 | `screens/coach/cockpit_detail_screen.dart` | 10, 126, 128 | Score + per-bloc breakdown |
+| 5 | `screens/document_scan/extraction_review_screen.dart` | 8, 636 | Post-extraction delta on `currentConfidence` |
+| 6 | `widgets/home/confidence_score_card.dart` | 18, 22, 84 | Card with axis prompts (rich) |
+| 7 | `widgets/coach/confidence_blocks_bar.dart` | 9 | Bar of `scoreAsBlocs()` blocks |
+| 8 | `widgets/coach/low_confidence_card.dart` | 23 | Score < threshold → low-confidence CTA |
+| 9 | `widgets/coach/lightning_menu.dart` | 74 | Score gates menu items |
+| 10 | `widgets/retirement/confidence_banner.dart` | (whole file) | Banner-style score |
+| 11 | `widgets/profile/trajectory_view.dart` | 336 | Trajectory header confidence |
+| 12 | `widgets/profile/futur_projection_card.dart` | 33,54,125,191,423 | `confidenceScore: double` + uncertainty band rendering |
+| 13 | `widgets/coach/coach_briefing_card.dart` | 25,37,269,270 | Briefing header confidence |
+| 14 | `widgets/coach/retirement_hero_zone.dart` | 45,76,484 | Hero zone score |
+| 15 | `widgets/coach/progressive_dashboard_widget.dart` | 36,43,60,166 | Score pilots progressive disclosure depth |
+| 16 | `widgets/coach/smart_shortcuts.dart` | 27,32,215 | Score gates shortcuts |
+| 17 | `widgets/coach/indicatif_banner.dart` | 16,24,41,77,80 | Inline indicative banner |
+| 18 | `widgets/profile/narrative_header.dart` | 13,25,77 | Narrative header score |
+
+> **Reality check vs brief:** brief said "~12". Actual count is **18** (12 widgets + 5 screens + 1 lightning menu). Two categories:
+> - **Renderers of confidence** (must adopt MTC): #6, #10, #11, #12, #13, #14, #17, #18 — 8 surfaces
+> - **Logic gates on score** (do NOT need MTC, just keep reading the int): #1, #2 (gating), #5 (delta), #8, #9, #15, #16 — 7 surfaces
+> - **Both** (renders AND gates): #3, #4, #7 — 3 surfaces, must migrate the rendering half only
+
+**Net migration target for L1.2b: 11 rendering surfaces** (8 pure renderers + 3 mixed).
+
+### B.2 Migration pattern
+
+**Drop-in widget replacement, NOT consumer refactor.**
+
+Build `MintTrameConfiance` as a single widget with three constructors:
 
 ```dart
-// biography_models.dart
-class BiographyFact {
-  final String fieldName;       // e.g., "lppHavingTotal"
-  final dynamic value;          // the extracted value
-  final String source;          // "document_scan" | "user_entry" | "blink"
-  final DateTime recordedAt;
-  final String? documentId;     // link to vault document
-}
-
-// financial_biography.dart
-class FinancialBiography {
-  static Future<void> appendFact(BiographyFact fact) async { ... }
-  static Future<BiographyFact?> latestFact(String fieldName) async { ... }
-  static Future<AnonymizedBiographySummary> buildSummary() async { ... }
+class MintTrameConfiance extends StatelessWidget {
+  const MintTrameConfiance.inline({required this.confidence, this.onTap});
+  const MintTrameConfiance.detail({required this.confidence});
+  const MintTrameConfiance.audio({required this.confidence}); // SemanticsLabel only
 }
 ```
 
-### Pattern 3: Rule-Based AnticipationEngine (Zero-LLM)
+Each existing renderer becomes a 1-line replacement: `MintTrameConfiance.inline(confidence: ec)`. Score-int gates (#1, #5, #8, #9, #15, #16) stay untouched — they read `confidence.combined` and don't render anything.
 
-**What:** `AnticipationEngine` evaluates a fixed set of typed rules against the current `CoachProfile` + current date. Returns a sorted list of `AnticipationAlert`. No LLM call. Runs on every app open (debounced: max once per hour via SharedPreferences timestamp).
+**Why drop-in over refactor:** 18 surfaces × refactor = scope explosion + test breakage. Drop-in keeps the data flow identical.
 
-**Rule categories:**
-- **Fiscal deadlines:** 3a contribution deadline (Dec 31), tax declaration (canton-specific), LPP rachat window
-- **Profile change triggers:** LPP certificate older than 12 months → "update your certificate", salary gap > 10% from last known
-- **Legislative triggers:** regulatory_sync_service detects new parameter version → push alert
+### B.3 Test breakage estimate
 
-**When to use:** Anticipation that is deterministic — no ambiguity, no personalization needed. Coach AI then optionally narrates the alert when the user opens Coach tab.
+`grep -l 'confidence' apps/mobile/test/widgets/` gives a non-trivial count (not exhaustively run here — must be done in plan step). Likely impact:
+- Widget golden tests for `confidence_score_card`, `futur_projection_card`, `retirement_hero_zone`, `coach_briefing_card`, `narrative_header`, `indicatif_banner`, `confidence_banner`, `progressive_dashboard_widget` → **8 golden test files to regenerate**.
+- Behavioral tests reading `find.text('${score}%')` will likely still pass since MTC keeps the percentage in the inline variant.
 
-**Trade-offs:** Rules are hardcoded Dart logic — requires a deploy to update. Acceptable for v2.0. v3.0 can add server-pushed rule definitions.
+**Plan must run `flutter test --update-goldens` once after L1.2a, document the diff, then re-bless under Julien's eye.**
 
-**Example:**
+### B.4 Bloom animation budget
 
+- **Trigger:** first appearance per session **per surface instance**, not per app session. `AnimatedSwitcher`-style initial-frame detection in `initState`.
+- **Budget on Galaxy A14:** 250ms ease-out on `Transform.scale(0.96 → 1.0)` = ~15 frames at 60fps. A14 sustains 60fps for single-widget transforms; concurrent bloom on a screen with 3 MTC instances = the only risk. Mitigation: stagger blooms 60ms apart. Hard cap: skip bloom if `MediaQuery.disableAnimations` true (accessibility).
+- **Memory:** stateless animation controller per instance, disposed in `dispose()`. Verify no controller leak on hot reload (W14 façade lesson).
+
+---
+
+## C — Regional microcopy ARB carve-out
+
+### C.1 Current ARB structure (verified)
+
+```
+apps/mobile/lib/l10n/
+  app_fr.arb   (10'735 lines — template)
+  app_en.arb
+  app_de.arb
+  app_es.arb
+  app_it.arb
+  app_pt.arb
+```
+
+Single namespace `AppLocalizations`, generated by `flutter gen-l10n` with default `l10n.yaml`.
+
+### C.2 Multi-namespace pattern
+
+**Choice:** parallel namespace `AppRegionalLocalizations` + custom `LocalizationsDelegate`, NOT composition into `AppLocalizations`.
+
+**Why parallel:** `flutter gen-l10n` cannot multi-namespace from one config. Two options:
+1. Two `l10n.yaml` files run sequentially (`l10n.yaml` + `l10n_regional.yaml`) → both produce separate generated classes → both registered in `MaterialApp.localizationsDelegates`.
+2. Custom Dart delegate that loads `app_regional_<canton>.arb` from `rootBundle` at runtime, parses, returns a `Map<String, String>` lookup.
+
+**Recommendation: option 1** (two `gen-l10n` runs). Reasons:
+- Stays inside the official toolchain; type-safe accessors; Android Studio jump-to-source works.
+- Adds to `pubspec.yaml`:
+  ```yaml
+  flutter:
+    generate: true
+  ```
+  And a second l10n config (`l10n_regional.yaml`) pointed at `lib/l10n/regional/`.
+
+```
+apps/mobile/lib/l10n/regional/
+  app_regional_vs.arb       (locale fr-CH, but namespaced by canton)
+  app_regional_zh.arb       (locale de-CH)
+  app_regional_ti.arb       (locale it-CH)
+```
+
+**Resolution lookup** at call site:
 ```dart
-// anticipation_rules.dart
-abstract class AnticipationRule {
-  AnticipationAlert? evaluate(CoachProfile profile, DateTime now);
-}
-
-class Pillar3aDeadlineRule implements AnticipationRule {
-  @override
-  AnticipationAlert? evaluate(CoachProfile profile, DateTime now) {
-    if (profile.annualIncome == null) return null;
-    final daysToYearEnd = DateTime(now.year, 12, 31).difference(now).inDays;
-    if (daysToYearEnd <= 60 && !profile.has3aContributedThisYear) {
-      return AnticipationAlert(
-        type: AlertType.fiscalDeadline,
-        priority: daysToYearEnd <= 14 ? AlertPriority.urgent : AlertPriority.normal,
-        i18nKey: 'alert_3a_deadline',
-        daysRemaining: daysToYearEnd,
-      );
-    }
-    return null;
-  }
-}
+final regional = AppRegionalLocalizations.forCanton(profile.canton);
+final greeting = regional?.greeting ?? AppLocalizations.of(context)!.greetingDefault;
 ```
 
-### Pattern 4: ProfileEnrichmentDiff for Safe Profile Updates
+`forCanton` is a thin static factory that maps canton → `AppRegionalVS` / `AppRegionalZH` / `AppRegionalTI`, returns `null` for unsupported cantons (= silent fallback to base ARB, no surprise translations). It does NOT translate VS strings into IT/PT.
 
-**What:** Ingestion never writes directly to `CoachProfile`. Instead it produces a `ProfileEnrichmentDiff` — a typed set of `(fieldName, oldValue, newValue, source, confidence, extractedAt)` pairs. The diff is shown to the user in a review screen before any values are applied. User confirms, rejects, or corrects each field.
+### C.3 Backend mirror
 
-**When to use:** Every time an external source (document scan, bLink, pension API) produces profile data.
+**Current state:** `services/backend/app/services/coach/claude_coach_service.py:58` defines `REGIONAL_MAP` as a hand-coded Python dict, and `_REGIONAL_IDENTITY` (line 133) is a hand-coded Python string. **This is a duplication of `RegionalVoiceService.forCanton()` in Flutter** — exactly the kind of dual-system v2.2 must kill.
 
-**Trade-offs:** Extra confirmation step adds friction. Justified because: (a) OCR errors are real, (b) compliance requires user consent to profile changes (nLPD), (c) confidence scores below 0.85 require confirmation regardless.
+**Pattern:** ARB → Pydantic codegen.
 
-**Example:**
+1. `tools/codegen/regional_microcopy_codegen.py` reads `app_regional_<canton>.arb` files, emits `services/backend/app/services/coach/regional_microcopy.py` containing:
+   ```python
+   REGIONAL_MICROCOPY: dict[str, RegionalMicrocopy] = { "VS": RegionalMicrocopy(...), ... }
+   ```
+2. `claude_coach_service.py` imports `REGIONAL_MICROCOPY` instead of hardcoding `REGIONAL_MAP` + `_REGIONAL_IDENTITY`. The legacy Python constants get DELETED in the same MR (zero-debt rule).
+3. CI guard same as voice contract: codegen + `git diff --exit-code`.
 
-```dart
-// profile_enrichment_diff.dart
-class ProfileFieldDelta {
-  final String fieldName;
-  final dynamic oldValue;
-  final dynamic newValue;
-  final String source;          // "document_scan" | "blink" | "user_entry"
-  final double confidence;      // 0-1
-  final DateTime extractedAt;
-  final bool requiresReview;    // true if confidence < 0.85
-}
+**Why ARB-as-source over JSON:** L1.4 microcopies are written by Julien + native validators inside ARB (their natural editing format). Forking them to JSON for backend creates two truths.
 
-class ProfileEnrichmentDiff {
-  final List<ProfileFieldDelta> deltas;
-  final String documentId;      // reference for biography graph
-  final DocumentType documentType;
-
-  // Apply only confirmed deltas to CoachProfile
-  CoachProfile applyTo(CoachProfile profile, Set<String> confirmedFields) { ... }
-}
+**Pydantic model:**
+```python
+class RegionalMicrocopy(BaseModel):
+    canton: str
+    base_locale: str  # 'fr-CH' | 'de-CH' | 'it-CH'
+    prompt_addition: str
+    local_expressions: list[str]
+    financial_culture_note: str
+    humor_style: str
+    canton_note: str = ''
 ```
 
-### Pattern 5: CardRankingService with Scoring Formula
-
-**What:** `CardRankingService` computes a `CardScore` for each candidate card, sorts descending, returns top N (max 5). Score = weighted sum of urgency (× 3), CHF impact (normalized, × 2), deadline proximity (× 2), profile completeness delta (× 1), and recency penalty (how long since last shown, × −0.5).
-
-**When to use:** Called from `MintHomeScreen` on each build via a `FutureBuilder` (or pre-computed in `AnticipationProvider` on app open).
-
-**Trade-offs:** Weights are hardcoded — requires deploy to tune. Acceptable for v2.0. The scoring is transparent (log scores in debug mode).
+In-memory dict, not persisted (3 cantons × few KB = trivial).
 
 ---
 
-## Data Flow
+## D — Build order DAG and parallelism
 
-### Document Ingestion Flow
+### D.1 Phase 0 (must ship before any L1.x chantier starts)
 
-```
-User taps "Scan" / drops PDF
-        ↓
-DataIngestionService.ingest(request)
-        ↓
-PhotoScanAdapter: ML Kit OCR on-device (no upload)
-        ↓
-POST /api/v1/documents/ingest  {text, documentType, userId}
-        ↓
-Backend DocumentExtractionService
-   → LLM extraction (Claude, structured JSON output)
-   → ExtractionConfidenceScorer
-   → ProfileEnrichmentDiff assembled
-        ↓
-DELETE original image (nLPD) on device
-        ↓
-IngestionResult returned to Flutter
-        ↓
-IngestionProvider.notifyListeners()
-        ↓
-IngestionReviewScreen (shows diff with confidence bars)
-        ↓
-User confirms/corrects deltas
-        ↓
-CoachProfileProvider.applyEnrichmentDiff(confirmedDeltas)
-        ↓
-FinancialBiography.appendFact(fact) for each confirmed delta
-        ↓
-AnticipationEngine re-evaluates (profile changed)
-        ↓
-CardRankingService re-scores (profile completeness delta changed)
-        ↓
-Aujourd'hui refreshes with new ranked cards
-```
+| # | Deliverable | Why blocks downstream |
+|---|---|---|
+| P0.1 | STAB-17 manual tap-render walkthrough by Julien on Galaxy A14 | Confirms v2.1 wiring before adding new layers |
+| P0.2 | Galaxy A14 perf baseline doc (cold start, scroll FPS, frame budget at S2 home) | L1.2a bloom budget needs this |
+| P0.3 | `tools/contracts/voice_cursor_contract.json` + codegen scripts + generated Dart/Python files committed | L1.5, L1.6 import these |
+| P0.4 | `Profile.voiceCursorPreference` field added (backend Pydantic + Flutter CoachProfile + SQLA migration) | L1.6c writes to it |
+| P0.5 | 4 broken providers from AUDIT_DEAD_CODE.md (B1-B4: MintStateProvider, FinancialPlanProvider, CoachEntryPayloadProvider, OnboardingProvider) wired into `app.dart` MultiProvider | L1.2b touches `mint_home_screen.dart` which currently relies on try/catch swallow — façade-sans-câblage must die before MTC migration |
+| P0.6 | Krippendorff α tooling provisioned (`tools/voice/krippendorff.py` + 15-tester pipeline) | L1.6a validation gate |
+| P0.7 | Regional ARB infra (l10n_regional.yaml, empty namespace, build wired) | L1.4 writes content into infra |
 
-### Anticipation Engine Flow
+**Why P0.5 here:** L1.2b migrates `confidence_score_card.dart` which is consumed by `mint_home_screen.dart`. Currently mint_home_screen reads MintStateProvider via try/catch fallback (audit line 41-50). Wiring the provider now means the migration can trust real state, not silent fallback.
+
+### D.2 DAG (after Phase 0)
 
 ```
-App open / resume
-        ↓
-AnticipationEngine.evaluate(profile, now)
-  (debounced: skips if last eval < 1h ago)
-        ↓
-Runs all AnticipationRule instances in parallel
-        ↓
-AnticipationAlert[] sorted by priority
-        ↓
-AnticipationProvider.setAlerts(alerts)
-        ↓
-Two consumers:
-  1. CardRankingService: urgent alerts → top-ranked cards
-  2. CoachOrchestrator: if user opens Coach tab within 30min
-     of a new urgent alert → ProactiveTriggerService fires
-     "anticipation" trigger type
+P0 ─┬─> L1.1 (audit du retrait, S1-S5) ──┬─> L1.3 (microtypo S1-S5) ──┐
+    │                                      │                            │
+    ├─> L1.2a (MTC component + S4) ────────┴─> L1.2b (MTC migrate ×11) ─┤
+    │                                                                    │
+    ├─> L1.4 (regional VS/ZH/TI ARB content) ────────────────────────────┤
+    │                                                                    │
+    ├─> L1.6a (VOICE_CURSOR_SPEC.md + 50 phrases + Krippendorff α) ──┐   │
+    │                                                                 │   │
+    └─> L1.5 (MintAlertObject S5, imports VoiceCursorContract) ──────┤   │
+                                                                      │   │
+                                       L1.6b (rewrite 30 coach phrases)──┤
+                                       L1.6c (intent_screen + drawer)────┤
+                                                                          │
+                                                          v2.2 ship gate ─┘
+                                                          (Julien manual A14 + 3 live a11y sessions)
 ```
 
-### FinancialBiography → Coach Context Flow
+### D.3 Parallel groups
 
-```
-ContextInjectorService.buildEnrichedContext(profile)
-        ↓ (existing flow, add new step)
-FinancialBiography.buildSummary()
-  → AnonymizedBiographySummary {
-      recentDecisions: ["chose rente March 2026"],
-      recentFacts: ["LPP updated via scan Feb 2026"],
-      activeEvents: ["firstJob 2024", "housingPurchase 2025"]
-    }
-        ↓
-Injected into coach system prompt as new section:
-  --- BIOGRAPHIE FINANCIÈRE ---
-  [anonymized summary]
-  --- FIN BIOGRAPHIE ---
-```
+- **Group α (after P0):** L1.1 (kill old confidence rendering on S4), L1.2a (build MTC + migrate S4), L1.4 (regional content), L1.6a (spec). All four can run in parallel — they touch disjoint files.
+- **Group β (after Group α):** L1.2b (migrate 11 surfaces), L1.3 (microtypo on S1-S5), L1.5 (MintAlertObject), L1.6b (rewrite 30 phrases). These need L1.2a (MTC component exists) + L1.6a (spec exists) + L1.1 (S1-S5 cleaned) + L1.4 (regional content for L1.6b validation in 3 langs).
+- **Group γ (sequential after Group β):** L1.6c (UI for tone setting). Needs L1.6b complete because the setting only makes sense once phrases obey the contract.
 
-### bLink Sandbox Flow
+### D.4 Critical path
 
-```
-User taps "Connect bank" in ProfileDrawer / onboarding
-        ↓
-BlinkAdapterService.initiateConsent(bankId)
-        ↓
-POST /api/v1/blink/consent/initiate
-        ↓
-Backend BlinkClient calls bLink sandbox OAuth endpoint
-        ↓
-Returns authorization_url to Flutter
-        ↓
-Flutter launches WebView / SFSafariViewController
-        ↓
-User completes OAuth in bank's UI
-        ↓
-Redirect to deep link: mint://blink/callback?code=xxx
-        ↓
-Flutter intercepts, calls POST /api/v1/blink/consent/complete
-        ↓
-Backend: exchange code → access token → fetch accounts (sandbox)
-        ↓
-AccountMapper: bLink account data → ProfileEnrichmentDiff
-        ↓
-Same confirmation flow as document ingestion
-        ↓
-ConsentManager stores token (90-day expiry) — backend DB
-```
+**P0.3 → L1.6a → L1.6b → L1.6c** is the longest chain. L1.6b is the bottleneck: 30 phrases × validation by Julien + 2 copywriters. Estimate: 5-7 working days. Phase 0 = 3-4 days. Group α parallel ≈ 5 days. Group β parallel ≈ 5-7 days. **Total: 4-5 weeks if P0 starts immediately and no Krippendorff α failure forces L1.6a rewrite.**
 
-### Smart Card Ranking Flow
+**Slack:** L1.3 microtypo and L1.4 regional content can absorb a week of slip without affecting ship date.
 
-```
-MintHomeScreen.build()
-        ↓
-CardRankingService.rankedCards(
-  profile: CoachProfileProvider.profile,
-  alerts: AnticipationProvider.alerts,
-  biography: BiographyProvider.biography,
-)
-        ↓
-For each candidate card:
-  score = (urgency × 3) + (chfImpact_normalized × 2)
-        + (deadlineProximity × 2) + (profileDelta × 1)
-        - (daysSinceShown × 0.5)
-        ↓
-Sort descending, take top 5
-        ↓
-List<RankedCard> rendered in Aujourd'hui tab
-```
+### D.5 Dependency deadlocks (avoided by design)
+
+- **Risk:** L1.5 MintAlertObject importing VoiceCursorContract before P0.3 ships → blocked. Mitigation: P0.3 is the first deliverable in Phase 0.
+- **Risk:** L1.6b rewriting phrases that reference UI strings later changed by L1.3 microtypo → double work. Mitigation: L1.3 only touches typography (font, size, line-height), never copy text.
+- **Risk:** L1.2b migrating widgets that L1.1 marked for deletion → wasted migration. Mitigation: L1.1 ships first inside Group α and produces a "DELETE / KEEP" list that L1.2b reads on day 1.
 
 ---
 
-## Component Modification Map
+## E — Integration with v2.0/v2.1 work
 
-### Existing components that need modification
+### E.1 v2.1 STAB-12 coach tools and L1.5 MintAlertObject
 
-| Component | What Changes | Why |
-|-----------|-------------|-----|
-| `CoachProfileProvider` | Add `applyEnrichmentDiff(ProfileEnrichmentDiff, Set<String>)` method | Profile updates from ingestion go through the diff review pattern |
-| `context_injector_service.dart` | Add `AnonymizedBiographySummary` injection block | Coach needs narrative context from biography |
-| `ProactiveTriggerService` | Add `anticipation` trigger type (new enum value) | Anticipation alerts feed the coach proactive loop |
-| `DashboardCuratorService` | Retire as primary card source; `CardRankingService` replaces it for Aujourd'hui | Expand beyond retirement to all 18 life events |
-| `MintHomeScreen` | Replace static card list with `CardRankingService.rankedCards()` | Smart ranking replaces manual ordering |
-| `OpenBankingService` | Replace mock with `BlinkAdapterService` (behind feature flag) | bLink sandbox is the v2.0 concrete implementation |
-| `RegulatorySyncService` | Emit `LegislativeChangeEvent` when parameters update | Feeds into `AnticipationEngine.legislativeRules` |
-| `app.dart` (MultiProvider) | Register `AnticipationProvider`, `BiographyProvider`, `IngestionProvider` | New providers need root registration |
-| `FeatureFlags` | Add `FF_BLINK_SANDBOX`, `FF_ANTICIPATION_ENGINE`, `FF_BIOGRAPHY` | New features gated for safe rollout |
-| Backend `documents.py` endpoint | Add `POST /documents/ingest` with full extraction pipeline | Photo/PDF ingestion needs a new endpoint beyond existing `/scan` |
-| Backend `coach_tools.py` | Add `trigger_ingestion` tool so coach can request document upload | Coach can ask user to scan their LPP certificate mid-conversation |
+`AUDIT_COACH_WIRING.md` confirms 4 tools wired E2E: `route_to_screen`, `generate_document`, `generate_financial_plan`, `record_check_in`.
 
-### New components (no existing equivalent)
+**Decision:** MintAlertObject is **NOT a new coach tool**. It is a UI primitive that consumes alert objects produced by the existing **anticipation engine** (v2.0) and the **rules engine / nudge engine** (`services/nudge/nudge_engine.dart`, `services/coach/proactive_trigger_service.dart`, `services/contextual/action_opportunity_detector.dart`).
 
-| Component | Location | Depends On |
-|-----------|----------|------------|
-| `DataIngestionService` + adapters | `lib/services/ingestion/` | Existing `document_parser/`, new backend `DocumentExtractionService` |
-| `AnticipationEngine` | `lib/services/anticipation/` | `CoachProfile`, `RegulatorySyncService`, `financial_core/` for thresholds |
-| `FinancialBiography` | `lib/services/biography/` | `path_provider`, `CoachProfile` |
-| `BiographyAnonymizer` | `lib/services/biography/` | `FinancialBiography` |
-| `CardRankingService` | `lib/services/cards/` | `AnticipationProvider`, `CoachProfile`, `DashboardCuratorService` (for scoring logic reuse) |
-| `AnticipationProvider` | `lib/providers/` | `AnticipationEngine`, `CoachProfileProvider` |
-| `BiographyProvider` | `lib/providers/` | `FinancialBiography` |
-| `IngestionProvider` | `lib/providers/` | `DataIngestionService` |
-| `ProfileEnrichmentDiff` model | `lib/models/` | Pure model, no dependencies |
-| `IngestionReviewScreen` | `lib/screens/document_scan/` | `IngestionProvider`, `CoachProfileProvider` |
-| Backend `DocumentExtractionService` | `services/backend/app/services/document_extraction/` | Existing `docling/parser.py`, `document_parser/`, Claude API |
-| Backend `BlinkClient` + `AccountMapper` | `services/backend/app/services/blink/` | `httpx`, bLink sandbox API, existing schemas |
-| Backend anticipation endpoint | `services/backend/app/api/v1/endpoints/anticipation.py` | New `AnticipationRuleEngine` |
+**Wiring:**
+```
+NudgeEngine / ProactiveTriggerService / AnticipationProvider
+        │
+        ▼  produces AlertPayload { gravity: G1|G2|G3, topic, copy, ctas }
+        │
+        ▼  resolved through VoiceCursor.resolve(gravity, profile.relationPhase, profile.voiceCursorPreference)
+        │
+        ▼  rendered by MintAlertObject (S5)
+```
 
----
+**Why not a tool:** tools are LLM-callable side effects. Alerts are deterministic (rule-based, v2.0 design). Adding a `show_alert` tool would re-introduce LLM-in-the-loop where v2.0 explicitly chose rules.
 
-## Integration Points with Existing Architecture
+### E.2 v2.0 anticipation engine routing
 
-### financial_core/ — No Changes Required
+`AnticipationProvider` (verified LIVE in AUDIT_DEAD_CODE row 13) currently emits alerts that are consumed by `mint_home_screen.dart`. Today they render as ad-hoc cards.
 
-The 8 existing calculators remain untouched. `AnticipationEngine` calls them for threshold checks (e.g., "is user's LPP rachat_max > 50k CHF?") via the same import pattern all other services use. New features are consumers, not modifiers of `financial_core/`.
+**Migration:** in L1.5, those rendering call sites switch to `MintAlertObject(payload: anticipation.next)`. The provider contract does not change. Anticipation tags each alert with `gravity` (new field — additive, default G1, backfilled by rule).
 
-### ComplianceGuard — Extend, Not Replace
+### E.3 ContextualCard ranked feed and MTC
 
-`CardRankingService` card titles and `AnticipationAlert` i18n keys are static strings (ARB files) — they do not pass through ComplianceGuard. Only the coach narration of anticipation alerts passes through ComplianceGuard (because it is LLM-generated). This is correct: static rule-based text is pre-approved, LLM text is always guarded.
+`ContextualCardProvider` (LIVE row 14) ranks home cards. **MTC applies to the cards that render confidence**, not to the ranking. Ranking interacts with G1/G2/G3 only insofar as the new `Card.gravity` field becomes a ranking tiebreaker (G3 cards float to top of ranked feed). This is a 1-line change in `card_ranking_service.dart` (verify exact path in plan).
 
-### ConfidenceScorer — Extend for Ingestion
+**Anti-pattern to avoid:** letting G1/G2/G3 become a hard sort key. Ranking already balances freshness, relevance, and dismissals; gravity is a tiebreaker, not a primary key.
 
-`ProfileEnrichmentDiff` fields carry `source` values that map directly to `DataSource` enum in `document_models.dart` (backend). The existing `DATA_SOURCE_ACCURACY` weights already handle `document_scan` (0.85) and `open_banking` (1.00). `EnhancedConfidence` recalculation after applying a diff is automatic — `CoachProfileProvider` triggers it on profile change.
+### E.4 Backend `enhanced_confidence_service.py`
 
-### CoachOrchestrator — No Structural Change
-
-The 3-tier priority chain (SLM → BYOK → fallback) is unchanged. `AnticipationEngine` feeds `ProactiveTriggerService` which `CoachOrchestrator` already calls. The only change is a new enum value in `ProactiveTriggerType`.
-
-### ContextInjectorService — One New Block
-
-The biography injection is additive. The existing memory block format (`--- MÉMOIRE MINT ---`) gets a new section appended. This is the minimal invasive change: one new `await FinancialBiography.buildSummary()` call before block assembly.
+Backend mirror exists (`services/backend/app/services/confidence/enhanced_confidence_service.py`). MTC is a Flutter rendering layer; backend confidence scoring stays untouched. **No backend change for L1.2a/b.**
 
 ---
 
-## Scaling Considerations
+## F — Pitfalls flagged here (also in PITFALLS.md)
 
-| Scale | Architecture Adjustments |
-|-------|--------------------------|
-| 0–10k users | Monolith backend is fine. bLink sandbox. AnticipationEngine client-only. Biography local-only. |
-| 10k–100k users | Add server-side anticipation batch (push legislative alerts to all users without per-device rules). Consider caching ProfileEnrichmentDiff results server-side for 24h. |
-| 100k+ users | bLink production (SFTI membership, per-bank contracts). Document extraction queue (async job, webhook callback to Flutter). Biography cloud sync with E2E encryption. |
-
-### v2.0 Scaling Priority
-
-First bottleneck: LLM extraction calls on document ingestion. Each scan = 1 Claude API call. At 10k daily active users with 1 scan/week each = ~1400 calls/day. Within free-tier quota at current settings (30 req/user/day). Bottleneck emerges when users scan 3+ documents in a session — mitigate by caching extraction results server-side by document hash.
-
-Second bottleneck: CardRankingService on every Aujourd'hui render. If profile is large and biography has 500 entries, `buildSummary()` is slow. Mitigate by caching `AnonymizedBiographySummary` in `BiographyProvider` and invalidating only on new `BiographyFact.appendFact()` call.
-
----
-
-## Anti-Patterns
-
-### Anti-Pattern 1: Writing Directly to CoachProfile from Ingestion
-
-**What people do:** `CoachProfileProvider.profile.lppHavingTotal = extractedValue` from inside an adapter.
-**Why it's wrong:** Bypasses the diff review screen, violates nLPD consent requirement for profile changes from external sources, and makes testing impossible.
-**Do this instead:** Always produce a `ProfileEnrichmentDiff`, route through `IngestionReviewScreen`, apply only confirmed fields via `applyEnrichmentDiff()`.
-
-### Anti-Pattern 2: Sending FinancialBiography to Backend
-
-**What people do:** `POST /api/v1/biography/sync` to back up biography data.
-**Why it's wrong:** Biography contains exact CHF amounts, document references, and decision history — PII under nLPD. PROJECT.md explicitly marks cloud sync as out of scope for v2.0.
-**Do this instead:** Biography stays local. Only `AnonymizedBiographySummary` (no CHF amounts, no employer, no IBAN) is passed to coach context injection. If backup is needed in v3.0, it requires E2E encryption with user-held keys.
-
-### Anti-Pattern 3: Using AnticipationEngine for Personalized Recommendations
-
-**What people do:** Adding rules like "user should buy LPP rachat because their score is low."
-**Why it's wrong:** Crosses the line from education (LSFin-compliant) to advice (requires FINMA licence). Anticipation = "deadline approaching", "data may be stale" — never "you should do X".
-**Do this instead:** Alert text always uses informational framing ("Ton certificat LPP date de 14 mois — veux-tu le mettre à jour\u00a0?"). Action suggested = "review", never "buy/invest/transfer".
-
-### Anti-Pattern 4: Rebuilding DocumentCuratorService Logic Inside CardRankingService
-
-**What people do:** Copy-paste `DashboardCuratorService.computeAlertUrgency()` and `getDeadlineDaysForTip()` into `CardRankingService`.
-**Why it's wrong:** Creates divergent urgency logic. Two services disagree on what "urgent" means.
-**Do this instead:** `CardRankingService` imports and reuses `DashboardCuratorService` scoring utilities as pure functions. `DashboardCuratorService` keeps its existing retirement dashboard role; `CardRankingService` is the broader-scope consumer.
-
-### Anti-Pattern 5: Triggering AnticipationEngine on Every Screen Build
-
-**What people do:** Calling `AnticipationEngine.evaluate()` from `MintHomeScreen.build()`.
-**Why it's wrong:** Engine runs 10+ rules including date arithmetic and SharedPrefs reads on every frame.
-**Do this instead:** Engine runs once per app open (in `main.dart` background init, or `AnticipationProvider.init()`) with a 1-hour debounce via SharedPreferences timestamp. `MintHomeScreen` reads from `AnticipationProvider` (already computed list), never calls the engine directly.
-
----
-
-## Integration Points
-
-### External Services
-
-| Service | Integration Pattern | Notes |
-|---------|---------------------|-------|
-| bLink sandbox | Backend proxy: Flutter → POST /api/v1/blink/* → bLink API | Never expose bLink token to client; backend manages consent lifecycle. Feature flag `FF_BLINK_SANDBOX` |
-| Pension Fund API (stub) | `PensionFundAdapter` returns mock data; real API behind `FF_ENABLE_CAISSE_PENSION_API` | Backend config already has `CAISSE_PENSION_API_URL`. Stub in v2.0, real in v3.0 |
-| Claude API (document extraction) | Extend existing `claude_coach_service.py` or new `llm_extractor.py` with structured output mode | Use Claude's JSON mode for extraction. Add to existing `COACH_DAILY_QUOTA` accounting |
-
-### Internal Boundaries
-
-| Boundary | Communication | Notes |
-|----------|---------------|-------|
-| `AnticipationEngine` ↔ `CoachOrchestrator` | Via `ProactiveTriggerService` (existing) + new `AlertType.anticipation` | No direct dependency; loose coupling via shared enum |
-| `FinancialBiography` ↔ `ContextInjectorService` | `FinancialBiography.buildSummary()` returns `AnonymizedBiographySummary` | One-way read; biography never modified by coach |
-| `DataIngestionService` ↔ `CoachProfileProvider` | Via `ProfileEnrichmentDiff` + explicit `applyEnrichmentDiff()` call | Never direct write |
-| `CardRankingService` ↔ `AnticipationProvider` | `CardRankingService` reads `AnticipationProvider.alerts` at ranking time | Provider is the shared state; service is pure function given inputs |
-| Flutter ingestion ↔ Backend extraction | `POST /api/v1/documents/ingest` → JSON response with `ProfileEnrichmentDiff` | Image bytes sent, image deleted after backend acknowledges extraction complete |
-
----
-
-## Suggested Build Order
-
-Build order considers three constraints: (1) data dependencies between components, (2) compliance gate requirements (ComplianceGuard must be verified before each new output channel), (3) the "facade sans câblage" risk — each phase must produce a testable end-to-end flow before the next starts.
-
-### Phase 1 — Foundation Models and Ingestion Pipeline
-Build `ProfileEnrichmentDiff`, `IngestionResult`, and `DataIngestionService` with `PhotoScanAdapter`. Extend backend with `/documents/ingest` endpoint and `DocumentExtractionService`. Build `IngestionReviewScreen` with diff preview and confirm/reject. Wire `CoachProfileProvider.applyEnrichmentDiff()`. **Gate:** Full scan → extraction → review → profile update flow works end-to-end with LPP certificate.
-
-### Phase 2 — FinancialBiography
-Build `BiographyFact`, `FinancialBiography`, `BiographyAnonymizer`. Append facts after confirmed enrichment diffs. Build `BiographyProvider`. Extend `ContextInjectorService` with biography summary block. **Gate:** After scanning a document, biography summary appears in coach context; coach can reference "you updated your LPP last month."
-
-### Phase 3 — AnticipationEngine
-Build `AnticipationRule` hierarchy (fiscal, profile, legislative rules). Build `AnticipationProvider`. Extend `ProactiveTriggerService` with anticipation trigger type. **Gate:** With a profile missing 3a data in November, anticipation alert fires and proactive coach trigger activates.
-
-### Phase 4 — Smart Card Ranking
-Build `CardRankingService` with scoring formula. Build `CardRegistry` with all candidate cards. Modify `MintHomeScreen` to consume ranked cards. **Gate:** Aujourd'hui shows maximum 5 cards in a deterministic order that changes when profile or alerts change.
-
-### Phase 5 — bLink Sandbox
-Build `BlinkAdapterService` client-side. Build backend `BlinkClient`, `AccountMapper`, `ConsentManager`. Add `BlinkAdapter` to `DataIngestionService`. Wire consent OAuth deep link. **Gate:** Full bLink sandbox consent flow → account data → ProfileEnrichmentDiff → review screen → confirmed profile update.
-
-### Phase 6 — QA and Compliance Hardening
-9-persona validation (Léa golden path + 8 additional). WCAG 2.1 AA audit. Multilingual validation (all 6 ARB files complete for new keys). Compliance review: all anticipation alert i18n keys pre-approved (no banned terms, no advice framing). **Gate:** 0 flutter analyze errors, 0 new test failures, all 9 personas complete their flows.
+1. **Codegen drift** — if anyone hand-edits the generated `voice_cursor_contract.g.dart` or `regional_microcopy.py`, the contract diverges silently. Mitigation: file header `// GENERATED — DO NOT EDIT — run tools/codegen/voice_cursor_codegen.py` + CI guard.
+2. **Dual-system MTC** — if even ONE of the 11 rendering surfaces is missed in L1.2b, the legacy `confidence_score_card` shape ships alongside MTC. Mitigation: write a `tools/checks/no_legacy_confidence_render.py` grep that fails CI on any `confidenceScore.toStringAsFixed(0)` outside `mint_trame_confiance.dart`.
+3. **Regional microcopy translated by mistake** — a future translator sees `app_regional_vs.arb` and runs it through DeepL into PT. Mitigation: ARB header comment `// LOCALE-LOCKED: fr-CH only` + lint script that fails build if `app_regional_*.arb` exists in any non-base locale.
+4. **Provider leak via try/catch fallback (P0.5)** — `mint_home_screen.dart:124,638` and friends currently swallow `ProviderNotFoundException`. Wiring the providers is necessary but not sufficient — also remove the try/catch silent fallbacks, or you keep shipping the façade.
+5. **Bloom animation on accessibility-disabled devices** — must respect `MediaQuery.disableAnimations` AND TalkBack/VoiceOver state. Forgetting this fails AAA on S4.
+6. **`claude_coach_service.py` REGIONAL_MAP not deleted** — if codegen ships but the legacy constant stays, drift starts on day 1. Mitigation: L1.4 MR is rejected unless `git grep 'REGIONAL_MAP\s*=' services/backend/` returns 0.
 
 ---
 
 ## Sources
 
-- Direct inspection of `/Users/julienbattaglia/Desktop/MINT/apps/mobile/lib/` (652 source files)
-- Direct inspection of `/Users/julienbattaglia/Desktop/MINT/services/backend/app/` (293 source files)
-- `.planning/codebase/ARCHITECTURE.md` — existing architecture analysis (2026-04-05)
-- `.planning/codebase/INTEGRATIONS.md` — existing integration inventory (2026-04-05)
-- `.planning/codebase/STRUCTURE.md` — existing structure map (2026-04-05)
-- `.planning/PROJECT.md` — v2.0 milestone scope and constraints
-- `apps/mobile/lib/services/coach/proactive_trigger_service.dart` — existing trigger pattern
-- `apps/mobile/lib/services/dashboard_curator_service.dart` — existing card scoring
-- `apps/mobile/lib/services/document_parser/document_models.dart` — existing doc models
-- `services/backend/app/services/document_parser/document_models.py` — backend doc models with `DATA_SOURCE_ACCURACY`
-- `apps/mobile/lib/providers/coach_profile_provider.dart` — central state management pattern
-- `apps/mobile/lib/services/coach/context_injector_service.dart` — existing coach context injection
-
----
-
-*Architecture research for: MINT v2.0 Système Vivant — new feature integration into Flutter + FastAPI*
-*Researched: 2026-04-06*
+- Brief: `visions/MINT_DESIGN_BRIEF_v0.2.3.md`
+- Project state: `.planning/PROJECT.md`
+- Façade audit: `.planning/milestones/v2.1-phases/07-stabilisation-v2-0/AUDIT_DEAD_CODE.md`
+- Verified files (grep): `apps/mobile/lib/services/voice/regional_voice_service.dart`, `apps/mobile/lib/services/coach/context_injector_service.dart`, `services/backend/app/services/coach/claude_coach_service.py`, `services/backend/app/schemas/profile.py`, `apps/mobile/lib/l10n/`, all 18 confidence consumers listed in §B.1
+- CLAUDE.md §2 architecture, §6 compliance, §7 i18n

@@ -103,6 +103,7 @@ void main() {
       ];
       const whitelistExact = <String>{
         '/', // Landing page — CTA navigates to /coach/chat programmatically
+        '/retraite', // Parser false positive: regex assigns /profile children to /retraite
       };
 
       // Redirect-only routes (no builder) are whitelisted — they resolve elsewhere.

@@ -212,11 +212,21 @@ def _auto_ingest_rag():
 
         # Determine paths
         backend_dir = os.path.dirname(os.path.dirname(__file__))
-        persist_dir = os.path.join(backend_dir, "data", "chromadb")
-        # Education inserts are at: ../../education/inserts/ relative to backend dir
-        inserts_dir = os.path.normpath(
-            os.path.join(backend_dir, "..", "..", "education", "inserts")
-        )
+
+        # ChromaDB persist directory — configurable via CHROMADB_PERSIST_DIR env var
+        persist_dir = settings.CHROMADB_PERSIST_DIR
+        if not os.path.isabs(persist_dir):
+            persist_dir = os.path.join(backend_dir, persist_dir)
+
+        # Education inserts:
+        # In Docker: /app/education/inserts (COPY'd by Dockerfile)
+        # Locally: ../../education/inserts relative to backend dir
+        inserts_dir = os.path.join(backend_dir, "education", "inserts")
+        if not os.path.isdir(inserts_dir):
+            # Fallback for local dev (repo root structure)
+            inserts_dir = os.path.normpath(
+                os.path.join(backend_dir, "..", "..", "education", "inserts")
+            )
 
         if not os.path.isdir(inserts_dir):
             logger.info(
@@ -231,8 +241,9 @@ def _auto_ingest_rag():
         # Only ingest if the store is empty
         if vector_store.count() > 0:
             logger.info(
-                "Vector store already has %d documents, skipping auto-ingest",
+                "RAG vector store: %d documents (persist_dir=%s)",
                 vector_store.count(),
+                persist_dir,
             )
             return
 
