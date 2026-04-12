@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -146,6 +148,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Whether the silent opener is currently displayed (no messages yet).
   bool _showSilentOpener = false;
+
+  /// Random greeting index — picked once per screen open.
+  final int _greetingIndex = Random().nextInt(20);
 
   /// SharedPreferences keys for proactive opt-in tracking.
   static const String _conversationCountKey = 'mint_coach_conversation_count';
@@ -1427,8 +1432,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   Widget _buildSilentOpenerWithTone() {
     final opener = _buildSilentOpener();
 
-    // Felt-state pills when no messages yet.
-    final pills = _messages.isEmpty ? _buildFeltStatePills() : const SizedBox.shrink();
+    // Random greeting when no messages yet.
+    final greeting = _messages.isEmpty ? _buildRandomGreeting() : const SizedBox.shrink();
 
     if (_intensityChosen || !_cashLevelLoaded) {
       return Column(
@@ -1438,7 +1443,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               child: Column(
                 children: [
                   opener,
-                  pills,
+                  greeting,
                 ],
               ),
             ),
@@ -1454,7 +1459,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             child: Column(
               children: [
                 opener,
-                pills,
+                greeting,
               ],
             ),
           ),
@@ -1467,42 +1472,31 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  Widget _buildFeltStatePills() {
+  Widget _buildRandomGreeting() {
     final s = S.of(context)!;
-    final pills = [
-      s.anonymousIntentPill1,
-      s.anonymousIntentPill2,
-      s.anonymousIntentPill3,
-      s.anonymousIntentPill4,
-      s.anonymousIntentPill5,
-      s.anonymousIntentPill6,
+    final greetings = [
+      s.coachGreetingRandom1,  s.coachGreetingRandom2,
+      s.coachGreetingRandom3,  s.coachGreetingRandom4,
+      s.coachGreetingRandom5,  s.coachGreetingRandom6,
+      s.coachGreetingRandom7,  s.coachGreetingRandom8,
+      s.coachGreetingRandom9,  s.coachGreetingRandom10,
+      s.coachGreetingRandom11, s.coachGreetingRandom12,
+      s.coachGreetingRandom13, s.coachGreetingRandom14,
+      s.coachGreetingRandom15, s.coachGreetingRandom16,
+      s.coachGreetingRandom17, s.coachGreetingRandom18,
+      s.coachGreetingRandom19, s.coachGreetingRandom20,
     ];
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        alignment: WrapAlignment.center,
-        children: pills.map((pill) => GestureDetector(
-          onTap: () => _sendMessage(pill),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              color: MintColors.craie,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: MintColors.textSecondary.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              pill,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: MintColors.textPrimary,
-                height: 1.3,
-              ),
-            ),
-          ),
-        )).toList(),
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      child: Text(
+        greetings[_greetingIndex],
+        style: GoogleFonts.montserrat(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          color: MintColors.textPrimary,
+          height: 1.5,
+        ),
+        textAlign: TextAlign.center,
       ),
     );
   }
