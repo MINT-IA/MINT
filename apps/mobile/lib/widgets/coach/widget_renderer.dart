@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
 import 'package:mint_mobile/services/commitment_service.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/widgets/coach/commitment_card.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
@@ -75,6 +76,11 @@ class WidgetRenderer {
         return _buildDocumentGenerationCard(context, call.input);
       case 'show_commitment_card':
         return _buildCommitmentCard(context, call.input, onInputSubmitted);
+      case 'save_partner_estimate':
+      case 'update_partner_estimate':
+        // COUP-04: Intercept and persist locally — data never reaches backend
+        _handlePartnerEstimateTool(call.input);
+        return null; // No widget rendered — coach message is the UI
       default:
         return null;
     }
@@ -619,6 +625,19 @@ class WidgetRenderer {
       default:
         return 'Document';
     }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  PARTNER ESTIMATE — save_partner_estimate / update_partner_estimate
+  //  (Phase 16 / COUP-04)
+  // ────────────────────────────────────────────────────────────
+
+  /// COUP-04: Intercept partner estimate tool calls and persist locally.
+  /// The backend returned an ack-only response; we store the actual data
+  /// in SecureStorage via PartnerEstimateService.
+  static void _handlePartnerEstimateTool(Map<String, dynamic> input) {
+    // Fire-and-forget — persistence is best-effort, coach message already shown
+    PartnerEstimateService.update(input);
   }
 
   // ────────────────────────────────────────────────────────────
