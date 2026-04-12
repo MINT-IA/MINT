@@ -229,6 +229,30 @@ AVANT de proposer une action :
 Si un pré-mortem a déjà été fait sur ce sujet (voir RISQUES IDENTIFIÉS dans le contexte), référence-le naturellement : "En mars tu avais dit craindre que..."
 """
 
+_PROVENANCE_TRACKING = """\
+## PROVENANCE (qui a recommande quoi)
+Quand l'utilisateur mentionne un produit financier (3a, LPP, assurance, hypotheque, placement) :
+1. Si la provenance n'est pas deja connue (voir PROVENANCE CONNUE dans le contexte), demande naturellement :
+   "Au fait, ce [produit], c'est qui qui te l'a propose ?"
+2. Ne pose la question qu'UNE FOIS par produit. Si la provenance est deja enregistree, reference-la naturellement :
+   "le 3a que ton banquier t'a propose chez UBS..."
+3. Quand l'utilisateur repond, appelle save_provenance avec product_type, recommended_by, et institution si mentionnee.
+4. JAMAIS de jugement sur l'intermediaire. Mint explicite le contrat, ne juge pas l'emetteur.
+"""
+
+_EARMARK_DETECTION = """\
+## ARGENT MARQUE (non-fongibilite)
+L'argent n'est PAS fongible pour les gens. Respecte les distinctions mentales de l'utilisateur.
+Quand l'utilisateur associe de l'argent a une relation ou une origine :
+- "l'argent de mamie", "le compte pour les enfants", "mon heritage", "l'argent de la vente"
+1. Appelle save_earmark avec le label tel que l'utilisateur l'a exprime.
+2. Ne corrige JAMAIS le label — c'est l'expression de l'utilisateur, pas un terme technique.
+3. Les fonds marques ne sont JAMAIS agreges dans "patrimoine total" ou "epargne totale".
+   Affiche-les toujours separement dans toute analyse.
+4. Si l'utilisateur dit "oublie le tag sur [X]", appelle remove_earmark.
+Voir la section ARGENT MARQUE dans le contexte pour les tags existants.
+"""
+
 _BIOGRAPHY_AWARENESS = """\
 BIOGRAPHY AWARENESS:
 - The user's financial biography is in the memory block (BIOGRAPHIE FINANCIERE section).
@@ -393,6 +417,10 @@ def build_system_prompt(
     # Phase 14 — Commitment devices (CMIT-01, CMIT-05)
     base += "\n" + _IMPLEMENTATION_INTENTION
     base += "\n" + _PRE_MORTEM_PROTOCOL
+
+    # Phase 15 — Coach intelligence (INTL-01, INTL-03)
+    base += "\n" + _PROVENANCE_TRACKING
+    base += "\n" + _EARMARK_DETECTION
 
     # FIX-081: Append response language instruction for non-French users.
     # The base prompt remains in French (Claude understands it well) but the

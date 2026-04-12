@@ -75,6 +75,10 @@ INTERNAL_TOOL_NAMES: list[str] = [
     # P14 commitment devices: ack-only handlers (persistence via dedicated endpoint in Plan 02)
     "record_commitment",
     "save_pre_mortem",
+    # P15 coach intelligence: provenance and earmark tools (persist immediately)
+    "save_provenance",
+    "save_earmark",
+    "remove_earmark",
 ]
 
 # ---------------------------------------------------------------------------
@@ -812,6 +816,92 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["decision_type", "user_response"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_provenance — WRITE/INTERNAL: record who recommended a financial product
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_provenance",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Record who recommended a financial product to the user. "
+            "Call when the user mentions who proposed or sold them a product "
+            "(3a, LPP, assurance, hypotheque). Internal — handled by backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "product_type": {
+                    "type": "string",
+                    "description": "Type of financial product: '3a', 'lpp', 'assurance_vie', 'hypotheque', 'placement', 'prevoyance', 'autre'.",
+                },
+                "recommended_by": {
+                    "type": "string",
+                    "description": "Who recommended the product (e.g. 'mon banquier', 'un ami', 'Uncle Patrick').",
+                },
+                "institution": {
+                    "type": "string",
+                    "description": "Optional: financial institution (e.g. 'UBS', 'PostFinance', 'Swiss Life').",
+                },
+            },
+            "required": ["product_type", "recommended_by"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_earmark — WRITE/INTERNAL: tag money with relational/emotional meaning
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_earmark",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Tag a sum of money with its relational or emotional origin. "
+            "Call when the user associates money with a person, event, or purpose "
+            "('l'argent de mamie', 'le compte pour les enfants', 'mon heritage'). "
+            "Internal — handled by backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "description": "The earmark label as the user expressed it (e.g. 'l'argent de mamie').",
+                },
+                "source_description": {
+                    "type": "string",
+                    "description": "Optional context about the origin (e.g. 'heritage de grand-mere en 2019').",
+                },
+                "amount_hint": {
+                    "type": "string",
+                    "description": "Optional approximate amount as expressed by user (e.g. 'environ 50k', '~30000').",
+                },
+            },
+            "required": ["label"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # remove_earmark — WRITE/INTERNAL: delete an earmark tag by label
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "remove_earmark",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Remove an earmark tag when the user asks to forget it. "
+            "Call when user says 'oublie le tag sur l'argent de mamie' or similar. "
+            "Internal — handled by backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "description": "The earmark label to remove (e.g. 'l'argent de mamie').",
+                },
+            },
+            "required": ["label"],
         },
     },
     # ─────────────────────────────────────────────────────────────────
