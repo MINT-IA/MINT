@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     # Database settings
     DATABASE_URL: str = "sqlite:///./mint.db"
 
+    # ChromaDB persistence (Railway volume mount in prod; local relative path in dev)
+    CHROMADB_PERSIST_DIR: str = "data/chromadb"
+
+    # OpenAI embeddings (optional — RAG degrades gracefully without it)
+    OPENAI_API_KEY: str = ""
+
     # JWT settings — env var JWT_SECRET_KEY required in production
     JWT_SECRET_KEY: str = "mint-dev-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
@@ -98,6 +104,29 @@ if (
     raise RuntimeError(
         "CRITICAL: JWT_SECRET_KEY must be set via environment variable in production. "
         "Do not use the default dev secret."
+    )
+
+# Fail-fast: reject SQLite in production/staging (P0-INFRA-1)
+if (
+    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
+    and settings.DATABASE_URL.startswith("sqlite")
+):
+    raise RuntimeError(
+        "CRITICAL: DATABASE_URL must point to PostgreSQL in production/staging. "
+        "SQLite is ephemeral on Railway and will lose all data on restart. "
+        "Set DATABASE_URL in Railway environment variables."
+    )
+
+# Warn if OPENAI_API_KEY missing in production/staging (embeddings will fail)
+if (
+    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
+    and not settings.OPENAI_API_KEY
+):
+    import logging as _logging_oai
+    _logging_oai.getLogger("mint.config").warning(
+        "OPENAI_API_KEY not set in %s. RAG embeddings will fail silently. "
+        "Set OPENAI_API_KEY in Railway environment variables.",
+        settings.ENVIRONMENT,
     )
 
 # P1-Auth: Force email verification in production. Log a warning in staging
