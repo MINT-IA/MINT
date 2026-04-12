@@ -1,247 +1,171 @@
-# Feature Landscape — MINT v2.4 Fondation (Infrastructure Fixes)
+# Feature Landscape — MINT v2.5 Transformation
 
-**Domain:** Infrastructure repair for existing Flutter + FastAPI app
+**Domain:** Anonymous hook, premium conversion, behavioral commitment, couple mode, coach intelligence — Swiss fintech education app
 **Researched:** 2026-04-12
-**Scope:** Fixing broken wiring between existing components. Zero new features.
-**Confidence:** HIGH — patterns verified against actual codebase + standard Flutter/FastAPI conventions
-
-> This is NOT a feature-add milestone. Every item below is an existing feature
-> that is broken due to wiring, URL, serialization, navigation, or deployment
-> issues. The 32 findings from `14-INFRA-AUDIT-FINDINGS.md` are the input.
+**Scope:** Transforming working infrastructure into a product that hooks, converts, and retains
+**Confidence:** MEDIUM — patterns drawn from competitor analysis (Cleo, YNAB, Wealthfront, Headspace, Plenty, stickK/Beeminder) + behavioral economics literature + RevenueCat benchmarks. No direct Swiss fintech education precedent exists.
 
 ---
 
-## Table Stakes (Must Fix — App Non-Functional Without These)
+## Table Stakes
 
-Features users expect to work. Currently broken. Missing = app is unusable.
+Features users expect. Missing = product feels incomplete or amateurish.
 
-| Fix | What's Broken | Root Cause | Complexity | Phase | Audit ID |
-|-----|---------------|------------|------------|-------|----------|
-| URL prefix deduplication (5 endpoints) | Document scan, Vision OCR, premier eclairage, coach sync, insight delete all 404 | `baseUrl` already ends with `/api/v1`; 5 call sites append `/api/v1/...` again = double prefix | **Low** | 2 | P0-PIPE-1..5 |
-| JSON key casing alignment | Tool calling silently dead — coach returns tools but Flutter ignores them | Backend Pydantic `alias_generator=to_camel` serializes `tool_calls` as `toolCalls`; Flutter reads `json['tool_calls']` (snake) | **Low** | 2 | P1-PIPE-1 |
-| Shell navigation (3 tabs + drawer) | User trapped on single chat screen, no way to discover 67+ screens | Zero `StatefulShellRoute`, zero `BottomNavigationBar` in codebase despite specs | **High** | 3 | P0-NAV-1 |
-| ProfileDrawer mounting | Profile, documents, settings, logout all inaccessible | Widget built (280 lines), zero imports anywhere, no `endDrawer` on any scaffold | **Low** | 3 | P0-NAV-2 |
-| Back button loop fix | Back button on chat = infinite loop to same screen | `safePop` fallback is `/coach/chat` = same screen when stack empty | **Low** | 3 | P0-NAV-3 |
-| RAG corpus persistence | Coach has no knowledge base — RAG empty after every deploy | ChromaDB `persist_directory` is relative path on ephemeral Railway filesystem; `education/inserts` path outside Docker build context | **Medium** | 1 | P0-INFRA-2 |
-| SQLite fallback guard | Silent data loss if Railway env var missing | `DATABASE_URL` defaults to `sqlite:///./mint.db` in prod — ephemeral | **Low** | 1 | P0-INFRA-1 |
-| Agent loop timeout | Coach 502 Bad Gateway on multi-turn tool calls | 3x Claude calls (20-30s each) exceed Railway 60s gateway timeout | **Medium** | 1 | P1-INFRA-1 |
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| **Anonymous first interaction** | Every modern app lets you try before signup. Cleo, Headspace, Wealthfront all deliver value before auth. 55% of 3-day trial cancellations happen Day 0 — if no aha moment in 60 minutes, user is gone. | **Medium** | Backend anonymous endpoint, rate limiting, session token | Must deliver premier eclairage within 20 seconds of first tap. One felt-state pill -> one personalized insight. No bank connection, no form. |
+| **Conversation transfer post-login** | Users who chat anonymously expect their conversation to persist after creating an account. Losing context = losing trust. Standard pattern in Intercom, Cleo, Drift. | **Medium** | Anonymous session ID -> user ID migration, conversation_memory_service | Backend must merge anonymous session into authenticated user. Critical: if this breaks, user feels "MINT forgot me." |
+| **Clear free vs premium line** | Every freemium app makes the boundary visible. Users who hit invisible walls feel tricked. Cleo: free budgeting, paid cash advances. YNAB: 34-day trial, then paid. Headspace: free basics, paid library. | **Low** | Feature flag system per user tier | Free = first premier eclairage + limited coach exchanges (3-5/day). Premium = unlimited coach, full dossier, commitment devices, couple mode. Line must feel generous, not stingy. |
+| **Premium paywall (RevenueCat/Stripe)** | 15 CHF/month needs a payment system. RevenueCat handles Apple/Google subscriptions + Stripe for web. Not building payment infra from scratch is table stakes for a solo dev. | **Medium** | RevenueCat SDK (Flutter), Stripe backend integration, entitlement checks | RevenueCat paywalls are now remotely configurable. Apple rejects free trial toggles on paywalls as of Feb 2026. Hard paywalls convert 5x better than freemium on Day 35 (10.7% vs 2.1%) but freemium fits MINT better (word of mouth, education mission). |
+| **Basic auth flow (existing)** | Magic link + Apple Sign-In already built. Must work reliably as the gate between anonymous and authenticated. | **Low** (exists) | Auth service, SecureStorage | Already validated. Just needs to be the smooth bridge, not a wall. |
+| **Profile data pre-fill** | Every screen must pre-fill ALL known data from CoachProfile. Never ask what MINT already knows. Users expect apps to remember. | **Low** | CoachProfile, SimulatorParams.resolve() | Architectural principle already established. Enforce it across new features. |
 
 ---
 
-## Differentiators (Important Fixes — App Degraded Without These)
+## Differentiators
 
-Not immediately blocking, but severely degrade experience.
+Features that set MINT apart. Not expected by users, but create the "wow" that drives retention and word-of-mouth. These come from the 5-expert audit.
 
-| Fix | What's Broken | Root Cause | Complexity | Phase | Audit ID |
-|-----|---------------|------------|------------|-------|----------|
-| safePop fallback routing | Back from any screen teleports to chat | 40 call sites all use `/coach/chat` as fallback | **Medium** | 3 | P1-NAV-1 |
-| Zombie screen cleanup | 6 deleted screens still routable + renderable | Routes + files exist despite being marked deleted in docs | **Low** | 3 | P1-NAV-2 |
-| Explorer hub wiring | 7 Explorer hubs all redirect to /coach/chat | Routes exist but bodies are redirects, not screens | **High** | 3 | P1-NAV-3 |
-| /profile redirect fix | "Mon profil" in drawer dumps to chat | Route `/profile` exact match redirects to `/coach/chat` | **Low** | 3 | P0-NAV-4 |
-| Remove api.mint.ch from URL candidates | +2s latency on every API call in production | Unresolvable DNS in URL candidate list | **Low** | 2 | P1-PIPE-2 |
-| OPENAI_API_KEY validation | Embeddings silently fail = RAG degraded | Key required for embeddings but not in Settings model | **Low** | 1 | P1-INFRA-2 |
-| Education inserts Docker path | RAG auto-ingest never finds files | Path `../../education/inserts` resolves outside Docker container | **Low** | 1 | P1-INFRA-3 |
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| **Implementation intentions (Layer 4 primitive)** | No fintech app does this. When MINT says "ask your broker about X," it follows up with WHEN/WHERE/IF-THEN. "Next Tuesday at your 3pm meeting, ask: 'What happens if I stop in 3 years?'" Gollwitzer 1999 meta-analysis: d=0.65 effect size on follow-through. stickK/Beeminder prove commitment devices work but are standalone products — embedding this IN the financial insight is novel. | **Medium** | `ImplementationIntention` model, `notification_scheduler_service`, coach prompt engineering, persistence layer | Persist as dossier entries. Remind via push notification. Track completion. This is MINT's behavioral moat — insight without follow-through is worthless (the exact critique from the behavioral economist audit). |
+| **Fresh-start anchors** | Dai/Milkman/Riis 2014: temporal landmarks increase goal-directed behavior by 25-35%. Headspace does "New Year, fresh start" campaigns. MINT detects personal landmarks (birthday, 1-year-in-MINT, new job, new year, first-of-month) and sends ONE targeted message. NOT streaks (streaks create shame on break). | **Low** | Landmark detector (date math), `anomaly_detection_service`, `snapshot_service`, push notification | Dead simple to implement. High retention impact. One notification, one reframing. "It's been a year since you uploaded your LPP certificate. Here's what changed." |
+| **Pre-mortem before irrevocable decisions** | Klein 2007, Kahneman-endorsed. No financial app does this. When user is about to sign something (EPL, 3a lock-in, mortgage), MINT asks: "Imagine it's 2028 and this decision went badly. What happened?" Free text, stored in dossier. Reduces overconfidence by 30% (prospective hindsight research). 100% LSFin-compliant because it's education, not advice. | **Low** | Coach prompt trigger on irrevocable-decision detection, free text storage in dossier | The most differentiated feature in the entire list. Zero competitors do this. Deeply aligned with "lucidite-first" positioning. |
+| **Asymmetric couple mode** | 80% of Swiss financial decisions are made by couples, but usually only ONE partner opens the app. Plenty/Tandem/Zeta all require BOTH partners to sign up. MINT's innovation: "What I know about my partner (and what I don't know)" — a private questionnaire that NEVER shares with the partner. MINT produces 5 questions to ask the partner without triggering a fight. | **Medium** | Couple data model (client-side initially), coach prompt for couple-aware insights, questionnaire flow, AVS married cap logic | Zelizer sociology: money in couples is relational, not arithmetic. YNAB Together requires both partners (symmetric). Plenty requires both partners. MINT is the ONLY app designed for the realistic case: one partner cares, the other doesn't. |
+| **Provenance journal via coach (not form)** | Zelizer: money carries memory ("grandma's money", "the broker's 3a"). No fintech tracks WHERE advice/products came from. The coach asks casually: "By the way, who suggested this 3a?" and stores the answer. Not a form — conversation. | **Low** | Coach prompt engineering, `conversation_memory_service`, provenance field on dossier entries | Transforms the dossier from a document store into a relational map of the user's financial life. Enables future features: "3 of your 4 products were suggested by the same broker — here's what that means." |
+| **Implicit earmarking via coach listening** | Users mentally separate money ("the house fund", "emergency buffer", "grandma's inheritance"). YNAB uses explicit envelope categories. MINT's approach: the coach LISTENS for earmarks in conversation and respects them in future analysis. Never overrides by aggregating into "total patrimoine." | **Low** | `conversation_memory_service`, earmark detection in coach prompt, tag persistence | Requires zero UI. Pure intelligence. When user says "that 32k in 3a is sacred, it's from my grandfather," MINT never again suggests touching it for a mortgage down payment. |
+| **Tension-based living timeline (home screen direction)** | Wealthfront's Path shows net worth projections. Cleo shows spending feed. Neither shows TENSIONS. Game designer audit: "MINT should show past events (earned), present tensions (pulsing), future projections (ghosted)." One screen, tap to reveal. | **High** | Refactored home screen, tension detection engine, timeline data model, connection to all calculators | This is the most complex feature and should be a DIRECTION, not a v2.5 deliverable. Start with a simplified "3 tensions" card on the home screen. Full timeline is v3.0. |
 
 ---
 
-## Anti-Features (Explicitly NOT Building in v2.4)
+## Anti-Features
+
+Features to explicitly NOT build. Each is tempting but wrong for MINT.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|--------------------|
-| SSE streaming for coach | Adds complexity to a fix-only milestone; current sync works once timeout is fixed | Fix timeout with `asyncio.wait_for(50s)`. SSE is P3-PIPE-2, defer to v2.5+ |
-| New Explorer hub screens | Navigation shell must exist first; building hub content is feature work | Wire Explorer routes to redirect to relevant existing screens (e.g., `/explore/retraite` -> `/retirement/overview`) |
-| Multi-LLM support | Phase 3 roadmap item, not infrastructure | Keep Claude-only, fix the wiring that makes it work |
-| CORS for Flutter Web | P2 priority; mobile is the only real user today | Note in P2 backlog, fix when web becomes a target |
-| New navigation patterns (drawer gestures, animations) | Polish, not plumbing | Ship working tabs first, polish in next milestone |
-| Coach personality/prompt improvements | Content, not infrastructure | Current prompts work; the pipe to deliver them is what's broken |
+|--------------|-----------|-------------------|
+| **Streaks / daily check-in** | Creates shame on break. Anti-principle #2 (reduce shame). Headspace abandoned strict streaks for "mindful days." Duolingo streaks are the #1 user complaint. Finance + shame = toxic. | Fresh-start anchors (landmark-based, not streak-based). "Welcome back" not "you broke your streak." |
+| **Gamification badges / levels** | Social comparison is banned (CLAUDE.md). Levels imply "you're behind." MINT doctrine: compare only to user's own past. Behavioral economist audit explicitly warned against this. | Graduation Protocol direction (long-term): "Concepts you now master on your own: 7." Progress = independence, not points. |
+| **Symmetric couple mode (both partners must sign up)** | YNAB Together, Plenty, Zeta all require this. In practice, one partner cares and the other doesn't. Requiring both = excluding 80% of real couples. | Asymmetric mode: one partner's private understanding of the couple's finances. Questions to ask, not accounts to share. |
+| **Bank connection on first use** | Progressive disclosure principle. Asking for bank access before delivering value = maximum friction, minimum trust. Wealthfront gates planning behind connection. Bad pattern for education app. | Document upload + manual entry + coach conversation. Bank connection is a v3+ feature if ever (Open Banking in Switzerland is nascent). |
+| **Leaderboards / social comparison** | "Top 20% des Suisses" is explicitly banned. Social comparison creates shame and is antithetical to MINT's mission. | Compare user to their own past only. "Your confidence score went from 42% to 67% in 3 months." |
+| **Hard paywall (no free tier)** | RevenueCat data: hard paywalls convert 5x better short-term. But MINT's mission is education + lucidity for ALL Swiss. A hard paywall contradicts "democratize VZ." | Generous free tier (first premier eclairage, limited coach). Premium for depth (unlimited coach, dossier, commitment devices, couple mode). |
+| **Content courses / financial literacy modules** | "Pas un prof de prevoyance." MINT identity: learning happens by action, not courses. Situated learning doctrine. | Insights emerge from user's OWN data. Education is contextual, never curricular. |
+| **Product recommendations / rankings** | LSFin compliance. No ISINs, no tickers, no "this product is better." Explicitly illegal under Swiss law for MINT's license category. | Side-by-side structural comparison. "Here are the factual differences. You decide." |
+| **Reverse trial (full premium then downgrade)** | CXL research shows reverse trials boost conversion. But for MINT, losing features you experienced creates loss aversion + resentment. A lucidity tool should never make the user feel they lost clarity. | Forward trial: free is genuinely useful. Premium unlocks depth. User never loses something they had. |
 
 ---
 
-## Feature Dependencies (Fix Order Matters)
+## Feature Dependencies
 
 ```
-Phase 1 (Backend Infra) — no frontend dependencies
-  P0-INFRA-1 (SQLite guard)        → standalone
-  P0-INFRA-2 (RAG persistence)     → depends on P1-INFRA-3 (Docker path)
-  P1-INFRA-1 (timeout)             → standalone
-  P1-INFRA-2 (OpenAI key)          → standalone
-  P1-INFRA-3 (education path)      → P0-INFRA-2 depends on this
+Anonymous endpoint (backend) ─┬─> Anonymous first interaction (mobile)
+                               └─> Rate limiting (backend)
+                                    └─> Conversation transfer post-login
+                                         └─> Auth flow bridges anonymous → authenticated
 
-Phase 2 (Front-Back Pipes) — depends on Phase 1 being deployed
-  P0-PIPE-1..5 (URL double-prefix) → all same pattern, fix together
-  P1-PIPE-1 (camelCase mismatch)   → standalone
-  P1-PIPE-2 (DNS removal)          → standalone
+Feature flag system ──> Free vs premium line ──> RevenueCat paywall
+                                                   └─> Entitlement checks on all premium features
 
-Phase 3 (Navigation) — depends on Phase 2 (screens need working APIs)
-  P0-NAV-1 (shell)                 → BLOCKS P0-NAV-2, P0-NAV-3, P1-NAV-1
-  P0-NAV-2 (ProfileDrawer)         → depends on P0-NAV-1 (needs shell scaffold)
-  P0-NAV-3 (back loop)             → depends on P0-NAV-1 (shell changes fallback)
-  P1-NAV-1 (safePop 40 sites)      → depends on P0-NAV-1 (shell defines fallbacks)
-  P0-NAV-4 (/profile redirect)     → standalone route fix
-  P1-NAV-2 (zombie screens)        → standalone deletion
-  P1-NAV-3 (Explorer hubs)         → depends on P0-NAV-1 (needs tab structure)
+Coach prompt engineering ─┬─> Implementation intentions (Layer 4)
+                          ├─> Pre-mortem prompts
+                          ├─> Provenance journal
+                          ├─> Implicit earmarking
+                          └─> Couple-aware insights
 
-Phase 4 (Validation) — depends on all above
-  End-to-end human walkthrough      → all fixes deployed
+ImplementationIntention model ──> notification_scheduler_service ──> Push notifications
+
+Couple data model ──> Asymmetric questionnaire ──> Coach couple-aware insights
+                                                     └─> AVS married cap (existing calculator)
+
+Tension detection ──> Living timeline (direction, simplified v2.5)
 ```
 
 ---
 
-## Detailed Pattern Analysis for Each Fix Category
+## MVP Recommendation
 
-### 1. URL Prefix Management (P0-PIPE-1..5, P1-PIPE-2)
+### Phase 1 — Anonymous Hook + Auth Bridge (highest ROI, unblocks everything)
+1. **Anonymous backend endpoint** with rate limiting (3-5 exchanges)
+2. **Premier eclairage in < 20 seconds** from felt-state pill tap
+3. **Conversation transfer** on login (anonymous session merges to user)
 
-**Current bug:** `ApiService.baseUrl` guarantees the URL ends with `/api/v1` (see `_normalizeBaseUrl` at line 126-135 of `api_service.dart`). Five methods in `document_service.dart` and `coach_memory_service.dart` then append `/api/v1/...` again, producing `https://host/api/v1/api/v1/documents/...`.
+### Phase 2 — Premium Gate
+4. **Free vs premium feature flags** (server-side, not hardcoded)
+5. **RevenueCat integration** (iOS + Android subscriptions, 15 CHF/month)
+6. **Paywall screen** (shown after free limit hit OR contextually on premium features)
 
-**Standard pattern:** A central `baseUrl` that includes the API version prefix. All consumers use relative paths only:
-```dart
-// CORRECT: baseUrl = "https://host/api/v1"
-Uri.parse('$baseUrl/documents/scan-confirmation')
+### Phase 3 — Commitment Devices (the behavioral moat)
+7. **Implementation intentions** on Layer 4 insights
+8. **Fresh-start anchors** (landmark detector + single notification)
+9. **Pre-mortem** on irrevocable decisions
 
-// WRONG (current): double prefix
-Uri.parse('$baseUrl/api/v1/documents/scan-confirmation')
-```
+### Phase 4 — Relational Intelligence
+10. **Asymmetric couple mode** (private questionnaire, couple-aware coach)
+11. **Provenance journal** via coach conversation
+12. **Implicit earmarking** via coach listening
 
-**Fix scope:** 5 URLs in `document_service.dart` (lines 1086, 1125, 1169) and `coach_memory_service.dart` (lines 80, 106). Remove the `/api/v1` from each path string. Also remove `api.mint.ch` from `_baseUrlCandidates` (P1-PIPE-2).
-
-**Confidence:** HIGH — verified in actual source code. The `_normalizeBaseUrl` function explicitly appends `/api/v1` if missing.
-
-**Complexity:** Low. 5 string edits + 1 list removal. Risk: other call sites might also have the bug — grep for `/api/v1/` in all Flutter service files.
-
-### 2. JSON Key Casing (P1-PIPE-1)
-
-**Current bug:** Backend uses Pydantic v2 with `alias_generator=to_camel` (confirmed in `coach_chat.py` schema, line 30). Field `tool_calls` serializes as `toolCalls` in JSON responses. Flutter's `CoachChatApiResponse.fromJson` reads `json['tool_calls']` (line 130 of `coach_chat_api_service.dart`). Key does not exist. Tool calls silently dropped.
-
-**Standard pattern in this codebase:** The backend convention is already established — Pydantic `to_camel` alias generator. Flutter should read camelCase keys from JSON:
-```dart
-// CORRECT: match backend's camelCase serialization
-toolCalls: (json['toolCalls'] as List?) ...
-tokensUsed: json['tokensUsed'] as int? ?? 0,
-cashLevel: json['cashLevel'] as int? ?? 3,
-```
-
-**Fix scope:** `CoachChatApiResponse.fromJson` — change `tool_calls` to `toolCalls`, `tokens_used` to `tokensUsed`. Also audit all other `fromJson` factories that consume backend responses for the same mismatch.
-
-**Confidence:** HIGH — Pydantic config confirmed at line 30 of schema, Flutter parse confirmed at line 130.
-
-**Complexity:** Low for the fix itself. Medium for the audit — every `fromJson` in the Flutter codebase that consumes a backend Pydantic model needs checking.
-
-### 3. Flutter Shell Navigation (P0-NAV-1, P0-NAV-2, P0-NAV-3)
-
-**Current state:** 143 GoRouter routes defined in `app.dart`. Zero `ShellRoute` or `StatefulShellRoute`. The app is a flat list of routes with no persistent scaffold, no tab bar, no drawer mount point.
-
-**Standard Flutter pattern:** `StatefulShellRoute.indexedStack` (GoRouter 10+) wraps child routes in a persistent scaffold with `BottomNavigationBar`. Each tab maintains its own `Navigator` stack. The shell scaffold provides the `endDrawer` mount point for `ProfileDrawer`.
-
-```dart
-StatefulShellRoute.indexedStack(
-  builder: (context, state, navigationShell) => MintShell(
-    navigationShell: navigationShell,
-  ),
-  branches: [
-    StatefulShellBranch(routes: [/* Aujourd'hui routes */]),
-    StatefulShellBranch(routes: [/* Coach routes */]),
-    StatefulShellBranch(routes: [/* Explorer routes */]),
-  ],
-)
-```
-
-**Key decisions:**
-- **3 branches** matching the spec: Aujourd'hui | Coach | Explorer
-- **ProfileDrawer** as `endDrawer` on the shell scaffold (not per-screen)
-- **indexedStack** (not default) to preserve tab state when switching
-- **Back button**: shell root screens suppress back button; non-root screens pop within their branch
-
-**Fix scope:** Major refactor of `app.dart`. All 143 routes need re-parenting under the shell or marked as full-screen overlays. `safePop` fallback logic changes from hardcoded `/coach/chat` to branch-aware navigation.
-
-**Confidence:** HIGH — `StatefulShellRoute.indexedStack` is the documented GoRouter pattern for persistent tab navigation.
-
-**Complexity:** High. This is the largest single fix. Touches every route, changes the scaffold hierarchy, requires testing all 67+ screens still render correctly under the new shell.
-
-### 4. RAG Corpus Deployment (P0-INFRA-2, P1-INFRA-3)
-
-**Current bug:** Two compounding issues:
-1. `education/inserts` path (`../../education/inserts` relative to backend dir) resolves outside the Docker build context. The Dockerfile `COPY . .` copies `services/backend/` contents, not the repo root.
-2. ChromaDB `persist_directory` is a relative path (`data/chromadb`) on Railway's ephemeral filesystem. Lost on every deploy.
-
-**Standard patterns (two viable approaches):**
-
-**Option A — Embed in Docker image (recommended for MINT's scale):**
-```dockerfile
-# Add to Dockerfile before COPY . .
-COPY education/inserts /app/education/inserts
-```
-Adjust the Docker build context or use a multi-stage copy. Fix the path in `main.py` to `/app/education/inserts`. ChromaDB rebuilds from these files on each startup (acceptable for ~103 education docs).
-
-**Option B — Railway persistent volume:**
-Mount a Railway volume at `/data/chromadb`. Only re-ingest when corpus changes. Better for large corpora but adds infrastructure dependency.
-
-**Recommendation:** Option A. The corpus is ~103 documents. Rebuilding on startup takes seconds. No external volume dependency. The Dockerfile already does `COPY . .` from the backend dir; the fix is to also copy `education/inserts` into the image (requires adjusting the Docker build context in the CI/CD pipeline or the `railway.json`).
-
-**Confidence:** HIGH for Option A pattern. MEDIUM for Railway volume specifics (Railway docs confirm persistent volumes exist but exact mount syntax depends on their current API).
-
-**Complexity:** Medium. Requires changes to Dockerfile, possibly `railway.json` or GitHub Actions build context, and the path resolution in `main.py`.
-
-### 5. Backend Timeout / Agent Loop (P1-INFRA-1)
-
-**Current bug:** Coach chat endpoint runs up to 3 Claude API calls sequentially (agent loop: tool_use -> execute -> re-call). Each call takes 20-30s. Total can exceed Railway's 60s gateway timeout, resulting in 502.
-
-**Standard pattern:** `asyncio.wait_for()` with a total deadline below the gateway timeout:
-```python
-async def _run_agent_loop(...):
-    try:
-        result = await asyncio.wait_for(
-            _agent_loop_inner(...),
-            timeout=50.0  # 10s buffer before Railway's 60s
-        )
-    except asyncio.TimeoutError:
-        return _graceful_timeout_response(partial_result)
-```
-
-**Key detail:** The timeout must wrap the ENTIRE agent loop, not individual calls. A per-call timeout of 25s still allows 3x25s=75s total. The fix is a single `wait_for` around the outer loop with a 50s budget, returning whatever partial result exists if time runs out.
-
-**Alternative (future, not v2.4):** SSE streaming eliminates the timeout problem entirely — Railway doesn't timeout streaming responses the same way. But SSE is a feature add, not a fix. Defer to P3-PIPE-2.
-
-**Confidence:** HIGH — `asyncio.wait_for` is standard Python. Railway 60s timeout is documented.
-
-**Complexity:** Medium. Need to capture partial results (the text generated before the timeout) and return them gracefully instead of a 502.
+### Defer to v3.0
+- **Full living timeline** (tension-based home screen) — too complex for v2.5, start with simplified "3 tensions" card
+- **Graduation Protocol** — long-term direction, needs business model reconciliation
+- **Dossier Federation** — long-term direction, needs format standardization
+- **Political Pocket** — long-term direction, needs partnership framework
 
 ---
 
-## MVP Recommendation (v2.4 Scope)
+## Competitor Patterns Summary
 
-**Phase 1 — Backend Infra (2-3 days):**
-1. SQLite fallback guard (P0-INFRA-1) — 30 min
-2. Education inserts Docker path fix (P1-INFRA-3) — 2 hours
-3. RAG corpus persistence via embedded Docker (P0-INFRA-2) — 2 hours (depends on #2)
-4. OpenAI API key validation (P1-INFRA-2) — 30 min
-5. Agent loop timeout (P1-INFRA-1) — 3 hours
+| Feature Area | Cleo | YNAB | Wealthfront | Headspace | MINT Approach |
+|-------------|------|------|-------------|-----------|---------------|
+| **Anonymous hook** | Chat personality, spending roast | 34-day full trial | Free planning tools | Free basics (breathing) | Felt-state pill -> premier eclairage in 20s |
+| **Premium conversion** | Free tracking, paid cash advances ($5.99-$14.99/mo) | Trial then $14.99/mo | Free planning, paid investment (0.25% AUM) | Free basics, $69.99/yr | Free first insight + limited coach, premium 15 CHF/mo |
+| **Couple mode** | None | YNAB Together (symmetric, up to 6 people, shared budgets) | None | Shared plan pricing | Asymmetric (one partner, private) |
+| **Commitment devices** | Savings challenges, hype roasts | Envelope budgeting (implicit commitment) | Auto-invest (behavioral default) | Streaks, mindful days | Implementation intentions, fresh-start anchors, pre-mortem |
+| **Earmarking** | None | Explicit envelope categories | Goal-based portfolios | None | Implicit via coach listening |
+| **Timeline/projection** | Spending feed | Budget calendar | Path (net worth projection) | Journey progress | Tension-based timeline (direction) |
 
-**Phase 2 — Front-Back Pipes (2-3 days):**
-1. URL double-prefix fix, all 5 endpoints (P0-PIPE-1..5) — 1 hour
-2. JSON casing alignment (P1-PIPE-1) — 1 hour + 2 hours audit of other fromJson
-3. Remove api.mint.ch DNS (P1-PIPE-2) — 15 min
+---
 
-**Phase 3 — Navigation (5-7 days):**
-1. StatefulShellRoute + 3 tabs (P0-NAV-1) — 3-4 days (largest item)
-2. Mount ProfileDrawer as endDrawer (P0-NAV-2) — 2 hours (after shell exists)
-3. Fix back button loop (P0-NAV-3) — 1 hour (after shell exists)
-4. Fix /profile redirect (P0-NAV-4) — 15 min
-5. safePop branch-aware fallbacks (P1-NAV-1) — 4 hours
-6. Delete zombie screens (P1-NAV-2) — 1 hour
-7. Wire Explorer hub redirects (P1-NAV-3) — 2 hours
+## Complexity Budget
 
-**Phase 4 — Validation (3-5 days, human):**
-End-to-end walkthrough on real iPhone. The ONLY gate that matters per project memory: "creator-device, mandatory, non-skippable."
-
-**Defer:** SSE streaming (P3-PIPE-2), CORS for web (P2-INFRA-2), legacy redirect cleanup (P2-NAV-1).
+| Feature | Estimated Effort | Risk Level |
+|---------|-----------------|------------|
+| Anonymous endpoint + rate limiting | 1-2 days | Low — standard pattern |
+| Conversation transfer | 1-2 days | Medium — session migration edge cases |
+| Feature flag system | 1 day | Low — boolean checks |
+| RevenueCat integration | 2-3 days | Medium — Apple review, entitlement sync |
+| Paywall screen | 1 day | Low — UI only |
+| Implementation intentions | 1-2 days | Low — model + prompt + notification |
+| Fresh-start anchors | 1 day | Low — date math + notification |
+| Pre-mortem | 1-2 days | Low — prompt + text storage |
+| Asymmetric couple mode | 2-3 days | Medium — new data model, questionnaire UX |
+| Provenance journal | 1 day | Low — coach prompt + memory store |
+| Implicit earmarking | 1 day | Low — coach prompt + tag persistence |
+| Simplified tension card (home) | 2-3 days | Medium — tension detection logic |
+| **Total estimated** | **~15-20 days** | |
 
 ---
 
 ## Sources
 
-- **Codebase verified:** All findings confirmed by reading actual source files (api_service.dart, coach_chat_api_service.dart, document_service.dart, coach_chat.py, coach_chat schema, Dockerfile, main.py)
-- **14-INFRA-AUDIT-FINDINGS.md:** 32 findings from 3 parallel audits (2026-04-12)
-- **GoRouter StatefulShellRoute:** Standard Flutter navigation pattern (go_router package docs)
-- **Pydantic v2 alias_generator:** Confirmed in codebase schema (`alias_generator=to_camel`, `populate_by_name=True`)
-- **Railway deployment:** Ephemeral filesystem documented; persistent volumes available
-- **asyncio.wait_for:** Python stdlib, standard timeout pattern
+- [Cleo pricing and tiers](https://web.meetcleo.com/pricing) — free tracking, paid advances
+- [Cleo onboarding approach](https://web.meetcleo.com/blog/onboarding-of-dreams) — conversational, personality-driven
+- [YNAB Together](https://support.ynab.com/en_us/ynab-together-B1nS78Cki) — symmetric couple mode, up to 6 people
+- [YNAB partner budgeting](https://www.ynab.com/guide/budgeting-as-a-couple) — shared budget philosophy
+- [Plenty couples app](https://fortune.com/2024/05/09/plenty-app-couples-money-wealth-management-fintech-patriarchal-stripe/) — yours/mine/ours model, both partners required
+- [Tandem couples fintech](https://techcrunch.com/2024/01/17/tandem-modern-couples-app-fintech/) — modern couples finance
+- [Wealthfront planning tools](https://www.wealthfront.com/planning) — free financial planning, Path engine
+- [Wealthfront H2 2025 shipping](https://www.wealthfront.com/blog/what-we-shipped-h2-2025/) — recent features
+- [RevenueCat State of Subscription Apps 2026](https://www.revenuecat.com/state-of-subscription-apps/) — hard paywall 5x conversion, trial benchmarks
+- [RevenueCat paywall best practices](https://www.revenuecat.com/blog/growth/guide-to-mobile-paywalls-subscription-apps/) — timing, design, pricing
+- [RevenueCat contextual targeting](https://www.revenuecat.com/blog/growth/contextual-paywall-targeting/) — show paywall in context
+- [Apple rejecting trial toggles (Feb 2026)](https://www.revenuecat.com/blog/growth/subscription-app-trends-benchmarks-2026/)
+- [Fresh Start Effect (Dai/Milkman/Riis 2014)](https://pubsonline.informs.org/doi/10.1287/mnsc.2014.1901) — temporal landmarks + motivation
+- [Pre-mortem (Klein 2007)](https://www.researchgate.net/publication/3229642_Performing_a_Project_Premortem) — prospective hindsight
+- [Commitment devices behavioral science](https://learningloop.io/plays/psychology/commitment-devices) — voluntary + cost
+- [Beeminder vs stickK](https://blog.beeminder.com/stickk/) — commitment device design patterns
+- [Vanguard behavioral design principles 2025](https://corporate.vanguard.com/content/dam/corp/research/pdf/principles_for_behavioral_design_nudging_for_better_investor_outcomes.pdf) — nudging for investor outcomes
+- [IPA nudges for financial health](https://poverty-action.org/publication/nudges-financial-health-global-evidence-improved-product-design) — commitment savings +80% in field experiments
+- [Headspace/Calm pricing teardown](https://sbigrowth.com/insights/headspace-calm-pricing) — freemium conversion patterns
+- [Reverse trial strategy](https://cxl.com/blog/reverse-trial-strategy/) — premium-first then downgrade (rejected for MINT)
+- [MINT 5-expert audit](/.planning/architecture/13-AUDIT.md) — source of all 10 innovations

@@ -1,399 +1,345 @@
-# Pitfalls Research — v2.4 Fondation (Infrastructure Recovery)
+# Domain Pitfalls — v2.5 Transformation
 
-**Domain:** Fixing broken infrastructure pipes in a Flutter + FastAPI codebase damaged by cascading agent-driven changes. 32 findings (11 P0, 8 P1, 7 P2, 6 P3) across backend infra, front-back wiring, and navigation architecture.
+**Domain:** Adding anonymous flow, premium conversion, couple mode, commitment devices, coach intelligence, and living timeline to an existing Swiss fintech Flutter+FastAPI app recovering from a "facade without wiring" state.
 **Researched:** 2026-04-12
-**Confidence:** HIGH on codebase-specific pitfalls (verified by grep against actual code, exact line numbers confirmed). MEDIUM on Railway volume gotchas (based on documentation + common reports).
+**Overall confidence:** HIGH (codebase-verified + industry-confirmed patterns)
 
 ---
 
 ## Critical Pitfalls
 
-Mistakes that cause regressions, data loss, or require rework of already-fixed code.
+Mistakes that cause rewrites, data loss, App Store rejection, or compliance violations.
 
-### Pitfall 1: Partial URL Prefix Fix (The "4 of 5" Trap)
+### Pitfall 1: Facade Without Wiring — Again
 
-**What goes wrong:** You fix the double `/api/v1` prefix in `document_service.dart` (3 call sites) but miss `coach_memory_service.dart` (2 call sites), or vice versa. The fix works for document upload but insight sync silently 404s. Nobody notices because there is no error UI for sync failures.
+**What goes wrong:** The v2.4 audit found 32 instances of code that existed but was never connected (ProfileDrawer built, 0 imports; tool calling coded, camelCase mismatch killed it). The v2.5 features are MORE complex (anonymous sessions, webhook handlers, couple sync). The same pattern repeats: each feature looks done in isolation but the joints between them are dead.
 
-**Why it happens:** The 5 broken URLs are spread across 2 files in 2 different directories. A developer greps for the pattern in one file and moves on. The `coach_memory_service.dart` uses the same `$baseUrl/api/v1/...` pattern but is in `services/memory/`, not `services/`.
+**Why it happens:** Agent-driven development builds components in isolation. Each agent produces a service file that compiles and passes unit tests. Nobody verifies the full data path: anonymous session created on backend -> conversation stored -> user authenticates -> conversation transferred -> entitlements checked -> premium gate applied. Each step works alone; the chain is never tested end-to-end.
 
-**Consequences:** Premier eclairage works but coach memory never syncs to backend RAG. The coach answers questions without user context. Appears to work in testing (coach still responds), fails silently in production.
+**Consequences:** Ship date: "done." Creator opens on iPhone: anonymous conversation vanishes after login, premium gate shows free content as locked, couple questionnaire saves locally but never syncs to dossier.
 
 **Prevention:**
-```bash
-# BEFORE fix: count all instances (expect 5)
-grep -rn 'baseUrl.*api/v1/' apps/mobile/lib/services/ | grep -v test | grep -v '//' | wc -l
+- After each feature, write a 5-step E2E checklist tracing data from creation to consumption.
+- The v2.4 lesson: grep for zero-import files after every sprint (`grep -rL "import.*MyNewService" lib/`).
+- Device gate is non-negotiable: creator walks the flow cold-start on iPhone before marking done.
+- Every new service MUST have at least 1 integration test that crosses the Flutter-backend boundary.
 
-# AFTER fix: count must be 0
-grep -rn '\$baseUrl/api/v1/' apps/mobile/lib/services/ | grep -v test | grep -v '//'
-# Expected: zero lines. Any match = missed instance.
+**Detection:** Any service file with 0 imports outside its own test. Any backend endpoint with 0 Flutter callers. Any webhook handler never triggered in staging.
 
-# Also verify no NEW double-prefix introduced elsewhere:
-grep -rn "api/v1.*api/v1" apps/mobile/lib/ | grep -v test
-```
-
-**Detection:** Backend access logs showing 404s on `/api/v1/api/v1/*` paths. Sentry error on `coach_memory_service` sync. Coach responses that ignore user-uploaded documents.
-
-**Phase:** 2 (Les connexions)
+**Phase:** ALL phases. This is the meta-pitfall.
 
 ---
 
-### Pitfall 2: camelCase Fix Breaks BYOK Path
+### Pitfall 2: Anonymous Session Orphaning
 
-**What goes wrong:** You change `json['tool_calls']` to `json['toolCalls']` in `coach_chat_api_service.dart:130` to match the Pydantic `to_camel` alias generator output. This fixes server-key tool calling. But the BYOK path (direct Anthropic API) returns `tool_calls` (snake_case, per Anthropic's API spec). Now BYOK tool calling breaks.
+**What goes wrong:** User opens MINT anonymously, has a meaningful conversation, decides to create an account. The anonymous session data (conversation history, any profile data collected via chat) is lost because the authentication flow creates a new user record with no link to the anonymous session.
 
-**Why it happens:** There are TWO distinct response formats reaching the same Flutter model:
-1. **Server-key** (`/coach/chat` endpoint): Pydantic schema with `alias_generator=to_camel` outputs `toolCalls`
-2. **BYOK** (direct Anthropic SDK): Anthropic API returns `tool_use` content blocks, which `coach_orchestrator.dart` transforms into `toolCalls` on the `CoachResponse` object (lines 721, 804)
+**Why it happens:** The current auth system (`auth.py`) returns `None` for unauthenticated requests. There is no concept of an anonymous session ID that persists across the auth boundary. If you create anonymous sessions with a temporary ID (UUID in localStorage/SecureStorage) and authenticated sessions with a user_id (JWT), the two identifiers live in different namespaces with no migration path.
 
-The BYOK path builds `CoachResponse` objects directly in Dart, never going through `CoachChatApiResponse.fromJson`. The server-key path goes through `CoachChatApiResponse.fromJson` which reads from JSON.
-
-**Consequences:** Fix server-key, break BYOK. Or fix BYOK, break server-key. The codebase has no integration test that covers both paths with tool calls.
+**Consequences:** The user's first meaningful interaction with MINT vanishes. This is the WORST possible onboarding failure for a product whose entire pitch is "your first conversation surprises you, you create an account to not lose it."
 
 **Prevention:**
-1. The fix is ONLY in `CoachChatApiResponse.fromJson` (line 130): change `json['tool_calls']` to `json['toolCalls']`. This only affects server-key JSON deserialization.
-2. The BYOK path never touches `fromJson` -- it constructs `CoachResponse` directly in `coach_orchestrator.dart`. No change needed there.
-3. Write a test that sends a mock server-key JSON response with `toolCalls` key AND a test that verifies BYOK path still works.
+- Generate a device-level `anon_session_id` on first launch, stored in SecureStorage.
+- On signup/login, call a dedicated `POST /auth/claim-session` endpoint that migrates all data from `anon_session_id` to the new `user_id`.
+- The claim must be atomic: conversation history, any collected profile fields, any documents scanned.
+- Backend must handle the case where claim is called twice (idempotent) or where the anonymous session has already been claimed by another account (reject with clear error).
+- Rate-limit anonymous endpoints aggressively (3-5 conversations/day per device fingerprint) to prevent abuse without killing the hook.
 
-```bash
-# Verify the two paths are truly independent:
-grep -n "fromJson" apps/mobile/lib/services/coach/coach_chat_api_service.dart
-# Should show fromJson only used for server-key deserialization
+**Detection:** Test with real flow: open app -> have 2 conversations -> sign up -> verify conversations appear in authenticated history. If they do not, the pipe is broken.
 
-grep -n "CoachChatApiResponse" apps/mobile/lib/services/coach/coach_orchestrator.dart
-# Should show it is only used in the server-key branch, not BYOK
-```
-
-**Detection:** After fix, test both chat modes: (1) with ANTHROPIC_API_KEY in SecureStorage (BYOK), (2) without it (server-key fallback). Both must show tool-triggered widgets.
-
-**Phase:** 2 (Les connexions)
+**Phase:** Phase 1 (Anonymous flow). Must be solved first because ALL subsequent features depend on it.
 
 ---
 
-### Pitfall 3: Shell Migration Breaks 143 Deep Links
+### Pitfall 3: Apple App Store Rejection for Subscription Implementation
 
-**What goes wrong:** Adding `StatefulShellRoute` with 3 tabs wraps child routes in a shell scaffold. But 143 existing `GoRoute` entries use `context.go('/some/path')` navigation. If routes are not correctly nested inside the shell's route tree, they render without the shell (no tabs, no drawer) or trigger full-page rebuilds that destroy chat state.
+**What goes wrong:** Apple rejects the app because: (a) the free tier offers "too much" and Apple sees no reason for the subscription, or (b) the free tier offers "too little" and Apple sees it as a paywall for basic functionality, or (c) subscription terms/cancellation policy is not displayed before purchase, or (d) the app uses external payment (Stripe web) without also offering Apple IAP on iOS.
 
-**Why it happens:** GoRouter's `ShellRoute`/`StatefulShellRoute` requires child routes to be NESTED inside the shell definition. Routes defined outside the shell tree render without the shell scaffold. Moving 143 routes inside the shell tree is a massive diff that is easy to get wrong.
+**Why it happens:** Apple's Guideline 3.1.1 requires ALL digital content/feature unlocking to go through Apple IAP on iOS. The existing codebase has BOTH Stripe endpoints (`billing.py`) AND Apple IAP (`ios_iap_service.dart`). If the premium gate routes iOS users to Stripe instead of Apple IAP, Apple will reject. If AI-powered features (coach chat) require explaining clearly how AI works (2025 App Store guideline update), vague descriptions trigger rejection.
 
-**Consequences:** 
-- Routes outside shell: user navigates to `/lpp-deep` and loses all tabs -- trapped again
-- Routes wrongly nested: chat state destroyed on every navigation (StatefulShellRoute exists precisely to prevent this, but only if the chat branch is a separate `StatefulNavigationShell`)
-- Back button behavior changes: `context.pop()` inside a shell may pop within the tab, not the shell
+**Consequences:** Weeks of back-and-forth with App Review. Launch delayed. Possibly forced to restructure the entire premium/free boundary.
 
 **Prevention:**
-1. Use `StatefulShellRoute.indexedStack` to preserve state across tabs
-2. Chat MUST be its own branch (index 0 or 1) so navigating to other tabs does not rebuild it
-3. Routes that are NOT in the shell (e.g., onboarding, auth) must be explicitly placed as siblings, not children
-4. Test with a route inventory:
+- iOS: Apple IAP only (via `IosIapService` already scaffolded). Stripe for web/Android only.
+- RevenueCat as the abstraction layer to unify both payment rails into a single entitlement check.
+- Before submission: screenshot every paywall screen, ensure pricing/renewal/cancellation terms are visible BEFORE the purchase button.
+- Clearly explain AI features in App Review notes: "AI-powered financial education coach using Claude API, no personalized financial advice."
+- The free/premium line must be defensible: free = enough value to understand MINT's purpose (anonymous conversations, premier eclairage). Premium = depth (full dossier, couple mode, implementation intentions, unlimited coach).
+- Test on physical iOS device with sandbox Apple ID. Emulator IAP testing is insufficient.
 
-```bash
-# Count all GoRoute definitions
-grep -c "GoRoute(" apps/mobile/lib/app.dart
-# Must equal: (routes inside shell) + (routes outside shell like /onboarding, /auth)
+**Detection:** Submit a test build to TestFlight with IAP configured. Apple provides sandbox testing environment. If `IosIapService.fetchProducts()` returns empty, product IDs are misconfigured in App Store Connect.
 
-# Verify no orphan context.go() targets routes not in the tree
-grep -rn "context.go('" apps/mobile/lib/ | grep -oP "go\('([^']+)'" | sort -u > /tmp/go_targets.txt
-grep -oP "path: '([^']+)'" apps/mobile/lib/app.dart | sort -u > /tmp/defined_routes.txt
-# diff the two files -- any target not in defined routes = broken navigation
-```
-
-5. The `safePop` fallback (`/coach/chat`) must change to `/` (shell root) since `/coach/chat` will be a tab, not a standalone route
-
-**Detection:** After migration, open every Explorer hub and every profile sub-screen. Verify tabs remain visible. Verify back button returns to previous tab, not chat.
-
-**Phase:** 3 (La navigation)
+**Phase:** Phase 4 (Premium gate). But App Store Connect product setup should start in Phase 1 (takes 24-48h for Apple to approve product metadata).
 
 ---
 
-### Pitfall 4: safePop Fallback Creates Infinite Loop in Shell Context
+### Pitfall 4: Webhook Race Conditions and Subscription State Corruption
 
-**What goes wrong:** Current `safePop` (40 call sites) falls back to `context.go('/coach/chat')`. After shell migration, `/coach/chat` becomes a tab inside the shell. `context.go('/coach/chat')` from inside the shell navigates to the same shell, potentially resetting state or creating a loop.
+**What goes wrong:** User subscribes via Apple IAP. The `activateApplePurchase` backend call succeeds and grants entitlements. Minutes later, Apple sends a Server Notification (via webhook) for the same transaction. The webhook handler creates a duplicate subscription record or overwrites the already-correct state. Alternatively: webhook arrives BEFORE the client-side verification call (out-of-order delivery), and the user has no record yet, so the webhook is silently dropped.
 
-**Why it happens:** `context.go()` replaces the entire navigation stack. Inside a `StatefulShellRoute`, you should use `context.goNamed()` or tab index switching, not `context.go()` to a tab route.
+**Why it happens:** Webhooks are asynchronous and unreliable. They arrive out of order, can be duplicated, and have no guaranteed delivery time. The existing `billing.py` has both `POST /billing/apple/verify` (client-initiated) and `POST /billing/apple/webhook` (server notification) but they may not share the same idempotency logic.
 
-**Consequences:** User taps back on any of 40 screens, gets dumped to chat tab with full state reset. Conversation history may be lost if the chat widget rebuilds.
+**Consequences:** User pays but does not get premium. Or user gets premium twice (double-counted revenue). Or subscription renewal fails silently and user loses access mid-session.
 
 **Prevention:**
-1. Replace `safePop` with a shell-aware navigation helper:
-   - Inside shell: `context.pop()` or switch tab index via `StatefulNavigationShell.of(context).goBranch(index)`
-   - Outside shell (onboarding/auth): `context.go('/')` to enter shell
-2. Do NOT fix all 40 call sites individually -- replace the single `safePop` function body
-3. Test: from a deep screen (e.g., `/lpp-deep/epl`), tap back. Should return to previous screen in same tab, not jump to chat tab.
+- Every subscription operation must be idempotent: keyed on `original_transaction_id` (Apple) or `subscription_id` (Stripe).
+- Use RevenueCat as the single source of truth for entitlement state. Query RevenueCat server-side before granting/revoking.
+- Webhook handler must respond within 5 seconds (Apple requirement) and defer heavy processing to a background task.
+- Log every webhook event with timestamp and transaction ID for debugging.
+- Handle the "webhook arrives first" case: create a pending subscription record that the client verify call later confirms.
 
-```bash
-# Inventory all safePop consumers (must ALL be retested):
-grep -rn "safePop" apps/mobile/lib/screens/ | grep -v test
-# Current count: 40 screens. After fix, verify same count (no missed removals).
-```
+**Detection:** In staging, trigger a subscription, then immediately check `/billing/entitlements`. If entitlements are empty, the client-verify -> entitlement pipeline is broken. Check webhook logs for any events with "user not found" errors.
 
-**Phase:** 3 (La navigation)
+**Phase:** Phase 4 (Premium gate).
 
 ---
 
-### Pitfall 5: Railway Persistent Volume for ChromaDB (Mount Timing + Permissions)
+### Pitfall 5: Couple Mode Data Isolation Failure (Privacy Breach)
 
-**What goes wrong:** You add a Railway persistent volume mounted at `/app/data/chromadb`. But:
-1. The volume is empty on first deploy -- ChromaDB initializes correctly
-2. On subsequent deploys, the volume has data from the previous deploy, BUT the new container's `mint` user (non-root, UID from `useradd`) may have a different UID than the previous container's `mint` user
-3. ChromaDB's SQLite files get permission-denied errors
-4. App starts, RAG silently falls back to `_NoRagOrchestrator`, coach works but without context
+**What goes wrong:** Partner A fills the "what I know about my partner" questionnaire. The data is stored in a way that Partner B (if they also use MINT) can see Partner A's answers about them. Or worse: Partner A's financial data leaks into Partner B's dossier through shared coach context.
 
-**Why it happens:** Railway persistent volumes preserve Unix permissions from the writing process. If the Docker image changes the `mint` user's UID (e.g., base image update changes `useradd` ordering), the new process cannot read old files.
+**Why it happens:** The couple mode is "dissymmetric" by design — only ONE partner uses MINT. But the data model might not enforce this. If a future feature adds "invite your partner," the assumption of single-user-per-couple breaks. Also: coach context injection might include couple data in prompts sent to Claude, and if the prompt is not carefully scoped, Claude might reveal "your partner said they don't know your salary" to the wrong person.
 
-**Consequences:** RAG silently degrades. The graceful fallback (already implemented in commit 2f65bf01) masks the failure. Coach responds but without document context. Hard to detect because the app "works."
+**Consequences:** Privacy violation. In Swiss law (nLPD, the new Federal Act on Data Protection effective since 2023), sharing personal financial data between individuals without explicit consent is a violation. Trust destruction for the product.
 
 **Prevention:**
-1. Pin the UID in Dockerfile: `RUN groupadd -r -g 1001 mint && useradd -r -g mint -u 1001 -d /app mint`
-2. Add a startup health check that verifies ChromaDB is readable:
-   ```python
-   # In main.py startup
-   store = MintVectorStore(persist_directory=persist_dir)
-   count = store.count()
-   logger.info("RAG corpus: %d documents", count)
-   if count == 0:
-       logger.warning("RAG corpus is EMPTY - coach will operate without document context")
-   ```
-3. Add `/health` endpoint that reports RAG status (not just HTTP 200)
+- Couple data belongs to the USER who entered it, never to "the couple."
+- `CoachContext` must NEVER include raw partner data — only derived insights ("you mentioned uncertainty about shared expenses").
+- If couple mode ever becomes bidirectional, each partner's data lives in their own dossier with explicit consent-gated sharing.
+- The couple questionnaire output should be: questions for the user to ASK their partner in real life, not data MINT stores about the partner.
+- ComplianceGuard must flag any coach response that reveals specifics about a partner's finances.
 
-**Detection:** Monitor startup logs for "RAG corpus: 0 documents" after a deploy that should have preserved data. Add Sentry breadcrumb when `_NoRagOrchestrator` is used as fallback.
+**Detection:** Review every `CoachContext` builder to verify no partner-attributed financial data is included. Grep for any database field that stores "partner_salary", "partner_3a", etc. — these should be `user_estimate_of_partner_X`, clearly attributed.
 
-**Phase:** 1 (Les tuyaux)
+**Phase:** Phase 3 (Couple mode).
 
 ---
 
-### Pitfall 6: Docker COPY Bloats Image with Unnecessary Files
+### Pitfall 6: LSFin/FINMA Compliance Breach via Premium Gate Framing
 
-**What goes wrong:** The Dockerfile line `COPY . .` (line 34) copies the ENTIRE backend directory into the production image. To fix P0-INFRA-2 (education inserts path), you might add `COPY ../../education/ /app/education/` which (a) fails because Docker COPY cannot reference paths outside build context, and (b) if you expand the build context to the project root, you copy `apps/mobile/`, `node_modules/`, `.git/`, etc. into the image.
+**What goes wrong:** The premium tier is marketed as providing "better financial advice" or "personalized recommendations" or "optimized strategy." Any of these framings turns MINT from an educational tool into a financial advisory service, which requires a FINMA license under LSFin (Loi sur les services financiers).
 
-**Why it happens:** Docker build context is `services/backend/`. The `education/inserts/` directory lives at the project root. Expanding build context to `/` is the naive fix.
+**Why it happens:** The natural instinct when selling premium is to promise MORE — more insight, more personalization, more optimization. But in Swiss fintech compliance, "more personalization" = closer to advice = regulatory trigger. The premium/free line is an emotional marketing decision that has regulatory consequences.
 
-**Consequences:** Image goes from ~500MB to 2GB+. Deploy times triple. Railway may hit storage limits.
-
-**Prevention:**
-1. Keep build context as `services/backend/`
-2. Copy education inserts INTO the backend directory BEFORE build (in CI or a pre-build script):
-   ```bash
-   cp -r education/inserts services/backend/education_inserts/
-   ```
-3. Add `education_inserts/` to `.gitignore` in backend dir
-4. Update `main.py` path to look for `/app/education_inserts/` first, fall back to `../../education/inserts/` for local dev
-5. Alternative: multi-stage build that copies only needed files from a context that includes both dirs
-
-```bash
-# Verify image size before and after:
-docker images mint-backend --format "{{.Size}}"
-# Should stay under 600MB
-```
-
-**Phase:** 1 (Les tuyaux)
-
----
-
-### Pitfall 7: Agent Loop Timeout Cuts Off Mid-Generation (Data Corruption)
-
-**What goes wrong:** Adding `asyncio.wait_for(timeout=50)` to the agent loop in `coach_chat.py` (P1-INFRA-1 fix). The timeout fires between Claude API calls in the multi-iteration loop. The first iteration returns tool calls, the second iteration is mid-execution when timeout hits. The function raises `asyncio.TimeoutError`, but the partial result (first iteration's tool calls without final answer) is either lost or returned malformed.
-
-**Why it happens:** The agent loop makes 2-3 sequential Claude API calls (each 15-25s). Total can exceed 50s. A naive `wait_for` on the entire loop kills it mid-flight.
-
-**Consequences:**
-- Partial tool call results returned to Flutter (e.g., `toolCalls` present but `message` empty)
-- Flutter tries to render tool widgets with incomplete data
-- User sees broken UI or empty chat bubble
-- Conversation memory saves a corrupted exchange
+**Consequences:** FINMA investigation. Cease and desist. Criminal liability for the founder (LSFin art. 44: up to 3 years imprisonment for unlicensed financial services).
 
 **Prevention:**
-1. Timeout per-iteration, not the whole loop:
-   ```python
-   for iteration in range(max_iterations):
-       try:
-           result = await asyncio.wait_for(single_claude_call(), timeout=25)
-       except asyncio.TimeoutError:
-           return graceful_partial_response(accumulated_so_far)
-   ```
-2. The `graceful_partial_response` must return whatever text was accumulated plus a user-visible message ("Je reflechis encore, repose-moi la question")
-3. NEVER save a timed-out exchange to conversation memory -- it pollutes future context
-4. Set Railway request timeout to 120s (double the expected max) via `railway.json` or env var
+- Premium framing must be about DEPTH OF EDUCATION and CONVENIENCE, never about advice quality.
+- Free: "MINT te montre ton premier eclairage." Premium: "MINT construit ton dossier complet, te rappelle tes intentions, et suit ta vie financiere dans le temps."
+- Banned premium copy: "meilleur conseil", "strategie optimale", "recommandations personnalisees", "plan financier sur mesure."
+- Allowed premium copy: "dossier illimite", "suivi dans le temps", "rappels d'intentions", "mode couple", "historique complet."
+- Every paywall screen must include the educational disclaimer.
+- The premium gate must never gate ACCESS TO INFORMATION (that looks like selling advice). It gates TOOLS FOR ORGANIZATION (dossier, reminders, couple, timeline).
+- ComplianceGuard must run on all paywall/marketing copy, not just coach responses.
 
-**Detection:** Monitor for responses where `message` is empty but `tool_calls` is non-null. Log timeout events with iteration count.
+**Detection:** Have a non-team-member read every paywall screen and describe what they think MINT sells. If they say "financial advice" or "investment recommendations," the framing is wrong.
 
-**Phase:** 1 (Les tuyaux)
+**Phase:** Phase 4 (Premium gate). But the free/premium line definition must be validated in Phase 1 planning.
 
 ---
 
 ## Moderate Pitfalls
 
-### Pitfall 8: The "Facade sans Cablage" Pattern (MINT's #1 Historical Trap)
+### Pitfall 7: Notification Permission Fatigue and iOS Restrictions
 
-**What goes wrong:** You fix the URL prefix in `document_service.dart` (the wire) but do not verify that the CONSUMER of the response (`extraction_review_screen.dart`, `impact_screen.dart`) correctly handles the now-working response. The endpoint starts returning data, but the screen expects a different shape or ignores the response entirely because it was coded against a mock.
+**What goes wrong:** MINT asks for notification permissions too early (onboarding), user denies, and implementation intentions (commitment devices) become useless because they rely on scheduled local notifications to remind users of their WHEN/WHERE/IF-THEN commitments.
 
-**Why it happens:** This is MINT's documented #1 failure pattern (see `feedback_facade_sans_cablage.md`). Agent-driven development builds components that look correct individually but are never connected end-to-end. The audit found 11 P0 findings -- many are exactly this pattern.
+**Why it happens:** iOS asks for notification permission ONCE. If denied, the user must go to Settings to re-enable. The existing `notification_service.dart` uses `flutter_local_notifications` with local scheduling. On Android 13+, `POST_NOTIFICATIONS` permission is required at runtime. On Android 14+, exact alarms require `SCHEDULE_EXACT_ALARM` permission.
 
-**Consequences:** Fix looks done. Tests pass (unit tests mock the HTTP layer). But real user sees no change because the consumer was never wired to use the real data.
+**Consequences:** The behavioral economist's #1 innovation (implementation intentions, d=0.65 effect size) is silently disabled for 40-60% of users who deny notifications. The app never tells the user their commitment device is broken.
 
 **Prevention:**
-For EVERY pipe fix in Phase 2, follow this checklist:
-1. Fix the URL/format issue (the wire)
-2. Trace the CONSUMER: what screen/service reads this response?
-3. Verify the consumer USES the response (not a hardcoded fallback)
-4. Write an integration test that sends a real HTTP request and verifies the consumer renders the result
+- NEVER ask for notification permission during onboarding. Ask at the MOMENT the user creates their first implementation intention: "Tu veux que MINT te rappelle? Autorise les notifications."
+- If permission is denied, degrade gracefully: show in-app reminders on next open instead of push notifications.
+- On iOS, use `UNUserNotificationCenter` provisional authorization first (delivers quietly to Notification Center without the permission popup), then upgrade to full authorization when the user explicitly asks for reminders.
+- Store notification permission state in the user profile and surface it in coach context so the coach can say "tu avais prevu de poser cette question a ton courtier — tu veux que je te rappelle?" without assuming notifications work.
 
-```bash
-# For each fixed endpoint, find all consumers:
-grep -rn "sendScanConfirmation\|extractWithVision\|fetchPremierEclairage\|syncInsight" \
-  apps/mobile/lib/screens/ apps/mobile/lib/services/ | grep -v test
+**Detection:** Check `notification_service.dart` for permission request timing. If it is called in `main.dart` or during onboarding, it is too early.
 
-# For each consumer, verify it does something with the response:
-# (manual review -- look for: is the response assigned to a variable that's used?)
-```
-
-**Phase:** 2 (Les connexions) -- but also applies to Phase 1 and 3
+**Phase:** Phase 2 (Commitment devices).
 
 ---
 
-### Pitfall 9: SQLite Fail-Fast Guard Breaks Local Development
+### Pitfall 8: Animated Timeline Performance Death on Older Devices
 
-**What goes wrong:** You add a fail-fast guard for P0-INFRA-1: if `ENVIRONMENT in ('production', 'staging')` and `DATABASE_URL` starts with `sqlite`, raise `RuntimeError`. But you forget that `ENVIRONMENT` defaults to `"development"` (config.py line 14). A developer who sets `ENVIRONMENT=staging` for local testing (to debug a staging bug) gets a crash with no SQLite, no PostgreSQL. They remove the guard "temporarily" and push it.
+**What goes wrong:** The living timeline (tension-based home screen with past/present/future nodes, animated pulsing, ghosted projections) works beautifully on iPhone 15 Pro but drops to 15fps on iPhone SE 2020 or mid-range Android devices. The timeline uses `CustomPainter` with complex paths, `AnimationController` ticking at 60fps, and a `ListView` of variable-height nodes.
 
-**Consequences:** Guard is weakened or removed. Production falls back to SQLite on next deploy if Railway env var is accidentally cleared.
+**Why it happens:** `CustomPainter.shouldRepaint()` returns true on every animation tick, causing full repaint of the entire timeline. Each node has its own animation (pulse, fade, shimmer), and AnimatedBuilder wraps the entire subtree instead of just the animating element.
+
+**Consequences:** The home screen — the FIRST thing authenticated users see — feels broken. Battery drain. Users associate MINT with "slow app."
 
 **Prevention:**
-1. The guard must ONLY check `ENVIRONMENT` values, not require PostgreSQL locally
-2. Allow `ENVIRONMENT=development` with SQLite (current default)
-3. Log a WARNING (not error) if `ENVIRONMENT=development` and using SQLite
-4. The fail-fast MUST be in `Settings` model validator (Pydantic `@model_validator`), not in application code, so it runs at import time before any request
+- `RepaintBoundary` around each timeline node to isolate repaints.
+- `shouldRepaint()` must compare actual state, not return `true`.
+- Use `AnimatedBuilder` wrapping ONLY the animated child, not the parent tree.
+- Limit concurrent animations: only the "current tension" node pulses. Past and future nodes are static until scrolled into view.
+- Profile with `flutter run --profile` on the OLDEST supported device (iPhone SE 2020 or equivalent Android).
+- Set a performance budget: 60fps on iPhone SE, 30fps minimum on 2019 Android mid-range.
+- Consider using `Rive` or `Lottie` for complex animations instead of `CustomPainter` — they are GPU-optimized and easier to profile.
 
-```python
-@model_validator(mode="after")
-def validate_production_database(self) -> "Settings":
-    if self.ENVIRONMENT in ("production", "staging"):
-        if self.DATABASE_URL.startswith("sqlite"):
-            raise ValueError(
-                f"SQLite is not allowed in {self.ENVIRONMENT}. "
-                "Set DATABASE_URL to a PostgreSQL connection string."
-            )
-    return self
-```
+**Detection:** Run `flutter run --profile` and open the Performance Overlay. If the raster thread exceeds 16ms per frame on the home screen, the timeline needs optimization.
 
-**Phase:** 1 (Les tuyaux)
+**Phase:** Phase 5 (Living timeline).
 
 ---
 
-### Pitfall 10: DNS Timeout on api.mint.ch Adds Latency to Every Request
+### Pitfall 9: Anonymous Rate Limiting That Kills the Hook
 
-**What goes wrong:** You fix P1-PIPE-2 by removing `api.mint.ch` from the URL candidates list. But the URL selection logic (`api_service.dart`) tries candidates in order and falls back on failure. If you remove the wrong candidate or reorder them, ALL requests hit a different broken URL first.
+**What goes wrong:** Rate limiting is set too aggressively (1 conversation/day) to prevent abuse, and the anonymous user never gets enough value to convert. Or rate limiting is set too loosely (unlimited), and bots/scrapers drain the Claude API budget.
 
-**Why it happens:** The `_baseUrlCandidates` list (api_service.dart:105-113) has multiple entries with conditional inclusion based on `kReleaseMode`. Removing one entry shifts the fallback order.
+**Why it happens:** The tension between "give enough value to hook" and "don't hemorrhage API costs on non-converting anonymous users." The existing backend has rate limiting (`rate_limit.py`) but it is per-authenticated-user. Anonymous rate limiting needs a different key (device fingerprint, IP, or session token).
+
+**Consequences:** Too tight: conversion rate is 0% because nobody experiences enough to care. Too loose: $500/day Claude API bill from a single bot.
 
 **Prevention:**
-```bash
-# Before change, document the exact candidate list:
-grep -A 10 "_baseUrlCandidates" apps/mobile/lib/services/api_service.dart
+- Rate limit by device fingerprint (sent as header), not IP (shared in offices/VPNs).
+- Tier: 3 free coach exchanges per session, 1 session per device per day. After limit: "Cree ton compte pour continuer cette conversation."
+- The rate limit response must feel like a natural stopping point, not a wall: "Tu as decouvert ton premier eclairage. Pour aller plus loin, cree un compte — c'est gratuit."
+- Backend: separate rate limit bucket for anonymous endpoints. Do NOT share with authenticated rate limits.
+- Monitor: track anonymous-to-auth conversion rate by rate limit cohort. If conversion drops below 5%, the limit is too tight.
 
-# After change, verify:
-# 1. Release mode: first candidate is mint-production-3a41.up.railway.app
-# 2. Debug mode: first candidate is localhost:8888
-# 3. api.mint.ch is GONE from all modes
-# 4. No staging URL added yet (P2-PIPE-1 is deferred)
-```
+**Detection:** After launch, check analytics: what % of anonymous sessions hit the rate limit? What % of those convert? If >80% hit limit and <5% convert, the hook is failing.
 
-**Phase:** 2 (Les connexions)
+**Phase:** Phase 1 (Anonymous flow).
 
 ---
 
-### Pitfall 11: ProfileDrawer Mount Without Shell = Drawer Over Nothing
+### Pitfall 10: Conversation Transfer Loses Context Window
 
-**What goes wrong:** You fix P0-NAV-2 by importing `ProfileDrawer` and adding it as `endDrawer` to a Scaffold. But if done before the shell migration (Phase 3), the drawer opens over the current screen (coach chat) with no way to navigate back to other parts of the app. The drawer becomes the ONLY navigation surface, creating a worse UX than before.
+**What goes wrong:** User has 3 anonymous conversations. They sign up. The conversation history is migrated to their account (Pitfall 2 avoided). But the coach does not have access to the anonymous conversation context in its next interaction — the RAG/memory system only indexes post-authentication conversations.
 
-**Why it happens:** Phase ordering dependency. The drawer needs the shell (tabs) to be meaningful. Without tabs, the drawer is a dead-end menu.
+**Why it happens:** The coach's `context_injector_service` builds context from the user's dossier and `conversation_memory_service`. If the migration only copies conversation records to a new user_id but does not re-index them in ChromaDB/RAG, the coach has no memory of the anonymous interactions.
 
-**Prevention:** ProfileDrawer MUST be mounted as part of Phase 3 (shell migration), not Phase 2. The drawer goes on the SHELL scaffold, not individual screen scaffolds.
+**Consequences:** User: "On avait parle de mon 3a." Coach: "Je n'ai pas cette information." Trust destroyed in the first authenticated interaction.
 
-**Phase:** 3 (La navigation) -- do NOT attempt in Phase 2
+**Prevention:**
+- The session claim endpoint must trigger re-indexing of all migrated conversations into the user's RAG corpus.
+- The coach system prompt must include a "conversation continuity" signal: "L'utilisateur vient de creer un compte. Voici le resume de ses conversations precedentes: [summary]."
+- Test explicitly: anonymous conversation mentions salary -> sign up -> ask coach "quel est mon salaire?" -> coach must know.
+
+**Detection:** Integration test crossing the auth boundary with conversation context verification.
+
+**Phase:** Phase 1 (Anonymous flow).
+
+---
+
+### Pitfall 11: RevenueCat + Existing Billing Service Conflict
+
+**What goes wrong:** The codebase already has `billing_service.py` with Stripe checkout, Apple verify, webhook handlers, and entitlement logic. Adding RevenueCat creates two competing sources of truth for subscription state: RevenueCat's server and the local `billing` database table.
+
+**Why it happens:** RevenueCat is designed to BE the source of truth. But the existing billing service already manages subscriptions in PostgreSQL. If both systems are active, they will diverge: RevenueCat says "active," local DB says "expired" (or vice versa) because webhook processing has a race condition.
+
+**Consequences:** User has premium on one check, loses it on the next. Support nightmare. Revenue reporting is wrong.
+
+**Prevention:**
+- Choose ONE source of truth. Recommendation: RevenueCat for mobile IAP (Apple/Google), Stripe direct for web.
+- Local DB stores a CACHE of entitlements, refreshed from RevenueCat on each app launch and on webhook events. Never trust the local cache for gating decisions — always verify with RevenueCat server-side for critical gates.
+- OR: skip RevenueCat entirely. The existing `IosIapService` + `billing_service.py` already handle Apple IAP. RevenueCat adds complexity for a one-person team. Use RevenueCat only if you need Google Play Billing (Android) or cross-platform subscription management.
+- If keeping both: clearly document which system is authoritative for which platform.
+
+**Detection:** After implementing, subscribe on iOS, then check `/billing/entitlements` on backend. If the response does not reflect the subscription, the sync is broken.
+
+**Phase:** Phase 4 (Premium gate). Decision should be made in Phase 1 planning.
 
 ---
 
 ## Minor Pitfalls
 
-### Pitfall 12: Zombie Route Deletion Breaks Bookmarked Deep Links
+### Pitfall 12: Implementation Intentions Without Persistence Strategy
 
-**What goes wrong:** Deleting 6 zombie screens (P1-NAV-2) removes their route handlers. Users who bookmarked or have push notifications targeting these routes get unhandled route errors.
+**What goes wrong:** Implementation intentions (WHEN/WHERE/IF-THEN) are created via coach conversation but stored only in the conversation memory, not in a dedicated data structure. There is no way to list, edit, or delete them. The notification scheduler cannot find them to schedule reminders.
 
-**Prevention:** Add redirect routes (301-style) that point to the nearest valid screen. Keep redirects for 2 releases, then remove.
+**Prevention:** Create a first-class `ImplementationIntention` model (backend + Flutter) with fields: trigger_context, action, reminder_datetime, status (pending/completed/expired), linked_conversation_id. The coach creates them; a dedicated service manages their lifecycle.
 
-**Phase:** 3
-
----
-
-### Pitfall 13: Error Swallowing in document_service.dart Hides Fix Failures
-
-**What goes wrong:** P2-PIPE-2 notes that 3 methods in `document_service.dart` silently swallow errors (catch-all with no rethrow). After fixing the URLs, these methods will start receiving real HTTP responses. If the response format is unexpected, the error is swallowed and the method returns null/empty, appearing as if the endpoint is still broken.
-
-**Prevention:** Before fixing URLs, add logging to all catch blocks in `document_service.dart`:
-```bash
-grep -n "catch" apps/mobile/lib/services/document_service.dart
-# Review each: does it log? Does it rethrow? Does it return a meaningful error?
-```
-
-**Phase:** 2 (before URL fixes, not after)
+**Phase:** Phase 2 (Commitment devices).
 
 ---
 
-### Pitfall 14: OPENAI_API_KEY Missing on Railway = Embedding Failure
+### Pitfall 13: Fresh-Start Anchors Firing on Wrong Dates
 
-**What goes wrong:** P1-INFRA-2: the embeddings service requires `OPENAI_API_KEY` but it is not in the Settings model. You add it to Settings but forget to set it on Railway. First deploy with RAG persistence works, but embeddings for NEW documents fail silently (existing ChromaDB data is fine, new uploads get no embeddings).
+**What goes wrong:** Fresh-start anchors (birthday, new year, month-1 of MINT usage) fire based on UTC dates but the user is in Switzerland (CET/CEST, UTC+1/+2). A birthday notification fires at 11pm the day before.
 
-**Prevention:**
-1. Add to `Settings` with empty default
-2. Add startup warning if empty AND `ENVIRONMENT` is production/staging
-3. Verify on BOTH Railway environments (staging AND production):
-   ```bash
-   railway variables --environment staging | grep OPENAI
-   railway variables --environment production | grep OPENAI
-   ```
+**Prevention:** All date calculations for fresh-start anchors must use the user's timezone (stored in profile or inferred from canton). The existing `notification_scheduler_service.dart` already uses `timezone` package — ensure fresh-start logic uses the same timezone-aware scheduling.
 
-**Phase:** 1 (Les tuyaux)
+**Phase:** Phase 2 (Commitment devices).
+
+---
+
+### Pitfall 14: Pre-Mortem Prompt Triggering Anxiety
+
+**What goes wrong:** The pre-mortem ("Imagine qu'on est en 2027 et que cette decision s'est mal passee") is a powerful cognitive tool but in the hands of a fintech coach serving users who already feel financial shame, it can amplify anxiety instead of building lucidity.
+
+**Prevention:** Frame as curiosity, not fear: "Si tu regardais cette decision dans un an et qu'elle n'avait pas marche — qu'est-ce qui aurait pu se passer?" Follow immediately with a hope frame: "Et si elle avait tres bien marche — qu'est-ce qui aurait change?" Store both. The pre-mortem is a pair (fear + hope), never fear alone. ComplianceGuard must flag pre-mortem prompts that use banned anxiety terms.
+
+**Phase:** Phase 2 (Commitment devices).
+
+---
+
+### Pitfall 15: Coach Provenance Questions Feeling Like Interrogation
+
+**What goes wrong:** The coach asks "Au fait, ce 3a, c'est qui qui te l'a propose?" and the user feels judged or surveilled. The provenance journal (tracking who recommended what financial product) is valuable for the dossier but the questioning must feel natural, not like a compliance interview.
+
+**Prevention:** Provenance questions should be triggered by context (user mentions a product) not by schedule. The coach should ask ONCE, accept any answer (including "je sais plus"), and never follow up aggressively. Store the provenance tag with low confidence if the user is vague. Never display provenance data as an accusation ("ton courtier t'a vendu ca").
+
+**Phase:** Phase 3 (Coach intelligence).
+
+---
+
+### Pitfall 16: Premium Gate Blocking Emergency Information
+
+**What goes wrong:** A user in a debt crisis hits the premium gate when trying to access information that could help them. The gate feels like MINT is monetizing their distress.
+
+**Prevention:** Debt crisis (`debtCrisis` life event) and disability (`disability`) must NEVER be gated behind premium. The safe mode (disable optimizations, priority = debt reduction) must be accessible to all users. Premium gates tools for planning and organization, NEVER access to critical financial safety information. This is both ethical and compliant with Swiss consumer protection law.
+
+**Phase:** Phase 4 (Premium gate).
 
 ---
 
 ## Phase-Specific Warnings
 
-| Phase | Likely Pitfall | Mitigation | Verification Command |
-|-------|---------------|------------|---------------------|
-| 1 - Tuyaux | SQLite guard breaks local dev | Use Pydantic model_validator, not app-level check | `ENVIRONMENT=development pytest tests/ -q` must still pass |
-| 1 - Tuyaux | ChromaDB volume permissions | Pin UID/GID in Dockerfile | `docker run --rm mint-backend ls -la /app/data/` |
-| 1 - Tuyaux | Docker image bloat from education copy | Pre-build copy script, not build context expansion | `docker images mint-backend --format "{{.Size}}"` |
-| 1 - Tuyaux | Agent timeout data corruption | Per-iteration timeout, graceful partial response | Log timeout events, monitor empty message + non-null tool_calls |
-| 2 - Connexions | Partial URL fix (4 of 5) | Grep for ALL `$baseUrl/api/v1/` patterns, expect 0 after | `grep -rn '\$baseUrl/api/v1/' apps/mobile/lib/services/` |
-| 2 - Connexions | camelCase fix breaks BYOK | Only change `fromJson`, not orchestrator | Test both BYOK and server-key paths with tool calls |
-| 2 - Connexions | Facade sans cablage | Trace every fix to its consumer screen | Manual: fix endpoint -> find consumer -> verify render |
-| 2 - Connexions | Error swallowing hides failures | Add logging to catch blocks BEFORE fixing URLs | `grep -n "catch" apps/mobile/lib/services/document_service.dart` |
-| 3 - Navigation | Shell migration breaks 143 routes | Route inventory, indexedStack, separate chat branch | Diff `context.go()` targets vs defined routes |
-| 3 - Navigation | safePop infinite loop in shell | Replace function body once, not 40 call sites | `grep -c "safePop" apps/mobile/lib/` before and after |
-| 3 - Navigation | ProfileDrawer mounted too early | Drawer on SHELL scaffold only, Phase 3 not Phase 2 | N/A -- ordering discipline |
-| 3 - Navigation | Zombie route deletion breaks deep links | Add redirects, keep for 2 releases | `grep -rn "achievements\|score_reveal\|cockpit\|annual_refresh\|portfolio\|ask_mint" apps/mobile/lib/app.dart` |
-| 4 - Validation | "Works on simulator" | Test on REAL iPhone via `flutter run --release` | Creator device walkthrough, cold start to first insight |
+| Phase Topic | Likely Pitfall | Mitigation |
+|-------------|---------------|------------|
+| Phase 1: Anonymous flow | Session orphaning on auth (Pitfall 2) | Dedicated claim endpoint, atomic migration, E2E test |
+| Phase 1: Anonymous flow | Rate limiting kills hook (Pitfall 9) | Device fingerprint, 3 exchanges/session, soft wall copy |
+| Phase 1: Anonymous flow | Conversation context lost post-auth (Pitfall 10) | Re-index migrated conversations in RAG |
+| Phase 2: Commitment devices | Notification permission too early (Pitfall 7) | Ask at intention creation, not onboarding |
+| Phase 2: Commitment devices | Implementation intentions not persisted (Pitfall 12) | First-class data model, not just conversation text |
+| Phase 2: Commitment devices | Fresh-start timezone bugs (Pitfall 13) | Use user timezone from profile/canton |
+| Phase 2: Commitment devices | Pre-mortem causes anxiety (Pitfall 14) | Pair fear + hope frames, ComplianceGuard check |
+| Phase 3: Couple mode | Partner data leak (Pitfall 5) | Data belongs to entering user, CoachContext scoped |
+| Phase 3: Coach intelligence | Provenance feels interrogatory (Pitfall 15) | Context-triggered, accept vague answers |
+| Phase 4: Premium gate | App Store rejection (Pitfall 3) | Apple IAP on iOS, Stripe on web, terms visible |
+| Phase 4: Premium gate | Webhook race conditions (Pitfall 4) | Idempotent on transaction ID, RevenueCat as source |
+| Phase 4: Premium gate | LSFin framing violation (Pitfall 6) | Gate tools/convenience, never advice quality |
+| Phase 4: Premium gate | Emergency info blocked (Pitfall 16) | Debt/disability never gated |
+| Phase 4: Premium gate | Dual billing system conflict (Pitfall 11) | Single source of truth decision upfront |
+| Phase 5: Living timeline | Performance on old devices (Pitfall 8) | RepaintBoundary, profile on iPhone SE |
+| ALL phases | Facade without wiring (Pitfall 1) | E2E checklist, grep for 0-import files, device gate |
 
 ---
 
-## Meta-Pitfall: Sequential Phase Execution Is Non-Negotiable
+## The One-Person Team Meta-Pitfall
 
-The MOST IMPORTANT lesson from v2.0 and v2.1 is that parallel agent execution caused the current damage. Phase 1 MUST be complete and verified before Phase 2 starts. Phase 2 MUST be complete before Phase 3. The temptation will be to "quickly fix the URL while working on the shell." Do not. Every cross-phase change risks reintroducing the facade-sans-cablage pattern.
+All 16 pitfalls above are compounded by the constraint that MINT is built by one person with AI agents. The specific risks:
 
-**Gate between phases:**
-- Phase 1 -> 2: `pytest tests/ -q` passes, Railway staging deploy succeeds, RAG corpus count > 0 in logs
-- Phase 2 -> 3: ALL 5 URLs return 200, tool calling works on staging, premier eclairage loads after document scan
-- Phase 3 -> 4: All 3 tabs visible, drawer opens, back button never loops, no 404 routes
-- Phase 4: Real human, real iPhone, cold start, zero help
+1. **Scope creep per phase:** Each phase above has 3-5 pitfalls. A one-person team cannot address all simultaneously. Prioritize: for each phase, identify the ONE critical pitfall and solve it first. The others are mitigations, not blockers.
+
+2. **Testing debt:** Writing E2E integration tests for anonymous->auth->premium->couple is expensive. But skipping them repeats v2.4 (9256 tests green, app broken). Budget 30% of each phase for integration tests that cross boundaries.
+
+3. **Decision fatigue:** RevenueCat vs direct IAP, anonymous session strategy, free/premium line — each is a decision with downstream consequences. Make these decisions in Phase 1 planning, not during implementation. Document in ADRs. Do not revisit mid-sprint.
+
+4. **The "almost done" trap:** Each feature (anonymous flow, couple mode, timeline) can be 80% done in 2 days and require 2 weeks for the remaining 20% (edge cases, error handling, timezone bugs, permission flows). Budget for the 20%, not the 80%.
 
 ---
 
 ## Sources
 
-- `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` -- all 32 findings with file/line references (HIGH confidence)
-- `.planning/PROJECT.md` -- milestone structure and constraints (HIGH confidence)
-- `.planning/MILESTONES.md` -- v2.0 and v2.1 lessons learned (HIGH confidence)
-- `feedback_facade_sans_cablage.md` -- documented historical pattern (HIGH confidence)
-- `feedback_tests_green_app_broken.md` -- "9256 tests green, app broken" lesson (HIGH confidence)
-- Codebase grep verification of all patterns cited (HIGH confidence)
-- Railway persistent volume behavior -- based on Railway documentation and common reports (MEDIUM confidence)
-- GoRouter StatefulShellRoute behavior -- based on go_router package documentation (MEDIUM confidence)
+- Codebase analysis: `services/backend/app/api/v1/endpoints/billing.py`, `apps/mobile/lib/services/ios_iap_service.dart`, `services/backend/app/core/auth.py`, `apps/mobile/lib/services/notification_service.dart`
+- [RevenueCat Flutter docs](https://www.revenuecat.com/docs/getting-started/installation/flutter) — HIGH confidence
+- [Apple App Store Review Guidelines](https://developer.apple.com/app-store/review/guidelines/) — HIGH confidence
+- [RevenueCat webhook best practices](https://community.revenuecat.com/general-questions-7/best-practices-on-handling-webhooks-5054) — MEDIUM confidence
+- [Flutter local notifications issues](https://github.com/MaikuB/flutter_local_notifications/issues/2737) — MEDIUM confidence
+- [App Store Review Guidelines 2026 checklist](https://adapty.io/blog/how-to-pass-app-store-review/) — MEDIUM confidence
+- `.planning/architecture/13-AUDIT.md` — 5 expert audit findings (direct codebase source)
+- `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` — v2.4 infrastructure findings (direct codebase source)
+- LSFin art. 44 — Swiss Financial Services Act penalties (HIGH confidence, statutory law)
