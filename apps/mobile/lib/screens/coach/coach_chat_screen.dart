@@ -23,6 +23,7 @@ import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
+import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
@@ -577,6 +578,35 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+
+    // AUTH GATE: If not logged in, show a clear message instead of
+    // silently falling back to a useless template response.
+    final token = await AuthService.getToken();
+    if (token == null || token.isEmpty) {
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: text.trim(),
+          timestamp: DateTime.now(),
+        ));
+      });
+      _controller.clear();
+
+      // Show auth prompt as assistant message with login action
+      if (mounted) {
+        setState(() {
+          _messages.add(ChatMessage(
+            role: 'assistant',
+            content:
+                'Pour te répondre, j\'ai besoin de me connecter à mon cerveau.'
+                '\n\nTape sur •\u200d•\u200d• en haut → Se connecter.',
+            timestamp: DateTime.now(),
+          ));
+        });
+        _scrollToBottom();
+      }
+      return;
+    }
 
     // Dismiss silent opener when user types their first message.
     if (_showSilentOpener) {
@@ -1369,34 +1399,46 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.craie,
-      body: Column(
-        children: [
-          CoachAppBar(
-            isEmbeddedInTab: widget.isEmbeddedInTab,
-            hasUserMessages: _messages.any((m) => m.isUser),
-            onBack: () => safePop(context),
-            onHistory: () async {
-              final router = GoRouter.of(context);
-              await _autoSaveConversation();
-              if (mounted) router.push('/coach/history');
-            },
-            onExport: _exportConversation,
-            onSettings: () => context.push('/profile/byok'),
-          ),
-          Expanded(
-            child: _showSilentOpener
-                ? _buildSilentOpenerWithTone()
-                : _buildMessageList(),
-          ),
-          if (_isLoading) const CoachLoadingIndicator(),
-          CoachInputBar(
-            controller: _controller,
-            focusNode: _focusNode,
-            isStreaming: _isStreaming,
-            onSend: () => _sendMessage(_controller.text),
-            onLightningMenu: _showLightningMenu,
-          ),
-        ],
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            CoachAppBar(
+              isEmbeddedInTab: widget.isEmbeddedInTab,
+              hasUserMessages: _messages.any((m) => m.isUser),
+              onBack: () => safePop(context),
+              onHistory: () async {
+                final router = GoRouter.of(context);
+                await _autoSaveConversation();
+                if (mounted) router.push('/coach/history');
+              },
+              onExport: _exportConversation,
+              onSettings: () => context.push('/profile/byok'),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: _showSilentOpener
+                    ? _buildSilentOpenerWithTone()
+                    : _buildMessageList(),
+              ),
+            ),
+            if (_isLoading) const CoachLoadingIndicator(),
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom,
+              ),
+              child: CoachInputBar(
+                controller: _controller,
+                focusNode: _focusNode,
+                isStreaming: _isStreaming,
+                onSend: () => _sendMessage(_controller.text),
+                onLightningMenu: _showLightningMenu,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

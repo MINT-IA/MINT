@@ -120,20 +120,38 @@ class ProfileDrawer extends StatelessWidget {
 
             const SizedBox(height: MintSpacing.xl),
 
-            // ── Déconnexion ──
-            _buildSection(
-              context,
-              icon: Icons.logout_outlined,
-              title: l10n.drawerLogout,
-              onTap: () async {
-                Navigator.of(context).pop();
-                final auth = context.read<AuthProvider>();
-                await auth.logout();
-                if (context.mounted) {
-                  context.go('/');
+            // ── Connexion / Déconnexion ──
+            Builder(
+              builder: (context) {
+                final auth = context.watch<AuthProvider>();
+                if (auth.isLoggedIn) {
+                  return _buildSection(
+                    context,
+                    icon: Icons.logout_outlined,
+                    title: l10n.drawerLogout,
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      final authProvider = context.read<AuthProvider>();
+                      await authProvider.logout();
+                      if (context.mounted) {
+                        context.go('/');
+                      }
+                    },
+                    textColor: MintColors.corailDiscret,
+                  );
+                } else {
+                  return _buildSection(
+                    context,
+                    icon: Icons.login_outlined,
+                    title: 'Se connecter',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/auth/login');
+                    },
+                    textColor: MintColors.accent,
+                  );
                 }
               },
-              textColor: MintColors.corailDiscret,
             ),
 
             const SizedBox(height: MintSpacing.lg),
