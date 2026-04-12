@@ -72,11 +72,12 @@ Plans:
   3. Back button on any screen navigates to a sensible parent — never loops infinitely, never teleports to chat from unrelated screens
   4. All 7 Explorer hubs (/explore/retraite, /explore/famille, etc.) load real hub screens with meaningful content
   5. Tapping "Mon profil" in drawer opens /profile/bilan (not redirect to /coach/chat)
-**Plans**: TBD
+**Plans**: 2 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 11-01: TBD
+- [ ] 11-01-PLAN.md — Shell scaffold: StatefulShellRoute.indexedStack with 3 tabs, MintShell widget, ProfileDrawer endDrawer, /profile redirect fix
+- [ ] 11-02-PLAN.md — Route migration: MintNav.back() replacing safePop, 6 zombie redirects, 7 Explorer hub screens with real content
 
 ### Phase 12: La preuve
 **Goal**: Creator (Julien) cold-starts MINT on a real iPhone and completes 8 end-to-end flows without help — the only gate that matters
@@ -103,7 +104,7 @@ Each phase must be deployed and verified before the next begins.
 |-------|-----------|----------------|--------|-----------|
 | 9. Les tuyaux | v2.4 | 2/2 | Complete   | 2026-04-12 |
 | 10. Les connexions | v2.4 | 1/1 | Complete    | 2026-04-12 |
-| 11. La navigation | v2.4 | 0/TBD | Not started | - |
+| 11. La navigation | v2.4 | 0/2 | Not started | - |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |
 
 ---
