@@ -22358,4 +22358,29 @@ class SFr extends S {
 
   @override
   String get authGateMagicLink => 'Recevoir un lien';
+
+  @override
+  String get commitmentCardTitle => 'Mon engagement';
+
+  @override
+  String get commitmentWhen => 'QUAND';
+
+  @override
+  String get commitmentWhere => 'OÙ / COMMENT';
+
+  @override
+  String get commitmentIfThen => 'SI… ALORS';
+
+  @override
+  String get commitmentAccept => 'Je m’engage';
+
+  @override
+  String get commitmentDismissed => 'Engagement retiré';
+
+  @override
+  String get commitmentReminderTitle => 'Rappel MINT';
+
+  @override
+  String get commitmentReminderBody =>
+      'C’est le moment de tenir ton engagement.';
 }

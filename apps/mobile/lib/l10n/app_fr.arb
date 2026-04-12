@@ -10928,5 +10928,22 @@
   "authGateLater": "Plus tard",
   "@authGateLater": {"description": "Auth gate bottom sheet \u2014 dismiss button."},
   "authGateMagicLink": "Recevoir un lien",
-  "@authGateMagicLink": {"description": "Auth gate bottom sheet \u2014 magic link button."}
+  "@authGateMagicLink": {"description": "Auth gate bottom sheet \u2014 magic link button."},
+
+  "commitmentCardTitle": "Mon engagement",
+  "@commitmentCardTitle": {"description": "Commitment card \u2014 header title."},
+  "commitmentWhen": "QUAND",
+  "@commitmentWhen": {"description": "Commitment card \u2014 WHEN field label."},
+  "commitmentWhere": "O\u00d9 / COMMENT",
+  "@commitmentWhere": {"description": "Commitment card \u2014 WHERE/HOW field label."},
+  "commitmentIfThen": "SI\u2026 ALORS",
+  "@commitmentIfThen": {"description": "Commitment card \u2014 IF-THEN field label."},
+  "commitmentAccept": "Je m\u2019engage",
+  "@commitmentAccept": {"description": "Commitment card \u2014 accept button label."},
+  "commitmentDismissed": "Engagement retir\u00e9",
+  "@commitmentDismissed": {"description": "Commitment card \u2014 dismissed snackbar message."},
+  "commitmentReminderTitle": "Rappel MINT",
+  "@commitmentReminderTitle": {"description": "Commitment reminder \u2014 notification title."},
+  "commitmentReminderBody": "C\u2019est le moment de tenir ton engagement.",
+  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."}
 }

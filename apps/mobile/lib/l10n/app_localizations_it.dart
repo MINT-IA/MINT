@@ -22417,4 +22417,29 @@ class SIt extends S {
 
   @override
   String get authGateMagicLink => 'Ricevi un link';
+
+  @override
+  String get commitmentCardTitle => 'Il mio impegno';
+
+  @override
+  String get commitmentWhen => 'QUANDO';
+
+  @override
+  String get commitmentWhere => 'DOVE / COME';
+
+  @override
+  String get commitmentIfThen => 'SE… ALLORA';
+
+  @override
+  String get commitmentAccept => 'Mi impegno';
+
+  @override
+  String get commitmentDismissed => 'Impegno rimosso';
+
+  @override
+  String get commitmentReminderTitle => 'Promemoria MINT';
+
+  @override
+  String get commitmentReminderBody =>
+      'È il momento di mantenere il tuo impegno.';
 }

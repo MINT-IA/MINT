@@ -22246,4 +22246,29 @@ class SEn extends S {
 
   @override
   String get authGateMagicLink => 'Get a link';
+
+  @override
+  String get commitmentCardTitle => 'My commitment';
+
+  @override
+  String get commitmentWhen => 'WHEN';
+
+  @override
+  String get commitmentWhere => 'WHERE / HOW';
+
+  @override
+  String get commitmentIfThen => 'IF… THEN';
+
+  @override
+  String get commitmentAccept => 'I commit';
+
+  @override
+  String get commitmentDismissed => 'Commitment removed';
+
+  @override
+  String get commitmentReminderTitle => 'MINT Reminder';
+
+  @override
+  String get commitmentReminderBody =>
+      'Time to follow through on your commitment.';
 }

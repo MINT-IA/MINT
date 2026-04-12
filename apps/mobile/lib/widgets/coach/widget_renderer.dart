@@ -14,6 +14,9 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/widgets/coach/chat_inline_inputs.dart';
 import 'package:mint_mobile/widgets/coach/check_in_summary_card.dart';
 import 'package:mint_mobile/widgets/coach/plan_preview_card.dart';
+import 'package:mint_mobile/services/commitment_service.dart';
+import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/widgets/coach/commitment_card.dart';
 import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
 import 'package:mint_mobile/widgets/coach/route_suggestion_card.dart';
 import 'package:provider/provider.dart';
@@ -70,6 +73,8 @@ class WidgetRenderer {
         return _buildCheckInSummaryCard(context, call.input);
       case 'generate_document':
         return _buildDocumentGenerationCard(context, call.input);
+      case 'show_commitment_card':
+        return _buildCommitmentCard(context, call.input, onInputSubmitted);
       default:
         return null;
     }
@@ -614,5 +619,74 @@ class WidgetRenderer {
       default:
         return 'Document';
     }
+  }
+
+  // ────────────────────────────────────────────────────────────
+  //  COMMITMENT CARD — show_commitment_card tool (Phase 14 / CMIT-01)
+  // ────────────────────────────────────────────────────────────
+
+  /// Build a [CommitmentCard] for the `show_commitment_card` tool call.
+  ///
+  /// CMIT-01: Editable WHEN/WHERE/IF-THEN card. On accept, persists to
+  /// backend via [CommitmentService] and schedules a local notification
+  /// reminder (CMIT-02).
+  static Widget _buildCommitmentCard(
+    BuildContext context,
+    Map<String, dynamic> p,
+    void Function(String field, String value)? onInputSubmitted,
+  ) {
+    final whenText = p['when_text'] as String? ?? '';
+    final whereText = p['where_text'] as String? ?? '';
+    final ifThenText = p['if_then_text'] as String? ?? '';
+    final reminderAtStr = p['reminder_at'] as String?;
+
+    return CommitmentCard(
+      whenText: whenText,
+      whereText: whereText,
+      ifThenText: ifThenText,
+      onAccept: (editedWhen, editedWhere, editedIfThen) {
+        // Parse reminder_at from tool call input
+        DateTime? reminderAt;
+        if (reminderAtStr != null && reminderAtStr.isNotEmpty) {
+          reminderAt = DateTime.tryParse(reminderAtStr);
+        }
+
+        // Persist to backend
+        final service = CommitmentService();
+        service
+            .saveCommitment(
+          whenText: editedWhen,
+          whereText: editedWhere,
+          ifThenText: editedIfThen,
+          reminderAt: reminderAt,
+        )
+            .then((response) {
+          // Schedule notification if reminderAt was set
+          final responseReminderAt = response['reminderAt'] as String?;
+          if (responseReminderAt != null) {
+            final parsedReminder = DateTime.tryParse(responseReminderAt);
+            if (parsedReminder != null &&
+                parsedReminder.isAfter(DateTime.now())) {
+              final responseId = response['id'] as String? ?? '';
+              NotificationService().scheduleCommitmentReminder(
+                commitmentId: responseId.hashCode,
+                reminderAt: parsedReminder,
+                title: 'Rappel MINT',
+                body: editedWhen,
+              );
+            }
+          }
+
+          debugPrint(
+              '[widget_renderer] commitment saved: ${response['id']}');
+        }).catchError((e) {
+          debugPrint('[widget_renderer] commitment save failed: $e');
+        });
+      },
+      onDismiss: () {
+        // No API call on dismiss — card simply disappears
+        debugPrint('[widget_renderer] commitment dismissed');
+      },
+    );
   }
 }

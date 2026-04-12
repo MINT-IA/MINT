@@ -22410,4 +22410,28 @@ class SDe extends S {
 
   @override
   String get authGateMagicLink => 'Link erhalten';
+
+  @override
+  String get commitmentCardTitle => 'Meine Verpflichtung';
+
+  @override
+  String get commitmentWhen => 'WANN';
+
+  @override
+  String get commitmentWhere => 'WO / WIE';
+
+  @override
+  String get commitmentIfThen => 'WENN… DANN';
+
+  @override
+  String get commitmentAccept => 'Ich verpflichte mich';
+
+  @override
+  String get commitmentDismissed => 'Verpflichtung entfernt';
+
+  @override
+  String get commitmentReminderTitle => 'MINT Erinnerung';
+
+  @override
+  String get commitmentReminderBody => 'Zeit, deine Verpflichtung einzulösen.';
 }

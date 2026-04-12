@@ -10372,5 +10372,22 @@
   "authGateLater": "Pi\u00f9 tardi",
   "@authGateLater": {"description": "Auth gate bottom sheet \u2014 dismiss button."},
   "authGateMagicLink": "Ricevi un link",
-  "@authGateMagicLink": {"description": "Auth gate bottom sheet \u2014 magic link button."}
+  "@authGateMagicLink": {"description": "Auth gate bottom sheet \u2014 magic link button."},
+
+  "commitmentCardTitle": "Il mio impegno",
+  "@commitmentCardTitle": {"description": "Commitment card \u2014 header title."},
+  "commitmentWhen": "QUANDO",
+  "@commitmentWhen": {"description": "Commitment card \u2014 WHEN field label."},
+  "commitmentWhere": "DOVE / COME",
+  "@commitmentWhere": {"description": "Commitment card \u2014 WHERE/HOW field label."},
+  "commitmentIfThen": "SE\u2026 ALLORA",
+  "@commitmentIfThen": {"description": "Commitment card \u2014 IF-THEN field label."},
+  "commitmentAccept": "Mi impegno",
+  "@commitmentAccept": {"description": "Commitment card \u2014 accept button label."},
+  "commitmentDismissed": "Impegno rimosso",
+  "@commitmentDismissed": {"description": "Commitment card \u2014 dismissed snackbar message."},
+  "commitmentReminderTitle": "Promemoria MINT",
+  "@commitmentReminderTitle": {"description": "Commitment reminder \u2014 notification title."},
+  "commitmentReminderBody": "\u00c8 il momento di mantenere il tuo impegno.",
+  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."}
 }

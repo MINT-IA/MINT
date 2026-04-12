@@ -39224,6 +39224,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Recevoir un lien'**
   String get authGateMagicLink;
+
+  /// Commitment card — header title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon engagement'**
+  String get commitmentCardTitle;
+
+  /// Commitment card — WHEN field label.
+  ///
+  /// In fr, this message translates to:
+  /// **'QUAND'**
+  String get commitmentWhen;
+
+  /// Commitment card — WHERE/HOW field label.
+  ///
+  /// In fr, this message translates to:
+  /// **'OÙ / COMMENT'**
+  String get commitmentWhere;
+
+  /// Commitment card — IF-THEN field label.
+  ///
+  /// In fr, this message translates to:
+  /// **'SI… ALORS'**
+  String get commitmentIfThen;
+
+  /// Commitment card — accept button label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je m’engage'**
+  String get commitmentAccept;
+
+  /// Commitment card — dismissed snackbar message.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement retiré'**
+  String get commitmentDismissed;
+
+  /// Commitment reminder — notification title.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappel MINT'**
+  String get commitmentReminderTitle;
+
+  /// Commitment reminder — notification body.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est le moment de tenir ton engagement.'**
+  String get commitmentReminderBody;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

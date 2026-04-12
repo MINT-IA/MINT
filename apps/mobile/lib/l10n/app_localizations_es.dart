@@ -22357,4 +22357,28 @@ class SEs extends S {
 
   @override
   String get authGateMagicLink => 'Recibir un enlace';
+
+  @override
+  String get commitmentCardTitle => 'Mi compromiso';
+
+  @override
+  String get commitmentWhen => 'CUÁNDO';
+
+  @override
+  String get commitmentWhere => 'DÓNDE / CÓMO';
+
+  @override
+  String get commitmentIfThen => 'SI… ENTONCES';
+
+  @override
+  String get commitmentAccept => 'Me comprometo';
+
+  @override
+  String get commitmentDismissed => 'Compromiso eliminado';
+
+  @override
+  String get commitmentReminderTitle => 'Recordatorio MINT';
+
+  @override
+  String get commitmentReminderBody => 'Es hora de cumplir tu compromiso.';
 }

@@ -22362,4 +22362,28 @@ class SPt extends S {
 
   @override
   String get authGateMagicLink => 'Receber um link';
+
+  @override
+  String get commitmentCardTitle => 'Meu compromisso';
+
+  @override
+  String get commitmentWhen => 'QUANDO';
+
+  @override
+  String get commitmentWhere => 'ONDE / COMO';
+
+  @override
+  String get commitmentIfThen => 'SE… ENTÃO';
+
+  @override
+  String get commitmentAccept => 'Eu me comprometo';
+
+  @override
+  String get commitmentDismissed => 'Compromisso removido';
+
+  @override
+  String get commitmentReminderTitle => 'Lembrete MINT';
+
+  @override
+  String get commitmentReminderBody => 'É hora de cumprir o seu compromisso.';
 }
