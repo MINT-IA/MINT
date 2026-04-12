@@ -1,14 +1,11 @@
 import 'package:flutter/widgets.dart';
-import 'package:go_router/go_router.dart';
+import 'mint_nav.dart';
 
-/// Safe navigation back — pops if possible, otherwise goes to /coach/chat.
+/// @Deprecated('Use MintNav.back() directly. safePop is a shim.')
+/// Safe navigation back — delegates to MintNav.back().
 ///
-/// Prevents `GoError: There is nothing to pop` when the navigation stack
-/// is empty (deep links, direct coach routing, cold start on sub-screens).
+/// This shim exists so the 40 existing call sites continue working.
+/// New code should use MintNav.back(context) directly.
 void safePop(BuildContext context) {
-  if (context.canPop()) {
-    context.pop();
-  } else {
-    context.go('/coach/chat');
-  }
+  MintNav.back(context);
 }
