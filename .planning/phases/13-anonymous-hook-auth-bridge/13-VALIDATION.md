@@ -53,8 +53,8 @@ created: 2026-04-12
 ## Wave 0 Requirements
 
 - [ ] `services/backend/tests/test_anonymous_chat.py` — stubs for ANON-01, ANON-05, ANON-06
-- [ ] `apps/mobile/test/services/coach/conversation_store_migration_test.dart` — stubs for ANON-04
-- [ ] `apps/mobile/test/screens/anonymous/anonymous_intent_flow_test.dart` — stubs for ANON-02, ANON-03
+- [ ] `apps/mobile/test/services/coach/conversation_migration_test.dart` — stubs for ANON-04
+- [ ] `apps/mobile/test/screens/anonymous/anonymous_chat_screen_test.dart` — stubs for ANON-02, ANON-03
 
 *Existing test infrastructure covers framework installation.*
 

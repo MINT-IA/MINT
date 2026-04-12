@@ -425,22 +425,16 @@ OBJECTIF: Surprendre l'utilisateur avec un insight qu'il ne connaissait pas sur 
 | A3 | SQLite/PostgreSQL table is better than slowapi for lifetime rate limits | Pattern 2 | slowapi time-window approach with very long window (e.g., "3/10years") is an alternative but semantically wrong |
 | A4 | Anonymous-first patterns lead to higher conversion | State of the Art | Low risk -- this is the project's core design decision |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Lifetime rate limit implementation**
-   - What we know: slowapi uses time-window based limits. "3 messages ever" is not a standard time window.
-   - What's unclear: Should we use a DB table for tracking, or abuse slowapi with a very long window?
-   - Recommendation: Use a lightweight `anonymous_sessions` table `(session_id VARCHAR PK, message_count INT, created_at TIMESTAMP)`. Clean, queryable, persistent across deploys. The existing `get_db` pattern makes this trivial.
+1. **Lifetime rate limit implementation** — RESOLVED: DB table approach chosen.
+   - Plan 01 creates `AnonymousSession` model `(session_id VARCHAR PK, message_count INT, created_at TIMESTAMP)`. Clean, queryable, persistent across deploys.
 
-2. **Anonymous chat conversation ID**
-   - What we know: `conversation_store.dart` expects a conversation ID. Anonymous sessions need a stable ID that persists and migrates to authenticated state.
-   - What's unclear: Should the conversation ID be the anonymous session UUID, or a separate ID?
-   - Recommendation: Use a separate conversation ID (`anon-{uuid}` pattern). On migration, keep the same conversation ID -- only the SharedPreferences key prefix changes. This preserves conversation continuity.
+2. **Anonymous chat conversation ID** — RESOLVED: `anon-{uuid}` pattern adopted.
+   - Plan 02 uses `anon-{uuid}` as conversation ID. On migration (Plan 03), the same conversation ID is preserved — only the SharedPreferences key prefix changes.
 
-3. **Coach orchestrator reuse for anonymous**
-   - What we know: The existing `_NoRagOrchestrator` provides a simplified LLM call path without RAG.
-   - What's unclear: Should the anonymous endpoint reuse this orchestrator, or call LLM directly?
-   - Recommendation: Reuse `_NoRagOrchestrator.query()` with the discovery system prompt. It already handles ComplianceGuardrails and error fallback. No need to duplicate LLM client logic.
+3. **Coach orchestrator reuse for anonymous** — RESOLVED: Reuse `_NoRagOrchestrator`.
+   - Plan 01 reuses `_NoRagOrchestrator.query()` with the discovery system prompt. Already handles ComplianceGuardrails and error fallback.
 
 ## Validation Architecture
 
