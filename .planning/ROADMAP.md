@@ -101,11 +101,11 @@ Plans:
   2. MINT generates 5 specific questions for the user to ask their partner, based on gaps in the estimation ("Demande-lui son salaire assure LPP")
   3. Couple projections (AVS married cap, combined tax, combined mortgage capacity) use partner estimates with visibly degraded confidence scores
   4. Partner data is stored locally only -- never sent to backend, never visible in CoachContext sent to LLM
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 2 plans
 
 Plans:
-- [ ] 16-01: TBD
+- [ ] 16-01-PLAN.md -- Backend: save_partner_estimate/update_partner_estimate internal tools, system prompt directive, ack-only handlers
+- [ ] 16-02-PLAN.md -- Flutter: PartnerEstimateService (SecureStorage), CoupleQuestionGenerator, tool call interception, couple projection confidence degradation
 
 ### Phase 17: Living Timeline -- 3 Tensions
 **Goal**: Aujourd'hui tab comes alive with 3 tension cards that reflect the user's actual financial state -- past earned, present pulsing, future ghosted -- replacing the static landing screen
@@ -147,7 +147,7 @@ Each phase must pass device gate before the next begins.
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
-| 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
+| 16. Couple Mode Dissymetrique | v2.5 | 0/2 | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
 
