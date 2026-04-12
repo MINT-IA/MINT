@@ -1,5 +1,5 @@
 # MINT Backend — Production Dockerfile
-# Build context: REPO ROOT (set via railway.json dockerfilePath)
+# Build context: services/backend/ (Railway Root Directory)
 # Multi-stage build: install deps in builder, copy to slim runtime
 
 # --- Stage 1: Builder ---
@@ -14,8 +14,8 @@ RUN apt-get update && \
 # CRITICAL: [rag] extra includes chromadb, openai, tiktoken which are required
 # by coach_chat.py / rag.py. Without this extra, the RAG orchestrator
 # cannot initialize and returns 503 "RAG dependencies not installed".
-COPY services/backend/pyproject.toml .
-COPY services/backend/app/ app/
+COPY pyproject.toml .
+COPY app/ app/
 RUN pip install --no-cache-dir ".[rag]" && python -c "import anthropic, chromadb; print('anthropic', anthropic.__version__, '/ chromadb', chromadb.__version__)"
 
 # --- Stage 2: Production ---
@@ -34,15 +34,18 @@ COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/pytho
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy backend application code
-COPY services/backend/app/ /app/app/
-COPY services/backend/alembic/ /app/alembic/
-COPY services/backend/alembic.ini /app/alembic.ini
-COPY services/backend/scripts/ /app/scripts/
-COPY services/backend/pyproject.toml /app/pyproject.toml
+COPY app/ /app/app/
+COPY alembic/ /app/alembic/
+COPY alembic.ini /app/alembic.ini
+COPY scripts/ /app/scripts/
+COPY pyproject.toml /app/pyproject.toml
 
 # Copy education inserts into Docker image (P0-INFRA-2, P1-INFRA-3)
-# Path resolves to /app/education/inserts/ — matches main.py logic
-COPY education/inserts/ /app/education/inserts/
+# Build context = services/backend/, so education/ is at ../../education/
+# We copy it during CI or use the startup auto-ingest from the RAG corpus
+# For Railway: education inserts are auto-ingested at startup from the
+# education_inserts/ directory if present, otherwise skipped gracefully
+COPY education_inserts/ /app/education/inserts/
 
 # Create data directory for ChromaDB (Railway volume mounts at /data/chromadb)
 RUN mkdir -p /data/chromadb
