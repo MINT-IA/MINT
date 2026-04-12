@@ -453,11 +453,73 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
         return None
 
 
+def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+    """Build a memory section with active commitments and pre-mortem entries.
+
+    Returns a formatted markdown block for injection into the system prompt.
+    Returns empty string if no data exists or if user_id/db is unavailable.
+
+    Per CMIT-06 / LOOP-02: this data is always present in the memory block
+    so the LLM can reference past commitments and pre-mortem naturally.
+    """
+    if not user_id or not db:
+        return ""
+
+    sections: list[str] = []
+
+    try:
+        from app.models.commitment import CommitmentDevice, PreMortemEntry
+
+        # Active commitments (pending, most recent first, limit 5)
+        commitments = (
+            db.query(CommitmentDevice)
+            .filter(CommitmentDevice.user_id == user_id, CommitmentDevice.status == "pending")
+            .order_by(CommitmentDevice.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        if commitments:
+            lines = ["ENGAGEMENTS ACTIFS:"]
+            for c in commitments:
+                date_str = c.created_at.strftime("%d.%m.%Y") if c.created_at else "?"
+                lines.append(
+                    f"- [{date_str}] QUAND: {c.when_text} | "
+                    f"OÙ: {c.where_text} | "
+                    f"SI-ALORS: {c.if_then_text}"
+                )
+            sections.append("\n".join(lines))
+
+        # Pre-mortem entries (most recent first, limit 3)
+        pre_mortems = (
+            db.query(PreMortemEntry)
+            .filter(PreMortemEntry.user_id == user_id)
+            .order_by(PreMortemEntry.created_at.desc())
+            .limit(3)
+            .all()
+        )
+        if pre_mortems:
+            lines = ["RISQUES IDENTIFIÉS (PRÉ-MORTEM):"]
+            for pm in pre_mortems:
+                date_str = pm.created_at.strftime("%d.%m.%Y") if pm.created_at else "?"
+                response_truncated = (pm.user_response or "")[:200]
+                lines.append(
+                    f"- [{date_str}] {pm.decision_type}: \"{response_truncated}\""
+                )
+            sections.append("\n".join(lines))
+
+    except Exception as exc:
+        logger.warning("Could not build commitment memory block: %s", exc)
+        return ""
+
+    return "\n\n".join(sections)
+
+
 def _build_system_prompt_with_memory(
     coach_ctx,
     memory_block: Optional[str],
     language: str = "fr",
     cash_level: int = 3,
+    commitment_block: str = "",
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
@@ -468,6 +530,8 @@ def _build_system_prompt_with_memory(
     sanitized = _sanitize_memory_block(memory_block)
     if sanitized:
         prompt = prompt + "\n\n" + sanitized
+    if commitment_block:
+        prompt = prompt + "\n\n" + commitment_block
     return prompt
 
 
@@ -666,6 +730,21 @@ def _execute_internal_tool(
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
         logger.info("save_insight ack (non-persisted): %s", summary[:100])
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
+
+    # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
+    # Actual DB persistence happens via dedicated endpoint (Plan 02).
+    if name == "record_commitment":
+        when_t = tool_input.get("when_text", "")
+        where_t = tool_input.get("where_text", "")
+        if_then_t = tool_input.get("if_then_text", "")
+        logger.info("record_commitment ack: %s / %s", when_t[:50], if_then_t[:50])
+        return f"Engagement noté : QUAND={when_t} — SI-ALORS={if_then_t}"
+
+    if name == "save_pre_mortem":
+        decision_type = tool_input.get("decision_type", "")
+        user_response = tool_input.get("user_response", "")
+        logger.info("save_pre_mortem ack: type=%s", decision_type[:50])
+        return f"Pré-mortem enregistré pour {decision_type}."
 
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
@@ -1244,8 +1323,11 @@ async def coach_chat(
     # ------------------------------------------------------------------
     # Step 2: Build system prompt (lifecycle + regional + plan + memory)
     # Memory block is PII-scrubbed and wrapped in prompt injection armor.
+    # Commitment memory block (CMIT-06/LOOP-02) injects active engagements
+    # and pre-mortem entries so the LLM can reference them naturally.
     # ------------------------------------------------------------------
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level)
+    commitment_block = _build_commitment_memory_block(str(_user.id), db)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
