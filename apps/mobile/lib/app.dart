@@ -22,7 +22,7 @@ import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 // consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/screens/portfolio_screen.dart';
+// portfolio_screen.dart — zombie redirect (Plan 11-02)
 // profile_screen.dart DELETED (KILL-04, Phase 2)
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
@@ -39,7 +39,7 @@ import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
 import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
 import 'package:mint_mobile/screens/about_screen.dart';
-import 'package:mint_mobile/screens/ask_mint_screen.dart';
+// ask_mint_screen.dart — zombie redirect (Plan 11-02)
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -73,9 +73,9 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-import 'package:mint_mobile/screens/advisor/score_reveal_screen.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
-import 'package:mint_mobile/services/financial_fitness_service.dart';
+// score_reveal_screen.dart — zombie redirect (Plan 11-02)
+// coach_profile.dart — unused after score-reveal zombie (Plan 11-02)
+// financial_fitness_service.dart — unused after score-reveal zombie (Plan 11-02)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
 import 'package:mint_mobile/screens/donation_screen.dart';
 import 'package:mint_mobile/screens/deces_proche_screen.dart';
@@ -100,8 +100,8 @@ import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart'
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
-import 'package:mint_mobile/screens/coach/annual_refresh_screen.dart';
-import 'package:mint_mobile/screens/coach/cockpit_detail_screen.dart';
+// annual_refresh_screen.dart — zombie redirect (Plan 11-02)
+// cockpit_detail_screen.dart — zombie redirect (Plan 11-02)
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -130,10 +130,12 @@ import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
-import 'package:mint_mobile/screens/achievements_screen.dart';
+// achievements_screen.dart — zombie redirect (Plan 11-02)
 import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 // KILL-07: Explorer hub screen imports removed (Phase 2).
 // Hub screen FILES preserved for Phase 3 chat-summoned drawers.
+import 'package:mint_mobile/screens/explore/explorer_screen.dart';
+import 'package:mint_mobile/screens/explore/explore_hub_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
@@ -270,11 +272,116 @@ final _router = GoRouter(
           routes: [
             GoRoute(
               path: '/explore',
-              builder: (context, state) => const _ExplorerPlaceholder(),
+              builder: (context, state) => const ExplorerScreen(),
             ),
           ],
         ),
       ],
+    ),
+
+    // ── EXPLORER HUBS ───────────────────────────────────────
+    ScopedGoRoute(
+      path: '/explore/retraite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Retraite & Prevoyance',
+        entries: [
+          HubEntry(icon: Icons.timeline, label: 'Projection retraite', route: '/retraite'),
+          HubEntry(icon: Icons.compare_arrows, label: 'Rente vs Capital', route: '/rente-vs-capital'),
+          HubEntry(icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
+          HubEntry(icon: Icons.home_work, label: 'EPL (retrait pour logement)', route: '/epl'),
+          HubEntry(icon: Icons.calendar_month, label: 'Decaissement optimal', route: '/decaissement'),
+          HubEntry(icon: Icons.account_balance_wallet, label: 'Libre passage', route: '/libre-passage'),
+        ],
+      ),
+    ),
+    ScopedGoRoute(
+      path: '/explore/famille',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Famille',
+        entries: [
+          HubEntry(icon: Icons.favorite, label: 'Mariage', subtitle: 'AVS, LPP, fiscalite couple', route: '/mariage'),
+          HubEntry(icon: Icons.child_friendly, label: 'Naissance', subtitle: 'Allocations, conge, budget', route: '/naissance'),
+          HubEntry(icon: Icons.people, label: 'Concubinage', subtitle: 'Risques vs mariage', route: '/concubinage'),
+          HubEntry(icon: Icons.heart_broken, label: 'Divorce', subtitle: 'Partage LPP, AVS, pension', route: '/divorce'),
+          HubEntry(icon: Icons.account_balance, label: 'Succession', subtitle: 'Droits, reserves, planning', route: '/succession'),
+        ],
+      ),
+    ),
+    ScopedGoRoute(
+      path: '/explore/travail',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Travail & Statut',
+        entries: [
+          HubEntry(icon: Icons.school, label: 'Premier emploi', route: '/first-job'),
+          HubEntry(icon: Icons.work_off, label: 'Chomage', route: '/unemployment'),
+          HubEntry(icon: Icons.compare, label: 'Comparateur d\'emplois', route: '/simulator/job-comparison'),
+          HubEntry(icon: Icons.business_center, label: 'Independant', route: '/segments/independant'),
+          HubEntry(icon: Icons.flight_takeoff, label: 'Expatriation', route: '/expatriation'),
+          HubEntry(icon: Icons.badge, label: 'Frontalier', route: '/segments/frontalier'),
+        ],
+      ),
+    ),
+    ScopedGoRoute(
+      path: '/explore/logement',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Logement',
+        entries: [
+          HubEntry(icon: Icons.house, label: 'Capacite hypothecaire', route: '/hypotheque'),
+          HubEntry(icon: Icons.payments, label: 'Amortissement', route: '/mortgage/amortization'),
+          HubEntry(icon: Icons.account_balance_wallet, label: 'EPL combine', route: '/mortgage/epl-combined'),
+          HubEntry(icon: Icons.receipt, label: 'Valeur locative', route: '/mortgage/imputed-rental'),
+          HubEntry(icon: Icons.swap_horiz, label: 'SARON vs fixe', route: '/mortgage/saron-vs-fixed'),
+          HubEntry(icon: Icons.sell, label: 'Vente immobiliere', route: '/life-event/housing-sale'),
+          HubEntry(icon: Icons.compare_arrows, label: 'Location vs propriete', route: '/arbitrage/location-vs-propriete'),
+        ],
+      ),
+    ),
+    ScopedGoRoute(
+      path: '/explore/fiscalite',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Fiscalite',
+        entries: [
+          HubEntry(icon: Icons.savings, label: 'Pilier 3a', route: '/pilier-3a'),
+          HubEntry(icon: Icons.history, label: '3a retroactif', route: '/3a-retroactif'),
+          HubEntry(icon: Icons.compare, label: 'Comparateur 3a', route: '/3a-deep/comparator'),
+          HubEntry(icon: Icons.trending_up, label: 'Rendement reel 3a', route: '/3a-deep/real-return'),
+          HubEntry(icon: Icons.view_timeline, label: 'Retrait echelonne 3a', route: '/3a-deep/staggered-withdrawal'),
+          HubEntry(icon: Icons.map, label: 'Comparateur cantonal', route: '/fiscal'),
+        ],
+      ),
+    ),
+    ScopedGoRoute(
+      path: '/explore/patrimoine',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Patrimoine & Succession',
+        entries: [
+          HubEntry(icon: Icons.assessment, label: 'Bilan arbitrage', route: '/arbitrage/bilan'),
+          HubEntry(icon: Icons.pie_chart, label: 'Allocation annuelle', route: '/arbitrage/allocation-annuelle'),
+          HubEntry(icon: Icons.card_giftcard, label: 'Donation', route: '/life-event/donation'),
+          HubEntry(icon: Icons.people, label: 'Deces d\'un proche', route: '/life-event/deces-proche'),
+          HubEntry(icon: Icons.swap_vert, label: 'Demenagement cantonal', route: '/life-event/demenagement-cantonal'),
+        ],
+      ),
+    ),
+    ScopedGoRoute(
+      path: '/explore/sante',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const ExploreHubScreen(
+        title: 'Sante & Protection',
+        entries: [
+          HubEntry(icon: Icons.accessibility, label: 'Lacune invalidite', route: '/invalidite'),
+          HubEntry(icon: Icons.shield, label: 'Assurance invalidite', route: '/disability/insurance'),
+          HubEntry(icon: Icons.business, label: 'Invalidite independant', route: '/disability/self-employed'),
+          HubEntry(icon: Icons.local_hospital, label: 'Franchise LAMal', route: '/assurances/lamal'),
+          HubEntry(icon: Icons.verified_user, label: 'Check couverture', route: '/assurances/coverage'),
+        ],
+      ),
     ),
 
     // ── RETRAITE & PREVOYANCE ────────────────────────────────
@@ -319,18 +426,11 @@ final _router = GoRouter(
     ScopedGoRoute(path: '/coach/decaissement', redirect: (_, __) => '/decaissement'),
     ScopedGoRoute(path: '/arbitrage/calendrier-retraits', redirect: (_, __) => '/decaissement'),
 
-    ScopedGoRoute(
-      path: '/coach/cockpit',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const CockpitDetailScreen(),
-    ),
+    // ── ZOMBIE REDIRECTS (301-style, keep for 2 releases) ──
+    ScopedGoRoute(path: '/coach/cockpit', redirect: (_, __) => '/retraite'),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
     ScopedGoRoute(path: '/coach/checkin', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(
-      path: '/coach/refresh',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AnnualRefreshScreen(),
-    ),
+    ScopedGoRoute(path: '/coach/refresh', redirect: (_, __) => '/home'),
     // KILL-05: /coach/chat moved into StatefulShellRoute (Tab 1: Coach)
     ScopedGoRoute(
       path: '/coach/history',
@@ -787,12 +887,7 @@ final _router = GoRouter(
       builder: (context, state) => const LocationVsProprieteScreen(),
     ),
 
-    // ── ACHIEVEMENTS ──────────────────────────────────────────
-    ScopedGoRoute(
-      path: '/achievements',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AchievementsScreen(),
-    ),
+    ScopedGoRoute(path: '/achievements', redirect: (_, __) => '/home'),
 
     // STAB-14 (07-04): /weekly-recap was an orphan redirect-to-/home with zero
     // callers; deleted per AUDIT_ORPHAN_ROUTES row 90.
@@ -820,18 +915,10 @@ final _router = GoRouter(
     ),
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
-    ScopedGoRoute(
-      path: '/ask-mint',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const AskMintScreen(),
-    ),
+    ScopedGoRoute(path: '/ask-mint', redirect: (_, __) => '/coach/chat'),
     // STAB-14 (07-04): Wire Spec V2 P4 archived. Redirect to coach chat.
     ScopedGoRoute(path: '/tools', redirect: (_, __) => '/coach/chat'),
-    ScopedGoRoute(
-      path: '/portfolio',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) => const PortfolioScreen(),
-    ),
+    ScopedGoRoute(path: '/portfolio', redirect: (_, __) => '/home'),
     ScopedGoRoute(
       path: '/timeline',
       parentNavigatorKey: _rootNavigatorKey,
@@ -851,25 +938,7 @@ final _router = GoRouter(
         return ConfidenceDashboardScreen(result: result);
       },
     ),
-    ScopedGoRoute(
-      path: '/score-reveal',
-      parentNavigatorKey: _rootNavigatorKey,
-      builder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        if (extra != null &&
-            extra['score'] is FinancialFitnessScore &&
-            extra['profile'] is CoachProfile) {
-          return ScoreRevealScreen(
-            score: extra['score'] as FinancialFitnessScore,
-            profile: extra['profile'] as CoachProfile,
-            wizardAnswers:
-                extra['wizardAnswers'] as Map<String, dynamic>? ?? {},
-          );
-        }
-        // KILL-07: Shell deleted. Fallback redirects to chat.
-        return const CoachChatScreen();
-      },
-    ),
+    ScopedGoRoute(path: '/score-reveal', redirect: (_, __) => '/home'),
 
     // ── ONBOARDING ───────────────────────────────────────────
     // P10-02b: legacy onboarding screens removed. Routes kept as redirect
@@ -1298,27 +1367,6 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
   }
 }
 
-class _ExplorerPlaceholder extends StatelessWidget {
-  const _ExplorerPlaceholder();
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Explorer'),
-        backgroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_outline),
-            onPressed: () => MintShell.openDrawer(context),
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Text('Explorer hubs coming in Plan 02'),
-      ),
-    );
-  }
-}
 
 class _MintErrorScreen extends StatelessWidget {
   final Exception? error;
