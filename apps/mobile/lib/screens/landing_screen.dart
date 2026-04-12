@@ -10,6 +10,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
@@ -23,6 +24,8 @@ class LandingScreen extends StatefulWidget {
 class _LandingScreenState extends State<LandingScreen>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  late final Animation<double> _line1Opacity;
+  late final Animation<double> _line2Opacity;
   late final Animation<double> _paragraphOpacity;
   late final Animation<Offset> _paragraphOffset;
   late final Animation<double> _ctaOpacity;
@@ -33,25 +36,37 @@ class _LandingScreenState extends State<LandingScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 5000),
     );
 
-    // D-08 motion: paragraph 120–370ms, CTA+privacy 400–650ms, legal 600–700ms.
+    // Line 1 — fade in at 800-1200ms of 5000ms.
+    _line1Opacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.16, 0.24, curve: Curves.easeOutCubic),
+    );
+    // Line 2 — fade in at 3500-3900ms of 5000ms.
+    _line2Opacity = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.70, 0.78, curve: Curves.easeOutCubic),
+    );
+    // Promise paragraph — 4000-4400ms.
     _paragraphOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.17, 0.53, curve: Curves.easeOutCubic),
+      curve: const Interval(0.80, 0.88, curve: Curves.easeOutCubic),
     );
     _paragraphOffset = Tween<Offset>(
       begin: const Offset(0, 0.04),
       end: Offset.zero,
     ).animate(_paragraphOpacity);
+    // CTA — 4400-4700ms.
     _ctaOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.57, 0.93, curve: Curves.easeOutCubic),
+      curve: const Interval(0.88, 0.94, curve: Curves.easeOutCubic),
     );
+    // Legal footer — 4700-5000ms.
     _legalOpacity = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(0.86, 1.0, curve: Curves.easeOutCubic),
+      curve: const Interval(0.94, 1.0, curve: Curves.easeOutCubic),
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -77,7 +92,7 @@ class _LandingScreenState extends State<LandingScreen>
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: MintColors.craie,
+      backgroundColor: MintColors.warmWhite,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -107,7 +122,37 @@ class _LandingScreenState extends State<LandingScreen>
                       ),
                     ),
                   ),
-                  const Spacer(flex: 3),
+                  const SizedBox(height: 40),
+                  // Line 1 — money taboo
+                  FadeTransition(
+                    opacity: _line1Opacity,
+                    child: Text(
+                      l10n.anonymousIntentLine1,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        color: MintColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Line 2 — even to oneself
+                  FadeTransition(
+                    opacity: _line2Opacity,
+                    child: Text(
+                      l10n.anonymousIntentLine2,
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w400,
+                        color: MintColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                  const Spacer(flex: 2),
                   // Promise — single sentence (POLISH-01).
                   FadeTransition(
                     opacity: _paragraphOpacity,
