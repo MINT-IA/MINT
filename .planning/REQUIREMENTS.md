@@ -32,9 +32,9 @@ Requirements derived from `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` (3
 - [x] **NAV-02**: `ProfileDrawer` (280 lines, already built) is mounted as `endDrawer` on the shell scaffold with a visible icon button to open it — profile, documents, settings, logout are all accessible (P0-NAV-2)
 - [x] **NAV-03**: Back button on root tab screens does NOT navigate — no infinite loop. `safePop` fallback goes to shell root `/` instead of `/coach/chat` (P0-NAV-3)
 - [x] **NAV-04**: Route `/profile` redirects to `/profile/bilan` instead of `/coach/chat` — tapping "Mon profil" in drawer opens profile (P0-NAV-4)
-- [ ] **NAV-05**: `safePop` replaced with `MintNav` that has typed fallbacks per screen category — back from any screen goes to a sensible parent, not always chat (P1-NAV-1)
-- [ ] **NAV-06**: 6 zombie screens (achievements, score_reveal, cockpit, annual_refresh, portfolio, ask_mint) deleted — routes removed, files deleted, redirects added for deep links (P1-NAV-2)
-- [ ] **NAV-07**: 7 Explorer hub routes (`/explore/retraite`, `/explore/famille`, etc.) resolve to real Explorer hub screens instead of redirecting to `/coach/chat` (P1-NAV-3)
+- [x] **NAV-05**: `safePop` replaced with `MintNav` that has typed fallbacks per screen category — back from any screen goes to a sensible parent, not always chat (P1-NAV-1)
+- [x] **NAV-06**: 6 zombie screens (achievements, score_reveal, cockpit, annual_refresh, portfolio, ask_mint) deleted — routes removed, files deleted, redirects added for deep links (P1-NAV-2)
+- [x] **NAV-07**: 7 Explorer hub routes (`/explore/retraite`, `/explore/famille`, etc.) resolve to real Explorer hub screens instead of redirecting to `/coach/chat` (P1-NAV-3)
 
 ### Validation (VALID)
 
@@ -99,9 +99,9 @@ Explicitly excluded for v2.4. Documented to prevent scope creep.
 | NAV-02 | Phase 11 | Complete |
 | NAV-03 | Phase 11 | Complete |
 | NAV-04 | Phase 11 | Complete |
-| NAV-05 | Phase 11 | Pending |
-| NAV-06 | Phase 11 | Pending |
-| NAV-07 | Phase 11 | Pending |
+| NAV-05 | Phase 11 | Complete |
+| NAV-06 | Phase 11 | Complete |
+| NAV-07 | Phase 11 | Complete |
 | VALID-01 | Phase 12 | Pending |
 | VALID-02 | Phase 12 | Pending |
 | VALID-03 | Phase 12 | Pending |

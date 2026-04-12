@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.4
 milestone_name: milestone
-status: executing
-stopped_at: Completed 11-01-PLAN.md
-last_updated: "2026-04-12T10:26:36.007Z"
+status: verifying
+stopped_at: Completed 11-02-PLAN.md
+last_updated: "2026-04-12T10:34:06.488Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 4
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 5
-  completed_plans: 4
-  percent: 80
+  completed_plans: 5
+  percent: 100
 ---
 
 # GSD State: MINT v2.4 — Fondation
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 Phase: 11 (La navigation) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 10-les-connexions P01 | 6min | 3 tasks | 5 files |
 | 10 | 1 | - | - |
 | Phase 11-la-navigation P01 | 11min | 2 tasks | 6 files |
+| Phase 11-la-navigation P02 | 5min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - [Phase 10-les-connexions]: Staging URL as fallback after production URL, not replacement
 - [Phase 11-la-navigation]: ScopedGoRoute works inside StatefulShellBranch for auth scope preservation
 - [Phase 11-la-navigation]: LandingScreen reused for Aujourd'hui tab (MintHomeScreen does not exist)
+- [Phase 11-la-navigation]: MintNav.back() uses /home fallback (not /coach/chat) to prevent infinite loop
+- [Phase 11-la-navigation]: safePop kept as shim delegating to MintNav.back() — 44 call sites unchanged
 
 ### From Previous Milestones
 
@@ -85,8 +88,8 @@ Recent decisions affecting current work:
 
 ## Session Continuity
 
-Last session: 2026-04-12T10:26:36.004Z
-Stopped at: Completed 11-01-PLAN.md
+Last session: 2026-04-12T10:34:06.486Z
+Stopped at: Completed 11-02-PLAN.md
 Resume file: None
 
 ---

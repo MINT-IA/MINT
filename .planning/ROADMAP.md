@@ -26,7 +26,7 @@ MINT compiles with 9256 tests passing but is non-functional for real users. The 
 
 - [x] **Phase 9: Les tuyaux** - Backend infra hardening: SQLite fail-fast, RAG persistence, agent timeout, Docker paths (completed 2026-04-12)
 - [x] **Phase 10: Les connexions** - Front-back wiring: 5x URL double-prefix, camelCase mismatch, DNS cleanup, staging URL (completed 2026-04-12)
-- [ ] **Phase 11: La navigation** - Shell architecture: 3-tab shell, ProfileDrawer, back button, zombie cleanup, Explorer hubs
+- [x] **Phase 11: La navigation** - Shell architecture: 3-tab shell, ProfileDrawer, back button, zombie cleanup, Explorer hubs (completed 2026-04-12)
 - [ ] **Phase 12: La preuve** - End-to-end human validation on real iPhone, 8 flows, annotated screenshots
 
 ## Phase Details
@@ -77,7 +77,7 @@ Plans:
 
 Plans:
 - [x] 11-01-PLAN.md — Shell scaffold: StatefulShellRoute.indexedStack with 3 tabs, MintShell widget, ProfileDrawer endDrawer, /profile redirect fix
-- [ ] 11-02-PLAN.md — Route migration: MintNav.back() replacing safePop, 6 zombie redirects, 7 Explorer hub screens with real content
+- [x] 11-02-PLAN.md — Route migration: MintNav.back() replacing safePop, 6 zombie redirects, 7 Explorer hub screens with real content
 
 ### Phase 12: La preuve
 **Goal**: Creator (Julien) cold-starts MINT on a real iPhone and completes 8 end-to-end flows without help — the only gate that matters
@@ -104,7 +104,7 @@ Each phase must be deployed and verified before the next begins.
 |-------|-----------|----------------|--------|-----------|
 | 9. Les tuyaux | v2.4 | 2/2 | Complete   | 2026-04-12 |
 | 10. Les connexions | v2.4 | 1/1 | Complete    | 2026-04-12 |
-| 11. La navigation | v2.4 | 1/2 | In Progress|  |
+| 11. La navigation | v2.4 | 2/2 | Complete   | 2026-04-12 |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |
 
 ---
