@@ -76,7 +76,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 11-01-PLAN.md — Shell scaffold: StatefulShellRoute.indexedStack with 3 tabs, MintShell widget, ProfileDrawer endDrawer, /profile redirect fix
+- [x] 11-01-PLAN.md — Shell scaffold: StatefulShellRoute.indexedStack with 3 tabs, MintShell widget, ProfileDrawer endDrawer, /profile redirect fix
 - [ ] 11-02-PLAN.md — Route migration: MintNav.back() replacing safePop, 6 zombie redirects, 7 Explorer hub screens with real content
 
 ### Phase 12: La preuve
@@ -104,7 +104,7 @@ Each phase must be deployed and verified before the next begins.
 |-------|-----------|----------------|--------|-----------|
 | 9. Les tuyaux | v2.4 | 2/2 | Complete   | 2026-04-12 |
 | 10. Les connexions | v2.4 | 1/1 | Complete    | 2026-04-12 |
-| 11. La navigation | v2.4 | 0/2 | Not started | - |
+| 11. La navigation | v2.4 | 1/2 | In Progress|  |
 | 12. La preuve | v2.4 | 0/TBD | Not started | - |
 
 ---
