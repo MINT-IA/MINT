@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
 status: verifying
-stopped_at: Completed 13-03-PLAN.md
-last_updated: "2026-04-12T16:16:29.854Z"
+stopped_at: Completed 13-04-PLAN.md (gap closure)
+last_updated: "2026-04-12T16:43:01.322Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 4
+  completed_plans: 4
   percent: 100
 ---
 
@@ -50,6 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 13 P01 | 9min | 1 tasks | 5 files |
 | Phase 13 P02 | 9min | 2 tasks | 18 files |
 | Phase 13 P03 | 8min | 1 tasks | 4 files |
+| Phase 13 P04 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 13]: Anonymous chat route outside ShellRoute for clean pre-auth UX
 - [Phase 13]: Auth gate as conversational bottom sheet (coach avatar + message, not system interrupt)
 - [Phase 13]: Atomic SharedPreferences migration: write new keys, verify, then delete old keys
+- [Phase 13]: Eager persistence after each coach response instead of fixing callback chain — more robust against navigation changes
 
 ### From Previous Milestones
 
@@ -87,8 +89,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T16:16:29.852Z
-Stopped at: Completed 13-03-PLAN.md
+Last session: 2026-04-12T16:43:01.320Z
+Stopped at: Completed 13-04-PLAN.md (gap closure)
 Resume file: None
 
 ---
