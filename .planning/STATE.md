@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
-status: verifying
-stopped_at: Completed 15-02-PLAN.md
-last_updated: "2026-04-12T18:19:42.454Z"
+status: executing
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-04-12T18:35:49.320Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_plans: 11
+  completed_plans: 10
+  percent: 91
 ---
 
 # GSD State: MINT v2.5 — Transformation
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 15 — Coach Intelligence
+**Current focus:** Phase 16 — Couple Mode Dissymetrique
 
 ## Current Position
 
-Phase: 16
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 16 (Couple Mode Dissymetrique) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 15-coach-intelligence P01 | 10min | 2 tasks | 7 files |
 | Phase 15-coach-intelligence P02 | 4min | 1 tasks | 1 files |
 | 15 | 2 | - | - |
+| Phase 16-couple-mode-dissymetrique P01 | 4min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,8 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 15]: Immediate DB persistence for provenance/earmark tools (not ack-only) — data needed in next conversation
 - [Phase 15]: user_id and db threaded through _run_agent_loop to _execute_internal_tool for DB write access
 - [Phase 15-coach-intelligence]: Used real SQLite in-memory DB (not mocks) for integration tests to prove actual ORM round-trip
+- [Phase 16]: Ack-only handlers with zero DB/user_id access — privacy guarantee enforced by source inspection tests
+- [Phase 16]: System prompt asks one question at a time in priority order (salary > age > LPP > 3a > canton)
 
 ### From Previous Milestones
 
@@ -106,8 +109,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T18:16:35.291Z
-Stopped at: Completed 15-02-PLAN.md
+Last session: 2026-04-12T18:35:49.317Z
+Stopped at: Completed 16-01-PLAN.md
 Resume file: None
 
 ---

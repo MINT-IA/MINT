@@ -104,7 +104,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 16-01-PLAN.md -- Backend: save_partner_estimate/update_partner_estimate internal tools, system prompt directive, ack-only handlers
+- [x] 16-01-PLAN.md -- Backend: save_partner_estimate/update_partner_estimate internal tools, system prompt directive, ack-only handlers
 - [ ] 16-02-PLAN.md -- Flutter: PartnerEstimateService (SecureStorage), CoupleQuestionGenerator, tool call interception, couple projection confidence degradation
 
 ### Phase 17: Living Timeline -- 3 Tensions
@@ -147,7 +147,7 @@ Each phase must pass device gate before the next begins.
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
-| 16. Couple Mode Dissymetrique | v2.5 | 0/2 | Not started | - |
+| 16. Couple Mode Dissymetrique | v2.5 | 1/2 | In Progress|  |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
 

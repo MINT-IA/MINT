@@ -34,10 +34,10 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Couple Mode Dissymetrique
 
-- [ ] **COUP-01**: User can declare "Je suis en couple" and enter what they know about their partner (estimated salary, LPP, age, 3a)
+- [x] **COUP-01**: User can declare "Je suis en couple" and enter what they know about their partner (estimated salary, LPP, age, 3a)
 - [ ] **COUP-02**: MINT generates 5 questions to ask the partner based on gaps in the estimation ("Demande-lui son salaire assure LPP")
 - [ ] **COUP-03**: Couple projections use partner estimates with explicit confidence degradation (estimated data = lower confidence)
-- [ ] **COUP-04**: Partner data is stored locally only (not shared) -- privacy by architecture
+- [x] **COUP-04**: Partner data is stored locally only (not shared) -- privacy by architecture
 
 ### Cleo Loop Navigation (transversal)
 
@@ -102,10 +102,10 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | INTL-02 | Phase 15 | Complete |
 | INTL-03 | Phase 15 | Complete |
 | INTL-04 | Phase 15 | Complete |
-| COUP-01 | Phase 16 | Pending |
+| COUP-01 | Phase 16 | Complete |
 | COUP-02 | Phase 16 | Pending |
 | COUP-03 | Phase 16 | Pending |
-| COUP-04 | Phase 16 | Pending |
+| COUP-04 | Phase 16 | Complete |
 | TIME-01 | Phase 17 | Pending |
 | TIME-02 | Phase 17 | Pending |
 | TIME-03 | Phase 18 | Pending |
