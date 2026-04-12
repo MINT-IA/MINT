@@ -70,11 +70,12 @@ Plans:
   3. On a landmark date (birthday, month-1, year-start), user receives a single proactive MINT message anchored to their financial situation
   4. Before an irrevocable decision (EPL, capital withdrawal, 3a closure), coach surfaces a pre-mortem prompt and stores the user's response in the dossier
   5. Pre-mortem responses from past decisions are referenced when the user revisits related topics ("En mars tu avais dit craindre que...")
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 14-01: TBD
-- [ ] 14-02: TBD
+- [ ] 14-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext injection
+- [ ] 14-02-PLAN.md -- Frontend: CommitmentCard widget, persistence endpoint, notification scheduling
+- [ ] 14-03-PLAN.md -- Fresh-start anchors: landmark detection, personalized messages, proactive notifications
 
 ### Phase 15: Coach Intelligence
 **Goal**: Coach becomes relationally aware -- tracks who recommended what financial product and respects that users mentally separate their monies, without ever asking form-style questions
@@ -143,7 +144,7 @@ Each phase must pass device gate before the next begins.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
-| 14. Commitment Devices | v2.5 | 0/TBD | Not started | - |
+| 14. Commitment Devices | v2.5 | 0/3 | Not started | - |
 | 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
