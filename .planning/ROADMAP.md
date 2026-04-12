@@ -33,7 +33,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 - Phases 13-18 belong to milestone v2.5 (continuing from v2.4 Phase 12)
 - Decimal phases (13.1, 14.1): Urgent insertions if needed
 
-- [ ] **Phase 13: Anonymous Hook & Auth Bridge** - Anonymous user gets value in 20 seconds, converts without losing conversation
+- [x] **Phase 13: Anonymous Hook & Auth Bridge** - Anonymous user gets value in 20 seconds, converts without losing conversation (completed 2026-04-12)
 - [ ] **Phase 14: Commitment Devices** - Implementation intentions, fresh-start anchors, pre-mortem -- behavioral moat no competitor has
 - [ ] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware
 - [ ] **Phase 16: Couple Mode Dissymetrique** - One partner enters estimates, gets 5 questions to ask, couple projections with honest confidence
@@ -58,7 +58,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 Plans:
 - [x] 13-01-PLAN.md -- Backend anonymous chat endpoint with rate limiting and discovery system prompt
 - [x] 13-02-PLAN.md -- Frontend anonymous chat screen, session service, and auth gate UX
-- [ ] 13-03-PLAN.md -- Conversation migration on auth and device verification
+- [x] 13-03-PLAN.md -- Conversation migration on auth and device verification
 
 ### Phase 14: Commitment Devices
 **Goal**: MINT transforms insights into action -- every Layer 4 response includes a concrete implementation intention, landmark dates trigger proactive messages, and irrevocable decisions get a pre-mortem
@@ -142,7 +142,7 @@ Each phase must pass device gate before the next begins.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 13. Anonymous Hook & Auth Bridge | v2.5 | 2/3 | In Progress|  |
+| 13. Anonymous Hook & Auth Bridge | v2.5 | 3/3 | Complete   | 2026-04-12 |
 | 14. Commitment Devices | v2.5 | 0/TBD | Not started | - |
 | 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
