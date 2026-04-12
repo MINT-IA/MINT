@@ -52,12 +52,13 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
   3. After the 3rd value exchange, MINT surfaces a natural auth prompt ("Je peux garder tout ca en memoire pour toi") -- not a wall, not a popup
   4. User who creates an account sees their entire anonymous conversation preserved in their chat history (zero message loss)
   5. A second anonymous session from the same device cannot bypass the 3-message rate limit (device-scoped session token in SecureStorage)
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 13-01: TBD
-- [ ] 13-02: TBD
+- [ ] 13-01-PLAN.md -- Backend anonymous chat endpoint with rate limiting and discovery system prompt
+- [ ] 13-02-PLAN.md -- Frontend anonymous chat screen, session service, and auth gate UX
+- [ ] 13-03-PLAN.md -- Conversation migration on auth and device verification
 
 ### Phase 14: Commitment Devices
 **Goal**: MINT transforms insights into action -- every Layer 4 response includes a concrete implementation intention, landmark dates trigger proactive messages, and irrevocable decisions get a pre-mortem
@@ -141,7 +142,7 @@ Each phase must pass device gate before the next begins.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 13. Anonymous Hook & Auth Bridge | v2.5 | 0/TBD | Not started | - |
+| 13. Anonymous Hook & Auth Bridge | v2.5 | 0/3 | Planning complete | - |
 | 14. Commitment Devices | v2.5 | 0/TBD | Not started | - |
 | 15. Coach Intelligence | v2.5 | 0/TBD | Not started | - |
 | 16. Couple Mode Dissymetrique | v2.5 | 0/TBD | Not started | - |
