@@ -1,47 +1,49 @@
-# GSD State: MINT Recovery
+# GSD State: MINT v2.4 — Fondation
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-10)
+See: .planning/PROJECT.md (updated 2026-04-12)
 
-**Core value:** Real user can cold-start MINT, talk to AI coach, get correct insights, navigate without dead ends.
-**Current focus:** Phase 1 — Unblock CI/CD Pipeline
+**Core value:** Un humain externe peut ouvrir MINT, naviguer, uploader, recevoir un premier éclairage, parler au coach — zero crash, zero 404, zero boucle.
+**Current focus:** Defining requirements
 
-## Current Phase
+## Current Position
 
-**Phase 1: Unblock CI/CD Pipeline**
-- Status: Not started
-- Requirements: INFRA-01, INFRA-02, INFRA-03
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-12 — Milestone v2.4 started
 
 ## Progress
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 1 — CI/CD Pipeline | ○ Pending | 0% |
-| 2 — Financial Calculations | ○ Pending | 0% |
-| 3 — Authentication | ○ Pending | 0% |
-| 4 — Coach AI Wiring | ○ Pending | 0% |
-| 5 — Dead Routes (Services) | ○ Pending | 0% |
-| 6 — Dead Routes (UI) | ○ Pending | 0% |
-| 7 — Device Walkthrough | ○ Pending | 0% |
-| 8 — Commit & Cleanup | ○ Pending | 0% |
+| 1 — Les tuyaux (backend infra) | ○ Pending | 0% |
+| 2 — Les connexions (front-back) | ○ Pending | 0% |
+| 3 — La navigation (architecture) | ○ Pending | 0% |
+| 4 — La preuve (validation humaine) | ○ Pending | 0% |
 
 Progress: ░░░░░░░░░░ 0%
 
+## Accumulated Context
+
+### From v2.1 Stabilisation
+- 6-axis facade-sans-cablage audit methodology proven
+- 11 dead services deleted, 4 P0 providers registered
+- Coach tool calling wired on BYOK path (but server-key path still broken)
+- CI green on dev
+
+### From deep audit (2026-04-12)
+- 32 findings documented in .planning/architecture/14-INFRA-AUDIT-FINDINGS.md
+- 2 Sentry errors fixed (RAG graceful fallback)
+- Root causes: double URL prefix, camelCase mismatch, zero shell, ephemeral ChromaDB
+
 ## Session Log
 
-### 2026-04-10 — Project initialization
-- 7 deep audit agents completed (auth, coach, navigation, data, backend, UX, financial)
-- Incident diagnostic written to .planning/INCIDENT_DIAGNOSTIC_2026-04-10.md
-- Old GSD project archived to .planning/archive-2026-04-10/
-- New PROJECT.md, REQUIREMENTS.md, ROADMAP.md created
-- Config: interactive, fine-grained, sequential, quality (Opus), all workflow agents enabled
-
-### Quick Tasks Completed
-
-| # | Description | Date | Commit | Directory |
-|---|-------------|------|--------|-----------|
-| 260412-dr1 | Fix 2 Sentry errors blocking coach chat on Railway staging | 2026-04-12 | 11093e46 | [260412-dr1-fix-2-sentry-errors-blocking-coach-chat-](./quick/260412-dr1-fix-2-sentry-errors-blocking-coach-chat-/) |
+### 2026-04-12 — Milestone v2.4 started
+- 3-axis deep audit produced 32 findings (11 P0, 8 P1, 7 P2, 6 P3)
+- GSD quick 260412-dr1: Fixed 2 Sentry errors (RAG graceful fallback)
+- Milestone v2.4 initialized from audit findings
 
 ---
-*Last activity: 2026-04-12 - Completed quick task 260412-dr1: Fix 2 Sentry errors blocking coach chat on Railway staging*
+*Last activity: 2026-04-12 — Milestone v2.4 started*
