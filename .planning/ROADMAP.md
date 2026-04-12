@@ -114,11 +114,11 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Aujourd'hui screen shows exactly 3 tension cards: one earned (past achievement), one pulsing (active tension), one ghosted (future projection)
   2. Tension cards update dynamically when user uploads a document, completes a coach conversation, or accepts a commitment intention -- not static, not hardcoded
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
 
 Plans:
-- [ ] 17-01: TBD
+- [ ] 17-01-PLAN.md -- TensionCardProvider, 3 tension card widgets, CleoLoopIndicator, AujourdhuiScreen, router wiring, i18n
 
 ### Phase 18: Living Timeline -- Full Timeline
 **Goal**: Aujourd'hui becomes a single-screen center of gravity -- a living timeline with tappable nodes that aggregates documents, conversations, commitments, couple data, and projections into one coherent view
@@ -148,7 +148,7 @@ Each phase must pass device gate before the next begins.
 | 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 16. Couple Mode Dissymetrique | v2.5 | 2/2 | Complete    | 2026-04-12 |
-| 17. Living Timeline -- 3 Tensions | v2.5 | 0/TBD | Not started | - |
+| 17. Living Timeline -- 3 Tensions | v2.5 | 0/1 | Not started | - |
 | 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
 
 ---
