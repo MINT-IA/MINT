@@ -555,3 +555,80 @@ class TestCoachChatRouterRegistration:
         })
         assert instance.api_key == "sk-test"
         assert instance.memory_block == "CONTEXTE : consolidation"
+
+
+# ===========================================================================
+# TestCoachChatRAGDegradation — graceful fallback when RAG backends fail
+# ===========================================================================
+
+
+class TestCoachChatRAGDegradation:
+    """Verify coach chat degrades gracefully when RAG backends are unavailable.
+
+    Covers the 2 Sentry errors from Railway staging (2026-04-12):
+    1. relation "document_embeddings" does not exist (pgvector migration not run)
+    2. RAG dependencies not installed (chromadb persist dir missing)
+    """
+
+    def test_get_hybrid_search_catches_operational_error(self):
+        """_get_hybrid_search returns None when HybridSearchService init raises."""
+        import os
+        import app.api.v1.endpoints.coach_chat as mod
+
+        # Reset singleton
+        mod._hybrid_search = None
+        old_url = os.environ.get("DATABASE_URL", "")
+        os.environ["DATABASE_URL"] = "postgresql://user:pass@localhost/mint"
+
+        try:
+            with patch(
+                "app.services.rag.hybrid_search_service.HybridSearchService.__init__",
+                side_effect=Exception("relation document_embeddings does not exist"),
+            ):
+                result = mod._get_hybrid_search()
+            assert result is None, f"Expected None, got {result}"
+        finally:
+            os.environ["DATABASE_URL"] = old_url
+            mod._hybrid_search = None  # cleanup
+
+    def test_get_vector_store_catches_permission_error(self):
+        """_get_vector_store returns None when MintVectorStore init raises PermissionError."""
+        import app.api.v1.endpoints.coach_chat as mod
+
+        mod._vector_store = None
+
+        with patch(
+            "app.services.rag.vector_store.MintVectorStore.__init__",
+            side_effect=PermissionError("data/chromadb"),
+        ):
+            result = mod._get_vector_store()
+        assert result is None, f"Expected None, got {result}"
+        mod._vector_store = None  # cleanup
+
+    def test_get_vector_store_catches_import_error(self):
+        """_get_vector_store returns None (not HTTP 503) on ImportError."""
+        import app.api.v1.endpoints.coach_chat as mod
+
+        mod._vector_store = None
+
+        with patch.dict("sys.modules", {"app.services.rag.vector_store": None}):
+            # Force ImportError by making the module None in sys.modules
+            result = mod._get_vector_store()
+        assert result is None, f"Expected None, got {result}"
+        mod._vector_store = None  # cleanup
+
+    @pytest.mark.asyncio
+    async def test_get_orchestrator_no_rag_fallback(self):
+        """_get_orchestrator returns _NoRagOrchestrator when both backends unavailable."""
+        import app.api.v1.endpoints.coach_chat as mod
+
+        mod._orchestrator = None
+
+        with patch.object(mod, "_get_vector_store", return_value=None), \
+             patch.object(mod, "_get_hybrid_search", return_value=None):
+            result = await mod._get_orchestrator()
+
+        assert isinstance(result, mod._NoRagOrchestrator), (
+            f"Expected _NoRagOrchestrator, got {type(result)}"
+        )
+        mod._orchestrator = None  # cleanup
