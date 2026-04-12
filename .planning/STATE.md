@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
-status: verifying
-stopped_at: Completed 13-04-PLAN.md (gap closure)
-last_updated: "2026-04-12T16:47:11.742Z"
+status: executing
+stopped_at: Completed 14-01-PLAN.md
+last_updated: "2026-04-12T17:22:45.221Z"
 last_activity: 2026-04-12
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 100
+  total_plans: 7
+  completed_plans: 5
+  percent: 71
 ---
 
 # GSD State: MINT v2.5 — Transformation
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 13 — Anonymous Hook & Auth Bridge
+**Current focus:** Phase 14 — Commitment Devices
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 14 (Commitment Devices) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-12
 
 Progress: [░░░░░░░░░░] 0%
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 13 P03 | 8min | 1 tasks | 4 files |
 | Phase 13 P04 | 2min | 2 tasks | 3 files |
 | 13 | 4 | - | - |
+| Phase 14 P01 | 7min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,9 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 13]: Auth gate as conversational bottom sheet (coach avatar + message, not system interrupt)
 - [Phase 13]: Atomic SharedPreferences migration: write new keys, verify, then delete old keys
 - [Phase 13]: Eager persistence after each coach response instead of fixing callback chain — more robust against navigation changes
+- [Phase 14]: Ack-only tool handlers for record_commitment and save_pre_mortem (persistence deferred to Plan 02 dedicated endpoint)
+- [Phase 14]: show_commitment_card as Flutter-bound tool (not internal) for editable commitment card rendering
+- [Phase 14]: DB-sourced memory block always includes commitment data for natural LLM reference
 
 ### From Previous Milestones
 
@@ -90,8 +94,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T16:43:01.320Z
-Stopped at: Completed 13-04-PLAN.md (gap closure)
+Last session: 2026-04-12T17:22:45.219Z
+Stopped at: Completed 14-01-PLAN.md
 Resume file: None
 
 ---

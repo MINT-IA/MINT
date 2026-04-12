@@ -18,12 +18,12 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Commitment Devices
 
-- [ ] **CMIT-01**: Each Layer 4 insight includes an implementation intention (WHEN/WHERE/IF-THEN) that user can accept or edit
+- [x] **CMIT-01**: Each Layer 4 insight includes an implementation intention (WHEN/WHERE/IF-THEN) that user can accept or edit
 - [ ] **CMIT-02**: Accepted implementation intentions are persisted and surfaced as reminders via notification scheduler
 - [ ] **CMIT-03**: Fresh-start anchor detector identifies landmark dates (birthday, month-1, year-start, 1-year anniversary) from user profile
 - [ ] **CMIT-04**: Fresh-start anchors trigger ONE proactive MINT message at each landmark date
-- [ ] **CMIT-05**: Pre-mortem prompt appears before irrevocable decisions (EPL, capital withdrawal, 3a closure) -- "Imagine qu'on est en 2027 et que cette decision s'est mal passee"
-- [ ] **CMIT-06**: Pre-mortem free-text response is stored in dossier and referenced in future related conversations
+- [x] **CMIT-05**: Pre-mortem prompt appears before irrevocable decisions (EPL, capital withdrawal, 3a closure) -- "Imagine qu'on est en 2027 et que cette decision s'est mal passee"
+- [x] **CMIT-06**: Pre-mortem free-text response is stored in dossier and referenced in future related conversations
 
 ### Coach Intelligence
 
@@ -42,7 +42,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 ### Cleo Loop Navigation (transversal)
 
 - [x] **LOOP-01**: After each coach insight, MINT suggests the next step in the loop (plan, action, or document) — never a dead end
-- [ ] **LOOP-02**: After each user action (document upload, commitment accepted, pre-mortem completed), coach acknowledges and updates the memory visibly ("J'ai note, je m'en souviendrai")
+- [x] **LOOP-02**: After each user action (document upload, commitment accepted, pre-mortem completed), coach acknowledges and updates the memory visibly ("J'ai note, je m'en souviendrai")
 - [ ] **LOOP-03**: The Insight→Plan→Conversation→Action→Memory cycle is visible in the UX — user can see where they are in the loop (coach state indicator or contextual next-step chips)
 
 ### Living Timeline (3 tensions card -> full timeline)
@@ -92,12 +92,12 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | ANON-04 | Phase 13 | Complete |
 | ANON-05 | Phase 13 | Complete |
 | ANON-06 | Phase 13 | Complete |
-| CMIT-01 | Phase 14 | Pending |
+| CMIT-01 | Phase 14 | Complete |
 | CMIT-02 | Phase 14 | Pending |
 | CMIT-03 | Phase 14 | Pending |
 | CMIT-04 | Phase 14 | Pending |
-| CMIT-05 | Phase 14 | Pending |
-| CMIT-06 | Phase 14 | Pending |
+| CMIT-05 | Phase 14 | Complete |
+| CMIT-06 | Phase 14 | Complete |
 | INTL-01 | Phase 15 | Pending |
 | INTL-02 | Phase 15 | Pending |
 | INTL-03 | Phase 15 | Pending |
@@ -112,7 +112,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | TIME-04 | Phase 18 | Pending |
 | TIME-05 | Phase 18 | Pending |
 | LOOP-01 | Phase 13, 14, 15 | Complete |
-| LOOP-02 | Phase 14, 15 | Pending |
+| LOOP-02 | Phase 14, 15 | Complete |
 | LOOP-03 | Phase 17, 18 | Pending |
 
 **Coverage:**
