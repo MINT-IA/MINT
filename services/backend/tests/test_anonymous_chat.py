@@ -26,6 +26,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 os.environ["TESTING"] = "1"
+os.environ.setdefault("ANTHROPIC_API_KEY", "sk-test-anonymous-key")
 
 from app.main import app
 from app.core.database import Base, get_db
