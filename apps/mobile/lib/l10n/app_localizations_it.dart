@@ -22495,4 +22495,83 @@ class SIt extends S {
 
   @override
   String get cleoLoopMemory => 'Memoria aggiornata';
+
+  @override
+  String get coachGreetingRandom1 =>
+      'Il tuo 3a, chi l\'ha scelto? Tu o \'quel tizio\'?';
+
+  @override
+  String get coachGreetingRandom2 =>
+      'In Svizzera non si parla di soldi. Si perdono in silenzio.';
+
+  @override
+  String get coachGreetingRandom3 =>
+      'Il tizio che ti ha venduto il 3a ha incassato la sua commissione il primo anno. Tu stai ancora aspettando il rendimento.';
+
+  @override
+  String get coachGreetingRandom4 =>
+      'Il tuo banchiere ti conosce meglio di te. Non è un complimento.';
+
+  @override
+  String get coachGreetingRandom5 =>
+      'Tutti ti dicono di comprare. Il banchiere, i tuoi, il cognato. Hai mai chiesto a qualcuno che non vende niente?';
+
+  @override
+  String get coachGreetingRandom6 =>
+      'A 25 anni versi già per la pensione. A 25 anni non sai nemmeno che stai versando.';
+
+  @override
+  String get coachGreetingRandom7 =>
+      'Non gestisci le tue finanze. Le eviti. C\'è una differenza.';
+
+  @override
+  String get coachGreetingRandom8 =>
+      'Sai quanto prenderai in pensione? Nessuno lo sa.';
+
+  @override
+  String get coachGreetingRandom9 =>
+      'Se il tuo stipendio si ferma domani — sai cosa succede?';
+
+  @override
+  String get coachGreetingRandom10 =>
+      'Il tuo assicuratore vede un pezzo. Il tuo banchiere pure. Il tuo fiduciario pure. Il quadro completo, nessuno.';
+
+  @override
+  String get coachGreetingRandom11 => 'Quante cose hai firmato senza leggere?';
+
+  @override
+  String get coachGreetingRandom12 =>
+      'Hai mai aperto davvero il tuo certificato di previdenza? Davvero aperto?';
+
+  @override
+  String get coachGreetingRandom13 =>
+      'I tuoi risparmi dormono. Sai quanto ti costa dormire?';
+
+  @override
+  String get coachGreetingRandom14 =>
+      'Il sistema pensionistico svizzero è eccellente. Solo che nessuno ti ha dato il libretto d\'istruzioni.';
+
+  @override
+  String get coachGreetingRandom15 =>
+      'Cambi lavoro, guardi lo stipendio. Non guardi mai la cassa pensione.';
+
+  @override
+  String get coachGreetingRandom16 =>
+      'Ritiri il 3a e il 2° pilastro lo stesso anno? Le tasse esplodono. Li scaglioni? Si sciolgono. Stessi soldi. Solo il timing.';
+
+  @override
+  String get coachGreetingRandom17 =>
+      'Potresti riscattare anni nel tuo 2° pilastro e pagare migliaia di franchi in meno di tasse. Ma dovresti aprire il certificato.';
+
+  @override
+  String get coachGreetingRandom18 =>
+      'Ammortamento diretto o indiretto? Se non conosci la differenza, stai pagando troppe tasse. Dall\'inizio.';
+
+  @override
+  String get coachGreetingRandom19 =>
+      'Sei indipendente. Nessuno versa più per te. Tutto è da costruire. Hai iniziato?';
+
+  @override
+  String get coachGreetingRandom20 =>
+      'Per comprare casa, prendi una parte del tuo 2° pilastro e la metti nei muri. Il te stesso del futuro, cosa ne pensa?';
 }

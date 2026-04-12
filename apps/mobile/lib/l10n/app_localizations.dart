@@ -39374,6 +39374,126 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Mémoire mise à jour'**
   String get cleoLoopMemory;
+
+  /// Coach chat random greeting message 1 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 3a, c\'est qui qui l\'a choisi ? Toi ou « le gars » ?'**
+  String get coachGreetingRandom1;
+
+  /// Coach chat random greeting message 2 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'En Suisse on parle pas d\'argent. On en perd en silence.'**
+  String get coachGreetingRandom2;
+
+  /// Coach chat random greeting message 3 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le gars qui t\'a vendu ton 3a a touché sa commission la première année. Toi, t\'attends encore ton rendement.'**
+  String get coachGreetingRandom3;
+
+  /// Coach chat random greeting message 4 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton banquier te connaît mieux que toi. C\'est pas un compliment.'**
+  String get coachGreetingRandom4;
+
+  /// Coach chat random greeting message 5 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout le monde te dit d\'acheter. Ton banquier, tes parents, ton beau-frère. T\'as demandé à quelqu\'un qui vend rien ?'**
+  String get coachGreetingRandom5;
+
+  /// Coach chat random greeting message 6 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'À 25 ans, tu cotises déjà pour ta retraite. À 25 ans, tu sais pas que tu cotises pour ta retraite.'**
+  String get coachGreetingRandom6;
+
+  /// Coach chat random greeting message 7 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu gères pas tes finances. Tu les évites. Y\'a une différence.'**
+  String get coachGreetingRandom7;
+
+  /// Coach chat random greeting message 8 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu sais combien tu vas toucher à la retraite ? Personne sait.'**
+  String get coachGreetingRandom8;
+
+  /// Coach chat random greeting message 9 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si ton salaire s\'arrête demain — tu sais ce qui se passe ?'**
+  String get coachGreetingRandom9;
+
+  /// Coach chat random greeting message 10 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton assureur voit un morceau. Ton banquier aussi. Ta fiduciaire aussi. L\'image complète, personne.'**
+  String get coachGreetingRandom10;
+
+  /// Coach chat random greeting message 11 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'T\'as signé combien de trucs que t\'as pas lus ?'**
+  String get coachGreetingRandom11;
+
+  /// Coach chat random greeting message 12 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'T\'as déjà ouvert ton certificat de prévoyance ? Vraiment ouvert ?'**
+  String get coachGreetingRandom12;
+
+  /// Coach chat random greeting message 13 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton épargne dort. Tu sais combien ça te coûte, dormir ?'**
+  String get coachGreetingRandom13;
+
+  /// Coach chat random greeting message 14 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le système de retraite suisse est excellent. C\'est juste que personne t\'a filé le mode d\'emploi.'**
+  String get coachGreetingRandom14;
+
+  /// Coach chat random greeting message 15 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu changes de job, tu regardes le salaire. Tu regardes jamais la caisse de pension.'**
+  String get coachGreetingRandom15;
+
+  /// Coach chat random greeting message 16 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu retires ton 3a et ton 2e pilier la même année ? L\'impôt explose. Tu les étales ? Il fond. Même argent. Juste le timing.'**
+  String get coachGreetingRandom16;
+
+  /// Coach chat random greeting message 17 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu pourrais racheter des années dans ton 2e pilier et payer des milliers de francs d\'impôts en moins. Mais faudrait ouvrir le certificat.'**
+  String get coachGreetingRandom17;
+
+  /// Coach chat random greeting message 18 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Amortissement direct ou indirect ? Si tu sais pas la différence, tu paies plus d\'impôts que nécessaire. Depuis le début.'**
+  String get coachGreetingRandom18;
+
+  /// Coach chat random greeting message 19 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'T\'es indépendant. Plus personne cotise pour toi. Tout est à construire. T\'as commencé ?'**
+  String get coachGreetingRandom19;
+
+  /// Coach chat random greeting message 20 of 20.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour acheter, tu mets une partie de ton 2e pilier dans les murs. Ton futur toi à la retraite, il en pense quoi ?'**
+  String get coachGreetingRandom20;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

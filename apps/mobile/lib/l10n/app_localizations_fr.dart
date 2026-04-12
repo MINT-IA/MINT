@@ -22436,4 +22436,84 @@ class SFr extends S {
 
   @override
   String get cleoLoopMemory => 'Mémoire mise à jour';
+
+  @override
+  String get coachGreetingRandom1 =>
+      'Ton 3a, c\'est qui qui l\'a choisi ? Toi ou « le gars » ?';
+
+  @override
+  String get coachGreetingRandom2 =>
+      'En Suisse on parle pas d\'argent. On en perd en silence.';
+
+  @override
+  String get coachGreetingRandom3 =>
+      'Le gars qui t\'a vendu ton 3a a touché sa commission la première année. Toi, t\'attends encore ton rendement.';
+
+  @override
+  String get coachGreetingRandom4 =>
+      'Ton banquier te connaît mieux que toi. C\'est pas un compliment.';
+
+  @override
+  String get coachGreetingRandom5 =>
+      'Tout le monde te dit d\'acheter. Ton banquier, tes parents, ton beau-frère. T\'as demandé à quelqu\'un qui vend rien ?';
+
+  @override
+  String get coachGreetingRandom6 =>
+      'À 25 ans, tu cotises déjà pour ta retraite. À 25 ans, tu sais pas que tu cotises pour ta retraite.';
+
+  @override
+  String get coachGreetingRandom7 =>
+      'Tu gères pas tes finances. Tu les évites. Y\'a une différence.';
+
+  @override
+  String get coachGreetingRandom8 =>
+      'Tu sais combien tu vas toucher à la retraite ? Personne sait.';
+
+  @override
+  String get coachGreetingRandom9 =>
+      'Si ton salaire s\'arrête demain — tu sais ce qui se passe ?';
+
+  @override
+  String get coachGreetingRandom10 =>
+      'Ton assureur voit un morceau. Ton banquier aussi. Ta fiduciaire aussi. L\'image complète, personne.';
+
+  @override
+  String get coachGreetingRandom11 =>
+      'T\'as signé combien de trucs que t\'as pas lus ?';
+
+  @override
+  String get coachGreetingRandom12 =>
+      'T\'as déjà ouvert ton certificat de prévoyance ? Vraiment ouvert ?';
+
+  @override
+  String get coachGreetingRandom13 =>
+      'Ton épargne dort. Tu sais combien ça te coûte, dormir ?';
+
+  @override
+  String get coachGreetingRandom14 =>
+      'Le système de retraite suisse est excellent. C\'est juste que personne t\'a filé le mode d\'emploi.';
+
+  @override
+  String get coachGreetingRandom15 =>
+      'Tu changes de job, tu regardes le salaire. Tu regardes jamais la caisse de pension.';
+
+  @override
+  String get coachGreetingRandom16 =>
+      'Tu retires ton 3a et ton 2e pilier la même année ? L\'impôt explose. Tu les étales ? Il fond. Même argent. Juste le timing.';
+
+  @override
+  String get coachGreetingRandom17 =>
+      'Tu pourrais racheter des années dans ton 2e pilier et payer des milliers de francs d\'impôts en moins. Mais faudrait ouvrir le certificat.';
+
+  @override
+  String get coachGreetingRandom18 =>
+      'Amortissement direct ou indirect ? Si tu sais pas la différence, tu paies plus d\'impôts que nécessaire. Depuis le début.';
+
+  @override
+  String get coachGreetingRandom19 =>
+      'T\'es indépendant. Plus personne cotise pour toi. Tout est à construire. T\'as commencé ?';
+
+  @override
+  String get coachGreetingRandom20 =>
+      'Pour acheter, tu mets une partie de ton 2e pilier dans les murs. Ton futur toi à la retraite, il en pense quoi ?';
 }

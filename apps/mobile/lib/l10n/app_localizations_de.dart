@@ -22487,4 +22487,84 @@ class SDe extends S {
 
   @override
   String get cleoLoopMemory => 'Speicher aktualisiert';
+
+  @override
+  String get coachGreetingRandom1 =>
+      'Dis 3a — hesch du das gwählt? Oder «de Typ»?';
+
+  @override
+  String get coachGreetingRandom2 =>
+      'In der Schwiz redet mer nöd über Geld. Mer verliert\'s still.';
+
+  @override
+  String get coachGreetingRandom3 =>
+      'De Typ, wo dir dis 3a verkauft het, het sini Kommission im erschte Jahr kassiert. Du wartisch immer no uf dini Rendite.';
+
+  @override
+  String get coachGreetingRandom4 =>
+      'Din Bankberater kennt dich besser als du. Das isch keis Komplimänt.';
+
+  @override
+  String get coachGreetingRandom5 =>
+      'Alli säge dir, du söllsch kaufe. Din Banker, dini Eltere, din Schwager. Hesch mol öpper gfragt, wo nüt verkauft?';
+
+  @override
+  String get coachGreetingRandom6 =>
+      'Mit 25 zahlsch scho für dini Pension. Mit 25 weisch nöd mal, dass du zahlsch.';
+
+  @override
+  String get coachGreetingRandom7 =>
+      'Du managsch dini Finanze nöd. Du vermeidisch sie. S\'isch en Unterschied.';
+
+  @override
+  String get coachGreetingRandom8 =>
+      'Weisch du, wie viel du im Alter überchunnsch? Niemert weiss das.';
+
+  @override
+  String get coachGreetingRandom9 =>
+      'Wenn din Lohn morn uufhört — weisch, was passiert?';
+
+  @override
+  String get coachGreetingRandom10 =>
+      'Dini Versicherig gseet es Stück. Din Banker au. Dini Treuhand au. S\'ganze Bild? Niemert.';
+
+  @override
+  String get coachGreetingRandom11 =>
+      'Wie vill Sache hesch du unterschribe, ohni z\'läse?';
+
+  @override
+  String get coachGreetingRandom12 =>
+      'Hesch du din Vorsorguuswiis scho mal ufgmacht? Würkli ufgmacht?';
+
+  @override
+  String get coachGreetingRandom13 =>
+      'Dis Erspaarte schlaft. Weisch, was das chostet?';
+
+  @override
+  String get coachGreetingRandom14 =>
+      'S\'Schwiizer Vorsorgesystem isch super. Nur het dir niemert d\'Gebrauchsaawisig gä.';
+
+  @override
+  String get coachGreetingRandom15 =>
+      'Du wächslisch de Job, luegsch de Lohn aa. D\'Pensionskasse luegsch nie aa.';
+
+  @override
+  String get coachGreetingRandom16 =>
+      '3a und Pensionskasse im gliiche Jahr bezieh? D\'Stüüre explodiere. Verteilsch? Sie schmelze. Gliichs Geld. Nur s\'Timing.';
+
+  @override
+  String get coachGreetingRandom17 =>
+      'Du chönntisch Jahre i dini Pensionskasse iikaufe und tuusigi a Stüüre spare. Aber du müesstisch de Uuswiis ufmache.';
+
+  @override
+  String get coachGreetingRandom18 =>
+      'Direkti oder indirekti Amortisation? Wenn du de Unterschied nöd kennsch, zahlsch z\'vill Stüüre. Vo Aafang aa.';
+
+  @override
+  String get coachGreetingRandom19 =>
+      'Du bisch selbständig. Niemert zahlt meh für dich ii. Alles muess ufbaut werde. Hesch aagfange?';
+
+  @override
+  String get coachGreetingRandom20 =>
+      'Zum Kaufe nimmsch en Teil vo dinere Pensionskasse und stecksch en i d\'Wänd. Was dänkt dis zukünftige Ich dezue?';
 }

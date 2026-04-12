@@ -22434,4 +22434,83 @@ class SEs extends S {
 
   @override
   String get cleoLoopMemory => 'Memoria actualizada';
+
+  @override
+  String get coachGreetingRandom1 =>
+      'Tu 3a, ¿quién lo eligió? ¿Tú o \'el tipo\'?';
+
+  @override
+  String get coachGreetingRandom2 =>
+      'En Suiza no se habla de dinero. Se pierde en silencio.';
+
+  @override
+  String get coachGreetingRandom3 =>
+      'El tipo que te vendió tu 3a cobró su comisión el primer año. Tú sigues esperando tu rendimiento.';
+
+  @override
+  String get coachGreetingRandom4 =>
+      'Tu banquero te conoce mejor que tú. No es un cumplido.';
+
+  @override
+  String get coachGreetingRandom5 =>
+      'Todos te dicen que compres. Tu banquero, tus padres, tu cuñado. ¿Le has preguntado a alguien que no vende nada?';
+
+  @override
+  String get coachGreetingRandom6 =>
+      'A los 25 ya cotizas para tu jubilación. A los 25, no sabes que cotizas para tu jubilación.';
+
+  @override
+  String get coachGreetingRandom7 =>
+      'No gestionas tus finanzas. Las evitas. Hay una diferencia.';
+
+  @override
+  String get coachGreetingRandom8 =>
+      '¿Sabes cuánto vas a cobrar de jubilación? Nadie lo sabe.';
+
+  @override
+  String get coachGreetingRandom9 =>
+      'Si tu sueldo se para mañana — ¿sabes qué pasa?';
+
+  @override
+  String get coachGreetingRandom10 =>
+      'Tu asegurador ve un trozo. Tu banquero también. Tu asesor también. La imagen completa, nadie.';
+
+  @override
+  String get coachGreetingRandom11 => '¿Cuántas cosas has firmado sin leer?';
+
+  @override
+  String get coachGreetingRandom12 =>
+      '¿Has abierto alguna vez tu certificado de previsión? ¿De verdad?';
+
+  @override
+  String get coachGreetingRandom13 =>
+      'Tus ahorros duermen. ¿Sabes cuánto te cuesta dormir?';
+
+  @override
+  String get coachGreetingRandom14 =>
+      'El sistema de jubilación suizo es excelente. Solo que nadie te dio el manual.';
+
+  @override
+  String get coachGreetingRandom15 =>
+      'Cambias de trabajo, miras el sueldo. Nunca miras la caja de pensión.';
+
+  @override
+  String get coachGreetingRandom16 =>
+      '¿Retiras tu 3a y tu 2° pilar el mismo año? Los impuestos explotan. ¿Los escalonas? Se derriten. Mismo dinero. Solo el timing.';
+
+  @override
+  String get coachGreetingRandom17 =>
+      'Podrías recomprar años en tu 2° pilar y pagar miles de francos menos en impuestos. Pero habría que abrir el certificado.';
+
+  @override
+  String get coachGreetingRandom18 =>
+      '¿Amortización directa o indirecta? Si no conoces la diferencia, pagas más impuestos de lo necesario. Desde el principio.';
+
+  @override
+  String get coachGreetingRandom19 =>
+      'Eres autónomo. Ya nadie cotiza por ti. Todo está por construir. ¿Has empezado?';
+
+  @override
+  String get coachGreetingRandom20 =>
+      'Para comprar, metes parte de tu 2° pilar en las paredes. Tu yo futuro jubilado, ¿qué opina?';
 }
