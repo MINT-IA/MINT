@@ -94,9 +94,15 @@ class CoachChatRequest(CoachChatBaseModel):
             "Injecte dans le system prompt pour la personnalisation contextuelle."
         ),
     )
-    # conversation_history: removed — not consumed by the endpoint.
-    # History management is client-side (Flutter) via the memory_block.
-    # Re-add when multi-turn server-side context is implemented.
+    conversation_history: Optional[list[dict[str, str]]] = Field(
+        None,
+        max_length=20,
+        description=(
+            "Prior conversation messages for multi-turn context. "
+            "Each item: {role: 'user'|'assistant', content: str}. "
+            "Last 8 messages max. Sanitized client-side."
+        ),
+    )
     language: str = Field(
         default="fr",
         description="Langue de la reponse: 'fr', 'de', 'en', 'it'.",

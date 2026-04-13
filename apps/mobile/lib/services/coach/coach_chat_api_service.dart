@@ -33,6 +33,7 @@ class CoachChatApiService {
   /// The orchestrator catches all exceptions and falls through to fallback.
   Future<CoachChatApiResponse> chat({
     required String message,
+    List<Map<String, String>>? conversationHistory,
     Map<String, dynamic>? profileContext,
     String? memoryBlock,
     String language = 'fr',
@@ -69,6 +70,9 @@ class CoachChatApiService {
         // Best-effort — partner flags are optional enrichment
       }
       body['profile_context'] = profileContext;
+    }
+    if (conversationHistory != null && conversationHistory.isNotEmpty) {
+      body['conversation_history'] = conversationHistory;
     }
     if (memoryBlock != null && memoryBlock.isNotEmpty) {
       body['memory_block'] = memoryBlock;

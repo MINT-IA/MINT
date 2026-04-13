@@ -761,9 +761,26 @@ class CoachOrchestrator {
   }) async {
     final service = CoachChatApiService();
 
+    // Build conversation history for multi-turn context (same as BYOK path).
+    // Last 8 messages (4 exchanges) — sanitized user messages, raw assistant.
+    final recentHistory = history
+        .where((m) => m.isUser || m.isAssistant)
+        .toList();
+    final tail = recentHistory.length > 8
+        ? recentHistory.sublist(recentHistory.length - 8)
+        : recentHistory;
+    final conversationHistory = tail
+        .map((m) => {
+              'role': m.isUser ? 'user' : 'assistant',
+              'content': m.isUser ? _sanitizeUserInput(m.content) : m.content,
+            })
+        .toList();
+
     try {
       final response = await service.chat(
         message: userMessage,
+        conversationHistory:
+            conversationHistory.isNotEmpty ? conversationHistory : null,
         profileContext: {
           'first_name': ctx.firstName,
           'age': ctx.age,
