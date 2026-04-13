@@ -199,7 +199,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 22-01-PLAN.md -- Markdown rendering, keyboard dismiss, response length directive, collapsible disclaimers
+- [x] 22-01-PLAN.md -- Markdown rendering, keyboard dismiss, response length directive, collapsible disclaimers
 
 ### Phase 23: Document Scanner Pipeline
 **Goal**: User uploads a PDF, MINT parses it, stores data in dossier, and coach references it in future conversations
@@ -264,7 +264,7 @@ Integration checker after phases 22, 24, and 26.
 | 19. Auth State Propagation | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 22. Coach Chat UX | v2.6 | 0/1 | Not Started | — |
+| 22. Coach Chat UX | v2.6 | 1/1 | Complete   | 2026-04-13 |
 | 23. Document Scanner Pipeline | v2.6 | 0/TBD | Not Started | — |
 | 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
 | 25. Profile & Data Integrity | v2.6 | 0/TBD | Not Started | — |

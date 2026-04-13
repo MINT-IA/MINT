@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.6
 milestone_name: Le Coach Qui Marche
 status: verifying
-stopped_at: Completed 21-01-PLAN.md
-last_updated: "2026-04-13T17:46:31.188Z"
+stopped_at: Completed 22-01-PLAN.md
+last_updated: "2026-04-13T18:01:27.745Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 14
-  completed_phases: 7
-  total_plans: 14
-  completed_plans: 15
+  completed_phases: 8
+  total_plans: 15
+  completed_plans: 16
   percent: 100
 ---
 
@@ -68,6 +68,7 @@ Progress: [##########] 100%
 | 18 | 1 | - | - |
 | Phase 21 P01 | 7min | 2 tasks | 4 files |
 | 21 | 1 | - | - |
+| Phase 22 P01 | 6min | 2 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,8 @@ Progress: [##########] 100%
 - [Phase 20]: Conversation history as structured messages array (not concatenated text) for proper multi-turn Claude API; history only on first agent loop iteration
 - [Phase 21]: Dedup by user_id+topic: upsert pattern for save_insight prevents unbounded DB growth
 - [Phase 21]: DB insights searched first in retrieve_memories (Pass 0) before memory_block text for priority
+- [Phase 22]: MarkdownBody (non-scrollable) for coach messages to avoid nested scroll conflicts
+- [Phase 22]: Response length directive (3-5 phrases) placed above FORMAT section in system prompt
 
 ### From Previous Milestones
 
@@ -125,8 +128,8 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T17:45:54.279Z
-Stopped at: Completed 21-01-PLAN.md
+Last session: 2026-04-13T18:01:27.742Z
+Stopped at: Completed 22-01-PLAN.md
 Resume file: None
 
 ---
