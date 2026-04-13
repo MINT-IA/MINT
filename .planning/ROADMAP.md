@@ -129,12 +129,11 @@ Plans:
   2. Documents, chat history, accepted implementation intentions, and couple estimates each appear as distinct node types on the timeline
   3. Past nodes show earned achievements (completed actions, uploaded documents), present nodes pulse with active tensions, future nodes appear ghosted with projected scenarios
   4. Timeline renders smoothly on older iPhones (no jank on scroll, lazy-loaded nodes)
-**Plans**: TBD
+**Plans**: 1 plan
 **UI hint**: yes
 
 Plans:
-- [ ] 18-01: TBD
-- [ ] 18-02: TBD
+- [ ] 18-01-PLAN.md -- TimelineNode model, TimelineProvider, node widgets, month headers, AujourdhuiScreen rebuild with CustomScrollView, i18n
 
 ## Progress
 
@@ -149,8 +148,8 @@ Each phase must pass device gate before the next begins.
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 16. Couple Mode Dissymetrique | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 1/1 | Complete    | 2026-04-12 |
-| 18. Living Timeline -- Full Timeline | v2.5 | 0/TBD | Not started | - |
+| 18. Living Timeline -- Full Timeline | v2.5 | 0/1 | Not started | - |
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-12*
+*Last updated: 2026-04-13*
