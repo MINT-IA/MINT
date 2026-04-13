@@ -6,7 +6,8 @@
 - ✅ **v2.0 Systeme Vivant** - Phases 1-6 (shipped 2026-04-07)
 - ✅ **v2.1 Stabilisation** - Phase 7 (shipped 2026-04-07)
 - ✅ **v2.4 Fondation** - Phases 9-12 (shipped 2026-04-12)
-- 🚧 **v2.5 Transformation** - Phases 13-18 (in progress)
+- ✅ **v2.5 Transformation** - Phases 13-18 (shipped 2026-04-13)
+- 🚧 **v2.6 Le Coach Qui Marche** - Phases 19-26 (in progress)
 
 <details>
 <summary>Previous milestones (v1.0, v2.0, v2.1, v2.4) -- see MILESTONES.md</summary>
@@ -150,6 +151,125 @@ Each phase must pass device gate before the next begins.
 | 17. Living Timeline -- 3 Tensions | v2.5 | 1/1 | Complete    | 2026-04-12 |
 | 18. Living Timeline -- Full Timeline | v2.5 | 1/1 | Complete    | 2026-04-13 |
 
+## v2.6 Le Coach Qui Marche
+
+Zero nouvelle feature. Fix every pipe. Gate 0 walkthrough as source of truth.
+
+### Phase 19: Auth State Propagation (COMPLETE)
+**Goal**: User who logs in sees authenticated content everywhere immediately -- no stale "Creer ton compte" on any tab
+**Depends on**: Nothing (first phase of v2.6, highest user impact)
+**Requirements**: AUTH-01, AUTH-02, AUTH-03
+**Success Criteria**:
+  1. Logged-in user sees authenticated content on Coach, Explorer, and Aujourd'hui tabs without restarting app
+  2. Logging out returns all three tabs to anonymous state immediately
+  3. Deep links to protected routes redirect to login when unauthenticated
+**Plans**: 1/1 complete
+
+### Phase 20: Coach Conversation Context (COMPLETE)
+**Goal**: Coach receives full conversation history in every API call and responds within 5 seconds with clear error handling
+**Depends on**: Phase 19 (auth must work so coach knows who the user is)
+**Requirements**: CTX-01, CTX-04, CTX-05
+**Success Criteria**:
+  1. Follow-up question correctly references what was said 3+ messages ago
+  2. Response appears within 5 seconds for standard questions
+  3. API failure shows clear message with working retry button
+**Plans**: 1/1 complete
+
+### Phase 21: Coach Memory & Dossier
+**Goal**: Coach pulls relevant past insights before responding and persists key facts learned during conversation
+**Depends on**: Phase 20 (conversation context must work before layering memory on top)
+**Requirements**: CTX-02, CTX-03
+**Success Criteria**:
+  1. User mentions salary, closes app, reopens next day -- coach references salary without being told again
+  2. User who discussed LPP gets response referencing their specific LPP situation, not generic advice
+**Plans**: TBD
+
+Plans:
+- [ ] 21-01: TBD
+
+### Phase 22: Coach Chat UX
+**Goal**: Coach responses look polished -- Markdown rendered, keyboard handled, text chunked, disclaimers unobtrusive
+**Depends on**: Phase 20 (coach must respond correctly before polishing how responses look)
+**Requirements**: UX-01, UX-02, UX-03, UX-05
+**Success Criteria**:
+  1. Bold, italic, lists render as formatted text -- no visible asterisks
+  2. Keyboard dismisses on send, chat scrolls to response
+  3. Long responses use progressive disclosure -- no walls of text
+  4. Disclaimer is a single compact expandable line
+**Plans**: TBD
+
+Plans:
+- [ ] 22-01: TBD
+
+### Phase 23: Document Scanner Pipeline
+**Goal**: User uploads a PDF, MINT parses it, stores data in dossier, and coach references it in future conversations
+**Depends on**: Phase 21 (memory/dossier must work so parsed documents are retrievable)
+**Requirements**: DOC-01, DOC-02, DOC-03
+**Success Criteria**:
+  1. PDF selection shows success (not "Analyse PDF indisponible")
+  2. Parsed data visible in "Ce que MINT sait de toi"
+  3. Coach references specific numbers from uploaded documents
+**Plans**: TBD
+
+Plans:
+- [ ] 23-01: TBD
+
+### Phase 24: Coach Widgets & Suggestions
+**Goal**: Coach shows inline widgets in chat via tool calls and provides contextual suggestion chips -- not static hardcoded ones
+**Depends on**: Phase 22 (chat UX must render properly before adding widgets inside it)
+**Requirements**: WID-01, WID-02, WID-04, UX-04
+**Success Criteria**:
+  1. Inline comparison widget renders inside chat
+  2. Suggestion chips change based on conversation context
+  3. Route suggestion navigates to correct screen, back button returns to chat
+**Plans**: TBD
+
+Plans:
+- [ ] 24-01: TBD
+
+### Phase 25: Profile & Data Integrity
+**Goal**: Profile drawer shows accurate, complete, non-truncated user data -- what MINT knows matches what user provided
+**Depends on**: Phase 23 (document data should be visible in profile after scanner works)
+**Requirements**: PROF-01, PROF-02, PROF-03
+**Success Criteria**:
+  1. No stale values from previous sessions
+  2. All text fully visible, no truncation
+  3. Data from both conversations and document uploads displayed
+**Plans**: TBD
+
+Plans:
+- [ ] 25-01: TBD
+
+### Phase 26: Navigation Coherence
+**Goal**: Every route resolves, every tab works when authenticated, back navigation never traps, lightning menu functional
+**Depends on**: Phase 24 (widgets/route suggestions must exist before verifying all navigation paths)
+**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, WID-03
+**Success Criteria**:
+  1. Explorer tab browsable when authenticated
+  2. Aujourd'hui shows tension cards/timeline when authenticated
+  3. Lightning menu opens and all actions work
+  4. No dead routes, no 404s
+  5. Back button never traps
+**Plans**: TBD
+
+Plans:
+- [ ] 26-01: TBD
+
+**Execution Order:**
+Phases execute sequentially: 21 -> 22 -> 23 -> 24 -> 25 -> 26
+Integration checker after phases 22, 24, and 26.
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 19. Auth State Propagation | v2.6 | 1/1 | Complete | 2026-04-13 |
+| 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
+| 21. Coach Memory & Dossier | v2.6 | 0/TBD | Not Started | — |
+| 22. Coach Chat UX | v2.6 | 0/TBD | Not Started | — |
+| 23. Document Scanner Pipeline | v2.6 | 0/TBD | Not Started | — |
+| 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
+| 25. Profile & Data Integrity | v2.6 | 0/TBD | Not Started | — |
+| 26. Navigation Coherence | v2.6 | 0/TBD | Not Started | — |
+
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-13*
+*Last updated: 2026-04-13 — v2.6 phases added*
