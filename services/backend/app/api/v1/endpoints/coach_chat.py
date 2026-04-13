@@ -35,6 +35,7 @@ import asyncio
 import logging
 import os
 import re
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -604,6 +605,63 @@ def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Sessio
     return "\n\n".join(sections)
 
 
+def _build_insight_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+    """Build memory section with coach-saved insights (facts, decisions, preferences).
+
+    Returns formatted text for injection into system prompt.
+    Per CTX-03: coach references these naturally in future conversations.
+    """
+    if not user_id or not db:
+        return ""
+
+    try:
+        from app.models.coach_insight import CoachInsightRecord
+
+        insights = (
+            db.query(CoachInsightRecord)
+            .filter(CoachInsightRecord.user_id == user_id)
+            .order_by(CoachInsightRecord.updated_at.desc())
+            .limit(10)
+            .all()
+        )
+        if not insights:
+            return ""
+
+        now = datetime.now(timezone.utc)
+        lines = ["INSIGHTS MEMORISES:"]
+        for ins in insights:
+            # Compute relative time
+            updated = ins.updated_at
+            if updated and updated.tzinfo is None:
+                # SQLite returns naive datetimes — treat as UTC
+                updated = updated.replace(tzinfo=timezone.utc)
+            if updated:
+                delta = now - updated
+                if delta.days == 0:
+                    rel_time = "aujourd'hui"
+                elif delta.days == 1:
+                    rel_time = "hier"
+                elif delta.days < 7:
+                    rel_time = f"il y a {delta.days} jours"
+                elif delta.days < 30:
+                    weeks = delta.days // 7
+                    rel_time = f"il y a {weeks} semaine{'s' if weeks > 1 else ''}"
+                else:
+                    months = delta.days // 30
+                    rel_time = f"il y a {months} mois"
+            else:
+                rel_time = ""
+
+            time_str = f" ({rel_time})" if rel_time else ""
+            lines.append(f"- [{ins.insight_type}] {ins.topic}: {ins.summary}{time_str}")
+
+        return "\n".join(lines)
+
+    except Exception as exc:
+        logger.warning("Could not build insight memory block: %s", exc)
+        return ""
+
+
 def _build_system_prompt_with_memory(
     coach_ctx,
     memory_block: Optional[str],
@@ -611,6 +669,7 @@ def _build_system_prompt_with_memory(
     cash_level: int = 3,
     commitment_block: str = "",
     intelligence_block: str = "",
+    insight_block: str = "",
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
@@ -625,6 +684,8 @@ def _build_system_prompt_with_memory(
         prompt = prompt + "\n\n" + commitment_block
     if intelligence_block:
         prompt = prompt + "\n\n" + intelligence_block
+    if insight_block:
+        prompt = prompt + "\n\n" + insight_block
     return prompt
 
 
@@ -632,42 +693,68 @@ def _handle_retrieve_memories(
     topic: str,
     memory_block: Optional[str],
     max_results: int = 3,
+    user_id: Optional[str] = None,
+    db: Optional[Session] = None,
 ) -> str:
-    """Search the memory block for content matching the topic.
+    """Search the memory block AND DB-persisted insights for content matching the topic.
 
     This is an INTERNAL handler — it is called when the LLM emits a
     retrieve_memories tool_use block.  The result is returned to the LLM
     as a tool_result so the conversation can continue.  It is never
     forwarded to Flutter.
 
-    Uses a two-pass strategy:
-      1. Exact substring match (fast, high precision).
-      2. Fuzzy matching via difflib.SequenceMatcher (catches semantic
+    Uses a three-pass strategy:
+      1. DB-persisted insights (CoachInsightRecord) matching topic.
+      2. Exact substring match on memory_block text (fast, high precision).
+      3. Fuzzy matching via difflib.SequenceMatcher (catches semantic
          near-misses like "retraite" matching "préretraite", or "3a"
          matching "pilier 3a").
 
-    Results are deduplicated and ranked by relevance (exact matches first,
-    then fuzzy matches sorted by similarity score descending).
+    Results are deduplicated and ranked by relevance (DB matches first,
+    exact matches second, then fuzzy matches sorted by similarity score).
 
     Args:
         topic: The topic string to search for (case-insensitive substring).
             Must be non-empty (min 1 char after strip).
         memory_block: The raw memory block injected into the system prompt.
         max_results: Maximum number of matching lines to return (capped at 5).
+        user_id: Authenticated user ID for DB insight lookup.
+        db: SQLAlchemy session for DB queries.
 
     Returns:
         A plain-text string with up to max_results matching lines, or a
         localised "not found" message when no match is found.
     """
-    if not memory_block or not memory_block.strip():
-        return "Aucune mémoire disponible pour ce sujet."
-
     if not topic or not topic.strip():
         return "Sujet de recherche requis."
 
     max_results = min(max(1, max_results), 5)
-    lines = [line for line in memory_block.split("\n") if line.strip()]
     topic_lower = topic.lower().strip()
+
+    # Pass 0: DB-persisted insights (CoachInsightRecord)
+    db_matches: list[str] = []
+    if user_id and db:
+        try:
+            from app.models.coach_insight import CoachInsightRecord
+            insights = (
+                db.query(CoachInsightRecord)
+                .filter(CoachInsightRecord.user_id == user_id)
+                .order_by(CoachInsightRecord.updated_at.desc())
+                .limit(10)
+                .all()
+            )
+            for ins in insights:
+                if (topic_lower in (ins.topic or "").lower()
+                        or topic_lower in (ins.summary or "").lower()):
+                    db_matches.append(f"[{ins.insight_type}] {ins.topic}: {ins.summary}")
+        except Exception as exc:
+            logger.warning("Could not search DB insights: %s", exc)
+
+    has_memory_block = memory_block and memory_block.strip()
+    if not has_memory_block and not db_matches:
+        return "Aucune mémoire disponible pour ce sujet."
+
+    lines = [line for line in (memory_block or "").split("\n") if line.strip()]
 
     # Pass 1: exact substring match (high precision)
     exact_matches = [line for line in lines if topic_lower in line.lower()]
@@ -703,8 +790,13 @@ def _handle_retrieve_memories(
     fuzzy_scored.sort(key=lambda x: x[0], reverse=True)
     fuzzy_matches = [line for _, line in fuzzy_scored]
 
-    # Combine: exact first, then fuzzy (deduplicated)
-    combined = exact_matches + fuzzy_matches
+    # Combine: DB first, then exact, then fuzzy (deduplicated)
+    seen = set()
+    combined: list[str] = []
+    for item in db_matches + exact_matches + fuzzy_matches:
+        if item not in seen:
+            seen.add(item)
+            combined.append(item)
     if not combined:
         return f"Pas de mémoire trouvée pour '{topic}'."
 
@@ -787,6 +879,8 @@ def _execute_internal_tool(
             topic=safe_topic,
             memory_block=memory_block,
             max_results=min(tool_input.get("max_results", 3), 10),
+            user_id=user_id,
+            db=db,
         )
 
     if name == "get_budget_status":
@@ -807,10 +901,9 @@ def _execute_internal_tool(
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
 
-    # STAB-12 (07-04): set_goal / mark_step_completed / save_insight are
-    # acknowledgement-only tools. They let the LLM track conversational state
-    # without rendering a widget. Persistence to the memory layer is a v3.0
-    # item; for now we return a plain-text ack so the agent loop continues.
+    # STAB-12 (07-04): set_goal / mark_step_completed are acknowledgement-only tools.
+    # They let the LLM track conversational state without rendering a widget.
+    # save_insight was upgraded to persist to DB in Phase 21 (CTX-02).
     if name == "set_goal":
         goal = tool_input.get("goal") or tool_input.get("title") or ""
         logger.info("set_goal ack (non-persisted): %s", goal[:100])
@@ -823,7 +916,37 @@ def _execute_internal_tool(
 
     if name == "save_insight":
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
-        logger.info("save_insight ack (non-persisted): %s", summary[:100])
+        topic = tool_input.get("topic", "general")
+        insight_type = tool_input.get("insight_type", "fact")
+        logger.info("save_insight: topic=%s, summary=%s", topic[:50], summary[:100])
+        if user_id and db:
+            try:
+                from app.models.coach_insight import CoachInsightRecord
+                # Dedup by user_id + topic: update existing or create new
+                existing = (
+                    db.query(CoachInsightRecord)
+                    .filter(
+                        CoachInsightRecord.user_id == user_id,
+                        CoachInsightRecord.topic == topic,
+                    )
+                    .first()
+                )
+                if existing:
+                    existing.summary = summary
+                    existing.insight_type = insight_type
+                    existing.updated_at = datetime.now(timezone.utc)
+                else:
+                    record = CoachInsightRecord(
+                        user_id=user_id,
+                        topic=topic,
+                        summary=summary,
+                        insight_type=insight_type,
+                    )
+                    db.add(record)
+                db.commit()
+            except Exception as exc:
+                logger.warning("Could not persist insight: %s", exc)
+                db.rollback()
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
 
     # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
@@ -1509,7 +1632,8 @@ async def coach_chat(
     # ------------------------------------------------------------------
     commitment_block = _build_commitment_memory_block(str(_user.id), db)
     intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block)
+    insight_block = _build_insight_memory_block(str(_user.id), db)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
