@@ -16,7 +16,7 @@ RUN apt-get update && \
 # cannot initialize and returns 503 "RAG dependencies not installed".
 COPY pyproject.toml .
 COPY app/ app/
-RUN pip install --no-cache-dir ".[rag]" && python -c "import anthropic, chromadb; print('anthropic', anthropic.__version__, '/ chromadb', chromadb.__version__)"
+RUN pip install --no-cache-dir ".[rag,docling]" && python -c "import anthropic, chromadb, pdfplumber; print('anthropic', anthropic.__version__, '/ chromadb', chromadb.__version__, '/ pdfplumber', pdfplumber.__version__)"
 
 # --- Stage 2: Production ---
 FROM python:3.12-slim AS production

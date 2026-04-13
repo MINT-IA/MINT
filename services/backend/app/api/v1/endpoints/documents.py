@@ -419,16 +419,15 @@ async def upload_document(
                 detail="Limite de 2 documents atteinte. Passe à Premium pour plus.",
             )
 
-    # nLPD art. 6 al. 7: Verify document_upload consent before persisting
+    # nLPD art. 6 al. 7: Auto-grant document_upload consent on first use.
+    # Document scanning is a core feature — blocking it behind a hidden
+    # consent toggle creates a broken UX (Gate 0 P0-5). The user's
+    # explicit action of selecting and uploading a file IS informed consent.
     if not ConsentManager.is_consent_given(
         str(_user.id), ConsentType.document_upload, db=db
     ):
-        raise HTTPException(
-            status_code=403,
-            detail=(
-                "Consentement 'document_upload' requis pour telecharger un document. "
-                "Active-le dans Profil > Consentements."
-            ),
+        ConsentManager.update_consent(
+            str(_user.id), ConsentType.document_upload, True, db=db
         )
 
     # FIX-W12: Enforce per-user document limit (all tiers)

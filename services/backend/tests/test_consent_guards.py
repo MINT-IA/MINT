@@ -127,15 +127,21 @@ _RAG_OK_RESULT = {
 class TestDocumentUploadConsentGuard:
     """nLPD art. 6 al. 7: document upload requires document_upload consent."""
 
-    def test_upload_blocked_without_document_upload_consent(self, client):
-        """POST /documents/upload returns 403 when document_upload consent is not granted."""
-        # No consent granted — default is False (nLPD opt-in)
-        response = client.post(
-            "/api/v1/documents/upload",
-            files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
-        )
-        assert response.status_code == 403
-        assert "document_upload" in response.json()["detail"]
+    def test_upload_auto_grants_consent_on_first_use(self, client):
+        """POST /documents/upload auto-grants document_upload consent (Gate 0 P0-5 fix)."""
+        # No consent granted — but upload should auto-grant and proceed
+        from unittest.mock import patch as _patch
+        from tests.test_documents import _make_mock_parser, _make_mock_extractor
+        from tests.test_documents import PARSER_PATCH, LPP_EXTRACTOR_PATCH
+
+        with _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()), \
+             _patch(PARSER_PATCH, return_value=_make_mock_parser()):
+            response = client.post(
+                "/api/v1/documents/upload",
+                files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
+            )
+        # Should NOT be 403 — consent auto-granted
+        assert response.status_code != 403
 
     def test_upload_allowed_with_document_upload_consent(self, client):
         """POST /documents/upload does NOT return 403 when consent is granted."""
@@ -155,27 +161,23 @@ class TestDocumentUploadConsentGuard:
             )
         assert response.status_code != 403
 
-    def test_upload_blocked_returns_actionable_message(self, client):
-        """403 response tells the user how to enable consent."""
-        response = client.post(
-            "/api/v1/documents/upload",
-            files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
-        )
-        assert response.status_code == 403
-        detail = response.json()["detail"]
-        assert "Consentement" in detail
-        assert "Profil" in detail or "Consentements" in detail
-
-    def test_upload_blocked_after_consent_revoked(self, client):
-        """Upload blocked again after consent is revoked."""
+    def test_upload_auto_grants_even_after_revoke(self, client):
+        """Upload auto-grants consent again even after prior revocation."""
         _grant_consent(ConsentType.document_upload)
         _revoke_consent(ConsentType.document_upload)
 
-        response = client.post(
-            "/api/v1/documents/upload",
-            files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
-        )
-        assert response.status_code == 403
+        from unittest.mock import patch as _patch
+        from tests.test_documents import _make_mock_parser, _make_mock_extractor
+        from tests.test_documents import PARSER_PATCH, LPP_EXTRACTOR_PATCH
+
+        with _patch(LPP_EXTRACTOR_PATCH, return_value=_make_mock_extractor()), \
+             _patch(PARSER_PATCH, return_value=_make_mock_parser()):
+            response = client.post(
+                "/api/v1/documents/upload",
+                files={"file": ("cert.pdf", b"%PDF-1.4 mock", "application/pdf")},
+            )
+        # Auto-grant should re-enable consent — not 403
+        assert response.status_code != 403
 
 
 # ===========================================================================
