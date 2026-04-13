@@ -132,7 +132,7 @@ class _TonCell extends StatelessWidget {
             borderRadius: BorderRadius.circular(11),
           ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 56, minWidth: 48),
+            constraints: const BoxConstraints(minHeight: 68, minWidth: 48),
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: MintSpacing.sm,
@@ -154,7 +154,7 @@ class _TonCell extends StatelessWidget {
                     spec.example,
                     style: MintTextStyles.bodySmall(color: exampleColor),
                     textAlign: TextAlign.center,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],

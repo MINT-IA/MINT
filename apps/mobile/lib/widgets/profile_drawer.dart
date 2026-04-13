@@ -177,8 +177,13 @@ class ProfileDrawer extends StatelessWidget {
     }
 
     final age = profile.age;
-    final ageDisplay = age > 0 ? l10n.ageYears(age.toString()) : '';
-    final cantonDisplay = profile.canton;
+    // PROF-01: Only show age/canton if the user actually provided them.
+    // Prevents phantom "ZH" or default-computed age from appearing.
+    final ageDisplay = age > 0 && profile.userProvidedFields.contains('age')
+        ? l10n.ageYears(age.toString())
+        : '';
+    final cantonDisplay =
+        profile.userProvidedFields.contains('canton') ? profile.canton : '';
     final separator =
         ageDisplay.isNotEmpty && cantonDisplay.isNotEmpty ? ' \u2022 ' : '';
 

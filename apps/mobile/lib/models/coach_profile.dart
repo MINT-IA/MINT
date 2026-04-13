@@ -1393,6 +1393,12 @@ class CoachProfile {
   /// Fields absent from this map default to profile.createdAt for decay calc.
   final Map<String, DateTime> dataTimestamps;
 
+  /// Fields explicitly provided by the user (vs computed defaults).
+  /// Used by the profile drawer to avoid showing phantom data like
+  /// a default canton ('ZH') the user never entered.
+  /// Populated by [fromWizardAnswers] based on actual wizard answer keys.
+  final Set<String> userProvidedFields;
+
   // === CALIBRAGE ===
   /// Niveau de culture financiere, derive des 3 questions de calibrage
   /// en fin d'onboarding. Backward-compatible : absent → beginner.
@@ -1459,6 +1465,7 @@ class CoachProfile {
     this.initialProjectionSnapshot,
     Map<String, ProfileDataSource> dataSources = const {},
     this.dataTimestamps = const {},
+    this.userProvidedFields = const {},
     DateTime? createdAt,
     DateTime? updatedAt,
     this.financialLiteracyLevel = FinancialLiteracyLevel.beginner,
@@ -1803,6 +1810,7 @@ class CoachProfile {
     Map<String, dynamic>? initialProjectionSnapshot,
     Map<String, ProfileDataSource>? dataSources,
     Map<String, DateTime>? dataTimestamps,
+    Set<String>? userProvidedFields,
     DateTime? createdAt,
     DateTime? updatedAt,
     FinancialLiteracyLevel? financialLiteracyLevel,
@@ -1854,6 +1862,7 @@ class CoachProfile {
           initialProjectionSnapshot ?? this.initialProjectionSnapshot,
       dataSources: dataSources ?? this.dataSources,
       dataTimestamps: dataTimestamps ?? this.dataTimestamps,
+      userProvidedFields: userProvidedFields ?? this.userProvidedFields,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       financialLiteracyLevel:
@@ -2084,6 +2093,10 @@ class CoachProfile {
               ?.map((e) => Map<String, dynamic>.from(e as Map))
               .toList() ??
           const [],
+      userProvidedFields: (json['userProvidedFields'] as List?)
+              ?.map((e) => e as String)
+              .toSet() ??
+          const {},
     );
   }
 
@@ -2135,6 +2148,7 @@ class CoachProfile {
         'dataSources': dataSources.map((k, v) => MapEntry(k, v.name)),
         'dataTimestamps': dataTimestamps.map(
             (k, v) => MapEntry(k, v.toIso8601String())),
+        'userProvidedFields': userProvidedFields.toList(),
         'createdAt': createdAt.toIso8601String(),
         'updatedAt': updatedAt.toIso8601String(),
         'financialLiteracyLevel': financialLiteracyLevel.name,
@@ -2701,6 +2715,22 @@ class CoachProfile {
       }
     }
 
+    // ── Track which fields the user explicitly provided ──
+    // Used by profile drawer to avoid showing phantom default data.
+    final provided = <String>{};
+    if (firstName != null && firstName.isNotEmpty) provided.add('firstName');
+    if (answers.containsKey('q_birth_year') ||
+        answers.containsKey('q_date_of_birth')) {
+      provided.add('age');
+    }
+    if (answers.containsKey('q_canton')) provided.add('canton');
+    if (answers.containsKey('q_net_income_period_chf') ||
+        answers.containsKey('q_gross_salary_annual')) {
+      provided.add('salary');
+    }
+    if (answers.containsKey('q_civil_status')) provided.add('civilStatus');
+    if (answers.containsKey('q_nationality')) provided.add('nationality');
+
     return CoachProfile(
       firstName: firstName,
       birthYear: birthYear,
@@ -2734,6 +2764,7 @@ class CoachProfile {
           savedCreatedAt != null ? DateTime.tryParse(savedCreatedAt) : null,
       dataSources: restoredDataSources,
       dataTimestamps: initialTimestamps,
+      userProvidedFields: provided,
       financialLiteracyLevel: FinancialLiteracyLevel.values.firstWhere(
         (e) =>
             e.name ==
