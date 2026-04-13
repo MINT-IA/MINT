@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.6
 milestone_name: Le Coach Qui Marche
 status: verifying
-stopped_at: Completed 23-01-PLAN.md
-last_updated: "2026-04-13T18:23:39.089Z"
+stopped_at: Completed 24-01-PLAN.md
+last_updated: "2026-04-13T18:29:46.841Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 14
-  completed_phases: 9
-  total_plans: 16
-  completed_plans: 17
+  completed_phases: 10
+  total_plans: 17
+  completed_plans: 18
   percent: 100
 ---
 
@@ -72,6 +72,7 @@ Progress: [##########] 100%
 | 22 | 1 | - | - |
 | Phase 23 P01 | 7min | 2 tasks | 4 files |
 | 23 | 1 | - | - |
+| Phase 24 P01 | 3min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,7 @@ Progress: [##########] 100%
 - [Phase 22]: Response length directive (3-5 phrases) placed above FORMAT section in system prompt
 - [Phase 23]: Auto-grant document_upload consent on first upload -- user action IS informed consent per nLPD
 - [Phase 23]: Vision API as PDF fallback when Docling backend unavailable
+- [Phase 24]: Remove hardcoded suggestion chip defaults; derive chips from LLM route_to_screen tool calls
 
 ### From Previous Milestones
 
@@ -133,8 +135,8 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T18:22:58.553Z
-Stopped at: Completed 23-01-PLAN.md
+Last session: 2026-04-13T18:29:46.838Z
+Stopped at: Completed 24-01-PLAN.md
 Resume file: None
 
 ---

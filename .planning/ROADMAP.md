@@ -225,7 +225,7 @@ Plans:
 **Plans**: TBD
 
 Plans:
-- [ ] 24-01: TBD
+- [x] 24-01: TBD
 
 ### Phase 25: Profile & Data Integrity
 **Goal**: Profile drawer shows accurate, complete, non-truncated user data -- what MINT knows matches what user provided
@@ -266,7 +266,7 @@ Integration checker after phases 22, 24, and 26.
 | 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 22. Coach Chat UX | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 23. Document Scanner Pipeline | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
+| 24. Coach Widgets & Suggestions | v2.6 | 1/1 | Complete   | 2026-04-13 |
 | 25. Profile & Data Integrity | v2.6 | 0/TBD | Not Started | — |
 | 26. Navigation Coherence | v2.6 | 0/TBD | Not Started | — |
 
