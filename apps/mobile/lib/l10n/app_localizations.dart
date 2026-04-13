@@ -19291,10 +19291,10 @@ abstract class S {
   /// **'Outils essentiels et événements de vie — tout est là.'**
   String get timelineSubheader;
 
-  /// No description provided for @timelineSectionTitle.
+  /// Timeline section divider label.
   ///
   /// In fr, this message translates to:
-  /// **'Événements de vie'**
+  /// **'Ton histoire'**
   String get timelineSectionTitle;
 
   /// No description provided for @timelineSectionSubtitle.
@@ -39494,6 +39494,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Pour acheter, tu mets une partie de ton 2e pilier dans les murs. Ton futur toi à la retraite, il en pense quoi ?'**
   String get coachGreetingRandom20;
+
+  /// Timeline node title for a completed commitment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement tenu'**
+  String get timelineCommitmentEarned;
+
+  /// Timeline node title for an active commitment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Engagement en cours'**
+  String get timelineCommitmentActive;
+
+  /// Timeline node title for a past conversation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversation'**
+  String get timelineConversation;
+
+  /// Timeline node title for couple partner estimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation partenaire'**
+  String get timelineCoupleEstimate;
+
+  /// Timeline node title for a future projection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projection'**
+  String get timelineProjection;
+
+  /// Timeline node title for an uploaded document.
+  ///
+  /// In fr, this message translates to:
+  /// **'Document ajouté'**
+  String get timelineDocument;
+
+  /// Empty timeline placeholder text.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton histoire financière se construit ici.'**
+  String get timelineEmpty;
+
+  /// Button to load more timeline nodes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charger plus'**
+  String get timelineLoadMore;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

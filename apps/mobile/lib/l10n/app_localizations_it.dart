@@ -10897,7 +10897,7 @@ class SIt extends S {
       'Strumenti essenziali ed eventi di vita — tutto è qui.';
 
   @override
-  String get timelineSectionTitle => 'Eventi di vita';
+  String get timelineSectionTitle => 'La tua storia';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22574,4 +22574,28 @@ class SIt extends S {
   @override
   String get coachGreetingRandom20 =>
       'Per comprare casa, prendi una parte del tuo 2° pilastro e la metti nei muri. Il te stesso del futuro, cosa ne pensa?';
+
+  @override
+  String get timelineCommitmentEarned => 'Impegno mantenuto';
+
+  @override
+  String get timelineCommitmentActive => 'Impegno attivo';
+
+  @override
+  String get timelineConversation => 'Conversazione';
+
+  @override
+  String get timelineCoupleEstimate => 'Stima del partner';
+
+  @override
+  String get timelineProjection => 'Proiezione';
+
+  @override
+  String get timelineDocument => 'Documento aggiunto';
+
+  @override
+  String get timelineEmpty => 'La tua storia finanziaria inizia qui.';
+
+  @override
+  String get timelineLoadMore => 'Carica altro';
 }

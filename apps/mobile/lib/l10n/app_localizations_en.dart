@@ -10824,7 +10824,7 @@ class SEn extends S {
       'Essential tools and life events — everything is here.';
 
   @override
-  String get timelineSectionTitle => 'Life events';
+  String get timelineSectionTitle => 'Your story';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22404,4 +22404,28 @@ class SEn extends S {
   @override
   String get coachGreetingRandom20 =>
       'To buy property, you take part of your pension fund and put it in the walls. What does future-you think about that?';
+
+  @override
+  String get timelineCommitmentEarned => 'Commitment kept';
+
+  @override
+  String get timelineCommitmentActive => 'Active commitment';
+
+  @override
+  String get timelineConversation => 'Conversation';
+
+  @override
+  String get timelineCoupleEstimate => 'Partner estimate';
+
+  @override
+  String get timelineProjection => 'Projection';
+
+  @override
+  String get timelineDocument => 'Document added';
+
+  @override
+  String get timelineEmpty => 'Your financial story starts here.';
+
+  @override
+  String get timelineLoadMore => 'Load more';
 }

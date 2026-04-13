@@ -10879,7 +10879,7 @@ class SEs extends S {
       'Herramientas esenciales y eventos de vida — todo está aquí.';
 
   @override
-  String get timelineSectionTitle => 'Eventos de vida';
+  String get timelineSectionTitle => 'Tu historia';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22513,4 +22513,28 @@ class SEs extends S {
   @override
   String get coachGreetingRandom20 =>
       'Para comprar, metes parte de tu 2° pilar en las paredes. Tu yo futuro jubilado, ¿qué opina?';
+
+  @override
+  String get timelineCommitmentEarned => 'Compromiso cumplido';
+
+  @override
+  String get timelineCommitmentActive => 'Compromiso activo';
+
+  @override
+  String get timelineConversation => 'Conversación';
+
+  @override
+  String get timelineCoupleEstimate => 'Estimación de pareja';
+
+  @override
+  String get timelineProjection => 'Proyección';
+
+  @override
+  String get timelineDocument => 'Documento añadido';
+
+  @override
+  String get timelineEmpty => 'Tu historia financiera comienza aquí.';
+
+  @override
+  String get timelineLoadMore => 'Cargar más';
 }

@@ -10885,7 +10885,7 @@ class SFr extends S {
       'Outils essentiels et événements de vie — tout est là.';
 
   @override
-  String get timelineSectionTitle => 'Événements de vie';
+  String get timelineSectionTitle => 'Ton histoire';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22516,4 +22516,28 @@ class SFr extends S {
   @override
   String get coachGreetingRandom20 =>
       'Pour acheter, tu mets une partie de ton 2e pilier dans les murs. Ton futur toi à la retraite, il en pense quoi ?';
+
+  @override
+  String get timelineCommitmentEarned => 'Engagement tenu';
+
+  @override
+  String get timelineCommitmentActive => 'Engagement en cours';
+
+  @override
+  String get timelineConversation => 'Conversation';
+
+  @override
+  String get timelineCoupleEstimate => 'Estimation partenaire';
+
+  @override
+  String get timelineProjection => 'Projection';
+
+  @override
+  String get timelineDocument => 'Document ajouté';
+
+  @override
+  String get timelineEmpty => 'Ton histoire financière se construit ici.';
+
+  @override
+  String get timelineLoadMore => 'Charger plus';
 }

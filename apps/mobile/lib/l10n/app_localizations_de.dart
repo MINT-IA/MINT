@@ -10904,7 +10904,7 @@ class SDe extends S {
       'Wesentliche Tools und Lebensereignisse — alles hier.';
 
   @override
-  String get timelineSectionTitle => 'Lebensereignisse';
+  String get timelineSectionTitle => 'Deine Geschichte';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22567,4 +22567,28 @@ class SDe extends S {
   @override
   String get coachGreetingRandom20 =>
       'Zum Kaufe nimmsch en Teil vo dinere Pensionskasse und stecksch en i d\'Wänd. Was dänkt dis zukünftige Ich dezue?';
+
+  @override
+  String get timelineCommitmentEarned => 'Engagement eingehalten';
+
+  @override
+  String get timelineCommitmentActive => 'Aktives Engagement';
+
+  @override
+  String get timelineConversation => 'Gespräch';
+
+  @override
+  String get timelineCoupleEstimate => 'Partnerschätzung';
+
+  @override
+  String get timelineProjection => 'Projektion';
+
+  @override
+  String get timelineDocument => 'Dokument hinzugefügt';
+
+  @override
+  String get timelineEmpty => 'Deine finanzielle Geschichte beginnt hier.';
+
+  @override
+  String get timelineLoadMore => 'Mehr laden';
 }

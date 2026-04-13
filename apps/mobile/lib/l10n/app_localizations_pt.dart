@@ -10875,7 +10875,7 @@ class SPt extends S {
       'Ferramentas essenciais e eventos de vida — tudo está aqui.';
 
   @override
-  String get timelineSectionTitle => 'Eventos de vida';
+  String get timelineSectionTitle => 'A tua história';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22519,4 +22519,28 @@ class SPt extends S {
   @override
   String get coachGreetingRandom20 =>
       'Para comprar, tiras uma parte do teu 2° pilar e metes nas paredes. O teu eu futuro na reforma, o que acha?';
+
+  @override
+  String get timelineCommitmentEarned => 'Compromisso cumprido';
+
+  @override
+  String get timelineCommitmentActive => 'Compromisso ativo';
+
+  @override
+  String get timelineConversation => 'Conversa';
+
+  @override
+  String get timelineCoupleEstimate => 'Estimativa do parceiro';
+
+  @override
+  String get timelineProjection => 'Projeção';
+
+  @override
+  String get timelineDocument => 'Documento adicionado';
+
+  @override
+  String get timelineEmpty => 'A tua história financeira começa aqui.';
+
+  @override
+  String get timelineLoadMore => 'Carregar mais';
 }
