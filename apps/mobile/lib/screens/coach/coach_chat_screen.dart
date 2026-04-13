@@ -583,6 +583,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+    _focusNode.unfocus();
 
     // AUTH NOTE: Auth gate was moved AFTER SLM attempt (see _handleStandardResponse).
     // Anonymous users CAN chat via SLM (on-device, no auth needed).

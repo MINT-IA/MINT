@@ -22428,4 +22428,7 @@ class SEn extends S {
 
   @override
   String get timelineLoadMore => 'Load more';
+
+  @override
+  String get coachDisclaimerCollapsed => 'Educational tool — view disclaimer';
 }

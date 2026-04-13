@@ -22537,4 +22537,8 @@ class SEs extends S {
 
   @override
   String get timelineLoadMore => 'Cargar más';
+
+  @override
+  String get coachDisclaimerCollapsed =>
+      'Herramienta educativa — ver disclaimer';
 }

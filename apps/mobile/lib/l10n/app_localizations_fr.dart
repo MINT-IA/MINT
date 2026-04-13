@@ -22540,4 +22540,7 @@ class SFr extends S {
 
   @override
   String get timelineLoadMore => 'Charger plus';
+
+  @override
+  String get coachDisclaimerCollapsed => 'Outil éducatif — voir le disclaimer';
 }

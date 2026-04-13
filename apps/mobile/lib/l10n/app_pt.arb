@@ -10482,5 +10482,7 @@
   "timelineEmpty": "A tua hist\u00f3ria financeira come\u00e7a aqui.",
   "@timelineEmpty": {"description": "Empty timeline placeholder text."},
   "timelineLoadMore": "Carregar mais",
-  "@timelineLoadMore": {"description": "Button to load more timeline nodes."}
+  "@timelineLoadMore": {"description": "Button to load more timeline nodes."},
+  "coachDisclaimerCollapsed": "Ferramenta educativa \u2014 ver disclaimer",
+  "@coachDisclaimerCollapsed": {"description": "Collapsed disclaimer one-liner in coach chat."}
 }

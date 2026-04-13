@@ -22598,4 +22598,8 @@ class SIt extends S {
 
   @override
   String get timelineLoadMore => 'Carica altro';
+
+  @override
+  String get coachDisclaimerCollapsed =>
+      'Strumento educativo — vedi disclaimer';
 }

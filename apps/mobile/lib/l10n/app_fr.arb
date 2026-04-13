@@ -11038,5 +11038,7 @@
   "timelineEmpty": "Ton histoire financi\u00e8re se construit ici.",
   "@timelineEmpty": {"description": "Empty timeline placeholder text."},
   "timelineLoadMore": "Charger plus",
-  "@timelineLoadMore": {"description": "Button to load more timeline nodes."}
+  "@timelineLoadMore": {"description": "Button to load more timeline nodes."},
+  "coachDisclaimerCollapsed": "Outil \u00e9ducatif \u2014 voir le disclaimer",
+  "@coachDisclaimerCollapsed": {"description": "Collapsed disclaimer one-liner in coach chat."}
 }

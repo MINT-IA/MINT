@@ -22543,4 +22543,8 @@ class SPt extends S {
 
   @override
   String get timelineLoadMore => 'Carregar mais';
+
+  @override
+  String get coachDisclaimerCollapsed =>
+      'Ferramenta educativa — ver disclaimer';
 }

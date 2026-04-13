@@ -22591,4 +22591,7 @@ class SDe extends S {
 
   @override
   String get timelineLoadMore => 'Mehr laden';
+
+  @override
+  String get coachDisclaimerCollapsed => 'Bildungstool — Disclaimer anzeigen';
 }

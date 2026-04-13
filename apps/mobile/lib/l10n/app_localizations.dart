@@ -39542,6 +39542,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Charger plus'**
   String get timelineLoadMore;
+
+  /// Collapsed disclaimer one-liner in coach chat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outil éducatif — voir le disclaimer'**
+  String get coachDisclaimerCollapsed;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
