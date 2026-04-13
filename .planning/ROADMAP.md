@@ -148,7 +148,7 @@ Each phase must pass device gate before the next begins.
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 16. Couple Mode Dissymetrique | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 1/1 | Complete    | 2026-04-12 |
-| 18. Living Timeline -- Full Timeline | v2.5 | 1/1 | Complete   | 2026-04-13 |
+| 18. Living Timeline -- Full Timeline | v2.5 | 1/1 | Complete    | 2026-04-13 |
 
 ---
 *Roadmap created: 2026-04-12*
