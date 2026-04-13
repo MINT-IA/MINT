@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'dart:io';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'dart:ui' as ui;
@@ -675,6 +674,65 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
   }
 
+  /// Vision API fallback for PDF files when backend Docling fails.
+  /// Reads PDF bytes, encodes to base64, and calls Claude Vision extraction.
+  Future<ExtractionResult?> _tryVisionExtractionFromPdf(String pdfPath) async {
+    // Read context-dependent values BEFORE async gap
+    final canton = Provider.of<CoachProfileProvider>(context, listen: false)
+        .profile?.canton;
+    final visionDisclaimer = S.of(context)!.documentVisionDisclaimer;
+    try {
+      final bytes = await File(pdfPath).readAsBytes();
+      final base64Pdf = base64Encode(bytes);
+
+      final response = await DocumentService.extractWithVision(
+        imageBase64: base64Pdf,
+        documentType: _selectedType.name
+            .replaceAllMapped(RegExp(r'[A-Z]'), (m) => '_${m[0]!.toLowerCase()}'),
+        canton: canton,
+        languageHint: 'fr',
+      );
+
+      if (response == null) return null;
+
+      final extractedFields = (response['extractedFields'] as List?)
+          ?.map<ExtractedField>((f) {
+            final map = f as Map<String, dynamic>;
+            final conf = _parseConfidence(map['confidence'] as String?);
+            return ExtractedField(
+              fieldName: map['fieldName'] as String? ?? '',
+              label: map['fieldName'] as String? ?? '',
+              value: map['value'],
+              confidence: conf,
+              sourceText: (map['sourceText'] as String?) ?? '',
+              profileField: map['fieldName'] as String?,
+              needsReview: conf < 0.80,
+            );
+          })
+          .toList();
+
+      if (extractedFields == null || extractedFields.isEmpty) return null;
+
+      return ExtractionResult(
+        documentType: _selectedType,
+        fields: extractedFields,
+        overallConfidence: (response['overallConfidence'] as num?)?.toDouble() ?? 0.5,
+        confidenceDelta: _confidenceDeltaForType(_selectedType),
+        warnings: const [],
+        disclaimer: visionDisclaimer,
+        sources: const ['Claude Vision API (PDF)'],
+        planType: response['planType'] as String?,
+        planTypeWarning: response['planTypeWarning'] as String?,
+        coherenceWarnings: (response['coherenceWarnings'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ?? const [],
+      );
+    } catch (e) {
+      debugPrint('[DocumentScan] Vision PDF fallback failed: $e');
+      return null;
+    }
+  }
+
   double _parseConfidence(String? level) {
     return switch (level) {
       'high' => 0.95,
@@ -812,12 +870,20 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       return;
     }
 
-    if (!kIsWeb && _selectedType == DocumentType.lppCertificate) {
+    if (!kIsWeb) {
       final parse = await _processPdfViaBackend(localPath);
       if (parse.success) return;
       if (parse.requiresAuthentication) {
         await _showPdfAuthRequiredSheet();
         return;
+      }
+      // Fallback: try Vision API with PDF bytes as base64
+      if (!parse.success && !parse.requiresAuthentication) {
+        final visionResult = await _tryVisionExtractionFromPdf(localPath);
+        if (visionResult != null && mounted) {
+          await context.push('/scan/review', extra: visionResult);
+          return;
+        }
       }
       if (!mounted) return;
       await _showPdfImportFallback(
@@ -830,9 +896,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     if (!mounted) return;
     await _showPdfImportFallback(
       title: S.of(context)!.docScanPdfDetected,
-      message: _selectedType == DocumentType.lppCertificate
-          ? S.of(context)!.docScanPdfNotAvailable
-          : S.of(context)!.docScanPdfOptimizedLpp,
+      message: S.of(context)!.docScanPdfNotAvailable,
     );
   }
 
@@ -1202,8 +1266,18 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     }
   }
 
+  /// Map scan-screen DocumentType to backend VaultDocumentType.
+  VaultDocumentType _toVaultType(DocumentType type) {
+    return switch (type) {
+      DocumentType.lppCertificate => VaultDocumentType.lppCertificate,
+      DocumentType.salaryCertificate => VaultDocumentType.salaryCertificate,
+      DocumentType.threeAAttestation => VaultDocumentType.pillar3aAttestation,
+      _ => VaultDocumentType.other,
+    };
+  }
+
   Future<_PdfParseResult> _processPdfViaBackend(String path) async {
-    if (kIsWeb || _selectedType != DocumentType.lppCertificate) {
+    if (kIsWeb) {
       return _PdfParseResult(
         success: false,
         errorMessage:
@@ -1215,7 +1289,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     try {
       final upload = await DocumentService().uploadDocument(
         File(path),
-        type: VaultDocumentType.lppCertificate,
+        type: _toVaultType(_selectedType),
       );
       final extraction = _mapLppUploadToExtraction(upload);
       if (extraction.fields.isEmpty) {
