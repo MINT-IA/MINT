@@ -132,8 +132,8 @@ class ComplianceGuard {
   static final List<RegExp> prescriptivePatterns = [
     RegExp(r'fais\s+un\s+rachat', caseSensitive: false),
     RegExp(r'verse\s+sur\s+ton', caseSensitive: false),
-    RegExp(r'ach[eè]te', caseSensitive: false),
-    RegExp(r'vends\b', caseSensitive: false),
+    RegExp(r'\bach[eè]te\b', caseSensitive: false),
+    RegExp(r'\bvends\b', caseSensitive: false),
     RegExp(r'choisis\s+la\s+rente', caseSensitive: false),
     RegExp(r'prends?\s+le\s+capital', caseSensitive: false),
     RegExp(r'investis?\s+(?:dans|\d)', caseSensitive: false),
@@ -142,8 +142,8 @@ class ComplianceGuard {
     RegExp(r'priorit[ée]\s+absolue', caseSensitive: false),
     RegExp("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", caseSensitive: false),
     RegExp(r'souscris\b', caseSensitive: false),
-    RegExp(r'rach[eè]te\b', caseSensitive: false),
-    RegExp(r'transf[eè]re\b', caseSensitive: false),
+    RegExp(r'\brach[eè]te\b', caseSensitive: false),
+    RegExp(r'\btransf[eè]re\b', caseSensitive: false),
     // Social comparison patterns (GAP #2: ranking users against others)
     RegExp(r'top\s+\d+\s*%', caseSensitive: false),
     RegExp(r'meilleur\s+que\s+\d+\s*%', caseSensitive: false),
@@ -296,10 +296,16 @@ class ComplianceGuard {
     }
 
     // Layer 2: Prescriptive language
+    // NOTE: useFallback only if 3+ matches (same threshold as banned terms).
+    // Single prescriptive matches are logged but NOT cause for rejection —
+    // too many false positives with conversational French (e.g. "rachète"
+    // in "potentiel de rachat", "achète" in "si tu achètes un bien").
     final prescriptiveFound = _checkPrescriptive(text);
     if (prescriptiveFound.isNotEmpty) {
       violations.addAll(prescriptiveFound.map((p) => "Langage prescriptif: '$p'"));
-      useFallback = true;
+      if (prescriptiveFound.length > 2) {
+        useFallback = true;
+      }
     }
 
     // Layer 3: Hallucination detection

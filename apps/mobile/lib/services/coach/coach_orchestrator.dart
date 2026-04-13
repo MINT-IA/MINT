@@ -807,11 +807,16 @@ class CoachOrchestrator {
           context: ctx,
           componentType: ComponentType.general,
         );
-      } catch (_) {
+      } catch (e) {
+        debugPrint('[Orchestrator] ComplianceGuard threw: $e');
         return null;
       }
 
-      if (compliance.useFallback) return null;
+      if (compliance.useFallback) {
+        debugPrint('[Orchestrator] ComplianceGuard rejected response: ${compliance.violations}');
+        debugPrint('[Orchestrator] First 200 chars: ${response.message.substring(0, response.message.length.clamp(0, 200))}');
+        return null;
+      }
 
       var text = compliance.sanitizedText.isNotEmpty
           ? compliance.sanitizedText
