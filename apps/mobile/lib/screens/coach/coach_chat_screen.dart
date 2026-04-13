@@ -484,6 +484,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           final widget = ChatDrawerHost.resolveDrawerWidget(route);
           if (widget != null) {
             showChatDrawer(context: context, child: widget);
+          } else {
+            // NAV-03/WID-03: Routes without drawer support (e.g. /scan,
+            // /profile/bilan) fall back to standard push navigation.
+            context.push(route);
           }
         },
       ),
