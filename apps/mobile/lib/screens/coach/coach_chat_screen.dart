@@ -781,10 +781,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ? parseResult.cleanText
         : complianceText;
 
-    final suggestedActions = compliance.useFallback
-        ? null
-        : _inferSuggestedActions(userMessage, finalText);
-
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
         ? ResponseCardService.generateForChat(_profile!, userMessage, l: S.of(context)!)
@@ -793,12 +789,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
+    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
+    final inferredActions = compliance.useFallback
+        ? <String>[]
+        : _inferSuggestedActions(userMessage, finalText);
+    final routeChips = _extractRouteChips(richCalls);
+    final suggestedActions = <String>{
+      ...inferredActions,
+      ...routeChips,
+    }.take(4).toList();
+
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: finalText,
         timestamp: DateTime.now(),
-        suggestedActions: suggestedActions,
+        suggestedActions: suggestedActions.isEmpty ? null : suggestedActions,
         responseCards: cards,
         tier: ChatTier.slm,
         richToolCalls: richCalls,
@@ -844,11 +850,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ? parseResult.cleanText
           : response.message;
 
-      // Use LLM-provided suggestions if available, otherwise infer from
-      // both the user message and the coach response.
-      final suggestedActions = response.suggestedActions ??
-          _inferSuggestedActions(text, cleanMessage);
-
       // T-02-06: normalize and cap tool calls via ChatToolDispatcher.
       // STAB-03 / STAB-04: merge structured toolCalls from the orchestrator
       // (BYOK path — Claude tool_use blocks re-exposed by CoachLlmService.chat)
@@ -860,6 +861,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...structuredCalls,
         ...markerCalls,
       ].take(5).toList();
+
+      // UX-04: Use LLM-provided suggestions if available, otherwise infer
+      // from conversation context. Enrich with route_to_screen tool calls
+      // so the coach's navigation proposals also appear as tappable chips.
+      final inferredActions = response.suggestedActions ??
+          _inferSuggestedActions(text, cleanMessage);
+      final routeChips = _extractRouteChips(richCalls);
+      final suggestedActions = <String>{
+        ...inferredActions,
+        ...routeChips,
+      }.take(4).toList();
 
       setState(() {
         _messages.add(ChatMessage(
@@ -1228,11 +1240,35 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
     }
 
-    if (actions.isEmpty) {
-      return [s.coachSuggestFitness, s.coachSuggestRetirement];
-    }
+    // UX-04: No hardcoded defaults. Chips appear ONLY when the
+    // conversation matches a topic regex — otherwise the list is empty
+    // and no chips are shown. This prevents static/irrelevant chips
+    // from appearing after every response regardless of context.
     // Deduplicate and cap at 3
     return actions.toSet().take(3).toList();
+  }
+
+  /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
+  ///
+  /// When the LLM returns a route_to_screen tool call, it includes a
+  /// context_message explaining why the user should navigate there.
+  /// We surface these as tappable suggestion chips so the user has
+  /// both the inline card AND a quick-tap chip option.
+  List<String> _extractRouteChips(List<RagToolCall> toolCalls) {
+    final chips = <String>[];
+    for (final call in toolCalls) {
+      if (call.name != 'route_to_screen') continue;
+      final contextMsg = call.input['context_message'] as String? ??
+          call.input['narrative'] as String?;
+      if (contextMsg != null && contextMsg.isNotEmpty) {
+        // Cap chip text at 60 chars for UI readability
+        final label = contextMsg.length > 60
+            ? '${contextMsg.substring(0, 57)}...'
+            : contextMsg;
+        chips.add(label);
+      }
+    }
+    return chips;
   }
 
   /// Map suggested action labels to direct navigation routes.
