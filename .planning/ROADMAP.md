@@ -265,7 +265,7 @@ Integration checker after phases 22, 24, and 26.
 | 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 22. Coach Chat UX | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 23. Document Scanner Pipeline | v2.6 | 1/1 | Complete   | 2026-04-13 |
+| 23. Document Scanner Pipeline | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
 | 25. Profile & Data Integrity | v2.6 | 0/TBD | Not Started | — |
 | 26. Navigation Coherence | v2.6 | 0/TBD | Not Started | — |
