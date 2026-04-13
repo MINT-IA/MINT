@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.5
 milestone_name: Transformation
 status: verifying
-stopped_at: Completed 17-01-PLAN.md
-last_updated: "2026-04-12T19:08:27.455Z"
-last_activity: 2026-04-12
+stopped_at: Completed 18-01-PLAN.md
+last_updated: "2026-04-13T05:40:37.999Z"
+last_activity: 2026-04-13
 progress:
   total_phases: 6
-  completed_phases: 5
-  total_plans: 12
-  completed_plans: 12
+  completed_phases: 6
+  total_plans: 13
+  completed_plans: 13
   percent: 100
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-12)
 
 **Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 17 — Living Timeline 3 Tensions
+**Current focus:** Phase 18 — Living Timeline Full Timeline
 
 ## Current Position
 
-Phase: 18
-Plan: Not started
+Phase: 18 (Living Timeline Full Timeline) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
-Last activity: 2026-04-12
+Last activity: 2026-04-13
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -64,6 +64,7 @@ Progress: [░░░░░░░░░░] 0%
 | 16 | 2 | - | - |
 | Phase 17 P01 | 6min | 2 tasks | 15 files |
 | 17 | 1 | - | - |
+| Phase 18 P01 | 5min | 2 tasks | 19 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 16]: degradeForPartnerEstimate as static method on ConfidenceScorer — minimal surface, callers opt-in
 - [Phase 17]: Auth-aware GoRoute builder using context.watch<AuthProvider>() for reactive routing
 - [Phase 17]: Tension card i18n keys stored as string IDs in model, resolved at widget level via S.of(context)
+- [Phase 18]: TimelineProvider extends TensionCardProvider (IS-A) so existing tension card consumers work via type hierarchy
 
 ### From Previous Milestones
 
@@ -117,8 +119,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-12T19:04:56.431Z
-Stopped at: Completed 17-01-PLAN.md
+Last session: 2026-04-13T05:40:37.997Z
+Stopped at: Completed 18-01-PLAN.md
 Resume file: None
 
 ---

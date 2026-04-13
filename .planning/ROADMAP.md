@@ -38,7 +38,7 @@ MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transform
 - [x] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware (completed 2026-04-12)
 - [x] **Phase 16: Couple Mode Dissymetrique** - One partner enters estimates, gets 5 questions to ask, couple projections with honest confidence (completed 2026-04-12)
 - [x] **Phase 17: Living Timeline -- 3 Tensions** - Aujourd'hui shows 3 tension cards (past/present/future) as living placeholder (completed 2026-04-12)
-- [ ] **Phase 18: Living Timeline -- Full Timeline** - Single-screen center of gravity aggregating all previous phases into timeline nodes
+- [x] **Phase 18: Living Timeline -- Full Timeline** - Single-screen center of gravity aggregating all previous phases into timeline nodes (completed 2026-04-13)
 
 ## Phase Details
 
@@ -133,7 +133,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 18-01-PLAN.md -- TimelineNode model, TimelineProvider, node widgets, month headers, AujourdhuiScreen rebuild with CustomScrollView, i18n
+- [x] 18-01-PLAN.md -- TimelineNode model, TimelineProvider, node widgets, month headers, AujourdhuiScreen rebuild with CustomScrollView, i18n
 
 ## Progress
 
@@ -148,7 +148,7 @@ Each phase must pass device gate before the next begins.
 | 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 16. Couple Mode Dissymetrique | v2.5 | 2/2 | Complete    | 2026-04-12 |
 | 17. Living Timeline -- 3 Tensions | v2.5 | 1/1 | Complete    | 2026-04-12 |
-| 18. Living Timeline -- Full Timeline | v2.5 | 0/1 | Not started | - |
+| 18. Living Timeline -- Full Timeline | v2.5 | 1/1 | Complete   | 2026-04-13 |
 
 ---
 *Roadmap created: 2026-04-12*

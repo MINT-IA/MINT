@@ -49,9 +49,9 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 - [x] **TIME-01**: Aujourd'hui screen shows 3 tension cards (past earned, present pulsing, future ghosted) as living placeholder
 - [x] **TIME-02**: Tension cards update dynamically based on user interactions, documents uploaded, and coach conversations
-- [ ] **TIME-03**: Full living timeline replaces Aujourd'hui tab -- single-screen center of gravity with nodes (tap to reveal)
-- [ ] **TIME-04**: Documents, chat history, commitment intentions, couple data feed into timeline nodes
-- [ ] **TIME-05**: Timeline shows earned achievements (past), active tensions (present, pulsing), and projected scenarios (future, ghosted)
+- [x] **TIME-03**: Full living timeline replaces Aujourd'hui tab -- single-screen center of gravity with nodes (tap to reveal)
+- [x] **TIME-04**: Documents, chat history, commitment intentions, couple data feed into timeline nodes
+- [x] **TIME-05**: Timeline shows earned achievements (past), active tensions (present, pulsing), and projected scenarios (future, ghosted)
 
 ## v2.6+ Requirements (Deferred)
 
@@ -108,9 +108,9 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 | COUP-04 | Phase 16 | Complete |
 | TIME-01 | Phase 17 | Complete |
 | TIME-02 | Phase 17 | Complete |
-| TIME-03 | Phase 18 | Pending |
-| TIME-04 | Phase 18 | Pending |
-| TIME-05 | Phase 18 | Pending |
+| TIME-03 | Phase 18 | Complete |
+| TIME-04 | Phase 18 | Complete |
+| TIME-05 | Phase 18 | Complete |
 | LOOP-01 | Phase 13, 14, 15 | Complete |
 | LOOP-02 | Phase 14, 15 | Complete |
 | LOOP-03 | Phase 17, 18 | Complete |
