@@ -4,7 +4,7 @@ milestone: v2.6
 milestone_name: Le Coach Qui Marche
 status: verifying
 stopped_at: Completed 21-01-PLAN.md
-last_updated: "2026-04-13T17:45:54.282Z"
+last_updated: "2026-04-13T17:46:31.188Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 14
@@ -25,8 +25,8 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 20 (Coach Conversation Context) — COMPLETE
-Plan: 1 of 1 (complete)
+Phase: 22
+Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-04-13
 
@@ -36,7 +36,7 @@ Progress: [##########] 100%
 
 **Velocity:**
 
-- Total plans completed: 18 (from v2.4)
+- Total plans completed: 19 (from v2.4)
 - Average duration: ~6 min/plan
 - Total execution time: ~0.5 hours
 
@@ -67,6 +67,7 @@ Progress: [##########] 100%
 | Phase 18 P01 | 5min | 2 tasks | 19 files |
 | 18 | 1 | - | - |
 | Phase 21 P01 | 7min | 2 tasks | 4 files |
+| 21 | 1 | - | - |
 
 ## Accumulated Context
 
