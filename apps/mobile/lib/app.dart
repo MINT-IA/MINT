@@ -125,6 +125,7 @@ import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/tension_card_provider.dart';
+import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -1133,7 +1134,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
         ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
-        ChangeNotifierProvider(create: (_) => TensionCardProvider()),
+        ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
       ],
       child: Builder(
         builder: (context) {
