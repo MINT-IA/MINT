@@ -46,6 +46,7 @@ class RAGOrchestrator:
         tools: list[dict] | None = None,
         system_prompt: Optional[str] = None,
         user_id: Optional[str] = None,
+        conversation_history: list[dict] | None = None,
     ) -> dict:
         """
         Execute the full RAG pipeline.
@@ -119,6 +120,7 @@ class RAGOrchestrator:
             user_message=question,
             context_chunks=context_chunks,
             tools=tools,
+            conversation_history=conversation_history,
         )
 
         # Step 5: Handle tool_use responses vs plain text

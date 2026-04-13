@@ -101,6 +101,7 @@ class _NoRagOrchestrator:
         tools: list | None = None,
         system_prompt: Optional[str] = None,
         user_id: Optional[str] = None,
+        conversation_history: list[dict] | None = None,
     ) -> dict:
         from app.services.rag.llm_client import LLMClient
         from app.services.rag.guardrails import ComplianceGuardrails
@@ -118,6 +119,7 @@ class _NoRagOrchestrator:
             user_message=question,
             context_chunks=[],  # No RAG context
             tools=tools,
+            conversation_history=conversation_history,
         )
 
         tool_calls = None
@@ -347,6 +349,42 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
         + scrubbed
         + "\n--- FIN MÉMOIRE ---"
     )
+
+
+# ---------------------------------------------------------------------------
+# Conversation history sanitization
+# ---------------------------------------------------------------------------
+
+
+def _sanitize_conversation_history(
+    history: list[dict[str, str]] | None,
+) -> list[dict[str, str]] | None:
+    """Sanitize conversation history: PII scrub + injection filter + limit.
+
+    Threat mitigations:
+        T-20-01 (Tampering): role whitelist, 8-message cap, 500-char truncation
+        T-20-02 (PII): regex scrub on user messages
+        T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
+        T-20-04 (DoS): hard cap at 8 messages, 500 chars each
+    """
+    if not history:
+        return None
+    sanitized: list[dict[str, str]] = []
+    for msg in history[-8:]:  # hard cap at 8 messages
+        role = msg.get("role", "")
+        content = msg.get("content", "")
+        if role not in ("user", "assistant") or not content.strip():
+            continue
+        # Scrub PII from user messages
+        if role == "user":
+            for pattern in _PII_PATTERNS:
+                content = pattern.sub("[***]", content)
+            for pattern in _INJECTION_PATTERNS:
+                content = pattern.sub("", content)
+        # Truncate individual messages to 500 chars
+        content = content[:500]
+        sanitized.append({"role": role, "content": content})
+    return sanitized if sanitized else None
 
 
 # ---------------------------------------------------------------------------
@@ -1153,6 +1191,7 @@ async def _run_agent_loop(
     system_prompt: Optional[str] = None,
     user_id: Optional[str] = None,
     db: Optional[Session] = None,
+    conversation_history: list[dict] | None = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -1206,6 +1245,11 @@ async def _run_agent_loop(
             break
 
         try:
+            # Only include conversation_history on the first iteration.
+            # Subsequent iterations (tool result re-calls) already have
+            # context from the first call's response.
+            iter_history = conversation_history if iteration == 0 else None
+
             result = await asyncio.wait_for(
                 orchestrator.query(
                     question=current_question,
@@ -1217,6 +1261,7 @@ async def _run_agent_loop(
                     tools=stripped_tools,
                     system_prompt=system_prompt,
                     user_id=user_id,
+                    conversation_history=iter_history,
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
@@ -1410,6 +1455,7 @@ async def coach_chat(
     # Step 0: Sanitize inputs (PII whitelist + memory scrubbing)
     # ------------------------------------------------------------------
     safe_profile = _sanitize_profile_context(body.profile_context)
+    safe_history = _sanitize_conversation_history(body.conversation_history)
 
     # ------------------------------------------------------------------
     # Step 0.5: Resolve API key — BYOK or server-side default
@@ -1508,6 +1554,7 @@ async def coach_chat(
                 system_prompt=system_prompt,
                 user_id=_user.id if _user else None,
                 db=db,
+                conversation_history=safe_history,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )

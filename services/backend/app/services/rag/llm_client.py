@@ -60,6 +60,7 @@ class LLMClient:
         user_message: str,
         context_chunks: list[str],
         tools: list[dict] | None = None,
+        conversation_history: list[dict] | None = None,
     ) -> str | dict:
         """
         Generate a response using the configured LLM.
@@ -82,7 +83,8 @@ class LLMClient:
 
         if self.provider == "claude":
             return await self._call_claude(
-                system_prompt, augmented_message, tools=tools
+                system_prompt, augmented_message, tools=tools,
+                conversation_history=conversation_history,
             )
         elif self.provider == "openai":
             return await self._call_openai(system_prompt, augmented_message)
@@ -113,6 +115,7 @@ class LLMClient:
         system_prompt: str,
         user_message: str,
         tools: list[dict] | None = None,
+        conversation_history: list[dict] | None = None,
     ) -> str | dict:
         """Call the Anthropic Claude API, optionally with tool definitions.
 
@@ -129,13 +132,23 @@ class LLMClient:
 
         client = AsyncAnthropic(api_key=self.api_key, timeout=60.0)
         try:
+            # Build multi-turn messages array from conversation history.
+            # Prior exchanges give Claude context about what it already asked.
+            messages: list[dict] = []
+            if conversation_history:
+                for msg in conversation_history:
+                    role = msg.get("role", "user")
+                    content = msg.get("content", "")
+                    if role in ("user", "assistant") and content.strip():
+                        messages.append({"role": role, "content": content})
+            # Always append the current (augmented) user message last.
+            messages.append({"role": "user", "content": user_message})
+
             kwargs: dict = {
                 "model": self.model,
                 "max_tokens": 2048,
                 "system": system_prompt,
-                "messages": [
-                    {"role": "user", "content": user_message},
-                ],
+                "messages": messages,
             }
             if tools:
                 kwargs["tools"] = tools
