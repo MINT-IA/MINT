@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 18
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-13
+Phase: 20 (Coach Conversation Context) — COMPLETE
+Plan: 1 of 1 (complete)
+Status: Phase 20 complete — ready for next phase
+Last activity: 2026-04-13 -- Phase 20 plan 01 complete
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -98,6 +98,7 @@ Progress: [░░░░░░░░░░] 0%
 - [Phase 17]: Auth-aware GoRoute builder using context.watch<AuthProvider>() for reactive routing
 - [Phase 17]: Tension card i18n keys stored as string IDs in model, resolved at widget level via S.of(context)
 - [Phase 18]: TimelineProvider extends TensionCardProvider (IS-A) so existing tension card consumers work via type hierarchy
+- [Phase 20]: Conversation history as structured messages array (not concatenated text) for proper multi-turn Claude API; history only on first agent loop iteration
 
 ### From Previous Milestones
 
@@ -120,8 +121,8 @@ Progress: [░░░░░░░░░░] 0%
 
 ## Session Continuity
 
-Last session: 2026-04-13T05:40:37.997Z
-Stopped at: Completed 18-01-PLAN.md
+Last session: 2026-04-13T11:49:29Z
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None
 
 ---
