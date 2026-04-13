@@ -196,10 +196,10 @@ Plans:
   2. Keyboard dismisses on send, chat scrolls to response
   3. Long responses use progressive disclosure -- no walls of text
   4. Disclaimer is a single compact expandable line
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 22-01: TBD
+- [ ] 22-01-PLAN.md -- Markdown rendering, keyboard dismiss, response length directive, collapsible disclaimers
 
 ### Phase 23: Document Scanner Pipeline
 **Goal**: User uploads a PDF, MINT parses it, stores data in dossier, and coach references it in future conversations
@@ -264,7 +264,7 @@ Integration checker after phases 22, 24, and 26.
 | 19. Auth State Propagation | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 22. Coach Chat UX | v2.6 | 0/TBD | Not Started | — |
+| 22. Coach Chat UX | v2.6 | 0/1 | Not Started | — |
 | 23. Document Scanner Pipeline | v2.6 | 0/TBD | Not Started | — |
 | 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
 | 25. Profile & Data Integrity | v2.6 | 0/TBD | Not Started | — |
@@ -272,4 +272,4 @@ Integration checker after phases 22, 24, and 26.
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-13 — Phase 21 planned (1 plan)*
+*Last updated: 2026-04-13 — Phase 22 planned (1 plan)*
