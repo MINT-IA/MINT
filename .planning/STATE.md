@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.6
 milestone_name: Le Coach Qui Marche
 status: verifying
-stopped_at: Completed 24-01-PLAN.md
-last_updated: "2026-04-13T18:29:46.841Z"
+stopped_at: Completed 25-01-PLAN.md
+last_updated: "2026-04-13T18:40:42.818Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 14
   completed_phases: 10
   total_plans: 17
-  completed_plans: 18
+  completed_plans: 19
   percent: 100
 ---
 
@@ -25,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 ## Current Position
 
-Phase: 24
+Phase: 25
 Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-04-13
@@ -36,7 +36,7 @@ Progress: [##########] 100%
 
 **Velocity:**
 
-- Total plans completed: 21 (from v2.4)
+- Total plans completed: 22 (from v2.4)
 - Average duration: ~6 min/plan
 - Total execution time: ~0.5 hours
 
@@ -73,6 +73,8 @@ Progress: [##########] 100%
 | Phase 23 P01 | 7min | 2 tasks | 4 files |
 | 23 | 1 | - | - |
 | Phase 24 P01 | 3min | 3 tasks | 1 files |
+| 24 | 1 | - | - |
+| Phase 25 P01 | 8min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -113,6 +115,7 @@ Progress: [##########] 100%
 - [Phase 23]: Auto-grant document_upload consent on first upload -- user action IS informed consent per nLPD
 - [Phase 23]: Vision API as PDF fallback when Docling backend unavailable
 - [Phase 24]: Remove hardcoded suggestion chip defaults; derive chips from LLM route_to_screen tool calls
+- [Phase 25]: Track user-provided fields via Set on CoachProfile to distinguish user-entered vs default data
 
 ### From Previous Milestones
 
@@ -135,8 +138,8 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T18:29:46.838Z
-Stopped at: Completed 24-01-PLAN.md
+Last session: 2026-04-13T18:40:29.275Z
+Stopped at: Completed 25-01-PLAN.md
 Resume file: None
 
 ---
