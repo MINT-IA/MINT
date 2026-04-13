@@ -182,10 +182,10 @@ Zero nouvelle feature. Fix every pipe. Gate 0 walkthrough as source of truth.
 **Success Criteria**:
   1. User mentions salary, closes app, reopens next day -- coach references salary without being told again
   2. User who discussed LPP gets response referencing their specific LPP situation, not generic advice
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 21-01: TBD
+- [ ] 21-01-PLAN.md -- Fix save_insight DB persistence + insight memory block injection + retrieve_memories DB search
 
 ### Phase 22: Coach Chat UX
 **Goal**: Coach responses look polished -- Markdown rendered, keyboard handled, text chunked, disclaimers unobtrusive
@@ -263,7 +263,7 @@ Integration checker after phases 22, 24, and 26.
 |-------|-----------|----------------|--------|-----------|
 | 19. Auth State Propagation | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
-| 21. Coach Memory & Dossier | v2.6 | 0/TBD | Not Started | — |
+| 21. Coach Memory & Dossier | v2.6 | 0/1 | Not Started | — |
 | 22. Coach Chat UX | v2.6 | 0/TBD | Not Started | — |
 | 23. Document Scanner Pipeline | v2.6 | 0/TBD | Not Started | — |
 | 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
@@ -272,4 +272,4 @@ Integration checker after phases 22, 24, and 26.
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-13 — v2.6 phases added*
+*Last updated: 2026-04-13 — Phase 21 planned (1 plan)*
