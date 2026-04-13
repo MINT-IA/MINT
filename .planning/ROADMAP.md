@@ -268,7 +268,7 @@ Integration checker after phases 22, 24, and 26.
 | 23. Document Scanner Pipeline | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 24. Coach Widgets & Suggestions | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 25. Profile & Data Integrity | v2.6 | 1/0 | Complete    | 2026-04-13 |
-| 26. Navigation Coherence | v2.6 | 1/1 | Complete   | 2026-04-13 |
+| 26. Navigation Coherence | v2.6 | 1/1 | Complete    | 2026-04-13 |
 
 ---
 *Roadmap created: 2026-04-12*
