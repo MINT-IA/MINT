@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.6
 milestone_name: Le Coach Qui Marche
 status: verifying
-stopped_at: Completed 22-01-PLAN.md
-last_updated: "2026-04-13T18:02:04.674Z"
+stopped_at: Completed 23-01-PLAN.md
+last_updated: "2026-04-13T18:22:58.556Z"
 last_activity: 2026-04-13
 progress:
   total_phases: 14
-  completed_phases: 8
-  total_plans: 15
-  completed_plans: 16
+  completed_phases: 9
+  total_plans: 16
+  completed_plans: 17
   percent: 100
 ---
 
@@ -70,6 +70,7 @@ Progress: [##########] 100%
 | 21 | 1 | - | - |
 | Phase 22 P01 | 6min | 2 tasks | 17 files |
 | 22 | 1 | - | - |
+| Phase 23 P01 | 7min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,8 @@ Progress: [##########] 100%
 - [Phase 21]: DB insights searched first in retrieve_memories (Pass 0) before memory_block text for priority
 - [Phase 22]: MarkdownBody (non-scrollable) for coach messages to avoid nested scroll conflicts
 - [Phase 22]: Response length directive (3-5 phrases) placed above FORMAT section in system prompt
+- [Phase 23]: Auto-grant document_upload consent on first upload -- user action IS informed consent per nLPD
+- [Phase 23]: Vision API as PDF fallback when Docling backend unavailable
 
 ### From Previous Milestones
 
@@ -129,8 +132,8 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T18:01:27.742Z
-Stopped at: Completed 22-01-PLAN.md
+Last session: 2026-04-13T18:22:58.553Z
+Stopped at: Completed 23-01-PLAN.md
 Resume file: None
 
 ---
