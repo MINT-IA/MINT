@@ -209,10 +209,10 @@ Plans:
   1. PDF selection shows success (not "Analyse PDF indisponible")
   2. Parsed data visible in "Ce que MINT sait de toi"
   3. Coach references specific numbers from uploaded documents
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 23-01: TBD
+- [ ] 23-01-PLAN.md -- Fix PDF pipeline: Dockerfile docling extra, consent auto-grant, all doc types + Vision fallback
 
 ### Phase 24: Coach Widgets & Suggestions
 **Goal**: Coach shows inline widgets in chat via tool calls and provides contextual suggestion chips -- not static hardcoded ones
@@ -265,11 +265,11 @@ Integration checker after phases 22, 24, and 26.
 | 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete    | 2026-04-13 |
 | 22. Coach Chat UX | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 23. Document Scanner Pipeline | v2.6 | 0/TBD | Not Started | — |
+| 23. Document Scanner Pipeline | v2.6 | 0/1 | Not Started | — |
 | 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
 | 25. Profile & Data Integrity | v2.6 | 0/TBD | Not Started | — |
 | 26. Navigation Coherence | v2.6 | 0/TBD | Not Started | — |
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-13 — Phase 22 planned (1 plan)*
+*Last updated: 2026-04-13 — Phase 23 planned (1 plan)*
