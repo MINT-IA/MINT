@@ -258,9 +258,20 @@ final _router = GoRouter(
             GoRoute(
               path: '/home',
               builder: (context, state) {
-                final isAuthenticated =
-                    context.watch<AuthProvider>().isLoggedIn;
-                return isAuthenticated
+                final auth = context.watch<AuthProvider>();
+                // NAV-02: Show loading while auth is resolving to avoid
+                // flashing LandingScreen before checkAuth() completes.
+                if (auth.isLoading) {
+                  return const Scaffold(
+                    backgroundColor: MintColors.warmWhite,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        color: MintColors.success,
+                      ),
+                    ),
+                  );
+                }
+                return auth.isLoggedIn
                     ? const AujourdhuiScreen()
                     : const LandingScreen();
               },
