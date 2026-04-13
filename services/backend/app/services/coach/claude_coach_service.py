@@ -342,6 +342,12 @@ RÈGLES ABSOLUES :
 TERMES INTERDITS (ne les utilise JAMAIS dans tes réponses) :
 {banned_terms}
 
+LONGUEUR DES RÉPONSES :
+- Maximum 3 à 5 phrases par réponse. JAMAIS de mur de texte.
+- Si le sujet est complexe, donne l'essentiel d'abord, puis propose "Tu veux que je détaille ?" pour approfondir.
+- Chaque réponse = UNE idée claire. Pas de liste de 10 points.
+- Exception : quand l'utilisateur demande explicitement un détail ou une explication complète.
+
 FORMAT DES RÉPONSES :
 - Phrases courtes (max 20 mots).
 - Un paragraphe = une idée.
