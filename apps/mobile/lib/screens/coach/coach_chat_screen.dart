@@ -896,21 +896,45 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         default:
           errorMsg = s.coachErrorGeneric;
       }
+      // Recover last user message so the user can retry with one tap.
+      final lastUserText = _messages
+          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
+                role: 'user',
+                content: '',
+                timestamp: DateTime.now(),
+              ))
+          .content;
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
           content: errorMsg,
           timestamp: DateTime.now(),
+          suggestedActions: [
+            if (lastUserText.isNotEmpty) lastUserText,
+          ],
         ));
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+      debugPrint('[CoachChat] Standard response error: $e');
+      // Recover the last user message for retry suggestion.
+      final lastUserMsg = _messages
+          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
+                role: 'user',
+                content: '',
+                timestamp: DateTime.now(),
+              ))
+          .content;
+      final retryActions = <String>[
+        if (lastUserMsg.isNotEmpty) lastUserMsg,
+      ];
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
           content: S.of(context)!.coachErrorConnection,
           timestamp: DateTime.now(),
+          suggestedActions: retryActions,
         ));
         _isLoading = false;
       });
