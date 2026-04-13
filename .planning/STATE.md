@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.5
-milestone_name: Transformation
+milestone: v2.6
+milestone_name: Le Coach Qui Marche
 status: verifying
-stopped_at: Completed 18-01-PLAN.md
-last_updated: "2026-04-13T05:43:30.019Z"
+stopped_at: Completed 21-01-PLAN.md
+last_updated: "2026-04-13T17:45:54.282Z"
 last_activity: 2026-04-13
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 13
-  completed_plans: 13
+  total_phases: 14
+  completed_phases: 7
+  total_plans: 14
+  completed_plans: 15
   percent: 100
 ---
 
@@ -27,8 +27,8 @@ See: .planning/PROJECT.md (updated 2026-04-12)
 
 Phase: 20 (Coach Conversation Context) — COMPLETE
 Plan: 1 of 1 (complete)
-Status: Phase 20 complete — ready for next phase
-Last activity: 2026-04-13 -- Phase 20 plan 01 complete
+Status: Phase complete — ready for verification
+Last activity: 2026-04-13
 
 Progress: [##########] 100%
 
@@ -66,6 +66,7 @@ Progress: [##########] 100%
 | 17 | 1 | - | - |
 | Phase 18 P01 | 5min | 2 tasks | 19 files |
 | 18 | 1 | - | - |
+| Phase 21 P01 | 7min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Progress: [##########] 100%
 - [Phase 17]: Tension card i18n keys stored as string IDs in model, resolved at widget level via S.of(context)
 - [Phase 18]: TimelineProvider extends TensionCardProvider (IS-A) so existing tension card consumers work via type hierarchy
 - [Phase 20]: Conversation history as structured messages array (not concatenated text) for proper multi-turn Claude API; history only on first agent loop iteration
+- [Phase 21]: Dedup by user_id+topic: upsert pattern for save_insight prevents unbounded DB growth
+- [Phase 21]: DB insights searched first in retrieve_memories (Pass 0) before memory_block text for priority
 
 ### From Previous Milestones
 
@@ -121,8 +124,8 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T11:49:29Z
-Stopped at: Completed 20-01-PLAN.md
+Last session: 2026-04-13T17:45:54.279Z
+Stopped at: Completed 21-01-PLAN.md
 Resume file: None
 
 ---

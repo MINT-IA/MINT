@@ -185,7 +185,7 @@ Zero nouvelle feature. Fix every pipe. Gate 0 walkthrough as source of truth.
 **Plans**: 1 plan
 
 Plans:
-- [ ] 21-01-PLAN.md -- Fix save_insight DB persistence + insight memory block injection + retrieve_memories DB search
+- [x] 21-01-PLAN.md -- Fix save_insight DB persistence + insight memory block injection + retrieve_memories DB search
 
 ### Phase 22: Coach Chat UX
 **Goal**: Coach responses look polished -- Markdown rendered, keyboard handled, text chunked, disclaimers unobtrusive
@@ -263,7 +263,7 @@ Integration checker after phases 22, 24, and 26.
 |-------|-----------|----------------|--------|-----------|
 | 19. Auth State Propagation | v2.6 | 1/1 | Complete | 2026-04-13 |
 | 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
-| 21. Coach Memory & Dossier | v2.6 | 0/1 | Not Started | — |
+| 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete   | 2026-04-13 |
 | 22. Coach Chat UX | v2.6 | 0/TBD | Not Started | — |
 | 23. Document Scanner Pipeline | v2.6 | 0/TBD | Not Started | — |
 | 24. Coach Widgets & Suggestions | v2.6 | 0/TBD | Not Started | — |
