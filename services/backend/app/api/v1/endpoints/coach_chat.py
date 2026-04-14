@@ -1749,6 +1749,10 @@ async def coach_chat(
         502: LLM API call failed.
         503: RAG dependencies not installed.
     """
+    # v2.7 Task 6: latency timer for SLO monitor.
+    import time as _time
+    _req_start_ms = _time.monotonic() * 1000.0
+
     # Entitlement gate: coachLlm requires Premium or higher.
     # TODO(billing): Re-enable full entitlement gate when billing goes live.
     # BETA EXCEPTION: When using server-side API key (no BYOK), allow all
@@ -2039,6 +2043,18 @@ async def coach_chat(
     # The orchestrator already ran ComplianceGuard (guardrails.filter_response)
     # on each iteration.  Only non-internal tool_calls are returned.
     # ------------------------------------------------------------------
+    # v2.7 Task 6: SLO metrics (fire-and-forget, fail-open).
+    try:
+        from app.services.slo_monitor import record_response
+        _latency_ms = int(_time.monotonic() * 1000.0 - _req_start_ms)
+        asyncio.create_task(record_response(
+            degraded=bool(loop_result.get("degraded", False)),
+            fallback=not bool(loop_result.get("answer", "").strip()),
+            latency_ms=_latency_ms,
+        ))
+    except Exception:
+        pass
+
     # v2.7 Task 4: consume actual tokens from this request (fail-open).
     if _user and loop_result.get("tokens_used", 0) > 0:
         try:
