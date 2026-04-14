@@ -113,7 +113,7 @@ class AuthProvider extends ChangeNotifier {
         await _migrateLocalDataIfNeeded();
         await _hydrateProfileFromBackend();
         try {
-          await FreshStartService.scheduleAllFreshStartNotifications();
+          await FreshStartService().scheduleAllFreshStartNotifications();
         } catch (_) {}
       }
       // F3-2: Restore email verification state from SharedPreferences.
@@ -187,7 +187,7 @@ class AuthProvider extends ChangeNotifier {
         await _hydrateProfileFromBackend();
         // Best-effort: schedule fresh-start notifications
         try {
-          await FreshStartService.scheduleAllFreshStartNotifications();
+          await FreshStartService().scheduleAllFreshStartNotifications();
         } catch (_) {}
       }
 
@@ -239,7 +239,7 @@ class AuthProvider extends ChangeNotifier {
       await _hydrateProfileFromBackend();
       // Schedule fresh-start notifications (best-effort)
       try {
-        await FreshStartService.scheduleAllFreshStartNotifications();
+        await FreshStartService().scheduleAllFreshStartNotifications();
       } catch (_) {}
 
       notifyListeners();
