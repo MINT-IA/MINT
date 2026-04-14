@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
-status: Phase 29-04 shipped — VisionGuard (Claude Haiku 4.5 LLM-as-judge, fail-closed) + NumericSanity (rendement/salaire/taux_conv reject, avoir_lpp>5M human_review) + FieldStatus.needs_review default (PRIV-08, LSFin art. 7-10) + BatchValidationBubble anti-fatigue + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green (27 compliance + 7 adversarial + 8 widget).
-stopped_at: Completed 29-04-PLAN.md
-last_updated: "2026-04-14T23:18:33.080Z"
+status: Phase 29-05 shipped — PRIV-02 opposable third-party declaration: ConsentPurpose.THIRD_PARTY_ATTESTATION (5th purpose, per-doc_hash), grant_nominative signed/merkle-chained receipt (subjectName, declaredDocHash, HMAC-hashed IP), HTTP 428 gate on /extract-vision v2, Redis 'tpf:{session_id}:*' 2h TTL third-party atoms (never profile_facts), ThirdPartyDeclarationSheet + 428 flow + invite stub, 8 ARB keys x 6 langs. 19 new tests green.
+stopped_at: Completed 29-05-PLAN.md
+last_updated: "2026-04-14T23:32:34.217Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 18
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
-  percent: 82
+  completed_plans: 10
+  percent: 91
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -94,6 +94,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 | Phase 29 P02 | 60 | 2 tasks | 21 files |
 | Phase 29-compliance-privacy P03 | 90 | 2 tasks | 17 files |
 | Phase 29 P04 | 18 | 2 tasks | 23 files |
+| Phase 29-compliance-privacy P05 | 40 | 2 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -166,6 +167,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 - [Phase 29-compliance-privacy]: [Phase 29-03]: Hashed-key drop logging (sha256[:12]) — fact_key names themselves can be PII signals (iban, numero_avs); raw key never logged
 - [Phase 29-compliance-privacy]: [Phase 29-03]: persist_fact policy gate is canonical; DB write is best-effort — decouples allowlist semantics from migration timing
 - [Phase 29]: Phase 29-04: LLM-as-judge (Haiku 4.5) on Vision with fail-closed + numeric sanity deterministic bounds + FieldStatus.needs_review default per LSFin art. 7-10
+- [Phase 29-compliance-privacy]: 29-05: purpose_category is String(64) not PG enum — no alembic migration needed for new ConsentPurpose values
 
 ### From Previous Milestones
 
@@ -188,8 +190,8 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 
 ## Session Continuity
 
-Last session: 2026-04-14T23:18:26.608Z
-Stopped at: Completed 29-04-PLAN.md
+Last session: 2026-04-14T23:32:01.955Z
+Stopped at: Completed 29-05-PLAN.md
 Resume file: None
 
 ---

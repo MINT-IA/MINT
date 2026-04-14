@@ -149,7 +149,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 ### Compliance & Privacy (Phase 29)
 
 - [x] **PRIV-01**: Checkbox consentement explicite pré-upload, horodatée, versionnée (table `consents`), révocable avec cascade delete
-- [ ] **PRIV-02**: Détection "document de tiers" (nom ≠ user) → déclaration obligatoire "J'ai l'autorisation de X" avant traitement
+- [x] **PRIV-02**: Détection "document de tiers" (nom ≠ user) → déclaration obligatoire "J'ai l'autorisation de X" avant traitement
 - [x] **PRIV-03**: Scrubbing PII systématique dans logs — IBAN tokenisé, AVS haché, employeur → `EMPLOYER_1`, filename haché
 - [x] **PRIV-04**: `evidence_text` persisté chiffré at-rest (Fernet + clé dérivée user)
 - [x] **PRIV-05**: ComplianceGuard appliqué aux `summary` et `questions_for_user` issus de Claude Vision
