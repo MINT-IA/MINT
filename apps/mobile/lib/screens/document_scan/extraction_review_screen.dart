@@ -702,7 +702,7 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
         'sourceText': f.sourceText,
       };
     }).toList();
-    _sendWithRetry(
+    await _sendWithRetry(
       documentType: widget.result.documentType.backendValue,
       confirmedFields: syncFields,
       overallConfidence: _overallConfidence,
