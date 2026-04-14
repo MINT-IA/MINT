@@ -71,10 +71,27 @@ def test_get_my_profile(client):
     assert data["gender"] == "F"
 
 
-def test_get_my_profile_not_found(client):
-    """Test /profiles/me returns 404 when user has no profile."""
+def test_get_my_profile_auto_bootstraps(client):
+    """FIX-B: /profiles/me is get-or-create.
+
+    If an authenticated user has no profile row yet (legacy account,
+    partial bootstrap, migration edge case), GET /profiles/me must
+    auto-create an empty profile and return it — never 404. This is
+    the last line of defence for downstream screens (Aujourd'hui,
+    Explorer, Coach) that read the profile on mount.
+    """
     response = client.get("/api/v1/profiles/me")
-    assert response.status_code == 404
+    assert response.status_code == 200
+    data = response.json()
+    # Empty-profile defaults from ensure_empty_profile()
+    assert data["householdType"] == "single"
+    assert data["hasDebt"] is False
+    assert data["goal"] == "other"
+
+    # Idempotent: a second call returns the same profile, not a new one.
+    second = client.get("/api/v1/profiles/me")
+    assert second.status_code == 200
+    assert second.json()["id"] == data["id"]
 
 
 def test_update_profile(client):
