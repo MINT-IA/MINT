@@ -150,6 +150,44 @@ def _require_admin_user(user: User) -> None:
         )
 
 
+def _ensure_empty_profile(db: Session, user_id: str) -> None:
+    """Auto-create an empty ProfileModel for a freshly-created user.
+
+    Without this, GET /profiles/me returns 404 forever until the mobile
+    client manually POSTs a profile — which it currently never does, so
+    every screen downstream (Aujourd'hui, Explorer, Coach) falls back to
+    "Crée ton compte" copy even after successful auth. Root cause: no
+    profile ever materialises on first login.
+
+    Idempotent: no-op if the user already has at least one profile.
+    """
+    existing = (
+        db.query(ProfileModel).filter(ProfileModel.user_id == user_id).first()
+    )
+    if existing is not None:
+        return
+    now = datetime.now(timezone.utc)
+    profile_id = str(uuid4())
+    profile_data = {
+        "id": profile_id,
+        "createdAt": now.isoformat(),
+        "householdType": "single",
+        "hasDebt": False,
+        "goal": "other",
+        "factfindCompletionIndex": 0.0,
+        "isChurchMember": False,
+    }
+    profile = ProfileModel(
+        id=profile_id,
+        user_id=user_id,
+        data=profile_data,
+        created_at=now,
+        updated_at=now,
+    )
+    db.add(profile)
+    # Caller is responsible for db.commit()
+
+
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 def register_user(
@@ -247,6 +285,11 @@ def register_user(
                 "email_sent": verification_email_sent,
             },
         )
+    # P0 FIX: auto-materialise an empty profile so downstream consumers
+    # (GET /profiles/me, coach context injection, Aujourd'hui, Explorer)
+    # do not 404 on first login. Without this, the whole app degrades
+    # to "Crée ton compte" placeholders even for authenticated users.
+    _ensure_empty_profile(db, new_user.id)
     db.commit()
     db.refresh(new_user)
 
@@ -1311,6 +1354,9 @@ def apple_verify(
         )
         db.add(user)
         db.flush()
+        # P0 FIX: same as /register — materialise an empty profile so the
+        # user is not stuck with a 404 on /profiles/me post Apple Sign-In.
+        _ensure_empty_profile(db, user.id)
 
     # Create JWT
     access_token = create_access_token(user.id, user.email)
