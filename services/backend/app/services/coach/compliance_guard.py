@@ -43,7 +43,12 @@ class ComplianceGuard:
     BANNED_TERMS = [
         # Masculine forms
         "garanti",
-        "certain",
+        # NOTE: "certain" / "certaine" / "certains" / "certaines" are handled
+        # by context-aware detection in _check_certain_guarantee() because
+        # they have a legitimate adjective meaning ("certains cas", "une
+        # certaine somme", "dans certaines situations") that was being
+        # blocked by a blanket rule — every 3rd coach reply fell to
+        # fallback on perfectly valid French.
         "assuré",
         "sans risque",
         "optimal",
@@ -62,8 +67,6 @@ class ComplianceGuard:
         "garanties",
         "assurés",
         "assurées",
-        "certains",
-        "certaines",
         "optimaux",
         "optimales",
         "meilleurs",
@@ -119,10 +122,38 @@ class ComplianceGuard:
                     )
         return cls._BANNED_PATTERNS_MAP
 
+    # Context-aware patterns for the "certain" family. These catch the
+    # guarantee usage ("c'est certain", "est certaine", "sera certain",
+    # "reste certain") WITHOUT flagging legitimate adjective usage ("un
+    # certain montant", "dans certains cas", "une certaine somme").
+    # Each match is reported as the canonical "certain" banned term so
+    # sanitisation can replace it with "probable".
+    _CERTAIN_GUARANTEE_PATTERNS = [
+        re.compile(
+            r"\b(?:c['\u2018\u2019]est|est|sera|reste|demeure|semble|para[iî]t|"
+            r"devient|rendu|rendue)\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"\bc['\u2018\u2019]est\s+(?:tout\s+[àa]\s+fait|absolument|"
+            r"totalement|vraiment)\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"\b(?:rendement|r[ée]sultat|gain|retour|profit)s?\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+        # Superlative "(le|la|les) plus certain(e)(s)" — "the most certain
+        # choice" reads as a guarantee even without an auxiliary verb.
+        re.compile(
+            r"\b(?:le|la|les)\s+plus\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+    ]
+
     # Replacement map for salvageable terms
     TERM_REPLACEMENTS = {
         "garanti": "possible dans ce scénario",
-        "certain": "probable",
         "assuré": "envisageable",
         "sans risque": "à risque modéré",
         "optimal": "adapté",
@@ -141,8 +172,6 @@ class ComplianceGuard:
         "garanties": "possibles dans ce scénario",
         "assurés": "envisageables",
         "assurées": "envisageables",
-        "certains": "probables",
-        "certaines": "probables",
         "optimaux": "adaptés",
         "optimales": "adaptées",
         "meilleurs": "pertinents",
@@ -497,7 +526,20 @@ class ComplianceGuard:
         for pattern, label in self.BANNED_PATTERNS:
             if label not in found and pattern.search(lower):
                 found.append(label)
+        # Context-aware "certain" family: only flag guarantee usage, not
+        # legitimate adjective usage ("un certain montant", "certains cas").
+        if self._check_certain_guarantee(text):
+            found.append("certain")
         return found
+
+    def _check_certain_guarantee(self, text: str) -> bool:
+        """Detect the 'certain' family used as a guarantee ("c'est certain",
+        "rendement certain"). Returns False for the adjective form that is
+        standard French ("un certain montant", "dans certains cas")."""
+        for pattern in self._CERTAIN_GUARANTEE_PATTERNS:
+            if pattern.search(text):
+                return True
+        return False
 
     def _sanitize_banned_terms(self, text: str) -> str:
         """Replace banned terms using French-aware word-boundary patterns.
@@ -513,7 +555,34 @@ class ComplianceGuard:
             p = patterns.get(term)
             if p:
                 result = p.sub(replacement, result)
+        # Context-aware "certain" sanitisation: rewrite only the guarantee
+        # phrasing, leave adjective usage untouched.
+        for pattern in self._CERTAIN_GUARANTEE_PATTERNS:
+            result = pattern.sub(self._replace_certain_guarantee, result)
         return result
+
+    @staticmethod
+    def _replace_certain_guarantee(match: "re.Match[str]") -> str:
+        """Replacement helper: rewrite guarantee phrasing of 'certain'
+        while preserving the grammatical form of the surrounding words."""
+        phrase = match.group(0)
+        lowered = phrase.lower()
+        # "rendement/résultat/gain certain" → "rendement/... probable"
+        for head in ("rendement", "résultat", "resultat", "gain", "retour", "profit"):
+            if lowered.startswith(head) or lowered.startswith(head + "s"):
+                return re.sub(
+                    r"certain(e|s|es)?\b",
+                    lambda m: "probable" + (m.group(1) or ""),
+                    phrase,
+                    flags=re.IGNORECASE,
+                )
+        # "c'est / est / sera / reste certain(e)(s)" → "... probable(s)"
+        return re.sub(
+            r"certain(e|s|es)?\b",
+            lambda m: "probable" + (m.group(1) or ""),
+            phrase,
+            flags=re.IGNORECASE,
+        )
 
     def _check_high_register_drift(self, text: str) -> list:
         """Layer 2b: Detect N4/N5 drift modes.
