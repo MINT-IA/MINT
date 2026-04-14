@@ -839,6 +839,12 @@ FALLBACK_MODEL_HAIKU = "claude-haiku-4-5-20251001"
 FALLBACK_TIMEOUT_SECONDS = 20
 FALLBACK_HISTORY_MAX_TURNS = 10
 
+# v2.7 Task 4: hard-cap user-facing text (FR only in backend; mobile
+# MUST re-localize via ARB key coach.budget.daily_limit_reached).
+HARD_CAP_MESSAGE_FR_FALLBACK = (
+    "On a déjà bien avancé aujourd'hui. Repose-toi, je t'attends demain."
+)
+
 
 async def _call_with_fallback(
     orchestrator,
@@ -1914,6 +1920,43 @@ async def coach_chat(
         orchestrator = _NoRagOrchestrator()
 
     # ------------------------------------------------------------------
+    # Step 3.5: v2.7 Task 4 — token budget pre-check.
+    # Hard cap → return calm message without calling the LLM.
+    # Soft cap / truncate → model recommendation overrides body.model.
+    # Fail-open: on Redis error, budget.current_state() returns tier=normal.
+    # ------------------------------------------------------------------
+    from app.services.coach.token_budget import TokenBudget
+    budget = TokenBudget()
+    budget_state = await budget.current_state(str(_user.id)) if _user else None
+    if budget_state and budget_state.tier == "hard_cap":
+        logger.info(
+            "coach_chat hard_cap user=%s used=%d/%d",
+            _user.id, budget_state.used, budget_state.limit,
+        )
+        return CoachChatResponse(
+            message=budget_state.hard_cap_message or HARD_CAP_MESSAGE_FR_FALLBACK,
+            tool_calls=None,
+            sources=[],
+            disclaimers=[],
+            tokens_used=0,
+            system_prompt_used=True,
+            response_meta={
+                "degraded": True,
+                "model_used": FALLBACK_MODEL_HAIKU,
+                "budget_tier": "hard_cap",
+            },
+        )
+    # Budget overrides body.model when soft_cap/truncate active.
+    effective_model: Optional[str] = body.model
+    budget_tier = budget_state.tier if budget_state else "normal"
+    if budget_state and budget_state.tier in ("soft_cap", "truncate"):
+        effective_model = budget_state.recommended_model
+        logger.info(
+            "coach_chat budget tier=%s user=%s switching to %s",
+            budget_state.tier, _user.id, effective_model,
+        )
+
+    # ------------------------------------------------------------------
     # Step 4: Agent loop — tool_use -> execute -> re-call LLM
     # Internal tools (retrieve_memories) are executed and their results
     # fed back to the LLM for a contextually enriched final answer.
@@ -1927,7 +1970,7 @@ async def coach_chat(
                 question=body.message,
                 api_key=effective_api_key,
                 provider=body.provider,
-                model=body.model,
+                model=effective_model,
                 profile_context=safe_profile,
                 language=body.language,
                 memory_block=effective_memory_block,
@@ -1996,6 +2039,13 @@ async def coach_chat(
     # The orchestrator already ran ComplianceGuard (guardrails.filter_response)
     # on each iteration.  Only non-internal tool_calls are returned.
     # ------------------------------------------------------------------
+    # v2.7 Task 4: consume actual tokens from this request (fail-open).
+    if _user and loop_result.get("tokens_used", 0) > 0:
+        try:
+            await budget.consume(str(_user.id), int(loop_result["tokens_used"]))
+        except Exception as exc:  # pragma: no cover — defensive
+            logger.warning("token_budget consume failed user=%s err=%s", _user.id, exc)
+
     return CoachChatResponse(
         message=loop_result["answer"],
         tool_calls=loop_result["tool_calls"],
@@ -2006,6 +2056,7 @@ async def coach_chat(
         response_meta={
             "degraded": bool(loop_result.get("degraded", False)),
             "model_used": loop_result.get("model_used", PRIMARY_MODEL_DEFAULT),
+            "budget_tier": budget_tier,
         },
     )
 

@@ -26,6 +26,7 @@ dependencies = [
     "anthropic>=0.40.0,<1.0.0",
     "sentry-sdk[fastapi]>=2.0.0,<3.0.0",
     "defusedxml>=0.7.0,<1.0.0",
+    "redis>=5.0,<6.0",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +36,7 @@ dev = [
     "pytest-cov>=5.0.0",
     "ruff>=0.1.0",
     "httpx>=0.24.0",
+    "fakeredis>=2.20.0",
 ]
 rag = [
     "chromadb>=0.5.5",
