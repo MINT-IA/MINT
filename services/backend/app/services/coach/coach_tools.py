@@ -79,9 +79,10 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "save_provenance",
     "save_earmark",
     "remove_earmark",
-    # P16 couple mode: ack-only (Flutter persists locally per COUP-04)
-    "save_partner_estimate",
-    "update_partner_estimate",
+    # P16 couple mode: save_partner_estimate / update_partner_estimate are
+    # Flutter-bound tools (intercepted by widget_renderer for SecureStorage).
+    # They MUST NOT appear here — routing through INTERNAL_TOOL_NAMES would
+    # prevent Flutter from receiving them. See COUP-01/COUP-04.
 ]
 
 # ---------------------------------------------------------------------------

@@ -3,17 +3,16 @@
 Covers:
     - Tool registration (save_partner_estimate, update_partner_estimate)
     - System prompt directive (COUPLE DISSYMETRIQUE)
-    - Internal tool handler ack messages
-    - Privacy guarantee: handlers never access DB
-    - CoachContext partner aggregate flags
+    - Privacy guarantee: partner tools are Flutter-bound (never touch backend)
+    - Routing contract: partner tools MUST NOT be in INTERNAL_TOOL_NAMES so
+      they flow through external_calls to widget_renderer for SecureStorage
+      persistence on device (COUP-01, COUP-04).
 
 Run: cd services/backend && python3 -m pytest tests/test_couple_mode.py -v
 """
 
 import inspect
-import re
 from typing import Optional
-from unittest.mock import MagicMock
 
 from app.services.coach.coach_tools import COACH_TOOLS, INTERNAL_TOOL_NAMES
 from app.services.coach.claude_coach_service import build_system_prompt
@@ -34,15 +33,20 @@ def _find_tool(name: str) -> Optional[dict]:
 
 
 class TestCoupleToolRegistration:
-    """Verify save_partner_estimate and update_partner_estimate are registered."""
+    """Verify partner estimate tools are registered for Claude but routed to Flutter."""
 
-    def test_save_partner_estimate_in_internal_tool_names(self):
-        """save_partner_estimate is listed in INTERNAL_TOOL_NAMES."""
-        assert "save_partner_estimate" in INTERNAL_TOOL_NAMES
+    def test_save_partner_estimate_NOT_in_internal_tool_names(self):
+        """save_partner_estimate MUST NOT be in INTERNAL_TOOL_NAMES.
 
-    def test_update_partner_estimate_in_internal_tool_names(self):
-        """update_partner_estimate is listed in INTERNAL_TOOL_NAMES."""
-        assert "update_partner_estimate" in INTERNAL_TOOL_NAMES
+        If it were, it would be intercepted by the backend internal-tool
+        dispatcher and never reach Flutter's widget_renderer, breaking
+        SecureStorage persistence on device (COUP-01).
+        """
+        assert "save_partner_estimate" not in INTERNAL_TOOL_NAMES
+
+    def test_update_partner_estimate_NOT_in_internal_tool_names(self):
+        """update_partner_estimate MUST NOT be in INTERNAL_TOOL_NAMES (see above)."""
+        assert "update_partner_estimate" not in INTERNAL_TOOL_NAMES
 
     def test_save_partner_estimate_tool_defined(self):
         """save_partner_estimate tool definition exists with correct schema."""
@@ -90,87 +94,34 @@ class TestCoupleSystemPrompt:
 
 
 # ===========================================================================
-# TestCoupleToolHandlers
-# ===========================================================================
-
-
-class TestCoupleToolHandlers:
-    """Verify _execute_internal_tool returns correct ack messages."""
-
-    def test_save_partner_estimate_ack(self):
-        """save_partner_estimate returns ack with field names listed."""
-        from app.api.v1.endpoints.coach_chat import _execute_internal_tool
-
-        result = _execute_internal_tool(
-            {"name": "save_partner_estimate", "input": {"estimated_salary": 80000, "estimated_age": 35}},
-            None,
-        )
-        assert "conjoint" in result.lower()
-        assert "estimated_salary" in result
-        assert "estimated_age" in result
-
-    def test_update_partner_estimate_ack(self):
-        """update_partner_estimate returns ack with 'mise a jour'."""
-        from app.api.v1.endpoints.coach_chat import _execute_internal_tool
-
-        result = _execute_internal_tool(
-            {"name": "update_partner_estimate", "input": {"estimated_salary": 90000}},
-            None,
-        )
-        assert "mise" in result.lower()
-        assert "jour" in result.lower()
-        assert "estimated_salary" in result
-
-    def test_save_partner_estimate_empty_fields(self):
-        """save_partner_estimate with empty input returns 'aucun champ'."""
-        from app.api.v1.endpoints.coach_chat import _execute_internal_tool
-
-        result = _execute_internal_tool(
-            {"name": "save_partner_estimate", "input": {}},
-            None,
-        )
-        assert "aucun champ" in result
-
-    def test_save_partner_estimate_no_db_access(self):
-        """save_partner_estimate handler never touches DB even when db is available."""
-        from app.api.v1.endpoints.coach_chat import _execute_internal_tool
-
-        mock_db = MagicMock()
-        _execute_internal_tool(
-            {"name": "save_partner_estimate", "input": {"estimated_salary": 80000}},
-            None,
-            user_id="test-user",
-            db=mock_db,
-        )
-        assert mock_db.add.call_count == 0, "Handler must NOT call db.add()"
-        assert mock_db.commit.call_count == 0, "Handler must NOT call db.commit()"
-
-
-# ===========================================================================
 # TestCouplePrivacyGuarantee
 # ===========================================================================
 
 
 class TestCouplePrivacyGuarantee:
-    """Source code inspection: handlers must not reference db or user_id."""
+    """Source code inspection: backend MUST NOT define a handler for partner tools.
 
-    def _get_handler_source_block(self, tool_name: str) -> str:
-        """Extract the handler block for a given tool from _execute_internal_tool source."""
+    If a handler existed in _execute_internal_tool, the LLM tool call would be
+    silently acknowledged server-side and Flutter's widget_renderer would never
+    see it — defeating the on-device-only persistence contract.
+    """
+
+    def test_no_backend_handler_for_save_partner_estimate(self):
+        """_execute_internal_tool source does not contain a save_partner_estimate branch."""
         from app.api.v1.endpoints.coach_chat import _execute_internal_tool
 
         source = inspect.getsource(_execute_internal_tool)
-        # Find the block between 'if name == "tool_name"' and the next 'if name =='
-        pattern = rf'if name == "{tool_name}".*?(?=if name ==|# Unknown|$)'
-        match = re.search(pattern, source, re.DOTALL)
-        assert match is not None, f"Handler block for {tool_name} not found in source"
-        return match.group(0)
+        assert 'if name == "save_partner_estimate"' not in source, (
+            "Backend must NOT handle save_partner_estimate. "
+            "This tool is Flutter-bound (COUP-01/COUP-04)."
+        )
 
-    def test_handler_source_has_no_db_access(self):
-        """save_partner_estimate handler source does not reference 'db.' anywhere."""
-        block = self._get_handler_source_block("save_partner_estimate")
-        assert "db." not in block, f"Handler must NOT access db. Found in:\n{block}"
+    def test_no_backend_handler_for_update_partner_estimate(self):
+        """_execute_internal_tool source does not contain an update_partner_estimate branch."""
+        from app.api.v1.endpoints.coach_chat import _execute_internal_tool
 
-    def test_handler_source_has_no_user_id_access(self):
-        """save_partner_estimate handler source does not reference 'user_id' anywhere."""
-        block = self._get_handler_source_block("save_partner_estimate")
-        assert "user_id" not in block, f"Handler must NOT access user_id. Found in:\n{block}"
+        source = inspect.getsource(_execute_internal_tool)
+        assert 'if name == "update_partner_estimate"' not in source, (
+            "Backend must NOT handle update_partner_estimate. "
+            "This tool is Flutter-bound (COUP-01/COUP-04)."
+        )

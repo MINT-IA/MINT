@@ -1029,17 +1029,11 @@ def _execute_internal_tool(
             return f"Marquage « {label} » supprimé."
         return f"Aucun marquage « {label} » trouvé."
 
-    # P16 couple mode — ack-only (COUP-01, COUP-04)
-    # Partner data is NEVER persisted by backend. Flutter intercepts and stores locally.
-    if name == "save_partner_estimate":
-        fields = [k for k in ("estimated_salary", "estimated_age", "estimated_lpp", "estimated_3a", "estimated_canton") if tool_input.get(k) is not None]
-        logger.info("save_partner_estimate ack: fields=%s", fields)
-        return f"Estimation conjoint\u00b7e not\u00e9e : {', '.join(fields) if fields else 'aucun champ'}."
-
-    if name == "update_partner_estimate":
-        fields = [k for k in ("estimated_salary", "estimated_age", "estimated_lpp", "estimated_3a", "estimated_canton") if tool_input.get(k) is not None]
-        logger.info("update_partner_estimate ack: fields=%s", fields)
-        return f"Estimation conjoint\u00b7e mise \u00e0 jour : {', '.join(fields) if fields else 'aucun champ'}."
+    # P16 couple mode (save_partner_estimate / update_partner_estimate):
+    # NOT handled here. These are Flutter-bound tools routed through
+    # external_calls so widget_renderer can intercept them and persist to
+    # SecureStorage on device (COUP-01, COUP-04). Do NOT add a backend handler
+    # or they will be silently acknowledged and never reach Flutter.
 
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
