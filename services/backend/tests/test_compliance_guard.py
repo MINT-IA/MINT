@@ -131,11 +131,12 @@ class TestPrescriptiveLanguage:
         assert not result.use_fallback, "2 prescriptive matches should NOT trigger fallback"
         assert len([v for v in result.violations if "prescriptif" in v.lower()]) >= 2
 
-    def test_three_plus_matches_triggers_fallback(self, guard):
+    def test_three_plus_matches_logged_not_fallback(self, guard):
         result = guard.validate(
             "Fais un rachat. Verse sur ton 3a. Achète un bien. Vends tes actions."
         )
-        assert result.use_fallback, "3+ prescriptive matches MUST trigger fallback"
+        assert not result.use_fallback, "Prescriptive language never triggers fallback (defense is in prompt)"
+        assert len([v for v in result.violations if "prescriptif" in v.lower()]) >= 3
 
     def test_catches_verse_sur_ton(self, guard):
         result = guard.validate("Verse sur ton 3e pilier avant décembre.")

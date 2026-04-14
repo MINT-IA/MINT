@@ -296,16 +296,12 @@ class ComplianceGuard {
     }
 
     // Layer 2: Prescriptive language
-    // NOTE: useFallback only if 3+ matches (same threshold as banned terms).
-    // Single prescriptive matches are logged but NOT cause for rejection —
-    // too many false positives with conversational French (e.g. "rachète"
-    // in "potentiel de rachat", "achète" in "si tu achètes un bien").
+    // NEVER fallback on prescriptive — log only. The system prompt handles this.
+    // Killing responses for natural French ("rachète ta LPP", "investis dans
+    // ton 3a") destroys every substantive coach response.
     final prescriptiveFound = _checkPrescriptive(text);
     if (prescriptiveFound.isNotEmpty) {
       violations.addAll(prescriptiveFound.map((p) => "Langage prescriptif: '$p'"));
-      if (prescriptiveFound.length > 2) {
-        useFallback = true;
-      }
     }
 
     // Layer 3: Hallucination detection
