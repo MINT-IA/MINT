@@ -787,10 +787,27 @@ class CoachOrchestrator {
           'canton': ctx.canton,
           'archetype': ctx.archetype,
           'fri_total': ctx.friTotal,
+          'fri_delta': ctx.friDelta,
+          'primary_focus':
+              ctx.primaryFocus.isNotEmpty ? ctx.primaryFocus : null,
           'replacement_ratio':
               ctx.replacementRatio > 0 ? ctx.replacementRatio / 100.0 : null,
+          'months_liquidity':
+              ctx.monthsLiquidity > 0 ? ctx.monthsLiquidity : null,
+          'tax_saving_potential':
+              ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
           'confidence_score':
               ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+          'days_since_last_visit': ctx.daysSinceLastVisit,
+          'fiscal_season':
+              ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
+          'upcoming_event':
+              ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
+          'check_in_streak': ctx.checkInStreak,
+          'last_milestone':
+              ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
+          if (ctx.dataReliability.isNotEmpty)
+            'data_reliability': ctx.dataReliability,
           ...ctx.knownValues.map(
               (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null)),
         },
