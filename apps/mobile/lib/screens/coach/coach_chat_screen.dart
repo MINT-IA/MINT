@@ -24,7 +24,6 @@ import 'package:mint_mobile/services/response_card_service.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
 import 'package:mint_mobile/services/coach/tool_call_parser.dart';
 import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
-import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
