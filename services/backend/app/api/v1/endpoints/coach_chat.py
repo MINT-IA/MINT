@@ -1662,6 +1662,58 @@ async def coach_chat(
     for pattern in _INJECTION_PATTERNS:
         sanitized_message = pattern.sub("", sanitized_message)
 
+    # ------------------------------------------------------------------
+    # Step 1.4: Deterministic profile extraction (FIX-A, 2026-04-13)
+    # ------------------------------------------------------------------
+    # save_insight relies on Claude's compliance with imperative prompts.
+    # In practice Sonnet is reluctant to call the tool even with explicit
+    # instructions, so facts mentioned by the user are silently lost. We
+    # run a backend-side regex extractor BEFORE the LLM call to guarantee
+    # that unambiguous, self-declared facts (age, salary, canton, etc.)
+    # are persisted to CoachInsightRecord — the same table save_insight
+    # writes to. Dedup by (user_id, topic) means the LLM can still call
+    # save_insight without double-counting.
+    try:
+        from app.services.coach.profile_extractor import (
+            extract_profile_facts,
+            facts_to_insight_rows,
+        )
+        from app.models.coach_insight import CoachInsightRecord
+
+        extracted_facts = extract_profile_facts(sanitized_message, safe_profile or {})
+        if extracted_facts and _user and _user.id:
+            now_extract = datetime.now(timezone.utc)
+            for row in facts_to_insight_rows(extracted_facts, user_id=str(_user.id)):
+                existing = (
+                    db.query(CoachInsightRecord)
+                    .filter(
+                        CoachInsightRecord.user_id == row["user_id"],
+                        CoachInsightRecord.topic == row["topic"],
+                    )
+                    .first()
+                )
+                if existing is not None:
+                    existing.summary = row["summary"]
+                    existing.insight_type = row["insight_type"]
+                    existing.updated_at = now_extract
+                else:
+                    db.add(CoachInsightRecord(**row))
+            db.commit()
+            logger.info(
+                "profile_extractor: persisted %d fact(s) user=%s topics=%s",
+                len(extracted_facts),
+                _user.id,
+                [f.topic for f in extracted_facts],
+            )
+    except Exception as extract_exc:  # never fail the chat on extraction
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        logger.warning(
+            "profile_extractor failed (non-fatal): %s", type(extract_exc).__name__
+        )
+
     reasoning_output = StructuredReasoningService.reason(
         user_message=sanitized_message,
         profile_context=safe_profile,

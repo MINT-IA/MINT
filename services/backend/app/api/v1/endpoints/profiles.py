@@ -15,6 +15,7 @@ from app.core.auth import get_current_user, require_current_user
 from app.core.rate_limit import limiter
 from app.models.user import User
 from app.models.profile_model import ProfileModel
+from app.services.profile_bootstrap import ensure_empty_profile
 
 router = APIRouter()
 
@@ -28,7 +29,13 @@ def get_my_profile(
 ) -> Profile:
     """
     Get the authenticated user's profile.
-    Returns the most recently updated profile linked to the current user.
+
+    Get-or-create semantics (FIX-B, 2026-04-13): if the authenticated user
+    somehow has no profile row (legacy account, partial migration, aborted
+    bootstrap during auth), auto-create an empty one on the fly rather than
+    returning 404 forever. Every auth path SHOULD already call
+    `ensure_empty_profile`, but this endpoint is the last line of defence
+    for the downstream screens that depend on a profile existing.
     """
     db_profile = (
         db.query(ProfileModel)
@@ -38,6 +45,19 @@ def get_my_profile(
     )
 
     if not db_profile:
+        # Auto-bootstrap so /profiles/me is never a dead-end for authenticated users.
+        ensure_empty_profile(db, str(current_user.id), commit=True)
+        db_profile = (
+            db.query(ProfileModel)
+            .filter(ProfileModel.user_id == current_user.id)
+            .order_by(ProfileModel.updated_at.desc())
+            .first()
+        )
+
+    if not db_profile:
+        # Should be unreachable — ensure_empty_profile is idempotent and commits.
+        # Keep the guard so a genuine infra issue surfaces instead of 500-ing
+        # on the dict access below.
         raise HTTPException(status_code=404, detail="Profile not found")
 
     data = db_profile.data
