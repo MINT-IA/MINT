@@ -931,10 +931,11 @@ def _execute_internal_tool(
                     )
                     .first()
                 )
+                now = datetime.now(timezone.utc)
                 if existing:
                     existing.summary = summary
                     existing.insight_type = insight_type
-                    existing.updated_at = datetime.now(timezone.utc)
+                    existing.updated_at = now
                 else:
                     record = CoachInsightRecord(
                         user_id=user_id,
@@ -944,6 +945,42 @@ def _execute_internal_tool(
                     )
                     db.add(record)
                 db.commit()
+
+                # Also mirror into ProfileModel so other features (profile drawer,
+                # today screen) can react without hitting a separate table.
+                try:
+                    from app.models.profile_model import ProfileModel
+                    profile = (
+                        db.query(ProfileModel)
+                        .filter(ProfileModel.user_id == user_id)
+                        .order_by(ProfileModel.updated_at.desc())
+                        .first()
+                    )
+                    if profile:
+                        data = dict(profile.data) if profile.data else {}
+                        recent = list(data.get("recent_insights", []) or [])
+                        recent.insert(
+                            0,
+                            {
+                                "topic": topic,
+                                "summary": summary[:200],
+                                "insight_type": insight_type,
+                                "created_at": now.isoformat(),
+                            },
+                        )
+                        data["recent_insights"] = recent[:20]  # keep last 20
+                        data["last_coach_insight"] = {
+                            "topic": topic,
+                            "summary": summary[:200],
+                            "insight_type": insight_type,
+                            "created_at": now.isoformat(),
+                        }
+                        profile.data = data
+                        profile.updated_at = now
+                        db.commit()
+                except Exception as mirror_exc:
+                    logger.warning("Could not mirror insight to profile: %s", mirror_exc)
+                    db.rollback()
             except Exception as exc:
                 logger.warning("Could not persist insight: %s", exc)
                 db.rollback()
