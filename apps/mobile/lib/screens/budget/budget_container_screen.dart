@@ -58,7 +58,7 @@ class BudgetContainerScreen extends StatelessWidget {
                 button: true,
                 label: S.of(context)!.semanticsBudgetStartButton,
                 child: FilledButton.icon(
-                  onPressed: () => context.push('/coach/chat?prompt=budget'),
+                  onPressed: () => context.push('/coach/chat?topic=budget'),
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: Text(S.of(context)!.budgetEmptyAction),
                   style: FilledButton.styleFrom(

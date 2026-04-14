@@ -114,9 +114,8 @@ class _DataBlockEnrichmentScreenState
                 coachAvailable: coachAvailable,
                 onToggle: (value) {
                   if (value) {
-                    // Navigate to coach chat with contextual prompt
-                    final prompt = _coachPromptForBlock(canonicalBlockType);
-                    context.push('/coach/chat?prompt=${Uri.encodeComponent(prompt)}');
+                    // Navigate to coach chat with structured topic
+                    context.push('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
                   } else {
                     setState(() => _showCoachMode = false);
                   }
