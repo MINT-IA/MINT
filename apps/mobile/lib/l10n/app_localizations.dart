@@ -39686,6 +39686,162 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'{field} : {value}'**
   String documentScanFieldFound(String field, String value);
+
+  /// No description provided for @consentSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes consentements'**
+  String get consentSheetTitle;
+
+  /// No description provided for @consentSheetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne traite tes données qu\'avec ton accord explicite, pour chaque finalité.'**
+  String get consentSheetSubtitle;
+
+  /// No description provided for @consentSheetAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get consentSheetAccept;
+
+  /// No description provided for @consentSheetRefuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get consentSheetRefuse;
+
+  /// No description provided for @consentPurposeVisionExtraction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture IA de tes documents'**
+  String get consentPurposeVisionExtraction;
+
+  /// No description provided for @consentPurposeVisionExtractionWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT lit tes certificats LPP, fiches de paie et contrats pour en extraire les chiffres utiles. Durée : le temps du traitement. Révocable à tout moment.'**
+  String get consentPurposeVisionExtractionWhy;
+
+  /// No description provided for @consentPurposePersistence365d.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mémoire chiffrée 365 jours'**
+  String get consentPurposePersistence365d;
+
+  /// No description provided for @consentPurposePersistence365dWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.'**
+  String get consentPurposePersistence365dWhy;
+
+  /// No description provided for @consentPurposeTransferUsAnthropic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement IA (Anthropic, US)'**
+  String get consentPurposeTransferUsAnthropic;
+
+  /// No description provided for @consentPurposeTransferUsAnthropicWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les documents passent par l\'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.'**
+  String get consentPurposeTransferUsAnthropicWhy;
+
+  /// No description provided for @consentPurposeCoupleProjection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projections de couple'**
+  String get consentPurposeCoupleProjection;
+
+  /// No description provided for @consentPurposeCoupleProjectionWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.'**
+  String get consentPurposeCoupleProjectionWhy;
+
+  /// No description provided for @consentRevoke.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer'**
+  String get consentRevoke;
+
+  /// No description provided for @consentCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get consentCancel;
+
+  /// No description provided for @consentRevokeConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer ce consentement ?'**
+  String get consentRevokeConfirmTitle;
+
+  /// No description provided for @consentRevokeConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette opération est immédiate et révocable à tout moment.'**
+  String get consentRevokeConfirmBody;
+
+  /// No description provided for @consentRevokeCascadeWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'La révocation programme la suppression cryptographique de tes documents sous 30 jours. Action irréversible au-delà.'**
+  String get consentRevokeCascadeWarning;
+
+  /// No description provided for @consentBlockedUntilAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour continuer, il faut accepter les consentements ci-dessus.'**
+  String get consentBlockedUntilAccept;
+
+  /// No description provided for @privacyCenterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma vie privée'**
+  String get privacyCenterTitle;
+
+  /// No description provided for @privacyCenterSectionActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'CONSENTEMENTS ACTIFS'**
+  String get privacyCenterSectionActive;
+
+  /// No description provided for @privacyCenterSectionHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'HISTORIQUE'**
+  String get privacyCenterSectionHistory;
+
+  /// No description provided for @privacyCenterEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun consentement actif pour le moment.'**
+  String get privacyCenterEmpty;
+
+  /// No description provided for @privacyCenterGrantedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accordé le'**
+  String get privacyCenterGrantedOn;
+
+  /// No description provided for @privacyCenterRevokedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoqué le'**
+  String get privacyCenterRevokedOn;
+
+  /// No description provided for @policyDiffTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour de la politique'**
+  String get policyDiffTitle;
+
+  /// No description provided for @policyDiffAcceptDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai lu et j\'accepte les changements'**
+  String get policyDiffAcceptDelta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

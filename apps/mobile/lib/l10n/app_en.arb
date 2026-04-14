@@ -10874,5 +10874,31 @@
         "type": "String"
       }
     }
-  }
+  },
+  "consentSheetTitle": "Your consents",
+  "consentSheetSubtitle": "MINT only processes your data with explicit consent, one purpose at a time.",
+  "consentSheetAccept": "Accept",
+  "consentSheetRefuse": "Refuse",
+  "consentPurposeVisionExtraction": "AI document reading",
+  "consentPurposeVisionExtractionWhy": "MINT reads your LPP certificates, pay slips and contracts to extract the relevant numbers. Duration: processing only. Revocable at any time.",
+  "consentPurposePersistence365d": "Encrypted memory 365 days",
+  "consentPurposePersistence365dWhy": "Extracted data is stored encrypted (AES-256) for 365 days, then purged. Revocation: cryptographic deletion within 30 days.",
+  "consentPurposeTransferUsAnthropic": "AI processing (Anthropic, US)",
+  "consentPurposeTransferUsAnthropicWhy": "Documents transit the Claude API (Anthropic, United States) under Zero Data Retention. This transfer will be removed once we migrate to AWS Frankfurt.",
+  "consentPurposeCoupleProjection": "Couple projections",
+  "consentPurposeCoupleProjectionWhy": "MINT uses your partner's data for couple scenarios. You confirm you have obtained their consent.",
+  "consentRevoke": "Revoke",
+  "consentCancel": "Cancel",
+  "consentRevokeConfirmTitle": "Revoke this consent?",
+  "consentRevokeConfirmBody": "This is immediate and reversible at any time.",
+  "consentRevokeCascadeWarning": "Revoking schedules cryptographic deletion of your documents within 30 days. Irreversible beyond that point.",
+  "consentBlockedUntilAccept": "To continue, please accept the consents above.",
+  "privacyCenterTitle": "My privacy",
+  "privacyCenterSectionActive": "ACTIVE CONSENTS",
+  "privacyCenterSectionHistory": "HISTORY",
+  "privacyCenterEmpty": "No active consent yet.",
+  "privacyCenterGrantedOn": "Granted on",
+  "privacyCenterRevokedOn": "Revoked on",
+  "policyDiffTitle": "Policy update",
+  "policyDiffAcceptDelta": "I've read and accept the changes"
 }

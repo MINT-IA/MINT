@@ -22683,4 +22683,93 @@ class SDe extends S {
   String documentScanFieldFound(String field, String value) {
     return '$field: $value';
   }
+
+  @override
+  String get consentSheetTitle => 'Deine Einwilligungen';
+
+  @override
+  String get consentSheetSubtitle =>
+      'MINT verarbeitet deine Daten nur mit deiner ausdrücklichen Einwilligung pro Zweck.';
+
+  @override
+  String get consentSheetAccept => 'Akzeptieren';
+
+  @override
+  String get consentSheetRefuse => 'Ablehnen';
+
+  @override
+  String get consentPurposeVisionExtraction => 'KI-Dokumentenlesung';
+
+  @override
+  String get consentPurposeVisionExtractionWhy =>
+      'MINT liest deine BVG-Ausweise, Lohnabrechnungen und Verträge, um die relevanten Zahlen zu extrahieren. Dauer: nur während der Verarbeitung. Jederzeit widerrufbar.';
+
+  @override
+  String get consentPurposePersistence365d =>
+      'Verschlüsselter Speicher 365 Tage';
+
+  @override
+  String get consentPurposePersistence365dWhy =>
+      'Extrahierte Daten werden verschlüsselt (AES-256) 365 Tage lang gespeichert, danach gelöscht. Widerruf: kryptografische Löschung innerhalb von 30 Tagen.';
+
+  @override
+  String get consentPurposeTransferUsAnthropic =>
+      'KI-Verarbeitung (Anthropic, USA)';
+
+  @override
+  String get consentPurposeTransferUsAnthropicWhy =>
+      'Dokumente laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus. Dieser Transfer entfällt nach der AWS-Frankfurt-Migration.';
+
+  @override
+  String get consentPurposeCoupleProjection => 'Paar-Projektionen';
+
+  @override
+  String get consentPurposeCoupleProjectionWhy =>
+      'MINT nutzt die Daten deines Partners / deiner Partnerin für Paar-Szenarien. Du bestätigst, dass du deren Einwilligung eingeholt hast.';
+
+  @override
+  String get consentRevoke => 'Widerrufen';
+
+  @override
+  String get consentCancel => 'Abbrechen';
+
+  @override
+  String get consentRevokeConfirmTitle => 'Diese Einwilligung widerrufen?';
+
+  @override
+  String get consentRevokeConfirmBody =>
+      'Sofort wirksam, jederzeit erneut erteilbar.';
+
+  @override
+  String get consentRevokeCascadeWarning =>
+      'Der Widerruf startet die kryptografische Löschung deiner Dokumente innerhalb von 30 Tagen. Danach unumkehrbar.';
+
+  @override
+  String get consentBlockedUntilAccept =>
+      'Um fortzufahren, bitte die oben genannten Einwilligungen akzeptieren.';
+
+  @override
+  String get privacyCenterTitle => 'Meine Privatsphäre';
+
+  @override
+  String get privacyCenterSectionActive => 'AKTIVE EINWILLIGUNGEN';
+
+  @override
+  String get privacyCenterSectionHistory => 'VERLAUF';
+
+  @override
+  String get privacyCenterEmpty => 'Noch keine aktive Einwilligung.';
+
+  @override
+  String get privacyCenterGrantedOn => 'Erteilt am';
+
+  @override
+  String get privacyCenterRevokedOn => 'Widerrufen am';
+
+  @override
+  String get policyDiffTitle => 'Richtlinien-Update';
+
+  @override
+  String get policyDiffAcceptDelta =>
+      'Ich habe die Änderungen gelesen und akzeptiere sie';
 }

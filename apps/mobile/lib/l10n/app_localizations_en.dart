@@ -22520,4 +22520,91 @@ class SEn extends S {
   String documentScanFieldFound(String field, String value) {
     return '$field: $value';
   }
+
+  @override
+  String get consentSheetTitle => 'Your consents';
+
+  @override
+  String get consentSheetSubtitle =>
+      'MINT only processes your data with explicit consent, one purpose at a time.';
+
+  @override
+  String get consentSheetAccept => 'Accept';
+
+  @override
+  String get consentSheetRefuse => 'Refuse';
+
+  @override
+  String get consentPurposeVisionExtraction => 'AI document reading';
+
+  @override
+  String get consentPurposeVisionExtractionWhy =>
+      'MINT reads your LPP certificates, pay slips and contracts to extract the relevant numbers. Duration: processing only. Revocable at any time.';
+
+  @override
+  String get consentPurposePersistence365d => 'Encrypted memory 365 days';
+
+  @override
+  String get consentPurposePersistence365dWhy =>
+      'Extracted data is stored encrypted (AES-256) for 365 days, then purged. Revocation: cryptographic deletion within 30 days.';
+
+  @override
+  String get consentPurposeTransferUsAnthropic =>
+      'AI processing (Anthropic, US)';
+
+  @override
+  String get consentPurposeTransferUsAnthropicWhy =>
+      'Documents transit the Claude API (Anthropic, United States) under Zero Data Retention. This transfer will be removed once we migrate to AWS Frankfurt.';
+
+  @override
+  String get consentPurposeCoupleProjection => 'Couple projections';
+
+  @override
+  String get consentPurposeCoupleProjectionWhy =>
+      'MINT uses your partner\'s data for couple scenarios. You confirm you have obtained their consent.';
+
+  @override
+  String get consentRevoke => 'Revoke';
+
+  @override
+  String get consentCancel => 'Cancel';
+
+  @override
+  String get consentRevokeConfirmTitle => 'Revoke this consent?';
+
+  @override
+  String get consentRevokeConfirmBody =>
+      'This is immediate and reversible at any time.';
+
+  @override
+  String get consentRevokeCascadeWarning =>
+      'Revoking schedules cryptographic deletion of your documents within 30 days. Irreversible beyond that point.';
+
+  @override
+  String get consentBlockedUntilAccept =>
+      'To continue, please accept the consents above.';
+
+  @override
+  String get privacyCenterTitle => 'My privacy';
+
+  @override
+  String get privacyCenterSectionActive => 'ACTIVE CONSENTS';
+
+  @override
+  String get privacyCenterSectionHistory => 'HISTORY';
+
+  @override
+  String get privacyCenterEmpty => 'No active consent yet.';
+
+  @override
+  String get privacyCenterGrantedOn => 'Granted on';
+
+  @override
+  String get privacyCenterRevokedOn => 'Revoked on';
+
+  @override
+  String get policyDiffTitle => 'Policy update';
+
+  @override
+  String get policyDiffAcceptDelta => 'I\'ve read and accept the changes';
 }

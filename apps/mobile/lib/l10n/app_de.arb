@@ -10874,5 +10874,31 @@
         "type": "String"
       }
     }
-  }
+  },
+  "consentSheetTitle": "Deine Einwilligungen",
+  "consentSheetSubtitle": "MINT verarbeitet deine Daten nur mit deiner ausdrücklichen Einwilligung pro Zweck.",
+  "consentSheetAccept": "Akzeptieren",
+  "consentSheetRefuse": "Ablehnen",
+  "consentPurposeVisionExtraction": "KI-Dokumentenlesung",
+  "consentPurposeVisionExtractionWhy": "MINT liest deine BVG-Ausweise, Lohnabrechnungen und Verträge, um die relevanten Zahlen zu extrahieren. Dauer: nur während der Verarbeitung. Jederzeit widerrufbar.",
+  "consentPurposePersistence365d": "Verschlüsselter Speicher 365 Tage",
+  "consentPurposePersistence365dWhy": "Extrahierte Daten werden verschlüsselt (AES-256) 365 Tage lang gespeichert, danach gelöscht. Widerruf: kryptografische Löschung innerhalb von 30 Tagen.",
+  "consentPurposeTransferUsAnthropic": "KI-Verarbeitung (Anthropic, USA)",
+  "consentPurposeTransferUsAnthropicWhy": "Dokumente laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus. Dieser Transfer entfällt nach der AWS-Frankfurt-Migration.",
+  "consentPurposeCoupleProjection": "Paar-Projektionen",
+  "consentPurposeCoupleProjectionWhy": "MINT nutzt die Daten deines Partners / deiner Partnerin für Paar-Szenarien. Du bestätigst, dass du deren Einwilligung eingeholt hast.",
+  "consentRevoke": "Widerrufen",
+  "consentCancel": "Abbrechen",
+  "consentRevokeConfirmTitle": "Diese Einwilligung widerrufen?",
+  "consentRevokeConfirmBody": "Sofort wirksam, jederzeit erneut erteilbar.",
+  "consentRevokeCascadeWarning": "Der Widerruf startet die kryptografische Löschung deiner Dokumente innerhalb von 30 Tagen. Danach unumkehrbar.",
+  "consentBlockedUntilAccept": "Um fortzufahren, bitte die oben genannten Einwilligungen akzeptieren.",
+  "privacyCenterTitle": "Meine Privatsphäre",
+  "privacyCenterSectionActive": "AKTIVE EINWILLIGUNGEN",
+  "privacyCenterSectionHistory": "VERLAUF",
+  "privacyCenterEmpty": "Noch keine aktive Einwilligung.",
+  "privacyCenterGrantedOn": "Erteilt am",
+  "privacyCenterRevokedOn": "Widerrufen am",
+  "policyDiffTitle": "Richtlinien-Update",
+  "policyDiffAcceptDelta": "Ich habe die Änderungen gelesen und akzeptiere sie"
 }

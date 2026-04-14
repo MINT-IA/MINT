@@ -27,6 +27,7 @@ import 'package:mint_mobile/theme/colors.dart';
 // profile_screen.dart DELETED (KILL-04, Phase 2)
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
+import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
 // main_navigation_shell.dart DELETED (KILL-07, Phase 2)
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
@@ -858,6 +859,11 @@ final _router = GoRouter(
         ScopedGoRoute(
           path: 'privacy-control',
           builder: (context, state) => const PrivacyControlScreen(),
+        ),
+        // v2.7 Phase 29 / PRIV-01 — granular consent receipts hub.
+        ScopedGoRoute(
+          path: 'privacy',
+          builder: (context, state) => const PrivacyCenterScreen(),
         ),
       ],
     ),

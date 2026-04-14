@@ -22632,4 +22632,91 @@ class SFr extends S {
   String documentScanFieldFound(String field, String value) {
     return '$field : $value';
   }
+
+  @override
+  String get consentSheetTitle => 'Tes consentements';
+
+  @override
+  String get consentSheetSubtitle =>
+      'MINT ne traite tes données qu\'avec ton accord explicite, pour chaque finalité.';
+
+  @override
+  String get consentSheetAccept => 'Accepter';
+
+  @override
+  String get consentSheetRefuse => 'Refuser';
+
+  @override
+  String get consentPurposeVisionExtraction => 'Lecture IA de tes documents';
+
+  @override
+  String get consentPurposeVisionExtractionWhy =>
+      'MINT lit tes certificats LPP, fiches de paie et contrats pour en extraire les chiffres utiles. Durée : le temps du traitement. Révocable à tout moment.';
+
+  @override
+  String get consentPurposePersistence365d => 'Mémoire chiffrée 365 jours';
+
+  @override
+  String get consentPurposePersistence365dWhy =>
+      'Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.';
+
+  @override
+  String get consentPurposeTransferUsAnthropic =>
+      'Traitement IA (Anthropic, US)';
+
+  @override
+  String get consentPurposeTransferUsAnthropicWhy =>
+      'Les documents passent par l\'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.';
+
+  @override
+  String get consentPurposeCoupleProjection => 'Projections de couple';
+
+  @override
+  String get consentPurposeCoupleProjectionWhy =>
+      'MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.';
+
+  @override
+  String get consentRevoke => 'Révoquer';
+
+  @override
+  String get consentCancel => 'Annuler';
+
+  @override
+  String get consentRevokeConfirmTitle => 'Révoquer ce consentement ?';
+
+  @override
+  String get consentRevokeConfirmBody =>
+      'Cette opération est immédiate et révocable à tout moment.';
+
+  @override
+  String get consentRevokeCascadeWarning =>
+      'La révocation programme la suppression cryptographique de tes documents sous 30 jours. Action irréversible au-delà.';
+
+  @override
+  String get consentBlockedUntilAccept =>
+      'Pour continuer, il faut accepter les consentements ci-dessus.';
+
+  @override
+  String get privacyCenterTitle => 'Ma vie privée';
+
+  @override
+  String get privacyCenterSectionActive => 'CONSENTEMENTS ACTIFS';
+
+  @override
+  String get privacyCenterSectionHistory => 'HISTORIQUE';
+
+  @override
+  String get privacyCenterEmpty => 'Aucun consentement actif pour le moment.';
+
+  @override
+  String get privacyCenterGrantedOn => 'Accordé le';
+
+  @override
+  String get privacyCenterRevokedOn => 'Révoqué le';
+
+  @override
+  String get policyDiffTitle => 'Mise à jour de la politique';
+
+  @override
+  String get policyDiffAcceptDelta => 'J\'ai lu et j\'accepte les changements';
 }

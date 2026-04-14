@@ -26,6 +26,7 @@ import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -438,6 +439,18 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onCameraPressed() async {
+    // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
+    final granted = await ConsentService().requireGrantedOrPrompt(
+      context,
+      const [
+        ConsentPurpose.visionExtraction,
+        ConsentPurpose.persistence365d,
+        ConsentPurpose.transferUsAnthropic,
+      ],
+    );
+    if (!granted) return;
+    if (!mounted) return;
+
     // Web/desktop have no native scanner — degrade gracefully to gallery upload.
     if (!NativeDocumentScanner.isAvailable) {
       await _onGalleryPressed();
@@ -476,6 +489,22 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onGalleryPressed() async {
+    // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
+    // Guarded here too because _onGalleryPressed is sometimes called directly
+    // (from _onCameraPressed fallback path). requireGrantedOrPrompt is a no-op
+    // when all required purposes are already granted at the current policy
+    // version, so the double-check has zero UX cost.
+    final granted = await ConsentService().requireGrantedOrPrompt(
+      context,
+      const [
+        ConsentPurpose.visionExtraction,
+        ConsentPurpose.persistence365d,
+        ConsentPurpose.transferUsAnthropic,
+      ],
+    );
+    if (!granted) return;
+    if (!mounted) return;
+
     try {
       final allowedExtensions = <String>[
         'jpg',

@@ -11583,5 +11583,31 @@
         "type": "String"
       }
     }
-  }
+  },
+  "consentSheetTitle": "Tes consentements",
+  "consentSheetSubtitle": "MINT ne traite tes données qu'avec ton accord explicite, pour chaque finalité.",
+  "consentSheetAccept": "Accepter",
+  "consentSheetRefuse": "Refuser",
+  "consentPurposeVisionExtraction": "Lecture IA de tes documents",
+  "consentPurposeVisionExtractionWhy": "MINT lit tes certificats LPP, fiches de paie et contrats pour en extraire les chiffres utiles. Durée : le temps du traitement. Révocable à tout moment.",
+  "consentPurposePersistence365d": "Mémoire chiffrée 365 jours",
+  "consentPurposePersistence365dWhy": "Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.",
+  "consentPurposeTransferUsAnthropic": "Traitement IA (Anthropic, US)",
+  "consentPurposeTransferUsAnthropicWhy": "Les documents passent par l'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.",
+  "consentPurposeCoupleProjection": "Projections de couple",
+  "consentPurposeCoupleProjectionWhy": "MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.",
+  "consentRevoke": "Révoquer",
+  "consentCancel": "Annuler",
+  "consentRevokeConfirmTitle": "Révoquer ce consentement ?",
+  "consentRevokeConfirmBody": "Cette opération est immédiate et révocable à tout moment.",
+  "consentRevokeCascadeWarning": "La révocation programme la suppression cryptographique de tes documents sous 30 jours. Action irréversible au-delà.",
+  "consentBlockedUntilAccept": "Pour continuer, il faut accepter les consentements ci-dessus.",
+  "privacyCenterTitle": "Ma vie privée",
+  "privacyCenterSectionActive": "CONSENTEMENTS ACTIFS",
+  "privacyCenterSectionHistory": "HISTORIQUE",
+  "privacyCenterEmpty": "Aucun consentement actif pour le moment.",
+  "privacyCenterGrantedOn": "Accordé le",
+  "privacyCenterRevokedOn": "Révoqué le",
+  "policyDiffTitle": "Mise à jour de la politique",
+  "policyDiffAcceptDelta": "J'ai lu et j'accepte les changements"
 }

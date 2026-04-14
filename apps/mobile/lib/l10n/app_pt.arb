@@ -10874,5 +10874,31 @@
         "type": "String"
       }
     }
-  }
+  },
+  "consentSheetTitle": "Os teus consentimentos",
+  "consentSheetSubtitle": "A MINT só trata os teus dados com o teu consentimento explícito, para cada finalidade.",
+  "consentSheetAccept": "Aceitar",
+  "consentSheetRefuse": "Recusar",
+  "consentPurposeVisionExtraction": "Leitura IA de documentos",
+  "consentPurposeVisionExtractionWhy": "A MINT lê os teus certificados LPP, recibos e contratos para extrair os números relevantes. Duração: apenas o tratamento. Revogável a qualquer momento.",
+  "consentPurposePersistence365d": "Memória cifrada 365 dias",
+  "consentPurposePersistence365dWhy": "Os dados extraídos são conservados cifrados (AES-256) durante 365 dias, depois eliminados. Revogação: eliminação criptográfica em 30 dias.",
+  "consentPurposeTransferUsAnthropic": "Processamento IA (Anthropic, EUA)",
+  "consentPurposeTransferUsAnthropicWhy": "Os documentos passam pela API Claude (Anthropic, Estados Unidos) em modo Zero Data Retention. Esta transferência desaparecerá após a migração para AWS Frankfurt.",
+  "consentPurposeCoupleProjection": "Projeções de casal",
+  "consentPurposeCoupleProjectionWhy": "A MINT usa os dados do/a teu/tua parceiro/a para cenários de casal. Confirmas ter obtido o consentimento dele/dela.",
+  "consentRevoke": "Revogar",
+  "consentCancel": "Cancelar",
+  "consentRevokeConfirmTitle": "Revogar este consentimento?",
+  "consentRevokeConfirmBody": "Efeito imediato, reversível a qualquer momento.",
+  "consentRevokeCascadeWarning": "A revogação agenda a eliminação criptográfica dos teus documentos em 30 dias. Irreversível depois.",
+  "consentBlockedUntilAccept": "Para continuar, aceita os consentimentos acima.",
+  "privacyCenterTitle": "A minha privacidade",
+  "privacyCenterSectionActive": "CONSENTIMENTOS ATIVOS",
+  "privacyCenterSectionHistory": "HISTÓRICO",
+  "privacyCenterEmpty": "Ainda sem consentimentos ativos.",
+  "privacyCenterGrantedOn": "Concedido em",
+  "privacyCenterRevokedOn": "Revogado em",
+  "policyDiffTitle": "Atualização da política",
+  "policyDiffAcceptDelta": "Li e aceito as alterações"
 }
