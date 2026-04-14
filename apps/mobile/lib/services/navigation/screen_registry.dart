@@ -376,7 +376,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age'],
     optionalFields: ['canton', 'avoirLpp', 'rachatMaximum'],
-    fallbackRoute: '/coach/chat?prompt=retraite',
+    fallbackRoute: '/coach/chat?topic=retraite',
     preferFromChat: true,
     prefillFromProfile: true,
     customGate: gateRenteVsCapital,
@@ -388,7 +388,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'rachatMaximum', 'civilStatus'],
-    fallbackRoute: '/coach/chat?prompt=retraite',
+    fallbackRoute: '/coach/chat?topic=retraite',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -401,7 +401,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'rachatMaximum'],
-    fallbackRoute: '/coach/chat?prompt=retraite',
+    fallbackRoute: '/coach/chat?topic=retraite',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -412,7 +412,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['age', 'employmentStatus'],
-    fallbackRoute: '/coach/chat?prompt=3a',
+    fallbackRoute: '/coach/chat?topic=3a',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -423,7 +423,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut'],
-    fallbackRoute: '/coach/chat?prompt=3a',
+    fallbackRoute: '/coach/chat?topic=3a',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -444,7 +444,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['rachatMaximum', 'avoirLpp'],
-    fallbackRoute: '/coach/chat?prompt=rachat+lpp',
+    fallbackRoute: '/coach/chat?topic=rachatLpp',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -469,7 +469,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp'],
-    fallbackRoute: '/coach/chat?prompt=epl',
+    fallbackRoute: '/coach/chat?topic=epl',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -523,7 +523,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'epargne3a'],
-    fallbackRoute: '/coach/chat?prompt=decaissement',
+    fallbackRoute: '/coach/chat?topic=decaissement',
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -1430,7 +1430,7 @@ class MintScreenRegistry extends ScreenRegistry {
   /// Behavior E: no dedicated screen — the coach narrates and suggests
   /// the relevant AdvisorSpecialization based on profile.
   static const ScreenEntry _consultSpecialist = ScreenEntry(
-    route: '/coach/chat?prompt=specialist',
+    route: '/coach/chat?topic=specialist',
     intentTag: 'consult_specialist',
     behavior: ScreenBehavior.conversationPure,
     requiredFields: [],
@@ -1443,7 +1443,7 @@ class MintScreenRegistry extends ScreenRegistry {
 
   /// Agent autonome: coach walks the user through tax declaration prep.
   static const ScreenEntry _prepareTaxForm = ScreenEntry(
-    route: '/coach/chat?prompt=tax_declaration',
+    route: '/coach/chat?topic=taxDeclaration',
     intentTag: 'prepare_tax_form',
     behavior: ScreenBehavior.conversationPure,
     requiredFields: [],
@@ -1454,7 +1454,7 @@ class MintScreenRegistry extends ScreenRegistry {
 
   /// Agent autonome: coach generates the AVS extract request letter.
   static const ScreenEntry _prepareAvsLetter = ScreenEntry(
-    route: '/coach/chat?prompt=avs_extract',
+    route: '/coach/chat?topic=avsExtract',
     intentTag: 'prepare_avs_letter',
     behavior: ScreenBehavior.conversationPure,
     requiredFields: [],
@@ -1465,7 +1465,7 @@ class MintScreenRegistry extends ScreenRegistry {
 
   /// Agent autonome: coach generates the LPP transfer letter.
   static const ScreenEntry _prepareLppTransfer = ScreenEntry(
-    route: '/coach/chat?prompt=lpp_transfer',
+    route: '/coach/chat?topic=lppTransfer',
     intentTag: 'prepare_lpp_transfer',
     behavior: ScreenBehavior.conversationPure,
     requiredFields: [],
