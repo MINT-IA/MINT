@@ -991,6 +991,53 @@ async def extract_with_claude_vision(
         )
         audit_log.field_count = len(result.extracted_fields)
         audit_log.overall_confidence = result.overall_confidence
+
+        # Persist extracted fields to user's ProfileModel (audit FIX 6).
+        # Only mirrors high/medium confidence fields to avoid polluting the
+        # profile with low-confidence OCR noise. Best-effort — any failure is
+        # logged but does not prevent the extraction response from being
+        # returned to the caller.
+        try:
+            from app.models.profile_model import ProfileModel
+            if result.extracted_fields:
+                profile = (
+                    db.query(ProfileModel)
+                    .filter(ProfileModel.user_id == str(current_user.id))
+                    .order_by(ProfileModel.updated_at.desc())
+                    .first()
+                )
+                if profile is not None:
+                    data = dict(profile.data) if profile.data else {}
+                    updated_fields: list[str] = []
+                    for field in result.extracted_fields:
+                        conf_value = (
+                            field.confidence.value
+                            if hasattr(field.confidence, "value")
+                            else str(field.confidence)
+                        )
+                        if conf_value in ("high", "medium"):
+                            data[field.field_name] = field.value
+                            updated_fields.append(field.field_name)
+                    if updated_fields:
+                        data["last_document_extraction"] = {
+                            "document_type": body.document_type.value,
+                            "fields_updated": updated_fields,
+                            "at": datetime.now(timezone.utc).isoformat(),
+                        }
+                        profile.data = data
+                        profile.updated_at = datetime.now(timezone.utc)
+                        # Commit happens in the `finally` block alongside audit log.
+                        logger.info(
+                            "Vision extraction: mirrored %d field(s) to profile for user=%s...",
+                            len(updated_fields),
+                            str(current_user.id)[:8],
+                        )
+        except Exception as persist_err:
+            logger.warning(
+                "Vision extraction: could not persist to ProfileModel: %s",
+                persist_err,
+            )
+
         return result
     except ValueError as e:
         audit_log.error_message = str(e)[:500]
