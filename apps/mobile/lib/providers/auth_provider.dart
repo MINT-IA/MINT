@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/fresh_start_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 /// Error codes for authentication operations.
@@ -106,6 +107,14 @@ class AuthProvider extends ChangeNotifier {
         // FIX-W11-7: Set user prefix for conversation isolation.
         ConversationStore.setCurrentUserId(_userId);
         _error = null;
+        // Full auth contract: migrate anonymous data, hydrate profile,
+        // schedule fresh-start notifications. Required for Apple Sign-In
+        // which only calls checkAuth() (not login/register).
+        await _migrateLocalDataIfNeeded();
+        await _hydrateProfileFromBackend();
+        try {
+          await FreshStartService.scheduleAllFreshStartNotifications();
+        } catch (_) {}
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -175,6 +184,11 @@ class AuthProvider extends ChangeNotifier {
 
       if (_isLoggedIn) {
         await _migrateLocalDataIfNeeded();
+        await _hydrateProfileFromBackend();
+        // Best-effort: schedule fresh-start notifications
+        try {
+          await FreshStartService.scheduleAllFreshStartNotifications();
+        } catch (_) {}
       }
 
       notifyListeners();
@@ -223,6 +237,10 @@ class AuthProvider extends ChangeNotifier {
       await _migrateLocalDataIfNeeded();
       // FIX-W11-5: Hydrate local state from backend on new device login
       await _hydrateProfileFromBackend();
+      // Schedule fresh-start notifications (best-effort)
+      try {
+        await FreshStartService.scheduleAllFreshStartNotifications();
+      } catch (_) {}
 
       notifyListeners();
       return true;
