@@ -1078,7 +1078,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AnalyticsService().init();
-    NotificationService().init();
+    NotificationService().init().then((_) => _consumeNotificationRoute());
   }
 
   @override
@@ -1087,8 +1087,26 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Consume any pending notification deep link and navigate.
+  ///
+  /// Called after NotificationService.init() completes (cold-start tap)
+  /// and on app resume (warm-start tap via didChangeAppLifecycleState).
+  void _consumeNotificationRoute() {
+    final route = NotificationService.consumePendingRoute();
+    if (route != null && route.isNotEmpty) {
+      // Wait for the first frame so GoRouter is mounted and ready.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _router.go(route);
+      });
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Check for notification taps that arrived while app was in background.
+      _consumeNotificationRoute();
+    }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       if (SlmEngine.instance.isAvailable) {
