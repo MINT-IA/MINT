@@ -86,3 +86,66 @@ def list_audit_events(
         limit=limit,
         offset=offset,
     )
+
+
+# ---------------------------------------------------------------------------
+# v2.7 Task 5: Feature flag admin endpoints
+# Protected by MINT_ADMIN_TOKEN env var (header X-Admin-Token). This is a
+# simpler contract than the support_admin RBAC because flag toggling is ops-
+# level (not user-facing analytics) and must work in bootstrap scenarios
+# before any DB role exists.
+# ---------------------------------------------------------------------------
+
+from fastapi import Header  # noqa: E402
+from app.services.flags_service import REGISTERED_FLAGS, flags  # noqa: E402
+
+
+def _require_admin_token(x_admin_token: Optional[str]) -> None:
+    expected = os.environ.get("MINT_ADMIN_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="MINT_ADMIN_TOKEN not configured on this server.",
+        )
+    if not x_admin_token or x_admin_token != expected:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid admin token.",
+        )
+
+
+@router.post("/flags/{flag}")
+async def set_feature_flag(
+    flag: str,
+    value: bool = Query(..., description="True to enable, False to disable"),
+    user: Optional[str] = Query(None, description="If set, scope change to dogfood list for this user_id"),
+    x_admin_token: Optional[str] = Header(None, alias="X-Admin-Token"),
+):
+    """Toggle a feature flag globally or add/remove a user from dogfood.
+
+    Examples:
+        POST /admin/flags/COACH_FSM_ENABLED?value=true            → global on
+        POST /admin/flags/COACH_FSM_ENABLED?value=true&user=u1    → dogfood u1
+        POST /admin/flags/COACH_FSM_ENABLED?value=false&user=u1   → remove u1
+    """
+    _require_admin_token(x_admin_token)
+    if flag not in REGISTERED_FLAGS:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Unknown flag '{flag}'. Registered: {sorted(REGISTERED_FLAGS)}",
+        )
+    ok = await flags.set(flag, value, user_scope=user)
+    return {"flag": flag, "value": value, "user": user, "stored": ok}
+
+
+@router.get("/flags/{flag}")
+async def get_feature_flag(
+    flag: str,
+    user: Optional[str] = Query(None),
+    x_admin_token: Optional[str] = Header(None, alias="X-Admin-Token"),
+):
+    _require_admin_token(x_admin_token)
+    if flag not in REGISTERED_FLAGS:
+        raise HTTPException(status_code=404, detail="Unknown flag")
+    enabled = await flags.is_enabled(flag, user_id=user)
+    return {"flag": flag, "user": user, "enabled": enabled}
