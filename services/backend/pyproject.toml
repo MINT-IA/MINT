@@ -53,6 +53,8 @@ docling = [
     "python-multipart>=0.0.7",
 ]
 kms = [
+    # Used by phase 29-01 envelope encryption AND phase 29-06 Bedrock EU
+    # client (eu-central-1 inference). Single boto3 install covers both.
     "boto3>=1.34,<2.0",
 ]
 privacy = [

@@ -243,17 +243,9 @@ async def judge_vision_output(
             reformulation=_fallback_safe_text(),
         )
 
-    try:
-        from anthropic import AsyncAnthropic
-    except ImportError:  # pragma: no cover - anthropic always installed in prod
-        logger.warning("vision_guard: anthropic package missing — fail-closed")
-        return GuardVerdict(
-            allow=False,
-            reason="judge_unavailable",
-            reformulation=_fallback_safe_text(),
-        )
+    # Phase 29-06: all LLM traffic goes through LLMRouter.
+    from app.services.llm.router import LLMRequest, get_router
 
-    client = AsyncAnthropic(api_key=api_key, timeout=_TIMEOUT_S)
     user_prompt = _JUDGE_USER_TEMPLATE.format(
         summary=summary or "(none)",
         narrative=narrative or "(none)",
@@ -261,14 +253,15 @@ async def judge_vision_output(
     )
 
     try:
-        response = await client.messages.create(
-            model=HAIKU_MODEL,
+        response = await get_router().invoke(LLMRequest(
+            model="haiku",
             max_tokens=_MAX_TOKENS,
             system=_JUDGE_SYSTEM,
             tools=[_JUDGE_TOOL],
             tool_choice={"type": "tool", "name": "lsfin_compliance_verdict"},
             messages=[{"role": "user", "content": user_prompt}],
-        )
+            purpose="vision_guard",
+        ))
     except Exception as exc:
         logger.warning("vision_guard: judge API error — fail-closed err=%s", exc)
         return GuardVerdict(

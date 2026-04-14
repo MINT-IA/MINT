@@ -33,6 +33,10 @@ REGISTERED_FLAGS = {
     "COACH_FSM_ENABLED",
     "DOCUMENTS_V2_ENABLED",
     "PRIVACY_V2_ENABLED",
+    # Phase 29-06 / PRIV-07 — Bedrock EU migration + two-stage masking
+    "BEDROCK_EU_SHADOW_ENABLED",
+    "BEDROCK_EU_PRIMARY_ENABLED",
+    "MASK_PII_BEFORE_VISION",
 }
 
 

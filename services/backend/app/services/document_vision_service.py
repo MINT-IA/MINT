@@ -29,9 +29,73 @@ def _strip_markdown_fences(raw_text: str) -> str:
     match = _MARKDOWN_FENCE_RE.search(stripped)
     return match.group(1) if match else raw_text
 
-from anthropic import Anthropic, AsyncAnthropic
+# Phase 29-06 / PRIV-07: all LLM traffic goes through LLMRouter. Direct
+# use of anthropic.Anthropic/AsyncAnthropic outside services/llm/ is
+# forbidden (CI gate in scripts/check_llm_direct_calls.py).
+import asyncio as _asyncio
 
 from app.core.config import settings
+from app.services.llm.router import LLMRequest, get_router
+
+
+def _sync_vision_call(
+    *,
+    model: str,
+    max_tokens: int,
+    messages: list,
+    system: Optional[str] = None,
+    tools: Optional[list] = None,
+    tool_choice: Optional[dict] = None,
+    thinking: Optional[dict] = None,
+    timeout: Optional[float] = None,
+):
+    """Sync bridge to the async LLMRouter for Vision extraction call sites.
+
+    ``thinking`` and ``timeout`` are forwarded transparently as kwargs; the
+    underlying anthropic client consumes them, Bedrock silently ignores
+    unknown fields (per AWS-2023-05-31 contract).
+    """
+    req = LLMRequest(
+        model=model,
+        max_tokens=max_tokens,
+        messages=messages,
+        system=system,
+        tools=tools,
+        tool_choice=tool_choice,
+        purpose="document_vision",
+    )
+    # LLMRouter is async; run in its own loop for sync callers.
+    try:
+        loop = _asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop is not None and loop.is_running():
+        # Rare: sync function called from async context — use nested call.
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            return ex.submit(lambda: _asyncio.run(get_router().invoke(req))).result()
+    return _asyncio.run(get_router().invoke(req))
+
+
+async def _async_vision_call(
+    *,
+    model: str,
+    max_tokens: int,
+    messages: list,
+    system: Optional[str] = None,
+    tools: Optional[list] = None,
+    tool_choice: Optional[dict] = None,
+    thinking: Optional[dict] = None,
+):
+    return await get_router().invoke(LLMRequest(
+        model=model,
+        max_tokens=max_tokens,
+        messages=messages,
+        system=system,
+        tools=tools,
+        tool_choice=tool_choice,
+        purpose="document_vision",
+    ))
 from app.schemas.document_scan import (
     DocumentType,
     DocumentClassificationResult,
@@ -199,8 +263,7 @@ def detect_lpp_plan_type(
         return (LppPlanType.surobligatoire, ConfidenceLevel.low)
 
     try:
-        client = Anthropic(api_key=api_key)
-        response = client.messages.create(
+        response = _sync_vision_call(
             model=settings.COACH_MODEL,
             max_tokens=200,
             timeout=15.0,
@@ -378,8 +441,6 @@ def extract_with_vision(
         if detected_plan_type == LppPlanType.plan_1e:
             plan_type_warning = _1E_WARNING
 
-    client = Anthropic(api_key=api_key)
-
     # DOC-04: For 1e plans, remove tauxConversion from extraction fields
     if detected_plan_type == LppPlanType.plan_1e:
         # Build prompt without tauxConversion for 1e plans
@@ -394,7 +455,7 @@ def extract_with_vision(
         system_prompt = _build_extraction_prompt(doc_type, canton, language_hint)
 
     try:
-        response = client.messages.create(
+        response = _sync_vision_call(
             model=settings.COACH_MODEL,
             max_tokens=2000,
             timeout=30.0,  # 30s timeout to prevent worker blocking
@@ -600,8 +661,7 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
         )
 
     try:
-        client = Anthropic(api_key=api_key)
-        response = client.messages.create(
+        response = _sync_vision_call(
             model=settings.COACH_MODEL,
             max_tokens=200,
             timeout=15.0,  # Lightweight call — shorter timeout
@@ -988,8 +1048,7 @@ async def _call_fused_vision(
         else:
             pages_processed = pages_total
 
-    client = AsyncAnthropic(api_key=api_key)
-    response = await client.messages.create(
+    response = await _async_vision_call(
         model=settings.COACH_MODEL,
         max_tokens=3000,
         thinking={"type": "enabled", "budget_tokens": 1024},
