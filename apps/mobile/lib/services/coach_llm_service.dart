@@ -198,6 +198,11 @@ class ChatMessage {
   /// Non-null when the message carries a guided sequence step transition.
   final SequenceMessagePayload? sequencePayload;
 
+  /// v2.7 Task 8: true when the backend served this response via the Haiku
+  /// fallback path (Sonnet upstream failure or timeout). Triggers a subtle
+  /// "Réponse rapide" chip in CoachChatScreen — NOT an error indicator.
+  final bool degraded;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -211,6 +216,7 @@ class ChatMessage {
     this.documentPayload,
     this.richToolCalls = const [],
     this.sequencePayload,
+    this.degraded = false,
   });
 
   bool get isUser => role == 'user';
@@ -242,6 +248,10 @@ class CoachResponse {
   /// Structured tool_calls from the backend LLM (e.g. show_fact_card, set_goal).
   final List<RagToolCall> toolCalls;
 
+  /// v2.7 Task 8: true when backend fell back to Haiku (graceful degradation).
+  /// Surface as a subtle chip, NOT as an error.
+  final bool degraded;
+
   const CoachResponse({
     required this.message,
     this.suggestedActions,
@@ -250,6 +260,7 @@ class CoachResponse {
     this.disclaimers = const [],
     this.wasFiltered = false,
     this.toolCalls = const [],
+    this.degraded = false,
   });
 }
 

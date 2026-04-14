@@ -22594,4 +22594,11 @@ class SDe extends S {
 
   @override
   String get coachDisclaimerCollapsed => 'Bildungstool — Disclaimer anzeigen';
+
+  @override
+  String get coachResponseDegradedHint => 'Schnelle Antwort';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'Wir sind heute gut vorangekommen. Ruh dich aus, ich bin morgen da.';
 }

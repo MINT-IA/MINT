@@ -739,6 +739,8 @@ class CoachOrchestrator {
       disclaimers: ragResponse.disclaimers,
       wasFiltered: !compliance.isCompliant,
       toolCalls: ragResponse.toolCalls,
+      // ragResponse has no degraded flag — BYOK path uses user's own key.
+      degraded: false,
     );
   }
 
@@ -861,6 +863,8 @@ class CoachOrchestrator {
         disclaimers: response.disclaimers,
         wasFiltered: !compliance.isCompliant,
         toolCalls: response.toolCalls,
+        // v2.7 Task 8: surface Haiku-fallback flag from backend response_meta.
+        degraded: response.degraded,
       );
     } on TimeoutException {
       debugPrint('[Orchestrator] Server-key chat timed out');

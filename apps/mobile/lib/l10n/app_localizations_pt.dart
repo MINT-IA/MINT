@@ -22547,4 +22547,11 @@ class SPt extends S {
   @override
   String get coachDisclaimerCollapsed =>
       'Ferramenta educativa — ver disclaimer';
+
+  @override
+  String get coachResponseDegradedHint => 'Resposta rápida';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'Avançámos bem hoje. Descansa, espero-te amanhã.';
 }

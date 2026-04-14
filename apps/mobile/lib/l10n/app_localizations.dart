@@ -39548,6 +39548,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif — voir le disclaimer'**
   String get coachDisclaimerCollapsed;
+
+  /// v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse rapide'**
+  String get coachResponseDegradedHint;
+
+  /// v2.7 Task 4 — shown when user hits daily token budget hard cap.
+  ///
+  /// In fr, this message translates to:
+  /// **'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.'**
+  String get coachBudgetDailyLimitReached;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

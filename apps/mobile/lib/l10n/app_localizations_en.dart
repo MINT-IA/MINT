@@ -22431,4 +22431,11 @@ class SEn extends S {
 
   @override
   String get coachDisclaimerCollapsed => 'Educational tool — view disclaimer';
+
+  @override
+  String get coachResponseDegradedHint => 'Fast reply';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'We\'ve made good progress today. Rest, I\'ll be here tomorrow.';
 }

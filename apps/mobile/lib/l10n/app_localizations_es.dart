@@ -22541,4 +22541,11 @@ class SEs extends S {
   @override
   String get coachDisclaimerCollapsed =>
       'Herramienta educativa — ver disclaimer';
+
+  @override
+  String get coachResponseDegradedHint => 'Respuesta rápida';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'Hemos avanzado bien hoy. Descansa, te espero mañana.';
 }

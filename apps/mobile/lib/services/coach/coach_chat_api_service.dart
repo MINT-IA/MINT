@@ -204,15 +204,29 @@ class CoachChatApiResponse {
   final List<String> disclaimers;
   final int tokensUsed;
 
+  /// v2.7 Task 8: true when backend fell back to Haiku (graceful degradation).
+  /// UI surfaces a subtle "Réponse rapide" chip — NOT an error indicator.
+  final bool degraded;
+
+  /// Model id that produced the response (e.g. "claude-haiku-4-5-...").
+  final String? modelUsed;
+
+  /// Budget tier: normal / soft_cap / truncate / hard_cap.
+  final String? budgetTier;
+
   const CoachChatApiResponse({
     required this.message,
     this.toolCalls = const [],
     this.sources = const [],
     this.disclaimers = const [],
     this.tokensUsed = 0,
+    this.degraded = false,
+    this.modelUsed,
+    this.budgetTier,
   });
 
   factory CoachChatApiResponse.fromJson(Map<String, dynamic> json) {
+    final meta = (json['responseMeta'] as Map<String, dynamic>?) ?? const {};
     return CoachChatApiResponse(
       message: json['message'] as String? ?? '',
       toolCalls: (json['toolCalls'] as List?)
@@ -235,6 +249,9 @@ class CoachChatApiResponse {
               .toList() ??
           const [],
       tokensUsed: json['tokensUsed'] as int? ?? 0,
+      degraded: meta['degraded'] as bool? ?? false,
+      modelUsed: meta['modelUsed'] as String?,
+      budgetTier: meta['budgetTier'] as String?,
     );
   }
 }

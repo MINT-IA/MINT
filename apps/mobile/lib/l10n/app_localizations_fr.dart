@@ -22543,4 +22543,11 @@ class SFr extends S {
 
   @override
   String get coachDisclaimerCollapsed => 'Outil éducatif — voir le disclaimer';
+
+  @override
+  String get coachResponseDegradedHint => 'Réponse rapide';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.';
 }

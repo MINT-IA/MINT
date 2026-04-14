@@ -22602,4 +22602,11 @@ class SIt extends S {
   @override
   String get coachDisclaimerCollapsed =>
       'Strumento educativo — vedi disclaimer';
+
+  @override
+  String get coachResponseDegradedHint => 'Risposta rapida';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'Oggi abbiamo fatto buoni progressi. Riposati, ti aspetto domani.';
 }

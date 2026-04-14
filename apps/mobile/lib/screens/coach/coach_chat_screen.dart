@@ -987,6 +987,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           responseCards: cards,
           tier: tier,
           richToolCalls: richCalls,
+          // v2.7 Task 8: surface degraded flag to bubble for subtle chip.
+          degraded: response.degraded,
         ));
         _isLoading = false;
         _trimMessages();
@@ -1790,17 +1792,37 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             child: UserMessageBubble(message: msg),
           );
         } else {
+          // v2.7 Task 8: compose bubble + subtle degraded chip (if applicable).
+          final bubbleWidget = CoachMessageBubble(
+            message: msg,
+            messageIndex: index,
+            isStreaming:
+                _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
+            isInputAnswered: _answeredInputIndices.contains(index),
+            onInputSubmitted: _handleInputSubmitted,
+            onActionTap: _handleActionTap,
+          );
           child = Semantics(
             label: S.of(context)!.coachCoachMessage,
-            child: CoachMessageBubble(
-              message: msg,
-              messageIndex: index,
-              isStreaming:
-                  _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
-              isInputAnswered: _answeredInputIndices.contains(index),
-              onInputSubmitted: _handleInputSubmitted,
-              onActionTap: _handleActionTap,
-            ),
+            child: msg.degraded
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      bubbleWidget,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 42, top: 4),
+                        child: Text(
+                          S.of(context)!.coachResponseDegradedHint,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: MintColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : bubbleWidget,
           );
         }
 

@@ -3317,7 +3317,7 @@
   "docImpactSubtitle": "I valori del tuo {docType} sono stati integrati nelle tue proiezioni.",
   "docImpactConfidenceLabel": "% fiducia",
   "docImpactDeltaPoints": "+{points} punti di fiducia",
-  "docImpactPremierEclairageTitle": "Cifra chiave ricalcolata",
+  "docImpactPremierEclairageTitle": "Cosa vede Mint",
   "docImpactLppRealAmount": "di averi LPP reali (di cui {oblig} obbligatori)",
   "docImpactRenteOblig": "Rendita obbligatoria al 6.8%: CHF {amount}/anno",
   "docImpactSurobligWithRate": "Parte sovraobbligatoria (CHF {suroblig}) al {rate}% = CHF {rente}/anno",
@@ -3525,7 +3525,10 @@
   "coachErrorConnection": "Errore di connessione. Verifica la tua connessione internet o la tua chiave API.",
   "coachSuggestSimulate3a": "Se verso di più sul mio 3a, cosa cambia?",
   "@coachSuggestSimulate3a": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachSuggestView3a": "Quanto ho sui miei conti 3a?",
   "coachSuggestSimulateLpp": "Mi conviene riscattare il LPP?",
@@ -3533,20 +3536,32 @@
   "coachSuggestTrajectory": "Quanto è grave se non faccio nulla?",
   "coachSuggestScenarios": "Rendita o capitale — mostrameli affiancati",
   "@coachSuggestScenarios": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachSuggestDeductions": "Quanto potrei recuperare quest'anno?",
   "@coachSuggestDeductions": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachSuggestTaxImpact": "Quante tasse in meno con un riscatto?",
   "coachSuggestFitness": "A che punto sono, rispetto a quello che mi ero detto?",
   "@coachSuggestFitness": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachSuggestRetirement": "In pensione, cosa mi resterà ogni mese?",
   "@coachSuggestRetirement": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachEmptyStateMessage": "Ancora nessun profilo. Tre domande, e iniziamo a parlare.",
   "coachEmptyStateButton": "Fare la mia diagnosi",
@@ -3555,24 +3570,39 @@
   "coachTooltipSettings": "Impostazioni IA",
   "coachBadgeSlm": "On-device",
   "@coachBadgeSlm": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachBadgeByok": "Cloud",
   "@coachBadgeByok": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachBadgeFallback": "Offline",
   "@coachBadgeFallback": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachLoading": "Sto guardando i tuoi numeri…",
   "coachSources": "Fonti",
   "@coachSources": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachInputHint": "Dimmi cosa ti passa per la testa.",
   "@coachInputHint": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "coachUserMessage": "Il tuo messaggio",
   "coachCoachMessage": "Risposta del coach",
@@ -5687,7 +5717,7 @@
   },
   "timelineHeader": "La tua vita finanziaria,\npasso dopo passo.",
   "timelineSubheader": "Strumenti essenziali ed eventi di vita — tutto è qui.",
-  "timelineSectionTitle": "Eventi di vita",
+  "timelineSectionTitle": "La tua storia",
   "timelineSectionSubtitle": "Seleziona un evento per simulare il suo impatto finanziario.",
   "timelineCatFamille": "FAMIGLIA",
   "timelineCatProfessionnel": "PROFESSIONALE",
@@ -5900,15 +5930,24 @@
   "premierEclairageRenteCalculation": "(calcolo: rendita mensile × 13 mesi/anno, 13ª rendita inclusa).",
   "coachBriefingFallbackGreeting": "Ciao",
   "@coachBriefingFallbackGreeting": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachBriefingBadgeLlm": "Coach IA",
   "@coachBriefingBadgeLlm": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachBriefingBadge": "Coach",
   "@coachBriefingBadge": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachBriefingConfidenceLow": "Fiducia {score} % — Arricchire",
   "@coachBriefingConfidenceLow": {
@@ -7826,21 +7865,33 @@
   "coachFactCardTitle": "Lo sapevi?",
   "coachGateSubtitle": "Disponibile con MINT Coach",
   "@coachGateSubtitle": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "coachGateTitle": "Funzione Coach",
   "@coachGateTitle": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "coachGateUnlock": "Sbloccare",
   "@coachGateUnlock": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "coachMarkStepConfirm": "Segnare il passaggio \"{stepId}\" come completato?",
   "coachMintLabel": "Coach MINT",
   "coachPulseDisclaimer": "Mint illumina, Mint non promette nulla. Le stime qui sono educative e non costituiscono consulenza finanziaria. I rendimenti passati non sono indicativi di quelli futuri. Per un piano personalizzato, parla con un·a specialista. LSerFi.",
   "@coachPulseDisclaimer": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachingDescAttentif": "MINT è attento ad ogni sessione. Suggerimenti frequenti e memoria ricca.",
   "coachingDescCalme": "MINT interviene occasionalmente. Un promemoria ogni 3 giorni al massimo.",
@@ -8291,7 +8342,10 @@
   "greetingEvening": "Buonasera",
   "greetingMorning": "Buongiorno",
   "@greetingMorning": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "greetingNight": "Buonanotte",
   "helpResourcesAppBarTitle": "AIUTO IN CASO DI DEBITO",
@@ -9481,12 +9535,18 @@
   "acceptInvitationTitle": "Unirsi a un nucleo",
   "coachDisclaimer": "Mint illumina, Mint non consiglia. Le risposte qui sono educative e non costituiscono consulenza finanziaria ai sensi della LSerFi (art. 3). Per una decisione importante, parla con un·a specialista.",
   "@coachDisclaimer": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "coachFallbackName": "amico/a",
   "coachGreetingDefault": "Ciao {name}. Mint guarda i tuoi numeri con calma — quando vuoi, ne parliamo.{scoreSuffix}",
   "@coachGreetingDefault": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" },
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    },
     "placeholders": {
       "name": {
         "type": "String"
@@ -9730,7 +9790,10 @@
   "instantPremierEclairageComeBack": "Torna quando vuoi",
   "coachSilentOpenerQuestion": "Vuoi parlarne?",
   "@coachSilentOpenerQuestion": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "coachProactiveOptIn": "A proposito — vuoi che ti segnali le cose importanti quando apri l'app? O preferisci che parliamo solo quando ne hai voglia?",
   "coachOptInAccept": "Sì, segnalami",
@@ -9854,7 +9917,10 @@
   "coachInterruptMortgageOverThird": "Le banche rifiuteranno. Ecco 2 opzioni.",
   "coachInterruptFullCapitalRisk": "Mint osserva: 100 % in capitale significa zero rendita mensile a vita. Vuoi che guardiamo cosa implica?",
   "@coachInterruptFullCapitalRisk": {
-    "x-mint-meta": { "level": "N4", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N4",
+      "phase": "11-01"
+    }
   },
   "coachInterruptEplBlock": "Attenzione: blocco EPL per 3 anni.",
   "coachInterruptBudgetDeficit": "Deficit di {deficit} CHF/mese. Diamo un’occhiata?",
@@ -9937,25 +10003,40 @@
   "intentScreenMicrocopy": "Potrai riformulare con le tue parole in seguito.",
   "intentChip3a": "Qualcuno mi ha appena parlato di un 3a",
   "@intentChip3a": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "intentChipBilan": "Voglio vedere a che punto sono",
   "intentChipPrevoyance": "Non capisco bene la mia previdenza",
   "intentChipFiscalite": "Vorrei vederci chiaro sulle mie tasse",
   "@intentChipFiscalite": {
-    "x-mint-meta": { "level": "N3", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N3",
+      "phase": "11-01"
+    }
   },
   "intentChipProjet": "Ho un progetto in mente",
   "@intentChipProjet": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "intentChipChangement": "La mia situazione sta cambiando",
   "@intentChipChangement": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "intentChipAutre": "Altro…",
   "@intentChipAutre": {
-    "x-mint-meta": { "level": "N1", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N1",
+      "phase": "11-01"
+    }
   },
   "premierEclairageCardDismiss": "Chiudi",
   "premierEclairageCardCta": "Capire",
@@ -9971,7 +10052,10 @@
   "coachOpenerIntentProjet": "Hai un progetto immobiliare — ecco cosa ha trovato MINT per te.",
   "coachOpenerIntentChangement": "Stai vivendo un cambiamento — Mint ha guardato cosa potrebbe toccare, senza decidere nulla al posto tuo.",
   "@coachOpenerIntentChangement": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "coachOpenerIntentAutre": "Benvenuto — ecco come MINT può aiutarti.",
   "planCard_ctaDetail": "Vedi dettaglio",
@@ -10087,7 +10171,10 @@
   "calculatorNoPrefillBody": "Inserisci i valori per eseguire il calcolo. MINT li precompilerà automaticamente la prossima volta.",
   "intentChipPremierEmploi": "Il mio primo impiego",
   "@intentChipPremierEmploi": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "intentChipNouvelEmploi": "Cambio lavoro",
   "capStepFirstJob01Title": "Il tuo salario",
@@ -10174,45 +10261,51 @@
   "quickStartHeadline": "Tre domande, un primo numero.",
   "premierEclairageContinue": "Continua",
   "planCta": "Vedi il mio piano",
-  "coachErrorInline": "Il coach non \u00e8 disponibile al momento.",
+  "coachErrorInline": "Il coach non è disponibile al momento.",
   "planHeadline": "Il tuo piano in 4 passi",
   "planSubtitle": "Ecco da dove iniziare.",
   "planStepSalaryTitle": "Capire il tuo primo stipendio",
   "planStepSalaryBody": "Decifra la tua busta paga: AVS, LPP, imposta alla fonte. Ogni riga ha un impatto.",
   "planStep3aTitle": "Configurare il tuo 3a",
-  "planStep3aBody": "CHF 7\u2019258/anno di deduzioni fiscali. Prima inizi, pi\u00f9 grande \u00e8 l\u2019effetto.",
+  "planStep3aBody": "CHF 7’258/anno di deduzioni fiscali. Prima inizi, più grande è l’effetto.",
   "planStepInsuranceTitle": "Verificare la tua copertura assicurativa",
   "planStepInsuranceBody": "LAMal, RC, economia domestica: le basi da verificare prima di firmare qualsiasi cosa.",
   "planStepAvsTitle": "Conoscere i tuoi diritti AVS",
   "planStepAvsBody": "Ogni anno di contributi conta. Verifica il tuo estratto CI per evitare lacune.",
   "coachCheckInWelcome": "Ciao! Mint è qui. Quando vuoi, guardiamo insieme cosa conta questo mese.",
   "@coachCheckInWelcome": {
-    "x-mint-meta": { "level": "N2", "phase": "11-01" }
+    "x-mint-meta": {
+      "level": "N2",
+      "phase": "11-01"
+    }
   },
   "docNotFinancial": "Questo documento non sembra essere un documento finanziario svizzero.",
   "docNotFinancialHint": "Prova con un certificato LPP, di salario, 3a o una polizza assicurativa.",
-  "docFileTooLarge": "File troppo grande. Massimo 10\u00a0MB.",
+  "docFileTooLarge": "File troppo grande. Massimo 10 MB.",
   "docWrongFormat": "Formato non supportato. Usa una foto o un PDF.",
-  "docLpp1eWarning": "Piano 1e rilevato. Nessun tasso di conversione garantito \u2014 proiezione solo in capitale.",
+  "docLpp1eWarning": "Piano 1e rilevato. Nessun tasso di conversione garantito — proiezione solo in capitale.",
   "docCoherenceWarning": "Gli importi obbligatorio e sovraobbligatorio non corrispondono al totale. Verifica i valori.",
   "docFieldVerify": "Verifica questo valore",
   "docSourcePrefix": "Fonte: ",
-  "docImpactFallback": "Il tuo profilo \u00e8 stato arricchito",
+  "docImpactFallback": "Il tuo profilo è stato arricchito",
   "docReviewConfirm": "Confermare e arricchire il mio profilo",
-  "docImpactPremierEclairageTitle": "Cosa vede Mint",
   "docImpactQuestionsTitle": "Domande da porre",
   "docImpactContinuer": "Continua",
-  "docImpactPremierEclairageLoading": "Analisi in corso\u2026",
-  "docImpactPremierEclairageError": "Arricchimento salvato. L'analisi dettagliata sar\u00e0 disponibile a breve.",
+  "docImpactPremierEclairageLoading": "Analisi in corso…",
+  "docImpactPremierEclairageError": "Arricchimento salvato. L'analisi dettagliata sarà disponibile a breve.",
   "privacyControlTitle": "Cosa MINT sa di te",
   "privacyControlEmpty": "Nessun dato per ora",
-  "privacyControlEmptyBody": "Scansiona un documento o parla con il coach perch\u00e9 MINT inizi a conoscerti.",
+  "privacyControlEmptyBody": "Scansiona un documento o parla con il coach perché MINT inizi a conoscerti.",
   "privacyControlError": "Impossibile caricare i tuoi dati. Riprova tra qualche istante.",
-  "privacyControlSummary": "{count} dati | {percent}\u00a0% aggiornati",
+  "privacyControlSummary": "{count} dati | {percent} % aggiornati",
   "@privacyControlSummary": {
     "placeholders": {
-      "count": {"type": "int"},
-      "percent": {"type": "int"}
+      "count": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "privacyControlSectionFinancial": "Dati finanziari",
@@ -10226,20 +10319,26 @@
   "privacyControlAging": "Dati di {months} mesi fa",
   "@privacyControlAging": {
     "placeholders": {
-      "months": {"type": "int"}
+      "months": {
+        "type": "int"
+      }
     }
   },
-  "privacyControlStale": "Dati obsoleti \u2014 {months} mesi",
+  "privacyControlStale": "Dati obsoleti — {months} mesi",
   "@privacyControlStale": {
     "placeholders": {
-      "months": {"type": "int"}
+      "months": {
+        "type": "int"
+      }
     }
   },
   "privacyControlDeleteTitle": "Eliminare questo dato?",
-  "privacyControlDeleteBody": "Questa azione \u00e8 irreversibile. MINT dimenticher\u00e0 {factLabel}.",
+  "privacyControlDeleteBody": "Questa azione è irreversibile. MINT dimenticherà {factLabel}.",
   "@privacyControlDeleteBody": {
     "placeholders": {
-      "factLabel": {"type": "String"}
+      "factLabel": {
+        "type": "String"
+      }
     }
   },
   "privacyControlDeleteCancel": "Annulla",
@@ -10248,44 +10347,44 @@
   "privacyControlEditSourceNote": "Fonte: modifica manuale",
   "drawerPrivacyControl": "Cosa MINT sa di te",
   "anticipation3aDeadlineTitle": "Scadenza 3a: {days} giorni rimasti",
-  "anticipation3aDeadlineFact": "Puoi ancora versare fino a {limit} CHF nel tuo 3\u00b0 pilastro prima del 31 dicembre {year}. Ogni anno non utilizzato \u00e8 perso.",
+  "anticipation3aDeadlineFact": "Puoi ancora versare fino a {limit} CHF nel tuo 3° pilastro prima del 31 dicembre {year}. Ogni anno non utilizzato è perso.",
   "anticipationTaxDeadlineTitle": "Dichiarazione fiscale {canton}",
-  "anticipationTaxDeadlineFact": "Il termine per la presentazione nel cantone di {canton} \u00e8 il {deadline}. Verifica se \u00e8 possibile una proroga.",
+  "anticipationTaxDeadlineFact": "Il termine per la presentazione nel cantone di {canton} è il {deadline}. Verifica se è possibile una proroga.",
   "anticipationLppRachatTitle": "Finestra di riscatto LPP",
-  "anticipationLppRachatFact": "Un riscatto del 2\u00b0 pilastro entro il 31 dicembre \u00e8 deducibile dal reddito imponibile di quest'anno.",
-  "anticipationSalaryIncreaseTitle": "Il tuo salario \u00e8 aumentato",
-  "anticipationSalaryIncreaseFact": "Con un reddito pi\u00f9 alto, il tuo tetto 3a resta a {newMax} CHF. Hai adeguato i tuoi versamenti?",
+  "anticipationLppRachatFact": "Un riscatto del 2° pilastro entro il 31 dicembre è deducibile dal reddito imponibile di quest'anno.",
+  "anticipationSalaryIncreaseTitle": "Il tuo salario è aumentato",
+  "anticipationSalaryIncreaseFact": "Con un reddito più alto, il tuo tetto 3a resta a {newMax} CHF. Hai adeguato i tuoi versamenti?",
   "anticipationAgeMilestoneTitle": "Nuova aliquota LPP a {age} anni",
-  "anticipationAgeMilestoneFact": "Il tuo accredito di vecchiaia passa dal {oldRate}% al {newRate}%. Il tuo datore di lavoro contribuisce di pi\u00f9 alla tua previdenza.",
+  "anticipationAgeMilestoneFact": "Il tuo accredito di vecchiaia passa dal {oldRate}% al {newRate}%. Il tuo datore di lavoro contribuisce di più alla tua previdenza.",
   "anticipationGotIt": "Capito",
-  "anticipationRemindLater": "Pi\u00f9 tardi",
-  "anticipationLearnMore": "Scopri di pi\u00f9",
+  "anticipationRemindLater": "Più tardi",
+  "anticipationLearnMore": "Scopri di più",
   "anticipationOverflowTitle": "{count} altri segnali",
   "ctxCoachOpenerFallback": "Benvenuto. Ecco il tuo quadro finanziario.",
-  "ctxCoachOpenerSalary": "Il tuo stipendio \u00e8 cambiato da {month}. Ecco cosa significa.",
+  "ctxCoachOpenerSalary": "Il tuo stipendio è cambiato da {month}. Ecco cosa significa.",
   "ctxCoachOpenerDocument": "Il tuo certificato {type} affina le tue proiezioni. Ecco il tuo pannello.",
-  "ctxCoachOpener3aGap": "Potresti ottimizzare {gap}\u00a0CHF quest'anno. Diamo un'occhiata insieme?",
-  "ctxCoachOpenerProfile": "Qualche dato in pi\u00f9 e MINT diventa davvero preciso.",
+  "ctxCoachOpener3aGap": "Potresti ottimizzare {gap} CHF quest'anno. Diamo un'occhiata insieme?",
+  "ctxCoachOpenerProfile": "Qualche dato in più e MINT diventa davvero preciso.",
   "ctxHeroStatLabel": "Il tuo reddito previsto alla pensione",
-  "ctxHeroStatNarrative": "Ovvero il {percent}\u00a0% del tuo reddito attuale.",
+  "ctxHeroStatNarrative": "Ovvero il {percent} % del tuo reddito attuale.",
   "ctxHeroStat3aLabel": "Stai lasciando soldi sul tavolo nel pilastro 3a",
-  "ctxHeroStat3aNarrative": "Sono {monthly}\u00a0CHF/mese che potresti dedurre.",
+  "ctxHeroStat3aNarrative": "Sono {monthly} CHF/mese che potresti dedurre.",
   "ctxProgressTitle": "Il tuo profilo si precisa",
-  "ctxProgressBody": "{percent}\u00a0% dei tuoi dati sono aggiornati.",
+  "ctxProgressBody": "{percent} % dei tuoi dati sono aggiornati.",
   "ctxProgressBioTitle": "Memoria finanziaria attiva",
   "ctxProgressBioBody": "MINT conosce {count} elementi della tua storia finanziaria.",
   "ctxActionScanTitle": "Scansiona un documento",
   "ctxActionScanBody": "Un certificato LPP o di stipendio affina le tue proiezioni.",
   "ctxActionProfileTitle": "Completa il tuo profilo",
-  "ctxActionProfileBody": "Qualche informazione in pi\u00f9 per proiezioni affidabili.",
-  "ctxSeeMore": "Mostra di pi\u00f9",
+  "ctxActionProfileBody": "Qualche informazione in più per proiezioni affidabili.",
+  "ctxSeeMore": "Mostra di più",
   "ctxSeeLess": "Mostra meno",
   "ctxOverflowCount": "{count} elemento/i aggiuntivo/i",
   "ctxEmptyHeading": "Niente di nuovo per ora",
-  "ctxEmptyBody": "Continua ad arricchire il tuo profilo perch\u00e9 MINT possa guidarti al momento giusto.",
+  "ctxEmptyBody": "Continua ad arricchire il tuo profilo perché MINT possa guidarti al momento giusto.",
   "ctxEmptyCta": "Scansiona un documento",
   "ctxHeroStatProfileLabel": "Il tuo profilo MINT",
-  "ctxHeroStatProfileNarrative": "Pi\u00f9 completo \u00e8 il tuo profilo, pi\u00f9 preciso diventa MINT.",
+  "ctxHeroStatProfileNarrative": "Più completo è il tuo profilo, più preciso diventa MINT.",
   "voiceCursorPreferenceLabel": "Tono",
   "voiceCursorPreferenceSoft": "Dolce",
   "voiceCursorPreferenceDirect": "Diretto",
@@ -10293,14 +10392,14 @@
   "mtcSummaryWeakCompleteness": "Calcolato su quello che sappiamo oggi — qualche pezzo manca ancora.",
   "mtcSummaryWeakAccuracy": "Una cifra chiave poggia su un'ipotesi fragile — Mint resta prudente.",
   "mtcSummaryWeakFreshness": "Dati raccolti un po' di tempo fa — Mint preferisce ridirlo.",
-  "mtcSummaryWeakUnderstanding": "Il calcolo \u00e8 fatto, l'idea merita ancora una conversazione.",
+  "mtcSummaryWeakUnderstanding": "Il calcolo è fatto, l'idea merita ancora una conversazione.",
   "landingV2Paragraph": "Mint ti dice quello che nessuno ha interesse a dirti. Sulle tue assicurazioni, sul tuo 3a, sul tuo stipendio, sul tuo contratto d'affitto, sulla tua coppia, sulle tue imposte. Con calma. Senza venderti nulla.",
   "landingV2Cta": "Continua (senza account)",
-  "landingV2Privacy": "Niente esce dal tuo telefono finch\u00e9 non lo decidi tu.",
+  "landingV2Privacy": "Niente esce dal tuo telefono finché non lo decidi tu.",
   "landingV2Legal": "Strumento educativo. Non costituisce consulenza finanziaria ai sensi della LSerFi.",
-  "landingV2LoginLink": "Ho gi\u00e0 un account",
+  "landingV2LoginLink": "Ho già un account",
   "alertGenericFactPrefix": "MINT ha notato",
-  "alertGenericCausePrefix": "Perch\u00e9",
+  "alertGenericCausePrefix": "Perché",
   "alertGenericNextMomentPrefix": "Quando ne riparleremo",
   "alertG2Label": "Da verificare",
   "alertG3Label": "Non ignorare",
@@ -10309,180 +10408,364 @@
   "mintAlertDebtCause": "Lo nota MINT quando il rimborso mensile supera la soglia di respiro del budget.",
   "mintAlertDebtNextMoment": "Possiamo guardare insieme un piano di uscita, al tuo ritmo.",
   "mintAlertAnnounceG3": "MINT ha individuato un punto importante che richiede la tua attenzione.",
-  "@mintAlertAnnounceG3": {"description": "Phase 9 Plan 09-04 \u2014 screen-reader announce text fired on G2\u2192G3 transition (MINT-as-subject, D-03/D-11)."},
+  "@mintAlertAnnounceG3": {
+    "description": "Phase 9 Plan 09-04 — screen-reader announce text fired on G2→G3 transition (MINT-as-subject, D-03/D-11)."
+  },
   "landingV2PromiseSober": "Noi chiariamo. Tu decidi.",
   "landingV2CtaSober": "Parla con Mint",
   "tonChooserTitle": "Scegli come Mint ti parla",
-  "@tonChooserTitle": {"description": "Phase 12-01."},
+  "@tonChooserTitle": {
+    "description": "Phase 12-01."
+  },
   "tonChooserSubtitle": "Come Mint ti parla. Puoi cambiarlo quando vuoi.",
-  "@tonChooserSubtitle": {"description": "Phase 12-01."},
+  "@tonChooserSubtitle": {
+    "description": "Phase 12-01."
+  },
   "tonSoftLabel": "Dolce",
-  "@tonSoftLabel": {"description": "Phase 12-01."},
+  "@tonSoftLabel": {
+    "description": "Phase 12-01."
+  },
   "tonDirectLabel": "Diretto",
-  "@tonDirectLabel": {"description": "Phase 12-01."},
+  "@tonDirectLabel": {
+    "description": "Phase 12-01."
+  },
   "tonUnfilteredLabel": "Senza filtro",
-  "@tonUnfilteredLabel": {"description": "Phase 12-01."},
+  "@tonUnfilteredLabel": {
+    "description": "Phase 12-01."
+  },
   "tonSoftExample": "Andiamo piano.",
-  "@tonSoftExample": {"description": "Phase 12-01.", "level": "N2"},
+  "@tonSoftExample": {
+    "description": "Phase 12-01.",
+    "level": "N2"
+  },
   "tonDirectExample": "Ecco cosa significa davvero.",
-  "@tonDirectExample": {"description": "Phase 12-01.", "level": "N3"},
+  "@tonDirectExample": {
+    "description": "Phase 12-01.",
+    "level": "N3"
+  },
   "tonUnfilteredExample": "Nessun filtro. Vuoi sapere.",
-  "@tonUnfilteredExample": {"description": "Phase 12-01.", "level": "N4"},
+  "@tonUnfilteredExample": {
+    "description": "Phase 12-01.",
+    "level": "N4"
+  },
   "tonSkipLater": "Più tardi",
-  "@tonSkipLater": {"description": "Phase 12-01."},
+  "@tonSkipLater": {
+    "description": "Phase 12-01."
+  },
   "tonSyncFailedToast": "Mint non è riuscito a salvare la scelta. Riproviamo più tardi.",
-  "@tonSyncFailedToast": {"description": "Phase 12-01."},
+  "@tonSyncFailedToast": {
+    "description": "Phase 12-01."
+  },
   "tonSelectedSemantics": "Selezionato",
-  "@tonSelectedSemantics": {"description": "Phase 12-01."},
+  "@tonSelectedSemantics": {
+    "description": "Phase 12-01."
+  },
   "tonNotSelectedSemantics": "Non selezionato",
-  "@tonNotSelectedSemantics": {"description": "Phase 12-01."},
+  "@tonNotSelectedSemantics": {
+    "description": "Phase 12-01."
+  },
   "tonSectionLabel": "Voce",
-  "@tonSectionLabel": {"description": "Phase 12-01."},
+  "@tonSectionLabel": {
+    "description": "Phase 12-01."
+  },
   "anonymousIntentLine1": "I soldi, in Svizzera, sono il tema di cui nessuno parla.",
-  "@anonymousIntentLine1": {"description": "Anonymous intent screen \u2014 opening line about money taboo in Switzerland."},
-  "anonymousIntentLine2": "Nemmeno con s\u00e9 stessi.",
-  "@anonymousIntentLine2": {"description": "Anonymous intent screen \u2014 follow-up line."},
+  "@anonymousIntentLine1": {
+    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+  },
+  "anonymousIntentLine2": "Nemmeno con sé stessi.",
+  "@anonymousIntentLine2": {
+    "description": "Anonymous intent screen — follow-up line."
+  },
   "anonymousIntentPill1": "Pago, firmo, ma non capisco proprio tutto",
-  "@anonymousIntentPill1": {"description": "Anonymous intent \u2014 felt-state pill 1."},
+  "@anonymousIntentPill1": {
+    "description": "Anonymous intent — felt-state pill 1."
+  },
   "anonymousIntentPill2": "Evito di pensarci",
-  "@anonymousIntentPill2": {"description": "Anonymous intent \u2014 felt-state pill 2."},
+  "@anonymousIntentPill2": {
+    "description": "Anonymous intent — felt-state pill 2."
+  },
   "anonymousIntentPill3": "Ho paura di fare un errore costoso",
-  "@anonymousIntentPill3": {"description": "Anonymous intent \u2014 felt-state pill 3."},
+  "@anonymousIntentPill3": {
+    "description": "Anonymous intent — felt-state pill 3."
+  },
   "anonymousIntentPill4": "So che dovrei occuparmene",
-  "@anonymousIntentPill4": {"description": "Anonymous intent \u2014 felt-state pill 4."},
-  "anonymousIntentPill5": "Qualcosa \u00e8 cambiato e non so da dove cominciare",
-  "@anonymousIntentPill5": {"description": "Anonymous intent \u2014 felt-state pill 5."},
+  "@anonymousIntentPill4": {
+    "description": "Anonymous intent — felt-state pill 4."
+  },
+  "anonymousIntentPill5": "Qualcosa è cambiato e non so da dove cominciare",
+  "@anonymousIntentPill5": {
+    "description": "Anonymous intent — felt-state pill 5."
+  },
   "anonymousIntentPill6": "Voglio solo vederci chiaro",
-  "@anonymousIntentPill6": {"description": "Anonymous intent \u2014 felt-state pill 6."},
-  "anonymousIntentFreeTextHint": "Oppure dillo come vuoi tu\u2026",
-  "@anonymousIntentFreeTextHint": {"description": "Anonymous intent \u2014 free text input hint."},
-
+  "@anonymousIntentPill6": {
+    "description": "Anonymous intent — felt-state pill 6."
+  },
+  "anonymousIntentFreeTextHint": "Oppure dillo come vuoi tu…",
+  "@anonymousIntentFreeTextHint": {
+    "description": "Anonymous intent — free text input hint."
+  },
   "anonymousChatBack": "Indietro",
-  "@anonymousChatBack": {"description": "Anonymous chat \u2014 back button tooltip."},
+  "@anonymousChatBack": {
+    "description": "Anonymous chat — back button tooltip."
+  },
   "anonymousChatLocked": "Sono ancora qui quando vorrai continuare.",
-  "@anonymousChatLocked": {"description": "Anonymous chat \u2014 message shown when input is locked after dismissing auth gate."},
+  "@anonymousChatLocked": {
+    "description": "Anonymous chat — message shown when input is locked after dismissing auth gate."
+  },
   "anonymousChatCreateAccount": "Crea un account",
-  "@anonymousChatCreateAccount": {"description": "Anonymous chat \u2014 CTA button to create account."},
+  "@anonymousChatCreateAccount": {
+    "description": "Anonymous chat — CTA button to create account."
+  },
   "anonymousChatError": "Ho un problema tecnico. Riprova tra un momento.",
-  "@anonymousChatError": {"description": "Anonymous chat \u2014 fallback error message."},
-  "anonymousChatConversionPrompt": "Abbiamo gi\u00e0 scoperto 3 cose insieme. Se vuoi che le ricordi\u2026",
-  "@anonymousChatConversionPrompt": {"description": "Anonymous chat \u2014 coach message before auth gate after 3rd response."},
-  "authGateConversionMessage": "Posso tenere tutto questo in memoria per te \u2014 basta creare un account.",
-  "@authGateConversionMessage": {"description": "Auth gate bottom sheet \u2014 coach conversion message."},
-  "authGateLater": "Pi\u00f9 tardi",
-  "@authGateLater": {"description": "Auth gate bottom sheet \u2014 dismiss button."},
+  "@anonymousChatError": {
+    "description": "Anonymous chat — fallback error message."
+  },
+  "anonymousChatConversionPrompt": "Abbiamo già scoperto 3 cose insieme. Se vuoi che le ricordi…",
+  "@anonymousChatConversionPrompt": {
+    "description": "Anonymous chat — coach message before auth gate after 3rd response."
+  },
+  "authGateConversionMessage": "Posso tenere tutto questo in memoria per te — basta creare un account.",
+  "@authGateConversionMessage": {
+    "description": "Auth gate bottom sheet — coach conversion message."
+  },
+  "authGateLater": "Più tardi",
+  "@authGateLater": {
+    "description": "Auth gate bottom sheet — dismiss button."
+  },
   "authGateMagicLink": "Ricevi un link",
-  "@authGateMagicLink": {"description": "Auth gate bottom sheet \u2014 magic link button."},
-
+  "@authGateMagicLink": {
+    "description": "Auth gate bottom sheet — magic link button."
+  },
   "commitmentCardTitle": "Il mio impegno",
-  "@commitmentCardTitle": {"description": "Commitment card \u2014 header title."},
+  "@commitmentCardTitle": {
+    "description": "Commitment card — header title."
+  },
   "commitmentWhen": "QUANDO",
-  "@commitmentWhen": {"description": "Commitment card \u2014 WHEN field label."},
+  "@commitmentWhen": {
+    "description": "Commitment card — WHEN field label."
+  },
   "commitmentWhere": "DOVE / COME",
-  "@commitmentWhere": {"description": "Commitment card \u2014 WHERE/HOW field label."},
-  "commitmentIfThen": "SE\u2026 ALLORA",
-  "@commitmentIfThen": {"description": "Commitment card \u2014 IF-THEN field label."},
+  "@commitmentWhere": {
+    "description": "Commitment card — WHERE/HOW field label."
+  },
+  "commitmentIfThen": "SE… ALLORA",
+  "@commitmentIfThen": {
+    "description": "Commitment card — IF-THEN field label."
+  },
   "commitmentAccept": "Mi impegno",
-  "@commitmentAccept": {"description": "Commitment card \u2014 accept button label."},
+  "@commitmentAccept": {
+    "description": "Commitment card — accept button label."
+  },
   "commitmentDismissed": "Impegno rimosso",
-  "@commitmentDismissed": {"description": "Commitment card \u2014 dismissed snackbar message."},
+  "@commitmentDismissed": {
+    "description": "Commitment card — dismissed snackbar message."
+  },
   "commitmentReminderTitle": "Promemoria MINT",
-  "@commitmentReminderTitle": {"description": "Commitment reminder \u2014 notification title."},
-  "commitmentReminderBody": "\u00c8 il momento di mantenere il tuo impegno.",
-  "@commitmentReminderBody": {"description": "Commitment reminder \u2014 notification body."},
+  "@commitmentReminderTitle": {
+    "description": "Commitment reminder — notification title."
+  },
+  "commitmentReminderBody": "È il momento di mantenere il tuo impegno.",
+  "@commitmentReminderBody": {
+    "description": "Commitment reminder — notification body."
+  },
   "freshStartNotificationTitle": "MINT",
-  "@freshStartNotificationTitle": {"description": "Fresh-start landmark \u2014 notification title."},
+  "@freshStartNotificationTitle": {
+    "description": "Fresh-start landmark — notification title."
+  },
   "tensionEarnedTitle": "Ottenuto",
-  "@tensionEarnedTitle": {"description": "Tension card \u2014 earned section title."},
+  "@tensionEarnedTitle": {
+    "description": "Tension card — earned section title."
+  },
   "tensionPulsingTitle": "In corso",
-  "@tensionPulsingTitle": {"description": "Tension card \u2014 pulsing section title."},
+  "@tensionPulsingTitle": {
+    "description": "Tension card — pulsing section title."
+  },
   "tensionGhostedTitle": "In arrivo",
-  "@tensionGhostedTitle": {"description": "Tension card \u2014 ghosted section title."},
+  "@tensionGhostedTitle": {
+    "description": "Tension card — ghosted section title."
+  },
   "tensionEarnedCommitment": "Impegno mantenuto",
-  "@tensionEarnedCommitment": {"description": "Tension card \u2014 earned commitment label."},
+  "@tensionEarnedCommitment": {
+    "description": "Tension card — earned commitment label."
+  },
   "tensionEarnedFirstConvo": "Prima conversazione",
-  "@tensionEarnedFirstConvo": {"description": "Tension card \u2014 earned first conversation label."},
+  "@tensionEarnedFirstConvo": {
+    "description": "Tension card — earned first conversation label."
+  },
   "tensionPulsingActiveCommitment": "Impegno attivo",
-  "@tensionPulsingActiveCommitment": {"description": "Tension card \u2014 pulsing active commitment label."},
+  "@tensionPulsingActiveCommitment": {
+    "description": "Tension card — pulsing active commitment label."
+  },
   "tensionPulsingTalkToCoach": "Parla con il coach",
-  "@tensionPulsingTalkToCoach": {"description": "Tension card \u2014 pulsing talk to coach label."},
+  "@tensionPulsingTalkToCoach": {
+    "description": "Tension card — pulsing talk to coach label."
+  },
   "tensionGhostedLandmark": "Prossimo traguardo: {landmark}",
-  "@tensionGhostedLandmark": {"description": "Tension card \u2014 ghosted landmark label.", "placeholders": {"landmark": {"type": "String"}}},
+  "@tensionGhostedLandmark": {
+    "description": "Tension card — ghosted landmark label.",
+    "placeholders": {
+      "landmark": {
+        "type": "String"
+      }
+    }
+  },
   "tensionGhostedFuture": "Il tuo futuro finanziario",
-  "@tensionGhostedFuture": {"description": "Tension card \u2014 ghosted future label."},
+  "@tensionGhostedFuture": {
+    "description": "Tension card — ghosted future label."
+  },
   "tensionEmptyWelcome": "Inizia parlando con il coach.",
-  "@tensionEmptyWelcome": {"description": "Tension card \u2014 empty state welcome."},
+  "@tensionEmptyWelcome": {
+    "description": "Tension card — empty state welcome."
+  },
   "tensionEmptySubtitle": "Le tue prime tensioni appariranno qui.",
-  "@tensionEmptySubtitle": {"description": "Tension card \u2014 empty state subtitle."},
+  "@tensionEmptySubtitle": {
+    "description": "Tension card — empty state subtitle."
+  },
   "cleoLoopInsight": "Insight ricevuto",
-  "@cleoLoopInsight": {"description": "Cleo loop indicator \u2014 insight position."},
+  "@cleoLoopInsight": {
+    "description": "Cleo loop indicator — insight position."
+  },
   "cleoLoopPlan": "Piano in corso",
-  "@cleoLoopPlan": {"description": "Cleo loop indicator \u2014 plan position."},
+  "@cleoLoopPlan": {
+    "description": "Cleo loop indicator — plan position."
+  },
   "cleoLoopConversation": "Conversazione",
-  "@cleoLoopConversation": {"description": "Cleo loop indicator \u2014 conversation position."},
+  "@cleoLoopConversation": {
+    "description": "Cleo loop indicator — conversation position."
+  },
   "cleoLoopAction": "Azione in corso",
-  "@cleoLoopAction": {"description": "Cleo loop indicator \u2014 action position."},
+  "@cleoLoopAction": {
+    "description": "Cleo loop indicator — action position."
+  },
   "cleoLoopMemory": "Memoria aggiornata",
-  "@cleoLoopMemory": {"description": "Cleo loop indicator \u2014 memory position."},
-
+  "@cleoLoopMemory": {
+    "description": "Cleo loop indicator — memory position."
+  },
   "coachGreetingRandom1": "Il tuo 3a, chi l'ha scelto? Tu o 'quel tizio'?",
-  "@coachGreetingRandom1": {"description": "Coach chat random greeting message 1 of 20."},
+  "@coachGreetingRandom1": {
+    "description": "Coach chat random greeting message 1 of 20."
+  },
   "coachGreetingRandom2": "In Svizzera non si parla di soldi. Si perdono in silenzio.",
-  "@coachGreetingRandom2": {"description": "Coach chat random greeting message 2 of 20."},
+  "@coachGreetingRandom2": {
+    "description": "Coach chat random greeting message 2 of 20."
+  },
   "coachGreetingRandom3": "Il tizio che ti ha venduto il 3a ha incassato la sua commissione il primo anno. Tu stai ancora aspettando il rendimento.",
-  "@coachGreetingRandom3": {"description": "Coach chat random greeting message 3 of 20."},
-  "coachGreetingRandom4": "Il tuo banchiere ti conosce meglio di te. Non \u00e8 un complimento.",
-  "@coachGreetingRandom4": {"description": "Coach chat random greeting message 4 of 20."},
+  "@coachGreetingRandom3": {
+    "description": "Coach chat random greeting message 3 of 20."
+  },
+  "coachGreetingRandom4": "Il tuo banchiere ti conosce meglio di te. Non è un complimento.",
+  "@coachGreetingRandom4": {
+    "description": "Coach chat random greeting message 4 of 20."
+  },
   "coachGreetingRandom5": "Tutti ti dicono di comprare. Il banchiere, i tuoi, il cognato. Hai mai chiesto a qualcuno che non vende niente?",
-  "@coachGreetingRandom5": {"description": "Coach chat random greeting message 5 of 20."},
-  "coachGreetingRandom6": "A 25 anni versi gi\u00e0 per la pensione. A 25 anni non sai nemmeno che stai versando.",
-  "@coachGreetingRandom6": {"description": "Coach chat random greeting message 6 of 20."},
-  "coachGreetingRandom7": "Non gestisci le tue finanze. Le eviti. C'\u00e8 una differenza.",
-  "@coachGreetingRandom7": {"description": "Coach chat random greeting message 7 of 20."},
+  "@coachGreetingRandom5": {
+    "description": "Coach chat random greeting message 5 of 20."
+  },
+  "coachGreetingRandom6": "A 25 anni versi già per la pensione. A 25 anni non sai nemmeno che stai versando.",
+  "@coachGreetingRandom6": {
+    "description": "Coach chat random greeting message 6 of 20."
+  },
+  "coachGreetingRandom7": "Non gestisci le tue finanze. Le eviti. C'è una differenza.",
+  "@coachGreetingRandom7": {
+    "description": "Coach chat random greeting message 7 of 20."
+  },
   "coachGreetingRandom8": "Sai quanto prenderai in pensione? Nessuno lo sa.",
-  "@coachGreetingRandom8": {"description": "Coach chat random greeting message 8 of 20."},
-  "coachGreetingRandom9": "Se il tuo stipendio si ferma domani \u2014 sai cosa succede?",
-  "@coachGreetingRandom9": {"description": "Coach chat random greeting message 9 of 20."},
+  "@coachGreetingRandom8": {
+    "description": "Coach chat random greeting message 8 of 20."
+  },
+  "coachGreetingRandom9": "Se il tuo stipendio si ferma domani — sai cosa succede?",
+  "@coachGreetingRandom9": {
+    "description": "Coach chat random greeting message 9 of 20."
+  },
   "coachGreetingRandom10": "Il tuo assicuratore vede un pezzo. Il tuo banchiere pure. Il tuo fiduciario pure. Il quadro completo, nessuno.",
-  "@coachGreetingRandom10": {"description": "Coach chat random greeting message 10 of 20."},
+  "@coachGreetingRandom10": {
+    "description": "Coach chat random greeting message 10 of 20."
+  },
   "coachGreetingRandom11": "Quante cose hai firmato senza leggere?",
-  "@coachGreetingRandom11": {"description": "Coach chat random greeting message 11 of 20."},
+  "@coachGreetingRandom11": {
+    "description": "Coach chat random greeting message 11 of 20."
+  },
   "coachGreetingRandom12": "Hai mai aperto davvero il tuo certificato di previdenza? Davvero aperto?",
-  "@coachGreetingRandom12": {"description": "Coach chat random greeting message 12 of 20."},
+  "@coachGreetingRandom12": {
+    "description": "Coach chat random greeting message 12 of 20."
+  },
   "coachGreetingRandom13": "I tuoi risparmi dormono. Sai quanto ti costa dormire?",
-  "@coachGreetingRandom13": {"description": "Coach chat random greeting message 13 of 20."},
-  "coachGreetingRandom14": "Il sistema pensionistico svizzero \u00e8 eccellente. Solo che nessuno ti ha dato il libretto d'istruzioni.",
-  "@coachGreetingRandom14": {"description": "Coach chat random greeting message 14 of 20."},
+  "@coachGreetingRandom13": {
+    "description": "Coach chat random greeting message 13 of 20."
+  },
+  "coachGreetingRandom14": "Il sistema pensionistico svizzero è eccellente. Solo che nessuno ti ha dato il libretto d'istruzioni.",
+  "@coachGreetingRandom14": {
+    "description": "Coach chat random greeting message 14 of 20."
+  },
   "coachGreetingRandom15": "Cambi lavoro, guardi lo stipendio. Non guardi mai la cassa pensione.",
-  "@coachGreetingRandom15": {"description": "Coach chat random greeting message 15 of 20."},
-  "coachGreetingRandom16": "Ritiri il 3a e il 2\u00b0 pilastro lo stesso anno? Le tasse esplodono. Li scaglioni? Si sciolgono. Stessi soldi. Solo il timing.",
-  "@coachGreetingRandom16": {"description": "Coach chat random greeting message 16 of 20."},
-  "coachGreetingRandom17": "Potresti riscattare anni nel tuo 2\u00b0 pilastro e pagare migliaia di franchi in meno di tasse. Ma dovresti aprire il certificato.",
-  "@coachGreetingRandom17": {"description": "Coach chat random greeting message 17 of 20."},
+  "@coachGreetingRandom15": {
+    "description": "Coach chat random greeting message 15 of 20."
+  },
+  "coachGreetingRandom16": "Ritiri il 3a e il 2° pilastro lo stesso anno? Le tasse esplodono. Li scaglioni? Si sciolgono. Stessi soldi. Solo il timing.",
+  "@coachGreetingRandom16": {
+    "description": "Coach chat random greeting message 16 of 20."
+  },
+  "coachGreetingRandom17": "Potresti riscattare anni nel tuo 2° pilastro e pagare migliaia di franchi in meno di tasse. Ma dovresti aprire il certificato.",
+  "@coachGreetingRandom17": {
+    "description": "Coach chat random greeting message 17 of 20."
+  },
   "coachGreetingRandom18": "Ammortamento diretto o indiretto? Se non conosci la differenza, stai pagando troppe tasse. Dall'inizio.",
-  "@coachGreetingRandom18": {"description": "Coach chat random greeting message 18 of 20."},
-  "coachGreetingRandom19": "Sei indipendente. Nessuno versa pi\u00f9 per te. Tutto \u00e8 da costruire. Hai iniziato?",
-  "@coachGreetingRandom19": {"description": "Coach chat random greeting message 19 of 20."},
-  "coachGreetingRandom20": "Per comprare casa, prendi una parte del tuo 2\u00b0 pilastro e la metti nei muri. Il te stesso del futuro, cosa ne pensa?",
-  "@coachGreetingRandom20": {"description": "Coach chat random greeting message 20 of 20."},
+  "@coachGreetingRandom18": {
+    "description": "Coach chat random greeting message 18 of 20."
+  },
+  "coachGreetingRandom19": "Sei indipendente. Nessuno versa più per te. Tutto è da costruire. Hai iniziato?",
+  "@coachGreetingRandom19": {
+    "description": "Coach chat random greeting message 19 of 20."
+  },
+  "coachGreetingRandom20": "Per comprare casa, prendi una parte del tuo 2° pilastro e la metti nei muri. Il te stesso del futuro, cosa ne pensa?",
+  "@coachGreetingRandom20": {
+    "description": "Coach chat random greeting message 20 of 20."
+  },
   "timelineCommitmentEarned": "Impegno mantenuto",
-  "@timelineCommitmentEarned": {"description": "Timeline node title for a completed commitment."},
+  "@timelineCommitmentEarned": {
+    "description": "Timeline node title for a completed commitment."
+  },
   "timelineCommitmentActive": "Impegno attivo",
-  "@timelineCommitmentActive": {"description": "Timeline node title for an active commitment."},
+  "@timelineCommitmentActive": {
+    "description": "Timeline node title for an active commitment."
+  },
   "timelineConversation": "Conversazione",
-  "@timelineConversation": {"description": "Timeline node title for a past conversation."},
+  "@timelineConversation": {
+    "description": "Timeline node title for a past conversation."
+  },
   "timelineCoupleEstimate": "Stima del partner",
-  "@timelineCoupleEstimate": {"description": "Timeline node title for couple partner estimate."},
+  "@timelineCoupleEstimate": {
+    "description": "Timeline node title for couple partner estimate."
+  },
   "timelineProjection": "Proiezione",
-  "@timelineProjection": {"description": "Timeline node title for a future projection."},
+  "@timelineProjection": {
+    "description": "Timeline node title for a future projection."
+  },
   "timelineDocument": "Documento aggiunto",
-  "@timelineDocument": {"description": "Timeline node title for an uploaded document."},
-  "timelineSectionTitle": "La tua storia",
-  "@timelineSectionTitle": {"description": "Timeline section divider label."},
+  "@timelineDocument": {
+    "description": "Timeline node title for an uploaded document."
+  },
+  "@timelineSectionTitle": {
+    "description": "Timeline section divider label."
+  },
   "timelineEmpty": "La tua storia finanziaria inizia qui.",
-  "@timelineEmpty": {"description": "Empty timeline placeholder text."},
+  "@timelineEmpty": {
+    "description": "Empty timeline placeholder text."
+  },
   "timelineLoadMore": "Carica altro",
-  "@timelineLoadMore": {"description": "Button to load more timeline nodes."},
-  "coachDisclaimerCollapsed": "Strumento educativo \u2014 vedi disclaimer",
-  "@coachDisclaimerCollapsed": {"description": "Collapsed disclaimer one-liner in coach chat."}
+  "@timelineLoadMore": {
+    "description": "Button to load more timeline nodes."
+  },
+  "coachDisclaimerCollapsed": "Strumento educativo — vedi disclaimer",
+  "@coachDisclaimerCollapsed": {
+    "description": "Collapsed disclaimer one-liner in coach chat."
+  },
+  "coachResponseDegradedHint": "Risposta rapida",
+  "@coachResponseDegradedHint": {
+    "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator."
+  },
+  "coachBudgetDailyLimitReached": "Oggi abbiamo fatto buoni progressi. Riposati, ti aspetto domani.",
+  "@coachBudgetDailyLimitReached": {
+    "description": "v2.7 Task 4 — shown when user hits daily token budget hard cap."
+  }
 }
