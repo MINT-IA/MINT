@@ -29,6 +29,7 @@ WHITELIST = (
     "package:go_router/",
     "package:mint_mobile/l10n/app_localizations.dart",
     "package:mint_mobile/theme/colors.dart",
+    "package:mint_mobile/theme/mint_text_styles.dart",
 )
 
 FORBIDDEN_SUBSTRINGS = (
