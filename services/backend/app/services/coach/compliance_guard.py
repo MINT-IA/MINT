@@ -299,9 +299,18 @@ class ComplianceGuard:
         """
         violations = []
         use_fallback = False
+        # P0 DIAG: per-layer trigger attribution. We need to know WHICH
+        # layer kills each response in prod so we can stop guessing which
+        # fallback is silently erasing coach replies (Gate 0 P0-3).
+        fallback_reasons: list[str] = []
 
         # ── Pre-check: None / non-string input ──
         if not isinstance(llm_output, str):
+            logger.warning(
+                "ComplianceGuard.validate: use_fallback=True reason=non_string_input "
+                "component=%s user=%s",
+                component_type, user_id or "anonymous",
+            )
             return ComplianceResult(
                 is_compliant=False,
                 sanitized_text="",
@@ -313,6 +322,11 @@ class ComplianceGuard:
 
         # ── Pre-check: empty output ──
         if not text or not text.strip():
+            logger.warning(
+                "ComplianceGuard.validate: use_fallback=True reason=empty_input "
+                "component=%s user=%s",
+                component_type, user_id or "anonymous",
+            )
             return ComplianceResult(
                 is_compliant=False,
                 sanitized_text="",
@@ -347,6 +361,9 @@ class ComplianceGuard:
             )
             if len(banned_found) > 2:
                 use_fallback = True
+                fallback_reasons.append(
+                    f"banned_terms>2 ({len(banned_found)}: {banned_found[:5]})"
+                )
             else:
                 text = self._sanitize_banned_terms(text)
 
@@ -380,6 +397,9 @@ class ComplianceGuard:
                     [f"Drift {cat}: '{label}'" for (cat, label) in drift_found]
                 )
                 use_fallback = True
+                fallback_reasons.append(
+                    f"high_register_drift level={cursor_level} hits={drift_found[:3]}"
+                )
 
         # ── Layer 3: Hallucination detection ──
         if context and context.known_values:
@@ -392,6 +412,9 @@ class ComplianceGuard:
                         f"déviation {h.deviation_pct:.1f}%)"
                     )
                 use_fallback = True  # Hallucinated numbers = always fallback
+                fallback_reasons.append(
+                    f"hallucination hits={[(h.found_text, h.found_value, h.closest_value) for h in hallucinations[:3]]}"
+                )
 
         # ── Layer 4: Disclaimer injection ──
         if not use_fallback:
@@ -410,6 +433,19 @@ class ComplianceGuard:
         if not use_fallback and not text.strip():
             use_fallback = True
             violations.append("Texte vide après sanitisation")
+            fallback_reasons.append("empty_after_sanitisation")
+
+        # P0 DIAG: one structured log per fallback decision so prod tells
+        # us WHICH layer killed the reply. Previously this was silent.
+        if use_fallback:
+            logger.warning(
+                "ComplianceGuard.validate: use_fallback=True reasons=%s "
+                "component=%s user=%s cursor=%s violations=%d preview=%r",
+                fallback_reasons or ["unknown"],
+                component_type, user_id or "anonymous", cursor_level,
+                len(violations),
+                (llm_output or "")[:200],
+            )
 
         is_compliant = len(violations) == 0
         return ComplianceResult(
