@@ -39842,6 +39842,66 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'J\'ai lu et j\'accepte les changements'**
   String get policyDiffAcceptDelta;
+
+  /// Phase 29-04 — BatchValidationBubble headline (PRIV-08).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT a lu {count} chiffres. Tout bon ?'**
+  String batchValidationTitle(int count);
+
+  /// No description provided for @batchValidationConfirmAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout bon'**
+  String get batchValidationConfirmAll;
+
+  /// No description provided for @batchValidationCorrectOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger un chiffre'**
+  String get batchValidationCorrectOne;
+
+  /// No description provided for @batchValidationRejectAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ne colle'**
+  String get batchValidationRejectAll;
+
+  /// No description provided for @fieldCorrectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger la valeur'**
+  String get fieldCorrectionTitle;
+
+  /// No description provided for @fieldCorrectionSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get fieldCorrectionSave;
+
+  /// No description provided for @fieldCorrectionCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get fieldCorrectionCancel;
+
+  /// No description provided for @renderModeRejectBannerSanity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une valeur paraît impossible. MINT a préféré s\'arrêter.'**
+  String get renderModeRejectBannerSanity;
+
+  /// No description provided for @renderModeRejectBannerGuard.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.'**
+  String get renderModeRejectBannerGuard;
+
+  /// No description provided for @humanReviewBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier par un œil humain'**
+  String get humanReviewBadge;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

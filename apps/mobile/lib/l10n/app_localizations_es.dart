@@ -22717,4 +22717,38 @@ class SEs extends S {
 
   @override
   String get policyDiffAcceptDelta => 'He leído y acepto los cambios';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT leyó $count cifras. ¿Todo bien?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Todo bien';
+
+  @override
+  String get batchValidationCorrectOne => 'Corregir una';
+
+  @override
+  String get batchValidationRejectAll => 'Nada coincide';
+
+  @override
+  String get fieldCorrectionTitle => 'Corregir el valor';
+
+  @override
+  String get fieldCorrectionSave => 'Guardar';
+
+  @override
+  String get fieldCorrectionCancel => 'Cancelar';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Un valor parece imposible. MINT prefirió detenerse.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT no pudo presentar este resumen educativamente. Revisa las cifras brutas.';
+
+  @override
+  String get humanReviewBadge => 'Necesita revisión humana';
 }

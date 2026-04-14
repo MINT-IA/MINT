@@ -22778,4 +22778,38 @@ class SIt extends S {
 
   @override
   String get policyDiffAcceptDelta => 'Ho letto e accetto le modifiche';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT ha letto $count cifre. Tutto ok?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Tutto ok';
+
+  @override
+  String get batchValidationCorrectOne => 'Correggine una';
+
+  @override
+  String get batchValidationRejectAll => 'Niente torna';
+
+  @override
+  String get fieldCorrectionTitle => 'Correggi il valore';
+
+  @override
+  String get fieldCorrectionSave => 'Salva';
+
+  @override
+  String get fieldCorrectionCancel => 'Annulla';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Un valore sembra impossibile. MINT ha preferito fermarsi.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT non ha potuto presentare il riepilogo in modo didattico. Controlla i numeri grezzi.';
+
+  @override
+  String get humanReviewBadge => 'Serve occhio umano';
 }

@@ -22719,4 +22719,38 @@ class SFr extends S {
 
   @override
   String get policyDiffAcceptDelta => 'J\'ai lu et j\'accepte les changements';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT a lu $count chiffres. Tout bon ?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Tout bon';
+
+  @override
+  String get batchValidationCorrectOne => 'Corriger un chiffre';
+
+  @override
+  String get batchValidationRejectAll => 'Rien ne colle';
+
+  @override
+  String get fieldCorrectionTitle => 'Corriger la valeur';
+
+  @override
+  String get fieldCorrectionSave => 'Enregistrer';
+
+  @override
+  String get fieldCorrectionCancel => 'Annuler';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Une valeur paraît impossible. MINT a préféré s\'arrêter.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT n\'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.';
+
+  @override
+  String get humanReviewBadge => 'À vérifier par un œil humain';
 }

@@ -10900,5 +10900,21 @@
   "privacyCenterGrantedOn": "Concesso il",
   "privacyCenterRevokedOn": "Revocato il",
   "policyDiffTitle": "Aggiornamento della politica",
-  "policyDiffAcceptDelta": "Ho letto e accetto le modifiche"
+  "policyDiffAcceptDelta": "Ho letto e accetto le modifiche",
+  "batchValidationTitle": "MINT ha letto {count} cifre. Tutto ok?",
+  "@batchValidationTitle": {
+    "description": "Phase 29-04 — BatchValidationBubble intestazione (PRIV-08).",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchValidationConfirmAll": "Tutto ok",
+  "batchValidationCorrectOne": "Correggine una",
+  "batchValidationRejectAll": "Niente torna",
+  "fieldCorrectionTitle": "Correggi il valore",
+  "fieldCorrectionSave": "Salva",
+  "fieldCorrectionCancel": "Annulla",
+  "renderModeRejectBannerSanity": "Un valore sembra impossibile. MINT ha preferito fermarsi.",
+  "renderModeRejectBannerGuard": "MINT non ha potuto presentare il riepilogo in modo didattico. Controlla i numeri grezzi.",
+  "humanReviewBadge": "Serve occhio umano"
 }

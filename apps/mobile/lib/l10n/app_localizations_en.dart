@@ -22607,4 +22607,38 @@ class SEn extends S {
 
   @override
   String get policyDiffAcceptDelta => 'I\'ve read and accept the changes';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT read $count numbers. All good?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'All good';
+
+  @override
+  String get batchValidationCorrectOne => 'Correct one';
+
+  @override
+  String get batchValidationRejectAll => 'Nothing matches';
+
+  @override
+  String get fieldCorrectionTitle => 'Correct the value';
+
+  @override
+  String get fieldCorrectionSave => 'Save';
+
+  @override
+  String get fieldCorrectionCancel => 'Cancel';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'A value looked impossible. MINT chose to stop.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT couldn\'t present this summary educationally. Check the raw numbers.';
+
+  @override
+  String get humanReviewBadge => 'Needs a human eye';
 }

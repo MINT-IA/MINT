@@ -10900,5 +10900,21 @@
   "privacyCenterGrantedOn": "Concedido em",
   "privacyCenterRevokedOn": "Revogado em",
   "policyDiffTitle": "Atualização da política",
-  "policyDiffAcceptDelta": "Li e aceito as alterações"
+  "policyDiffAcceptDelta": "Li e aceito as alterações",
+  "batchValidationTitle": "MINT leu {count} números. Tudo certo?",
+  "@batchValidationTitle": {
+    "description": "Phase 29-04 — BatchValidationBubble título (PRIV-08).",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchValidationConfirmAll": "Tudo certo",
+  "batchValidationCorrectOne": "Corrigir um",
+  "batchValidationRejectAll": "Nada bate",
+  "fieldCorrectionTitle": "Corrigir o valor",
+  "fieldCorrectionSave": "Guardar",
+  "fieldCorrectionCancel": "Cancelar",
+  "renderModeRejectBannerSanity": "Um valor parece impossível. MINT preferiu parar.",
+  "renderModeRejectBannerGuard": "MINT não pôde apresentar este resumo de forma educativa. Verifica os números crus.",
+  "humanReviewBadge": "Precisa de olho humano"
 }

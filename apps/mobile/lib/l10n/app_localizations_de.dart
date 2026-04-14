@@ -22772,4 +22772,38 @@ class SDe extends S {
   @override
   String get policyDiffAcceptDelta =>
       'Ich habe die Änderungen gelesen und akzeptiere sie';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT hat $count Zahlen gelesen. Alles korrekt?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Alles korrekt';
+
+  @override
+  String get batchValidationCorrectOne => 'Eine korrigieren';
+
+  @override
+  String get batchValidationRejectAll => 'Nichts stimmt';
+
+  @override
+  String get fieldCorrectionTitle => 'Wert korrigieren';
+
+  @override
+  String get fieldCorrectionSave => 'Speichern';
+
+  @override
+  String get fieldCorrectionCancel => 'Abbrechen';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Ein Wert erschien unmöglich. MINT hat gestoppt.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT konnte diese Zusammenfassung nicht lehrreich aufbereiten. Prüfe die Rohzahlen.';
+
+  @override
+  String get humanReviewBadge => 'Braucht ein menschliches Auge';
 }

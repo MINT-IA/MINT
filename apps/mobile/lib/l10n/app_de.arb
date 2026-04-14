@@ -10900,5 +10900,21 @@
   "privacyCenterGrantedOn": "Erteilt am",
   "privacyCenterRevokedOn": "Widerrufen am",
   "policyDiffTitle": "Richtlinien-Update",
-  "policyDiffAcceptDelta": "Ich habe die Änderungen gelesen und akzeptiere sie"
+  "policyDiffAcceptDelta": "Ich habe die Änderungen gelesen und akzeptiere sie",
+  "batchValidationTitle": "MINT hat {count} Zahlen gelesen. Alles korrekt?",
+  "@batchValidationTitle": {
+    "description": "Phase 29-04 — BatchValidationBubble Überschrift (PRIV-08).",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "batchValidationConfirmAll": "Alles korrekt",
+  "batchValidationCorrectOne": "Eine korrigieren",
+  "batchValidationRejectAll": "Nichts stimmt",
+  "fieldCorrectionTitle": "Wert korrigieren",
+  "fieldCorrectionSave": "Speichern",
+  "fieldCorrectionCancel": "Abbrechen",
+  "renderModeRejectBannerSanity": "Ein Wert erschien unmöglich. MINT hat gestoppt.",
+  "renderModeRejectBannerGuard": "MINT konnte diese Zusammenfassung nicht lehrreich aufbereiten. Prüfe die Rohzahlen.",
+  "humanReviewBadge": "Braucht ein menschliches Auge"
 }

@@ -119,18 +119,82 @@ dynamic _pick(Map<String, dynamic> j, String camel, [String? snake]) {
   return null;
 }
 
+// v2.7 Phase 29-04 / PRIV-08 — every extracted field starts as
+// needsReview. User action (BatchValidationBubble swipe/tap) promotes
+// to userValidated or correctedByUser.
+enum FieldStatus {
+  needsReview,
+  userValidated,
+  correctedByUser,
+  rejected,
+  humanReview,
+}
+
+FieldStatus _fieldStatusFromApi(String? raw) {
+  switch (raw) {
+    case 'user_validated':
+      return FieldStatus.userValidated;
+    case 'corrected_by_user':
+      return FieldStatus.correctedByUser;
+    case 'rejected':
+      return FieldStatus.rejected;
+    case 'human_review':
+      return FieldStatus.humanReview;
+    case 'needs_review':
+    default:
+      return FieldStatus.needsReview;
+  }
+}
+
+String _fieldStatusToApi(FieldStatus s) {
+  switch (s) {
+    case FieldStatus.userValidated:
+      return 'user_validated';
+    case FieldStatus.correctedByUser:
+      return 'corrected_by_user';
+    case FieldStatus.rejected:
+      return 'rejected';
+    case FieldStatus.humanReview:
+      return 'human_review';
+    case FieldStatus.needsReview:
+      return 'needs_review';
+  }
+}
+
 class ExtractedField {
   final String fieldName;
   final dynamic value;
   final ConfidenceLevel confidence;
   final String sourceText;
+  final FieldStatus status;
+  final bool humanReviewFlag;
 
   const ExtractedField({
     required this.fieldName,
     required this.value,
     required this.confidence,
     required this.sourceText,
+    this.status = FieldStatus.needsReview,
+    this.humanReviewFlag = false,
   });
+
+  ExtractedField copyWith({
+    String? fieldName,
+    dynamic value,
+    ConfidenceLevel? confidence,
+    String? sourceText,
+    FieldStatus? status,
+    bool? humanReviewFlag,
+  }) {
+    return ExtractedField(
+      fieldName: fieldName ?? this.fieldName,
+      value: value ?? this.value,
+      confidence: confidence ?? this.confidence,
+      sourceText: sourceText ?? this.sourceText,
+      status: status ?? this.status,
+      humanReviewFlag: humanReviewFlag ?? this.humanReviewFlag,
+    );
+  }
 
   factory ExtractedField.fromJson(Map<String, dynamic> j) {
     return ExtractedField(
@@ -138,6 +202,8 @@ class ExtractedField {
       value: _pick(j, 'value'),
       confidence: _confidenceFromApi(_pick(j, 'confidence') as String?),
       sourceText: (_pick(j, 'sourceText', 'source_text') as String?) ?? '',
+      status: _fieldStatusFromApi(_pick(j, 'status') as String?),
+      humanReviewFlag: (_pick(j, 'humanReviewFlag', 'human_review_flag') as bool?) ?? false,
     );
   }
 
@@ -146,6 +212,8 @@ class ExtractedField {
         'value': value,
         'confidence': confidence.name,
         'sourceText': sourceText,
+        'status': _fieldStatusToApi(status),
+        'humanReviewFlag': humanReviewFlag,
       };
 }
 

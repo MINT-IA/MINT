@@ -22722,4 +22722,38 @@ class SPt extends S {
 
   @override
   String get policyDiffAcceptDelta => 'Li e aceito as alterações';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT leu $count números. Tudo certo?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Tudo certo';
+
+  @override
+  String get batchValidationCorrectOne => 'Corrigir um';
+
+  @override
+  String get batchValidationRejectAll => 'Nada bate';
+
+  @override
+  String get fieldCorrectionTitle => 'Corrigir o valor';
+
+  @override
+  String get fieldCorrectionSave => 'Guardar';
+
+  @override
+  String get fieldCorrectionCancel => 'Cancelar';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Um valor parece impossível. MINT preferiu parar.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT não pôde apresentar este resumo de forma educativa. Verifica os números crus.';
+
+  @override
+  String get humanReviewBadge => 'Precisa de olho humano';
 }
