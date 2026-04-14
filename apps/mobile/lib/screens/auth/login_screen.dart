@@ -97,6 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final jwt = await AppleSignInService.signIn();
       if (jwt != null && mounted) {
+        // CRITICAL: hydrate AuthProvider — migrates anonymous data, purges
+        // session, updates isLoggedIn state across all tabs.
+        // Without this, the token is in SecureStorage but the app doesn't
+        // know we're logged in.
+        await context.read<AuthProvider>().checkAuth();
+        if (!mounted) return;
         await _navigatePostAuth();
       }
     } catch (e) {

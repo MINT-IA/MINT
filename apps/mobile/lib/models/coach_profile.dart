@@ -1478,6 +1478,19 @@ class CoachProfile {
         updatedAt = updatedAt ?? DateTime.now(),
         dataSources = _resolveDataSources(dataSources, prevoyance);
 
+  /// Minimal profile with all zeros — means "unknown, ask the user".
+  /// Never lies about age, canton, or income.
+  factory CoachProfile.defaults() => CoachProfile(
+        birthYear: 0,
+        canton: '',
+        salaireBrutMensuel: 0,
+        goalA: GoalA(
+          type: GoalAType.retraite,
+          targetDate: DateTime(2040),
+          label: '',
+        ),
+      );
+
   static Map<String, ProfileDataSource> _resolveDataSources(
     Map<String, ProfileDataSource> provided,
     PrevoyanceProfile prevoyance,

@@ -320,10 +320,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             _entryPayloadContext = payload.toContextInjection();
           }
         } else if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
-          // Legacy: auto-send initial prompt (contextual routing)
+          // Contextual routing: if the prompt is "onboarding", replace with
+          // a real intake question instead of sending the word literally.
           final prompt = widget.initialPrompt!;
+          final realPrompt = prompt == 'onboarding'
+              ? 'Salut, je viens de creer mon compte. Par ou je commence\u00a0?'
+              : prompt;
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _sendMessage(prompt);
+            _sendMessage(realPrompt);
           });
         }
       } else {
@@ -656,19 +660,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _entryPayloadContext = null; // one-shot: clear after first use
     }
 
-    // CHAT-01: Ensure a profile exists for the coach context.
-    // Anonymous users get a minimal profile on first message.
+    // CHAT-01: Load profile if available — never invent fake data.
+    // If no profile exists, use default CoachProfile (all zeros/empty).
+    // The system prompt detects confidence=0 and asks for real data.
     if (_profile == null) {
       final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) {
-        // Create minimal profile — data capture (CHAT-04) will fill in details.
-        provider.mergeAnswers({
-          'q_birth_year': DateTime.now().year - 35,
-          'q_canton': 'VD',
-          'q_net_income_period_chf': 0.0,
-        });
+      if (provider.hasProfile) {
+        _profile = provider.profile;
+      } else {
+        // Minimal profile with no fake data — zeros mean "unknown".
+        _profile = CoachProfile.defaults();
       }
-      _profile = provider.profile;
       _hasProfile = provider.hasProfile;
     }
 
