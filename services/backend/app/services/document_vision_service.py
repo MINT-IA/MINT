@@ -27,6 +27,34 @@ from app.schemas.document_scan import (
 
 logger = logging.getLogger(__name__)
 
+
+def _build_vision_content_block(base64_data: str) -> dict:
+    """Build the correct Anthropic API content block for image or PDF.
+
+    PDFs use type=document + media_type=application/pdf (Anthropic PDF support).
+    Images use type=image + media_type=image/jpeg|png.
+    """
+    if base64_data.startswith("JVBERi"):  # %PDF in base64
+        return {
+            "type": "document",
+            "source": {
+                "type": "base64",
+                "media_type": "application/pdf",
+                "data": base64_data,
+            },
+        }
+    media_type = "image/jpeg"
+    if base64_data.startswith("iVBOR"):
+        media_type = "image/png"
+    return {
+        "type": "image",
+        "source": {
+            "type": "base64",
+            "media_type": media_type,
+            "data": base64_data,
+        },
+    }
+
 # Field definitions per document type — what to extract and validate.
 
 DOCUMENT_FIELDS: Dict[DocumentType, TList[dict]] = {
@@ -154,10 +182,6 @@ def detect_lpp_plan_type(
         logger.warning("No API key for plan type detection, defaulting to surobligatoire")
         return (LppPlanType.surobligatoire, ConfidenceLevel.low)
 
-    media_type = "image/jpeg"
-    if image_base64.startswith("iVBOR"):
-        media_type = "image/png"
-
     try:
         client = Anthropic(api_key=api_key)
         response = client.messages.create(
@@ -168,14 +192,7 @@ def detect_lpp_plan_type(
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": media_type,
-                                "data": image_base64,
-                            },
-                        },
+                        _build_vision_content_block(image_base64),
                         {
                             "type": "text",
                             "text": _PLAN_TYPE_PROMPT,
@@ -322,7 +339,7 @@ def extract_with_vision(
     """Extract structured data from a document image using Claude Vision.
 
     Args:
-        image_base64: Base64-encoded JPEG/PNG image of the document.
+        image_base64: Base64-encoded document (JPEG, PNG, or PDF).
         doc_type: Expected document type (guides extraction).
         canton: User's canton (contextualizes fiscal documents).
         language_hint: Expected language (fr/de/it).
@@ -360,13 +377,6 @@ def extract_with_vision(
     else:
         system_prompt = _build_extraction_prompt(doc_type, canton, language_hint)
 
-    # Determine media type from base64 header
-    media_type = "image/jpeg"
-    if image_base64.startswith("/9j/"):
-        media_type = "image/jpeg"
-    elif image_base64.startswith("iVBOR"):
-        media_type = "image/png"
-
     try:
         response = client.messages.create(
             model=settings.COACH_MODEL,
@@ -377,14 +387,7 @@ def extract_with_vision(
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": media_type,
-                                "data": image_base64,
-                            },
-                        },
+                        _build_vision_content_block(image_base64),
                         {
                             "type": "text",
                             "text": "Extrais les données de ce document.",
@@ -527,11 +530,6 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
             confidence=ConfidenceLevel.low,
         )
 
-    # Determine media type from base64 header
-    media_type = "image/jpeg"
-    if image_base64.startswith("iVBOR"):
-        media_type = "image/png"
-
     try:
         client = Anthropic(api_key=api_key)
         response = client.messages.create(
@@ -542,14 +540,7 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
                 {
                     "role": "user",
                     "content": [
-                        {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": media_type,
-                                "data": image_base64,
-                            },
-                        },
+                        _build_vision_content_block(image_base64),
                         {
                             "type": "text",
                             "text": _CLASSIFICATION_PROMPT,

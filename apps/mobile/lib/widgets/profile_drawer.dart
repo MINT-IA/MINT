@@ -22,6 +22,11 @@ class ProfileDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
+    // Audit FIX 8: ProfileDrawer is reactive — context.watch<CoachProfileProvider>()
+    // subscribes to ChangeNotifier.notifyListeners(), so any profile mutation
+    // (first_name, age, canton, voiceCursorPreference, …) triggers a rebuild.
+    // Do NOT replace with context.read here — doing so would freeze the drawer
+    // on the initial profile snapshot.
     final coachProvider = context.watch<CoachProfileProvider>();
     final profile = coachProvider.profile;
 
@@ -120,20 +125,38 @@ class ProfileDrawer extends StatelessWidget {
 
             const SizedBox(height: MintSpacing.xl),
 
-            // ── Déconnexion ──
-            _buildSection(
-              context,
-              icon: Icons.logout_outlined,
-              title: l10n.drawerLogout,
-              onTap: () async {
-                Navigator.of(context).pop();
-                final auth = context.read<AuthProvider>();
-                await auth.logout();
-                if (context.mounted) {
-                  context.go('/');
+            // ── Connexion / Déconnexion ──
+            Builder(
+              builder: (context) {
+                final auth = context.watch<AuthProvider>();
+                if (auth.isLoggedIn) {
+                  return _buildSection(
+                    context,
+                    icon: Icons.logout_outlined,
+                    title: l10n.drawerLogout,
+                    onTap: () async {
+                      Navigator.of(context).pop();
+                      final authProvider = context.read<AuthProvider>();
+                      await authProvider.logout();
+                      if (context.mounted) {
+                        context.go('/');
+                      }
+                    },
+                    textColor: MintColors.corailDiscret,
+                  );
+                } else {
+                  return _buildSection(
+                    context,
+                    icon: Icons.login_outlined,
+                    title: 'Se connecter',
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      context.push('/auth/login');
+                    },
+                    textColor: MintColors.accent,
+                  );
                 }
               },
-              textColor: MintColors.corailDiscret,
             ),
 
             const SizedBox(height: MintSpacing.lg),
@@ -159,8 +182,13 @@ class ProfileDrawer extends StatelessWidget {
     }
 
     final age = profile.age;
-    final ageDisplay = age > 0 ? l10n.ageYears(age.toString()) : '';
-    final cantonDisplay = profile.canton;
+    // PROF-01: Only show age/canton if the user actually provided them.
+    // Prevents phantom "ZH" or default-computed age from appearing.
+    final ageDisplay = age > 0 && profile.userProvidedFields.contains('age')
+        ? l10n.ageYears(age.toString())
+        : '';
+    final cantonDisplay =
+        profile.userProvidedFields.contains('canton') ? profile.canton : '';
     final separator =
         ageDisplay.isNotEmpty && cantonDisplay.isNotEmpty ? ' \u2022 ' : '';
 

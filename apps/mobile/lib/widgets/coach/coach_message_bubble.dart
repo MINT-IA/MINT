@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -83,13 +84,35 @@ class CoachMessageBubble extends StatelessWidget {
                       Semantics(
                         liveRegion: true,
                         container: true,
-                        child: Text(
-                          msg.content.isEmpty && isStreamingThis
+                        child: MarkdownBody(
+                          data: msg.content.isEmpty && isStreamingThis
                               ? '...'
                               : msg.content,
-                          style: MintTextStyles.bodyMedium(
-                                  color: MintColors.textPrimary)
-                              .copyWith(height: 1.6),
+                          styleSheet: MarkdownStyleSheet(
+                            p: MintTextStyles.bodyMedium(
+                                    color: MintColors.textPrimary)
+                                .copyWith(height: 1.6),
+                            strong: MintTextStyles.bodyMedium(
+                                    color: MintColors.textPrimary)
+                                .copyWith(
+                                    fontWeight: FontWeight.w700, height: 1.6),
+                            em: MintTextStyles.bodyMedium(
+                                    color: MintColors.textPrimary)
+                                .copyWith(
+                                    fontStyle: FontStyle.italic, height: 1.6),
+                            listBullet: MintTextStyles.bodyMedium(
+                                    color: MintColors.textPrimary)
+                                .copyWith(height: 1.6),
+                            h3: MintTextStyles.bodyMedium(
+                                    color: MintColors.textPrimary)
+                                .copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    height: 1.6),
+                          ),
+                          shrinkWrap: true,
+                          softLineBreak: true,
+                          selectable: true,
                         ),
                       ),
                       // Streaming cursor
@@ -427,11 +450,19 @@ class CoachSourcesSection extends StatelessWidget {
   }
 }
 
-/// Disclaimers section displayed under coach messages.
-class CoachDisclaimersSection extends StatelessWidget {
+/// Disclaimers section displayed under coach messages — collapsed by default.
+class CoachDisclaimersSection extends StatefulWidget {
   final List<String> disclaimers;
 
   const CoachDisclaimersSection({super.key, required this.disclaimers});
+
+  @override
+  State<CoachDisclaimersSection> createState() =>
+      _CoachDisclaimersSectionState();
+}
+
+class _CoachDisclaimersSectionState extends State<CoachDisclaimersSection> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -444,21 +475,56 @@ class CoachDisclaimersSection extends StatelessWidget {
         color: MintColors.pecheDouce.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.info_outline_rounded,
-              // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
-              size: 13, color: MintColors.textMutedAaa.withValues(alpha: 0.6)),
-          const SizedBox(width: MintSpacing.sm),
-          Expanded(
-            child: Text(
-              disclaimers.join('\n'),
-              style: MintTextStyles.micro(
-                // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
-                color: MintColors.textMutedAaa,
-              ).copyWith(height: 1.4),
+          GestureDetector(
+            onTap: () => setState(() => _expanded = !_expanded),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              children: [
+                Icon(Icons.info_outline_rounded,
+                    size: 13,
+                    // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                    color: MintColors.textMutedAaa.withValues(alpha: 0.6)),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    S.of(context)!.coachDisclaimerCollapsed,
+                    style: MintTextStyles.micro(
+                      // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                      color: MintColors.textMutedAaa,
+                    ).copyWith(height: 1.4),
+                  ),
+                ),
+                Icon(
+                  _expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: MintColors.textMutedAaa.withValues(alpha: 0.6),
+                ),
+              ],
             ),
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(
+              padding: const EdgeInsets.only(
+                top: MintSpacing.sm,
+                left: 13 + MintSpacing.sm, // align with text after icon
+              ),
+              child: Text(
+                widget.disclaimers.join('\n'),
+                style: MintTextStyles.micro(
+                  color: MintColors.textMutedAaa,
+                ).copyWith(height: 1.4),
+              ),
+            ),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
           ),
         ],
       ),

@@ -72,6 +72,22 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "set_goal",
     "mark_step_completed",
     "save_insight",
+    # P14 commitment devices: ack-only handlers (persistence via dedicated endpoint in Plan 02)
+    "record_commitment",
+    "save_pre_mortem",
+    # P15 coach intelligence: provenance and earmark tools (persist immediately)
+    "save_provenance",
+    "save_earmark",
+    "remove_earmark",
+    # P16 couple mode: save_partner_estimate / update_partner_estimate are
+    # Flutter-bound tools (intercepted by widget_renderer for SecureStorage).
+    # They MUST NOT appear here — routing through INTERNAL_TOOL_NAMES would
+    # prevent Flutter from receiving them. See COUP-01/COUP-04.
+    #
+    # Audit FIX 7 note: `generate_financial_plan` and `generate_document` are
+    # intentionally NOT listed here. They are Flutter-bound WRITE tools
+    # dispatched to PlanPreviewCard / DocumentCard by widget_renderer.dart.
+    # Backend never executes them — no stub handler is needed.
 ]
 
 # ---------------------------------------------------------------------------
@@ -719,6 +735,294 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["document_type", "context"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # record_commitment — WRITE/INTERNAL: persist implementation intention
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "record_commitment",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Record an implementation intention (WHEN/WHERE/IF-THEN) after a "
+            "Layer 4 insight. The backend acknowledges and persists the commitment. "
+            "This tool is handled internally by the backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "when_text": {
+                    "type": "string",
+                    "description": (
+                        "WHEN part of the intention "
+                        "(e.g. 'Ce lundi, quand tu recevras ta fiche de paie')."
+                    ),
+                },
+                "where_text": {
+                    "type": "string",
+                    "description": (
+                        "WHERE part of the intention "
+                        "(e.g. 'Sur ton app bancaire 3a')."
+                    ),
+                },
+                "if_then_text": {
+                    "type": "string",
+                    "description": (
+                        "IF-THEN part of the intention "
+                        "(e.g. 'Si le solde est insuffisant pour 604 CHF, verse au moins 200 CHF')."
+                    ),
+                },
+                "reminder_at": {
+                    "type": "string",
+                    "description": (
+                        "Optional ISO 8601 datetime for a reminder "
+                        "(e.g. '2026-04-15T09:00:00Z'). Omit if no reminder needed."
+                    ),
+                },
+            },
+            "required": ["when_text", "where_text", "if_then_text"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_pre_mortem — WRITE/INTERNAL: persist pre-mortem risk scenario
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_pre_mortem",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Save a pre-mortem risk scenario before an irrevocable financial "
+            "decision (EPL, capital withdrawal, 3a closure). The backend "
+            "acknowledges and persists the entry. This tool is handled internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "decision_type": {
+                    "type": "string",
+                    "enum": ["epl", "capital_withdrawal", "pillar_3a_closure"],
+                    "description": (
+                        "Type of irrevocable decision: "
+                        "'epl' = EPL (retrait anticipé 2e pilier pour achat immobilier), "
+                        "'capital_withdrawal' = retrait en capital du 2e pilier, "
+                        "'pillar_3a_closure' = clôture du 3e pilier."
+                    ),
+                },
+                "decision_context": {
+                    "type": "string",
+                    "description": (
+                        "Optional context about the decision being considered "
+                        "(e.g. 'Achat appartement à Sion, EPL de 50k envisagé')."
+                    ),
+                },
+                "user_response": {
+                    "type": "string",
+                    "description": (
+                        "The user's response to the pre-mortem prompt: what could "
+                        "go wrong if this decision turns out badly."
+                    ),
+                },
+            },
+            "required": ["decision_type", "user_response"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_provenance — WRITE/INTERNAL: record who recommended a financial product
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_provenance",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Record who recommended a financial product to the user. "
+            "Call when the user mentions who proposed or sold them a product "
+            "(3a, LPP, assurance, hypotheque). Internal — handled by backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "product_type": {
+                    "type": "string",
+                    "description": "Type of financial product: '3a', 'lpp', 'assurance_vie', 'hypotheque', 'placement', 'prevoyance', 'autre'.",
+                },
+                "recommended_by": {
+                    "type": "string",
+                    "description": "Who recommended the product (e.g. 'mon banquier', 'un ami', 'Uncle Patrick').",
+                },
+                "institution": {
+                    "type": "string",
+                    "description": "Optional: financial institution (e.g. 'UBS', 'PostFinance', 'Swiss Life').",
+                },
+            },
+            "required": ["product_type", "recommended_by"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_earmark — WRITE/INTERNAL: tag money with relational/emotional meaning
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_earmark",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Tag a sum of money with its relational or emotional origin. "
+            "Call when the user associates money with a person, event, or purpose "
+            "('l'argent de mamie', 'le compte pour les enfants', 'mon heritage'). "
+            "Internal — handled by backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "description": "The earmark label as the user expressed it (e.g. 'l'argent de mamie').",
+                },
+                "source_description": {
+                    "type": "string",
+                    "description": "Optional context about the origin (e.g. 'heritage de grand-mere en 2019').",
+                },
+                "amount_hint": {
+                    "type": "string",
+                    "description": "Optional approximate amount as expressed by user (e.g. 'environ 50k', '~30000').",
+                },
+            },
+            "required": ["label"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # remove_earmark — WRITE/INTERNAL: delete an earmark tag by label
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "remove_earmark",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Remove an earmark tag when the user asks to forget it. "
+            "Call when user says 'oublie le tag sur l'argent de mamie' or similar. "
+            "Internal — handled by backend."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "label": {
+                    "type": "string",
+                    "description": "The earmark label to remove (e.g. 'l'argent de mamie').",
+                },
+            },
+            "required": ["label"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # save_partner_estimate — WRITE/INTERNAL (ack-only): partner data stays on device
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_partner_estimate",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Store an estimate about the user's partner. "
+            "Backend acknowledges only — actual data persisted by Flutter locally. "
+            "Fields: estimated_salary (annual CHF), estimated_age (int), "
+            "estimated_lpp (CHF), estimated_3a (CHF), estimated_canton (2-letter)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "estimated_salary": {
+                    "type": "number",
+                    "description": "Partner's estimated annual gross salary in CHF",
+                },
+                "estimated_age": {
+                    "type": "integer",
+                    "description": "Partner's estimated age",
+                },
+                "estimated_lpp": {
+                    "type": "number",
+                    "description": "Partner's estimated LPP assets in CHF",
+                },
+                "estimated_3a": {
+                    "type": "number",
+                    "description": "Partner's estimated 3a capital in CHF",
+                },
+                "estimated_canton": {
+                    "type": "string",
+                    "description": "Partner's canton of residence (2-letter, e.g. VS, ZH)",
+                },
+            },
+            "required": [],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # update_partner_estimate — WRITE/INTERNAL (ack-only): update partner estimate
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "update_partner_estimate",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "Update a previously stored partner estimate field. "
+            "Backend acknowledges only — actual data persisted by Flutter locally. "
+            "Fields: estimated_salary (annual CHF), estimated_age (int), "
+            "estimated_lpp (CHF), estimated_3a (CHF), estimated_canton (2-letter)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "estimated_salary": {
+                    "type": "number",
+                    "description": "Partner's estimated annual gross salary in CHF",
+                },
+                "estimated_age": {
+                    "type": "integer",
+                    "description": "Partner's estimated age",
+                },
+                "estimated_lpp": {
+                    "type": "number",
+                    "description": "Partner's estimated LPP assets in CHF",
+                },
+                "estimated_3a": {
+                    "type": "number",
+                    "description": "Partner's estimated 3a capital in CHF",
+                },
+                "estimated_canton": {
+                    "type": "string",
+                    "description": "Partner's canton of residence (2-letter, e.g. VS, ZH)",
+                },
+            },
+            "required": [],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # show_commitment_card — READ: Flutter-bound editable commitment card
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "show_commitment_card",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Display an editable commitment card (WHEN/WHERE/IF-THEN) inline "
+            "in chat. The user can accept, edit, or dismiss the commitment. "
+            "This tool is forwarded to Flutter for rendering — the backend "
+            "does NOT handle it internally."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "when_text": {
+                    "type": "string",
+                    "description": "WHEN part of the intention.",
+                },
+                "where_text": {
+                    "type": "string",
+                    "description": "WHERE part of the intention.",
+                },
+                "if_then_text": {
+                    "type": "string",
+                    "description": "IF-THEN part of the intention.",
+                },
+            },
+            "required": ["when_text", "where_text", "if_then_text"],
         },
     },
 ]

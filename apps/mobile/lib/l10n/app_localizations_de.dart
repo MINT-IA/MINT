@@ -10904,7 +10904,7 @@ class SDe extends S {
       'Wesentliche Tools und Lebensereignisse — alles hier.';
 
   @override
-  String get timelineSectionTitle => 'Lebensereignisse';
+  String get timelineSectionTitle => 'Deine Geschichte';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22351,4 +22351,247 @@ class SDe extends S {
 
   @override
   String get tonSectionLabel => 'Stimme';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'Geld. In der Schweiz redet niemand darüber.';
+
+  @override
+  String get anonymousIntentLine2 => 'Nicht mal mit sich selbst.';
+
+  @override
+  String get anonymousIntentPill1 =>
+      'Ich zahle, ich unterschreibe, aber ich verstehe nicht alles';
+
+  @override
+  String get anonymousIntentPill2 => 'Ich vermeide es, daran zu denken';
+
+  @override
+  String get anonymousIntentPill3 =>
+      'Ich habe Angst, einen teuren Fehler zu machen';
+
+  @override
+  String get anonymousIntentPill4 => 'Ich weiss, ich sollte mich darum kümmern';
+
+  @override
+  String get anonymousIntentPill5 =>
+      'Etwas hat sich geändert und ich weiss nicht, wo anfangen';
+
+  @override
+  String get anonymousIntentPill6 => 'Ich will einfach Klarheit';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Oder sag es so, wie du willst…';
+
+  @override
+  String get anonymousChatBack => 'Zurück';
+
+  @override
+  String get anonymousChatLocked =>
+      'Ich bin immer noch da, wenn du weitermachen willst.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Konto erstellen';
+
+  @override
+  String get anonymousChatError =>
+      'Ich habe ein technisches Problem. Versuch es gleich nochmal.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'Wir haben bereits 3 Dinge zusammen entdeckt. Wenn du willst, dass ich mich daran erinnere…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Ich kann das alles für dich speichern — erstelle einfach ein Konto.';
+
+  @override
+  String get authGateLater => 'Später';
+
+  @override
+  String get authGateMagicLink => 'Link erhalten';
+
+  @override
+  String get commitmentCardTitle => 'Meine Verpflichtung';
+
+  @override
+  String get commitmentWhen => 'WANN';
+
+  @override
+  String get commitmentWhere => 'WO / WIE';
+
+  @override
+  String get commitmentIfThen => 'WENN… DANN';
+
+  @override
+  String get commitmentAccept => 'Ich verpflichte mich';
+
+  @override
+  String get commitmentDismissed => 'Verpflichtung entfernt';
+
+  @override
+  String get commitmentReminderTitle => 'MINT Erinnerung';
+
+  @override
+  String get commitmentReminderBody => 'Zeit, deine Verpflichtung einzulösen.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Erreicht';
+
+  @override
+  String get tensionPulsingTitle => 'Laufend';
+
+  @override
+  String get tensionGhostedTitle => 'Bevorstehend';
+
+  @override
+  String get tensionEarnedCommitment => 'Verpflichtung erfüllt';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Erstes Gespräch';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Laufende Verpflichtung';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Mit dem Coach sprechen';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Nächster Meilenstein: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Deine finanzielle Zukunft';
+
+  @override
+  String get tensionEmptyWelcome => 'Beginne mit einem Gespräch mit dem Coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Deine ersten Spannungen erscheinen hier.';
+
+  @override
+  String get cleoLoopInsight => 'Insight erhalten';
+
+  @override
+  String get cleoLoopPlan => 'Plan läuft';
+
+  @override
+  String get cleoLoopConversation => 'Gespräch';
+
+  @override
+  String get cleoLoopAction => 'Aktion läuft';
+
+  @override
+  String get cleoLoopMemory => 'Speicher aktualisiert';
+
+  @override
+  String get coachGreetingRandom1 =>
+      'Dis 3a — hesch du das gwählt? Oder «de Typ»?';
+
+  @override
+  String get coachGreetingRandom2 =>
+      'In der Schwiz redet mer nöd über Geld. Mer verliert\'s still.';
+
+  @override
+  String get coachGreetingRandom3 =>
+      'De Typ, wo dir dis 3a verkauft het, het sini Kommission im erschte Jahr kassiert. Du wartisch immer no uf dini Rendite.';
+
+  @override
+  String get coachGreetingRandom4 =>
+      'Din Bankberater kennt dich besser als du. Das isch keis Komplimänt.';
+
+  @override
+  String get coachGreetingRandom5 =>
+      'Alli säge dir, du söllsch kaufe. Din Banker, dini Eltere, din Schwager. Hesch mol öpper gfragt, wo nüt verkauft?';
+
+  @override
+  String get coachGreetingRandom6 =>
+      'Mit 25 zahlsch scho für dini Pension. Mit 25 weisch nöd mal, dass du zahlsch.';
+
+  @override
+  String get coachGreetingRandom7 =>
+      'Du managsch dini Finanze nöd. Du vermeidisch sie. S\'isch en Unterschied.';
+
+  @override
+  String get coachGreetingRandom8 =>
+      'Weisch du, wie viel du im Alter überchunnsch? Niemert weiss das.';
+
+  @override
+  String get coachGreetingRandom9 =>
+      'Wenn din Lohn morn uufhört — weisch, was passiert?';
+
+  @override
+  String get coachGreetingRandom10 =>
+      'Dini Versicherig gseet es Stück. Din Banker au. Dini Treuhand au. S\'ganze Bild? Niemert.';
+
+  @override
+  String get coachGreetingRandom11 =>
+      'Wie vill Sache hesch du unterschribe, ohni z\'läse?';
+
+  @override
+  String get coachGreetingRandom12 =>
+      'Hesch du din Vorsorguuswiis scho mal ufgmacht? Würkli ufgmacht?';
+
+  @override
+  String get coachGreetingRandom13 =>
+      'Dis Erspaarte schlaft. Weisch, was das chostet?';
+
+  @override
+  String get coachGreetingRandom14 =>
+      'S\'Schwiizer Vorsorgesystem isch super. Nur het dir niemert d\'Gebrauchsaawisig gä.';
+
+  @override
+  String get coachGreetingRandom15 =>
+      'Du wächslisch de Job, luegsch de Lohn aa. D\'Pensionskasse luegsch nie aa.';
+
+  @override
+  String get coachGreetingRandom16 =>
+      '3a und Pensionskasse im gliiche Jahr bezieh? D\'Stüüre explodiere. Verteilsch? Sie schmelze. Gliichs Geld. Nur s\'Timing.';
+
+  @override
+  String get coachGreetingRandom17 =>
+      'Du chönntisch Jahre i dini Pensionskasse iikaufe und tuusigi a Stüüre spare. Aber du müesstisch de Uuswiis ufmache.';
+
+  @override
+  String get coachGreetingRandom18 =>
+      'Direkti oder indirekti Amortisation? Wenn du de Unterschied nöd kennsch, zahlsch z\'vill Stüüre. Vo Aafang aa.';
+
+  @override
+  String get coachGreetingRandom19 =>
+      'Du bisch selbständig. Niemert zahlt meh für dich ii. Alles muess ufbaut werde. Hesch aagfange?';
+
+  @override
+  String get coachGreetingRandom20 =>
+      'Zum Kaufe nimmsch en Teil vo dinere Pensionskasse und stecksch en i d\'Wänd. Was dänkt dis zukünftige Ich dezue?';
+
+  @override
+  String get timelineCommitmentEarned => 'Engagement eingehalten';
+
+  @override
+  String get timelineCommitmentActive => 'Aktives Engagement';
+
+  @override
+  String get timelineConversation => 'Gespräch';
+
+  @override
+  String get timelineCoupleEstimate => 'Partnerschätzung';
+
+  @override
+  String get timelineProjection => 'Projektion';
+
+  @override
+  String get timelineDocument => 'Dokument hinzugefügt';
+
+  @override
+  String get timelineEmpty => 'Deine finanzielle Geschichte beginnt hier.';
+
+  @override
+  String get timelineLoadMore => 'Mehr laden';
+
+  @override
+  String get coachDisclaimerCollapsed => 'Bildungstool — Disclaimer anzeigen';
 }

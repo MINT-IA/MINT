@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -38,9 +39,12 @@ import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
+import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -146,6 +150,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Whether the silent opener is currently displayed (no messages yet).
   bool _showSilentOpener = false;
 
+  /// Random greeting index — picked once per screen open.
+  final int _greetingIndex = Random().nextInt(20);
+
   /// SharedPreferences keys for proactive opt-in tracking.
   static const String _conversationCountKey = 'mint_coach_conversation_count';
   static const String _proactiveOptInKey = 'mint_coach_proactive_optin';
@@ -175,6 +182,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Non-null only on the first session after intent selection.
   String? _intentOpenerText;
 
+  /// Subscription to ScreenCompletionTracker for immediate reaction
+  /// when user completes a simulation and returns to coach.
+  StreamSubscription<ScreenReturn>? _screenReturnSub;
+
   @override
   void initState() {
     super.initState();
@@ -187,6 +198,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
     _loadCashLevel();
     _loadOnboardingPayload();
+    _subscribeToScreenReturns();
+    _consumeCapCoachBridge();
+  }
+
+  /// Consume any pending prompt from CapCoachBridge (set by CapCard).
+  /// Converts the raw prompt string into a CoachEntryPayload context injection.
+  void _consumeCapCoachBridge() {
+    final capPrompt = CapCoachBridge.consume();
+    if (capPrompt != null && capPrompt.isNotEmpty) {
+      _entryPayloadContext = const CoachEntryPayload(
+        source: CoachEntrySource.signal,
+        topic: 'capAction',
+      ).toContextInjection();
+    }
   }
 
   /// Load voice intensity from SharedPreferences.
@@ -307,18 +332,34 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _sendMessage(payload.userMessage!);
             });
+          } else if (payload.topic == 'onboarding') {
+            // Onboarding topic — send a real intake question instead of
+            // injecting raw context. This replaces the old ?prompt=onboarding.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _sendMessage(
+                'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
+              );
+            });
+          } else if (_isNotificationTopic(payload.topic)) {
+            // Notification topics (monthlyCheckIn, commitmentReminder,
+            // freshStart): inject a coach-authored opening message so the
+            // conversation starts with a concrete question tied to the
+            // notification intent, not a generic greeting.
+            final opener = _notificationOpener(payload.topic!, payload.data);
+            if (opener != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _addCoachOpenerMessage(opener);
+              });
+            }
+            // Still inject the topic context so downstream prompts know
+            // this is a notification-driven entry.
+            _entryPayloadContext = payload.toContextInjection();
           } else if (payload.topic != null) {
             // Topic-based entry — inject context into system prompt.
             // The topic context is injected via the memory block,
             // not as a user message.
             _entryPayloadContext = payload.toContextInjection();
           }
-        } else if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
-          // Legacy: auto-send initial prompt (contextual routing)
-          final prompt = widget.initialPrompt!;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _sendMessage(prompt);
-          });
         }
       } else {
         // CHAT-01: Anonymous user (no profile) — show silent opener
@@ -335,6 +376,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   void dispose() {
+    _screenReturnSub?.cancel();
     _autoSaveConversation();
     _controller.dispose();
     _scrollController.dispose();
@@ -348,6 +390,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_conversationId != null && _messages.any((m) => m.isUser)) {
       await _conversationStore.saveConversation(_conversationId!, _messages);
     }
+  }
+
+  /// Subscribe to ScreenCompletionTracker stream so the coach can react
+  /// immediately when the user completes a simulation (e.g., document scan,
+  /// retirement dashboard) and returns to the chat.
+  void _subscribeToScreenReturns() {
+    _screenReturnSub = ScreenCompletionTracker.stream.listen((screenReturn) {
+      if (!mounted) return;
+      // Inject the screen return as context for the next coach response.
+      final fields = screenReturn.updatedFields;
+      final fieldSummary = fields != null && fields.isNotEmpty
+          ? fields.entries.map((e) => '${e.key}: ${e.value}').join(', ')
+          : '';
+      final contextLine = "L'utilisateur vient de terminer une simulation "
+          "(${screenReturn.route}, r\u00e9sultat\u00a0: ${screenReturn.outcome.name})"
+          "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
+      _entryPayloadContext = contextLine;
+    });
   }
 
   // ════════════════════════════════════════════════════════════
@@ -382,6 +442,53 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Increment conversation count for opt-in tracking.
     _incrementConversationCount();
+  }
+
+  /// Returns true if [topic] is a notification-driven entry topic that
+  /// should trigger a coach-authored opening message.
+  bool _isNotificationTopic(String? topic) {
+    if (topic == null) return false;
+    return topic == 'monthlyCheckIn' ||
+        topic == 'commitmentReminder' ||
+        topic == 'freshStart';
+  }
+
+  /// Returns the opening coach message for a notification topic, or null
+  /// if the topic has no dedicated opener.
+  ///
+  /// [data] may carry notification-specific fields. For commitmentReminder,
+  /// `data['commitment']` (String) is interpolated into the message.
+  String? _notificationOpener(String topic, Map<String, dynamic>? data) {
+    switch (topic) {
+      case 'monthlyCheckIn':
+        return 'On fait le point sur le mois\u00a0?';
+      case 'commitmentReminder':
+        final commitment = data?['commitment']?.toString();
+        if (commitment != null && commitment.trim().isNotEmpty) {
+          return 'Tu m\u2019avais dit que tu allais $commitment. C\u2019est fait\u00a0?';
+        }
+        return 'Tu avais un engagement a tenir. C\u2019est fait\u00a0?';
+      case 'freshStart':
+        return 'Nouveau mois. On commence par quoi\u00a0?';
+      default:
+        return null;
+    }
+  }
+
+  /// Appends a coach-authored opening message to the conversation.
+  /// Dismisses the silent opener so the chat feels like a live conversation.
+  void _addCoachOpenerMessage(String content) {
+    if (!mounted) return;
+    setState(() {
+      _showSilentOpener = false;
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: content,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _scrollToBottom();
   }
 
   /// Increment the conversation count in SharedPreferences.
@@ -478,6 +585,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           final widget = ChatDrawerHost.resolveDrawerWidget(route);
           if (widget != null) {
             showChatDrawer(context: context, child: widget);
+          } else {
+            // NAV-03/WID-03: Routes without drawer support (e.g. /scan,
+            // /profile/bilan) fall back to standard push navigation.
+            context.push(route);
           }
         },
       ),
@@ -577,6 +688,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+    _focusNode.unfocus();
+
+    // AUTH NOTE: Auth gate was moved AFTER SLM attempt (see _handleStandardResponse).
+    // Anonymous users CAN chat via SLM (on-device, no auth needed).
+    // Auth is only required when falling back to server-key API calls.
 
     // Dismiss silent opener when user types their first message.
     if (_showSilentOpener) {
@@ -641,19 +757,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _entryPayloadContext = null; // one-shot: clear after first use
     }
 
-    // CHAT-01: Ensure a profile exists for the coach context.
-    // Anonymous users get a minimal profile on first message.
+    // CHAT-01: Load profile if available — never invent fake data.
+    // If no profile exists, use default CoachProfile (all zeros/empty).
+    // The system prompt detects confidence=0 and asks for real data.
     if (_profile == null) {
       final provider = context.read<CoachProfileProvider>();
-      if (!provider.hasProfile) {
-        // Create minimal profile — data capture (CHAT-04) will fill in details.
-        provider.mergeAnswers({
-          'q_birth_year': DateTime.now().year - 35,
-          'q_canton': 'VD',
-          'q_net_income_period_chf': 0.0,
-        });
+      if (provider.hasProfile) {
+        _profile = provider.profile;
+      } else {
+        // Minimal profile with no fake data — zeros mean "unknown".
+        _profile = CoachProfile.defaults();
       }
-      _profile = provider.profile;
       _hasProfile = provider.hasProfile;
     }
 
@@ -770,10 +884,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ? parseResult.cleanText
         : complianceText;
 
-    final suggestedActions = compliance.useFallback
-        ? null
-        : _inferSuggestedActions(userMessage, finalText);
-
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
         ? ResponseCardService.generateForChat(_profile!, userMessage, l: S.of(context)!)
@@ -782,12 +892,22 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
+    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
+    final inferredActions = compliance.useFallback
+        ? <String>[]
+        : _inferSuggestedActions(userMessage, finalText);
+    final routeChips = _extractRouteChips(richCalls);
+    final suggestedActions = <String>{
+      ...inferredActions,
+      ...routeChips,
+    }.take(4).toList();
+
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: finalText,
         timestamp: DateTime.now(),
-        suggestedActions: suggestedActions,
+        suggestedActions: suggestedActions.isEmpty ? null : suggestedActions,
         responseCards: cards,
         tier: ChatTier.slm,
         richToolCalls: richCalls,
@@ -833,11 +953,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           ? parseResult.cleanText
           : response.message;
 
-      // Use LLM-provided suggestions if available, otherwise infer from
-      // both the user message and the coach response.
-      final suggestedActions = response.suggestedActions ??
-          _inferSuggestedActions(text, cleanMessage);
-
       // T-02-06: normalize and cap tool calls via ChatToolDispatcher.
       // STAB-03 / STAB-04: merge structured toolCalls from the orchestrator
       // (BYOK path — Claude tool_use blocks re-exposed by CoachLlmService.chat)
@@ -849,6 +964,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...structuredCalls,
         ...markerCalls,
       ].take(5).toList();
+
+      // UX-04: Use LLM-provided suggestions if available, otherwise infer
+      // from conversation context. Enrich with route_to_screen tool calls
+      // so the coach's navigation proposals also appear as tappable chips.
+      final inferredActions = response.suggestedActions ??
+          _inferSuggestedActions(text, cleanMessage);
+      final routeChips = _extractRouteChips(richCalls);
+      final suggestedActions = <String>{
+        ...inferredActions,
+        ...routeChips,
+      }.take(4).toList();
 
       setState(() {
         _messages.add(ChatMessage(
@@ -886,21 +1012,45 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         default:
           errorMsg = s.coachErrorGeneric;
       }
+      // Recover last user message so the user can retry with one tap.
+      final lastUserText = _messages
+          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
+                role: 'user',
+                content: '',
+                timestamp: DateTime.now(),
+              ))
+          .content;
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
           content: errorMsg,
           timestamp: DateTime.now(),
+          suggestedActions: [
+            if (lastUserText.isNotEmpty) lastUserText,
+          ],
         ));
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+      debugPrint('[CoachChat] Standard response error: $e');
+      // Recover the last user message for retry suggestion.
+      final lastUserMsg = _messages
+          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
+                role: 'user',
+                content: '',
+                timestamp: DateTime.now(),
+              ))
+          .content;
+      final retryActions = <String>[
+        if (lastUserMsg.isNotEmpty) lastUserMsg,
+      ];
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
           content: S.of(context)!.coachErrorConnection,
           timestamp: DateTime.now(),
+          suggestedActions: retryActions,
         ));
         _isLoading = false;
       });
@@ -1193,11 +1343,35 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
     }
 
-    if (actions.isEmpty) {
-      return [s.coachSuggestFitness, s.coachSuggestRetirement];
-    }
+    // UX-04: No hardcoded defaults. Chips appear ONLY when the
+    // conversation matches a topic regex — otherwise the list is empty
+    // and no chips are shown. This prevents static/irrelevant chips
+    // from appearing after every response regardless of context.
     // Deduplicate and cap at 3
     return actions.toSet().take(3).toList();
+  }
+
+  /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
+  ///
+  /// When the LLM returns a route_to_screen tool call, it includes a
+  /// context_message explaining why the user should navigate there.
+  /// We surface these as tappable suggestion chips so the user has
+  /// both the inline card AND a quick-tap chip option.
+  List<String> _extractRouteChips(List<RagToolCall> toolCalls) {
+    final chips = <String>[];
+    for (final call in toolCalls) {
+      if (call.name != 'route_to_screen') continue;
+      final contextMsg = call.input['context_message'] as String? ??
+          call.input['narrative'] as String?;
+      if (contextMsg != null && contextMsg.isNotEmpty) {
+        // Cap chip text at 60 chars for UI readability
+        final label = contextMsg.length > 60
+            ? '${contextMsg.substring(0, 57)}...'
+            : contextMsg;
+        chips.add(label);
+      }
+    }
+    return chips;
   }
 
   /// Map suggested action labels to direct navigation routes.
@@ -1369,34 +1543,46 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.craie,
-      body: Column(
-        children: [
-          CoachAppBar(
-            isEmbeddedInTab: widget.isEmbeddedInTab,
-            hasUserMessages: _messages.any((m) => m.isUser),
-            onBack: () => safePop(context),
-            onHistory: () async {
-              final router = GoRouter.of(context);
-              await _autoSaveConversation();
-              if (mounted) router.push('/coach/history');
-            },
-            onExport: _exportConversation,
-            onSettings: () => context.push('/profile/byok'),
-          ),
-          Expanded(
-            child: _showSilentOpener
-                ? _buildSilentOpenerWithTone()
-                : _buildMessageList(),
-          ),
-          if (_isLoading) const CoachLoadingIndicator(),
-          CoachInputBar(
-            controller: _controller,
-            focusNode: _focusNode,
-            isStreaming: _isStreaming,
-            onSend: () => _sendMessage(_controller.text),
-            onLightningMenu: _showLightningMenu,
-          ),
-        ],
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            CoachAppBar(
+              isEmbeddedInTab: widget.isEmbeddedInTab,
+              hasUserMessages: _messages.any((m) => m.isUser),
+              onBack: () => safePop(context),
+              onHistory: () async {
+                final router = GoRouter.of(context);
+                await _autoSaveConversation();
+                if (mounted) router.push('/coach/history');
+              },
+              onExport: _exportConversation,
+              onSettings: () => context.push('/profile/byok'),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: _showSilentOpener
+                    ? _buildSilentOpenerWithTone()
+                    : _buildMessageList(),
+              ),
+            ),
+            if (_isLoading) const CoachLoadingIndicator(),
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom,
+              ),
+              child: CoachInputBar(
+                controller: _controller,
+                focusNode: _focusNode,
+                isStreaming: _isStreaming,
+                onSend: () => _sendMessage(_controller.text),
+                onLightningMenu: _showLightningMenu,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1409,16 +1595,73 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// if the user hasn't chosen a tone yet.
   Widget _buildSilentOpenerWithTone() {
     final opener = _buildSilentOpener();
-    if (_intensityChosen || !_cashLevelLoaded) return opener;
+
+    // Random greeting when no messages yet.
+    final greeting = _messages.isEmpty ? _buildRandomGreeting() : const SizedBox.shrink();
+
+    if (_intensityChosen || !_cashLevelLoaded) {
+      return Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  opener,
+                  greeting,
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Column(
       children: [
-        Expanded(child: opener),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                opener,
+                greeting,
+              ],
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
           child: _buildIntensityChips(),
         ),
       ],
+    );
+  }
+
+  Widget _buildRandomGreeting() {
+    final s = S.of(context)!;
+    final greetings = [
+      s.coachGreetingRandom1,  s.coachGreetingRandom2,
+      s.coachGreetingRandom3,  s.coachGreetingRandom4,
+      s.coachGreetingRandom5,  s.coachGreetingRandom6,
+      s.coachGreetingRandom7,  s.coachGreetingRandom8,
+      s.coachGreetingRandom9,  s.coachGreetingRandom10,
+      s.coachGreetingRandom11, s.coachGreetingRandom12,
+      s.coachGreetingRandom13, s.coachGreetingRandom14,
+      s.coachGreetingRandom15, s.coachGreetingRandom16,
+      s.coachGreetingRandom17, s.coachGreetingRandom18,
+      s.coachGreetingRandom19, s.coachGreetingRandom20,
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      child: Text(
+        greetings[_greetingIndex],
+        style: GoogleFonts.montserrat(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          color: MintColors.textPrimary,
+          height: 1.5,
+        ),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 

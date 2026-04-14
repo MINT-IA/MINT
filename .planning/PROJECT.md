@@ -2,21 +2,23 @@
 
 ## What This Is
 
-MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that compiles with 9256 tests passing but is non-functional for real users. The backend pipes are broken (RAG corpus ephemeral, URLs 404, tool calling dead), there is zero navigation shell (no tabs, no drawer mounted), and the user is trapped on a single chat screen. This milestone makes the plumbing work so a real human can use MINT end-to-end.
+MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that gives users financial peace-of-mind, clarity, and control with near-zero effort. MINT is a living dossier that collects, understands, and reveals what matters about the user's financial life. Infrastructure plumbing is fixed (v2.4). This milestone transforms MINT from working infrastructure into a product that hooks, converts, and retains users through the anonymous→value→premium flow and the 5 expert audit innovations.
 
 ## Core Value
 
-**Un humain externe peut ouvrir MINT sur son iPhone, naviguer sans être piégé, uploader un document, recevoir un premier éclairage, poser une question au coach, et recevoir une réponse pertinente basée sur ses données. Zero crash. Zero 404. Zero boucle. Zero feature morte visible.**
+**Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.4 MINT v2.4 — Fondation
+## Current Milestone: v2.5 Transformation
 
-**Goal:** Fix all infrastructure pipes, front-back connections, and navigation architecture so MINT is usable by a real human end-to-end.
+**Goal:** Transform MINT into a living product: anonymous hook → auth conversion → value delivery → premium retention → dossier vivant. Implement the 5 tier-1 innovations from the expert audit.
 
 **Target features:**
-- Phase 1 — Les tuyaux: backend infra hardening (SQLite fail-fast, RAG persistence, agent timeout, Docker paths)
-- Phase 2 — Les connexions: front-back wiring (5x URL double-prefix, camelCase mismatch, DNS cleanup)
-- Phase 3 — La navigation: shell architecture (tabs, drawer, back button, zombie cleanup, Explorer surface)
-- Phase 4 — La preuve: end-to-end human validation on real device
+- Anonymous→Auth flow end-to-end (backend anonymous endpoint, rate limiting, conversation transfer post-login)
+- Commitment devices (implementation intentions, fresh-start anchors, pre-mortem)
+- Mode couple dissymetrique (asymmetric partner awareness questionnaire)
+- Coach intelligence (provenance journal via conversation, earmarking implicite, intent-first suggestions)
+- Premium gate wiring (gratuit vs premium line, Stripe/RevenueCat, 15 CHF/mois)
+- Living timeline direction (tension-based home screen for authenticated users)
 
 ## Requirements
 
@@ -46,15 +48,14 @@ See `.planning/REQUIREMENTS.md` for full v2.4 requirements with REQ-IDs.
 
 ## Context
 
-### Codebase State (2026-04-12)
-- Flutter: 0 compile errors, 9256 tests pass
-- Backend: Railway deployed (staging + production), ANTHROPIC_API_KEY present, Claude Sonnet LIVE
-- 2 Sentry errors fixed (RAG graceful fallback) — commit 2f65bf01, 11093e46
-- 32 findings from 3-axis deep audit: `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md`
-- RAG corpus EMPTY on staging/prod (ChromaDB ephemeral)
-- 5 Flutter→Backend URLs are 404 (double /api/v1 prefix)
-- Tool calling silently dead (camelCase mismatch)
-- Zero shell/tabs/drawer in app (specs say 3 tabs + ProfileDrawer)
+### Codebase State (2026-04-12, post v2.4 Fondation)
+- Flutter: 0 compile errors, 9256+ tests pass
+- Backend: Railway deployed (staging + production), Claude Sonnet LIVE with tool calling
+- v2.4 fixed: RAG persistence, URL double-prefix, camelCase mismatch, shell/tabs/drawer, navigation
+- Anonymous intent screen built (quick-260412-kue): 6 felt-state pills, warm white, timed animation
+- 5 expert audit (2026-04-11): 10 innovations proposed, 5 tier-1 adopted, lucidite-first pivot
+- Source of truth for vision: `docs/MINT_IDENTITY.md` + `.planning/architecture/13-AUDIT.md`
+- Monetisation design: memory/project_hook_monetization_2026_04_12.md
 
 ## Constraints
 

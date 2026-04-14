@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';

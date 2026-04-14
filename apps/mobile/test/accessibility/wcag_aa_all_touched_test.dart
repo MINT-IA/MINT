@@ -384,7 +384,7 @@ void main() {
                       color: MintColors.textSecondaryAaa),
                   onTap: () {},
                 ),
-                Divider(color: MintColors.textSecondaryAaa.withOpacity(0.2)),
+                Divider(color: MintColors.textSecondaryAaa.withValues(alpha: 0.2)),
               ],
             ],
           ),

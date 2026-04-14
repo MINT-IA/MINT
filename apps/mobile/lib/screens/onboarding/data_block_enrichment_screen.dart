@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -114,9 +113,8 @@ class _DataBlockEnrichmentScreenState
                 coachAvailable: coachAvailable,
                 onToggle: (value) {
                   if (value) {
-                    // Navigate to coach chat with contextual prompt
-                    final prompt = _coachPromptForBlock(canonicalBlockType);
-                    context.push('/coach/chat?prompt=${Uri.encodeComponent(prompt)}');
+                    // Navigate to coach chat with structured topic
+                    context.push('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
                   } else {
                     setState(() => _showCoachMode = false);
                   }

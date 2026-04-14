@@ -73,7 +73,7 @@ class HeroStatResolver {
       label: 'Ton profil MINT',
       value: '${completeness.toStringAsFixed(0)}\u00a0%',
       narrative: 'Plus ton profil est complet, plus MINT est precis.',
-      route: '/coach/chat?prompt=profile',
+      route: '/coach/chat?topic=profileCompletion',
     );
   }
 

@@ -1,121 +1,125 @@
-# Requirements: MINT v2.4 — Fondation
+# Requirements: MINT v2.5 Transformation
 
 **Defined:** 2026-04-12
-**Core Value:** Un humain externe peut ouvrir MINT sur son iPhone, naviguer sans etre piege, uploader un document, recevoir un premier eclairage, poser une question au coach, et recevoir une reponse pertinente basee sur ses donnees. Zero crash. Zero 404. Zero boucle. Zero feature morte visible.
+**Core Value:** Un inconnu ouvre MINT, ressent quelque chose, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
 
-## v1 Requirements (milestone v2.4)
+## v2.5 Requirements
 
-Requirements derived from `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` (32 findings) + research synthesis.
+Requirements for the Transformation milestone. Each maps to roadmap phases.
 
-### Backend Infrastructure (INFRA)
+### Anonymous Hook & Auth Bridge
 
-- [x] **INFRA-01**: If ENVIRONMENT is `production` or `staging` and DATABASE_URL starts with `sqlite`, app raises RuntimeError at startup instead of silently using ephemeral SQLite (P0-INFRA-1)
-- [x] **INFRA-02**: ChromaDB persist_directory points to a Railway persistent volume mount (`/data/chromadb`) that survives deploys, verified by deploying twice and confirming corpus count is preserved (P0-INFRA-2)
-- [x] **INFRA-03**: Education inserts (103 docs) are copied into the Docker image via `COPY education/inserts/ /app/education/inserts/` and the auto-ingest path in `main.py` resolves correctly inside the container (P0-INFRA-2, P1-INFRA-3)
-- [x] **INFRA-04**: Agent loop in `coach_chat.py` is wrapped with `asyncio.wait_for(55s)` so partial results are returned gracefully instead of a 502 Bad Gateway (P1-INFRA-1)
-- [x] **INFRA-05**: OPENAI_API_KEY is declared in `config.py` Settings with a startup warning if missing, so embedding failures are diagnosed at boot not at first user request (P1-INFRA-2)
+- [x] **ANON-01**: Anonymous user can send messages to coach via rate-limited public endpoint (3 messages/session by IP)
+- [x] **ANON-02**: Anonymous user tapping a felt-state pill on intent screen arrives in coach chat with that intent as context
+- [x] **ANON-03**: After 3 value exchanges, MINT surfaces a natural auth gate ("Je peux garder tout ca en memoire pour toi")
+- [x] **ANON-04**: Anonymous conversation history is transferred to persistent storage after user creates account (zero message loss)
+- [x] **ANON-05**: Backend anonymous endpoint uses "mode decouverte" system prompt (respond to intent, don't ask for profile)
+- [x] **ANON-06**: Anonymous session is device-scoped (SecureStorage session token) to prevent rate-limit evasion
 
-### Front-Back Connections (PIPE)
+### Commitment Devices
 
-- [x] **PIPE-01**: `document_service.dart:sendScanConfirmation` URL no longer double-prefixes `/api/v1` — request reaches the backend endpoint and returns 200 (P0-PIPE-1)
-- [x] **PIPE-02**: `document_service.dart:extractWithVision` URL no longer double-prefixes — Claude Vision OCR reaches backend (P0-PIPE-2)
-- [x] **PIPE-03**: `document_service.dart:fetchPremierEclairage` URL no longer double-prefixes — 4-layer premier eclairage loads after document scan (P0-PIPE-3)
-- [x] **PIPE-04**: `coach_memory_service.dart:syncInsight` URL no longer double-prefixes — coach insights sync to backend RAG (P0-PIPE-4)
-- [x] **PIPE-05**: `coach_memory_service.dart:deleteInsight` URL no longer double-prefixes AND backend DELETE `/coach/sync-insight/{id}` endpoint exists (P0-PIPE-5)
-- [x] **PIPE-06**: `coach_chat_api_service.dart` reads `json['toolCalls']` (camelCase) instead of `json['tool_calls']` — tool calling works on server-key path, verified by integration test (P1-PIPE-1)
-- [x] **PIPE-07**: `api.mint.ch` removed from URL candidates in `api_service.dart` — eliminates 2s latency from DNS resolution failure (P1-PIPE-2)
-- [x] **PIPE-08**: Staging Railway URL added to Flutter URL candidates so TestFlight builds can reach staging backend (P2-PIPE-1)
+- [x] **CMIT-01**: Each Layer 4 insight includes an implementation intention (WHEN/WHERE/IF-THEN) that user can accept or edit
+- [x] **CMIT-02**: Accepted implementation intentions are persisted and surfaced as reminders via notification scheduler
+- [x] **CMIT-03**: Fresh-start anchor detector identifies landmark dates (birthday, month-1, year-start, 1-year anniversary) from user profile
+- [x] **CMIT-04**: Fresh-start anchors trigger ONE proactive MINT message at each landmark date
+- [x] **CMIT-05**: Pre-mortem prompt appears before irrevocable decisions (EPL, capital withdrawal, 3a closure) -- "Imagine qu'on est en 2027 et que cette decision s'est mal passee"
+- [x] **CMIT-06**: Pre-mortem free-text response is stored in dossier and referenced in future related conversations
 
-### Navigation Architecture (NAV)
+### Coach Intelligence
 
-- [x] **NAV-01**: App has a `StatefulShellRoute` with 3 persistent tab branches (Aujourd'hui, Coach, Explorer) visible as a bottom navigation bar — user can switch tabs without losing state (P0-NAV-1)
-- [x] **NAV-02**: `ProfileDrawer` (280 lines, already built) is mounted as `endDrawer` on the shell scaffold with a visible icon button to open it — profile, documents, settings, logout are all accessible (P0-NAV-2)
-- [x] **NAV-03**: Back button on root tab screens does NOT navigate — no infinite loop. `safePop` fallback goes to shell root `/` instead of `/coach/chat` (P0-NAV-3)
-- [x] **NAV-04**: Route `/profile` redirects to `/profile/bilan` instead of `/coach/chat` — tapping "Mon profil" in drawer opens profile (P0-NAV-4)
-- [x] **NAV-05**: `safePop` replaced with `MintNav` that has typed fallbacks per screen category — back from any screen goes to a sensible parent, not always chat (P1-NAV-1)
-- [x] **NAV-06**: 6 zombie screens (achievements, score_reveal, cockpit, annual_refresh, portfolio, ask_mint) deleted — routes removed, files deleted, redirects added for deep links (P1-NAV-2)
-- [x] **NAV-07**: 7 Explorer hub routes (`/explore/retraite`, `/explore/famille`, etc.) resolve to real Explorer hub screens instead of redirecting to `/coach/chat` (P1-NAV-3)
+- [x] **INTL-01**: Coach asks provenance questions naturally in conversation ("au fait, ce 3a, c'est qui qui te l'a propose ?")
+- [x] **INTL-02**: Provenance tags are stored in backend and injected into CoachContext for future conversations
+- [x] **INTL-03**: Coach detects implicit earmarks in conversation ("ca c'est l'argent de mamie") and stores them via conversation_memory_service
+- [x] **INTL-04**: Earmark tags are respected in all future financial analyses (never aggregate earmarked monies into "patrimoine total")
 
-### Validation (VALID)
+### Couple Mode Dissymetrique
 
-- [ ] **VALID-01**: Cold start -> coach chat -> receive AI response with tool calling (navigate, simulate) working end-to-end on real iPhone
-- [ ] **VALID-02**: Upload document -> OCR extraction -> premier eclairage 4-layer insight displayed — zero 404, zero silent failure
-- [ ] **VALID-03**: Navigate all 3 tabs (Aujourd'hui, Coach, Explorer) — each loads, back button works, no infinite loops
-- [ ] **VALID-04**: Open ProfileDrawer -> view profile, documents, settings -> logout -> confirm session cleared
-- [ ] **VALID-05**: Explorer hubs (7) each show meaningful content, not redirects to chat
-- [ ] **VALID-06**: Coach remembers context across messages (RAG corpus persisted, not lost on deploy)
-- [ ] **VALID-07**: Back button from any screen returns to a sensible parent — zero teleportation to chat
-- [ ] **VALID-08**: All 8 flows validated by creator (Julien) on real iPhone via `flutter run --release` with annotated screenshots committed to `.planning/walkthroughs/v2.4/`
+- [x] **COUP-01**: User can declare "Je suis en couple" and enter what they know about their partner (estimated salary, LPP, age, 3a)
+- [x] **COUP-02**: MINT generates 5 questions to ask the partner based on gaps in the estimation ("Demande-lui son salaire assure LPP")
+- [x] **COUP-03**: Couple projections use partner estimates with explicit confidence degradation (estimated data = lower confidence)
+- [x] **COUP-04**: Partner data is stored locally only (not shared) -- privacy by architecture
 
-## v2 Requirements (deferred)
+### Cleo Loop Navigation (transversal)
 
-### P2 Findings (tracked, not blocking)
+- [x] **LOOP-01**: After each coach insight, MINT suggests the next step in the loop (plan, action, or document) — never a dead end
+- [x] **LOOP-02**: After each user action (document upload, commitment accepted, pre-mortem completed), coach acknowledges and updates the memory visibly ("J'ai note, je m'en souviendrai")
+- [x] **LOOP-03**: The Insight→Plan→Conversation→Action→Memory cycle is visible in the UX — user can see where they are in the loop (coach state indicator or contextual next-step chips)
 
-- **P2-01**: CORS configuration for Flutter Web (mobile OK, web deferred)
-- **P2-02**: JWT fail-fast bypass when ENVIRONMENT not set
-- **P2-03**: 11 legacy redirect shims (backward compat, low impact)
-- **P2-04**: /score-reveal builds CoachChatScreen outside router
-- **P2-05**: 3 document_service methods silently swallow errors (partial fix in Phase 10 error handling)
+### Living Timeline (3 tensions card -> full timeline)
 
-### P3 Findings (tech debt)
+- [x] **TIME-01**: Aujourd'hui screen shows 3 tension cards (past earned, present pulsing, future ghosted) as living placeholder
+- [x] **TIME-02**: Tension cards update dynamically based on user interactions, documents uploaded, and coach conversations
+- [x] **TIME-03**: Full living timeline replaces Aujourd'hui tab -- single-screen center of gravity with nodes (tap to reveal)
+- [x] **TIME-04**: Documents, chat history, commitment intentions, couple data feed into timeline nodes
+- [x] **TIME-05**: Timeline shows earned achievements (past), active tensions (present, pulsing), and projected scenarios (future, ghosted)
 
-- **P3-01**: [docling] extra not in Dockerfile (pdfplumber unavailable)
-- **P3-02**: Base.metadata.create_all() redundant with Alembic
-- **P3-03**: /budget route missing parentNavigatorKey
-- **P3-04**: Coach chat synchronous REST (no SSE streaming)
+## v2.6+ Requirements (Deferred)
+
+### Premium & Monetisation
+
+- **PREM-01**: RevenueCat integration with Apple IAP and Google Play Billing
+- **PREM-02**: Paywall UI with gratuit/premium feature matrix
+- **PREM-03**: 15 CHF/mois pricing with VZ anchor ("94% moins cher qu'un forfait VZ")
+- **PREM-04**: Premium gates on document upload, 4-layer insights, implementation intentions, couple mode
+
+### Long-term Directions
+
+- **GRAD-01**: Graduation Protocol -- concept mastery tracking, guided exercises after 3rd engagement
+- **DOSS-01**: Dossier Federation -- portable open-format dossier, user-owned
+- **POLI-01**: Political Pocket -- 5th layer collective_action (FRC, FINMA, parliamentary initiatives)
 
 ## Out of Scope
 
-Explicitly excluded for v2.4. Documented to prevent scope creep.
-
 | Feature | Reason |
 |---------|--------|
-| New features (Monte Carlo UI, withdrawal sequencing) | Foundation milestone — fix plumbing only |
-| Anonymous coach endpoint (v2.2 scope) | Depends on v2.4 foundation being solid first |
-| i18n remaining ~120 strings | P2, not blocking core flows |
-| SSE streaming for coach chat | P3 tech debt, sync REST works for now |
-| Flutter Web CORS | Mobile-first, web deferred |
-| Android-specific testing | iOS validation this milestone |
-| Onboarding flow redesign | Chat-first is a design choice, not a bug |
+| Premium payments / Stripe / RevenueCat | Too early -- zero external users yet. Deferred to v2.6. |
+| Voice AI | Phase 3 roadmap (v2.7+) |
+| Multi-LLM / model switching | Phase 3 roadmap (v2.7+) |
+| Bidirectional couple mode | Both-partners-on-MINT is rare. Dissymmetric only for v2.5. |
+| Push notifications infrastructure | Commitment devices degrade gracefully with local notifications. Push = v2.6. |
+| Full Graduation Protocol | Direction long-terme, not a v2.5 deliverable. |
+| Dossier Federation | Direction long-terme, not a v2.5 deliverable. |
+| Political Pocket | Direction existentielle, not a v2.5 deliverable. |
+| Budget tracking | Exists but not in scope for v2.5 improvements. |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | Phase 9 | Complete |
-| INFRA-02 | Phase 9 | Complete |
-| INFRA-03 | Phase 9 | Complete |
-| INFRA-04 | Phase 9 | Complete |
-| INFRA-05 | Phase 9 | Complete |
-| PIPE-01 | Phase 10 | Complete |
-| PIPE-02 | Phase 10 | Complete |
-| PIPE-03 | Phase 10 | Complete |
-| PIPE-04 | Phase 10 | Complete |
-| PIPE-05 | Phase 10 | Complete |
-| PIPE-06 | Phase 10 | Complete |
-| PIPE-07 | Phase 10 | Complete |
-| PIPE-08 | Phase 10 | Complete |
-| NAV-01 | Phase 11 | Complete |
-| NAV-02 | Phase 11 | Complete |
-| NAV-03 | Phase 11 | Complete |
-| NAV-04 | Phase 11 | Complete |
-| NAV-05 | Phase 11 | Complete |
-| NAV-06 | Phase 11 | Complete |
-| NAV-07 | Phase 11 | Complete |
-| VALID-01 | Phase 12 | Pending |
-| VALID-02 | Phase 12 | Pending |
-| VALID-03 | Phase 12 | Pending |
-| VALID-04 | Phase 12 | Pending |
-| VALID-05 | Phase 12 | Pending |
-| VALID-06 | Phase 12 | Pending |
-| VALID-07 | Phase 12 | Pending |
-| VALID-08 | Phase 12 | Pending |
+| ANON-01 | Phase 13 | Complete |
+| ANON-02 | Phase 13 | Complete |
+| ANON-03 | Phase 13 | Complete |
+| ANON-04 | Phase 13 | Complete |
+| ANON-05 | Phase 13 | Complete |
+| ANON-06 | Phase 13 | Complete |
+| CMIT-01 | Phase 14 | Complete |
+| CMIT-02 | Phase 14 | Complete |
+| CMIT-03 | Phase 14 | Complete |
+| CMIT-04 | Phase 14 | Complete |
+| CMIT-05 | Phase 14 | Complete |
+| CMIT-06 | Phase 14 | Complete |
+| INTL-01 | Phase 15 | Complete |
+| INTL-02 | Phase 15 | Complete |
+| INTL-03 | Phase 15 | Complete |
+| INTL-04 | Phase 15 | Complete |
+| COUP-01 | Phase 16 | Complete |
+| COUP-02 | Phase 16 | Complete |
+| COUP-03 | Phase 16 | Complete |
+| COUP-04 | Phase 16 | Complete |
+| TIME-01 | Phase 17 | Complete |
+| TIME-02 | Phase 17 | Complete |
+| TIME-03 | Phase 18 | Complete |
+| TIME-04 | Phase 18 | Complete |
+| TIME-05 | Phase 18 | Complete |
+| LOOP-01 | Phase 13, 14, 15 | Complete |
+| LOOP-02 | Phase 14, 15 | Complete |
+| LOOP-03 | Phase 17, 18 | Complete |
 
 **Coverage:**
-- v1 requirements: 28 total
-- Mapped to phases: 28/28
+- v2.5 requirements: 28 total
+- Mapped to phases: 28
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 after roadmap creation (traceability populated)*
+*Last updated: 2026-04-12 -- traceability updated after roadmap creation*

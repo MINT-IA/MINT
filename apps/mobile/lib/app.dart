@@ -10,6 +10,7 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
+import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -123,9 +124,12 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/timeline_provider.dart';
+import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
@@ -170,6 +174,23 @@ final _router = GoRouter(
     final isLoggedIn = auth.isLoggedIn;
     final path = state.uri.path;
 
+    // ── Parse /home?tab=N&intent=X query params ─────────────
+    // Notifications emit /home?tab=1&intent=monthlyCheckIn etc.
+    // Redirect to the correct tab route so the shell navigates properly.
+    if (path == '/home') {
+      final tab = state.uri.queryParameters['tab'];
+      final intent = state.uri.queryParameters['intent'];
+      if (tab == '1') {
+        // Tab 1 = Coach — redirect to /coach/chat with intent as topic
+        final query = intent != null ? '?topic=$intent' : '';
+        return '/coach/chat$query';
+      }
+      if (tab == '2') {
+        return '/explorer';
+      }
+      // tab=0 or no tab → stay on /home (Aujourd'hui)
+    }
+
     // Determine scope from matched route (fail-closed default)
     final topRoute = state.topRoute;
     final scope = topRoute is ScopedGoRoute
@@ -200,7 +221,7 @@ final _router = GoRouter(
     // ── Landing + Auth (public — no auth required) ─────────────
     ScopedGoRoute(
       path: '/',
-      scope: RouteScope.public, // Landing page
+      scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
     ),
     ScopedGoRoute(
@@ -231,7 +252,17 @@ final _router = GoRouter(
       ),
     ),
 
-    // ── SHELL: 3-tab persistent navigation ──────────────────
+    // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
+    ScopedGoRoute(
+      path: '/anonymous/chat',
+      scope: RouteScope.public,
+      builder: (context, state) {
+        final intent = state.uri.queryParameters['intent'];
+        return AnonymousChatScreen(intent: intent);
+      },
+    ),
+
+    // ── SHELL: 3-tab persistent navigation ───���─────���────────
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) => MintShell(
         navigationShell: navigationShell,
@@ -243,7 +274,24 @@ final _router = GoRouter(
           routes: [
             GoRoute(
               path: '/home',
-              builder: (context, state) => const LandingScreen(),
+              builder: (context, state) {
+                final auth = context.watch<AuthProvider>();
+                // NAV-02: Show loading while auth is resolving to avoid
+                // flashing LandingScreen before checkAuth() completes.
+                if (auth.isLoading) {
+                  return const Scaffold(
+                    backgroundColor: MintColors.warmWhite,
+                    body: Center(
+                      child: CircularProgressIndicator(
+                        color: MintColors.success,
+                      ),
+                    ),
+                  );
+                }
+                return auth.isLoggedIn
+                    ? const AujourdhuiScreen()
+                    : const LandingScreen();
+              },
             ),
           ],
         ),
@@ -255,10 +303,18 @@ final _router = GoRouter(
               path: '/coach/chat',
               scope: RouteScope.public,
               builder: (context, state) {
-                final prompt = state.uri.queryParameters['prompt'];
+                final topic = state.uri.queryParameters['topic'];
                 final conversationId = state.uri.queryParameters['conversationId'];
+                // Build a CoachEntryPayload from the topic query param.
+                // This replaces the old ?prompt= pattern with structured data.
+                final CoachEntryPayload? entryPayload = topic != null
+                    ? CoachEntryPayload(
+                        source: CoachEntrySource.direct,
+                        topic: topic,
+                      )
+                    : null;
                 return CoachChatScreen(
-                  initialPrompt: prompt,
+                  entryPayload: entryPayload,
                   conversationId: conversationId,
                   isEmbeddedInTab: true,
                 );
@@ -290,7 +346,7 @@ final _router = GoRouter(
           HubEntry(icon: Icons.compare_arrows, label: 'Rente vs Capital', route: '/rente-vs-capital'),
           HubEntry(icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
           HubEntry(icon: Icons.home_work, label: 'EPL (retrait pour logement)', route: '/epl'),
-          HubEntry(icon: Icons.calendar_month, label: 'Decaissement optimal', route: '/decaissement'),
+          HubEntry(icon: Icons.calendar_month, label: 'Sequence de decaissement', route: '/decaissement'),
           HubEntry(icon: Icons.account_balance_wallet, label: 'Libre passage', route: '/libre-passage'),
         ],
       ),
@@ -1021,7 +1077,7 @@ final _router = GoRouter(
     ScopedGoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
       if (section == null || section.isEmpty) return '/coach/chat';
-      return '/coach/chat?prompt=$section';
+      return '/coach/chat?topic=$section';
     }),
     ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/coach/chat'),
     ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
@@ -1047,7 +1103,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     AnalyticsService().init();
-    NotificationService().init();
+    NotificationService().init().then((_) => _consumeNotificationRoute());
   }
 
   @override
@@ -1056,8 +1112,26 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Consume any pending notification deep link and navigate.
+  ///
+  /// Called after NotificationService.init() completes (cold-start tap)
+  /// and on app resume (warm-start tap via didChangeAppLifecycleState).
+  void _consumeNotificationRoute() {
+    final route = NotificationService.consumePendingRoute();
+    if (route != null && route.isNotEmpty) {
+      // Wait for the first frame so GoRouter is mounted and ready.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _router.go(route);
+      });
+    }
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Check for notification taps that arrived while app was in background.
+      _consumeNotificationRoute();
+    }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
       if (SlmEngine.instance.isAvailable) {
@@ -1114,6 +1188,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
         ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
+        ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
       ],
       child: Builder(
         builder: (context) {
@@ -1308,7 +1383,7 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
         context.go('/coach/chat');
       } else {
         // NAV-AUDIT: welcome prompt triggers onboarding flow in coach
-        context.go('/coach/chat?prompt=onboarding');
+        context.go('/coach/chat?topic=onboarding');
       }
     } else {
       setState(() {

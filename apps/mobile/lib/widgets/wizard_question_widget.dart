@@ -188,7 +188,9 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
           ],
 
           // Input selon type
-          // HACK: Pour q_has_pension_fund, l'insert EST l'input. On masque le standard si l'insert est visible.
+          // NOTE: Pour q_has_pension_fund, l'insert educatif EST l'input (il
+          // expose un toggle oui/non integre a l'explication). Quand l'insert
+          // est affiche on masque donc l'input standard pour eviter le doublon.
           if (!(widget.question.id == 'q_has_pension_fund' &&
               _showEducationalInsert))
             _buildInput(),

@@ -105,7 +105,7 @@ class ApiService {
   static final List<String> _baseUrlCandidates = (() {
     final candidates = <String>[
       if (_definedApiBaseUrl.isNotEmpty) _definedApiBaseUrl,
-      // Active Railway production domain (kept before legacy fallbacks).
+      // Production first — release builds should default to production.
       if (kReleaseMode) 'https://mint-production-3a41.up.railway.app/api/v1',
       if (kReleaseMode) 'https://mint-staging.up.railway.app/api/v1',
       if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',

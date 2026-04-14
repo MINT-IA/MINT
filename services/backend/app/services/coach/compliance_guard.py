@@ -349,13 +349,17 @@ class ComplianceGuard:
                 text = self._sanitize_banned_terms(text)
 
         # ── Layer 2: Prescriptive patterns ──
+        # NEVER fallback on prescriptive language — always log only.
+        # The system prompt already instructs Claude to use conditional language.
+        # Killing the response for natural French like "rachète ta LPP" or
+        # "investis dans ton 3a" destroys every substantive coach response.
+        # Defense is in the prompt, not in post-hoc rejection.
         prescriptive_found = self._check_prescriptive(text)
         if prescriptive_found:
-            logger.warning("ComplianceGuard L2: prescriptive %s in %s user=%s", prescriptive_found, component_type, user_id or "anonymous")
+            logger.info("ComplianceGuard L2: prescriptive %s in %s user=%s (logged, not rejected)", prescriptive_found, component_type, user_id or "anonymous")
             violations.extend(
                 [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
             )
-            use_fallback = True
 
         # ── Layer 2b: High-register drift (N4/N5 only) ──
         # Phase 11 / VOICE-08. Activates only when caller signals the

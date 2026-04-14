@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/services/biography/biography_repository.dart';
@@ -128,10 +129,15 @@ class _InMemoryDb implements BiographyDatabase {
   }
 }
 
-/// Build test app with BiographyProvider and localization.
+/// Build test app with BiographyProvider, CoachProfileProvider, and localization.
 Widget _buildTestApp({required BiographyProvider provider}) {
-  return ChangeNotifierProvider<BiographyProvider>.value(
-    value: provider,
+  return MultiProvider(
+    providers: [
+      ChangeNotifierProvider<BiographyProvider>.value(value: provider),
+      ChangeNotifierProvider<CoachProfileProvider>(
+        create: (_) => CoachProfileProvider(),
+      ),
+    ],
     child: const MaterialApp(
       localizationsDelegates: S.localizationsDelegates,
       supportedLocales: S.supportedLocales,

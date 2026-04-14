@@ -299,12 +299,13 @@ void main() {
       expect(result, isNotNull);
     });
 
-    test('ranking pattern "top 20%" detected', () {
+    test('ranking pattern "top 20%" detected (logged, not fallback)', () {
       final result = ComplianceGuard.validate(
         'Tu es dans le top 20% des épargnants suisses.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, true);
+      // Prescriptive patterns are logged but never trigger fallback
+      expect(result.useFallback, false);
     });
 
     test('auto-sanitize replaces "garanti" with softer term', () {
@@ -330,12 +331,12 @@ void main() {
       expect(result.violations, contains('Sortie vide'));
     });
 
-    test('prescriptive "investis dans" detected and rejected', () {
+    test('prescriptive "investis dans" detected (logged, not fallback)', () {
       final result = ComplianceGuard.validate(
         'Investis dans des ETF pour ton 3a.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, true);
+      expect(result.useFallback, false);
     });
   });
 
@@ -997,7 +998,7 @@ void main() {
         'Fais un rachat LPP de 50000 CHF immédiatement.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, true);
+      expect(result.useFallback, false); // logged, not fallback
     });
 
     test('prescriptive "choisis la rente" detected', () {

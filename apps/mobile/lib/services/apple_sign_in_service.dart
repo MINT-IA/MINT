@@ -5,7 +5,6 @@ import 'package:crypto/crypto.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
-import 'package:mint_mobile/services/auth_service.dart';
 
 /// Service for Apple Sign-In authentication (iOS only).
 ///
@@ -27,11 +26,16 @@ class AppleSignInService {
 
   /// Trigger the native Apple Sign-In flow.
   ///
-  /// Returns a JWT access token on success, or `null` if the user
+  /// Returns the raw backend response on success, or `null` if the user
   /// canceled the flow or Apple Sign-In is not available.
   ///
+  /// The response contains `accessToken`, `userId`, and `email`. It is
+  /// the caller's responsibility (AuthProvider.completeAppleSignIn) to
+  /// persist the token and update auth state — this service does NOT
+  /// mutate any global state.
+  ///
   /// Throws on unexpected errors (network failure, backend error).
-  static Future<String?> signIn() async {
+  static Future<Map<String, dynamic>?> signIn() async {
     final available = await isAvailable();
     if (!available) return null;
 
@@ -66,17 +70,13 @@ class AppleSignInService {
     );
 
     final accessToken = response['accessToken'] as String?;
-    final userId = response['userId'] as String? ?? '';
-    final email = response['email'] as String? ?? '';
-
     if (accessToken == null) {
       throw Exception('Backend returned no access token for Apple Sign-In');
     }
 
-    // Store the JWT in secure storage (same as magic link flow).
-    await AuthService.saveToken(accessToken, userId, email);
-
-    return accessToken;
+    // Do NOT persist the token here — return the raw response so
+    // AuthProvider.completeAppleSignIn() owns the single state mutation.
+    return response;
   }
 
   /// Generate a cryptographically secure random nonce (32 characters).

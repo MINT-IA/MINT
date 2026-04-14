@@ -271,7 +271,7 @@ void main() {
         'Fais un rachat LPP de CHF 15000 cette année.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "verse sur ton"', () {
@@ -279,7 +279,7 @@ void main() {
         'Verse sur ton 3a le maximum cette année.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "achète" imperative', () {
@@ -287,7 +287,7 @@ void main() {
         'Achète un bien immobilier dans le canton de Vaud.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "vends" imperative', () {
@@ -295,7 +295,7 @@ void main() {
         'Vends tes actions avant la fin du trimestre.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "choisis la rente"', () {
@@ -303,7 +303,7 @@ void main() {
         'Choisis la rente plutôt que le capital.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "prends le capital"', () {
@@ -311,7 +311,7 @@ void main() {
         'Prends le capital, c\'est plus avantageux.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "investis dans"', () {
@@ -319,7 +319,7 @@ void main() {
         'Investis dans un fonds indiciel suisse.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "priorité absolue"', () {
@@ -327,7 +327,7 @@ void main() {
         'Rembourser ta dette est une priorité absolue.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('educational phrasing passes', () {
@@ -718,7 +718,7 @@ void main() {
         'Tu es dans le top 10% des épargnants.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "meilleur que 80%" comparison', () {
@@ -733,7 +733,7 @@ void main() {
         'Tu es devant 60% des investisseurs.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "parmi les meilleurs" comparison', () {
@@ -750,7 +750,7 @@ void main() {
         'Ton score est au-dessus de la moyenne.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
   });
 

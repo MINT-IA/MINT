@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
-import 'package:mint_mobile/services/navigation/safe_pop.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/confidence/enhanced_confidence_service.dart';
 import 'package:mint_mobile/theme/colors.dart';

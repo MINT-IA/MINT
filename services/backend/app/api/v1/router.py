@@ -40,6 +40,8 @@ from app.api.v1.endpoints import (
     snapshots,
     coach,
     coach_chat,
+    commitment,
+    fresh_start,
     notifications,
     scenario_narration,
     fri,
@@ -54,6 +56,7 @@ from app.api.v1.endpoints import (
     bank_import,
     budget,
     admin,
+    anonymous_chat,
 )
 
 api_router = APIRouter()
@@ -197,4 +200,13 @@ api_router.include_router(
 )
 api_router.include_router(
     admin.router, prefix="/admin", tags=["Admin"]
+)
+api_router.include_router(
+    anonymous_chat.router, prefix="/anonymous", tags=["Anonymous Chat P13"]
+)
+api_router.include_router(
+    commitment.router, prefix="/coach/commitment", tags=["Commitment P14"]
+)
+api_router.include_router(
+    fresh_start.router, prefix="/coach/fresh-start", tags=["Fresh Start P14"]
 )

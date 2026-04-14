@@ -35,6 +35,7 @@ import asyncio
 import logging
 import os
 import re
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -101,6 +102,7 @@ class _NoRagOrchestrator:
         tools: list | None = None,
         system_prompt: Optional[str] = None,
         user_id: Optional[str] = None,
+        conversation_history: list[dict] | None = None,
     ) -> dict:
         from app.services.rag.llm_client import LLMClient
         from app.services.rag.guardrails import ComplianceGuardrails
@@ -118,6 +120,7 @@ class _NoRagOrchestrator:
             user_message=question,
             context_chunks=[],  # No RAG context
             tools=tools,
+            conversation_history=conversation_history,
         )
 
         tool_calls = None
@@ -350,6 +353,42 @@ def _sanitize_memory_block(memory_block: Optional[str]) -> Optional[str]:
 
 
 # ---------------------------------------------------------------------------
+# Conversation history sanitization
+# ---------------------------------------------------------------------------
+
+
+def _sanitize_conversation_history(
+    history: list[dict[str, str]] | None,
+) -> list[dict[str, str]] | None:
+    """Sanitize conversation history: PII scrub + injection filter + limit.
+
+    Threat mitigations:
+        T-20-01 (Tampering): role whitelist, 8-message cap, 500-char truncation
+        T-20-02 (PII): regex scrub on user messages
+        T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
+        T-20-04 (DoS): hard cap at 8 messages, 500 chars each
+    """
+    if not history:
+        return None
+    sanitized: list[dict[str, str]] = []
+    for msg in history[-8:]:  # hard cap at 8 messages
+        role = msg.get("role", "")
+        content = msg.get("content", "")
+        if role not in ("user", "assistant") or not content.strip():
+            continue
+        # Scrub PII from user messages
+        if role == "user":
+            for pattern in _PII_PATTERNS:
+                content = pattern.sub("[***]", content)
+            for pattern in _INJECTION_PATTERNS:
+                content = pattern.sub("", content)
+        # Truncate individual messages to 500 chars
+        content = content[:500]
+        sanitized.append({"role": role, "content": content})
+    return sanitized if sanitized else None
+
+
+# ---------------------------------------------------------------------------
 # Profile context sanitization
 # ---------------------------------------------------------------------------
 
@@ -453,11 +492,184 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
         return None
 
 
+def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+    """Build a memory section with active commitments and pre-mortem entries.
+
+    Returns a formatted markdown block for injection into the system prompt.
+    Returns empty string if no data exists or if user_id/db is unavailable.
+
+    Per CMIT-06 / LOOP-02: this data is always present in the memory block
+    so the LLM can reference past commitments and pre-mortem naturally.
+    """
+    if not user_id or not db:
+        return ""
+
+    sections: list[str] = []
+
+    try:
+        from app.models.commitment import CommitmentDevice, PreMortemEntry
+
+        # Active commitments (pending, most recent first, limit 5)
+        commitments = (
+            db.query(CommitmentDevice)
+            .filter(CommitmentDevice.user_id == user_id, CommitmentDevice.status == "pending")
+            .order_by(CommitmentDevice.created_at.desc())
+            .limit(5)
+            .all()
+        )
+        if commitments:
+            lines = ["ENGAGEMENTS ACTIFS:"]
+            for c in commitments:
+                date_str = c.created_at.strftime("%d.%m.%Y") if c.created_at else "?"
+                lines.append(
+                    f"- [{date_str}] QUAND: {c.when_text} | "
+                    f"OÙ: {c.where_text} | "
+                    f"SI-ALORS: {c.if_then_text}"
+                )
+            sections.append("\n".join(lines))
+
+        # Pre-mortem entries (most recent first, limit 3)
+        pre_mortems = (
+            db.query(PreMortemEntry)
+            .filter(PreMortemEntry.user_id == user_id)
+            .order_by(PreMortemEntry.created_at.desc())
+            .limit(3)
+            .all()
+        )
+        if pre_mortems:
+            lines = ["RISQUES IDENTIFIÉS (PRÉ-MORTEM):"]
+            for pm in pre_mortems:
+                date_str = pm.created_at.strftime("%d.%m.%Y") if pm.created_at else "?"
+                response_truncated = (pm.user_response or "")[:200]
+                lines.append(
+                    f"- [{date_str}] {pm.decision_type}: \"{response_truncated}\""
+                )
+            sections.append("\n".join(lines))
+
+    except Exception as exc:
+        logger.warning("Could not build commitment memory block: %s", exc)
+        return ""
+
+    return "\n\n".join(sections)
+
+
+def _build_intelligence_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+    """Build memory section with provenance records and earmark tags.
+
+    Returns formatted markdown for injection into system prompt.
+    Per INTL-02/INTL-04: coach references these naturally in conversation.
+    """
+    if not user_id or not db:
+        return ""
+
+    sections: list[str] = []
+
+    try:
+        from app.models.earmark import ProvenanceRecord, EarmarkTag
+
+        # Provenance records (all, most recent first, limit 10)
+        provenances = (
+            db.query(ProvenanceRecord)
+            .filter(ProvenanceRecord.user_id == user_id)
+            .order_by(ProvenanceRecord.created_at.desc())
+            .limit(10)
+            .all()
+        )
+        if provenances:
+            lines = ["PROVENANCE CONNUE:"]
+            for p in provenances:
+                inst_str = f" chez {p.institution}" if p.institution else ""
+                lines.append(f"- {p.product_type}: recommandé par {p.recommended_by}{inst_str}")
+            sections.append("\n".join(lines))
+
+        # Earmark tags (all active, limit 10)
+        earmarks = (
+            db.query(EarmarkTag)
+            .filter(EarmarkTag.user_id == user_id)
+            .order_by(EarmarkTag.created_at.desc())
+            .limit(10)
+            .all()
+        )
+        if earmarks:
+            lines = ["ARGENT MARQUÉ (ne JAMAIS agréger):"]
+            for e in earmarks:
+                amount_str = f" (~{e.amount_hint})" if e.amount_hint else ""
+                source_str = f" — {e.source_description}" if e.source_description else ""
+                lines.append(f"- « {e.label} »{amount_str}{source_str}")
+            sections.append("\n".join(lines))
+
+    except Exception as exc:
+        logger.warning("Could not build intelligence memory block: %s", exc)
+        return ""
+
+    return "\n\n".join(sections)
+
+
+def _build_insight_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
+    """Build memory section with coach-saved insights (facts, decisions, preferences).
+
+    Returns formatted text for injection into system prompt.
+    Per CTX-03: coach references these naturally in future conversations.
+    """
+    if not user_id or not db:
+        return ""
+
+    try:
+        from app.models.coach_insight import CoachInsightRecord
+
+        insights = (
+            db.query(CoachInsightRecord)
+            .filter(CoachInsightRecord.user_id == user_id)
+            .order_by(CoachInsightRecord.updated_at.desc())
+            .limit(10)
+            .all()
+        )
+        if not insights:
+            return ""
+
+        now = datetime.now(timezone.utc)
+        lines = ["INSIGHTS MEMORISES:"]
+        for ins in insights:
+            # Compute relative time
+            updated = ins.updated_at
+            if updated and updated.tzinfo is None:
+                # SQLite returns naive datetimes — treat as UTC
+                updated = updated.replace(tzinfo=timezone.utc)
+            if updated:
+                delta = now - updated
+                if delta.days == 0:
+                    rel_time = "aujourd'hui"
+                elif delta.days == 1:
+                    rel_time = "hier"
+                elif delta.days < 7:
+                    rel_time = f"il y a {delta.days} jours"
+                elif delta.days < 30:
+                    weeks = delta.days // 7
+                    rel_time = f"il y a {weeks} semaine{'s' if weeks > 1 else ''}"
+                else:
+                    months = delta.days // 30
+                    rel_time = f"il y a {months} mois"
+            else:
+                rel_time = ""
+
+            time_str = f" ({rel_time})" if rel_time else ""
+            lines.append(f"- [{ins.insight_type}] {ins.topic}: {ins.summary}{time_str}")
+
+        return "\n".join(lines)
+
+    except Exception as exc:
+        logger.warning("Could not build insight memory block: %s", exc)
+        return ""
+
+
 def _build_system_prompt_with_memory(
     coach_ctx,
     memory_block: Optional[str],
     language: str = "fr",
     cash_level: int = 3,
+    commitment_block: str = "",
+    intelligence_block: str = "",
+    insight_block: str = "",
 ) -> str:
     """Build the system prompt and optionally append the sanitized memory block.
 
@@ -468,6 +680,12 @@ def _build_system_prompt_with_memory(
     sanitized = _sanitize_memory_block(memory_block)
     if sanitized:
         prompt = prompt + "\n\n" + sanitized
+    if commitment_block:
+        prompt = prompt + "\n\n" + commitment_block
+    if intelligence_block:
+        prompt = prompt + "\n\n" + intelligence_block
+    if insight_block:
+        prompt = prompt + "\n\n" + insight_block
     return prompt
 
 
@@ -475,42 +693,68 @@ def _handle_retrieve_memories(
     topic: str,
     memory_block: Optional[str],
     max_results: int = 3,
+    user_id: Optional[str] = None,
+    db: Optional[Session] = None,
 ) -> str:
-    """Search the memory block for content matching the topic.
+    """Search the memory block AND DB-persisted insights for content matching the topic.
 
     This is an INTERNAL handler — it is called when the LLM emits a
     retrieve_memories tool_use block.  The result is returned to the LLM
     as a tool_result so the conversation can continue.  It is never
     forwarded to Flutter.
 
-    Uses a two-pass strategy:
-      1. Exact substring match (fast, high precision).
-      2. Fuzzy matching via difflib.SequenceMatcher (catches semantic
+    Uses a three-pass strategy:
+      1. DB-persisted insights (CoachInsightRecord) matching topic.
+      2. Exact substring match on memory_block text (fast, high precision).
+      3. Fuzzy matching via difflib.SequenceMatcher (catches semantic
          near-misses like "retraite" matching "préretraite", or "3a"
          matching "pilier 3a").
 
-    Results are deduplicated and ranked by relevance (exact matches first,
-    then fuzzy matches sorted by similarity score descending).
+    Results are deduplicated and ranked by relevance (DB matches first,
+    exact matches second, then fuzzy matches sorted by similarity score).
 
     Args:
         topic: The topic string to search for (case-insensitive substring).
             Must be non-empty (min 1 char after strip).
         memory_block: The raw memory block injected into the system prompt.
         max_results: Maximum number of matching lines to return (capped at 5).
+        user_id: Authenticated user ID for DB insight lookup.
+        db: SQLAlchemy session for DB queries.
 
     Returns:
         A plain-text string with up to max_results matching lines, or a
         localised "not found" message when no match is found.
     """
-    if not memory_block or not memory_block.strip():
-        return "Aucune mémoire disponible pour ce sujet."
-
     if not topic or not topic.strip():
         return "Sujet de recherche requis."
 
     max_results = min(max(1, max_results), 5)
-    lines = [line for line in memory_block.split("\n") if line.strip()]
     topic_lower = topic.lower().strip()
+
+    # Pass 0: DB-persisted insights (CoachInsightRecord)
+    db_matches: list[str] = []
+    if user_id and db:
+        try:
+            from app.models.coach_insight import CoachInsightRecord
+            insights = (
+                db.query(CoachInsightRecord)
+                .filter(CoachInsightRecord.user_id == user_id)
+                .order_by(CoachInsightRecord.updated_at.desc())
+                .limit(10)
+                .all()
+            )
+            for ins in insights:
+                if (topic_lower in (ins.topic or "").lower()
+                        or topic_lower in (ins.summary or "").lower()):
+                    db_matches.append(f"[{ins.insight_type}] {ins.topic}: {ins.summary}")
+        except Exception as exc:
+            logger.warning("Could not search DB insights: %s", exc)
+
+    has_memory_block = memory_block and memory_block.strip()
+    if not has_memory_block and not db_matches:
+        return "Aucune mémoire disponible pour ce sujet."
+
+    lines = [line for line in (memory_block or "").split("\n") if line.strip()]
 
     # Pass 1: exact substring match (high precision)
     exact_matches = [line for line in lines if topic_lower in line.lower()]
@@ -546,8 +790,13 @@ def _handle_retrieve_memories(
     fuzzy_scored.sort(key=lambda x: x[0], reverse=True)
     fuzzy_matches = [line for _, line in fuzzy_scored]
 
-    # Combine: exact first, then fuzzy (deduplicated)
-    combined = exact_matches + fuzzy_matches
+    # Combine: DB first, then exact, then fuzzy (deduplicated)
+    seen = set()
+    combined: list[str] = []
+    for item in db_matches + exact_matches + fuzzy_matches:
+        if item not in seen:
+            seen.add(item)
+            combined.append(item)
     if not combined:
         return f"Pas de mémoire trouvée pour '{topic}'."
 
@@ -573,6 +822,8 @@ def _execute_internal_tool(
     tool_call: dict,
     memory_block: Optional[str],
     profile_context: Optional[dict] = None,
+    user_id: Optional[str] = None,
+    db: Optional[Session] = None,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -628,6 +879,8 @@ def _execute_internal_tool(
             topic=safe_topic,
             memory_block=memory_block,
             max_results=min(tool_input.get("max_results", 3), 10),
+            user_id=user_id,
+            db=db,
         )
 
     if name == "get_budget_status":
@@ -648,10 +901,9 @@ def _execute_internal_tool(
     if name == "get_regulatory_constant":
         return _handle_regulatory_constant(tool_input)
 
-    # STAB-12 (07-04): set_goal / mark_step_completed / save_insight are
-    # acknowledgement-only tools. They let the LLM track conversational state
-    # without rendering a widget. Persistence to the memory layer is a v3.0
-    # item; for now we return a plain-text ack so the agent loop continues.
+    # STAB-12 (07-04): set_goal / mark_step_completed are acknowledgement-only tools.
+    # They let the LLM track conversational state without rendering a widget.
+    # save_insight was upgraded to persist to DB in Phase 21 (CTX-02).
     if name == "set_goal":
         goal = tool_input.get("goal") or tool_input.get("title") or ""
         logger.info("set_goal ack (non-persisted): %s", goal[:100])
@@ -664,8 +916,161 @@ def _execute_internal_tool(
 
     if name == "save_insight":
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
-        logger.info("save_insight ack (non-persisted): %s", summary[:100])
+        topic = tool_input.get("topic", "general")
+        insight_type = tool_input.get("insight_type", "fact")
+        logger.info("save_insight: topic=%s, summary=%s", topic[:50], summary[:100])
+        if user_id and db:
+            try:
+                from app.models.coach_insight import CoachInsightRecord
+                # Dedup by user_id + topic: update existing or create new
+                existing = (
+                    db.query(CoachInsightRecord)
+                    .filter(
+                        CoachInsightRecord.user_id == user_id,
+                        CoachInsightRecord.topic == topic,
+                    )
+                    .first()
+                )
+                now = datetime.now(timezone.utc)
+                if existing:
+                    existing.summary = summary
+                    existing.insight_type = insight_type
+                    existing.updated_at = now
+                else:
+                    record = CoachInsightRecord(
+                        user_id=user_id,
+                        topic=topic,
+                        summary=summary,
+                        insight_type=insight_type,
+                    )
+                    db.add(record)
+                db.commit()
+
+                # Also mirror into ProfileModel so other features (profile drawer,
+                # today screen) can react without hitting a separate table.
+                try:
+                    from app.models.profile_model import ProfileModel
+                    profile = (
+                        db.query(ProfileModel)
+                        .filter(ProfileModel.user_id == user_id)
+                        .order_by(ProfileModel.updated_at.desc())
+                        .first()
+                    )
+                    if profile:
+                        data = dict(profile.data) if profile.data else {}
+                        recent = list(data.get("recent_insights", []) or [])
+                        recent.insert(
+                            0,
+                            {
+                                "topic": topic,
+                                "summary": summary[:200],
+                                "insight_type": insight_type,
+                                "created_at": now.isoformat(),
+                            },
+                        )
+                        data["recent_insights"] = recent[:20]  # keep last 20
+                        data["last_coach_insight"] = {
+                            "topic": topic,
+                            "summary": summary[:200],
+                            "insight_type": insight_type,
+                            "created_at": now.isoformat(),
+                        }
+                        profile.data = data
+                        profile.updated_at = now
+                        db.commit()
+                except Exception as mirror_exc:
+                    logger.warning("Could not mirror insight to profile: %s", mirror_exc)
+                    db.rollback()
+            except Exception as exc:
+                logger.warning("Could not persist insight: %s", exc)
+                db.rollback()
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
+
+    # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
+    # Actual DB persistence happens via dedicated endpoint (Plan 02).
+    if name == "record_commitment":
+        when_t = tool_input.get("when_text", "")
+        where_t = tool_input.get("where_text", "")
+        if_then_t = tool_input.get("if_then_text", "")
+        logger.info("record_commitment ack: %s / %s", when_t[:50], if_then_t[:50])
+        return f"Engagement noté : QUAND={when_t} — SI-ALORS={if_then_t}"
+
+    if name == "save_pre_mortem":
+        decision_type = tool_input.get("decision_type", "")
+        user_response = tool_input.get("user_response", "")
+        logger.info("save_pre_mortem ack: type=%s", decision_type[:50])
+        return f"Pré-mortem enregistré pour {decision_type}."
+
+    # P15 coach intelligence — provenance and earmark handlers (INTL-01, INTL-02, INTL-03, INTL-04)
+    if name == "save_provenance":
+        product_type = tool_input.get("product_type", "")
+        recommended_by = tool_input.get("recommended_by", "")
+        institution = tool_input.get("institution", "")
+        logger.info("save_provenance: product=%s, by=%s", product_type[:50], recommended_by[:50])
+        if user_id and db:
+            try:
+                from app.models.earmark import ProvenanceRecord
+                record = ProvenanceRecord(
+                    user_id=user_id,
+                    product_type=product_type,
+                    recommended_by=recommended_by,
+                    institution=institution or None,
+                )
+                db.add(record)
+                db.commit()
+            except Exception as exc:
+                logger.warning("Could not persist provenance: %s", exc)
+                db.rollback()
+        return f"Provenance notée : {product_type} recommandé par {recommended_by}."
+
+    if name == "save_earmark":
+        label = tool_input.get("label", "")
+        source_desc = tool_input.get("source_description", "")
+        amount_hint = tool_input.get("amount_hint", "")
+        logger.info("save_earmark: label=%s", label[:50])
+        if user_id and db:
+            try:
+                from app.models.earmark import EarmarkTag
+                tag = EarmarkTag(
+                    user_id=user_id,
+                    label=label,
+                    source_description=source_desc or None,
+                    amount_hint=amount_hint or None,
+                )
+                db.add(tag)
+                db.commit()
+            except Exception as exc:
+                logger.warning("Could not persist earmark: %s", exc)
+                db.rollback()
+        return f"Marquage enregistré : « {label} »."
+
+    if name == "remove_earmark":
+        label = tool_input.get("label", "")
+        logger.info("remove_earmark: label=%s", label[:50])
+        removed = False
+        if user_id and db:
+            try:
+                from app.models.earmark import EarmarkTag
+                tag = db.query(EarmarkTag).filter(
+                    EarmarkTag.user_id == user_id,
+                    EarmarkTag.label == label,
+                ).first()
+                if tag:
+                    db.delete(tag)
+                    db.commit()
+                    removed = True
+            except Exception as exc:
+                logger.warning("Could not remove earmark: %s", exc)
+                db.rollback()
+        if removed:
+            return f"Marquage « {label} » supprimé."
+        return f"Aucun marquage « {label} » trouvé."
+
+    # P16 couple mode (save_partner_estimate / update_partner_estimate):
+    # NOT handled here. These are Flutter-bound tools routed through
+    # external_calls so widget_renderer can intercept them and persist to
+    # SecureStorage on device (COUP-01, COUP-04). Do NOT add a backend handler
+    # or they will be silently acknowledged and never reach Flutter.
 
     # Unknown internal tool — return a graceful fallback
     logger.warning("Unknown internal tool: %s", name)
@@ -939,6 +1344,8 @@ async def _run_agent_loop(
     memory_block: Optional[str],
     system_prompt: Optional[str] = None,
     user_id: Optional[str] = None,
+    db: Optional[Session] = None,
+    conversation_history: list[dict] | None = None,
 ) -> dict:
     """Run the LLM agent loop until end_turn or max iterations.
 
@@ -992,6 +1399,11 @@ async def _run_agent_loop(
             break
 
         try:
+            # Only include conversation_history on the first iteration.
+            # Subsequent iterations (tool result re-calls) already have
+            # context from the first call's response.
+            iter_history = conversation_history if iteration == 0 else None
+
             result = await asyncio.wait_for(
                 orchestrator.query(
                     question=current_question,
@@ -1003,6 +1415,7 @@ async def _run_agent_loop(
                     tools=stripped_tools,
                     system_prompt=system_prompt,
                     user_id=user_id,
+                    conversation_history=iter_history,
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
@@ -1081,7 +1494,7 @@ async def _run_agent_loop(
         # Execute internal tools and collect results
         tool_results: list = []
         for call in internal_calls:
-            result_text = _execute_internal_tool(call, memory_block, profile_context)
+            result_text = _execute_internal_tool(call, memory_block, profile_context, user_id=user_id, db=db)
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
                 result_text = result_text[:500] + "... [tronqué]"
@@ -1196,6 +1609,7 @@ async def coach_chat(
     # Step 0: Sanitize inputs (PII whitelist + memory scrubbing)
     # ------------------------------------------------------------------
     safe_profile = _sanitize_profile_context(body.profile_context)
+    safe_history = _sanitize_conversation_history(body.conversation_history)
 
     # ------------------------------------------------------------------
     # Step 0.5: Resolve API key — BYOK or server-side default
@@ -1244,8 +1658,13 @@ async def coach_chat(
     # ------------------------------------------------------------------
     # Step 2: Build system prompt (lifecycle + regional + plan + memory)
     # Memory block is PII-scrubbed and wrapped in prompt injection armor.
+    # Commitment memory block (CMIT-06/LOOP-02) injects active engagements
+    # and pre-mortem entries so the LLM can reference them naturally.
     # ------------------------------------------------------------------
-    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level)
+    commitment_block = _build_commitment_memory_block(str(_user.id), db)
+    intelligence_block = _build_intelligence_memory_block(str(_user.id), db)
+    insight_block = _build_insight_memory_block(str(_user.id), db)
+    system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
@@ -1289,6 +1708,8 @@ async def coach_chat(
                 memory_block=effective_memory_block,
                 system_prompt=system_prompt,
                 user_id=_user.id if _user else None,
+                db=db,
+                conversation_history=safe_history,
             ),
             timeout=AGENT_LOOP_DEADLINE_SECONDS,
         )

@@ -396,7 +396,7 @@ class NotificationService {
       title: s.weeklyRecapTitle,
       body: s.weeklyRecapBody,
       scheduledDate: scheduledDate,
-      payload: '/weekly-recap',
+      payload: '/coach/chat',
       matchDateComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }
@@ -722,6 +722,121 @@ class NotificationService {
       matchDateTimeComponents: matchDateComponents,
       payload: payload,
     );
+  }
+
+  // ── Commitment reminders (Phase 14 / CMIT-02) ─────────────
+
+  /// ID base for commitment reminder notifications.
+  static const _idCommitmentBase = 5000;
+
+  /// Schedule a local notification to remind the user of their commitment.
+  ///
+  /// Respects notification consent (ConsentManager). Returns silently
+  /// if consent is not given, on web, or if plugin is unavailable.
+  ///
+  /// [commitmentId] — integer hash of the commitment UUID, used for
+  /// unique notification ID (modulo 1000 to stay within range).
+  /// [reminderAt] — when to fire the notification.
+  /// [title] — notification title (i18n-resolved at call site).
+  /// [body] — notification body (i18n-resolved at call site).
+  Future<void> scheduleCommitmentReminder({
+    required int commitmentId,
+    required DateTime reminderAt,
+    required String title,
+    required String body,
+  }) async {
+    if (kIsWeb || _plugin == null) return;
+    if (!_isInitialized) await init();
+
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) return;
+
+    final tzDate = tz.TZDateTime.from(reminderAt.toUtc(), tz.local);
+
+    // Only schedule if in the future
+    if (tzDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    _scheduleNotification(
+      id: _idCommitmentBase + (commitmentId % 1000),
+      title: title,
+      body: body,
+      scheduledDate: tzDate,
+      payload: '/home?tab=1&intent=commitmentReminder&id=$commitmentId',
+    );
+  }
+
+  /// Cancel a previously scheduled commitment reminder.
+  Future<void> cancelCommitmentReminder(int commitmentId) async {
+    if (_plugin == null) return;
+    await _plugin!.cancel(_idCommitmentBase + (commitmentId % 1000));
+  }
+
+  // ── Fresh-start anchors (Phase 14 / CMIT-03 + CMIT-04) ───
+
+  /// ID base for fresh-start landmark notifications.
+  static const _idFreshStartBase = 6000;
+
+  /// Map landmark type to a stable sub-offset for unique notification IDs.
+  static const _freshStartTypeOffset = <String, int>{
+    'birthday': 0,
+    'month_start': 1,
+    'year_start': 2,
+    'job_anniversary': 3,
+    'mint_anniversary': 4,
+  };
+
+  /// Schedule a local notification for a fresh-start landmark.
+  ///
+  /// Fires at 09:00 local time on [date]. Deeplinks to coach chat
+  /// with fresh-start intent and landmark type context.
+  ///
+  /// Respects notification consent (ConsentManager). Returns silently
+  /// if consent is not given, on web, or if plugin is unavailable.
+  Future<void> scheduleFreshStart({
+    required String landmarkType,
+    required DateTime date,
+    required String title,
+    required String body,
+  }) async {
+    if (kIsWeb || _plugin == null) return;
+    if (!_isInitialized) await init();
+
+    final hasConsent = await ConsentManager.isConsentGiven(
+      ConsentType.notifications,
+    );
+    if (!hasConsent) return;
+
+    final offset = _freshStartTypeOffset[landmarkType] ?? 0;
+    final notifId = _idFreshStartBase + offset;
+
+    final scheduledDate = tz.TZDateTime(
+      tz.local,
+      date.year,
+      date.month,
+      date.day,
+      9, // 09:00 local time
+    );
+
+    // Only schedule if in the future
+    if (scheduledDate.isBefore(tz.TZDateTime.now(tz.local))) return;
+
+    await _scheduleNotification(
+      id: notifId,
+      title: title,
+      body: body,
+      scheduledDate: scheduledDate,
+      payload: '/home?tab=1&intent=freshStart&type=$landmarkType',
+    );
+  }
+
+  /// Cancel all scheduled fresh-start notifications.
+  Future<void> cancelAllFreshStarts() async {
+    if (_plugin == null) return;
+    for (final offset in _freshStartTypeOffset.values) {
+      await _plugin!.cancel(_idFreshStartBase + offset);
+    }
   }
 
   // ── Cancel ────────────────────────────────────────────────

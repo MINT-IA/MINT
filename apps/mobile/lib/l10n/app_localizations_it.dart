@@ -10897,7 +10897,7 @@ class SIt extends S {
       'Strumenti essenziali ed eventi di vita — tutto è qui.';
 
   @override
-  String get timelineSectionTitle => 'Eventi di vita';
+  String get timelineSectionTitle => 'La tua storia';
 
   @override
   String get timelineSectionSubtitle =>
@@ -22360,4 +22360,246 @@ class SIt extends S {
 
   @override
   String get tonSectionLabel => 'Voce';
+
+  @override
+  String get anonymousIntentLine1 =>
+      'I soldi, in Svizzera, sono il tema di cui nessuno parla.';
+
+  @override
+  String get anonymousIntentLine2 => 'Nemmeno con sé stessi.';
+
+  @override
+  String get anonymousIntentPill1 =>
+      'Pago, firmo, ma non capisco proprio tutto';
+
+  @override
+  String get anonymousIntentPill2 => 'Evito di pensarci';
+
+  @override
+  String get anonymousIntentPill3 => 'Ho paura di fare un errore costoso';
+
+  @override
+  String get anonymousIntentPill4 => 'So che dovrei occuparmene';
+
+  @override
+  String get anonymousIntentPill5 =>
+      'Qualcosa è cambiato e non so da dove cominciare';
+
+  @override
+  String get anonymousIntentPill6 => 'Voglio solo vederci chiaro';
+
+  @override
+  String get anonymousIntentFreeTextHint => 'Oppure dillo come vuoi tu…';
+
+  @override
+  String get anonymousChatBack => 'Indietro';
+
+  @override
+  String get anonymousChatLocked => 'Sono ancora qui quando vorrai continuare.';
+
+  @override
+  String get anonymousChatCreateAccount => 'Crea un account';
+
+  @override
+  String get anonymousChatError =>
+      'Ho un problema tecnico. Riprova tra un momento.';
+
+  @override
+  String get anonymousChatConversionPrompt =>
+      'Abbiamo già scoperto 3 cose insieme. Se vuoi che le ricordi…';
+
+  @override
+  String get authGateConversionMessage =>
+      'Posso tenere tutto questo in memoria per te — basta creare un account.';
+
+  @override
+  String get authGateLater => 'Più tardi';
+
+  @override
+  String get authGateMagicLink => 'Ricevi un link';
+
+  @override
+  String get commitmentCardTitle => 'Il mio impegno';
+
+  @override
+  String get commitmentWhen => 'QUANDO';
+
+  @override
+  String get commitmentWhere => 'DOVE / COME';
+
+  @override
+  String get commitmentIfThen => 'SE… ALLORA';
+
+  @override
+  String get commitmentAccept => 'Mi impegno';
+
+  @override
+  String get commitmentDismissed => 'Impegno rimosso';
+
+  @override
+  String get commitmentReminderTitle => 'Promemoria MINT';
+
+  @override
+  String get commitmentReminderBody =>
+      'È il momento di mantenere il tuo impegno.';
+
+  @override
+  String get freshStartNotificationTitle => 'MINT';
+
+  @override
+  String get tensionEarnedTitle => 'Ottenuto';
+
+  @override
+  String get tensionPulsingTitle => 'In corso';
+
+  @override
+  String get tensionGhostedTitle => 'In arrivo';
+
+  @override
+  String get tensionEarnedCommitment => 'Impegno mantenuto';
+
+  @override
+  String get tensionEarnedFirstConvo => 'Prima conversazione';
+
+  @override
+  String get tensionPulsingActiveCommitment => 'Impegno attivo';
+
+  @override
+  String get tensionPulsingTalkToCoach => 'Parla con il coach';
+
+  @override
+  String tensionGhostedLandmark(String landmark) {
+    return 'Prossimo traguardo: $landmark';
+  }
+
+  @override
+  String get tensionGhostedFuture => 'Il tuo futuro finanziario';
+
+  @override
+  String get tensionEmptyWelcome => 'Inizia parlando con il coach.';
+
+  @override
+  String get tensionEmptySubtitle => 'Le tue prime tensioni appariranno qui.';
+
+  @override
+  String get cleoLoopInsight => 'Insight ricevuto';
+
+  @override
+  String get cleoLoopPlan => 'Piano in corso';
+
+  @override
+  String get cleoLoopConversation => 'Conversazione';
+
+  @override
+  String get cleoLoopAction => 'Azione in corso';
+
+  @override
+  String get cleoLoopMemory => 'Memoria aggiornata';
+
+  @override
+  String get coachGreetingRandom1 =>
+      'Il tuo 3a, chi l\'ha scelto? Tu o \'quel tizio\'?';
+
+  @override
+  String get coachGreetingRandom2 =>
+      'In Svizzera non si parla di soldi. Si perdono in silenzio.';
+
+  @override
+  String get coachGreetingRandom3 =>
+      'Il tizio che ti ha venduto il 3a ha incassato la sua commissione il primo anno. Tu stai ancora aspettando il rendimento.';
+
+  @override
+  String get coachGreetingRandom4 =>
+      'Il tuo banchiere ti conosce meglio di te. Non è un complimento.';
+
+  @override
+  String get coachGreetingRandom5 =>
+      'Tutti ti dicono di comprare. Il banchiere, i tuoi, il cognato. Hai mai chiesto a qualcuno che non vende niente?';
+
+  @override
+  String get coachGreetingRandom6 =>
+      'A 25 anni versi già per la pensione. A 25 anni non sai nemmeno che stai versando.';
+
+  @override
+  String get coachGreetingRandom7 =>
+      'Non gestisci le tue finanze. Le eviti. C\'è una differenza.';
+
+  @override
+  String get coachGreetingRandom8 =>
+      'Sai quanto prenderai in pensione? Nessuno lo sa.';
+
+  @override
+  String get coachGreetingRandom9 =>
+      'Se il tuo stipendio si ferma domani — sai cosa succede?';
+
+  @override
+  String get coachGreetingRandom10 =>
+      'Il tuo assicuratore vede un pezzo. Il tuo banchiere pure. Il tuo fiduciario pure. Il quadro completo, nessuno.';
+
+  @override
+  String get coachGreetingRandom11 => 'Quante cose hai firmato senza leggere?';
+
+  @override
+  String get coachGreetingRandom12 =>
+      'Hai mai aperto davvero il tuo certificato di previdenza? Davvero aperto?';
+
+  @override
+  String get coachGreetingRandom13 =>
+      'I tuoi risparmi dormono. Sai quanto ti costa dormire?';
+
+  @override
+  String get coachGreetingRandom14 =>
+      'Il sistema pensionistico svizzero è eccellente. Solo che nessuno ti ha dato il libretto d\'istruzioni.';
+
+  @override
+  String get coachGreetingRandom15 =>
+      'Cambi lavoro, guardi lo stipendio. Non guardi mai la cassa pensione.';
+
+  @override
+  String get coachGreetingRandom16 =>
+      'Ritiri il 3a e il 2° pilastro lo stesso anno? Le tasse esplodono. Li scaglioni? Si sciolgono. Stessi soldi. Solo il timing.';
+
+  @override
+  String get coachGreetingRandom17 =>
+      'Potresti riscattare anni nel tuo 2° pilastro e pagare migliaia di franchi in meno di tasse. Ma dovresti aprire il certificato.';
+
+  @override
+  String get coachGreetingRandom18 =>
+      'Ammortamento diretto o indiretto? Se non conosci la differenza, stai pagando troppe tasse. Dall\'inizio.';
+
+  @override
+  String get coachGreetingRandom19 =>
+      'Sei indipendente. Nessuno versa più per te. Tutto è da costruire. Hai iniziato?';
+
+  @override
+  String get coachGreetingRandom20 =>
+      'Per comprare casa, prendi una parte del tuo 2° pilastro e la metti nei muri. Il te stesso del futuro, cosa ne pensa?';
+
+  @override
+  String get timelineCommitmentEarned => 'Impegno mantenuto';
+
+  @override
+  String get timelineCommitmentActive => 'Impegno attivo';
+
+  @override
+  String get timelineConversation => 'Conversazione';
+
+  @override
+  String get timelineCoupleEstimate => 'Stima del partner';
+
+  @override
+  String get timelineProjection => 'Proiezione';
+
+  @override
+  String get timelineDocument => 'Documento aggiunto';
+
+  @override
+  String get timelineEmpty => 'La tua storia finanziaria inizia qui.';
+
+  @override
+  String get timelineLoadMore => 'Carica altro';
+
+  @override
+  String get coachDisclaimerCollapsed =>
+      'Strumento educativo — vedi disclaimer';
 }

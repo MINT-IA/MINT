@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/biography/biography_fact.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -95,39 +97,49 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
       );
     }
 
-    // Empty state
+    // Empty biography state — fall back to CoachProfile data.
+    // PROF-03: Users expect "Ce que MINT sait de toi" to show ALL
+    // collected data, not just BiographyFacts from document scans.
     if (provider.facts.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(MintSpacing.lg),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.shield_outlined,
-                size: 48,
-                color: MintColors.textMuted,
-              ),
-              const SizedBox(height: MintSpacing.md),
-              Text(
-                l.privacyControlEmpty,
-                style: MintTextStyles.headlineSmall(
-                  color: MintColors.textPrimary,
+      final coachProfile =
+          context.watch<CoachProfileProvider>().profile;
+      if (coachProfile == null ||
+          coachProfile.userProvidedFields.isEmpty) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(MintSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.shield_outlined,
+                  size: 48,
+                  color: MintColors.textMuted,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                l.privacyControlEmptyBody,
-                style: MintTextStyles.bodyMedium(
-                  color: MintColors.textSecondary,
+                const SizedBox(height: MintSpacing.md),
+                Text(
+                  l.privacyControlEmpty,
+                  style: MintTextStyles.headlineSmall(
+                    color: MintColors.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: MintSpacing.sm),
+                Text(
+                  l.privacyControlEmptyBody,
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
-        ),
-      );
+        );
+      }
+
+      // Show user-provided profile data as a simple list.
+      return _buildProfileDataView(context, l, coachProfile);
     }
 
     // Data state
@@ -278,4 +290,120 @@ class _PrivacyControlScreenState extends State<PrivacyControlScreen> {
       ),
     );
   }
+
+  /// PROF-03: Build a view of user-provided data from CoachProfile
+  /// when no BiographyFacts exist yet. This ensures "Ce que MINT sait"
+  /// always reflects collected data from conversations and onboarding.
+  Widget _buildProfileDataView(
+    BuildContext context,
+    S l,
+    CoachProfile profile,
+  ) {
+    final provided = profile.userProvidedFields;
+    final items = <_ProfileDataItem>[];
+
+    if (provided.contains('firstName') && profile.firstName != null) {
+      items.add(_ProfileDataItem(
+        icon: Icons.person_outline,
+        label: l.drawerMyProfile,
+        value: profile.firstName!,
+      ));
+    }
+    if (provided.contains('age') && profile.age > 0) {
+      items.add(_ProfileDataItem(
+        icon: Icons.cake_outlined,
+        label: l.ageYears(''),
+        value: profile.age.toString(),
+      ));
+    }
+    if (provided.contains('canton')) {
+      items.add(_ProfileDataItem(
+        icon: Icons.location_on_outlined,
+        label: 'Canton',
+        value: profile.canton,
+      ));
+    }
+    if (provided.contains('salary')) {
+      items.add(_ProfileDataItem(
+        icon: Icons.payments_outlined,
+        label: l.privacyControlSectionFinancial,
+        value:
+            '${(profile.salaireBrutMensuel * 12).round()} CHF/an',
+      ));
+    }
+    if (provided.contains('civilStatus')) {
+      items.add(_ProfileDataItem(
+        icon: Icons.family_restroom_outlined,
+        label: l.privacyControlSectionLifeEvents,
+        value: profile.etatCivil.name,
+      ));
+    }
+
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: ListView(
+          padding: const EdgeInsets.all(MintSpacing.lg),
+          children: [
+            Center(
+              child: Text(
+                l.privacyControlSummary(items.length, 100),
+                style: MintTextStyles.bodyMedium(
+                  color: MintColors.textSecondary,
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.xl),
+            ...items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+                child: Card(
+                  color: MintColors.card,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: MintColors.lightBorder),
+                  ),
+                  child: ListTile(
+                    leading: Icon(
+                      item.icon,
+                      color: MintColors.textSecondary,
+                      size: 22,
+                    ),
+                    title: Text(
+                      item.label,
+                      style: MintTextStyles.labelMedium(
+                        color: MintColors.textSecondary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      item.value,
+                      style: MintTextStyles.bodyMedium(
+                        color: MintColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.xxxl),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Simple data holder for profile data items displayed in the
+/// privacy control fallback view.
+class _ProfileDataItem {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _ProfileDataItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 }

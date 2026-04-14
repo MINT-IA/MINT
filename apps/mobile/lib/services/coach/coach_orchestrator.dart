@@ -761,19 +761,53 @@ class CoachOrchestrator {
   }) async {
     final service = CoachChatApiService();
 
+    // Build conversation history for multi-turn context (same as BYOK path).
+    // Last 8 messages (4 exchanges) — sanitized user messages, raw assistant.
+    final recentHistory = history
+        .where((m) => m.isUser || m.isAssistant)
+        .toList();
+    final tail = recentHistory.length > 8
+        ? recentHistory.sublist(recentHistory.length - 8)
+        : recentHistory;
+    final conversationHistory = tail
+        .map((m) => {
+              'role': m.isUser ? 'user' : 'assistant',
+              'content': m.isUser ? _sanitizeUserInput(m.content) : m.content,
+            })
+        .toList();
+
     try {
       final response = await service.chat(
         message: userMessage,
+        conversationHistory:
+            conversationHistory.isNotEmpty ? conversationHistory : null,
         profileContext: {
           'first_name': ctx.firstName,
           'age': ctx.age,
           'canton': ctx.canton,
           'archetype': ctx.archetype,
           'fri_total': ctx.friTotal,
+          'fri_delta': ctx.friDelta,
+          'primary_focus':
+              ctx.primaryFocus.isNotEmpty ? ctx.primaryFocus : null,
           'replacement_ratio':
               ctx.replacementRatio > 0 ? ctx.replacementRatio / 100.0 : null,
+          'months_liquidity':
+              ctx.monthsLiquidity > 0 ? ctx.monthsLiquidity : null,
+          'tax_saving_potential':
+              ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
           'confidence_score':
               ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+          'days_since_last_visit': ctx.daysSinceLastVisit,
+          'fiscal_season':
+              ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
+          'upcoming_event':
+              ctx.upcomingEvent.isNotEmpty ? ctx.upcomingEvent : null,
+          'check_in_streak': ctx.checkInStreak,
+          'last_milestone':
+              ctx.lastMilestone.isNotEmpty ? ctx.lastMilestone : null,
+          if (ctx.dataReliability.isNotEmpty)
+            'data_reliability': ctx.dataReliability,
           ...ctx.knownValues.map(
               (k, v) => MapEntry(k, v.isFinite && v > 0 ? v : null)),
         },
@@ -790,11 +824,16 @@ class CoachOrchestrator {
           context: ctx,
           componentType: ComponentType.general,
         );
-      } catch (_) {
+      } catch (e) {
+        debugPrint('[Orchestrator] ComplianceGuard threw: $e');
         return null;
       }
 
-      if (compliance.useFallback) return null;
+      if (compliance.useFallback) {
+        debugPrint('[Orchestrator] ComplianceGuard rejected response: ${compliance.violations}');
+        debugPrint('[Orchestrator] First 200 chars: ${response.message.substring(0, response.message.length.clamp(0, 200))}');
+        return null;
+      }
 
       var text = compliance.sanitizedText.isNotEmpty
           ? compliance.sanitizedText

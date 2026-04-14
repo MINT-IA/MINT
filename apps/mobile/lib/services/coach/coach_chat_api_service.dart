@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/anonymous_session_service.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/rag_service.dart' show RagSource, RagToolCall;
 
 /// HTTP client for POST /api/v1/coach/chat — the server-key tier.
@@ -31,6 +33,7 @@ class CoachChatApiService {
   /// The orchestrator catches all exceptions and falls through to fallback.
   Future<CoachChatApiResponse> chat({
     required String message,
+    List<Map<String, String>>? conversationHistory,
     Map<String, dynamic>? profileContext,
     String? memoryBlock,
     String language = 'fr',
@@ -53,7 +56,24 @@ class CoachChatApiService {
       'cash_level': cashLevel.clamp(1, 5),
     };
 
-    if (profileContext != null) body['profile_context'] = profileContext;
+    if (profileContext != null) {
+      // P16 COUP-04: Inject partner aggregate flags (actual data stays in
+      // SecureStorage — only partner_declared and partner_confidence go to backend)
+      try {
+        final partnerAggregate =
+            await PartnerEstimateService.aggregateForCoachContext();
+        profileContext['partner_declared'] =
+            partnerAggregate['partner_declared'];
+        profileContext['partner_confidence'] =
+            partnerAggregate['partner_confidence'];
+      } catch (_) {
+        // Best-effort — partner flags are optional enrichment
+      }
+      body['profile_context'] = profileContext;
+    }
+    if (conversationHistory != null && conversationHistory.isNotEmpty) {
+      body['conversation_history'] = conversationHistory;
+    }
     if (memoryBlock != null && memoryBlock.isNotEmpty) {
       body['memory_block'] = memoryBlock;
     }
@@ -96,6 +116,74 @@ class CoachChatApiService {
         message: errorBody ?? 'Server error (${response.statusCode}).',
       );
     }
+  }
+
+  /// Send a message to the anonymous chat endpoint (no auth required).
+  ///
+  /// Uses device-scoped session ID via [AnonymousSessionService].
+  /// Returns a map with keys: message, disclaimers, messagesRemaining, tokensUsed.
+  /// On 429 (rate limit), returns a map with messagesRemaining=0 and the detail message.
+  /// On network/server error, returns a fallback map so the app works offline.
+  static Future<Map<String, dynamic>> sendAnonymousMessage({
+    required String message,
+    String? intent,
+    String language = 'fr',
+  }) async {
+    try {
+      final sessionId = await AnonymousSessionService.getOrCreateSessionId();
+      final uri = Uri.parse('${ApiService.baseUrl}/anonymous/chat');
+
+      final body = <String, dynamic>{
+        'message': message,
+        'language': language,
+      };
+      if (intent != null && intent.isNotEmpty) {
+        body['intent'] = intent;
+      }
+
+      final response = await http
+          .post(
+            uri,
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Anonymous-Session': sessionId,
+            },
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 30));
+
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        final remaining = json['messagesRemaining'] as int? ?? 0;
+        await AnonymousSessionService.updateFromResponse(remaining);
+        return json;
+      } else if (response.statusCode == 429) {
+        await AnonymousSessionService.updateFromResponse(0);
+        final detail = _tryDecodeError(response.body) ??
+            'Limite atteinte. Cr\u00e9e un compte pour continuer.';
+        return {
+          'message': detail,
+          'disclaimers': <String>[],
+          'messagesRemaining': 0,
+          'tokensUsed': 0,
+        };
+      } else {
+        return _anonymousFallback();
+      }
+    } catch (e) {
+      debugPrint('[CoachChatApi] Anonymous chat error: $e');
+      return _anonymousFallback();
+    }
+  }
+
+  static Map<String, dynamic> _anonymousFallback() {
+    return {
+      'message': '',
+      'disclaimers': <String>[],
+      'messagesRemaining': -1,
+      'tokensUsed': 0,
+      'error': true,
+    };
   }
 
   static String? _tryDecodeError(String body) {

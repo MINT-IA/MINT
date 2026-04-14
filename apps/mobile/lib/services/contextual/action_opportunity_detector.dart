@@ -60,7 +60,7 @@ class ActionOpportunityDetector {
           title: 'Completer ton profil',
           body:
               'Quelques informations de plus pour des projections fiables.',
-          route: '/coach/chat?prompt=profile',
+          route: '/coach/chat?topic=profileCompletion',
           icon: Icons.person_add_outlined,
           priorityScore: 0.6,
         ));
