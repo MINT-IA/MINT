@@ -677,6 +677,7 @@ from app.schemas.document_understanding import (
     DocumentUnderstandingResult as _DUR,
     ExtractedField as _EF,
     ExtractionStatus as _ES,
+    FieldStatus as _FS,
     RenderMode as _RM,
 )
 from app.services import idempotency as _idempotency
@@ -1088,8 +1089,43 @@ async def understand_document(
         except Exception as exc:
             logger.warning("LPP coherence v2 failed err=%s", exc)
 
-    # 5. Render mode (deterministic selector)
-    result.render_mode = _select_render_mode(result)
+    # 5a. NumericSanity — deterministic bounds on extracted values (Phase 29-04 / PRIV-05).
+    #     Runs BEFORE the LLM judge because it is free and catches the crudest
+    #     prompt-injection values ("rendement 50%"). Rejects force render=reject.
+    try:
+        from app.services.compliance import numeric_sanity as _ns
+
+        verdict = _ns.check(result.extracted_fields)
+        if verdict.rejects:
+            result.sanity_rejected_fields = [r.field_name for r in verdict.rejects]
+            # Mark the offending fields as rejected so callers can highlight them.
+            reject_names = set(result.sanity_rejected_fields)
+            for f in result.extracted_fields:
+                if f.field_name in reject_names:
+                    f.status = _FS.rejected
+            # Convert the whole document to reject render mode with an explicit
+            # reason. The summary becomes the top-most bound violated so the
+            # user knows why MINT refused the number.
+            primary = verdict.rejects[0]
+            result.render_mode = _RM.reject
+            result.extraction_status = _ES.parse_error if result.extraction_status == _ES.success else result.extraction_status
+            result.summary = (
+                f"MINT a refuse une valeur impossible — {primary.bound}. "
+                "Ouvre le document original et verifie."
+            )
+            result.pdf_warning = "numeric_sanity_reject"
+        if verdict.human_reviews:
+            result.sanity_human_review_fields = [r.field_name for r in verdict.human_reviews]
+            hr_names = set(result.sanity_human_review_fields)
+            for f in result.extracted_fields:
+                if f.field_name in hr_names:
+                    f.human_review_flag = True
+    except Exception as exc:
+        logger.warning("numeric_sanity check failed err=%s", exc)
+
+    # 5b. Render mode (deterministic selector) — unless already forced to reject above.
+    if result.render_mode != _RM.reject:
+        result.render_mode = _select_render_mode(result)
 
     # 6. Document Memory upsert + diff
     if db is not None and result.extraction_status == _ES.success:
@@ -1112,12 +1148,84 @@ async def understand_document(
     except Exception as exc:
         logger.warning("third-party detection failed err=%s", exc)
 
-    # 8. ComplianceGuard scrub on free text
+    # 8a. PII pre-scrub (Phase 29-03 pii_scrubber) — strip IBAN/AVS/phone/
+    #     employer names from Vision free text BEFORE the judge sees it.
+    #     The judge still gets enough context to evaluate compliance, but
+    #     never receives raw PII even in transit.
+    try:
+        from app.services.privacy.pii_scrubber import scrub as _pii_scrub
+
+        result.summary = _pii_scrub(result.summary) if result.summary else result.summary
+        result.narrative = _pii_scrub(result.narrative) if result.narrative else result.narrative
+        result.questions_for_user = [
+            _pii_scrub(q) if q else q for q in result.questions_for_user
+        ]
+    except Exception as exc:
+        logger.warning("pii_scrubber failed err=%s", exc)
+
+    # 8b. Coach banned-term Layer 1 — cheap static pass before the LLM judge.
     result.summary = _scrub_compliance_text(result.summary)
     result.narrative = _scrub_compliance_text(result.narrative)
     result.questions_for_user = [
         _scrub_compliance_text(q) or q for q in result.questions_for_user
     ]
+
+    # 8c. VisionGuard — LLM-as-judge on critical outputs (PRIV-05).
+    #     Skip when nothing critical to judge OR when rendering a reject
+    #     (the document is already blocked; judging adds cost with no benefit).
+    if result.render_mode != _RM.reject and (result.summary or result.narrative):
+        try:
+            from app.services.compliance import vision_guard as _vg
+
+            fields_summary = ", ".join(
+                f"{f.field_name}={f.value}"
+                for f in result.extracted_fields[:5]
+                if f.value is not None
+            )
+            verdict = await _vg.judge_vision_output(
+                summary=result.summary,
+                narrative=result.narrative,
+                fields_summary=fields_summary or None,
+            )
+            result.guard_cost_usd = verdict.cost_usd
+            result.guard_flagged_categories = list(verdict.flagged_categories)
+            result.guard_reason = verdict.reason
+            if not verdict.allow:
+                result.guard_blocked = True
+                # Replace the salient free-text outputs with the judge's
+                # reformulation (or canonical safe fallback). Keep the raw
+                # fields intact — the user still sees the validated numbers.
+                safe_text = verdict.reformulation or (
+                    "MINT n'a pas pu resumer ce document de maniere educative. "
+                    "Voici les chiffres bruts validés."
+                )
+                result.summary = safe_text
+                # Narrative is dropped on block; the BatchValidationBubble
+                # handles the user-facing dialogue instead.
+                result.narrative = None
+        except Exception as exc:
+            # Fail-closed on unexpected error — strip the free text so a
+            # potentially non-compliant output never reaches the user.
+            logger.warning("vision_guard failed — fail-closed err=%s", exc)
+            result.guard_blocked = True
+            result.guard_reason = "judge_unavailable"
+            result.summary = (
+                "MINT n'a pas pu valider ce resume — voici les chiffres bruts."
+            )
+            result.narrative = None
+
+    # 8d. Runtime no-auto-confirm invariant (Phase 29-04 / PRIV-08).
+    #     Regardless of classifier confidence, every field persists as
+    #     needs_review. Only user interaction (tap / swipe on the
+    #     BatchValidationBubble) promotes to user_validated or corrected_by_user.
+    for f in result.extracted_fields:
+        if f.status not in (
+            _FS.rejected,
+            _FS.user_validated,
+            _FS.corrected_by_user,
+            _FS.human_review,
+        ):
+            f.status = _FS.needs_review
 
     # 9. Token budget consume (Vision tokens count too — STAB-04 reuse)
     try:

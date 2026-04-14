@@ -65,6 +65,29 @@ class ExtractionStatus(str, Enum):
     rejected_local = "rejected_local"
 
 
+class FieldStatus(str, Enum):
+    """Validation status of an extracted field.
+
+    v2.7 Phase 29-04 / PRIV-08: the legacy ``confirmed`` auto-status was
+    removed. Per LSFin art. 7-10, an auto-validated numeric output equates
+    to implicit financial advice — the user MUST promote a field to
+    ``user_validated`` via an explicit action (tap or swipe on the
+    BatchValidationBubble). Every Vision extraction now persists as
+    ``needs_review`` regardless of model confidence (including 0.99).
+
+    ``human_review`` is a NumericSanity flag — the value passed the bound
+    but needs an extra eyes-on step (e.g. avoir_lpp > 5M CHF). The field
+    still persists, still starts at ``needs_review``, and surfaces a
+    secondary ``humanReviewBadge`` in the UI.
+    """
+
+    needs_review = "needs_review"
+    user_validated = "user_validated"  # user tapped "correct" or swipe-confirmed
+    corrected_by_user = "corrected_by_user"  # user edited the value
+    rejected = "rejected"  # user marked the field wrong
+    human_review = "human_review"  # NumericSanity flag, distinct from reject
+
+
 class ExtractedField(BaseModel):
     """A single extracted field with provenance."""
 
@@ -74,6 +97,11 @@ class ExtractedField(BaseModel):
     value: Union[float, int, str, bool, None] = None
     confidence: ConfidenceLevel = ConfidenceLevel.medium
     source_text: str = ""
+    # v2.7 Phase 29-04 / PRIV-08: every field starts as needs_review.
+    # Writes with status=confirmed are rejected at the runtime guard
+    # (see ``_enforce_no_auto_confirm`` in document_vision_service).
+    status: FieldStatus = FieldStatus.needs_review
+    human_review_flag: bool = False  # set by NumericSanity when disposition=human_review
 
 
 class CoherenceWarning(BaseModel):
@@ -161,12 +189,21 @@ class DocumentUnderstandingResult(BaseModel):
     cost_tokens_in: int = 0
     cost_tokens_out: int = 0
 
+    # v2.7 Phase 29-04 — VisionGuard + NumericSanity telemetry.
+    guard_blocked: bool = False
+    guard_flagged_categories: List[str] = Field(default_factory=list)
+    guard_reason: Optional[str] = None
+    guard_cost_usd: float = 0.0
+    sanity_rejected_fields: List[str] = Field(default_factory=list)
+    sanity_human_review_fields: List[str] = Field(default_factory=list)
+
 
 __all__ = [
     "ConfidenceLevel",
     "DocumentClass",
     "RenderMode",
     "ExtractionStatus",
+    "FieldStatus",
     "ExtractedField",
     "CoherenceWarning",
     "CommitmentSuggestion",
