@@ -52,6 +52,13 @@ test/golden/
 *\ 3.md
 *\ 2.py
 *\ 3.py
+*\ 2.lock
+*\ 3.lock
+
+# iOS build artifacts (local only)
+apps/mobile/ios/build/
+apps/mobile/ios/Pods/
+apps/mobile/ios/DerivedData/
 
 # Claude Code worktrees
 .claude/worktrees/
