@@ -112,7 +112,7 @@ class TensionCardProvider extends ChangeNotifier {
         type: TensionType.earned,
         title: 'tensionEarnedCommitment', // resolved via i18n in widget
         subtitle: completed.first['whenText'] as String? ?? '',
-        deepLink: '/coach/chat?prompt=commitments',
+        deepLink: '/coach/chat?topic=commitments',
         date: DateTime.tryParse(
           completed.first['updatedAt'] as String? ?? '',
         ),
@@ -122,14 +122,14 @@ class TensionCardProvider extends ChangeNotifier {
         type: TensionType.earned,
         title: 'tensionEarnedCommitment',
         subtitle: '',
-        deepLink: '/coach/chat?prompt=commitments',
+        deepLink: '/coach/chat?topic=commitments',
       );
     } else if (conversationCount > 0) {
       earned = const TensionCard(
         type: TensionType.earned,
         title: 'tensionEarnedFirstConvo',
         subtitle: '',
-        deepLink: '/coach/chat?prompt=commitments',
+        deepLink: '/coach/chat?topic=commitments',
       );
     }
 
@@ -167,7 +167,7 @@ class TensionCardProvider extends ChangeNotifier {
         type: TensionType.ghosted,
         title: 'tensionGhostedLandmark',
         subtitle: nearest.message,
-        deepLink: '/coach/chat?prompt=nextLandmark',
+        deepLink: '/coach/chat?topic=nextLandmark',
         date: DateTime.tryParse(nearest.date),
       );
     }
@@ -183,7 +183,7 @@ class TensionCardProvider extends ChangeNotifier {
             type: TensionType.earned,
             title: 'tensionEarnedFirstConvo',
             subtitle: '',
-            deepLink: '/coach/chat?prompt=commitments',
+            deepLink: '/coach/chat?topic=commitments',
           )
         : const TensionCard(
             type: TensionType.earned,
@@ -203,7 +203,7 @@ class TensionCardProvider extends ChangeNotifier {
       type: TensionType.ghosted,
       title: 'tensionGhostedFuture',
       subtitle: '',
-      deepLink: '/coach/chat?prompt=nextLandmark',
+      deepLink: '/coach/chat?topic=nextLandmark',
     );
 
     return [earned, pulsing, ghosted];
