@@ -46,6 +46,7 @@ import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
+import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
@@ -200,6 +201,19 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _loadCashLevel();
     _loadOnboardingPayload();
     _subscribeToScreenReturns();
+    _consumeCapCoachBridge();
+  }
+
+  /// Consume any pending prompt from CapCoachBridge (set by CapCard).
+  /// Converts the raw prompt string into a CoachEntryPayload context injection.
+  void _consumeCapCoachBridge() {
+    final capPrompt = CapCoachBridge.consume();
+    if (capPrompt != null && capPrompt.isNotEmpty) {
+      _entryPayloadContext = const CoachEntryPayload(
+        source: CoachEntrySource.signal,
+        topic: 'capAction',
+      ).toContextInjection();
+    }
   }
 
   /// Load voice intensity from SharedPreferences.
