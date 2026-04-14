@@ -1,36 +1,45 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.6
-milestone_name: Le Coach Qui Marche
-status: verifying
-stopped_at: Completed 26-01-PLAN.md
-last_updated: "2026-04-13T18:49:14.933Z"
-last_activity: 2026-04-13
+milestone: v2.7
+milestone_name: Coach Stabilisation + Document Digestion
+status: in-progress
+stopped_at: Phase 27 (Stabilisation Critique) complete — 1/1 plan shipped, 95 tests green, branch dev
+last_updated: "2026-04-14T12:00:00.000Z"
+last_activity: 2026-04-14
 progress:
-  total_phases: 14
-  completed_phases: 11
-  total_plans: 18
-  completed_plans: 20
-  percent: 100
+  total_phases: 4
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 25
 ---
 
-# GSD State: MINT v2.5 — Transformation
+# GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-12)
+See: .planning/PROJECT.md (updated 2026-04-14)
 
-**Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 18 — Living Timeline Full Timeline
+**Core value:** Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo/scan/screenshot/PDF) via contrat canonique interne — jamais "Analyse indisponible".
+**Current focus:** Phase 27 — Stabilisation Critique (pending plan)
+
+## Architecture Decisions (pre-phase)
+
+- Audit externe challengé par 4 experts (pipeline/UX/SRE/DPO). Architecture astronaute rejetée.
+- Contrat canonique INTERNE (pas endpoint public /documents/understand).
+- 1 appel Vision fusionné, pas 2.
+- 4 render_mode client opaque (`confirm/ask/narrative/reject`).
+- VisionKit + cunning_document_scanner = prétraitement client.
+- ExtractionReviewScreen réduit, pas supprimé.
 
 ## Current Position
 
-Phase: 26
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-13
+Phase: 27
+Plan: 27-01 complete
+Status: Phase 27 shipped — coach resilience stack (retry + fallback + budget + flags + SLO + idempotency) on dev branch
+Last activity: 2026-04-14
 
-Progress: [##########] 100%
+Progress: [##--------] 25% (1/4 phases)
 
 ## Performance Metrics
 
@@ -121,6 +130,12 @@ Progress: [##########] 100%
 - [Phase 25]: Track user-provided fields via Set on CoachProfile to distinguish user-entered vs default data
 - [Phase 26]: Push navigation fallback for lightning menu routes without drawer support
 - [Phase 26]: Auth loading indicator prevents LandingScreen flash during checkAuth resolution
+- [Phase 27]: redis>=5.0 added (direct client) — slowapi's limits transport is not a public async Redis API
+- [Phase 27]: Fail-open everywhere Redis touches — outage degrades feature, never crashes request
+- [Phase 27]: Sonnet→Haiku fallback truncates history to last 10 turns (latency guard)
+- [Phase 27]: SLO auto-rollback requires 2 consecutive breaches + 10-request floor to prevent flapping
+- [Phase 27]: Admin flag endpoints use X-Admin-Token env var (ops-bootstrap, intentionally bypasses support_admin RBAC)
+- [Phase 27]: Degraded chip uses textSecondary italic, NOT error red — anti-shame doctrine
 
 ### From Previous Milestones
 
@@ -143,8 +158,8 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T18:48:08.116Z
-Stopped at: Completed 26-01-PLAN.md
+Last session: 2026-04-14T12:00:00.000Z
+Stopped at: Completed 27-01-PLAN.md (Phase 27 Stabilisation Critique, 1/1 plan)
 Resume file: None
 
 ---

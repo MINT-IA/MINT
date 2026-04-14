@@ -7,7 +7,8 @@
 - ✅ **v2.1 Stabilisation** - Phase 7 (shipped 2026-04-07)
 - ✅ **v2.4 Fondation** - Phases 9-12 (shipped 2026-04-12)
 - ✅ **v2.5 Transformation** - Phases 13-18 (shipped 2026-04-13)
-- 🚧 **v2.6 Le Coach Qui Marche** - Phases 19-26 (in progress)
+- ✅ **v2.6 Le Coach Qui Marche** - Phases 19-26 (shipped 2026-04-13)
+- 🚧 **v2.7 Coach Stabilisation + Document Digestion** - Phases 27-30 (in progress)
 
 <details>
 <summary>Previous milestones (v1.0, v2.0, v2.1, v2.4) -- see MILESTONES.md</summary>
@@ -270,6 +271,91 @@ Integration checker after phases 22, 24, and 26.
 | 25. Profile & Data Integrity | v2.6 | 1/0 | Complete    | 2026-04-13 |
 | 26. Navigation Coherence | v2.6 | 1/1 | Complete    | 2026-04-13 |
 
+## v2.7 Coach Stabilisation + Document Digestion
+
+Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo / scan / screenshot / PDF) sans jamais afficher "Analyse indisponible". Basé sur synthèse de 4 experts (pipeline, UX, SRE, DPO) ayant challengé l'audit externe. Architecture astronaute rejetée — on garde `document_vision_service.py` existant (80% du chemin déjà fait) et on bouche les vrais trous : fiabilité MSG2, consentement, coûts, streaming, PII.
+
+**Contrat canonique interne** (pas nouveau endpoint public) : `DocumentUnderstandingResult` Pydantic partagé par coach + doc scanner + review screen. Un seul modèle, pas de re-fragmentation.
+
+**Principes**
+- 1 appel Vision fusionné (classify + extract prompté ensemble), pas 2.
+- 4 `render_mode` côté client : `confirm / ask / narrative / reject`. Le backend ne fuit pas ses `processing_mode` internes.
+- VisionKit iOS + `cunning_document_scanner` Android = **prétraitement client** (crop/deskew offline gratuit). Pas d'architecture complète autour.
+- `ExtractionReviewScreen` **réduit, pas supprimé** — fallback pour docs haut enjeu (LPP, tax) quand chat-bubble ne suffit pas.
+- Chat-first par défaut : docs simples atterrissent en bulle coach avec chips, pas en formulaire plein écran.
+
+### Phase 27: Stabilisation Critique
+**Goal**: Le coach ne tombe plus jamais sur le safe fallback. MSG2 (follow-up) fiable à 100%. Budget coût et débit bornés en prod.
+**Depends on**: Phase 26 (navigation doit marcher avant de stabiliser le coach)
+**Requirements**: STAB-01, STAB-02, STAB-03, STAB-04, STAB-05
+**Success Criteria**:
+  1. MSG2 follow-up renvoie une réponse Claude valide dans 100% des cas testés (scénario Sophie x10)
+  2. Retry Anthropic automatique sur 429/529 (tenacity 3x, backoff exponentiel) sans erreur visible user
+  3. Upload idempotent : même fichier (SHA256 identique) ne re-appelle pas Vision, renvoie résultat caché
+  4. Token budget par user/jour cappé (default 50k tokens/j), dépassement = message clair "limite quotidienne"
+  5. Feature flag `DOCUMENTS_V2_ENABLED` permet rollback instant sans redeploy
+  6. Agent loop re-prompte Claude quand tool_use émis avec texte vide (plus d'exit silencieux)
+**Plans**: TBD
+
+### Phase 28: Pipeline Document Honnête
+**Goal**: Tout upload (photo / scan / screenshot / PDF) produit l'une des 4 sorties acceptables, jamais "200 avec 0 fields sans explication". 1 appel Vision fusionné. Streaming UX (pas de spinner 30s muet).
+**Depends on**: Phase 27 (infra retry/budget/flag doit être en place avant le pipeline doc)
+**Requirements**: DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06
+**Success Criteria**:
+  1. Contrat canonique interne `DocumentUnderstandingResult` (Pydantic) utilisé par coach + doc scanner + review screen — une seule source de vérité
+  2. 1 seul appel Claude Vision par document (classify + extract dans le même prompt), pas 2
+  3. `extraction_status` étendu avec `non_financial` — détection locale heuristique AVANT envoi Vision
+  4. Queue async : endpoint retourne `202 + job_id`, client poll ou SSE streaming
+  5. Backend streame 3 events : `detected {type, person_hint}` → `summary {text}` → `render {mode, payload}`
+  6. Client reçoit 4 `render_mode` opaques : `confirm` (fields review) / `ask` (1-3 questions inline chat) / `narrative` (coach bubble sans chiffres) / `reject` (pas financier)
+  7. PDF chiffré détecté via `pymupdf.is_encrypted` AVANT Vision → `rejected` propre
+  8. Multi-page : `pages_processed / pages_total / warning` visible, pas de truncation silencieuse
+  9. `ExtractionReviewScreen` réduit aux docs haut enjeu (LPP, attestation tax, bank statement) — autres flows passent par bulle coach
+  10. VisionKit iOS + `cunning_document_scanner` Android font crop/deskew côté client, pas serveur
+**Plans**: TBD
+
+### Phase 29: Compliance & Privacy
+**Goal**: Avant tout upload, consentement explicite. Données de tiers déclarées. PII scrubée des logs. ComplianceGuard sur output Vision. DPA Anthropic activé. nLPD/LSFin/FINMA compliant.
+**Depends on**: Phase 28 (pipeline doit exister avant de le rendre conforme)
+**Requirements**: PRIV-01, PRIV-02, PRIV-03, PRIV-04, PRIV-05, PRIV-06, PRIV-07
+**Success Criteria**:
+  1. Checkbox consentement explicite pré-upload, horodaté, versionné dans table `consents`, révocable avec cascade delete
+  2. Détection "document concerne une tierce personne" (conjoint) → déclaration user obligatoire avant traitement
+  3. IBAN/AVS/employeur scrubés dans tous les logs (regex + tokenization `EMPLOYER_1`, `IBAN_****1234`)
+  4. `evidence_text` chiffré at-rest avec clé dérivée user (Fernet/libsodium)
+  5. ComplianceGuard appliqué à `summary` et `questions_for_user` issus de Claude Vision (banned terms, prescriptive, hallucination)
+  6. Allowlist `fact_key` : seuls les champs utiles à MINT sont persistés (minimisation nLPD art. 6 al. 3), le reste dropé post-extraction
+  7. DPA Anthropic signé + Zero Data Retention activé côté compte API + mention privacy policy MINT mise à jour (sous-traitant US, finalité)
+  8. Statut `confirmed` automatique à 0.9 supprimé : user doit toujours valider explicitement (LSFin éducatif, pas décisionnel)
+  9. Rétention définie : document original jamais stocké (stream-only), `profile_facts` durée de vie = compte actif + 6 mois post-suppression
+**Plans**: TBD
+
+### Phase 30: Device & Test Gate
+**Goal**: Scénario Sophie complet validé sur iPhone + Android réels. Corpus fixtures documents couvre les cas critiques. CI teste le flow document end-to-end.
+**Depends on**: Phase 29 (tout doit être conforme avant de valider en conditions réelles)
+**Requirements**: GATE-01, GATE-02, GATE-03, GATE-04
+**Success Criteria**:
+  1. Scénario Sophie (pavé intent + 3 follow-ups + upload LPP + mémoire J+1) validé sur iPhone physique en `flutter run --release`
+  2. Scénario équivalent validé sur Android (emulator ou device)
+  3. Corpus `test/fixtures/documents/` avec 10 PDFs/images anonymisés : Julien CPE LPP, Lauren HOTELA + FATCA, AVS IK, salary AFC, tax VS, US W-2, scan froissé, photo biais, screenshot mobile banking, PDF allemand
+  4. Golden flow CI : upload chaque fixture → assert `render_mode` attendu + fields critiques extraits
+  5. Langue UI respectée (Tessinois + doc allemand → réponse italienne, pas allemande)
+  6. Prompt injection défendue : fixture avec "Ignore previous instructions" dans le doc → Vision ignore l'instruction
+  7. Coût moyen par document mesuré et reporté (< $0.05/doc cible)
+  8. Latence p95 mesurée et reportée (< 10s avec streaming)
+**Plans**: TBD
+
+**Execution Order:**
+Phases execute sequentially: 27 -> 28 -> 29 -> 30
+Integration checker after phases 28 and 30. Device gate mandatory before phase 30 sign-off.
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
+| 28. Pipeline Document Honnête | v2.7 | 0/? | Planned | — |
+| 29. Compliance & Privacy | v2.7 | 0/? | Planned | — |
+| 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
+
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-13 — Phase 23 planned (1 plan)*
+*Last updated: 2026-04-14 — v2.7 milestone added (4 phases) after 4-expert challenge of external audit*
