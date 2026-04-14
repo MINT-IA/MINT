@@ -186,6 +186,10 @@ app.add_middleware(SecurityHeadersMiddleware)
 # Request logging middleware
 app.add_middleware(LoggingMiddleware)
 
+# v2.7 Phase 29 / PRIV-04 — envelope encryption request context
+from app.middleware.encryption_context import EncryptionContextMiddleware  # noqa: E402
+app.add_middleware(EncryptionContextMiddleware)
+
 # Setup CORS — production MUST set CORS_ORIGINS env var
 _cors_origins_raw = os.getenv("CORS_ORIGINS", "")
 if not _cors_origins_raw and settings.ENVIRONMENT in ("production", "staging"):  # pragma: no cover

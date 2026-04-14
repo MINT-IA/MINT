@@ -33,6 +33,7 @@ from app.schemas.privacy import (
     ConsentUpdateResponse,
 )
 from app.services.privacy_service import PrivacyService
+from app.services.encryption.key_vault import key_vault as _key_vault
 
 
 router = APIRouter()
@@ -240,7 +241,11 @@ def export_user_data(
 # ---------------------------------------------------------------------------
 
 @router.post("/delete", response_model=DataDeletionResponse)
-def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require_current_user)) -> DataDeletionResponse:
+def delete_user_data(
+    request: DataDeletionRequest,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> DataDeletionResponse:
     """Supprime les donnees personnelles d'un utilisateur.
 
     Conforme a nLPD art. 6 al. 4 et art. 32.
@@ -266,6 +271,21 @@ def delete_user_data(request: DataDeletionRequest, _user: User = Depends(require
         nb_analytics=0,
         raison=request.raison,
     )
+
+    # v2.7 Phase 29 / PRIV-04 — crypto-shred the user's DEK on immediate
+    # deletion. 30-day grace mode leaves the DEK intact so the user can
+    # cancel; a scheduled job (out of scope) will call key_vault.
+    # crypto_shred_user(db, user_id) at T+30d. Ciphertext blobs stay on
+    # disk but become cryptographically irrecoverable.
+    if request.mode.value == "immediate":
+        try:
+            _key_vault.crypto_shred_user(db, user_id)
+        except Exception as exc:  # pragma: no cover — log, do not block deletion
+            import logging
+            logging.getLogger(__name__).warning(
+                "privacy.delete: crypto_shred_user failed user=%s err=%s",
+                user_id, exc,
+            )
 
     categories_schema = [
         DeletionCategoryDetail(

@@ -25,7 +25,9 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     JSON,
+    LargeBinary,
     String,
+    Text,
     UniqueConstraint,
 )
 
@@ -54,6 +56,16 @@ class DocumentMemory(Base):
     )
     # field_history: list[{date: iso8601, fields: {field_name: value}}]
     field_history = Column(JSON, nullable=False, default=list)
+
+    # v2.7 Phase 29 / PRIV-04 — envelope encryption at rest.
+    # Plaintext columns kept nullable for the backward-compat read window
+    # (rows written before PRIVACY_V2_ENABLED). The migration script
+    # scripts/migrate_evidence_text_encrypt.py drains them into *_enc and
+    # NULLs them out after verified round-trip.
+    evidence_text = Column(Text, nullable=True)
+    evidence_text_enc = Column(LargeBinary, nullable=True)
+    vision_raw = Column(Text, nullable=True)
+    vision_raw_enc = Column(LargeBinary, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("user_id", "fingerprint", name="uq_document_memory_user_fp"),

@@ -19,6 +19,12 @@ from app.schemas.document_understanding import (
     DocumentUnderstandingResult,
     FieldDiff,
 )
+from app.services.encryption.envelope import (
+    encrypt_text,
+    decrypt_text,
+    EncryptionError,
+)
+from app.services.encryption.key_vault import DEKRevokedError
 
 logger = logging.getLogger(__name__)
 
@@ -137,4 +143,90 @@ def upsert_and_diff(
     return diff
 
 
-__all__ = ["compute_fingerprint", "upsert_and_diff"]
+def _flag_privacy_v2(user_id: str) -> bool:
+    """Synchronous read of PRIVACY_V2_ENABLED.
+
+    FlagsService is async, but document_memory_service is called from sync
+    endpoints. We spawn a short-lived event loop run — mirrors the pattern
+    used by other sync-callers of FlagsService in this codebase. Fail-closed
+    on any exception (plaintext write path).
+    """
+    try:
+        import asyncio
+        from app.services.flags_service import flags
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # We're inside an async context; create_task + block is unsafe.
+                # Fall back to synchronous Redis call via nested event loop.
+                return asyncio.run_coroutine_threadsafe(
+                    flags.is_enabled("PRIVACY_V2_ENABLED", user_id), loop
+                ).result(timeout=1.0)
+        except RuntimeError:
+            pass
+        return asyncio.run(flags.is_enabled("PRIVACY_V2_ENABLED", user_id))
+    except Exception as exc:
+        logger.debug("flag check failed (%s) — defaulting to plaintext", exc)
+        return False
+
+
+def persist_evidence_text(
+    db: Session,
+    user_id: str,
+    row: DocumentMemory,
+    evidence_text: Optional[str],
+    vision_raw: Optional[str] = None,
+) -> None:
+    """Write evidence_text + vision_raw to the memory row.
+
+    Flag ON  → writes go into *_enc columns (plaintext columns stay NULL).
+    Flag OFF → writes go into plaintext columns (legacy path).
+
+    Does not commit — caller controls transaction boundary.
+    Raises DEKRevokedError if flag is ON but the user's DEK was shredded.
+    """
+    if _flag_privacy_v2(user_id):
+        row.evidence_text = None
+        row.vision_raw = None
+        row.evidence_text_enc = encrypt_text(db, user_id, evidence_text)
+        row.vision_raw_enc = encrypt_text(db, user_id, vision_raw)
+    else:
+        row.evidence_text = evidence_text
+        row.vision_raw = vision_raw
+        row.evidence_text_enc = None
+        row.vision_raw_enc = None
+
+
+def read_evidence_text(
+    db: Session,
+    user_id: str,
+    row: DocumentMemory,
+) -> Dict[str, Optional[str]]:
+    """Return {'evidence_text': ..., 'vision_raw': ...} with transparent decrypt.
+
+    Read path:
+        1. If *_enc is non-null → decrypt it.
+        2. Else → return plaintext column (backward-compat window).
+
+    Propagates DEKRevokedError if the user's DEK was shredded and an
+    encrypted blob is present — the API layer should surface 410 Gone.
+    """
+    def _read(enc: Optional[bytes], plain: Optional[str]) -> Optional[str]:
+        if enc is not None:
+            return decrypt_text(db, user_id, bytes(enc))
+        return plain
+
+    return {
+        "evidence_text": _read(row.evidence_text_enc, row.evidence_text),
+        "vision_raw": _read(row.vision_raw_enc, row.vision_raw),
+    }
+
+
+__all__ = [
+    "compute_fingerprint",
+    "upsert_and_diff",
+    "persist_evidence_text",
+    "read_evidence_text",
+    "DEKRevokedError",
+    "EncryptionError",
+]
