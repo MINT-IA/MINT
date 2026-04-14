@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
-status: Phase 28-04 shipped — 4 render_mode chat bubbles + ExtractionReviewSheet (snap 0.3/0.6/0.95) + DocumentResultView + DocumentStreamResultScreen + 19 i18n keys × 6 langs + 28/28 phase-28 mobile tests green. Default scan path still routes to legacy ExtractionReviewScreen until DOCUMENTS_V2_ENABLED rollout.
-stopped_at: Completed 29-03-PLAN.md
-last_updated: "2026-04-14T23:00:28.275Z"
+status: Phase 29-04 shipped — VisionGuard (Claude Haiku 4.5 LLM-as-judge, fail-closed) + NumericSanity (rendement/salaire/taux_conv reject, avoir_lpp>5M human_review) + FieldStatus.needs_review default (PRIV-08, LSFin art. 7-10) + BatchValidationBubble anti-fatigue + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green (27 compliance + 7 adversarial + 8 widget).
+stopped_at: Completed 29-04-PLAN.md
+last_updated: "2026-04-14T23:18:33.080Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 18
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 9
+  percent: 82
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -35,8 +35,8 @@ See: .planning/PROJECT.md (updated 2026-04-14)
 ## Current Position
 
 Phase: 29 (compliance & privacy in progress)
-Plan: 29-03 complete — PRIV-03 + PRIV-06 shipped (Presidio+FPE PII scrubber, 8-key fact allowlist, CI grep gate). 3/6 phase-29 plans done.
-Status: Phase 29-03 shipped — privacy.pii_scrubber (Presidio+regex fallback), pyffx FPE for IBAN/AVS with dual-control, PIILogFilter on root logger, fact_key_allowlist (8 keys, Purpose enum, TTL), profile_facts alembic migration, scripts/check_pii_in_logs.py + GH Actions pii-log-gate (warn-only). 52/52 privacy unit tests green.
+Plan: 29-04 complete — PRIV-05 + PRIV-08 shipped (VisionGuard Haiku LLM-as-judge, NumericSanity, no auto-confirm, BatchValidationBubble, adversarial fixtures). 4/6 phase-29 plans done.
+Status: Phase 29-04 shipped — VisionGuard + NumericSanity + FieldStatus.needs_review default + BatchValidationBubble + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green.
 Last activity: 2026-04-14
 
 Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) — Phase 28 awaiting device-gate sign-off.
@@ -93,6 +93,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 | Phase 29-compliance-privacy P01 | 45 | 2 tasks | 20 files |
 | Phase 29 P02 | 60 | 2 tasks | 21 files |
 | Phase 29-compliance-privacy P03 | 90 | 2 tasks | 17 files |
+| Phase 29 P04 | 18 | 2 tasks | 23 files |
 
 ## Accumulated Context
 
@@ -164,6 +165,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 - [Phase 29-compliance-privacy]: [Phase 29-03]: Presidio added as [privacy] OPTIONAL extra (Python 3.10+ only); regex fallback always-on covers dev 3.9 + acts as defense-in-depth belt in prod
 - [Phase 29-compliance-privacy]: [Phase 29-03]: Hashed-key drop logging (sha256[:12]) — fact_key names themselves can be PII signals (iban, numero_avs); raw key never logged
 - [Phase 29-compliance-privacy]: [Phase 29-03]: persist_fact policy gate is canonical; DB write is best-effort — decouples allowlist semantics from migration timing
+- [Phase 29]: Phase 29-04: LLM-as-judge (Haiku 4.5) on Vision with fail-closed + numeric sanity deterministic bounds + FieldStatus.needs_review default per LSFin art. 7-10
 
 ### From Previous Milestones
 
@@ -186,8 +188,8 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 
 ## Session Continuity
 
-Last session: 2026-04-14T23:00:28.273Z
-Stopped at: Completed 29-03-PLAN.md
+Last session: 2026-04-14T23:18:26.608Z
+Stopped at: Completed 29-04-PLAN.md
 Resume file: None
 
 ---
