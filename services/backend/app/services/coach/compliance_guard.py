@@ -349,13 +349,19 @@ class ComplianceGuard:
                 text = self._sanitize_banned_terms(text)
 
         # ── Layer 2: Prescriptive patterns ──
+        # NOTE: use_fallback only if 3+ matches (same threshold as banned terms).
+        # Single prescriptive matches are logged but NOT cause for rejection —
+        # too many false positives with conversational French (e.g. "rachète"
+        # in "potentiel de rachat", "achète" in "si tu achètes un bien",
+        # "investis" in "investis dans ton 3a").
         prescriptive_found = self._check_prescriptive(text)
         if prescriptive_found:
             logger.warning("ComplianceGuard L2: prescriptive %s in %s user=%s", prescriptive_found, component_type, user_id or "anonymous")
             violations.extend(
                 [f"Langage prescriptif: '{p}'" for p in prescriptive_found]
             )
-            use_fallback = True
+            if len(prescriptive_found) > 2:
+                use_fallback = True
 
         # ── Layer 2b: High-register drift (N4/N5 only) ──
         # Phase 11 / VOICE-08. Activates only when caller signals the
