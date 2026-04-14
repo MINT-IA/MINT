@@ -139,11 +139,11 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 - [x] **DOC-01**: Contrat Pydantic canonique interne `DocumentUnderstandingResult` partagé par coach + doc scanner + review (une seule source de vérité, pas de re-fragmentation)
 - [x] **DOC-02**: 1 seul appel Claude Vision par document (classify + extract fusionnés dans le prompt), pas 2
-- [ ] **DOC-03**: `extraction_status` étendu avec `non_financial` — détection heuristique locale AVANT envoi Vision (titre, mots-clés) *(backend extraction_status.non_financial done in 28-01; local pre-reject ML Kit deferred to 28-03)*
+- [x] **DOC-03**: `extraction_status` étendu avec `non_financial` — détection heuristique locale AVANT envoi Vision (titre, mots-clés) *(backend extraction_status.non_financial done in 28-01; local pre-reject ML Kit deferred to 28-03)*
 - [ ] **DOC-04**: Queue async + SSE streaming : backend émet `detected` → `summary` → `render` en 3 events progressifs
 - [ ] **DOC-05**: Client reçoit 4 `render_mode` opaques (`confirm` / `ask` / `narrative` / `reject`) — les `processing_mode` internes backend ne fuient pas *(backend selector done in 28-01; client switching deferred to 28-04)*
 - [ ] **DOC-06**: `ExtractionReviewScreen` réduit aux docs haut enjeu (LPP, attestation tax, bank statement) ; autres flows passent par bulle coach + chips dans le chat
-- [ ] **DOC-07**: Prétraitement client : VisionKit iOS (`VNDocumentCameraViewController`) + `cunning_document_scanner` Android font crop/deskew/multi-page offline
+- [x] **DOC-07**: Prétraitement client : VisionKit iOS (`VNDocumentCameraViewController`) + `cunning_document_scanner` Android font crop/deskew/multi-page offline
 - [x] **DOC-08**: Gestion PDF robuste — détection `pymupdf.is_encrypted` avant Vision, `pages_processed/pages_total/warning` transparent, pas de truncation silencieuse
 
 ### Compliance & Privacy (Phase 29)

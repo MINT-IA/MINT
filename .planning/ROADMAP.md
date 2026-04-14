@@ -317,7 +317,7 @@ Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo 
 Plans:
 - [x] 28-01-PLAN.md — Backend canonical contract DocumentUnderstandingResult + fused Vision + PDF preflight + Document Memory v1 + render_mode selector + third-party detection (completed 2026-04-14)
 - [ ] 28-02-PLAN.md — SSE streaming backend (sse_starlette) + Flutter Stream<DocumentEvent> client + Dart schema mirror
-- [ ] 28-03-PLAN.md — Native scanner (VisionKit iOS + ML Kit Android) + local image classifier pre-reject (ML Kit labels)
+- [x] 28-03-PLAN.md — Native scanner (VisionKit iOS + ML Kit Android) + local image classifier pre-reject (ML Kit labels)
 - [ ] 28-04-PLAN.md — 4 render_mode UI bubbles (confirm/ask/narrative/reject) + ExtractionReviewSheet (snap 0.3/0.6/0.95) + reduced ExtractionReviewScreen + device gate
 
 ### Phase 29: Compliance & Privacy
@@ -358,7 +358,7 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
-| 28. Pipeline Document Honnête | v2.7 | 1/4 | In progress | 2026-04-14 |
+| 28. Pipeline Document Honnête | v2.7 | 2/4 | In Progress|  |
 | 29. Compliance & Privacy | v2.7 | 0/? | Planned | — |
 | 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
 

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
-status: in-progress
-stopped_at: Phase 28-01 complete — DocumentUnderstandingResult contract + fused Vision + Document Memory v1, 58 docs tests green, dev branch
-last_updated: "2026-04-14T18:00:00.000Z"
+status: Phase 28-03 shipped — native VisionKit/ML Kit document scanner + local pre-reject classifier wired into document_scan_screen, ImagePicker removed from scope, 6 ARBs updated.
+stopped_at: Completed 28-03-PLAN.md
+last_updated: "2026-04-14T21:29:21.776Z"
 last_activity: 2026-04-14
 progress:
-  total_phases: 4
+  total_phases: 18
   completed_phases: 1
   total_plans: 5
-  completed_plans: 2
-  percent: 38
+  completed_plans: 3
+  percent: 60
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -35,11 +35,11 @@ See: .planning/PROJECT.md (updated 2026-04-14)
 ## Current Position
 
 Phase: 28
-Plan: 28-01 complete (28-02 next)
-Status: Phase 28-01 shipped — DocumentUnderstandingResult canonical contract, fused tool_use Vision call, PDF preflight, Document Memory v1 with diff, render_mode selector, third-party silent flag. Behind DOCUMENTS_V2_ENABLED flag. Legacy path intact.
+Plan: 28-03 complete (28-02 next pending; 28-04 last)
+Status: Phase 28-03 shipped — native VisionKit/ML Kit document scanner + local pre-reject classifier wired into document_scan_screen, ImagePicker removed from scope, 6 ARBs updated.
 Last activity: 2026-04-14
 
-Progress: [###-------] 38% (1/4 phases, 2/5 plans)
+Progress: [######----] 60% (1/4 phases, 3/5 plans)
 
 ## Performance Metrics
 
@@ -87,6 +87,7 @@ Progress: [###-------] 38% (1/4 phases, 2/5 plans)
 | 25 | 1 | - | - |
 | Phase 26 P01 | 4min | 3 tasks | 2 files |
 | 26 | 1 | - | - |
+| Phase 28 P03 | 22 min | 3 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -142,6 +143,9 @@ Progress: [###-------] 38% (1/4 phases, 2/5 plans)
 - [Phase 28-01]: pymupdf 1.26 has no get_form_text_fields() — iterate page.widgets() directly gated by doc.is_form_pdf
 - [Phase 28-01]: ComplianceGuard has no scrub() — used _sanitize_banned_terms() (Layer 1) on summary/narrative/questions
 - [Phase 28-01]: TokenBudget.consume() takes (user_id, tokens) only (no kind=) per phase 27; per-kind tagging deferred
+- [Phase 28]: [Phase 28-03]: Picked flutter_doc_scanner (wraps VisionKit + ML Kit Doc Scanner GA 2024) over hand-rolled MethodChannel
+- [Phase 28]: [Phase 28-03]: google_mlkit_image_labeling bumped from 0.13 to 0.14.2 due to commons ^0.11 conflict with text_recognition 0.15
+- [Phase 28]: [Phase 28-03]: Local pre-reject = 16 labels, 0.7 confidence, top-3, fail-open everywhere; Screenshot deliberately excluded (banking screenshots are valid input)
 
 ### From Previous Milestones
 
@@ -164,8 +168,8 @@ Progress: [###-------] 38% (1/4 phases, 2/5 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-14T18:00:00.000Z
-Stopped at: Completed 28-01-PLAN.md (Phase 28 Pipeline Document Honnête, 1/4 plans)
+Last session: 2026-04-14T21:29:21.774Z
+Stopped at: Completed 28-03-PLAN.md
 Resume file: None
 
 ---
