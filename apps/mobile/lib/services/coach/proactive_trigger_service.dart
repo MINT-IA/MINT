@@ -360,7 +360,7 @@ class ProactiveTriggerService {
     return ProactiveTrigger(
       type: ProactiveTriggerType.weeklyRecapAvailable,
       messageKey: 'proactiveWeeklyRecap',
-      intentTag: '/weekly-recap',  // Matches GoRouter route
+      intentTag: '/coach/chat',  // Weekly recap navigates to coach chat
       triggeredAt: now,
     );
   }

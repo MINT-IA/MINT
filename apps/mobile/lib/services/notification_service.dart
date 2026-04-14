@@ -396,7 +396,7 @@ class NotificationService {
       title: s.weeklyRecapTitle,
       body: s.weeklyRecapBody,
       scheduledDate: scheduledDate,
-      payload: '/weekly-recap',
+      payload: '/coach/chat',
       matchDateComponents: DateTimeComponents.dayOfWeekAndTime,
     );
   }
