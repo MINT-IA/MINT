@@ -339,7 +339,7 @@ def extract_with_vision(
     """Extract structured data from a document image using Claude Vision.
 
     Args:
-        image_base64: Base64-encoded JPEG/PNG image of the document.
+        image_base64: Base64-encoded document (JPEG, PNG, or PDF).
         doc_type: Expected document type (guides extraction).
         canton: User's canton (contextualizes fiscal documents).
         language_hint: Expected language (fr/de/it).
