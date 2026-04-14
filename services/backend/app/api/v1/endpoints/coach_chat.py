@@ -132,13 +132,24 @@ class _NoRagOrchestrator:
         else:
             response_text = raw_response
 
-        filtered = guardrails.filter_response(response_text, language)
+        # If Claude returned ONLY tool_calls with no text narration, that's a
+        # legitimate state — don't run the empty-text path through compliance
+        # which would force the safe fallback. The agent loop continues and the
+        # next iteration produces the user-facing text.
+        if response_text and response_text.strip():
+            filtered = guardrails.filter_response(response_text, language)
+            answer_text = filtered["text"]
+            disclaimers_out = filtered["disclaimers_added"]
+        else:
+            answer_text = ""
+            disclaimers_out = []
+
         tokens_used = actual_usage_tokens if actual_usage_tokens is not None else len(question) // 4
 
         result = {
-            "answer": filtered["text"],
+            "answer": answer_text,
             "sources": [],
-            "disclaimers": filtered["disclaimers_added"],
+            "disclaimers": disclaimers_out,
             "tokens_used": tokens_used,
         }
         if tool_calls:
