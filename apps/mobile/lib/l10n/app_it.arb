@@ -10775,5 +10775,104 @@
   "docScanScannerError": "Lo scanner non è riuscito ad avviarsi. Puoi importare un file dalla tua galleria.",
   "@docScanScannerError": {
     "description": "v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch."
+  },
+  "documentBubbleConfirmTitle": "{count, plural, =1{Ho letto 1 dato utile.} other{Ho letto {count} dati utili.}}",
+  "@documentBubbleConfirmTitle": {
+    "description": "Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "documentBubbleConfirmAllGood": "Tutto a posto",
+  "@documentBubbleConfirmAllGood": {
+    "description": "Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is."
+  },
+  "documentBubbleConfirmCorrect": "Correggo",
+  "@documentBubbleConfirmCorrect": {
+    "description": "Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet."
+  },
+  "documentBubbleAskTitle": "Ho quasi tutto. Confermami solo questo:",
+  "@documentBubbleAskTitle": {
+    "description": "Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask)."
+  },
+  "documentBubbleAskSubmit": "Invia",
+  "@documentBubbleAskSubmit": {
+    "description": "Phase 28-04 — submit answers in AskQuestionBubble."
+  },
+  "documentBubbleNarrativeRemindLater": "Ricordamelo a maggio",
+  "@documentBubbleNarrativeRemindLater": {
+    "description": "Phase 28-04 — default label for the commitment CTA in NarrativeBubble."
+  },
+  "documentBubbleRejectMessage": "Non sembra un documento finanziario. Tranquillo — riprova con un'altra foto.",
+  "@documentBubbleRejectMessage": {
+    "description": "Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame."
+  },
+  "documentBubbleRejectRetry": "Riprova",
+  "@documentBubbleRejectRetry": {
+    "description": "Phase 28-04 — retry CTA on RejectBubble."
+  },
+  "documentThirdPartyQuestion": "È davvero {name}?",
+  "@documentThirdPartyQuestion": {
+    "description": "Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "documentThirdPartyYes": "Sì",
+  "@documentThirdPartyYes": {
+    "description": "Phase 28-04 — yes chip on ThirdPartyChip."
+  },
+  "documentThirdPartyNo": "No",
+  "@documentThirdPartyNo": {
+    "description": "Phase 28-04 — no chip on ThirdPartyChip."
+  },
+  "documentThirdPartySomeoneElse": "qualcun altro",
+  "@documentThirdPartySomeoneElse": {
+    "description": "Phase 28-04 — fallback name when no first name detected."
+  },
+  "documentReviewOpenedFromDeeplink": "Aperto da un link diretto. La maggior parte dei documenti ora appare direttamente nella chat.",
+  "@documentReviewOpenedFromDeeplink": {
+    "description": "Phase 28-04 — banner on legacy ExtractionReviewScreen."
+  },
+  "documentReviewMineButton": "È mio",
+  "@documentReviewMineButton": {
+    "description": "Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer)."
+  },
+  "documentReviewNotMineButton": "Non è mio",
+  "@documentReviewNotMineButton": {
+    "description": "Phase 28-04 — chip on ExtractionReviewSheet for third-party documents."
+  },
+  "documentReviewCorrectButton": "Correggo",
+  "@documentReviewCorrectButton": {
+    "description": "Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit."
+  },
+  "documentScanReadingStage": "Sto guardando…",
+  "@documentScanReadingStage": {
+    "description": "Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming."
+  },
+  "documentScanFamiliarIssuer": "Sembra un altro {issuer}, controllo cosa è cambiato…",
+  "@documentScanFamiliarIssuer": {
+    "description": "Phase 28-04 — optimistic stage line when client recognises issuer.",
+    "placeholders": {
+      "issuer": {
+        "type": "String"
+      }
+    }
+  },
+  "documentScanFieldFound": "{field}: {value}",
+  "@documentScanFieldFound": {
+    "description": "Phase 28-04 — incremental field row revealed during streaming.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
   }
 }

@@ -22609,4 +22609,78 @@ class SDe extends S {
   @override
   String get docScanScannerError =>
       'Der Scanner konnte nicht gestartet werden. Du kannst stattdessen eine Datei aus deiner Galerie importieren.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ich habe $count nützliche Angaben gelesen.',
+      one: 'Ich habe 1 nützliche Angabe gelesen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'Alles gut';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Korrigieren';
+
+  @override
+  String get documentBubbleAskTitle =>
+      'Ich habe fast alles. Bestätige mir nur das:';
+
+  @override
+  String get documentBubbleAskSubmit => 'Senden';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Erinnere mich im Mai';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'Das sieht nicht nach einem Finanzdokument aus. Kein Problem – probier ein anderes Foto.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Erneut versuchen';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'Ist das wirklich $name?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Ja';
+
+  @override
+  String get documentThirdPartyNo => 'Nein';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'jemand anderes';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Über einen Direktlink geöffnet. Die meisten Dokumente erscheinen jetzt direkt im Chat.';
+
+  @override
+  String get documentReviewMineButton => 'Gehört mir';
+
+  @override
+  String get documentReviewNotMineButton => 'Gehört mir nicht';
+
+  @override
+  String get documentReviewCorrectButton => 'Korrigieren';
+
+  @override
+  String get documentScanReadingStage => 'Ich lese…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Sieht aus wie ein weiteres $issuer, ich prüfe, was sich verändert hat…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field: $value';
+  }
 }

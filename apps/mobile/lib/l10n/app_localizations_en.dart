@@ -22446,4 +22446,78 @@ class SEn extends S {
   @override
   String get docScanScannerError =>
       'The scanner could not start. You can import a file from your gallery instead.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'I read $count useful values.',
+      one: 'I read 1 useful value.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'All good';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Let me fix';
+
+  @override
+  String get documentBubbleAskTitle =>
+      'I have almost everything. Just confirm this:';
+
+  @override
+  String get documentBubbleAskSubmit => 'Send';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Remind me in May';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'This doesn\'t look like a financial document. No worries — try another photo.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Try again';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'Is that really $name?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Yes';
+
+  @override
+  String get documentThirdPartyNo => 'No';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'someone else';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Opened from a direct link. Most documents now appear straight in the chat.';
+
+  @override
+  String get documentReviewMineButton => 'It\'s mine';
+
+  @override
+  String get documentReviewNotMineButton => 'Not mine';
+
+  @override
+  String get documentReviewCorrectButton => 'Let me fix';
+
+  @override
+  String get documentScanReadingStage => 'Reading…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Looks like another $issuer, checking what moved…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field: $value';
+  }
 }

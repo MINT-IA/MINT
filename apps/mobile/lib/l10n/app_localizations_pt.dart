@@ -22562,4 +22562,77 @@ class SPt extends S {
   @override
   String get docScanScannerError =>
       'O scanner não conseguiu iniciar. Podes importar um ficheiro da tua galeria.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Li $count dados úteis.',
+      one: 'Li 1 dado útil.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'Tudo bem';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Corrigir';
+
+  @override
+  String get documentBubbleAskTitle => 'Tenho quase tudo. Confirma só isto:';
+
+  @override
+  String get documentBubbleAskSubmit => 'Enviar';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Lembra-me em maio';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'Isto não parece um documento financeiro. Sem stress — tenta com outra foto.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Tentar de novo';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'É mesmo $name?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Sim';
+
+  @override
+  String get documentThirdPartyNo => 'Não';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'outra pessoa';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Aberto por um link direto. A maioria dos documentos aparece agora diretamente no chat.';
+
+  @override
+  String get documentReviewMineButton => 'É meu';
+
+  @override
+  String get documentReviewNotMineButton => 'Não é meu';
+
+  @override
+  String get documentReviewCorrectButton => 'Corrigir';
+
+  @override
+  String get documentScanReadingStage => 'Estou a ler…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Parece outro $issuer, vou ver o que mudou…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field: $value';
+  }
 }

@@ -22558,4 +22558,78 @@ class SFr extends S {
   @override
   String get docScanScannerError =>
       'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'J\'\'ai lu $count données utiles.',
+      one: 'J\'\'ai lu 1 donnée utile.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'Tout bon';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Je corrige';
+
+  @override
+  String get documentBubbleAskTitle =>
+      'J\'ai presque tout. Confirme-moi juste ça :';
+
+  @override
+  String get documentBubbleAskSubmit => 'Envoyer';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Rappelle-moi en mai';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'Ce document ne semble pas financier. Pas grave — réessaie avec une autre photo.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Réessayer';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'C\'\'est bien $name ?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Oui';
+
+  @override
+  String get documentThirdPartyNo => 'Non';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'quelqu\'un d\'autre';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Ouvert depuis un lien direct. La plupart des documents apparaissent maintenant directement dans le chat.';
+
+  @override
+  String get documentReviewMineButton => 'C\'est à moi';
+
+  @override
+  String get documentReviewNotMineButton => 'Ce n\'est pas moi';
+
+  @override
+  String get documentReviewCorrectButton => 'Je corrige';
+
+  @override
+  String get documentScanReadingStage => 'Je regarde…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Je crois que c\'\'est un autre $issuer, je regarde ce qui a bougé…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field : $value';
+  }
 }

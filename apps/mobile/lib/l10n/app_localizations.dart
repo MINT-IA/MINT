@@ -39572,6 +39572,120 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.'**
   String get docScanScannerError;
+
+  /// Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{J\'\'ai lu 1 donnée utile.} other{J\'\'ai lu {count} données utiles.}}'**
+  String documentBubbleConfirmTitle(int count);
+
+  /// Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout bon'**
+  String get documentBubbleConfirmAllGood;
+
+  /// Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je corrige'**
+  String get documentBubbleConfirmCorrect;
+
+  /// Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai presque tout. Confirme-moi juste ça :'**
+  String get documentBubbleAskTitle;
+
+  /// Phase 28-04 — submit answers in AskQuestionBubble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get documentBubbleAskSubmit;
+
+  /// Phase 28-04 — default label for the commitment CTA in NarrativeBubble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappelle-moi en mai'**
+  String get documentBubbleNarrativeRemindLater;
+
+  /// Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document ne semble pas financier. Pas grave — réessaie avec une autre photo.'**
+  String get documentBubbleRejectMessage;
+
+  /// Phase 28-04 — retry CTA on RejectBubble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get documentBubbleRejectRetry;
+
+  /// Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'\'est bien {name} ?'**
+  String documentThirdPartyQuestion(String name);
+
+  /// Phase 28-04 — yes chip on ThirdPartyChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get documentThirdPartyYes;
+
+  /// Phase 28-04 — no chip on ThirdPartyChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get documentThirdPartyNo;
+
+  /// Phase 28-04 — fallback name when no first name detected.
+  ///
+  /// In fr, this message translates to:
+  /// **'quelqu\'un d\'autre'**
+  String get documentThirdPartySomeoneElse;
+
+  /// Phase 28-04 — banner on legacy ExtractionReviewScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvert depuis un lien direct. La plupart des documents apparaissent maintenant directement dans le chat.'**
+  String get documentReviewOpenedFromDeeplink;
+
+  /// Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer).
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est à moi'**
+  String get documentReviewMineButton;
+
+  /// Phase 28-04 — chip on ExtractionReviewSheet for third-party documents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce n\'est pas moi'**
+  String get documentReviewNotMineButton;
+
+  /// Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je corrige'**
+  String get documentReviewCorrectButton;
+
+  /// Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je regarde…'**
+  String get documentScanReadingStage;
+
+  /// Phase 28-04 — optimistic stage line when client recognises issuer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je crois que c\'\'est un autre {issuer}, je regarde ce qui a bougé…'**
+  String documentScanFamiliarIssuer(String issuer);
+
+  /// Phase 28-04 — incremental field row revealed during streaming.
+  ///
+  /// In fr, this message translates to:
+  /// **'{field} : {value}'**
+  String documentScanFieldFound(String field, String value);
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

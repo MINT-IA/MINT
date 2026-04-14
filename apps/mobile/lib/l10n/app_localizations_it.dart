@@ -22617,4 +22617,78 @@ class SIt extends S {
   @override
   String get docScanScannerError =>
       'Lo scanner non è riuscito ad avviarsi. Puoi importare un file dalla tua galleria.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ho letto $count dati utili.',
+      one: 'Ho letto 1 dato utile.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'Tutto a posto';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Correggo';
+
+  @override
+  String get documentBubbleAskTitle =>
+      'Ho quasi tutto. Confermami solo questo:';
+
+  @override
+  String get documentBubbleAskSubmit => 'Invia';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Ricordamelo a maggio';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'Non sembra un documento finanziario. Tranquillo — riprova con un\'altra foto.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Riprova';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'È davvero $name?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Sì';
+
+  @override
+  String get documentThirdPartyNo => 'No';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'qualcun altro';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Aperto da un link diretto. La maggior parte dei documenti ora appare direttamente nella chat.';
+
+  @override
+  String get documentReviewMineButton => 'È mio';
+
+  @override
+  String get documentReviewNotMineButton => 'Non è mio';
+
+  @override
+  String get documentReviewCorrectButton => 'Correggo';
+
+  @override
+  String get documentScanReadingStage => 'Sto guardando…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Sembra un altro $issuer, controllo cosa è cambiato…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field: $value';
+  }
 }
