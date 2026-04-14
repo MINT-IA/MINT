@@ -30,6 +30,10 @@ dependencies:
   file_picker: ^8.0.0
   image_picker: ^1.1.2
   google_mlkit_text_recognition: ^0.15.0
+  # Phase 28-03 — native document scanner (VisionKit iOS / ML Kit Doc Scanner Android)
+  flutter_doc_scanner: ^0.0.13
+  # Phase 28-03 — local image labeling for pre-reject of clearly non-financial images
+  google_mlkit_image_labeling: ^0.14.2  # ^0.14 required for google_mlkit_commons ^0.11 parity with text_recognition 0.15
   in_app_purchase: ^3.2.0
   in_app_purchase_platform_interface: ^1.4.0
   confetti: ^0.7.0

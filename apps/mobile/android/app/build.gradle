@@ -80,3 +80,10 @@ android {
 flutter {
     source = "../.."
 }
+
+// Phase 28-03 — Google ML Kit Document Scanner (GA 2024). Pulled by
+// flutter_doc_scanner transitively, declared explicitly to pin GA channel
+// and ensure availability in release builds without R8 surprises.
+dependencies {
+    implementation 'com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1'
+}

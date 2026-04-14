@@ -35,7 +35,7 @@
 		<string>_flutter-devtools._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>MINT a besoin d'accéder à ta caméra pour scanner tes documents financiers.</string>
+	<string>MINT utilise l'appareil photo pour scanner tes documents financiers, jamais sans ton accord.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>MINT utilise le réseau local en mode debug pour se connecter aux outils de développement Flutter.</string>
 	<key>NSMicrophoneUsageDescription</key>
