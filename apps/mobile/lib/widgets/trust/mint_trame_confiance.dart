@@ -517,7 +517,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             const SizedBox(height: 6),
             Text(
               summary,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 height: 1.35,
                 letterSpacing: 0.1,
@@ -555,7 +555,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             const SizedBox(height: 6),
             Text(
               summary,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 height: 1.35,
                 letterSpacing: 0.1,
@@ -569,7 +569,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
                   padding: const EdgeInsets.only(top: 2),
                   child: Text(
                     '— $h',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 11,
                       height: 1.3,
                       color: MintColors.textMutedAaa,
@@ -598,7 +598,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
           height: 1,
           child: Text(
             summary,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               color: MintColors.textPrimary,
             ),
@@ -641,7 +641,7 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             height: 1.35,
             color: MintColors.textMutedAaa,

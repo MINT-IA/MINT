@@ -389,9 +389,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         alignment: Alignment.centerLeft,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: MintColors.surface,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(18),
               topRight: Radius.circular(18),
               bottomRight: Radius.circular(18),
