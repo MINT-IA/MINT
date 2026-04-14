@@ -22,6 +22,11 @@ class ProfileDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
+    // Audit FIX 8: ProfileDrawer is reactive — context.watch<CoachProfileProvider>()
+    // subscribes to ChangeNotifier.notifyListeners(), so any profile mutation
+    // (first_name, age, canton, voiceCursorPreference, …) triggers a rebuild.
+    // Do NOT replace with context.read here — doing so would freeze the drawer
+    // on the initial profile snapshot.
     final coachProvider = context.watch<CoachProfileProvider>();
     final profile = coachProvider.profile;
 
