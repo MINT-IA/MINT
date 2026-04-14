@@ -174,6 +174,23 @@ final _router = GoRouter(
     final isLoggedIn = auth.isLoggedIn;
     final path = state.uri.path;
 
+    // ── Parse /home?tab=N&intent=X query params ─────────────
+    // Notifications emit /home?tab=1&intent=monthlyCheckIn etc.
+    // Redirect to the correct tab route so the shell navigates properly.
+    if (path == '/home') {
+      final tab = state.uri.queryParameters['tab'];
+      final intent = state.uri.queryParameters['intent'];
+      if (tab == '1') {
+        // Tab 1 = Coach — redirect to /coach/chat with intent as prompt
+        final query = intent != null ? '?prompt=$intent' : '';
+        return '/coach/chat$query';
+      }
+      if (tab == '2') {
+        return '/explorer';
+      }
+      // tab=0 or no tab → stay on /home (Aujourd'hui)
+    }
+
     // Determine scope from matched route (fail-closed default)
     final topRoute = state.topRoute;
     final scope = topRoute is ScopedGoRoute
