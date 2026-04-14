@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
 status: Phase 28-04 shipped — 4 render_mode chat bubbles + ExtractionReviewSheet (snap 0.3/0.6/0.95) + DocumentResultView + DocumentStreamResultScreen + 19 i18n keys × 6 langs + 28/28 phase-28 mobile tests green. Default scan path still routes to legacy ExtractionReviewScreen until DOCUMENTS_V2_ENABLED rollout.
-stopped_at: Completed 29-01-PLAN.md
-last_updated: "2026-04-14T22:26:56.382Z"
+stopped_at: Completed 29-02-PLAN.md
+last_updated: "2026-04-14T22:44:01.080Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 18
   completed_phases: 2
   total_plans: 11
-  completed_plans: 6
-  percent: 55
+  completed_plans: 7
+  percent: 64
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -91,6 +91,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 | Phase 28-pipeline-document P02 | 18 min | 2 tasks | 8 files |
 | Phase 28-pipeline-document P04 | 28 min | 3 tasks | 22 files |
 | Phase 29-compliance-privacy P01 | 45 | 2 tasks | 20 files |
+| Phase 29 P02 | 60 | 2 tasks | 21 files |
 
 ## Accumulated Context
 
@@ -158,6 +159,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 - [Phase 28-pipeline-document]: [Phase 28-04]: Reject palette uses neutral textSecondary on surface — anti-shame doctrine, never error red
 - [Phase 28-pipeline-document]: [Phase 28-04]: Plain-string apostrophes in ARB use single ' (not doubled '') — gen-l10n only treats strings as ICU when placeholders/plural present
 - [Phase 29-compliance-privacy]: PRIV-04 envelope encryption AES-256-GCM + crypto-shredding wired (Fernet fallback, KMS optional)
+- [Phase 29]: Granular 4-purpose consent with ISO 29184 receipts + HMAC signature + sha256 merkle chain per user. Cascade to crypto_shred on persistence_365d revoke.
 
 ### From Previous Milestones
 
@@ -180,8 +182,8 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 
 ## Session Continuity
 
-Last session: 2026-04-14T22:26:56.379Z
-Stopped at: Completed 29-01-PLAN.md
+Last session: 2026-04-14T22:43:55.998Z
+Stopped at: Completed 29-02-PLAN.md
 Resume file: None
 
 ---
