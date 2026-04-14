@@ -8,12 +8,12 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/tension_card.dart';
 import 'package:mint_mobile/models/timeline_node.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class TimelineNodeWidget extends StatelessWidget {
   final TimelineNode node;
@@ -51,21 +51,17 @@ class TimelineNodeWidget extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+                    style: MintTextStyles.bodySmall(
                       color: _titleColor(),
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   if (node.subtitle.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(
                       node.subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
+                      style: MintTextStyles.labelMedium(
                         color: MintColors.textSecondary,
-                      ),
+                      ).copyWith(fontWeight: FontWeight.w400),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

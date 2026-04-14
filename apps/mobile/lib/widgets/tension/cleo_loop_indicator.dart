@@ -5,11 +5,11 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/tension_card.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class CleoLoopIndicator extends StatelessWidget {
   final CleoLoopPosition position;
@@ -32,9 +32,7 @@ class CleoLoopIndicator extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
+        style: MintTextStyles.labelSmall(
           color: MintColors.textSecondary,
         ),
       ),

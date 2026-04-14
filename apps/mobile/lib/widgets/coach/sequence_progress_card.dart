@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/models/sequence_message_payload.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -95,11 +94,9 @@ class SequenceProgressCard extends StatelessWidget {
                 ),
                 child: Text(
                   '$completedCount/$totalCount',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                  style: MintTextStyles.labelMedium(
                     color: MintColors.primary,
-                  ),
+                  ).copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -151,11 +148,9 @@ class SequenceProgressCard extends StatelessWidget {
                   ),
                   Text(
                     item.value,
-                    style: GoogleFonts.inter(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                    style: MintTextStyles.bodySmall(
                       color: MintColors.textPrimary,
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w700),
                   ),
                 ],
               ),
@@ -184,10 +179,9 @@ class SequenceProgressCard extends StatelessWidget {
                 ),
                 child: Text(
                   S.of(context)?.sequenceReadyNextStep ?? 'Prêt pour l\'\u00e9tape suivante',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: MintTextStyles.bodyMedium(
+                    color: MintColors.white,
+                  ).copyWith(fontWeight: FontWeight.w600),
                 ),
               ),
             ),
@@ -207,9 +201,8 @@ class SequenceProgressCard extends StatelessWidget {
                 ),
                 child: Text(
                   S.of(context)?.sequenceQuitButton ?? 'Quitter le parcours',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                  style: MintTextStyles.labelMedium(
+                    color: MintColors.textMuted,
                   ),
                 ),
               ),

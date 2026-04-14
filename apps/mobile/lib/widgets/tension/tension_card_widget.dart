@@ -8,11 +8,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/tension_card.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class TensionCardWidget extends StatefulWidget {
   final TensionCard card;
@@ -79,21 +79,17 @@ class _TensionCardWidgetState extends State<TensionCardWidget>
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.montserrat(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                    style: MintTextStyles.bodyMedium(
                       color: _titleColor(),
-                    ),
+                    ).copyWith(fontWeight: FontWeight.w600),
                   ),
                   if (subtitle.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: GoogleFonts.inter(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
+                      style: MintTextStyles.bodySmall(
                         color: MintColors.textSecondary,
-                      ),
+                      ).copyWith(fontWeight: FontWeight.w400),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
