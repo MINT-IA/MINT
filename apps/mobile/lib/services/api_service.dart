@@ -105,9 +105,9 @@ class ApiService {
   static final List<String> _baseUrlCandidates = (() {
     final candidates = <String>[
       if (_definedApiBaseUrl.isNotEmpty) _definedApiBaseUrl,
-      // Staging first — production must be synced before becoming primary.
-      if (kReleaseMode) 'https://mint-staging.up.railway.app/api/v1',
+      // Production first — release builds should default to production.
       if (kReleaseMode) 'https://mint-production-3a41.up.railway.app/api/v1',
+      if (kReleaseMode) 'https://mint-staging.up.railway.app/api/v1',
       if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',
       if (!kReleaseMode) 'http://localhost:8888/api/v1',
     ];
