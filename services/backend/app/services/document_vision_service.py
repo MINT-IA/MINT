@@ -29,7 +29,7 @@ def _strip_markdown_fences(raw_text: str) -> str:
     match = _MARKDOWN_FENCE_RE.search(stripped)
     return match.group(1) if match else raw_text
 
-from anthropic import Anthropic
+from anthropic import Anthropic, AsyncAnthropic
 
 from app.core.config import settings
 from app.schemas.document_scan import (
@@ -660,3 +660,481 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
             is_financial=True,
             confidence=ConfidenceLevel.low,
         )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  v2.7 PHASE 28 — Fused understand_document() (DOC-01..05, DOC-08)
+# ═══════════════════════════════════════════════════════════════════════════
+
+import base64 as _b64
+from typing import Any as _Any
+
+from app.schemas.document_understanding import (
+    CommitmentSuggestion as _CommitmentSuggestion,
+    ConfidenceLevel as _ConfidenceLevel,
+    CoherenceWarning as _CoherenceWarning,
+    DocumentClass as _DocumentClass,
+    DocumentUnderstandingResult as _DUR,
+    ExtractedField as _EF,
+    ExtractionStatus as _ES,
+    RenderMode as _RM,
+)
+from app.services import idempotency as _idempotency
+from app.services.document_pdf_preflight import (
+    preflight_pdf as _preflight_pdf,
+    select_pages_for_vision as _select_pages,
+)
+from app.services.document_render_mode import select_render_mode as _select_render_mode
+from app.services.document_third_party import (
+    detect_third_party as _detect_third_party,
+    load_issuer_signatures as _load_signatures,
+)
+from app.services.document_memory_service import (
+    compute_fingerprint as _compute_fingerprint,
+    upsert_and_diff as _upsert_and_diff,
+)
+
+
+# ── tool_use schema (single fused tool) ───────────────────────────────────
+
+ROUTE_AND_EXTRACT_TOOL: dict = {
+    "name": "route_and_extract",
+    "description": (
+        "Classify the Swiss financial document AND extract its fields in a "
+        "single call. Always set extraction_status. If the document is not "
+        "financial, set document_class='non_financial' and explain in summary."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "document_class": {
+                "type": "string",
+                "enum": [c.value for c in _DocumentClass],
+            },
+            "subtype": {"type": ["string", "null"]},
+            "issuer_guess": {"type": ["string", "null"]},
+            "classification_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+            "extracted_fields": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "field_name": {"type": "string"},
+                        "value": {},  # any
+                        "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+                        "source_text": {"type": "string"},
+                    },
+                    "required": ["field_name", "confidence", "source_text"],
+                },
+            },
+            "overall_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+            "extraction_status": {
+                "type": "string",
+                "enum": [s.value for s in _ES],
+            },
+            "summary": {"type": ["string", "null"]},
+            "questions_for_user": {
+                "type": "array",
+                "items": {"type": "string"},
+                "maxItems": 3,
+            },
+            "narrative": {"type": ["string", "null"]},
+            "commitment_suggestion": {
+                "type": ["object", "null"],
+                "properties": {
+                    "when": {"type": ["string", "null"]},
+                    "where": {"type": ["string", "null"]},
+                    "if_then": {"type": ["string", "null"]},
+                    "action_label": {"type": ["string", "null"]},
+                },
+            },
+            "plan_type": {"type": ["string", "null"]},
+            "plan_type_warning": {"type": ["string", "null"]},
+        },
+        "required": ["document_class", "classification_confidence", "overall_confidence"],
+    },
+}
+
+
+# ── helpers ───────────────────────────────────────────────────────────────
+
+def _build_fused_system_prompt(
+    canton: Optional[str], lang: Optional[str], archetype: Optional[str],
+) -> str:
+    sigs = _load_signatures().get("issuers", [])
+    vignettes = "\n".join(
+        f"- {i['name']}: {', '.join(i.get('keywords', [])[:3])} → {', '.join(i.get('document_classes', []))}"
+        for i in sigs[:5]
+    )
+    archetype_hint = ""
+    if archetype == "expat_us":
+        archetype_hint = (
+            "\nUser is US-tagged (FATCA): if foreign mutual fund mentioned outside "
+            "2nd pillar, flag PFIC concern in summary."
+        )
+    elif archetype == "cross_border":
+        archetype_hint = (
+            "\nUser is frontalier: flag impôt source if salary cert from CH employer."
+        )
+    elif archetype == "independent_no_lpp":
+        archetype_hint = (
+            "\nUser is independent without LPP: 3a annual cap is 20% net income, max 36'288."
+        )
+
+    canton_hint = f"User canton: {canton}." if canton else ""
+    lang_hint = (
+        f"Reply in {lang}." if lang in ("fr", "de", "it", "en")
+        else "Reply in French (default UI language)."
+    )
+    return f"""Tu es l'extracteur canonique de documents financiers suisses pour MINT.
+
+UNE seule fonction tool est disponible: route_and_extract. Tu DOIS l'appeler.
+Classification + extraction en un seul appel. Pas de double routing.
+
+Issuers connus (vignettes):
+{vignettes}
+
+Règles:
+- document_class ∈ enum strict (lpp_certificate, salary_certificate, ...).
+- Si le document n'est pas financier suisse → document_class='non_financial',
+  extraction_status='non_financial', extracted_fields=[], summary explique.
+- Si tu ne peux pas extraire → extraction_status='no_fields_found' ou 'parse_error',
+  fournis un narrative court qui dit ce que tu vois SANS inventer de chiffres.
+- summary: 1 phrase, traduction humaine. JAMAIS "garanti", "optimal", "meilleur",
+  "conseiller". Préfère "spécialiste".
+- questions_for_user: max 3, formulées comme dialogue (tu, informel).
+- Confiance par champ ('high'/'medium'/'low') basée sur lisibilité, pas sur
+  ce que tu "penses" être correct.
+- Pourcentages en décimal (6.8% → 0.068).
+- Montants en CHF (sauf indication contraire), pas de séparateur de milliers.
+
+{canton_hint}{archetype_hint}
+{lang_hint}
+"""
+
+
+def _build_vision_block_v2(file_bytes: bytes) -> dict:
+    """Build the Anthropic content block for image or PDF given raw bytes."""
+    is_pdf = file_bytes[:4] == b"%PDF"
+    b64 = _b64.b64encode(file_bytes).decode("ascii")
+    if is_pdf:
+        return {
+            "type": "document",
+            "source": {"type": "base64", "media_type": "application/pdf", "data": b64},
+        }
+    media_type = "image/png" if file_bytes[:4] == b"\x89PNG" else "image/jpeg"
+    return {
+        "type": "image",
+        "source": {"type": "base64", "media_type": media_type, "data": b64},
+    }
+
+
+def _ti_to_result(tool_input: dict, usage: _Any) -> _DUR:
+    """Map tool_use input → DocumentUnderstandingResult."""
+    fields = []
+    for f in (tool_input.get("extracted_fields") or []):
+        try:
+            conf = _ConfidenceLevel(f.get("confidence", "medium"))
+        except Exception:
+            conf = _ConfidenceLevel.medium
+        fields.append(_EF(
+            field_name=f.get("field_name", ""),
+            value=f.get("value"),
+            confidence=conf,
+            source_text=f.get("source_text", "") or "",
+        ))
+
+    try:
+        doc_cls = _DocumentClass(tool_input.get("document_class", "unknown"))
+    except Exception:
+        doc_cls = _DocumentClass.unknown
+
+    status_str = tool_input.get("extraction_status")
+    if not status_str:
+        if doc_cls == _DocumentClass.non_financial:
+            status_str = "non_financial"
+        elif fields:
+            status_str = "success"
+        else:
+            status_str = "no_fields_found"
+    try:
+        status = _ES(status_str)
+    except Exception:
+        status = _ES.no_fields_found
+
+    cs = tool_input.get("commitment_suggestion")
+    commitment = _CommitmentSuggestion(**cs) if isinstance(cs, dict) else None
+
+    tokens_in = int(getattr(usage, "input_tokens", 0) or 0)
+    tokens_out = int(getattr(usage, "output_tokens", 0) or 0)
+
+    return _DUR(
+        document_class=doc_cls,
+        subtype=tool_input.get("subtype"),
+        issuer_guess=tool_input.get("issuer_guess"),
+        classification_confidence=float(tool_input.get("classification_confidence", 0.0) or 0.0),
+        extracted_fields=fields,
+        overall_confidence=float(tool_input.get("overall_confidence", 0.0) or 0.0),
+        extraction_status=status,
+        summary=tool_input.get("summary"),
+        questions_for_user=list(tool_input.get("questions_for_user") or [])[:3],
+        narrative=tool_input.get("narrative"),
+        commitment_suggestion=commitment,
+        plan_type=tool_input.get("plan_type"),
+        plan_type_warning=tool_input.get("plan_type_warning"),
+        render_mode=_RM.narrative,  # placeholder, overwritten by selector
+        cost_tokens_in=tokens_in,
+        cost_tokens_out=tokens_out,
+    )
+
+
+def _build_acroform_result(pre: dict) -> _DUR:
+    """Construct a DocumentUnderstandingResult from an AcroForm preflight."""
+    fields = [
+        _EF(
+            field_name=name,
+            value=value,
+            confidence=_ConfidenceLevel.high,  # PDF form values are exact
+            source_text=f"AcroForm field: {name}",
+        )
+        for name, value in (pre.get("acroform_fields") or {}).items()
+    ]
+    return _DUR(
+        document_class=_DocumentClass.unknown,
+        classification_confidence=0.5,
+        extracted_fields=fields,
+        overall_confidence=0.95 if fields else 0.0,
+        extraction_status=_ES.success if fields else _ES.no_fields_found,
+        summary="Formulaire PDF lu directement (sans IA)." if fields else None,
+        render_mode=_RM.confirm,
+        pages_processed=pre.get("page_count"),
+        pages_total=pre.get("page_count"),
+        cost_tokens_in=0,
+        cost_tokens_out=0,
+    )
+
+
+def _build_encrypted_result(pre: dict) -> _DUR:
+    return _DUR(
+        document_class=_DocumentClass.unknown,
+        classification_confidence=0.0,
+        extracted_fields=[],
+        overall_confidence=0.0,
+        extraction_status=_ES.encrypted_needs_password,
+        summary=(
+            "Ce PDF est protégé par un mot de passe. "
+            "Colle-le ici si tu veux que je le lise — je ne le stocke pas."
+        ),
+        render_mode=_RM.narrative,
+        pages_processed=0,
+        pages_total=pre.get("page_count"),
+        pdf_warning="encrypted_needs_password",
+        cost_tokens_in=0,
+        cost_tokens_out=0,
+    )
+
+
+def _scrub_compliance_text(text: Optional[str]) -> Optional[str]:
+    """Strip banned terms from free-text fields before returning to user.
+
+    ComplianceGuard.validate() expects a CoachContext we don't have here.
+    We use the lower-level _sanitize_banned_terms() which is the same Layer
+    1 sanitisation applied to coach output (covers garanti/optimal/conseiller
+    + inflections + GUARANTEE_REPLACEMENTS).
+    """
+    if not text:
+        return text
+    try:
+        from app.services.coach.compliance_guard import ComplianceGuard
+        guard = ComplianceGuard()
+        return guard._sanitize_banned_terms(text)  # noqa: SLF001 — intended internal use
+    except Exception as exc:
+        logger.warning("compliance scrub failed err=%s", exc)
+        return text
+
+
+async def _call_fused_vision(
+    file_bytes: bytes,
+    pre: Optional[dict],
+    canton: Optional[str],
+    lang: Optional[str],
+    archetype: Optional[str],
+) -> _DUR:
+    """Single Anthropic call — tool_use forced + extended thinking budget."""
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        raise ValueError("ANTHROPIC_API_KEY not configured")
+
+    # Page selection for scanned/long PDFs — keep the bytes for now (Anthropic
+    # PDF block accepts the full file; selection is informational for
+    # downstream cost analysis until we wire per-page extraction).
+    pages_processed: Optional[int] = None
+    pages_total: Optional[int] = None
+    pdf_warning: Optional[str] = None
+    if pre is not None:
+        pages_total = pre.get("page_count")
+        if pre.get("status") == "scanned" or (pages_total or 0) > 4:
+            try:
+                chosen = _select_pages(file_bytes, max_pages=3)
+                pages_processed = len(chosen)
+                if pages_total and pages_processed < pages_total:
+                    pdf_warning = (
+                        f"PDF long ({pages_total} pages) — j'ai lu les "
+                        f"{pages_processed} pages clés."
+                    )
+            except Exception:
+                pages_processed = pages_total
+        else:
+            pages_processed = pages_total
+
+    client = AsyncAnthropic(api_key=api_key)
+    response = await client.messages.create(
+        model=settings.COACH_MODEL,
+        max_tokens=3000,
+        thinking={"type": "enabled", "budget_tokens": 1024},
+        tools=[ROUTE_AND_EXTRACT_TOOL],
+        tool_choice={"type": "tool", "name": "route_and_extract"},
+        system=_build_fused_system_prompt(canton, lang, archetype),
+        messages=[{
+            "role": "user",
+            "content": [
+                _build_vision_block_v2(file_bytes),
+                {"type": "text", "text": "Route and extract."},
+            ],
+        }],
+    )
+
+    # Find tool_use block
+    tool_input: dict = {}
+    for block in response.content:
+        if getattr(block, "type", None) == "tool_use":
+            tool_input = getattr(block, "input", {}) or {}
+            break
+
+    result = _ti_to_result(tool_input, response.usage)
+    if pages_processed is not None:
+        result.pages_processed = pages_processed
+    if pages_total is not None:
+        result.pages_total = pages_total
+    if pdf_warning is not None:
+        result.pdf_warning = pdf_warning
+    return result
+
+
+async def understand_document(
+    file_bytes: bytes,
+    *,
+    user_id: str,
+    canton: Optional[str] = None,
+    lang: Optional[str] = None,
+    profile_archetype: Optional[str] = None,
+    profile_first_name: Optional[str] = None,
+    profile_last_name: Optional[str] = None,
+    partner_first_name: Optional[str] = None,
+    file_sha: Optional[str] = None,
+    db=None,
+) -> _DUR:
+    """Fused classify+extract entrypoint behind DOCUMENTS_V2_ENABLED.
+
+    Returns the canonical DocumentUnderstandingResult with render_mode
+    computed by the deterministic selector. Side-effects:
+        - file_sha-keyed idempotency cache (24h)
+        - DocumentMemory upsert + diff (when db provided)
+        - TokenBudget consume (kind='vision')
+        - ComplianceGuard scrub on summary/narrative/questions_for_user
+    """
+    # 1. Idempotency lookup by file SHA
+    if file_sha:
+        cached = await _idempotency.lookup_by_file_sha(file_sha)
+        if cached is not None:
+            try:
+                return _DUR.model_validate(cached)
+            except Exception as exc:
+                logger.warning("idempotency: cached payload invalid err=%s", exc)
+
+    # 2. PDF preflight (if PDF)
+    is_pdf = file_bytes[:4] == b"%PDF"
+    pre: Optional[dict] = _preflight_pdf(file_bytes) if is_pdf else None
+
+    # 3. Branch routing
+    if pre is not None and pre.get("status") == "encrypted_needs_password":
+        result = _build_encrypted_result(pre)
+    elif pre is not None and pre.get("status") == "acroform":
+        result = _build_acroform_result(pre)
+    else:
+        result = await _call_fused_vision(
+            file_bytes, pre, canton, lang, profile_archetype,
+        )
+
+    # 4. LPP coherence (compat with legacy validator on a list of EF-shaped objs)
+    if result.document_class == _DocumentClass.lpp_certificate and result.extracted_fields:
+        try:
+            # Build minimal ExtractedFieldConfirmation-compatible objects
+            compat = [
+                ExtractedFieldConfirmation(
+                    field_name=f.field_name,
+                    value=f.value,
+                    confidence=f.confidence,
+                    source_text=f.source_text,
+                )
+                for f in result.extracted_fields
+            ]
+            warns = validate_lpp_coherence(compat)
+            if warns:
+                result.coherence_warnings = [
+                    _CoherenceWarning(code="lpp_coherence", message=w, fields=[])
+                    for w in warns
+                ]
+        except Exception as exc:
+            logger.warning("LPP coherence v2 failed err=%s", exc)
+
+    # 5. Render mode (deterministic selector)
+    result.render_mode = _select_render_mode(result)
+
+    # 6. Document Memory upsert + diff
+    if db is not None and result.extraction_status == _ES.success:
+        try:
+            diff = _upsert_and_diff(db, user_id, result)
+            result.diff_from_previous = diff
+            result.fingerprint = _compute_fingerprint(
+                result.document_class.value, result.issuer_guess, None,
+            )
+        except Exception as exc:
+            logger.warning("document_memory upsert failed err=%s", exc)
+
+    # 7. Third-party detection (silent flag)
+    try:
+        flagged, name = _detect_third_party(
+            result, profile_first_name, profile_last_name, partner_first_name,
+        )
+        result.third_party_detected = flagged
+        result.third_party_name = name
+    except Exception as exc:
+        logger.warning("third-party detection failed err=%s", exc)
+
+    # 8. ComplianceGuard scrub on free text
+    result.summary = _scrub_compliance_text(result.summary)
+    result.narrative = _scrub_compliance_text(result.narrative)
+    result.questions_for_user = [
+        _scrub_compliance_text(q) or q for q in result.questions_for_user
+    ]
+
+    # 9. Token budget consume (Vision tokens count too — STAB-04 reuse)
+    try:
+        from app.services.coach.token_budget import TokenBudget
+        await TokenBudget().consume(
+            user_id, result.cost_tokens_in + result.cost_tokens_out,
+        )
+    except Exception as exc:
+        logger.warning("token_budget consume failed err=%s", exc)
+
+    # 10. Idempotency store
+    if file_sha:
+        try:
+            await _idempotency.store_by_file_sha(
+                file_sha, result.model_dump(mode="json"),
+            )
+        except Exception as exc:
+            logger.warning("idempotency store failed err=%s", exc)
+
+    return result

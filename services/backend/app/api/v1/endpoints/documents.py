@@ -40,6 +40,8 @@ from app.schemas.document_scan import (
     VisionExtractionRequest,
     VisionExtractionResponse,
 )
+from app.schemas.document_understanding import DocumentUnderstandingResult
+from typing import Union
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
 
@@ -967,7 +969,10 @@ def _classify_and_reject_if_needed(image_base64: str) -> Optional[str]:
     return None
 
 
-@router.post("/extract-vision", response_model=VisionExtractionResponse)
+@router.post(
+    "/extract-vision",
+    response_model=Union[DocumentUnderstandingResult, VisionExtractionResponse],
+)
 @limiter.limit("10/minute")
 async def extract_with_claude_vision(
     body: VisionExtractionRequest,
@@ -982,11 +987,21 @@ async def extract_with_claude_vision(
     2. Audit log creation — metadata only, no image data (DOC-08)
     3. Finally-block deletion — image cleared even on error (COMP-04)
 
+    v2.7 Phase 28: when DOCUMENTS_V2_ENABLED is on for this user, the new
+    fused understand_document() returns DocumentUnderstandingResult instead
+    of the legacy VisionExtractionResponse. Flag default is False — legacy
+    path stays the prod default until corpus validation in phase 30.
+
     Privacy: image is sent to Claude API for processing but NOT stored.
     Only extracted structured fields are returned.
     """
-    from app.services.document_vision_service import extract_with_vision
+    from app.services.document_vision_service import (
+        extract_with_vision,
+        understand_document,
+    )
     from app.models.document_audit import create_audit_log
+    from app.services.flags_service import flags as _flags
+    from app.services import idempotency as _idempotency
 
     logger.info(
         "Vision extraction: user=%s type=%s canton=%s",
@@ -994,6 +1009,38 @@ async def extract_with_claude_vision(
         body.document_type.value,
         body.canton,
     )
+
+    # ── DOCUMENTS_V2_ENABLED gate (phase 28 fused path) ──
+    v2_enabled = await _flags.is_enabled("DOCUMENTS_V2_ENABLED", str(current_user.id))
+    if v2_enabled:
+        # Decode base64 → raw bytes once; understand_document handles preflight.
+        try:
+            import base64 as _b64
+            file_bytes = _b64.b64decode(body.image_base64 or "")
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid base64 image")
+
+        file_sha = _idempotency.sha256_hex(file_bytes)
+        try:
+            result = await understand_document(
+                file_bytes=file_bytes,
+                user_id=str(current_user.id),
+                canton=body.canton,
+                lang=body.language_hint,
+                file_sha=file_sha,
+                db=db,
+            )
+            return result
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            logger.error("understand_document failed: %s", e)
+            raise HTTPException(
+                status_code=502,
+                detail="Document extraction failed. Please try again.",
+            )
+        finally:
+            body.image_base64 = ""  # in-memory cleanup
 
     # ── Step 1: Pre-extraction classification (DOC-10) ──
     rejection_message = _classify_and_reject_if_needed(body.image_base64)
