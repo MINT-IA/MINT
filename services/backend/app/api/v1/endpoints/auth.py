@@ -151,41 +151,15 @@ def _require_admin_user(user: User) -> None:
 
 
 def _ensure_empty_profile(db: Session, user_id: str) -> None:
-    """Auto-create an empty ProfileModel for a freshly-created user.
+    """Thin wrapper kept for callers inside this module.
 
-    Without this, GET /profiles/me returns 404 forever until the mobile
-    client manually POSTs a profile — which it currently never does, so
-    every screen downstream (Aujourd'hui, Explorer, Coach) falls back to
-    "Crée ton compte" copy even after successful auth. Root cause: no
-    profile ever materialises on first login.
-
-    Idempotent: no-op if the user already has at least one profile.
+    Real implementation lives in :mod:`app.services.profile_bootstrap`
+    so every auth path (register, magic link, Apple) shares the same
+    bootstrap logic. Callers here remain responsible for db.commit().
     """
-    existing = (
-        db.query(ProfileModel).filter(ProfileModel.user_id == user_id).first()
-    )
-    if existing is not None:
-        return
-    now = datetime.now(timezone.utc)
-    profile_id = str(uuid4())
-    profile_data = {
-        "id": profile_id,
-        "createdAt": now.isoformat(),
-        "householdType": "single",
-        "hasDebt": False,
-        "goal": "other",
-        "factfindCompletionIndex": 0.0,
-        "isChurchMember": False,
-    }
-    profile = ProfileModel(
-        id=profile_id,
-        user_id=user_id,
-        data=profile_data,
-        created_at=now,
-        updated_at=now,
-    )
-    db.add(profile)
-    # Caller is responsible for db.commit()
+    from app.services.profile_bootstrap import ensure_empty_profile
+
+    ensure_empty_profile(db, user_id, commit=False)
 
 
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
