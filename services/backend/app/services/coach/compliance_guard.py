@@ -368,12 +368,13 @@ class ComplianceGuard:
         text = unicodedata.normalize("NFKC", text)
 
         # ── Pre-check: wrong language (basic heuristic) ──
-        # NOTE: log only, never fallback. Too many false positives with
-        # conversational French that uses English tech terms ("ETF", "cash",
-        # "score", etc.) or when Claude quotes the user's English words.
+        # NOTE: log-only by default. Modern French finance uses English tech
+        # terms (ETF, cash, score, KPI). Detecting "you/the/with" 3 times
+        # kills legitimate French responses. Defense is in the prompt.
         language_violations = self._check_language(text)
         if language_violations:
             violations.extend(language_violations)
+            # use_fallback intentionally NOT set — log only.
 
         # ── Layer 1: Banned terms ──
         # Strip negated guarantees (e.g. "rien n'est garanti") from the
@@ -410,25 +411,23 @@ class ComplianceGuard:
             )
 
         # ── Layer 2b: High-register drift (N4/N5 only) ──
-        # Phase 11 / VOICE-08. Activates only when caller signals the
-        # generation was attempted at high register. These rules catch
-        # imperative-without-hedge, judging the emitter, social/age
-        # shaming, and named-product drift — the failure modes that
-        # high-register voice tends to produce. See HIGH_REGISTER_DRIFT_PATTERNS.
+        # NOTE: log-only. N4/N5 cursor not yet active in production today.
+        # Keeping the detector wired but non-blocking lets us observe drift
+        # in telemetry without killing responses. When N4/N5 is activated,
+        # re-enable the `use_fallback = True` branch after validating the
+        # patterns against real high-register generations.
         if cursor_level in ("N4", "N5"):
             drift_found = self._check_high_register_drift(text)
             if drift_found:
-                logger.warning(
-                    "ComplianceGuard L2b: high-register drift %s level=%s in %s user=%s",
+                logger.info(
+                    "ComplianceGuard L2b: drift %s level=%s component=%s user=%s "
+                    "(logged, not enforced)",
                     drift_found, cursor_level, component_type, user_id or "anonymous",
                 )
                 violations.extend(
                     [f"Drift {cat}: '{label}'" for (cat, label) in drift_found]
                 )
-                use_fallback = True
-                fallback_reasons.append(
-                    f"high_register_drift level={cursor_level} hits={drift_found[:3]}"
-                )
+                # use_fallback intentionally NOT set — log only.
 
         # ── Layer 3: Hallucination detection ──
         if context and context.known_values:
