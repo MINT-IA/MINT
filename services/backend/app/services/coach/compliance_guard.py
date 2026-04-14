@@ -430,19 +430,45 @@ class ComplianceGuard:
                 # use_fallback intentionally NOT set — log only.
 
         # ── Layer 3: Hallucination detection ──
+        # Threshold-based: only MAJOR deviations (>= 30%) trigger fallback.
+        # Minor deviations (< 30%) are logged and the response is preserved —
+        # small numeric drift (e.g. 7.0% conversion rate vs 6.8%) is closer
+        # to a rounding slip than a material hallucination, and killing the
+        # whole reply over it silently erases substantive coach output.
+        # Major deviations (>= 30%) still fallback: these are genuine
+        # fabrications (e.g. "tu as 500k LPP" when user has 70k).
+        _HALLUCINATION_MAJOR_THRESHOLD_PCT = 30.0
         if context and context.known_values:
             hallucinations = self._detector.detect(text, context.known_values)
             if hallucinations:
+                major = [h for h in hallucinations if h.deviation_pct >= _HALLUCINATION_MAJOR_THRESHOLD_PCT]
+                minor = [h for h in hallucinations if h.deviation_pct < _HALLUCINATION_MAJOR_THRESHOLD_PCT]
                 for h in hallucinations:
                     violations.append(
                         f"Hallucination: '{h.found_text}' "
                         f"(attendu ~{h.closest_value}, trouvé {h.found_value}, "
                         f"déviation {h.deviation_pct:.1f}%)"
                     )
-                use_fallback = True  # Hallucinated numbers = always fallback
-                fallback_reasons.append(
-                    f"hallucination hits={[(h.found_text, h.found_value, h.closest_value) for h in hallucinations[:3]]}"
-                )
+                if minor:
+                    logger.info(
+                        "ComplianceGuard L3: minor hallucinations (<%s%%) "
+                        "component=%s user=%s hits=%s (logged, response preserved)",
+                        _HALLUCINATION_MAJOR_THRESHOLD_PCT,
+                        component_type, user_id or "anonymous",
+                        [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in minor[:5]],
+                    )
+                if major:
+                    logger.warning(
+                        "ComplianceGuard L3: MAJOR hallucinations (>=%s%%) "
+                        "component=%s user=%s hits=%s",
+                        _HALLUCINATION_MAJOR_THRESHOLD_PCT,
+                        component_type, user_id or "anonymous",
+                        [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in major[:5]],
+                    )
+                    use_fallback = True
+                    fallback_reasons.append(
+                        f"hallucination_major hits={[(h.found_text, h.found_value, h.closest_value) for h in major[:3]]}"
+                    )
 
         # ── Layer 4: Disclaimer injection ──
         if not use_fallback:
