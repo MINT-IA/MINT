@@ -227,6 +227,63 @@ def _hash_key(key: str) -> str:
     return hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
 
 
+# ── Third-party session store (PRIV-02) ─────────────────────────────────────
+#
+# Atomic third-party values (partner's salary, avoir_lpp, AVS number) must
+# NEVER land in profile_facts. They are held in a Redis session bucket with a
+# 2-hour TTL and disappear at session end. Aggregated outputs computed by the
+# coach (e.g. household_ratio "62% / 38%") go through the normal persist_fact
+# path because they carry no atomic third-party signal.
+
+THIRD_PARTY_SESSION_TTL_SECONDS = 2 * 3600  # 2h
+
+
+def _persist_third_party_session(
+    *, user_id: str, session_id: str, key: str, value: Any
+) -> bool:
+    """Write a third-party fact to Redis with session TTL. Fail-open True.
+
+    Returns True when the value was written (or when Redis is unreachable —
+    the privacy gate already passed). The store key is
+    ``tpf:{session_id}:{hashed_key}`` — short, prefixed, user-agnostic
+    because the session itself is scoped to a single user.
+    """
+    try:
+        import asyncio
+        from app.core.redis_client import get_redis
+
+        async def _write() -> bool:
+            r = await get_redis()
+            if r is None:
+                logger.info(
+                    "third_party_fact: redis unavailable — accepted but not stored key_hash=%s",
+                    _hash_key(key),
+                )
+                return True
+            store_key = f"tpf:{session_id}:{_hash_key(key)}"
+            await r.setex(
+                store_key,
+                THIRD_PARTY_SESSION_TTL_SECONDS,
+                str(value) if value is not None else "",
+            )
+            return True
+
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                fut = asyncio.run_coroutine_threadsafe(_write(), loop)
+                return fut.result(timeout=1.0)
+        except RuntimeError:
+            pass
+        return asyncio.run(_write())
+    except Exception as exc:  # pragma: no cover — defensive
+        logger.warning(
+            "third_party_fact: session store failed (%s) — accepting without persistence",
+            type(exc).__name__,
+        )
+        return True
+
+
 def persist_fact(
     db: Optional[Session],
     user_id: str,
@@ -234,6 +291,8 @@ def persist_fact(
     value: Any,
     *,
     source: str = "coach",
+    is_third_party: bool = False,
+    session_id: Optional[str] = None,
 ) -> bool:
     """Persist a single fact_key to ``profile_facts`` (PRIV-06).
 
@@ -268,6 +327,21 @@ def persist_fact(
             source,
         )
         return False
+
+    # PRIV-02: third-party atoms bypass profile_facts entirely — routed to
+    # the Redis session store with a short TTL. No raw key or value is ever
+    # logged; only the hashed key appears in observability.
+    if is_third_party:
+        sess = session_id or "anon"
+        logger.info(
+            "fact_key third_party_routed key_hash=%s session=%s ttl_s=%d",
+            _hash_key(key),
+            sess[:8],
+            THIRD_PARTY_SESSION_TTL_SECONDS,
+        )
+        return _persist_third_party_session(
+            user_id=user_id, session_id=sess, key=key, value=value
+        )
 
     purpose = purpose_of(key)
     ttl_days = ttl_days_of(key)

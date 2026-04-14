@@ -19,6 +19,11 @@ class ConsentPurpose(str, Enum):
     PERSISTENCE_365D = "persistence_365d"
     TRANSFER_US_ANTHROPIC = "transfer_us_anthropic"
     COUPLE_PROJECTION = "couple_projection"
+    # v2.7 Phase 29 / PRIV-02: nominative declaration per uploaded doc_hash.
+    # Unlike the 4 global purposes above, this one is granted *per-upload* and
+    # carries extra fields (subjectName, subjectRole, declaredDocHash,
+    # declaredFromIp) inside receipt_json.
+    THIRD_PARTY_ATTESTATION = "third_party_attestation"
 
 
 class _Base(BaseModel):
@@ -32,6 +37,18 @@ class _Base(BaseModel):
 class ConsentGrantRequest(_Base):
     purpose: ConsentPurpose
     policy_version: str = Field(..., description="Privacy policy version, e.g. v2.3.0")
+
+
+class ConsentGrantNominativeRequest(_Base):
+    """PRIV-02: opposable declaration for a detected third party on an upload."""
+
+    subject_name: str = Field(..., min_length=1, max_length=200)
+    doc_hash: str = Field(..., min_length=16, max_length=128)
+    subject_role: str = Field(
+        default="declared_other",
+        pattern=r"^(declared_partner|declared_other)$",
+    )
+    policy_version: str = Field(default="v2.3.0")
 
 
 class ConsentReceiptOut(_Base):

@@ -19,6 +19,7 @@ from app.services.consent import merkle_chain
 from app.services.consent.receipt_builder import (
     build_receipt,
     compute_policy_hash,
+    hash_ip,
     sign_receipt,
 )
 from app.services.encryption.key_vault import key_vault as _key_vault
@@ -78,6 +79,65 @@ class ConsentService:
             db,
             user_id=user_id,
             purpose=purpose,
+            policy_version=policy_version,
+            policy_hash=receipt_json["policyHash"],
+            receipt_id=receipt_json["receiptId"],
+            consent_timestamp=now,
+            receipt_json=receipt_json,
+            prev_hash=receipt_json["prevHash"],
+            signature=signature,
+        )
+        return row
+
+    # -- grant nominative (PRIV-02) -------------------------------------------
+    def grant_nominative(
+        self,
+        db,
+        *,
+        user_id: str,
+        subject_name: str,
+        doc_hash: str,
+        declared_from_ip: Optional[str],
+        policy_version: str = "v2.3.0",
+        subject_role: str = "declared_other",
+    ) -> ConsentModel:
+        """Create a THIRD_PARTY_ATTESTATION receipt bound to (doc_hash, subject_name).
+
+        The receipt is signed + merkle-chained like every other consent row but
+        its `receipt_json` carries three extra fields that make it opposable:
+
+            - subjectName      : the detected PERSON string (never hashed —
+                                 audit requires the same string the user saw).
+            - subjectRole      : "declared_partner" | "declared_other".
+            - declaredDocHash  : sha256 of the uploaded file bytes; gate
+                                 requires an exact match before proceeding.
+            - declaredFromIp   : HMAC-SHA256 of raw IP truncated to 16 bytes;
+                                 audit can cluster without PII exposure.
+
+        Per D-PRIV-02: one receipt per (user, doc_hash) — no receipt reuse
+        across documents. The gate enforces this via the doc_hash match.
+        """
+        prev_signature = merkle_chain.latest_signature(db, user_id)
+        now = datetime.now(timezone.utc)
+        extra = {
+            "subjectName": subject_name,
+            "subjectRole": subject_role,
+            "declaredDocHash": doc_hash,
+            "declaredFromIp": hash_ip(declared_from_ip),
+        }
+        receipt_json = build_receipt(
+            user_id=user_id,
+            purpose="third_party_attestation",
+            policy_version=policy_version,
+            prev_signature=prev_signature,
+            now=now,
+            extra=extra,
+        )
+        signature = sign_receipt(receipt_json)
+        row = merkle_chain.append_receipt(
+            db,
+            user_id=user_id,
+            purpose="third_party_attestation",
             policy_version=policy_version,
             policy_hash=receipt_json["policyHash"],
             receipt_id=receipt_json["receiptId"],

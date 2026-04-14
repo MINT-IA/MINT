@@ -14,7 +14,7 @@ Auth: JWT-gated, user_id derived from session never from body (T-29-10).
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
@@ -22,6 +22,7 @@ from app.core.database import get_db
 from app.models.consent import ConsentModel
 from app.models.user import User
 from app.schemas.consent_receipt import (
+    ConsentGrantNominativeRequest,
     ConsentGrantRequest,
     ConsentListResponse,
     ConsentPurpose,
@@ -79,6 +80,36 @@ def grant_consent(
         user_id=_user.id,
         purpose=request.purpose.value,
         policy_version=request.policy_version,
+    )
+    return _to_out(row)
+
+
+@router.post("/grant-nominative", response_model=ConsentReceiptOut)
+def grant_nominative_consent(
+    request: ConsentGrantNominativeRequest,
+    http_request: Request,
+    _user: User = Depends(require_current_user),
+    db: Session = Depends(get_db),
+) -> ConsentReceiptOut:
+    """PRIV-02: opposable declaration for a detected third party.
+
+    Binds the nominative receipt to (user_id, subject_name, doc_hash). Client
+    normally hits this in response to a 428 Precondition Required from the
+    upload flow.
+    """
+    client_ip = None
+    try:
+        client_ip = http_request.client.host if http_request.client else None
+    except Exception:  # pragma: no cover — defensive
+        client_ip = None
+    row = consent_service.grant_nominative(
+        db,
+        user_id=_user.id,
+        subject_name=request.subject_name,
+        doc_hash=request.doc_hash,
+        declared_from_ip=client_ip,
+        policy_version=request.policy_version,
+        subject_role=request.subject_role,
     )
     return _to_out(row)
 

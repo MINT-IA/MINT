@@ -1067,7 +1067,34 @@ async def extract_with_claude_vision(
                 file_sha=file_sha,
                 db=db,
             )
+            # v2.7 Phase 29 / PRIV-02: block persistence when a third-party
+            # name was detected and no fresh opposable declaration exists for
+            # this exact doc_hash. Client retries after POST to
+            # /consents/grant-nominative.
+            from app.services.document_third_party import (
+                ThirdPartyDeclarationRequired,
+                require_declaration_or_block,
+            )
+            try:
+                require_declaration_or_block(
+                    db,
+                    user_id=str(current_user.id),
+                    understanding=result,
+                    doc_hash=file_sha,
+                )
+            except ThirdPartyDeclarationRequired as gate:
+                raise HTTPException(
+                    status_code=428,
+                    detail={
+                        "code": "third_party_declaration_required",
+                        "subjectNames": gate.subject_names,
+                        "docHash": gate.doc_hash,
+                        "declarationEndpoint": "/api/v1/consents/grant-nominative",
+                    },
+                )
             return result
+        except HTTPException:
+            raise
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:

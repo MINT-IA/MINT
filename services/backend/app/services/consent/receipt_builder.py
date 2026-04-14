@@ -100,6 +100,20 @@ def verify_signature(receipt_json: Dict[str, Any], signature: str) -> bool:
     return hmac.compare_digest(expected, signature)
 
 
+def hash_ip(ip: Optional[str]) -> str:
+    """Return 16-byte HMAC-SHA256 hex digest of an IP (or empty string).
+
+    Uses `MINT_IP_SALT` env var as HMAC key. Deterministic for a given salt so
+    audits can cluster receipts by source without exposing raw IPs. Truncated
+    to 16 bytes (32 hex chars) — plenty of collision resistance for audit, and
+    short enough to stay compact in receipt_json.
+    """
+    salt = (os.environ.get("MINT_IP_SALT") or "mint-dev-ip-salt").encode("utf-8")
+    raw = (ip or "").encode("utf-8")
+    digest = hmac.new(salt, raw, hashlib.sha256).hexdigest()
+    return digest[:32]
+
+
 def build_receipt(
     *,
     user_id: str,
@@ -108,6 +122,7 @@ def build_receipt(
     prev_signature: Optional[str],
     receipt_id: Optional[str] = None,
     now: Optional[datetime] = None,
+    extra: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Return a fully-formed ISO 29184 receipt dict, unsigned.
 
@@ -121,7 +136,7 @@ def build_receipt(
         if prev_signature
         else None
     )
-    return {
+    receipt: Dict[str, Any] = {
         "receiptId": rid,
         "piiPrincipalId": piiprincipal_hash(user_id),
         "piiController": PII_CONTROLLER,
@@ -135,3 +150,9 @@ def build_receipt(
         "revocationEndpoint": f"/api/v1/consents/{rid}/revoke",
         "prevHash": prev_hash,
     }
+    if extra:
+        # Nominative extras (PRIV-02) are additive — never overwrite core fields.
+        for k, v in extra.items():
+            if k not in receipt:
+                receipt[k] = v
+    return receipt
