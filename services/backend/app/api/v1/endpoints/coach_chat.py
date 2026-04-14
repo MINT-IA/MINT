@@ -59,8 +59,12 @@ from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
-# SEC-6: PII patterns to scrub from user messages before LLM processing
-_PII_PATTERNS = [
+# SEC-6 / PRIV-03 — PII scrubbing now delegates to the centralized
+# privacy.pii_scrubber module (Presidio + custom CH recognizers + regex
+# fallback). The legacy regex list below is kept ONLY as the safety net
+# triggered if the privacy module fails to import (e.g. mis-configured
+# deploy). Normal path goes through ``_scrub_pii``'s wrapper.
+_LEGACY_PII_PATTERNS = [
     re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}"),  # IBAN
     re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # AHV/AVS
     re.compile(r"\b\d{4,7}\s*(?:CHF|francs?)\b", re.IGNORECASE),  # salary
@@ -68,10 +72,18 @@ _PII_PATTERNS = [
 
 
 def _scrub_pii(text: str) -> str:
-    """Remove PII patterns from text (defense-in-depth)."""
-    for pattern in _PII_PATTERNS:
-        text = pattern.sub("[***]", text)
-    return text
+    """Remove PII patterns from text. Delegates to privacy.pii_scrubber.
+
+    PRIV-03 — Phase 29 upgrade. Falls back to the legacy regex list only
+    if the privacy module is unavailable (defense-in-depth).
+    """
+    try:
+        from app.services.privacy.pii_scrubber import scrub
+        return scrub(text, mode="mask")
+    except Exception:  # pragma: no cover — should never trigger in prod
+        for pattern in _LEGACY_PII_PATTERNS:
+            text = pattern.sub("[***]", text)
+        return text
 
 
 router = APIRouter()

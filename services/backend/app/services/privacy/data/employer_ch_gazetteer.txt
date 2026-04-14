@@ -1,0 +1,36 @@
+# MINT-curated CH employer gazetteer — top 20 by headcount.
+# One entry per line, lower-case match. Plain string contains, no regex.
+# Source: SECO 2024 + OFS Statistique des entreprises 2023.
+# Extend cautiously: false positives in ordinary French text are costly.
+ubs
+credit suisse
+raiffeisen
+postfinance
+swisscom
+sunrise
+salt
+cff
+sbb
+nestlé
+nestle
+roche
+novartis
+abb
+zurich insurance
+swiss re
+swiss life
+helvetia
+mobiliere
+migros
+coop
+la poste
+swiss post
+google switzerland
+ibm switzerland
+sika
+lonza
+holcim
+glencore
+adecco
+manpower
+randstad
