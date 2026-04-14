@@ -39902,6 +39902,54 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'À vérifier par un œil humain'**
   String get humanReviewBadge;
+
+  /// Phase 29-05 — title of the opposable declaration sheet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un moment avant de continuer'**
+  String get thirdPartyDeclarationTitle;
+
+  /// Phase 29-05 — single-subject declaration body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document ?'**
+  String thirdPartyDeclarationBody(String name);
+
+  /// Phase 29-05 — multi-subject declaration body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document ?'**
+  String thirdPartyDeclarationMultipleBody(String names);
+
+  /// Phase 29-05 — primary CTA (grants the nominative receipt).
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, j\'ai son consentement'**
+  String get thirdPartyDeclarationConfirm;
+
+  /// Phase 29-05 — cancel CTA (aborts the upload).
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, annuler l\'upload'**
+  String get thirdPartyDeclarationCancel;
+
+  /// Phase 29-05 — secondary CTA (logs intent, real invite deferred).
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter {name} sur MINT'**
+  String thirdPartyInviteCta(String name);
+
+  /// Phase 29-05 — toast shown after tapping the invite stub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invitation bientôt disponible — on note ton intention.'**
+  String get thirdPartyInviteComingSoon;
+
+  /// Phase 29-05 — nLPD art. 19 notice text shown below the body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.'**
+  String get thirdPartyDeclarationNoticeLink;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

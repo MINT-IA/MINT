@@ -22812,4 +22812,36 @@ class SIt extends S {
 
   @override
   String get humanReviewBadge => 'Serve occhio umano';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Un momento prima di continuare';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Confermi di aver ottenuto il consenso di $name affinché MINT tratti questo documento?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Confermi di aver ottenuto il consenso di $names affinché MINT tratti questo documento?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Sì, ho il suo consenso';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'No, annulla il caricamento';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return 'Invita $name su MINT';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Inviti in arrivo — abbiamo registrato la tua intenzione.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Senza il suo consenso, MINT non può trattare i dati di un\'altra persona.';
 }

@@ -10916,5 +10916,16 @@
   "fieldCorrectionCancel": "Cancelar",
   "renderModeRejectBannerSanity": "Um valor parece impossível. MINT preferiu parar.",
   "renderModeRejectBannerGuard": "MINT não pôde apresentar este resumo de forma educativa. Verifica os números crus.",
-  "humanReviewBadge": "Precisa de olho humano"
+  "humanReviewBadge": "Precisa de olho humano",
+  "thirdPartyDeclarationTitle": "Um momento antes de continuar",
+  "thirdPartyDeclarationBody": "Confirmas ter obtido o consentimento de {name} para o MINT processar este documento?",
+  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyDeclarationMultipleBody": "Confirmas ter obtido o consentimento de {names} para o MINT processar este documento?",
+  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "thirdPartyDeclarationConfirm": "Sim, tenho o seu consentimento",
+  "thirdPartyDeclarationCancel": "Não, cancelar upload",
+  "thirdPartyInviteCta": "Convidar {name} para o MINT",
+  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyInviteComingSoon": "Convites em breve — registámos a tua intenção.",
+  "thirdPartyDeclarationNoticeLink": "Sem o consentimento dela, o MINT não pode tratar os dados de outra pessoa."
 }

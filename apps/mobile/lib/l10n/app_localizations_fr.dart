@@ -22753,4 +22753,36 @@ class SFr extends S {
 
   @override
   String get humanReviewBadge => 'À vérifier par un œil humain';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Un moment avant de continuer';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Tu confirmes avoir obtenu le consentement de $name pour que MINT traite ce document ?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Tu confirmes avoir obtenu le consentement de $names pour que MINT traite ce document ?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Oui, j\'ai son consentement';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'Non, annuler l\'upload';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return 'Inviter $name sur MINT';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Invitation bientôt disponible — on note ton intention.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.';
 }

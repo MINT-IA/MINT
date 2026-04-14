@@ -22806,4 +22806,36 @@ class SDe extends S {
 
   @override
   String get humanReviewBadge => 'Braucht ein menschliches Auge';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Einen Moment bevor wir fortfahren';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Bestätigst du, dass du die Einwilligung von $name hast, damit MINT dieses Dokument verarbeitet?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Bestätigst du, dass du die Einwilligung von $names hast, damit MINT dieses Dokument verarbeitet?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Ja, ich habe die Einwilligung';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'Nein, Upload abbrechen';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return '$name zu MINT einladen';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Einladungen folgen bald — wir haben deine Absicht notiert.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Ohne Einwilligung kann MINT die Daten einer anderen Person nicht verarbeiten.';
 }

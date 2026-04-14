@@ -10916,5 +10916,16 @@
   "fieldCorrectionCancel": "Abbrechen",
   "renderModeRejectBannerSanity": "Ein Wert erschien unmöglich. MINT hat gestoppt.",
   "renderModeRejectBannerGuard": "MINT konnte diese Zusammenfassung nicht lehrreich aufbereiten. Prüfe die Rohzahlen.",
-  "humanReviewBadge": "Braucht ein menschliches Auge"
+  "humanReviewBadge": "Braucht ein menschliches Auge",
+  "thirdPartyDeclarationTitle": "Einen Moment bevor wir fortfahren",
+  "thirdPartyDeclarationBody": "Bestätigst du, dass du die Einwilligung von {name} hast, damit MINT dieses Dokument verarbeitet?",
+  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyDeclarationMultipleBody": "Bestätigst du, dass du die Einwilligung von {names} hast, damit MINT dieses Dokument verarbeitet?",
+  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "thirdPartyDeclarationConfirm": "Ja, ich habe die Einwilligung",
+  "thirdPartyDeclarationCancel": "Nein, Upload abbrechen",
+  "thirdPartyInviteCta": "{name} zu MINT einladen",
+  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyInviteComingSoon": "Einladungen folgen bald — wir haben deine Absicht notiert.",
+  "thirdPartyDeclarationNoticeLink": "Ohne Einwilligung kann MINT die Daten einer anderen Person nicht verarbeiten."
 }

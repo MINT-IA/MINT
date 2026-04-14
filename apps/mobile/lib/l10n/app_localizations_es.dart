@@ -22751,4 +22751,36 @@ class SEs extends S {
 
   @override
   String get humanReviewBadge => 'Necesita revisión humana';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Un momento antes de continuar';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return '¿Confirmas haber obtenido el consentimiento de $name para que MINT procese este documento?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return '¿Confirmas haber obtenido el consentimiento de $names para que MINT procese este documento?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Sí, tengo su consentimiento';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'No, cancelar envío';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return 'Invitar a $name a MINT';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Invitaciones próximamente — tomamos nota de tu intención.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Sin su consentimiento, MINT no puede procesar los datos de otra persona.';
 }

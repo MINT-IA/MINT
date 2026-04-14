@@ -22756,4 +22756,36 @@ class SPt extends S {
 
   @override
   String get humanReviewBadge => 'Precisa de olho humano';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Um momento antes de continuar';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Confirmas ter obtido o consentimento de $name para o MINT processar este documento?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Confirmas ter obtido o consentimento de $names para o MINT processar este documento?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Sim, tenho o seu consentimento';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'Não, cancelar upload';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return 'Convidar $name para o MINT';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Convites em breve — registámos a tua intenção.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Sem o consentimento dela, o MINT não pode tratar os dados de outra pessoa.';
 }

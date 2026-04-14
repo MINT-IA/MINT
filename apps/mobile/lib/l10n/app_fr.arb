@@ -11625,5 +11625,40 @@
   "fieldCorrectionCancel": "Annuler",
   "renderModeRejectBannerSanity": "Une valeur paraît impossible. MINT a préféré s'arrêter.",
   "renderModeRejectBannerGuard": "MINT n'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.",
-  "humanReviewBadge": "À vérifier par un œil humain"
+  "humanReviewBadge": "À vérifier par un œil humain",
+  "thirdPartyDeclarationTitle": "Un moment avant de continuer",
+  "@thirdPartyDeclarationTitle": {
+    "description": "Phase 29-05 — title of the opposable declaration sheet."
+  },
+  "thirdPartyDeclarationBody": "Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document\u00a0?",
+  "@thirdPartyDeclarationBody": {
+    "description": "Phase 29-05 — single-subject declaration body.",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "thirdPartyDeclarationMultipleBody": "Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document\u00a0?",
+  "@thirdPartyDeclarationMultipleBody": {
+    "description": "Phase 29-05 — multi-subject declaration body.",
+    "placeholders": {"names": {"type": "String"}}
+  },
+  "thirdPartyDeclarationConfirm": "Oui, j'ai son consentement",
+  "@thirdPartyDeclarationConfirm": {
+    "description": "Phase 29-05 — primary CTA (grants the nominative receipt)."
+  },
+  "thirdPartyDeclarationCancel": "Non, annuler l'upload",
+  "@thirdPartyDeclarationCancel": {
+    "description": "Phase 29-05 — cancel CTA (aborts the upload)."
+  },
+  "thirdPartyInviteCta": "Inviter {name} sur MINT",
+  "@thirdPartyInviteCta": {
+    "description": "Phase 29-05 — secondary CTA (logs intent, real invite deferred).",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "thirdPartyInviteComingSoon": "Invitation bientôt disponible — on note ton intention.",
+  "@thirdPartyInviteComingSoon": {
+    "description": "Phase 29-05 — toast shown after tapping the invite stub."
+  },
+  "thirdPartyDeclarationNoticeLink": "Sans son accord, MINT ne peut pas traiter les données d'une autre personne.",
+  "@thirdPartyDeclarationNoticeLink": {
+    "description": "Phase 29-05 — nLPD art. 19 notice text shown below the body."
+  }
 }

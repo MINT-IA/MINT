@@ -10916,5 +10916,16 @@
   "fieldCorrectionCancel": "Annulla",
   "renderModeRejectBannerSanity": "Un valore sembra impossibile. MINT ha preferito fermarsi.",
   "renderModeRejectBannerGuard": "MINT non ha potuto presentare il riepilogo in modo didattico. Controlla i numeri grezzi.",
-  "humanReviewBadge": "Serve occhio umano"
+  "humanReviewBadge": "Serve occhio umano",
+  "thirdPartyDeclarationTitle": "Un momento prima di continuare",
+  "thirdPartyDeclarationBody": "Confermi di aver ottenuto il consenso di {name} affinché MINT tratti questo documento?",
+  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyDeclarationMultipleBody": "Confermi di aver ottenuto il consenso di {names} affinché MINT tratti questo documento?",
+  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "thirdPartyDeclarationConfirm": "Sì, ho il suo consenso",
+  "thirdPartyDeclarationCancel": "No, annulla il caricamento",
+  "thirdPartyInviteCta": "Invita {name} su MINT",
+  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyInviteComingSoon": "Inviti in arrivo — abbiamo registrato la tua intenzione.",
+  "thirdPartyDeclarationNoticeLink": "Senza il suo consenso, MINT non può trattare i dati di un'altra persona."
 }

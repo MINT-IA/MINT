@@ -10916,5 +10916,16 @@
   "fieldCorrectionCancel": "Cancel",
   "renderModeRejectBannerSanity": "A value looked impossible. MINT chose to stop.",
   "renderModeRejectBannerGuard": "MINT couldn't present this summary educationally. Check the raw numbers.",
-  "humanReviewBadge": "Needs a human eye"
+  "humanReviewBadge": "Needs a human eye",
+  "thirdPartyDeclarationTitle": "One moment before we continue",
+  "thirdPartyDeclarationBody": "Do you confirm you obtained {name}'s consent for MINT to process this document?",
+  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyDeclarationMultipleBody": "Do you confirm you obtained consent from {names} for MINT to process this document?",
+  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "thirdPartyDeclarationConfirm": "Yes, I have their consent",
+  "thirdPartyDeclarationCancel": "No, cancel upload",
+  "thirdPartyInviteCta": "Invite {name} to MINT",
+  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "thirdPartyInviteComingSoon": "Invitations coming soon — we noted your intent.",
+  "thirdPartyDeclarationNoticeLink": "Without their consent, MINT cannot process another person's data."
 }

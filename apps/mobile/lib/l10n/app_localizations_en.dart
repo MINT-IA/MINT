@@ -22641,4 +22641,36 @@ class SEn extends S {
 
   @override
   String get humanReviewBadge => 'Needs a human eye';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'One moment before we continue';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Do you confirm you obtained $name\'s consent for MINT to process this document?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Do you confirm you obtained consent from $names for MINT to process this document?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Yes, I have their consent';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'No, cancel upload';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return 'Invite $name to MINT';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Invitations coming soon — we noted your intent.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Without their consent, MINT cannot process another person\'s data.';
 }
