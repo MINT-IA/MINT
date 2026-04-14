@@ -64,3 +64,8 @@ key.properties
 *.jks
 *.keystore
 coverage.xml
+# Golden test failures - never commit
+apps/mobile/test/golden_screenshots/failures/
+apps/mobile/test/goldens/failures/
+services/backend/MagicMock/
+test_anonymous_chat.db
