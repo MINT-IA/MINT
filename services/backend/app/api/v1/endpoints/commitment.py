@@ -141,7 +141,19 @@ def create_commitment(
     db.commit()
     db.refresh(device)
 
-    logger.info("Commitment created: user=%s id=%s", user.id, device.id)
+    if device.reminder_at is not None:
+        logger.info(
+            "Commitment created: user=%s id=%s reminder_at=%s",
+            user.id,
+            device.id,
+            device.reminder_at.isoformat(),
+        )
+    else:
+        logger.info(
+            "Commitment created: user=%s id=%s (no reminder scheduled)",
+            user.id,
+            device.id,
+        )
 
     return CommitmentResponse.model_validate(device)
 

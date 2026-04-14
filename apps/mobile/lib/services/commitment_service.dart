@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/notification_service.dart';
 
 // ────────────────────────────────────────────────────────────
 //  COMMITMENT SERVICE — Phase 14 / CMIT-01 + CMIT-02
@@ -73,6 +74,44 @@ class CommitmentService {
       code: 'save_failed',
       message: 'Failed to save commitment (${response.statusCode}).',
     );
+  }
+
+  /// Accept a commitment: saves it to backend AND schedules a local
+  /// notification reminder if the backend returned a valid `reminderAt`.
+  ///
+  /// Centralizes the CMIT-02 notification scheduling so callers don't have
+  /// to wire both `saveCommitment` + `NotificationService.scheduleCommitmentReminder`.
+  ///
+  /// Returns the backend response map (with `id`, `status`, `reminderAt`, …).
+  Future<Map<String, dynamic>> acceptCommitment({
+    required String whenText,
+    required String whereText,
+    required String ifThenText,
+    DateTime? reminderAt,
+    String reminderTitle = 'Rappel MINT',
+  }) async {
+    final response = await saveCommitment(
+      whenText: whenText,
+      whereText: whereText,
+      ifThenText: ifThenText,
+      reminderAt: reminderAt,
+    );
+
+    final responseReminderAt = response['reminderAt'] as String?;
+    if (responseReminderAt != null && responseReminderAt.isNotEmpty) {
+      final parsed = DateTime.tryParse(responseReminderAt);
+      if (parsed != null && parsed.isAfter(DateTime.now())) {
+        final responseId = response['id'] as String? ?? '';
+        await NotificationService().scheduleCommitmentReminder(
+          commitmentId: responseId.hashCode,
+          reminderAt: parsed,
+          title: reminderTitle,
+          body: whenText,
+        );
+      }
+    }
+
+    return response;
   }
 
   /// List user's commitments, optionally filtered by status.
