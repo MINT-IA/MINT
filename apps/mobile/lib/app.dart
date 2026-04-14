@@ -347,7 +347,7 @@ final _router = GoRouter(
           HubEntry(icon: Icons.compare_arrows, label: 'Rente vs Capital', route: '/rente-vs-capital'),
           HubEntry(icon: Icons.add_card, label: 'Rachat LPP', route: '/rachat-lpp'),
           HubEntry(icon: Icons.home_work, label: 'EPL (retrait pour logement)', route: '/epl'),
-          HubEntry(icon: Icons.calendar_month, label: 'Decaissement optimal', route: '/decaissement'),
+          HubEntry(icon: Icons.calendar_month, label: 'Sequence de decaissement', route: '/decaissement'),
           HubEntry(icon: Icons.account_balance_wallet, label: 'Libre passage', route: '/libre-passage'),
         ],
       ),
