@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
-status: Phase 28-03 shipped — native VisionKit/ML Kit document scanner + local pre-reject classifier wired into document_scan_screen, ImagePicker removed from scope, 6 ARBs updated.
-stopped_at: Completed 28-04-PLAN.md (Phase 28 complete)
-last_updated: "2026-04-14T21:57:03.884Z"
+status: Phase 28-04 shipped — 4 render_mode chat bubbles + ExtractionReviewSheet (snap 0.3/0.6/0.95) + DocumentResultView + DocumentStreamResultScreen + 19 i18n keys × 6 langs + 28/28 phase-28 mobile tests green. Default scan path still routes to legacy ExtractionReviewScreen until DOCUMENTS_V2_ENABLED rollout.
+stopped_at: Completed 29-01-PLAN.md
+last_updated: "2026-04-14T22:26:56.382Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 18
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
-  percent: 100
+  total_plans: 11
+  completed_plans: 6
+  percent: 55
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -90,6 +90,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 | Phase 28 P03 | 22 min | 3 tasks | 17 files |
 | Phase 28-pipeline-document P02 | 18 min | 2 tasks | 8 files |
 | Phase 28-pipeline-document P04 | 28 min | 3 tasks | 22 files |
+| Phase 29-compliance-privacy P01 | 45 | 2 tasks | 20 files |
 
 ## Accumulated Context
 
@@ -156,6 +157,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 - [Phase 28-pipeline-document]: [Phase 28-04]: DocumentScanScreen default path NOT switched yet — legacy ExtractionReviewScreen kept as default until DOCUMENTS_V2_ENABLED rollout sign-off
 - [Phase 28-pipeline-document]: [Phase 28-04]: Reject palette uses neutral textSecondary on surface — anti-shame doctrine, never error red
 - [Phase 28-pipeline-document]: [Phase 28-04]: Plain-string apostrophes in ARB use single ' (not doubled '') — gen-l10n only treats strings as ICU when placeholders/plural present
+- [Phase 29-compliance-privacy]: PRIV-04 envelope encryption AES-256-GCM + crypto-shredding wired (Fernet fallback, KMS optional)
 
 ### From Previous Milestones
 
@@ -178,8 +180,8 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 
 ## Session Continuity
 
-Last session: 2026-04-14T21:56:54.601Z
-Stopped at: Completed 28-04-PLAN.md (Phase 28 complete)
+Last session: 2026-04-14T22:26:56.379Z
+Stopped at: Completed 29-01-PLAN.md
 Resume file: None
 
 ---

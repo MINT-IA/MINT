@@ -151,7 +151,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 - [ ] **PRIV-01**: Checkbox consentement explicite pré-upload, horodatée, versionnée (table `consents`), révocable avec cascade delete
 - [ ] **PRIV-02**: Détection "document de tiers" (nom ≠ user) → déclaration obligatoire "J'ai l'autorisation de X" avant traitement
 - [ ] **PRIV-03**: Scrubbing PII systématique dans logs — IBAN tokenisé, AVS haché, employeur → `EMPLOYER_1`, filename haché
-- [ ] **PRIV-04**: `evidence_text` persisté chiffré at-rest (Fernet + clé dérivée user)
+- [x] **PRIV-04**: `evidence_text` persisté chiffré at-rest (Fernet + clé dérivée user)
 - [ ] **PRIV-05**: ComplianceGuard appliqué aux `summary` et `questions_for_user` issus de Claude Vision
 - [ ] **PRIV-06**: Allowlist `fact_key` — minimisation nLPD, champs inutiles à MINT dropés post-extraction
 - [ ] **PRIV-07**: DPA Anthropic signé + Zero Data Retention activé + privacy policy MINT mise à jour (sous-traitant US documenté)

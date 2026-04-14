@@ -323,7 +323,7 @@ Plans:
 ### Phase 29: Compliance & Privacy
 **Goal**: Avant tout upload, consentement explicite. Données de tiers déclarées. PII scrubée des logs. ComplianceGuard sur output Vision. DPA Anthropic activé. nLPD/LSFin/FINMA compliant.
 **Depends on**: Phase 28 (pipeline doit exister avant de le rendre conforme)
-**Requirements**: PRIV-01, PRIV-02, PRIV-03, PRIV-04, PRIV-05, PRIV-06, PRIV-07
+**Requirements**: PRIV-01, PRIV-02, PRIV-03, PRIV-04, PRIV-05, PRIV-06, PRIV-07, PRIV-08
 **Success Criteria**:
   1. Checkbox consentement explicite pré-upload, horodaté, versionné dans table `consents`, révocable avec cascade delete
   2. Détection "document concerne une tierce personne" (conjoint) → déclaration user obligatoire avant traitement
@@ -334,7 +334,15 @@ Plans:
   7. DPA Anthropic signé + Zero Data Retention activé côté compte API + mention privacy policy MINT mise à jour (sous-traitant US, finalité)
   8. Statut `confirmed` automatique à 0.9 supprimé : user doit toujours valider explicitement (LSFin éducatif, pas décisionnel)
   9. Rétention définie : document original jamais stocké (stream-only), `profile_facts` durée de vie = compte actif + 6 mois post-suppression
-**Plans**: TBD
+**Plans**: 6 plans
+
+Plans:
+- [x] 29-01-PLAN.md — Envelope encryption AES-256-GCM + per-user DEK vault + crypto-shredding (PRIV-04, P0)
+- [ ] 29-02-PLAN.md — Granular ISO 29184 consent receipts (4 purposes) + merkle chain + Flutter consent sheet + 6-lang ARB (PRIV-01, P0)
+- [ ] 29-03-PLAN.md — Presidio PII scrubber + FPE IBAN/AVS + fact_key allowlist (8 keys) + CI log-gate (PRIV-03, PRIV-06, P1)
+- [ ] 29-04-PLAN.md — VisionGuard Haiku LLM-as-judge + NumericSanity + drop auto-confirm + BatchValidationBubble + adversarial PDF suite (PRIV-05, PRIV-08, P1)
+- [ ] 29-05-PLAN.md — Third-party opposable declaration + nominative receipt + session-scoped routing + invite stub (PRIV-02, P1)
+- [ ] 29-06-PLAN.md — Bedrock EU migration (shadow→primary) + two-stage image masking + DPA technical annex + legal checklist (PRIV-07, P0)
 
 ### Phase 30: Device & Test Gate
 **Goal**: Scénario Sophie complet validé sur iPhone + Android réels. Corpus fixtures documents couvre les cas critiques. CI teste le flow document end-to-end.
@@ -359,7 +367,7 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 |-------|-----------|----------------|--------|-----------|
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
 | 28. Pipeline Document Honnête | v2.7 | 4/4 | Complete   | 2026-04-14 |
-| 29. Compliance & Privacy | v2.7 | 0/? | Planned | — |
+| 29. Compliance & Privacy | v2.7 | 1/6 | In Progress|  |
 | 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
 
 ---
