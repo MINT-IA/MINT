@@ -325,10 +325,12 @@ class ComplianceGuard:
         text = unicodedata.normalize("NFKC", text)
 
         # ── Pre-check: wrong language (basic heuristic) ──
+        # NOTE: log only, never fallback. Too many false positives with
+        # conversational French that uses English tech terms ("ETF", "cash",
+        # "score", etc.) or when Claude quotes the user's English words.
         language_violations = self._check_language(text)
         if language_violations:
             violations.extend(language_violations)
-            use_fallback = True
 
         # ── Layer 1: Banned terms ──
         # Strip negated guarantees (e.g. "rien n'est garanti") from the
