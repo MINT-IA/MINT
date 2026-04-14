@@ -339,7 +339,7 @@ Plans:
 Plans:
 - [x] 29-01-PLAN.md — Envelope encryption AES-256-GCM + per-user DEK vault + crypto-shredding (PRIV-04, P0)
 - [x] 29-02-PLAN.md — Granular ISO 29184 consent receipts (4 purposes) + merkle chain + Flutter consent sheet + 6-lang ARB (PRIV-01, P0)
-- [ ] 29-03-PLAN.md — Presidio PII scrubber + FPE IBAN/AVS + fact_key allowlist (8 keys) + CI log-gate (PRIV-03, PRIV-06, P1)
+- [x] 29-03-PLAN.md — Presidio PII scrubber + FPE IBAN/AVS + fact_key allowlist (8 keys) + CI log-gate (PRIV-03, PRIV-06, P1)
 - [ ] 29-04-PLAN.md — VisionGuard Haiku LLM-as-judge + NumericSanity + drop auto-confirm + BatchValidationBubble + adversarial PDF suite (PRIV-05, PRIV-08, P1)
 - [ ] 29-05-PLAN.md — Third-party opposable declaration + nominative receipt + session-scoped routing + invite stub (PRIV-02, P1)
 - [ ] 29-06-PLAN.md — Bedrock EU migration (shadow→primary) + two-stage image masking + DPA technical annex + legal checklist (PRIV-07, P0)
@@ -367,7 +367,7 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 |-------|-----------|----------------|--------|-----------|
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
 | 28. Pipeline Document Honnête | v2.7 | 4/4 | Complete   | 2026-04-14 |
-| 29. Compliance & Privacy | v2.7 | 2/6 | In Progress|  |
+| 29. Compliance & Privacy | v2.7 | 3/6 | In Progress|  |
 | 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
 
 ---
