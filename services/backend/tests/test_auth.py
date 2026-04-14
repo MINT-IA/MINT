@@ -384,8 +384,13 @@ def test_claim_local_data_creates_and_updates_cloud_profile(auth_client: TestCli
     assert first.status_code == 200
     first_body = first.json()
     assert first_body["status"] == "ok"
-    assert first_body["created_profile"] is True
+    # POST-FIX (Gate 0 P0-1): register() now auto-creates an empty profile,
+    # so the first claim call merges into that existing profile instead of
+    # creating a brand-new one. created_profile=False is the correct new
+    # behaviour; merged_fields_count must still reflect the merge.
+    assert first_body["created_profile"] is False
     assert first_body["merged_fields_count"] >= 1
+    assert first_body["profile_id"]
 
     second = auth_client.post(
         "/api/v1/sync/claim-local-data",
