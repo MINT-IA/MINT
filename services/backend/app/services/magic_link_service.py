@@ -130,6 +130,14 @@ class MagicLinkService:
             self.db.refresh(user)
             logger.info("Auto-created user via magic link: %s", user.id)
 
+            # Bootstrap an empty profile so every screen downstream
+            # (Aujourd'hui, Explorer, Coach) sees a real profile instead
+            # of falling back to the "Crée ton compte" copy. Register
+            # and Apple Sign-In already do this; magic link used to skip
+            # it, which left every magic-link user with a broken UI.
+            from app.services.profile_bootstrap import ensure_empty_profile
+            ensure_empty_profile(self.db, user.id, commit=True)
+
         return user
 
     def send_magic_link_email(self, email: str, token: str) -> None:

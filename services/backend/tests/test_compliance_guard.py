@@ -285,13 +285,23 @@ class TestEdgeCases:
         result = guard.validate(long_text)
         assert len(result.sanitized_text.split()) <= 200
 
-    def test_english_text_triggers_fallback(self, guard):
+    def test_english_text_detected_logged_not_fallback(self, guard):
+        """English text is detected and logged but does NOT trigger fallback.
+
+        Rationale: Claude naturally echoes English tech terms ("ETF", "cash",
+        "score") in French responses, and conversation_history often contains
+        English artifacts. Killing the response on 3+ English markers breaks
+        every multi-turn conversation. Defense belongs in the system prompt,
+        not in post-hoc rejection.
+        """
         result = guard.validate(
             "Your financial score is 62. You should invest in a pillar 3a. "
             "This would help with your retirement planning."
         )
-        assert result.use_fallback
+        # Violation is detected and logged (useful for telemetry)
         assert any("langue" in v.lower() for v in result.violations)
+        # But it does NOT trigger the hard fallback
+        assert not result.use_fallback
 
     def test_compliant_text_passes(self, guard):
         result = guard.validate(

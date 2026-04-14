@@ -43,7 +43,12 @@ class ComplianceGuard:
     BANNED_TERMS = [
         # Masculine forms
         "garanti",
-        "certain",
+        # NOTE: "certain" / "certaine" / "certains" / "certaines" are handled
+        # by context-aware detection in _check_certain_guarantee() because
+        # they have a legitimate adjective meaning ("certains cas", "une
+        # certaine somme", "dans certaines situations") that was being
+        # blocked by a blanket rule — every 3rd coach reply fell to
+        # fallback on perfectly valid French.
         "assuré",
         "sans risque",
         "optimal",
@@ -62,8 +67,6 @@ class ComplianceGuard:
         "garanties",
         "assurés",
         "assurées",
-        "certains",
-        "certaines",
         "optimaux",
         "optimales",
         "meilleurs",
@@ -119,10 +122,38 @@ class ComplianceGuard:
                     )
         return cls._BANNED_PATTERNS_MAP
 
+    # Context-aware patterns for the "certain" family. These catch the
+    # guarantee usage ("c'est certain", "est certaine", "sera certain",
+    # "reste certain") WITHOUT flagging legitimate adjective usage ("un
+    # certain montant", "dans certains cas", "une certaine somme").
+    # Each match is reported as the canonical "certain" banned term so
+    # sanitisation can replace it with "probable".
+    _CERTAIN_GUARANTEE_PATTERNS = [
+        re.compile(
+            r"\b(?:c['\u2018\u2019]est|est|sera|reste|demeure|semble|para[iî]t|"
+            r"devient|rendu|rendue)\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"\bc['\u2018\u2019]est\s+(?:tout\s+[àa]\s+fait|absolument|"
+            r"totalement|vraiment)\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+        re.compile(
+            r"\b(?:rendement|r[ée]sultat|gain|retour|profit)s?\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+        # Superlative "(le|la|les) plus certain(e)(s)" — "the most certain
+        # choice" reads as a guarantee even without an auxiliary verb.
+        re.compile(
+            r"\b(?:le|la|les)\s+plus\s+certain(?:e|s|es)?\b",
+            re.IGNORECASE,
+        ),
+    ]
+
     # Replacement map for salvageable terms
     TERM_REPLACEMENTS = {
         "garanti": "possible dans ce scénario",
-        "certain": "probable",
         "assuré": "envisageable",
         "sans risque": "à risque modéré",
         "optimal": "adapté",
@@ -141,8 +172,6 @@ class ComplianceGuard:
         "garanties": "possibles dans ce scénario",
         "assurés": "envisageables",
         "assurées": "envisageables",
-        "certains": "probables",
-        "certaines": "probables",
         "optimaux": "adaptés",
         "optimales": "adaptées",
         "meilleurs": "pertinents",
@@ -299,9 +328,18 @@ class ComplianceGuard:
         """
         violations = []
         use_fallback = False
+        # P0 DIAG: per-layer trigger attribution. We need to know WHICH
+        # layer kills each response in prod so we can stop guessing which
+        # fallback is silently erasing coach replies (Gate 0 P0-3).
+        fallback_reasons: list[str] = []
 
         # ── Pre-check: None / non-string input ──
         if not isinstance(llm_output, str):
+            logger.warning(
+                "ComplianceGuard.validate: use_fallback=True reason=non_string_input "
+                "component=%s user=%s",
+                component_type, user_id or "anonymous",
+            )
             return ComplianceResult(
                 is_compliant=False,
                 sanitized_text="",
@@ -313,6 +351,11 @@ class ComplianceGuard:
 
         # ── Pre-check: empty output ──
         if not text or not text.strip():
+            logger.warning(
+                "ComplianceGuard.validate: use_fallback=True reason=empty_input "
+                "component=%s user=%s",
+                component_type, user_id or "anonymous",
+            )
             return ComplianceResult(
                 is_compliant=False,
                 sanitized_text="",
@@ -347,6 +390,9 @@ class ComplianceGuard:
             )
             if len(banned_found) > 2:
                 use_fallback = True
+                fallback_reasons.append(
+                    f"banned_terms>2 ({len(banned_found)}: {banned_found[:5]})"
+                )
             else:
                 text = self._sanitize_banned_terms(text)
 
@@ -380,6 +426,9 @@ class ComplianceGuard:
                     [f"Drift {cat}: '{label}'" for (cat, label) in drift_found]
                 )
                 use_fallback = True
+                fallback_reasons.append(
+                    f"high_register_drift level={cursor_level} hits={drift_found[:3]}"
+                )
 
         # ── Layer 3: Hallucination detection ──
         if context and context.known_values:
@@ -392,6 +441,9 @@ class ComplianceGuard:
                         f"déviation {h.deviation_pct:.1f}%)"
                     )
                 use_fallback = True  # Hallucinated numbers = always fallback
+                fallback_reasons.append(
+                    f"hallucination hits={[(h.found_text, h.found_value, h.closest_value) for h in hallucinations[:3]]}"
+                )
 
         # ── Layer 4: Disclaimer injection ──
         if not use_fallback:
@@ -410,6 +462,19 @@ class ComplianceGuard:
         if not use_fallback and not text.strip():
             use_fallback = True
             violations.append("Texte vide après sanitisation")
+            fallback_reasons.append("empty_after_sanitisation")
+
+        # P0 DIAG: one structured log per fallback decision so prod tells
+        # us WHICH layer killed the reply. Previously this was silent.
+        if use_fallback:
+            logger.warning(
+                "ComplianceGuard.validate: use_fallback=True reasons=%s "
+                "component=%s user=%s cursor=%s violations=%d preview=%r",
+                fallback_reasons or ["unknown"],
+                component_type, user_id or "anonymous", cursor_level,
+                len(violations),
+                (llm_output or "")[:200],
+            )
 
         is_compliant = len(violations) == 0
         return ComplianceResult(
@@ -461,7 +526,20 @@ class ComplianceGuard:
         for pattern, label in self.BANNED_PATTERNS:
             if label not in found and pattern.search(lower):
                 found.append(label)
+        # Context-aware "certain" family: only flag guarantee usage, not
+        # legitimate adjective usage ("un certain montant", "certains cas").
+        if self._check_certain_guarantee(text):
+            found.append("certain")
         return found
+
+    def _check_certain_guarantee(self, text: str) -> bool:
+        """Detect the 'certain' family used as a guarantee ("c'est certain",
+        "rendement certain"). Returns False for the adjective form that is
+        standard French ("un certain montant", "dans certains cas")."""
+        for pattern in self._CERTAIN_GUARANTEE_PATTERNS:
+            if pattern.search(text):
+                return True
+        return False
 
     def _sanitize_banned_terms(self, text: str) -> str:
         """Replace banned terms using French-aware word-boundary patterns.
@@ -477,7 +555,34 @@ class ComplianceGuard:
             p = patterns.get(term)
             if p:
                 result = p.sub(replacement, result)
+        # Context-aware "certain" sanitisation: rewrite only the guarantee
+        # phrasing, leave adjective usage untouched.
+        for pattern in self._CERTAIN_GUARANTEE_PATTERNS:
+            result = pattern.sub(self._replace_certain_guarantee, result)
         return result
+
+    @staticmethod
+    def _replace_certain_guarantee(match: "re.Match[str]") -> str:
+        """Replacement helper: rewrite guarantee phrasing of 'certain'
+        while preserving the grammatical form of the surrounding words."""
+        phrase = match.group(0)
+        lowered = phrase.lower()
+        # "rendement/résultat/gain certain" → "rendement/... probable"
+        for head in ("rendement", "résultat", "resultat", "gain", "retour", "profit"):
+            if lowered.startswith(head) or lowered.startswith(head + "s"):
+                return re.sub(
+                    r"certain(e|s|es)?\b",
+                    lambda m: "probable" + (m.group(1) or ""),
+                    phrase,
+                    flags=re.IGNORECASE,
+                )
+        # "c'est / est / sera / reste certain(e)(s)" → "... probable(s)"
+        return re.sub(
+            r"certain(e|s|es)?\b",
+            lambda m: "probable" + (m.group(1) or ""),
+            phrase,
+            flags=re.IGNORECASE,
+        )
 
     def _check_high_register_drift(self, text: str) -> list:
         """Layer 2b: Detect N4/N5 drift modes.

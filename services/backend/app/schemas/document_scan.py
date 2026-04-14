@@ -244,3 +244,13 @@ class VisionExtractionResponse(BaseModel):
         default_factory=list,
         description="Cross-field coherence warnings (DOC-05)",
     )
+    extraction_status: str = Field(
+        "success",
+        description=(
+            "Extraction outcome: 'success' (fields extracted and validated), "
+            "'partial' (some fields extracted, some rejected by validation), "
+            "'no_fields_found' (Claude parsed OK but returned zero fields — "
+            "document unreadable or empty), or 'parse_error' (Claude returned "
+            "non-JSON). Flutter surfaces a targeted error for each status."
+        ),
+    )

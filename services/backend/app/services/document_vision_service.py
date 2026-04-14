@@ -11,7 +11,23 @@ See: MINT_ANTI_BULLSHIT_MANIFESTO.md, MINT_FINAL_EXECUTION_SYSTEM.md §13.11
 
 import json
 import logging
+import re
 from typing import Dict, List as TList, Optional
+
+
+_MARKDOWN_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.DOTALL)
+
+
+def _strip_markdown_fences(raw_text: str) -> str:
+    """Claude occasionally wraps JSON in ```json ... ``` fences despite the
+    prompt asking for raw JSON. json.loads then fails silently and the
+    endpoint returns 0 fields. Strip the fence before parsing.
+    """
+    stripped = (raw_text or "").strip()
+    if not stripped.startswith("```"):
+        return raw_text
+    match = _MARKDOWN_FENCE_RE.search(stripped)
+    return match.group(1) if match else raw_text
 
 from anthropic import Anthropic
 
@@ -398,8 +414,27 @@ def extract_with_vision(
         )
 
         raw_text = response.content[0].text
-        # Parse JSON from response
-        parsed = json.loads(raw_text)
+        # Parse JSON from response. Claude occasionally returns the JSON
+        # wrapped in ```json ... ``` fences even though the prompt asks
+        # for raw JSON — strip them before decoding.
+        cleaned_text = _strip_markdown_fences(raw_text)
+        try:
+            parsed = json.loads(cleaned_text)
+        except json.JSONDecodeError as e:
+            # P1 DIAG: log the raw preview so prod tells us WHY extraction
+            # returned 0 fields (was it refusal, wrong shape, code fence?).
+            logger.warning(
+                "Vision extraction: JSON parse failed doc_type=%s err=%s raw=%r",
+                doc_type, e, (raw_text or "")[:500],
+            )
+            return VisionExtractionResponse(
+                document_type=doc_type,
+                extracted_fields=[],
+                overall_confidence=0.0,
+                extraction_method="claude_vision",
+                raw_analysis=f"JSON parse error: {e}",
+                extraction_status="parse_error",
+            )
 
         fields = []
         for f in parsed.get("fields", []):
@@ -425,12 +460,44 @@ def extract_with_vision(
         # Validate against known ranges
         valid_fields = _validate_fields(fields, doc_type)
 
+        # P1 DIAG: surface the two silent-failure modes in prod.
+        # (a) Claude returned no fields at all.
+        if not fields:
+            logger.warning(
+                "Vision extraction: Claude returned 0 fields doc_type=%s "
+                "parsed_keys=%s raw_analysis=%r",
+                doc_type, list(parsed.keys()),
+                (parsed.get("analysis") or "")[:200],
+            )
+        # (b) Claude returned fields but validation stripped them all.
+        elif fields and not valid_fields:
+            logger.warning(
+                "Vision extraction: all %d fields rejected by _validate_fields "
+                "doc_type=%s fields=%s",
+                len(fields), doc_type,
+                [(f.field_name, f.value, f.confidence.value) for f in fields],
+            )
+
         # DOC-05: Cross-field coherence for LPP certificates
         coherence_warnings: TList[str] = []
         if doc_type == DocumentType.lpp_certificate:
             coherence_warnings = validate_lpp_coherence(valid_fields)
 
         overall = _compute_overall_confidence(valid_fields)
+
+        # Classify the outcome so Flutter can show a targeted error
+        # instead of silently rendering an empty form. The endpoint stays
+        # HTTP 200 — breaking the flow with 4xx would cost UX — but the
+        # status field tells the client exactly which failure mode hit.
+        if not valid_fields:
+            if not fields:
+                extraction_status = "no_fields_found"
+            else:
+                extraction_status = "partial"  # all fields rejected by validation
+        elif len(valid_fields) < len(fields):
+            extraction_status = "partial"
+        else:
+            extraction_status = "success"
 
         return VisionExtractionResponse(
             document_type=doc_type,
@@ -441,6 +508,7 @@ def extract_with_vision(
             plan_type=detected_plan_type.value if detected_plan_type else None,
             plan_type_warning=plan_type_warning,
             coherence_warnings=coherence_warnings,
+            extraction_status=extraction_status,
         )
 
     except json.JSONDecodeError as e:
@@ -451,6 +519,7 @@ def extract_with_vision(
             overall_confidence=0.0,
             extraction_method="claude_vision",
             raw_analysis=f"JSON parse error: {e}",
+            extraction_status="parse_error",
         )
     except Exception as e:
         logger.error("Claude Vision extraction failed: %s", e)

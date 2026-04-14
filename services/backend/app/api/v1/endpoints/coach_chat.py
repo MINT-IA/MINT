@@ -945,44 +945,58 @@ def _execute_internal_tool(
                     )
                     db.add(record)
                 db.commit()
+            except Exception as exc:
+                # CRITICAL: DB commit failure must NOT be silent. Return an
+                # explicit error to Claude so it can recover (re-ask, retry,
+                # surface to user). Previously this was swallowed and Claude
+                # thought persistence succeeded → data silently lost.
+                db.rollback()
+                logger.exception(
+                    "save_insight DB commit failed: user=%s topic=%s",
+                    user_id,
+                    topic,
+                )
+                return (
+                    f"[save_insight ÉCHEC: {type(exc).__name__}] "
+                    "Je n'ai pas pu mémoriser cela. Redis-le au prochain message."
+                )
 
-                # Also mirror into ProfileModel so other features (profile drawer,
-                # today screen) can react without hitting a separate table.
-                try:
-                    from app.models.profile_model import ProfileModel
-                    profile = (
-                        db.query(ProfileModel)
-                        .filter(ProfileModel.user_id == user_id)
-                        .order_by(ProfileModel.updated_at.desc())
-                        .first()
-                    )
-                    if profile:
-                        data = dict(profile.data) if profile.data else {}
-                        recent = list(data.get("recent_insights", []) or [])
-                        recent.insert(
-                            0,
-                            {
-                                "topic": topic,
-                                "summary": summary[:200],
-                                "insight_type": insight_type,
-                                "created_at": now.isoformat(),
-                            },
-                        )
-                        data["recent_insights"] = recent[:20]  # keep last 20
-                        data["last_coach_insight"] = {
+            # Also mirror into ProfileModel so other features (profile drawer,
+            # today screen) can react without hitting a separate table.
+            # Mirror failure is non-fatal: the insight is already persisted in
+            # CoachInsightRecord, the profile mirror is a convenience cache.
+            try:
+                from app.models.profile_model import ProfileModel
+                profile = (
+                    db.query(ProfileModel)
+                    .filter(ProfileModel.user_id == user_id)
+                    .order_by(ProfileModel.updated_at.desc())
+                    .first()
+                )
+                if profile:
+                    data = dict(profile.data) if profile.data else {}
+                    recent = list(data.get("recent_insights", []) or [])
+                    recent.insert(
+                        0,
+                        {
                             "topic": topic,
                             "summary": summary[:200],
                             "insight_type": insight_type,
                             "created_at": now.isoformat(),
-                        }
-                        profile.data = data
-                        profile.updated_at = now
-                        db.commit()
-                except Exception as mirror_exc:
-                    logger.warning("Could not mirror insight to profile: %s", mirror_exc)
-                    db.rollback()
-            except Exception as exc:
-                logger.warning("Could not persist insight: %s", exc)
+                        },
+                    )
+                    data["recent_insights"] = recent[:20]  # keep last 20
+                    data["last_coach_insight"] = {
+                        "topic": topic,
+                        "summary": summary[:200],
+                        "insight_type": insight_type,
+                        "created_at": now.isoformat(),
+                    }
+                    profile.data = data
+                    profile.updated_at = now
+                    db.commit()
+            except Exception as mirror_exc:
+                logger.warning("Could not mirror insight to profile: %s", mirror_exc)
                 db.rollback()
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
 

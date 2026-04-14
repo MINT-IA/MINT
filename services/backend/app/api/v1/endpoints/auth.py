@@ -150,6 +150,18 @@ def _require_admin_user(user: User) -> None:
         )
 
 
+def _ensure_empty_profile(db: Session, user_id: str) -> None:
+    """Thin wrapper kept for callers inside this module.
+
+    Real implementation lives in :mod:`app.services.profile_bootstrap`
+    so every auth path (register, magic link, Apple) shares the same
+    bootstrap logic. Callers here remain responsible for db.commit().
+    """
+    from app.services.profile_bootstrap import ensure_empty_profile
+
+    ensure_empty_profile(db, user_id, commit=False)
+
+
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 @limiter.limit("5/minute")
 def register_user(
@@ -247,6 +259,11 @@ def register_user(
                 "email_sent": verification_email_sent,
             },
         )
+    # P0 FIX: auto-materialise an empty profile so downstream consumers
+    # (GET /profiles/me, coach context injection, Aujourd'hui, Explorer)
+    # do not 404 on first login. Without this, the whole app degrades
+    # to "Crée ton compte" placeholders even for authenticated users.
+    _ensure_empty_profile(db, new_user.id)
     db.commit()
     db.refresh(new_user)
 
@@ -1311,6 +1328,9 @@ def apple_verify(
         )
         db.add(user)
         db.flush()
+        # P0 FIX: same as /register — materialise an empty profile so the
+        # user is not stuck with a 404 on /profiles/me post Apple Sign-In.
+        _ensure_empty_profile(db, user.id)
 
     # Create JWT
     access_token = create_access_token(user.id, user.email)
