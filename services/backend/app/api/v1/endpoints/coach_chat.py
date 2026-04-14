@@ -822,11 +822,25 @@ def _handle_retrieve_memories(
 # Agent loop — tool_use -> execute -> re-call LLM
 # ---------------------------------------------------------------------------
 
-MAX_AGENT_LOOP_ITERATIONS = 3  # Reduced from 5: 3 iterations sufficient for tool_use + response
+MAX_AGENT_LOOP_ITERATIONS = 4  # v2.7: 3→4 to allow one reflective retry on empty end_turn
 MAX_AGENT_LOOP_TOKENS = 8000
 AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
+
+# v2.7 STAB-01: Re-prompt strings for content-block edge cases.
+# Anthropic Sonnet 4.5 (oct 2025+) occasionally returns stop_reason=end_turn with
+# empty text and no tool_use. Without an explicit re-prompt we exit the loop with
+# answer="" and the user sees the safe fallback. One extra iteration fixes this.
+_REPROMPT_EMPTY_NARRATION = (
+    "Tu viens d'émettre des actions UI mais pas de message texte. "
+    "Maintenant écris ta réponse à l'utilisateur en texte clair "
+    "(verdict-first, max 4 phrases, pas de préambule)."
+)
+_REPROMPT_EMPTY_END_TURN = (
+    "Tu n'as rien écrit pour l'utilisateur. Écris maintenant ta réponse "
+    "en français, 1 à 3 phrases claires, sans préambule. Réponds à la question initiale."
+)
 
 
 def _execute_internal_tool(
@@ -1512,19 +1526,26 @@ async def _run_agent_loop(
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done — but only if Claude
-        # actually produced text. If answer_text is empty (Claude only emitted
-        # external/Flutter-bound tool calls without narration), force one more
-        # iteration without tools so Claude generates the user-facing reply.
+        # actually produced text. If answer_text is empty, we have two edge
+        # cases to cover (v2.7 STAB-01):
+        #   (a) Claude emitted external/Flutter tools without narration →
+        #       re-prompt for the user-facing reply.
+        #   (b) Claude emitted neither text nor tools (Sonnet 4.5 empty end_turn
+        #       bug) → reflective re-prompt forcing a plain-text answer.
         if not internal_calls:
             if answer_text and answer_text.strip():
                 final_answer = answer_text
                 break
-            # Empty text + only external/Flutter tools → re-prompt for narration
-            current_question = (
-                "Tu viens d'émettre des actions UI mais pas de message texte. "
-                "Maintenant écris ta réponse à l'utilisateur en texte clair "
-                "(verdict-first, max 4 phrases, pas de préambule)."
-            )
+            if external_calls:
+                # (a) tools emitted, no text → ask for narration
+                current_question = _REPROMPT_EMPTY_NARRATION
+            else:
+                # (b) empty end_turn with no tools → reflective retry
+                logger.warning(
+                    "Agent loop iter %d: empty end_turn with no tool_use (user=%s) — reflective retry",
+                    iteration, user_id,
+                )
+                current_question = _REPROMPT_EMPTY_END_TURN
             continue
 
         # Execute internal tools and collect results
