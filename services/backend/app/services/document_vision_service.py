@@ -399,7 +399,22 @@ def extract_with_vision(
 
         raw_text = response.content[0].text
         # Parse JSON from response
-        parsed = json.loads(raw_text)
+        try:
+            parsed = json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            # P1 DIAG: log the raw preview so prod tells us WHY extraction
+            # returned 0 fields (was it refusal, wrong shape, code fence?).
+            logger.warning(
+                "Vision extraction: JSON parse failed doc_type=%s err=%s raw=%r",
+                doc_type, e, (raw_text or "")[:500],
+            )
+            return VisionExtractionResponse(
+                document_type=doc_type,
+                extracted_fields=[],
+                overall_confidence=0.0,
+                extraction_method="claude_vision",
+                raw_analysis=f"JSON parse error: {e}",
+            )
 
         fields = []
         for f in parsed.get("fields", []):
@@ -424,6 +439,24 @@ def extract_with_vision(
 
         # Validate against known ranges
         valid_fields = _validate_fields(fields, doc_type)
+
+        # P1 DIAG: surface the two silent-failure modes in prod.
+        # (a) Claude returned no fields at all.
+        if not fields:
+            logger.warning(
+                "Vision extraction: Claude returned 0 fields doc_type=%s "
+                "parsed_keys=%s raw_analysis=%r",
+                doc_type, list(parsed.keys()),
+                (parsed.get("analysis") or "")[:200],
+            )
+        # (b) Claude returned fields but validation stripped them all.
+        elif fields and not valid_fields:
+            logger.warning(
+                "Vision extraction: all %d fields rejected by _validate_fields "
+                "doc_type=%s fields=%s",
+                len(fields), doc_type,
+                [(f.field_name, f.value, f.confidence.value) for f in fields],
+            )
 
         # DOC-05: Cross-field coherence for LPP certificates
         coherence_warnings: TList[str] = []
