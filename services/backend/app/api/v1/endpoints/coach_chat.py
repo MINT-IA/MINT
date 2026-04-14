@@ -828,6 +828,91 @@ AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin befor
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
 
+# v2.7 STAB-02 Task 3: Graceful model fallback chain.
+# When Sonnet fails with CoachUpstreamError (429/5xx/529 retries exhausted) or
+# exceeds FALLBACK_TIMEOUT_SECONDS, we retry ONCE with Haiku 4.5 using a
+# truncated message tail (system + last 10 conversation turns max). This keeps
+# the coach responsive under upstream pressure and flags the response as
+# `degraded=True` so Flutter can surface a subtle "Réponse rapide" chip.
+PRIMARY_MODEL_DEFAULT = "claude-sonnet-4-5-20250929"
+FALLBACK_MODEL_HAIKU = "claude-haiku-4-5-20251001"
+FALLBACK_TIMEOUT_SECONDS = 20
+FALLBACK_HISTORY_MAX_TURNS = 10
+
+
+async def _call_with_fallback(
+    orchestrator,
+    *,
+    question: str,
+    api_key: str,
+    provider: str,
+    model: Optional[str],
+    profile_context: Optional[dict],
+    language: str,
+    tools: list,
+    system_prompt: str,
+    user_id,
+    conversation_history: Optional[list],
+) -> tuple[dict, dict]:
+    """Call orchestrator.query() with Sonnet→Haiku graceful degradation.
+
+    Returns:
+        (result, degraded_meta) — degraded_meta = {degraded: bool, model_used: str}
+
+    Behavior:
+        1. Primary attempt: requested model (default Sonnet 4.5).
+        2. On CoachUpstreamError OR asyncio.TimeoutError at
+           FALLBACK_TIMEOUT_SECONDS → retry with Haiku 4.5 + truncated history.
+        3. If provider != 'claude' or already Haiku, no fallback.
+
+    Fail-open: if even Haiku fails, re-raise so the existing outer handler
+    returns the calm 502/template answer.
+    """
+    from app.services.rag.llm_client import CoachUpstreamError
+
+    primary_model = model or PRIMARY_MODEL_DEFAULT
+    can_fallback = (
+        provider == "claude"
+        and primary_model != FALLBACK_MODEL_HAIKU
+    )
+
+    async def _do_query(q_model: str, q_history):
+        return await orchestrator.query(
+            question=question,
+            api_key=api_key,
+            provider=provider,
+            model=q_model,
+            profile_context=profile_context,
+            language=language,
+            tools=tools,
+            system_prompt=system_prompt,
+            user_id=user_id,
+            conversation_history=q_history,
+        )
+
+    try:
+        if can_fallback:
+            result = await asyncio.wait_for(
+                _do_query(primary_model, conversation_history),
+                timeout=FALLBACK_TIMEOUT_SECONDS,
+            )
+        else:
+            result = await _do_query(primary_model, conversation_history)
+        return result, {"degraded": False, "model_used": primary_model}
+    except (CoachUpstreamError, asyncio.TimeoutError) as exc:
+        if not can_fallback:
+            raise
+        logger.warning(
+            "coach_chat model fallback Sonnet→Haiku user=%s reason=%s",
+            user_id, type(exc).__name__,
+        )
+        truncated = (
+            conversation_history[-FALLBACK_HISTORY_MAX_TURNS:]
+            if conversation_history else None
+        )
+        result = await _do_query(FALLBACK_MODEL_HAIKU, truncated)
+        return result, {"degraded": True, "model_used": FALLBACK_MODEL_HAIKU}
+
 # v2.7 STAB-01: Re-prompt strings for content-block edge cases.
 # Anthropic Sonnet 4.5 (oct 2025+) occasionally returns stop_reason=end_turn with
 # empty text and no tool_use. Without an explicit re-prompt we exit the loop with
@@ -1420,6 +1505,10 @@ async def _run_agent_loop(
     final_answer = ""
     current_question = question
     answer_text = ""  # initialized to prevent NameError in for/else
+    # v2.7 STAB-02 Task 3: track degraded state across iterations.
+    # Any single iteration that falls back to Haiku marks the whole response.
+    degraded_any = False
+    model_used_last = model or PRIMARY_MODEL_DEFAULT
     # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
     _MAX_UNKNOWN_TOOL_CALLS = 2
     unknown_tool_count = 0
@@ -1443,8 +1532,13 @@ async def _run_agent_loop(
             # context from the first call's response.
             iter_history = conversation_history if iteration == 0 else None
 
-            result = await asyncio.wait_for(
-                orchestrator.query(
+            # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
+            # _call_with_fallback has its own inner timeout; outer wait_for keeps
+            # AGENT_ITERATION_TIMEOUT_SECONDS as a hard upper bound for the
+            # primary + fallback path combined.
+            result, degraded_meta = await asyncio.wait_for(
+                _call_with_fallback(
+                    orchestrator,
                     question=current_question,
                     api_key=api_key,
                     provider=provider,
@@ -1458,6 +1552,9 @@ async def _run_agent_loop(
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
+            if degraded_meta.get("degraded"):
+                degraded_any = True
+            model_used_last = degraded_meta.get("model_used", model_used_last)
         except asyncio.TimeoutError:
             logger.warning(
                 "Agent iteration %d timed out after %ds for user %s",
@@ -1602,6 +1699,8 @@ async def _run_agent_loop(
         "sources": unique_sources,
         "disclaimers": list(set(all_disclaimers)),
         "tokens_used": total_tokens,
+        "degraded": degraded_any,
+        "model_used": model_used_last,
     }
 
 
@@ -1852,6 +1951,8 @@ async def coach_chat(
             "sources": [],
             "disclaimers": [],
             "tokens_used": 0,
+            "degraded": True,
+            "model_used": PRIMARY_MODEL_DEFAULT,
         }
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
@@ -1902,6 +2003,10 @@ async def coach_chat(
         disclaimers=loop_result["disclaimers"],
         tokens_used=loop_result["tokens_used"],
         system_prompt_used=True,
+        response_meta={
+            "degraded": bool(loop_result.get("degraded", False)),
+            "model_used": loop_result.get("model_used", PRIMARY_MODEL_DEFAULT),
+        },
     )
 
 

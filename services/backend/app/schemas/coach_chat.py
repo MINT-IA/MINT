@@ -161,3 +161,11 @@ class CoachChatResponse(CoachChatBaseModel):
         default=True,
         description="Indique si le system prompt coach a ete applique.",
     )
+    response_meta: Optional[dict[str, Any]] = Field(
+        default=None,
+        description=(
+            "Metadata sur la generation de la reponse. Cles: "
+            "degraded (bool — true si fallback Haiku active), "
+            "model_used (str — id du modele qui a servi la reponse)."
+        ),
+    )
