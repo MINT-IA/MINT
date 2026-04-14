@@ -10,9 +10,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 
 class LandingScreen extends StatefulWidget {
   const LandingScreen({super.key});
@@ -129,11 +129,8 @@ class _LandingScreenState extends State<LandingScreen>
                     child: Text(
                       l10n.anonymousIntentLine1,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
+                      style: MintTextStyles.bodyLarge(
                         color: MintColors.textSecondary,
-                        height: 1.5,
                       ),
                     ),
                   ),
@@ -144,11 +141,8 @@ class _LandingScreenState extends State<LandingScreen>
                     child: Text(
                       l10n.anonymousIntentLine2,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.montserrat(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w400,
+                      style: MintTextStyles.bodyLarge(
                         color: MintColors.textSecondary,
-                        height: 1.5,
                       ),
                     ),
                   ),
