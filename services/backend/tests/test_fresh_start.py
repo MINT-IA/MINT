@@ -299,6 +299,45 @@ def test_rate_limit_max_2_per_month():
     assert result[1]["days_until"] == 8
 
 
+def test_compute_dates_sensible_for_1992_profile():
+    """Audit case: birth_date 1992-04-15 yields sensible landmarks.
+
+    Verifies compute_fresh_start_dates returns plausible birthday, month-start
+    and (when applicable) year-start anchors for a profile with a known birth
+    date. Guards against regressions where landmark computation silently
+    returns an empty list.
+    """
+    # Reference date slightly before the birthday, so it must be picked up.
+    result = compute_fresh_start_dates(
+        birth_date=date(1992, 4, 15),
+        first_employment_year=None,
+        account_created_at=None,
+        reference_date=date(2026, 4, 1),
+    )
+    types = {r["type"] for r in result}
+
+    # Must contain birthday (14 days away) and month_start (1 May, 30 days)
+    assert "birthday" in types
+    assert "month_start" in types
+
+    bday = next(r for r in result if r["type"] == "birthday")
+    assert bday["date"] == "2026-04-15"
+    assert 0 < bday["days_until"] <= 60
+
+    month = next(r for r in result if r["type"] == "month_start")
+    assert month["date"] == "2026-05-01"
+    assert month["days_until"] > 0
+
+    # Dates must be ISO-parseable and unique per (type, date)
+    seen = set()
+    for r in result:
+        key = (r["type"], r["date"])
+        assert key not in seen, f"Duplicate landmark: {key}"
+        seen.add(key)
+        # Parseable ISO date
+        date.fromisoformat(r["date"])
+
+
 def test_rate_limit_different_months():
     """Landmarks in different months are not affected."""
     landmarks = [
