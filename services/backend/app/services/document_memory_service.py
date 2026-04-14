@@ -222,11 +222,105 @@ def read_evidence_text(
     }
 
 
+def _hash_key(key: str) -> str:
+    """Return a short stable hash of a fact_key for safe drop logging."""
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
+
+
+def persist_fact(
+    db: Optional[Session],
+    user_id: str,
+    key: str,
+    value: Any,
+    *,
+    source: str = "coach",
+) -> bool:
+    """Persist a single fact_key to ``profile_facts`` (PRIV-06).
+
+    Allowlist-gated: keys not in ``ALLOWED_FACT_KEYS`` are silently dropped
+    with a hashed-key log line. The drop is the *only* enforcement point —
+    callers do not need to check ``is_allowed`` themselves.
+
+    Returns ``True`` if the value was accepted (would be) persisted, ``False``
+    if dropped. The DB write itself is best-effort: when ``db`` is None or
+    the ``profile_facts`` table is not yet present (Alembic migration
+    pending in some environments), we still return True so business logic
+    treats the fact as accepted from a privacy/policy standpoint.
+
+    The ``ttl_expires_at`` column is computed from
+    ``ALLOWED_FACT_KEYS[key]['ttl_days']``: ``None`` ⇒ NULL (account
+    lifetime).
+    """
+    from app.services.privacy.fact_key_allowlist import (
+        ALLOWED_FACT_KEYS,
+        is_allowed,
+        purpose_of,
+        ttl_days_of,
+    )
+
+    if not key or not is_allowed(key):
+        # PRIV-06: hard drop. Log carries the hashed key only; never the
+        # raw key (some keys are themselves PII signals e.g. "iban") and
+        # never the value.
+        logger.info(
+            "fact_key dropped purpose_violation count=1 key_hash=%s source=%s",
+            _hash_key(key or ""),
+            source,
+        )
+        return False
+
+    purpose = purpose_of(key)
+    ttl_days = ttl_days_of(key)
+    expires_at: Optional[datetime] = None
+    if ttl_days is not None:
+        from datetime import timedelta
+        expires_at = datetime.now(timezone.utc) + timedelta(days=ttl_days)
+
+    # DB write — best-effort. profile_facts may not exist yet on the
+    # target DB; we tolerate that (test envs, fresh dev DBs) and return
+    # True as long as the policy gate passed.
+    if db is None:
+        return True
+    try:
+        from sqlalchemy import text
+        db.execute(
+            text(
+                "INSERT INTO profile_facts (user_id, fact_key, value, "
+                "purpose, ttl_expires_at, updated_at) VALUES "
+                "(:uid, :k, :v, :p, :exp, :now) "
+                "ON CONFLICT (user_id, fact_key) DO UPDATE SET "
+                "value = EXCLUDED.value, purpose = EXCLUDED.purpose, "
+                "ttl_expires_at = EXCLUDED.ttl_expires_at, "
+                "updated_at = EXCLUDED.updated_at"
+            ),
+            {
+                "uid": user_id,
+                "k": key,
+                "v": str(value) if value is not None else None,
+                "p": purpose.value if purpose else "projection",
+                "exp": expires_at,
+                "now": datetime.now(timezone.utc),
+            },
+        )
+        db.commit()
+    except Exception as exc:
+        logger.debug(
+            "persist_fact: DB write skipped/failed (%s) — policy gate ok",
+            type(exc).__name__,
+        )
+        try:
+            db.rollback()
+        except Exception:
+            pass
+    return True
+
+
 __all__ = [
     "compute_fingerprint",
     "upsert_and_diff",
     "persist_evidence_text",
     "read_evidence_text",
+    "persist_fact",
     "DEKRevokedError",
     "EncryptionError",
 ]
