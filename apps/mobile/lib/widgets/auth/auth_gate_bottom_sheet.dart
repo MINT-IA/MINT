@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -72,10 +71,8 @@ class AuthGateBottomSheet extends StatelessWidget {
               Text(
                 l.authGateConversionMessage,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.inter(
-                  fontSize: 16,
+                style: MintTextStyles.bodyLarge(
                   color: MintColors.textPrimary,
-                  height: 1.5,
                 ),
               ),
               const SizedBox(height: 28),
@@ -140,8 +137,7 @@ class AuthGateBottomSheet extends StatelessWidget {
                 },
                 child: Text(
                   l.authGateLater,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
+                  style: MintTextStyles.bodyMedium(
                     color: MintColors.textMuted,
                   ),
                 ),
