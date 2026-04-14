@@ -429,11 +429,24 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "write",
         "access_level": "user_scoped",
         "description": (
-            "Save an important insight from the current conversation for "
-            "future reference. Use when the user shares a key fact, decision, "
-            "concern, or goal that should influence future coach responses. "
-            "Keep the summary factual and concise (max 200 chars). "
-            "Do NOT save PII (names, IBAN, employer, exact address)."
+            "MANDATORY: Call this tool immediately whenever the user message "
+            "contains ANY of these facts — do not wait, do not ask permission:\n"
+            "  - Age, birth year, date of birth → topic='identity'\n"
+            "  - Salary, income, revenue → topic='salary'\n"
+            "  - Canton, city, location → topic='location'\n"
+            "  - Marital status, children, partner → topic='family'\n"
+            "  - LPP balance, 3a balance, savings, wealth → topic='wealth'\n"
+            "  - Rent, insurance, monthly expenses → topic='expenses'\n"
+            "  - Debts or absence of debts → topic='debt'\n"
+            "  - Goals, plans, wishes → topic='goals'\n"
+            "  - Decisions, preferences → topic='preferences'\n\n"
+            "Call save_insight SEPARATELY for each category. A single user "
+            "message may require 5-8 save_insight calls. This is normal and "
+            "expected. WITHOUT these calls, MINT forgets everything between "
+            "sessions.\n\n"
+            "Rules: keep summary factual and concise (max 200 chars). Use "
+            "conditional language. Do NOT save PII (names, IBAN, employer, "
+            "exact address)."
         ),
         "input_schema": {
             "type": "object",
