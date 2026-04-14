@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
 status: in-progress
-stopped_at: Phase 27 (Stabilisation Critique) complete — 1/1 plan shipped, 95 tests green, branch dev
-last_updated: "2026-04-14T12:00:00.000Z"
+stopped_at: Phase 28-01 complete — DocumentUnderstandingResult contract + fused Vision + Document Memory v1, 58 docs tests green, dev branch
+last_updated: "2026-04-14T18:00:00.000Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 25
+  total_plans: 5
+  completed_plans: 2
+  percent: 38
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -34,12 +34,12 @@ See: .planning/PROJECT.md (updated 2026-04-14)
 
 ## Current Position
 
-Phase: 27
-Plan: 27-01 complete
-Status: Phase 27 shipped — coach resilience stack (retry + fallback + budget + flags + SLO + idempotency) on dev branch
+Phase: 28
+Plan: 28-01 complete (28-02 next)
+Status: Phase 28-01 shipped — DocumentUnderstandingResult canonical contract, fused tool_use Vision call, PDF preflight, Document Memory v1 with diff, render_mode selector, third-party silent flag. Behind DOCUMENTS_V2_ENABLED flag. Legacy path intact.
 Last activity: 2026-04-14
 
-Progress: [##--------] 25% (1/4 phases)
+Progress: [###-------] 38% (1/4 phases, 2/5 plans)
 
 ## Performance Metrics
 
@@ -136,6 +136,12 @@ Progress: [##--------] 25% (1/4 phases)
 - [Phase 27]: SLO auto-rollback requires 2 consecutive breaches + 10-request floor to prevent flapping
 - [Phase 27]: Admin flag endpoints use X-Admin-Token env var (ops-bootstrap, intentionally bypasses support_admin RBAC)
 - [Phase 27]: Degraded chip uses textSecondary italic, NOT error red — anti-shame doctrine
+- [Phase 28-01]: Single fused tool_use call replaces classify→extract bifurcation (Anthropic structured outputs 2025)
+- [Phase 28-01]: render_mode is opaque enum computed by deterministic selector — internal processing_mode never leaks to client
+- [Phase 28-01]: Plan referenced app/db/models/ — repo uses app/models/ convention; followed existing pattern
+- [Phase 28-01]: pymupdf 1.26 has no get_form_text_fields() — iterate page.widgets() directly gated by doc.is_form_pdf
+- [Phase 28-01]: ComplianceGuard has no scrub() — used _sanitize_banned_terms() (Layer 1) on summary/narrative/questions
+- [Phase 28-01]: TokenBudget.consume() takes (user_id, tokens) only (no kind=) per phase 27; per-kind tagging deferred
 
 ### From Previous Milestones
 
@@ -158,8 +164,8 @@ Progress: [##--------] 25% (1/4 phases)
 
 ## Session Continuity
 
-Last session: 2026-04-14T12:00:00.000Z
-Stopped at: Completed 27-01-PLAN.md (Phase 27 Stabilisation Critique, 1/1 plan)
+Last session: 2026-04-14T18:00:00.000Z
+Stopped at: Completed 28-01-PLAN.md (Phase 28 Pipeline Document Honnête, 1/4 plans)
 Resume file: None
 
 ---

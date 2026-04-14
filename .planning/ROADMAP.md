@@ -300,7 +300,7 @@ Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo 
 ### Phase 28: Pipeline Document Honnête
 **Goal**: Tout upload (photo / scan / screenshot / PDF) produit l'une des 4 sorties acceptables, jamais "200 avec 0 fields sans explication". 1 appel Vision fusionné. Streaming UX (pas de spinner 30s muet).
 **Depends on**: Phase 27 (infra retry/budget/flag doit être en place avant le pipeline doc)
-**Requirements**: DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06
+**Requirements**: DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, DOC-07, DOC-08
 **Success Criteria**:
   1. Contrat canonique interne `DocumentUnderstandingResult` (Pydantic) utilisé par coach + doc scanner + review screen — une seule source de vérité
   2. 1 seul appel Claude Vision par document (classify + extract dans le même prompt), pas 2
@@ -311,8 +311,14 @@ Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo 
   7. PDF chiffré détecté via `pymupdf.is_encrypted` AVANT Vision → `rejected` propre
   8. Multi-page : `pages_processed / pages_total / warning` visible, pas de truncation silencieuse
   9. `ExtractionReviewScreen` réduit aux docs haut enjeu (LPP, attestation tax, bank statement) — autres flows passent par bulle coach
-  10. VisionKit iOS + `cunning_document_scanner` Android font crop/deskew côté client, pas serveur
-**Plans**: TBD
+  10. VisionKit iOS + `flutter_doc_scanner` (ML Kit Android GA 2024) font crop/deskew côté client, pas serveur
+**Plans**: 4 plans
+
+Plans:
+- [x] 28-01-PLAN.md — Backend canonical contract DocumentUnderstandingResult + fused Vision + PDF preflight + Document Memory v1 + render_mode selector + third-party detection (completed 2026-04-14)
+- [ ] 28-02-PLAN.md — SSE streaming backend (sse_starlette) + Flutter Stream<DocumentEvent> client + Dart schema mirror
+- [ ] 28-03-PLAN.md — Native scanner (VisionKit iOS + ML Kit Android) + local image classifier pre-reject (ML Kit labels)
+- [ ] 28-04-PLAN.md — 4 render_mode UI bubbles (confirm/ask/narrative/reject) + ExtractionReviewSheet (snap 0.3/0.6/0.95) + reduced ExtractionReviewScreen + device gate
 
 ### Phase 29: Compliance & Privacy
 **Goal**: Avant tout upload, consentement explicite. Données de tiers déclarées. PII scrubée des logs. ComplianceGuard sur output Vision. DPA Anthropic activé. nLPD/LSFin/FINMA compliant.
@@ -352,7 +358,7 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
-| 28. Pipeline Document Honnête | v2.7 | 0/? | Planned | — |
+| 28. Pipeline Document Honnête | v2.7 | 1/4 | In progress | 2026-04-14 |
 | 29. Compliance & Privacy | v2.7 | 0/? | Planned | — |
 | 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
 
