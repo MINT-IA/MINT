@@ -1021,6 +1021,43 @@ async def extract_with_claude_vision(
             raise HTTPException(status_code=400, detail="Invalid base64 image")
 
         file_sha = _idempotency.sha256_hex(file_bytes)
+
+        # ── Phase 28-02: SSE streaming when client requests text/event-stream ──
+        accept_header = (request.headers.get("accept") or "").lower()
+        if "text/event-stream" in accept_header:
+            from sse_starlette.sse import EventSourceResponse
+            from app.services import document_stream as _ds
+
+            user_id_str = str(current_user.id)
+            canton_v = body.canton
+            lang_v = body.language_hint
+            # Cleanup base64 from request body now — the generator owns the bytes.
+            body.image_base64 = ""
+
+            async def _event_publisher():
+                try:
+                    async for ev in _ds.stream_understanding(
+                        file_bytes=file_bytes,
+                        user_id=user_id_str,
+                        canton=canton_v,
+                        lang=lang_v,
+                        file_sha=file_sha,
+                        db=db,
+                    ):
+                        yield {"event": ev["event"], "data": json.dumps(ev["data"])}
+                except Exception as exc:  # pragma: no cover - defensive
+                    logger.error("SSE publisher failed: %s", exc)
+                    yield {
+                        "event": "done",
+                        "data": json.dumps({
+                            "render_mode": "reject",
+                            "overall_confidence": 0.0,
+                            "error": "stream_failed",
+                        }),
+                    }
+
+            return EventSourceResponse(_event_publisher(), media_type="text/event-stream")
+
         try:
             result = await understand_document(
                 file_bytes=file_bytes,
