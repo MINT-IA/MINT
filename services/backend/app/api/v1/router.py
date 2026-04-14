@@ -57,6 +57,7 @@ from app.api.v1.endpoints import (
     budget,
     admin,
     anonymous_chat,
+    consents,
 )
 
 api_router = APIRouter()
@@ -209,4 +210,7 @@ api_router.include_router(
 )
 api_router.include_router(
     fresh_start.router, prefix="/coach/fresh-start", tags=["Fresh Start P14"]
+)
+api_router.include_router(
+    consents.router, prefix="/consents", tags=["Consents PRIV-01"]
 )
