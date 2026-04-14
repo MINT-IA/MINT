@@ -1722,10 +1722,27 @@ async def coach_chat(
                     db.add(CoachInsightRecord(**row))
             db.commit()
             logger.info(
-                "profile_extractor: persisted %d fact(s) user=%s topics=%s",
+                "profile_extractor: persisted %d fact(s) user=%s topics=%s summaries=%s",
                 len(extracted_facts),
                 _user.id,
                 [f.topic for f in extracted_facts],
+                [getattr(f, "summary", None) or getattr(f, "text", None) for f in extracted_facts],
+            )
+        elif extracted_facts and not (_user and _user.id):
+            # Facts extracted but no user context to persist against — this
+            # is a real path (anonymous chat) and we want it visible.
+            logger.info(
+                "profile_extractor: %d fact(s) extracted but no user_id — not persisted topics=%s",
+                len(extracted_facts),
+                [f.topic for f in extracted_facts],
+            )
+        else:
+            # No facts extracted. Log at DEBUG so prod noise stays low but
+            # we can turn it on to diagnose "coach forgets" complaints.
+            logger.debug(
+                "profile_extractor: 0 facts extracted user=%s msg_len=%d",
+                getattr(_user, "id", "anonymous"),
+                len(sanitized_message or ""),
             )
     except Exception as extract_exc:  # never fail the chat on extraction
         try:
