@@ -252,6 +252,71 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Complete Apple Sign-In flow given a verified backend response.
+  ///
+  /// This is the single source of truth for Apple auth state mutation.
+  /// [AppleSignInService.signIn] performs the Apple handshake and backend
+  /// verification but does NOT touch any state — this method owns:
+  ///   1. Saving the JWT via AuthService
+  ///   2. Setting _isLoggedIn, _userId, _email, _displayName
+  ///   3. Setting the ConversationStore user prefix
+  ///   4. Migrating local anonymous data
+  ///   5. Hydrating profile from backend
+  ///   6. Scheduling fresh-start notifications
+  ///
+  /// The response must contain `accessToken`. `userId` and `email` are
+  /// optional (backend may omit them on Apple's hidden email flow).
+  ///
+  /// Returns `true` on success, `false` on failure (error is set).
+  Future<bool> completeAppleSignIn(Map<String, dynamic> response) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final accessToken = response['accessToken'] as String?;
+      if (accessToken == null || accessToken.isEmpty) {
+        throw Exception('Missing access token in Apple Sign-In response');
+      }
+      final userId = response['userId']?.toString() ?? '';
+      final userEmail = response['email']?.toString() ?? '';
+      final displayName = response['displayName'] as String?;
+      final refreshToken = response['refreshToken'] as String?;
+
+      await AuthService.saveToken(
+        accessToken,
+        userId,
+        userEmail,
+        displayName: displayName,
+        refreshToken: refreshToken,
+      );
+
+      _userId = userId.isNotEmpty ? userId : null;
+      _email = userEmail;
+      _displayName = displayName;
+      _isLoggedIn = true;
+      _requiresEmailVerification = false;
+      _error = null;
+      // FIX-W11-7: Set user prefix for conversation isolation.
+      ConversationStore.setCurrentUserId(_userId);
+
+      await _migrateLocalDataIfNeeded();
+      await _hydrateProfileFromBackend();
+      try {
+        await FreshStartService().scheduleAllFreshStartNotifications();
+      } catch (_) {}
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = _toUserFriendlyAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   /// Send a magic link to the given email address.
   Future<bool> sendMagicLink(String email) async {
     _isLoading = true;

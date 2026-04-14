@@ -95,13 +95,22 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _handleAppleSignIn() async {
     setState(() => _appleSignInLoading = true);
     try {
-      final jwt = await AppleSignInService.signIn();
-      if (jwt != null && mounted) {
-        // CRITICAL: hydrate AuthProvider — migrates anonymous data, purges
-        // session, updates isLoggedIn state across all tabs.
-        // Without this, the token is in SecureStorage but the app doesn't
-        // know we're logged in.
-        await context.read<AuthProvider>().checkAuth();
+      final response = await AppleSignInService.signIn();
+      if (response != null && mounted) {
+        // Single source of truth: AuthProvider owns the token persistence,
+        // state mutation, anonymous data migration, profile hydration, and
+        // fresh-start scheduling. AppleSignInService does NOT touch state.
+        final ok =
+            await context.read<AuthProvider>().completeAppleSignIn(response);
+        if (!ok) {
+          if (mounted) {
+            setState(() {
+              _appleSignInError = context.read<AuthProvider>().error?.name ??
+                  'Apple Sign-In failed';
+            });
+          }
+          return;
+        }
         if (!mounted) return;
         await _navigatePostAuth();
       }
