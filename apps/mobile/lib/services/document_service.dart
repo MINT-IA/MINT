@@ -4,6 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:uuid/uuid.dart';
+
+/// v2.7 Task 7 — client-generated UUID v4 for Idempotency-Key header on
+/// all document upload paths. Prevents duplicate processing on network
+/// retries; same key returns the cached response server-side.
+const _uuidGen = Uuid();
 
 // ──────────────────────────────────────────────────────────
 // Shared helper
@@ -937,6 +943,8 @@ class DocumentService {
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }
+    // v2.7 Task 7: idempotency header (UUID v4) — safe retry on network loss.
+    request.headers['Idempotency-Key'] = _uuidGen.v4();
     request.fields['document_type'] = type.apiValue;
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
@@ -1127,6 +1135,8 @@ class DocumentService {
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
+          // v2.7 Task 7: idempotency header on retry-prone vision endpoint.
+          'Idempotency-Key': _uuidGen.v4(),
         },
         body: jsonEncode({
           'documentType': documentType,

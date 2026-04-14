@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Request, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
@@ -390,11 +390,13 @@ async def document_premier_eclairage(
 @limiter.limit("10/minute")
 async def upload_document(
     request: Request,
+    response: Response,
     file: UploadFile = File(...),
     index_in_rag: bool = Query(
         False,
         description="Whether to index extracted data in the RAG vector store",
     ),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     db: Session = Depends(get_db),
     _user: User = Depends(require_current_user),
 ):
@@ -406,6 +408,14 @@ async def upload_document(
 
     The raw PDF is never stored — only the extracted fields are kept.
     """
+    # v2.7 Task 7: Idempotency-Key primary cache (UUID v4 client-generated).
+    from app.services import idempotency as _idem
+    if idempotency_key:
+        cached = await _idem.lookup_by_key(idempotency_key)
+        if cached is not None:
+            response.headers["X-Idempotent-Replay"] = "true"
+            return DocumentUploadResponse(**cached)
+
     # Entitlement gate: vault feature required for unlimited uploads.
     # Free users are limited to 2 documents.
     effective_tier, active_features = recompute_entitlements(db, str(_user.id))
@@ -458,6 +468,16 @@ async def upload_document(
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    # v2.7 Task 7: SHA256 secondary dedup.
+    file_sha = _idem.sha256_hex(file_bytes)
+    cached_sha = await _idem.lookup_by_file_sha(file_sha)
+    if cached_sha is not None:
+        response.headers["X-Idempotent-Replay"] = "true"
+        # Also mirror into key cache if a key was provided.
+        if idempotency_key and _idem.is_valid_idempotency_key(idempotency_key):
+            await _idem.store_by_key(idempotency_key, cached_sha)
+        return DocumentUploadResponse(**cached_sha)
 
     # FIX-W12: Validate PDF magic bytes (first 5 bytes must be %PDF-)
     if not file_bytes[:5] == b"%PDF-":
@@ -551,7 +571,7 @@ async def upload_document(
     if index_in_rag and extracted.extracted_fields_count > 0:
         rag_indexed = _index_in_rag(doc_id, extracted_dict, doc_type)
 
-    return DocumentUploadResponse(
+    resp = DocumentUploadResponse(
         id=doc_id,
         document_type=doc_type,
         extracted_fields=extracted_dict,
@@ -562,6 +582,14 @@ async def upload_document(
         warnings=warnings,
         rag_indexed=rag_indexed,
     )
+
+    # v2.7 Task 7: cache the successful response for idempotent replay.
+    payload = resp.model_dump(mode="json")
+    if idempotency_key and _idem.is_valid_idempotency_key(idempotency_key):
+        await _idem.store_by_key(idempotency_key, payload)
+    await _idem.store_by_file_sha(file_sha, payload)
+
+    return resp
 
 
 @router.get("/", response_model=DocumentListResponse)
