@@ -130,6 +130,7 @@ import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
@@ -181,8 +182,8 @@ final _router = GoRouter(
       final tab = state.uri.queryParameters['tab'];
       final intent = state.uri.queryParameters['intent'];
       if (tab == '1') {
-        // Tab 1 = Coach — redirect to /coach/chat with intent as prompt
-        final query = intent != null ? '?prompt=$intent' : '';
+        // Tab 1 = Coach — redirect to /coach/chat with intent as topic
+        final query = intent != null ? '?topic=$intent' : '';
         return '/coach/chat$query';
       }
       if (tab == '2') {
@@ -303,10 +304,18 @@ final _router = GoRouter(
               path: '/coach/chat',
               scope: RouteScope.public,
               builder: (context, state) {
-                final prompt = state.uri.queryParameters['prompt'];
+                final topic = state.uri.queryParameters['topic'];
                 final conversationId = state.uri.queryParameters['conversationId'];
+                // Build a CoachEntryPayload from the topic query param.
+                // This replaces the old ?prompt= pattern with structured data.
+                final CoachEntryPayload? entryPayload = topic != null
+                    ? CoachEntryPayload(
+                        source: CoachEntrySource.direct,
+                        topic: topic,
+                      )
+                    : null;
                 return CoachChatScreen(
-                  initialPrompt: prompt,
+                  entryPayload: entryPayload,
                   conversationId: conversationId,
                   isEmbeddedInTab: true,
                 );
@@ -1069,7 +1078,7 @@ final _router = GoRouter(
     ScopedGoRoute(path: '/advisor/wizard', redirect: (context, state) {
       final section = state.uri.queryParameters['section'];
       if (section == null || section.isEmpty) return '/coach/chat';
-      return '/coach/chat?prompt=$section';
+      return '/coach/chat?topic=$section';
     }),
     ScopedGoRoute(path: '/coach/agir', redirect: (_, __) => '/coach/chat'),
     ScopedGoRoute(path: '/onboarding/smart', scope: RouteScope.onboarding, redirect: (_, __) => '/coach/chat'),
@@ -1375,7 +1384,7 @@ class _MagicLinkVerifyScreenState extends State<_MagicLinkVerifyScreen> {
         context.go('/coach/chat');
       } else {
         // NAV-AUDIT: welcome prompt triggers onboarding flow in coach
-        context.go('/coach/chat?prompt=onboarding');
+        context.go('/coach/chat?topic=onboarding');
       }
     } else {
       setState(() {

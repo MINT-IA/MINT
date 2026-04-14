@@ -320,22 +320,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _sendMessage(payload.userMessage!);
             });
+          } else if (payload.topic == 'onboarding') {
+            // Onboarding topic — send a real intake question instead of
+            // injecting raw context. This replaces the old ?prompt=onboarding.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _sendMessage(
+                'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
+              );
+            });
           } else if (payload.topic != null) {
             // Topic-based entry — inject context into system prompt.
             // The topic context is injected via the memory block,
             // not as a user message.
             _entryPayloadContext = payload.toContextInjection();
           }
-        } else if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
-          // Contextual routing: if the prompt is "onboarding", replace with
-          // a real intake question instead of sending the word literally.
-          final prompt = widget.initialPrompt!;
-          final realPrompt = prompt == 'onboarding'
-              ? 'Salut, je viens de creer mon compte. Par ou je commence\u00a0?'
-              : prompt;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _sendMessage(realPrompt);
-          });
         }
       } else {
         // CHAT-01: Anonymous user (no profile) — show silent opener

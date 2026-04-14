@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (completed) {
       context.go('/coach/chat');
     } else {
-      context.go('/coach/chat?prompt=onboarding');
+      context.go('/coach/chat?topic=onboarding');
     }
   }
 
