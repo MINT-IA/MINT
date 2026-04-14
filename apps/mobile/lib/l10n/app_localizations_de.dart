@@ -22601,4 +22601,12 @@ class SDe extends S {
   @override
   String get coachBudgetDailyLimitReached =>
       'Wir sind heute gut vorangekommen. Ruh dich aus, ich bin morgen da.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'Dieses Bild sieht nicht nach einem Finanzdokument aus. Versuch es nochmal mit einem Foto deines Ausweises, Lohnabrechnung oder Kontoauszugs.';
+
+  @override
+  String get docScanScannerError =>
+      'Der Scanner konnte nicht gestartet werden. Du kannst stattdessen eine Datei aus deiner Galerie importieren.';
 }

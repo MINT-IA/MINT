@@ -22609,4 +22609,12 @@ class SIt extends S {
   @override
   String get coachBudgetDailyLimitReached =>
       'Oggi abbiamo fatto buoni progressi. Riposati, ti aspetto domani.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'Questa immagine non sembra un documento finanziario. Riprova con una foto del tuo certificato, busta paga o estratto conto.';
+
+  @override
+  String get docScanScannerError =>
+      'Lo scanner non è riuscito ad avviarsi. Puoi importare un file dalla tua galleria.';
 }

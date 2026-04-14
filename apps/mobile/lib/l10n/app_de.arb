@@ -10767,5 +10767,13 @@
   "coachBudgetDailyLimitReached": "Wir sind heute gut vorangekommen. Ruh dich aus, ich bin morgen da.",
   "@coachBudgetDailyLimitReached": {
     "description": "v2.7 Task 4 — shown when user hits daily token budget hard cap."
+  },
+  "docScanRejectedNonFinancial": "Dieses Bild sieht nicht nach einem Finanzdokument aus. Versuch es nochmal mit einem Foto deines Ausweises, Lohnabrechnung oder Kontoauszugs.",
+  "@docScanRejectedNonFinancial": {
+    "description": "v2.7 Phase 28-03 — surfaced when LocalImageClassifier rejects an image (food/selfie/landscape/etc.) before backend call."
+  },
+  "docScanScannerError": "Der Scanner konnte nicht gestartet werden. Du kannst stattdessen eine Datei aus deiner Galerie importieren.",
+  "@docScanScannerError": {
+    "description": "v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch."
   }
 }

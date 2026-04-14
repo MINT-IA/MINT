@@ -22550,4 +22550,12 @@ class SFr extends S {
   @override
   String get coachBudgetDailyLimitReached =>
       'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'Cette image ne ressemble pas à un document financier. Réessaie avec une photo de ton certificat, ta fiche de salaire ou un relevé.';
+
+  @override
+  String get docScanScannerError =>
+      'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.';
 }

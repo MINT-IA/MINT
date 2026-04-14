@@ -22438,4 +22438,12 @@ class SEn extends S {
   @override
   String get coachBudgetDailyLimitReached =>
       'We\'ve made good progress today. Rest, I\'ll be here tomorrow.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'This image does not look like a financial document. Try again with a photo of your certificate, payslip or statement.';
+
+  @override
+  String get docScanScannerError =>
+      'The scanner could not start. You can import a file from your gallery instead.';
 }

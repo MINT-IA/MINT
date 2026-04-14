@@ -22554,4 +22554,12 @@ class SPt extends S {
   @override
   String get coachBudgetDailyLimitReached =>
       'Avançámos bem hoje. Descansa, espero-te amanhã.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'Esta imagem não parece um documento financeiro. Tenta novamente com uma foto do teu certificado, recibo de salário ou extrato.';
+
+  @override
+  String get docScanScannerError =>
+      'O scanner não conseguiu iniciar. Podes importar um ficheiro da tua galeria.';
 }

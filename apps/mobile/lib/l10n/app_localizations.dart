@@ -39560,6 +39560,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.'**
   String get coachBudgetDailyLimitReached;
+
+  /// v2.7 Phase 28-03 — surfaced when LocalImageClassifier rejects an image (food/selfie/landscape/etc.) before backend call.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette image ne ressemble pas à un document financier. Réessaie avec une photo de ton certificat, ta fiche de salaire ou un relevé.'**
+  String get docScanRejectedNonFinancial;
+
+  /// v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.'**
+  String get docScanScannerError;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
