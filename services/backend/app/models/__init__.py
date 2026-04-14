@@ -32,6 +32,7 @@ from app.models.banking_consent import BankingConsentModel
 from app.models.external_data_source import ExternalDataSourceModel
 from app.models.magic_link_token import MagicLinkTokenModel
 from app.models.coach_insight import CoachInsightRecord
+from app.models.document_memory import DocumentMemory
 
 __all__ = [
     "User",
@@ -58,4 +59,5 @@ __all__ = [
     "ExternalDataSourceModel",
     "MagicLinkTokenModel",
     "CoachInsightRecord",
+    "DocumentMemory",
 ]
