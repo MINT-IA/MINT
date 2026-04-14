@@ -341,6 +341,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
               );
             });
+          } else if (_isNotificationTopic(payload.topic)) {
+            // Notification topics (monthlyCheckIn, commitmentReminder,
+            // freshStart): inject a coach-authored opening message so the
+            // conversation starts with a concrete question tied to the
+            // notification intent, not a generic greeting.
+            final opener = _notificationOpener(payload.topic!, payload.data);
+            if (opener != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _addCoachOpenerMessage(opener);
+              });
+            }
+            // Still inject the topic context so downstream prompts know
+            // this is a notification-driven entry.
+            _entryPayloadContext = payload.toContextInjection();
           } else if (payload.topic != null) {
             // Topic-based entry — inject context into system prompt.
             // The topic context is injected via the memory block,
@@ -429,6 +443,53 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     // Increment conversation count for opt-in tracking.
     _incrementConversationCount();
+  }
+
+  /// Returns true if [topic] is a notification-driven entry topic that
+  /// should trigger a coach-authored opening message.
+  bool _isNotificationTopic(String? topic) {
+    if (topic == null) return false;
+    return topic == 'monthlyCheckIn' ||
+        topic == 'commitmentReminder' ||
+        topic == 'freshStart';
+  }
+
+  /// Returns the opening coach message for a notification topic, or null
+  /// if the topic has no dedicated opener.
+  ///
+  /// [data] may carry notification-specific fields. For commitmentReminder,
+  /// `data['commitment']` (String) is interpolated into the message.
+  String? _notificationOpener(String topic, Map<String, dynamic>? data) {
+    switch (topic) {
+      case 'monthlyCheckIn':
+        return 'On fait le point sur le mois\u00a0?';
+      case 'commitmentReminder':
+        final commitment = data?['commitment']?.toString();
+        if (commitment != null && commitment.trim().isNotEmpty) {
+          return 'Tu m\u2019avais dit que tu allais $commitment. C\u2019est fait\u00a0?';
+        }
+        return 'Tu avais un engagement a tenir. C\u2019est fait\u00a0?';
+      case 'freshStart':
+        return 'Nouveau mois. On commence par quoi\u00a0?';
+      default:
+        return null;
+    }
+  }
+
+  /// Appends a coach-authored opening message to the conversation.
+  /// Dismisses the silent opener so the chat feels like a live conversation.
+  void _addCoachOpenerMessage(String content) {
+    if (!mounted) return;
+    setState(() {
+      _showSilentOpener = false;
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: content,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _scrollToBottom();
   }
 
   /// Increment the conversation count in SharedPreferences.
