@@ -1511,10 +1511,21 @@ async def _run_agent_loop(
                     inp["context_message"] = pattern.sub("[***]", inp["context_message"])
         flutter_tool_calls.extend(external_calls)
 
-        # If no internal tools to execute, we're done
+        # If no internal tools to execute, we're done — but only if Claude
+        # actually produced text. If answer_text is empty (Claude only emitted
+        # external/Flutter-bound tool calls without narration), force one more
+        # iteration without tools so Claude generates the user-facing reply.
         if not internal_calls:
-            final_answer = answer_text
-            break
+            if answer_text and answer_text.strip():
+                final_answer = answer_text
+                break
+            # Empty text + only external/Flutter tools → re-prompt for narration
+            current_question = (
+                "Tu viens d'émettre des actions UI mais pas de message texte. "
+                "Maintenant écris ta réponse à l'utilisateur en texte clair "
+                "(verdict-first, max 4 phrases, pas de préambule)."
+            )
+            continue
 
         # Execute internal tools and collect results
         tool_results: list = []
