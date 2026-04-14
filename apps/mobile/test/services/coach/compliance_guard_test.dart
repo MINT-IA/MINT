@@ -718,7 +718,7 @@ void main() {
         'Tu es dans le top 10% des épargnants.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "meilleur que 80%" comparison', () {
@@ -733,7 +733,7 @@ void main() {
         'Tu es devant 60% des investisseurs.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "parmi les meilleurs" comparison', () {
@@ -750,7 +750,7 @@ void main() {
         'Ton score est au-dessus de la moyenne.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
   });
 
