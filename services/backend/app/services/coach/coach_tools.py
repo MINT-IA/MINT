@@ -83,6 +83,11 @@ INTERNAL_TOOL_NAMES: list[str] = [
     # Flutter-bound tools (intercepted by widget_renderer for SecureStorage).
     # They MUST NOT appear here — routing through INTERNAL_TOOL_NAMES would
     # prevent Flutter from receiving them. See COUP-01/COUP-04.
+    #
+    # Audit FIX 7 note: `generate_financial_plan` and `generate_document` are
+    # intentionally NOT listed here. They are Flutter-bound WRITE tools
+    # dispatched to PlanPreviewCard / DocumentCard by widget_renderer.dart.
+    # Backend never executes them — no stub handler is needed.
 ]
 
 # ---------------------------------------------------------------------------
