@@ -156,7 +156,7 @@ class TimelineProvider extends TensionCardProvider {
             : 'timelineCommitmentActive',
         subtitle: (c['whenText'] as String? ?? c['ifThenText'] as String? ?? '')
             .toString(),
-        deepLink: '/coach/chat?prompt=Montre-moi+mes+engagements',
+        deepLink: '/coach/chat?prompt=commitments',
         date: date,
         visualState: isCompleted ? TensionType.earned : TensionType.pulsing,
       ));
@@ -189,7 +189,7 @@ class TimelineProvider extends TensionCardProvider {
         id: 'couple_estimate',
         title: 'timelineCoupleEstimate',
         subtitle: '',
-        deepLink: '/coach/chat?prompt=Questions+pour+mon+partenaire',
+        deepLink: '/coach/chat?prompt=partnerQuestions',
         date: DateTime.now(),
         visualState: TensionType.earned,
       ));
@@ -204,7 +204,7 @@ class TimelineProvider extends TensionCardProvider {
         id: 'projection_${landmark.type}_${landmark.date}',
         title: 'timelineProjection',
         subtitle: landmark.message,
-        deepLink: '/coach/chat?prompt=Parle-moi+de+mon+prochain+jalon',
+        deepLink: '/coach/chat?prompt=nextLandmark',
         date: date,
         visualState: TensionType.ghosted,
       ));
