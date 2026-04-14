@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
 status: Phase 28-03 shipped — native VisionKit/ML Kit document scanner + local pre-reject classifier wired into document_scan_screen, ImagePicker removed from scope, 6 ARBs updated.
-stopped_at: Completed 28-03-PLAN.md
-last_updated: "2026-04-14T21:29:21.776Z"
+stopped_at: Completed 28-02-PLAN.md
+last_updated: "2026-04-14T21:40:29.575Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 18
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -88,6 +88,7 @@ Progress: [######----] 60% (1/4 phases, 3/5 plans)
 | Phase 26 P01 | 4min | 3 tasks | 2 files |
 | 26 | 1 | - | - |
 | Phase 28 P03 | 22 min | 3 tasks | 17 files |
+| Phase 28-pipeline-document P02 | 18 min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -146,6 +147,9 @@ Progress: [######----] 60% (1/4 phases, 3/5 plans)
 - [Phase 28]: [Phase 28-03]: Picked flutter_doc_scanner (wraps VisionKit + ML Kit Doc Scanner GA 2024) over hand-rolled MethodChannel
 - [Phase 28]: [Phase 28-03]: google_mlkit_image_labeling bumped from 0.13 to 0.14.2 due to commons ^0.11 conflict with text_recognition 0.15
 - [Phase 28]: [Phase 28-03]: Local pre-reject = 16 labels, 0.7 confidence, top-3, fail-open everywhere; Screenshot deliberately excluded (banking screenshots are valid input)
+- [Phase 28-02]: Single endpoint, two content types via Accept header — no new SSE route
+- [Phase 28-02]: Field events ordered by EMOTIONAL_IMPORTANCE not PDF reading order — Tom Hanks reading effect
+- [Phase 28-02]: No new Flutter dep — custom 60-line SSE parser on http.StreamedResponse + LineSplitter; Dart 3 sealed DocumentEvent
 
 ### From Previous Milestones
 
@@ -168,8 +172,8 @@ Progress: [######----] 60% (1/4 phases, 3/5 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-14T21:29:21.774Z
-Stopped at: Completed 28-03-PLAN.md
+Last session: 2026-04-14T21:40:29.573Z
+Stopped at: Completed 28-02-PLAN.md
 Resume file: None
 
 ---
