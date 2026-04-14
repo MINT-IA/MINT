@@ -342,7 +342,7 @@ Plans:
 - [x] 29-03-PLAN.md — Presidio PII scrubber + FPE IBAN/AVS + fact_key allowlist (8 keys) + CI log-gate (PRIV-03, PRIV-06, P1)
 - [x] 29-04-PLAN.md — VisionGuard Haiku LLM-as-judge + NumericSanity + drop auto-confirm + BatchValidationBubble + adversarial PDF suite (PRIV-05, PRIV-08, P1)
 - [x] 29-05-PLAN.md — Third-party opposable declaration + nominative receipt + session-scoped routing + invite stub (PRIV-02, P1)
-- [ ] 29-06-PLAN.md — Bedrock EU migration (shadow→primary) + two-stage image masking + DPA technical annex + legal checklist (PRIV-07, P0)
+- [x] 29-06-PLAN.md — Bedrock EU migration (shadow→primary) + two-stage image masking + DPA technical annex + legal checklist (PRIV-07, P0)
 
 ### Phase 30: Device & Test Gate
 **Goal**: Scénario Sophie complet validé sur iPhone + Android réels. Corpus fixtures documents couvre les cas critiques. CI teste le flow document end-to-end.
@@ -367,7 +367,7 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 |-------|-----------|----------------|--------|-----------|
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
 | 28. Pipeline Document Honnête | v2.7 | 4/4 | Complete   | 2026-04-14 |
-| 29. Compliance & Privacy | v2.7 | 5/6 | In Progress|  |
+| 29. Compliance & Privacy | v2.7 | 6/6 | Complete   | 2026-04-14 |
 | 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
 
 ---

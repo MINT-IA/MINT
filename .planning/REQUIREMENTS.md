@@ -154,7 +154,7 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 - [x] **PRIV-04**: `evidence_text` persisté chiffré at-rest (Fernet + clé dérivée user)
 - [x] **PRIV-05**: ComplianceGuard appliqué aux `summary` et `questions_for_user` issus de Claude Vision
 - [x] **PRIV-06**: Allowlist `fact_key` — minimisation nLPD, champs inutiles à MINT dropés post-extraction
-- [ ] **PRIV-07**: DPA Anthropic signé + Zero Data Retention activé + privacy policy MINT mise à jour (sous-traitant US documenté)
+- [x] **PRIV-07**: DPA Anthropic signé + Zero Data Retention activé + privacy policy MINT mise à jour (sous-traitant US documenté)
 - [x] **PRIV-08**: Statut `confirmed` auto à 0.9 supprimé — toujours validation user explicite (LSFin éducatif, pas décisionnel)
 
 ### Device & Test Gate (Phase 30)
