@@ -46,7 +46,7 @@ class ProgressMilestoneDetector {
         description:
             '${completeness.toStringAsFixed(0)}\u00a0% de tes donnees sont a jour.',
         percent: completeness,
-        route: '/coach/chat?prompt=profile',
+        route: '/coach/chat?topic=profileCompletion',
         priorityScore: 0.5,
       ));
     }
