@@ -41,6 +41,8 @@ import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
@@ -181,6 +183,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Non-null only on the first session after intent selection.
   String? _intentOpenerText;
 
+  /// Subscription to ScreenCompletionTracker for immediate reaction
+  /// when user completes a simulation and returns to coach.
+  StreamSubscription<ScreenReturn>? _screenReturnSub;
+
   @override
   void initState() {
     super.initState();
@@ -193,6 +199,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
     _loadCashLevel();
     _loadOnboardingPayload();
+    _subscribeToScreenReturns();
   }
 
   /// Load voice intensity from SharedPreferences.
@@ -345,6 +352,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   void dispose() {
+    _screenReturnSub?.cancel();
     _autoSaveConversation();
     _controller.dispose();
     _scrollController.dispose();
@@ -358,6 +366,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_conversationId != null && _messages.any((m) => m.isUser)) {
       await _conversationStore.saveConversation(_conversationId!, _messages);
     }
+  }
+
+  /// Subscribe to ScreenCompletionTracker stream so the coach can react
+  /// immediately when the user completes a simulation (e.g., document scan,
+  /// retirement dashboard) and returns to the chat.
+  void _subscribeToScreenReturns() {
+    _screenReturnSub = ScreenCompletionTracker.stream.listen((screenReturn) {
+      if (!mounted) return;
+      // Inject the screen return as context for the next coach response.
+      final fields = screenReturn.updatedFields;
+      final fieldSummary = fields != null && fields.isNotEmpty
+          ? fields.entries.map((e) => '${e.key}: ${e.value}').join(', ')
+          : '';
+      final contextLine = "L'utilisateur vient de terminer une simulation "
+          "(${screenReturn.route}, r\u00e9sultat\u00a0: ${screenReturn.outcome.name})"
+          "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
+      _entryPayloadContext = contextLine;
+    });
   }
 
   // ════════════════════════════════════════════════════════════
