@@ -76,3 +76,7 @@ apps/mobile/test/golden_screenshots/failures/
 apps/mobile/test/goldens/failures/
 services/backend/MagicMock/
 test_anonymous_chat.db
+# Finder duplicate files
+**/* 2.lock
+**/* 2.dart
+**/* 2.png
