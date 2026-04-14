@@ -134,3 +134,25 @@ mintHomeSimulate
 mintHomeTalkAboutIt
 mintHomeWhatscoming
 mintHomeYearsMonths
+# v2.6 coach greeting + disclaimer keys (Phase 22)
+coachGreetingRandom1
+coachGreetingRandom2
+coachGreetingRandom3
+coachGreetingRandom4
+coachGreetingRandom5
+coachGreetingRandom6
+coachGreetingRandom7
+coachGreetingRandom8
+coachGreetingRandom9
+coachGreetingRandom10
+coachGreetingRandom11
+coachGreetingRandom12
+coachGreetingRandom13
+coachGreetingRandom14
+coachGreetingRandom15
+coachGreetingRandom16
+coachGreetingRandom17
+coachGreetingRandom18
+coachGreetingRandom19
+coachGreetingRandom20
+coachDisclaimerCollapsed
