@@ -214,7 +214,7 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('SafetyGate', () {
-    test('task without disclaimer → FAIL', () {
+    test('task without disclaimer → rejected', () {
       final task = AgentTask(
         id: 'test_1',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -233,7 +233,7 @@ void main() {
       expect(result.violations, contains(contains('Disclaimer')));
     });
 
-    test('task without validationPrompt → FAIL', () {
+    test('task without validationPrompt → rejected', () {
       final task = AgentTask(
         id: 'test_2',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -252,7 +252,7 @@ void main() {
       expect(result.violations, contains(contains('Validation prompt')));
     });
 
-    test('task with IBAN in field → FAIL', () {
+    test('task with IBAN in field → rejected', () {
       final task = AgentTask(
         id: 'test_3',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -274,7 +274,7 @@ void main() {
       );
     });
 
-    test('task with SSN/AVS number → FAIL', () {
+    test('task with SSN/AVS number → rejected', () {
       final task = AgentTask(
         id: 'test_ssn',
         type: AgentTaskType.avsExtractRequest,
@@ -293,7 +293,7 @@ void main() {
       expect(result.violations, anyElement(contains('SSN')));
     });
 
-    test('task with auto-submitted status → FAIL', () {
+    test('task with auto-submitted status → rejected', () {
       final task = AgentTask(
         id: 'test_4',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -312,7 +312,7 @@ void main() {
       expect(result.violations, anyElement(contains('pendingValidation')));
     });
 
-    test('task with empty fieldsNeedingReview → FAIL', () {
+    test('task with empty fieldsNeedingReview → rejected', () {
       final task = AgentTask(
         id: 'test_5',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -653,7 +653,7 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('SafetyGate — Banned actions', () {
-    test('task containing "virement" keyword → FAIL', () {
+    test('task containing "virement" keyword → rejected', () {
       final task = AgentTask(
         id: 'adv_1',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -672,7 +672,7 @@ void main() {
       expect(result.violations, anyElement(contains('virement')));
     });
 
-    test('task containing "ordre de bourse" → FAIL', () {
+    test('task containing "ordre de bourse" → rejected', () {
       final task = AgentTask(
         id: 'adv_2',
         type: AgentTaskType.fiscalDossierPrep,
@@ -691,7 +691,7 @@ void main() {
       expect(result.violations, anyElement(contains('ordre de bourse')));
     });
 
-    test('task containing ISIN ticker → FAIL (no-advice rule)', () {
+    test('task containing ISIN ticker → rejected (no-advice rule)', () {
       final task = AgentTask(
         id: 'adv_3',
         type: AgentTaskType.fiscalDossierPrep,
@@ -710,7 +710,7 @@ void main() {
       expect(result.violations, anyElement(contains('ISIN')));
     });
 
-    test('task with "débiter" in generated document → FAIL', () {
+    test('task with "débiter" in generated document → rejected', () {
       final task = AgentTask(
         id: 'adv_4',
         type: AgentTaskType.caisseLetterGeneration,
@@ -930,7 +930,7 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('SafetyGate — PII extended', () {
-    test('email in pre-filled field → FAIL', () {
+    test('email in pre-filled field → rejected', () {
       final task = AgentTask(
         id: 'pii_email',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -949,7 +949,7 @@ void main() {
       expect(result.violations, anyElement(contains('email')));
     });
 
-    test('phone number in generated document → FAIL', () {
+    test('phone number in generated document → rejected', () {
       final task = AgentTask(
         id: 'pii_phone',
         type: AgentTaskType.caisseLetterGeneration,
@@ -969,7 +969,7 @@ void main() {
       expect(result.violations, anyElement(contains('phone')));
     });
 
-    test('phone number in pre-filled field → FAIL', () {
+    test('phone number in pre-filled field → rejected', () {
       final task = AgentTask(
         id: 'pii_phone2',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -988,7 +988,7 @@ void main() {
       expect(result.violations, anyElement(contains('phone')));
     });
 
-    test('SSN in generated document → FAIL', () {
+    test('SSN in generated document → rejected', () {
       final task = AgentTask(
         id: 'pii_ssn_doc',
         type: AgentTaskType.avsExtractRequest,
@@ -1014,7 +1014,7 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('SafetyGate — Banned terms', () {
-    test('"garanti" in title → FAIL', () {
+    test('"garanti" in title → rejected', () {
       final task = AgentTask(
         id: 'ban_1',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -1033,7 +1033,7 @@ void main() {
       expect(result.violations, anyElement(contains('garanti')));
     });
 
-    test('"optimal" in description → FAIL', () {
+    test('"optimal" in description → rejected', () {
       final task = AgentTask(
         id: 'ban_2',
         type: AgentTaskType.fiscalDossierPrep,
@@ -1052,7 +1052,7 @@ void main() {
       expect(result.violations, anyElement(contains('optimal')));
     });
 
-    test('"sans risque" in generated document → FAIL', () {
+    test('"sans risque" in generated document → rejected', () {
       final task = AgentTask(
         id: 'ban_3',
         type: AgentTaskType.caisseLetterGeneration,
@@ -1072,7 +1072,7 @@ void main() {
       expect(result.violations, anyElement(contains('sans risque')));
     });
 
-    test('"conseiller" in pre-filled field → FAIL', () {
+    test('"conseiller" in pre-filled field → rejected', () {
       final task = AgentTask(
         id: 'ban_4',
         type: AgentTaskType.taxDeclarationPreFill,
@@ -1097,7 +1097,7 @@ void main() {
   // ══════════════════════════════════════════════════════════════
 
   group('SafetyGate — Disclaimer', () {
-    test('disclaimer without "éducatif" → FAIL', () {
+    test('disclaimer without "éducatif" → rejected', () {
       final task = AgentTask(
         id: 'disc_1',
         type: AgentTaskType.taxDeclarationPreFill,
