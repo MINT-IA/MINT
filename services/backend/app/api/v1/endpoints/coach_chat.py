@@ -836,6 +836,86 @@ def _handle_retrieve_memories(
 
 MAX_AGENT_LOOP_ITERATIONS = 4  # v2.7: 3→4 to allow one reflective retry on empty end_turn
 MAX_AGENT_LOOP_TOKENS = 8000
+
+# save_fact whitelist: only these ProfileModel.data keys can be written from
+# conversational tool calls. Mirrors the enum exposed in coach_tools.py so
+# the two stay in lockstep. Any key not in this set is rejected.
+_SAVE_FACT_ALLOWED_KEYS: set[str] = {
+    # Identity / location
+    "birthYear", "dateOfBirth", "canton", "commune",
+    "householdType", "employmentStatus", "has2ndPillar",
+    "goal", "targetRetirementAge", "gender",
+    # Income
+    "incomeNetMonthly", "incomeGrossMonthly",
+    "incomeNetYearly", "incomeGrossYearly",
+    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    # LPP
+    "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
+    "avoirLppSurobligatoire", "lppBuybackMax", "hasVoluntaryLpp",
+    # 3a
+    "pillar3aAnnual", "pillar3aBalance",
+    # Savings / wealth / debt
+    "savingsMonthly", "totalSavings", "wealthEstimate",
+    "hasDebt", "totalDebt",
+    # Spouse
+    "spouseBirthYear", "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears",
+    # AVS
+    "hasAvsGaps", "avsContributionYears",
+}
+
+_SAVE_FACT_NUMERIC_KEYS: set[str] = {
+    "birthYear", "targetRetirementAge", "incomeNetMonthly",
+    "incomeGrossMonthly", "incomeNetYearly", "incomeGrossYearly",
+    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
+    "avoirLppSurobligatoire", "lppBuybackMax",
+    "pillar3aAnnual", "pillar3aBalance", "savingsMonthly",
+    "totalSavings", "wealthEstimate", "totalDebt",
+    "spouseBirthYear", "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears", "avsContributionYears",
+}
+
+_SAVE_FACT_BOOL_KEYS: set[str] = {
+    "has2ndPillar", "hasVoluntaryLpp", "hasDebt", "hasAvsGaps",
+}
+
+
+def _coerce_fact_value(key: str, value):
+    """Coerce an LLM-provided value into the expected column type.
+
+    Returns None when the value cannot be safely coerced — caller reports
+    an error back to Claude so it can ask the user to restate.
+    """
+    if value is None:
+        return None
+    if key in _SAVE_FACT_NUMERIC_KEYS:
+        try:
+            if isinstance(value, bool):  # bool is a subclass of int in Python
+                return None
+            if isinstance(value, (int, float)):
+                return float(value)
+            if isinstance(value, str):
+                cleaned = value.replace("'", "").replace(" ", "").replace(",", ".")
+                return float(cleaned)
+        except (TypeError, ValueError):
+            return None
+        return None
+    if key in _SAVE_FACT_BOOL_KEYS:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            v = value.strip().lower()
+            if v in {"true", "yes", "oui", "1"}:
+                return True
+            if v in {"false", "no", "non", "0"}:
+                return False
+        return None
+    # String-valued keys: canton/commune/goal/householdType/employmentStatus/
+    # gender/dateOfBirth
+    if isinstance(value, str):
+        return value.strip() or None
+    return None
 AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
@@ -1127,6 +1207,65 @@ def _execute_internal_tool(
                 logger.warning("Could not mirror insight to profile: %s", mirror_exc)
                 db.rollback()
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
+
+    # ─────────────────────────────────────────────────────────────────
+    # save_fact — WRITE typed fact directly into ProfileModel.data so
+    # downstream calculators read it. Whitelist-guarded; unknown keys
+    # are rejected so Claude can't invent columns.
+    # ─────────────────────────────────────────────────────────────────
+    if name == "save_fact":
+        fact_key = tool_input.get("key", "")
+        fact_value = tool_input.get("value")
+        fact_conf = tool_input.get("confidence", "medium")
+        if fact_key not in _SAVE_FACT_ALLOWED_KEYS:
+            logger.info("save_fact rejected unknown key: %s", fact_key[:40])
+            return (
+                f"[save_fact ÉCHEC: clé inconnue '{fact_key}'] "
+                "Utilise une des clés canoniques définies dans le schema."
+            )
+        if fact_conf == "low":
+            return (
+                "Pour cette info j'aimerais qu'on soit plus sûr — "
+                "tu peux me le redire plus précisément ?"
+            )
+        if user_id and db:
+            try:
+                from app.models.profile_model import ProfileModel as _PM
+
+                profile = (
+                    db.query(_PM)
+                    .filter(_PM.user_id == user_id)
+                    .order_by(_PM.updated_at.desc())
+                    .first()
+                )
+                if profile is None:
+                    return "[save_fact ÉCHEC: profil introuvable]"
+                data = dict(profile.data or {})
+                # Coerce basic types: numbers come back as int/float from
+                # Claude; booleans as true/false; strings untouched.
+                coerced = _coerce_fact_value(fact_key, fact_value)
+                if coerced is None:
+                    return (
+                        f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
+                    )
+                data[fact_key] = coerced
+                profile.data = data
+                profile.updated_at = datetime.now(timezone.utc)
+                db.add(profile)
+                db.commit()
+                logger.info(
+                    "save_fact: user=%s key=%s value=%r conf=%s",
+                    str(user_id)[:8] + "...",
+                    fact_key,
+                    coerced,
+                    fact_conf,
+                )
+                return f"Fait enregistré : {fact_key} = {coerced}"
+            except Exception as exc:
+                db.rollback()
+                logger.exception("save_fact DB commit failed: %s", fact_key)
+                return f"[save_fact ÉCHEC: {type(exc).__name__}]"
+        return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
 
     # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
     # Actual DB persistence happens via dedicated endpoint (Plan 02).

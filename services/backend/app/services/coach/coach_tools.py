@@ -481,6 +481,117 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
     # ─────────────────────────────────────────────────────────────────
+    # save_fact — WRITE: persist a TYPED quantitative fact to ProfileModel.data
+    # Unlike save_insight (which writes a free-text summary to a memory table),
+    # save_fact writes a canonical, machine-readable value that downstream
+    # calculators (AVS, LPP, 3a, budget, tax) consume directly.
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "save_fact",
+        "category": "write",
+        "access_level": "user_scoped",
+        "description": (
+            "MANDATORY: call this whenever the user states a concrete numeric "
+            "or categorical fact about themselves. This is how MINT's profile "
+            "fills up from conversation — without it, every calculator must "
+            "fall back to estimates.\n\n"
+            "Trigger examples:\n"
+            "  - 'mon salaire net c'est 7600' → key='incomeNetMonthly', value=7600\n"
+            "  - 'je gagne 120k brut par an' → key='incomeGrossYearly', value=120000\n"
+            "  - 'j'ai 70k sur mon 2e pilier' → key='avoirLpp', value=70000\n"
+            "  - 'j'ai un 3a avec 32000 dessus' → key='pillar3aBalance', value=32000\n"
+            "  - 'je mets 7258 par an sur mon 3a' → key='pillar3aAnnual', value=7258\n"
+            "  - 'je vis à Sion' → key='commune', value='Sion'\n"
+            "  - 'en Valais' → key='canton', value='VS'\n"
+            "  - 'je suis marié' → key='householdType', value='couple'\n"
+            "  - 'je suis indépendant' → key='employmentStatus', value='independant'\n"
+            "  - 'j'ai 15000 de dettes carte crédit' → key='totalDebt', value=15000 "
+            "    AND key='hasDebt', value=true\n"
+            "  - 'je mets 500 de côté par mois' → key='savingsMonthly', value=500\n\n"
+            "Rules:\n"
+            "  - Only call save_fact for facts the user STATED explicitly. "
+            "    Never save inferred or assumed values.\n"
+            "  - confidence='high' when the user is unambiguous. 'medium' when "
+            "    rounded/approximate ('about 5k' → medium). 'low' when unclear — "
+            "    ask for clarification instead of saving low-confidence facts.\n"
+            "  - For currency values, always pass the number in CHF, "
+            "    without thousand separators (7600, not '7'600 CHF')."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "enum": [
+                        # Identity / location
+                        "birthYear",
+                        "dateOfBirth",
+                        "canton",
+                        "commune",
+                        "householdType",
+                        "employmentStatus",
+                        "has2ndPillar",
+                        "goal",
+                        "targetRetirementAge",
+                        "gender",
+                        # Income
+                        "incomeNetMonthly",
+                        "incomeGrossMonthly",
+                        "incomeNetYearly",
+                        "incomeGrossYearly",
+                        "selfEmployedNetIncome",
+                        "employmentRate",
+                        "annualBonus",
+                        # LPP
+                        "lppInsuredSalary",
+                        "avoirLpp",
+                        "avoirLppObligatoire",
+                        "avoirLppSurobligatoire",
+                        "lppBuybackMax",
+                        "hasVoluntaryLpp",
+                        # 3a
+                        "pillar3aAnnual",
+                        "pillar3aBalance",
+                        # Savings / wealth / debt
+                        "savingsMonthly",
+                        "totalSavings",
+                        "wealthEstimate",
+                        "hasDebt",
+                        "totalDebt",
+                        # Spouse (couple)
+                        "spouseBirthYear",
+                        "spouseIncomeNetMonthly",
+                        "spouseAvsContributionYears",
+                        # Insurance / social
+                        "hasAvsGaps",
+                        "avsContributionYears",
+                    ],
+                    "description": (
+                        "The canonical profile key to update. Must be one of "
+                        "the enum values. Do not invent keys."
+                    ),
+                },
+                "value": {
+                    "description": (
+                        "The value to store. Numeric for amounts (in CHF), "
+                        "boolean for flags, string for canton/commune/goal/"
+                        "householdType/employmentStatus enums."
+                    ),
+                },
+                "confidence": {
+                    "type": "string",
+                    "enum": ["high", "medium"],
+                    "description": (
+                        "'high' for explicit exact statements, 'medium' for "
+                        "approximations. Never call with 'low' — ask the user "
+                        "to clarify instead."
+                    ),
+                },
+            },
+            "required": ["key", "value", "confidence"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
     # DATA LOOKUP TOOLS — INTERNAL: read pre-computed data from profile_context
     # These tools let the LLM READ the user's financial calculations
     # (budget, retirement, cross-pillar, cap) so it can reason about them.
