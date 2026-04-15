@@ -903,17 +903,43 @@ async def preview_budget_import(
 # Whitelist mapping: mobile scan field_name → ProfileModel.data key (camelCase).
 # Only these fields are merged into the profile when confidence is high/medium.
 # Keep the set narrow so adversarial scans can't clobber arbitrary profile keys.
+#
+# Canonical extractor → profile mapping (LPP certificate, Swiss 2e pilier).
+# The LEFT column is the `field_name` the client sends in scan-confirmation;
+# the RIGHT column is the authoritative ProfileModel.data key.
+#
+# Cert-label → extractor-field → profile-key lineage (documented 2026-04-15):
+#   "Prestation de sortie au DATE"          → avoir_vieillesse_total   → avoirLpp
+#   "Avoir de vieillesse LPP"               → avoir_vieillesse_oblig   → avoirLppObligatoire
+#   "Salaire assuré / salaire d'épargne"    → salaire_assure           → lppInsuredSalary
+#   "Rachat en vue de la retraite ordinaire"→ rachat_maximum           → lppBuybackMax
+#   "Salaire déterminant"                   → (manual confirm)         → incomeGrossYearly
+# IMPORTANT: capital_deces ≠ lppBuybackMax. The CPE cert prints a
+# règlement boilerplate "s'applique au capital décès" without a figure,
+# which earlier hijacked the next unrelated amount. If a cert does print
+# a real capital décès number, it lands in `capitalDeces` below — NOT in
+# lppBuybackMax.
 _SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
-    # LPP fields
+    # LPP avoir / buyback / insured salary
     "avoirLpp": ["avoirLpp"],
     "avoirLppTotal": ["avoirLpp"],
+    "avoirVieillesseTotal": ["avoirLpp"],
+    "prestationDeSortie": ["avoirLpp"],
     "avoirLppObligatoire": ["avoirLppObligatoire"],
     "avoirLppSurobligatoire": ["avoirLppSurobligatoire"],
     "lppInsuredSalary": ["lppInsuredSalary"],
     "salaireAssure": ["lppInsuredSalary"],
     "lppBuybackMax": ["lppBuybackMax"],
     "rachatMaximum": ["lppBuybackMax"],
+    "rachatRetraiteOrdinaire": ["lppBuybackMax"],
+    "rachatRetraiteAnticipee": ["lppBuybackMaxAnticipe"],
     "tauxConversion": ["tauxConversion"],
+    # Prévoyance risques (read from cert but distinct from rachat)
+    "capitalDeces": ["capitalDeces"],
+    "renteInvalidite": ["renteInvaliditeAnnuelle"],
+    "renteConjoint": ["renteConjointAnnuelle"],
+    "renteEnfant": ["renteEnfantAnnuelle"],
+    "eplMax": ["eplMax"],
     # Salary / income fields
     "salaireBrutAnnuel": ["incomeGrossYearly"],
     "salaireNetAnnuel": ["incomeNetYearly"],
