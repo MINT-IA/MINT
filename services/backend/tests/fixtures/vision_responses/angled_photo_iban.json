@@ -1,0 +1,58 @@
+{
+  "id": "msg_fixture_angled_photo_iban",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_angled_photo_iban",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "bank_statement",
+        "subtype": null,
+        "issuer_guess": "Banque Synthetique",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "solde_compte",
+            "value": 12430.55,
+            "confidence": "high",
+            "source_text": "12'430.55 CHF"
+          },
+          {
+            "field_name": "salaire_credite_mensuel",
+            "value": 8000,
+            "confidence": "high",
+            "source_text": "8'000 CHF / mois"
+          },
+          {
+            "field_name": "loyer_debite_mensuel",
+            "value": 2200,
+            "confidence": "high",
+            "source_text": "2'200 CHF / mois"
+          },
+          {
+            "field_name": "iban",
+            "value": "CH93 0076 2011 6238 5295 7",
+            "confidence": "high",
+            "source_text": "IBAN visible"
+          }
+        ],
+        "overall_confidence": 0.92,
+        "extraction_status": "success",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Releve bancaire 03.2026 lu: solde 12'430.55 CHF.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

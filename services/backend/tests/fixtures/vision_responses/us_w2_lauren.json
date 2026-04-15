@@ -1,0 +1,33 @@
+{
+  "id": "msg_fixture_us_w2_lauren",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_us_w2_lauren",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "non_financial",
+        "subtype": null,
+        "issuer_guess": "IRS",
+        "classification_confidence": 0.88,
+        "extracted_fields": [],
+        "overall_confidence": 0.4,
+        "extraction_status": "non_financial",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Ce document est un formulaire fiscal americain (W-2). MINT ne structure pas les documents fiscaux US.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "msg_fixture_german_insurance_letter",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_german_insurance_letter",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "insurance_policy",
+        "subtype": null,
+        "issuer_guess": "Swiss Synthetic Lebensversicherung",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "prime_annuelle",
+            "value": 1200,
+            "confidence": "high",
+            "source_text": "Jahrespraemie 1'200 CHF"
+          },
+          {
+            "field_name": "somme_assuree",
+            "value": 150000,
+            "confidence": "high",
+            "source_text": "Versicherungssumme 150'000 CHF"
+          },
+          {
+            "field_name": "date_echeance",
+            "value": "31.12.2045",
+            "confidence": "high",
+            "source_text": "Ablaufdatum 31.12.2045"
+          },
+          {
+            "field_name": "valeur_rachat",
+            "value": 8450,
+            "confidence": "medium",
+            "source_text": "Rueckkaufswert 8'450 CHF"
+          }
+        ],
+        "overall_confidence": 0.68,
+        "extraction_status": "success",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Lettre de ton assurance-vie suisse (document redige en allemand): prime 1'200 CHF/an, echeance 31.12.2045.",
+        "questions_for_user": [],
+        "narrative": "Ce pilier 3b est une assurance-vie mixte. MINT resume en francais les conditions principales.",
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

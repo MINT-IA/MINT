@@ -1,0 +1,64 @@
+{
+  "id": "msg_fixture_hotela_lauren",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_hotela_lauren",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "lpp_certificate",
+        "subtype": null,
+        "issuer_guess": "HOTELA",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "titulaire",
+            "value": "Marie Testuser",
+            "confidence": "high",
+            "source_text": "Assuree: Marie Testuser"
+          },
+          {
+            "field_name": "avoir_vieillesse_lpp",
+            "value": 19620,
+            "confidence": "high",
+            "source_text": "Avoir 19'620 CHF"
+          },
+          {
+            "field_name": "salaire_assure",
+            "value": 40540,
+            "confidence": "high",
+            "source_text": "Salaire assure 40'540 CHF"
+          },
+          {
+            "field_name": "rachat_maximum",
+            "value": 52949,
+            "confidence": "high",
+            "source_text": "Rachat 52'949 CHF"
+          },
+          {
+            "field_name": "taux_conversion",
+            "value": 0.068,
+            "confidence": "high",
+            "source_text": "Taux 6.8 %"
+          }
+        ],
+        "overall_confidence": 0.92,
+        "extraction_status": "success",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Certificat HOTELA lu. Marie TESTUSER-SECOND — nationalite US declaree (FATCA).",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

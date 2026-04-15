@@ -1,0 +1,58 @@
+{
+  "id": "msg_fixture_crumpled_scan",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_crumpled_scan",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "lpp_certificate",
+        "subtype": null,
+        "issuer_guess": "Caisse cantonale",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "avoir_vieillesse_lpp",
+            "value": 70000,
+            "confidence": "high",
+            "source_text": "Avoir ~70'000 (approx)"
+          },
+          {
+            "field_name": "salaire_assure",
+            "value": 91967,
+            "confidence": "high",
+            "source_text": "Salaire 91'967"
+          },
+          {
+            "field_name": "taux_conversion",
+            "value": 0.068,
+            "confidence": "high",
+            "source_text": "Taux 6.8 %"
+          },
+          {
+            "field_name": "bonification_vieillesse",
+            "value": 0.2,
+            "confidence": "medium",
+            "source_text": "Bonif ~20 % (flou)"
+          }
+        ],
+        "overall_confidence": 0.8,
+        "extraction_status": "partial",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Certificat LPP scanne lu avec perte de nettete sur la bonification.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

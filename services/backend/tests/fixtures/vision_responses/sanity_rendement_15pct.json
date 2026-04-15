@@ -1,0 +1,58 @@
+{
+  "id": "msg_fixture_sanity_rendement_15pct",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_sanity_rendement_15pct",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "lpp_certificate",
+        "subtype": null,
+        "issuer_guess": "Fondation LPP Synthetique",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "avoir_vieillesse_lpp",
+            "value": 80000,
+            "confidence": "high",
+            "source_text": ""
+          },
+          {
+            "field_name": "salaire_assure",
+            "value": 90000,
+            "confidence": "high",
+            "source_text": ""
+          },
+          {
+            "field_name": "rendement",
+            "value": 0.15,
+            "confidence": "high",
+            "source_text": "Taux de rendement annonce: 15 % p.a."
+          },
+          {
+            "field_name": "taux_conversion",
+            "value": 0.068,
+            "confidence": "high",
+            "source_text": ""
+          }
+        ],
+        "overall_confidence": 0.88,
+        "extraction_status": "success",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Ton rendement annonce est de 15 % par an.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}
