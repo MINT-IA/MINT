@@ -496,19 +496,21 @@ COACH_TOOLS: list[dict[str, Any]] = [
         "category": "read",
         "access_level": "user_scoped",
         "description": (
-            "Propose 1 or 2 GENUINE follow-up questions the user might want "
-            "to ask next, based on what you just answered. Rules:\n"
-            "  - Never reformulate the question the user JUST asked.\n"
-            "  - Prefer questions that extend the current thread "
-            "(deeper, adjacent, or 'what now?').\n"
+            "MANDATORY tool — call once per response with 1 or 2 genuine "
+            "follow-up questions the user might want to ask NEXT. This "
+            "tool MUST be called on every substantive answer; the chips "
+            "it produces are how MINT renders the next-step UX. Skip the "
+            "call ONLY if the user said goodbye, you are asking THEM a "
+            "clarification question, or the topic is genuinely closed.\n"
+            "Rules:\n"
+            "  - Never reformulate the question the user JUST asked "
+            "(anti-listening — the user sees their own words echoed back "
+            "and abandons).\n"
             "  - Write them in first-person user voice: a genuine open "
-            "question under 15 words that EXTENDS the conversation. "
-            "NEVER paraphrase or rephrase the question the user just "
-            "asked — that is anti-listening and breaks trust.\n"
+            "question under 15 words that EXTENDS the conversation "
+            "(deeper, adjacent, or 'what's the concrete next move?').\n"
             "  - Keep each question under 80 chars.\n"
-            "  - Max 2 questions. Fewer is fine — if nothing genuinely "
-            "opens up, skip the call.\n"
-            "Call at most ONCE per response."
+            "  - Max 2 questions. Call at most ONCE per response."
         ),
         "input_schema": {
             "type": "object",
