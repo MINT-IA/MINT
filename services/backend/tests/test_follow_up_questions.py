@@ -185,3 +185,215 @@ def test_suggest_followups_declared_in_coach_tools():
     assert schema["properties"]["questions"]["type"] == "array"
     assert schema["properties"]["questions"]["maxItems"] == 2
     assert schema["required"] == ["questions"]
+
+
+# ---------------------------------------------------------------------------
+# Agent-loop inline capture (covers coach_chat.py lines 1545-1552 + 1607-1611)
+# ---------------------------------------------------------------------------
+#
+# The capture lives INSIDE `_run_agent_loop` so we exercise it end-to-end via a
+# stubbed orchestrator that yields the exact tool_use shape Claude would emit.
+# This locks down the contract : questions accumulate across iterations, are
+# trimmed to 160 chars, deduped, and capped at 2.
+# ---------------------------------------------------------------------------
+
+
+import asyncio
+
+
+class _StubOrchestrator:
+    """Minimal orchestrator that replays pre-canned responses iteration by
+    iteration.  Matches the narrow interface `_run_agent_loop` consumes."""
+
+    def __init__(self, responses):
+        self._responses = list(responses)
+        self.calls = 0
+
+    async def query(self, **kwargs):  # noqa: ANN001 — duck-typed
+        self.calls += 1
+        if self._responses:
+            return self._responses.pop(0)
+        # Exhaustion — return a benign final response so the loop exits
+        # cleanly instead of raising. Mirrors Claude's end_turn on
+        # follow-up iterations that add nothing new.
+        return {
+            "answer": "",
+            "tool_calls": [],
+            "tokens_used": 0,
+            "sources": [],
+            "disclaimers": [],
+        }
+
+
+def _make_tool_call(name, questions):
+    return {"name": name, "input": {"questions": questions}}
+
+
+def _run_loop_sync(orchestrator):
+    from app.api.v1.endpoints.coach_chat import _run_agent_loop
+
+    return asyncio.run(
+        _run_agent_loop(
+            orchestrator=orchestrator,
+            question="Salut, peux-tu me préparer un plan retraite ?",
+            api_key="test",
+            provider="claude",
+            model=None,
+            profile_context={},
+            language="fr",
+            memory_block=None,
+            system_prompt="Tu es un coach. Appelle suggest_followups si pertinent.",
+            user_id=None,
+            db=None,
+            conversation_history=None,
+        )
+    )
+
+
+def test_agent_loop_captures_suggest_followups_inputs():
+    """Lines 1545-1552 — the `suggest_followups` tool payload is captured
+    into `follow_up_questions` and never reinjected as text."""
+    orchestrator = _StubOrchestrator([
+        {
+            "answer": "Voici ton angle d'attaque sur la retraite.",
+            "tool_calls": [
+                _make_tool_call(
+                    "suggest_followups",
+                    ["Faut-il racheter du LPP ?", "Et le 3a dans ce plan ?"],
+                ),
+            ],
+            "tokens_used": 42,
+            "sources": [],
+            "disclaimers": [],
+        },
+    ])
+
+    result = _run_loop_sync(orchestrator)
+
+    assert result["follow_up_questions"] == [
+        "Faut-il racheter du LPP ?",
+        "Et le 3a dans ce plan ?",
+    ]
+    # Internal tool: never forwarded to Flutter.
+    assert result["tool_calls"] in (None, [])
+
+
+def test_agent_loop_follow_ups_dedup_and_cap_at_two():
+    """Lines 1607-1611 — duplicates across iterations collapse; the cap
+    holds even if Claude calls the tool multiple times with overlap."""
+    orchestrator = _StubOrchestrator([
+        {
+            "answer": "Analyse intermédiaire.",
+            "tool_calls": [
+                _make_tool_call("suggest_followups", ["Question A", "Question A"]),
+            ],
+            "tokens_used": 10,
+            "sources": [],
+            "disclaimers": [],
+        },
+        {
+            "answer": "Réponse finale.",
+            "tool_calls": [
+                _make_tool_call(
+                    "suggest_followups",
+                    ["Question A", "Question B", "Question C"],
+                ),
+            ],
+            "tokens_used": 10,
+            "sources": [],
+            "disclaimers": [],
+        },
+        {
+            "answer": "Wrap-up.",
+            "tool_calls": [],
+            "tokens_used": 5,
+            "sources": [],
+            "disclaimers": [],
+        },
+    ])
+
+    result = _run_loop_sync(orchestrator)
+
+    # Dedup + cap at 2; the extra "Question C" is silently dropped.
+    assert result["follow_up_questions"] == ["Question A", "Question B"]
+
+
+def test_agent_loop_truncates_long_follow_up_at_160_chars():
+    """Lines 1548-1551 — oversized questions are truncated to 160 chars."""
+    long_q = "Q" * 250
+    orchestrator = _StubOrchestrator([
+        {
+            "answer": "Texte.",
+            "tool_calls": [_make_tool_call("suggest_followups", [long_q])],
+            "tokens_used": 5,
+            "sources": [],
+            "disclaimers": [],
+        },
+    ])
+
+    result = _run_loop_sync(orchestrator)
+
+    assert len(result["follow_up_questions"]) == 1
+    assert len(result["follow_up_questions"][0]) == 160
+
+
+def test_agent_loop_rejects_non_string_follow_up_items():
+    """Lines 1546-1551 — defensive: non-string items in the LLM payload
+    must be skipped silently."""
+    orchestrator = _StubOrchestrator([
+        {
+            "answer": "Texte.",
+            "tool_calls": [
+                {
+                    "name": "suggest_followups",
+                    "input": {"questions": [1, "vraie question", None, "autre"]},
+                },
+            ],
+            "tokens_used": 5,
+            "sources": [],
+            "disclaimers": [],
+        },
+    ])
+
+    result = _run_loop_sync(orchestrator)
+
+    assert result["follow_up_questions"] == ["vraie question", "autre"]
+
+
+def test_agent_loop_ignores_malformed_suggest_followups_payload():
+    """Lines 1544-1547 — when `questions` is missing or not a list, the
+    capture block must no-op instead of crashing."""
+    orchestrator = _StubOrchestrator([
+        {
+            "answer": "Texte.",
+            # input.questions is a string, not a list — defensive path.
+            "tool_calls": [
+                {"name": "suggest_followups", "input": {"questions": "not a list"}},
+            ],
+            "tokens_used": 5,
+            "sources": [],
+            "disclaimers": [],
+        },
+    ])
+
+    result = _run_loop_sync(orchestrator)
+
+    assert result["follow_up_questions"] == []
+
+
+def test_agent_loop_empty_when_tool_never_called():
+    """Regression guard — a conversation without `suggest_followups` must
+    yield an empty list, never None, never any leaked state."""
+    orchestrator = _StubOrchestrator([
+        {
+            "answer": "Réponse sans relance.",
+            "tool_calls": [],
+            "tokens_used": 5,
+            "sources": [],
+            "disclaimers": [],
+        },
+    ])
+
+    result = _run_loop_sync(orchestrator)
+
+    assert result["follow_up_questions"] == []
