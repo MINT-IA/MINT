@@ -562,13 +562,17 @@ void main() {
       expect(result.useFallback, isTrue);
     });
 
-    test('English text triggers language violation', () {
+    test('English text logs language violation but does not fallback', () {
+      // v2.7 alignment with backend: language pre-check is LOG-ONLY.
+      // Modern French finance legitimately uses English terms (ETF, cash,
+      // KPI). A short language drift must not kill the response — only be
+      // recorded in violations for telemetry. Defense lives in the prompt.
       final result = ComplianceGuard.validate(
         'You should invest your money with this strategy. '
         'The returns would be excellent.',
       );
       expect(result.violations, anyElement(contains('anglais')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('French text passes language check', () {

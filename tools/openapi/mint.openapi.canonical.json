@@ -1249,6 +1249,79 @@
         "title": "AnomalyResponse",
         "type": "object"
       },
+      "AnonymousChatRequest": {
+        "description": "Request for anonymous discovery chat.\n\nNo authentication required. Limited to 3 messages per device token.",
+        "properties": {
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Felt-state pill text selected by the user (e.g. 'Je me sens perdu').",
+            "title": "Intent"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
+            "title": "Language",
+            "type": "string"
+          },
+          "message": {
+            "description": "Message de l'utilisateur anonyme.",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "AnonymousChatRequest",
+        "type": "object"
+      },
+      "AnonymousChatResponse": {
+        "description": "Response for anonymous discovery chat.\n\nIncludes compliance disclaimers and remaining message count.",
+        "properties": {
+          "disclaimers": {
+            "description": "Disclaimers de conformite.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Disclaimers",
+            "type": "array"
+          },
+          "message": {
+            "description": "Reponse du coach en mode decouverte.",
+            "title": "Message",
+            "type": "string"
+          },
+          "messagesRemaining": {
+            "description": "Nombre de messages restants pour cette session anonyme.",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Messagesremaining",
+            "type": "integer"
+          },
+          "tokensUsed": {
+            "default": 0,
+            "description": "Estimation de l'utilisation de tokens.",
+            "minimum": 0.0,
+            "title": "Tokensused",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "messagesRemaining"
+        ],
+        "title": "AnonymousChatResponse",
+        "type": "object"
+      },
       "AppleVerifyPurchaseRequest": {
         "properties": {
           "expires_at": {
@@ -3698,6 +3771,25 @@
             "title": "Cashlevel",
             "type": "integer"
           },
+          "conversationHistory": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Prior conversation messages for multi-turn context. Each item: {role: 'user'|'assistant', content: str}. Last 8 messages max. Sanitized client-side.",
+            "title": "Conversationhistory"
+          },
           "language": {
             "default": "fr",
             "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
@@ -4202,6 +4294,111 @@
           "icon"
         ],
         "title": "CoachingTipResponse",
+        "type": "object"
+      },
+      "CommitmentCreate": {
+        "description": "Request schema for creating a commitment device.",
+        "properties": {
+          "ifThenText": {
+            "maxLength": 500,
+            "title": "Ifthentext",
+            "type": "string"
+          },
+          "reminderAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reminderat"
+          },
+          "whenText": {
+            "maxLength": 500,
+            "title": "Whentext",
+            "type": "string"
+          },
+          "whereText": {
+            "maxLength": 500,
+            "title": "Wheretext",
+            "type": "string"
+          }
+        },
+        "required": [
+          "whenText",
+          "whereText",
+          "ifThenText"
+        ],
+        "title": "CommitmentCreate",
+        "type": "object"
+      },
+      "CommitmentResponse": {
+        "description": "Response schema for a commitment device.",
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ifThenText": {
+            "title": "Ifthentext",
+            "type": "string"
+          },
+          "reminderAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reminderat"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "whenText": {
+            "title": "Whentext",
+            "type": "string"
+          },
+          "whereText": {
+            "title": "Wheretext",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "whenText",
+          "whereText",
+          "ifThenText",
+          "createdAt"
+        ],
+        "title": "CommitmentResponse",
+        "type": "object"
+      },
+      "CommitmentStatusUpdate": {
+        "description": "Request schema for updating commitment status.",
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "CommitmentStatusUpdate",
         "type": "object"
       },
       "CommuneListResponse": {
@@ -9329,6 +9526,22 @@
         "title": "FranchiseOption",
         "type": "object"
       },
+      "FreshStartResponse": {
+        "properties": {
+          "landmarks": {
+            "items": {
+              "$ref": "#/components/schemas/LandmarkResponse"
+            },
+            "title": "Landmarks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "landmarks"
+        ],
+        "title": "FreshStartResponse",
+        "type": "object"
+      },
       "FriBreakdownResponse": {
         "description": "FRI breakdown result — 4 components + total.",
         "properties": {
@@ -11940,6 +12153,39 @@
           "disclaimer"
         ],
         "title": "LamalOptionResponse",
+        "type": "object"
+      },
+      "LandmarkResponse": {
+        "properties": {
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "daysUntil": {
+            "title": "Daysuntil",
+            "type": "integer"
+          },
+          "intent": {
+            "title": "Intent",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "date",
+          "daysUntil",
+          "message",
+          "intent"
+        ],
+        "title": "LandmarkResponse",
         "type": "object"
       },
       "LibrePassageRequest": {
@@ -21065,7 +21311,7 @@
             "$ref": "#/components/schemas/DocumentType"
           },
           "imageBase64": {
-            "description": "Base64-encoded document image (JPEG/PNG)",
+            "description": "Base64-encoded document (JPEG, PNG, or PDF)",
             "maxLength": 5000000,
             "title": "Imagebase64",
             "type": "string"
@@ -21114,6 +21360,12 @@
           "extractionMethod": {
             "default": "claude_vision",
             "title": "Extractionmethod",
+            "type": "string"
+          },
+          "extractionStatus": {
+            "default": "success",
+            "description": "Extraction outcome: 'success' (fields extracted and validated), 'partial' (some fields extracted, some rejected by validation), 'no_fields_found' (Claude parsed OK but returned zero fields — document unreadable or empty), or 'parse_error' (Claude returned non-JSON). Flutter surfaces a targeted error for each status.",
+            "title": "Extractionstatus",
             "type": "string"
           },
           "overallConfidence": {
@@ -22755,6 +23007,48 @@
         ]
       }
     },
+    "/api/v1/anonymous/chat": {
+      "post": {
+        "description": "Anonymous discovery chat with device-scoped rate limiting.\n\nRequires X-Anonymous-Session header (UUID format).\nLimited to 3 messages per device token (lifetime).\nUses stripped-down discovery system prompt (no tools, no profile).",
+        "operationId": "anonymous_chat_api_v1_anonymous_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnonymousChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnonymousChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Anonymous Chat",
+        "tags": [
+          "Anonymous Chat P13"
+        ]
+      }
+    },
     "/api/v1/arbitrage/allocation-annuelle": {
       "post": {
         "description": "Compare les strategies d'allocation annuelle de l'epargne.\n\nSimule jusqu'a 4 options selon l'eligibilite:\n- 3a (si pas encore verse au max)\n- Rachat LPP (si potentiel de rachat > 0)\n- Amortissement indirect (si proprietaire)\n- Investissement libre (toujours disponible)\n\nReturns:\n    AllocationAnnuelleResponse avec trajectoires, breakeven, sensibilite,\n    disclaimer et sources legales.",
@@ -24254,6 +24548,209 @@
         "summary": "Coach Chat",
         "tags": [
           "Coach Chat S56"
+        ]
+      }
+    },
+    "/api/v1/coach/commitment/": {
+      "get": {
+        "description": "List user's commitments, optionally filtered by status.",
+        "operationId": "list_commitments_api_v1_coach_commitment__get",
+        "parameters": [
+          {
+            "description": "Filter by status (pending, completed, dismissed)",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status (pending, completed, dismissed)",
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CommitmentResponse"
+                  },
+                  "title": "Response List Commitments Api V1 Coach Commitment  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Commitments",
+        "tags": [
+          "Commitment P14"
+        ]
+      },
+      "post": {
+        "description": "Create a new implementation intention commitment.\n\nT-14-08: Rate limit — max 50 pending commitments per user.\nT-14-07: Length validation enforced by Pydantic schema (500 char max).",
+        "operationId": "create_commitment_api_v1_coach_commitment__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Commitment",
+        "tags": [
+          "Commitment P14"
+        ]
+      }
+    },
+    "/api/v1/coach/commitment/{commitment_id}": {
+      "patch": {
+        "description": "Update commitment status (completed or dismissed).\n\nT-14-06: IDOR protection — query filters by BOTH commitment_id AND user_id.",
+        "operationId": "update_commitment_status_api_v1_coach_commitment__commitment_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commitment_id",
+            "required": true,
+            "schema": {
+              "title": "Commitment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentStatusUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Update Commitment Status",
+        "tags": [
+          "Commitment P14"
+        ]
+      }
+    },
+    "/api/v1/coach/fresh-start/": {
+      "get": {
+        "description": "Return upcoming fresh-start landmarks with personalized messages.\n\nRate-limited to max 2 landmarks per calendar month (T-14-10).",
+        "operationId": "get_fresh_start_api_v1_coach_fresh_start__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreshStartResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Fresh Start",
+        "tags": [
+          "Fresh Start P14"
         ]
       }
     },
@@ -29631,7 +30128,7 @@
     },
     "/api/v1/profiles/me": {
       "get": {
-        "description": "Get the authenticated user's profile.\nReturns the most recently updated profile linked to the current user.",
+        "description": "Get the authenticated user's profile.\n\nGet-or-create semantics (FIX-B, 2026-04-13): if the authenticated user\nsomehow has no profile row (legacy account, partial migration, aborted\nbootstrap during auth), auto-create an empty one on the fly rather than\nreturning 404 forever. Every auth path SHOULD already call\n`ensure_empty_profile`, but this endpoint is the last line of defence\nfor the downstream screens that depend on a profile existing.",
         "operationId": "get_my_profile_api_v1_profiles_me_get",
         "responses": {
           "200": {
