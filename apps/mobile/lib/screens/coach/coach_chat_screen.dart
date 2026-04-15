@@ -32,6 +32,7 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
+import 'package:mint_mobile/widgets/coach/coach_disclaimer_footer.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
@@ -1573,12 +1574,20 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewPadding.bottom,
               ),
-              child: CoachInputBar(
-                controller: _controller,
-                focusNode: _focusNode,
-                isStreaming: _isStreaming,
-                onSend: () => _sendMessage(_controller.text),
-                onLightningMenu: _showLightningMenu,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CoachInputBar(
+                    controller: _controller,
+                    focusNode: _focusNode,
+                    isStreaming: _isStreaming,
+                    onSend: () => _sendMessage(_controller.text),
+                    onLightningMenu: _showLightningMenu,
+                  ),
+                  // Phase C — permanent slim legal footer. Replaces the
+                  // legacy per-message CoachDisclaimersSection card.
+                  const CoachDisclaimerFooter(),
+                ],
               ),
             ),
           ],
