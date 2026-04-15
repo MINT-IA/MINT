@@ -1,6 +1,16 @@
 """
 Compliance guardrails for Swiss financial content.
 
+Post-filters added 2026-04-15 (PR A — prompt hardening):
+- Layer/Couche doctrine marker scrubbing (strip internal layer labels that
+  sometimes leak into user-visible text).
+- Formal "vous" detection (log-only telemetry; tutoiement strict is enforced
+  at the prompt level, this is a detection canary).
+- Jaccard-similarity filter for follow-up chips: drops any follow-up that
+  paraphrases the user's last message (score > 0.6) — anti-echo guarantee.
+- Sentence-count truncation: clamps user-visible answers to 3 sentences so
+  the prompt contract ("3 phrases max") is enforced even when Claude drifts.
+
 .. deprecated:: S34
     This module is maintained for backward compatibility with the RAG
     orchestrator. New code should use ``app.services.coach.compliance_guard``
@@ -20,8 +30,35 @@ Ensures generated responses comply with Swiss financial regulations:
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Post-filter regexes (2026-04-15 — PR A prompt hardening)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Strips doctrine layer markers like "Couche 2 :", "**Couche 3:**", "Niveau 1 -".
+# We only scrub the LABEL + its punctuation — the rest of the sentence is kept.
+_LAYER_LEAK_RE = re.compile(
+    r"\*{0,2}\s*(?:Couche|Layer|Niveau|[ÉE]tape|Phase)\s*\d+\s*\*{0,2}\s*[:\-–—]\s*",
+    re.IGNORECASE,
+)
+
+# Detects formal singular "vous" usage. Explicit plural markers
+# ("vous deux", "vous autres") are excluded — those are natural plural pronouns.
+_FORMAL_VOUS_RE = re.compile(
+    r"\bvous\s+(?!deux\b|autres\b)"
+    r"(avez|êtes|etes|pourriez|devriez|allez|voulez|savez|pouvez|"
+    r"aurez|serez|feriez|auriez|seriez|prenez|faites)\b",
+    re.IGNORECASE,
+)
+
+# Sentence splitter for length truncation. Keeps the delimiter with the
+# sentence it terminates.
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…])\s+(?=\S)")
 
 
 class ComplianceGuardrails:
@@ -328,11 +365,138 @@ class ComplianceGuardrails:
             if needs_investment_disclaimer:
                 disclaimers_added.append(lang_disclaimers["investment"])
 
+        # ── Layer/Couche doctrine leak scrubbing (PR A) ──
+        filtered_text, layer_leak_count = self._scrub_layer_markers(filtered_text)
+        if layer_leak_count:
+            logger.info(
+                "compliance.layer_leak_scrubbed count=%d lang=%s",
+                layer_leak_count,
+                language,
+            )
+            filter_warnings.append(
+                f"Layer doctrine marker scrubbed ({layer_leak_count} occurrence(s))"
+            )
+
+        # ── Formal-vous detection (log-only; tutoiement is enforced at prompt level) ──
+        formal_vous_count = self._count_formal_vous(filtered_text)
+        if formal_vous_count:
+            logger.info(
+                "compliance.formal_vous_detected count=%d lang=%s",
+                formal_vous_count,
+                language,
+            )
+
         return {
             "text": filtered_text,
             "warnings": filter_warnings,
             "disclaimers_added": disclaimers_added,
         }
+
+    # ────────────────────────────────────────────────────────────────────
+    # Post-filter helpers (PR A — prompt hardening)
+    # ────────────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _scrub_layer_markers(text: str) -> tuple[str, int]:
+        """Strip doctrine layer labels ("Couche 2 :", "Layer 1 -", "Niveau 3:").
+
+        Returns (cleaned_text, hit_count). Collapses double whitespace produced
+        by the replacement.
+        """
+        if not isinstance(text, str) or not text:
+            return text, 0
+        matches = _LAYER_LEAK_RE.findall(text)
+        if not matches:
+            return text, 0
+        cleaned = _LAYER_LEAK_RE.sub("", text)
+        # Collapse any run of >1 spaces AND any newline immediately followed
+        # by leftover whitespace.
+        cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
+        cleaned = re.sub(r"\n[ \t]+", "\n", cleaned)
+        return cleaned.strip(), len(matches)
+
+    @staticmethod
+    def _count_formal_vous(text: str) -> int:
+        """Count formal-singular "vous" occurrences (excludes 'vous deux')."""
+        if not isinstance(text, str) or not text:
+            return 0
+        return len(_FORMAL_VOUS_RE.findall(text))
+
+    @classmethod
+    def filter_follow_up_questions(
+        cls,
+        questions: list[str],
+        user_message: str,
+        threshold: float = 0.6,
+    ) -> list[str]:
+        """Drop follow-up chips that paraphrase the user's last message.
+
+        Uses Jaccard similarity over lowercased word tokens (>= 4 chars to
+        ignore stopwords). A follow-up is rejected when similarity with the
+        user's message exceeds ``threshold``.
+
+        Fail-open: on unexpected input types, returns the original list
+        unchanged.
+        """
+        if not isinstance(questions, list) or not isinstance(user_message, str):
+            return questions  # type: ignore[return-value]
+
+        user_tokens = cls._tokenize_for_similarity(user_message)
+        if not user_tokens:
+            return [q for q in questions if isinstance(q, str) and q.strip()]
+
+        kept: list[str] = []
+        dropped = 0
+        for q in questions:
+            if not isinstance(q, str) or not q.strip():
+                continue
+            q_tokens = cls._tokenize_for_similarity(q)
+            if not q_tokens:
+                kept.append(q)
+                continue
+            inter = len(user_tokens & q_tokens)
+            union = len(user_tokens | q_tokens)
+            jaccard = inter / union if union else 0.0
+            if jaccard > threshold:
+                dropped += 1
+                continue
+            kept.append(q)
+        if dropped:
+            logger.info(
+                "compliance.follow_up_echo_dropped count=%d threshold=%.2f",
+                dropped,
+                threshold,
+            )
+        return kept
+
+    @staticmethod
+    def _tokenize_for_similarity(text: str) -> set[str]:
+        """Lowercase word tokens, length >= 4, stripped of diacritics-light."""
+        if not text:
+            return set()
+        # Strip markdown/punctuation, keep accented letters as-is.
+        words = re.findall(r"[a-zà-ÿA-ZÀ-Ÿ0-9]{4,}", text.lower())
+        return set(words)
+
+    @classmethod
+    def truncate_to_sentences(cls, text: str, max_sentences: int = 3) -> tuple[str, bool]:
+        """Clamp ``text`` to at most ``max_sentences`` sentences.
+
+        Splits on `.!?…` followed by whitespace. Preserves the terminal
+        punctuation. Returns (text, was_truncated). No-op on empty input.
+        """
+        if not isinstance(text, str) or not text.strip():
+            return text, False
+        parts = _SENTENCE_SPLIT_RE.split(text.strip())
+        if len(parts) <= max_sentences:
+            return text, False
+        truncated = " ".join(p.strip() for p in parts[:max_sentences]).strip()
+        logger.info(
+            "compliance.length_truncated original=%d kept=%d",
+            len(parts),
+            max_sentences,
+        )
+        return truncated, True
 
     # French-aware letter class for word boundaries (matches À-ÿ range).
     _FR_LETTER = r"a-zA-Z\u00C0-\u00FF"

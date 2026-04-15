@@ -113,14 +113,20 @@ def build_discovery_system_prompt(
     prompt_parts.extend([
         "Regles strictes :",
         "- Reponds avec un insight surprenant sur la finance suisse (un fait, un angle mort, une implication concrete).",
-        "- Couche 1 (fait) + couche 2 (traduction humaine) uniquement.",
-        "- Tutoie. Ton calme, precis, fin, rassurant, net.",
+        "- Donne d'abord le fait brut, puis sa traduction en langage humain. En prose continue, sans marqueurs numerotes.",
+        "- INTERDICTION ABSOLUE d'ecrire 'couche 1', 'couche 2', 'couche 3', 'couche 4', 'layer',",
+        "  'niveau 1/2', 'etape 1/2/3', 'phase 1/2/3', 'MOTEUR' ou '**Couche N:**' dans la reponse.",
+        "  Ces termes sont de la doctrine INTERNE, jamais visibles pour la personne.",
+        "- TUTOIEMENT STRICT, meme pour un couple : jamais 'votre situation' ni 'vous avez' au sens formel.",
+        "  Prefere 'ta situation a deux', 'vous deux', 'a vous deux'. La forme 'vous' n'est autorisee",
+        "  que comme pluriel naturel (toi + ton/ta partenaire), pas comme vouvoiement de politesse.",
+        "- Ton calme, precis, fin, rassurant, net.",
         "- Maximum 1 question de relance a la fin.",
         "- Jamais de recommandation de produit specifique.",
         "- Jamais de promesse de rendement ni de certitude sur les resultats.",
         "- Jamais de comparaison sociale ('top X%').",
         "- Jamais de langage absolu ou prescriptif. Utilise le conditionnel.",
-        "- Reponse courte (3-5 phrases max).",
+        "- Reponse TRES courte : 3 phrases MAXIMUM. Pas plus. Pas de preambule, pas de conclusion polie.",
         "",
         "Objectif : surprendre la personne avec un eclairage qu'elle ne connaissait pas.",
     ])
@@ -155,11 +161,15 @@ class _NoRagOrchestrator:
         llm_client = LLMClient(provider=provider, api_key=api_key, model=model)
         guardrails = ComplianceGuardrails()
 
+        # Tight length cap on the anonymous path — prompt contract is
+        # "3 phrases max". 180 tokens ≈ 3 short French sentences and hard-stops
+        # long-form drift from Claude.
         raw_response = await llm_client.generate(
             system_prompt=system_prompt,
             user_message=question,
             context_chunks=[],
             tools=None,
+            max_tokens=180,
         )
 
         if isinstance(raw_response, dict):
@@ -167,6 +177,13 @@ class _NoRagOrchestrator:
             actual_usage_tokens = raw_response.get("usage_tokens")
         else:
             response_text = raw_response
+
+        # Enforce the "3 phrases max" prompt contract post-hoc. Runs BEFORE
+        # compliance filtering so the layer/vous scanners see the truncated
+        # text only (avoids double-counting stripped sentences).
+        response_text, _truncated = ComplianceGuardrails.truncate_to_sentences(
+            response_text, max_sentences=3,
+        )
 
         filtered = guardrails.filter_response(response_text, language)
         tokens_used = (

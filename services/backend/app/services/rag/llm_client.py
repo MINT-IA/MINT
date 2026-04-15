@@ -116,6 +116,7 @@ class LLMClient:
         context_chunks: list[str],
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
+        max_tokens: int | None = None,
     ) -> str | dict:
         """
         Generate a response using the configured LLM.
@@ -127,6 +128,10 @@ class LLMClient:
             tools: Optional list of tool definitions (Anthropic format).
                    When provided and the LLM returns tool_use blocks,
                    the response is a dict with "text" and "tool_calls" keys.
+            max_tokens: Optional explicit token cap. When None, providers
+                   fall back to their internal defaults (typically 2048).
+                   Used by the anonymous/discovery path to enforce a tight
+                   length contract (~180 tokens ≈ 3 short sentences).
 
         Returns:
             str if no tool calls, or dict with "text" and "tool_calls" keys.
@@ -140,11 +145,16 @@ class LLMClient:
             return await self._call_claude(
                 system_prompt, augmented_message, tools=tools,
                 conversation_history=conversation_history,
+                max_tokens=max_tokens,
             )
         elif self.provider == "openai":
-            return await self._call_openai(system_prompt, augmented_message)
+            return await self._call_openai(
+                system_prompt, augmented_message, max_tokens=max_tokens,
+            )
         elif self.provider == "mistral":
-            return await self._call_mistral(system_prompt, augmented_message)
+            return await self._call_mistral(
+                system_prompt, augmented_message, max_tokens=max_tokens,
+            )
         else:
             raise ValueError(f"Unsupported provider: {self.provider}")
 
@@ -171,6 +181,7 @@ class LLMClient:
         user_message: str,
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
+        max_tokens: int | None = None,
     ) -> str | dict:
         """Call the Anthropic Claude API, optionally with tool definitions.
 
@@ -201,7 +212,7 @@ class LLMClient:
 
             kwargs: dict = {
                 "model": self.model,
-                "max_tokens": 2048,
+                "max_tokens": max_tokens if max_tokens is not None else 2048,
                 "system": system_prompt,
                 "messages": messages,
             }
@@ -281,7 +292,12 @@ class LLMClient:
             logger.error("Claude API call failed: %s", e)
             raise
 
-    async def _call_openai(self, system_prompt: str, user_message: str) -> str:
+    async def _call_openai(
+        self,
+        system_prompt: str,
+        user_message: str,
+        max_tokens: int | None = None,
+    ) -> str:
         """Call the OpenAI API."""
         try:
             from openai import AsyncOpenAI
@@ -294,7 +310,7 @@ class LLMClient:
         try:
             response = await client.chat.completions.create(
                 model=self.model,
-                max_tokens=2048,
+                max_tokens=max_tokens if max_tokens is not None else 2048,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message},
@@ -438,7 +454,12 @@ class LLMClient:
             logger.error("OpenAI vision API call failed: %s", e)
             raise
 
-    async def _call_mistral(self, system_prompt: str, user_message: str) -> str:
+    async def _call_mistral(
+        self,
+        system_prompt: str,
+        user_message: str,
+        max_tokens: int | None = None,
+    ) -> str:
         """
         Call the Mistral API (via OpenAI-compatible endpoint).
 
@@ -459,7 +480,7 @@ class LLMClient:
         try:
             response = await client.chat.completions.create(
                 model=self.model,
-                max_tokens=2048,
+                max_tokens=max_tokens if max_tokens is not None else 2048,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message},
