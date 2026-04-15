@@ -1021,6 +1021,7 @@ async def confirm_document_scan(
 # Vision fieldName → ProfileModel.data key(s). Multiple targets = mirror
 # canonical + legacy key so all downstream consumers see the value.
 _SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
+    # LPP certificate
     "avoirLppTotal": ["avoirLpp", "lppTotalBalance", "lpp_capital"],
     "avoirLppObligatoire": ["avoirLppObligatoire"],
     "avoirLppSurobligatoire": ["avoirLppSurobligatoire"],
@@ -1028,9 +1029,23 @@ _SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
     "salaireAssure": ["lppInsuredSalary"],
     "tauxConversion": ["tauxConversion", "lpp_conversion_rate"],
     "bonificationVieillesse": ["bonificationVieillesse"],
+    # Salary certificate (Run-005 added 2026-04-15 — Sophie's salaireBrutAnnuel
+    # was extracted by Vision but never persisted because no mapping existed,
+    # so the coach kept asking for income info already in the document).
+    "salaireBrutAnnuel": ["incomeGrossYearly", "salaireBrutAnnuel"],
+    "salaireNetAnnuel": ["incomeNetYearly"],
+    "salaireBrutMensuel": ["incomeGrossMonthly"],
+    "salaireNetMensuel": ["incomeNetMonthly"],
+    "cotisationsLpp": ["cotisationsLpp", "lpp_employee_contribution"],
+    "cotisationsAvs": ["cotisationsAvs"],
+    "tauxOccupation": ["employmentRate", "tauxOccupation"],
+    "bonus": ["annualBonus"],
+    # Tax declaration
     "revenuImposable": ["incomeTaxable"],
     "fortuneImposable": ["fortuneImposable", "wealthEstimate"],
+    # 3a attestation
     "avoir3a": ["pillar3aBalance", "existing_3a_ytd"],
+    "versementAnnuel3a": ["pillar3aAnnual"],
 }
 
 
