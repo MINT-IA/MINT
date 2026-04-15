@@ -11471,11 +11471,13 @@
   },
   "coachResponseDegradedHint": "Réponse rapide",
   "@coachResponseDegradedHint": {
-    "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator."
+    "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator.",
+    "x-mint-meta": { "level": "N2" }
   },
   "coachBudgetDailyLimitReached": "On a déjà bien avancé aujourd'hui. Repose-toi, je t'attends demain.",
   "@coachBudgetDailyLimitReached": {
-    "description": "v2.7 Task 4 — shown when user hits daily token budget hard cap."
+    "description": "v2.7 Task 4 — shown when user hits daily token budget hard cap.",
+    "x-mint-meta": { "level": "N3" }
   },
   "docScanRejectedNonFinancial": "Cette image ne ressemble pas à un document financier. Réessaie avec une photo de ton certificat, ta fiche de salaire ou un relevé.",
   "@docScanRejectedNonFinancial": {
