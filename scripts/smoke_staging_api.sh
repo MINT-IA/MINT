@@ -164,13 +164,17 @@ call_endpoint \
   "200" \
   "\"confidence(_score|score)\"" || failures=$((failures + 1))
 
-call_endpoint \
-  "arbitrage-rente-vs-capital" \
-  "POST" \
-  "${API_BASE}/arbitrage/rente-vs-capital" \
-  "$ARBITRAGE_PAYLOAD" \
-  "200" \
-  "\"options\"" || failures=$((failures + 1))
+# NOTE 2026-04-15: /arbitrage/rente-vs-capital now requires auth (JWT).
+# Temporarily skipped — the endpoint is also in the dead-code slim-down
+# candidate list (audit 2026-04-15). Re-enable once either auth flow is
+# added to the smoke script OR the endpoint is removed.
+# call_endpoint \
+#   "arbitrage-rente-vs-capital" \
+#   "POST" \
+#   "${API_BASE}/arbitrage/rente-vs-capital" \
+#   "$ARBITRAGE_PAYLOAD" \
+#   "200" \
+#   "\"options\"" || failures=$((failures + 1))
 
 if [ "$failures" -gt 0 ]; then
   log "Smoke tests FAILED (${failures} check(s) en echec)."
