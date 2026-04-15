@@ -72,6 +72,10 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "set_goal",
     "mark_step_completed",
     "save_insight",
+    # Chip pilotage: LLM-emitted follow-up questions captured server-side.
+    # Never forwarded to Flutter as a tool_call — surfaced via
+    # CoachChatResponse.follow_up_questions instead.
+    "suggest_followups",
     # P14 commitment devices: ack-only handlers (persistence via dedicated endpoint in Plan 02)
     "record_commitment",
     "save_pre_mortem",
@@ -478,6 +482,43 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
             },
             "required": ["topic", "summary", "type"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # suggest_followups — INTERNAL: backend-piloted chip suggestions
+    # The LLM calls this with 1-2 genuine next questions the user might
+    # ask. Handler captures them into the response's follow_up_questions
+    # field. Never forwarded to Flutter as a tool_call — the chips render
+    # from CoachChatResponse.follow_up_questions directly.
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "suggest_followups",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "Propose 1 or 2 GENUINE follow-up questions the user might want "
+            "to ask next, based on what you just answered. Rules:\n"
+            "  - Never reformulate the question the user JUST asked.\n"
+            "  - Prefer questions that extend the current thread "
+            "(deeper, adjacent, or 'what now?').\n"
+            "  - Write them in first-person user voice "
+            "(e.g. 'Ça vaut le coup de racheter du LPP ?').\n"
+            "  - Keep each question under 80 chars.\n"
+            "  - Max 2 questions. Fewer is fine — if nothing genuinely "
+            "opens up, skip the call.\n"
+            "Call at most ONCE per response."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "maxItems": 2,
+                    "description": "1 or 2 follow-up questions in first-person user voice.",
+                },
+            },
+            "required": ["questions"],
         },
     },
     # ─────────────────────────────────────────────────────────────────
