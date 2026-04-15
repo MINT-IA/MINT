@@ -149,6 +149,42 @@ def test_extra_whitespace_handled():
     assert "Trois" not in out
 
 
+# ---------------------------------------------------------------------------
+# Markdown bold/italic adjacent to sentence terminator (Run-003 regression)
+# ---------------------------------------------------------------------------
+
+
+def test_markdown_bold_after_period_still_splits():
+    """'Phrase un.** Phrase deux.' must be 2 sentences, not 1."""
+    text = "**Phrase un.** Phrase deux. Phrase trois. Phrase quatre. Phrase cinq. Phrase six."
+    out, trunc = CG.truncate_to_sentences(text, max_sentences=5)
+    assert trunc is True
+    assert "six" not in out
+    assert "Phrase un" in out
+
+
+def test_quote_after_period_still_splits():
+    text = '"Phrase un." Phrase deux. Phrase trois. Phrase quatre. Phrase cinq. Phrase six.'
+    out, trunc = CG.truncate_to_sentences(text, max_sentences=5)
+    assert trunc is True
+    assert "six" not in out
+
+
+def test_run_003_sophie_markdown_genevra_3a():
+    text = (
+        "**7258 CHF en 3a cette année = 1800 CHF d'impôts en moins à Genève.** "
+        "À 28 ans, salarié·e à 5800 net/mois, tu paies l'impôt GE plein tarif. "
+        "Le 3a, c'est un compte bloqué jusqu'à tes 60 ans. "
+        "Chaque franc versé = déduit de ton revenu imposable. "
+        "L'État te rembourse environ 25%. "
+        "si tu verses 604 CHF/mois, tu récupères ~150 CHF d'impôts par mois."
+    )
+    out, trunc = CG.truncate_to_sentences(text, max_sentences=5)
+    assert trunc is True
+    assert "604 CHF/mois" not in out
+    assert "Genève" in out
+
+
 def test_only_whitespace_returns_unchanged():
     out, trunc = CG.truncate_to_sentences("   ", max_sentences=3)
     assert out == "   "

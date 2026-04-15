@@ -58,7 +58,14 @@ _FORMAL_VOUS_RE = re.compile(
 
 # Sentence splitter for length truncation. Keeps the delimiter with the
 # sentence it terminates.
-_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?…])\s+(?=\S)")
+#
+# 2026-04-15 (Run-003): allow an optional markdown bold/italic closing
+# token (`**`, `*`, `_`, `__`, `~~`, `"`, `'`, `)`, `]`) between the
+# terminator and the whitespace. Without this, "Genève.**" stays glued
+# to the next sentence and the truncate cap leaks beyond 5 sentences.
+_SENTENCE_SPLIT_RE = re.compile(
+    r"(?<=[.!?…])(?:\*{1,2}|_{1,2}|~~|[\"'\)\]])?\s+(?=\S)"
+)
 
 
 class ComplianceGuardrails:
