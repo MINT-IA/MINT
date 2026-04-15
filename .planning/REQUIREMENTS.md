@@ -129,11 +129,11 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Stabilisation Critique (Phase 27)
 
-- [ ] **STAB-01**: MSG2 follow-up renvoie une réponse Claude valide dans 100% des scénarios testés (agent loop re-prompte quand tool_use sans texte)
-- [ ] **STAB-02**: Retry automatique Anthropic (tenacity, 3x, backoff exponentiel) sur 429/529/503 sans erreur visible user
-- [ ] **STAB-03**: Upload idempotent — SHA256(file) caché, même fichier renvoie résultat sans re-appeler Vision
-- [ ] **STAB-04**: Token budget par user/jour (default 50k), dépassement = message explicite "limite quotidienne atteinte"
-- [ ] **STAB-05**: Feature flag `DOCUMENTS_V2_ENABLED` + `COACH_MSG2_FIX_ENABLED` permettent rollback sans redeploy
+- [x] **STAB-01**: MSG2 follow-up renvoie une réponse Claude valide dans 100% des scénarios testés (agent loop re-prompte quand tool_use sans texte)
+- [x] **STAB-02**: Retry automatique Anthropic (tenacity, 3x, backoff exponentiel) sur 429/529/503 sans erreur visible user
+- [x] **STAB-03**: Upload idempotent — SHA256(file) caché, même fichier renvoie résultat sans re-appeler Vision
+- [x] **STAB-04**: Token budget par user/jour (default 50k), dépassement = message explicite "limite quotidienne atteinte"
+- [x] **STAB-05**: Feature flag `DOCUMENTS_V2_ENABLED` + `COACH_MSG2_FIX_ENABLED` permettent rollback sans redeploy
 
 ### Pipeline Document Honnête (Phase 28)
 
@@ -159,8 +159,8 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 ### Device & Test Gate (Phase 30)
 
-- [ ] **GATE-01**: Scénario Sophie (pavé intent + 3 follow-ups + upload LPP + mémoire J+1) validé en `flutter run --release` sur iPhone physique
-- [ ] **GATE-02**: Scénario équivalent validé sur Android (device ou emulator Pixel récent)
+- [~] **GATE-01**: Scénario Sophie validé en `flutter run --release` sur iPhone physique — *code ready, awaiting device walkthrough (docs/DEVICE_GATE_V27_CHECKLIST.md section A)*
+- [~] **GATE-02**: Scénario équivalent validé sur Android — *code ready, awaiting device walkthrough (section B)*
 - [x] **GATE-03**: Corpus `test/fixtures/documents/` avec 10 docs anonymisés couvrant : Julien CPE LPP, Lauren HOTELA, AVS IK, salary AFC, tax VS, US W-2, scan froissé, photo biais, screenshot mobile banking, PDF allemand
 - [x] **GATE-04**: Golden flow CI upload chaque fixture, assert `render_mode` + fields critiques ; prompt injection fixture ignorée par Vision ; coût < $0.05/doc ; p95 < 10s
 
@@ -170,14 +170,22 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 |-----|-------|--------|
 | STAB-01..05 | Phase 27 | Complete |
 | DOC-01, DOC-02, DOC-08 | Phase 28-01 | Complete |
-| DOC-03 (backend half) | Phase 28-01 | Partial |
-| DOC-05 (backend selector) | Phase 28-01 | Partial |
-| DOC-04, DOC-06, DOC-07 | Phase 28-02..04 | Planned |
-| PRIV-01..08 | Phase 29 | Planned |
-| GATE-01..04 | Phase 30 | Planned |
+| DOC-03 | Phase 28-01 + 28-03 | Complete |
+| DOC-04 | Phase 28-02 | Complete |
+| DOC-05 | Phase 28-01 + 28-04 | Complete |
+| DOC-06 | Phase 28-04 | Complete |
+| DOC-07 | Phase 28-03 | Complete |
+| PRIV-01 | Phase 29-02 | Complete |
+| PRIV-02 | Phase 29-05 | Complete |
+| PRIV-03, PRIV-06 | Phase 29-03 | Complete |
+| PRIV-04 | Phase 29-01 | Complete |
+| PRIV-05, PRIV-08 | Phase 29-04 | Complete |
+| PRIV-07 | Phase 29-06 | Complete |
+| GATE-03, GATE-04 | Phase 30-01 | Complete |
+| GATE-01, GATE-02 | Phase 30-02 | Code ready — awaiting device walkthrough |
 
-**v2.7 Coverage:** 25 requirements total, all mapped.
+**v2.7 Coverage:** 25/25 requirements code-complete. GATE-01 + GATE-02 creator-device walkthrough pending (blocking milestone shipped-date stamp).
 
 ---
 *Requirements defined: 2026-04-12 (v2.5), 2026-04-14 (v2.7)*
-*Last updated: 2026-04-14 -- v2.7 added post 4-expert challenge of external audit*
+*Last updated: 2026-04-15 -- v2.7 all requirements code-complete; GATE-01/02 awaiting creator-device walkthrough (docs/DEVICE_GATE_V27_CHECKLIST.md)*

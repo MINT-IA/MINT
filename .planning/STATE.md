@@ -2,16 +2,18 @@
 gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
-status: Phase 29-04 shipped — VisionGuard + NumericSanity + FieldStatus.needs_review default + BatchValidationBubble + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green.
-stopped_at: Completed 30-01-PLAN.md — corpus fixtures + golden flow + warn-only CI (GATE-03 + GATE-04)
-last_updated: "2026-04-15T00:13:01.656Z"
-last_activity: 2026-04-14
+status: v2.7 code-complete — all 4 phases (27/28/29/30) closed on dev; milestone awaiting_device_gate (creator iPhone + Android walkthrough blocking close). Next: v2.8 "La Confiance" proposed.
+stopped_at: Completed 30-02-PLAN.md — device-gate checklist + perf report + legal signoff + milestone summary. STATE/ROADMAP/REQUIREMENTS/MILESTONES marked code-complete with <PENDING_DEVICE_GATE> placeholder.
+last_updated: "2026-04-15T00:30:00.000Z"
+last_activity: 2026-04-15
+milestone_status: awaiting_device_gate
+next_milestone_proposal: v2.8 "La Confiance" (Privacy Nutrition Label + Data Vault + Trust Mode + Graduation Protocol v1)
 progress:
   total_phases: 18
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 12
-  percent: 92
+  completed_plans: 13
+  percent: 100
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -97,6 +99,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 | Phase 29-compliance-privacy P05 | 40 | 2 tasks | 20 files |
 | Phase 29 P06 | 55 min | 2 tasks | 15 files |
 | Phase 30 P01 | 40 | 3 tasks | 32 files |
+| Phase 30 P02 | 25 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -174,6 +177,8 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 - [Phase 30]: Golden flow uses pymupdf (not reportlab) — matches 29-04 pattern, zero new install
 - [Phase 30]: Prompt-injection cassettes keep render_mode=confirm in expectations — guard runs AFTER selector per 28-01 step order; security invariant asserted is guard_blocked + no attacker token
 - [Phase 30]: Golden CI warn-only until 2026-04-28 (grep-able UNTIL marker)
+- [Phase 30-02]: Milestone close gated on creator-device walkthrough (iPhone + Android). No YYYY-MM-DD stamped until Julien signs `device-gate(v2.7): iPhone approved` + `Android approved` + `legal-signoff(v2.7)`. Placeholders `<PENDING_DEVICE_GATE>` in ROADMAP/STATE/MILESTONES until then.
+- [Phase 30-02]: Next milestone proposed as v2.8 "La Confiance" — Privacy Nutrition Label + Data Vault + Trust Mode + Graduation Protocol v1; scope TBD via /gsd-start-milestone v2.8.
 
 ### From Previous Milestones
 
@@ -196,9 +201,9 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 
 ## Session Continuity
 
-Last session: 2026-04-15T00:12:53.080Z
-Stopped at: Completed 30-01-PLAN.md — corpus fixtures + golden flow + warn-only CI (GATE-03 + GATE-04)
-Resume file: None
+Last session: 2026-04-15T00:30:00.000Z
+Stopped at: Completed 30-02-PLAN.md — device-gate checklist + perf report + legal signoff + milestone summary (v2.7 code-complete, awaiting device walkthrough)
+Resume file: docs/DEVICE_GATE_V27_CHECKLIST.md (Julien fills before milestone close)
 
 ---
 *Last activity: 2026-04-12 — Roadmap v2.5 created with 6 phases, 25 requirements mapped*

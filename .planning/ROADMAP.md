@@ -8,7 +8,7 @@
 - ✅ **v2.4 Fondation** - Phases 9-12 (shipped 2026-04-12)
 - ✅ **v2.5 Transformation** - Phases 13-18 (shipped 2026-04-13)
 - ✅ **v2.6 Le Coach Qui Marche** - Phases 19-26 (shipped 2026-04-13)
-- 🚧 **v2.7 Coach Stabilisation + Document Digestion** - Phases 27-30 (in progress)
+- 🟡 **v2.7 Coach Stabilisation + Document Digestion** - Phases 27-30 (code-complete, awaiting device gate — `<PENDING_DEVICE_GATE>`)
 
 <details>
 <summary>Previous milestones (v1.0, v2.0, v2.1, v2.4) -- see MILESTONES.md</summary>
@@ -368,8 +368,18 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
 | 28. Pipeline Document Honnête | v2.7 | 4/4 | Complete   | 2026-04-14 |
 | 29. Compliance & Privacy | v2.7 | 6/6 | Complete   | 2026-04-14 |
-| 30. Device & Test Gate | v2.7 | 1/2 | In Progress|  |
+| 30. Device & Test Gate | v2.7 | 2/2 | Complete (code) — awaiting device walkthrough | `<PENDING_DEVICE_GATE>` |
+
+## v2.8 La Confiance (proposed)
+
+Working title. Scope TBD via `/gsd-start-milestone v2.8`. See `docs/MILESTONE_V27_SUMMARY.md` §5.
+
+**Themes:**
+- Privacy Nutrition Label — inline disclosures at every data-collection point (LSFin transparency, nLPD).
+- Data Vault — user-facing export + portability (`.mintvault`), foundation for Dossier Federation.
+- Trust Mode — transparent "ce que MINT sait et pourquoi" breakdown.
+- Graduation Protocol v1 — concept mastery tracking (3 engagements × 1 concept).
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-14 — v2.7 milestone added (4 phases) after 4-expert challenge of external audit*
+*Last updated: 2026-04-15 — v2.7 code-complete (30-02 closeout docs), awaiting device gate walkthrough*
