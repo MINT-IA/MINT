@@ -560,8 +560,14 @@ def _load_persisted_profile_fields(
             archetype = "swiss_native"
     result["archetype"] = archetype
     # Numeric fields: safe to inject.
+    # Run-005: added income_gross_yearly + income_net_yearly so the coach
+    # can answer "quel est mon salaire brut/net annuel" once the salary
+    # certificate has been confirmed (was returning "je n'ai pas ton brut").
     _SAFE_NUMERIC_KEYS = {
         "incomeNetMonthly": "monthly_income",
+        "incomeGrossYearly": "income_gross_yearly",
+        "incomeNetYearly": "income_net_yearly",
+        "incomeGrossMonthly": "income_gross_monthly",
         "pillar3aAnnual": "annual_3a_contribution",
         "lppInsuredSalary": "lpp_insured_salary",
         "avoirLpp": "lpp_capital",
@@ -569,6 +575,8 @@ def _load_persisted_profile_fields(
         "rachatMaximum": "lpp_buyback_max",
         "lppBuybackMax": "lpp_buyback_max",
         "pillar3aBalance": "existing_3a_ytd",
+        "wealthEstimate": "wealth_estimate",
+        "fortuneImposable": "wealth_estimate",
     }
     for src, dst in _SAFE_NUMERIC_KEYS.items():
         v = d.get(src)
@@ -613,9 +621,21 @@ def _build_user_facts_block(merged_profile: dict) -> str:
     inc = merged_profile.get("monthly_income")
     if inc:
         lines.append(f"- Salaire net mensuel : {int(inc)} CHF")
+    inc_gross_yr = merged_profile.get("income_gross_yearly")
+    if inc_gross_yr:
+        lines.append(f"- Salaire brut annuel : {int(inc_gross_yr)} CHF")
+    inc_net_yr = merged_profile.get("income_net_yearly")
+    if inc_net_yr:
+        lines.append(f"- Salaire net annuel : {int(inc_net_yr)} CHF")
+    inc_gross_mo = merged_profile.get("income_gross_monthly")
+    if inc_gross_mo:
+        lines.append(f"- Salaire brut mensuel : {int(inc_gross_mo)} CHF")
     lpp_sal = merged_profile.get("lpp_insured_salary")
     if lpp_sal:
         lines.append(f"- Salaire assure LPP : {int(lpp_sal)} CHF")
+    wealth = merged_profile.get("wealth_estimate")
+    if wealth:
+        lines.append(f"- Fortune imposable : {int(wealth)} CHF")
     lpp_cap = merged_profile.get("lpp_capital")
     if lpp_cap:
         lines.append(f"- Avoir LPP total : {int(lpp_cap)} CHF")
