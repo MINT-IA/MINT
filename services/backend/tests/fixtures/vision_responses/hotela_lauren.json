@@ -21,9 +21,9 @@
         "extracted_fields": [
           {
             "field_name": "titulaire",
-            "value": "Marie Testuser",
+            "value": "Marie Dubois",
             "confidence": "high",
-            "source_text": "Assuree: Marie Testuser"
+            "source_text": "Assuree: Marie Dubois"
           },
           {
             "field_name": "avoir_vieillesse_lpp",

@@ -20,7 +20,7 @@
         "classification_confidence": 0.92,
         "extracted_fields": [
           {
-            "field_name": "avoir_vieillesse_lpp",
+            "field_name": "avoirLppTotal",
             "value": 7000000,
             "confidence": "high",
             "source_text": "7'000'000 CHF"
@@ -38,7 +38,7 @@
             "source_text": ""
           }
         ],
-        "overall_confidence": 0.88,
+        "overall_confidence": 0.92,
         "extraction_status": "success",
         "plan_type": null,
         "coherence_warnings": [],
