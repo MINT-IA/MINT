@@ -15070,6 +15070,19 @@
       },
       "Profile": {
         "properties": {
+          "avoirLpp": {
+            "anyOf": [
+              {
+                "maximum": 100000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avoirlpp"
+          },
           "avsContributionYears": {
             "anyOf": [
               {
@@ -15264,6 +15277,19 @@
             ],
             "title": "Legalform"
           },
+          "lppBuybackMax": {
+            "anyOf": [
+              {
+                "maximum": 100000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lppbuybackmax"
+          },
           "lppInsuredSalary": {
             "anyOf": [
               {
@@ -15296,6 +15322,19 @@
               }
             ],
             "title": "Pillar3Aannual"
+          },
+          "pillar3aBalance": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar3Abalance"
           },
           "primaryActivity": {
             "anyOf": [
@@ -15482,6 +15521,19 @@
       },
       "ProfileCreate": {
         "properties": {
+          "avoirLpp": {
+            "anyOf": [
+              {
+                "maximum": 100000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avoirlpp"
+          },
           "avsContributionYears": {
             "anyOf": [
               {
@@ -15666,6 +15718,19 @@
             ],
             "title": "Legalform"
           },
+          "lppBuybackMax": {
+            "anyOf": [
+              {
+                "maximum": 100000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lppbuybackmax"
+          },
           "lppInsuredSalary": {
             "anyOf": [
               {
@@ -15698,6 +15763,19 @@
               }
             ],
             "title": "Pillar3Aannual"
+          },
+          "pillar3aBalance": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar3Abalance"
           },
           "primaryActivity": {
             "anyOf": [
