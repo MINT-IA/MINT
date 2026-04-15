@@ -27,6 +27,7 @@ from app.services.billing_service import recompute_entitlements
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.document import DocumentModel
+from app.models.profile_model import ProfileModel
 from app.models.user import User
 from anthropic import Anthropic
 
@@ -899,6 +900,86 @@ async def preview_budget_import(
 #  SCAN CONFIRMATION + CLAUDE VISION EXTRACTION
 # ════════════════════════════════════════════════════════════
 
+# Whitelist mapping: mobile scan field_name → ProfileModel.data key (camelCase).
+# Only these fields are merged into the profile when confidence is high/medium.
+# Keep the set narrow so adversarial scans can't clobber arbitrary profile keys.
+_SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
+    # LPP fields
+    "avoirLpp": ["avoirLpp"],
+    "avoirLppTotal": ["avoirLpp"],
+    "avoirLppObligatoire": ["avoirLppObligatoire"],
+    "avoirLppSurobligatoire": ["avoirLppSurobligatoire"],
+    "lppInsuredSalary": ["lppInsuredSalary"],
+    "salaireAssure": ["lppInsuredSalary"],
+    "lppBuybackMax": ["lppBuybackMax"],
+    "rachatMaximum": ["lppBuybackMax"],
+    "tauxConversion": ["tauxConversion"],
+    # Salary / income fields
+    "salaireBrutAnnuel": ["incomeGrossYearly"],
+    "salaireNetAnnuel": ["incomeNetYearly"],
+    "salaireBrutMensuel": ["incomeGrossMonthly"],
+    "salaireNetMensuel": ["incomeNetMonthly"],
+    "bonus": ["annualBonus"],
+    "tauxOccupation": ["employmentRate"],
+    # Cotisations
+    "cotisationsLpp": ["cotisationsLpp", "lpp_employee_contribution"],
+    "cotisationsAvs": ["cotisationsAvs"],
+    # 3a fields
+    "versementAnnuel3a": ["pillar3aAnnual"],
+    "pillar3aBalance": ["pillar3aBalance"],
+    # Personal fields (safe)
+    "dateNaissance": ["dateOfBirth"],
+    "npa": ["commune"],
+    "canton": ["canton"],
+}
+
+# Minimum confidence level required to merge a scan field into the profile.
+# Low-confidence extractions still land in the DocumentModel audit trail
+# so the UI can display them for manual review, but they never overwrite
+# authoritative profile state.
+_SCAN_MERGE_CONFIDENCE = {"high", "medium"}
+
+
+def _merge_scan_fields_into_profile(
+    db: Session,
+    user_id: str,
+    body: DocumentScanConfirmation,
+) -> int:
+    """Merge confirmed scan fields into the user's ProfileModel.data.
+
+    Returns the number of profile keys actually written. High/medium
+    confidence fields pass through the whitelist and overwrite existing
+    values; low confidence is skipped here (audit-only).
+    """
+    profile = (
+        db.query(ProfileModel)
+        .filter(ProfileModel.user_id == user_id)
+        .order_by(ProfileModel.updated_at.desc())
+        .first()
+    )
+    if profile is None:
+        return 0
+
+    data = dict(profile.data or {})
+    written = 0
+    for field in body.confirmed_fields:
+        conf = getattr(field.confidence, "value", field.confidence)
+        if str(conf).lower() not in _SCAN_MERGE_CONFIDENCE:
+            continue
+        mapped_keys = _SCAN_FIELD_TO_PROFILE_KEYS.get(field.field_name)
+        if not mapped_keys:
+            continue
+        for key in mapped_keys:
+            data[key] = field.value
+            written += 1
+
+    if written > 0:
+        profile.data = data
+        profile.updated_at = datetime.now(timezone.utc)
+        db.add(profile)
+    return written
+
+
 @router.post("/scan-confirmation", response_model=DocumentScanResponse)
 @limiter.limit("30/minute")
 async def confirm_document_scan(
@@ -939,6 +1020,15 @@ async def confirm_document_scan(
         warnings=[],
     )
     db.add(doc_model)
+
+    # Merge high/medium confidence fields into the user's profile
+    # (P0 FLOW#4 fix 2026-04-15: audit entry alone is not enough — the
+    # whole upload→profile pipeline advertises "MINT remembers what you
+    # uploaded", which requires persisting values into ProfileModel.data
+    # so GET /profiles/me and the coach user_facts_block can read them.)
+    profile_fields_written = _merge_scan_fields_into_profile(
+        db, str(current_user.id), body
+    )
     db.commit()
 
     # Calculate confidence delta (how much this scan improves profile)
@@ -946,9 +1036,9 @@ async def confirm_document_scan(
 
     return DocumentScanResponse(
         status="confirmed",
-        fields_updated=len(body.confirmed_fields),
+        fields_updated=profile_fields_written,
         confidence_delta=confidence_delta,
-        message=f"Scan {body.document_type.value} synced ({len(body.confirmed_fields)} fields)",
+        message=f"Scan {body.document_type.value} synced ({profile_fields_written} profile fields)",
     )
 
 

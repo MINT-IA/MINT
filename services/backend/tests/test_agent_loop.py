@@ -589,7 +589,7 @@ class TestAgentLoopTimeouts:
         finally:
             chat_module.AGENT_ITERATION_TIMEOUT_SECONDS = original
 
-    def test_agent_loop_max_iterations_reduced_to_3(self):
-        """MAX_AGENT_LOOP_ITERATIONS is now 3, not 5."""
+    def test_agent_loop_max_iterations_bounded(self):
+        """MAX_AGENT_LOOP_ITERATIONS stays bounded (v2.7: 4 — one reflective retry)."""
         from app.api.v1.endpoints.coach_chat import MAX_AGENT_LOOP_ITERATIONS  # noqa: F811
-        assert MAX_AGENT_LOOP_ITERATIONS == 3
+        assert MAX_AGENT_LOOP_ITERATIONS == 4

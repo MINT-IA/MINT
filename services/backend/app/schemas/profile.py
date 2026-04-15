@@ -35,6 +35,9 @@ class ProfileBase(BaseModel):
     savingsMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
     totalSavings: Optional[float] = Field(None, ge=0, le=10_000_000)
     lppInsuredSalary: Optional[float] = Field(None, ge=0, le=10_000_000)
+    avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
+    lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
+    pillar3aBalance: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasDebt: bool = False
     goal: Goal = Goal.other
     factfindCompletionIndex: float = 0.0
@@ -132,6 +135,9 @@ class ProfileUpdate(BaseModel):
     savingsMonthly: Optional[float] = None
     totalSavings: Optional[float] = None
     lppInsuredSalary: Optional[float] = None
+    avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
+    lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
+    pillar3aBalance: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasDebt: Optional[bool] = None
     goal: Optional[Goal] = None
     factfindCompletionIndex: Optional[float] = None
