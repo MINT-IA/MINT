@@ -915,6 +915,16 @@ def _execute_internal_tool(
     # STAB-12 (07-04): set_goal / mark_step_completed are acknowledgement-only tools.
     # They let the LLM track conversational state without rendering a widget.
     # save_insight was upgraded to persist to DB in Phase 21 (CTX-02).
+    if name == "suggest_followups":
+        # Handled by the agent loop: results are captured into the response's
+        # follow_up_questions field, not returned as tool_result text. We just
+        # return an ack so Claude knows the call succeeded. Extraction of the
+        # questions happens at the loop level (see _run_agent_loop).
+        raw_qs = tool_input.get("questions")
+        count = len(raw_qs) if isinstance(raw_qs, list) else 0
+        logger.info("suggest_followups received %d question(s)", count)
+        return "Follow-ups notés."
+
     if name == "set_goal":
         goal = tool_input.get("goal") or tool_input.get("title") or ""
         logger.info("set_goal ack (non-persisted): %s", goal[:100])
@@ -1401,6 +1411,7 @@ async def _run_agent_loop(
     flutter_tool_calls: list = []
     all_sources: list = []
     all_disclaimers: list = []
+    follow_up_questions: list[str] = []
     total_tokens = 0
     request_tokens_used = 0
     final_answer = ""
@@ -1527,6 +1538,19 @@ async def _run_agent_loop(
             )
             continue
 
+        # Capture suggest_followups inputs (never re-injected as text —
+        # surfaced on the final response via follow_up_questions).
+        for call in internal_calls:
+            if call.get("name") == "suggest_followups":
+                raw_qs = call.get("input", {}).get("questions")
+                if isinstance(raw_qs, list):
+                    for q in raw_qs:
+                        if not isinstance(q, str):
+                            continue
+                        q_clean = q.strip()
+                        if q_clean:
+                            follow_up_questions.append(q_clean[:160])
+
         # Execute internal tools and collect results
         tool_results: list = []
         for call in internal_calls:
@@ -1575,12 +1599,24 @@ async def _run_agent_loop(
             seen_sources.add(key)
             unique_sources.append(source)
 
+    # Dedup follow-ups and silently cap at 2 (schema will re-cap anyway —
+    # belt-and-braces against duplicate LLM calls across iterations).
+    seen_fu: set = set()
+    unique_fu: list[str] = []
+    for q in follow_up_questions:
+        if q not in seen_fu:
+            seen_fu.add(q)
+            unique_fu.append(q)
+        if len(unique_fu) >= 2:
+            break
+
     return {
         "answer": final_answer,
         "tool_calls": flutter_tool_calls if flutter_tool_calls else None,
         "sources": unique_sources,
         "disclaimers": list(set(all_disclaimers)),
         "tokens_used": total_tokens,
+        "follow_up_questions": unique_fu,
     }
 
 
@@ -1881,6 +1917,7 @@ async def coach_chat(
         disclaimers=loop_result["disclaimers"],
         tokens_used=loop_result["tokens_used"],
         system_prompt_used=True,
+        follow_up_questions=loop_result.get("follow_up_questions", []),
     )
 
 

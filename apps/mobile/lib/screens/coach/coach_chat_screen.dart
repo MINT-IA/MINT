@@ -893,15 +893,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
-    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
-    final inferredActions = compliance.useFallback
-        ? <String>[]
-        : _inferSuggestedActions(userMessage, finalText);
+    // Phase D: chips come from the backend's `suggest_followups` tool (or
+    // the anonymous `<followups>` block) — never inferred client-side. The
+    // SLM path does not emit follow-up questions of its own, so here we only
+    // surface route_to_screen narration chips.
     final routeChips = _extractRouteChips(richCalls);
-    final suggestedActions = <String>{
-      ...inferredActions,
-      ...routeChips,
-    }.take(4).toList();
+    final suggestedActions = routeChips.take(2).toList();
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
@@ -966,16 +963,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...markerCalls,
       ].take(5).toList();
 
-      // UX-04: Use LLM-provided suggestions if available, otherwise infer
-      // from conversation context. Enrich with route_to_screen tool calls
-      // so the coach's navigation proposals also appear as tappable chips.
-      final inferredActions = response.suggestedActions ??
-          _inferSuggestedActions(text, cleanMessage);
+      // Phase D: chips are backend-piloted via `suggest_followups`
+      // (/coach/chat) or the `<followups>` JSON block (/anonymous/chat).
+      // Merge with route_to_screen narration chips so navigation proposals
+      // remain tappable. Cap at 2 items to match the backend contract.
       final routeChips = _extractRouteChips(richCalls);
       final suggestedActions = <String>{
-        ...inferredActions,
+        ...response.followUpQuestions,
         ...routeChips,
-      }.take(4).toList();
+      }.take(2).toList();
 
       setState(() {
         _messages.add(ChatMessage(
@@ -1313,43 +1309,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       canton: profile.canton,
       knownValues: knownValues,
     );
-  }
-
-  List<String> _inferSuggestedActions(
-    String userMessage,
-    String coachResponse,
-  ) {
-    final s = S.of(context)!;
-    final combined = '$userMessage $coachResponse'.toLowerCase();
-    final actions = <String>[];
-
-    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
-    }
-    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
-    }
-    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
-    }
-    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
-      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
-    }
-    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
-    }
-    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
-        .hasMatch(combined)) {
-      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
-    }
-
-    // UX-04: No hardcoded defaults. Chips appear ONLY when the
-    // conversation matches a topic regex — otherwise the list is empty
-    // and no chips are shown. This prevents static/irrelevant chips
-    // from appearing after every response regardless of context.
-    // Deduplicate and cap at 3
-    return actions.toSet().take(3).toList();
   }
 
   /// UX-04: Extract contextual chip labels from route_to_screen tool calls.

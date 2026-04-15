@@ -1295,6 +1295,14 @@
             "title": "Disclaimers",
             "type": "array"
           },
+          "followUpQuestions": {
+            "description": "Up to 2 genuine follow-up questions the user might ask next. Parsed server-side from a <followups>[\"q1\",\"q2\"]</followups> JSON block emitted by the LLM. Empty when absent or malformed. Never a reformulation of the user's own question.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Followupquestions",
+            "type": "array"
+          },
           "message": {
             "description": "Reponse du coach en mode decouverte.",
             "title": "Message",
@@ -3871,6 +3879,14 @@
               "type": "string"
             },
             "title": "Disclaimers",
+            "type": "array"
+          },
+          "followUpQuestions": {
+            "description": "Up to 2 genuine follow-up questions the user might ask next. Backend-piloted (via suggest_followups tool or <followups> JSON block). Empty list when the LLM produced none. Never a reformulation of the question the user just asked.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Followupquestions",
             "type": "array"
           },
           "message": {
