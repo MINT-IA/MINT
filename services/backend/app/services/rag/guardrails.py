@@ -484,17 +484,59 @@ class ComplianceGuardrails:
 
         Splits on `.!?…` followed by whitespace. Preserves the terminal
         punctuation. Returns (text, was_truncated). No-op on empty input.
+
+        Post-fix 2026-04-15 (bug Run-001 #1): list markers like "1.", "2.",
+        "3." are merged into the following sentence instead of being
+        counted as sentences themselves, and a kept truncation that ends
+        on a dangling list marker or conjunction is cleaned up so the
+        output never terminates mid-enumeration.
         """
         if not isinstance(text, str) or not text.strip():
             return text, False
-        parts = _SENTENCE_SPLIT_RE.split(text.strip())
+        raw_parts = _SENTENCE_SPLIT_RE.split(text.strip())
+
+        # Merge dangling list markers ("1.", "2.") into the following
+        # sentence so they don't consume a slot.
+        list_marker = re.compile(r"^\d+\.$")
+        parts: list[str] = []
+        pending: str | None = None
+        for p in raw_parts:
+            p = p.strip()
+            if not p:
+                continue
+            if list_marker.match(p):
+                pending = p
+                continue
+            if pending is not None:
+                parts.append(f"{pending} {p}")
+                pending = None
+            else:
+                parts.append(p)
+        if pending is not None:
+            # Trailing list marker with no following sentence — drop it.
+            pass
+
         if len(parts) <= max_sentences:
-            return text, False
-        truncated = " ".join(p.strip() for p in parts[:max_sentences]).strip()
+            return " ".join(parts), False
+
+        kept = parts[:max_sentences]
+        # Clean up trailing fragment that ends on a bullet/conjunction
+        # ("et", "mais", ",", "(" without close, etc.) — if the last kept
+        # sentence clearly ends mid-thought, drop it rather than ship a
+        # mutilated tail.
+        last = kept[-1]
+        ends_badly = (
+            last.endswith(",")
+            or re.search(r"\b(et|mais|ou|donc|car|puis|alors)\s*$", last, re.IGNORECASE)
+            or (last.count("(") > last.count(")"))
+        )
+        if ends_badly and len(kept) > 1:
+            kept = kept[:-1]
+        truncated = " ".join(kept).strip()
         logger.info(
             "compliance.length_truncated original=%d kept=%d",
             len(parts),
-            max_sentences,
+            len(kept),
         )
         return truncated, True
 
