@@ -161,10 +161,20 @@ final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellE
 //    /invalidite, /divorce, /succession
 // ════════════════════════════════════════════════════════════
 
+// Module-level GoRouter. The router rebuilds when `_authNotifier` ticks —
+// see `_AuthRefreshNotifier` below. Without this listener, login/logout
+// events change AuthProvider state but the router never re-evaluates the
+// `redirect` callback, so the user stays stuck on the public scope after
+// signing in (Gate 0 P0-1: "logged in but Explorer/Aujourd'hui still show
+// 'Crée ton compte'"). The notifier is bridged to AuthProvider once the
+// MultiProvider tree is built (see _bindRouterAuthListener below).
+final _authNotifier = ChangeNotifier();
+
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   observers: [AnalyticsRouteObserver()],
   initialLocation: '/',
+  refreshListenable: _authNotifier,
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
     // ── Scope-based auth guard ───────────────────────────────
@@ -1196,20 +1206,22 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
         ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
       ],
-      child: Builder(
-        builder: (context) {
-          final localeProvider = context.watch<LocaleProvider>();
-          return MaterialApp.router(
-            title: 'Mint',
-            debugShowCheckedModeBanner: false,
-            theme: _buildPremiumTheme(),
-            themeMode: ThemeMode.light,
-            routerConfig: _router,
-            localizationsDelegates: S.localizationsDelegates,
-            supportedLocales: S.supportedLocales,
-            locale: localeProvider.locale,
-          );
-        },
+      child: _AuthRouterBridge(
+        child: Builder(
+          builder: (context) {
+            final localeProvider = context.watch<LocaleProvider>();
+            return MaterialApp.router(
+              title: 'Mint',
+              debugShowCheckedModeBanner: false,
+              theme: _buildPremiumTheme(),
+              themeMode: ThemeMode.light,
+              routerConfig: _router,
+              localizationsDelegates: S.localizationsDelegates,
+              supportedLocales: S.supportedLocales,
+              locale: localeProvider.locale,
+            );
+          },
+        ),
       ),
     );
   }
@@ -1488,4 +1500,53 @@ class _MintErrorScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// Bridge that subscribes to AuthProvider once and forwards every tick
+/// to the router-bound `_authNotifier`. Without this, GoRouter's
+/// `refreshListenable` never rebuilds redirect after login/logout
+/// (Gate 0 P0-1).
+class _AuthRouterBridge extends StatefulWidget {
+  const _AuthRouterBridge({required this.child});
+  final Widget child;
+
+  @override
+  State<_AuthRouterBridge> createState() => _AuthRouterBridgeState();
+}
+
+class _AuthRouterBridgeState extends State<_AuthRouterBridge> {
+  AuthProvider? _bound;
+
+  void _onAuthTick() {
+    // Forward AuthProvider state changes to the router's listener so it
+    // re-runs `redirect`. notifyListeners is safe here — we are not in
+    // the middle of a build phase (the call originates from
+    // AuthProvider.notifyListeners which is fired post-state-change).
+    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
+    _authNotifier.notifyListeners();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final auth = context.read<AuthProvider>();
+    if (!identical(_bound, auth)) {
+      _bound?.removeListener(_onAuthTick);
+      auth.addListener(_onAuthTick);
+      _bound = auth;
+      // Tick once on bind so the router evaluates the initial auth state
+      // (e.g. token already loaded from secure storage on cold start).
+      _onAuthTick();
+    }
+  }
+
+  @override
+  void dispose() {
+    _bound?.removeListener(_onAuthTick);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
