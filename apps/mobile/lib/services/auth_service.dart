@@ -15,6 +15,12 @@ class AuthService {
   );
 
   /// Store auth tokens after login/register
+  ///
+  /// Gate 0 P0 (2026-04-15): defensive sanity. Empty / whitespace-only
+  /// tokens, userIds, or emails were silently accepted before, producing
+  /// "zombie" auth where `isLoggedIn` returned true but every request
+  /// 401'd. Now we reject up-front with an explicit error so the caller
+  /// can surface it instead of leaving the app in a broken auth state.
   static Future<void> saveToken(
     String token,
     String userId,
@@ -22,13 +28,22 @@ class AuthService {
     String? displayName,
     String? refreshToken,
   }) async {
+    if (token.trim().isEmpty) {
+      throw ArgumentError.value(token, 'token', 'must be non-empty');
+    }
+    if (userId.trim().isEmpty) {
+      throw ArgumentError.value(userId, 'userId', 'must be non-empty');
+    }
+    if (email.trim().isEmpty) {
+      throw ArgumentError.value(email, 'email', 'must be non-empty');
+    }
     await _storage.write(key: _tokenKey, value: token);
     await _storage.write(key: _userIdKey, value: userId);
     await _storage.write(key: _userEmailKey, value: email);
     if (displayName != null) {
       await _storage.write(key: _displayNameKey, value: displayName);
     }
-    if (refreshToken != null) {
+    if (refreshToken != null && refreshToken.trim().isNotEmpty) {
       await _storage.write(key: _refreshTokenKey, value: refreshToken);
     }
   }

@@ -88,7 +88,11 @@ class CoachChatApiService {
           },
           body: jsonEncode(body),
         )
-        .timeout(const Duration(seconds: 60));
+        // Gate 0 P0-3: 60s was 3× the user's patience threshold and made
+        // the app feel "disconnected" when Sonnet took 25-40s on a long
+        // tool chain. 20s catches genuine hangs while letting healthy
+        // responses through (P95 backend latency on staging = 8-12s).
+        .timeout(const Duration(seconds: 20));
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;

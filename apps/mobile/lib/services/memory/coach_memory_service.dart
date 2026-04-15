@@ -113,8 +113,12 @@ class CoachMemoryService {
           'created_at': insight.createdAt.toUtc().toIso8601String(),
         }),
       );
-    } catch (_) {
-      // Fire-and-forget: sync failure is not user-facing.
+    } catch (e, st) {
+      // Fire-and-forget: sync failure is not user-facing, but Gate 0 #10
+      // requires observability — silent catches were hiding flaky network
+      // and stale-token bugs for weeks. Log so it shows up in Sentry /
+      // device console without breaking the user flow.
+      debugPrint('[CoachMemory] _syncToBackend failed: $e\n$st');
     }
   }
 
@@ -128,8 +132,8 @@ class CoachMemoryService {
         Uri.parse('$baseUrl/coach/sync-insight/$insightId'),
         headers: {'Authorization': 'Bearer $token'},
       );
-    } catch (_) {
-      // Fire-and-forget: cleanup failure is not user-facing.
+    } catch (e, st) {
+      debugPrint('[CoachMemory] _syncRemoveToBackend($insightId) failed: $e\n$st');
     }
   }
 

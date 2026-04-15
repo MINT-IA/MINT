@@ -764,12 +764,15 @@ class CoachOrchestrator {
     final service = CoachChatApiService();
 
     // Build conversation history for multi-turn context (same as BYOK path).
-    // Last 8 messages (4 exchanges) — sanitized user messages, raw assistant.
+    // Last 16 messages (8 exchanges) — sanitized user messages, raw assistant.
+    // Bumped from 8 → 16 (Gate 0 P0-2, 2026-04-15) so the coach keeps
+    // multi-turn threading coherent. Backend cap matches at 16 msg /
+    // 2000 chars (coach_chat.py:_sanitize_conversation_history).
     final recentHistory = history
         .where((m) => m.isUser || m.isAssistant)
         .toList();
-    final tail = recentHistory.length > 8
-        ? recentHistory.sublist(recentHistory.length - 8)
+    final tail = recentHistory.length > 16
+        ? recentHistory.sublist(recentHistory.length - 16)
         : recentHistory;
     final conversationHistory = tail
         .map((m) => {

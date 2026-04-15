@@ -386,15 +386,22 @@ def _sanitize_conversation_history(
     """Sanitize conversation history: PII scrub + injection filter + limit.
 
     Threat mitigations:
-        T-20-01 (Tampering): role whitelist, 8-message cap, 500-char truncation
+        T-20-01 (Tampering): role whitelist, 16-message cap, 2000-char truncation
         T-20-02 (PII): regex scrub on user messages
         T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
-        T-20-04 (DoS): hard cap at 8 messages, 500 chars each
+        T-20-04 (DoS): hard cap at 16 messages, 2000 chars each
+
+    Gate 0 P0-2 fix (2026-04-15): caps were 8 msg / 500 chars which made
+    the coach lose context across more than 4-5 turns and truncated any
+    payload longer than 2 sentences. Bumped to 16 / 2000 — still bounded
+    enough for DoS protection, generous enough to keep multi-turn
+    threading coherent (Cleo-grade conversations average 12-14 turns
+    before topic shift).
     """
     if not history:
         return None
     sanitized: list[dict[str, str]] = []
-    for msg in history[-8:]:  # hard cap at 8 messages
+    for msg in history[-16:]:  # hard cap at 16 messages (was 8)
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role not in ("user", "assistant") or not content.strip():
@@ -405,8 +412,8 @@ def _sanitize_conversation_history(
                 content = pattern.sub("[***]", content)
             for pattern in _INJECTION_PATTERNS:
                 content = pattern.sub("", content)
-        # Truncate individual messages to 500 chars
-        content = content[:500]
+        # Truncate individual messages to 2000 chars (was 500)
+        content = content[:2000]
         sanitized.append({"role": role, "content": content})
     return sanitized if sanitized else None
 
