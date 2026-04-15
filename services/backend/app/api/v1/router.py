@@ -58,6 +58,7 @@ from app.api.v1.endpoints import (
     admin,
     anonymous_chat,
     consents,
+    overview,
 )
 
 api_router = APIRouter()
@@ -213,4 +214,7 @@ api_router.include_router(
 )
 api_router.include_router(
     consents.router, prefix="/consents", tags=["Consents PRIV-01"]
+)
+api_router.include_router(
+    overview.router, prefix="/overview", tags=["Overview — Aperçu financier"]
 )
