@@ -161,8 +161,8 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 
 - [ ] **GATE-01**: Scénario Sophie (pavé intent + 3 follow-ups + upload LPP + mémoire J+1) validé en `flutter run --release` sur iPhone physique
 - [ ] **GATE-02**: Scénario équivalent validé sur Android (device ou emulator Pixel récent)
-- [ ] **GATE-03**: Corpus `test/fixtures/documents/` avec 10 docs anonymisés couvrant : Julien CPE LPP, Lauren HOTELA, AVS IK, salary AFC, tax VS, US W-2, scan froissé, photo biais, screenshot mobile banking, PDF allemand
-- [ ] **GATE-04**: Golden flow CI upload chaque fixture, assert `render_mode` + fields critiques ; prompt injection fixture ignorée par Vision ; coût < $0.05/doc ; p95 < 10s
+- [x] **GATE-03**: Corpus `test/fixtures/documents/` avec 10 docs anonymisés couvrant : Julien CPE LPP, Lauren HOTELA, AVS IK, salary AFC, tax VS, US W-2, scan froissé, photo biais, screenshot mobile banking, PDF allemand
+- [x] **GATE-04**: Golden flow CI upload chaque fixture, assert `render_mode` + fields critiques ; prompt injection fixture ignorée par Vision ; coût < $0.05/doc ; p95 < 10s
 
 ### v2.7 Traceability
 

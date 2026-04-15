@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.7
 milestone_name: Coach Stabilisation + Document Digestion
 status: Phase 29-04 shipped — VisionGuard + NumericSanity + FieldStatus.needs_review default + BatchValidationBubble + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green.
-stopped_at: Completed 29-06-PLAN.md — Phase 29 COMPLETE (6/6 plans, PRIV-01..08)
-last_updated: "2026-04-14T23:51:40.477Z"
+stopped_at: Completed 30-01-PLAN.md — corpus fixtures + golden flow + warn-only CI (GATE-03 + GATE-04)
+last_updated: "2026-04-15T00:13:01.656Z"
 last_activity: 2026-04-14
 progress:
   total_phases: 18
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_plans: 13
+  completed_plans: 12
+  percent: 92
 ---
 
 # GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
@@ -96,6 +96,7 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 | Phase 29 P04 | 18 | 2 tasks | 23 files |
 | Phase 29-compliance-privacy P05 | 40 | 2 tasks | 20 files |
 | Phase 29 P06 | 55 min | 2 tasks | 15 files |
+| Phase 30 P01 | 40 | 3 tasks | 32 files |
 
 ## Accumulated Context
 
@@ -170,6 +171,9 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 - [Phase 29]: Phase 29-04: LLM-as-judge (Haiku 4.5) on Vision with fail-closed + numeric sanity deterministic bounds + FieldStatus.needs_review default per LSFin art. 7-10
 - [Phase 29-compliance-privacy]: 29-05: purpose_category is String(64) not PG enum — no alembic migration needed for new ConsentPurpose values
 - [Phase 29]: Phase 29-06: Bedrock EU router (off/shadow/primary), shadow comparator logs metrics-only, image masker fail-open, DPA annex + legal checklist DRAFT ready for lawyer walk-in; rag/llm_client+documents endpoint tracked for follow-up migration
+- [Phase 30]: Golden flow uses pymupdf (not reportlab) — matches 29-04 pattern, zero new install
+- [Phase 30]: Prompt-injection cassettes keep render_mode=confirm in expectations — guard runs AFTER selector per 28-01 step order; security invariant asserted is guard_blocked + no attacker token
+- [Phase 30]: Golden CI warn-only until 2026-04-28 (grep-able UNTIL marker)
 
 ### From Previous Milestones
 
@@ -192,8 +196,8 @@ Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) 
 
 ## Session Continuity
 
-Last session: 2026-04-14T23:51:40.474Z
-Stopped at: Completed 29-06-PLAN.md — Phase 29 COMPLETE (6/6 plans, PRIV-01..08)
+Last session: 2026-04-15T00:12:53.080Z
+Stopped at: Completed 30-01-PLAN.md — corpus fixtures + golden flow + warn-only CI (GATE-03 + GATE-04)
 Resume file: None
 
 ---

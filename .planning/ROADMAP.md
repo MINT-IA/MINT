@@ -368,7 +368,7 @@ Integration checker after phases 28 and 30. Device gate mandatory before phase 3
 | 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
 | 28. Pipeline Document Honnête | v2.7 | 4/4 | Complete   | 2026-04-14 |
 | 29. Compliance & Privacy | v2.7 | 6/6 | Complete   | 2026-04-14 |
-| 30. Device & Test Gate | v2.7 | 0/? | Planned | — |
+| 30. Device & Test Gate | v2.7 | 1/2 | In Progress|  |
 
 ---
 *Roadmap created: 2026-04-12*
