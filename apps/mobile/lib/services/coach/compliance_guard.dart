@@ -277,11 +277,14 @@ class ComplianceGuard {
       );
     }
 
-    // Pre-check: wrong language
+    // Pre-check: wrong language (log-only, never fallback).
+    // NOTE: log-only by default. Modern French finance uses English tech
+    // terms (ETF, cash, score, KPI). Detecting "you/the/with" 3 times kills
+    // legitimate French responses. Defense is in the prompt.
     final langViolations = _checkLanguage(text);
     if (langViolations.isNotEmpty) {
       violations.addAll(langViolations);
-      useFallback = true;
+      // useFallback intentionally NOT set — log only.
     }
 
     // Layer 1: Banned terms

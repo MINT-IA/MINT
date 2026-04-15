@@ -24,30 +24,39 @@ def _make_ctx(intent: str = "", canton: str = "VD", age: int = 22) -> CoachConte
 
 
 class TestFourLayerEngine:
-    """The 4-layer insight engine should always be present."""
+    """The 4-layer insight engine directive is always injected.
+
+    PR #327 renamed the doctrine header from "4-LAYER INSIGHT ENGINE" to
+    "INTERNAL INSIGHT STRUCTURE" and added explicit absolute interdicts on
+    user-visible labels ('Couche N', 'Layer N', etc.) because the previous
+    label leaked through to end-users (observed 2026-04-15). Tests now
+    assert the BEHAVIOURAL contract (the 4 dimensions must be described in
+    the prompt) rather than a specific header string.
+    """
 
     def test_four_layer_engine_present_without_context(self):
-        """4-layer engine is included even with no CoachContext."""
         prompt = build_system_prompt(ctx=None)
-        assert "4-LAYER INSIGHT ENGINE" in prompt
-        assert "FACTUAL EXTRACTION" in prompt
-        assert "HUMAN TRANSLATION" in prompt
-        assert "PERSONAL PERSPECTIVE" in prompt
-        assert "QUESTIONS TO ASK" in prompt
+        assert "INTERNAL INSIGHT STRUCTURE" in prompt
+        # The 4 dimensions must each be described (any substring proof).
+        assert "raw financial fact" in prompt
+        assert "plain-language translation" in prompt
+        assert "personal perspective" in prompt
+        assert "questions to ask" in prompt.lower()
+        # Absolute interdict must be present.
+        assert "ABSOLUTE FORBIDDEN" in prompt
+        assert "Layer 1" in prompt  # listed as forbidden token
 
     def test_four_layer_engine_present_with_context(self):
-        """4-layer engine is included when CoachContext is provided."""
         ctx = _make_ctx(intent="firstJob", canton="VD")
         prompt = build_system_prompt(ctx=ctx)
-        assert "4-LAYER INSIGHT ENGINE" in prompt
-        assert "FACTUAL EXTRACTION" in prompt
+        assert "INTERNAL INSIGHT STRUCTURE" in prompt
+        assert "raw financial fact" in prompt
 
     def test_four_layer_engine_present_for_retirement(self):
-        """4-layer engine is included for retirement intent (not just firstJob)."""
         ctx = _make_ctx(intent="retirement", canton="VD")
         prompt = build_system_prompt(ctx=ctx)
-        assert "4-LAYER INSIGHT ENGINE" in prompt
-        assert "FACTUAL EXTRACTION" in prompt
+        assert "INTERNAL INSIGHT STRUCTURE" in prompt
+        assert "raw financial fact" in prompt
 
 
 class TestFirstJobContext:

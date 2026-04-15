@@ -204,14 +204,18 @@ _PREMIER_ECLAIRAGE_SYSTEM_PROMPT = """\
 Tu es Mint, l'intelligence financiere suisse. Tu viens d'analyser un {document_type} \
 pour un utilisateur{canton_clause}.
 
-MOTEUR 4 COUCHES — reponds en JSON strict avec ces 4 cles :
-1. "factual_extraction": Resume les faits cles extraits du document (montants, taux, dates). 2-3 phrases max.
-2. "human_translation": Explique en langage simple ce que ces chiffres signifient, sans jargon. 2-3 phrases max.
-3. "personal_perspective": Ce que cela implique concretement pour cet utilisateur (points forts, points d'attention, opportunites manquees). 2-3 phrases max.
-4. "questions_to_ask": Liste de 2-3 questions pertinentes que l'utilisateur devrait poser a sa caisse ou son employeur.
+CONTRAT DE SORTIE — reponds en JSON strict avec ces 4 cles (ce schema est INTERNE,
+il structure la sortie machine ; les VALEURS des champs doivent etre en prose naturelle) :
+- "factual_extraction": Resume les faits cles extraits du document (montants, taux, dates). 2-3 phrases max.
+- "human_translation": Explique en langage simple ce que ces chiffres signifient, sans jargon. 2-3 phrases max.
+- "personal_perspective": Ce que cela implique concretement pour cet utilisateur (points forts, points d'attention, opportunites manquees). 2-3 phrases max.
+- "questions_to_ask": Liste de 2-3 questions pertinentes que l'utilisateur devrait poser a sa caisse ou son employeur.
 
 DOCTRINE : Mint eclaire, Mint ne juge pas. Mint explicite le contrat. Mint dit 'voici ce que cela implique pour toi'.
 INTERDICTIONS : Pas de 'garanti', 'optimal', 'meilleur', 'sans risque'. Pas de conseil produit. Conditionnel ('pourrait', 'envisager').
+INTERDICTION STRICTE dans les valeurs de chaque champ : n'ecris JAMAIS 'couche 1', 'couche 2',
+'couche 3', 'couche 4', 'layer', 'niveau 1/2', 'etape 1/2/3', 'MOTEUR'. Ces termes sont de la
+doctrine INTERNE, ils ne doivent JAMAIS apparaitre dans le texte lu par l'utilisateur.
 FORMAT : Reponds UNIQUEMENT en JSON valide, sans texte autour. Les valeurs sont des strings sauf questions_to_ask qui est une liste de strings.
 {plan_1e_context}
 DONNEES EXTRAITES DU DOCUMENT :
@@ -914,12 +918,120 @@ async def confirm_document_scan(
     # Calculate confidence delta (how much this scan improves profile)
     confidence_delta = _estimate_scan_confidence_delta(body)
 
+    # ────────────────────────────────────────────────────────────────
+    # BUG #1 FIX (2026-04-15): merge confirmed fields into ProfileModel.
+    # Before this fix the endpoint only stored scan metadata and NEVER
+    # wrote the confirmed values back to the user's profile, so
+    # /profiles/me kept returning null for avoirLpp et al. despite the
+    # mobile UX showing "scan synced".
+    #
+    # Mapping: Vision `fieldName` → ProfileModel.data key(s). We mirror
+    # to both canonical and legacy keys so every downstream consumer
+    # (coach context, LPP deep, mortgage, retirement) sees the value.
+    # ────────────────────────────────────────────────────────────────
+    merged_fields: list[str] = []
+    try:
+        from app.models.profile_model import ProfileModel as _ProfileModel
+
+        profile = (
+            db.query(_ProfileModel)
+            .filter(_ProfileModel.user_id == str(current_user.id))
+            .order_by(_ProfileModel.updated_at.desc())
+            .first()
+        )
+        if profile is not None:
+            data = dict(profile.data) if profile.data else {}
+            for field in body.confirmed_fields:
+                targets = _SCAN_FIELD_TO_PROFILE_KEYS.get(field.field_name)
+                if not targets:
+                    continue
+                conf_value = (
+                    field.confidence.value
+                    if hasattr(field.confidence, "value")
+                    else str(field.confidence)
+                )
+                # Rule: only high/medium confidence fields merge. Low
+                # confidence would pollute the profile with OCR noise.
+                if conf_value not in ("high", "medium"):
+                    continue
+                if field.value is None:
+                    continue
+                for key in targets:
+                    old = data.get(key)
+                    # Skip near-duplicates (< 1% drift) for numeric values —
+                    # avoids churn when the user rescans the same doc.
+                    try:
+                        old_f = float(old) if old is not None else None
+                        new_f = float(field.value)
+                        if (
+                            old_f is not None
+                            and old_f > 0
+                            and abs(old_f - new_f) / old_f < 0.01
+                        ):
+                            continue
+                    except (TypeError, ValueError):
+                        pass
+                    data[key] = field.value
+                    if key == targets[0]:
+                        merged_fields.append(field.field_name)
+                    # Log field name only — never the value (PII).
+                    logger.info(
+                        "scan_confirmation.profile_merged user=%s... field=%s key=%s overwrite=%s",
+                        str(current_user.id)[:8],
+                        field.field_name,
+                        key,
+                        old is not None,
+                    )
+            if merged_fields:
+                # Bump completion index proportionally (cap 1.0).
+                try:
+                    prev = float(data.get("factfindCompletionIndex") or 0.0)
+                    bump = min(0.08 * len(merged_fields), 0.30)
+                    data["factfindCompletionIndex"] = min(1.0, prev + bump)
+                except (TypeError, ValueError):
+                    pass
+                data["lastDocumentScan"] = {
+                    "documentType": body.document_type.value,
+                    "fieldsUpdated": merged_fields,
+                    "at": datetime.now(timezone.utc).isoformat(),
+                }
+                profile.data = data
+                profile.updated_at = datetime.now(timezone.utc)
+                db.commit()
+    except Exception as merge_exc:
+        # Best-effort: never break the scan-confirm response on merge error.
+        logger.warning(
+            "scan_confirmation.profile_merge failed user=%s...: %s",
+            str(current_user.id)[:8],
+            type(merge_exc).__name__,
+        )
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
     return DocumentScanResponse(
         status="confirmed",
         fields_updated=len(body.confirmed_fields),
         confidence_delta=confidence_delta,
         message=f"Scan {body.document_type.value} synced ({len(body.confirmed_fields)} fields)",
     )
+
+
+# Vision fieldName → ProfileModel.data key(s). Multiple targets = mirror
+# canonical + legacy key so all downstream consumers see the value.
+_SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
+    "avoirLppTotal": ["avoirLpp", "lppTotalBalance", "lpp_capital"],
+    "avoirLppObligatoire": ["avoirLppObligatoire"],
+    "avoirLppSurobligatoire": ["avoirLppSurobligatoire"],
+    "rachatMaximum": ["rachatMaximum", "lppBuybackMax", "lpp_buyback_max"],
+    "salaireAssure": ["lppInsuredSalary"],
+    "tauxConversion": ["tauxConversion", "lpp_conversion_rate"],
+    "bonificationVieillesse": ["bonificationVieillesse"],
+    "revenuImposable": ["incomeTaxable"],
+    "fortuneImposable": ["fortuneImposable", "wealthEstimate"],
+    "avoir3a": ["pillar3aBalance", "existing_3a_ytd"],
+}
 
 
 def _classify_and_reject_if_needed(image_base64: str) -> Optional[str]:

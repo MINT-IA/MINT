@@ -74,58 +74,141 @@ def _scrub_pii(text: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+# Prompt version — bumped on every rewrite so telemetry can A/B cleanly.
+# Never remove or rename. Increment on content changes.
+PROMPT_VERSION = "v3"
+
+# Regex to extract the `<followups>[...]</followups>` JSON block emitted by
+# the LLM on the anonymous path (tools=None). Captured server-side, stripped
+# from the user-facing text, and surfaced via AnonymousChatResponse.
+_FOLLOWUPS_BLOCK_RE = re.compile(
+    r"<followups>\s*(\[[^<]*?\])\s*</followups>",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def extract_follow_ups(raw_text: str) -> tuple[str, list[str]]:
+    """Pull the `<followups>` JSON block out of the LLM reply.
+
+    Returns a (cleaned_text, follow_ups) tuple where `cleaned_text` has the
+    block stripped and `follow_ups` is the parsed list (max 2, string items,
+    empty on parse failure — fail-open contract).
+    """
+    import json
+
+    if not raw_text:
+        return raw_text, []
+    match = _FOLLOWUPS_BLOCK_RE.search(raw_text)
+    if not match:
+        return raw_text, []
+    json_blob = match.group(1)
+    cleaned = _FOLLOWUPS_BLOCK_RE.sub("", raw_text).strip()
+    try:
+        parsed = json.loads(json_blob)
+    except (json.JSONDecodeError, ValueError):
+        return cleaned, []
+    if not isinstance(parsed, list):
+        return cleaned, []
+    questions: list[str] = []
+    for item in parsed:
+        if not isinstance(item, str):
+            continue
+        q = item.strip()
+        if q:
+            questions.append(q[:160])
+        if len(questions) >= 2:
+            break
+    return cleaned, questions
+
+
 def build_discovery_system_prompt(
     intent: str | None = None,
     language: str = "fr",
+    facts: list[str] | None = None,
 ) -> str:
-    """Build the discovery system prompt for anonymous users.
+    """Build the v2 discovery system prompt for anonymous users.
 
-    This prompt is intentionally minimal and written from scratch (NOT derived
-    from the authenticated coach system prompt). It contains NO references to:
-    - Any available functions or capabilities
-    - User data, accounts, or saved information
-    - Conversation history or past interactions
-    - Any internal system or feature names
+    v2 (2026-04-15) — audit-driven rewrite:
+    - Tight length cap (≤ 3 phrases, verdict-first) — was 3-5 in v1.
+    - Directive to cite user-declared numbers verbatim (fixes MSG1 regressions
+      where Claude generalised instead of using the figures the user typed).
+    - Optional `facts` parameter injected as a `<facts_user>` block so the
+      deterministic regex extractor (phase B) can ground the LLM without
+      relying on compliance-fragile tool-calls.
 
-    Threat mitigation T-13-05: prevents information disclosure about
-    authenticated capabilities.
+    Security contract preserved (T-13-05): the prompt contains NO references
+    to any internal feature — the strings `outil`, `dossier`, `profil`,
+    `memoire`, `tool` are forbidden and asserted by tests.
+
+    Disclaimers are NOT included in the prompt body (doctrine violation +
+    lexicon clash). They are appended by the endpoint via the response's
+    `disclaimers[]` list so the legal obligation is met at the API layer.
     """
-    # Base identity and rules
-    prompt_parts = [
+    parts: list[str] = [
         "Tu es MINT, un compagnon de lucidite financiere suisse.",
         "",
         "Contexte : mode decouverte. La personne n'a pas encore de compte.",
-        "Tu ne sais rien sur elle. Tu ne disposes d'aucune donnee personnelle.",
-        "",
     ]
 
-    # Intent injection (if user selected a felt-state pill)
     if intent:
-        prompt_parts.append(
-            f"La personne a exprime ce sentiment : \u00ab\u202f{intent}\u202f\u00bb."
+        parts.append(
+            f"Elle a exprime ce sentiment : \u00ab\u202f{intent}\u202f\u00bb."
         )
-        prompt_parts.append(
-            "Utilise ce sentiment comme point de depart pour ta reponse."
-        )
-        prompt_parts.append("")
 
-    # Rules and constraints
-    prompt_parts.extend([
-        "Regles strictes :",
-        "- Reponds avec un insight surprenant sur la finance suisse (un fait, un angle mort, une implication concrete).",
-        "- Couche 1 (fait) + couche 2 (traduction humaine) uniquement.",
-        "- Tutoie. Ton calme, precis, fin, rassurant, net.",
-        "- Maximum 1 question de relance a la fin.",
-        "- Jamais de recommandation de produit specifique.",
-        "- Jamais de promesse de rendement ni de certitude sur les resultats.",
-        "- Jamais de comparaison sociale ('top X%').",
-        "- Jamais de langage absolu ou prescriptif. Utilise le conditionnel.",
-        "- Reponse courte (3-5 phrases max).",
-        "",
-        "Objectif : surprendre la personne avec un eclairage qu'elle ne connaissait pas.",
+    parts.append("")
+    parts.extend([
+        "Regles :",
+        "- Reponse en 3 phrases MAXIMUM. Pas plus. Pas de preambule, pas de conclusion polie.",
+        "- Premiere ligne = le verdict ou le chiffre le plus pertinent.",
+        "- Reprends textuellement les chiffres que la personne te donne "
+        "(salaire, valeur de rachat, avoir, etc.) — ne les parapharse pas.",
+        "- En prose continue, sans marqueurs numerotes.",
+        "- INTERDICTION ABSOLUE d'ecrire 'couche 1', 'couche 2', 'couche 3', 'couche 4', 'layer',",
+        "  'niveau 1/2', 'etape 1/2/3', 'phase 1/2/3', 'MOTEUR' ou '**Couche N:**' dans la reponse.",
+        "  Ces termes sont de la doctrine INTERNE, jamais visibles pour la personne.",
+        "- TUTOIEMENT STRICT, meme pour un couple : jamais 'votre situation' ni 'vous avez' au sens formel.",
+        "  Prefere 'ta situation a deux', 'vous deux', 'a vous deux'. La forme 'vous' n'est autorisee",
+        "  que comme pluriel naturel (toi + ton/ta partenaire), pas comme vouvoiement de politesse.",
+        "- Ton calme, precis, fin, rassurant, net. Sans jargon non traduit.",
+        "- Une seule question de relance a la fin, si utile.",
+        "- Jamais de recommandation de produit nomme. Jamais de promesse "
+        "de rendement. Jamais de comparaison sociale. Jamais de langage "
+        "absolu : utilise le conditionnel.",
     ])
 
-    return "\n".join(prompt_parts)
+    # User-declared facts block (phase B) — appears only when populated.
+    if facts:
+        parts.append("")
+        parts.append("<facts_user>")
+        for fact in facts:
+            parts.append(f"- {fact}")
+        parts.append("</facts_user>")
+        parts.append(
+            "Appuie-toi sur ces elements pour ancrer ta reponse. "
+            "Cite-les explicitement."
+        )
+
+    parts.append("")
+    parts.append(
+        "Objectif : eclairer avec un angle concret et surprenant."
+    )
+
+    # Follow-up questions contract. On the anonymous path there are no tools,
+    # so the model emits a JSON block the server parses and strips before
+    # returning the text to the client. Keep the directive last so it is the
+    # most recent instruction in Claude's context.
+    parts.append("")
+    parts.extend([
+        "Relances :",
+        "- Tu peux optionnellement terminer ta reponse par un bloc JSON "
+        "strict `<followups>[\"q1\",\"q2\"]</followups>` avec 1 ou 2 vraies "
+        "questions de suivi (voix utilisateur, 1re personne).",
+        "- Jamais reformuler la question que la personne vient de poser.",
+        "- Si rien ne s'ouvre : n'ajoute pas le bloc.",
+        "- Le bloc doit etre exactement a la fin, apres ta reponse.",
+    ])
+
+    return "\n".join(parts)
 
 
 # ---------------------------------------------------------------------------
@@ -155,11 +238,15 @@ class _NoRagOrchestrator:
         llm_client = LLMClient(provider=provider, api_key=api_key, model=model)
         guardrails = ComplianceGuardrails()
 
+        # Tight length cap on the anonymous path — prompt contract is
+        # "3 phrases max". 180 tokens ≈ 3 short French sentences and hard-stops
+        # long-form drift from Claude.
         raw_response = await llm_client.generate(
             system_prompt=system_prompt,
             user_message=question,
             context_chunks=[],
             tools=None,
+            max_tokens=180,
         )
 
         if isinstance(raw_response, dict):
@@ -167,6 +254,13 @@ class _NoRagOrchestrator:
             actual_usage_tokens = raw_response.get("usage_tokens")
         else:
             response_text = raw_response
+
+        # Enforce the "3 phrases max" prompt contract post-hoc. Runs BEFORE
+        # compliance filtering so the layer/vous scanners see the truncated
+        # text only (avoids double-counting stripped sentences).
+        response_text, _truncated = ComplianceGuardrails.truncate_to_sentences(
+            response_text, max_sentences=3,
+        )
 
         filtered = guardrails.filter_response(response_text, language)
         tokens_used = (
@@ -232,13 +326,40 @@ async def anonymous_chat(
             detail="Limite atteinte. Cree un compte pour continuer.",
         )
 
-    # --- Step 3: Scrub PII from input (T-13-02) ---
+    # --- Step 3a: Extract deterministic facts from the RAW message (phase B).
+    #
+    # Must run BEFORE _scrub_pii — the scrubber replaces any "NNNN CHF/fr"
+    # token with "[***]", which would destroy every salary/LPP figure the
+    # extractor relies on.  Facts are kept in-memory only (no user_id, no DB
+    # writes) — logged by topic list only (no values) to avoid PII in logs.
+    extracted_facts_texts: list[str] = []
+    try:
+        from app.services.coach.profile_extractor import extract_profile_facts
+        _facts = extract_profile_facts(body.message)
+        extracted_facts_texts = [f.text for f in _facts]
+        if _facts:
+            logger.info(
+                "anonymous_chat.extracted_facts session=%s topics=%s",
+                session_id,
+                sorted({f.topic for f in _facts}),
+            )
+    except Exception as exc:  # pragma: no cover — belt-and-braces
+        # PII-safe: log the exception TYPE only. The extractor runs on the
+        # raw (pre-scrub) message so any exception message could carry a
+        # fragment of user input.
+        logger.warning(
+            "anonymous_chat.profile_extractor_failed: %s",
+            type(exc).__name__,
+        )
+
+    # --- Step 3b: Scrub PII from input (T-13-02) ---
     clean_message = _scrub_pii(body.message)
 
     # --- Step 4: Build discovery system prompt (T-13-05) ---
     discovery_prompt = build_discovery_system_prompt(
         intent=body.intent,
         language=body.language,
+        facts=extracted_facts_texts or None,
     )
 
     # --- Step 5: Call LLM ---
@@ -265,10 +386,15 @@ async def anonymous_chat(
     new_count = anon_session.message_count
     messages_remaining = MAX_ANONYMOUS_MESSAGES - new_count
 
+    # --- Step 6b: Extract and strip the `<followups>` block from the answer.
+    # Fail-open: on parse failure, returns the text unchanged with [].
+    cleaned_answer, follow_ups = extract_follow_ups(result["answer"])
+
     # --- Step 7: Return response ---
     return AnonymousChatResponse(
-        message=result["answer"],
+        message=cleaned_answer,
         disclaimers=result["disclaimers"],
         messages_remaining=messages_remaining,
         tokens_used=result["tokens_used"],
+        follow_up_questions=follow_ups,
     )

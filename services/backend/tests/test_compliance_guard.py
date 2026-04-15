@@ -173,15 +173,20 @@ class TestPrescriptiveLanguage:
 
 
 class TestHallucinationDetection:
-    """Layer 3 — Hallucinated numbers must trigger fallback."""
+    """Layer 3 — Hallucinated numbers: threshold-based fallback (>= 30% major)."""
 
-    def test_catches_wrong_score(self, guard, context_with_values):
+    def test_catches_wrong_score_minor_logs_but_no_fallback(self, guard, context_with_values):
+        # Known 62 vs found 72 → deviation ~16%, below the 30% major threshold.
+        # New semantics (2026-04-13): minor hallucinations are logged as
+        # violations but do NOT kill the response. Defense for minor drift
+        # lives in the prompt; the guard only hard-fails on material fabrication.
         result = guard.validate(
             "Ton score est à 72/100, en progression.",
             context=context_with_values,
         )
-        assert result.use_fallback
-        assert any("hallucination" in v.lower() for v in result.violations)
+        assert not result.use_fallback, "Minor (<30%) hallucination must not trigger fallback"
+        assert any("hallucination" in v.lower() for v in result.violations), \
+            "Minor hallucination must still be logged as a violation"
 
     def test_passes_correct_score(self, guard, context_with_values):
         result = guard.validate(
@@ -195,7 +200,7 @@ class TestHallucinationDetection:
             "Tu pourrais économiser CHF 3'500 d'impôt avec un 3a.",
             context=context_with_values,
         )
-        # Known value: 1820, found: 3500 → deviation > 5%
+        # Known value: 1820, found: 3500 → deviation ~92% (major, >= 30%).
         assert result.use_fallback
 
     def test_passes_correct_amount(self, guard, context_with_values):

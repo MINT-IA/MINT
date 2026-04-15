@@ -368,12 +368,13 @@ class ComplianceGuard:
         text = unicodedata.normalize("NFKC", text)
 
         # ── Pre-check: wrong language (basic heuristic) ──
-        # NOTE: log only, never fallback. Too many false positives with
-        # conversational French that uses English tech terms ("ETF", "cash",
-        # "score", etc.) or when Claude quotes the user's English words.
+        # NOTE: log-only by default. Modern French finance uses English tech
+        # terms (ETF, cash, score, KPI). Detecting "you/the/with" 3 times
+        # kills legitimate French responses. Defense is in the prompt.
         language_violations = self._check_language(text)
         if language_violations:
             violations.extend(language_violations)
+            # use_fallback intentionally NOT set — log only.
 
         # ── Layer 1: Banned terms ──
         # Strip negated guarantees (e.g. "rien n'est garanti") from the
@@ -410,40 +411,64 @@ class ComplianceGuard:
             )
 
         # ── Layer 2b: High-register drift (N4/N5 only) ──
-        # Phase 11 / VOICE-08. Activates only when caller signals the
-        # generation was attempted at high register. These rules catch
-        # imperative-without-hedge, judging the emitter, social/age
-        # shaming, and named-product drift — the failure modes that
-        # high-register voice tends to produce. See HIGH_REGISTER_DRIFT_PATTERNS.
+        # NOTE: log-only. N4/N5 cursor not yet active in production today.
+        # Keeping the detector wired but non-blocking lets us observe drift
+        # in telemetry without killing responses. When N4/N5 is activated,
+        # re-enable the `use_fallback = True` branch after validating the
+        # patterns against real high-register generations.
         if cursor_level in ("N4", "N5"):
             drift_found = self._check_high_register_drift(text)
             if drift_found:
-                logger.warning(
-                    "ComplianceGuard L2b: high-register drift %s level=%s in %s user=%s",
+                logger.info(
+                    "ComplianceGuard L2b: drift %s level=%s component=%s user=%s "
+                    "(logged, not enforced)",
                     drift_found, cursor_level, component_type, user_id or "anonymous",
                 )
                 violations.extend(
                     [f"Drift {cat}: '{label}'" for (cat, label) in drift_found]
                 )
-                use_fallback = True
-                fallback_reasons.append(
-                    f"high_register_drift level={cursor_level} hits={drift_found[:3]}"
-                )
+                # use_fallback intentionally NOT set — log only.
 
         # ── Layer 3: Hallucination detection ──
+        # Threshold-based: only MAJOR deviations (>= 30%) trigger fallback.
+        # Minor deviations (< 30%) are logged and the response is preserved —
+        # small numeric drift (e.g. 7.0% conversion rate vs 6.8%) is closer
+        # to a rounding slip than a material hallucination, and killing the
+        # whole reply over it silently erases substantive coach output.
+        # Major deviations (>= 30%) still fallback: these are genuine
+        # fabrications (e.g. "tu as 500k LPP" when user has 70k).
+        _HALLUCINATION_MAJOR_THRESHOLD_PCT = 30.0
         if context and context.known_values:
             hallucinations = self._detector.detect(text, context.known_values)
             if hallucinations:
+                major = [h for h in hallucinations if h.deviation_pct >= _HALLUCINATION_MAJOR_THRESHOLD_PCT]
+                minor = [h for h in hallucinations if h.deviation_pct < _HALLUCINATION_MAJOR_THRESHOLD_PCT]
                 for h in hallucinations:
                     violations.append(
                         f"Hallucination: '{h.found_text}' "
                         f"(attendu ~{h.closest_value}, trouvé {h.found_value}, "
                         f"déviation {h.deviation_pct:.1f}%)"
                     )
-                use_fallback = True  # Hallucinated numbers = always fallback
-                fallback_reasons.append(
-                    f"hallucination hits={[(h.found_text, h.found_value, h.closest_value) for h in hallucinations[:3]]}"
-                )
+                if minor:
+                    logger.info(
+                        "ComplianceGuard L3: minor hallucinations (<%s%%) "
+                        "component=%s user=%s hits=%s (logged, response preserved)",
+                        _HALLUCINATION_MAJOR_THRESHOLD_PCT,
+                        component_type, user_id or "anonymous",
+                        [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in minor[:5]],
+                    )
+                if major:
+                    logger.warning(
+                        "ComplianceGuard L3: MAJOR hallucinations (>=%s%%) "
+                        "component=%s user=%s hits=%s",
+                        _HALLUCINATION_MAJOR_THRESHOLD_PCT,
+                        component_type, user_id or "anonymous",
+                        [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in major[:5]],
+                    )
+                    use_fallback = True
+                    fallback_reasons.append(
+                        f"hallucination_major hits={[(h.found_text, h.found_value, h.closest_value) for h in major[:3]]}"
+                    )
 
         # ── Layer 4: Disclaimer injection ──
         if not use_fallback:

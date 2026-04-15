@@ -166,6 +166,7 @@ class CoachChatApiService {
           'disclaimers': <String>[],
           'messagesRemaining': 0,
           'tokensUsed': 0,
+          'followUpQuestions': <String>[],
         };
       } else {
         return _anonymousFallback();
@@ -182,6 +183,7 @@ class CoachChatApiService {
       'disclaimers': <String>[],
       'messagesRemaining': -1,
       'tokensUsed': 0,
+      'followUpQuestions': <String>[],
       'error': true,
     };
   }
@@ -204,12 +206,21 @@ class CoachChatApiResponse {
   final List<String> disclaimers;
   final int tokensUsed;
 
+  /// Backend-piloted follow-up question chips (max 2).
+  ///
+  /// Populated from the LLM's `suggest_followups` internal tool call.
+  /// Empty when the model produced none. Never contains a reformulation
+  /// of the user's own question. See docs/feedback_chat_must_be_silent.md
+  /// — chips come from the conversation, never from client-side inference.
+  final List<String> followUpQuestions;
+
   const CoachChatApiResponse({
     required this.message,
     this.toolCalls = const [],
     this.sources = const [],
     this.disclaimers = const [],
     this.tokensUsed = 0,
+    this.followUpQuestions = const [],
   });
 
   factory CoachChatApiResponse.fromJson(Map<String, dynamic> json) {
@@ -235,7 +246,21 @@ class CoachChatApiResponse {
               .toList() ??
           const [],
       tokensUsed: json['tokensUsed'] as int? ?? 0,
+      followUpQuestions: _parseFollowUps(json['followUpQuestions']),
     );
+  }
+
+  static List<String> _parseFollowUps(dynamic raw) {
+    if (raw is! List) return const [];
+    final out = <String>[];
+    for (final item in raw) {
+      if (item is String) {
+        final trimmed = item.trim();
+        if (trimmed.isNotEmpty) out.add(trimmed);
+      }
+      if (out.length >= 2) break;
+    }
+    return out;
   }
 }
 
