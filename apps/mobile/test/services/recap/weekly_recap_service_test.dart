@@ -158,7 +158,10 @@ void main() {
           'type': 'fact',
         },
       ]);
-      await prefs.setString('_coach_insights', insightJson);
+      // CoachMemoryService now namespaces keys per user (Gate 0 P0 fix
+       // 2026-04-15). In tests where AuthService has no token, the
+       // anonymous namespace is used.
+      await prefs.setString('_coach_insights___anon', insightJson);
 
       final recap = await WeeklyRecapService.generate(
         profile: _minimalProfile(),

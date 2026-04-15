@@ -146,8 +146,10 @@ void main() {
     });
 
     test('corrupted SharedPreferences JSON returns empty list', () async {
+      // Per-user namespacing (Gate 0 fix 2026-04-15): in tests the
+      // anonymous namespace is used since AuthService has no token.
       SharedPreferences.setMockInitialValues({
-        '_coach_insights': 'CORRUPTED {{{{',
+        '_coach_insights___anon': 'CORRUPTED {{{{',
       });
       final prefs = await SharedPreferences.getInstance();
 

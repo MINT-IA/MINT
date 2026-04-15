@@ -1332,7 +1332,17 @@ async def understand_document(
     # 8c. VisionGuard — LLM-as-judge on critical outputs (PRIV-05).
     #     Skip when nothing critical to judge OR when rendering a reject
     #     (the document is already blocked; judging adds cost with no benefit).
-    if result.render_mode != _RM.reject and (result.summary or result.narrative):
+    #     ALSO skip when the summary is a canned non-LLM message (encrypted
+    #     PDF, preflight reject, etc.) — judging hardcoded strings adds
+    #     latency + cost + flaky-CI risk for zero compliance benefit.
+    _CANNED_STATUSES = {
+        _ES.encrypted_needs_password,
+    }
+    if (
+        result.render_mode != _RM.reject
+        and result.extraction_status not in _CANNED_STATUSES
+        and (result.summary or result.narrative)
+    ):
         try:
             from app.services.compliance import vision_guard as _vg
 
