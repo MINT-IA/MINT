@@ -436,6 +436,14 @@ _PROFILE_SAFE_FIELDS = {
     "planned_contributions",
     # BUG #2 FIX (2026-04-15): LPP salary + completion fields from persisted profile.
     "lpp_insured_salary",
+    # Run-005 FIX (2026-04-15): salary income + wealth fields from
+    # /documents/scan-confirmation merge — the whitelist gated them out
+    # so even when persisted, the coach never saw them.
+    "income_gross_yearly",
+    "income_net_yearly",
+    "income_gross_monthly",
+    "wealth_estimate",
+    "commune",
 }
 
 
