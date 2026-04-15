@@ -270,11 +270,22 @@ class CoachOrchestrator {
     return _chatFallback(language);
   }
 
+  /// Tier-level timeout for the anonymous fallback.
+  ///
+  /// `sendAnonymousMessage` already has an internal 30 s HTTP timeout, but
+  /// that is too long for a *fallback* tier — we have already spent up to
+  /// [_byokTimeout] on the server-key tier before landing here, and the
+  /// whole chat turn has a UI-level budget around 20 s before users walk
+  /// away.  Cap the tier at 8 s so tests without an HTTP mock fail fast
+  /// (`pumpAndSettle` needs to settle within a reasonable window) and so
+  /// prod users get the calm template response before losing patience.
+  static const Duration _anonymousTierTimeout = Duration(seconds: 8);
+
   /// Anonymous chat fallback — calls /anonymous/chat which doesn't require a
   /// JWT. Used when the user is not authenticated yet, when their token is
   /// expired, or when the server-key path returned null. Returns null on hard
-  /// failure (network, rate-limit, empty body) so the orchestrator can fall
-  /// through to the localized template.
+  /// failure (network, rate-limit, empty body, timeout) so the orchestrator
+  /// can fall through to the localized template.
   static Future<CoachResponse?> _tryAnonymousChat({
     required String userMessage,
     String language = 'fr',
@@ -283,6 +294,9 @@ class CoachOrchestrator {
       final response = await CoachChatApiService.sendAnonymousMessage(
         message: userMessage,
         language: language,
+      ).timeout(
+        _anonymousTierTimeout,
+        onTimeout: () => {'error': true},
       );
 
       if (response['error'] == true) return null;
