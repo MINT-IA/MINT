@@ -196,9 +196,11 @@ def test_intent_still_supported_alongside_facts():
 
 def test_prompt_is_kept_compact():
     prompt = build_discovery_system_prompt()
-    # v1 was ~900 chars. v2 should stay ≤ 1600 chars even with the new
-    # directives — if it balloons, Claude gets lost.
-    assert len(prompt) <= 1600, (
+    # v1 was ~900 chars. v3 (post PR #326 hardening — "Couche N" interdict +
+    # tutoiement strict + 3-phrase cap + followups directive) sits around
+    # 1700 chars. Cap at 2000 — beyond that Claude starts losing the top of
+    # the prompt under long user messages.
+    assert len(prompt) <= 2000, (
         f"Prompt must stay compact; got {len(prompt)} chars. "
         "Compactness is part of the contract — verbose prompts train verbose "
         "responses."
