@@ -29,8 +29,8 @@ from app.api.v1.endpoints.anonymous_chat import (
 # ---------------------------------------------------------------------------
 
 
-def test_prompt_version_is_v2():
-    assert PROMPT_VERSION == "v2", (
+def test_prompt_version_is_v3():
+    assert PROMPT_VERSION == "v3", (
         "Prompt rewrite must bump PROMPT_VERSION so telemetry can segregate "
         "old vs new responses. Bump again on next rewrite."
     )

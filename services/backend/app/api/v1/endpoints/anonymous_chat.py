@@ -76,7 +76,49 @@ def _scrub_pii(text: str) -> str:
 
 # Prompt version — bumped on every rewrite so telemetry can A/B cleanly.
 # Never remove or rename. Increment on content changes.
-PROMPT_VERSION = "v2"
+PROMPT_VERSION = "v3"
+
+# Regex to extract the `<followups>[...]</followups>` JSON block emitted by
+# the LLM on the anonymous path (tools=None). Captured server-side, stripped
+# from the user-facing text, and surfaced via AnonymousChatResponse.
+_FOLLOWUPS_BLOCK_RE = re.compile(
+    r"<followups>\s*(\[[^<]*?\])\s*</followups>",
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+def extract_follow_ups(raw_text: str) -> tuple[str, list[str]]:
+    """Pull the `<followups>` JSON block out of the LLM reply.
+
+    Returns a (cleaned_text, follow_ups) tuple where `cleaned_text` has the
+    block stripped and `follow_ups` is the parsed list (max 2, string items,
+    empty on parse failure — fail-open contract).
+    """
+    import json
+
+    if not raw_text:
+        return raw_text, []
+    match = _FOLLOWUPS_BLOCK_RE.search(raw_text)
+    if not match:
+        return raw_text, []
+    json_blob = match.group(1)
+    cleaned = _FOLLOWUPS_BLOCK_RE.sub("", raw_text).strip()
+    try:
+        parsed = json.loads(json_blob)
+    except (json.JSONDecodeError, ValueError):
+        return cleaned, []
+    if not isinstance(parsed, list):
+        return cleaned, []
+    questions: list[str] = []
+    for item in parsed:
+        if not isinstance(item, str):
+            continue
+        q = item.strip()
+        if q:
+            questions.append(q[:160])
+        if len(questions) >= 2:
+            break
+    return cleaned, questions
 
 
 def build_discovery_system_prompt(
@@ -143,6 +185,21 @@ def build_discovery_system_prompt(
     parts.append(
         "Objectif : eclairer avec un angle concret et surprenant."
     )
+
+    # Follow-up questions contract. On the anonymous path there are no tools,
+    # so the model emits a JSON block the server parses and strips before
+    # returning the text to the client. Keep the directive last so it is the
+    # most recent instruction in Claude's context.
+    parts.append("")
+    parts.extend([
+        "Relances :",
+        "- Tu peux optionnellement terminer ta reponse par un bloc JSON "
+        "strict `<followups>[\"q1\",\"q2\"]</followups>` avec 1 ou 2 vraies "
+        "questions de suivi (voix utilisateur, 1re personne).",
+        "- Jamais reformuler la question que la personne vient de poser.",
+        "- Si rien ne s'ouvre : n'ajoute pas le bloc.",
+        "- Le bloc doit etre exactement a la fin, apres ta reponse.",
+    ])
 
     return "\n".join(parts)
 
@@ -311,10 +368,15 @@ async def anonymous_chat(
     new_count = anon_session.message_count
     messages_remaining = MAX_ANONYMOUS_MESSAGES - new_count
 
+    # --- Step 6b: Extract and strip the `<followups>` block from the answer.
+    # Fail-open: on parse failure, returns the text unchanged with [].
+    cleaned_answer, follow_ups = extract_follow_ups(result["answer"])
+
     # --- Step 7: Return response ---
     return AnonymousChatResponse(
-        message=result["answer"],
+        message=cleaned_answer,
         disclaimers=result["disclaimers"],
         messages_remaining=messages_remaining,
         tokens_used=result["tokens_used"],
+        follow_up_questions=follow_ups,
     )
