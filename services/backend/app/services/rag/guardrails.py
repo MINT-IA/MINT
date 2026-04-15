@@ -527,7 +527,11 @@ class ComplianceGuardrails:
         last = kept[-1]
         ends_badly = (
             last.endswith(",")
-            or re.search(r"\b(et|mais|ou|donc|car|puis|alors)\s*$", last, re.IGNORECASE)
+            or re.search(
+                r"\b(et|mais|ou|donc|car|puis|alors)\b[\.\s]*$",
+                last,
+                re.IGNORECASE,
+            )
             or (last.count("(") > last.count(")"))
         )
         if ends_badly and len(kept) > 1:
