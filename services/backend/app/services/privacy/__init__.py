@@ -9,7 +9,17 @@ Modules:
 """
 from __future__ import annotations
 
-from app.services.privacy import fpe, pii_scrubber  # noqa: F401
+# `fpe` and `pii_scrubber` depend on optional extras (pyffx, presidio,
+# spaCy). Dev / CI installs only `[dev]` so these aren't available; guard
+# the imports so the rest of the privacy package (allowlist, log_filter)
+# stays usable without the heavy NLP stack. Production installs `[privacy]`
+# and gets the full module set.
+try:
+    from app.services.privacy import fpe, pii_scrubber  # noqa: F401
+except ModuleNotFoundError:  # optional extras absent
+    fpe = None  # type: ignore[assignment]
+    pii_scrubber = None  # type: ignore[assignment]
+
 from app.services.privacy.fact_key_allowlist import (  # noqa: F401
     ALLOWED_FACT_KEYS,
     Purpose,

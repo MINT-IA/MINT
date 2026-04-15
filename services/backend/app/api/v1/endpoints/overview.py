@@ -68,6 +68,7 @@ class OverviewResponse(BaseModel):
     assurances_sociales: OverviewSection
     dettes: OverviewSection
     couple: OverviewSection
+    budget: OverviewSection
 
     completeness_index: float = Field(..., ge=0.0, le=1.0)
     profile_gaps: list[str]
@@ -79,13 +80,14 @@ class OverviewResponse(BaseModel):
 
 
 _SECTION_WEIGHTS = {
-    "identity": 0.20,
-    "income": 0.20,
-    "patrimoine": 0.15,
-    "prevoyance": 0.20,
-    "assurances_sociales": 0.10,
-    "dettes": 0.10,
+    "identity": 0.18,
+    "income": 0.18,
+    "patrimoine": 0.13,
+    "prevoyance": 0.18,
+    "assurances_sociales": 0.08,
+    "dettes": 0.08,
     "couple": 0.05,
+    "budget": 0.12,  # budget feeds the daily steady-state loop
 }
 
 _REQUIRED_BY_SECTION = {
@@ -96,6 +98,7 @@ _REQUIRED_BY_SECTION = {
     "assurances_sociales": ["renteInvaliditeAnnuelle"],
     "dettes": ["hasDebt"],
     "couple": [],  # only required if householdType = couple
+    "budget": [],  # presence depends on whether budget has been set up
 }
 
 
@@ -286,6 +289,42 @@ def _build_dettes(data: dict) -> OverviewSection:
     )
 
 
+def _build_budget(data: dict) -> OverviewSection:
+    """Surface budget summary in the overview without re-running CRUD."""
+    raw = data.get("budget") or {}
+    income_override = raw.get("income_monthly")
+    profile_income = data.get("incomeNetMonthly")
+    if income_override is not None:
+        income = float(income_override)
+    elif profile_income is not None:
+        income = float(profile_income)
+    else:
+        income = 0.0
+    fixed_lines = raw.get("fixed_lines") or []
+    total_fixed = round(sum(float(l.get("amount", 0)) for l in fixed_lines), 2)
+    var_t = float(raw.get("variable_target_monthly") or 0)
+    sav_t = float(raw.get("savings_target_monthly") or 0)
+    free_margin = round(income - total_fixed - var_t - sav_t, 2)
+    savings_rate = round(sav_t / income, 4) if income > 0 else 0.0
+
+    has_budget_setup = bool(fixed_lines) or sav_t > 0 or var_t > 0
+    values: dict[str, Any] = {}
+    if has_budget_setup:
+        values = {
+            "incomeMonthly": income,
+            "totalFixedMonthly": total_fixed,
+            "variableTargetMonthly": var_t,
+            "savingsTargetMonthly": sav_t,
+            "freeMarginMonthly": free_margin,
+            "savingsRate": savings_rate,
+            "linesCount": len(fixed_lines),
+        }
+    missing = [] if has_budget_setup else ["budget (PUT /api/v1/budget/me)"]
+    return OverviewSection(
+        present=has_budget_setup, missing_fields=missing, values=values
+    )
+
+
 def _build_couple(data: dict) -> OverviewSection:
     is_couple = data.get("householdType") in ("couple", "concubine", "family")
     if not is_couple:
@@ -407,6 +446,7 @@ def get_overview_me(
         "assurances_sociales": _build_assurances_sociales(data),
         "dettes": _build_dettes(data),
         "couple": _build_couple(data),
+        "budget": _build_budget(data),
     }
 
     completeness = sum(
@@ -433,6 +473,7 @@ def get_overview_me(
         assurances_sociales=sections["assurances_sociales"],
         dettes=sections["dettes"],
         couple=sections["couple"],
+        budget=sections["budget"],
         completeness_index=round(completeness, 2),
         profile_gaps=gaps,
         alertes=alertes,
