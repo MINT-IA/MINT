@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
+from pathlib import Path
 
 import pytest
 
@@ -133,7 +134,7 @@ def test_ci_gate_passes_on_clean_log_fixture(tmp_path):
         [sys.executable, "scripts/check_pii_in_logs.py",
          "--fixture", str(clean_log)],
         capture_output=True, text=True,
-        cwd="/Users/julienbattaglia/Desktop/MINT",
+        cwd=str(Path(__file__).resolve().parents[3]),
     )
     assert result.returncode == 0, (
         f"clean log fixture should pass; stderr={result.stderr}"
@@ -154,7 +155,7 @@ def test_ci_gate_fails_on_polluted_log_fixture(tmp_path):
         [sys.executable, "scripts/check_pii_in_logs.py",
          "--fixture", str(bad_log)],
         capture_output=True, text=True,
-        cwd="/Users/julienbattaglia/Desktop/MINT",
+        cwd=str(Path(__file__).resolve().parents[3]),
     )
     assert result.returncode == 1, (
         f"polluted log fixture should fail (exit 1); stdout={result.stdout}"
