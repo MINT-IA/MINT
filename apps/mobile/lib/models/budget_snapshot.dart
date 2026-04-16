@@ -1,138 +1,155 @@
-/// BudgetSnapshot — unified budget state for Aujourd'hui + Coach.
+/// BudgetSnapshot — unified budget data model for MINT.
 ///
-/// Spec: docs/BUDGET_LIVING_ENGINE_IMPLEMENTATION_SPEC.md
-/// Created: S53 — BudgetLivingEngine V0
+/// This is the single source of truth consumed by PulseScreen,
+/// BudgetScreen, and any widget displaying budget/gap figures.
+///
+/// Computed by [BudgetLivingEngine] from a [CoachProfile].
+/// All amounts in CHF/month.
 library;
 
-import 'package:mint_mobile/models/cap_decision.dart';
-import 'package:mint_mobile/models/coach_profile.dart';
+// ════════════════════════════════════════════════════════════
+//  STAGE
+// ════════════════════════════════════════════════════════════
 
-/// Progressive disclosure stage based on confidence + data availability.
-enum BudgetStage {
-  /// Only present budget available (low confidence or retirement not computable).
-  presentOnly,
+/// Stage determines which information the UI can usefully display.
+///
+/// - [presentOnly]         Income and charges are known; no retirement data.
+/// - [emergingRetirement]  Retirement income computed, but gap not yet
+///                         meaningful (profile partial, confidence < 40%).
+/// - [fullGapVisible]      Both present and retirement are computed and
+///                         the gap is worth surfacing to the user.
+enum BudgetStage { presentOnly, emergingRetirement, fullGapVisible }
 
-  /// Retirement budget emerging but confidence still moderate.
-  emergingRetirement,
+// ════════════════════════════════════════════════════════════
+//  SUB-MODELS
+// ════════════════════════════════════════════════════════════
 
-  /// Full gap visible — both budgets defensible.
-  fullGapVisible,
-}
-
-/// Present-day monthly budget: income, charges, free.
+/// Present-day monthly budget breakdown.
+///
+/// [monthlyNet]       Household net income (main + partner if couple).
+/// [monthlyCharges]   Sum of all fixed charges (housing, health, taxes,
+///                    debt repayments, other fixed).
+/// [monthlySavings]   Planned savings out-flows (3a + LPP buybacks).
+/// [monthlyFree]      Remainder: net - charges - savings.
+///                    Can be negative (deficit mode).
 class PresentBudget {
-  final double monthlyIncome;
+  final double monthlyNet;
   final double monthlyCharges;
+  final double monthlySavings;
   final double monthlyFree;
 
   const PresentBudget({
-    required this.monthlyIncome,
+    required this.monthlyNet,
     required this.monthlyCharges,
+    required this.monthlySavings,
     required this.monthlyFree,
   });
+
+  /// True when the user is running a monthly deficit.
+  bool get isDeficit => monthlyFree < 0;
+
+  /// Charges as percentage of net income (0-100+).
+  double get chargesRatio =>
+      monthlyNet > 0 ? (monthlyCharges / monthlyNet * 100).clamp(0, 200) : 0;
 }
 
-/// Estimated monthly retirement budget from all 3 pillars.
+/// Projected retirement monthly budget.
+///
+/// [monthlyIncome]  Total projected retirement income
+///                  (AVS + LPP rente + 3a annualised + SWR on free).
+/// [monthlyTax]     Estimated income tax on retirement rentes.
+/// [monthlyNet]     After-tax net retirement income.
 class RetirementBudget {
-  final double avsMonthly;
-  final double lppMonthly;
-  final double pillar3aMonthly;
-  final double otherMonthly;
-  final double monthlyCharges;
-  final double monthlyFree;
+  final double monthlyIncome;
+  final double monthlyTax;
+  final double monthlyNet;
 
   const RetirementBudget({
-    required this.avsMonthly,
-    required this.lppMonthly,
-    required this.pillar3aMonthly,
-    required this.otherMonthly,
-    required this.monthlyCharges,
-    required this.monthlyFree,
+    required this.monthlyIncome,
+    required this.monthlyTax,
+    required this.monthlyNet,
   });
-
-  /// Total monthly retirement income (all pillars).
-  double get totalMonthlyIncome =>
-      avsMonthly + lppMonthly + pillar3aMonthly + otherMonthly;
 }
 
-/// Gap between present and retirement free monthly amounts.
+/// The gap between present and projected retirement income.
+///
+/// [monthlyGap]     Present net minus retirement net income.
+///                  Positive = gap (retirement worse than today).
+///                  Negative = surplus (retirement better than today — rare).
+/// [replacementRate]  Retirement income as % of current net income (0-200%).
+/// [isSignificant]  True when gap > 20% of current net income.
 class BudgetGap {
   final double monthlyGap;
-  final double ratioRetained;
-  final bool isPositive;
+  final double replacementRate;
 
   const BudgetGap({
     required this.monthlyGap,
-    required this.ratioRetained,
-    required this.isPositive,
+    required this.replacementRate,
   });
+
+  /// True when the gap is worth surfacing (> 20% of present net).
+  bool isSignificant(double presentNet) =>
+      presentNet > 0 && monthlyGap > presentNet * 0.20;
+
+  /// True when retirement is expected to be better than today.
+  bool get isSurplus => monthlyGap < 0;
 }
 
-/// Short-term / long-term impact of the current cap lever.
+/// The incremental monthly impact of activating a cap on the gap.
+///
+/// Represents one levier: "if you activate X, the gap shrinks by Y/month".
+///
+/// [capId]          Identifier of the cap (e.g. 'rachat_lpp', '3a_max').
+/// [monthlyDelta]   Positive = reduces gap. Negative = widens gap (unusual).
+/// [capLabel]       Human-readable label (ARB key, resolved by caller).
 class BudgetCapImpact {
-  final String? now;
-  final String? later;
-  final String? sequence;
+  final String capId;
+  final double monthlyDelta;
 
   const BudgetCapImpact({
-    this.now,
-    this.later,
-    this.sequence,
+    required this.capId,
+    required this.monthlyDelta,
   });
 }
 
-/// One step in a multi-year strategy sequence.
-class BudgetCapSequenceStep {
-  final String label;
-  final String effect;
+// ════════════════════════════════════════════════════════════
+//  SNAPSHOT
+// ════════════════════════════════════════════════════════════
 
-  const BudgetCapSequenceStep({
-    required this.label,
-    required this.effect,
-  });
-}
-
-/// A multi-step strategy (e.g. staggered LPP buybacks).
-class BudgetCapSequence {
-  final String title;
-  final List<BudgetCapSequenceStep> steps;
-  final String? cumulativeBenefit;
-
-  const BudgetCapSequence({
-    required this.title,
-    required this.steps,
-    this.cumulativeBenefit,
-  });
-}
-
-/// Unified budget snapshot — single object that feeds Aujourd'hui + Coach.
+/// The complete budget snapshot for a given profile.
 ///
-/// Created by [BudgetLivingEngine.compute()].
-/// Spec: docs/BUDGET_LIVING_ENGINE_IMPLEMENTATION_SPEC.md
+/// Produced by [BudgetLivingEngine.compute]. Immutable.
 class BudgetSnapshot {
+  /// Present-day budget breakdown.
   final PresentBudget present;
+
+  /// Projected retirement budget. Null when stage == presentOnly.
   final RetirementBudget? retirement;
+
+  /// Budget gap. Null when stage == presentOnly.
   final BudgetGap? gap;
-  final CapDecision cap;
-  final BudgetCapImpact? capImpact;
-  final BudgetCapSequence? capSequence;
-  final int confidenceScore;
+
+  /// Cap impacts — ordered by descending monthly delta (biggest lever first).
+  final List<BudgetCapImpact> capImpacts;
+
+  /// Stage determines which UI sections can be shown.
   final BudgetStage stage;
-  final GoalA? activeGoal;
-  final List<CapSignal> supportingSignals;
-  final DateTime computedAt;
+
+  /// Confidence score 0-100 from EnhancedConfidence (mandatory on projections).
+  final double confidenceScore;
 
   const BudgetSnapshot({
     required this.present,
     this.retirement,
     this.gap,
-    required this.cap,
-    this.capImpact,
-    this.capSequence,
-    required this.confidenceScore,
+    required this.capImpacts,
     required this.stage,
-    this.activeGoal,
-    required this.supportingSignals,
-    required this.computedAt,
+    required this.confidenceScore,
   });
+
+  /// Convenience: monthlyFree (always available, even if stage == presentOnly).
+  double get monthlyFree => present.monthlyFree;
+
+  /// True if the full gap between present and retirement is surfaceable.
+  bool get hasFullGap => stage == BudgetStage.fullGapVisible && gap != null;
 }

@@ -32,8 +32,8 @@ class AffordabilityResult {
   final bool capaciteOk;
   final bool fondsPropresOk;
   final double manqueFondsPropres;
-  final String chiffreChocTexte;
-  final bool chiffreChocPositif;
+  final String premierEclairageTexte;
+  final bool premierEclairagePositif;
   final String disclaimer;
   final bool isRevenueConstrained;
   final double lppUtilise;
@@ -49,8 +49,8 @@ class AffordabilityResult {
     required this.capaciteOk,
     required this.fondsPropresOk,
     required this.manqueFondsPropres,
-    required this.chiffreChocTexte,
-    required this.chiffreChocPositif,
+    required this.premierEclairageTexte,
+    required this.premierEclairagePositif,
     required this.disclaimer,
     required this.isRevenueConstrained,
     required this.lppUtilise,
@@ -97,7 +97,14 @@ class AffordabilityCalculator {
     //   Charges = P x 7% - (hardEquity + P x 10%) x 6%
     //           = P x (7% - 0.6%) - hardEquity x 6%
     //   P = (rev/3 + hardEquity x 6%) / (7% - 0.6%)
-    const tauxChargesSansAccessoires = hypothequeTauxTheorique + hypothequeTauxAmortissement;
+    final regTauxTheorique = reg('mortgage.theoretical_rate', hypothequeTauxTheorique);
+    final regTauxAmort = reg('mortgage.amortization_rate', hypothequeTauxAmortissement);
+    final regTauxFrais = reg('mortgage.accessory_rate', hypothequeTauxFraisAccessoires);
+    final regTauxChargesTotal = reg('mortgage.total_charges_rate', hypothequeTauxChargesTotal);
+    final regRatioMax = reg('mortgage.max_charge_ratio', hypothequeRatioChargesMax);
+    final regFpMin = reg('mortgage.min_equity_ratio', hypothequeFondsPropresMin);
+    final regPart2e = reg('mortgage.max_2nd_pillar_ratio', hypothequePart2ePilierMax);
+    final tauxChargesSansAccessoires = regTauxTheorique + regTauxAmort;
     final hardEquity = epargne + a3a;
 
     // Contrainte revenu (regle du 1/3)
@@ -105,13 +112,13 @@ class AffordabilityCalculator {
     if (revenu > 0) {
       // Essai avec tout le LPP
       final fpFull = hardEquity + lpp;
-      final pMaxFull = (revenu * hypothequeRatioChargesMax + fpFull * tauxChargesSansAccessoires) / hypothequeTauxChargesTotal;
-      if (lpp <= pMaxFull * hypothequePart2ePilierMax) {
+      final pMaxFull = (revenu * regRatioMax + fpFull * tauxChargesSansAccessoires) / regTauxChargesTotal;
+      if (lpp <= pMaxFull * regPart2e) {
         prixMaxRevenu = pMaxFull;
       } else {
         // LPP plafonne: resolution directe
-        const tauxEffectif = hypothequeTauxChargesTotal - hypothequePart2ePilierMax * tauxChargesSansAccessoires;
-        prixMaxRevenu = (revenu * hypothequeRatioChargesMax + hardEquity * tauxChargesSansAccessoires) / tauxEffectif;
+        final tauxEffectif = regTauxChargesTotal - regPart2e * tauxChargesSansAccessoires;
+        prixMaxRevenu = (revenu * regRatioMax + hardEquity * tauxChargesSansAccessoires) / tauxEffectif;
       }
     } else {
       prixMaxRevenu = 0.0;
@@ -121,24 +128,24 @@ class AffordabilityCalculator {
     double prixMaxEquity;
     {
       final fpFull = hardEquity + lpp;
-      final pMaxFull = fpFull / hypothequeFondsPropresMin;
-      if (lpp <= pMaxFull * hypothequePart2ePilierMax) {
+      final pMaxFull = fpFull / regFpMin;
+      if (lpp <= pMaxFull * regPart2e) {
         prixMaxEquity = pMaxFull;
       } else {
         // LPP plafonne: P x 20% = hardEquity + P x 10% => P = hardEquity / 10%
         prixMaxEquity = hardEquity > 0
-            ? hardEquity / (hypothequeFondsPropresMin - hypothequePart2ePilierMax)
+            ? hardEquity / (regFpMin - regPart2e)
             : 0.0;
       }
     }
 
     final prixMaxAccessible = min(prixMaxRevenu, prixMaxEquity);
-    final hypothequeMax = prixMaxAccessible * (1.0 - hypothequeFondsPropresMin);
+    final hypothequeMax = prixMaxAccessible * (1.0 - regFpMin);
 
     // --- Validation du prix cible ---
     // FP pour le prix demande (LPP plafonne a 10% du prix cible)
-    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0);
-    final fondsPropresRequis = prix * hypothequeFondsPropresMin;
+    final fondsPropresTotal = epargne + a3a + (prix > 0 ? min(lpp, prix * regPart2e) : 0.0);
+    final fondsPropresRequis = prix * regFpMin;
     final manqueFondsPropres =
         fondsPropresRequis > fondsPropresTotal
             ? fondsPropresRequis - fondsPropresTotal
@@ -147,37 +154,37 @@ class AffordabilityCalculator {
     // Charges theoriques pour le prix demande
     // interets + amortissement sur hypotheque (6%), frais accessoires sur prix (1%)
     final hypotheque = max(0.0, prix - fondsPropresTotal);
-    final chargesAnnuelles = hypotheque * tauxChargesSansAccessoires + prix * hypothequeTauxFraisAccessoires;
+    final chargesAnnuelles = hypotheque * tauxChargesSansAccessoires + prix * regTauxFrais;
     final chargesTheoriquesMensuelles = chargesAnnuelles / 12;
     final ratioCharges =
         revenu > 0 ? chargesAnnuelles / revenu : 1.0;
 
     // Charges reelles (taux marche ~1.5%) pour comparaison educative
     const tauxReelMarche = 0.015;
-    final chargesReellesAnnuelles = hypotheque * (tauxReelMarche + hypothequeTauxAmortissement) + prix * hypothequeTauxFraisAccessoires;
+    final chargesReellesAnnuelles = hypotheque * (tauxReelMarche + regTauxAmort) + prix * regTauxFrais;
     final chargesReellesMensuelles = chargesReellesAnnuelles / 12;
 
-    final capaciteOk = ratioCharges <= hypothequeRatioChargesMax;
+    final capaciteOk = ratioCharges <= regRatioMax;
     final fondsPropresOk = fondsPropresTotal >= fondsPropresRequis;
     final isRevenueConstrained = prixMaxRevenu < prixMaxEquity;
-    final lppUtilise = prix > 0 ? min(lpp, prix * hypothequePart2ePilierMax) : 0.0;
+    final lppUtilise = prix > 0 ? min(lpp, prix * regPart2e) : 0.0;
 
     // Chiffre choc
-    String chiffreChocTexte;
-    bool chiffreChocPositif;
+    String premierEclairageTexte;
+    bool premierEclairagePositif;
 
     if (capaciteOk && fondsPropresOk) {
-      chiffreChocTexte =
+      premierEclairageTexte =
           'Tu peux acheter jusqu\'a environ CHF ${formatChf(prixMaxAccessible)}';
-      chiffreChocPositif = true;
+      premierEclairagePositif = true;
     } else if (!fondsPropresOk) {
-      chiffreChocTexte =
+      premierEclairageTexte =
           'Il te manque environ CHF ${formatChf(manqueFondsPropres)} de fonds propres';
-      chiffreChocPositif = false;
+      premierEclairagePositif = false;
     } else {
-      chiffreChocTexte =
+      premierEclairageTexte =
           'Tes charges depasseraient ${(ratioCharges * 100).toStringAsFixed(1)}% de ton revenu';
-      chiffreChocPositif = false;
+      premierEclairagePositif = false;
     }
 
     return AffordabilityResult(
@@ -190,8 +197,8 @@ class AffordabilityCalculator {
       capaciteOk: capaciteOk,
       fondsPropresOk: fondsPropresOk,
       manqueFondsPropres: manqueFondsPropres,
-      chiffreChocTexte: chiffreChocTexte,
-      chiffreChocPositif: chiffreChocPositif,
+      premierEclairageTexte: premierEclairageTexte,
+      premierEclairagePositif: premierEclairagePositif,
       isRevenueConstrained: isRevenueConstrained,
       lppUtilise: lppUtilise,
       chargesReellesMensuelles: chargesReellesMensuelles,
@@ -244,7 +251,7 @@ class SaronVsFixedResult {
   final MortgageOption saronStable;
   final MortgageOption saronHausse;
   final double economieSaronStable;
-  final String chiffreChocTexte;
+  final String premierEclairageTexte;
   final String disclaimer;
 
   const SaronVsFixedResult({
@@ -252,7 +259,7 @@ class SaronVsFixedResult {
     required this.saronStable,
     required this.saronHausse,
     required this.economieSaronStable,
-    required this.chiffreChocTexte,
+    required this.premierEclairageTexte,
     required this.disclaimer,
   });
 }
@@ -345,12 +352,12 @@ class SaronVsFixedCalculator {
         annualData: saronHausseData,
       ),
       economieSaronStable: economieSaronStable,
-      chiffreChocTexte: economieSaronStable > 0
+      premierEclairageTexte: economieSaronStable > 0
           ? 'Le SARON stable t\'economise environ CHF ${formatChf(economieSaronStable)} sur $duree ans vs taux fixe'
           : 'Le fixe revient environ CHF ${formatChf(-economieSaronStable)} moins cher sur $duree ans',
       disclaimer:
           'Simulation a titre educatif. Le SARON peut varier a la hausse '
-          'comme a la baisse. L\'historique ne garantit pas l\'avenir. '
+          'comme a la baisse. L\'historique ne presage pas de l\'avenir. '
           'Les taux indicatifs 2026 sont des moyennes de marche et varient '
           'selon les etablissements et le profil emprunteur. '
           'Ne constitue pas un conseil hypothecaire.',
@@ -371,8 +378,8 @@ class ImputedRentalResult {
   final double totalDeductions;
   final double impactNet;
   final double impotSupplementaire;
-  final String chiffreChocTexte;
-  final bool chiffreChocPositif;
+  final String premierEclairageTexte;
+  final bool premierEclairagePositif;
   final String disclaimer;
 
   const ImputedRentalResult({
@@ -383,8 +390,8 @@ class ImputedRentalResult {
     required this.totalDeductions,
     required this.impactNet,
     required this.impotSupplementaire,
-    required this.chiffreChocTexte,
-    required this.chiffreChocPositif,
+    required this.premierEclairageTexte,
+    required this.premierEclairagePositif,
     required this.disclaimer,
   });
 }
@@ -473,17 +480,17 @@ class ImputedRentalCalculator {
     final impotSupplementaire = impactNet * marginal;
 
     // Chiffre choc
-    String chiffreChocTexte;
-    bool chiffreChocPositif;
+    String premierEclairageTexte;
+    bool premierEclairagePositif;
 
     if (impactNet > 0) {
-      chiffreChocTexte =
+      premierEclairageTexte =
           'La valeur locative te coute environ CHF ${formatChf(impotSupplementaire)}/an d\'impot supplementaire';
-      chiffreChocPositif = false;
+      premierEclairagePositif = false;
     } else {
-      chiffreChocTexte =
+      premierEclairageTexte =
           'Tes deductions compensent : economie nette estimee de CHF ${formatChf(-impotSupplementaire)}/an';
-      chiffreChocPositif = true;
+      premierEclairagePositif = true;
     }
 
     return ImputedRentalResult(
@@ -494,8 +501,8 @@ class ImputedRentalCalculator {
       totalDeductions: totalDeductions,
       impactNet: impactNet,
       impotSupplementaire: impotSupplementaire,
-      chiffreChocTexte: chiffreChocTexte,
-      chiffreChocPositif: chiffreChocPositif,
+      premierEclairageTexte: premierEclairageTexte,
+      premierEclairagePositif: premierEclairagePositif,
       disclaimer:
           'Simulation pedagogique a titre indicatif. La valeur locative '
           'reelle est fixee par l\'autorite fiscale cantonale et peut '
@@ -538,8 +545,8 @@ class AmortizationResult {
   final double capital3aFinal;
   final List<AmortizationYearPoint> directPlan;
   final List<AmortizationYearPoint> indirectPlan;
-  final String chiffreChocTexte;
-  final bool chiffreChocPositif;
+  final String premierEclairageTexte;
+  final bool premierEclairagePositif;
   final String disclaimer;
 
   const AmortizationResult({
@@ -551,8 +558,8 @@ class AmortizationResult {
     required this.capital3aFinal,
     required this.directPlan,
     required this.indirectPlan,
-    required this.chiffreChocTexte,
-    required this.chiffreChocPositif,
+    required this.premierEclairageTexte,
+    required this.premierEclairagePositif,
     required this.disclaimer,
   });
 }
@@ -580,7 +587,7 @@ class AmortizationCalculator {
     final rend3a = rendement3a.clamp(0.0, 0.08);
 
     // Default : 1% de l'hypotheque, plafonne au max 3a (identique au backend)
-    final amortissementAnnuel = min(montant * hypothequeTauxAmortissement, pilier3aPlafondAvecLpp);
+    final amortissementAnnuel = min(montant * reg('mortgage.amortization_rate', hypothequeTauxAmortissement), reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp));
 
     // --- Direct : amortissement annuel reduit la dette ---
     final directPlan = <AmortizationYearPoint>[];
@@ -644,10 +651,10 @@ class AmortizationCalculator {
       capital3aFinal: capital3a,
       directPlan: directPlan,
       indirectPlan: indirectPlan,
-      chiffreChocTexte: economie > 0
+      premierEclairageTexte: economie > 0
           ? 'L\'amortissement indirect t\'economise environ CHF ${formatChf(economie)} sur $duree ans'
           : 'L\'amortissement direct est environ CHF ${formatChf(-economie)} moins cher sur $duree ans',
-      chiffreChocPositif: economie > 0,
+      premierEclairagePositif: economie > 0,
       disclaimer:
           'Simulation pedagogique a titre indicatif. L\'avantage de '
           'l\'amortissement indirect depend du taux marginal effectif, '
@@ -691,8 +698,8 @@ class EplCombinedResult {
   final double totalImpots;
   final double montantNetTotal;
   final bool objectifAtteint;
-  final String chiffreChocTexte;
-  final bool chiffreChocPositif;
+  final String premierEclairageTexte;
+  final bool premierEclairagePositif;
   final List<String> alertes;
   final String disclaimer;
 
@@ -704,8 +711,8 @@ class EplCombinedResult {
     required this.totalImpots,
     required this.montantNetTotal,
     required this.objectifAtteint,
-    required this.chiffreChocTexte,
-    required this.chiffreChocPositif,
+    required this.premierEclairageTexte,
+    required this.premierEclairagePositif,
     required this.alertes,
     required this.disclaimer,
   });
@@ -735,8 +742,8 @@ class EplCombinedCalculator {
     final prix = prixCible.clamp(0.0, 10000000.0);
 
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
-    final fondsPropresRequis = prix * hypothequeFondsPropresMin;
-    final lppMax = prix * hypothequePart2ePilierMax; // Max 10% du prix en LPP
+    final fondsPropresRequis = prix * reg('mortgage.min_equity_ratio', hypothequeFondsPropresMin);
+    final lppMax = prix * reg('mortgage.max_2nd_pillar_ratio', hypothequePart2ePilierMax); // Max 10% du prix en LPP
 
     // Allocation dans l'ordre recommande : Cash > 3a > LPP
     double restant = fondsPropresRequis;
@@ -837,9 +844,9 @@ class EplCombinedCalculator {
       totalImpots: totalImpots,
       montantNetTotal: montantNetTotal,
       objectifAtteint: objectifAtteint,
-      chiffreChocTexte:
+      premierEclairageTexte:
           'Tes fonds propres couvrent ${pourcentageCouvert.toStringAsFixed(1)}% du prix',
-      chiffreChocPositif: objectifAtteint,
+      premierEclairagePositif: objectifAtteint,
       alertes: alertes,
       disclaimer:
           'Simulation pedagogique a titre indicatif. Les montants reels '

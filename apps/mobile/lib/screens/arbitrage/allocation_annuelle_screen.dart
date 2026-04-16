@@ -7,6 +7,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_engine.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -17,6 +18,8 @@ import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Allocation annuelle arbitrage screen — compare 3a, rachat LPP,
 /// amortissement indirect, and investissement libre.
@@ -43,6 +46,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   bool _hasRachatLpp = true;
   bool _isPropertyOwner = false;
   int _anneesAvantRetraite = 20;
+  String _canton = 'ZH';
 
   // ── Hypothesis sliders ──
   Map<String, double> _hypotheses = {
@@ -74,20 +78,49 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   }
 
   void _autoFillFromProfile() {
-    final profile = context.read<CoachProfileProvider>().profile;
-    if (profile == null) return;
+    try {
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile == null) return;
+      _autoFillFromProfileData(profile);
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
+  void _autoFillFromProfileData(CoachProfile profile) {
 
     // Annual contribution capacity: 3a max for salaried
     if (profile.salaireBrutMensuel > 0) {
       _montantCtrl.text = pilier3aPlafondAvecLpp.round().toString();
       _hasEstimatedValues = true;
     }
-    if (profile.prevoyance.avoirLppTotal != null) {
-      // Estimate potential rachat (simplified: ~20% of current LPP)
-      final potentiel = (profile.prevoyance.avoirLppTotal! * 0.2).round();
-      _potentielRachatCtrl.text = potentiel.toString();
-      _hasRachatLpp = potentiel > 0;
+
+    // Canton from profile
+    if (cantonFullNames.containsKey(profile.canton)) {
+      _canton = profile.canton;
     }
+
+    // Real marginal rate via RetirementTaxCalculator
+    final revenu = profile.revenuBrutAnnuel;
+    if (revenu > 0) {
+      final rate = RetirementTaxCalculator.estimateMarginalRate(
+        revenu,
+        _canton,
+      );
+      _tauxMarginal = (rate * 100).roundToDouble().clamp(10, 50);
+    }
+
+    // Real lacune rachat LPP (not estimated 20%)
+    final lacune = profile.prevoyance.lacuneRachatRestante;
+    if (lacune > 0) {
+      _potentielRachatCtrl.text = lacune.round().toString();
+      _hasRachatLpp = true;
+    } else if (profile.prevoyance.avoirLppTotal != null) {
+      // Fallback: no lacune data, disable rachat
+      _potentielRachatCtrl.text = '0';
+      _hasRachatLpp = false;
+    }
+
     _anneesAvantRetraite = profile.anneesAvantRetraite;
     _dataSources = profile.dataSources;
     _recalculate();
@@ -119,7 +152,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
       rendement3a: (_hypotheses['rendement_3a'] ?? 2.0) / 100,
       rendementLpp: (_hypotheses['rendement_lpp'] ?? 1.25) / 100,
       rendementMarche: (_hypotheses['rendement_marche'] ?? 4.0) / 100,
-      canton: 'VD',
+      canton: _canton,
       dataSources: _dataSources,
     );
 
@@ -132,7 +165,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar: white standard (Design System §4.5) ──
           SliverAppBar(
@@ -204,13 +237,13 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
                   const SizedBox(height: MintSpacing.lg),
 
                   // ── Chiffre choc ──
-                  _buildChiffreChocCard(l),
+                  _buildPremierEclairageCard(l),
                   const SizedBox(height: MintSpacing.lg),
 
                   // ── Sensitivity ──
                   BreakevenIndicatorWidget(
                     breakevenYear: _result!.breakevenYear,
-                    ageRetraite: 65,
+                    ageRetraite: avsAgeReferenceHomme,
                     horizon: _anneesAvantRetraite,
                     sensitivity: _result!.sensitivity,
                   ),
@@ -279,7 +312,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -300,29 +333,25 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.allocAnnuelleBudgetTitle,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
-          _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
             controller: _montantCtrl,
             label: l.allocAnnuelleMontantLabel,
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Taux marginal slider
-          MintPremiumSlider(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: MintPremiumSlider(
             label: l.allocAnnuelleTauxMarginal,
             value: _tauxMarginal,
             min: 10,
@@ -333,11 +362,11 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               setState(() => _tauxMarginal = v);
               _recalculate();
             },
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm),
 
           // Annees avant retraite slider
-          MintPremiumSlider(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: MintPremiumSlider(
             label: l.allocAnnuelleAnneesRetraite,
             value: _anneesAvantRetraite.toDouble(),
             min: 5,
@@ -348,18 +377,18 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
               setState(() => _anneesAvantRetraite = v.round());
               _recalculate();
             },
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm),
 
           // Toggles
-          _buildToggle(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildToggle(
             label: l.allocAnnuelle3aMaxed,
             value: _a3aMaxed,
             onChanged: (v) {
               _a3aMaxed = v;
               _recalculate();
             },
-          ),
+          )),
           _buildToggle(
             label: l.allocAnnuelleRachatLpp,
             value: _hasRachatLpp,
@@ -489,14 +518,9 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     final options = _result!.options;
     final colorMap = _colorsForOptions(options);
 
-    return Container(
-      width: double.infinity,
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border.withAlpha(128)),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -553,18 +577,13 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
   //  CHIFFRE CHOC CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildChiffreChocCard(S l) {
+  Widget _buildPremierEclairageCard(S l) {
     if (_result == null) return const SizedBox.shrink();
     return Semantics(
-      label: _result!.chiffreChoc,
-      child: Container(
-        width: double.infinity,
+      label: _result!.premierEclairage,
+      child: MintSurface(
         padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border.withAlpha(128)),
-        ),
+        radius: 16,
         child: Column(
           children: [
             Container(
@@ -582,7 +601,7 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              _result!.chiffreChoc,
+              _result!.premierEclairage,
               style: MintTextStyles.bodyMedium(
                 color: MintColors.textPrimary,
               ),
@@ -647,13 +666,10 @@ class _AllocationAnnuelleScreenState extends State<AllocationAnnuelleScreen> {
     if (_result == null) return const SizedBox.shrink();
     return Semantics(
       label: l.allocAnnuelleAvertissement,
-      child: Container(
-        width: double.infinity,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(16),
-        ),
+        radius: 16,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -25,6 +25,15 @@ from app.services.coach.prompt_registry import PromptRegistry
 from app.services.coach.fallback_templates import FallbackTemplates
 from app.services.coach.coach_context_builder import build_coach_context
 from app.services.coach.coach_narrative_service import CoachNarrativeService
+from app.services.coach.coach_tools import (
+    COACH_TOOLS,
+    ROUTE_TO_SCREEN_INTENT_TAGS,
+    ToolCategory,
+    get_tools_by_category,
+    get_read_only_tools,
+)
+from app.services.coach.claude_coach_service import build_system_prompt
+from app.services.coach.structured_reasoning import ReasoningOutput, StructuredReasoningService
 
 __all__ = [
     "ComplianceResult",
@@ -38,4 +47,12 @@ __all__ = [
     "FallbackTemplates",
     "build_coach_context",
     "CoachNarrativeService",
+    "COACH_TOOLS",
+    "ROUTE_TO_SCREEN_INTENT_TAGS",
+    "ToolCategory",
+    "get_tools_by_category",
+    "get_read_only_tools",
+    "build_system_prompt",
+    "ReasoningOutput",
+    "StructuredReasoningService",
 ]

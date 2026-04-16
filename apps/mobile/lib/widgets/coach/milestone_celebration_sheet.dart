@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/milestone_detection_service.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -173,7 +175,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                   child: Text(
                     milestone.narrativeMessage ?? milestone.description,
                     textAlign: TextAlign.center,
-                    style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, height: 1.55),
+                    style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.55),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -183,7 +185,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => context.pop(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: milestoneColor,
                       foregroundColor: MintColors.white,
@@ -193,7 +195,7 @@ class _MilestoneCelebrationSheetState extends State<MilestoneCelebrationSheet>
                       elevation: 0,
                     ),
                     child: Text(
-                      'Continuer',
+                      S.of(context)!.milestoneContinueBtn,
                       style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ),

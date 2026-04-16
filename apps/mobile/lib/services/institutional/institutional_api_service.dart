@@ -237,7 +237,7 @@ class MockPensionFundBackend implements PensionFundBackend {
   @override
   Future<PensionFundData> fetchFundData(PensionFund fund) async {
     if (shouldFailFetch) {
-      throw Exception('Erreur réseau\u00a0: impossible de joindre le serveur');
+      throw Exception('Network offline');
     }
 
     final info = PensionFundRegistry.getInfo(fund);
@@ -248,7 +248,7 @@ class MockPensionFundBackend implements PensionFundBackend {
           fund: fund,
           avoirLpp: 185420.0,
           rachatMaximal: 120000.0,
-          tauxConversion: lppTauxConversionMinDecimal,
+          tauxConversion: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
           bonificationAnnuelle: 0.15,
           dataDate: DateTime.now(),
           confidenceScore: 0.95,
@@ -259,7 +259,7 @@ class MockPensionFundBackend implements PensionFundBackend {
           fund: fund,
           avoirLpp: 95300.0,
           rachatMaximal: 250000.0,
-          tauxConversion: lppTauxConversionMinDecimal,
+          tauxConversion: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
           bonificationAnnuelle: 0.10,
           dataDate: DateTime.now(),
           confidenceScore: 0.95,
@@ -270,7 +270,7 @@ class MockPensionFundBackend implements PensionFundBackend {
           fund: fund,
           avoirLpp: 142750.0,
           rachatMaximal: 180000.0,
-          tauxConversion: lppTauxConversionMinDecimal,
+          tauxConversion: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
           bonificationAnnuelle: 0.18,
           dataDate: DateTime.now(),
           confidenceScore: 0.95,
@@ -492,7 +492,15 @@ class InstitutionalApiService {
       return ConnectionStatus.expired;
     }
 
-    final valid = await _backend.isTokenValid(fund, encryptedToken);
+    // FIX-178: Decrypt with try-catch — corrupted token shouldn't crash.
+    String decryptedToken;
+    try {
+      decryptedToken = _TokenEncryptor.decrypt(encryptedToken);
+    } catch (_) {
+      _log('checkStatus', fund, false, 'Token corrupted — cannot decrypt');
+      return ConnectionStatus.expired;
+    }
+    final valid = await _backend.isTokenValid(fund, decryptedToken);
     if (!valid) {
       _log('checkStatus', fund, false, 'Token expired');
       // Update stored status to expired

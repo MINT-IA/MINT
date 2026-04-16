@@ -11,6 +11,7 @@ from app.constants.social_insurance import (
     LPP_TAUX_CONVERSION_MIN,
     MARRIED_CAPITAL_TAX_DISCOUNT,
     PILIER_3A_PLAFOND_AVEC_LPP,
+    PILIER_3A_PLAFOND_SANS_LPP,
     TAUX_IMPOT_RETRAIT_CAPITAL,
     calculate_progressive_capital_tax,
     get_ai_rente_monthly,
@@ -150,18 +151,34 @@ def compute_disability_gap(
     # Phase 1: Employer coverage
     phase1_weeks = 0.0
     phase1_benefit = 0.0
-    if employment_status == "employee":
+    # FIX-162: Handle all employment statuses (was only employee/self_employed).
+    # Normalize FR → EN aliases
+    _status = employment_status.lower().strip()
+    if _status in ("salarie", "employee"):
+        _status = "employee"
+    elif _status in ("independant", "self_employed"):
+        _status = "self_employed"
+    elif _status in ("retraite", "retired"):
+        _status = "retired"
+
+    if _status == "employee":
         phase1_weeks = float(get_employer_coverage_weeks(canton, years_of_service))
         phase1_benefit = monthly_income  # 100% salary
+    elif _status == "retired":
+        # Retirees already covered by AI rente — no employer phase
+        alerts.append("Retraité·e : couvert·e par l'AI/AVS. L'invalidité s'applique différemment.")
+    elif _status == "student":
+        alerts.append("Étudiant·e : aucune couverture employeur ni IJM. Vérifier l'assurance accidents (LAA).")
+    elif _status == "unemployed":
+        alerts.append("Sans emploi : couverture via l'assurance-chômage (LACI art. 22). Vérifier la durée restante.")
     else:
-        alerts.append("Indépendant: aucune couverture employeur")
+        alerts.append("Indépendant·e : aucune couverture employeur")
     phase1_gap = monthly_income - phase1_benefit
 
     # Phase 2: IJM
     phase2_duration_months = 24.0
     phase2_benefit = 0.0
-    if (employment_status == "employee" and has_ijm_collective) or \
-       (employment_status == "self_employed" and has_ijm_collective):
+    if (_status in ("employee", "self_employed") and has_ijm_collective):
         phase2_benefit = monthly_income * 0.8
     else:
         alerts.append("Aucune IJM: après la période employeur, plus rien jusqu'à l'AI")
@@ -173,10 +190,14 @@ def compute_disability_gap(
     phase3_gap = monthly_income - phase3_benefit
 
     # Risk level
-    if employment_status == "self_employed" and not has_ijm_collective:
+    if _status == "self_employed" and not has_ijm_collective:
         risk_level = "critical"
         alerts.append("CRITIQUE: Indépendant sans IJM = aucune couverture pendant 24 mois")
-    elif employment_status == "employee" and not has_ijm_collective:
+    elif _status == "retired":
+        risk_level = "low"  # Already covered by AI/AVS
+    elif _status in ("student", "unemployed"):
+        risk_level = "high"
+    elif _status == "employee" and not has_ijm_collective:
         risk_level = "high"
         alerts.append(f"HAUT RISQUE: Après {int(phase1_weeks)} semaines, plus rien")
     elif phase3_gap > 3000:
@@ -372,13 +393,39 @@ def calculate_marginal_tax_rate(
     return max(0.10, min(0.45, round(combined, 4)))
 
 
+def get_3a_ceiling(
+    employment_status: Optional[str] = None,
+    has_2nd_pillar: Optional[bool] = None,
+) -> float:
+    """Return the applicable 3a annual contribution ceiling.
+
+    OPP3 art. 7:
+    - Salarié affilié LPP (petit 3a): 7'258 CHF
+    - Indépendant sans LPP (grand 3a): 36'288 CHF (20% du revenu net, max)
+
+    Args:
+        employment_status: 'salarie', 'independant', 'employee', 'self_employed', etc.
+        has_2nd_pillar: Whether the person is affiliated to a LPP pension fund.
+
+    Returns:
+        Annual 3a ceiling in CHF.
+    """
+    _status = (employment_status or "").lower().strip()
+    is_independent = _status in ("independant", "self_employed")
+    if is_independent and not has_2nd_pillar:
+        return PILIER_3A_PLAFOND_SANS_LPP
+    return PILIER_3A_PLAFOND_AVEC_LPP
+
+
 def calculate_tax_potential(
-    canton: str, income_gross: float, household_type: str = "single"
+    canton: str, income_gross: float, household_type: str = "single",
+    employment_status: Optional[str] = None,
+    has_2nd_pillar: Optional[bool] = None,
 ) -> str:
     """Estimate potential tax savings (3a only) for MVP display."""
-    # Logic: 3a Max (7258) * Marginal Rate
+    ceiling = get_3a_ceiling(employment_status, has_2nd_pillar)
     marginal_rate = calculate_marginal_tax_rate(canton, income_gross, household_type)
-    saving = PILIER_3A_PLAFOND_AVEC_LPP * marginal_rate
+    saving = ceiling * marginal_rate
     # Format as range "~1100-1400" to be safe/realistic relative to user expectation
     low = int(saving * 0.9 / 100) * 100
     high = int(saving * 1.1 / 100) * 100
@@ -603,7 +650,9 @@ def generate_if_then(kind: str, profile: Profile, answers: dict) -> str:
 # --- Recommendations ---
 
 
-def generate_recommendations(profile: Profile, answers: dict = None) -> List[Recommendation]:
+def generate_recommendations(
+    profile: Profile, answers: dict = None, reference_date: Optional[datetime] = None
+) -> List[Recommendation]:
     """
     Génère des recommandations triées par pertinence (Score d'impact).
     """
@@ -624,11 +673,16 @@ def generate_recommendations(profile: Profile, answers: dict = None) -> List[Rec
         potential_recos.append(_create_budget_control_recommendation(profile))
 
     # 3. Prévoyance (Priorité 1-2 si revenus corrects)
+    # SALARY CONVENTION:
+    # - incomeGrossYearly: annual GROSS salary (includes 13th month if applicable)
+    # - incomeNetMonthly: monthly NET salary (after deductions)
+    # - Conversion: net ≈ gross / 12 × 0.85 (approximate)
+    # - If both provided, incomeNetMonthly takes priority
     estimated_net = profile.incomeNetMonthly or (
         (profile.incomeGrossYearly / 12 * 0.85) if profile.incomeGrossYearly else 0
     )
     if estimated_net > 3000:
-        potential_recos.append(_create_3a_optimizer_recommendation(profile))
+        potential_recos.append(_create_3a_optimizer_recommendation(profile, reference_date=reference_date))
         if profile.employmentStatus == "self_employed":
             potential_recos.append(_create_pension_3a_self_employed_recommendation(profile))
 
@@ -647,15 +701,19 @@ def generate_recommendations(profile: Profile, answers: dict = None) -> List[Rec
     return potential_recos
 
 
-def _create_3a_optimizer_recommendation(profile: Profile) -> Recommendation:
-    annual_contribution = PILIER_3A_PLAFOND_AVEC_LPP
+def _create_3a_optimizer_recommendation(
+    profile: Profile, reference_date: Optional[datetime] = None
+) -> Recommendation:
+    annual_contribution = get_3a_ceiling(profile.employmentStatus, profile.has2ndPillar)
     household_type = "married" if profile.householdType.value in ("couple", "family") else "single"
     marginal_rate = calculate_marginal_tax_rate(
         profile.canton or "ZH",
         profile.incomeGrossYearly or (profile.incomeNetMonthly or 5000) * 12 / 0.85,
         household_type,
     )
-    years = max(5, 65 - (datetime.now(timezone.utc).year - (profile.birthYear or 1990)))
+    now = reference_date or datetime.now(timezone.utc)
+    retirement_age = getattr(profile, 'targetRetirementAge', None) or 65
+    years = max(5, retirement_age - (now.year - (profile.birthYear or 1990)))
     calc = calculate_pillar3a_tax_benefit(annual_contribution, marginal_rate, years)
     return Recommendation(
         id=uuid.uuid4(),
@@ -830,10 +888,12 @@ def _create_tax_splitting_recommendation(profile: Profile) -> Recommendation:
 
 
 def generate_session_report(
-    profile: Profile, answers: dict, focus_kinds: List[str], session_id: uuid.UUID
+    profile: Profile, answers: dict, focus_kinds: List[str], session_id: uuid.UUID,
+    reference_date: Optional[datetime] = None,
 ) -> SessionReport:
     precision = calculate_precision_score(profile, answers)
-    all_recos = generate_recommendations(profile, answers)
+    now = reference_date or datetime.now(timezone.utc)
+    all_recos = generate_recommendations(profile, answers, reference_date=now)
 
     # Identify Top 3
     priority_map = {
@@ -950,5 +1010,5 @@ def generate_session_report(
             "Mint est un mentor, pas un gestionnaire de fortune.",
             "Données traitées en Suisse (Blink/Mint).",
         ],
-        generatedAt=datetime.now(timezone.utc),
+        generatedAt=now,
     )

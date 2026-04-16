@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 
 /// Housing cost calculator for retirement projections (P2).
@@ -68,6 +70,14 @@ class HousingCostCalculator {
     'AI': 0.032,
     'GL': 0.033,
   };
+
+  /// Look up the estimated valeur locative rate for a canton.
+  ///
+  /// Returns the cantonal rate if found, otherwise [defaultRate] (0.035).
+  /// Used by ArbitrageEngine for location-vs-propriete comparisons.
+  static double getValeurLocativeRate(String canton, {double defaultRate = 0.035}) {
+    return _tauxValeurLocative[canton.toUpperCase()] ?? defaultRate;
+  }
 
   /// Compute housing cost at retirement.
   ///
@@ -137,7 +147,7 @@ class HousingCostCalculator {
       final amortYears = min(yearsToRetirement, 15);
       monthlyAmortization = excessMortgage / (amortYears * 12);
       assumptions.add(
-        'Amortissement 2e rang: CHF ${excessMortgage.toStringAsFixed(0)} '
+        'Amortissement 2e rang: ${formatChfWithPrefix(excessMortgage)} '
         'sur $amortYears ans (LTV > 65%)',
       );
     }
@@ -187,7 +197,7 @@ class HousingCostCalculator {
 
     if (mortgage > 0) {
       assumptions.add(
-        'Hypotheque CHF ${mortgage.toStringAsFixed(0)} '
+        'Hypotheque ${formatChfWithPrefix(mortgage)} '
         'a ${(rate * 100).toStringAsFixed(1)}%',
       );
     } else {
@@ -241,7 +251,7 @@ class HousingCostCalculator {
     String? housingStatus,
     String canton = 'ZH',
     int currentAge = 50,
-    int targetRetirementAge = 65,
+    int targetRetirementAge = avsAgeReferenceHomme,
     double? propertyMarketValue,
     double? mortgageBalance,
     double? mortgageRate,

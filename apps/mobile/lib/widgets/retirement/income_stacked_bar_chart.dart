@@ -236,11 +236,11 @@ class _IncomeStackedBarChartState extends State<IncomeStackedBarChart>
               children: [
                 Text(
                   source.label,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
                   '${RetirementProjectionService.formatChf(source.monthlyAmount)}/mois — ${pct.toStringAsFixed(1)}%',
-                  style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -305,7 +305,7 @@ class _IncomeBarPainter extends CustomPainter {
       // Label
       yLabelPaint.text = TextSpan(
         text: _formatK(val),
-        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+        style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
       );
       yLabelPaint.layout();
       yLabelPaint.paint(canvas, Offset(chartLeft - yLabelPaint.width - 6, y - 6));
@@ -405,7 +405,7 @@ class _IncomeBarPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: 'Depenses ${_formatK(monthlyExpenses!)}',
-          style: MintTextStyles.micro(color: MintColors.error.withValues(alpha: 0.8)).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.error.withValues(alpha: 0.8)).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       )..layout();
@@ -417,7 +417,7 @@ class _IncomeBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
-        style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 10, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+        style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
@@ -428,7 +428,7 @@ class _IncomeBarPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: _formatK(amount),
-        style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w800),
+        style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
       ),
       textDirection: TextDirection.ltr,
     )..layout();

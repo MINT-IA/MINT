@@ -287,14 +287,14 @@ def compare_calendrier_retraits(
 
     total_capital = sum(a.amount for a in valid_assets)
     if delta_tax > 0:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule, echelonner les retraits pourrait "
             f"permettre d'economiser {delta_tax:,.0f} CHF d'impots "
             f"sur un capital total de {total_capital:,.0f} CHF — "
             f"soit {delta_net:,.0f} CHF de plus en patrimoine net."
         )
     else:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule, l'echelonnement des retraits "
             f"ne presente pas d'avantage fiscal significatif pour un "
             f"capital total de {total_capital:,.0f} CHF."
@@ -416,7 +416,7 @@ def compare_calendrier_retraits(
     return ArbitrageResult(
         options=options,
         breakeven_year=breakeven_year,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         display_summary=display_summary,
         hypotheses=hypotheses,
         disclaimer=_DISCLAIMER,

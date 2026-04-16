@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/pillar_3a_deep_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran comparateur de providers 3a (fintech / banque / assurance).
 ///
@@ -26,6 +31,43 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   int _duree = 35;
   ProfilRisque _profilRisque = ProfilRisque.dynamique;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeFromProfile();
+    });
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        _age = profile.age;
+        _duree = profile.anneesAvantRetraite.clamp(5, 45);
+        // Map riskTolerance string to ProfilRisque enum
+        final risk = profile.riskTolerance;
+        if (risk != null) {
+          switch (risk.toLowerCase()) {
+            case 'prudent':
+            case 'conservateur':
+              _profilRisque = ProfilRisque.prudent;
+            case 'equilibre':
+            case 'modere':
+              _profilRisque = ProfilRisque.equilibre;
+            case 'dynamique':
+            case 'agressif':
+              _profilRisque = ProfilRisque.dynamique;
+          }
+        }
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
   ProviderComparisonResult get _result => ProviderComparator.compare(
         age: _age,
         versementAnnuel: _versementAnnuel,
@@ -40,7 +82,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -49,7 +91,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: () => safePop(context),
             ),
             title: Text(
               l.providerComparatorAppBarTitle,
@@ -61,7 +103,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Chiffre choc
-                _buildChiffreChoc(result, l),
+                _buildPremierEclairage(result, l),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Inputs
@@ -82,11 +124,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
-  Widget _buildChiffreChoc(ProviderComparisonResult result, S l) {
+  Widget _buildPremierEclairage(ProviderComparisonResult result, S l) {
     return Container(
       padding: const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
@@ -97,7 +139,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
       child: Column(
         children: [
           Text(
-            l.providerComparatorChiffreChocLabel(_duree),
+            l.providerComparatorPremierEclairageLabel(_duree),
             style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: MintSpacing.sm),
@@ -107,7 +149,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           ),
           const SizedBox(height: MintSpacing.xs),
           Text(
-            l.providerComparatorChiffreChocSubtitle,
+            l.providerComparatorPremierEclairageSubtitle,
             style: MintTextStyles.labelSmall(color: MintColors.success),
           ),
         ],
@@ -116,24 +158,20 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
   }
 
   Widget _buildInputsSection(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.providerComparatorSectionParametres,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Age
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.providerComparatorLabelAge,
             value: _age.toDouble(),
             min: 18,
@@ -142,13 +180,13 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             format: l.providerComparatorLabelAgeFormat(_age),
             onChanged: (v) => setState(() {
               _age = v.round();
-              _duree = (65 - _age).clamp(5, 45);
+              _duree = (avsAgeReferenceHomme - _age).clamp(5, 45);
             }),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Versement
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.providerComparatorLabelVersement,
             value: _versementAnnuel,
             min: 1000,
@@ -156,11 +194,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             divisions: 62,
             format: 'CHF ${formatChf(_versementAnnuel)}',
             onChanged: (v) => setState(() => _versementAnnuel = v),
-          ),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Duree
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.providerComparatorLabelDuree,
             value: _duree.toDouble(),
             min: 5,
@@ -168,11 +206,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             divisions: 40,
             format: l.providerComparatorLabelDureeFormat(_duree),
             onChanged: (v) => setState(() => _duree = v.round()),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Profil de risque
-          _buildProfilRisque(l),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildProfilRisque(l)),
         ],
       ),
     );
@@ -242,29 +280,14 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-          ],
-        ),
-        Semantics(
-          label: label,
-          value: format,
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            activeColor: MintColors.primary,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 
@@ -291,18 +314,12 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
   Widget _buildProviderCard(ProviderResult result, double maxCapital, S l) {
     final isWarning = result.hasWarning;
-    final isBest = result.badge != null &&
-        result.badge!.contains('Rendement le plus eleve');
-
+    // Compliance: no "best" visual indicator — arbitrage must be side-by-side, never ranked.
     Color bgColor = MintColors.white;
     Color borderColor = MintColors.border;
     double borderWidth = 1;
 
-    if (isBest) {
-      bgColor = MintColors.success.withValues(alpha: 0.06);
-      borderColor = MintColors.success.withValues(alpha: 0.3);
-      borderWidth = 2;
-    } else if (isWarning) {
+    if (isWarning) {
       bgColor = MintColors.error.withValues(alpha: 0.06);
       borderColor = MintColors.error.withValues(alpha: 0.3);
       borderWidth = 2;
@@ -331,22 +348,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   ],
                 ),
               ),
-              if (result.badge != null && !isWarning)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.success,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    result.badge!.length > 20
-                        ? result.badge!.substring(0, 20)
-                        : result.badge!,
-                    style: const TextStyle(
-                      color: MintColors.white, fontSize: 9, fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+              // Badge display removed — compliance: no ranking indicator.
               if (isWarning)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -396,9 +398,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                   Text(
                     'CHF ${formatChf(result.capitalFinal)}',
                     style: MintTextStyles.titleMedium(
-                      color: isBest
-                          ? MintColors.success
-                          : isWarning
+                      color: isWarning
                               ? MintColors.error
                               : MintColors.textPrimary,
                     ),
@@ -408,21 +408,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
             ],
           ),
 
-          // Difference vs meilleur
-          if (result.capitalFinal < maxCapital) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: MintColors.error.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                l.providerComparatorDiffVsPremier(formatChf(maxCapital - result.capitalFinal)),
-                style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
-              ),
-            ),
-          ],
+          // Ranking badge removed — compliance: arbitrage side-by-side, never ranked.
         ],
       ),
     );

@@ -139,15 +139,15 @@ class TestAffordabilityService:
         )
         assert len(result.checklist) >= 3
 
-    def test_chiffre_choc_present(self):
+    def test_premier_eclairage_present(self):
         """Chiffre choc should always be present."""
         result = self.svc.calculate_affordability(
             revenu_brut_annuel=150_000,
             epargne_disponible=200_000,
             prix_achat=800_000,
         )
-        assert result.chiffre_choc.texte
-        assert isinstance(result.chiffre_choc.montant, float)
+        assert result.premier_eclairage.texte
+        assert isinstance(result.premier_eclairage.montant, float)
 
 
 # ===========================================================================
@@ -801,7 +801,7 @@ class TestCompliance:
         sources_text = " ".join(result.sources).lower()
         assert "lpp" in sources_text
 
-    def test_no_forbidden_terms_in_chiffre_choc(self):
+    def test_no_forbidden_terms_in_premier_eclairage(self):
         """Chiffre choc texts should not contain forbidden terms."""
         svc = AffordabilityService()
         result = svc.calculate_affordability(
@@ -810,7 +810,7 @@ class TestCompliance:
             prix_achat=800_000,
         )
         for terme in TERMES_INTERDITS:
-            assert terme not in result.chiffre_choc.texte.lower()
+            assert terme not in result.premier_eclairage.texte.lower()
 
 
 # ===========================================================================

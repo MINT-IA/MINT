@@ -217,14 +217,15 @@ void main() {
       expect(result.nombreIndemnites, 520);
     });
 
-    test('age >= 55, cotisation >= 22 mois => 400 indemnites', () {
+    test('age >= 55, cotisation >= 22 mois => 520 indemnites (SECO senior)', () {
+      // SECO rules: 55+ = senior = 520 days (LACI art. 27 al. 2)
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 55,
         moisCotisation: 22,
       );
 
-      expect(result.nombreIndemnites, 400);
+      expect(result.nombreIndemnites, 520);
     });
 
     test('age >= 25, cotisation >= 18 mois => 260 indemnites', () {
@@ -257,8 +258,8 @@ void main() {
       expect(result.dureeMois, closeTo(260 / 21.75, 0.01));
     });
 
-    test('age 55 avec seulement 18 mois cotisation => 260 (pas 400)', () {
-      // 55+ needs >= 22 mois for 400, with only 18 falls to age>=25 bracket
+    test('age 55 avec seulement 18 mois cotisation => 260 (pas 520)', () {
+      // 55+ needs >= 22 mois for senior 520, with only 18 falls to age>=25 bracket
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 55,
@@ -360,15 +361,15 @@ void main() {
       expect(result.indemniteJournaliere, closeTo(expectedDaily, 0.01));
     });
 
-    test('chiffre choc mentionne la perte mensuelle', () {
+    test('premier éclairage mentionne la perte mensuelle', () {
       final result = UnemploymentService.calculateBenefits(
         gainAssureMensuel: 6000,
         age: 30,
         moisCotisation: 18,
       );
 
-      expect(result.chiffreChoc, contains('mois'));
-      expect(result.chiffreChoc, contains('salaire'));
+      expect(result.premierEclairage, contains('mois'));
+      expect(result.premierEclairage, contains('salaire'));
     });
 
     test('formatChf formate avec apostrophe suisse', () {

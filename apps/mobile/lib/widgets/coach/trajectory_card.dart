@@ -30,7 +30,7 @@ class TrajectoryCard extends StatelessWidget {
       children: [
         Text(
           l10n.coachTrajectory,
-          style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 12),
         Container(
@@ -58,7 +58,7 @@ class TrajectoryCard extends StatelessWidget {
         Text(
           'Simulation \u00e0 titre \u00e9ducatif uniquement. '
           'Ne constitue pas un conseil en placement ou pr\u00e9voyance (LSFin). '
-          'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats non garantis.',
+          'Hypoth\u00e8ses modifiables \u2014 r\u00e9sultats indicatifs.',
           style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
         ),
       ],

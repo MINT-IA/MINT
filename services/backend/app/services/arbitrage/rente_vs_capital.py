@@ -340,8 +340,8 @@ def _calculate_breakeven(option_a: TrajectoireOption, option_b: TrajectoireOptio
     return -1
 
 
-def _build_chiffre_choc(options: List[TrajectoireOption], horizon: int) -> str:
-    """Build the most striking delta as chiffre choc.
+def _build_premier_eclairage(options: List[TrajectoireOption], horizon: int) -> str:
+    """Build the most striking delta as premier éclairage.
 
     Compares terminal values between options A and B.
     """
@@ -407,7 +407,10 @@ def compare_rente_vs_capital(
     canton: str = "VD",
     age_retraite: int = 65,
     taux_retrait: float = 0.04,       # SWR on capital portion
-    rendement_capital: float = 0.03,  # conservative post-retirement
+    rendement_capital: float = 0.03,  # conservative post-retirement (balanced portfolio)
+    # NOTE: This differs from allocation_annuelle.py (2% for 3a, 1.25% for LPP)
+    # because post-retirement capital is invested in a different allocation.
+    # 3%: balanced ETF portfolio. 1.25%: LPP minimum legal rate. 2%: 3a securities.
     inflation: float = 0.02,          # Swiss average
     horizon: int = 25,                # years in retirement (to age 90)
     is_married: bool = False,
@@ -430,7 +433,7 @@ def compare_rente_vs_capital(
         taux_conversion_surobligatoire: Conversion rate for surobligatoire (default 5%).
         canton: Canton code for tax estimation (default VD).
         age_retraite: Retirement age (default 65).
-        taux_retrait: Safe withdrawal rate on capital (default 4%).
+        taux_retrait: Safe withdrawal rate on capital (scenario default 4%).
         rendement_capital: Post-retirement capital return (default 3%).
         inflation: Inflation rate (default 2%).
         horizon: Simulation horizon in years (default 25).
@@ -485,7 +488,7 @@ def compare_rente_vs_capital(
     breakeven_year = _calculate_breakeven(option_a, option_b)
 
     # Chiffre choc
-    chiffre_choc = _build_chiffre_choc(options, horizon)
+    premier_eclairage = _build_premier_eclairage(options, horizon)
 
     # Display summary
     display_summary = (
@@ -596,7 +599,7 @@ def compare_rente_vs_capital(
     return ArbitrageResult(
         options=options,
         breakeven_year=breakeven_year,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         display_summary=display_summary,
         hypotheses=hypotheses,
         disclaimer=_DISCLAIMER,

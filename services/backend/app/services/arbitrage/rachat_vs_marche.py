@@ -266,14 +266,14 @@ def compare_rachat_vs_marche(
     delta = abs(option_a.terminal_value - option_b.terminal_value)
     tax_saving = montant * taux_marginal
     if option_a.terminal_value > option_b.terminal_value:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule, le rachat LPP pourrait representer "
             f"{delta:,.0f} CHF de plus en patrimoine net apres {annees_avant_retraite} ans, "
             f"grace a une economie fiscale immediate de {tax_saving:,.0f} CHF — "
             f"mais avec un blocage de 3 ans (LPP art. 79b al. 3)."
         )
     else:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Dans ce scenario simule, l'investissement libre pourrait "
             f"representer {delta:,.0f} CHF de plus en patrimoine net apres "
             f"{annees_avant_retraite} ans — malgre l'absence de deduction fiscale."
@@ -385,7 +385,7 @@ def compare_rachat_vs_marche(
     return ArbitrageResult(
         options=options,
         breakeven_year=breakeven_year,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         display_summary=display_summary,
         hypotheses=hypotheses,
         disclaimer=_DISCLAIMER,

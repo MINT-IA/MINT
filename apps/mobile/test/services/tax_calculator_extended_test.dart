@@ -114,32 +114,81 @@ void main() {
   });
 
   group('RetirementTaxCalculator.estimateMarginalRate', () {
-    test('high income (>200k) → ~38% base', () {
+    test('high income (>200k) → higher marginal rate', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(250000, 'ZH');
-      expect(rate, closeTo(0.38, 0.05));
+      // ZH effective 12.90% × income adj 1.15 × 1.3 marginal factor ≈ 0.193
+      expect(rate, greaterThan(0.15));
+      expect(rate, lessThan(0.30));
     });
 
-    test('low income (<80k) → ~22% base', () {
+    test('low income (<80k) → lower marginal rate', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(60000, 'ZH');
-      expect(rate, closeTo(0.22, 0.05));
+      // ZH effective 12.90% × income adj ~0.83 × 1.3 ≈ 0.139
+      expect(rate, greaterThan(0.10));
+      expect(rate, lessThan(0.20));
     });
 
-    test('high-tax canton (GE) → +10% surcharge', () {
+    test('high-tax canton (GE) → higher than ZH', () {
       final rateZH = RetirementTaxCalculator.estimateMarginalRate(120000, 'ZH');
       final rateGE = RetirementTaxCalculator.estimateMarginalRate(120000, 'GE');
       expect(rateGE, greaterThan(rateZH));
     });
 
-    test('low-tax canton (ZG) → 25% discount', () {
+    test('low-tax canton (ZG) → lower than ZH', () {
       final rateZH = RetirementTaxCalculator.estimateMarginalRate(120000, 'ZH');
       final rateZG = RetirementTaxCalculator.estimateMarginalRate(120000, 'ZG');
       expect(rateZG, lessThan(rateZH));
     });
 
-    test('Julien golden profile — VS 122k marginal rate', () {
+    test('Julien golden profile — VS 122k single marginal rate', () {
       final rate = RetirementTaxCalculator.estimateMarginalRate(122207, 'VS');
-      // VS is high-tax → 0.32 * 1.1 = 0.352
-      expect(rate, closeTo(0.352, 0.01));
+      // VS effective 14.56% × income adj ~1.044 × 1.3 ≈ 0.198
+      expect(rate, greaterThan(0.15));
+      expect(rate, lessThan(0.25));
+    });
+
+    test('VS married 122k → rate ~0.16-0.21 (family splitting)', () {
+      final rate = RetirementTaxCalculator.estimateMarginalRate(
+        122000, 'VS', isMarried: true, children: 0,
+      );
+      expect(rate, greaterThan(0.15));
+      expect(rate, lessThan(0.22));
+    });
+
+    test('ZG single 100k → lowest rate', () {
+      final rate = RetirementTaxCalculator.estimateMarginalRate(100000, 'ZG');
+      expect(rate, lessThan(0.15));
+    });
+
+    test('BS single 100k → highest rate', () {
+      final rate = RetirementTaxCalculator.estimateMarginalRate(100000, 'BS');
+      expect(rate, greaterThan(0.18));
+    });
+
+    test('all 26 cantons return valid rate', () {
+      for (final canton in ['ZH','BE','LU','UR','SZ','OW','NW','GL','ZG','FR',
+          'SO','BS','BL','SH','AR','AI','SG','GR','AG','TG','TI','VD','VS',
+          'NE','GE','JU']) {
+        final rate = RetirementTaxCalculator.estimateMarginalRate(100000, canton);
+        expect(rate, greaterThan(0.05));
+        expect(rate, lessThan(0.35));
+      }
+    });
+
+    test('married with 2 children → lower rate than single', () {
+      final rateSingle = RetirementTaxCalculator.estimateMarginalRate(
+        120000, 'ZH',
+      );
+      final rateMarried = RetirementTaxCalculator.estimateMarginalRate(
+        120000, 'ZH', isMarried: true, children: 2,
+      );
+      expect(rateMarried, lessThan(rateSingle));
+    });
+
+    test('unknown canton → fallback to Swiss average', () {
+      final rate = RetirementTaxCalculator.estimateMarginalRate(100000, 'XX');
+      // Fallback 0.13 × 1.0 × 1.3 = 0.169
+      expect(rate, closeTo(0.169, 0.01));
     });
   });
 
@@ -166,15 +215,15 @@ void main() {
       );
     });
 
-    test('7258 CHF 3a deduction at 120k income → saves ~2000-3000', () {
+    test('7258 CHF 3a deduction at 120k income → saves ~1200-1600', () {
       final saving = RetirementTaxCalculator.estimateTaxSaving(
         income: 120000,
         deduction: 7258,
         canton: 'ZH',
       );
-      // ~32% marginal rate on 120k → ~2322 saved
-      expect(saving, greaterThan(1500));
-      expect(saving, lessThan(4000));
+      // ZH marginal ~17.5% at 120k → ~1270 saved
+      expect(saving, greaterThan(1000));
+      expect(saving, lessThan(2500));
     });
 
     test('50k LPP buyback at 122k income VS — Julien scenario', () {
@@ -183,9 +232,9 @@ void main() {
         deduction: 50000,
         canton: 'VS',
       );
-      // VS high-tax, ~35% marginal → ~17'500 saved
-      expect(saving, greaterThan(10000));
-      expect(saving, lessThan(25000));
+      // VS marginal ~19.8% at 122k → ~9'900 saved
+      expect(saving, greaterThan(7000));
+      expect(saving, lessThan(15000));
     });
   });
 

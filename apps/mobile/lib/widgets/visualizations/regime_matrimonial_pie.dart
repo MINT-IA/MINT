@@ -263,7 +263,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                 ),
                 Text(
                   'Repartition des biens',
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),
@@ -385,7 +385,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
                     const SizedBox(height: 2),
                     Text(
                       'Total',
-                      style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
+                      style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                     ),
                     if (_highlightedSegment != null) ...[
                       const SizedBox(height: 6),
@@ -513,7 +513,7 @@ class _RegimeMatrimonialPieState extends State<RegimeMatrimonialPie>
               Expanded(
                 child: Text(
                   widget.regime.description,
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12,
+                  style: MintTextStyles.labelMedium().copyWith(
                     height: 1.4,
                   ),
                 ),

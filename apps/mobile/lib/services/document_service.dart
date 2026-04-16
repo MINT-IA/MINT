@@ -1,8 +1,17 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:mint_mobile/models/document_event.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
+import 'package:uuid/uuid.dart';
+
+/// v2.7 Task 7 — client-generated UUID v4 for Idempotency-Key header on
+/// all document upload paths. Prevents duplicate processing on network
+/// retries; same key returns the cached response server-side.
+const _uuidGen = Uuid();
 
 // ──────────────────────────────────────────────────────────
 // Shared helper
@@ -924,6 +933,7 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
+        // Dynamic interpolation — not extracted
         message: 'Le fichier ($sizeMb Mo) depasse la limite de 20 Mo.',
       );
     }
@@ -935,6 +945,8 @@ class DocumentService {
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }
+    // v2.7 Task 7: idempotency header (UUID v4) — safe retry on network loss.
+    request.headers['Idempotency-Key'] = _uuidGen.v4();
     request.fields['document_type'] = type.apiValue;
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
@@ -964,6 +976,7 @@ class DocumentService {
       final sizeMb = (fileSize / (1024 * 1024)).toStringAsFixed(1);
       throw DocumentServiceException(
         code: 'file_too_large',
+        // Dynamic interpolation — not extracted
         message: 'Le fichier ($sizeMb Mo) depasse la limite de 10 Mo.',
       );
     }
@@ -1061,6 +1074,242 @@ class DocumentService {
       return null;
     }
   }
+
+  // ══════════════════════════════════════════════════════════
+  //  SCAN SYNC + CLAUDE VISION
+  // ══════════════════════════════════════════════════════════
+
+  /// Sync confirmed scan extraction to backend.
+  /// Called after user reviews and confirms extracted fields.
+  /// Offline-first: failure is logged but never blocks the UX.
+  static Future<Map<String, dynamic>?> sendScanConfirmation({
+    required String documentType,
+    required List<Map<String, dynamic>> confirmedFields,
+    required double overallConfidence,
+    String extractionMethod = 'claude_vision',
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/documents/scan-confirmation'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'confirmedFields': confirmedFields,
+          'overallConfidence': overallConfidence,
+          'extractionMethod': extractionMethod,
+          'timestamp': DateTime.now().toUtc().toIso8601String(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[DocumentService] sendScanConfirmation error: $e');
+      return null;
+    }
+  }
+
+  /// Extract document data using Claude Vision (backend).
+  /// Replaces MLKit OCR — better accuracy for Swiss financial docs.
+  /// Returns structured fields or null on failure.
+  static Future<Map<String, dynamic>?> extractWithVision({
+    required String imageBase64,
+    required String documentType,
+    String? canton,
+    String? languageHint,
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/documents/extract-vision'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          // v2.7 Task 7: idempotency header on retry-prone vision endpoint.
+          'Idempotency-Key': _uuidGen.v4(),
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'imageBase64': imageBase64,
+          if (canton != null) 'canton': canton,
+          if (languageHint != null) 'languageHint': languageHint,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      if (response.statusCode == 422) {
+        throw const DocumentServiceException(
+          code: 'not_financial',
+          message: 'Document classified as non-financial',
+        );
+      }
+      return null;
+    } catch (e) {
+      if (e is DocumentServiceException) rethrow;
+      debugPrint('[DocumentService] extractWithVision error: $e');
+      return null;
+    }
+  }
+  /// Fetch premier eclairage (4-layer insight) for extracted document data.
+  /// Returns parsed JSON response or null on failure.
+  static Future<Map<String, dynamic>?> fetchPremierEclairage({
+    required String documentType,
+    required List<Map<String, dynamic>> extractedFields,
+    required double overallConfidence,
+    String? planType,
+    String? planTypeWarning,
+    String? canton,
+  }) async {
+    try {
+      final baseUrl = ApiService.baseUrl;
+      final token = await AuthService.getToken();
+      if (token == null) return null;
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/documents/premier-eclairage'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'documentType': documentType,
+          'extractedFields': extractedFields,
+          'overallConfidence': overallConfidence,
+          if (planType != null) 'planType': planType,
+          if (planTypeWarning != null) 'planTypeWarning': planTypeWarning,
+          if (canton != null) 'canton': canton,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[DocumentService] fetchPremierEclairage error: $e');
+      return null;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Phase 28-02 — SSE streaming "Tom Hanks reading the document"
+  // ─────────────────────────────────────────────────────────────────────
+
+  /// Stream typed [DocumentEvent]s from the backend `/extract-vision`
+  /// endpoint using `Accept: text/event-stream`.
+  ///
+  /// Yields stage → field × N → narrative (optional) → done events as the
+  /// backend produces them. Malformed SSE frames (invalid JSON, unknown
+  /// event names) are silently skipped so a single bad line never kills
+  /// the stream; a non-200 response throws [DocumentStreamException];
+  /// network errors surface as a Stream error to the caller.
+  ///
+  /// [clientFactory] is exposed for tests — production callers omit it
+  /// and a fresh `http.Client()` is constructed per call.
+  static Stream<DocumentEvent> understandDocumentStream({
+    required Uint8List bytes,
+    required String filename,
+    String? token,
+    String? canton,
+    String? langHint,
+    http.Client Function()? clientFactory,
+  }) async* {
+    final authToken = token ?? await AuthService.getToken();
+    final client = (clientFactory ?? () => http.Client())();
+
+    try {
+      final uri = Uri.parse('${ApiService.baseUrl}/documents/extract-vision');
+      final req = http.Request('POST', uri);
+      req.headers['Accept'] = 'text/event-stream';
+      req.headers['Content-Type'] = 'application/json';
+      if (authToken != null && authToken.isNotEmpty) {
+        req.headers['Authorization'] = 'Bearer $authToken';
+      }
+      // v2.7 Phase 27: idempotency on retry-prone vision endpoint.
+      req.headers['Idempotency-Key'] = _uuidGen.v4();
+
+      req.body = jsonEncode({
+        'documentType': 'lpp_certificate', // backend ignores when v2 flag on; kept for legacy validation
+        'imageBase64': base64Encode(bytes),
+        'filename': filename,
+        if (canton != null) 'canton': canton,
+        if (langHint != null) 'languageHint': langHint,
+      });
+
+      final res = await client.send(req);
+      if (res.statusCode != 200) {
+        throw DocumentStreamException(res.statusCode);
+      }
+
+      // Buffer-and-split SSE protocol: events are delimited by blank lines,
+      // each event has zero or more `event:` and `data:` lines. Backend
+      // emits one event/data pair per frame so a simple line-by-line parser
+      // is enough.
+      final lines = res.stream.transform(utf8.decoder).transform(const LineSplitter());
+      String? currentEvent;
+      String? currentData;
+
+      await for (final line in lines) {
+        if (line.startsWith('event:')) {
+          currentEvent = line.substring(6).trim();
+          continue;
+        }
+        if (line.startsWith('data:')) {
+          currentData = line.substring(5).trim();
+          continue;
+        }
+        if (line.isEmpty) {
+          // End of one frame — try to dispatch.
+          if (currentEvent != null && currentData != null) {
+            try {
+              final decoded = jsonDecode(currentData) as Map<String, dynamic>;
+              yield parseDocumentEvent(currentEvent, decoded);
+            } catch (_) {
+              // Malformed JSON or unknown event: skip silently — never kill
+              // the stream because of one bad frame.
+            }
+          }
+          currentEvent = null;
+          currentData = null;
+        }
+      }
+
+      // Flush any pending frame at EOF (some servers omit the final blank line).
+      if (currentEvent != null && currentData != null) {
+        try {
+          final decoded = jsonDecode(currentData) as Map<String, dynamic>;
+          yield parseDocumentEvent(currentEvent, decoded);
+        } catch (_) {/* ignore */}
+      }
+    } finally {
+      client.close();
+    }
+  }
+}
+
+/// Thrown when the SSE endpoint returns a non-200 HTTP status. Surfaces
+/// the raw status so the UI can decide between retry / re-auth / friendly
+/// error.
+class DocumentStreamException implements Exception {
+  final int statusCode;
+  const DocumentStreamException(this.statusCode);
+
+  @override
+  String toString() => 'DocumentStreamException(status: $statusCode)';
 }
 
 /// Custom exception for DocumentService errors.

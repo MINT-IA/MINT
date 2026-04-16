@@ -401,7 +401,7 @@ class _WizardScorePreviewState extends State<WizardScorePreview>
           // Animated score number
           Text(
             '$displayScore',
-            style: MintTextStyles.headlineMedium(color: _currentScore > 0 ? _scoreColor : MintColors.textMuted).copyWith(fontSize: 18, height: 1.0),
+            style: MintTextStyles.titleLarge(color: _currentScore > 0 ? _scoreColor : MintColors.textMuted).copyWith(height: 1.0),
           ),
           const SizedBox(width: 2),
           Text(

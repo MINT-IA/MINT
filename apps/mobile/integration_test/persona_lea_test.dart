@@ -60,7 +60,7 @@ void main() {
     try {
       await binding.takeScreenshot('01_circle_transition_budget');
     } catch (e) {
-      print('Screenshot failed: $e');
+      debugPrint('Screenshot failed: $e');
     }
 
     // Q7: Net Income (3800)

@@ -96,11 +96,11 @@ class TestCalendrierRetraitsCore:
         actual_tax = result.options[0].cumulative_tax_impact
         assert abs(actual_tax - expected_tax) < 1.0  # Float rounding tolerance
 
-    def test_chiffre_choc_shows_delta(self):
+    def test_premier_eclairage_shows_delta(self):
         """Chiffre choc must show the tax savings delta."""
         result = compare_calendrier_retraits(assets=TYPICAL_ASSETS)
-        assert "CHF" in result.chiffre_choc
-        assert "economiser" in result.chiffre_choc.lower() or "avantage" in result.chiffre_choc.lower() or "echelonner" in result.chiffre_choc.lower()
+        assert "CHF" in result.premier_eclairage
+        assert "economiser" in result.premier_eclairage.lower() or "avantage" in result.premier_eclairage.lower() or "echelonner" in result.premier_eclairage.lower()
 
     def test_single_asset_no_staggering_benefit(self):
         """With a single asset, staggered should equal same-year."""
@@ -167,7 +167,7 @@ class TestCalendrierRetraitsCompliance:
         """No banned terms in any user-facing text."""
         result = compare_calendrier_retraits(assets=TYPICAL_ASSETS)
         all_text = " ".join([
-            result.chiffre_choc,
+            result.premier_eclairage,
             result.display_summary,
             result.disclaimer,
             " ".join(result.hypotheses),

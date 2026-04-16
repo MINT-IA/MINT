@@ -466,7 +466,7 @@ class TestDivorceDisclaimer:
         data = _divorce_input()
         result = divorce_sim.simulate(data)
         assert "indicative" in result.disclaimer.lower()
-        assert "avocat" in result.disclaimer.lower()
+        assert "specialiste" in result.disclaimer.lower()
 
     def test_no_forbidden_words(self, divorce_sim):
         """Must not contain 'garanti', 'assure', 'certain'."""

@@ -73,72 +73,86 @@ class IosIapService {
   static void resetOverrides() {
     _platformOverrideIap = null;
     _verifyFn = _defaultVerify;
+    _isPurchasing = false;
     resetPlatformCheck();
   }
 
   static bool get isSupportedPlatform =>
       _platformCheckOverride ? _platformCheckOverrideValue : Platform.isIOS;
 
+  /// Guard against double-tap during an active IAP purchase flow.
+  static bool _isPurchasing = false;
+
+  /// Whether a purchase is currently in progress (exposed for testing).
+  @visibleForTesting
+  static bool get isPurchasing => _isPurchasing;
+
   /// Purchase a specific product by ID (multi-tier support).
   static Future<bool> purchaseProduct(String productId) async {
+    if (_isPurchasing) return false; // Prevent double-tap
     if (!isSupportedPlatform) return false;
-    final available = await _platform.isAvailable();
-    if (!available) return false;
+    _isPurchasing = true;
+    try {
+      final available = await _platform.isAvailable();
+      if (!available) return false;
 
-    final productResp = await _platform.queryProductDetails({productId});
-    if (productResp.productDetails.isEmpty) return false;
-    final product = productResp.productDetails.first;
+      final productResp = await _platform.queryProductDetails({productId});
+      if (productResp.productDetails.isEmpty) return false;
+      final product = productResp.productDetails.first;
 
-    final completer = Completer<bool>();
-    late StreamSubscription<List<PurchaseDetails>> sub;
-    sub = _platform.purchaseStream.listen(
-      (purchases) async {
-        for (final purchase in purchases) {
-          if (purchase.productID != productId) continue;
-          if (purchase.status == PurchaseStatus.pending) continue;
+      final completer = Completer<bool>();
+      late StreamSubscription<List<PurchaseDetails>> sub;
+      sub = _platform.purchaseStream.listen(
+        (purchases) async {
+          for (final purchase in purchases) {
+            if (purchase.productID != productId) continue;
+            if (purchase.status == PurchaseStatus.pending) continue;
 
-          if (purchase.status == PurchaseStatus.purchased ||
-              purchase.status == PurchaseStatus.restored) {
-            try {
-              await _verifyFn(
-                productId: purchase.productID,
-                transactionId:
-                    purchase.purchaseID ?? purchase.hashCode.toString(),
-                originalTransactionId: purchase.purchaseID,
-                signedPayload:
-                    purchase.verificationData.serverVerificationData,
-              );
-              if (purchase.pendingCompletePurchase) {
-                await _platform.completePurchase(purchase);
+            if (purchase.status == PurchaseStatus.purchased ||
+                purchase.status == PurchaseStatus.restored) {
+              try {
+                await _verifyFn(
+                  productId: purchase.productID,
+                  transactionId:
+                      purchase.purchaseID ?? purchase.hashCode.toString(),
+                  originalTransactionId: purchase.purchaseID,
+                  signedPayload:
+                      purchase.verificationData.serverVerificationData,
+                );
+                if (purchase.pendingCompletePurchase) {
+                  await _platform.completePurchase(purchase);
+                }
+                if (!completer.isCompleted) completer.complete(true);
+              } catch (_) {
+                if (!completer.isCompleted) completer.complete(false);
               }
-              if (!completer.isCompleted) completer.complete(true);
-            } catch (_) {
+            } else if (purchase.status == PurchaseStatus.error ||
+                purchase.status == PurchaseStatus.canceled) {
               if (!completer.isCompleted) completer.complete(false);
             }
-          } else if (purchase.status == PurchaseStatus.error ||
-              purchase.status == PurchaseStatus.canceled) {
-            if (!completer.isCompleted) completer.complete(false);
           }
-        }
-      },
-      onError: (_) {
-        if (!completer.isCompleted) completer.complete(false);
-      },
-    );
+        },
+        onError: (_) {
+          if (!completer.isCompleted) completer.complete(false);
+        },
+      );
 
-    final param = PurchaseParam(productDetails: product);
-    final launched = await _platform.buyNonConsumable(purchaseParam: param);
-    if (!launched) {
+      final param = PurchaseParam(productDetails: product);
+      final launched = await _platform.buyNonConsumable(purchaseParam: param);
+      if (!launched) {
+        await sub.cancel();
+        return false;
+      }
+
+      final ok = await completer.future.timeout(
+        const Duration(minutes: 2),
+        onTimeout: () => false,
+      );
       await sub.cancel();
-      return false;
+      return ok;
+    } finally {
+      _isPurchasing = false;
     }
-
-    final ok = await completer.future.timeout(
-      const Duration(minutes: 2),
-      onTimeout: () => false,
-    );
-    await sub.cancel();
-    return ok;
   }
 
   /// Legacy method — purchase the coach monthly product.

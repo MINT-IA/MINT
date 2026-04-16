@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/assurances_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -63,9 +66,9 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
               delegate: SliverChildListDelegate([
                 _buildDemoModeBadge(),
                 const SizedBox(height: MintSpacing.sm + 4),
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: MintSpacing.md + 4),
-                _buildIntro(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntro()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Toggle Adult / Child
@@ -80,11 +83,11 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
 
                 // Results
                 if (_result != null) ...[
-                  _buildComparisonCards(),
+                  MintEntrance(child: _buildComparisonCards()),
                   const SizedBox(height: MintSpacing.md + 4),
-                  _buildBreakEvenInfo(),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBreakEvenInfo()),
                   const SizedBox(height: MintSpacing.md + 4),
-                  _buildRecommendations(),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRecommendations()),
                   const SizedBox(height: MintSpacing.md + 4),
                 ],
 
@@ -116,11 +119,11 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: Semantics(
-        label: 'Retour',
+        label: S.of(context)!.semanticsBack,
         button: true,
         child: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => safePop(context),
         ),
       ),
       title: Text(
@@ -323,164 +326,43 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
   // ── Prime slider ───────────────────────────────────────────
 
   Widget _buildPrimeSlider() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  S.of(context)!.lamalFranchisePrimeSliderLabel,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: MintSpacing.sm + 4,
-                    vertical: MintSpacing.xs + 2),
-                decoration: BoxDecoration(
-                  color: MintColors.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  LamalFranchiseService.formatChf(_primeMensuelle),
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary)
-                      .copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: S.of(context)!.lamalFranchisePrimeSliderLabel,
-              slider: true,
-              child: Slider(
-                value: _primeMensuelle,
-                min: 200,
-                max: 600,
-                divisions: 40,
-                onChanged: (value) {
-                  _primeMensuelle = value;
-                  _compute();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.lamalFranchisePrimeMin,
-                  style: MintTextStyles.labelSmall()),
-              Text(S.of(context)!.lamalFranchisePrimeMax,
-                  style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintAmountField(
+        label: S.of(context)!.lamalFranchisePrimeSliderLabel,
+        value: _primeMensuelle,
+        formatValue: (v) => LamalFranchiseService.formatChf(v),
+        onChanged: (v) {
+          setState(() {
+            _primeMensuelle = v;
+            _compute();
+          });
+        },
+        min: 200,
+        max: 600,
       ),
     );
   }
 
-  // ── Depenses slider ────────────────────────────────────────
+  // ── Depenses input ────────────────────────────────────────
 
   Widget _buildDepensesSlider() {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  S.of(context)!.lamalFranchiseDepensesSliderLabel,
-                  style: MintTextStyles.titleMedium(
-                      color: MintColors.textPrimary),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: MintSpacing.sm + 4,
-                    vertical: MintSpacing.xs + 2),
-                decoration: BoxDecoration(
-                  color: _depensesSante > 3000
-                      ? MintColors.error.withValues(alpha: 0.1)
-                      : _depensesSante > 1000
-                          ? MintColors.warning.withValues(alpha: 0.1)
-                          : MintColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  LamalFranchiseService.formatChf(_depensesSante),
-                  style: MintTextStyles.bodySmall(
-                    color: _depensesSante > 3000
-                        ? MintColors.error
-                        : _depensesSante > 1000
-                            ? MintColors.warning
-                            : MintColors.success,
-                  ).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: MintSpacing.sm + 4),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 4,
-            ),
-            child: Semantics(
-              label: S.of(context)!.lamalFranchiseDepensesSliderLabel,
-              slider: true,
-              child: Slider(
-                value: _depensesSante,
-                min: 0,
-                max: 10000,
-                divisions: 100,
-                onChanged: (value) {
-                  _depensesSante = value;
-                  _compute();
-                },
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(S.of(context)!.lamalFranchiseDepensesMin,
-                  style: MintTextStyles.labelSmall()),
-              Text(S.of(context)!.lamalFranchiseDepensesMax,
-                  style: MintTextStyles.labelSmall()),
-            ],
-          ),
-        ],
+      child: MintAmountField(
+        label: S.of(context)!.lamalFranchiseDepensesSliderLabel,
+        value: _depensesSante,
+        formatValue: (v) => LamalFranchiseService.formatChf(v),
+        onChanged: (v) {
+          setState(() {
+            _depensesSante = v;
+            _compute();
+          });
+        },
+        min: 0,
+        max: 10000,
       ),
     );
   }
@@ -616,14 +498,9 @@ class _LamalFranchiseScreenState extends State<LamalFranchiseScreen> {
     final result = _result!;
     if (result.breakEvenPoints.isEmpty) return const SizedBox.shrink();
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.bleu,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

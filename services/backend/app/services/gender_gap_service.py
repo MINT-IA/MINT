@@ -109,6 +109,7 @@ class GenderGapResult:
 # ---------------------------------------------------------------------------
 
 DISCLAIMER = (
+    "Outil educatif — ne constitue pas un conseil (LSFin). "
     "Cette analyse est indicative et basee sur des hypotheses simplifiees. "
     "Les montants reels dependent de votre caisse de pension, du taux "
     "d'interet crediteur et de votre situation individuelle. "

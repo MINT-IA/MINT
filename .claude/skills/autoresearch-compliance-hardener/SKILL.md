@@ -4,10 +4,10 @@ description: "Autonomous compliance tester. Generates adversarial tests to break
 compatibility: Requires Flutter SDK + Python 3.11+
 metadata:
   author: mint-team
-  version: "2.0"
+  version: "3.0"
 ---
 
-# Autoresearch Compliance Hardener v2 — Karpathy Adversarial Tester
+# Autoresearch Compliance Hardener v3 — Karpathy Adversarial Tester
 
 > "Compliance is the foundation. A single violation = regulatory risk."
 
@@ -32,6 +32,30 @@ metadata:
 | RL-08 | Missing disclaimer on calculator output | MEDIUM |
 | RL-09 | Missing law source reference | MEDIUM |
 | RL-10 | Promise of returns | CRITICAL |
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Mutable / Immutable
 
@@ -82,6 +106,52 @@ metadata:
 - **NEVER disable ComplianceGuard** for testing
 - **NEVER hardcode exceptions** for specific phrases (slippery slope)
 - Test in **multiple languages** — Swiss app must be compliant in fr, en, de, es, it, pt
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY adversarial batch, before reporting guard status:
+
+1. **RUN** `flutter test test/services/compliance 2>&1 | tail -20` fresh.
+2. **PASTE** the exact terminal output. "Should pass" is FORBIDDEN.
+3. **READ** the output. Confirm: all N tests passed, no regressions, no skips.
+4. If guard was fixed → run FULL suite `flutter test 2>&1 | tail -10`. Paste that too.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "The guardrail would catch this in practice" | Prove it. Write the adversarial test. |
+| "This edge case is unrealistic" | Regulators test unrealistic cases. So do we. |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If guard fix broke other tests → revert immediately. CRITICAL flaw → STOP SESSION. Alert human.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Tests pass" | Fresh test command output: 0 failures | Previous run, "should pass", partial run |
+| "Guard holds" | All adversarial tests green, fresh run | Guard exists, "would catch it" |
+| "No regressions" | Full suite run: same or fewer failures | Running only compliance tests |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Verify + full suite both green, this iteration | Green from 3 iterations ago |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

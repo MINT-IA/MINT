@@ -173,7 +173,7 @@ void main() {
       expect(result.containsKey('economieAnnuelle'), true);
       expect(result.containsKey('economieMensuelle'), true);
       expect(result.containsKey('economie10Ans'), true);
-      expect(result.containsKey('chiffreChoc'), true);
+      expect(result.containsKey('premierEclairage'), true);
     });
   });
 
@@ -210,38 +210,38 @@ void main() {
       expect(result['economie10Ans'] as double, equals(0.0));
     });
 
-    test('chiffreChoc mentions savings for positive move', () {
+    test('premierEclairage mentions savings for positive move', () {
       final result = FiscalService.simulateMove(
         revenuBrut: 100000,
         cantonDepart: 'BS',
         cantonArrivee: 'ZG',
       );
 
-      final chiffreChoc = result['chiffreChoc'] as String;
-      expect(chiffreChoc, contains('économiserais'));
-      expect(chiffreChoc, contains('10 ans'));
+      final premierEclairage = result['premierEclairage'] as String;
+      expect(premierEclairage, contains('économiserais'));
+      expect(premierEclairage, contains('10 ans'));
     });
 
-    test('chiffreChoc mentions extra cost for negative move', () {
+    test('premierEclairage mentions extra cost for negative move', () {
       final result = FiscalService.simulateMove(
         revenuBrut: 100000,
         cantonDepart: 'ZG',
         cantonArrivee: 'BS',
       );
 
-      final chiffreChoc = result['chiffreChoc'] as String;
-      expect(chiffreChoc, contains('coûterait'));
+      final premierEclairage = result['premierEclairage'] as String;
+      expect(premierEclairage, contains('coûterait'));
     });
 
-    test('chiffreChoc mentions equivalence for same canton', () {
+    test('premierEclairage mentions equivalence for same canton', () {
       final result = FiscalService.simulateMove(
         revenuBrut: 100000,
         cantonDepart: 'VD',
         cantonArrivee: 'VD',
       );
 
-      final chiffreChoc = result['chiffreChoc'] as String;
-      expect(chiffreChoc, contains('équivalente'));
+      final premierEclairage = result['premierEclairage'] as String;
+      expect(premierEclairage, contains('équivalente'));
     });
   });
 

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 // ============================================================================
@@ -35,13 +36,13 @@ class WithdrawalYearPlan {
   });
 }
 
-/// Resultat du chiffre choc pour le retrait echelonne
-class ChiffreChoc {
+/// Resultat du premier éclairage pour le retrait echelonne
+class PremierEclairage {
   final double montant;
   final String texte;
   final bool isPositive;
 
-  const ChiffreChoc({
+  const PremierEclairage({
     required this.montant,
     required this.texte,
     required this.isPositive,
@@ -55,7 +56,7 @@ class StaggeredWithdrawalResult {
   final double economie;
   final int nbComptesOptimal;
   final List<WithdrawalYearPlan> planAnnuel;
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
   final String disclaimer;
 
   const StaggeredWithdrawalResult({
@@ -64,7 +65,7 @@ class StaggeredWithdrawalResult {
     required this.economie,
     required this.nbComptesOptimal,
     required this.planAnnuel,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -92,12 +93,15 @@ class StaggeredWithdrawalSimulator {
     required double revenuImposable,
     required int ageRetraitDebut,
     required int ageRetraitFin,
+    S? l,
   }) {
     // Clamp inputs
     final clampedComptes = nbComptes.clamp(1, 5);
     final clampedAvoir = avoirTotal.clamp(0.0, 1000000.0);
-    final clampedDebut = ageRetraitDebut.clamp(59, 65);
-    final clampedFin = ageRetraitFin.clamp(clampedDebut, 65);
+    // 3a withdrawal allowed from 59 (women pre-1964) up to 70 (deferral).
+    // Backend allows 59-70; mobile must match (OPP3 art. 3 al. 1).
+    final clampedDebut = ageRetraitDebut.clamp(59, 70);
+    final clampedFin = ageRetraitFin.clamp(clampedDebut, 70);
 
     final tauxBase = tauxImpotRetraitCapital[canton.toUpperCase()] ?? 0.065;
 
@@ -150,12 +154,12 @@ class StaggeredWithdrawalSimulator {
       economie: economie,
       nbComptesOptimal: optimalComptes,
       planAnnuel: plan,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         montant: economie,
         texte: 'Economie : CHF ${formatChf(economie)}',
         isPositive: economie > 0,
       ),
-      disclaimer:
+      disclaimer: l?.pillar3aStaggeredDisclaimer ??
           'Simulation pedagogique a titre indicatif. L\'impot sur le retrait '
           'en capital depend du canton, de la commune, de la situation '
           'personnelle et du montant total retire dans l\'annee fiscale. '
@@ -214,7 +218,7 @@ class RealReturnResult {
   final double rendementEpargne;
   final double economieFiscaleTotale;
   final double gainVsEpargne;
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
   final String disclaimer;
 
   const RealReturnResult({
@@ -226,7 +230,7 @@ class RealReturnResult {
     required this.rendementEpargne,
     required this.economieFiscaleTotale,
     required this.gainVsEpargne,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -249,12 +253,13 @@ class RealReturnCalculator {
     required double rendementBrut,
     required double fraisGestion,
     required int dureeAnnees,
+    S? l,
   }) {
     final clampedTaux = tauxMarginal.clamp(0.0, 0.50);
     final clampedRendement = rendementBrut.clamp(-0.99, 0.15);
     final clampedFrais = fraisGestion.clamp(0.0, 0.03);
     final clampedDuree = dureeAnnees.clamp(0, 45);
-    final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
+    final clampedVersement = versementAnnuel.clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
 
     // rGross = taux effectif du placement 3a (brut - frais, pas d'inflation)
     final rGross = max(-0.99, clampedRendement - clampedFrais);
@@ -295,13 +300,13 @@ class RealReturnCalculator {
       rendementEpargne: rendEpargne,
       economieFiscaleTotale: totalEconomieFiscale,
       gainVsEpargne: gainVsEpargne,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         montant: gainVsEpargne,
         texte: 'Rendement reel : ${rendReelPct.toStringAsFixed(1)}% vs '
             '${rendNominal.toStringAsFixed(1)}% sans avantage fiscal',
         isPositive: gainVsEpargne > 0,
       ),
-      disclaimer:
+      disclaimer: l?.pillar3aRealReturnDisclaimer ??
           'Simulation pédagogique basée sur des hypothèses de rendement '
           'constant. Les rendements passés ne préjugent pas des rendements '
           'futurs. Les frais et rendements varient selon le prestataire. '
@@ -393,7 +398,7 @@ class RealReturnCalculator {
 
 enum ProfilRisque { prudent, equilibre, dynamique }
 
-/// Donnees d'un provider 3a
+/// Données d'un provider 3a
 class Provider3a {
   final String nom;
   final String type; // fintech, banque, assurance
@@ -439,13 +444,13 @@ class ProviderResult {
 class ProviderComparisonResult {
   final List<ProviderResult> providers;
   final double differenceMax;
-  final ChiffreChoc chiffreChoc;
+  final PremierEclairage premierEclairage;
   final String disclaimer;
 
   const ProviderComparisonResult({
     required this.providers,
     required this.differenceMax,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -525,10 +530,11 @@ class ProviderComparator {
     required double versementAnnuel,
     required int duree,
     required ProfilRisque profilRisque,
+    S? l,
   }) {
     final clampedAge = age.clamp(18, 70);
     final clampedDuree = duree.clamp(1, 50);
-    final clampedVersement = versementAnnuel.clamp(0.0, pilier3aPlafondSansLpp);
+    final clampedVersement = versementAnnuel.clamp(0.0, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
 
     final List<ProviderResult> results = [];
     double maxCapital = 0;
@@ -614,13 +620,14 @@ class ProviderComparator {
     return ProviderComparisonResult(
       providers: badgedResults,
       differenceMax: difference,
-      chiffreChoc: ChiffreChoc(
+      premierEclairage: PremierEclairage(
         montant: difference,
         texte:
             'Difference sur $clampedDuree ans : CHF ${formatChf(difference)}',
         isPositive: true,
       ),
-      disclaimer: 'Rendements passes ne prejugent pas des rendements futurs. '
+      disclaimer: l?.pillar3aProviderDisclaimer ??
+          'Rendements passes ne prejugent pas des rendements futurs. '
           'Les frais et rendements moyens sont bases sur des donnees '
           'historiques simplifiees a titre pedagogique. '
           'Le choix d\'un prestataire 3a depend de ta situation personnelle, '

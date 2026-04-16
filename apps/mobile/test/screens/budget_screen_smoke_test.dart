@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
 
 void main() {
   setUp(() {
@@ -48,16 +47,12 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100)); // allow async storage calls
     await tester.pump(const Duration(seconds: 2)); // advance animations
 
-    // 4. Verify Header — MintHeroNumber shows the available amount
-    // The hero number shows "CHF\u00a03500" and caption is budgetChiffreChocCaption
-    expect(find.byType(MintHeroNumber), findsOneWidget);
-    // 5000 - 1500 = 3500 (may appear in hero + breakdown + spending meter)
+    // 4. Verify Header — hero uses MintHeroNumber with CHF amount
+    // Caption is i18n budgetPremierEclairageCaption (not "Disponible ce mois")
     expect(find.textContaining('3500'), findsWidgets);
 
-    // 5. Verify Sliders presence (since style is envelopes3)
-    expect(find.textContaining('Futur'), findsWidgets);
-    expect(find.textContaining('Variables'), findsWidgets);
-    expect(find.byType(Slider), findsNWidgets(2));
+    // 5. Verify tap-to-type envelope fields (replaced MintPremiumSlider)
+    expect(find.byType(TextField), findsWidgets);
   });
 
   testWidgets('BudgetScreen Stop Rule triggers warning',

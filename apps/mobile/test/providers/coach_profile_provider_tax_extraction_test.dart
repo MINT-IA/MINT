@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -6,9 +7,49 @@ import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  final Map<String, String> mockSecureStorage = {};
+
   group('CoachProfileProvider.updateFromTaxExtraction', () {
     setUp(() {
+      mockSecureStorage.clear();
       SharedPreferences.setMockInitialValues({});
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          switch (call.method) {
+            case 'write':
+              final key = call.arguments['key'] as String;
+              final value = call.arguments['value'] as String?;
+              if (value != null) {
+                mockSecureStorage[key] = value;
+              }
+              return null;
+            case 'read':
+              final key = call.arguments['key'] as String;
+              return mockSecureStorage[key];
+            case 'delete':
+              final key = call.arguments['key'] as String;
+              mockSecureStorage.remove(key);
+              return null;
+            case 'deleteAll':
+              mockSecureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        null,
+      );
     });
 
     test('persists canonical tax fields and data sources', () async {
@@ -292,7 +333,43 @@ void main() {
 
   group('CoachProfile.fromWizardAnswers — fiscal dataSources restoration', () {
     setUp(() {
+      mockSecureStorage.clear();
       SharedPreferences.setMockInitialValues({});
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        (MethodCall call) async {
+          switch (call.method) {
+            case 'write':
+              final key = call.arguments['key'] as String;
+              final value = call.arguments['value'] as String?;
+              if (value != null) {
+                mockSecureStorage[key] = value;
+              }
+              return null;
+            case 'read':
+              final key = call.arguments['key'] as String;
+              return mockSecureStorage[key];
+            case 'delete':
+              final key = call.arguments['key'] as String;
+              mockSecureStorage.remove(key);
+              return null;
+            case 'deleteAll':
+              mockSecureStorage.clear();
+              return null;
+            default:
+              return null;
+          }
+        },
+      );
+    });
+
+    tearDown(() {
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+        const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+        null,
+      );
     });
 
     test('restores fiscal dataSources from persisted _coach_tax_* keys',

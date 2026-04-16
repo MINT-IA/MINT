@@ -1,0 +1,52 @@
+{
+  "id": "msg_fixture_avs_ik_extract",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_avs_ik_extract",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "avs_extract",
+        "subtype": null,
+        "issuer_guess": "Office cantonal VS",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "total_cotisations",
+            "value": 1087207,
+            "confidence": "high",
+            "source_text": "Somme 10 annees"
+          },
+          {
+            "field_name": "annees_cotisees",
+            "value": 10,
+            "confidence": "high",
+            "source_text": "10 annees"
+          },
+          {
+            "field_name": "derniere_annee",
+            "value": 2025,
+            "confidence": "medium",
+            "source_text": "2025"
+          }
+        ],
+        "overall_confidence": 0.8,
+        "extraction_status": "partial",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Extrait AVS lu: 10 annees de cotisations, total 1'087'207 CHF.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

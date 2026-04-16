@@ -1,12 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
 ///
@@ -21,17 +30,29 @@ class EplScreen extends StatefulWidget {
 }
 
 class _EplScreenState extends State<EplScreen> {
+  bool _hasUserInteracted = false;
+
+  /// Sequence IDs read from GoRouter.extra (Tier A when present).
+  /// Null when navigated without sequence context (Tier B legacy).
+  String? _seqRunId;
+  String? _seqStepId;
+
+  /// Guard: ensures _emitFinalReturn fires exactly once.
+  bool _finalReturnEmitted = false;
+
   double _avoirTotal = 300000;
   int _age = 40;
   double _montantSouhaite = 100000;
   bool _aRachete = false;
   int _anneesSDepuisRachat = 0;
   String _canton = 'ZH';
+  double _obligRatio = 0.6;
+  double _grossAnnualSalary = 100000;
 
   EplResult get _result {
-    // Repartition simplifiee oblig / suroblig
-    final oblig = _avoirTotal * 0.6;
-    final suroblig = _avoirTotal * 0.4;
+    // Repartition oblig / suroblig from profile or default ratio
+    final oblig = _avoirTotal * _obligRatio;
+    final suroblig = _avoirTotal * (1 - _obligRatio);
 
     return EplSimulator.simulate(
       avoirTotal: _avoirTotal,
@@ -46,13 +67,177 @@ class _EplScreenState extends State<EplScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+      _initializeFromProfile();
+    });
+  }
+
+  /// Read sequence runId/stepId/prefill from GoRouter.extra if present.
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+        final prefill = extra['prefill'] as Map<String, dynamic>?;
+        if (prefill != null) _applyPrefill(prefill);
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  /// Write back EPL computed results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          avoirLppTotal: result.montantSouhaiteApplicable > 0
+              ? (_avoirTotal - result.montantSouhaiteApplicable).clamp(0, double.infinity)
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
+  /// Apply prefill values from preceding sequence step.
+  /// Mapping: montant_bien_cible → target property price (informational),
+  /// montant_necessaire → fonds propres requis (can inform withdrawal amount).
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    final fonds = prefill['montant_necessaire'];
+    if (fonds is num && fonds > 0) {
+      setState(() {
+        // Suggest the required own funds as default withdrawal amount.
+        _montantSouhaite = fonds.toDouble().clamp(20000, 500000);
+      });
+    }
+  }
+
+  /// Emits a terminal ScreenReturn when the user leaves the screen.
+  /// If in a guided sequence (Tier A), includes runId/stepId/eventId
+  /// and stepOutputs for the SequenceCoordinator to advance the run.
+  /// If user didn't interact → abandoned (so coordinator can retry).
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      // User opened screen but left without interacting → abandoned.
+      // The coordinator will offer a retry instead of leaving sequence stuck.
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/epl',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
+      return;
+    }
+
+    final result = _result;
+    final eplImpact = LppCalculator.computeEplImpact(
+      currentBalance: _avoirTotal,
+      eplAmount: result.montantSouhaiteApplicable,
+      eplRepaid: 0,
+      currentAge: _age,
+      retirementAge: avsAgeReferenceHomme,
+      grossAnnualSalary: _grossAnnualSalary,
+      caisseReturn: lppTauxInteretMin / 100,
+      conversionRate: lppTauxConversionMinDecimal,
+    );
+    final screenReturn = ScreenReturn.completed(
+      route: '/epl',
+      stepOutputs: {
+        'montant_epl': result.montantSouhaiteApplicable,
+        'impact_rente': eplImpact.monthlyGapFromEpl,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('epl', screenReturn);
+  }
+
+  void _initializeFromProfile() {
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      if (!provider.hasProfile) return;
+      final profile = provider.profile!;
+      setState(() {
+        // LPP total balance
+        final lppTotal = profile.prevoyance.avoirLppTotal;
+        if (lppTotal != null && lppTotal > 0) _avoirTotal = lppTotal;
+
+        // Age
+        final age = profile.age;
+        if (age >= 25 && age <= avsAgeReferenceHomme) _age = age;
+
+        // Canton
+        if (cantonFullNames.containsKey(profile.canton)) {
+          _canton = profile.canton;
+        }
+
+        // Oblig / surob split from profile if available
+        final oblig = profile.prevoyance.avoirLppObligatoire;
+        final surob = profile.prevoyance.avoirLppSurobligatoire;
+        if (oblig != null && surob != null && (oblig + surob) > 0) {
+          _obligRatio = oblig / (oblig + surob);
+        }
+
+        // Gross annual salary
+        final revenu = profile.revenuBrutAnnuel;
+        if (revenu > 0) _grossAnnualSalary = revenu;
+      });
+    } catch (_) {
+      // Provider not in tree (tests) — keep defaults
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
@@ -61,7 +246,7 @@ class _EplScreenState extends State<EplScreen> {
             scrolledUnderElevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: () => safePop(context),
             ),
             title: Text(
               l.eplAppBarTitle,
@@ -72,6 +257,15 @@ class _EplScreenState extends State<EplScreen> {
             padding: const EdgeInsets.all(MintSpacing.lg),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
+                // Narrative intro
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeEplHeadline,
+                  body: S.of(context)!.narrativeEplBody,
+                  tone: MintSurfaceTone.bleu,
+                  badge: S.of(context)!.narrativeEplBadge,
+                )),
+                const SizedBox(height: MintSpacing.lg),
+
                 // Introduction
                 _buildIntroCard(l),
                 const SizedBox(height: MintSpacing.lg),
@@ -115,18 +309,14 @@ class _EplScreenState extends State<EplScreen> {
             ),
           ),
         ],
-      ),
-    );
+      ))),
+    ));
   }
 
   Widget _buildIntroCard(S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -155,50 +345,53 @@ class _EplScreenState extends State<EplScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             l.eplSectionParametres,
             style: MintTextStyles.bodySmall(color: MintColors.textMuted),
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Avoir total
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildSliderRow(
             label: l.eplLabelAvoirTotal,
             value: _avoirTotal,
             min: 0,
             max: 800000,
             divisions: 160,
             format: 'CHF ${formatChf(_avoirTotal)}',
-            onChanged: (v) => setState(() => _avoirTotal = v),
-          ),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _avoirTotal = v; }),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Age
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildSliderRow(
             label: l.eplLabelAge,
             value: _age.toDouble(),
             min: 25,
             max: 65,
             divisions: 40,
             format: l.eplLabelAgeFormat(_age),
-            onChanged: (v) => setState(() => _age = v.round()),
-          ),
+            onChanged: (v) => setState(() { _hasUserInteracted = true; _age = v.round(); }),
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Montant souhaite
-          _buildSliderRow(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSliderRow(
             label: l.eplLabelMontantSouhaite,
             value: _montantSouhaite,
             min: 20000,
             max: 500000,
             divisions: 96,
             format: 'CHF ${formatChf(_montantSouhaite)}',
-            onChanged: (v) => setState(() => _montantSouhaite = v),
-          ),
+            onChanged: (v) {
+              setState(() { _hasUserInteracted = true; _montantSouhaite = v; });
+              WidgetsBinding.instance.addPostFrameCallback((_) => _writeBackResult());
+            },
+          )),
           const SizedBox(height: MintSpacing.sm + 4),
 
           // Canton (pour l'impot sur retrait)
-          Row(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -219,12 +412,12 @@ class _EplScreenState extends State<EplScreen> {
                     );
                   }).toList(),
                   onChanged: (v) {
-                    if (v != null) setState(() => _canton = v);
+                    if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
                   },
                 ),
               ),
             ],
-          ),
+          )),
           const SizedBox(height: MintSpacing.md),
 
           // Rachats recents
@@ -253,6 +446,7 @@ class _EplScreenState extends State<EplScreen> {
                   value: _aRachete,
                   activeTrackColor: MintColors.primary,
                   onChanged: (v) => setState(() {
+                    _hasUserInteracted = true;
                     _aRachete = v;
                     if (!v) _anneesSDepuisRachat = 0;
                   }),
@@ -271,7 +465,7 @@ class _EplScreenState extends State<EplScreen> {
               divisions: 5,
               format: l.eplLabelAnneesSDepuisRachatFormat(_anneesSDepuisRachat, _anneesSDepuisRachat > 1 ? 's' : ''),
               onChanged: (v) =>
-                  setState(() => _anneesSDepuisRachat = v.round()),
+                  setState(() { _hasUserInteracted = true; _anneesSDepuisRachat = v.round(); }),
             ),
           ],
         ],
@@ -288,40 +482,21 @@ class _EplScreenState extends State<EplScreen> {
     required String format,
     required ValueChanged<double> onChanged,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-            Text(format, style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700)),
-          ],
-        ),
-        Semantics(
-          label: label,
-          value: format,
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            activeColor: MintColors.primary,
-            onChanged: onChanged,
-          ),
-        ),
-      ],
+    return MintPremiumSlider(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      divisions: divisions,
+      formatValue: (_) => format,
+      onChanged: onChanged,
     );
   }
 
   Widget _buildResultsSection(EplResult result, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -442,10 +617,10 @@ class _EplScreenState extends State<EplScreen> {
       eplAmount: result.montantSouhaiteApplicable,
       eplRepaid: 0,
       currentAge: _age,
-      retirementAge: 65,
-      grossAnnualSalary: 100000,
-      caisseReturn: 0.02,
-      conversionRate: 0.068,
+      retirementAge: avsAgeReferenceHomme,
+      grossAnnualSalary: _grossAnnualSalary,
+      caisseReturn: lppTauxInteretMin / 100,
+      conversionRate: lppTauxConversionMinDecimal,
     );
 
     final renteWithout = eplImpact.renteWithoutEpl / 12;
@@ -495,13 +670,9 @@ class _EplScreenState extends State<EplScreen> {
   }
 
   Widget _buildTaxCard(EplResult result, S l) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md + 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

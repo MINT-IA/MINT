@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/l10n/app_localizations_fr.dart';
 import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 
 void main() {
+  final s = SFr();
+
   group('buildLifeEventSuggestions', () {
     // Test 1: Young single person gets firstJob and marriage suggestions
     test('young single person gets firstJob and marriage suggestions', () {
@@ -12,11 +15,12 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 4500,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Mariage'));
-      expect(titles, contains('Premier emploi'));
+      expect(titles, contains(s.lifeEventSugMariage));
+      expect(titles, contains(s.lifeEventSugPremierEmploi));
     });
 
     // Test 2: Married couple with no children gets birth suggestion
@@ -28,10 +32,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 6000,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Naissance'));
+      expect(titles, contains(s.lifeEventSugNaissance));
     });
 
     // Test 3: High-income person gets housingPurchase suggestion
@@ -43,10 +48,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 8000,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Achat immobilier'));
+      expect(titles, contains(s.lifeEventSugAchatImmo));
     });
 
     // Test 4: Person in Geneva (high tax) gets cantonMove suggestion
@@ -58,10 +64,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 6000,
         canton: 'GE',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Déménagement cantonal'));
+      expect(titles, contains(s.lifeEventSugDemenagement));
     });
 
     // Test 5: Person age 55+ gets retirement suggestion
@@ -73,10 +80,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 7000,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Planification retraite'));
+      expect(titles, contains(s.lifeEventSugRetraite));
     });
 
     // Test 6: Concubinage status gets concubinage warning
@@ -88,12 +96,13 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 5000,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Concubinage'));
+      expect(titles, contains(s.lifeEventSugConcubinage));
       // Concubinage also qualifies for marriage suggestion
-      expect(titles, contains('Mariage'));
+      expect(titles, contains(s.lifeEventSugMariage));
     });
 
     // Test 7: Independent employment gets selfEmployment tools
@@ -105,21 +114,15 @@ void main() {
         employmentStatus: 'independent',
         monthlyNetIncome: 7000,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Outils indépendant'));
+      expect(titles, contains(s.lifeEventSugOutilsIndependant));
     });
 
     // Test 8: Max 5 suggestions returned
     test('max 5 suggestions returned', () {
-      // Use a profile that triggers many rules:
-      // concubinage (2 suggestions: Mariage + Concubinage),
-      // high income + age 25-50 (Achat immobilier),
-      // independent (Outils indépendant),
-      // high-tax canton (Déménagement cantonal),
-      // children or high income (Invalidité),
-      // age <= 28 (Premier emploi)
       final suggestions = buildLifeEventSuggestions(
         age: 27,
         civilStatus: 'concubinage',
@@ -127,6 +130,7 @@ void main() {
         employmentStatus: 'independent',
         monthlyNetIncome: 8000,
         canton: 'GE',
+        s: s,
       );
 
       expect(suggestions.length, lessThanOrEqualTo(5));
@@ -141,10 +145,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 6000,
         canton: 'ZH',
+        s: s,
       );
 
       final titles = suggestions.map((s) => s.title).toList();
-      expect(titles, contains('Planification successorale'));
+      expect(titles, contains(s.lifeEventSugSuccession));
     });
 
     // Test 10: Children or high income gets disability suggestion
@@ -157,10 +162,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 4000,
         canton: 'ZH',
+        s: s,
       );
       final titlesWithKids =
           suggestionsWithKids.map((s) => s.title).toList();
-      expect(titlesWithKids, contains('Invalidité'));
+      expect(titlesWithKids, contains(s.lifeEventSugInvalidite));
 
       // Without children but high income
       final suggestionsHighIncome = buildLifeEventSuggestions(
@@ -170,10 +176,11 @@ void main() {
         employmentStatus: 'employee',
         monthlyNetIncome: 7000,
         canton: 'ZH',
+        s: s,
       );
       final titlesHighIncome =
           suggestionsHighIncome.map((s) => s.title).toList();
-      expect(titlesHighIncome, contains('Invalidité'));
+      expect(titlesHighIncome, contains(s.lifeEventSugInvalidite));
     });
   });
 }

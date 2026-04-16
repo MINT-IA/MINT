@@ -1,16 +1,31 @@
-/// Constantes d'assurances sociales suisses — source unique de verite (Flutter).
+/// Constantes d'assurances sociales suisses — facade Flutter.
 ///
-/// Valeurs en vigueur: 2025
-/// Derniere mise a jour: 2025-01-01
+/// ARCHITECTURE (depuis PR #162):
+///   - Backend RegulatoryRegistry = source de verite unique
+///   - RegulatorySyncService.fetchConstants() synce au startup
+///   - Ce fichier fournit les FALLBACK offline (valeurs hardcodees)
+///   - [reg()] lit d'abord le cache sync, puis fallback sur la const
 ///
-/// IMPORTANT: Ce fichier est le miroir exact de:
-///   services/backend/app/constants/social_insurance.py
-///
-/// Procedure de mise a jour annuelle:
-/// 1. Mettre a jour le fichier Python (source de verite backend)
-/// 2. Reporter les memes valeurs ici
-/// 3. Lancer les tests Flutter: flutter test
+/// Valeurs fallback: 2025/2026
+/// Derniere mise a jour: 2026-03-26
 library;
+
+import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/services/regulatory_sync_service.dart';
+
+/// Read a constant from the synced backend cache, falling back to [fallback].
+///
+/// Usage: `reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)`
+/// Returns the backend-synced value if available, otherwise the local const.
+double reg(String key, double fallback) {
+  final cached = RegulatorySyncService.getCached(key);
+  if (cached != null) return cached;
+  // Fallback: backend cache not available for this key
+  if (kDebugMode) {
+    debugPrint('reg() FALLBACK: $key → $fallback (cache miss)');
+  }
+  return fallback;
+}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // LPP — Prevoyance professionnelle (2e pilier)
@@ -40,10 +55,10 @@ const double lppTauxConversionMin = 6.8;
 /// Ne jamais appliquer implicitement sur tout le capital LPP.
 const double lppTauxConversionMinDecimal = 0.068;
 
-/// Taux de conversion estime pour la part surobligatoire LPP.
-/// Estimation mediane 2025/2026 des caisses suisses (fourchette 4.8%-6.0%).
-/// Utilise comme fallback quand le certificat LPP ne precise pas le taux enveloppant.
-const double lppTauxConversionSurobligDecimal = 0.054;
+/// Taux de conversion blended pour la part complementaire LPP.
+/// ~60% obligatoire a 6.8% + ~40% surobligatoire a ~4.3% = ~5.8%.
+/// Aligne avec backend (source de verite): LPP_CONVERSION_RATE_COMPLEMENTAIRE = 0.058.
+const double lppTauxConversionSurobligDecimal = 0.058;
 
 /// Reduction du taux de conversion par annee de retraite anticipee.
 /// Pratique standard des caisses suisses: ~0.2 points de % par annee
@@ -67,12 +82,13 @@ const Map<String, double> lppBonificationsVieillesse = {
 };
 
 /// Retourne le taux de bonification LPP pour un age donne (LPP art. 16).
+/// Bonifications stop at reference retirement age 65.
 double getLppBonificationRate(int age) {
+  if (age > 65 || age < 25) return 0.0;
   if (age >= 55) return 0.18;
   if (age >= 45) return 0.15;
   if (age >= 35) return 0.10;
-  if (age >= 25) return 0.07;
-  return 0.0;
+  return 0.07;
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -104,6 +120,24 @@ const int avsAgeReferenceHomme = 65;
 /// Age de reference AVS femmes (depuis reforme AVS 21).
 const int avsAgeReferenceFemme = 65;
 
+/// AVS21 reference age by gender and birth year (LAVS art. 21 al. 1).
+///
+/// Women born 1961-1963 have transitional reference ages:
+/// - Born 1960 or earlier: 64 (pre-AVS21)
+/// - Born 1961: 64 years 3 months (simplified to 64 for annual calc)
+/// - Born 1962: 64 years 6 months (simplified to 64 for annual calc)
+/// - Born 1963: 64 years 9 months (simplified to 65 for annual calc)
+/// - Born 1964+: 65 (full AVS21 alignment)
+/// Men: 65 (unchanged).
+int avsReferenceAge({required int birthYear, required bool isFemale}) {
+  if (!isFemale) return avsAgeReferenceHomme; // 65
+  if (birthYear <= 1960) return 64;
+  if (birthYear == 1961) return 64; // +3 months (simplified to 64)
+  if (birthYear == 1962) return 64; // +6 months (simplified to 64)
+  if (birthYear == 1963) return 65; // +9 months (simplified to 65)
+  return avsAgeReferenceFemme; // 65
+}
+
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 
@@ -127,6 +161,39 @@ const double avsRAMDMin = 14700.0;
 
 /// RAMD maximum pour rente maximale (LAVS art. 34, echelle 44).
 const double avsRAMDMax = 88200.0;
+
+/// Echelle 44 complete (OFAS 2025) — fallback when backend is unreachable.
+/// Format: [[RAMD, rente_mensuelle], ...].
+/// Updated every 2 years by Federal Council (mixed index).
+/// Source: LAVS art. 34, OFAS tables de rentes 2023/2025.
+const List<List<double>> avsEchelle44 = [
+  [14700, 1260],
+  [17640, 1299],
+  [20580, 1338],
+  [23520, 1377],
+  [26460, 1416],
+  [29400, 1470],
+  [32340, 1524],
+  [35280, 1578],
+  [38220, 1632],
+  [41160, 1686],
+  [44100, 1743],
+  [47040, 1800],
+  [49980, 1857],
+  [52920, 1914],
+  [55860, 1971],
+  [58800, 2028],
+  [61740, 2085],
+  [64680, 2142],
+  [67620, 2199],
+  [70560, 2256],
+  [73500, 2313],
+  [76440, 2370],
+  [79380, 2427],
+  [82320, 2462],
+  [85260, 2491],
+  [88200, 2520],
+];
 
 /// Franchise AVS pour retraites actifs, mensuelle.
 const double avsFranchiseRetraiteMensuelle = 1400.0;
@@ -400,3 +467,40 @@ const int friThresholdBon = 60;
 
 /// FRI >= 40 : Attention (orange)
 const int friThresholdAttention = 40;
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Echelle 44 — Table officielle OFAS (rentes mensuelles AVS/AI)
+// Base legale: LAVS art. 34, Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025)
+// ══════════════════════════════════════════════════════════════════════════════
+
+// avsEchelle44 — defined above (line ~169). Do not duplicate.
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Projection — Hypothèses par défaut
+// Utilisées par RetirementProjectionService et d'autres services de projection.
+// ══════════════════════════════════════════════════════════════════════════════
+
+/// Taux d'indexation annuel des rentes AVS (hypothèse éducative).
+/// Historiquement ~1% par an (ajustement indice mixte prix/salaires).
+const double avsIndexationRate = 0.01;
+
+/// Taux d'inflation annuel par défaut (hypothèse éducative).
+/// Moyenne historique suisse longue période ~1-1.5%.
+const double defaultInflationRate = 0.015;
+
+/// Espérance de vie par défaut utilisée pour les projections de retraite.
+/// OFS 2023: hommes ~82, femmes ~85. Valeur prudente pour planification.
+const int defaultLifeExpectancy = 87;
+
+/// Taux de retrait sûr (Safe Withdrawal Rate) par défaut.
+/// Règle des 4% — Trinity Study adapté au contexte suisse.
+const double defaultSafeWithdrawalRate = 0.04;
+
+/// Gain assuré mensuel maximum AC (LACI art. 3).
+/// = acPlafondSalaireAssure / 12.
+/// Utilisé par UnemploymentService pour plafonner le gain assuré.
+const double acGainAssureMensuelMax = acPlafondSalaireAssure / 12;
+
+/// Seuil de salaire mensuel pour le taux majoré d'indemnités chômage (LACI art. 22).
+/// En dessous de ce seuil, taux 80% au lieu de 70%.
+const double acSeuilSalaireMajore = 3797.0;

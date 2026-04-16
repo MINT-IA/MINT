@@ -112,7 +112,7 @@ class HeroCoupleCard extends StatelessWidget {
               ),
               Text(
                 'Revenus combin\u00e9s \u00e0 la retraite',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -179,7 +179,7 @@ class HeroCoupleCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   name,
-                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -188,7 +188,7 @@ class HeroCoupleCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             formatChfWithPrefix(monthlyIncome),
-            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 20, fontWeight: FontWeight.w800, height: 1.0),
+            style: MintTextStyles.headlineSmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800, height: 1.0),
           ),
           const SizedBox(height: 2),
           Text(
@@ -262,12 +262,12 @@ class HeroCoupleCard extends StatelessWidget {
               children: [
                 Text(
                   'Total m\u00e9nage',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   formatChfWithPrefix(_householdTotal),
-                  style: MintTextStyles.headlineLarge(color: MintColors.primary).copyWith(fontSize: 28, fontWeight: FontWeight.w800, height: 1.0),
+                  style: MintTextStyles.displaySmall(color: MintColors.primary).copyWith(fontWeight: FontWeight.w800, height: 1.0),
                 ),
                 const SizedBox(height: 2),
                 Text(

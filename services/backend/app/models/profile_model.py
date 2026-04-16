@@ -4,7 +4,7 @@ Profile model - stores user profiles with all data as JSON.
 
 import json
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.mutable import MutableDict
@@ -33,10 +33,10 @@ class ProfileModel(Base):
     __tablename__ = "profiles"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=True)  # Nullable for anonymous profiles
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=True)  # Nullable for anonymous profiles
     data = Column(MutableDict.as_mutable(JSONEncodedDict), nullable=False)  # Store full profile as JSON
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationships
     user = relationship("User", back_populates="profiles")

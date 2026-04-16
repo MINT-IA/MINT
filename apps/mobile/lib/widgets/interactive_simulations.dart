@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart' show S;
 import 'dart:math' as math;
 import 'package:mint_mobile/constants/social_insurance.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Widget interactif pour simulation 3a avec curseurs
 class Interactive3aSimulation extends StatefulWidget {
@@ -54,6 +56,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context)!;
     final prudenceValue =
         _calculateFutureValue(_monthlyContribution, 1.0, _years);
     final centralValue =
@@ -92,7 +95,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Plafond 2026 : CHF ${_maxAnnual.toStringAsFixed(0)}/an',
+            'Plafond 2026 : ${formatChfWithPrefix(_maxAnnual)}/an',
             style:
                 const TextStyle(fontSize: 12, color: MintColors.textSecondary),
           ),
@@ -103,7 +106,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
 
           // Curseur 1 : Versement mensuel
           Text(
-            'Versement mensuel : CHF ${_monthlyContribution.toStringAsFixed(0)}',
+            'Versement mensuel : ${formatChfWithPrefix(_monthlyContribution)}',
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -130,7 +133,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Versement annuel (CHF ${_annualContribution.toStringAsFixed(0)}) dépasse le plafond (CHF ${_maxAnnual.toStringAsFixed(0)})',
+                      'Versement annuel (${formatChfWithPrefix(_annualContribution)}) dépasse le plafond (${formatChfWithPrefix(_maxAnnual)})',
                       style:
                           const TextStyle(fontSize: 11, color: MintColors.warning),
                     ),
@@ -187,21 +190,21 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           // Résultats
           _buildMetric(
             'Versement annuel',
-            'CHF ${math.min(_annualContribution, _maxAnnual).toStringAsFixed(0)}',
+            formatChfWithPrefix(math.min(_annualContribution, _maxAnnual)),
             Icons.trending_up,
             MintColors.primary,
           ),
           const SizedBox(height: 16),
           _buildMetric(
             'Économie d\'impôts (estimée)',
-            'CHF ${_taxSavings.toStringAsFixed(0)}/an',
+            '${formatChfWithPrefix(_taxSavings)}/an',
             Icons.savings,
             MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
             'Coût réel',
-            'CHF ${_realCost.toStringAsFixed(0)}/an',
+            '${formatChfWithPrefix(_realCost)}/an',
             Icons.account_balance_wallet,
             MintColors.textPrimary,
           ),
@@ -227,7 +230,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           const SizedBox(height: 16),
           _buildMetric(
             'Économies fiscales cumulées ($_years ans)',
-            'CHF ${totalTaxSavings.toStringAsFixed(0)}',
+            formatChfWithPrefix(totalTaxSavings),
             Icons.star,
             MintColors.amber,
           ),
@@ -240,14 +243,14 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: MintColors.orangeRetroWarm),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Icons.info_outline, size: 16, color: MintColors.warning),
-                SizedBox(width: 8),
+                const Icon(Icons.info_outline, size: 16, color: MintColors.warning),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Hypothèses pédagogiques. Rendements passés ne garantissent pas rendements futurs.',
-                    style: TextStyle(fontSize: 11, color: MintColors.warning),
+                    l.interactive3aDisclaimer,
+                    style: const TextStyle(fontSize: 11, color: MintColors.warning),
                   ),
                 ),
               ],
@@ -306,7 +309,7 @@ class _Interactive3aSimulationState extends State<Interactive3aSimulation> {
           ),
         ),
         Text(
-          'CHF ${value.toStringAsFixed(0)}',
+          formatChfWithPrefix(value),
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -391,7 +394,7 @@ class _InteractiveLppBuybackSimulationState
 
           // Curseur 1 : Montant rachat
           Text(
-            'Montant rachat : CHF ${_buybackAmount.toStringAsFixed(0)}',
+            'Montant rachat : ${formatChfWithPrefix(_buybackAmount)}',
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
@@ -435,21 +438,21 @@ class _InteractiveLppBuybackSimulationState
           // Résultats
           _buildMetric(
             'Rachat',
-            'CHF ${_buybackAmount.toStringAsFixed(0)}',
+            formatChfWithPrefix(_buybackAmount),
             Icons.trending_up,
             MintColors.primary,
           ),
           const SizedBox(height: 16),
           _buildMetric(
             'Économie d\'impôts (estimée)',
-            'CHF ${_taxSavings.toStringAsFixed(0)}',
+            formatChfWithPrefix(_taxSavings),
             Icons.savings,
             MintColors.success,
           ),
           const SizedBox(height: 16),
           _buildMetric(
             'Coût réel',
-            'CHF ${_realCost.toStringAsFixed(0)}',
+            formatChfWithPrefix(_realCost),
             Icons.account_balance_wallet,
             MintColors.textPrimary,
           ),
@@ -571,7 +574,7 @@ class _InteractiveLppBuybackSimulationState
           ),
         ),
         Text(
-          '+CHF ${annualPension.toStringAsFixed(0)}/an',
+          '+${formatChfWithPrefix(annualPension)}/an',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,

@@ -7,7 +7,10 @@ POST /api/v1/assurances/coverage/check — Coverage checklist
 Sprint S13, Chantier 7: Assurances completes.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from app.core.auth import require_current_user
+from app.models.user import User
 from app.schemas.assurances import (
     LamalFranchiseRequest,
     LamalFranchiseResponse,
@@ -34,7 +37,7 @@ _coverage_service = CoverageChecklistService()
 
 
 @router.post("/lamal/optimize", response_model=LamalFranchiseResponse)
-def optimize_franchise(request: LamalFranchiseRequest) -> LamalFranchiseResponse:
+def optimize_franchise(request: LamalFranchiseRequest, _user: User = Depends(require_current_user)) -> LamalFranchiseResponse:
     """Optimize LAMal franchise based on health expenses and premium.
 
     This stateless endpoint performs no data storage -- all computation
@@ -92,7 +95,7 @@ def optimize_franchise(request: LamalFranchiseRequest) -> LamalFranchiseResponse
 
 
 @router.post("/coverage/check", response_model=CoverageCheckResponse)
-def check_coverage(request: CoverageCheckRequest) -> CoverageCheckResponse:
+def check_coverage(request: CoverageCheckRequest, _user: User = Depends(require_current_user)) -> CoverageCheckResponse:
     """Evaluate insurance coverage and generate personalized checklist.
 
     This stateless endpoint performs no data storage -- all computation

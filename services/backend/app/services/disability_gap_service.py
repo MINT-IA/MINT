@@ -137,7 +137,7 @@ class DisabilityGapResult:
     lpp_disability_benefit: float
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str]
 
@@ -313,12 +313,12 @@ def compute_disability_gap(
     worst_gap = max(phase1_gap, phase2_gap, phase3_gap)
     if revenu_mensuel_net > 0:
         pct = worst_gap / revenu_mensuel_net * 100
-        chiffre_choc = (
+        premier_eclairage = (
             f"Ton gap mensuel serait de {_format_chf(worst_gap)} CHF "
             f"— soit {pct:.0f}% de ton revenu actuel"
         )
     else:
-        chiffre_choc = "Aucun revenu declare — le gap est nul"
+        premier_eclairage = "Aucun revenu declare — le gap est nul"
 
     return DisabilityGapResult(
         revenu_actuel=revenu_mensuel_net,
@@ -334,7 +334,7 @@ def compute_disability_gap(
         alerts=alerts,
         ai_rente_mensuelle=ai_rente_mensuelle,
         lpp_disability_benefit=lpp_disability_benefit,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=SOURCES,
     )

@@ -2,7 +2,7 @@
 Household models for Couple+ billing (P6).
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 from sqlalchemy import (
     Column,
@@ -23,14 +23,14 @@ class HouseholdModel(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
     household_owner_user_id = Column(
-        String, ForeignKey("users.id"), nullable=False, index=True
+        String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     billing_owner_user_id = Column(
-        String, ForeignKey("users.id"), nullable=False, index=True
+        String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False
     )
 
     household_owner = relationship("User", foreign_keys=[household_owner_user_id])
@@ -57,11 +57,11 @@ class HouseholdMemberModel(Base):
     household_id = Column(
         String, ForeignKey("households.id"), nullable=False, index=True
     )
-    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     role = Column(String, nullable=False, default="owner")
     status = Column(String, nullable=False, default="pending")
     invitation_code = Column(String, nullable=True, unique=True, index=True)
-    invited_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    invited_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     accepted_at = Column(DateTime, nullable=True)
     cooldown_override = Column(Boolean, default=False, nullable=False)
 
@@ -74,10 +74,10 @@ class AdminAuditEventModel(Base):
     __tablename__ = "admin_audit_events"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    admin_user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    admin_user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     action = Column(String, nullable=False, index=True)
     target_user_id = Column(String, nullable=False, index=True)
     reason = Column(Text, nullable=False)  # min 10 chars enforced at service level
     ip_address = Column(String, nullable=True)
     user_agent = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)

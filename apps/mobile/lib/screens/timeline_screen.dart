@@ -4,6 +4,8 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LIFE EVENT DEFINITION
@@ -248,7 +250,7 @@ List<_QuickAction> _buildQuickActionItems(BuildContext context) {
       title: s.timelineQuickCheckupTitle,
       subtitle: s.timelineQuickCheckupSub,
       icon: Icons.shield_outlined,
-      route: '/onboarding/quick',
+      route: '/coach/chat',
       color: MintColors.primary,
     ),
     _QuickAction(
@@ -288,7 +290,7 @@ class TimelineScreen extends StatelessWidget {
     final categories = _buildCategories(context);
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverToBoxAdapter(child: _buildTimelineHeader(context)),
@@ -322,7 +324,7 @@ class TimelineScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -334,7 +336,7 @@ class TimelineScreen extends StatelessWidget {
       elevation: 0,
       title: Text(
         s.timelineTitle,
-        style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+        style: MintTextStyles.titleLarge(),
       ),
     );
   }
@@ -385,25 +387,14 @@ class TimelineScreen extends StatelessWidget {
       button: true,
       child: GestureDetector(
         onTap: () => context.push(action.route),
-        child: Container(
-          width: 150,
-          padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: action.color.withValues(alpha: 0.25)),
-          boxShadow: [
-            BoxShadow(
-              color: action.color.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
+        child: MintSurface(
+        padding: const EdgeInsets.all(14),
+        radius: 16,
+        elevated: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MintEntrance(child: Container(
               width: 32,
               height: 32,
               decoration: BoxDecoration(
@@ -411,21 +402,21 @@ class TimelineScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(action.icon, color: action.color, size: 18),
-            ),
+            )),
             const Spacer(),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
               action.title,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(
                 fontWeight: FontWeight.w700,
               ),
-            ),
+            )),
             const SizedBox(height: MintSpacing.xs),
-            Text(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Text(
               action.subtitle,
               style: MintTextStyles.micro(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-            ),
+            )),
           ],
         ),
       ),
@@ -494,13 +485,9 @@ class TimelineScreen extends StatelessWidget {
         child: InkWell(
           onTap: () => context.push(event.route),
           borderRadius: BorderRadius.circular(14),
-        child: Container(
+        child: MintSurface(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: MintColors.lightBorder),
-          ),
+          radius: 14,
           child: Row(
             children: [
               Container(

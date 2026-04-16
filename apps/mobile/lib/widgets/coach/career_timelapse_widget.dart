@@ -145,7 +145,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
                   'de moins \u00e0 65 ans.\n'
                   'Les int\u00e9r\u00eats compos\u00e9s sont ton alli\u00e9 \u2014 '
                   'mais seulement si tu commences t\u00f4t.',
-                  style: MintTextStyles.labelSmall(color: MintColors.scoreCritique).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.scoreCritique).copyWith(fontWeight: FontWeight.w500, height: 1.4),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -174,7 +174,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
             width: 50,
             child: Text(
               '${s.startAge} ans',
-              style: MintTextStyles.labelSmall(color: isSelected ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400),
+              style: MintTextStyles.labelMedium(color: isSelected ? MintColors.primary : MintColors.textMuted).copyWith(fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400),
             ),
           ),
           Expanded(
@@ -199,7 +199,7 @@ class _CareerTimeLapseWidgetState extends State<CareerTimeLapseWidget> {
             child: Text(
               formatChfCompact(s.capitalAt65),
               textAlign: TextAlign.right,
-              style: MintTextStyles.labelSmall(color: isSelected ? MintColors.primary : MintColors.textMuted).copyWith(fontSize: 12, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500),
+              style: MintTextStyles.labelMedium(color: isSelected ? MintColors.primary : MintColors.textMuted).copyWith(fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500),
             ),
           ),
         ],

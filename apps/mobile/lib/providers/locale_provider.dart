@@ -30,9 +30,8 @@ class LocaleProvider extends ChangeNotifier {
     if (!MintLocales.isSupported(newLocale.languageCode)) return;
 
     _locale = newLocale;
-    notifyListeners();
-
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefKey, newLocale.languageCode);
+    notifyListeners();
   }
 }

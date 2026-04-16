@@ -2,42 +2,172 @@
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/context-monitor.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|MultiEdit|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/gsd-context-monitor.js",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/gsd-phase-boundary.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/gsd-check-update.js"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/gsd-session-state.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/gsd-prompt-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/gsd-read-guard.js",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/gsd-validate-commit.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
   "permissions": {
     "allow": [
-      "Bash(flutter test:*)",
-      "Bash(flutter analyze:*)",
-      "Bash(flutter pub:*)",
-      "Bash(flutter gen-l10n:*)",
-      "Bash(pytest:*)",
-      "Bash(ruff:*)",
+      "Bash(git:*)",
+      "Bash(flutter:*)",
+      "Bash(dart:*)",
       "Bash(python3:*)",
       "Bash(python:*)",
+      "Bash(pytest:*)",
       "Bash(pip:*)",
-      "Bash(git status:*)",
-      "Bash(git diff:*)",
-      "Bash(git log:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(ls:*)",
+      "Bash(ruff:*)",
+      "Bash(npm:*)",
+      "Bash(curl:*)",
+      "Bash(gh:*)",
       "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
       "Bash(cat:*)",
+      "Bash(echo:*)",
       "Bash(head:*)",
       "Bash(tail:*)",
-      "Bash(mkdir:*)",
-      "Bash(find:*)",
       "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
       "Bash(wc:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(diff:*)",
+      "Bash(xargs:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(touch:*)",
+      "Bash(chmod:*)",
+      "Bash(sh:*)",
+      "Bash(bash:*)",
+      "Bash(zsh:*)",
+      "Bash(for:*)",
+      "Bash(TESTING=*)",
+      "Bash(DATABASE_URL=*)",
+      "Bash(xxd:*)",
+      "Bash(node:*)",
+      "Bash(npx:*)",
+      "Bash(bun:*)",
+      "Bash(uvicorn:*)",
+      "Bash(pwd:*)",
+      "Bash(which:*)",
+      "Bash(env:*)",
+      "Bash(export:*)",
+      "Bash(source:*)",
+      "Bash(true:*)",
+      "Bash(false:*)",
+      "Bash(test:*)",
+      "Bash([[:*)",
+      "Bash(printf:*)",
+      "Bash(tr:*)",
+      "Bash(cut:*)",
+      "Bash(tee:*)",
+      "Bash(dirname:*)",
+      "Bash(basename:*)",
+      "Bash(realpath:*)",
+      "Bash(mktemp:*)",
+      "Bash(stat:*)",
+      "Bash(date:*)",
+      "Bash(nvm:*)",
       "Read",
       "Edit",
       "Write",
       "Glob",
-      "Grep"
+      "Grep",
+      "Agent",
+      "Task",
+      "Skill",
+      "WebFetch",
+      "WebSearch"
     ],
     "deny": [
-      "Bash(rm -rf:*)",
+      "Bash(rm -rf /:*)",
       "Bash(git push --force:*)",
       "Bash(git reset --hard:*)"
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node .claude/hooks/gsd-statusline.js"
   }
 }

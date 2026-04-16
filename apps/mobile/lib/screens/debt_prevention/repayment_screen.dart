@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -8,6 +12,9 @@ import 'package:mint_mobile/services/debt_prevention_service.dart';
 import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 import 'package:mint_mobile/widgets/coach/debt_survival_widget.dart';
 import 'package:mint_mobile/widgets/common/debt_tools_nav.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Ecran de planification du remboursement de dettes.
 ///
@@ -21,6 +28,61 @@ class RepaymentScreen extends StatefulWidget {
 }
 
 class _RepaymentScreenState extends State<RepaymentScreen> {
+  bool _hasUserInteracted = false;
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _readSequenceContext();
+    });
+  }
+
+  void _readSequenceContext() {
+    try {
+      final extra = GoRouterState.of(context).extra;
+      if (extra is Map<String, dynamic>) {
+        _seqRunId = extra['runId'] as String?;
+        _seqStepId = extra['stepId'] as String?;
+      }
+    } catch (_) {
+      // Not navigated via GoRouter or no extra — stay Tier B.
+    }
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      final screenReturn = ScreenReturn.abandoned(
+        route: '/debt/repayment',
+        runId: _seqRunId,
+        stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      );
+      ScreenCompletionTracker.markCompletedWithReturn('repayment', screenReturn);
+      return;
+    }
+
+    final result = _result;
+    final screenReturn = ScreenReturn.completed(
+      route: '/debt/repayment',
+      stepOutputs: {
+        'horizon_mois': result?.avalanche.moisJusquaLiberation ?? 0,
+        'versement_mensuel': _budgetMensuel,
+      },
+      runId: _seqRunId,
+      stepId: _seqStepId,
+      eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+    );
+    ScreenCompletionTracker.markCompletedWithReturn('repayment', screenReturn);
+  }
+
   final List<_DebtInput> _dettes = [
     _DebtInput(
       nom: 'Credit conso',
@@ -60,7 +122,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
   Widget build(BuildContext context) {
     final result = _result;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.white,
       body: CustomScrollView(
         slivers: [
@@ -73,7 +139,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             foregroundColor: MintColors.textPrimary,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-              onPressed: () => context.pop(),
+              onPressed: () => safePop(context),
             ),
             title: Text(
               S.of(context)!.repaymentTitle,
@@ -85,23 +151,23 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── P10-F : Mode survie MINT ──────────────────────
-                DebtSurvivalWidget(
+                MintEntrance(child: DebtSurvivalWidget(
                   totalDebt: _dettes.fold<double>(0, (s, d) => s + d.montant),
                   monthlyMargin: _budgetMensuel -
                       _dettes.fold<double>(0, (s, d) => s + d.mensualiteMin),
                   daysSinceLastLate: 0,
                   monthlyIncome: 6000,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Chiffre choc
                 if (result != null) ...[
-                  _buildChiffreChoc(result),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairage(result)),
                   const SizedBox(height: MintSpacing.lg),
                 ],
 
                 // Liste des dettes
-                _buildDettesSection(),
+                MintEntrance(delay: const Duration(milliseconds: 150), child: _buildDettesSection()),
                 const SizedBox(height: MintSpacing.lg),
 
                 // Budget mensuel
@@ -110,13 +176,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
 
                 // Comparaison strategies
                 if (result != null) ...[
-                  _buildComparisonSection(result),
+                  MintEntrance(child: _buildComparisonSection(result)),
                   const SizedBox(height: MintSpacing.sm + 4),
                   _buildStrategyNote(),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Timeline
-                  _buildTimelineSection(result),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTimelineSection(result)),
                   const SizedBox(height: MintSpacing.lg),
 
                   // Disclaimer
@@ -134,11 +200,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
-  Widget _buildChiffreChoc(RepaymentComparisonResult result) {
-    final color = switch (result.chiffreChoc.niveau) {
+  Widget _buildPremierEclairage(RepaymentComparisonResult result) {
+    final color = switch (result.premierEclairage.niveau) {
       DebtRiskLevel.vert => MintColors.success,
       DebtRiskLevel.orange => MintColors.warning,
       DebtRiskLevel.rouge => MintColors.error,
@@ -150,37 +216,41 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         ? result.avalanche
         : result.bouleDeNeige;
 
-    return Container(
+    final tone = switch (result.premierEclairage.niveau) {
+      DebtRiskLevel.vert => MintSurfaceTone.sauge,
+      DebtRiskLevel.orange => MintSurfaceTone.peche,
+      DebtRiskLevel.rouge => MintSurfaceTone.blanc,
+    };
+
+    return MintSurface(
+      tone: tone,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.2)],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 2),
-      ),
-      child: Column(
-        children: [
-          Text(
-            S.of(context)!.repaymentLibereDans,
-            style: MintTextStyles.bodySmall(color: color)
-                .copyWith(fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            '${strategiePrioritaire.moisJusquaLiberation} mois',
-            style: MintTextStyles.displayMedium(color: color),
-          ),
-          const SizedBox(height: 4),
-          if (result.economieInterets > 0)
+      child: Semantics(
+        label: S.of(context)!.semanticsRepaymentFreeIn(strategiePrioritaire.moisJusquaLiberation),
+        child: Column(
+          children: [
             Text(
-              S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
-              style: TextStyle(
-                fontSize: 12,
-                color: color,
-              ),
+              S.of(context)!.repaymentLibereDans,
+              style: MintTextStyles.bodySmall(color: color)
+                  .copyWith(fontWeight: FontWeight.w600),
             ),
-        ],
+            const SizedBox(height: MintSpacing.sm),
+            MintHeroNumber(
+              value: '${strategiePrioritaire.moisJusquaLiberation}',
+              caption: 'mois',
+              color: color,
+            ),
+            const SizedBox(height: 4),
+            if (result.economieInterets > 0)
+              Text(
+                S.of(context)!.repaymentDiffStrategies(formatChf(result.economieInterets)),
+                style: TextStyle(
+                  fontSize: 12,
+                  color: color,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -266,19 +336,23 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                       color: MintColors.textMuted.withValues(alpha: 0.5),
                     ),
                   ),
-                  onChanged: (v) => setState(() => dette.nom = v),
+                  onChanged: (v) => setState(() { _hasUserInteracted = true; dette.nom = v; }),
                 ),
               ),
-              GestureDetector(
-                onTap: () => setState(() => _dettes.removeAt(index)),
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: MintColors.redBg,
-                    borderRadius: BorderRadius.circular(8),
+              Semantics(
+                button: true,
+                label: S.of(context)!.semanticsRepaymentDeleteDebt(dette.nom),
+                child: GestureDetector(
+                  onTap: () => setState(() => _dettes.removeAt(index)),
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: MintColors.redBg,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const ExcludeSemantics(child: Icon(Icons.close,
+                        color: MintColors.redMedium, size: 14)),
                   ),
-                  child: const Icon(Icons.close,
-                      color: MintColors.redMedium, size: 14),
                 ),
               ),
             ],
@@ -299,7 +373,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     min: 500,
                     max: 100000,
                     prefix: 'CHF',
-                    onChanged: (v) => setState(() => dette.montant = v),
+                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.montant = v; }),
                   ),
                 ),
               ),
@@ -317,7 +391,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     prefix: '',
                     suffix: '%',
                     decimals: true,
-                    onChanged: (v) => setState(() => dette.tauxAnnuel = v),
+                    onChanged: (v) => setState(() { _hasUserInteracted = true; dette.tauxAnnuel = v; }),
                   ),
                 ),
               ),
@@ -334,7 +408,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     max: 3000,
                     prefix: 'CHF',
                     onChanged: (v) =>
-                        setState(() => dette.mensualiteMin = v),
+                        setState(() { _hasUserInteracted = true; dette.mensualiteMin = v; }),
                   ),
                 ),
               ),
@@ -404,7 +478,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
+      backgroundColor: MintColors.transparent,
       builder: (ctx) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(ctx).viewInsets.bottom,
@@ -440,7 +517,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     Text(
                       '$prefix ',
                       style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                          .copyWith(fontSize: 28),
+                          ,
                     ),
                   SizedBox(
                     width: 150,
@@ -462,7 +539,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     Text(
                       ' $suffix',
                       style: MintTextStyles.headlineMedium(color: MintColors.textMuted)
-                          .copyWith(fontSize: 28),
+                          ,
                     ),
                 ],
               ),
@@ -478,10 +555,14 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              SizedBox(
+              Semantics(
+                button: true,
+                label: S.of(context)!.semanticsRepaymentValidate,
+                child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () {
+                    HapticFeedback.lightImpact();
                     final parsed = double.tryParse(
                       controller.text
                           .replaceAll("'", '')
@@ -508,13 +589,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     ),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 8),
             ],
           ),
         ),
       ),
-    );
+    ).then((_) => controller.dispose());
   }
 
   void _addDebt() {
@@ -536,46 +617,50 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
         min: 200,
         max: 5000,
         prefix: 'CHF',
-        onChanged: (v) => setState(() => _budgetMensuel = v),
+        onChanged: (v) => setState(() { _hasUserInteracted = true; _budgetMensuel = v; }),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: MintColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+      child: Semantics(
+        button: true,
+        label: S.of(context)!.semanticsRepaymentBudget(formatChf(_budgetMensuel)),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: MintColors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: MintColors.primary.withValues(alpha: 0.2)),
+          ),
+          child: Row(
+            children: [
+              ExcludeSemantics(child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: MintColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.payments_outlined,
+                    color: MintColors.primary, size: 22),
+              )),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.of(context)!.repaymentBudgetLabel,
+                      style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
+                      style: MintTextStyles.headlineMedium(color: MintColors.primary),
+                    ),
+                  ],
+                ),
               ),
-              child: const Icon(Icons.payments_outlined,
-                  color: MintColors.primary, size: 22),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    S.of(context)!.repaymentBudgetLabel,
-                    style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    S.of(context)!.repaymentBudgetDisplay(formatChf(_budgetMensuel)),
-                    style: MintTextStyles.headlineMedium(color: MintColors.primary),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.edit_outlined,
-                color: MintColors.textMuted, size: 18),
-          ],
+              const ExcludeSemantics(child: Icon(Icons.edit_outlined,
+                  color: MintColors.textMuted, size: 18)),
+            ],
+          ),
         ),
       ),
     );
@@ -661,7 +746,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
     required double interets,
     required IconData icon,
   }) {
-    return Container(
+    return Semantics(
+      label: S.of(context)!.semanticsRepaymentStrategy(title, mois, formatChf(interets)),
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.white,
@@ -713,7 +800,7 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildComparisonRow(
@@ -779,13 +866,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
       sampled.add(timeline.last);
     }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
+      elevated: true,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

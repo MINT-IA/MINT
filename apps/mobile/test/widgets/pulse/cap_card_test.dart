@@ -6,13 +6,12 @@ import 'package:mint_mobile/models/cap_decision.dart';
 import 'package:mint_mobile/widgets/pulse/cap_card.dart';
 
 // ────────────────────────────────────────────────────────────────
-//  CAP CARD — Widget Tests
+//  CAP CARD — Widget Tests (UX P2 simplified)
 // ────────────────────────────────────────────────────────────────
 //
 //  Validates:
-//  - Renders headline, whyNow, CTA, expectedImpact, confidenceLabel
-//  - Kind pill shows correct label and color
-//  - Feedback pill shows when recentActionLabel provided
+//  - Renders headline, whyNow, CTA, expectedImpact
+//  - Kind pill, feedback pill, confidence label REMOVED (UX P2)
 //  - Lisible en 3 secondes (no visual clutter)
 // ────────────────────────────────────────────────────────────────
 
@@ -109,68 +108,62 @@ void main() {
       expect(find.byIcon(Icons.trending_up_rounded), findsNothing);
     });
 
-    testWidgets('renders confidence label when set', (tester) async {
+    testWidgets('does not render confidence label (removed UX P2)',
+        (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(cap: _makeCap(confidenceLabel: 'confiance 72\u00a0%')),
       ));
 
-      expect(find.text('confiance 72\u00a0%'), findsOneWidget);
-    });
-
-    testWidgets('hides confidence label when null', (tester) async {
-      await tester.pumpWidget(_wrap(
-        CapCard(cap: _makeCap(confidenceLabel: null)),
-      ));
-
-      // No micro text for confidence
-      expect(find.text('confiance'), findsNothing);
+      // UX P2: confidence label removed from CapCard (belongs on projection screens)
+      expect(find.text('confiance 72\u00a0%'), findsNothing);
     });
   });
 
-  group('CapCard — kind pill', () {
-    testWidgets('shows Optimiser for optimize kind', (tester) async {
+  group('CapCard — kind pill removed (UX P2)', () {
+    testWidgets('does not show kind pill for optimize', (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(cap: _makeCap(kind: CapKind.optimize)),
       ));
 
-      expect(find.text('Optimiser'), findsOneWidget);
+      // UX P2: kindPill removed — internal taxonomy not shown to user
+      expect(find.text('Optimiser'), findsNothing);
     });
 
-    testWidgets('shows Compléter for complete kind', (tester) async {
+    testWidgets('does not show kind pill for complete', (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(cap: _makeCap(kind: CapKind.complete)),
       ));
 
-      expect(find.text('Compléter'), findsOneWidget);
+      expect(find.text('Compléter'), findsNothing);
     });
 
-    testWidgets('shows Corriger for correct kind', (tester) async {
+    testWidgets('does not show kind pill for correct', (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(cap: _makeCap(kind: CapKind.correct)),
       ));
 
-      expect(find.text('Corriger'), findsOneWidget);
+      expect(find.text('Corriger'), findsNothing);
     });
 
-    testWidgets('shows Sécuriser for secure kind', (tester) async {
+    testWidgets('does not show kind pill for secure', (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(cap: _makeCap(kind: CapKind.secure)),
       ));
 
-      expect(find.text('Sécuriser'), findsOneWidget);
+      expect(find.text('Sécuriser'), findsNothing);
     });
 
-    testWidgets('shows Préparer for prepare kind', (tester) async {
+    testWidgets('does not show kind pill for prepare', (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(cap: _makeCap(kind: CapKind.prepare)),
       ));
 
-      expect(find.text('Préparer'), findsOneWidget);
+      expect(find.text('Préparer'), findsNothing);
     });
   });
 
-  group('CapCard — feedback pill', () {
-    testWidgets('shows feedback pill when recentActionLabel set',
+  group('CapCard — feedback pill removed (UX P2)', () {
+    testWidgets('does not show feedback pill even when label set',
         (tester) async {
       await tester.pumpWidget(_wrap(
         CapCard(
@@ -179,8 +172,9 @@ void main() {
         ),
       ));
 
-      expect(find.text('Ajouté hier'), findsOneWidget);
-      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
+      // UX P2: feedbackPill removed from card (moved to snackbar)
+      expect(find.text('Ajouté hier'), findsNothing);
+      expect(find.byIcon(Icons.check_circle_outline_rounded), findsNothing);
     });
 
     testWidgets('no feedback pill when recentActionLabel null',

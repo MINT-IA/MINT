@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:flutter/services.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 typedef AdminMapLoader = Future<Map<String, dynamic>> Function({int days});
 typedef AdminCsvLoader = Future<String> Function({int days});
@@ -86,7 +89,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.adminObsExportFailed}: $e')),
+        SnackBar(content: Text(l10n.adminObsExportFailed)),
       );
     }
   }
@@ -125,8 +128,8 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: _loading
+          ? const MintLoadingSkeleton()
           : _error != null
               ? _buildError(l10n)
               : RefreshIndicator(
@@ -134,15 +137,15 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(MintSpacing.md),
                     children: [
-                      _buildHeaderControls(l10n),
+                      MintEntrance(child: _buildHeaderControls(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      _buildObsCard(l10n),
+                      MintEntrance(delay: const Duration(milliseconds: 100), child: _buildObsCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      _buildQualityCard(l10n),
+                      MintEntrance(delay: const Duration(milliseconds: 200), child: _buildQualityCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      _buildCohortsCard(l10n),
+                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCohortsCard(l10n)),
                       const SizedBox(height: MintSpacing.sm + 4),
-                      Semantics(
+                      MintEntrance(delay: const Duration(milliseconds: 400), child: Semantics(
                         label: l10n.adminObsExportCsv,
                         button: true,
                         child: OutlinedButton.icon(
@@ -150,10 +153,10 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
                           icon: const Icon(Icons.download_outlined),
                           label: Text(l10n.adminObsExportCsv),
                         ),
-                      ),
+                      )),
                     ],
                   ),
-                ),
+                ))),
     );
   }
 
@@ -243,7 +246,7 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
         children: [
           Text(
             '${score.toStringAsFixed(1)} / 100',
-            style: MintTextStyles.displayMedium().copyWith(fontSize: 28),
+            style: MintTextStyles.displaySmall(),
           ),
           const SizedBox(height: MintSpacing.sm),
           LinearProgressIndicator(
@@ -311,13 +314,9 @@ class _AdminObservabilityScreenState extends State<AdminObservabilityScreen> {
   }
 
   Widget _chip(String label, String value) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.sm + 2, vertical: 7),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(9),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 9,
       child: Text(
         '$label: $value',
         style: MintTextStyles.labelSmall(
@@ -336,19 +335,15 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 14,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+            style: MintTextStyles.labelLarge(),
           ),
           const SizedBox(height: MintSpacing.sm + 2),
           child,

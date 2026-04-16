@@ -60,7 +60,7 @@ class ComprendreSection extends StatelessWidget {
         children: [
           Text(
             l.pulseComprendreTitle,
-            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -114,7 +114,7 @@ class ComprendreSection extends StatelessWidget {
                       ),
                       Text(
                         item.subtitle,
-                        style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textMuted),
                       ),
                     ],
                   ),

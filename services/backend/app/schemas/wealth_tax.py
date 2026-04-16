@@ -67,7 +67,7 @@ class WealthTaxEstimateResponse(BaseModel):
     taux_effectif_permille: float = Field(
         ..., description="Taux effectif en pour mille"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -142,7 +142,7 @@ class WealthTaxComparisonResponse(BaseModel):
     ecart_max: float = Field(
         ..., description="Ecart entre le canton le moins cher et le plus cher (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(
@@ -217,7 +217,7 @@ class WealthTaxMoveResponse(BaseModel):
     economie_10_ans: float = Field(
         ..., description="Economie cumulee sur 10 ans (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     alertes: List[str] = Field(
@@ -278,7 +278,7 @@ class ChurchTaxEstimateResponse(BaseModel):
     impot_eglise: float = Field(
         ..., description="Impot ecclesiastique estime (CHF)"
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique"
     )
     disclaimer: str = Field(

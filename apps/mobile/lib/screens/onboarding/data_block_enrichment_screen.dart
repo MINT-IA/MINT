@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
@@ -10,6 +12,8 @@ import 'package:mint_mobile/services/cross_validation_service.dart';
 import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Data block enrichment screen — deep-edit a specific confidence bloc.
 ///
@@ -84,14 +88,14 @@ class _DataBlockEnrichmentScreenState
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => safePop(context),
         ),
         title: Text(
           meta.title,
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
         ),
       ),
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
@@ -100,37 +104,36 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 16),
 
               // ── Block score indicator ────────────────────────────
-              if (bloc != null) _BlockScoreBar(bloc: bloc),
+              if (bloc != null) MintEntrance(child: _BlockScoreBar(bloc: bloc)),
               const SizedBox(height: 24),
 
               // ── Coach mode toggle ───────────────────────────────
-              _CoachModeToggle(
+              MintEntrance(delay: const Duration(milliseconds: 100), child: _CoachModeToggle(
                 isCoachMode: _showCoachMode,
                 coachAvailable: coachAvailable,
                 onToggle: (value) {
                   if (value) {
-                    // Navigate to coach chat with contextual prompt
-                    final prompt = _coachPromptForBlock(canonicalBlockType);
-                    context.push('/coach/chat?prompt=${Uri.encodeComponent(prompt)}');
+                    // Navigate to coach chat with structured topic
+                    context.push('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
                   } else {
                     setState(() => _showCoachMode = false);
                   }
                 },
-              ),
+              )),
               const SizedBox(height: 16),
 
               // ── Description ─────────────────────────────────────
               ...[
-                Text(
+                MintEntrance(delay: const Duration(milliseconds: 150), child: Text(
                   meta.description,
                   style: MintTextStyles.bodyMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
-                ),
+                )),
                 const SizedBox(height: 24),
               ],
 
               // ── Enrichment prompts for this block ────────────────
               if (profile != null) ...[
-                _buildPrompts(profile, canonicalBlockType, bloc),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPrompts(profile, canonicalBlockType, bloc)),
               ],
 
               // ── Cross-validation alerts ────────────────────────────
@@ -141,16 +144,20 @@ class _DataBlockEnrichmentScreenState
               const SizedBox(height: 32),
 
               // ── CTA ──────────────────────────────────────────────
-              SizedBox(
+              Semantics(
+                button: true,
+                label: meta.ctaLabel,
+                child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: () {
+                    HapticFeedback.lightImpact();
                     // Navigate to the appropriate enrichment flow
                     final route = _enrichmentRoute(canonicalBlockType);
                     if (route != null) {
                       context.push(route);
                     } else {
-                      context.pop();
+                      safePop(context);
                     }
                   },
                   style: FilledButton.styleFrom(
@@ -166,20 +173,20 @@ class _DataBlockEnrichmentScreenState
                     style: MintTextStyles.titleMedium().copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
-              ),
+              )),
               const SizedBox(height: 16),
 
               // ── Disclaimer ───────────────────────────────────────
-              Text(
+              MintEntrance(child: Text(
                 S.of(context)!.dataBlockDisclaimer,
                 style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(height: 1.4),
                 textAlign: TextAlign.center,
-              ),
+              )),
               const SizedBox(height: 16),
             ],
           ),
         ),
-      ),
+      ))),
     );
   }
 
@@ -192,13 +199,9 @@ class _DataBlockEnrichmentScreenState
     if (relevant.isEmpty) {
       final isComplete = bloc?.status == 'complete';
       if (!isComplete) {
-        return Container(
+        return MintSurface(
+          tone: MintSurfaceTone.peche,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: MintColors.warning.withAlpha(12),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: MintColors.warning.withAlpha(48)),
-          ),
           child: Row(
             children: [
               const Icon(Icons.info_outline,
@@ -214,12 +217,9 @@ class _DataBlockEnrichmentScreenState
           ),
         );
       }
-      return Container(
+      return MintSurface(
+        tone: MintSurfaceTone.sauge,
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: MintColors.success.withAlpha(15),
-          borderRadius: BorderRadius.circular(12),
-        ),
         child: Row(
           children: [
             const Icon(Icons.check_circle_outline,
@@ -240,13 +240,9 @@ class _DataBlockEnrichmentScreenState
       children: relevant.map((prompt) {
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
-          child: Container(
+          child: MintSurface(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: MintColors.card,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.lightBorder),
-            ),
+            radius: 12,
             child: Row(
               children: [
                 Container(
@@ -371,7 +367,7 @@ class _DataBlockEnrichmentScreenState
   String _coachPromptForBlock(String type) {
     return switch (type) {
       '3a' => 'Je veux comprendre mon 3e pilier : combien de comptes ouvrir, chez quel provider, et comment maximiser mon avantage fiscal.',
-      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour ameliorer ma situation.',
+      'lpp' => 'Explique-moi mon 2e pilier LPP : mon avoir actuel, la lacune de rachat, et ce que je peux faire pour améliorer ma situation.',
       'avs' => 'Parle-moi de ma rente AVS : est-ce que j\'ai des lacunes de cotisation et comment les combler ?',
       'patrimoine' => 'Je veux faire le point sur mon patrimoine global et comprendre comment le structurer.',
       'fiscalite' => 'Aide-moi a comprendre ma situation fiscale et les leviers d\'optimisation possibles.',
@@ -384,7 +380,7 @@ class _DataBlockEnrichmentScreenState
 
   String? _enrichmentRoute(String type) {
     const routes = {
-      'revenu': '/onboarding/quick',
+      'revenu': '/coach/chat', // P10-02b: was /onboarding/quick (deleted)
       'lpp': '/scan',
       'avs': '/document-scan/avs-guide',
       '3a': '/pilier-3a',

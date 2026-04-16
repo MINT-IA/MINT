@@ -107,7 +107,7 @@ class EducationalInsertWidget extends StatelessWidget {
               child: ExpansionTile(
                 title: Text(
                   'Hypothèses de calcul',
-                  style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                  style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500),
                 ),
                 tilePadding: EdgeInsets.zero,
                 childrenPadding: EdgeInsets.zero,
@@ -119,7 +119,7 @@ class EducationalInsertWidget extends StatelessWidget {
                     children: [
                       const Text('• ', style: TextStyle(fontSize: 12, color: MintColors.textMuted)),
                       Expanded(
-                        child: Text(h, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12, height: 1.4)),
+                        child: Text(h, style: MintTextStyles.labelMedium(color: MintColors.textMuted).copyWith(height: 1.4)),
                       ),
                     ],
                   ),

@@ -63,6 +63,9 @@ void main() {
   // 1. LOGIN SCREEN
   // ===========================================================================
 
+  // LoginScreen is magic-link-first since Phase 1 redesign. Password flow is
+  // hidden behind a "Se connecter avec un mot de passe" fallback toggle and is
+  // NOT asserted here on initial render.
   group('LoginScreen', () {
     testWidgets('renders without crashing', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
@@ -76,14 +79,15 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
+      // authLoginTitle
       expect(find.text('Connexion'), findsOneWidget);
     });
 
-    testWidgets('shows subtitle about Financial OS', (tester) async {
+    testWidgets('shows subtitle about financial space', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      // i18n: authLoginSubtitle = "Accede a ton espace financier personnel"
+      // authLoginSubtitle = "Accède à ton espace financier personnel"
       expect(find.textContaining('espace financier'), findsOneWidget);
     });
 
@@ -92,35 +96,47 @@ void main() {
       await tester.pump();
 
       expect(find.byIcon(Icons.email_outlined), findsOneWidget);
-      expect(find.byType(TextFormField), findsWidgets);
+      expect(find.byType(TextFormField), findsOneWidget);
     });
 
-    testWidgets('shows password input field', (tester) async {
+    testWidgets('shows magic link CTA button', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.lock_outline), findsOneWidget);
-    });
-
-    testWidgets('shows password visibility toggle', (tester) async {
-      await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
-      await tester.pump();
-
-      expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
-    });
-
-    testWidgets('shows Se connecter button', (tester) async {
-      await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
-      await tester.pump();
-
-      expect(find.text('Se connecter'), findsWidgets);
+      // authSendLink = "Recevoir un lien magique"
+      expect(find.text('Recevoir un lien magique'), findsOneWidget);
       expect(find.byType(FilledButton), findsOneWidget);
+    });
+
+    testWidgets('shows password fallback toggle (not the password field)',
+        (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
+      await tester.pump();
+
+      // authPasswordFallback = "Se connecter avec un mot de passe"
+      expect(
+        find.text('Se connecter avec un mot de passe'),
+        findsOneWidget,
+      );
+      // Password field is hidden until user taps the fallback toggle.
+      expect(find.byIcon(Icons.lock_outline), findsNothing);
+      expect(find.byIcon(Icons.visibility_outlined), findsNothing);
+    });
+
+    testWidgets('shows continue in local mode button', (tester) async {
+      await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
+      await tester.pump();
+
+      // authContinueLocal = "Continuer en mode local"
+      expect(find.text('Continuer en mode local'), findsOneWidget);
+      expect(find.byType(OutlinedButton), findsOneWidget);
     });
 
     testWidgets('shows register link for new users', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
+      // authNoAccount = "Pas encore de compte ?"
       expect(find.textContaining('Pas encore de compte'), findsOneWidget);
     });
 
@@ -128,7 +144,6 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      // i18n: uses non-breaking space before ?
       expect(find.textContaining('ot de passe oubli'), findsOneWidget);
     });
 
@@ -136,13 +151,14 @@ void main() {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.text('Vérifier mon e-mail'), findsOneWidget);
+      expect(find.textContaining('Vérifier mon e-mail'), findsOneWidget);
     });
 
     testWidgets('shows Retour button', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
+      // authBack = "Retour"
       expect(find.text('Retour'), findsOneWidget);
     });
 

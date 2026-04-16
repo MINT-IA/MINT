@@ -185,15 +185,15 @@ void main() {
       expect(result.disclaimer, contains('ne constitue pas'));
     });
 
-    test('chiffreChoc contains ratio value and text', () {
+    test('premierEclairage contains ratio value and text', () {
       final result = DebtRatioCalculator.calculate(
         revenusMensuels: 5000,
         chargesDetteMensuelles: 1000,
         loyer: 1200,
       );
-      expect(result.chiffreChoc.montant, closeTo(20.0, 0.1));
-      expect(result.chiffreChoc.texte, contains('Ratio dette'));
-      expect(result.chiffreChoc.niveau, DebtRiskLevel.orange);
+      expect(result.premierEclairage.montant, closeTo(20.0, 0.1));
+      expect(result.premierEclairage.texte, contains('Ratio dette'));
+      expect(result.premierEclairage.niveau, DebtRiskLevel.orange);
     });
 
     test('negative inputs are clamped to 0', () {
@@ -304,7 +304,7 @@ void main() {
       );
     });
 
-    test('chiffreChoc has risk level based on months to liberation', () {
+    test('premierEclairage has risk level based on months to liberation', () {
       // Small debt, fast repayment -> vert
       final fastResult = RepaymentPlanner.plan(
         dettes: [
@@ -317,7 +317,7 @@ void main() {
         ],
         budgetMensuelRemboursement: 500,
       );
-      expect(fastResult.chiffreChoc.niveau, DebtRiskLevel.vert);
+      expect(fastResult.premierEclairage.niveau, DebtRiskLevel.vert);
     });
 
     test('disclaimer is present and mentions pedagogique', () {

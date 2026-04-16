@@ -2,7 +2,7 @@
 ///
 /// MinimalProfileResult holds the computed financial snapshot from just
 /// 3 inputs (age, salary, canton) plus optional enrichment fields.
-/// ChiffreChoc represents the single impactful number shown to the user.
+/// PremierEclairage represents the single impactful number shown to the user.
 library;
 
 /// Result of the minimal profile computation.
@@ -56,6 +56,9 @@ class MinimalProfileResult {
   /// Age used for the computation.
   final int age;
 
+  /// Birth date (ISO 8601) — when available, age is computed from this.
+  final DateTime? birthDate;
+
   /// Gross annual salary used for the computation.
   final double grossAnnualSalary;
 
@@ -72,23 +75,30 @@ class MinimalProfileResult {
   final double existingLpp;
 
   /// Employment status: 'salarie', 'independant', 'sans_emploi', 'retraite'.
-  final String employmentStatus;
+  /// Null when the backend API does not return this field.
+  final String? employmentStatus;
 
   /// Nationality group: 'CH', 'EU', 'OTHER'.
-  final String nationalityGroup;
+  /// Null when the backend API does not return this field.
+  final String? nationalityGroup;
 
   /// 3a annual ceiling used for tax saving calculation (7'258 or 36'288).
-  final double plafond3a;
+  /// Null when the backend API does not return this field.
+  final double? plafond3a;
 
   /// List of fields that were estimated (not provided by the user).
   final List<String> estimatedFields;
 
   /// Number of data points actually provided by the user.
   int get providedFieldsCount {
-    // Base 5 fields (age, salary, employment, nationality, canton) always provided.
+    // Base 3 fields (age, salary, canton) always provided.
+    // employment + nationality may be null (not returned by API).
     // Additional fields reduce estimatedFields count.
     const totalOptionalFields = 5; // household, savings, property, 3a, lpp
-    return 5 + (totalOptionalFields - estimatedFields.length);
+    int base = 3;
+    if (employmentStatus != null) base++;
+    if (nationalityGroup != null) base++;
+    return base + (totalOptionalFields - estimatedFields.length);
   }
 
   const MinimalProfileResult({
@@ -107,20 +117,21 @@ class MinimalProfileResult {
     required this.liquidityMonths,
     required this.canton,
     required this.age,
+    this.birthDate,
     required this.grossAnnualSalary,
     required this.householdType,
     required this.isPropertyOwner,
     required this.existing3a,
     required this.existingLpp,
-    required this.employmentStatus,
-    required this.nationalityGroup,
-    required this.plafond3a,
+    this.employmentStatus,
+    this.nationalityGroup,
+    this.plafond3a,
     required this.estimatedFields,
   });
 }
 
-/// Types of chiffre choc that can be selected.
-enum ChiffreChocType {
+/// Types of premier éclairage that can be selected.
+enum PremierEclairageType {
   /// Liquidity reserve dangerously low (< 2 months expenses).
   liquidityAlert,
 
@@ -132,14 +143,33 @@ enum ChiffreChocType {
 
   /// Retirement income projection (fallback / positive).
   retirementIncome,
+
+  /// Compound growth advantage for young users (pure math, always factual).
+  compoundGrowth,
+
+  /// Net hourly rate breakdown (pure math from salary, always factual).
+  hourlyRate,
+}
+
+/// Whether the premier éclairage is based on real data or estimates.
+///
+/// Governs the tone of the message:
+/// - [factual]: data is provided or pure math → precise language
+/// - [pedagogical]: key data is estimated → educational framing, no false precision
+enum PremierEclairageConfidence {
+  /// Based on provided data or pure math — can show precise numbers.
+  factual,
+
+  /// Based on estimated data — use educational framing, not false precision.
+  pedagogical,
 }
 
 /// A single impactful number to show the user.
 ///
-/// Selected by [ChiffreChocSelector] based on priority rules.
-class ChiffreChoc {
-  /// The type of chiffre choc.
-  final ChiffreChocType type;
+/// Selected by [PremierEclairageSelector] based on priority rules.
+class PremierEclairage {
+  /// The type of premier éclairage.
+  final PremierEclairageType type;
 
   /// The main number to display (formatted for display).
   final String value;
@@ -159,7 +189,13 @@ class ChiffreChoc {
   /// Color suggestion key ('warning', 'success', 'info', 'error').
   final String colorKey;
 
-  const ChiffreChoc({
+  /// Whether this premier éclairage is based on real data or estimates.
+  ///
+  /// When [pedagogical], the UI should frame the number as illustrative,
+  /// not as a precise projection. When [factual], precise language is appropriate.
+  final PremierEclairageConfidence confidenceMode;
+
+  const PremierEclairage({
     required this.type,
     required this.value,
     required this.rawValue,
@@ -167,5 +203,6 @@ class ChiffreChoc {
     required this.subtitle,
     required this.iconName,
     required this.colorKey,
+    this.confidenceMode = PremierEclairageConfidence.factual,
   });
 }

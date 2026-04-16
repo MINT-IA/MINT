@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/ios_iap_service.dart';
 
@@ -224,6 +225,7 @@ class SubscriptionState {
       other is SubscriptionState &&
           runtimeType == other.runtimeType &&
           tier == other.tier &&
+          expiresAt == other.expiresAt &&
           isTrialActive == other.isTrialActive &&
           trialDaysRemaining == other.trialDaysRemaining &&
           source == other.source;
@@ -231,6 +233,7 @@ class SubscriptionState {
   @override
   int get hashCode =>
       tier.hashCode ^
+      expiresAt.hashCode ^
       isTrialActive.hashCode ^
       trialDaysRemaining.hashCode ^
       source.hashCode;
@@ -287,11 +290,13 @@ class SubscriptionService {
         ..clear()
         ..addAll((data['features'] as List?)?.cast<String>() ?? const []);
 
+      // Use a single DateTime.now() for consistent trial calculation
+      final now = DateTime.now();
       _state = SubscriptionState(
         tier: tier,
         source: SubscriptionSource.backend,
         isTrialActive: isTrial,
-        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial),
+        trialDaysRemaining: _deriveTrialDays(periodEnd, isTrial, now),
         expiresAt: periodEnd,
       );
       return _state;
@@ -300,9 +305,9 @@ class SubscriptionService {
     }
   }
 
-  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial) {
+  static int _deriveTrialDays(DateTime? periodEnd, bool isTrial, [DateTime? now]) {
     if (!isTrial || periodEnd == null) return 0;
-    final days = periodEnd.difference(DateTime.now()).inDays;
+    final days = periodEnd.difference(now ?? DateTime.now()).inDays;
     return days < 0 ? 0 : days;
   }
 
@@ -331,8 +336,14 @@ class SubscriptionService {
       return purchased;
     }
 
-    await Future<void>.delayed(const Duration(milliseconds: 100));
+    // Non-iOS paid upgrades ALWAYS require backend verification.
+    // SECURITY: No local mock grants for paid tiers, even in debug.
+    if (tier.isPaid) {
+      final refreshed = await refreshFromBackend();
+      return refreshed.tier.rank >= tier.rank;
+    }
 
+    // Free tier downgrade — always allowed
     if (tier == SubscriptionTier.free) {
       _state = const SubscriptionState(
         tier: SubscriptionTier.free,
@@ -342,6 +353,8 @@ class SubscriptionService {
       return true;
     }
 
+    // Unreachable for paid tiers (guarded above)
+    assert(false, 'Unexpected tier: $tier');
     _state = SubscriptionState(
       tier: tier,
       isTrialActive: false,
@@ -374,7 +387,6 @@ class SubscriptionService {
   }
 
   static Future<bool> startTrial() async {
-    await Future<void>.delayed(const Duration(milliseconds: 100));
     // Already a paid subscriber (not on trial) — cannot start trial
     if (_state.tier.isPaid && !_state.isTrialActive) {
       return false;
@@ -383,7 +395,16 @@ class SubscriptionService {
       return false;
     }
 
-    // Trial gives premium-level access
+    // V6-2 audit fix: in release mode, trials must be verified by backend.
+    // Local mock trial grants only allowed in debug mode.
+    if (!kDebugMode) {
+      final refreshed = await refreshFromBackend();
+      return refreshed.isTrialActive;
+    }
+
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    // Debug-only mock trial grant (never reached in release builds)
     _state = SubscriptionState(
       tier: SubscriptionTier.premium,
       isTrialActive: true,

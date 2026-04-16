@@ -5,6 +5,7 @@
 /// Used by ArbitrageEngine and displayed by arbitrage screens.
 library;
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// A single year snapshot in a trajectory projection.
@@ -79,7 +80,7 @@ class ArbitrageResult {
   final int? breakevenYear;
 
   /// One impactful number with context.
-  final String chiffreChoc;
+  final String premierEclairage;
 
   /// Summary text for display.
   final String displaySummary;
@@ -131,7 +132,7 @@ class ArbitrageResult {
   const ArbitrageResult({
     required this.options,
     required this.breakevenYear,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.displaySummary,
     required this.hypotheses,
     required this.disclaimer,
@@ -176,8 +177,14 @@ class ArbitrageTornadoVariable {
 }
 
 extension ArbitrageTornadoParsing on ArbitrageResult {
+  /// Returns tornado variables with French fallback labels.
+  /// For localized labels, call [parseArbitrageTornado] directly with [S].
   List<ArbitrageTornadoVariable> get tornadoVariables =>
       parseArbitrageTornado(sensitivity);
+
+  /// Returns tornado variables with localized labels.
+  List<ArbitrageTornadoVariable> tornadoVariablesLocalized(S? l) =>
+      parseArbitrageTornado(sensitivity, l: l);
 }
 
 class _TornadoMeta {
@@ -192,7 +199,9 @@ class _TornadoMeta {
   });
 }
 
-List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input) {
+/// Parse tornado variables from sensitivity map.
+/// [l] — optional localizations; when null, French fallbacks are used.
+List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input, {S? l}) {
   final grouped = <String, Map<String, double>>{};
 
   for (final entry in input.entries) {
@@ -206,6 +215,9 @@ List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input) 
   }
 
   final result = <ArbitrageTornadoVariable>[];
+  final metadata = _buildTornadoMetadata(l);
+  final defaultLow = l?.tornadoLabelBas ?? 'Bas';
+  final defaultHigh = l?.tornadoLabelHaut ?? 'Haut';
 
   for (final entry in grouped.entries) {
     final key = entry.key;
@@ -215,17 +227,17 @@ List<ArbitrageTornadoVariable> parseArbitrageTornado(Map<String, double> input) 
     final high = values['high'];
     if (base == null || low == null || high == null) continue;
 
-    final meta = _tornadoMetadata[key] ??
+    final meta = metadata[key] ??
         const _TornadoMeta(label: 'Variable', category: 'strategy');
 
     final lowAssumption = values['assumption_low'];
     final highAssumption = values['assumption_high'];
     final lowLabel = lowAssumption != null
-        ? (meta.assumptionFormatter?.call(lowAssumption) ?? 'Bas')
-        : 'Bas';
+        ? (meta.assumptionFormatter?.call(lowAssumption) ?? defaultLow)
+        : defaultLow;
     final highLabel = highAssumption != null
-        ? (meta.assumptionFormatter?.call(highAssumption) ?? 'Haut')
-        : 'Haut';
+        ? (meta.assumptionFormatter?.call(highAssumption) ?? defaultHigh)
+        : defaultHigh;
 
     result.add(ArbitrageTornadoVariable(
       key: key,
@@ -263,79 +275,81 @@ String _formatPercent(double value) => '${(value * 100).toStringAsFixed(1)}%';
 String _formatAge(double value) => '${value.round()} ans';
 String _formatChf(double value) => chf.formatChfWithPrefix(value);
 
-const Map<String, _TornadoMeta> _tornadoMetadata = {
+/// Build tornado metadata map with optional localized labels.
+/// [l] — when null, French fallback labels are used.
+Map<String, _TornadoMeta> _buildTornadoMetadata(S? l) => {
   'rendement_capital': _TornadoMeta(
-    label: 'Ce que ton capital rapporte',
+    label: l?.tornadoLabelRendementCapital ?? 'Ce que ton capital rapporte',
     category: 'libre',
     assumptionFormatter: _formatPercent,
   ),
   'taux_retrait': _TornadoMeta(
-    label: 'Retrait annuel du capital',
+    label: l?.tornadoLabelTauxRetrait ?? 'Retrait annuel du capital',
     category: 'strategy',
     assumptionFormatter: _formatPercent,
   ),
   'taux_conversion_obligatoire': _TornadoMeta(
-    label: 'Conversion LPP obligatoire',
+    label: l?.tornadoLabelConversionOblig ?? 'Conversion LPP obligatoire',
     category: 'lpp',
     assumptionFormatter: _formatPercent,
   ),
   'taux_conversion_surobligatoire': _TornadoMeta(
-    label: 'Conversion LPP suroblig.',
+    label: l?.tornadoLabelConversionSurob ?? 'Conversion LPP suroblig.',
     category: 'lpp',
     assumptionFormatter: _formatPercent,
   ),
   'rendement_marche': _TornadoMeta(
-    label: 'Rendement de tes placements',
+    label: l?.tornadoLabelRendementMarche ?? 'Rendement de tes placements',
     category: 'libre',
     assumptionFormatter: _formatPercent,
   ),
   'taux_marginal': _TornadoMeta(
-    label: 'Ton taux d\'imposition',
+    label: l?.tornadoLabelTauxMarginal ?? 'Ton taux d\'imposition',
     category: 'strategy',
     assumptionFormatter: _formatPercent,
   ),
   'rendement_3a': _TornadoMeta(
-    label: 'Rendement de ton 3e pilier',
+    label: l?.tornadoLabelRendement3a ?? 'Rendement de ton 3e pilier',
     category: '3a',
     assumptionFormatter: _formatPercent,
   ),
   'rendement_lpp': _TornadoMeta(
-    label: 'Rendement de ta caisse LPP',
+    label: l?.tornadoLabelRendementLpp ?? 'Rendement de ta caisse LPP',
     category: 'lpp',
     assumptionFormatter: _formatPercent,
   ),
   'taux_hypothecaire': _TornadoMeta(
-    label: 'Taux hypothecaire',
+    label: l?.tornadoLabelTauxHypothecaire ?? 'Taux hypothécaire',
     category: 'depenses',
     assumptionFormatter: _formatPercent,
   ),
   'appreciation_immo': _TornadoMeta(
-    label: 'Appreciation immo',
+    label: l?.tornadoLabelAppreciationImmo ?? 'Appréciation immo',
     category: 'strategy',
     assumptionFormatter: _formatPercent,
   ),
   'loyer_mensuel': _TornadoMeta(
-    label: 'Loyer mensuel',
+    label: l?.tornadoLabelLoyerMensuel ?? 'Loyer mensuel',
     category: 'depenses',
     assumptionFormatter: _formatChf,
   ),
   'taux_impot_capital': _TornadoMeta(
-    label: 'Taux impot capital',
+    label: l?.tornadoLabelTauxImpotCapital ?? 'Taux impôt capital',
     category: 'strategy',
     assumptionFormatter: _formatPercent,
   ),
   'age_retraite': _TornadoMeta(
-    label: 'Age de retraite',
+    label: l?.tornadoLabelAgeRetraite ?? 'Âge de retraite',
     category: 'strategy',
     assumptionFormatter: _formatAge,
   ),
   'capital_total': _TornadoMeta(
-    label: 'Capital total',
+    label: l?.tornadoLabelCapitalTotal ?? 'Capital total',
     category: 'strategy',
     assumptionFormatter: _formatChf,
   ),
   'annees_avant_retraite': _TornadoMeta(
-    label: 'Annees avant retraite',
+    label: l?.tornadoLabelAnneesAvantRetraite ?? 'Années avant retraite',
     category: 'strategy',
     assumptionFormatter: _formatAge,
   ),

@@ -9,7 +9,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 //
 // Reusable comparison card for canton move simulation.
 // Shows: [Canton A] → [Canton B]
-// Annual/10-year savings, chiffre choc text.
+// Annual/10-year savings, premier éclairage text.
 // Green = savings, Red = surcharge.
 // ────────────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ class MoveSavingsCard extends StatelessWidget {
   final double economieAnnuelle;
   final double economieMensuelle;
   final double economie10Ans;
-  final String chiffreChoc;
+  final String premierEclairage;
 
   const MoveSavingsCard({
     super.key,
@@ -36,7 +36,7 @@ class MoveSavingsCard extends StatelessWidget {
     required this.economieAnnuelle,
     required this.economieMensuelle,
     required this.economie10Ans,
-    required this.chiffreChoc,
+    required this.premierEclairage,
   });
 
   bool get _isSaving => economieAnnuelle > 0;
@@ -72,7 +72,7 @@ class MoveSavingsCard extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                chiffreChoc,
+                premierEclairage,
                 style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)).copyWith(height: 1.5),
                 textAlign: TextAlign.center,
               ),
@@ -179,7 +179,7 @@ class MoveSavingsCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           name,
-          style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           textAlign: TextAlign.center,
         ),
       ],
@@ -191,12 +191,12 @@ class MoveSavingsCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontSize: 12),
+          style: MintTextStyles.labelMedium(color: MintColors.textMuted),
         ),
         const SizedBox(height: 4),
         Text(
           FiscalService.formatChf(amount),
-          style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18),
+          style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
         ),
       ],
     );

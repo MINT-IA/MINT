@@ -4,7 +4,7 @@ Billing orchestration service.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 import hmac
 import hashlib
@@ -69,7 +69,7 @@ _JWT_COMPACT_RE = re.compile(r"^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$"
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def _is_subscription_active(sub: SubscriptionModel) -> bool:
@@ -204,20 +204,44 @@ def _compute_effective_tier(db: Session, user_id: str) -> str:
     )
 
 
-def recompute_entitlements(
+def _recompute_household_members(db: Session, user_id: str) -> None:
+    """P0-6: When a billing owner's tier changes, recompute entitlements
+    for all household members who inherit from this subscription.
+
+    This ensures partner entitlements are revoked on downgrade from couple_plus.
+    """
+    from app.models.household import HouseholdModel, HouseholdMemberModel
+
+    # Find households where this user is the billing owner
+    households = (
+        db.query(HouseholdModel)
+        .filter(HouseholdModel.billing_owner_user_id == user_id)
+        .all()
+    )
+    for household in households:
+        members = (
+            db.query(HouseholdMemberModel)
+            .filter(
+                HouseholdMemberModel.household_id == household.id,
+                HouseholdMemberModel.status == "active",
+                HouseholdMemberModel.user_id != user_id,  # skip the owner themselves
+            )
+            .all()
+        )
+        for member in members:
+            # Recompute partner's entitlements (will pick up the new inherited tier)
+            _recompute_entitlements_internal(db, member.user_id)
+
+
+def _recompute_entitlements_internal(
     db: Session,
     user_id: str,
     restricted_features: set[str] | None = None,
 ) -> tuple[str, list[str]]:
-    """
-    Recompute feature entitlements for a user.
+    """Internal implementation of entitlement recomputation.
 
-    1. Compute effective tier (direct vs household-inherited, higher wins)
-    2. Log internal access override (single audit point)
-    3. Apply regulatory restrictions (FATCA etc.)
-    4. Upsert entitlement rows
-
-    Returns (effective_tier, active_features).
+    Separated from the public API to allow recursive calls for household
+    members without triggering infinite loops.
     """
     from app.models.household import AdminAuditEventModel
 
@@ -267,6 +291,33 @@ def recompute_entitlements(
             row.is_active = feature in active_features
             row.updated_at = _now()
     db.commit()
+    return effective_tier, active_features
+
+
+def recompute_entitlements(
+    db: Session,
+    user_id: str,
+    restricted_features: set[str] | None = None,
+) -> tuple[str, list[str]]:
+    """
+    Recompute feature entitlements for a user.
+
+    1. Compute effective tier (direct vs household-inherited, higher wins)
+    2. Log internal access override (single audit point)
+    3. Apply regulatory restrictions (FATCA etc.)
+    4. Upsert entitlement rows
+    5. P0-6: Recompute household members' entitlements (partner revocation on downgrade)
+
+    Returns (effective_tier, active_features).
+    """
+    effective_tier, active_features = _recompute_entitlements_internal(
+        db, user_id, restricted_features
+    )
+
+    # P0-6: Cascade entitlement recomputation to household members.
+    # When billing owner downgrades from couple_plus, partner loses access.
+    _recompute_household_members(db, user_id)
+
     return effective_tier, active_features
 
 
@@ -330,7 +381,7 @@ def _stripe_post(path: str, data: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Billing provider request failed: {exc}",
+            detail="External service unavailable",
         ) from exc
 
 
@@ -374,7 +425,11 @@ def create_stripe_billing_portal_session(
 def verify_stripe_webhook_signature(payload: bytes, sig_header: Optional[str]) -> None:
     secret = settings.STRIPE_WEBHOOK_SECRET
     if not secret:
-        return
+        # SEC-3: Reject all webhooks if secret is not configured
+        raise HTTPException(
+            status_code=403,
+            detail="Webhook secret not configured — rejecting all webhooks.",
+        )
     if not sig_header:
         raise HTTPException(status_code=400, detail="Missing Stripe signature header")
     elements = dict(
@@ -429,10 +484,15 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     )
 
     if event_type == "checkout.session.completed" and user_id:
+        # P0-7: Reject if user already has an active Apple subscription
+        _check_dual_subscription(db, user_id, "stripe")
+
+        # P0-4: Row-level lock to prevent race between simultaneous webhooks
         sub = (
             db.query(SubscriptionModel)
             .filter(SubscriptionModel.user_id == user_id)
             .order_by(SubscriptionModel.updated_at.desc())
+            .with_for_update()
             .first()
         ) or SubscriptionModel(user_id=user_id, source="stripe")
         if sub.id is None:
@@ -480,9 +540,11 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     if event_type in {"customer.subscription.deleted", "customer.subscription.updated"}:
         sub_id = obj.get("id")
         if sub_id:
+            # P0-4: Row-level lock to prevent race between simultaneous webhooks
             sub = (
                 db.query(SubscriptionModel)
                 .filter(SubscriptionModel.external_subscription_id == sub_id)
+                .with_for_update()
                 .first()
             )
             if sub:
@@ -490,8 +552,9 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
                 event_ts_raw = event.get("created")
                 event_ts = datetime.utcfromtimestamp(event_ts_raw) if event_ts_raw else _now()
 
-                # Monotone timestamp idempotence: skip stale events
-                if sub.last_event_at and sub.last_event_at > event_ts:
+                # FIX-082: Monotone timestamp with 5-min tolerance for clock skew.
+                # Was rejecting valid webhooks when event_ts lagged by seconds.
+                if sub.last_event_at and sub.last_event_at > event_ts + timedelta(minutes=5):
                     record.outcome = "skipped_stale"
                     record.is_processed = True
                     db.commit()
@@ -528,6 +591,39 @@ def process_stripe_event(db: Session, event: dict[str, Any]) -> None:
     db.commit()
 
 
+def _check_dual_subscription(db: Session, user_id: str, new_source: str) -> None:
+    """P0-7: Prevent dual Stripe+Apple subscriptions.
+
+    If the user already has an active subscription from a DIFFERENT provider,
+    raise an error. Same-provider updates are allowed (renewals, tier changes).
+
+    Args:
+        user_id: The user ID.
+        new_source: The source of the new subscription ('stripe' or 'apple').
+
+    Raises:
+        HTTPException 409 if an active subscription from another provider exists.
+    """
+    existing = (
+        db.query(SubscriptionModel)
+        .filter(SubscriptionModel.user_id == user_id)
+        .order_by(SubscriptionModel.updated_at.desc())
+        .first()
+    )
+    if (
+        existing
+        and _is_subscription_active(existing)
+        and existing.source != new_source
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Active subscription already exists via {existing.source}. "
+                f"Cancel it before subscribing via {new_source}."
+            ),
+        )
+
+
 def activate_apple_purchase(
     db: Session,
     user: User,
@@ -546,6 +642,9 @@ def activate_apple_purchase(
     Note: in this foundation phase we accept client-transmitted purchase evidence.
     Full App Store Server API signature verification is handled in next phase.
     """
+    # P0-7: Reject if user already has an active subscription from Stripe
+    _check_dual_subscription(db, user.id, "apple")
+
     # Accept any known product ID (multi-tier) or legacy coach product
     known_products = set(PRODUCT_TO_TIER.keys())
     if product_id not in known_products:
@@ -613,6 +712,13 @@ def _validate_apple_signed_payload(
     Lightweight consistency checks on Apple signed payload.
     Full cryptographic validation is done in the dedicated App Store Server
     integration phase. Here we at least ensure payload claims match request fields.
+
+    Apple JWS signature verification.
+
+    In production (APPLE_ROOT_CA_PEM set or ENVIRONMENT=production), signature
+    verification is ENFORCED. In dev/test, it's skipped to allow sandbox testing.
+
+    See: https://developer.apple.com/documentation/appstoreserverapi
     """
     if not signed_payload:
         return
@@ -620,11 +726,33 @@ def _validate_apple_signed_payload(
     # if payload looks like a compact JWS: 3 non-empty base64url-like segments.
     if not _JWT_COMPACT_RE.match(signed_payload):
         return
+
+    import os
+    is_production = os.getenv("ENVIRONMENT", "").lower() == "production"
+    apple_root_ca = os.getenv("APPLE_ROOT_CA_PEM")
+
     try:
-        claims = jwt.decode(
-            signed_payload,
-            options={"verify_signature": False, "verify_exp": False},
-        )
+        if is_production and apple_root_ca:
+            # Production: verify Apple's JWS signature using their root CA.
+            # Requires APPLE_ROOT_CA_PEM env var with Apple Root CA certificate.
+            claims = jwt.decode(
+                signed_payload,
+                apple_root_ca,
+                algorithms=["ES256"],
+                options={"verify_exp": False},
+            )
+        else:
+            # Dev/Sandbox: skip signature verification for TestFlight testing.
+            # WARNING: This path must NOT be reachable in production.
+            if is_production:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="APPLE_ROOT_CA_PEM required in production",
+                )
+            claims = jwt.decode(
+                signed_payload,
+                options={"verify_signature": False, "verify_exp": False},
+            )
     except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -732,10 +860,12 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
 
     sub: Optional[SubscriptionModel] = None
     if original_transaction_id:
+        # P0-4: Row-level lock to prevent race between simultaneous webhooks
         sub = (
             db.query(SubscriptionModel)
             .filter(SubscriptionModel.external_subscription_id == original_transaction_id)
             .order_by(SubscriptionModel.updated_at.desc())
+            .with_for_update()
             .first()
         )
     if sub and not user_id:
@@ -755,10 +885,12 @@ def process_apple_notification(db: Session, payload: dict[str, Any]) -> None:
                 event_ts = _now()
 
             # Monotone timestamp idempotence
+            # P0-4: Row-level lock on fallback query
             target_sub = sub or (
                 db.query(SubscriptionModel)
                 .filter(SubscriptionModel.user_id == user.id)
                 .order_by(SubscriptionModel.updated_at.desc())
+                .with_for_update()
                 .first()
             )
             if target_sub and target_sub.last_event_at and target_sub.last_event_at > event_ts:

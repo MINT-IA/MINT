@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/services/subscription_service.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
@@ -30,7 +31,33 @@ void main() {
   });
 
   Widget buildTestWidget() {
-    return MaterialApp(
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (context, state) => ChangeNotifierProvider(
+            create: (_) => SubscriptionProvider(),
+            child: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => showModalBottomSheet<void>(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => ChangeNotifierProvider.value(
+                      value: context.read<SubscriptionProvider>(),
+                      child: const CoachPaywallSheet(),
+                    ),
+                  ),
+                  child: const Text('Open Paywall'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+    return MaterialApp.router(
       locale: const Locale('fr'),
       localizationsDelegates: const [
         S.delegate,
@@ -39,25 +66,7 @@ void main() {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: S.supportedLocales,
-      home: ChangeNotifierProvider(
-        create: (_) => SubscriptionProvider(),
-        child: Scaffold(
-          body: Builder(
-            builder: (context) => ElevatedButton(
-              onPressed: () => showModalBottomSheet<void>(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => ChangeNotifierProvider.value(
-                  value: context.read<SubscriptionProvider>(),
-                  child: const CoachPaywallSheet(),
-                ),
-              ),
-              child: const Text('Open Paywall'),
-            ),
-          ),
-        ),
-      ),
+      routerConfig: router,
     );
   }
 
@@ -125,7 +134,7 @@ void main() {
     testWidgets('shows disclaimer with LSFin', (tester) async {
       await openPaywall(tester);
       expect(find.textContaining('LSFin'), findsOneWidget);
-      expect(find.textContaining('educatif'), findsWidgets);
+      expect(find.textContaining('\u00e9ducatif'), findsWidgets);
     });
 
     testWidgets('shows trial badge', (tester) async {

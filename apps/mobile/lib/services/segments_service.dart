@@ -91,19 +91,19 @@ class GenderGapService {
   // ── Constants ──────────────────────────────────────────────
 
   /// LPP coordination deduction (art. 8). NOT prorated.
-  static const double deductionCoordination = lppDeductionCoordination;
+  static double get deductionCoordination => reg('lpp.coordination_deduction', lppDeductionCoordination);
 
   /// Maximum coordinated salary (LPP).
-  static const double maxSalaireCoordonne = lppSalaireCoordMax;
+  static double get maxSalaireCoordonne => reg('lpp.max_coordinated_salary', lppSalaireCoordMax);
 
   /// Minimum coordinated salary (LPP).
-  static const double minSalaireCoordonne = lppSalaireCoordMin;
+  static double get minSalaireCoordonne => reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
 
   /// Conversion rate at retirement — minimum legal, obligatoire only (LPP art. 14).
-  static const double tauxConversion = lppTauxConversionMinDecimal;
+  static double get tauxConversion => reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
 
   /// Swiss legal retirement age (post-AVS21).
-  static const int ageRetraite = 65;
+  static int get ageRetraite => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
   /// LPP contribution rates by age bracket (employee + employer).
   /// Source of truth: getLppBonificationRate() in social_insurance.dart
@@ -118,7 +118,7 @@ class GenderGapService {
 
   /// Analyse the pension gap between current activity rate and 100%.
   static GenderGapResult analyse({required GenderGapInput input}) {
-    final anneesRestantes = (avsAgeReferenceHomme - input.age).clamp(0, 40);
+    final anneesRestantes = (reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt() - input.age).clamp(0, 40);
 
     // Salary at 100% (extrapolated from current taux)
     final salaire100 = input.tauxActivite > 0
@@ -159,8 +159,9 @@ class GenderGapService {
     );
 
     // Convert capital to annual pension
-    final renteAt100 = capital100 * lppTauxConversionMinDecimal;
-    final renteAtCurrentTaux = capitalActuel * lppTauxConversionMinDecimal;
+    final convRateMin = reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal);
+    final renteAt100 = capital100 * convRateMin;
+    final renteAtCurrentTaux = capitalActuel * convRateMin;
     final lacuneAnnuelle = renteAt100 - renteAtCurrentTaux;
     final lacuneTotale = lacuneAnnuelle * 20; // approx 20 years of retirement
 
@@ -178,7 +179,7 @@ class GenderGapService {
       lacuneTotale: lacuneTotale,
       salaireCoordonne100: salaireCoordonne100,
       salaireCoordonneActuel: salaireCoordonneActuel,
-      deductionCoordination: lppDeductionCoordination,
+      deductionCoordination: reg('lpp.coordination_deduction', lppDeductionCoordination),
       anneesRestantes: anneesRestantes,
       recommendations: recommendations,
       statistiqueOfs: statistiqueOfs,
@@ -218,14 +219,14 @@ class GenderGapService {
       description:
           'Versez le plafond annuel de CHF\u00A07\'056 (salariés) pour '
           'compenser partiellement la lacune LPP. La déduction fiscale '
-          'est immédiate et le capital reste disponible sous certaines '
-          'conditions.',
+          'est immédiate et le capital reste disponible '
+          '(achat immobilier, départ de Suisse, invalidité — OPP3 art.\u00A04).',
       source: 'OPP3 art. 7',
       icon: 'savings',
     ));
 
     // 3. Proratisation coordination
-    if (input.tauxActivite < 100 && salaireCoordonneActuel < lppSalaireCoordMax * 0.5) {
+    if (input.tauxActivite < 100 && salaireCoordonneActuel < reg('lpp.max_coordinated_salary', lppSalaireCoordMax) * 0.5) {
       recs.add(const GenderGapRecommendation(
         title: 'Vérifier la proratisation de la coordination',
         description:
@@ -739,8 +740,8 @@ class IndependantService {
     // 3a ceiling: 20% of net income if no LPP, max 35'280
     // If voluntary LPP: standard 7'258
     final plafond3a = input.hasLpp
-        ? pilier3aPlafondAvecLpp
-        : min(input.revenuNet * 0.20, pilier3aPlafondSansLpp);
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : min(input.revenuNet * 0.20, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp));
 
     // Protection cost simulation
     final protectionCost = _computeProtectionCost(
@@ -804,7 +805,7 @@ class IndependantService {
         urgency: input.hasIjm ? 'basse' : 'critique',
         recommendation: input.hasIjm
             ? 'Ta couverture IJM est en place. Vérifie le délai de carence '
-                'et le montant assuré.'
+                'et le niveau d\u2019indemnisation journalière.'
             : 'URGENT : sans IJM, tu n\'as aucun revenu en cas de maladie. '
                 'Souscrivez une assurance IJM individuelle (indemnité journalière '
                 'en cas de maladie).',
@@ -829,9 +830,9 @@ class IndependantService {
         urgency: input.has3a ? 'basse' : 'haute',
         recommendation: input.has3a
             ? 'Vérifie que tu verses le plafond '
-                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}).'
+                '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}).'
             : 'Ouvrez un 3e pilier et versez le maximum '
-                '(${formatChf(input.hasLpp ? pilier3aPlafondAvecLpp : pilier3aPlafondSansLpp)}). '
+                '(${formatChf(input.hasLpp ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp) : reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))}). '
                 'Sans LPP, le 3a est ton principal outil de prévoyance.',
         source: 'OPP3 art. 7',
       ),
@@ -841,7 +842,7 @@ class IndependantService {
   /// Compute AVS contribution for self-employed (degressive scale).
   static double _computeAvsContribution(double revenuNet) {
     if (revenuNet <= 0) return 0;
-    if (revenuNet >= 58800) return revenuNet * avsCotisationTotal;
+    if (revenuNet >= 58800) return revenuNet * reg('avs.total_rate', avsCotisationTotal);
 
     // Find applicable bracket
     for (int i = _avsDegressifBrackets.length - 1; i >= 0; i--) {

@@ -291,7 +291,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
               ),
               Text(
                 subtitle,
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -307,7 +307,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
             _formatChf(_isDebtGoal
                 ? _displayBaseFinal
                 : widget.result.base.capitalFinal),
-            style: MintTextStyles.labelSmall(color: MintColors.trajectoryBase).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: MintColors.trajectoryBase).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -330,7 +330,9 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           child: Stack(
             children: [
               // Main chart
-              CustomPaint(
+              Semantics(
+                label: 'Financial trajectory chart',
+                child: CustomPaint(
                 painter: _TrajectoryPainter(
                   prudentPoints: _displayPrudentPoints,
                   basePoints: _displayBasePoints,
@@ -345,6 +347,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
                   goalLabel: S.of(context)!.trajectoryGoalLabel,
                 ),
                 size: Size(availableWidth, chartHeight),
+              ),
               ),
               // Tooltip overlay
               if (_selectedPointIndex != null &&
@@ -645,7 +648,7 @@ class _MintTrajectoryChartState extends State<MintTrajectoryChart>
           const SizedBox(height: 4),
           Text(
             s.trajectoryEmptySub,
-            style: MintTextStyles.labelSmall(color: MintColors.textMuted.withValues(alpha: 0.7)).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textMuted.withValues(alpha: 0.7)),
           ),
         ],
       ),
@@ -953,7 +956,7 @@ class _TrajectoryPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -987,7 +990,7 @@ class _TrajectoryPainter extends CustomPainter {
         final tp = TextPainter(
           text: TextSpan(
             text: '$year',
-            style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontStyle: FontStyle.normal),
+            style: MintTextStyles.labelTiny(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
           ),
           textDirection: TextDirection.ltr,
         );
@@ -999,7 +1002,7 @@ class _TrajectoryPainter extends CustomPainter {
       final lastXTp = TextPainter(
         text: TextSpan(
           text: '$lastYear',
-          style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );
@@ -1208,7 +1211,7 @@ class _TrajectoryPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: label,
-        style: MintTextStyles.micro(color: MintColors.textSecondary).copyWith(fontSize: 9, fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
+        style: MintTextStyles.labelTiny(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, fontStyle: FontStyle.normal),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -1277,7 +1280,7 @@ class _TrajectoryPainter extends CustomPainter {
       final tp = TextPainter(
         text: TextSpan(
           text: label,
-          style: MintTextStyles.micro(color: color).copyWith(fontSize: 9, fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: color).copyWith(fontWeight: FontWeight.w700, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );

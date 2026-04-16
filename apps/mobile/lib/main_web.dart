@@ -22,7 +22,9 @@ Future<void> main() async {
     await FeatureFlags.refreshFromBackend().timeout(
       const Duration(seconds: 2),
     );
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('[MainWeb] FeatureFlags refresh error: $e');
+  }
 
   Future.wait([
     Pillar3aCalculator.loadLimits().catchError((e) {

@@ -63,6 +63,9 @@ class NetIncomeBreakdown {
     required int age,
     String etatCivil = 'celibataire',
     int nombreEnfants = 0,
+    // FIX-101: Cross-border workers use withholding tax (impôt à la source),
+    // which is typically 10-20% lower than ordinary taxation.
+    bool isCrossBorder = false,
   }) {
     if (grossSalary <= 0) {
       return NetIncomeBreakdown(
@@ -76,26 +79,45 @@ class NetIncomeBreakdown {
     }
 
     // 1. Charges sociales (AVS/AI/APG combined + AC) — hors LPP
-    final socialCharges = grossSalary * cotisationsSalarieTotal;
+    final socialCharges = grossSalary * (reg('avs.contribution_rate_employee', avsCotisationSalarie) + acCotisationSalarie);
 
     // 2. LPP employe (~50% de la bonification totale sur salaire coordonne)
     double lppEmployee = 0;
-    if (grossSalary >= lppSeuilEntree && age >= 25 && age <= 65) {
-      final salaireCoord = (grossSalary - lppDeductionCoordination)
-          .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    if (grossSalary >= reg('lpp.entry_threshold', lppSeuilEntree) && age >= 25 && age <= reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt()) {
+      final salaireCoord = (grossSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+          .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
       final totalBonif = getLppBonificationRate(age);
       lppEmployee =
           salaireCoord * totalBonif / 2; // ~50% part employe (LPP art. 66)
     }
 
-    // 3. Impot sur le revenu (via FiscalService, 26 cantons)
-    final taxResult = FiscalService.estimateTax(
-      revenuBrut: grossSalary,
-      canton: canton,
-      etatCivil: etatCivil,
-      nombreEnfants: nombreEnfants,
-    );
-    final incomeTax = (taxResult['chargeTotale'] as double?) ?? 0;
+    // 3. Impot sur le revenu
+    double incomeTax;
+    if (isCrossBorder) {
+      // FIX-101: Cross-border workers → impôt à la source (withholding tax).
+      // Simplified: cantonal withholding rate is typically ~4.5-10% of gross.
+      // Exact rates depend on canton + family situation + bilateral treaty.
+      // Educational estimate only — source: Administration fédérale des contributions.
+      const baseWithholdingRates = {
+        'GE': 0.145, 'VD': 0.135, 'VS': 0.105, 'NE': 0.125, 'JU': 0.115,
+        'FR': 0.120, 'BS': 0.130, 'BL': 0.125, 'AG': 0.110, 'ZH': 0.115,
+        'TI': 0.100, 'SG': 0.105, 'TG': 0.100, 'GR': 0.095,
+      };
+      final baseRate = baseWithholdingRates[canton.toUpperCase()] ?? 0.12;
+      // Family adjustment: married -20%, per child -5%
+      final familyFactor = (etatCivil == 'marie' ? 0.80 : 1.0) -
+          (nombreEnfants * 0.05).clamp(0.0, 0.20);
+      incomeTax = grossSalary * baseRate * familyFactor;
+    } else {
+      // Ordinary taxation (via FiscalService, 26 cantons)
+      final taxResult = FiscalService.estimateTax(
+        revenuBrut: grossSalary,
+        canton: canton,
+        etatCivil: etatCivil,
+        nombreEnfants: nombreEnfants,
+      );
+      incomeTax = (taxResult['chargeTotale'] as double?) ?? 0;
+    }
 
     return NetIncomeBreakdown(
       grossSalary: grossSalary,
@@ -206,7 +228,7 @@ class RetirementTaxCalculator {
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
     final effectiveRate =
-        isMarried ? baseRate * marriedCapitalTaxDiscount : baseRate;
+        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
     return progressiveTax(capitalBrut, effectiveRate);
   }
 
@@ -239,29 +261,116 @@ class RetirementTaxCalculator {
     return totalTax;
   }
 
-  /// Simplified marginal tax rate by canton bracket.
+  /// Effective tax rates by canton (single, 100k income, chef-lieu).
   ///
-  /// Source: AFC taux marginaux d'imposition 2025.
-  /// Used for chiffre-choc estimates — NOT for precise tax returns.
-  static double estimateMarginalRate(double revenuBrutAnnuel, String canton) {
-    const highTaxCantons = {'GE', 'VD', 'BS', 'BE', 'NE', 'JU', 'FR', 'VS'};
-    const lowTaxCantons = {'ZG', 'SZ', 'NW', 'OW', 'AI', 'AR', 'UR'};
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
+  static const Map<String, double> _effectiveRates100k = {
+    'ZG': 0.0823, 'NW': 0.0891, 'OW': 0.0934, 'AI': 0.0956,
+    'AR': 0.1012, 'SZ': 0.1034, 'UR': 0.1067, 'LU': 0.1089,
+    'GL': 0.1102, 'TG': 0.1145, 'SH': 0.1167, 'AG': 0.1189,
+    'GR': 0.1203, 'BL': 0.1256, 'SG': 0.1278, 'ZH': 0.1290,
+    'FR': 0.1312, 'SO': 0.1334, 'TI': 0.1356, 'BE': 0.1389,
+    'NE': 0.1423, 'VS': 0.1456, 'VD': 0.1489, 'JU': 0.1512,
+    'GE': 0.1545, 'BS': 0.1578,
+  };
 
-    double baseRate;
-    if (revenuBrutAnnuel > 200000) {
-      baseRate = 0.38;
-    } else if (revenuBrutAnnuel > 120000) {
-      baseRate = 0.32;
-    } else if (revenuBrutAnnuel > 80000) {
-      baseRate = 0.28;
-    } else {
-      baseRate = 0.22;
+  /// Income level adjustment factors (relative to 100k baseline).
+  ///
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
+  static const Map<int, double> _incomeAdjustment = {
+    50000: 0.75, 80000: 0.90, 100000: 1.00,
+    150000: 1.10, 200000: 1.18, 300000: 1.25, 500000: 1.32,
+  };
+
+  /// Family situation adjustment (splitting + deductions).
+  ///
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Mirrors: services/backend/app/services/fiscal/cantonal_comparator.py
+  static const Map<String, double> _familyAdjustment = {
+    'celibataire': 1.00,
+    'marie_sans_enfant': 0.85,
+    'marie_1_enfant': 0.78,
+    'marie_2_enfants': 0.72,
+    'marie_3_enfants': 0.66,
+  };
+
+  /// Marginal tax rate by canton, income, and family situation.
+  ///
+  /// Uses real AFC 2024 cantonal effective rates with income-level
+  /// interpolation and family adjustment. Converts effective rate to
+  /// marginal rate via ×1.3 factor (marginal > effective for progressive
+  /// tax systems).
+  ///
+  /// Source: AFC — Charge fiscale en Suisse 2024.
+  /// Used for chiffre-choc estimates — NOT for precise tax returns.
+  static double estimateMarginalRate(
+    double revenuBrutAnnuel,
+    String canton, {
+    bool isMarried = false,
+    int children = 0,
+    double? actualRate, // From tax declaration scan — overrides estimate
+  }) {
+    // If user has scanned a tax declaration with the real marginal rate,
+    // use it directly instead of estimating. Data source: certificate (0.95).
+    if (actualRate != null && actualRate > 0 && actualRate < 0.5) {
+      return actualRate;
     }
 
     final cantonCode = canton.toUpperCase();
-    if (highTaxCantons.contains(cantonCode)) return baseRate * 1.1;
-    if (lowTaxCantons.contains(cantonCode)) return baseRate * 0.75;
-    return baseRate;
+
+    // Base rate from real cantonal data (fallback = Swiss average ~13%)
+    final baseRate = _effectiveRates100k[cantonCode] ?? 0.13;
+
+    // Income adjustment via linear interpolation
+    final incomeAdj = _interpolateIncomeAdjustment(revenuBrutAnnuel);
+
+    // Family adjustment
+    String familyKey;
+    if (!isMarried) {
+      familyKey = 'celibataire';
+    } else if (children >= 3) {
+      familyKey = 'marie_3_enfants';
+    } else if (children == 2) {
+      familyKey = 'marie_2_enfants';
+    } else if (children == 1) {
+      familyKey = 'marie_1_enfant';
+    } else {
+      familyKey = 'marie_sans_enfant';
+    }
+    final familyAdj = _familyAdjustment[familyKey] ?? 1.0;
+
+    // Marginal rate ~ effective rate × 1.3 (marginal > effective for
+    // progressive taxes). This factor converts the effective rate into
+    // a marginal rate approximation suitable for deduction impact.
+    final effectiveRate = baseRate * incomeAdj * familyAdj;
+    final marginalRate = effectiveRate * 1.3;
+
+    return marginalRate.clamp(0.05, 0.45);
+  }
+
+  /// Linear interpolation between income adjustment brackets.
+  ///
+  /// Clamps to boundary values for incomes below 50k or above 500k.
+  static double _interpolateIncomeAdjustment(double income) {
+    final sortedKeys = _incomeAdjustment.keys.toList()..sort();
+
+    if (income <= sortedKeys.first) return _incomeAdjustment[sortedKeys.first]!;
+    if (income >= sortedKeys.last) return _incomeAdjustment[sortedKeys.last]!;
+
+    // Find the two bracket bounds and interpolate
+    for (int i = 0; i < sortedKeys.length - 1; i++) {
+      final lower = sortedKeys[i];
+      final upper = sortedKeys[i + 1];
+      if (income >= lower && income <= upper) {
+        final ratio = (income - lower) / (upper - lower);
+        final lowerAdj = _incomeAdjustment[lower]!;
+        final upperAdj = _incomeAdjustment[upper]!;
+        return lowerAdj + (upperAdj - lowerAdj) * ratio;
+      }
+    }
+    return 1.0; // fallback
   }
 
   /// Estimate tax saving from a deduction using numerical integration
@@ -273,9 +382,13 @@ class RetirementTaxCalculator {
     required double income,
     required double deduction,
     required String canton,
+    bool isMarried = false,
+    int children = 0,
     int steps = 10,
   }) {
     if (deduction <= 0) return 0.0;
+    // CHAOS-NaN: Guard against division by zero when steps=0.
+    if (steps <= 0) return 0.0;
 
     final double stepSize = deduction / steps;
     double currentIncome = income;
@@ -283,12 +396,67 @@ class RetirementTaxCalculator {
 
     for (int i = 0; i < steps; i++) {
       final double midPoint = currentIncome - (stepSize / 2);
-      final double rate = estimateMarginalRate(midPoint, canton);
+      final double rate = estimateMarginalRate(
+        midPoint,
+        canton,
+        isMarried: isMarried,
+        children: children,
+      );
       totallySaved += stepSize * rate;
       currentIncome -= stepSize;
     }
 
     return totallySaved;
+  }
+
+  /// Estimate 3a tax saving from annual contribution (OPP3, LIFD art. 33).
+  ///
+  /// [grossAnnualSalary]: declarant's gross annual salary.
+  /// [canton]: for marginal rate lookup.
+  /// [isMarried]: for family situation adjustment.
+  /// [children]: number of dependent children.
+  /// [hasLpp]: if true, ceiling = 7'258; if false, ceiling = min(20% net, 36'288).
+  /// [contributionMonths]: months worked in the tax year (1-12). Pro-rates the
+  ///   ceiling for partial years (e.g. new job mid-year, or first job).
+  ///   OPP3 art. 7: the deductible amount is proportional to the employment duration.
+  /// [contribution]: actual contribution; if null, assumes max deductible.
+  ///
+  /// Returns the estimated tax saving in CHF.
+  ///
+  /// Legal basis: OPP3 art. 7 (plafond 3a), LIFD art. 33 (deduction).
+  static double estimate3aTaxSaving({
+    required double grossAnnualSalary,
+    required String canton,
+    bool isMarried = false,
+    int children = 0,
+    bool hasLpp = true,
+    int contributionMonths = 12,
+    double? contribution,
+  }) {
+    if (grossAnnualSalary <= 0) return 0;
+    final months = contributionMonths.clamp(1, 12);
+
+    // Ceiling depends on LPP affiliation (OPP3 art. 7)
+    final double annualCeiling = hasLpp
+        ? reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)
+        : (grossAnnualSalary * pilier3aTauxRevenuSansLpp)
+            .clamp(0.0, pilier3aPlafondSansLpp);
+
+    // Pro-rate for partial year
+    final double proRatedCeiling = annualCeiling * months / 12;
+
+    // Actual deductible = min(contribution, proRatedCeiling)
+    final double deductible = contribution != null
+        ? contribution.clamp(0.0, proRatedCeiling)
+        : proRatedCeiling;
+
+    return estimateTaxSaving(
+      income: grossAnnualSalary,
+      deduction: deductible,
+      canton: canton,
+      isMarried: isMarried,
+      children: children,
+    );
   }
 
   /// Estimate retirement income tax (annual → monthly).
@@ -309,6 +477,6 @@ class RetirementTaxCalculator {
       etatCivil: etatCivil,
       nombreEnfants: nombreEnfants,
     );
-    return (result['chargeTotale'] as double) / 12;
+    return ((result['chargeTotale'] as double?) ?? 0) / 12;
   }
 }

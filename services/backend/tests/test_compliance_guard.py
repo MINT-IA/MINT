@@ -114,44 +114,57 @@ class TestBannedTerms:
 
 
 class TestPrescriptiveLanguage:
-    """Layer 2 — Prescriptive financial instructions must trigger fallback."""
+    """Layer 2 — Prescriptive financial instructions.
 
-    def test_catches_fais_un_rachat(self, guard):
+    Single match: violation logged, NOT fallback (too many false positives
+    in conversational French — "rachète" in "potentiel de rachat", etc.).
+    3+ matches: fallback triggered (genuinely prescriptive response).
+    """
+
+    def test_single_match_detected_but_no_fallback(self, guard):
         result = guard.validate("Fais un rachat de 10'000 CHF cette année.")
-        assert result.use_fallback
+        assert not result.use_fallback, "Single prescriptive match should NOT trigger fallback"
         assert any("prescriptif" in v.lower() for v in result.violations)
+
+    def test_two_matches_no_fallback(self, guard):
+        result = guard.validate("Verse sur ton 3e pilier. Achète un appartement.")
+        assert not result.use_fallback, "2 prescriptive matches should NOT trigger fallback"
+        assert len([v for v in result.violations if "prescriptif" in v.lower()]) >= 2
+
+    def test_three_plus_matches_logged_not_fallback(self, guard):
+        result = guard.validate(
+            "Fais un rachat. Verse sur ton 3a. Achète un bien. Vends tes actions."
+        )
+        assert not result.use_fallback, "Prescriptive language never triggers fallback (defense is in prompt)"
+        assert len([v for v in result.violations if "prescriptif" in v.lower()]) >= 3
 
     def test_catches_verse_sur_ton(self, guard):
         result = guard.validate("Verse sur ton 3e pilier avant décembre.")
-        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_achete(self, guard):
         result = guard.validate("Achète un appartement à Lausanne.")
-        assert result.use_fallback
-
-    def test_catches_vends(self, guard):
-        result = guard.validate("Vends tes actions et place en obligations.")
-        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_choisis_la_rente(self, guard):
         result = guard.validate("Choisis la rente, c'est plus sûr.")
-        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_prends_le_capital(self, guard):
         result = guard.validate("Prends le capital et investis-le.")
-        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_priorite_absolue(self, guard):
         result = guard.validate(
             "Priorité absolue : monter à 6 mois de réserve."
         )
-        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_plus_important_que(self, guard):
         result = guard.validate(
             "C'est plus important que ton 3a cette année."
         )
-        assert result.use_fallback
+        assert any("prescriptif" in v.lower() for v in result.violations)
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -160,15 +173,20 @@ class TestPrescriptiveLanguage:
 
 
 class TestHallucinationDetection:
-    """Layer 3 — Hallucinated numbers must trigger fallback."""
+    """Layer 3 — Hallucinated numbers: threshold-based fallback (>= 30% major)."""
 
-    def test_catches_wrong_score(self, guard, context_with_values):
+    def test_catches_wrong_score_minor_logs_but_no_fallback(self, guard, context_with_values):
+        # Known 62 vs found 72 → deviation ~16%, below the 30% major threshold.
+        # New semantics (2026-04-13): minor hallucinations are logged as
+        # violations but do NOT kill the response. Defense for minor drift
+        # lives in the prompt; the guard only hard-fails on material fabrication.
         result = guard.validate(
             "Ton score est à 72/100, en progression.",
             context=context_with_values,
         )
-        assert result.use_fallback
-        assert any("hallucination" in v.lower() for v in result.violations)
+        assert not result.use_fallback, "Minor (<30%) hallucination must not trigger fallback"
+        assert any("hallucination" in v.lower() for v in result.violations), \
+            "Minor hallucination must still be logged as a violation"
 
     def test_passes_correct_score(self, guard, context_with_values):
         result = guard.validate(
@@ -182,7 +200,7 @@ class TestHallucinationDetection:
             "Tu pourrais économiser CHF 3'500 d'impôt avec un 3a.",
             context=context_with_values,
         )
-        # Known value: 1820, found: 3500 → deviation > 5%
+        # Known value: 1820, found: 3500 → deviation ~92% (major, >= 30%).
         assert result.use_fallback
 
     def test_passes_correct_amount(self, guard, context_with_values):
@@ -272,13 +290,23 @@ class TestEdgeCases:
         result = guard.validate(long_text)
         assert len(result.sanitized_text.split()) <= 200
 
-    def test_english_text_triggers_fallback(self, guard):
+    def test_english_text_detected_logged_not_fallback(self, guard):
+        """English text is detected and logged but does NOT trigger fallback.
+
+        Rationale: Claude naturally echoes English tech terms ("ETF", "cash",
+        "score") in French responses, and conversation_history often contains
+        English artifacts. Killing the response on 3+ English markers breaks
+        every multi-turn conversation. Defense belongs in the system prompt,
+        not in post-hoc rejection.
+        """
         result = guard.validate(
             "Your financial score is 62. You should invest in a pillar 3a. "
             "This would help with your retirement planning."
         )
-        assert result.use_fallback
+        # Violation is detected and logged (useful for telemetry)
         assert any("langue" in v.lower() for v in result.violations)
+        # But it does NOT trigger the hard fallback
+        assert not result.use_fallback
 
     def test_compliant_text_passes(self, guard):
         result = guard.validate(
@@ -373,7 +401,6 @@ class TestSocialComparisonPatterns:
 
     def test_catches_top_percent(self, guard):
         result = guard.validate("Tu es dans le top 10% des épargnants.")
-        assert result.use_fallback
         assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_meilleur_que_percent(self, guard):
@@ -382,7 +409,6 @@ class TestSocialComparisonPatterns:
 
     def test_catches_devant_percent(self, guard):
         result = guard.validate("Tu es devant 60% des investisseurs.")
-        assert result.use_fallback
         assert any("prescriptif" in v.lower() for v in result.violations)
 
     def test_catches_parmi_les_meilleurs(self, guard):
@@ -393,5 +419,4 @@ class TestSocialComparisonPatterns:
 
     def test_catches_au_dessus_de_la_moyenne(self, guard):
         result = guard.validate("Ton score est au-dessus de la moyenne.")
-        assert result.use_fallback
         assert any("prescriptif" in v.lower() for v in result.violations)

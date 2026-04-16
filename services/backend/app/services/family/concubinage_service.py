@@ -87,7 +87,7 @@ class MariageConcubinageComparison:
     impot_succession_conjoint: float       # Impot de succession si conjoint
     impot_succession_concubin: float       # Impot de succession si concubin
     synthese: str                          # Synthese pedagogique
-    chiffre_choc: str                      # Chiffre choc pedagogique
+    premier_eclairage: str                      # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -101,7 +101,7 @@ class InheritanceTaxComparison:
     difference: float                      # Impot concubin - impot conjoint (CHF)
     taux_conjoint: float                   # Taux effectif conjoint
     taux_concubin: float                   # Taux effectif concubin
-    chiffre_choc: str                      # Chiffre choc pedagogique
+    premier_eclairage: str                      # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -215,7 +215,7 @@ class ConcubinageService:
                 f"La difference de succession peut atteindre CHF {succession.difference:,.0f}."
             )
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"En cas de deces, ton concubin paierait ~CHF {succession.impot_concubin:,.0f} "
             f"d'impot de succession vs CHF {succession_married.impot_conjoint:,.0f} si vous "
             f"etiez maries. Difference: CHF {succession.difference:,.0f}."
@@ -240,7 +240,7 @@ class ConcubinageService:
             impot_succession_conjoint=succession_married.impot_conjoint,
             impot_succession_concubin=succession.impot_concubin,
             synthese=synthese,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -269,14 +269,14 @@ class ConcubinageService:
         difference = round(impot_concubin - impot_conjoint, 2)
 
         if difference > 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Succession dans le canton {canton}: ton concubin paierait "
                 f"CHF {impot_concubin:,.0f} d'impot ({taux_concubin * 100:.0f}%), "
                 f"contre CHF {impot_conjoint:,.0f} si vous etiez maries "
                 f"({taux_conjoint * 100:.0f}%). Difference: CHF {difference:,.0f}."
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Canton {canton}: pas de difference significative d'impot "
                 f"de succession entre conjoint et concubin."
             )
@@ -295,7 +295,7 @@ class ConcubinageService:
             difference=difference,
             taux_conjoint=taux_conjoint,
             taux_concubin=taux_concubin,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 

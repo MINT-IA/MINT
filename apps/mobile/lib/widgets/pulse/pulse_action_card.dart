@@ -70,7 +70,7 @@ class PulseActionCard extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         action.subtitle,
-                        style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),

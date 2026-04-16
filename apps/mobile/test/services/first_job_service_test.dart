@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/first_job_service.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 
 /// Unit tests for FirstJobService
@@ -285,14 +286,22 @@ void main() {
       expect(result.montantMensuelSuggere3a, closeTo(7258.0 / 12, 0.01));
     });
 
-    test('estimated tax saving is ~25% of 3a max', () {
+    test('estimated tax saving uses canton-aware marginal rate', () {
       final result = FirstJobService.analyzeSalary(
         salaireBrutMensuel: 6000,
         age: 25,
         canton: 'ZH',
       );
 
-      expect(result.economieFiscaleEstimee3a, closeTo(7258.0 * 0.25, 0.01));
+      // Should match RetirementTaxCalculator.estimate3aTaxSaving
+      final expected = RetirementTaxCalculator.estimate3aTaxSaving(
+        grossAnnualSalary: 6000 * 12,
+        canton: 'ZH',
+      );
+      expect(result.economieFiscaleEstimee3a, closeTo(expected, 0.01));
+      // Reasonable range: 10-40% of 3a max (varies by canton + income)
+      expect(result.economieFiscaleEstimee3a, greaterThan(pilier3aPlafondAvecLpp * 0.10));
+      expect(result.economieFiscaleEstimee3a, lessThan(pilier3aPlafondAvecLpp * 0.40));
     });
 
     test('3a alerte warns against insurance-linked 3a', () {
@@ -432,8 +441,8 @@ void main() {
         canton: 'ZH',
       );
 
-      expect(result.chiffreChoc, contains('employeur'));
-      expect(result.chiffreChoc, contains('CHF'));
+      expect(result.premierEclairage, contains('employeur'));
+      expect(result.premierEclairage, contains('CHF'));
     });
   });
 

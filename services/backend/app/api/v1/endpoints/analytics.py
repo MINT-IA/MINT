@@ -2,12 +2,14 @@
 Analytics endpoints for event tracking and analytics queries.
 """
 
+import os
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, distinct
 from app.core.auth import require_current_user
+from app.core.config import settings
 from app.core.database import get_db
 from app.models.analytics_event import AnalyticsEvent
 from app.models.user import User
@@ -18,23 +20,46 @@ from app.schemas.analytics import (
     FunnelQueryResponse,
     FunnelStepResponse,
 )
+from app.services.feature_flags import FeatureFlags
 
 router = APIRouter()
+
+
+def _require_admin_user(user: User) -> None:
+    """Require admin access for analytics read endpoints (V6-1 audit fix)."""
+    allowlist_raw = os.getenv("AUTH_ADMIN_EMAIL_ALLOWLIST")
+    if allowlist_raw is None:
+        allowlist_raw = settings.AUTH_ADMIN_EMAIL_ALLOWLIST
+    allowlist_raw = allowlist_raw.strip()
+    allowlist = {
+        entry.strip().lower()
+        for entry in allowlist_raw.split(",")
+        if entry.strip()
+    }
+    email = (user.email or "").strip().lower()
+    is_allowlisted = bool(email and allowlist and email in allowlist)
+    if not is_allowlisted:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin access required",
+        )
 
 
 @router.post("/events", response_model=AnalyticsEventBatchResponse, status_code=status.HTTP_201_CREATED)
 def post_analytics_events(
     batch: AnalyticsEventBatch,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_current_user),
 ) -> AnalyticsEventBatchResponse:
     """
     Batch analytics event ingestion endpoint.
 
-    This endpoint accepts multiple analytics events at once for efficient bulk insertion.
-    No authentication required - supports anonymous tracking with optional user_id linkage.
+    Requires authentication. The authenticated user's ID is used as user_id
+    for all events (V6-1 audit fix: prevents fake user_id injection).
 
     Args:
         batch: Batch of analytics events to store
+        current_user: Authenticated user from JWT token
         db: Database session
 
     Returns:
@@ -48,7 +73,7 @@ def post_analytics_events(
             event_category=event_data.event_category,
             event_data=event_data.event_data,
             session_id=event_data.session_id,
-            user_id=event_data.user_id,
+            user_id=current_user.id,
             screen_name=event_data.screen_name,
             timestamp=event_data.timestamp if event_data.timestamp else datetime.now(timezone.utc),
             app_version=event_data.app_version,
@@ -71,10 +96,12 @@ def get_analytics_summary(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     db: Session = Depends(get_db),
-    _user: User = Depends(require_current_user),
+    current_user: User = Depends(require_current_user),
 ) -> AnalyticsSummaryResponse:
     """
     Get analytics summary with key metrics.
+
+    Admin-only endpoint (V6-1 audit fix): exposes global product data.
 
     Returns aggregated statistics including total events, unique sessions,
     and breakdowns by category and screen name.
@@ -88,6 +115,8 @@ def get_analytics_summary(
     Returns:
         AnalyticsSummaryResponse with summary statistics
     """
+    FeatureFlags.require_flag("enable_admin_screens")
+    _require_admin_user(current_user)
     # Determine date range
     if start_date:
         date_range_start = start_date
@@ -119,7 +148,7 @@ def get_analytics_summary(
     ).filter(
         AnalyticsEvent.timestamp >= date_range_start,
         AnalyticsEvent.timestamp <= date_range_end
-    ).group_by(AnalyticsEvent.event_category).all()
+    ).group_by(AnalyticsEvent.event_category).limit(100).all()
 
     events_by_category = {category: count for category, count in category_counts}
 
@@ -131,7 +160,7 @@ def get_analytics_summary(
         AnalyticsEvent.timestamp >= date_range_start,
         AnalyticsEvent.timestamp <= date_range_end,
         AnalyticsEvent.screen_name.isnot(None)
-    ).group_by(AnalyticsEvent.screen_name).all()
+    ).group_by(AnalyticsEvent.screen_name).limit(100).all()
 
     events_by_screen = {screen: count for screen, count in screen_counts}
 
@@ -152,10 +181,12 @@ def get_funnel_analysis(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     db: Session = Depends(get_db),
-    _user: User = Depends(require_current_user),
+    current_user: User = Depends(require_current_user),
 ) -> FunnelQueryResponse:
     """
     Get funnel conversion analysis.
+
+    Admin-only endpoint (V6-1 audit fix): exposes global product data.
 
     Calculates conversion rates through a series of event steps.
     Steps parameter should be comma-separated event names.
@@ -173,6 +204,8 @@ def get_funnel_analysis(
     Example:
         GET /analytics/funnel?steps=landing_view,onboarding_start,wizard_started,wizard_completed
     """
+    FeatureFlags.require_flag("enable_admin_screens")
+    _require_admin_user(current_user)
     # Parse steps
     step_names = [s.strip() for s in steps.split(',') if s.strip()]
 

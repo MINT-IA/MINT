@@ -81,7 +81,7 @@ void main() {
       );
       expect(result.violations, anyElement(contains('prescriptif')),
           reason: '"investis dans" is prescriptive');
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('detects "Le produit Swisscanto est idéal pour toi"', () {
@@ -123,7 +123,7 @@ void main() {
         'Achète des actions Nestlé, c\'est une bonne entreprise suisse.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('detects "Vends tes obligations maintenant"', () {
@@ -131,7 +131,7 @@ void main() {
         'Vends tes obligations maintenant avant que les taux montent.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('detects "Investis 50% en actions"', () {
@@ -139,7 +139,7 @@ void main() {
         'Investis 50% en actions et 50% en obligations pour équilibrer.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('detects "Souscris une assurance vie Zurich"', () {
@@ -147,7 +147,7 @@ void main() {
         'Souscris une assurance vie auprès de Zurich pour la protection.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('detects "Transfère ton 3a chez frankly"', () {
@@ -155,7 +155,7 @@ void main() {
         'Transfère ton 3a chez frankly pour de meilleures conditions.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
   });
 
@@ -442,7 +442,7 @@ void main() {
         'Tu es dans le top 20% des Suisses en termes d\'épargne.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "Tu fais mieux que 80% des gens"', () {
@@ -459,7 +459,7 @@ void main() {
         'Ton épargne est au-dessus de la moyenne nationale.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "Parmi les meilleurs épargnants"', () {
@@ -476,7 +476,7 @@ void main() {
         'Tu es devant 75% des utilisateurs de MINT.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
   });
 
@@ -643,8 +643,9 @@ void main() {
     test('social comparison + promise combo', () {
       final result = ComplianceGuard.validate(
         'Tu es dans le top 10% des Suisses. '
-        'Avec ce rendement garanti, ton capital est assuré.',
+        'Avec ce rendement garanti et certain, ton capital est assuré et sans risque.',
       );
+      // 4 banned terms (garanti, certain, assuré, sans risque) → triggers fallback (>2).
       expect(result.useFallback, isTrue);
       expect(result.violations.length, greaterThanOrEqualTo(2));
     });

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -76,6 +77,10 @@ class SmartDefaultIndicator extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -159,7 +164,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                       children: [
                         Text(
                           'Fiabilite : $confidencePct %',
-                          style: MintTextStyles.bodySmall(color: _confidenceColor(confidence)).copyWith(fontSize: 12, fontWeight: FontWeight.w500),
+                          style: MintTextStyles.labelMedium(color: _confidenceColor(confidence)),
                         ),
                         const Spacer(),
                       ],
@@ -186,7 +191,7 @@ class SmartDefaultIndicator extends StatelessWidget {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                      Navigator.of(ctx).pop();
+                      ctx.pop();
                       onPrecise?.call();
                     },
                     icon: const Icon(Icons.edit_outlined, size: 16),

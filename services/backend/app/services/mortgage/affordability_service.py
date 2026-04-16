@@ -53,7 +53,7 @@ class DecompositionCharges:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -83,7 +83,7 @@ class AffordabilityResult:
     montant_hypothecaire: float
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Metadata
     prix_achat: float
@@ -144,48 +144,83 @@ class AffordabilityService:
         prix_achat = max(0.0, prix_achat)
         canton = (canton.upper() if canton else "ZH")[:2]
 
-        # 1. Total equity
-        fonds_propres_total = epargne_disponible + avoir_3a + avoir_lpp
+        # 1. Non-LPP equity (hard equity)
+        fp_base = epargne_disponible + avoir_3a
 
-        # 2. Max affordable price based on income
+        # 2. Max affordable price: solve LPP circular dependency algebraically.
+        #    LPP can contribute max 10% of purchase price as equity.
+        #    Total equity = fp_base + min(avoir_lpp, prix_max * 10%).
+        #    Required equity = prix_max * 20%.
+        #
+        #    Case A: LPP >= prix_max * 10% (LPP covers full 2nd-rank equity)
+        #      => fp_total = fp_base + prix_max * 0.10
+        #      => prix_max = fp_total / 0.20 = (fp_base + prix_max * 0.10) / 0.20
+        #      => prix_max * 0.20 = fp_base + prix_max * 0.10
+        #      => prix_max * 0.10 = fp_base
+        #      => prix_max = fp_base / 0.10
+        #
+        #    Case B: LPP < prix_max * 10% (all LPP is used but not enough)
+        #      => fp_total = fp_base + avoir_lpp
+        #      => prix_max = fp_total / 0.20 = (fp_base + avoir_lpp) / 0.20
+
+        # Solve for max price from equity constraint
+        if FONDS_PROPRES_MIN_PCT > 0:
+            # Case A: assumes LPP covers full 10% contribution
+            denominator = FONDS_PROPRES_MIN_PCT - PART_2E_PILIER_MAX
+            if denominator <= 0:
+                prix_max_case_a = 0.0  # Safety: impossible equity split
+            else:
+                prix_max_case_a = fp_base / denominator  # fp_base / 0.10
+            # Check if LPP actually covers 10% at this price
+            if avoir_lpp >= prix_max_case_a * PART_2E_PILIER_MAX:
+                prix_max_equity = prix_max_case_a
+            else:
+                # Case B: all LPP is used
+                prix_max_equity = (fp_base + avoir_lpp) / FONDS_PROPRES_MIN_PCT
+        else:
+            prix_max_equity = 0.0
+
+        # Compute the effective fonds propres at prix_max_equity
+        lpp_at_max = min(avoir_lpp, prix_max_equity * PART_2E_PILIER_MAX)
+        fonds_propres_total = fp_base + lpp_at_max
+
+        # 3. Max affordable price based on income (capacity constraint)
         #    Theoretical annual costs = mortgage * (5% + 1%) + price * 1%
         #    = (price - equity) * 6% + price * 1%
-        #    = price * 6% - equity * 6% + price * 1%
         #    = price * 7% - equity * 6%
         #    Max costs = income * 33.33%
-        #    => price * 7% - equity * 6% <= income * 33.33%
         #    => price <= (income * 33.33% + equity * 6%) / 7%
         if revenu_brut_annuel > 0:
-            prix_max = (revenu_brut_annuel * RATIO_CHARGES_MAX
-                        + fonds_propres_total * (TAUX_THEORIQUE + TAUX_AMORTISSEMENT)) / (
+            prix_max_income = (revenu_brut_annuel * RATIO_CHARGES_MAX
+                               + fonds_propres_total * (TAUX_THEORIQUE + TAUX_AMORTISSEMENT)) / (
                 TAUX_THEORIQUE + TAUX_AMORTISSEMENT + TAUX_FRAIS_ACCESSOIRES
             )
-            prix_max = round(prix_max, 2)
+            prix_max_income = round(prix_max_income, 2)
         else:
-            prix_max = 0.0
+            prix_max_income = 0.0
 
-        # Also ensure at least 20% equity for the max price
-        # price_max_equity = equity / 20% = equity * 5
-        prix_max_equity = fonds_propres_total / FONDS_PROPRES_MIN_PCT if FONDS_PROPRES_MIN_PCT > 0 else 0.0
-        prix_max = round(min(prix_max, prix_max_equity), 2)
+        prix_max = round(min(prix_max_income, prix_max_equity), 2)
 
-        # 3. If a target price is given, calculate specifics
+        # 4. If a target price is given, calculate specifics
         if prix_achat > 0:
-            fonds_propres_requis = prix_achat * FONDS_PROPRES_MIN_PCT
-            fonds_propres_suffisants = fonds_propres_total >= fonds_propres_requis
-
             # 2nd pillar cap: max 10% of purchase price
             lpp_utilisable = min(avoir_lpp, prix_achat * PART_2E_PILIER_MAX)
-            fonds_propres_effectifs = epargne_disponible + avoir_3a + lpp_utilisable
+            fonds_propres_effectifs = fp_base + lpp_utilisable
+            fonds_propres_total = fonds_propres_effectifs
+
+            fonds_propres_requis = prix_achat * FONDS_PROPRES_MIN_PCT
+            fonds_propres_suffisants = fonds_propres_total >= fonds_propres_requis
 
             montant_hypothecaire = max(0.0, prix_achat - fonds_propres_effectifs)
         else:
             # No target price: use max price
             prix_achat_calc = prix_max
+            lpp_utilisable = min(avoir_lpp, prix_achat_calc * PART_2E_PILIER_MAX)
+            fonds_propres_effectifs = fp_base + lpp_utilisable
+            fonds_propres_total = fonds_propres_effectifs
+
             fonds_propres_requis = prix_achat_calc * FONDS_PROPRES_MIN_PCT
             fonds_propres_suffisants = fonds_propres_total >= fonds_propres_requis
-            lpp_utilisable = min(avoir_lpp, prix_achat_calc * PART_2E_PILIER_MAX)
-            fonds_propres_effectifs = epargne_disponible + avoir_3a + lpp_utilisable
             montant_hypothecaire = max(0.0, prix_achat_calc - fonds_propres_effectifs)
 
         # 4. Theoretical monthly costs
@@ -216,7 +251,7 @@ class AffordabilityService:
                 gap_ou_marge = round(
                     (revenu_brut_annuel * RATIO_CHARGES_MAX - charges_annuelles) / 12, 2
                 )
-                chiffre_choc = ChiffreChoc(
+                premier_eclairage = PremierEclairage(
                     montant=gap_ou_marge,
                     texte=(
                         f"Bonne nouvelle : il te reste {gap_ou_marge:.0f} CHF/mois "
@@ -226,7 +261,7 @@ class AffordabilityService:
             else:
                 if not fonds_propres_suffisants:
                     gap_fp = round(fonds_propres_requis - fonds_propres_total, 2)
-                    chiffre_choc = ChiffreChoc(
+                    premier_eclairage = PremierEclairage(
                         montant=gap_fp,
                         texte=(
                             f"Il te manque {gap_fp:.0f} CHF de fonds propres "
@@ -236,7 +271,7 @@ class AffordabilityService:
                 else:
                     revenu_requis = round(charges_annuelles / RATIO_CHARGES_MAX, 2)
                     gap_revenu = round(revenu_requis - revenu_brut_annuel, 2)
-                    chiffre_choc = ChiffreChoc(
+                    premier_eclairage = PremierEclairage(
                         montant=gap_revenu,
                         texte=(
                             f"Il te faudrait {gap_revenu:.0f} CHF de revenu brut "
@@ -244,7 +279,7 @@ class AffordabilityService:
                         ),
                     )
         else:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=prix_max,
                 texte=(
                     f"Avec ton revenu et tes fonds propres, tu peux viser un bien "
@@ -287,7 +322,7 @@ class AffordabilityService:
             capacite_ok=capacite_ok,
             decomposition_charges=decomposition,
             montant_hypothecaire=round(montant_hypothecaire, 2),
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             prix_achat=prix_achat if prix_achat > 0 else prix_max,
             revenu_brut_annuel=revenu_brut_annuel,
             canton=canton,

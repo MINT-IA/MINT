@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Insert didactique pour q_has_leasing
 /// Simulateur coût total leasing vs alternatives
@@ -25,7 +25,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
   late double _monthlyPayment;
   late int _remainingMonths;
   
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Using centralized formatChfWithPrefix from chf_formatter.dart
 
   @override
   void initState() {
@@ -75,7 +75,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
               SizedBox(
                 width: 90,
                 child: Text(
-                  _currencyFormat.format(_monthlyPayment),
+                  formatChfWithPrefix(_monthlyPayment),
                   style: const TextStyle(fontWeight: FontWeight.bold),
                   textAlign: TextAlign.right,
                 ),
@@ -175,7 +175,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
                       const Icon(Icons.savings, color: MintColors.greenDark, size: 20),
                       const SizedBox(width: 12),
                       Text(
-                        'Économie potentielle: ${_currencyFormat.format(_totalRemaining - _occasionEquivalent)}',
+                        'Économie potentielle: ${formatChfWithPrefix(_totalRemaining - _occasionEquivalent)}',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: MintColors.greenDark,
@@ -245,7 +245,7 @@ class _LeasingCostInsertWidgetState extends State<LeasingCostInsertWidget> {
           ),
         ),
         Text(
-          _currencyFormat.format(amount),
+          formatChfWithPrefix(amount),
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

@@ -71,7 +71,7 @@ def calculate_debt_ratio(
         minimumVital=result.minimum_vital,
         margeVsMinimumVital=result.marge_vs_minimum_vital,
         enDessousMinimumVital=result.en_dessous_minimum_vital,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
         recommandations=result.recommandations,
         sources=result.sources,
         disclaimer=result.disclaimer,
@@ -136,7 +136,7 @@ def plan_repayment(
         ],
         budgetMensuel=result.budget_mensuel,
         nbDettes=result.nb_dettes,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
         sources=result.sources,
         disclaimer=result.disclaimer,
     )
@@ -179,7 +179,7 @@ def get_help_resources(
         ],
         canton=result.canton,
         situation=result.situation,
-        chiffreChoc=result.chiffre_choc,
+        premierEclairage=result.premier_eclairage,
         sources=result.sources,
         disclaimer=result.disclaimer,
     )

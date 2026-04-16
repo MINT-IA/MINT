@@ -211,18 +211,29 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════
 
   group('AuthService — edge cases', () {
-    test('empty string token is treated as logged in by getToken', () async {
-      // SharedPreferences stores the empty string; isLoggedIn checks for
-      // non-null AND non-empty
-      await AuthService.saveToken('', 'uid', 'a@b.ch');
-      final token = await AuthService.getToken();
-      expect(token, equals(''));
+    test('saveToken rejects empty token (Gate 0 zombie-auth guard)', () async {
+      // Gate 0 fix 2026-04-15: saveToken now throws ArgumentError on
+      // empty/whitespace token, userId, or email. Previously empty
+      // values were silently persisted, producing "logged in" state
+      // where every request 401'd.
+      expect(
+        () => AuthService.saveToken('', 'uid', 'a@b.ch'),
+        throwsA(isA<ArgumentError>()),
+      );
     });
 
-    test('empty string token causes isLoggedIn to return false', () async {
-      await AuthService.saveToken('', 'uid', 'a@b.ch');
-      final loggedIn = await AuthService.isLoggedIn();
-      expect(loggedIn, isFalse);
+    test('saveToken rejects empty userId', () async {
+      expect(
+        () => AuthService.saveToken('tok', '', 'a@b.ch'),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('saveToken rejects empty email', () async {
+      expect(
+        () => AuthService.saveToken('tok', 'uid', ''),
+        throwsA(isA<ArgumentError>()),
+      );
     });
 
     test('long JWT token is stored and retrieved correctly', () async {

@@ -271,7 +271,7 @@ void main() {
         'Fais un rachat LPP de CHF 15000 cette année.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "verse sur ton"', () {
@@ -279,7 +279,7 @@ void main() {
         'Verse sur ton 3a le maximum cette année.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "achète" imperative', () {
@@ -287,7 +287,7 @@ void main() {
         'Achète un bien immobilier dans le canton de Vaud.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "vends" imperative', () {
@@ -295,7 +295,7 @@ void main() {
         'Vends tes actions avant la fin du trimestre.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "choisis la rente"', () {
@@ -303,7 +303,7 @@ void main() {
         'Choisis la rente plutôt que le capital.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "prends le capital"', () {
@@ -311,7 +311,7 @@ void main() {
         'Prends le capital, c\'est plus avantageux.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "investis dans"', () {
@@ -319,7 +319,7 @@ void main() {
         'Investis dans un fonds indiciel suisse.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('catches "priorité absolue"', () {
@@ -327,7 +327,7 @@ void main() {
         'Rembourser ta dette est une priorité absolue.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('educational phrasing passes', () {
@@ -562,13 +562,17 @@ void main() {
       expect(result.useFallback, isTrue);
     });
 
-    test('English text triggers language violation', () {
+    test('English text logs language violation but does not fallback', () {
+      // v2.7 alignment with backend: language pre-check is LOG-ONLY.
+      // Modern French finance legitimately uses English terms (ETF, cash,
+      // KPI). A short language drift must not kill the response — only be
+      // recorded in violations for telemetry. Defense lives in the prompt.
       final result = ComplianceGuard.validate(
         'You should invest your money with this strategy. '
         'The returns would be excellent.',
       );
       expect(result.violations, anyElement(contains('anglais')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse);
     });
 
     test('French text passes language check', () {
@@ -718,7 +722,7 @@ void main() {
         'Tu es dans le top 10% des épargnants.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "meilleur que 80%" comparison', () {
@@ -733,7 +737,7 @@ void main() {
         'Tu es devant 60% des investisseurs.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
-      expect(result.useFallback, isTrue);
+      expect(result.useFallback, isFalse); // logged, not fallback
     });
 
     test('catches "parmi les meilleurs" comparison', () {
@@ -750,7 +754,109 @@ void main() {
         'Ton score est au-dessus de la moyenne.',
       );
       expect(result.violations, anyElement(contains('prescriptif')));
+      expect(result.useFallback, isFalse); // logged, not fallback
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════
+  // validateAlert — Alert-specific validation (layers 1-2 only)
+  // ═══════════════════════════════════════════════════════════
+
+  group('validateAlert', () {
+    test('blocks banned terms (garanti)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Ce rendement est garanti pour toi.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('garanti')));
+    });
+
+    test('blocks banned terms (sans risque)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Un placement sans risque pour ton avenir.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('sans risque')));
+    });
+
+    test('blocks banned terms (optimal)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Le moment optimal pour agir.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('optimal')));
+    });
+
+    test('blocks banned terms (meilleur)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Le meilleur choix pour ton 3a.',
+      );
+      expect(result.isCompliant, isFalse);
+      expect(result.violations, anyElement(contains('meilleur')));
+    });
+
+    test('blocks prescriptive language (tu devrais)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Tu devrais verser sur ton 3a.',
+      );
+      expect(result.isCompliant, isFalse);
+    });
+
+    test('blocks prescriptive language (tu dois)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Tu dois faire un rachat LPP.',
+      );
+      expect(result.isCompliant, isFalse);
+    });
+
+    test('blocks prescriptive language (verse sur ton)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Verse sur ton 3a le maximum.',
+      );
+      expect(result.isCompliant, isFalse);
+    });
+
+    test('accepts educational text', () {
+      final result = ComplianceGuard.validateAlert(
+        'Le d\u00e9lai pour verser sur ton 3a est le 31 d\u00e9cembre.',
+      );
+      expect(result.isCompliant, isTrue);
+      expect(result.violations, isEmpty);
+    });
+
+    test('accepts factual alert text', () {
+      final result = ComplianceGuard.validateAlert(
+        'Ta bonification LPP passe de 15% \u00e0 18% cette ann\u00e9e (LPP art.\u00a014).',
+      );
+      expect(result.isCompliant, isTrue);
+    });
+
+    test('returns useFallback=true on empty text', () {
+      final result = ComplianceGuard.validateAlert('');
+      expect(result.isCompliant, isFalse);
       expect(result.useFallback, isTrue);
+      expect(result.violations, anyElement(contains('vide')));
+    });
+
+    test('does NOT inject disclaimer text (skip layers 3-4)', () {
+      final result = ComplianceGuard.validateAlert(
+        'Ta projection de rente montre un montant important.',
+      );
+      // Should be compliant (educational text about projections)
+      // and should NOT have disclaimer injected
+      expect(result.sanitizedText, isNot(contains('Outil \u00e9ducatif')));
+      expect(result.sanitizedText, isNot(contains('LSFin')));
+    });
+
+    test('does NOT run hallucination detection', () {
+      // Even with a fabricated number, validateAlert should not check
+      final result = ComplianceGuard.validateAlert(
+        'Ton avoir LPP projet\u00e9 est de CHF 999999.',
+      );
+      final hallucinations = result.violations
+          .where((v) => v.contains('Hallucination'))
+          .toList();
+      expect(hallucinations, isEmpty);
     });
   });
 }

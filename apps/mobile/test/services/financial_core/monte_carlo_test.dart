@@ -9,9 +9,9 @@ void main() {
 
   group('MonteCarloProjectionService.simulate', () {
     // ── 1. Nombre correct de points de projection ──────────
-    test('returns correct number of projection years (30)', () {
+    test('returns correct number of projection years (30)', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -20,9 +20,9 @@ void main() {
     });
 
     // ── 2. Mediane entre P10 et P90 ────────────────────────
-    test('median is between P10 and P90 for each year', () {
+    test('median is between P10 and P90 for each year', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 200,
         seed: 42,
@@ -44,9 +44,9 @@ void main() {
     });
 
     // ── 3. Ordre strict des percentiles ────────────────────
-    test('P10 < P25 < P50 < P75 < P90 for each year', () {
+    test('P10 < P25 < P50 < P75 < P90 for each year', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 300,
         seed: 42,
@@ -76,14 +76,14 @@ void main() {
     });
 
     // ── 4. Reproductibilite avec seed ──────────────────────
-    test('with seed, results are reproducible', () {
+    test('with seed, results are reproducible', () async {
       final profile = _buildFullProfile();
-      final result1 = MonteCarloProjectionService.simulate(
+      final result1 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 100,
         seed: 12345,
       );
-      final result2 = MonteCarloProjectionService.simulate(
+      final result2 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 100,
         seed: 12345,
@@ -98,7 +98,7 @@ void main() {
     });
 
     // ── 5. Plus de LPP → mediane plus elevee ───────────────
-    test('higher LPP balance produces higher median', () {
+    test('higher LPP balance produces higher median', () async {
       final lowLpp = _buildFullProfile().copyWith(
         prevoyance: const PrevoyanceProfile(
           avoirLppTotal: 100000,
@@ -117,12 +117,12 @@ void main() {
           nombre3a: 3,
         ),
       );
-      final resultLow = MonteCarloProjectionService.simulate(
+      final resultLow = await MonteCarloProjectionService.simulate(
         profile: lowLpp,
         numSimulations: 200,
         seed: 42,
       );
-      final resultHigh = MonteCarloProjectionService.simulate(
+      final resultHigh = await MonteCarloProjectionService.simulate(
         profile: highLpp,
         numSimulations: 200,
         seed: 42,
@@ -135,9 +135,9 @@ void main() {
     });
 
     // ── 6. Probabilite de ruine entre 0 et 1 ──────────────
-    test('ruin probability is between 0 and 1', () {
+    test('ruin probability is between 0 and 1', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 100,
         seed: 42,
@@ -147,9 +147,9 @@ void main() {
     });
 
     // ── 7. Zero capital : pas de crash ─────────────────────
-    test('handles 0 capital gracefully', () {
+    test('handles 0 capital gracefully', () async {
       final profile = _buildMinimalProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -161,16 +161,16 @@ void main() {
     });
 
     // ── 8. Plus de simulations → bandes plus serrees ───────
-    test('more simulations produce tighter bands (100 vs 1000)', () {
+    test('more simulations produce tighter bands (100 vs 1000)', () async {
       final profile = _buildFullProfile();
       // Avec 100 simulations
-      final result100 = MonteCarloProjectionService.simulate(
+      final result100 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 100,
         seed: 42,
       );
       // Avec 1000 simulations
-      final result1000 = MonteCarloProjectionService.simulate(
+      final result1000 = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 1000,
         seed: 42,
@@ -195,9 +195,9 @@ void main() {
     });
 
     // ── 9. Profil minimal fonctionne ───────────────────────
-    test('works with minimal profile', () {
+    test('works with minimal profile', () async {
       final profile = _buildMinimalProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 50,
         seed: 42,
@@ -210,9 +210,9 @@ void main() {
     });
 
     // ── 10. Disclaimer est non-vide ────────────────────────
-    test('disclaimer is non-empty and mentions LSFin', () {
+    test('disclaimer is non-empty and mentions LSFin', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 10,
         seed: 42,
@@ -223,9 +223,9 @@ void main() {
     });
 
     // ── 11. numSimulations est correctement rapporte ───────
-    test('numSimulations matches requested count', () {
+    test('numSimulations matches requested count', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 77,
         seed: 42,
@@ -234,9 +234,9 @@ void main() {
     });
 
     // ── 12. medianAt65 == projection[0].p50 ────────────────
-    test('medianAt65 equals first projection point p50', () {
+    test('medianAt65 equals first projection point p50', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         numSimulations: 200,
         seed: 42,
@@ -247,9 +247,9 @@ void main() {
     });
 
     // ── 13. Annees et ages sont coherents ──────────────────
-    test('years and ages are consistent and sequential', () {
+    test('years and ages are consistent and sequential', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: 63,
         numSimulations: 20,
@@ -269,9 +269,9 @@ void main() {
     });
 
     // ── 14. Strategie capital LPP produit un revenu ────────
-    test('lppCapitalPct > 0 still produces income', () {
+    test('lppCapitalPct > 0 still produces income', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 0.5,
         numSimulations: 100,
@@ -281,9 +281,9 @@ void main() {
     });
 
     // ── 15. Profil avec 100% capital LPP ───────────────────
-    test('100% capital LPP works without crash', () {
+    test('100% capital LPP works without crash', () async {
       final profile = _buildFullProfile();
-      final result = MonteCarloProjectionService.simulate(
+      final result = await MonteCarloProjectionService.simulate(
         profile: profile,
         lppCapitalPct: 1.0,
         numSimulations: 50,

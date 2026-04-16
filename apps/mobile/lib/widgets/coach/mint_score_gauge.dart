@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -106,12 +107,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
     return MintColors.scoreCritique;
   }
 
-  /// Label du niveau
-  String get _levelLabel {
-    if (widget.score >= 80) return 'Excellent';
-    if (widget.score >= 60) return 'Bon';
-    if (widget.score >= 40) return 'Attention';
-    return 'Critique';
+  /// Label du niveau — localized via ARB keys.
+  String _levelLabel(S? l) {
+    if (widget.score >= 80) return l?.scoreGaugeLevelExcellent ?? 'Excellent';
+    if (widget.score >= 60) return l?.scoreGaugeLevelGood ?? 'Bon';
+    if (widget.score >= 40) return l?.scoreGaugeLevelAttention ?? 'Attention';
+    return l?.scoreGaugeLevelCritical ?? 'Critique';
   }
 
   /// Symbole de tendance
@@ -149,10 +150,18 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
 
   @override
   Widget build(BuildContext context) {
+    final l = S.of(context);
+    final levelLabel = _levelLabel(l);
     return Semantics(
-      label: 'Score de forme financière. ${ widget.score} sur 100. '
-          'Niveau $_levelLabel. '
-          'Budget ${widget.budgetScore}, Prévoyance ${widget.prevoyanceScore}, '
+      label: l?.scoreGaugeSemanticsLabel(
+        '${widget.score}',
+        levelLabel,
+        '${widget.budgetScore}',
+        '${widget.prevoyanceScore}',
+        '${widget.patrimoineScore}',
+      ) ?? 'Score de forme financi\u00e8re. ${widget.score} sur 100. '
+          'Niveau $levelLabel. '
+          'Budget ${widget.budgetScore}, Pr\u00e9voyance ${widget.prevoyanceScore}, '
           'Patrimoine ${widget.patrimoineScore}.',
       child: GestureDetector(
         onTap: widget.onTap,
@@ -176,24 +185,24 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _buildHeader(),
+                  _buildHeader(l, levelLabel),
                   const SizedBox(height: 20),
                   _buildGauge(constraints.maxWidth),
                   const SizedBox(height: 24),
-                  _buildSubScores(),
+                  _buildSubScores(l),
                   // P1-H: Gamification panels
                   if (widget.recentGains != null &&
                       widget.recentGains!.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildGainHistory(),
+                    _buildGainHistory(l),
                   ],
                   if (widget.nextActions != null &&
                       widget.nextActions!.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildNextActions(),
+                    _buildNextActions(l),
                   ],
                   const SizedBox(height: 16),
-                  _buildDisclaimer(),
+                  _buildDisclaimer(l),
                 ],
               ),
             );
@@ -207,7 +216,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  HEADER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildHeader() {
+  Widget _buildHeader(S? l, String levelLabel) {
     return Row(
       children: [
         Container(
@@ -229,12 +238,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Forme financière',
+                l?.scoreGaugeTitle ?? 'Forme financi\u00e8re',
                 style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
               ),
               Text(
-                'Score composite  ·  3 piliers',
-                style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                l?.scoreGaugeSubtitle ?? 'Score composite \u00b7 3 piliers',
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
               ),
             ],
           ),
@@ -247,8 +256,8 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
-            _levelLabel,
-            style: MintTextStyles.labelSmall(color: _scoreColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            levelLabel,
+            style: MintTextStyles.labelMedium(color: _scoreColor).copyWith(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -275,13 +284,16 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             alignment: Alignment.center,
             children: [
               // Custom painted arc
-              CustomPaint(
-                painter: _ScoreGaugePainter(
-                  score: widget.score,
-                  progress: _fillAnimation.value,
-                  scoreColor: _scoreColor,
+              Semantics(
+                label: 'Score gauge chart: ${widget.score}%',
+                child: CustomPaint(
+                  painter: _ScoreGaugePainter(
+                    score: widget.score,
+                    progress: _fillAnimation.value,
+                    scoreColor: _scoreColor,
+                  ),
+                  size: Size(gaugeSize, gaugeSize),
                 ),
-                size: Size(gaugeSize, gaugeSize),
               ),
               // Center content
               Column(
@@ -328,7 +340,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  SUB-SCORE BARS
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildSubScores() {
+  Widget _buildSubScores(S? l) {
     return AnimatedBuilder(
       animation: _fillAnimation,
       builder: (context, _) {
@@ -345,19 +357,19 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
             child: Column(
               children: [
                 _buildSubScoreBar(
-                  label: 'Budget',
+                  label: l?.scoreGaugeSectionBudget ?? 'Budget',
                   score: widget.budgetScore,
                   icon: Icons.account_balance_wallet_outlined,
                 ),
                 const SizedBox(height: 12),
                 _buildSubScoreBar(
-                  label: 'Prévoyance',
+                  label: l?.scoreGaugeSectionPrevoyance ?? 'Pr\u00e9voyance',
                   score: widget.prevoyanceScore,
                   icon: Icons.shield_outlined,
                 ),
                 const SizedBox(height: 12),
                 _buildSubScoreBar(
-                  label: 'Patrimoine',
+                  label: l?.scoreGaugeSectionPatrimoine ?? 'Patrimoine',
                   score: widget.patrimoineScore,
                   icon: Icons.trending_up,
                 ),
@@ -428,7 +440,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  P1-H: GAIN HISTORY
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildGainHistory() {
+  Widget _buildGainHistory(S? l) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -439,8 +451,8 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ce qui t\u2019a fait monter',
-            style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            l?.scoreGaugeGainTitle ?? 'Ce qui t\u2019a fait monter',
+            style: MintTextStyles.labelMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           ...widget.recentGains!.take(3).map((gain) => Padding(
@@ -453,12 +465,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                     Expanded(
                       child: Text(
                         gain['label'] as String? ?? '',
-                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                       ),
                     ),
                     Text(
                       '+${gain['points'] ?? 0} pts',
-                      style: MintTextStyles.labelSmall(color: MintColors.scoreExcellent).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.labelMedium(color: MintColors.scoreExcellent).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -472,7 +484,7 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  P1-H: NEXT ACTIONS
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildNextActions() {
+  Widget _buildNextActions(S? l) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -483,8 +495,8 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Pour monter encore',
-            style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            l?.scoreGaugeNextTitle ?? 'Pour monter encore',
+            style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           ...widget.nextActions!.take(3).map((action) => Padding(
@@ -497,12 +509,12 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
                     Expanded(
                       child: Text(
                         action['label'] as String? ?? '',
-                        style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                        style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                       ),
                     ),
                     Text(
                       '+${action['points'] ?? 0} pts',
-                      style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w700),
+                      style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -516,9 +528,9 @@ class _MintScoreGaugeState extends State<MintScoreGauge>
   //  DISCLAIMER
   // ────────────────────────────────────────────────────────────
 
-  Widget _buildDisclaimer() {
+  Widget _buildDisclaimer(S? l) {
     return Text(
-      'Estimations éducatives \u2014 ne constitue pas un conseil financier.',
+      l?.scoreGaugeDisclaimer ?? 'Estimations \u00e9ducatives \u2014 ne constitue pas un conseil financier.',
       textAlign: TextAlign.center,
       style: MintTextStyles.micro(color: MintColors.textMuted),
     );
@@ -657,7 +669,7 @@ class _ScoreGaugePainter extends CustomPainter {
       final labelTp = TextPainter(
         text: TextSpan(
           text: '$labelValue',
-          style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 9, fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
+          style: MintTextStyles.labelTiny(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w500, fontStyle: FontStyle.normal),
         ),
         textDirection: TextDirection.ltr,
       );

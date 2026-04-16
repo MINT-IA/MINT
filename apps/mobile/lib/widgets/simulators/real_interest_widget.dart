@@ -148,7 +148,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
         Expanded(
           child: Text(
             text,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ),
       ],
@@ -169,7 +169,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
         child: Column(
           children: [
             Text(title,
-                style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12)),
+                style: MintTextStyles.labelMedium(color: MintColors.textSecondary)),
             const SizedBox(height: 8),
             Text(
               "CHF ${(scenario.totalCapital / 1000).toStringAsFixed(1)}k",
@@ -202,7 +202,7 @@ class _RealInterestWidgetState extends State<RealInterestWidget> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12)),
+                style: MintTextStyles.labelMedium(color: MintColors.textPrimary)),
             Text(
               "${value.toInt()} $unit",
               style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.bold),

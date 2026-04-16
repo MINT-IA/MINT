@@ -711,7 +711,7 @@ void main() {
       expect(CoachingService.formatChf(1000000), 'CHF\u00A01\'000\'000');
     });
 
-    test('unknown canton uses default marginal rate of 33%', () {
+    test('unknown canton uses Swiss-average marginal rate from TaxCalculator', () {
       final tips = CoachingService.generateTips(
         profile: const CoachingProfile(
           age: 30,
@@ -724,10 +724,11 @@ void main() {
         ),
       );
 
-      // missing_3a tip should be generated with default rate
+      // missing_3a tip should be generated with calculator rate
       final missing3a = tips.firstWhere((t) => t.id == 'missing_3a');
-      // Impact = 7258 (plafond 3a 2025) * 0.33 (default taux) = 2395.14
-      expect(missing3a.estimatedImpactChf, closeTo(7258 * 0.33, 0.01));
+      // Uses RetirementTaxCalculator.estimateMarginalRate(80000, 'XX')
+      // fallback=13% effective × 0.90 income adj × 1.3 marginal ≈ 15.21%
+      expect(missing3a.estimatedImpactChf, closeTo(1103.94, 5));
     });
   });
 
@@ -865,10 +866,12 @@ void main() {
           age: 50,
           canton: 'VD',
           revenuAnnuel: 100000,
-          has3a: false,
+          has3a: true,        // Triggers 3a_not_maxed (fiscalite) year-round
           has3aAnswered: true,
+          montant3a: 2000,    // Below 7258 ceiling → 3a_not_maxed fires
           hasLpp: true,
           avoirLpp: 50000,
+          lacuneLpp: 80000,   // Triggers lpp_buyback (prevoyance)
           employmentStatus: EmploymentStatus.salarie,
         ),
       );

@@ -1,12 +1,15 @@
 # BLUEPRINT : MINT Coach AI Layer — Mission Document
 
-> **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
-> **Companions**: UX_REDESIGN_COACH.md (ce que l'utilisateur voit), MINT_COACH_VIVANT_ROADMAP.md (plan d'execution sprint).
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
 
-> **Objectif** : Transformer MINT d'une couche coach reactive en une couche coach plus proactive, narrative et utile, au service du plan.
-> **Principe** : Le LLM (BYOK) ne repond plus seulement aux questions. Il enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne exactement comme aujourd'hui (zero degradation).
+> **Scope**: Architecture technique du Coach AI (services, data flow, cache, guardrails).
+> **Companions**: `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (couche orchestration), `MINT_UX_GRAAL_MASTERPLAN.md` (vision umbrella).
+> **Note statut (2026-03-21)**: Partiellement à jour. Les fichiers `coach_dashboard_screen.dart` et `coach_agir_screen.dart` référencés dans §CONVENTIONS ont été remplacés par `CoachChatScreen` + `MainNavigationShell`. Les services listés comme "NOUVEAUX" ont été implémentés. Voir `docs/DOC_STATUS_MATRIX.md` pour le détail.
+
+> **Objectif** : Le LLM (BYOK) enrichit la narration, la personnalisation et l'orchestration du coach. Le coach n'est pas le produit: il sert le plan, les flows structures et les ecrans de preuve. Sans BYOK, l'app fonctionne avec les templates statiques (zero degradation).
 > **Source de vérité** : partielle. Référence technique pour la couche coach IA, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md`.
 > **Ne couvre pas** : vision umbrella, navigation globale, design system, taxonomie écran par écran.
+> **Companions archivés** (ne plus référencer): `UX_REDESIGN_COACH.md`, `MINT_COACH_VIVANT_ROADMAP.md` — tous deux dans `docs/archive/`.
 
 ---
 
@@ -16,10 +19,14 @@
 CoachNarrativeService (NOUVEAU)
 ├── Input: CoachProfile + ScoreHistory + CheckIns + UserActivity + DateTime.now()
 ├── Engine: BYOK via RagService (si configure) OU templates statiques (fallback)
-├── Output: CoachNarrative (greeting, scoreSummary, tips enrichis, chiffreChoc, trendMessage, milestoneAlert, scenarioNarration)
+├── Output: CoachNarrative (greeting, scoreSummary, tips enrichis, premierEclairage, trendMessage, milestoneAlert, scenarioNarration)
 ├── Cache: SharedPreferences, 24h TTL, cle = "coach_narrative_{yyyy-MM-dd}"
 └── Guardrails: Compliance filter + disclaimers (existants dans coach_llm_service.dart)
 ```
+
+**Tools Claude disponibles** (déclarés dans `coach_tools.py`) :
+- `show_score_gauge`, `show_budget_snapshot`, `ask_user_input`, `show_fact_card` — tools existants
+- `route_to_screen` — **NOUVEAU (S58)** : décide si et comment ouvrir un écran depuis le chat. Voir `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` §6 pour la spec complète.
 
 **Principe dual obligatoire** : CHAQUE feature doit fonctionner en 2 modes :
 - **Mode BYOK** : texte genere par LLM (personnalise, narratif, emotionnel)
@@ -42,30 +49,38 @@ Le check se fait via `context.read<ByokProvider>().isConfigured`.
 - **Termes bannis** : `garanti`, `certain`, `assure`, `sans risque`, `optimal`, `meilleur`, `parfait`.
 - **Disclaimer obligatoire** : "Outil educatif — ne constitue pas un conseil financier. LSFin."
 
-### Fichiers existants a modifier (PAS de nouveaux fichiers sauf indication)
-| Fichier | Lignes | Role |
-|---------|--------|------|
-| `lib/services/coach_llm_service.dart` | ~400 | Orchestrateur LLM existant |
-| `lib/services/coaching_service.dart` | ~800 | 13 triggers coaching |
-| `lib/screens/coach/coach_dashboard_screen.dart` | ~3400 | Dashboard principal |
-| `lib/screens/coach/coach_agir_screen.dart` | ~1900 | Tab Agir |
-| `lib/screens/coach/coach_checkin_screen.dart` | ~1466 | Check-in mensuel |
-| `lib/widgets/coach/chiffre_choc_card.dart` | ~200 | Carte chiffre choc |
-| `lib/services/streak_service.dart` | ~259 | Badges et milestones |
-| `lib/app.dart` | ~400 | Router + app lifecycle |
-| `lib/screens/main_navigation_shell.dart` | ~200 | Shell + WidgetsBindingObserver |
-| `pubspec.yaml` | ~50 | Dependencies |
+### Fichiers clés actifs (état 2026-03-21)
+| Fichier | Role | Statut |
+|---------|------|--------|
+| `lib/services/coach_llm_service.dart` | Orchestrateur LLM | actif |
+| `lib/services/coach/coach_orchestrator.dart` | Orchestration coach | actif |
+| `lib/services/coach/context_injector_service.dart` | Injection contexte system prompt | actif |
+| `lib/services/coaching_service.dart` | Triggers coaching | actif |
+| `lib/screens/coach/coach_chat_screen.dart` | Interface chat principale | actif (remplace coach_dashboard_screen) |
+| `lib/screens/coach/coach_checkin_screen.dart` | Check-in mensuel | actif |
+| `lib/screens/coach/annual_refresh_screen.dart` | Check-up annuel | actif |
+| `lib/services/coach/proactive_trigger_service.dart` | 7 triggers proactifs | actif |
+| `lib/services/coach/weekly_recap_service.dart` | Récap hebdomadaire | actif |
+| `lib/services/voice/regional_voice_service.dart` | Flavor régional 26 cantons | actif |
+| `lib/services/coach_narrative_service.dart` | Narration coach | actif |
+| `lib/services/streak_service.dart` | Badges et milestones | actif |
+| `lib/services/gamification/milestone_v2_service.dart` | Milestones V2 | actif |
+| `lib/app.dart` | Router + app lifecycle | actif |
+| `lib/screens/main_navigation_shell.dart` | Shell 4 tabs | actif |
 
-### Nouveaux fichiers autorises
-| Fichier | Role |
-|---------|------|
-| `lib/services/coach_narrative_service.dart` | **NOUVEAU** — Service central Coach Layer |
-| `lib/services/milestone_detection_service.dart` | **NOUVEAU** — Detection de milestones |
-| `lib/services/notification_service.dart` | **NOUVEAU** — Local notifications |
-| `lib/widgets/coach/milestone_celebration_sheet.dart` | **NOUVEAU** — Bottom sheet celebration |
+### Fichiers supprimés ou remplacés (ne plus référencer)
+| Ancien fichier | Remplacé par |
+|---|---|
+| `lib/screens/coach/coach_dashboard_screen.dart` | `coach_chat_screen.dart` |
+| `lib/screens/coach/coach_agir_screen.dart` | absorbé dans `MainNavigationShell` |
+| `lib/services/milestone_detection_service.dart` | `gamification/milestone_v2_service.dart` |
 | `lib/screens/coach/annual_refresh_screen.dart` | **NOUVEAU** — Check-up annuel |
 | `test/services/coach_narrative_service_test.dart` | **NOUVEAU** — Tests |
 | `test/services/milestone_detection_service_test.dart` | **NOUVEAU** — Tests |
+| `lib/services/navigation/screen_registry.dart` | **NOUVEAU (S57)** — Registre des 109 surfaces avec intentTag, behavior, requiredFields |
+| `lib/services/navigation/readiness_gate.dart` | **NOUVEAU (S57)** — Vérification readiness avant ouverture d'écran |
+| `lib/services/navigation/route_planner.dart` | **NOUVEAU (S58)** — Planner de routage chat → écran |
+| `lib/models/screen_return.dart` | **NOUVEAU (S58)** — Contrat de retour écran → coach |
 
 ---
 
@@ -292,16 +307,16 @@ if (_tips != null && _tips!.isNotEmpty) {
 
 ---
 
-## TACHE T3 — Chiffre Choc Emotionnel
+## TACHE T3 — Premier Éclairage Emotionnel
 
-### Fichier : `lib/widgets/coach/chiffre_choc_card.dart` (MODIFIER)
+### Fichier : `lib/widgets/coach/premier_eclairage_card.dart` (MODIFIER) — legacy name, canonical: `premier_eclairage_card`
 
 ### Specification
 
-Le `ChiffreChocCard` accepte deja `value`, `message`, `source`, `ctaLabel`, `ctaRoute`. Ajouter un champ optionnel `narrativeMessage` :
+Le `PremierEclairageCard` accepte deja `value`, `message`, `source`, `ctaLabel`, `ctaRoute`. Ajouter un champ optionnel `narrativeMessage` :
 
 ```dart
-class ChiffreChocCard extends StatelessWidget {
+class PremierEclairageCard extends StatelessWidget {
   final double value;
   final String message;          // message actuel (statique)
   final String? narrativeMessage; // NOUVEAU : message LLM (si BYOK)
@@ -716,6 +731,40 @@ Text(tip.message)
 // APRES :
 Text(tip.narrativeMessage ?? tip.message)
 ```
+
+---
+
+## TACHE Tx — RoutePlanner + ReturnContract (S57-S58)
+
+> Spec complète : `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` (source de vérité pour l'implémentation détaillée).
+
+### Objectif
+
+Implémenter la couche d'orchestration entre le chat Coach et les 109 surfaces MINT. Remplacer le routage ad hoc actuel (mots-clés hardcodés, `context.push` dispersés) par une couche déterministe et testable.
+
+### Phase S57 — ScreenRegistry + ReadinessGate
+
+**Fichiers** :
+- `lib/services/navigation/screen_registry.dart` — `const Map` des 109 surfaces, chaque entrée déclare `route`, `intentTag`, `behavior` (A/B/C/D/E), `requiredFields`, `fallbackRoute`, `preferFromChat`, `prefillFromProfile`.
+- `lib/services/navigation/readiness_gate.dart` — fonction pure qui retourne `ReadinessLevel.ready / partial / blocked` selon le profil et les `requiredFields` de la surface.
+
+**Tests requis** :
+1. Chaque surface a un `intentTag` unique
+2. Toutes les routes déclarées existent dans `app.dart`
+3. `readiness` correcte pour chaque niveau (ready / partial / blocked) sur les 10 surfaces top
+
+### Phase S58 — RoutePlanner + tool `route_to_screen` + ReturnContract
+
+**Fichiers** :
+- `lib/services/navigation/route_planner.dart` — orchestre `ScreenRegistry` + `ReadinessGate` → retourne `RouteDecision` (openScreen / openWithWarning / askFirst / conversationOnly).
+- `lib/models/screen_return.dart` — modèle `ScreenReturn` avec `route`, `outcome` (completed / abandoned / changedInputs), `updatedFields`, `confidenceDelta`, `nextCapSuggestion`.
+- `services/backend/app/api/v1/endpoints/coach_tools.py` — ajouter le tool `route_to_screen` avec `intent` + `confidence`.
+
+**Règles non-négociables** :
+- Le LLM retourne un `intent`, jamais un `context.push('/route')` brut.
+- `Explorer` reste autonome — l'orchestration ne remplace pas la navigation directe.
+- Fallback sans LLM : `ScreenRegistry + ReadinessGate` fonctionnent seuls si Claude est indisponible.
+- Le contrat de retour nourrit `CapMemory.markCompleted / markAbandoned`.
 
 ---
 

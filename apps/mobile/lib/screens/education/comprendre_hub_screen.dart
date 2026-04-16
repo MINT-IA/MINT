@@ -5,6 +5,8 @@ import 'package:mint_mobile/data/educational_themes.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class ComprendreHubScreen extends StatelessWidget {
   const ComprendreHubScreen({super.key});
@@ -25,7 +27,7 @@ class ComprendreHubScreen extends StatelessWidget {
         scrolledUnderElevation: 0,
         leading: const BackButton(color: MintColors.textPrimary),
       ),
-      body: ListView.builder(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView.builder(
         padding: const EdgeInsets.all(MintSpacing.lg),
         itemCount: EducationData.themes.length + 1, // +1 for header
         itemBuilder: (context, index) {
@@ -44,7 +46,7 @@ class ComprendreHubScreen extends StatelessWidget {
             child: _ThemeCard(theme: theme),
           );
         },
-      ),
+      ))),
     );
   }
 }
@@ -62,23 +64,12 @@ class _ThemeCard extends StatelessWidget {
       child: InkWell(
       onTap: () => context.push('/education/theme/${theme.id}'),
       borderRadius: BorderRadius.circular(20),
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: MintColors.black.withValues(alpha: 0.03),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+      child: MintSurface(
+        elevated: true,
         child: Row(
           children: [
             // Color bar
-            Container(
+            MintEntrance(child: Container(
               width: 8,
               decoration: BoxDecoration(
                 color: theme.color,
@@ -87,9 +78,9 @@ class _ThemeCard extends StatelessWidget {
                   bottomLeft: Radius.circular(20),
                 ),
               ),
-            ),
+            )),
             Expanded(
-              child: Padding(
+              child: MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
                 child: Row(
                   children: [
@@ -123,7 +114,7 @@ class _ThemeCard extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
+            )),
           ],
         ),
       ),

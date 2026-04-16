@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/models/cap_decision.dart';
-import 'package:mint_mobile/screens/pulse/pulse_screen.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/navigation_shell_state.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -27,7 +28,8 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 class CapCard extends StatelessWidget {
   final CapDecision cap;
 
-  /// Optional: recent action feedback (e.g. "Ajouté hier").
+  /// Kept for API compatibility but no longer rendered in the card.
+  /// Feedback is shown via a snackbar instead.
   final String? recentActionLabel;
 
   const CapCard({
@@ -60,16 +62,6 @@ class CapCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Recent action feedback
-              if (recentActionLabel != null) ...[
-                _buildFeedbackPill(),
-                const SizedBox(height: MintSpacing.sm + 4),
-              ],
-
-              // Kind pill
-              _buildKindPill(context),
-              const SizedBox(height: MintSpacing.sm + 4),
-
               // Headline
               Text(
                 cap.headline,
@@ -115,57 +107,9 @@ class CapCard extends StatelessWidget {
 
               // CTA button
               _buildCta(context),
-
-              // Confidence label
-              if (cap.confidenceLabel != null) ...[
-                const SizedBox(height: MintSpacing.sm + 4),
-                Text(
-                  cap.confidenceLabel!,
-                  style: MintTextStyles.micro(),
-                ),
-              ],
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildKindPill(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: _kindColor.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        _kindLabel(context),
-        style: MintTextStyles.labelSmall(color: _kindColor),
-      ),
-    );
-  }
-
-  Widget _buildFeedbackPill() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: MintColors.success.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.check_circle_outline_rounded,
-            size: 14,
-            color: MintColors.success.withValues(alpha: 0.7),
-          ),
-          const SizedBox(width: 4),
-          Text(
-            recentActionLabel!,
-            style: MintTextStyles.labelSmall(color: MintColors.success),
-          ),
-        ],
       ),
     );
   }
@@ -189,8 +133,8 @@ class CapCard extends StatelessWidget {
               children: [
                 Text(
                   cap.ctaLabel,
-                  style: MintTextStyles.titleMedium(color: MintColors.white)
-                      .copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(color: MintColors.white)
+                      ,
                 ),
                 const SizedBox(width: 8),
                 const Icon(
@@ -207,68 +151,69 @@ class CapCard extends StatelessWidget {
   }
 
   void _handleCta(BuildContext context) {
+    // Snapshot profile hash BEFORE navigation to detect real changes on return
+    final profileBefore = _profileHash(context);
+
     switch (cap.ctaMode) {
       case CtaMode.route:
         if (cap.ctaRoute != null) {
           context.push<void>(cap.ctaRoute!).then((_) {
-            _trackAbandonmentIfNeeded();
+            if (!context.mounted) return;
+            _resolveCompletionOnReturn(context, profileBefore);
           });
         }
       case CtaMode.coach:
-        // Switch to coach tab with injected prompt if available.
-        // CoachChatScreen reads the pending prompt from a shared state.
         if (cap.coachPrompt != null && cap.coachPrompt!.isNotEmpty) {
           CapCoachBridge.pendingPrompt = cap.coachPrompt;
         }
         NavigationShellState.switchTab(1);
       case CtaMode.capture:
-        // Route to the specific capture flow based on captureType.
         final route = switch (cap.captureType) {
-          'lpp' => '/document-scan',
-          'avs' => '/document-scan/avs',
+          'lpp' => '/scan',
+          'avs' => '/scan/avs-guide',
           'profile' => '/onboarding/enrichment',
           _ => '/onboarding/enrichment',
         };
         context.push<void>(route).then((_) {
-          _trackAbandonmentIfNeeded();
+          if (!context.mounted) return;
+          _resolveCompletionOnReturn(context, profileBefore);
         });
     }
   }
 
-  /// Track flow abandonment when user returns from a cap-triggered route
-  /// without having called markCompleted. This populates CapMemory.abandonedFlows
-  /// for recency scoring and UX adaptation.
-  void _trackAbandonmentIfNeeded() {
+  /// Compare profile state before/after navigation. If changed → user did something
+  /// meaningful → mark cap completed. If unchanged → mark abandoned.
+  void _resolveCompletionOnReturn(BuildContext context, int profileBefore) {
+    final profileAfter = _profileHash(context);
+    final profileChanged = profileAfter != profileBefore;
+
     CapMemoryStore.load().then((mem) {
-      // If the cap was NOT completed (no fresh lastCompletedDate),
-      // mark it as abandoned.
-      final wasCompleted = mem.completedActions.contains(cap.id);
-      if (!wasCompleted) {
+      if (profileChanged) {
+        // User changed their profile data during the flow → cap completed
+        CapMemoryStore.markCompleted(mem, cap.id, headline: cap.headline, ctaLabel: cap.ctaLabel);
+      } else if (!mem.completedActions.contains(cap.id)) {
+        // No profile change and not already completed → abandoned
         CapMemoryStore.markAbandoned(mem, cap.id, frictionContext: 'user_returned');
       }
     });
   }
 
-  // ── COMPUTED ──────────────────────────────────────────────
-
-  String _kindLabel(BuildContext context) {
-    final l = S.of(context)!;
-    return switch (cap.kind) {
-      CapKind.complete => l.capKindComplete,
-      CapKind.correct => l.capKindCorrect,
-      CapKind.optimize => l.capKindOptimize,
-      CapKind.secure => l.capKindSecure,
-      CapKind.prepare => l.capKindPrepare,
-    };
+  /// Quick hash of profile state to detect meaningful changes
+  int _profileHash(BuildContext context) {
+    try {
+      final provider = Provider.of<CoachProfileProvider>(context, listen: false);
+      final p = provider.profile;
+      if (p == null) return 0;
+      return Object.hash(
+        p.salaireBrutMensuel, p.prevoyance.avoirLppTotal,
+        p.prevoyance.totalEpargne3a, p.canton, p.etatCivil,
+        p.employmentStatus, p.prevoyance.anneesContribuees,
+      );
+    } catch (_) {
+      return 0;
+    }
   }
 
-  Color get _kindColor => switch (cap.kind) {
-        CapKind.complete => MintColors.info,
-        CapKind.correct => MintColors.warning,
-        CapKind.optimize => MintColors.success,
-        CapKind.secure => MintColors.error,
-        CapKind.prepare => MintColors.primary,
-      };
 }
 
 /// Bridge for passing coach prompt from CapCard to CoachChatScreen.

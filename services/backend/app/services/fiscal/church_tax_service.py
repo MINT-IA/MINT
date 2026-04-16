@@ -120,7 +120,7 @@ class ChurchTaxEstimate:
     church_tax_rate: float  # as percentage of cantonal tax (0.10 = 10%)
     impot_cantonal_base: float  # cantonal tax used as base
     impot_eglise: float     # absolute amount
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str]
 
@@ -163,22 +163,22 @@ class ChurchTaxService:
         impot_eglise = round(cantonal_tax * rate, 2)
         canton_name = CANTON_NAMES.get(canton, canton)
 
-        # Build chiffre choc
+        # Build premier éclairage
         if not is_mandatory:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Dans le canton de {canton_name}, l'impot ecclesiastique "
                 f"est volontaire ou integre dans l'impot cantonal. "
                 f"Tu ne paies pas de supplement obligatoire."
             )
         elif impot_eglise > 0:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"En tant que membre d'une eglise reconnue dans le canton "
                 f"de {canton_name}, tu paies environ {impot_eglise:,.0f} CHF/an "
                 f"d'impot ecclesiastique ({rate * 100:.0f}% de l'impot cantonal). "
                 f"En sortant de l'eglise, tu economiserais cette somme."
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 "Avec un impot cantonal de 0 CHF, l'impot ecclesiastique "
                 "est egalement de 0 CHF."
             )
@@ -190,7 +190,7 @@ class ChurchTaxService:
             church_tax_rate=rate,
             impot_cantonal_base=cantonal_tax,
             impot_eglise=impot_eglise,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=list(SOURCES),
         )
@@ -263,7 +263,7 @@ def estimer_impot_eglise(
         "church_tax_rate": estimate.church_tax_rate,
         "impot_cantonal_base": estimate.impot_cantonal_base,
         "impot_eglise": estimate.impot_eglise,
-        "chiffre_choc": estimate.chiffre_choc,
+        "premier_eclairage": estimate.premier_eclairage,
         "disclaimer": estimate.disclaimer,
         "sources": estimate.sources,
     }

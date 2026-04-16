@@ -24,10 +24,13 @@ from app.constants.social_insurance import (
     AVS_13EME_RENTE_ACTIVE,
     AVS_NOMBRE_RENTES_PAR_AN,
     AVS_RENTE_MAX_MENSUELLE,
+    AVS_RENTE_MIN_MENSUELLE,
     AVS_RENTE_COUPLE_MAX_MENSUELLE,
     AVS_DUREE_COTISATION_COMPLETE,
     AVS_REDUCTION_ANTICIPATION,
     AVS_SUPPLEMENT_AJOURNEMENT,
+    AVS_RAMD_MIN,
+    AVS_RAMD_MAX,
 )
 
 
@@ -59,7 +62,7 @@ class AvsEstimation:
     duree_estimee_ans: int            # Years from retirement to life expectancy
     total_cumule: float               # Total pension over estimated duration
     breakeven_vs_normal: Optional[int]  # Age at which total exceeds normal scenario
-    chiffre_choc: str                 # Educational shock figure
+    premier_eclairage: str                 # Educational shock figure
     sources: List[str] = field(default_factory=list)
 
 
@@ -75,6 +78,34 @@ class AvsEstimationService:
     - Gaps in contributions reduce rente proportionally (LAVS art. 29)
     """
 
+    @staticmethod
+    def _rente_from_ramd(gross_salary: float) -> float:
+        """Compute full AVS rente from RAMD using linear interpolation.
+
+        LAVS art. 34: rente is linearly interpolated between min and max
+        based on Revenu Annuel Moyen Déterminant (RAMD).
+
+        - RAMD <= 14'700 CHF → minimum rente (1'260 CHF/month)
+        - RAMD >= 88'200 CHF → maximum rente (2'520 CHF/month)
+        - Between: linear interpolation
+
+        Args:
+            gross_salary: Annual gross salary used as proxy for RAMD.
+
+        Returns:
+            Full monthly rente before gap reduction (CHF).
+        """
+        if gross_salary <= 0:
+            return 0.0
+        if gross_salary <= AVS_RAMD_MIN:
+            return AVS_RENTE_MIN_MENSUELLE
+        if gross_salary >= AVS_RAMD_MAX:
+            return AVS_RENTE_MAX_MENSUELLE
+        ratio = (gross_salary - AVS_RAMD_MIN) / (AVS_RAMD_MAX - AVS_RAMD_MIN)
+        return AVS_RENTE_MIN_MENSUELLE + ratio * (
+            AVS_RENTE_MAX_MENSUELLE - AVS_RENTE_MIN_MENSUELLE
+        )
+
     def estimate(
         self,
         current_age: int,
@@ -82,6 +113,7 @@ class AvsEstimationService:
         is_couple: bool = False,
         annees_lacunes: int = 0,
         life_expectancy: int = 87,
+        gross_salary: float = 0.0,
     ) -> AvsEstimation:
         """Estimate AVS pension for the given parameters.
 
@@ -91,6 +123,7 @@ class AvsEstimationService:
             is_couple: Whether both spouses receive AVS (couple plafonnement).
             annees_lacunes: Number of years with missing contributions.
             life_expectancy: Assumed life expectancy for cumulative calculation.
+            gross_salary: Annual gross salary (proxy for RAMD). If 0, uses max rente.
 
         Returns:
             AvsEstimation with complete projection.
@@ -116,14 +149,23 @@ class AvsEstimationService:
         effective_years = max(0, effective_years)
         gap_factor = effective_years / AVS_DUREE_COTISATION_COMPLETE if effective_years > 0 else 0
 
-        # 3. Calculate rente
-        base_rente = AVS_RENTE_MAX_MENSUELLE * gap_factor
+        # 3. Calculate rente using RAMD-based interpolation (LAVS art. 34)
+        # If gross_salary is provided and > 0, use RAMD lookup; otherwise max rente
+        if gross_salary > 0:
+            full_rente = self._rente_from_ramd(gross_salary)
+        else:
+            full_rente = AVS_RENTE_MAX_MENSUELLE
+        base_rente = full_rente * gap_factor
         rente_mensuelle = round(base_rente * factor, 2)
         # Annual rente includes 13th rente if active (13 × monthly instead of 12)
         nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
         rente_annuelle = round(rente_mensuelle * nb_rentes, 2)
 
         # 4. Couple plafonnement
+        # TODO(deferred): LAVS art. 29quinquies — income splitting during marriage not yet modeled.
+        # Current: applies 150% couple cap only. For asymmetric couples (e.g. 200k + 0),
+        # individual rentes before cap may be inaccurate. Full splitting requires marriage date
+        # and is a dedicated feature (see ROADMAP — couple accuracy milestone).
         rente_couple = None
         if is_couple:
             rente_couple = round(
@@ -140,30 +182,32 @@ class AvsEstimationService:
 
         # 6. Breakeven (only for anticipation/deferral)
         breakeven = self._calculate_breakeven(
-            scenario, retirement_age, rente_mensuelle, gap_factor, life_expectancy
+            scenario, retirement_age, rente_mensuelle, gap_factor, life_expectancy,
+            gross_salary=gross_salary,
         )
 
         # 7. Chiffre choc
+        normal_rente = full_rente * gap_factor  # rente without anticipation/deferral
         if scenario == "anticipation":
             perte_totale = round(
-                (AVS_RENTE_MAX_MENSUELLE * gap_factor - rente_mensuelle) * nb_rentes * duree, 0
+                (normal_rente - rente_mensuelle) * nb_rentes * duree, 0
             )
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Anticiper de {AVS_RETIREMENT_AGE - retirement_age} an(s) = "
                 f"-{abs(penalty_pct):.1f}% a vie, soit ~CHF {perte_totale:,.0f} "
                 f"de moins sur {duree} ans"
             )
         elif scenario == "ajournement":
             gain_total = round(
-                (rente_mensuelle - AVS_RENTE_MAX_MENSUELLE * gap_factor) * nb_rentes * duree, 0
+                (rente_mensuelle - normal_rente) * nb_rentes * duree, 0
             )
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Ajourner de {retirement_age - AVS_RETIREMENT_AGE} an(s) = "
                 f"+{penalty_pct:.1f}% a vie, soit ~CHF {gain_total:,.0f} "
                 f"de plus sur {duree} ans"
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Ta rente AVS estimee : CHF {rente_mensuelle:,.0f}/mois "
                 f"soit CHF {rente_annuelle:,.0f}/an (13 rentes)"
             )
@@ -187,7 +231,7 @@ class AvsEstimationService:
             duree_estimee_ans=duree,
             total_cumule=total_cumule,
             breakeven_vs_normal=breakeven,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -198,6 +242,7 @@ class AvsEstimationService:
         rente_mensuelle: float,
         gap_factor: float,
         life_expectancy: int,
+        gross_salary: float = 0.0,
     ) -> Optional[int]:
         """Calculate the breakeven age where cumulative amounts cross.
 
@@ -212,6 +257,7 @@ class AvsEstimationService:
             rente_mensuelle: Monthly pension with adjustments.
             gap_factor: Contribution gap reduction factor.
             life_expectancy: Assumed life expectancy.
+            gross_salary: Annual gross salary for RAMD lookup.
 
         Returns:
             Breakeven age or None.
@@ -219,7 +265,15 @@ class AvsEstimationService:
         if scenario == "normal":
             return None
 
-        normal_rente_mensuelle = AVS_RENTE_MAX_MENSUELLE * gap_factor
+        # Use RAMD-based rente for the normal scenario baseline
+        if gross_salary > 0:
+            full_rente = self._rente_from_ramd(gross_salary)
+        else:
+            full_rente = AVS_RENTE_MAX_MENSUELLE
+        normal_rente_mensuelle = full_rente * gap_factor
+
+        # Annual rente uses 13 payments (13e rente) when active, not 12.
+        nb_rentes = AVS_NOMBRE_RENTES_PAR_AN if AVS_13EME_RENTE_ACTIVE else 12
 
         # Compare cumulative amounts year by year
         cumul_scenario = 0.0
@@ -228,9 +282,9 @@ class AvsEstimationService:
 
         for age in range(start_age, life_expectancy + 1):
             if age >= retirement_age:
-                cumul_scenario += rente_mensuelle * 12
+                cumul_scenario += rente_mensuelle * nb_rentes
             if age >= AVS_RETIREMENT_AGE:
-                cumul_normal += normal_rente_mensuelle * 12
+                cumul_normal += normal_rente_mensuelle * nb_rentes
 
             if scenario == "ajournement" and cumul_scenario > cumul_normal and cumul_normal > 0:
                 return age
@@ -241,9 +295,9 @@ class AvsEstimationService:
             cumul_normal = 0.0
             for age in range(start_age, life_expectancy + 1):
                 if age >= retirement_age:
-                    cumul_scenario += rente_mensuelle * 12
+                    cumul_scenario += rente_mensuelle * nb_rentes
                 if age >= AVS_RETIREMENT_AGE:
-                    cumul_normal += normal_rente_mensuelle * 12
+                    cumul_normal += normal_rente_mensuelle * nb_rentes
                 if cumul_normal > cumul_scenario and cumul_scenario > 0:
                     return age
 

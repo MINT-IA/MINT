@@ -10,8 +10,8 @@ import 'package:mint_mobile/services/privacy_service.dart';
 ///   - Disclaimer and legal sources
 void main() {
   group('Data categories', () {
-    test('has exactly 6 data categories', () {
-      expect(PrivacyService.dataCategories.length, 6);
+    test('has exactly 8 data categories (F3-4)', () {
+      expect(PrivacyService.dataCategories.length, 8);
     });
 
     test('each category has all required fields', () {
@@ -37,13 +37,15 @@ void main() {
       expect(ids.toSet().length, ids.length);
     });
 
-    test('category IDs match expected set', () {
+    test('category IDs match expected set (F3-4)', () {
       final ids =
           PrivacyService.dataCategories.map((c) => c['id'] as String).toSet();
       expect(
           ids,
           containsAll([
             'core_profile',
+            'byok_data_sharing',
+            'snapshot_storage',
             'analytics',
             'coaching_notifications',
             'open_banking',
@@ -68,9 +70,9 @@ void main() {
       expect(required.first['id'], 'core_profile');
     });
 
-    test('there are exactly 5 optional categories', () {
+    test('there are exactly 7 optional categories (F3-4)', () {
       final optional = PrivacyService.optionalCategories;
-      expect(optional.length, 5);
+      expect(optional.length, 7);
     });
 
     test('optional categories do not include core_profile', () {
@@ -189,7 +191,7 @@ void main() {
     test('getCategoryById returns correct category', () {
       final cat = PrivacyService.getCategoryById('open_banking');
       expect(cat, isNotNull);
-      expect(cat!['label'], 'Donnees bancaires (bLink)');
+      expect(cat!['label'], 'Données bancaires (bLink)');
     });
 
     test('getCategoryById returns null for unknown ID', () {

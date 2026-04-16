@@ -161,7 +161,7 @@ class CommunityChallengeService {
     '/pulse',
     '/pulse/fhs',
     '/pulse/achievements',
-    '/mint',
+    '/home?tab=1',
     '/profile',
   };
 

@@ -19,13 +19,13 @@ import 'package:mint_mobile/services/lpp_deep_service.dart' show formatChf;
 
 enum DebtRiskLevel { vert, orange, rouge }
 
-/// Resultat du chiffre choc
-class DebtChiffreChoc {
+/// Resultat du premier éclairage
+class DebtPremierEclairage {
   final double montant;
   final String texte;
   final DebtRiskLevel niveau;
 
-  const DebtChiffreChoc({
+  const DebtPremierEclairage({
     required this.montant,
     required this.texte,
     required this.niveau,
@@ -39,7 +39,7 @@ class DebtRatioResult {
   final double minimumVital;
   final double margeDisponible;
   final bool minimumVitalMenace;
-  final DebtChiffreChoc chiffreChoc;
+  final DebtPremierEclairage premierEclairage;
   final List<String> recommandations;
   final String disclaimer;
 
@@ -49,7 +49,7 @@ class DebtRatioResult {
     required this.minimumVital,
     required this.margeDisponible,
     required this.minimumVitalMenace,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.recommandations,
     required this.disclaimer,
   });
@@ -162,7 +162,7 @@ class DebtRatioCalculator {
       minimumVital: minimumVital,
       margeDisponible: margeDisponible,
       minimumVitalMenace: minimumVitalMenace,
-      chiffreChoc: DebtChiffreChoc(
+      premierEclairage: DebtPremierEclairage(
         montant: ratio,
         texte: 'Ratio dette : ${ratio.toStringAsFixed(1)}%',
         niveau: niveau,
@@ -255,7 +255,7 @@ class RepaymentComparisonResult {
   final RepaymentPlanResult bouleDeNeige;
   final double economieMois;
   final double economieInterets;
-  final DebtChiffreChoc chiffreChoc;
+  final DebtPremierEclairage premierEclairage;
   final String disclaimer;
 
   const RepaymentComparisonResult({
@@ -263,7 +263,7 @@ class RepaymentComparisonResult {
     required this.bouleDeNeige,
     required this.economieMois,
     required this.economieInterets,
-    required this.chiffreChoc,
+    required this.premierEclairage,
     required this.disclaimer,
   });
 }
@@ -305,7 +305,7 @@ class RepaymentPlanner {
       bouleDeNeige: bouleDeNeige,
       economieMois: economieMois.abs(),
       economieInterets: economieInterets.abs(),
-      chiffreChoc: DebtChiffreChoc(
+      premierEclairage: DebtPremierEclairage(
         montant: meilleur.moisJusquaLiberation.toDouble(),
         texte:
             'Libere dans ${meilleur.moisJusquaLiberation} mois — '

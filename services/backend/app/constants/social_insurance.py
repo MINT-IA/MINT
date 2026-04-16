@@ -1,8 +1,17 @@
 """
-Constantes d'assurances sociales suisses — source unique de verite.
+Constantes d'assurances sociales suisses — facade sur RegulatoryRegistry.
 
 Valeurs en vigueur: 2025
 Derniere mise a jour: 2025-01-01
+
+Ce fichier est une FACADE (bridge) qui lit toutes les valeurs depuis
+RegulatoryRegistry. Les 43+ consumers existants continuent a importer
+depuis ce module — zero breaking change.
+
+Architecture:
+    - RegulatoryRegistry = single source of truth (app.services.regulatory.registry)
+    - Ce module = thin bridge pour compatibilite avec les imports existants
+    - Lazy loading via _get() pour eviter les imports circulaires
 
 Sources officielles:
 - OFAS (Office federal des assurances sociales)
@@ -12,70 +21,132 @@ Sources officielles:
 - LAVS / LAI / LAPG / LACI
 
 Procedure de mise a jour annuelle:
-1. Verifier les nouvelles valeurs sur le site de l'OFAS (publication ~octobre)
-2. Modifier UNIQUEMENT ce fichier
+1. Mettre a jour RegulatoryRegistry (app/services/regulatory/registry.py)
+2. Les valeurs ici se mettent a jour automatiquement via _get()
 3. Lancer la suite de tests: pytest
 4. Mettre a jour le miroir Flutter: lib/constants/social_insurance.dart
 """
 
 from typing import Dict, List, Tuple
 
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Bridge helper — lazy import to avoid circular dependencies
+# ══════════════════════════════════════════════════════════════════════════════
+
+
+def _get(key: str, jurisdiction: str = "CH") -> float:
+    """Lazy lookup from RegulatoryRegistry. Returns value or raises KeyError."""
+    from app.services.regulatory.registry import RegulatoryRegistry
+    reg = RegulatoryRegistry.instance()
+    val = reg.get_value(key, jurisdiction=jurisdiction)
+    if val is None:
+        raise KeyError(f"RegulatoryRegistry missing key: {key}")
+    return val
+
+
+def _get_cantonal_rates() -> Dict[str, float]:
+    """Build cantonal tax rate dict from registry."""
+    from app.services.regulatory.registry import RegulatoryRegistry
+    reg = RegulatoryRegistry.instance()
+    cantons = [
+        "ZH", "BE", "LU", "UR", "SZ", "OW", "NW", "GL", "ZG", "FR",
+        "SO", "BS", "BL", "SH", "AR", "AI", "SG", "GR", "AG", "TG",
+        "TI", "VD", "VS", "NE", "GE", "JU",
+    ]
+    rates: Dict[str, float] = {}
+    for c in cantons:
+        param = reg.get(f"capital_tax.cantonal.{c}", jurisdiction=c)
+        if param is not None:
+            rates[c] = param.value
+    return rates
+
+
+def _get_capital_tranches() -> List[Tuple[float, float, float]]:
+    """Build progressive capital tax brackets from registry."""
+    return [
+        (0, 100_000, _get("capital_tax.bracket.0_100k")),
+        (100_000, 200_000, _get("capital_tax.bracket.100k_200k")),
+        (200_000, 500_000, _get("capital_tax.bracket.200k_500k")),
+        (500_000, 1_000_000, _get("capital_tax.bracket.500k_1m")),
+        (1_000_000, float("inf"), _get("capital_tax.bracket.1m_plus")),
+    ]
+
+
+def _get_avs_deferral_supplements() -> Dict[int, float]:
+    """Build AVS deferral supplement dict from registry."""
+    return {
+        years: _get(f"avs.deferral_supplement.{years}")
+        for years in range(1, 6)
+    }
+
+
+def _get_lpp_bonifications_list() -> List[Tuple[int, int, float]]:
+    """Build LPP bonification list from registry."""
+    return [
+        (25, 34, _get("lpp.bonification.25_34")),
+        (35, 44, _get("lpp.bonification.35_44")),
+        (45, 54, _get("lpp.bonification.45_54")),
+        (55, 65, _get("lpp.bonification.55_65")),
+    ]
+
+
+def _get_lpp_bonifications_dict() -> Dict[int, float]:
+    """Build LPP bonification dict from registry."""
+    return {
+        25: _get("lpp.bonification.25_34"),
+        35: _get("lpp.bonification.35_44"),
+        45: _get("lpp.bonification.45_54"),
+        55: _get("lpp.bonification.55_65"),
+    }
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # LPP — Prevoyance professionnelle (2e pilier)
 # Base legale: LPP art. 7, 8, 14, 16 / OPP2
 # ══════════════════════════════════════════════════════════════════════════════
 
-LPP_SEUIL_ENTREE: float = 22_680.0
+LPP_SEUIL_ENTREE: float = _get("lpp.entry_threshold")
 """Salaire annuel minimum pour etre soumis a la LPP (LPP art. 7)."""
 
-LPP_DEDUCTION_COORDINATION: float = 26_460.0
+LPP_DEDUCTION_COORDINATION: float = _get("lpp.coordination_deduction")
 """Deduction de coordination (LPP art. 8). Salaire coordonne = brut - deduction."""
 
-LPP_SALAIRE_COORDONNE_MIN: float = 3_780.0
+LPP_SALAIRE_COORDONNE_MIN: float = _get("lpp.min_coordinated_salary")
 """Salaire coordonne minimum assure (LPP art. 8 al. 2)."""
 
-LPP_SALAIRE_COORDONNE_MAX: float = 64_260.0
+LPP_SALAIRE_COORDONNE_MAX: float = _get("lpp.max_coordinated_salary")
 """Salaire coordonne maximum assure (= LPP_SALAIRE_MAX - LPP_DEDUCTION_COORDINATION)."""
 
-LPP_SALAIRE_MAX: float = 90_720.0
+LPP_SALAIRE_MAX: float = _get("lpp.max_insured_salary")
 """Salaire annuel maximum assure LPP (LPP art. 8 al. 1)."""
 
-LPP_TAUX_CONVERSION_MIN: float = 6.8
+LPP_TAUX_CONVERSION_MIN: float = round(_get("lpp.conversion_rate") * 100, 1)
 """Taux de conversion minimum LPP en % (LPP art. 14 al. 2). Capital -> rente."""
 
-LPP_TAUX_CONVERSION_MIN_DECIMAL: float = 0.068
+LPP_TAUX_CONVERSION_MIN_DECIMAL: float = _get("lpp.conversion_rate")
 """Taux de conversion minimum LPP en fraction decimale (0.068 = 6.8%)."""
 
-LPP_TAUX_INTERET_MIN: float = 1.25
+LPP_TAUX_INTERET_MIN: float = _get("lpp.min_interest_rate")
 """Taux d'interet minimum LPP en % (fixe par le Conseil federal)."""
 
-LPP_BONIFICATIONS_VIEILLESSE: List[Tuple[int, int, float]] = [
-    (25, 34, 0.07),   # 7%  du salaire coordonne
-    (35, 44, 0.10),   # 10% du salaire coordonne
-    (45, 54, 0.15),   # 15% du salaire coordonne
-    (55, 65, 0.18),   # 18% du salaire coordonne
-]
+LPP_BONIFICATIONS_VIEILLESSE: List[Tuple[int, int, float]] = _get_lpp_bonifications_list()
 """Taux de bonification de vieillesse par tranche d'age (LPP art. 16)."""
 
-LPP_BONIFICATIONS_DICT: Dict[int, float] = {
-    25: 0.07,
-    35: 0.10,
-    45: 0.15,
-    55: 0.18,
-}
+LPP_BONIFICATIONS_DICT: Dict[int, float] = _get_lpp_bonifications_dict()
 """Taux de bonification indexes par age de debut de tranche."""
 
 
 def get_lpp_bonification_rate(age: int) -> float:
     """Retourne le taux de bonification LPP pour un age donne (LPP art. 16)."""
     if age >= 55:
-        return 0.18
+        return _get("lpp.bonification.55_65")
     elif age >= 45:
-        return 0.15
+        return _get("lpp.bonification.45_54")
     elif age >= 35:
-        return 0.10
+        return _get("lpp.bonification.35_44")
     elif age >= 25:
-        return 0.07
+        return _get("lpp.bonification.25_34")
     return 0.0
 
 
@@ -84,87 +155,81 @@ def get_lpp_bonification_rate(age: int) -> float:
 # Base legale: LAVS art. 34-40
 # ══════════════════════════════════════════════════════════════════════════════
 
-AVS_RENTE_MAX_MENSUELLE: float = 2_520.0
+AVS_RENTE_MAX_MENSUELLE: float = _get("avs.max_monthly_pension")
 """Rente AVS maximale individuelle mensuelle (LAVS art. 34)."""
 
-AVS_RENTE_MIN_MENSUELLE: float = 1_260.0
+AVS_RENTE_MIN_MENSUELLE: float = _get("avs.min_monthly_pension")
 """Rente AVS minimale individuelle mensuelle (= 50% de la rente max)."""
 
-AVS_RENTE_COUPLE_MAX_MENSUELLE: float = 3_780.0
+AVS_RENTE_COUPLE_MAX_MENSUELLE: float = _get("avs.couple_max_monthly")
 """Rente AVS maximale pour un couple mensuelle (= 150% de la rente max)."""
 
-AVS_RAMD_MIN: float = 14_700.0
+AVS_RAMD_MIN: float = _get("avs.ramd_min")
 """RAMD minimum (revenu annuel moyen determinant). Rente = min si salaire <= RAMD_MIN."""
 
-AVS_RAMD_MAX: float = 88_200.0
+AVS_RAMD_MAX: float = _get("avs.ramd_max")
 """RAMD maximum. Rente = max si salaire >= RAMD_MAX (LAVS art. 34, echelle 44)."""
 
-AVS_RENTE_MAX_ANNUELLE: float = AVS_RENTE_MAX_MENSUELLE * 12
+AVS_RENTE_MAX_ANNUELLE: float = _get("avs.max_annual_pension")
 """Rente AVS maximale annuelle (12 mois, sans 13eme rente)."""
 
-AVS_COTISATION_SALARIE: float = 0.053
+AVS_COTISATION_SALARIE: float = _get("avs.contribution_rate_employee")
 """Taux de cotisation AVS part salarie: 5.3% (total 10.6% avec part employeur)."""
 
-AVS_COTISATION_TOTAL: float = 0.106
+AVS_COTISATION_TOTAL: float = _get("avs.contribution_rate_total")
 """Taux de cotisation AVS total (salarie + employeur): 10.6%."""
 
-AVS_DUREE_COTISATION_COMPLETE: int = 44
+AVS_DUREE_COTISATION_COMPLETE: int = int(_get("avs.full_contribution_years"))
 """Nombre d'annees de cotisation pour une rente complete (LAVS art. 29ter)."""
 
-AVS_AGE_REFERENCE_HOMME: int = 65
+AVS_AGE_REFERENCE_HOMME: int = int(_get("avs.reference_age_men"))
 """Age de reference AVS pour les hommes."""
 
-AVS_AGE_REFERENCE_FEMME: int = 65
+AVS_AGE_REFERENCE_FEMME: int = int(_get("avs.reference_age_women"))
 """Age de reference AVS pour les femmes (depuis reforme AVS 21)."""
 
-AVS_REDUCTION_ANTICIPATION: float = 0.068
+AVS_REDUCTION_ANTICIPATION: float = _get("avs.anticipation_reduction")
 """Reduction par annee d'anticipation de la rente AVS: 6.8% (LAVS art. 40)."""
 
-AVS_SUPPLEMENT_AJOURNEMENT: Dict[int, float] = {
-    1: 0.052,    # +5.2% pour 1 an
-    2: 0.106,    # +10.6% pour 2 ans
-    3: 0.164,    # +16.4% pour 3 ans
-    4: 0.227,    # +22.7% pour 4 ans
-    5: 0.315,    # +31.5% pour 5 ans
-}
+AVS_SUPPLEMENT_AJOURNEMENT: Dict[int, float] = _get_avs_deferral_supplements()
 """Supplement de rente par annee d'ajournement (LAVS art. 39)."""
 
-AVS_FRANCHISE_RETRAITE_MENSUELLE: float = 1_400.0
+AVS_FRANCHISE_RETRAITE_MENSUELLE: float = _get("avs.retiree_franchise_monthly")
 """Franchise AVS pour retraites actifs, mensuelle (LAVS art. 4)."""
 
-AVS_FRANCHISE_RETRAITE_ANNUELLE: float = 16_800.0
+AVS_FRANCHISE_RETRAITE_ANNUELLE: float = _get("avs.retiree_franchise_annual")
 """Franchise AVS pour retraites actifs, annuelle."""
 
-AVS_SURVIVOR_FACTOR: float = 0.80
+AVS_SURVIVOR_FACTOR: float = _get("avs.survivor_factor")
 """Facteur rente de survivant (80% de la rente du defunt)."""
 
 # 13eme rente AVS (initiative populaire adoptee en mars 2024)
 # Versement: une fois par an en decembre, a partir de decembre 2026.
 # Montant = 1/12 de la somme annuelle des rentes vieillesse versees.
-# En pratique: rente annuelle effective = rente mensuelle × 13.
+# En pratique: rente annuelle effective = rente mensuelle x 13.
 # Uniquement rentes de vieillesse (pas AI, pas survivants, pas enfants).
 # N'affecte PAS les prestations complementaires (PC).
 # Base legale: LAVS art. 34 (nouveau), art. constitutionnel 112 al. 4bis.
 
-AVS_13EME_RENTE_ACTIVE: bool = True
+AVS_13EME_RENTE_ACTIVE: bool = bool(_get("avs.13th_pension_active"))
 """13eme rente AVS active. True des 2026 (premier versement decembre 2026)."""
 
-AVS_13EME_RENTE_ANNEE_DEBUT: int = 2026
+AVS_13EME_RENTE_ANNEE_DEBUT: int = int(_get("avs.13th_pension_start_year"))
 """Annee du premier versement de la 13eme rente AVS."""
 
 AVS_NOMBRE_RENTES_PAR_AN: int = 13
 """Nombre de rentes mensuelles par an (12 standard + 1 treizieme)."""
 
-AVS_13EME_RENTE_FACTOR: float = 13.0 / 12.0
+AVS_13EME_RENTE_FACTOR: float = _get("avs.13th_pension_factor")
 """Facteur multiplicateur pour convertir la rente annuelle 12 mois en 13 mois.
-Rente annuelle effective = rente mensuelle × 12 × AVS_13EME_RENTE_FACTOR
-                         = rente mensuelle × 13."""
+Rente annuelle effective = rente mensuelle x 12 x AVS_13EME_RENTE_FACTOR
+                         = rente mensuelle x 13."""
 
 # AVS volontaire (expatries)
-AVS_VOLONTAIRE_COTISATION_MIN: float = 514.0
+AVS_VOLONTAIRE_COTISATION_MIN: float = _get("avs.voluntary_contribution_min")
 """Cotisation annuelle minimale AVS volontaire (LAVS art. 2)."""
 
-AVS_VOLONTAIRE_COTISATION_MAX: float = 25_700.0
+AVS_VOLONTAIRE_COTISATION_MAX: float = _get("avs.voluntary_contribution_max")
 """Cotisation annuelle maximale AVS volontaire."""
 
 
@@ -173,16 +238,16 @@ AVS_VOLONTAIRE_COTISATION_MAX: float = 25_700.0
 # Base legale: LAI
 # ══════════════════════════════════════════════════════════════════════════════
 
-AI_COTISATION_SALARIE: float = 0.007
+AI_COTISATION_SALARIE: float = _get("ai.contribution_rate_employee")
 """Taux de cotisation AI part salarie: 0.7% (total 1.4%)."""
 
-AI_COTISATION_TOTAL: float = 0.014
+AI_COTISATION_TOTAL: float = _get("ai.contribution_rate_total")
 """Taux de cotisation AI total: 1.4%."""
 
-AI_RENTE_ENTIERE: float = 2_520.0
+AI_RENTE_ENTIERE: float = _get("ai.full_pension_monthly")
 """Rente AI entiere mensuelle (= rente AVS max). Degre invalidite >= 70%."""
 
-AI_RENTE_DEMI: float = 1_260.0
+AI_RENTE_DEMI: float = AI_RENTE_ENTIERE * 0.5
 """Demi-rente AI mensuelle. Degre invalidite 50-69%."""
 
 AI_BAREME: Dict[int, float] = {
@@ -223,19 +288,19 @@ def get_ai_rente_monthly(disability_degree: int) -> float:
 # Base legale: LAPG
 # ══════════════════════════════════════════════════════════════════════════════
 
-APG_COTISATION_SALARIE: float = 0.0025
+APG_COTISATION_SALARIE: float = _get("apg.contribution_rate_employee")
 """Taux de cotisation APG part salarie: 0.25% (total 0.5%)."""
 
-APG_COTISATION_TOTAL: float = 0.005
+APG_COTISATION_TOTAL: float = _get("apg.contribution_rate_total")
 """Taux de cotisation APG total: 0.5%."""
 
-APG_MATERNITE_JOURS: int = 98
+APG_MATERNITE_JOURS: int = int(_get("apg.maternity_days"))
 """Duree du conge maternite: 98 jours = 14 semaines (LAPG art. 16d)."""
 
-APG_MATERNITE_TAUX: float = 0.80
+APG_MATERNITE_TAUX: float = _get("apg.maternity_rate")
 """Taux d'indemnite de maternite: 80% du salaire (LAPG art. 16f)."""
 
-APG_PATERNITE_JOURS: int = 10
+APG_PATERNITE_JOURS: int = int(_get("apg.paternity_days"))
 """Duree du conge paternite: 10 jours (LAPG art. 16i)."""
 
 
@@ -244,25 +309,25 @@ APG_PATERNITE_JOURS: int = 10
 # Base legale: LACI
 # ══════════════════════════════════════════════════════════════════════════════
 
-AC_PLAFOND_SALAIRE_ASSURE: float = 148_200.0
+AC_PLAFOND_SALAIRE_ASSURE: float = _get("ac.max_insured_salary")
 """Plafond du salaire assure AC (LACI art. 3)."""
 
-AC_COTISATION_SALARIE: float = 0.011
+AC_COTISATION_SALARIE: float = _get("ac.contribution_rate_employee")
 """Taux de cotisation AC part salarie: 1.1% (total 2.2%)."""
 
-AC_COTISATION_TOTAL: float = 0.022
+AC_COTISATION_TOTAL: float = _get("ac.contribution_rate_total")
 """Taux de cotisation AC total: 2.2%."""
 
-AC_COTISATION_SOLIDARITE_SALARIE: float = 0.005
+AC_COTISATION_SOLIDARITE_SALARIE: float = _get("ac.solidarity_rate_employee")
 """Cotisation de solidarite AC part salarie: 0.5% (au-dessus du plafond)."""
 
-AC_COTISATION_SOLIDARITE_TOTAL: float = 0.01
+AC_COTISATION_SOLIDARITE_TOTAL: float = _get("ac.solidarity_rate_total")
 """Cotisation de solidarite AC total: 1.0%."""
 
-AC_INDEMNITE_TAUX: float = 0.70
+AC_INDEMNITE_TAUX: float = _get("ac.benefit_rate_standard")
 """Taux d'indemnite chomage standard: 70% (LACI art. 22)."""
 
-AC_INDEMNITE_TAUX_CHARGE_FAMILLE: float = 0.80
+AC_INDEMNITE_TAUX_CHARGE_FAMILLE: float = _get("ac.benefit_rate_family")
 """Taux d'indemnite chomage avec charges de famille: 80%."""
 
 
@@ -271,13 +336,13 @@ AC_INDEMNITE_TAUX_CHARGE_FAMILLE: float = 0.80
 # Base legale: OPP3 art. 7
 # ══════════════════════════════════════════════════════════════════════════════
 
-PILIER_3A_PLAFOND_AVEC_LPP: float = 7_258.0
+PILIER_3A_PLAFOND_AVEC_LPP: float = _get("pillar3a.max_with_lpp")
 """Plafond annuel 3a pour salaries affilies a la LPP (petit 3a)."""
 
-PILIER_3A_PLAFOND_SANS_LPP: float = 36_288.0
+PILIER_3A_PLAFOND_SANS_LPP: float = _get("pillar3a.max_without_lpp")
 """Plafond annuel 3a pour independants sans LPP (grand 3a = 20% du revenu, max 36'288)."""
 
-PILIER_3A_TAUX_REVENU_SANS_LPP: float = 0.20
+PILIER_3A_TAUX_REVENU_SANS_LPP: float = _get("pillar3a.income_rate_without_lpp")
 """Part du revenu determinant pour le grand 3a: 20%."""
 
 
@@ -286,27 +351,13 @@ PILIER_3A_TAUX_REVENU_SANS_LPP: float = 0.20
 # Sources: Administrations fiscales cantonales, TaxWare
 # ══════════════════════════════════════════════════════════════════════════════
 
-TAUX_IMPOT_RETRAIT_CAPITAL: Dict[str, float] = {
-    "ZH": 0.065, "BE": 0.075, "LU": 0.055, "UR": 0.050,
-    "SZ": 0.040, "OW": 0.045, "NW": 0.040, "GL": 0.055,
-    "ZG": 0.035, "FR": 0.070, "SO": 0.065, "BS": 0.075,
-    "BL": 0.065, "SH": 0.060, "AR": 0.055, "AI": 0.045,
-    "SG": 0.060, "GR": 0.055, "AG": 0.060, "TG": 0.055,
-    "TI": 0.065, "VD": 0.080, "VS": 0.060, "NE": 0.070,
-    "GE": 0.075, "JU": 0.065,
-}
+TAUX_IMPOT_RETRAIT_CAPITAL: Dict[str, float] = _get_cantonal_rates()
 """Taux de base de l'impot sur le retrait de capital par canton (LIFD + cantonal + communal)."""
 
-RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = [
-    (0, 100_000, 1.00),
-    (100_000, 200_000, 1.15),
-    (200_000, 500_000, 1.30),
-    (500_000, 1_000_000, 1.50),
-    (1_000_000, float("inf"), 1.70),
-]
+RETRAIT_CAPITAL_TRANCHES: List[Tuple[float, float, float]] = _get_capital_tranches()
 """Tranches progressives pour l'impot sur retrait de capital (multiplicateur)."""
 
-MARRIED_CAPITAL_TAX_DISCOUNT: float = 0.85
+MARRIED_CAPITAL_TAX_DISCOUNT: float = _get("capital_tax.married_discount")
 """Reduction d'impot pour les couples maries (splitting cantonal ~15%)."""
 
 
@@ -341,42 +392,42 @@ def calculate_progressive_capital_tax(montant: float, base_rate: float) -> float
 # Base legale: LPP art. 30c, OPP2 art. 5
 # ══════════════════════════════════════════════════════════════════════════════
 
-EPL_MONTANT_MINIMUM: float = 20_000.0
+EPL_MONTANT_MINIMUM: float = _get("lpp.epl_minimum")
 """Montant minimum pour un retrait EPL (OPP2 art. 5)."""
 
-EPL_BLOCAGE_RACHAT_ANNEES: int = 3
+EPL_BLOCAGE_RACHAT_ANNEES: int = int(_get("lpp.epl_buyback_lock_years"))
 """Delai de blocage des rachats LPP apres un retrait EPL (LPP art. 79b al. 3)."""
 
 # ══════════════════════════════════════════════════════════════════════════════
 # Hypotheque — Pratique bancaire suisse (ASB / FINMA)
 # ══════════════════════════════════════════════════════════════════════════════
 
-HYPOTHEQUE_TAUX_THEORIQUE: float = 0.05
+HYPOTHEQUE_TAUX_THEORIQUE: float = _get("mortgage.theoretical_rate")
 """Taux d'interet theorique pour le calcul de capacite (5%)."""
 
-HYPOTHEQUE_TAUX_AMORTISSEMENT: float = 0.01
+HYPOTHEQUE_TAUX_AMORTISSEMENT: float = _get("mortgage.amortization_rate")
 """Taux d'amortissement annuel minimum (1%)."""
 
-HYPOTHEQUE_TAUX_FRAIS_ACCESSOIRES: float = 0.01
+HYPOTHEQUE_TAUX_FRAIS_ACCESSOIRES: float = _get("mortgage.maintenance_rate")
 """Taux de frais accessoires annuels (entretien, assurance) (1%)."""
 
 HYPOTHEQUE_TAUX_CHARGES_TOTAL: float = 0.07
 """Taux de charges theoriques combines (5% + 1% + 1% = 7%)."""
 
-HYPOTHEQUE_RATIO_CHARGES_MAX: float = 1.0 / 3.0
+HYPOTHEQUE_RATIO_CHARGES_MAX: float = _get("mortgage.max_charge_ratio")
 """Ratio maximal des charges par rapport au revenu brut (regle du 1/3)."""
 
-HYPOTHEQUE_FONDS_PROPRES_MIN: float = 0.20
+HYPOTHEQUE_FONDS_PROPRES_MIN: float = _get("mortgage.min_equity")
 """Part minimale de fonds propres (20% du prix d'achat)."""
 
-HYPOTHEQUE_PART_2E_PILIER_MAX: float = 0.10
+HYPOTHEQUE_PART_2E_PILIER_MAX: float = _get("mortgage.max_2nd_pillar")
 """Part maximale du 2e pilier dans les fonds propres (10% du prix d'achat)."""
 
 
-LPP_CONVERSION_RATE_COMPLEMENTAIRE: float = 0.058
+LPP_CONVERSION_RATE_COMPLEMENTAIRE: float = _get("lpp.conversion_rate_complementaire")
 """Taux de conversion blended pour caisses complementaires (~60% oblig. a 6.8% + ~40% suroblig. a ~4.3%)."""
 
-TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT: float = 0.065
+TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT: float = _get("capital_tax.default_rate")
 """Taux par defaut de l'impot sur le retrait de capital (fallback quand le canton est inconnu)."""
 
 
@@ -385,20 +436,20 @@ TAUX_IMPOT_RETRAIT_CAPITAL_DEFAULT: float = 0.065
 # Base legale: LAMal art. 62-64
 # ══════════════════════════════════════════════════════════════════════════════
 
-LAMAL_QUOTE_PART_RATE: float = 0.10
+LAMAL_QUOTE_PART_RATE: float = _get("lamal.copay_rate")
 """Quote-part: 10% des frais au-dessus de la franchise (LAMal art. 64)."""
 
-LAMAL_QUOTE_PART_CAP_ADULT: float = 700.0
+LAMAL_QUOTE_PART_CAP_ADULT: float = _get("lamal.copay_cap_adult")
 """Quote-part maximale annuelle adultes >= 26 ans (LAMal art. 64 al. 2)."""
 
-LAMAL_QUOTE_PART_CAP_CHILD: float = 350.0
+LAMAL_QUOTE_PART_CAP_CHILD: float = _get("lamal.copay_cap_child")
 """Quote-part maximale annuelle enfants < 18 ans (LAMal art. 64 al. 4)."""
 
 
-AVS_COTISATION_MIN_INDEPENDANT: float = 530.0
+AVS_COTISATION_MIN_INDEPENDANT: float = _get("avs.min_contribution_independent")
 """Cotisation AVS minimale annuelle pour independants (LAVS art. 8)."""
 
-AVS_SEUIL_REVENU_MIN_INDEPENDANT: float = 9_800.0
+AVS_SEUIL_REVENU_MIN_INDEPENDANT: float = _get("avs.independent_min_income_threshold")
 """Seuil de revenu en dessous duquel la cotisation minimale s'applique (LAVS art. 8).
 En dessous de ce seuil, l'independant paie la cotisation minimale forfaitaire."""
 
@@ -408,7 +459,7 @@ Au-dessus de ce montant, le taux plein de 10.6% s'applique.
 Note: le bareme detaille AVS_BAREME_INDEPENDANT utilise 60'500 comme seuil
 du taux plein. Cette constante est conservee pour compatibilite."""
 
-# AVS_RENTE_MAX_ANNUELLE already defined above (line ~102) as AVS_RENTE_MAX_MENSUELLE * 12
+# AVS_RENTE_MAX_ANNUELLE already defined above as _get("avs.max_annual_pension")
 
 AVS_BAREME_INDEPENDANT: List[Tuple[float, float, float]] = [
     (0,       10_100,  0.05371),
@@ -442,3 +493,73 @@ AVS_COTISATION_SALARIE (5.3%) = combined AVS (4.35%) + AI (0.70%) + APG (0.25%)
 AI_COTISATION_SALARIE & APG_COTISATION_SALARIE are kept separately for
 disability-gap and APG-specific calculations, but must NOT be added again here.
 """
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Echelle 44 — Table officielle OFAS (rentes mensuelles AVS/AI)
+# Base legale: LAVS art. 34, Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025)
+# ATTENTION : cette table est mise a jour tous les 2 ans par le Conseil federal.
+# ══════════════════════════════════════════════════════════════════════════════
+
+AVS_ECHELLE_44: List[Tuple[float, float]] = [
+    (14_700, 1_260),
+    (17_640, 1_299),
+    (20_580, 1_338),
+    (23_520, 1_377),
+    (26_460, 1_416),
+    (29_400, 1_470),
+    (32_340, 1_524),
+    (35_280, 1_578),
+    (38_220, 1_632),
+    (41_160, 1_686),
+    (44_100, 1_743),
+    (47_040, 1_800),
+    (49_980, 1_857),
+    (52_920, 1_914),
+    (55_860, 1_971),
+    (58_800, 2_028),
+    (61_740, 2_085),
+    (64_680, 2_142),
+    (67_620, 2_199),
+    (70_560, 2_256),
+    (73_500, 2_313),
+    (76_440, 2_370),
+    (79_380, 2_427),
+    (82_320, 2_462),
+    (85_260, 2_491),
+    (88_200, 2_520),
+]
+"""Echelle 44 — table officielle OFAS (rentes mensuelles AVS, 44 ans de cotisation).
+Source : Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
+Format: (RAMD CHF/an, rente mensuelle CHF/mois)."""
+
+
+def rente_from_ramd(gross_annual_salary: float) -> float:
+    """AVS rente based on RAMD using Echelle 44 (LAVS art. 34).
+
+    Concave lookup + linear interpolation between table points.
+    Source: Memento 6.01 — Tables des rentes AVS/AI (OFAS 2025).
+
+    ALL backend services MUST use this single function.
+    Do NOT create local _calculate_avs_rente() copies.
+
+    Args:
+        gross_annual_salary: RAMD (revenu annuel moyen determinant) in CHF.
+
+    Returns:
+        Monthly AVS rente in CHF.
+    """
+    if gross_annual_salary <= 0:
+        return 0.0
+    table = AVS_ECHELLE_44
+    if gross_annual_salary <= table[0][0]:
+        return table[0][1]
+    if gross_annual_salary >= table[-1][0]:
+        return table[-1][1]
+    for i in range(len(table) - 1):
+        lower_ramd, lower_rente = table[i]
+        upper_ramd, upper_rente = table[i + 1]
+        if lower_ramd <= gross_annual_salary <= upper_ramd:
+            ratio = (gross_annual_salary - lower_ramd) / (upper_ramd - lower_ramd)
+            return lower_rente + ratio * (upper_rente - lower_rente)
+    return table[-1][1]

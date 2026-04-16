@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -11,7 +12,15 @@ import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_slider.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -34,14 +43,13 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   int _horizon = 3;
 
   // --- Fiscal situation ---
-  String _canton = 'VD';
+  String _canton = 'ZH';
   String _civilStatus = 'single';
   bool _manualTauxOverride = false;
   double _manualTaux = 0.32;
 
   // --- Animation ---
   late AnimationController _heroController;
-  late Animation<double> _heroAnimation;
 
   static const List<String> _cantonCodes = [
     'ZH', 'BE', 'LU', 'UR', 'SZ', 'OW', 'NW', 'GL', 'ZG', 'FR',
@@ -77,20 +85,60 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       );
 
   bool _prefilled = false;
+  bool _hasUserInteracted = false;
+  final Set<String> _prefilledFields = {};
+
+  String? _seqRunId;
+  String? _seqStepId;
+  bool _finalReturnEmitted = false;
 
   @override
   void initState() {
     super.initState();
-    ReportPersistenceService.markSimulatorExplored('lpp_deep');
     _heroController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _heroAnimation = CurvedAnimation(
-      parent: _heroController,
-      curve: Curves.easeOutCubic,
-    );
     _heroController.forward();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        final extra = GoRouterState.of(context).extra;
+        if (extra is Map<String, dynamic>) {
+          _seqRunId = extra['runId'] as String?;
+          _seqStepId = extra['stepId'] as String?;
+          final prefill = extra['prefill'] as Map<String, dynamic>?;
+          if (prefill != null) _applyPrefill(prefill);
+        }
+      } catch (_) {}
+      if (_seqRunId == null) {
+        ReportPersistenceService.markSimulatorExplored('lpp_deep');
+      }
+    });
+  }
+
+  void _emitFinalReturn() {
+    if (_finalReturnEmitted) return;
+    if (_seqRunId == null || _seqStepId == null) return;
+    _finalReturnEmitted = true;
+
+    if (!_hasUserInteracted) {
+      ScreenCompletionTracker.markCompletedWithReturn('rachat_echelonne',
+        ScreenReturn.abandoned(
+          route: '/rachat-lpp',
+          runId: _seqRunId, stepId: _seqStepId,
+          eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+        ));
+      return;
+    }
+
+    final result = _result;
+    ScreenCompletionTracker.markCompletedWithReturn('rachat_echelonne',
+      ScreenReturn.completed(
+        route: '/rachat-lpp',
+        stepOutputs: {'economie_rachat': result.delta},
+        runId: _seqRunId, stepId: _seqStepId,
+        eventId: 'evt_${_seqRunId}_${DateTime.now().millisecondsSinceEpoch}',
+      ));
   }
 
   @override
@@ -125,6 +173,35 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     _civilStatus = isMarried ? 'married' : 'single';
   }
 
+  /// Apply prefill values from GoRouter coach suggestion.
+  /// Called AFTER _prefillFromProfile() so coach values override profile estimates.
+  void _applyPrefill(Map<String, dynamic> prefill) {
+    bool changed = false;
+
+    final salaireBrut = prefill['salaireBrut'];
+    if (salaireBrut is num && salaireBrut > 0) {
+      _revenu = salaireBrut.toDouble() * 13;
+      _prefilledFields.add('revenu');
+      changed = true;
+    }
+
+    final rachatMaximum = prefill['rachatMaximum'];
+    if (rachatMaximum is num && rachatMaximum > 0) {
+      _rachatMax = rachatMaximum.toDouble();
+      _prefilledFields.add('rachat_max');
+      changed = true;
+    }
+
+    final avoirLpp = prefill['avoirLpp'];
+    if (avoirLpp is num && avoirLpp > 0) {
+      _avoirActuel = avoirLpp.toDouble();
+      _prefilledFields.add('avoir_lpp');
+      changed = true;
+    }
+
+    if (changed) setState(() {});
+  }
+
   @override
   void dispose() {
     _heroController.dispose();
@@ -132,8 +209,79 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   void _onInputChanged() {
+    _hasUserInteracted = true;
     _heroController.forward(from: 0);
     setState(() {});
+    _emitScreenReturn();
+    _writeBackResult();
+  }
+
+  /// Write back rachat simulation results to CoachProfile.
+  void _writeBackResult() {
+    if (!_hasUserInteracted) return;
+    try {
+      final provider = context.read<CoachProfileProvider>();
+      final profile = provider.profile;
+      if (profile == null) return;
+
+      final result = _result;
+      final updated = profile.copyWith(
+        prevoyance: profile.prevoyance.copyWith(
+          rachatEffectue: profile.prevoyance.rachatEffectue,
+          projectedRenteLpp: result.delta > 0
+              ? null // Not projecting rente here, just marking interaction
+              : null,
+        ),
+      );
+      provider.updateProfile(updated);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdatedSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.primary,
+          duration: const Duration(milliseconds: 2500),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            S.of(context)!.profileUpdateErrorSnackbar,
+            style: MintTextStyles.bodySmall().copyWith(color: MintColors.white),
+          ),
+          backgroundColor: MintColors.error,
+          duration: const Duration(milliseconds: 3000),
+        ),
+      );
+    }
+  }
+
+  void _emitScreenReturn() {
+    if (!_hasUserInteracted) return;
+    if (_seqRunId != null) return;
+    ScreenCompletionTracker.markCompletedWithReturn(
+      'rachat_echelonne',
+      ScreenReturn.completed(
+        route: '/rachat-lpp',
+        updatedFields: {
+          'rachatOptimalAnnuel': _rachatMax / _horizon,
+          'rachatEconomieFiscale': _result.delta,
+        },
+        confidenceDelta: 0.02,
+        nextCapSuggestion: 'pilier_3a',
+      ),
+    );
+  }
+
+  /// P1-13: LPP buyback is not applicable after retirement.
+  bool get _isRetired {
+    final provider = context.read<CoachProfileProvider>();
+    final profile = provider.profile;
+    if (profile == null) return false;
+    return profile.age >= 65 || profile.employmentStatus == 'retraite';
   }
 
   @override
@@ -141,7 +289,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     final result = _result;
     final l = S.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _emitFinalReturn();
+      },
+      child: Scaffold(
       backgroundColor: MintColors.surface,
       body: CustomScrollView(
         slivers: [
@@ -156,19 +308,53 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               style: MintTextStyles.headlineMedium(),
             ),
           ),
+          // P1-13: Show retirement notice instead of rachat simulator.
+          if (_isRetired)
+            SliverPadding(
+              padding: const EdgeInsets.all(MintSpacing.md),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  MintSurface(
+                    tone: MintSurfaceTone.sauge,
+                    child: Padding(
+                      padding: const EdgeInsets.all(MintSpacing.lg),
+                      child: Column(
+                        children: [
+                          const Icon(Icons.info_outline, size: 48, color: MintColors.textMuted),
+                          const SizedBox(height: MintSpacing.md),
+                          Text(
+                            l.rachatLppNotApplicableAfterRetirement,
+                            style: MintTextStyles.bodyLarge(),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ]),
+              ),
+            ),
+          if (!_isRetired)
           SliverPadding(
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildIntroCard(l),
+                MintEntrance(child: MintNarrativeCard(
+                  headline: S.of(context)!.narrativeRachatHeadline,
+                  body: S.of(context)!.narrativeRachatBody,
+                  tone: MintSurfaceTone.sauge,
+                  badge: S.of(context)!.narrativeRachatBadge,
+                )),
                 const SizedBox(height: MintSpacing.md),
-                _buildHeroChiffreChoc(result, l),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
+                const SizedBox(height: MintSpacing.md),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
                 const SizedBox(height: MintSpacing.lg),
-                _buildLppSituationCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildFiscalSituationCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                _buildStrategieCard(l),
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
                 const SizedBox(height: MintSpacing.lg),
                 _buildComparisonSection(result, l),
                 const SizedBox(height: MintSpacing.lg),
@@ -195,91 +381,73 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
   Widget _buildIntroCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l.rachatEchelonneIntroTitle, style: MintTextStyles.titleMedium()),
           const SizedBox(height: MintSpacing.sm),
-          Text(l.rachatEchelonneIntroBody, style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5)),
+          Text(l.rachatEchelonneIntroBody, style: MintTextStyles.bodyMedium().copyWith(height: 1.5)),
         ],
       ),
     );
   }
 
-  Widget _buildHeroChiffreChoc(RachatEchelonneResult result, S l) {
+  Widget _buildHeroPremierEclairage(RachatEchelonneResult result, S l) {
     final delta = result.delta;
     final showSavings = delta > 0;
 
-    return AnimatedBuilder(
-      animation: _heroAnimation,
-      builder: (context, child) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: MintSpacing.lg),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: showSavings
-                  ? [MintColors.primary, MintColors.primary.withAlpha(180)]
-                  : [MintColors.textSecondary, MintColors.textMuted],
-            ),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            children: [
-              Icon(
-                showSavings ? Icons.savings_outlined : Icons.info_outline,
-                color: MintColors.white.withAlpha(180),
-                size: 32,
-              ),
-              const SizedBox(height: MintSpacing.sm + 4),
-              Text(
-                showSavings
-                    ? 'CHF ${formatChf(delta * _heroAnimation.value)}'
-                    : 'CHF 0',
-                style: MintTextStyles.displayMedium(color: MintColors.white).copyWith(fontSize: 36, fontWeight: FontWeight.w900, letterSpacing: -1),
-              ),
-              const SizedBox(height: MintSpacing.sm),
-              Text(
-                showSavings ? l.rachatEchelonneSavingsCaption : l.rachatEchelonneBlocBetter,
-                style: MintTextStyles.bodyMedium(color: MintColors.white.withAlpha(220)).copyWith(fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        );
-      },
+    return MintResultHeroCard(
+      eyebrow: l.rachatEchelonneEyebrow,
+      primaryValue: showSavings
+          ? 'CHF\u00a0${formatChf(delta)}'
+          : 'CHF\u00a00',
+      primaryLabel: showSavings
+          ? l.rachatEchelonneSavingsCaption
+          : l.rachatEchelonneBlocBetter,
+      narrative: showSavings
+          ? l.rachatEchelonneNarrativeSavings(_horizon)
+          : l.rachatEchelonneNarrativeNoSavings,
+      accentColor: showSavings ? MintColors.success : MintColors.textSecondary,
+      tone: MintSurfaceTone.porcelaine,
     );
   }
 
   Widget _buildLppSituationCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader(Icons.account_balance, l.rachatEchelonneSituationLpp),
           const SizedBox(height: MintSpacing.lg),
-          _buildSliderRow(label: l.rachatEchelonneAvoirActuel, value: _avoirActuel, min: 0, max: 500000, divisions: 100, format: 'CHF ${formatChf(_avoirActuel)}', onChanged: (v) { _avoirActuel = v; _onInputChanged(); }),
+          _buildSliderRowWithBadge(
+            label: l.rachatEchelonneAvoirActuel,
+            value: _avoirActuel,
+            fieldKey: 'avoir_lpp',
+            min: 0, max: 500000, divisions: 100,
+            format: 'CHF ${formatChf(_avoirActuel)}',
+            onChanged: (v) { _avoirActuel = v; _onInputChanged(); },
+          ),
           const SizedBox(height: MintSpacing.sm + 4),
-          _buildSliderRow(label: l.rachatEchelonneRachatMax, value: _rachatMax, min: 0, max: 500000, divisions: 100, format: 'CHF ${formatChf(_rachatMax)}', onChanged: (v) { _rachatMax = v; _onInputChanged(); }),
+          _buildSliderRowWithBadge(
+            label: l.rachatEchelonneRachatMax,
+            value: _rachatMax,
+            fieldKey: 'rachat_max',
+            min: 0, max: 500000, divisions: 100,
+            format: 'CHF ${formatChf(_rachatMax)}',
+            onChanged: (v) { _rachatMax = v; _onInputChanged(); },
+          ),
         ],
       ),
     );
@@ -288,13 +456,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   Widget _buildFiscalSituationCard(S l) {
     final displayRate = _effectiveTaux;
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -308,13 +473,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               Text(l.rachatEchelonneCanton, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
               Semantics(
                 label: l.rachatEchelonneCanton,
-                child: Container(
+                child: MintSurface(
+                  tone: MintSurfaceTone.porcelaine,
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.surface,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: MintColors.border),
-                  ),
+                  radius: 8,
                   child: DropdownButtonHideUnderline(
                     child: DropdownButton<String>(
                       value: _canton,
@@ -337,12 +499,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(l.rachatEchelonneEtatCivil, style: MintTextStyles.bodySmall(color: MintColors.textPrimary)),
-              Container(
-                decoration: BoxDecoration(
-                  color: MintColors.surface,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: MintColors.border),
-                ),
+              MintSurface(
+                tone: MintSurfaceTone.porcelaine,
+                radius: 8,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -359,13 +518,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           const SizedBox(height: MintSpacing.lg),
 
           // Auto-calculated taux marginal
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: MintColors.border),
-            ),
+            radius: 12,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -409,7 +565,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                       decoration: BoxDecoration(color: MintColors.primary, borderRadius: BorderRadius.circular(20)),
                       child: Text(
                         '${(displayRate * 100).toStringAsFixed(1)}\u00a0%',
-                        style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+                        style: MintTextStyles.titleLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w800),
                       ),
                     ),
                   ],
@@ -433,15 +589,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   const SizedBox(height: MintSpacing.sm),
                   Row(
                     children: [
-                      Expanded(
-                        child: MintCompactSlider(
-                          value: _manualTaux,
-                          min: 0.10,
-                          max: 0.45,
-                          divisions: 35,
-                          onChanged: (v) { _manualTaux = v; _onInputChanged(); },
-                        ),
-                      ),
+                      Expanded(child: MintCompactSlider(value: _manualTaux, min: 0.10, max: 0.45, divisions: 35, onChanged: (v) { _manualTaux = v; _onInputChanged(); })),
                       Semantics(
                         button: true,
                         label: l.rachatEchelonneAuto,
@@ -468,7 +616,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       label: label,
       button: true,
       child: GestureDetector(
-        onTap: () { _civilStatus = value; _onInputChanged(); },
+        onTap: () { HapticFeedback.lightImpact(); _civilStatus = value; _onInputChanged(); },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
@@ -484,6 +632,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   void _showTauxMarginalInfo(BuildContext context, S l) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       backgroundColor: MintColors.white,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (context) {
@@ -495,9 +647,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             children: [
               Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: MintColors.border, borderRadius: BorderRadius.circular(2)))),
               const SizedBox(height: MintSpacing.lg),
-              Text(l.rachatEchelonneTauxMarginalTitle, style: MintTextStyles.headlineMedium().copyWith(fontSize: 18)),
+              Text(l.rachatEchelonneTauxMarginalTitle, style: MintTextStyles.titleLarge()),
               const SizedBox(height: MintSpacing.md),
-              Text(l.rachatEchelonneTauxMarginalBody, style: MintTextStyles.bodyLarge().copyWith(fontSize: 15, color: MintColors.textPrimary, height: 1.6)),
+              Text(l.rachatEchelonneTauxMarginalBody, style: MintTextStyles.labelLarge().copyWith(color: MintColors.textPrimary, height: 1.6)),
               const SizedBox(height: MintSpacing.md),
               Container(
                 padding: const EdgeInsets.all(MintSpacing.md),
@@ -518,9 +670,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildStrategieCard(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -558,6 +711,50 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     );
   }
 
+  /// Wraps _buildSliderRow with an optional SmartDefaultIndicator badge.
+  Widget _buildSliderRowWithBadge({
+    required String label,
+    required double value,
+    required String fieldKey,
+    required double min,
+    required double max,
+    required int divisions,
+    required String format,
+    required ValueChanged<double> onChanged,
+  }) {
+    final isPrefilled = _prefilledFields.contains(fieldKey);
+    if (!isPrefilled) {
+      return _buildSliderRow(
+        label: label, value: value, min: min, max: max,
+        divisions: divisions, format: format, onChanged: onChanged,
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(label,
+                style: MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+            const SmartDefaultIndicator(
+              source: 'Depuis ton profil MINT',
+              confidence: 0.60,
+            ),
+          ],
+        ),
+        MintPremiumSlider(
+          label: label,
+          value: value,
+          min: min,
+          max: max,
+          divisions: divisions,
+          formatValue: (_) => format,
+          onChanged: onChanged,
+        ),
+      ],
+    );
+  }
+
   Widget _buildComparisonSection(RachatEchelonneResult result, S l) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,9 +773,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required bool isWinner, required String adaptedLabel, required String savingsLabel}) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: isWinner ? color : MintColors.border, width: isWinner ? 2 : 1)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -591,9 +789,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
             ),
           Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.xs),
-          Text(subtitle, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+          Text(subtitle, style: MintTextStyles.labelMedium()),
           const SizedBox(height: MintSpacing.sm + 4),
-          Text('CHF ${formatChf(amount)}', style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 22)),
+          Text('CHF ${formatChf(amount)}', style: MintTextStyles.headlineMedium(color: color)),
           const SizedBox(height: MintSpacing.xs),
           Text(savingsLabel, style: MintTextStyles.labelSmall()),
         ],
@@ -602,15 +800,16 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   }
 
   Widget _buildWaterfallSection(S l) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(l.rachatEchelonneImpactTranche, style: MintTextStyles.bodySmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.sm),
-          Text(l.rachatEchelonneImpactBlocExplain, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.4)),
+          Text(l.rachatEchelonneImpactBlocExplain, style: MintTextStyles.labelMedium().copyWith(height: 1.4)),
           const SizedBox(height: MintSpacing.md),
           SizedBox(
             height: 240,
@@ -639,7 +838,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       children: [
         Container(width: 12, height: 12, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
         const SizedBox(width: 6),
-        Text(label, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, fontWeight: FontWeight.w500)),
+        Text(label, style: MintTextStyles.labelMedium().copyWith(fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -649,9 +848,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     double cumul = 0;
     for (final year in result.yearlyPlan) { cumul += year.montantRachat; cumulativeRachat.add(cumul); }
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(color: MintColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: MintColors.border)),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -660,19 +860,20 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           for (int i = 0; i < result.yearlyPlan.length; i++)
             _buildTimelineNode(year: result.yearlyPlan[i], index: i, total: result.yearlyPlan.length, lacunePercent: _rachatMax > 0 ? (cumulativeRachat[i] / _rachatMax * 100).clamp(0.0, 100.0) : 0.0, l: l),
           const SizedBox(height: MintSpacing.sm),
-          Container(
+          MintSurface(
+            tone: MintSurfaceTone.porcelaine,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12)),
+            radius: 12,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l.rachatEchelonneTotal, style: MintTextStyles.titleMedium().copyWith(fontSize: 14)),
+                Text(l.rachatEchelonneTotal, style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600)),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text('${l.rachatEchelonneEconomieFiscale}\u00a0: CHF ${formatChf(result.economieEchelonneTotal)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
                     const SizedBox(height: 2),
-                    Text('CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+                    Text('CHF ${formatChf(_rachatMax - result.economieEchelonneTotal)}', style: MintTextStyles.labelMedium()),
                   ],
                 ),
               ],
@@ -708,17 +909,17 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
           ),
           const SizedBox(width: MintSpacing.sm + 4),
           Expanded(
-            child: Container(
-              margin: EdgeInsets.only(bottom: isLast ? 0 : MintSpacing.sm + 4),
+            child: MintSurface(
+              tone: MintSurfaceTone.porcelaine,
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: MintColors.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: MintColors.border)),
+              radius: 12,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium().copyWith(fontSize: 16)),
+                      Text('CHF ${formatChf(year.montantRachat)}', style: MintTextStyles.titleMedium()),
                       Text('-CHF ${formatChf(year.economieFiscale)}', style: MintTextStyles.bodySmall(color: MintColors.greenDark).copyWith(fontWeight: FontWeight.w700)),
                     ],
                   ),
@@ -733,7 +934,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                   const SizedBox(height: MintSpacing.sm),
                   Row(
                     children: [
-                      Text('CHF ${formatChf(year.coutNet)}', style: MintTextStyles.bodyMedium().copyWith(fontSize: 12)),
+                      Text('CHF ${formatChf(year.coutNet)}', style: MintTextStyles.labelMedium()),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -770,7 +971,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
               children: [
                 Text(l.rachatEchelonneBlockageTitle, style: MintTextStyles.bodySmall(color: MintColors.redDark).copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: MintSpacing.xs),
-                Text(l.rachatEchelonneBlockageBody, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, color: MintColors.redMedium, height: 1.4)),
+                Text(l.rachatEchelonneBlockageBody, style: MintTextStyles.labelMedium().copyWith(color: MintColors.redMedium, height: 1.4)),
               ],
             ),
           ),

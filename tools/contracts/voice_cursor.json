@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VoiceCursorContract",
+  "description": "Single source of truth for MINT voice intensity cursor (N1..N5). Drives Dart and Python codegen. Edit this file, run tools/contracts/regenerate.sh, commit both generated files. CI fails on drift.",
+  "type": "object",
+  "version": "0.5.0",
+  "levels": ["N1", "N2", "N3", "N4", "N5"],
+  "gravities": ["G1", "G2", "G3"],
+  "relations": ["new", "established", "intimate"],
+  "preferences": ["soft", "direct", "unfiltered"],
+  "matrix": {
+    "G1": {
+      "new":         { "soft": "N1", "direct": "N1", "unfiltered": "N2" },
+      "established": { "soft": "N2", "direct": "N2", "unfiltered": "N2" },
+      "intimate":    { "soft": "N2", "direct": "N3", "unfiltered": "N3" }
+    },
+    "G2": {
+      "new":         { "soft": "N2", "direct": "N2", "unfiltered": "N2" },
+      "established": { "soft": "N3", "direct": "N4", "unfiltered": "N4" },
+      "intimate":    { "soft": "N3", "direct": "N4", "unfiltered": "N4" }
+    },
+    "G3": {
+      "new":         { "soft": "N4", "direct": "N4", "unfiltered": "N4" },
+      "established": { "soft": "N4", "direct": "N5", "unfiltered": "N5" },
+      "intimate":    { "soft": "N4", "direct": "N5", "unfiltered": "N5" }
+    }
+  },
+  "precedenceCascade": [
+    "sensitivityGuard",
+    "fragilityCap",
+    "n5WeeklyBudget",
+    "gravityFloor",
+    "preferenceCap",
+    "matrixDefault"
+  ],
+  "sensitiveTopics": [
+    "deuil",
+    "divorce",
+    "perteEmploi",
+    "maladieGrave",
+    "suicide",
+    "violenceConjugale",
+    "faillitePersonnelle",
+    "endettementAbusif",
+    "dependance",
+    "handicapAcquis"
+  ],
+  "narratorWallExemptions": [
+    "settings",
+    "errorToasts",
+    "networkFailures",
+    "legalDisclaimers",
+    "onboardingSystemText",
+    "compliance",
+    "consentDialogs",
+    "permissionPrompts"
+  ],
+  "caps": {
+    "n5PerWeekMax": 1,
+    "fragileModeDurationDays": 30,
+    "fragileModeCapLevel": "N3",
+    "sensitiveTopicCapLevel": "N3",
+    "g3FloorLevel": "N2"
+  },
+  "properties": {
+    "version":              { "type": "string" },
+    "levels":               { "type": "array", "items": { "type": "string" } },
+    "gravities":            { "type": "array", "items": { "type": "string" } },
+    "relations":            { "type": "array", "items": { "type": "string" } },
+    "preferences":          { "type": "array", "items": { "type": "string" } },
+    "matrix":               { "type": "object" },
+    "precedenceCascade":    { "type": "array", "items": { "type": "string" } },
+    "sensitiveTopics":      { "type": "array", "items": { "type": "string" } },
+    "narratorWallExemptions": { "type": "array", "items": { "type": "string" } },
+    "caps": {
+      "type": "object",
+      "properties": {
+        "n5PerWeekMax":            { "type": "integer" },
+        "fragileModeDurationDays": { "type": "integer" },
+        "fragileModeCapLevel":     { "type": "string" },
+        "sensitiveTopicCapLevel":  { "type": "string" },
+        "g3FloorLevel":            { "type": "string" }
+      },
+      "required": ["n5PerWeekMax", "fragileModeDurationDays", "fragileModeCapLevel", "sensitiveTopicCapLevel", "g3FloorLevel"]
+    }
+  },
+  "required": ["version", "levels", "gravities", "relations", "preferences", "matrix", "precedenceCascade", "sensitiveTopics", "narratorWallExemptions", "caps"]
+}

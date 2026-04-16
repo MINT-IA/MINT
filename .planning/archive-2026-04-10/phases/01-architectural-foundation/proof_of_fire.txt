@@ -1,0 +1,32 @@
+PROOF-OF-FIRE: GATE-02 Scope Leak Detection
+============================================
+
+Date: 2026-04-09
+Branch: feature/v2.2-p0a-code-unblockers
+Purpose: Prove CI gates fire RED when a scope leak is introduced.
+
+Test file: apps/mobile/test/architecture/proof_of_fire_temp_test.dart (temporary, deleted after capture)
+
+The test deliberately introduced a v2.2 Bug 1 pattern: a public route (/auth/register)
+navigating to an authenticated route (/profile/consent). The scope-leak detection logic
+(same as GATE-02) was then asserted to find NO violations — which MUST fail because
+the violation exists.
+
+--- CAPTURED OUTPUT ---
+
+00:00 +0: PROOF-OF-FIRE: intentional scope leak MUST be detected
+00:00 +0 -1: PROOF-OF-FIRE: intentional scope leak MUST be detected [E]
+  Expected: empty
+    Actual: ['/auth/register (scope=public) -> /profile/consent (scope=authenticated)']
+  PROOF-OF-FIRE: If this fails, the scope leak gate is REAL. Detected leaks: /auth/register (scope=public) -> /profile/consent (scope=authenticated)
+
+  package:matcher                                      expect
+  package:flutter_test/src/widget_tester.dart 473:18   expect
+  test/architecture/proof_of_fire_temp_test.dart 58:5  main.<fn>
+
+00:00 +0 -1: Some tests failed.
+
+--- END CAPTURED OUTPUT ---
+
+Result: FAILED (as expected). The gate detected the scope leak and rejected the test.
+This proves GATE-02 is real — it fires red when a public-to-authenticated scope leak exists.

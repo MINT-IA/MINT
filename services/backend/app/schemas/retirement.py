@@ -102,7 +102,7 @@ class AvsEstimationResponse(BaseModel):
         default=None,
         description="Age de breakeven vs scenario normal",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -155,11 +155,20 @@ class LppConversionResponse(BaseModel):
     capital_total: float = Field(
         ..., description="Capital LPP total (CHF)",
     )
-    option_rente_mensuelle: float = Field(
-        ..., description="Rente mensuelle a vie (CHF)",
+    option_rente_brute_mensuelle: float = Field(
+        ..., description="Rente brute mensuelle a vie (CHF)",
     )
     option_rente_annuelle: float = Field(
-        ..., description="Rente annuelle a vie (CHF)",
+        ..., description="Rente brute annuelle a vie (CHF)",
+    )
+    rente_impot_annuel: float = Field(
+        ..., description="Impot annuel estime sur la rente (LIFD art. 22) (CHF)",
+    )
+    option_rente_nette_mensuelle: float = Field(
+        ..., description="Rente nette mensuelle apres impot sur le revenu (CHF)",
+    )
+    option_rente_nette_annuelle: float = Field(
+        ..., description="Rente nette annuelle apres impot sur le revenu (CHF)",
     )
     option_capital_brut: float = Field(
         ..., description="Capital brut (CHF)",
@@ -171,12 +180,12 @@ class LppConversionResponse(BaseModel):
         ..., description="Capital net apres impot (CHF)",
     )
     breakeven_age: int = Field(
-        ..., description="Age de breakeven (rente > capital net)",
+        ..., description="Age de breakeven (rente nette > capital net)",
     )
     recommandation_neutre: str = Field(
         ..., description="Recommandation neutre sans biais",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     disclaimer: str = Field(
@@ -238,11 +247,14 @@ class RetirementBudgetResponse(BaseModel):
         alias_generator=to_camel,
     )
 
-    revenus_mensuels: Dict[str, float] = Field(
-        ..., description="Detail des revenus mensuels par source",
+    revenus_garantis: Dict[str, float] = Field(
+        ..., description="Revenus garantis mensuels par source (AVS, LPP, autres)",
+    )
+    capital_epuisable: Dict[str, float] = Field(
+        ..., description="Capital epuisable mensualise par source (3a). Ce n'est pas un revenu garanti.",
     )
     total_revenus_mensuels: float = Field(
-        ..., description="Total des revenus mensuels (CHF)",
+        ..., description="Total des revenus mensuels (revenus garantis + capital epuisable) (CHF)",
     )
     depenses_mensuelles_estimees: float = Field(
         ..., description="Depenses mensuelles estimees (CHF)",
@@ -263,7 +275,7 @@ class RetirementBudgetResponse(BaseModel):
         default_factory=list,
         description="Alertes contextuelles",
     )
-    chiffre_choc: str = Field(
+    premier_eclairage: str = Field(
         ..., description="Chiffre choc pedagogique",
     )
     checklist: List[str] = Field(

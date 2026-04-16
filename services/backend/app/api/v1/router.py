@@ -40,6 +40,8 @@ from app.api.v1.endpoints import (
     snapshots,
     coach,
     coach_chat,
+    commitment,
+    fresh_start,
     notifications,
     scenario_narration,
     fri,
@@ -49,6 +51,14 @@ from app.api.v1.endpoints import (
     confidence,
     household,
     config,
+    knowledge,
+    regulatory,
+    bank_import,
+    budget,
+    admin,
+    anonymous_chat,
+    consents,
+    overview,
 )
 
 api_router = APIRouter()
@@ -181,4 +191,30 @@ api_router.include_router(
 )
 api_router.include_router(
     config.router, prefix="/config", tags=["Config"]
+)
+api_router.include_router(knowledge.router, tags=["Knowledge S67"])
+api_router.include_router(regulatory.router, tags=["Regulatory Core"])
+api_router.include_router(
+    bank_import.router, prefix="/bank-import", tags=["Bank Import"]
+)
+api_router.include_router(
+    budget.router, prefix="/budget", tags=["Budget Anomaly Detection"]
+)
+api_router.include_router(
+    admin.router, prefix="/admin", tags=["Admin"]
+)
+api_router.include_router(
+    anonymous_chat.router, prefix="/anonymous", tags=["Anonymous Chat P13"]
+)
+api_router.include_router(
+    commitment.router, prefix="/coach/commitment", tags=["Commitment P14"]
+)
+api_router.include_router(
+    fresh_start.router, prefix="/coach/fresh-start", tags=["Fresh Start P14"]
+)
+api_router.include_router(
+    consents.router, prefix="/consents", tags=["Consents PRIV-01"]
+)
+api_router.include_router(
+    overview.router, prefix="/overview", tags=["Overview — Aperçu financier"]
 )

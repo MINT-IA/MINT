@@ -8,7 +8,8 @@ import 'package:mint_mobile/models/financial_report.dart';
 import 'package:mint_mobile/models/circle_score.dart';
 import 'package:mint_mobile/services/financial_report_service.dart';
 import 'package:mint_mobile/widgets/report/thematic_card.dart';
-import 'package:mint_mobile/widgets/report/debt_alert_banner.dart';
+import 'package:mint_mobile/widgets/alert/mint_alert_object.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart';
 import 'package:mint_mobile/widgets/report/budget_waterfall.dart';
 import 'package:mint_mobile/widgets/report/retirement_projection_card.dart';
 import 'package:mint_mobile/widgets/comparators/pillar3a_comparator_widget.dart';
@@ -19,6 +20,10 @@ import 'package:mint_mobile/widgets/life_event_suggestions.dart';
 import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
 import 'package:mint_mobile/services/wizard_service.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 // ProfileProvider removed — hasDebt now derived from wizardAnswers directly
 
 /// Ecran d'affichage du rapport financier exhaustif V2
@@ -48,6 +53,30 @@ class FinancialReportScreenV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (wizardAnswers.isEmpty) {
+      return Scaffold(
+        backgroundColor: MintColors.surface,
+        appBar: AppBar(
+          title: Text(S.of(context)!.reportTonPlanMint,
+              style: MintTextStyles.titleMedium(
+                  color: MintColors.textPrimary)),
+          backgroundColor: MintColors.white,
+          foregroundColor: MintColors.textPrimary,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new),
+            onPressed: () => context.go('/coach/chat'),
+          ),
+        ),
+        body: MintEmptyState(
+          icon: Icons.assessment_outlined,
+          title: S.of(context)!.financialReportEmptyTitle,
+          subtitle: S.of(context)!.financialReportEmptySubtitle,
+          ctaLabel: S.of(context)!.financialReportEmptyCta,
+          onCta: () => context.go('/coach/chat'),
+        ),
+      );
+    }
     final reportService = FinancialReportService();
     final report = reportService.generateReport(wizardAnswers);
     final hasDebt = WizardService.isSafeModeActive(wizardAnswers);
@@ -62,7 +91,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
-          onPressed: () => context.go('/home'),
+          onPressed: () => context.go('/coach/chat'),
         ),
         actions: [
           IconButton(
@@ -73,41 +102,43 @@ class FinancialReportScreenV2 extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header personnalisé (greeting + status summary)
-            _buildHeader(context, report.profile, report.healthScore),
+            MintEntrance(child: _buildHeader(context, report.profile, report.healthScore)),
 
             const SizedBox(height: MintSpacing.lg),
 
-            // ── Debt alert banner (conditional) ──
+            // ── Debt alert (Phase 9 D-08: MintAlertObject replaces legacy
+            //    DebtAlertBanner). Fed by AnticipationProvider — never by
+            //    any claude_*_service. Anti-shame: MINT-as-subject grammar.
             if (hasDebt)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-                child: DebtAlertBanner(
-                  totalBalance: (wizardAnswers['q_debt_total_balance'] as num?)
-                      ?.toDouble(),
-                  monthlyPayment:
-                      (wizardAnswers['q_debt_payments_period_chf'] as num?)
-                          ?.toDouble(),
-                  onTap: () => context.push('/budget'),
+                child: MintAlertObject(
+                  gravity: Gravity.g3,
+                  fact: S.of(context)!.mintAlertDebtFact,
+                  cause: S.of(context)!.mintAlertDebtCause,
+                  nextMoment: S.of(context)!.mintAlertDebtNextMoment,
+                  alertId: 'anticipation:debtCrisis:report',
+                  resolutionContext: VoiceResolutionContext.neutral,
                 ),
               ),
 
             // ── Budget thematic card ──
-            Padding(
+            MintEntrance(delay: const Duration(milliseconds: 100), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildBudgetSection(context, wizardAnswers),
-            ),
+            )),
 
             // ── Protection thematic card ──
-            Padding(
+            MintEntrance(delay: const Duration(milliseconds: 200), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildProtectionSection(
                   context, wizardAnswers, report.healthScore),
-            ),
+            )),
 
             // ── Retirement thematic card ──
             if (report.retirementProjection != null)
@@ -118,21 +149,21 @@ class FinancialReportScreenV2 extends StatelessWidget {
               ),
 
             // ── Tax thematic card ──
-            Padding(
+            MintEntrance(delay: const Duration(milliseconds: 300), child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
               child: _buildTaxThematicSection(context, report),
-            ),
+            )),
 
             const SizedBox(height: MintSpacing.lg),
 
             // ── Top 3 Priorities ──
-            SafeModeGate(
+            MintEntrance(delay: const Duration(milliseconds: 400), child: SafeModeGate(
               hasDebt: hasDebt,
               lockedTitle: S.of(context)!.reportSafeModePriority,
               lockedMessage: S.of(context)!.reportSafeModeActions,
               reasons: safeModeReasons,
               child: _buildTopPriorities(context, report.priorityActions),
-            ),
+            )),
 
             const SizedBox(height: MintSpacing.lg),
 
@@ -184,6 +215,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                 employmentStatus: report.profile.employmentStatus,
                 monthlyNetIncome: report.profile.monthlyNetIncome,
                 canton: report.profile.canton,
+                s: S.of(context)!,
               ),
             ),
 
@@ -200,7 +232,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
             const SizedBox(height: MintSpacing.xxl),
           ],
         ),
-      ),
+      ))),
     );
   }
 
@@ -259,10 +291,13 @@ class FinancialReportScreenV2 extends StatelessWidget {
       message = S.of(context)!.reportStatusLow;
       emoji = '\ud83d\udd34'; // red circle
     }
-    return Text(
-      '$emoji $message',
-      style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
-      textAlign: TextAlign.center,
+    return Semantics(
+      label: message,
+      child: Text(
+        '$emoji $message',
+        style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
@@ -314,7 +349,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       title: S.of(context)!.reportBudgetTitle,
       status: status,
       keyNumber:
-          'CHF ${available.clamp(0, double.infinity).toStringAsFixed(0)}',
+          formatChfWithPrefix(available.clamp(0, double.infinity).toDouble()),
       keyNumberLabel: S.of(context)!.reportBudgetKeyLabel,
       actionLabel: S.of(context)!.reportBudgetAction,
       onActionTap: () => context.push('/budget'),
@@ -366,7 +401,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
     final debtPayment =
         (answers['q_debt_payments_period_chf'] as num?)?.toDouble() ?? 0;
     if (debtPayment > 0) {
-      reasons.add(S.of(context)!.reportReasonPayments(debtPayment.toStringAsFixed(0)));
+      reasons.add(S.of(context)!.reportReasonPayments(formatChf(debtPayment)));
     }
 
     final emergencyFund = answers['q_emergency_fund'] as String?;
@@ -480,8 +515,8 @@ class FinancialReportScreenV2 extends StatelessWidget {
     String? lppText;
     if (lppBuyback != null) {
       lppText = S.of(context)!.reportRetirementLppText(
-        lppBuyback.totalBuybackAvailable.toStringAsFixed(0),
-        lppBuyback.totalTaxSavings.toStringAsFixed(0),
+        formatChf(lppBuyback.totalBuybackAvailable),
+        formatChf(lppBuyback.totalTaxSavings),
       );
     }
 
@@ -489,7 +524,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83c\udfe6', // bank
       title: S.of(context)!.reportRetirementTitle,
       status: status,
-      keyNumber: 'CHF ${projection.totalMonthlyIncome.toStringAsFixed(0)}/mois',
+      keyNumber: '${formatChfWithPrefix(projection.totalMonthlyIncome)}/mois',
       keyNumberLabel: S.of(context)!.reportRetirementKeyLabel,
       source: S.of(context)!.reportRetirementSource,
       children: [
@@ -530,28 +565,28 @@ class FinancialReportScreenV2 extends StatelessWidget {
       emoji: '\ud83d\udcca', // bar chart
       title: S.of(context)!.reportTaxTitle,
       status: status,
-      keyNumber: 'CHF ${tax.totalTax.toStringAsFixed(0)}/an',
+      keyNumber: '${formatChfWithPrefix(tax.totalTax)}/an',
       keyNumberLabel: S.of(context)!.reportTaxKeyLabel((tax.effectiveRate * 100).toStringAsFixed(1)),
       actionLabel: S.of(context)!.reportTaxAction,
       onActionTap: () => context.push('/fiscal'),
       source: S.of(context)!.reportTaxSource,
       children: [
-        _taxRow(S.of(context)!.reportTaxIncome, 'CHF ${tax.taxableIncome.toStringAsFixed(0)}'),
+        _taxRow(S.of(context)!.reportTaxIncome, formatChfWithPrefix(tax.taxableIncome)),
         if (tax.totalDeductions > 0) ...[
           const SizedBox(height: 4),
           _taxRow(S.of(context)!.reportTaxDeductions,
-              '\u2013 CHF ${tax.totalDeductions.toStringAsFixed(0)}'),
+              '\u2013 ${formatChfWithPrefix(tax.totalDeductions)}'),
         ],
         const Divider(height: 16),
         _taxRow(S.of(context)!.reportTaxEstimated,
-            'CHF ${tax.totalTax.toStringAsFixed(0)}',
+            formatChfWithPrefix(tax.totalTax),
             isBold: true),
         if (tax.taxSavingsFromBuyback != null &&
             tax.taxSavingsFromBuyback! > 0) ...[
           const SizedBox(height: 8),
           _buildInfoChip(
             Icons.lightbulb_outline,
-            S.of(context)!.reportTaxSavings(tax.taxSavingsFromBuyback!.toStringAsFixed(0)),
+            S.of(context)!.reportTaxSavings(formatChf(tax.taxSavingsFromBuyback!)),
             MintColors.success,
           ),
         ],
@@ -647,21 +682,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
         break;
     }
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.md),
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: priorityColor, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: priorityColor.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      radius: 16,
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -682,7 +706,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    '+CHF ${action.potentialGainChf!.toStringAsFixed(0)}',
+                    '+${formatChfWithPrefix(action.potentialGainChf!)}',
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -767,18 +791,14 @@ class FinancialReportScreenV2 extends StatelessWidget {
             ),
             const SizedBox(height: MintSpacing.sm),
             Text(
-              S.of(context)!.reportLppEconomie(strategy.totalTaxSavings.toStringAsFixed(0)),
+              S.of(context)!.reportLppEconomie(formatChf(strategy.totalTaxSavings)),
               style: MintTextStyles.bodyMedium(color: MintColors.greenDark)
                   .copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: MintSpacing.md),
-            ...strategy.yearlyPlan.map((buyback) => Container(
-                  margin: const EdgeInsets.only(bottom: 12),
+            ...strategy.yearlyPlan.map((buyback) => MintSurface(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: MintColors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  radius: 12,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -791,7 +811,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                                 .copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            S.of(context)!.reportLppBuyback(buyback.amount.toStringAsFixed(0)),
+                            S.of(context)!.reportLppBuyback(formatChf(buyback.amount)),
                             style: MintTextStyles.labelSmall(),
                           ),
                         ],
@@ -804,7 +824,7 @@ class FinancialReportScreenV2 extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          S.of(context)!.reportLppSaving(buyback.estimatedTaxSavings.toStringAsFixed(0)),
+                          S.of(context)!.reportLppSaving(formatChf(buyback.estimatedTaxSavings)),
                           style: MintTextStyles.labelSmall(color: MintColors.greenDark)
                               .copyWith(fontWeight: FontWeight.bold),
                         ),
@@ -850,10 +870,11 @@ class FinancialReportScreenV2 extends StatelessWidget {
               children: [
                 const Icon(Icons.verified_outlined, size: 20, color: MintColors.info),
                 const SizedBox(width: 8),
-                Text(
+                Flexible(child: Text(
                   S.of(context)!.reportSoaTitle,
                   style: MintTextStyles.headlineMedium(),
-                ),
+                  overflow: TextOverflow.ellipsis,
+                )),
               ],
             ),
             const SizedBox(height: 20),
@@ -938,13 +959,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
     IconData icon,
     List<String> items,
   ) {
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      radius: 12,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -992,16 +1010,10 @@ class FinancialReportScreenV2 extends StatelessWidget {
   Widget _buildDisclaimerFooter(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md),
-      child: Container(
-        width: double.infinity,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: MintColors.lightBorder,
-          ),
-        ),
+        radius: 12,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -9,6 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
+from app.services.rag.faq_service import FaqService
 from app.services.rag.guardrails import ComplianceGuardrails
 from app.services.rag.llm_client import LLMClient
 from app.services.rag.retriever import MintRetriever
@@ -20,15 +21,17 @@ logger = logging.getLogger(__name__)
 class RAGOrchestrator:
     """Orchestrate the full RAG pipeline."""
 
-    def __init__(self, vector_store: MintVectorStore):
+    def __init__(self, vector_store: MintVectorStore, hybrid_search=None):
         """
         Initialize the orchestrator.
 
         Args:
-            vector_store: The MintVectorStore for retrieval.
+            vector_store: The MintVectorStore (ChromaDB) for dev/CI retrieval.
+            hybrid_search: Optional HybridSearchService (pgvector) for production.
+                When provided, the retriever uses pgvector first, ChromaDB as fallback.
         """
         self.vector_store = vector_store
-        self.retriever = MintRetriever(vector_store)
+        self.retriever = MintRetriever(vector_store, hybrid_search=hybrid_search)
         self.guardrails = ComplianceGuardrails()
 
     async def query(
@@ -40,6 +43,10 @@ class RAGOrchestrator:
         profile_context: Optional[dict] = None,
         language: str = "fr",
         n_results: int = 5,
+        tools: list[dict] | None = None,
+        system_prompt: Optional[str] = None,
+        user_id: Optional[str] = None,
+        conversation_history: list[dict] | None = None,
     ) -> dict:
         """
         Execute the full RAG pipeline.
@@ -48,7 +55,7 @@ class RAGOrchestrator:
             1. Retrieve relevant chunks from the vector store.
             2. Build context from chunks.
             3. Create LLM client with BYOK key.
-            4. Generate response with guardrails system prompt.
+            4. Generate response with system prompt + compliance filter.
             5. Apply post-generation compliance filter.
             6. Return answer with sources and disclaimers.
 
@@ -60,17 +67,34 @@ class RAGOrchestrator:
             profile_context: Optional profile data for personalization.
             language: Language code ("fr", "de", "en", "it").
             n_results: Number of context chunks to retrieve.
+            tools: Optional list of tool definitions (Anthropic format).
+                   When provided, Claude may return tool_use blocks alongside text.
+            system_prompt: Optional override for the system prompt.  When
+                   provided, this is used INSTEAD of the generic guardrails
+                   prompt.  The caller is responsible for including compliance
+                   rules in the override prompt (coach_chat.py does this via
+                   build_system_prompt which embeds compliance directives).
 
         Returns:
             Dict with keys: answer, sources, disclaimers, tokens_used.
+            When tool_calls are present: also includes "tool_calls" key.
         """
-        # Step 1: Retrieve relevant chunks
-        retrieved = self.retriever.retrieve(
+        # Step 1: Retrieve relevant chunks (async — pgvector or ChromaDB)
+        retrieved = await self.retriever.retrieve(
             query=question,
             profile_context=profile_context,
             n_results=n_results,
             language=language,
+            user_id=user_id,
         )
+
+        # Step 1b: FAQ fallback — if vector store returned few results, enrich with FAQs
+        faq_sources: list[dict] = []
+        if len(retrieved) < 2:
+            faq_results = FaqService.search(question)
+            for faq in faq_results[:3]:
+                retrieved.append({"text": faq.answer, "source": {}})
+                faq_sources.append({"type": "faq", "id": faq.id})
 
         # Step 2: Build context from chunks
         context_chunks = [r["text"] for r in retrieved if r.get("text")]
@@ -82,20 +106,38 @@ class RAGOrchestrator:
             model=model,
         )
 
-        # Step 4: Generate response with guardrails system prompt
-        system_prompt = self.guardrails.build_system_prompt(
-            language, profile_context=profile_context
-        )
+        # Step 4: Generate response with system prompt
+        # Use the caller-provided system prompt if available (e.g., the coach
+        # endpoint builds a rich prompt with lifecycle, regional voice, plan
+        # awareness, and structured reasoning).  Fall back to the generic
+        # guardrails prompt for other callers (e.g., RAG-only queries).
+        if not system_prompt:
+            system_prompt = self.guardrails.build_system_prompt(
+                language, profile_context=profile_context
+            )
         raw_response = await llm_client.generate(
             system_prompt=system_prompt,
             user_message=question,
             context_chunks=context_chunks,
+            tools=tools,
+            conversation_history=conversation_history,
         )
 
-        # Step 5: Apply post-generation compliance filter
-        filtered = self.guardrails.filter_response(raw_response, language)
+        # Step 5: Handle tool_use responses vs plain text
+        tool_calls = None
+        actual_usage_tokens = None
+        if isinstance(raw_response, dict):
+            # LLM returned structured response (with tool calls and/or usage)
+            response_text = raw_response.get("text", "")
+            tool_calls = raw_response.get("tool_calls")
+            actual_usage_tokens = raw_response.get("usage_tokens")
+        else:
+            response_text = raw_response
 
-        # Step 6: Build sources list
+        # Step 6: Apply post-generation compliance filter
+        filtered = self.guardrails.filter_response(response_text, language)
+
+        # Step 7: Build sources list (vector sources + FAQ sources)
         sources = []
         seen_sources = set()
         for r in retrieved:
@@ -104,18 +146,25 @@ class RAGOrchestrator:
             if source_key not in seen_sources:
                 seen_sources.add(source_key)
                 sources.append(source)
+        sources.extend(faq_sources)
 
-        # Estimate token usage (rough approximation)
-        tokens_used = self._estimate_tokens(
-            system_prompt, question, context_chunks, filtered["text"]
-        )
+        # Use actual API token usage when available, fall back to estimation
+        if actual_usage_tokens is not None:
+            tokens_used = actual_usage_tokens
+        else:
+            tokens_used = self._estimate_tokens(
+                system_prompt, question, context_chunks, filtered["text"]
+            )
 
-        return {
+        result = {
             "answer": filtered["text"],
             "sources": sources,
             "disclaimers": filtered["disclaimers_added"],
             "tokens_used": tokens_used,
         }
+        if tool_calls:
+            result["tool_calls"] = tool_calls
+        return result
 
     async def query_vision(
         self,

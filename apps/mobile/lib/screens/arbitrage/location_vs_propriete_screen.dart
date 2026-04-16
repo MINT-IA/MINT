@@ -17,6 +17,8 @@ import 'package:mint_mobile/widgets/arbitrage/trajectory_comparison_chart.dart';
 import 'package:mint_mobile/widgets/coach/indicatif_banner.dart';
 import 'package:mint_mobile/widgets/coach/rent_vs_buy_scoreboard_widget.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// Location vs Propriete arbitrage screen — compare renting + investing
 /// surplus vs buying property with mortgage.
@@ -39,7 +41,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   final _capitalCtrl = TextEditingController(text: '200000');
   final _loyerCtrl = TextEditingController(text: '2000');
   final _prixBienCtrl = TextEditingController(text: '800000');
-  String _canton = 'VD';
+  String _canton = 'ZH';
   bool _isMarried = false;
   bool _hasEstimatedValues = false;
 
@@ -76,21 +78,35 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
     final profile = context.read<CoachProfileProvider>().profile;
     if (profile == null) return;
 
-    final canton = profile.canton.isNotEmpty ? profile.canton : 'VD';
+    final canton = profile.canton.isNotEmpty ? profile.canton : 'ZH';
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     final patrimoine = profile.patrimoine;
-    final capital = patrimoine.epargneLiquide;
+
+    // Capital disponible = epargne liquide + 3a + investissements
+    // (LPP is handled separately for EPL max 10% rule)
+    final epargneLiquide = patrimoine.epargneLiquide;
+    final avoir3a = profile.prevoyance.totalEpargne3a;
+    final investissements = patrimoine.investissements;
+    final totalCapital = epargneLiquide + avoir3a + investissements;
 
     setState(() {
       _canton = canton;
       _isMarried = isMarried;
-      if (capital > 0) {
-        _capitalCtrl.text = capital.round().toString();
+      if (totalCapital > 0) {
+        _capitalCtrl.text = totalCapital.round().toString();
         _hasEstimatedValues = true;
       }
       // Loyer mensuel from profile
       if (profile.depenses.loyer > 0) {
         _loyerCtrl.text = profile.depenses.loyer.round().toString();
+        _hasEstimatedValues = true;
+      }
+      // Income-based property price estimate (rule of 1/3)
+      final revenu = profile.revenuBrutAnnuel;
+      if (revenu > 0) {
+        // Max property affordable: revenu / 7% theoretical charges / 20% equity
+        // Simplified: max ~= revenu / 0.07 (rough capacity estimate)
+        // But we don't override prixBien — user should set it
         _hasEstimatedValues = true;
       }
       _dataSources = profile.dataSources;
@@ -134,7 +150,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── SliverAppBar ──
           SliverAppBar(
@@ -220,7 +236,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                   const SizedBox(height: 20),
 
                   // ── Chiffre choc ──
-                  _buildChiffreChocCard(),
+                  _buildPremierEclairageCard(),
                   const SizedBox(height: 20),
 
                   // ── Hypothesis sliders ──
@@ -307,7 +323,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -316,39 +332,34 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   // ═══════════════════════════════════════════════════════════════
 
   Widget _buildInputSection() {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          MintEntrance(child: Text(
             S.of(context)!.locationProjetImmobilier,
             style: MintTextStyles.titleMedium(),
-          ),
+          )),
           const SizedBox(height: 16),
-          _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTextField(
             controller: _capitalCtrl,
             label: S.of(context)!.locationCapitalDispo,
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildTextField(
             controller: _loyerCtrl,
             label: S.of(context)!.locationLoyerMensuel,
-          ),
+          )),
           const SizedBox(height: 12),
-          _buildTextField(
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildTextField(
             controller: _prixBienCtrl,
             label: S.of(context)!.locationPrixBien,
-          ),
+          )),
           const SizedBox(height: 16),
 
           // Canton dropdown + married toggle
-          Row(
+          MintEntrance(delay: const Duration(milliseconds: 400), child: Row(
             children: [
               Expanded(
                 child: Column(
@@ -359,12 +370,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                       style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
                     ),
                     const SizedBox(height: 6),
-                    Container(
+                    MintSurface(
+                      tone: MintSurfaceTone.porcelaine,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: MintColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      radius: 12,
                       child: DropdownButton<String>(
                         value: _canton,
                         isExpanded: true,
@@ -410,23 +419,30 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
                 ],
               ),
             ],
-          ),
+          )),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: _recalculate,
-              style: FilledButton.styleFrom(
-                backgroundColor: MintColors.primary,
-                foregroundColor: MintColors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+          Semantics(
+            button: true,
+            label: S.of(context)!.locationComparer,
+            child: SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _recalculate();
+                },
+                style: FilledButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
-              ),
-              child: Text(
-                S.of(context)!.locationComparer,
-                style: MintTextStyles.titleMedium(color: MintColors.white),
+                child: Text(
+                  S.of(context)!.locationComparer,
+                  style: MintTextStyles.titleMedium(color: MintColors.white),
+                ),
               ),
             ),
           ),
@@ -528,23 +544,11 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
   //  CHIFFRE CHOC CARD
   // ═══════════════════════════════════════════════════════════════
 
-  Widget _buildChiffreChocCard() {
+  Widget _buildPremierEclairageCard() {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.lightBorder),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.info.withAlpha(15),
-            blurRadius: 30,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
+      elevated: true,
       child: Column(
         children: [
           Container(
@@ -562,7 +566,7 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            _result!.chiffreChoc,
+            _result!.premierEclairage,
             style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
             textAlign: TextAlign.center,
           ),
@@ -618,13 +622,10 @@ class _LocationVsProprieteScreenState extends State<LocationVsProprieteScreen> {
 
   Widget _buildDisclaimerCard() {
     if (_result == null) return const SizedBox.shrink();
-    return Container(
-      width: double.infinity,
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

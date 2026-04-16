@@ -155,7 +155,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             'Dans $years ans, voici ton patrimoine selon ton choix aujourd\'hui.',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
         ],
       ),
@@ -228,7 +228,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               ),
               child: Text(
                 '🏆 GAGNANT',
-                style: MintTextStyles.micro(color: MintColors.white).copyWith(fontSize: 9, fontWeight: FontWeight.w800, fontStyle: FontStyle.normal),
+                style: MintTextStyles.labelTiny(color: MintColors.white).copyWith(fontWeight: FontWeight.w800, fontStyle: FontStyle.normal),
               ),
             ),
           Text(
@@ -327,7 +327,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: isHighlight ? FontWeight.w700 : FontWeight.w500),
                 ),
                 if (sub != null)
                   Text(
@@ -367,7 +367,7 @@ class RentVsBuyScoreboardWidget extends StatelessWidget {
             'La question n\'est pas "louer ou acheter" — c\'est '
             '"Est-ce que je resterai $_breakEvenYears+ ans dans ce bien ?" '
             'Si oui, acheter a du sens financièrement. Sinon, louer et investir la différence.',
-            style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, height: 1.5),
+            style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(height: 1.5),
           ),
         ],
       ),

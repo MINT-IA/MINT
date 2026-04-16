@@ -20,7 +20,8 @@ class AnalyticsService {
   AnalyticsService._internal();
 
   static const String _sessionIdKey = 'analytics_session_id';
-  static const String _consentKey = 'analytics_consent';
+  // V6-3 audit fix: aligned to ConsentManager canonical key (consent_analytics).
+  static const String _consentKey = 'consent_analytics';
   static const String _eventsQueueKey = 'analytics_events_queue';
   static const int _maxQueueSize = 50;
   static const int _flushThreshold = 10;
@@ -29,6 +30,7 @@ class AnalyticsService {
   bool _isEnabled = false;
   final List<Map<String, dynamic>> _eventQueue = [];
   bool _isInitialized = false;
+  final List<Map<String, dynamic>> _preInitBuffer = [];
 
   /// Initialize the analytics service
   /// Loads session ID and consent status from SharedPreferences
@@ -60,6 +62,14 @@ class AnalyticsService {
     }
 
     _isInitialized = true;
+
+    // Replay buffered pre-init events ONLY if consent is given (nLPD art. 6)
+    if (_isEnabled) {
+      for (final e in _preInitBuffer) {
+        trackEvent(e['name'] as String, category: e['category'] as String? ?? 'engagement', data: e['data'] as Map<String, dynamic>?, screenName: e['screenName'] as String?);
+      }
+    }
+    _preInitBuffer.clear(); // Always clear — never send without consent
 
     // Auto-flush persisted events on init if consent is given
     if (_isEnabled && _eventQueue.isNotEmpty) {
@@ -108,7 +118,8 @@ class AnalyticsService {
     String? screenName,
   }) {
     if (!_isInitialized) {
-      // Drop event — service not initialized yet
+      // Buffer pre-init events — flushed after init() completes
+      _preInitBuffer.add({'name': name, 'category': category, 'data': data, 'screenName': screenName});
       return;
     }
 
@@ -120,11 +131,11 @@ class AnalyticsService {
     }
 
     final event = {
-      'name': name,
-      'category': category,
+      'event_name': name,
+      'event_category': category,
       'timestamp': DateTime.now().toIso8601String(),
       'session_id': _sessionId,
-      if (data != null) 'data': data,
+      if (data != null) 'event_data': data,
       if (screenName != null) 'screen_name': screenName,
     };
 

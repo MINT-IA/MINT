@@ -45,7 +45,7 @@ class HelpResourcesResult:
     situation: str
 
     # Compliance
-    chiffre_choc: str
+    premier_eclairage: str
     sources: List[str] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
 
@@ -468,7 +468,7 @@ class ResourcesService:
 
         # 4. Chiffre choc
         nb_cantons = len(_CANTONAL_RESOURCES)
-        chiffre_choc = (
+        premier_eclairage = (
             f"Gratuit et confidentiel — {nb_cantons} services cantonaux a ton service"
         )
 
@@ -483,7 +483,7 @@ class ResourcesService:
             resources=resources,
             canton=canton_upper,
             situation=situation,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
             disclaimer=DISCLAIMER,
         )

@@ -138,7 +138,7 @@ class _MiniBar extends StatelessWidget {
             width: 64,
             child: Text(
               label,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+              style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
             ),
           ),
 
@@ -164,7 +164,7 @@ class _MiniBar extends StatelessWidget {
             child: Text(
               '${clamped.toStringAsFixed(0)}/25',
               textAlign: TextAlign.right,
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],

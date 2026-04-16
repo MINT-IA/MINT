@@ -131,7 +131,7 @@ class FiscalComparison:
     detail_celibataire_2: float          # Impot celibataire personne 2
     revenus_cumules: float               # Revenu total combine
     deductions_mariage: float            # Total des deductions specifiques au mariage
-    chiffre_choc: str                    # Chiffre choc pedagogique
+    premier_eclairage: str                    # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -156,7 +156,7 @@ class SurvivorBenefits:
     rente_survivant_lpp_annuelle: float      # Rente LPP survivant annuelle
     total_survivant_mensuel: float           # Total mensuel
     total_survivant_annuel: float            # Total annuel
-    chiffre_choc: str                        # Chiffre choc pedagogique
+    premier_eclairage: str                        # Chiffre choc pedagogique
     sources: List[str] = field(default_factory=list)
 
 
@@ -167,7 +167,7 @@ class ChecklistMariage:
     priorite_haute: List[str]              # Actions urgentes
     priorite_moyenne: List[str]            # Actions importantes
     priorite_basse: List[str]              # Actions de confort
-    chiffre_choc: str                      # Chiffre choc pedagogique
+    premier_eclairage: str                      # Chiffre choc pedagogique
     disclaimer: str                        # Avertissement legal
     sources: List[str] = field(default_factory=list)
 
@@ -204,6 +204,9 @@ class MariageService:
             FiscalComparison avec le detail de la comparaison.
         """
         # --- Celibataires ---
+        # Simplification: child deduction split 50/50 between unmarried parents.
+        # In reality, LIFD art. 35 assigns the deduction to the custodial parent.
+        # This is acceptable for educational comparison (marriage vs single scenario).
         deduction_enfant_chacun = DEDUCTION_PAR_ENFANT * enfants / 2 if enfants > 0 else 0
         ri_1_single = max(0, revenu_1 - DEDUCTION_ASSURANCES_CELIBATAIRE - deduction_enfant_chacun)
         ri_2_single = max(0, revenu_2 - DEDUCTION_ASSURANCES_CELIBATAIRE - deduction_enfant_chacun)
@@ -226,12 +229,12 @@ class MariageService:
         est_penalite = difference > 0
 
         if est_penalite:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Penalite du mariage : tu paierais ~CHF {abs(difference):,.0f}/an "
                 f"de plus en impots en te mariant. Revenus combines: CHF {revenu_combine:,.0f}"
             )
         else:
-            chiffre_choc = (
+            premier_eclairage = (
                 f"Bonus du mariage : tu economiserais ~CHF {abs(difference):,.0f}/an "
                 f"d'impots en te mariant. Revenus combines: CHF {revenu_combine:,.0f}"
             )
@@ -253,7 +256,7 @@ class MariageService:
             detail_celibataire_2=impot_2,
             revenus_cumules=revenu_combine,
             deductions_mariage=deductions_mariage,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -309,27 +312,32 @@ class MariageService:
             sources = ["CC art. 221 (communaute de biens)"]
 
         else:  # participation_acquets (defaut)
-            # Simplification : on considere tout le patrimoine comme acquets
-            # (biens propres = 0, ce qui est le cas le plus courant)
-            acquets_1 = patrimoine_1
-            acquets_2 = patrimoine_2
-            total_acquets = acquets_1 + acquets_2
-            part_1 = patrimoine_1 + (acquets_2 - acquets_1) / 2 if total_acquets > 0 else patrimoine_1
-            part_2 = patrimoine_2 + (acquets_1 - acquets_2) / 2 if total_acquets > 0 else patrimoine_2
-            # Simplification : 50/50 des acquets totaux
+            # Simplification: assumes all patrimoine is acquêts (gains during
+            # marriage). True "biens propres" (pre-marriage assets + inheritances
+            # + donations, CC art. 198) distinction requires pre-marriage asset
+            # data not available in current profile. The 50/50 split on total
+            # patrimoine is therefore a worst-case educational scenario.
+            # CC art. 196-220 (participation aux acquêts).
             part_1 = total / 2
             part_2 = total / 2
             description = (
-                "Participation aux acquets (CC art. 181) : regime ordinaire par "
-                "defaut. Chacun garde ses biens propres (herites, apportes). "
-                "Les acquets (biens acquis pendant le mariage) sont partages 50/50."
+                "Participation aux acquets (CC art. 196-220) : regime ordinaire par "
+                "defaut. En theorie, chacun garde ses biens propres (herites, recus par "
+                "donation, apportes avant le mariage — CC art. 198) et seuls les acquets "
+                "(biens acquis pendant le mariage) sont partages 50/50."
             )
             explication = (
-                f"Acquets totaux estimes CHF {total:,.0f} divises en 2 = "
+                f"Simplification: MINT ne dispose pas de la repartition biens propres/acquets. "
+                f"L'estimation considere la totalite du patrimoine "
+                f"(CHF {total:,.0f}) comme acquets et le divise en 2 = "
                 f"CHF {part_1:,.0f} chacun. "
-                f"Note: les biens propres (heritage, biens d'avant mariage) ne sont pas partages."
+                f"Si tu possedes des biens propres (heritage, biens d'avant mariage), "
+                f"ta part reelle serait plus elevee."
             )
-            sources = ["CC art. 181 (participation aux acquets — regime ordinaire)"]
+            sources = [
+                "CC art. 196-220 (participation aux acquets — regime ordinaire)",
+                "CC art. 198 (definition des biens propres)",
+            ]
 
         return RegimeMatrimonial(
             regime=regime,
@@ -366,7 +374,7 @@ class MariageService:
         total_mensuel = round(surv_avs_mensuel + surv_lpp_mensuel, 2)
         total_annuel = round(surv_avs_annuel + surv_lpp_annuel, 2)
 
-        chiffre_choc = (
+        premier_eclairage = (
             f"En cas de deces de ton conjoint, tu recevrais environ "
             f"CHF {total_mensuel:,.0f}/mois (AVS {surv_avs_mensuel:,.0f} + "
             f"LPP {surv_lpp_mensuel:,.0f}). "
@@ -386,7 +394,7 @@ class MariageService:
             rente_survivant_lpp_annuelle=surv_lpp_annuel,
             total_survivant_mensuel=total_mensuel,
             total_survivant_annuel=total_annuel,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             sources=sources,
         )
 
@@ -468,7 +476,7 @@ class MariageService:
         # Chiffre choc personnalise
         nb_items = len(items)
         nb_haute = len(priorite_haute)
-        chiffre_choc = (
+        premier_eclairage = (
             f"Le mariage implique {nb_items} demarches cles, dont {nb_haute} "
             f"a effectuer avant ou juste apres la ceremonie. "
             f"Le regime matrimonial par defaut (participation aux acquets) s'applique "
@@ -489,7 +497,7 @@ class MariageService:
             priorite_haute=priorite_haute,
             priorite_moyenne=priorite_moyenne,
             priorite_basse=priorite_basse,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             disclaimer=DISCLAIMER,
             sources=sources,
         )

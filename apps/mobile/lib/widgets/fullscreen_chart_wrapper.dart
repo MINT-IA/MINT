@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 
@@ -44,6 +45,8 @@ class FullscreenChartWrapper extends StatelessWidget {
     );
   }
 
+  // GoRouter: intentional overlay — Navigator.push is intentional here,
+  // fullscreen dialog overlay, not a navigable route.
   void _openFullscreen(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -141,7 +144,7 @@ class _FullscreenChartPageState extends State<_FullscreenChartPage> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: MintColors.textPrimary),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: SafeArea(

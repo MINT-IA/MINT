@@ -133,7 +133,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
                         ),
                         Text(
                           _gaugeLabel,
-                          style: MintTextStyles.bodySmall(color: _gaugeColor).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+                          style: MintTextStyles.bodySmall(color: _gaugeColor).copyWith(fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -150,7 +150,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           const SizedBox(height: 4),
           Text(
             'Objectif : 60-80% du revenu pre-retraite',
-            style: MintTextStyles.bodyMedium(color: MintColors.textMuted).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textMuted),
           ),
           const SizedBox(height: 20),
 
@@ -185,10 +185,12 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              Flexible(child: Text(
                 isSurplus ? 'Excedent mensuel' : 'Deficit mensuel',
-                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
-              ),
+                style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
+                overflow: TextOverflow.ellipsis,
+              )),
+              const SizedBox(width: 8),
               AnimatedBuilder(
                 animation: _fillAnimation,
                 builder: (context, _) {
@@ -217,7 +219,7 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
                         ),
                       Text(
                         '${isSurplus ? '+' : ''}${RetirementService.formatChf(displaySolde)}',
-                        style: MintTextStyles.headlineMedium(color: isSurplus ? MintColors.success : MintColors.error).copyWith(fontSize: 20, fontWeight: FontWeight.w800),
+                        style: MintTextStyles.headlineSmall(color: isSurplus ? MintColors.success : MintColors.error).copyWith(fontWeight: FontWeight.w800),
                       ),
                     ],
                   );
@@ -247,11 +249,11 @@ class _BudgetGaugeWidgetState extends State<BudgetGaugeWidget>
           children: [
             Text(
               label,
-              style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 13),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
             Text(
               RetirementService.formatChf(value),
-              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w600),
+              style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],
         ),

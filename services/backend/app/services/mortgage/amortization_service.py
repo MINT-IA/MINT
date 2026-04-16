@@ -51,7 +51,7 @@ class GrapheEntry:
 
 
 @dataclass
-class ChiffreChoc:
+class PremierEclairage:
     """Shock figure with amount and explanatory text."""
     montant: float
     texte: str
@@ -91,7 +91,7 @@ class AmortizationComparisonResult:
     methode_avantageuse: str   # "direct" or "indirect"
 
     # Shock figure
-    chiffre_choc: ChiffreChoc
+    premier_eclairage: PremierEclairage
 
     # Graph data
     graphe_data: List[GrapheEntry]
@@ -154,6 +154,11 @@ class AmortizationService:
         """
         # Sanitize inputs
         montant_hypothecaire = max(0.0, montant_hypothecaire)
+        # Normalize: if caller passes a percentage value (e.g. 1.5 for 1.5%)
+        # instead of a decimal (0.015), convert it. Threshold: any value > 0.30
+        # is certainly a percentage, not a decimal rate.
+        if taux_interet > 0.30:
+            taux_interet = taux_interet / 100.0
         taux_interet = max(0.0, min(0.10, taux_interet))
         duree_ans = max(1, min(40, duree_ans))
         taux_marginal = max(0.0, min(0.50, taux_marginal_imposition))
@@ -203,7 +208,7 @@ class AmortizationService:
 
         # ---- CHIFFRE CHOC ----
         if difference > 0:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=abs(difference),
                 texte=(
                     f"L'amortissement indirect te fait economiser "
@@ -212,7 +217,7 @@ class AmortizationService:
                 ),
             )
         elif difference < 0:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=abs(difference),
                 texte=(
                     f"L'amortissement direct est plus avantageux de "
@@ -220,7 +225,7 @@ class AmortizationService:
                 ),
             )
         else:
-            chiffre_choc = ChiffreChoc(
+            premier_eclairage = PremierEclairage(
                 montant=0.0,
                 texte=(
                     "Les deux methodes sont equivalentes dans ce scenario. "
@@ -241,7 +246,7 @@ class AmortizationService:
             indirect=indirect,
             difference_nette=difference,
             methode_avantageuse=methode_avantageuse,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
             graphe_data=graphe,
             montant_hypothecaire=montant_hypothecaire,
             taux_interet=taux_interet,

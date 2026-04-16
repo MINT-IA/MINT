@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  LPP VOLONTAIRE SCREEN — Sprint S18 / Independants complet
@@ -56,22 +62,22 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildRevenuSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRevenuSlider()),
                 const SizedBox(height: 20),
                 _buildAgeSlider(),
                 const SizedBox(height: 20),
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  MintEntrance(child: _buildPremierEclairage()),
                   const SizedBox(height: 24),
-                  _buildResultCards(),
+                  MintEntrance(delay: const Duration(milliseconds: 100), child: _buildResultCards()),
                   const SizedBox(height: 24),
-                  _buildRetirementComparison(),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildRetirementComparison()),
                   const SizedBox(height: 24),
-                  _buildAgeTable(),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAgeTable()),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),
@@ -97,7 +103,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(S.of(context)!.lppVolontaireTitle, style: MintTextStyles.headlineMedium()),
     );
@@ -129,145 +135,89 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
     );
   }
 
-  // ── Sliders ────────────────────────────────────────────────
+  // ── Inputs ────────────────────────────────────────────────
 
   Widget _buildRevenuSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.lppVolontaireRevenuLabel,
-      valueLabel: IndependantsService.formatChf(_revenuNet),
-      minLabel: S.of(context)!.lppVolontaireCHF0,
-      maxLabel: S.of(context)!.lppVolontaireSliderMax250k,
-      value: _revenuNet,
-      min: 0,
-      max: 250000,
-      divisions: 250,
-      onChanged: (v) {
-        _revenuNet = v;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintAmountField(
+        label: S.of(context)!.lppVolontaireRevenuLabel,
+        value: _revenuNet,
+        formatValue: (v) => IndependantsService.formatChf(v),
+        onChanged: (v) {
+          setState(() {
+            _revenuNet = v;
+            _calculate();
+          });
+        },
+        min: 0,
+        max: 250000,
+      ),
     );
   }
 
   Widget _buildAgeSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.lppVolontaireTonAge,
-      valueLabel: '$_age ans',
-      minLabel: S.of(context)!.lppVolontaireAgeMin,
-      maxLabel: S.of(context)!.lppVolontaireAgeMax,
-      value: _age.toDouble(),
-      min: 25,
-      max: 65,
-      divisions: 40,
-      onChanged: (v) {
-        _age = v.toInt();
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintPickerTile(
+        label: S.of(context)!.lppVolontaireTonAge,
+        value: _age,
+        minValue: 25,
+        maxValue: 65,
+        formatValue: (v) => '$v ans',
+        onChanged: (v) {
+          setState(() {
+            _age = v;
+            _calculate();
+          });
+        },
+      ),
     );
   }
 
   Widget _buildTauxSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.lppVolontaireTauxMarginal,
-      valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}\u00a0%',
-      minLabel: S.of(context)!.lppVolontaireTaux10,
-      maxLabel: S.of(context)!.lppVolontaireTaux45,
-      value: _tauxMarginal * 100,
-      min: 10,
-      max: 45,
-      divisions: 35,
-      onChanged: (v) {
-        _tauxMarginal = v / 100;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintPremiumSlider(
+        label: S.of(context)!.lppVolontaireTauxMarginal,
+        value: _tauxMarginal * 100,
+        min: 10,
+        max: 45,
+        divisions: 35,
+        formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+        onChanged: (v) {
+          setState(() {
+            _tauxMarginal = v / 100;
+            _calculate();
+          });
+        },
+      ),
     );
   }
 
-  Widget _buildSliderCard({
-    required String title,
-    required String valueLabel,
-    required String minLabel,
-    required String maxLabel,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Container(
+  Widget _buildInputCard({required Widget child}) {
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Text(
-                valueLabel,
-                style: MintTextStyles.headlineMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(minLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(maxLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
-      ),
+      child: child,
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: MintColors.error,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Text(
-            IndependantsService.formatChf(r.capitalisationAnnuelle),
-            style: MintTextStyles.displayMedium(color: MintColors.white),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            S.of(context)!.lppVolontaireChiffreChocCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
-            style: MintTextStyles.bodyMedium(color: MintColors.white.withValues(alpha: 0.9)),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return Semantics(
+      label: S.of(context)!.semanticsLppCapitalisation(IndependantsService.formatChf(r.capitalisationAnnuelle)),
+      child: MintSurface(
+        tone: MintSurfaceTone.peche,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            MintHeroNumber(
+              value: IndependantsService.formatChf(r.capitalisationAnnuelle),
+              caption: S.of(context)!.lppVolontairePremierEclairageCaption(IndependantsService.formatChf(r.capitalisationAnnuelle)),
+              color: MintColors.success,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -338,28 +288,31 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
     Color? valueColor,
     bool fullWidth = false,
   }) {
-    final card = Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 18, color: MintColors.textMuted),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: (small ? MintTextStyles.bodyMedium(color: valueColor ?? MintColors.textPrimary) : MintTextStyles.headlineMedium(color: valueColor ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          Text(
-            label,
-            style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
-          ),
-        ],
+    final card = Semantics(
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: MintColors.lightBorder),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ExcludeSemantics(child: Icon(icon, size: 18, color: MintColors.textMuted)),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: (small ? MintTextStyles.bodyMedium(color: valueColor ?? MintColors.textPrimary) : MintTextStyles.headlineMedium(color: valueColor ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              label,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -406,7 +359,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
             label: S.of(context)!.lppVolontaireSansLpp,
             value: r.projectionSansLpp,
             ratio: sansRatio,
-            color: MintColors.error,
+            color: MintColors.success,
           ),
           const SizedBox(height: 16),
 
@@ -420,23 +373,26 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
           const SizedBox(height: 16),
 
           // Gap highlight
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: MintColors.success.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.add_circle_outline, size: 16, color: MintColors.success),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    S.of(context)!.lppVolontaireGapLabel(IndependantsService.formatChf(gap)),
-                    style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+          Semantics(
+            label: S.of(context)!.semanticsLppGain(IndependantsService.formatChf(gap)),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: MintColors.success.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  const ExcludeSemantics(child: Icon(Icons.add_circle_outline, size: 16, color: MintColors.success)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      S.of(context)!.lppVolontaireGapLabel(IndependantsService.formatChf(gap)),
+                      style: MintTextStyles.bodySmall(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

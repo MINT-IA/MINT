@@ -1,5 +1,11 @@
 # Vision: Product — MINT
 
+> **⚠️ OBSOLETE (2026-04-05) — TO REWRITE**
+> Ce document contient des éléments stratégiques utiles (horizons d'acquisition, open banking, séquence de confiance)
+> mais son identité, sa cible (22-35), son tagline ("Juste quand il faut") et son hook ("chiffre choc") sont obsolètes.
+> **Source of truth pour l'identité : `docs/MINT_IDENTITY.md`**
+> Ce document sera réécrit pour s'aligner avec la nouvelle mission : "Mint te dit ce que personne n'a intérêt à te dire."
+
 ## The Problem
 Swiss financial products are complex (Pillar 3a, LPP, tax optimization). The 22-35 segment (qualified professionals) enters peak capital formation but is paralyzed by complexity or biased advice. Existing tools ask for everything before giving anything.
 

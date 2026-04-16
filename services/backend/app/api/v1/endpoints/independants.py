@@ -10,8 +10,9 @@ POST /api/v1/independants/lpp-volontaire       — Voluntary LPP simulator
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.independants import (
     AvsCotisationsRequest,
     AvsCotisationsResponse,
@@ -40,8 +41,10 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 @router.post("/avs-cotisations", response_model=AvsCotisationsResponse)
+@limiter.limit("30/minute")
 def compute_avs_cotisations(
-    request: AvsCotisationsRequest,
+    request: Request,
+    body: AvsCotisationsRequest,
 ) -> AvsCotisationsResponse:
     """Calculate AVS/AI/APG contributions for a self-employed worker.
 
@@ -51,7 +54,7 @@ def compute_avs_cotisations(
     Sources: LAVS art. 8-9, RAVS art. 21-23.
     """
     result = calculer_cotisation_avs(
-        revenu_net_activite=request.revenu_net_activite,
+        revenu_net_activite=body.revenu_net_activite,
     )
 
     return AvsCotisationsResponse(
@@ -59,7 +62,7 @@ def compute_avs_cotisations(
         taux_effectif=result.taux_effectif,
         comparaison_salarie=result.comparaison_salarie,
         difference_vs_salarie=result.difference_vs_salarie,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
@@ -70,8 +73,10 @@ def compute_avs_cotisations(
 # ---------------------------------------------------------------------------
 
 @router.post("/ijm-simulation", response_model=IjmResponse)
+@limiter.limit("30/minute")
 def simulate_ijm(
-    request: IjmRequest,
+    request: Request,
+    body: IjmRequest,
 ) -> IjmResponse:
     """Simulate IJM (income loss insurance) for a self-employed worker.
 
@@ -81,9 +86,9 @@ def simulate_ijm(
     Sources: LAMal art. 67-77, CO art. 324a, LCA.
     """
     result = simuler_ijm(
-        revenu_mensuel=request.revenu_mensuel,
-        age=request.age,
-        delai_carence=request.delai_carence,
+        revenu_mensuel=body.revenu_mensuel,
+        age=body.age,
+        delai_carence=body.delai_carence,
     )
 
     return IjmResponse(
@@ -91,7 +96,7 @@ def simulate_ijm(
         prime_mensuelle=result.prime_mensuelle,
         prime_annuelle=result.prime_annuelle,
         cout_sans_couverture=result.cout_sans_couverture,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         alertes=result.alertes,
         disclaimer=result.disclaimer,
         sources=result.sources,
@@ -103,8 +108,10 @@ def simulate_ijm(
 # ---------------------------------------------------------------------------
 
 @router.post("/3a-independant", response_model=Pillar3aIndepResponse)
+@limiter.limit("30/minute")
 def compute_3a_independant(
-    request: Pillar3aIndepRequest,
+    request: Request,
+    body: Pillar3aIndepRequest,
 ) -> Pillar3aIndepResponse:
     """Calculate enhanced 3a limit and tax savings for a self-employed worker.
 
@@ -114,10 +121,10 @@ def compute_3a_independant(
     Sources: OPP3 art. 7, LPP art. 4, LIFD art. 33 al. 1 let. e.
     """
     result = calculer_3a_independant(
-        revenu_net=request.revenu_net,
-        affilie_lpp=request.affilie_lpp,
-        taux_marginal_imposition=request.taux_marginal_imposition,
-        canton=request.canton,
+        revenu_net=body.revenu_net,
+        affilie_lpp=body.affilie_lpp,
+        taux_marginal_imposition=body.taux_marginal_imposition,
+        canton=body.canton,
     )
 
     return Pillar3aIndepResponse(
@@ -125,7 +132,7 @@ def compute_3a_independant(
         economie_fiscale=result.economie_fiscale,
         comparaison_salarie=result.comparaison_salarie,
         avantage_independant=result.avantage_independant,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
@@ -136,8 +143,10 @@ def compute_3a_independant(
 # ---------------------------------------------------------------------------
 
 @router.post("/dividende-vs-salaire", response_model=DividendeVsSalaireResponse)
+@limiter.limit("30/minute")
 def simulate_dividende_vs_salaire(
-    request: DividendeVsSalaireRequest,
+    request: Request,
+    body: DividendeVsSalaireRequest,
 ) -> DividendeVsSalaireResponse:
     """Simulate dividend vs salary optimization for SA/Sarl directors.
 
@@ -147,10 +156,10 @@ def simulate_dividende_vs_salaire(
     Sources: LIFD art. 20, LIFD art. 17-18, LAVS art. 14.
     """
     result = simuler_dividende_vs_salaire(
-        benefice_disponible=request.benefice_disponible,
-        part_salaire=request.part_salaire,
-        taux_marginal=request.taux_marginal,
-        canton=request.canton,
+        benefice_disponible=body.benefice_disponible,
+        part_salaire=body.part_salaire,
+        taux_marginal=body.taux_marginal,
+        canton=body.canton,
     )
 
     return DividendeVsSalaireResponse(
@@ -167,7 +176,7 @@ def simulate_dividende_vs_salaire(
             )
             for dp in result.graphe_data
         ],
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )
@@ -178,8 +187,10 @@ def simulate_dividende_vs_salaire(
 # ---------------------------------------------------------------------------
 
 @router.post("/lpp-volontaire", response_model=LppVolontaireResponse)
+@limiter.limit("30/minute")
 def simulate_lpp_volontaire(
-    request: LppVolontaireRequest,
+    request: Request,
+    body: LppVolontaireRequest,
 ) -> LppVolontaireResponse:
     """Simulate voluntary LPP affiliation for a self-employed worker.
 
@@ -189,9 +200,9 @@ def simulate_lpp_volontaire(
     Sources: LPP art. 4, 44, 46, 16, 8. LIFD art. 33 al. 1 let. d.
     """
     result = simuler_lpp_volontaire(
-        revenu_net=request.revenu_net,
-        age=request.age,
-        taux_marginal=request.taux_marginal,
+        revenu_net=body.revenu_net,
+        age=body.age,
+        taux_marginal=body.taux_marginal,
     )
 
     return LppVolontaireResponse(
@@ -200,7 +211,7 @@ def simulate_lpp_volontaire(
         economie_fiscale=result.economie_fiscale,
         comparaison_sans_lpp=result.comparaison_sans_lpp,
         taux_bonification=result.taux_bonification,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=result.disclaimer,
         sources=result.sources,
     )

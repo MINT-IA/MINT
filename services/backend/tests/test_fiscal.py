@@ -178,10 +178,10 @@ class TestCantonComparison:
         ecart_max = rankings[-1].difference_vs_cheapest
         assert ecart_max > 0
 
-    def test_compare_chiffre_choc_present(self, comparator):
-        """compare_all_cantons result should allow building a chiffre choc."""
+    def test_compare_premier_eclairage_present(self, comparator):
+        """compare_all_cantons result should allow building a premier éclairage."""
         rankings = comparator.compare_all_cantons(100_000)
-        # Verify we have enough data to build a chiffre choc
+        # Verify we have enough data to build a premier éclairage
         assert rankings[0].canton_name != ""
         assert rankings[-1].canton_name != ""
         assert rankings[-1].difference_vs_cheapest > 0
@@ -254,11 +254,11 @@ class TestMoveSimulation:
         expected_10_ans = round(sim.economie_annuelle * 10, 2)
         assert sim.economie_10_ans == expected_10_ans
 
-    def test_move_chiffre_choc_present(self, comparator):
+    def test_move_premier_eclairage_present(self, comparator):
         """Chiffre choc should be a non-empty, descriptive string."""
         sim = comparator.simulate_move(100_000, "GE", "ZG")
-        assert len(sim.chiffre_choc) > 20
-        assert "CHF" in sim.chiffre_choc
+        assert len(sim.premier_eclairage) > 20
+        assert "CHF" in sim.premier_eclairage
 
     def test_move_checklist_non_empty(self, comparator):
         """Checklist should contain practical items."""
@@ -459,7 +459,7 @@ class TestFiscalEndpoints:
         assert "classement" in data
         assert len(data["classement"]) == 26
         assert "ecartMax" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "disclaimer" in data
         assert data["ecartMax"] > 0
 
@@ -480,7 +480,7 @@ class TestFiscalEndpoints:
         assert "economieAnnuelle" in data
         assert "economieMensuelle" in data
         assert "economie10Ans" in data
-        assert "chiffreChoc" in data
+        assert "premierEclairage" in data
         assert "checklist" in data
         assert "alertes" in data
         assert "disclaimer" in data

@@ -186,7 +186,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                           ),
                           child: Text(
                             s.analyticsRefuse,
-                            style: MintTextStyles.bodyLarge(color: MintColors.textSecondary).copyWith(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.2),
+                            style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.2),
                           ),
                         ),
                       ),
@@ -205,7 +205,7 @@ class _AnalyticsConsentBannerState extends State<AnalyticsConsentBanner>
                           ),
                           child: Text(
                             s.analyticsAccept,
-                            style: MintTextStyles.bodyLarge(color: MintColors.white).copyWith(fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -0.2),
+                            style: MintTextStyles.labelLarge(color: MintColors.white).copyWith(fontWeight: FontWeight.w600, letterSpacing: -0.2),
                           ),
                         ),
                       ),

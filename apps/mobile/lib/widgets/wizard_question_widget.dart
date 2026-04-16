@@ -7,7 +7,6 @@ import 'package:mint_mobile/widgets/interactive_simulations.dart';
 import 'package:mint_mobile/services/educational_insert_service.dart';
 import 'package:mint_mobile/services/haptic_feedback_service.dart';
 
-// TODO: add Semantics for accessibility
 class WizardQuestionWidget extends StatefulWidget {
   final WizardQuestion question;
   final Function(dynamic) onAnswer;
@@ -36,6 +35,13 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   bool _showSimulation = false;
   late bool _showEducationalInsert = widget.defaultExpanded;
   String? _inputError;
+  TextEditingController? _textInputController;
+
+  @override
+  void dispose() {
+    _textInputController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +60,7 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
               Expanded(
                 child: Text(
                   widget.question.title,
-                  style: MintTextStyles.headlineLarge(color: MintColors.textPrimary).copyWith(fontSize: 28, fontWeight: FontWeight.w600, height: 1.1, letterSpacing: -0.5),
+                  style: MintTextStyles.displaySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600, height: 1.1, letterSpacing: -0.5),
                 ),
               ),
               if (widget.question.explanation != null)
@@ -182,7 +188,9 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
           ],
 
           // Input selon type
-          // HACK: Pour q_has_pension_fund, l'insert EST l'input. On masque le standard si l'insert est visible.
+          // NOTE: Pour q_has_pension_fund, l'insert educatif EST l'input (il
+          // expose un toggle oui/non integre a l'explication). Quand l'insert
+          // est affiche on masque donc l'input standard pour eviter le doublon.
           if (!(widget.question.id == 'q_has_pension_fund' &&
               _showEducationalInsert))
             _buildInput(),
@@ -470,11 +478,13 @@ class _WizardQuestionWidgetState extends State<WizardQuestionWidget> {
   }
 
   Widget _buildTextInput() {
-    final controller = TextEditingController(
+    final isNumberInput = widget.question.type == QuestionType.number;
+
+    // Lazily create the controller; reuse across rebuilds, dispose in dispose().
+    _textInputController ??= TextEditingController(
       text: widget.currentAnswer?.toString() ?? '',
     );
-
-    final isNumberInput = widget.question.type == QuestionType.number;
+    final controller = _textInputController!;
 
     return Column(
       children: [

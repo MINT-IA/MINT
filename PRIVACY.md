@@ -106,7 +106,7 @@ En Phase 1, **toutes tes donnees personnelles restent sur ton appareil**. Concre
   - **EncryptedSharedPreferences** sur Android (AES-256-GCM via Android Keystore)
 - Les rapports generes (PDF) sont stockes dans le repertoire local de l'application
 
-**Aucune donnee personnelle n'est transmise a un serveur externe en Phase 1.** Les appels API entre l'application et notre backend concernent uniquement des calculs generiques (baremes fiscaux, taux legaux) qui ne contiennent aucune donnee personnelle identifiable.
+**Les donnees personnelles de ton profil sont synchronisees avec notre backend heberge sur Railway (Etats-Unis), protege par des Standard Contractual Clauses (SCC) et chiffre en transit (TLS 1.3).** En Phase 2, nous prevoyons un hebergement en Suisse. Les details de chaque sous-traitant sont listes en section 7.3.
 
 ### 5.2 Stockage futur (Phase 2+)
 
@@ -155,7 +155,39 @@ MINT peut percevoir des commissions de partenaires (banques, assurances, prestat
 
 ### 7.3 Sous-traitants techniques
 
-En Phase 1, nous n'utilisons aucun sous-traitant ayant acces a tes donnees personnelles. Si cela change, nous mettrons a jour cette politique et t'en informerons.
+En Phase 1, nous utilisons les sous-traitants suivants :
+
+**Sentry.io** (Sentry GmbH, Berlin, Allemagne)
+- Données : journaux d'erreurs applicatives anonymisés, métadonnées techniques (OS, version app — aucune donnée personnelle — sendDefaultPii=false)
+- Durée de conservation : 30 jours
+- Base légale : intérêt légitime (débogage, stabilité de l'application)
+
+**Railway.app** (Railway Corp., San Francisco, États-Unis)
+- Données : profils utilisateurs, scénarios, snapshots (chiffrés en transit TLS 1.3), requêtes API (calculs génériques, barèmes), logs serveur
+- Durée : tant que le compte est actif (données utilisateur) ; 7 jours (logs serveur)
+- Base légale : exécution du contrat
+- Garanties : Standard Contractual Clauses (SCC)
+
+**Anthropic / OpenAI** (États-Unis) — uniquement si tu actives BYOK
+- Données : contexte coaching anonymisé (âge, canton, archetype, score FRI — jamais ton salaire exact — voir CoachContext)
+- Durée : aucune rétention (mode API, pas d'entraînement — pas stocké par MINT)
+- Base légale : consentement explicite (byokDataSharing / activation explicite du coach AI)
+- Tu utilises ta propre clé API — MINT n'est pas responsable du traitement par le fournisseur LLM
+
+**Apple / Google** — uniquement si tu utilises la reconnaissance vocale
+- Données : signal vocal pour la saisie vocale (speech-to-text), traité sur l'appareil
+- Durée : ponctuel (traitement en temps réel, aucun stockage)
+- Base légale : consentement explicite (activation vocale)
+
+**Google Play Store / Apple App Store** — achats in-app (abonnements)
+- Données : identifiant de transaction, type d'abonnement, date d'achat
+- Durée : selon les politiques Apple/Google (MINT ne stocke que le statut d'abonnement)
+- Base légale : exécution du contrat
+
+**Google Fonts** (Google LLC, États-Unis)
+- Données : adresse IP (lors du téléchargement initial des polices)
+- Durée : ponctuel (polices mises en cache localement)
+- Base légale : intérêt légitime (affichage typographique)
 
 ### 7.4 Obligations legales
 
@@ -262,12 +294,19 @@ Si des analytics sont actives, elles sont :
 
 ## 11. Transferts internationaux de donnees
 
-En Phase 1, **aucune donnee personnelle n'est transferee hors de Suisse** ni hors de ton appareil.
+Certains sous-traitants techniques (voir section 7.3) sont hébergés aux États-Unis :
 
-Si un transfert international devenait necessaire dans une phase ulterieure, nous respecterons les exigences de l'art. 16 nLPD :
-- Transfert uniquement vers des pays disposant d'un niveau de protection adequat (liste du Conseil federal)
-- A defaut, mise en place de garanties appropriees (clauses contractuelles types, regles d'entreprise contraignantes)
-- Information et consentement prealables
+- **Railway** (hébergement backend) : serveurs US. Les données transmises sont des calculs génériques (barèmes, taux légaux) sans données personnelles identifiables. Garanties : Standard Contractual Clauses (SCC) conformément à l'art. 16 al. 2 let. d nLPD.
+- **Sentry** (monitoring) : serveurs US. Uniquement des logs d'erreurs anonymisés. Garanties : SCC.
+- **Anthropic / OpenAI** (coach AI) : serveurs US. Contexte anonymisé uniquement. Garanties : SCC + mode API sans rétention.
+- **Google Fonts** : serveurs US. Adresse IP uniquement au premier chargement. Garanties : SCC.
+
+**Hébergement suisse prévu en Phase 2** : la migration vers un hébergeur suisse (Infomaniak, Exoscale ou équivalent) est planifiée pour la Phase 2 afin de supprimer tout transfert transfrontalier de données.
+
+Pour tout transfert international, nous respectons les exigences de l'art. 16 nLPD :
+- Transfert uniquement vers des pays disposant d'un niveau de protection adéquat (liste du Conseil fédéral)
+- À défaut, mise en place de garanties appropriées (clauses contractuelles types, règles d'entreprise contraignantes)
+- Information et consentement préalables
 
 ---
 
@@ -333,4 +372,4 @@ Si tu estimes que tes droits n'ont pas ete respectes, tu peux deposer une reclam
 
 *Cette politique est redigee en francais. En cas de divergence avec une traduction, la version francaise fait foi.*
 
-*MINT — "Juste quand il faut : une explication, une action, un rappel."*
+*MINT est un outil éducatif d'aide à la compréhension des décisions financières.*

@@ -125,7 +125,7 @@ class HousingSaleResult:
     alerts: List[str]                                 # Warning messages
     disclaimer: str                                   # Legal disclaimer
     sources: List[str]                                # Legal references
-    chiffre_choc: dict                                # Impact number
+    premier_eclairage: dict                                # Impact number
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -193,7 +193,7 @@ class HousingSaleService:
             input_data, plus_value_imposable, duree_detention,
             produit_net, remboursement_epl_lpp + remboursement_epl_3a,
         )
-        chiffre_choc = self._generate_chiffre_choc(
+        premier_eclairage = self._generate_premier_eclairage(
             produit_net, impot_effectif, input_data.prix_vente,
         )
 
@@ -213,7 +213,7 @@ class HousingSaleService:
             alerts=alerts,
             disclaimer=DISCLAIMER,
             sources=SOURCES,
-            chiffre_choc=chiffre_choc,
+            premier_eclairage=premier_eclairage,
         )
 
     # ------------------------------------------------------------------
@@ -369,7 +369,7 @@ class HousingSaleService:
 
         if data.epl_lpp_utilise > 0 or data.epl_3a_utilise > 0:
             checklist.append(
-                "Tu DOIS rembourser l'EPL LPP/3a sur le produit de la vente "
+                "Le remboursement de l'EPL LPP/3a est requis sur le produit de la vente "
                 "(OPP2 art. 30d)"
             )
             checklist.append(
@@ -439,13 +439,13 @@ class HousingSaleService:
 
         return alerts
 
-    def _generate_chiffre_choc(
+    def _generate_premier_eclairage(
         self,
         produit_net: float,
         impot_effectif: float,
         prix_vente: float,
     ) -> dict:
-        """Generate the impact number (chiffre choc).
+        """Generate the impact number (premier éclairage).
 
         Returns:
             dict with montant and texte.

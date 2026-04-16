@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +17,7 @@ class _Undefined {
 ///
 /// Stored in SharedPreferences under `_cap_memory`.
 /// Isolated from CoachProfileProvider to limit blast radius.
+// TODO(P3): Sync CapMemory to backend for cross-device continuity
 class CapMemory {
   /// ID of the last cap served.
   final String? lastCapServed;
@@ -43,6 +45,30 @@ class CapMemory {
   /// Used by feedback pill to show "Impact recalculé" accurately.
   final DateTime? lastCompletedDate;
 
+  /// ID of the cap that was last completed. Used by success sheet to
+  /// celebrate the RIGHT action, not the current _cachedCap.
+  final String? lastCompletedCapId;
+
+  /// Headline of the last completed cap — cached so success sheet can
+  /// display the right message even if CapEngine recomputes a different cap.
+  final String? lastCompletedCapHeadline;
+
+  /// CTA label of the last completed cap — the action text the user actually clicked.
+  final String? lastCompletedCapCtaLabel;
+
+  /// Tracks how many times each step was proposed in a guided sequence run.
+  /// Key: "{runId}_{stepId}", Value: proposal count.
+  /// Cleared when the run completes or is abandoned.
+  /// Used by SequenceCoordinator for anti-loop (max 2 proposals per step).
+  /// See RFC_AGENT_LOOP_STATEFUL.md §6.3.
+  final Map<String, int> stepProposals;
+
+  /// Whether a spending anomaly was detected in recent transactions.
+  final bool hasSpendingAnomaly;
+
+  /// Human-readable insight about the last detected anomaly.
+  final String? lastAnomalyInsight;
+
   const CapMemory({
     this.lastCapServed,
     this.lastCapDate,
@@ -52,7 +78,32 @@ class CapMemory {
     this.declaredGoals = const [],
     this.recentFrictionContext,
     this.lastCompletedDate,
+    this.lastCompletedCapId,
+    this.lastCompletedCapHeadline,
+    this.lastCompletedCapCtaLabel,
+    this.stepProposals = const {},
+    this.hasSpendingAnomaly = false,
+    this.lastAnomalyInsight,
   });
+
+  /// Get the proposal count for a step in a specific run.
+  int proposalCount(String runId, String stepId) =>
+      stepProposals['${runId}_$stepId'] ?? 0;
+
+  /// Return a copy with an incremented proposal count for a step.
+  CapMemory incrementProposal(String runId, String stepId) {
+    final key = '${runId}_$stepId';
+    final updated = Map<String, int>.from(stepProposals);
+    updated[key] = (updated[key] ?? 0) + 1;
+    return copyWith(stepProposals: updated);
+  }
+
+  /// Return a copy with all step proposals for a given run cleared.
+  CapMemory clearProposalsForRun(String runId) {
+    final updated = Map<String, int>.from(stepProposals)
+      ..removeWhere((key, _) => key.startsWith('${runId}_'));
+    return copyWith(stepProposals: updated);
+  }
 
   /// Copy with explicit null clearing support.
   ///
@@ -67,6 +118,12 @@ class CapMemory {
     List<String>? declaredGoals,
     Object? recentFrictionContext = _undefined,
     Object? lastCompletedDate = _undefined,
+    Object? lastCompletedCapId = _undefined,
+    Object? lastCompletedCapHeadline = _undefined,
+    Object? lastCompletedCapCtaLabel = _undefined,
+    Map<String, int>? stepProposals,
+    bool? hasSpendingAnomaly,
+    Object? lastAnomalyInsight = _undefined,
   }) {
     return CapMemory(
       lastCapServed: lastCapServed == _undefined
@@ -87,6 +144,20 @@ class CapMemory {
       lastCompletedDate: lastCompletedDate == _undefined
           ? this.lastCompletedDate
           : lastCompletedDate as DateTime?,
+      lastCompletedCapId: lastCompletedCapId == _undefined
+          ? this.lastCompletedCapId
+          : lastCompletedCapId as String?,
+      lastCompletedCapHeadline: lastCompletedCapHeadline == _undefined
+          ? this.lastCompletedCapHeadline
+          : lastCompletedCapHeadline as String?,
+      lastCompletedCapCtaLabel: lastCompletedCapCtaLabel == _undefined
+          ? this.lastCompletedCapCtaLabel
+          : lastCompletedCapCtaLabel as String?,
+      stepProposals: stepProposals ?? this.stepProposals,
+      hasSpendingAnomaly: hasSpendingAnomaly ?? this.hasSpendingAnomaly,
+      lastAnomalyInsight: lastAnomalyInsight == _undefined
+          ? this.lastAnomalyInsight
+          : lastAnomalyInsight as String?,
     );
   }
 
@@ -102,6 +173,16 @@ class CapMemory {
           'recentFrictionContext': recentFrictionContext,
         if (lastCompletedDate != null)
           'lastCompletedDate': lastCompletedDate!.toIso8601String(),
+        if (lastCompletedCapId != null)
+          'lastCompletedCapId': lastCompletedCapId,
+        if (lastCompletedCapHeadline != null)
+          'lastCompletedCapHeadline': lastCompletedCapHeadline,
+        if (lastCompletedCapCtaLabel != null)
+          'lastCompletedCapCtaLabel': lastCompletedCapCtaLabel,
+        if (stepProposals.isNotEmpty) 'stepProposals': stepProposals,
+        'hasSpendingAnomaly': hasSpendingAnomaly,
+        if (lastAnomalyInsight != null)
+          'lastAnomalyInsight': lastAnomalyInsight,
       };
 
   factory CapMemory.fromJson(Map<String, dynamic> json) => CapMemory(
@@ -123,6 +204,16 @@ class CapMemory {
         lastCompletedDate: json['lastCompletedDate'] != null
             ? DateTime.tryParse(json['lastCompletedDate'] as String)
             : null,
+        lastCompletedCapId: json['lastCompletedCapId'] as String?,
+        lastCompletedCapHeadline: json['lastCompletedCapHeadline'] as String?,
+        lastCompletedCapCtaLabel: json['lastCompletedCapCtaLabel'] as String?,
+        stepProposals:
+            (json['stepProposals'] as Map<String, dynamic>?)?.map(
+                  (k, v) => MapEntry(k, (v as num).toInt()),
+                ) ??
+                const {},
+        hasSpendingAnomaly: json['hasSpendingAnomaly'] as bool? ?? false,
+        lastAnomalyInsight: json['lastAnomalyInsight'] as String?,
       );
 }
 
@@ -131,6 +222,9 @@ class CapMemory {
 /// Uses SharedPreferences — same pattern as dataTimestamps.
 class CapMemoryStore {
   static const _key = '_cap_memory';
+
+  /// T2-8: Mutex to prevent concurrent writes.
+  static Completer<void>? _saveLock;
 
   CapMemoryStore._();
 
@@ -147,10 +241,19 @@ class CapMemoryStore {
     }
   }
 
-  /// Save memory to disk.
+  /// Save memory to disk. Serialized writes to prevent data corruption.
   static Future<void> save(CapMemory memory) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_key, jsonEncode(memory.toJson()));
+    // Wait for any in-flight save to complete before starting a new one.
+    if (_saveLock != null && !_saveLock!.isCompleted) {
+      await _saveLock!.future;
+    }
+    _saveLock = Completer<void>();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_key, jsonEncode(memory.toJson()));
+    } finally {
+      _saveLock!.complete();
+    }
   }
 
   /// Record that a cap was served to the user.
@@ -169,8 +272,10 @@ class CapMemoryStore {
   /// Record that the user completed the action from a cap.
   static Future<CapMemory> markCompleted(
     CapMemory memory,
-    String actionId,
-  ) async {
+    String actionId, {
+    String? headline,
+    String? ctaLabel,
+  }) async {
     final actions = [...memory.completedActions, actionId];
     // Keep only last 20 to avoid unbounded growth.
     final trimmed = actions.length > 20
@@ -182,6 +287,10 @@ class CapMemoryStore {
       recentFrictionContext: null,
       // Stamp completion time (distinct from lastCapDate).
       lastCompletedDate: DateTime.now(),
+      // Store the completed cap ID + headline + ctaLabel for success sheet accuracy
+      lastCompletedCapId: actionId,
+      lastCompletedCapHeadline: headline,
+      lastCompletedCapCtaLabel: ctaLabel,
     );
     await save(updated);
     return updated;

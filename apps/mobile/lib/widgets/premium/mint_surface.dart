@@ -51,7 +51,7 @@ class MintSurface extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width ?? double.infinity,
+      width: width,
       padding: padding ?? const EdgeInsets.all(MintSpacing.lg),
       decoration: BoxDecoration(
         color: _backgroundColor,

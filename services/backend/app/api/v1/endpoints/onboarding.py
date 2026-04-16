@@ -2,11 +2,11 @@
 Onboarding endpoints — Sprint S31: Onboarding Redesign.
 
 POST /api/v1/onboarding/minimal-profile — compute minimal financial profile
-POST /api/v1/onboarding/chiffre-choc   — select impactful chiffre choc
+POST /api/v1/onboarding/premier-eclairage   — select impactful premier éclairage
 
 Given only 3 inputs (age, salary, canton), produces:
 - A full financial snapshot with confidence scoring
-- A single impactful "chiffre choc" to motivate the user
+- A single impactful "premier éclairage" to motivate the user
 
 All endpoints are stateless (no data storage). Pure computation on the fly.
 
@@ -17,17 +17,18 @@ Sources:
     - OPP3 art. 7 (plafond 3a)
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.onboarding import (
     MinimalProfileRequest,
     MinimalProfileResponse,
-    ChiffreChocResponse,
+    PremierEclairageResponse,
 )
 from app.services.onboarding import (
     MinimalProfileInput,
     compute_minimal_profile,
-    select_chiffre_choc,
+    select_premier_eclairage,
 )
 
 router = APIRouter()
@@ -47,11 +48,17 @@ def _request_to_input(request: MinimalProfileRequest) -> MinimalProfileInput:
         lpp_caisse_type=request.lpp_caisse_type,
         total_debts=request.total_debts,
         monthly_debt_service=request.monthly_debt_service,
+        stress_type=request.stress_type,
+        # FIX-093: Pass nationality fields for archetype detection.
+        nationality_group=request.nationality_group,
+        nationality_country=request.nationality_country,
+        arrival_age=request.arrival_age,
     )
 
 
 @router.post("/minimal-profile", response_model=MinimalProfileResponse)
-def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
+@limiter.limit("30/minute")
+def compute_profile(request: Request, body: MinimalProfileRequest) -> MinimalProfileResponse:
     """Calcule un profil financier minimal a partir de 3 inputs.
 
     Seuls age, salaire brut et canton sont requis. Les champs optionnels
@@ -62,7 +69,7 @@ def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
         MinimalProfileResponse avec projections, confiance, disclaimer et sources.
     """
     try:
-        input_data = _request_to_input(request)
+        input_data = _request_to_input(body)
         result = compute_minimal_profile(input_data)
 
         return MinimalProfileResponse(
@@ -85,16 +92,17 @@ def compute_profile(request: MinimalProfileRequest) -> MinimalProfileResponse:
             enrichment_prompts=result.enrichment_prompts,
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")
 
 
-@router.post("/chiffre-choc", response_model=ChiffreChocResponse)
-def compute_chiffre_choc(request: MinimalProfileRequest) -> ChiffreChocResponse:
-    """Calcule le chiffre choc le plus percutant pour l'onboarding.
+@router.post("/premier-eclairage", response_model=PremierEclairageResponse)
+@limiter.limit("30/minute")
+def compute_premier_eclairage(request: Request, body: MinimalProfileRequest) -> PremierEclairageResponse:
+    """Calcule le premier éclairage le plus percutant pour l'onboarding.
 
     Prend les memes inputs que le profil minimal, calcule le profil
-    en interne, puis selectionne LE chiffre choc le plus impactant.
+    en interne, puis selectionne LE premier éclairage le plus impactant.
 
     Priorite:
     1. Crise de liquidite (< 2 mois de reserve)
@@ -103,14 +111,14 @@ def compute_chiffre_choc(request: MinimalProfileRequest) -> ChiffreChocResponse:
     4. Fallback: gap retraite
 
     Returns:
-        ChiffreChocResponse avec categorie, texte d'accroche, disclaimer et sources.
+        PremierEclairageResponse avec categorie, texte d'accroche, disclaimer et sources.
     """
     try:
-        input_data = _request_to_input(request)
+        input_data = _request_to_input(body)
         profile = compute_minimal_profile(input_data)
-        choc = select_chiffre_choc(profile)
+        choc = select_premier_eclairage(profile, stress_type=input_data.stress_type)
 
-        return ChiffreChocResponse(
+        return PremierEclairageResponse(
             category=choc.category,
             primary_number=choc.primary_number,
             display_text=choc.display_text,
@@ -119,7 +127,8 @@ def compute_chiffre_choc(request: MinimalProfileRequest) -> ChiffreChocResponse:
             disclaimer=choc.disclaimer,
             sources=choc.sources,
             confidence_score=choc.confidence_score,
+            confidence_mode=choc.confidence_mode,
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")

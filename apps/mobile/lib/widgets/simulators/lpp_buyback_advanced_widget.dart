@@ -4,6 +4,7 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/simulators/lpp_buyback_advanced_simulator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 class LppBuybackAdvancedWidget extends StatefulWidget {
   final double initialPotential;
@@ -155,7 +156,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
           ),
           const SizedBox(height: 8),
           Text(
-            "CHF ${result.finalCapital.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}\'')}",
+            formatChfWithPrefix(result.finalCapital),
             style: MintTextStyles.displayMedium(color: MintColors.white),
           ),
           const SizedBox(height: 12),
@@ -187,14 +188,14 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       children: [
         _buildSmallMetric(
           l.simLppBuybackTaxSavings,
-          "CHF ${result.totalTaxSavings.toStringAsFixed(0)}",
+          formatChfWithPrefix(result.totalTaxSavings),
           Icons.savings_outlined,
           MintColors.success,
         ),
         const SizedBox(width: 12),
         _buildSmallMetric(
           l.simLppBuybackNetEffort,
-          "CHF ${result.netEffort.toStringAsFixed(0)}",
+          formatChfWithPrefix(result.netEffort),
           Icons.payments_outlined,
           MintColors.primary,
         ),
@@ -255,7 +256,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
                   style:
                       const TextStyle(color: MintColors.textSecondary, fontSize: 13)),
               Text(
-                "+ CHF ${result.totalValueGained.toStringAsFixed(0)}",
+                "+${formatChfWithPrefix(result.totalValueGained)}",
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: MintColors.success),
               ),
@@ -356,7 +357,7 @@ class _LppBuybackAdvancedWidgetState extends State<LppBuybackAdvancedWidget> {
       l.simLppBuybackDisclaimer(
         (_fundRate * 100).toStringAsFixed(1),
         _staggeringYears,
-        _taxableIncome.toStringAsFixed(0),
+        formatChf(_taxableIncome),
       ),
       style: MintTextStyles.micro(color: MintColors.textMuted),
       textAlign: TextAlign.center,

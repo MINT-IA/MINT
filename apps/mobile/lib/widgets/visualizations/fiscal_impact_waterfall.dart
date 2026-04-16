@@ -183,7 +183,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
                 ),
                 Text(
                   'Deductions et allocations',
-                  style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(),
                 ),
               ],
             ),
@@ -291,11 +291,11 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
                 children: [
                   Text(
                     step.label,
-                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontSize: 13, fontWeight: FontWeight.w700),
+                    style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   ),
                   Text(
                     '${step.isTotal ? '' : step.amount < 0 ? '' : '+'}${_formatChf(step.amount)}',
-                    style: MintTextStyles.bodyMedium(color: color).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: color).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -306,7 +306,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
               children: [
                 Text(
                   'Total courant',
-                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontSize: 10, fontStyle: FontStyle.normal),
+                  style: MintTextStyles.micro(color: MintColors.textMuted).copyWith(fontStyle: FontStyle.normal),
                 ),
                 Text(
                   _formatChf(runningTotal),
@@ -360,7 +360,7 @@ class _FiscalImpactWaterfallState extends State<FiscalImpactWaterfall>
                     children: [
                       Text(
                         'Economies totales',
-                        style: MintTextStyles.bodyMedium(color: MintColors.success).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                        style: MintTextStyles.labelMedium(color: MintColors.success).copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 2),
                       Text(

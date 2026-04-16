@@ -1,0 +1,50 @@
+# Top Swiss financial document issuers — few-shot signatures for fused Vision.
+#
+# v2.7 Phase 28 / DOC-02. Loaded once at module import and surfaced to the
+# prompt builder as text vignettes (NOT images — keep cost flat per
+# RESEARCH §1).
+#
+# Add issuers conservatively: each entry must be observed in the fixture
+# corpus or supplied by a Swiss-resident user.
+
+issuers:
+  - name: CPE
+    keywords:
+      - "Caisse de pensions de l'Etat"
+      - "Caisse de pensions de l'État"
+      - "CPE"
+      - "Plan Maxi"
+      - "Plan Standard"
+    document_classes: [lpp_certificate]
+
+  - name: Swisscanto
+    keywords:
+      - "Swisscanto"
+      - "Säule 3a"
+      - "Vorsorgestiftung Sparen 3"
+      - "Fondation Vorsorge 3a"
+    document_classes: [pillar_3a_attestation]
+
+  - name: AVS IK
+    keywords:
+      - "Office cantonal AVS"
+      - "compte individuel"
+      - "Année / Revenu"
+      - "Individuelles Konto"
+    document_classes: [avs_extract]
+
+  - name: Raiffeisen
+    keywords:
+      - "Raiffeisen"
+      - "Vorsorgekonto 3"
+      - "compte de prévoyance 3a"
+      - "compte de prevoyance 3a"
+    document_classes: [pillar_3a_attestation, bank_statement]
+
+  - name: UBS
+    keywords:
+      - "UBS"
+      - "Vorsorge 3a"
+      - "key3"
+      - "compte 3a"
+    document_classes: [pillar_3a_attestation, bank_statement, mortgage_attestation]

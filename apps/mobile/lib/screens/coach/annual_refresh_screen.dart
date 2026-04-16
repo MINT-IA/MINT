@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -296,7 +297,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         S.of(context)!.annualRefreshTitle,
@@ -779,7 +780,7 @@ class _AnnualRefreshScreenState extends State<AnnualRefreshScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () => context.go('/home'),
+                    onPressed: () => context.go('/coach/chat'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: MintColors.coachAccent,
                       foregroundColor: MintColors.white,

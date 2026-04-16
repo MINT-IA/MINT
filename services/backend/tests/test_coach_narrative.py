@@ -110,7 +110,7 @@ class TestNarrativeService:
         assert result.greeting
         assert result.score_summary
         assert result.tip_narrative
-        assert result.chiffre_choc_reframe
+        assert result.premier_eclairage_reframe
 
     def test_greeting_contains_first_name(self, service, default_ctx):
         greeting = service.generate_greeting(default_ctx)
@@ -145,8 +145,8 @@ class TestNarrativeService:
         tip = service.generate_tip_narrative(low_liquidity_ctx)
         assert "liquidité" in tip.lower() or "réserve" in tip.lower() or "mois" in tip.lower()
 
-    def test_chiffre_choc_mentions_confidence(self, service, default_ctx):
-        reframe = service.generate_chiffre_choc_reframe(default_ctx)
+    def test_premier_eclairage_mentions_confidence(self, service, default_ctx):
+        reframe = service.generate_premier_eclairage_reframe(default_ctx)
         assert "%" in reframe or "données" in reframe.lower()
 
     def test_generate_all_has_disclaimer(self, service, default_ctx):
@@ -165,7 +165,7 @@ class TestNarrativeService:
         assert len(result.greeting) > 0
         assert len(result.score_summary) > 0
         assert len(result.tip_narrative) > 0
-        assert len(result.chiffre_choc_reframe) > 0
+        assert len(result.premier_eclairage_reframe) > 0
 
 
 # ===========================================================================
@@ -223,8 +223,8 @@ class TestFallbackTemplates:
         text = FallbackTemplates.tip_narrative(ctx)
         assert "remplacement" in text.lower() or "retraite" in text.lower() or "score" in text.lower()
 
-    def test_chiffre_choc_reframe(self, default_ctx):
-        text = FallbackTemplates.chiffre_choc_reframe(default_ctx)
+    def test_premier_eclairage_reframe(self, default_ctx):
+        text = FallbackTemplates.premier_eclairage_reframe(default_ctx)
         assert "%" in text or "données" in text.lower()
 
 
@@ -288,8 +288,8 @@ class TestComplianceIntegration:
         for term in BANNED_TERMS:
             assert term.lower() not in text.lower(), f"Banned term '{term}' in tip"
 
-    def test_no_banned_terms_in_chiffre_choc(self, default_ctx):
-        text = FallbackTemplates.chiffre_choc_reframe(default_ctx)
+    def test_no_banned_terms_in_premier_eclairage(self, default_ctx):
+        text = FallbackTemplates.premier_eclairage_reframe(default_ctx)
         for term in BANNED_TERMS:
             assert term.lower() not in text.lower(), f"Banned term '{term}' in reframe"
 
@@ -299,7 +299,7 @@ class TestComplianceIntegration:
             (FallbackTemplates.greeting, ComponentType.greeting),
             (FallbackTemplates.score_summary, ComponentType.score_summary),
             (FallbackTemplates.tip_narrative, ComponentType.tip),
-            (FallbackTemplates.chiffre_choc_reframe, ComponentType.chiffre_choc),
+            (FallbackTemplates.premier_eclairage_reframe, ComponentType.premier_eclairage),
         ]:
             text = template_fn(default_ctx)
             result = guard.validate(text, context=default_ctx, component_type=ctype)

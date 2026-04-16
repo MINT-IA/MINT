@@ -2,8 +2,16 @@
 Tests for analytics endpoints - event tracking and analytics queries.
 """
 
+import pytest
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
+
+
+@pytest.fixture
+def admin_env(monkeypatch):
+    """Set AUTH_ADMIN_EMAIL_ALLOWLIST and enable_admin_screens FF so test@mint.ch is recognized as admin."""
+    monkeypatch.setenv("AUTH_ADMIN_EMAIL_ALLOWLIST", "test@mint.ch")
+    monkeypatch.setenv("FF_ENABLE_ADMIN_SCREENS", "true")
 
 
 def test_post_single_event_anonymous(client):
@@ -185,7 +193,7 @@ def test_post_events_validation_too_many_events(client):
     assert response.status_code == 422
 
 
-def test_get_analytics_summary_default(client):
+def test_get_analytics_summary_default(client, admin_env):
     """Test getting analytics summary with default parameters (7 days)."""
     # Post some test events
     session_1 = str(uuid4())
@@ -238,7 +246,7 @@ def test_get_analytics_summary_default(client):
     assert "date_range_end" in data
 
 
-def test_get_analytics_summary_custom_days(client):
+def test_get_analytics_summary_custom_days(client, admin_env):
     """Test getting analytics summary with custom day range."""
     # Post event
     events = {
@@ -259,7 +267,7 @@ def test_get_analytics_summary_custom_days(client):
     assert data["total_events"] == 1
 
 
-def test_get_analytics_summary_date_range_filter(client):
+def test_get_analytics_summary_date_range_filter(client, admin_env):
     """Test analytics summary with custom date range."""
     # Post events with different timestamps
     now = datetime.now(timezone.utc)
@@ -291,7 +299,7 @@ def test_get_analytics_summary_date_range_filter(client):
     assert data["total_events"] == 1  # Only recent event
 
 
-def test_get_analytics_summary_empty(client):
+def test_get_analytics_summary_empty(client, admin_env):
     """Test analytics summary with no events."""
     response = client.get("/api/v1/analytics/summary")
     assert response.status_code == 200
@@ -302,7 +310,7 @@ def test_get_analytics_summary_empty(client):
     assert data["events_by_screen"] == {}
 
 
-def test_get_funnel_analysis_basic(client):
+def test_get_funnel_analysis_basic(client, admin_env):
     """Test basic funnel analysis with multiple steps."""
     session_1 = str(uuid4())
     session_2 = str(uuid4())
@@ -356,7 +364,7 @@ def test_get_funnel_analysis_basic(client):
     assert steps[3]["conversion_rate"] == 66.67  # 2/3 * 100
 
 
-def test_get_funnel_analysis_empty_steps(client):
+def test_get_funnel_analysis_empty_steps(client, admin_env):
     """Test funnel analysis with no steps provided."""
     response = client.get("/api/v1/analytics/funnel?steps=")
     assert response.status_code == 200
@@ -364,7 +372,7 @@ def test_get_funnel_analysis_empty_steps(client):
     assert data["steps"] == []
 
 
-def test_get_funnel_analysis_no_matching_events(client):
+def test_get_funnel_analysis_no_matching_events(client, admin_env):
     """Test funnel analysis with steps that have no matching events."""
     response = client.get("/api/v1/analytics/funnel?steps=nonexistent_step1,nonexistent_step2")
     assert response.status_code == 200
@@ -375,7 +383,7 @@ def test_get_funnel_analysis_no_matching_events(client):
     assert steps[1]["count"] == 0
 
 
-def test_get_funnel_analysis_date_range(client):
+def test_get_funnel_analysis_date_range(client, admin_env):
     """Test funnel analysis with date range filtering."""
     now = datetime.now(timezone.utc)
     old_event_time = now - timedelta(days=10)
@@ -406,7 +414,7 @@ def test_get_funnel_analysis_date_range(client):
     assert data["steps"][0]["count"] == 1  # Only recent event
 
 
-def test_analytics_privacy_no_pii(client):
+def test_analytics_privacy_no_pii(client, admin_env):
     """Test that analytics events don't contain PII - only anonymous session_id."""
     event_data = {
         "events": [
@@ -430,7 +438,7 @@ def test_analytics_privacy_no_pii(client):
     # No email, no user details exposed
 
 
-def test_analytics_multiple_events_same_session(client):
+def test_analytics_multiple_events_same_session(client, admin_env):
     """Test that multiple events with same session_id are tracked correctly."""
     session_id = str(uuid4())
     events = {
@@ -461,3 +469,47 @@ def test_analytics_multiple_events_same_session(client):
     data = response.json()
     assert data["total_events"] == 3
     assert data["unique_sessions"] == 1  # All events from same session
+
+
+def test_analytics_summary_requires_admin(client):
+    """V6-1: summary endpoint requires admin access (FF gate or RBAC)."""
+    # Default client has test@mint.ch but NO admin allowlist configured
+    # and FF_ENABLE_ADMIN_SCREENS is not set — gets 403 from FF gate.
+    response = client.get("/api/v1/analytics/summary")
+    assert response.status_code == 403
+
+
+def test_analytics_funnel_requires_admin(client):
+    """V6-1: funnel endpoint requires admin access (FF gate or RBAC)."""
+    response = client.get("/api/v1/analytics/funnel?steps=landing_view")
+    assert response.status_code == 403
+
+
+def test_post_events_system_category(client):
+    """V6-1: system category is now accepted by backend."""
+    event_data = {
+        "events": [
+            {
+                "event_name": "analytics_consent_granted",
+                "event_category": "system",
+                "session_id": str(uuid4()),
+            }
+        ]
+    }
+    response = client.post("/api/v1/analytics/events", json=event_data)
+    assert response.status_code == 201
+
+
+def test_post_events_experiment_category(client):
+    """V6-1: experiment category is now accepted by backend."""
+    event_data = {
+        "events": [
+            {
+                "event_name": "experiment_exposed",
+                "event_category": "experiment",
+                "session_id": str(uuid4()),
+            }
+        ]
+    }
+    response = client.post("/api/v1/analytics/events", json=event_data)
+    assert response.status_code == 201

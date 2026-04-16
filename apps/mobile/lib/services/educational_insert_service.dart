@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/educational/educational_widgets.dart';
 
 /// Service de mapping entre les questions wizard et les inserts didactiques
@@ -145,7 +146,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Ton état civil, ses impacts financiers',
           subtitle: 'Impôts, succession, prévoyance',
-          chiffreChoc:
+          premierEclairage:
               'Un couple marié peut économiser jusqu\'à 6\'000 CHF/an '
               'd\'impôts par rapport à deux concubins dans certains cantons '
               '— mais dans d\'autres c\'est l\'inverse (pénalité du mariage).',
@@ -154,7 +155,7 @@ class EducationalInsertService {
             'Le concubinage n\'offre aucune protection légale automatique (pas de part réservataire, pas de droit aux acquêts).',
             'Le divorce entraîne un partage du 2e pilier imposé par la loi (LPP art. 22).',
             'Le mariage entraîne une imposition commune (LIFD art. 9 al. 1) — avantage ou pénalité selon les revenus.',
-            'Le PACS (partenariat enregistré) donne les mêmes droits fiscaux et successoraux que le mariage (LPart art. 1).',
+            'Le partenariat enregistré n\'est plus accessible depuis le 1er juillet 2022 (mariage pour tous). Les partenariats existants restent valables avec des effets proches du mariage, mais pas identiques (LPart art. 1).',
           ],
           disclaimer:
               'Information à caractère éducatif. Chaque situation familiale est unique. '
@@ -175,7 +176,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Ton statut professionnel, tes droits',
           subtitle: 'Prévoyance, 3a, couvertures sociales',
-          chiffreChoc:
+          premierEclairage:
               'Un indépendant sans LPP volontaire peut cotiser jusqu\'à '
               '36\'288 CHF/an au 3a — soit 5x plus qu\'un salarié (7\'258 CHF). '
               'Mais il perd l\'assurance invalidité LPP.',
@@ -205,7 +206,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Locataire ou propriétaire ?',
           subtitle: 'Fiscalité, EPL et capacité d\'emprunt',
-          chiffreChoc:
+          premierEclairage:
               'En Suisse, seuls 36% des ménages sont propriétaires — '
               'le taux le plus bas d\'Europe. Pourtant, un propriétaire paie '
               'en moyenne 15-25% de moins par mois qu\'un locataire équivalent '
@@ -236,7 +237,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Ton canton, ton impôt',
           subtitle: 'Le 1er levier fiscal en Suisse',
-          chiffreChoc:
+          premierEclairage:
               'Pour un revenu de 100\'000 CHF, l\'impôt varie de ~8% à Zoug '
               'à ~30% à Genève — soit une différence de plus de 22\'000 CHF par an. '
               'Ton canton est le premier levier fiscal en Suisse.',
@@ -267,7 +268,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Rachat LPP : ton levier fiscal',
           subtitle: 'Rendement immédiat de 25 à 40%',
-          chiffreChoc:
+          premierEclairage:
               'Un rachat LPP de 20\'000 CHF peut te faire économiser entre '
               '5\'000 et 8\'000 CHF d\'impôts l\'année même — c\'est un rendement '
               'fiscal immédiat de 25 à 40%.',
@@ -296,7 +297,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Nombre de comptes 3a : la stratégie',
           subtitle: 'Échelonner pour payer moins d\'impôts',
-          chiffreChoc:
+          premierEclairage:
               'Avec 5 comptes 3a retirés sur 5 ans au lieu d\'un seul, '
               'tu peux économiser entre 8\'000 et 25\'000 CHF d\'impôts sur '
               'le retrait — car chaque retrait est imposé séparément et à un taux plus bas.',
@@ -305,7 +306,7 @@ class EducationalInsertService {
             'Les retraits de la même année sont additionnés pour le calcul du taux (impôt progressif).',
             'La stratégie d\'échelonnement : ouvrir 4-5 comptes dès le départ et les retirer sur 4-5 années différentes (à partir de 59/60 ans).',
             'Les retraits 3a et LPP en capital de la même année se cumulent pour l\'imposition.',
-            'L\'âge de retrait anticipé est 59 ans (femmes) / 60 ans (hommes) sans condition (OPP3 art. 3 al. 1).',
+            'L\'âge de retrait anticipé est 5 ans avant l\'âge de référence AVS\u00a0: 60 ans (hommes), 59 ans (femmes nées avant 1964) ou 60 ans (femmes nées dès 1964) — OPP3 art. 3 al. 1.',
           ],
           disclaimer:
               'Information à caractère éducatif. L\'économie d\'impôt dépend du canton '
@@ -325,7 +326,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Placements : le régime fiscal suisse',
           subtitle: 'Gains en capital, dividendes, fortune',
-          chiffreChoc:
+          premierEclairage:
               'En Suisse, les gains en capital privés sont exonérés d\'impôt '
               '(LIFD art. 16 al. 3) — mais les dividendes et intérêts sont '
               'imposés à 100%. Placer 100\'000 CHF en valeurs mobilières plutôt '
@@ -357,7 +358,7 @@ class EducationalInsertService {
         return GenericInfoInsertWidget(
           title: 'Projet immobilier : par où commencer',
           subtitle: 'Apport, capacité d\'emprunt, sources',
-          chiffreChoc:
+          premierEclairage:
               'Pour un bien à 800\'000 CHF, il te faut 160\'000 CHF d\'apport '
               'personnel — dont maximum 80\'000 CHF de ton 2e pilier. '
               'Tes charges mensuelles théoriques seront d\'environ 4\'670 CHF, '
@@ -389,42 +390,43 @@ class EducationalInsertService {
     }
   }
 
-  /// Retourne le titre du modal "En savoir plus"
-  static String? getLearnMoreTitle(String questionId) {
+  /// Retourne le titre du modal "En savoir plus".
+  /// [l] — optional localizations; when null (e.g. in tests) French fallbacks are used.
+  static String? getLearnMoreTitle(String questionId, {S? l}) {
     switch (questionId) {
       case 'q_financial_stress_check':
-        return 'Ton stress financier, en clair';
+        return l?.educationalLearnMoreStressCheck ?? 'Ton stress financier, en clair';
       case 'q_has_pension_fund':
-        return 'Comprendre le 2e pilier (LPP)';
+        return l?.educationalLearnMoreLpp ?? 'Comprendre le 2e pilier (LPP)';
       case 'q_has_3a':
       case 'q_3a_annual_amount':
-        return 'Le 3e pilier en détail';
+        return l?.educationalLearnMoreTroisA ?? 'Le 3e pilier en détail';
       case 'q_mortgage_type':
-        return 'Types d\'hypothèques en Suisse';
+        return l?.educationalLearnMoreMortgage ?? 'Types d\'hypothèques en Suisse';
       case 'q_has_consumer_credit':
-        return 'Le crédit à la consommation';
+        return l?.educationalLearnMoreCredit ?? 'Le crédit à la consommation';
       case 'q_has_leasing':
-        return 'Leasing vs achat';
+        return l?.educationalLearnMoreLeasing ?? 'Leasing vs achat';
       case 'q_emergency_fund':
-        return 'Pourquoi un fonds d\'urgence ?';
+        return l?.educationalLearnMoreEmergency ?? 'Pourquoi un fonds d\'urgence ?';
       // Nouveaux inserts S27 — Niveau 1
       case 'q_civil_status':
-        return 'État civil et finances en Suisse';
+        return l?.educationalLearnMoreCivilStatus ?? 'État civil et finances en Suisse';
       case 'q_employment_status':
-        return 'Statut professionnel et prévoyance';
+        return l?.educationalLearnMoreEmployment ?? 'Statut professionnel et prévoyance';
       case 'q_housing_status':
-        return 'Locataire ou propriétaire ?';
+        return l?.educationalLearnMoreHousing ?? 'Locataire ou propriétaire ?';
       case 'q_canton':
-        return 'Fiscalité cantonale en Suisse';
+        return l?.educationalLearnMoreCanton ?? 'Fiscalité cantonale en Suisse';
       // Nouveaux inserts S27 — Niveau 2
       case 'q_lpp_buyback_available':
-        return 'Le rachat LPP, comment ça marche ?';
+        return l?.educationalLearnMoreLppBuyback ?? 'Le rachat LPP, comment ça marche ?';
       case 'q_3a_accounts_count':
-        return 'Stratégie multi-comptes 3a';
+        return l?.educationalLearnMoreTroisaCount ?? 'Stratégie multi-comptes 3a';
       case 'q_has_investments':
-        return 'Placements et fiscalité suisse';
+        return l?.educationalLearnMoreInvestments ?? 'Placements et fiscalité suisse';
       case 'q_real_estate_project':
-        return 'Financer un achat immobilier';
+        return l?.educationalLearnMoreRealEstate ?? 'Financer un achat immobilier';
       default:
         return null;
     }

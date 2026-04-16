@@ -69,6 +69,15 @@ class ComplianceGuard {
     'idéale',
     // Superlative form of "meilleur" (GAP #4: "le mieux" bypass)
     'le mieux',
+    // FIX-081: German banned terms (Deutschschweiz users)
+    'garantiert', 'sicher', 'ohne risiko', 'optimal', 'beste',
+    'perfekt', 'berater', 'du solltest', 'du musst', 'wir empfehlen',
+    // FIX-081: Italian banned terms (Svizzera italiana users)
+    'garantito', 'garantita', 'sicuro', 'senza rischio', 'ottimale',
+    'migliore', 'perfetto', 'perfetta', 'consigliamo', 'devi',
+    // FIX-081: English banned terms (expat users)
+    'guaranteed', 'risk-free', 'optimal', 'best', 'perfect',
+    'you should', 'you must', 'we recommend', 'ideal',
   ];
 
   static const Map<String, String> termReplacements = {
@@ -123,8 +132,8 @@ class ComplianceGuard {
   static final List<RegExp> prescriptivePatterns = [
     RegExp(r'fais\s+un\s+rachat', caseSensitive: false),
     RegExp(r'verse\s+sur\s+ton', caseSensitive: false),
-    RegExp(r'ach[eè]te', caseSensitive: false),
-    RegExp(r'vends\b', caseSensitive: false),
+    RegExp(r'\bach[eè]te\b', caseSensitive: false),
+    RegExp(r'\bvends\b', caseSensitive: false),
     RegExp(r'choisis\s+la\s+rente', caseSensitive: false),
     RegExp(r'prends?\s+le\s+capital', caseSensitive: false),
     RegExp(r'investis?\s+(?:dans|\d)', caseSensitive: false),
@@ -133,8 +142,8 @@ class ComplianceGuard {
     RegExp(r'priorit[ée]\s+absolue', caseSensitive: false),
     RegExp("c['\u2018\u2019]est\\s+plus\\s+important\\s+que", caseSensitive: false),
     RegExp(r'souscris\b', caseSensitive: false),
-    RegExp(r'rach[eè]te\b', caseSensitive: false),
-    RegExp(r'transf[eè]re\b', caseSensitive: false),
+    RegExp(r'\brach[eè]te\b', caseSensitive: false),
+    RegExp(r'\btransf[eè]re\b', caseSensitive: false),
     // Social comparison patterns (GAP #2: ranking users against others)
     RegExp(r'top\s+\d+\s*%', caseSensitive: false),
     RegExp(r'meilleur\s+que\s+\d+\s*%', caseSensitive: false),
@@ -149,7 +158,8 @@ class ComplianceGuard {
   ];
 
   // Fuzzy banned pattern for "sans ... risque" variants
-  static final _sansRisquePattern = RegExp(r'sans\s+(?:\w+\s+)*risque', caseSensitive: false);
+  // FIX-W12 + SEC-4: Bounded quantifier to prevent ReDoS catastrophic backtracking
+  static final _sansRisquePattern = RegExp(r'sans\s+(?:\w+\s+){0,10}risque', caseSensitive: false);
 
   static const List<String> projectionKeywords = [
     'projection', 'simulation', 'scénario', 'scenario',
@@ -193,6 +203,57 @@ class ComplianceGuard {
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // Alert validation (layers 1-2 only)
+  // ═══════════════════════════════════════════════════════════════
+
+  /// Validate alert template text (non-LLM, deterministic).
+  ///
+  /// Runs banned-term + prescriptive checks only (layers 1-2).
+  /// Skips hallucination detection and disclaimer injection
+  /// (alerts include source refs per ANT-03 and are template-based,
+  /// not LLM-generated).
+  static ComplianceResult validateAlert(String alertText) {
+    final violations = <String>[];
+
+    // Pre-check: empty alert
+    if (alertText.trim().isEmpty) {
+      return const ComplianceResult(
+        isCompliant: false,
+        sanitizedText: '',
+        violations: ['Alerte vide'],
+        useFallback: true,
+      );
+    }
+
+    var text = alertText;
+
+    // Layer 1: Banned terms
+    final bannedFound = _checkBannedTerms(text);
+    if (bannedFound.isNotEmpty) {
+      violations.addAll(bannedFound.map((t) => "Terme interdit: '$t'"));
+      text = _sanitizeBannedTerms(text);
+    }
+
+    // Layer 2: Prescriptive language
+    final prescriptiveFound = _checkPrescriptive(text);
+    if (prescriptiveFound.isNotEmpty) {
+      violations.addAll(
+        prescriptiveFound.map((p) => "Langage prescriptif: '$p'"),
+      );
+    }
+
+    // Layers 3-4 intentionally skipped: alerts are template-based,
+    // not LLM-generated. No hallucination detection, no disclaimer injection.
+
+    return ComplianceResult(
+      isCompliant: violations.isEmpty,
+      sanitizedText: violations.isEmpty ? text : '',
+      violations: violations,
+      useFallback: violations.isNotEmpty,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // Main validation
   // ═══════════════════════════════════════════════════════════════
 
@@ -216,11 +277,14 @@ class ComplianceGuard {
       );
     }
 
-    // Pre-check: wrong language
+    // Pre-check: wrong language (log-only, never fallback).
+    // NOTE: log-only by default. Modern French finance uses English tech
+    // terms (ETF, cash, score, KPI). Detecting "you/the/with" 3 times kills
+    // legitimate French responses. Defense is in the prompt.
     final langViolations = _checkLanguage(text);
     if (langViolations.isNotEmpty) {
       violations.addAll(langViolations);
-      useFallback = true;
+      // useFallback intentionally NOT set — log only.
     }
 
     // Layer 1: Banned terms
@@ -235,10 +299,12 @@ class ComplianceGuard {
     }
 
     // Layer 2: Prescriptive language
+    // NEVER fallback on prescriptive — log only. The system prompt handles this.
+    // Killing responses for natural French ("rachète ta LPP", "investis dans
+    // ton 3a") destroys every substantive coach response.
     final prescriptiveFound = _checkPrescriptive(text);
     if (prescriptiveFound.isNotEmpty) {
       violations.addAll(prescriptiveFound.map((p) => "Langage prescriptif: '$p'"));
-      useFallback = true;
     }
 
     // Layer 3: Hallucination detection
@@ -272,6 +338,15 @@ class ComplianceGuard {
       }
     }
 
+    // SEC-9: Escape HTML/script tags in LLM response (markdown injection)
+    if (!useFallback) {
+      text = text
+          .replaceAll('<script', '&lt;script')
+          .replaceAll('</script', '&lt;/script')
+          .replaceAll('<iframe', '&lt;iframe')
+          .replaceAll('javascript:', 'blocked:');
+    }
+
     // Defense-in-depth: if sanitization emptied the text, force fallback.
     if (!useFallback && text.trim().isEmpty) {
       useFallback = true;
@@ -301,12 +376,26 @@ class ComplianceGuard {
     return [];
   }
 
+  /// SEC-5: Normalize common homoglyphs (Greek/Cyrillic → Latin) before
+  /// banned-term detection to prevent bypass via look-alike characters.
+  static String _normalizeHomoglyphs(String text) {
+    return text
+        .replaceAll('\u03BF', 'o') // Greek omicron → o
+        .replaceAll('\u0430', 'a') // Cyrillic а → a
+        .replaceAll('\u0435', 'e') // Cyrillic е → e
+        .replaceAll('\u0456', 'i') // Cyrillic і → i
+        .replaceAll('\u0440', 'p') // Cyrillic р → p
+        .replaceAll('\u0441', 'c') // Cyrillic с → c
+        .replaceAll('\u217C', 'l') // Roman numeral ⅼ → l
+        .replaceAll('\u217F', 'm'); // Roman numeral ⅿ → m
+  }
+
   /// CRIT #5 fix: use word-boundary regex for single-word banned terms
   /// to avoid false positives on "incertain", "parfaitement".
   /// Text is lowercased before matching to handle accented uppercase
   /// (Dart caseSensitive:false only folds ASCII a-z/A-Z, not À-ÿ).
   static List<String> _checkBannedTerms(String text) {
-    final lower = text.toLowerCase();
+    final lower = _normalizeHomoglyphs(text).toLowerCase();
     final found = <String>[];
     for (final entry in _bannedTermPatterns.entries) {
       if (entry.value.hasMatch(lower)) {
@@ -330,7 +419,8 @@ class ComplianceGuard {
   /// Processes multi-word phrases first (longer match priority), then
   /// single-word terms, to avoid partial replacements mangling phrases.
   static String _sanitizeBannedTerms(String text) {
-    var result = text;
+    // FIX-W12 + SEC-5: Normalize homoglyphs before sanitization
+    var result = _normalizeHomoglyphs(text);
     final phrases = termReplacements.entries.where((e) => e.key.contains(' '));
     final words = termReplacements.entries.where((e) => !e.key.contains(' '));
     for (final entry in [...phrases, ...words]) {

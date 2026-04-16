@@ -1,11 +1,16 @@
 import 'dart:math';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/services/independants_service.dart';
+import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_hero_number.dart';
+import 'package:mint_mobile/widgets/premium/mint_premium_slider.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  DIVIDENDE VS SALAIRE SCREEN — Sprint S18
@@ -57,24 +62,24 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildHeader(),
+                MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 20),
-                _buildBeneficeSlider(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildBeneficeSlider()),
                 const SizedBox(height: 20),
                 _buildPartSalaireSlider(),
                 const SizedBox(height: 20),
                 _buildTauxSlider(),
                 const SizedBox(height: 24),
                 if (_result != null) ...[
-                  _buildChiffreChoc(),
+                  MintEntrance(child: _buildPremierEclairage()),
                   const SizedBox(height: 24),
                   if (_result!.requalificationRisk) ...[
-                    _buildRequalificationAlert(),
+                    MintEntrance(delay: const Duration(milliseconds: 100), child: _buildRequalificationAlert()),
                     const SizedBox(height: 20),
                   ],
-                  _buildResultSection(),
+                  MintEntrance(delay: const Duration(milliseconds: 150), child: _buildResultSection()),
                   const SizedBox(height: 24),
-                  _buildCurveChart(),
+                  MintEntrance(delay: const Duration(milliseconds: 200), child: _buildCurveChart()),
                   const SizedBox(height: 24),
                   _buildEducation(),
                   const SizedBox(height: 24),
@@ -104,7 +109,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(S.of(context)!.dividendeVsSalaireTitle, style: MintTextStyles.headlineMedium()),
     );
@@ -139,151 +144,98 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     );
   }
 
-  // ── Sliders ────────────────────────────────────────────────
+  // ── Inputs ────────────────────────────────────────────────
 
   Widget _buildBeneficeSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.dividendeBeneficeTotal,
-      valueLabel: IndependantsService.formatChf(_benefice),
-      minLabel: 'CHF 0',
-      maxLabel: "CHF 500'000",
-      value: _benefice,
-      min: 0,
-      max: 500000,
-      divisions: 500,
-      onChanged: (v) {
-        _benefice = v;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintAmountField(
+        label: S.of(context)!.dividendeBeneficeTotal,
+        value: _benefice,
+        formatValue: (v) => IndependantsService.formatChf(v),
+        onChanged: (v) {
+          setState(() {
+            _benefice = v;
+            _calculate();
+          });
+        },
+        min: 0,
+        max: 500000,
+      ),
     );
   }
 
   Widget _buildPartSalaireSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.dividendePartSalaire,
-      valueLabel: '${_partSalairePct.toInt()}%',
-      minLabel: '0%',
-      maxLabel: '100%',
-      value: _partSalairePct,
-      min: 0,
-      max: 100,
-      divisions: 100,
-      onChanged: (v) {
-        _partSalairePct = v;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintPremiumSlider(
+        label: S.of(context)!.dividendePartSalaire,
+        value: _partSalairePct,
+        min: 0,
+        max: 100,
+        divisions: 100,
+        formatValue: (v) => '${v.toInt()}\u00a0%',
+        onChanged: (v) {
+          setState(() {
+            _partSalairePct = v;
+            _calculate();
+          });
+        },
+      ),
     );
   }
 
   Widget _buildTauxSlider() {
-    return _buildSliderCard(
-      title: S.of(context)!.dividendeTauxMarginal,
-      valueLabel: '${(_tauxMarginal * 100).toStringAsFixed(0)}%',
-      minLabel: '10%',
-      maxLabel: '45%',
-      value: _tauxMarginal * 100,
-      min: 10,
-      max: 45,
-      divisions: 35,
-      onChanged: (v) {
-        _tauxMarginal = v / 100;
-        _calculate();
-      },
+    return _buildInputCard(
+      child: MintPremiumSlider(
+        label: S.of(context)!.dividendeTauxMarginal,
+        value: _tauxMarginal * 100,
+        min: 10,
+        max: 45,
+        divisions: 35,
+        formatValue: (v) => '${v.toStringAsFixed(0)}\u00a0%',
+        onChanged: (v) {
+          setState(() {
+            _tauxMarginal = v / 100;
+            _calculate();
+          });
+        },
+      ),
     );
   }
 
-  Widget _buildSliderCard({
-    required String title,
-    required String valueLabel,
-    required String minLabel,
-    required String maxLabel,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required ValueChanged<double> onChanged,
-  }) {
-    return Container(
+  Widget _buildInputCard({required Widget child}) {
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: MintTextStyles.titleMedium(),
-              ),
-              Text(
-                valueLabel,
-                style: MintTextStyles.headlineMedium(color: MintColors.primary),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: MintColors.primary,
-              inactiveTrackColor: MintColors.border,
-              thumbColor: MintColors.primary,
-              overlayColor: MintColors.primary.withValues(alpha: 0.1),
-              trackHeight: 6,
-            ),
-            child: Slider(
-              value: value,
-              min: min,
-              max: max,
-              divisions: divisions,
-              onChanged: onChanged,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(minLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
-              Text(maxLabel, style: MintTextStyles.micro(color: MintColors.textMuted)),
-            ],
-          ),
-        ],
-      ),
+      child: child,
     );
   }
 
-  // ── Chiffre Choc ───────────────────────────────────────────
+  // ── Premier Éclairage ───────────────────────────────────────────
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     final r = _result!;
     final saving = r.economie;
 
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: saving > 0 ? MintColors.success : MintColors.appleSurface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        children: [
-          Text(
-            IndependantsService.formatChf(saving),
-            style: MintTextStyles.displayMedium(color: saving > 0 ? MintColors.white : MintColors.primary),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            saving > 0
-                ? 'Le split adapté te fait économiser '
-                  '${IndependantsService.formatChf(saving)}/an '
-                  'par rapport à 100% salaire'
-                : 'Ajuste le split pour trouver une économie',
-            style: MintTextStyles.bodyMedium(color: saving > 0 ? MintColors.white.withValues(alpha: 0.9) : MintColors.textSecondary),
-            textAlign: TextAlign.center,
-          ),
-        ],
+    return Semantics(
+      label: saving > 0
+          ? S.of(context)!.semanticsDividendeSaving(IndependantsService.formatChf(saving))
+          : S.of(context)!.semanticsDividendeAdjust,
+      child: MintSurface(
+        tone: saving > 0 ? MintSurfaceTone.sauge : MintSurfaceTone.porcelaine,
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            MintHeroNumber(
+              value: IndependantsService.formatChf(saving),
+              caption: saving > 0
+                  ? 'Le split adapté te fait économiser '
+                    '${IndependantsService.formatChf(saving)}/an '
+                    'par rapport à 100% salaire'
+                  : 'Ajuste le split pour trouver une économie',
+              color: saving > 0 ? MintColors.success : MintColors.primary,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -291,7 +243,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
   // ── Requalification Alert ──────────────────────────────────
 
   Widget _buildRequalificationAlert() {
-    return Container(
+    return Semantics(
+      label: S.of(context)!.semanticsDividendeRequalification,
+      child: Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: MintColors.error.withValues(alpha: 0.08),
@@ -324,7 +278,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           ),
         ],
       ),
-    );
+    ));
   }
 
   // ── Result Section ─────────────────────────────────────────
@@ -387,7 +341,9 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
     String? subtitle,
     bool bold = false,
   }) {
-    return Row(
+    return Semantics(
+      label: S.of(context)!.semanticsMetricLabelValue(label, value),
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -410,7 +366,7 @@ class _DividendeVsSalaireScreenState extends State<DividendeVsSalaireScreen> {
           style: MintTextStyles.bodyMedium(color: bold ? MintColors.primary : (color ?? MintColors.textPrimary)).copyWith(fontWeight: FontWeight.w600),
         ),
       ],
-    );
+    ));
   }
 
   // ── Curve Chart ────────────────────────────────────────────

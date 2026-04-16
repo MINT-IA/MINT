@@ -16,17 +16,28 @@ class Settings(BaseSettings):
     # Database settings
     DATABASE_URL: str = "sqlite:///./mint.db"
 
+    # ChromaDB persistence (Railway volume mount in prod; local relative path in dev)
+    CHROMADB_PERSIST_DIR: str = "data/chromadb"
+
+    # OpenAI embeddings (optional — RAG degrades gracefully without it)
+    OPENAI_API_KEY: str = ""
+
     # JWT settings — env var JWT_SECRET_KEY required in production
     JWT_SECRET_KEY: str = "mint-dev-secret-change-in-production"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_HOURS: int = 24
+    # P1-Auth: Default True in production/staging (via env var override).
+    # In development, defaults to False for convenience.
+    # IMPORTANT: For production deployments, set AUTH_REQUIRE_EMAIL_VERIFICATION=true
+    # in environment variables, or rely on the fail-safe below.
     AUTH_REQUIRE_EMAIL_VERIFICATION: bool = False
     AUTH_UNVERIFIED_PURGE_DAYS: int = 7
     AUTH_AUTO_PURGE_ON_STARTUP: bool = False
     AUTH_ADMIN_EMAIL_ALLOWLIST: str = ""
 
-    # Logging
+    # Logging & Monitoring
     LOG_LEVEL: str = "INFO"
+    SENTRY_DSN: str = ""  # Set in Railway: https://sentry.io project DSN
 
     # Redis (for rate limiting; empty string = in-memory fallback)
     REDIS_URL: str = ""
@@ -40,7 +51,12 @@ class Settings(BaseSettings):
     # Anthropic Claude API (coach AI)
     ANTHROPIC_API_KEY: str = ""
     COACH_MODEL: str = "claude-sonnet-4-20250514"  # Also valid: claude-3-5-sonnet-20241022
-    COACH_MAX_TOKENS: int = 500
+    # Hard cap so coach replies stay under ~120 words (Gate 0 P1 — long
+    # responses were flooding the chat bubble). Sonnet at 350 tokens
+    # produces 5-7 dense sentences of French — exactly what we want.
+    # Override per-deployment via env if needed; never raise above 500
+    # without re-running the length-cap E2E suite.
+    COACH_MAX_TOKENS: int = 350
     COACH_DAILY_QUOTA: int = 30  # per user, free tier
 
     # Apple IAP / StoreKit
@@ -93,4 +109,49 @@ if (
     raise RuntimeError(
         "CRITICAL: JWT_SECRET_KEY must be set via environment variable in production. "
         "Do not use the default dev secret."
+    )
+
+# Fail-fast: reject SQLite in production/staging (P0-INFRA-1)
+if (
+    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
+    and settings.DATABASE_URL.startswith("sqlite")
+):
+    raise RuntimeError(
+        "CRITICAL: DATABASE_URL must point to PostgreSQL in production/staging. "
+        "SQLite is ephemeral on Railway and will lose all data on restart. "
+        "Set DATABASE_URL in Railway environment variables."
+    )
+
+# Warn if OPENAI_API_KEY missing in production/staging (embeddings will fail)
+if (
+    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
+    and not settings.OPENAI_API_KEY
+):
+    import logging as _logging_oai
+    _logging_oai.getLogger("mint.config").warning(
+        "OPENAI_API_KEY not set in %s. RAG embeddings will fail silently. "
+        "Set OPENAI_API_KEY in Railway environment variables.",
+        settings.ENVIRONMENT,
+    )
+
+# P1-Auth: Force email verification in production. Log a warning in staging
+# if it's disabled (allows testing without SMTP, but flags the risk).
+if os.getenv("ENVIRONMENT", "development") == "production":
+    if not settings.AUTH_REQUIRE_EMAIL_VERIFICATION:
+        import logging as _logging
+
+        _logging.getLogger("mint.config").warning(
+            "AUTH_REQUIRE_EMAIL_VERIFICATION is False in production. "
+            "Set AUTH_REQUIRE_EMAIL_VERIFICATION=true in environment variables."
+        )
+
+# Fail-fast: INTERNAL_ACCESS_ENABLED with wildcard in production = universal premium
+if (
+    os.getenv("ENVIRONMENT", "development") == "production"
+    and settings.INTERNAL_ACCESS_ENABLED
+    and settings.INTERNAL_ACCESS_ALLOWLIST.strip() == "*"
+):
+    raise RuntimeError(
+        "CRITICAL: INTERNAL_ACCESS_ENABLED=true with wildcard allowlist in production. "
+        "This grants ALL users premium access. Set INTERNAL_ACCESS_ALLOWLIST to specific emails."
     )

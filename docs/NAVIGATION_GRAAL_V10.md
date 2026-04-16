@@ -1,9 +1,11 @@
 # NAVIGATION GRAAL V10 — MINT
 
+> **⚠️ LEGACY NOTE (2026-04-05):** Uses "premier éclairage" (legacy term → "premier éclairage", see `docs/MINT_IDENTITY.md`).
+
 > Statut : cible produit / UX / information architecture
 > Horizon : 2026-2027
 > Portée : mobile app MINT
-> Compagnons : `docs/UX_V2_COACH_CONVERSATIONNEL.md`, `docs/DESIGN_SYSTEM.md`, `docs/BLUEPRINT_COACH_AI_LAYER.md`
+> Compagnons : `docs/UX_V2_COACH_CONVERSATIONNEL.md`, `docs/DESIGN_SYSTEM.md`, `docs/BLUEPRINT_COACH_AI_LAYER.md`, `docs/CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md`
 > Révision : cette version intègre un audit contradictoire sur iOS patterns, profondeur Explore, ordre de migration et capacité réelle du coach à orchestrer.
 > Source de vérité : partielle. Référence détaillée pour la navigation et les routes, subordonnée au `MINT_UX_GRAAL_MASTERPLAN.md` pour la vision produit.
 > Ne couvre pas : design system détaillé, voix, templates maîtres, hiérarchie documentaire.
@@ -53,7 +55,7 @@ Capture = entrée de données à fort effet
 
 ## 3. Principe d'architecture cible
 
-L'architecture cible doit suivre 6 règles :
+L'architecture cible doit suivre 7 règles :
 
 1. **4 destinations top-level maximum**.
 2. **Pas de FAB global persistant cross-platform**.
@@ -61,6 +63,7 @@ L'architecture cible doit suivre 6 règles :
 4. **Explore doit être complet sans passer par le coach**.
 5. **Les taxonomies internes disparaissent de la navigation visible**.
 6. **Chaque écran appartient à une classe claire : destination, flow, tool, alias**.
+7. **Le chat ne route pas directement — il passe par le RoutePlanner**. Le LLM retourne une intention, le `RoutePlanner` consulte le `ScreenRegistry` et le `ReadinessGate` pour décider de l'action. Jamais de `context.push('/route')` brut depuis le LLM.
 
 ---
 
@@ -278,47 +281,64 @@ La capture est une **sheet contextuelle** ou une **entrée intégrée** :
 
 ---
 
-## 8. Inventory : garder, fusionner, retirer
+## 8. Inventory : état actuel vs cible
+
+> Mis à jour 2026-03-21 — synchro avec `app.dart` réel.
 
 ## 8.1 Destinations top-level
 
 | Destination | Statut |
 |---|---|
-| Aujourd'hui | Créer |
-| Coach | Garder et renforcer |
-| Explorer | Créer |
-| Dossier | Créer |
+| Aujourd'hui | DONE — `/home` shell avec `PulseScreen` + `CapEngine` |
+| Coach | DONE — `/coach/chat` avec Claude API live |
+| Explorer | DONE — 7 hubs `/explore/*` |
+| Dossier | DONE — `DossierTab` avec profil, documents, couple, consentements |
 
-## 8.2 Écrans à garder comme destinations visibles
+## 8.2 Écrans existants et leurs routes réelles
 
-| Écran / route | Futur emplacement |
-|---|---|
-| Landing / Welcome | `/welcome` |
-| Onboarding Quick Start | `/onboarding/quick-start` |
-| Chiffre-Choc | `/onboarding/first-impact` |
-| Coach Chat | `/app/coach` |
-| Conversation History | `Coach > Historique` |
-| Documents | `Dossier > Documents` |
-| Profile | `Dossier > Profil` |
-| Household / Couple | `Dossier > Couple` |
-| Consent Dashboard | `Dossier > Consentements` |
-| BYOK Settings | `Dossier > Connexions IA` |
-| SLM Settings | `Dossier > IA locale` |
+| Écran | Route actuelle | Statut |
+|---|---|---|
+| Landing / Welcome | `/` | actif |
+| Onboarding Quick Start | `/onboarding/quick` | actif (note: pas `/quick-start`) |
+| Premier-Éclairage | `/onboarding/premier-eclairage` | actif |
+| Coach Chat | `/coach/chat` | actif |
+| Coach Checkin | `/coach/checkin` | actif |
+| Coach Refresh | `/coach/refresh` | actif |
+| Cockpit Detail | `/coach/cockpit` | actif |
+| Conversation History | `/coach/history` | actif |
+| Weekly Recap | `/coach/weekly-recap` | actif |
+| Documents | `/documents`, `/documents/:id` | actif |
+| Profile | `/profile` | actif |
+| Financial Summary (bilan) | `/profile/bilan` | actif — fusion Dossier à venir |
+| Household / Couple | `/couple` | actif |
+| Consent Dashboard | `/profile/consent` | actif |
+| BYOK Settings | `/profile/byok` | actif |
+| SLM Settings | `/profile/slm` | actif |
+| Confidence Dashboard | `/confidence` | actif |
+| Score Reveal | `/score-reveal` | actif |
+| Achievements | `/achievements` | actif |
+| Cantonal Benchmark | `/cantonal-benchmark` | actif |
+| Ask Mint | `/ask-mint` | actif — absorption en Coach en phase 2 |
+| Tools Library | `/tools` | actif — absorption dans Explorer en phase 2 |
+| Portfolio | `/portfolio` | actif — à revalider |
+| Timeline | `/timeline` | actif — à revalider |
+| Open Banking Hub | `/open-banking` | feature flag gated |
+| Bank Import | `/bank-import` | actif |
 
-## 8.3 Flows à garder
+## 8.3 Flows existants (tous actifs en app.dart)
 
 ### Retraite
-- Retirement Dashboard
-- Rente vs Capital
-- Rachat LPP
-- EPL
-- Décaissement
-- Libre Passage
-- Pilier 3a
-- Comparator 3a
-- Real Return
-- Staggered Withdrawal
-- Retroactive 3a
+- Retirement Dashboard (`/retraite`)
+- Rente vs Capital (`/rente-vs-capital`)
+- Rachat LPP (`/rachat-lpp`)
+- EPL (`/epl`)
+- Décaissement (`/decaissement`)
+- Libre Passage (`/libre-passage`)
+- Pilier 3a (`/pilier-3a`)
+- Comparator 3a (`/3a-deep/comparator`)
+- Real Return (`/3a-deep/real-return`)
+- Staggered Withdrawal (`/3a-deep/staggered-withdrawal`)
+- Retroactive 3a (`/3a-retroactif`)
 
 ### Famille
 - Mariage
@@ -398,92 +418,110 @@ Le hub n'est pas top-level dans la navigation globale, mais c'est un sous-hub im
 | `ToolsLibraryScreen` + `ComprendreHubScreen` | Explorer |
 | scan + import + enrich manuel launcher | Capture contextuelle |
 
-## 8.5 Écrans à retirer de la navigation visible
+## 8.5 Écrans existants à absorber ou déprécier (cible future)
 
-| Existant | Sort |
-|---|---|
-| Tools Library | absorbé ou retiré |
-| Ask Mint | absorbé en phase 2 |
-| Portfolio | revalider |
-| Timeline | revalider |
-| Achievements | secondaire ou retiré |
-| Weekly Recap | invisible tant qu'incomplet |
-| Admin screens | hors navigation prod |
+> Ces écrans existent en code et sont routables. Ils ne font pas partie de la navigation visible cible.
+
+| Écran | Route actuelle | Sort prévu |
+|---|---|---|
+| Tools Library | `/tools` | absorber dans Explorer |
+| Ask Mint | `/ask-mint` | absorber dans `/coach/chat` (phase 2) |
+| Portfolio | `/portfolio` | revalider — potentiellement Dossier |
+| Timeline | `/timeline` | revalider — potentiellement Dossier |
+| Achievements | `/achievements` | secondaire ou retirer |
+| Weekly Recap | `/coach/weekly-recap` | actif mais qualité dépend de BYOK |
+| Admin screens | `/profile/admin-*` | feature flag gated, hors prod |
+| Financial Summary | `/profile/bilan` | fusionner dans Dossier |
 
 ---
 
 ## 9. Mapping canonique des routes
 
+> Routes vérifiées contre `app.dart` le 2026-03-21.
+
 ## 9.1 Auth et onboarding
 
-| Routes actuelles | Décision |
+| Route dans app.dart | Statut |
 |---|---|
-| `/` | garder |
-| `/auth/login` | garder |
-| `/auth/register` | garder |
-| `/auth/forgot-password` | garder |
-| `/auth/verify-email` | garder |
-| `/onboarding/quick` | garder |
-| `/onboarding/chiffre-choc` | garder |
-| `/data-block/:type` | garder |
-| `/advisor/*`, `/onboarding/smart`, `/onboarding/minimal`, `/onboarding/enrichment` | redirects techniques uniquement |
+| `/` → `LandingScreen` | actif |
+| `/auth/login` | actif |
+| `/auth/register` | actif |
+| `/auth/forgot-password` | actif |
+| `/auth/verify-email` | actif |
+| `/onboarding/quick` → `QuickStartScreen` | actif |
+| `/onboarding/premier-eclairage` → `PremierEclairageScreen` | actif |
+| `/data-block/:type` → `DataBlockEnrichmentScreen` | actif |
+| `/advisor`, `/advisor/plan-30-days`, `/advisor/wizard` | redirects legacy |
+| `/onboarding/smart`, `/onboarding/minimal` | redirects legacy |
+| `/onboarding/enrichment` → `/profile/bilan` | redirect legacy |
 
-## 9.2 Aujourd'hui
+## 9.2 Aujourd'hui / Shell
 
-| Routes actuelles | Décision |
+| Route dans app.dart | Statut |
 |---|---|
-| `/home` | devient shell app |
-| `/retraite` | flow lié à Aujourd'hui ou Explorer selon contexte |
-| `/rapport` | flow résultat / rapport |
-| `/score-reveal` | moment de transition vers Aujourd'hui |
+| `/home` → `MainNavigationShell` (4 tabs) | actif — IS le shell |
+| `/rapport` → `FinancialReportScreenV2` | actif |
+| `/score-reveal` → `ScoreRevealScreen` | actif |
+| `/confidence` → `ConfidenceDashboardScreen` | actif |
 
 ## 9.3 Coach
 
-| Routes actuelles | Décision |
+| Route dans app.dart | Statut |
 |---|---|
-| `/coach/chat` | canonique |
-| `/ask-mint` | absorbé en phase 2 |
-| `/coach/history` | garder |
-| `/coach/checkin` | garder |
-| `/coach/refresh` | garder |
-| `/coach/cockpit` | sous-flow coach |
+| `/coach/chat` → `CoachChatScreen` | actif — canonique |
+| `/coach/history` → `ConversationHistoryScreen` | actif |
+| `/coach/checkin` → `CoachCheckinScreen` | actif |
+| `/coach/refresh` → `AnnualRefreshScreen` | actif |
+| `/coach/cockpit` → `CockpitDetailScreen` | actif |
+| `/coach/weekly-recap` → `WeeklyRecapScreen` | actif |
+| `/ask-mint` → `AskMintScreen` | actif — absorption Coach en phase 2 |
+| `/coach/dashboard`, `/coach/decaissement`, `/coach/agir`, `/coach/succession` | redirects legacy |
+| `/weekly-recap` | redirect → `/home` (route toplevel non utilisée) |
 
 ## 9.4 Explorer
 
-| Famille de routes | Décision |
+> Hubs actifs à `/explore/retraite`, `/explore/famille`, `/explore/travail`, `/explore/logement`, `/explore/fiscalite`, `/explore/patrimoine`, `/explore/sante`.
+
+| Famille de routes (actives en app.dart) | Hub Explorer |
 |---|---|
-| `/rente-vs-capital`, `/rachat-lpp`, `/epl`, `/decaissement`, `/libre-passage` | Retraite |
-| `/pilier-3a`, `/3a-deep/*`, `/fiscal`, `/cantonal-benchmark`, `/life-event/demenagement-cantonal` | Fiscalité |
-| `/hypotheque`, `/mortgage/*`, `/arbitrage/location-vs-propriete`, `/life-event/housing-sale` | Logement |
-| `/mariage`, `/divorce`, `/naissance`, `/concubinage`, `/life-event/deces-proche` | Famille |
-| `/unemployment`, `/first-job`, `/expatriation`, `/simulator/job-comparison`, `/segments/*`, `/independants/*` hors IJM | Travail & Statut |
-| `/invalidite`, `/disability/*`, `/assurances/*`, `/independants/ijm` | Santé & Protection |
-| `/life-event/donation`, `/succession`, `/arbitrage/bilan`, `/arbitrage/allocation-annuelle` | Patrimoine & Succession |
-| `/education/hub`, `/education/theme/:id` | éducatif lié aux hubs, pas destination isolée |
+| `/retraite`, `/rente-vs-capital`, `/rachat-lpp`, `/epl`, `/decaissement`, `/libre-passage`, `/3a-deep/*`, `/3a-retroactif` | Retraite |
+| `/pilier-3a`, `/fiscal`, `/cantonal-benchmark`, `/life-event/demenagement-cantonal`, `/arbitrage/bilan`, `/arbitrage/allocation-annuelle` | Fiscalité |
+| `/hypotheque`, `/mortgage/amortization`, `/mortgage/epl-combined`, `/mortgage/imputed-rental`, `/mortgage/saron-vs-fixed`, `/arbitrage/location-vs-propriete`, `/life-event/housing-sale` | Logement |
+| `/mariage`, `/divorce`, `/naissance`, `/concubinage`, `/life-event/deces-proche`, `/couple` | Famille |
+| `/unemployment`, `/first-job`, `/expatriation`, `/simulator/job-comparison`, `/segments/independant`, `/independants/*`, `/segments/frontalier`, `/segments/gender-gap` | Travail & Statut |
+| `/invalidite`, `/disability/insurance`, `/disability/self-employed`, `/assurances/lamal`, `/assurances/coverage`, `/independants/ijm` | Santé & Protection |
+| `/succession`, `/life-event/donation` | Patrimoine & Succession |
+| `/budget`, `/check/debt`, `/debt/ratio`, `/debt/help`, `/debt/repayment`, `/simulator/credit`, `/simulator/leasing` | Budget & Dettes (sous-hub dans Explorer) |
+| `/education/hub`, `/education/theme/:id` | éducatif lié aux hubs |
 
 ## 9.5 Dossier
 
-| Routes actuelles | Décision |
+| Route dans app.dart | Statut |
 |---|---|
-| `/profile` | canonique |
-| `/profile/bilan` | fusionner dans Dossier |
-| `/profile/consent` | garder |
-| `/profile/byok` | garder |
-| `/profile/slm` | garder |
-| `/documents`, `/documents/:id` | garder |
-| `/couple`, `/couple/accept`, `/household/*` | garder |
-| `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | Dossier > Connexions |
+| `/profile` | actif — canonique |
+| `/profile/bilan` → `FinancialSummaryScreen` | actif — fusion Dossier prévue |
+| `/profile/consent` → `ConsentDashboardScreen` | actif |
+| `/profile/byok` → `ByokSettingsScreen` | actif |
+| `/profile/slm` → `SlmSettingsScreen` | actif |
+| `/profile/admin-observability` | feature flag gated |
+| `/profile/admin-analytics` | feature flag gated |
+| `/documents`, `/documents/:id` | actif |
+| `/couple` → `HouseholdScreen` | actif |
+| `/couple/accept` → `AcceptInvitationScreen` | actif |
+| `/household` | redirect → `/couple` |
+| `/open-banking`, `/open-banking/transactions`, `/open-banking/consents` | feature flag gated (FINMA gate) |
 
 ## 9.6 Capture contextuelle
 
-| Routes actuelles | Décision |
+| Route dans app.dart | Statut |
 |---|---|
-| `/scan` | canonique de scan |
-| `/scan/avs-guide` | garder |
-| `/scan/review` | garder |
-| `/scan/impact` | garder |
-| `/bank-import` | accessible via Capture et Dossier |
-| `/data-block/:type` | accessible via Capture ou Dossier |
+| `/scan` → `DocumentScanScreen` | actif |
+| `/scan/avs-guide` → `AvsGuideScreen` | actif |
+| `/scan/review` → `ExtractionReviewScreen` | actif |
+| `/scan/impact` → `DocumentImpactScreen` | actif |
+| `/bank-import` → `BankImportScreen` | actif |
+| `/data-block/:type` → `DataBlockEnrichmentScreen` | actif |
+| `/document-scan`, `/document-scan/avs-guide` | redirects legacy |
 
 ---
 
@@ -500,6 +538,28 @@ Une capacité interne ouverte contextuellement.
 
 ### Alias legacy
 Une route de compatibilité, invisible dans le langage produit.
+
+---
+
+## ScreenRegistry
+
+> Spec complète et exemples d'entrées : `CHAT_TO_SCREEN_ORCHESTRATION_STRATEGY.md` §4 (source de vérité).
+
+Le `ScreenRegistry` est la carte officielle de toutes les surfaces MINT, exprimée en Dart comme une `const Map`. Il est la pièce centrale de la couche d'orchestration chat-to-screen.
+
+### Rôle
+
+- Fournir à chaque surface un `intentTag` sémantique (pour le matching LLM), un `behavior` (A/B/C/D/E), les `requiredFields` du profil, un `fallbackRoute` si la readiness échoue, et un flag `preferFromChat`.
+- Permettre au `RoutePlanner` de prendre une décision déterministe sans hardcoder de routes dans le LLM.
+- Être la source de vérité pour les tests d'intégration : chaque route déclarée dans `app.dart` doit avoir une entrée dans le registre.
+
+### Fichier cible
+
+`lib/services/navigation/screen_registry.dart` — implémenté en S57.
+
+### Règle
+
+Le `ScreenRegistry` ne remplace pas `app.dart`. Il le complète avec la sémantique d'intention. Les routes canoniques et les deep links restent définis dans `app.dart`.
 
 ---
 

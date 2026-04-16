@@ -14,8 +14,13 @@ Sources:
     - LSFin art. 3 (information financiere)
 """
 
-from fastapi import APIRouter, HTTPException
+import logging
 
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from app.core.auth import require_current_user
+from app.core.rate_limit import limiter
+from app.models.user import User
 from app.schemas.reengagement import (
     ByokDetailResponse,
     ConsentDashboardResponse,
@@ -28,6 +33,8 @@ from app.schemas.reengagement import (
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_engine import ReengagementEngine
 from app.services.reengagement.reengagement_models import ConsentType
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -44,19 +51,20 @@ router = APIRouter()
         "(LSFin)."
     ),
 )
-async def generate_messages(request: ReengagementRequest) -> ReengagementResponse:
+@limiter.limit("30/minute")
+async def generate_messages(request: Request, body: ReengagementRequest) -> ReengagementResponse:
     """Generate personalized reengagement messages for today.
 
     Checks calendar triggers and generates messages with personal numbers.
     """
     engine = ReengagementEngine()
     messages = engine.generate_messages(
-        today=request.today,
-        canton=request.canton,
-        tax_saving_3a=request.tax_saving_3a,
-        fri_total=request.fri_total,
-        fri_delta=request.fri_delta,
-        replacement_ratio=request.replacement_ratio,
+        today=body.today,
+        canton=body.canton,
+        tax_saving_3a=body.tax_saving_3a,
+        fri_total=body.fri_total,
+        fri_delta=body.fri_delta,
+        replacement_ratio=body.replacement_ratio,
     )
 
     message_responses = [
@@ -88,7 +96,8 @@ async def generate_messages(request: ReengagementRequest) -> ReengagementRespons
         "Tous les consentements sont OFF par defaut (opt-in, nLPD)."
     ),
 )
-async def get_consent_dashboard() -> ConsentDashboardResponse:
+@limiter.limit("60/minute")
+async def get_consent_dashboard(request: Request) -> ConsentDashboardResponse:
     """Return consent dashboard with all 3 consents OFF by default."""
     manager = ConsentManager()
     dashboard = manager.get_default_dashboard()
@@ -113,18 +122,23 @@ async def get_consent_dashboard() -> ConsentDashboardResponse:
 
 
 @router.get(
-    "/consent/{user_id}",
+    "/consent/me",
     response_model=ConsentDashboardResponse,
-    summary="Consentements d'un utilisateur",
+    summary="Consentements de l'utilisateur authentifie",
     description=(
         "Retourne les 3 consentements avec l'etat reel de l'utilisateur "
         "(pas les valeurs par defaut). nLPD art. 6."
     ),
 )
-async def get_user_consent(user_id: str) -> ConsentDashboardResponse:
+@limiter.limit("60/minute")
+async def get_user_consent(request: Request, current_user: User = Depends(require_current_user)) -> ConsentDashboardResponse:
     """Return consent dashboard with actual user state."""
+    logger.warning(
+        "V5-1: Consent state uses in-memory store pending DB migration. "
+        "Feature-gated — acceptable for now. TODO: wire SQLAlchemy session."
+    )
     manager = ConsentManager()
-    dashboard = manager.get_user_dashboard(user_id)
+    dashboard = manager.get_user_dashboard(current_user.id)
 
     consent_responses = [
         ConsentStateResponse(
@@ -146,7 +160,7 @@ async def get_user_consent(user_id: str) -> ConsentDashboardResponse:
 
 
 @router.patch(
-    "/consent/{user_id}",
+    "/consent/me",
     response_model=ConsentStateResponse,
     summary="Modifier un consentement",
     description=(
@@ -154,23 +168,27 @@ async def get_user_consent(user_id: str) -> ConsentDashboardResponse:
         "Chaque consentement est independant (nLPD art. 6)."
     ),
 )
+@limiter.limit("30/minute")
 async def update_user_consent(
-    user_id: str, request: ConsentUpdateRequest,
+    request: Request, body: ConsentUpdateRequest, current_user: User = Depends(require_current_user),
 ) -> ConsentStateResponse:
     """Update a single consent for a user."""
+    logger.warning(
+        "V5-1: Consent update uses in-memory store pending DB migration. "
+        "State will not survive server restart."
+    )
     try:
-        consent_type = ConsentType(request.consent_type)
+        consent_type = ConsentType(body.consent_type)
     except ValueError:
         raise HTTPException(
             status_code=400,
-            detail=f"Type de consentement invalide: {request.consent_type}. "
-            f"Valeurs: byok_data_sharing, snapshot_storage, notifications",
+            detail="Invalid request parameters",
         )
 
     manager = ConsentManager()
-    manager.update_consent(user_id, consent_type, request.enabled)
+    manager.update_consent(current_user.id, consent_type, body.enabled)
 
-    dashboard = manager.get_user_dashboard(user_id)
+    dashboard = manager.get_user_dashboard(current_user.id)
     consent = next(c for c in dashboard.consents if c.consent_type == consent_type)
     return ConsentStateResponse(
         consent_type=consent.consent_type.value,
@@ -191,7 +209,8 @@ async def update_user_consent(
         "et quels champs ne sont JAMAIS envoyes. Transparence totale."
     ),
 )
-async def get_byok_detail() -> ByokDetailResponse:
+@limiter.limit("60/minute")
+async def get_byok_detail(request: Request) -> ByokDetailResponse:
     """Return BYOK field detail — sent vs never-sent."""
     manager = ConsentManager()
     detail = manager.get_byok_detail()

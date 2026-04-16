@@ -394,8 +394,8 @@ void main() {
     });
 
     test('uses RetirementTaxCalculator.estimateMarginalRate for VS at 120k', () {
-      // VS is a high-tax canton. At 120k, base rate = 0.28, VS multiplier = 1.1
-      // So marginal rate ~ 0.308. For a 20k deduction, saving ~ 20000 * 0.308 = ~6160
+      // VS effective 14.56% × income adj ~1.04 × 1.3 marginal ≈ 19.7%
+      // For a 20k deduction, saving ~ 20000 * 0.197 = ~3'940
       final result = LppBuybackAdvancedSimulator.simulate(
         totalBuybackPotential: 100000,
         yearsUntilRetirement: 10,
@@ -404,9 +404,9 @@ void main() {
         taxableIncome: 120000,
         canton: 'VS',
       );
-      // Each year: 20k deduction at ~30.8% → ~6160 saving per year × 5 years ≈ 30800
-      expect(result.totalTaxSavings, greaterThan(25000));
-      expect(result.totalTaxSavings, lessThan(40000));
+      // Each year: 20k deduction at ~19.7% → ~3940 saving per year × 5 years ≈ 19'700
+      expect(result.totalTaxSavings, greaterThan(15000));
+      expect(result.totalTaxSavings, lessThan(25000));
     });
   });
 }

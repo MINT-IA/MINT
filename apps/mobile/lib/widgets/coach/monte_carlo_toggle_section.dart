@@ -238,7 +238,7 @@ class _MonteCarloToggleSectionState extends State<MonteCarloToggleSection> {
           const SizedBox(width: 6),
           Text(
             '$label\u00a0: $pct\u00a0%',
-            style: MintTextStyles.labelSmall(color: badgeColor).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+            style: MintTextStyles.labelMedium(color: badgeColor).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -355,7 +355,7 @@ class MonteCarloTeaser extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     'Compl\u00e8te ton profil pour d\u00e9bloquer',
-                    style: MintTextStyles.labelSmall(color: MintColors.primary).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                    style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
                   ),
                 ],
               ),

@@ -25,7 +25,7 @@ References:
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
 
@@ -219,12 +219,19 @@ class FriService:
         return _clamp(s_score)
 
     @classmethod
-    def compute(cls, inp: FriInput, confidence_score: float = 0.0) -> FriBreakdown:
+    def compute(
+        cls,
+        inp: FriInput,
+        confidence_score: float = 0.0,
+        reference_date: Optional[datetime] = None,
+    ) -> FriBreakdown:
         """Compute full FRI breakdown.
 
         Args:
             inp: FriInput with all financial indicators.
             confidence_score: Profile completeness score (0-100).
+            reference_date: Explicit timestamp for deterministic testing.
+                Defaults to datetime.now() if not provided.
 
         Returns:
             FriBreakdown with L, F, R, S components and total.
@@ -241,5 +248,6 @@ class FriService:
             risque=round(stru, 2),
             total=round(liq + fis + ret + stru, 2),
             model_version=cls.MODEL_VERSION,
+            computed_at=reference_date or datetime.now(),
             confidence_score=confidence_score,
         )

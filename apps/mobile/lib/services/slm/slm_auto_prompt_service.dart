@@ -76,6 +76,10 @@ class SlmAutoPromptService {
   static Future<void> _showDownloadSheet(BuildContext context) async {
     await showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       isDismissible: true,
       enableDrag: true,
       shape: const RoundedRectangleBorder(
@@ -137,7 +141,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   child: Text(
                     'Coach IA sur ton appareil',
                     style: MintTextStyles.titleMedium()
-                        .copyWith(fontSize: 18, fontWeight: FontWeight.w700),
+                        .copyWith(fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -223,7 +227,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: MintColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
@@ -232,7 +236,7 @@ class _SlmDownloadSheet extends StatelessWidget {
                   child: Text(
                     'Continuer',
                     style: MintTextStyles.bodyMedium()
-                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -260,11 +264,11 @@ class _SlmDownloadSheet extends StatelessWidget {
                   label: Text(
                     'Installer le coach IA',
                     style: MintTextStyles.bodyMedium()
-                        .copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                        .copyWith(fontWeight: FontWeight.w600),
                   ),
                   style: FilledButton.styleFrom(
                     backgroundColor: MintColors.primary,
-                    foregroundColor: Colors.white,
+                    foregroundColor: MintColors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),

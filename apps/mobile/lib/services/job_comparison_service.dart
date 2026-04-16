@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 /// Input data for one LPP plan (current or new job).
 class LPPPlanInput {
@@ -40,12 +41,12 @@ class LPPPlanInput {
   double get effectiveSalaireAssure {
     if (salaireAssure != null) return salaireAssure!;
     // Below LPP entry threshold: no coverage (LPP art. 7)
-    if (salaireBrut < lppSeuilEntree) return 0.0;
-    final coordination = deductionCoordination ?? lppDeductionCoordination;
+    if (salaireBrut < reg('lpp.entry_threshold', lppSeuilEntree)) return 0.0;
+    final coordination = deductionCoordination ?? reg('lpp.coordination_deduction', lppDeductionCoordination);
     final insured = salaireBrut - coordination;
     // Apply min/max coordinated salary (LPP art. 8 al. 2)
-    if (insured <= 0) return lppSalaireCoordMin;
-    return insured.clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    if (insured <= 0) return reg('lpp.min_coordinated_salary', lppSalaireCoordMin);
+    return insured.clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
   }
 
   /// Total annual LPP contribution (employee + employer).
@@ -287,7 +288,7 @@ class JobComparisonService {
 
     // Compute pension delta
     final annualPensionDelta = deltaRente * 12;
-    // Assume 20 years of retirement (65 to 85)
+    // Assume 20 years of retirement (avsAgeReferenceHomme to 85)
     final lifetimePensionDelta = annualPensionDelta * 20;
 
     // Determine verdict
@@ -318,27 +319,27 @@ class JobComparisonService {
     if (deltaRente < 0 && deltaSalaireNet > 0) {
       alerts.add(
         'Attention : le gain salarial cache une perte de rente de '
-        '${_formatChf(deltaRente.abs())}/mois',
+        '${chf.formatChfWithPrefix(deltaRente.abs())}/mois',
       );
     }
 
     if (deltaCapital < -50000) {
       alerts.add(
         'Perte de capital retraite significative : '
-        '${_formatChf(deltaCapital.abs())}',
+        '${chf.formatChfWithPrefix(deltaCapital.abs())}',
       );
     }
 
     if (deltaDeces < -50000) {
       alerts.add(
-        'Couverture deces reduite de ${_formatChf(deltaDeces.abs())}',
+        'Couverture deces reduite de ${chf.formatChfWithPrefix(deltaDeces.abs())}',
       );
     }
 
     if (deltaInvalidite < 0) {
       alerts.add(
         'Couverture invalidite reduite de '
-        '${_formatChf(deltaInvalidite.abs())}/an',
+        '${chf.formatChfWithPrefix(deltaInvalidite.abs())}/an',
       );
     }
 
@@ -374,10 +375,11 @@ class JobComparisonService {
     );
   }
 
-  /// Project retirement capital at age 65 with annual contributions.
+  /// Project retirement capital at retirement age with annual contributions.
   /// Delegates to LppCalculator.projectToRetirement() from financial_core.
   static double _projectCapital(LPPPlanInput plan, int yearsToRetirement) {
-    final currentAge = 65 - yearsToRetirement;
+    final refAgeJob = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
+    final currentAge = refAgeJob - yearsToRetirement;
     final salaireAssure = plan.effectiveSalaireAssure;
     // Compute effective bonification rate from plan's total contribution
     // (employee + employer) relative to the insured salary.
@@ -389,7 +391,7 @@ class JobComparisonService {
     return LppCalculator.projectToRetirement(
       currentBalance: plan.avoirVieillesse,
       currentAge: currentAge,
-      retirementAge: 65,
+      retirementAge: refAgeJob,
       grossAnnualSalary: plan.salaireBrut,
       caisseReturn: 0.0125, // BVG minimum interest rate
       conversionRate: 1.0, // Return raw capital, not rente
@@ -398,17 +400,4 @@ class JobComparisonService {
     );
   }
 
-  /// Format CHF with Swiss apostrophe.
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }

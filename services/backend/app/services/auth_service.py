@@ -4,8 +4,10 @@ Authentication service - handles password hashing and JWT token generation.
 
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
+from uuid import uuid4
 import jwt
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 from app.core.config import settings
 
 # Password hashing context
@@ -55,6 +57,7 @@ def create_access_token(user_id: str, email: str) -> str:
         "user_id": user_id,
         "email": email,
         "type": "access",
+        "jti": str(uuid4()),
         "exp": expire,
         "iat": datetime.now(timezone.utc),
     }
@@ -75,6 +78,7 @@ def create_refresh_token(user_id: str) -> str:
     payload = {
         "user_id": user_id,
         "type": "refresh",
+        "jti": str(uuid4()),
         "exp": expire,
         "iat": datetime.now(timezone.utc),
     }
@@ -131,3 +135,68 @@ def decode_refresh_token(token: str) -> Optional[Dict[str, Any]]:
         return None
     except jwt.InvalidTokenError:
         return None
+
+
+def is_jti_blacklisted(db: Session, jti: str) -> bool:
+    """
+    Check if a JTI has been blacklisted (token revoked).
+
+    Args:
+        db: Database session
+        jti: JWT unique identifier
+
+    Returns:
+        True if JTI is blacklisted, False otherwise
+    """
+    from app.models.token_blacklist import TokenBlacklist
+    return db.query(TokenBlacklist).filter(TokenBlacklist.jti == jti).first() is not None
+
+
+def blacklist_token(db: Session, jti: str, expires_at: datetime) -> None:
+    """
+    Add a JTI to the blacklist (revoke token).
+
+    Uses INSERT ... ON CONFLICT DO NOTHING (via merge) to make the
+    check-then-insert atomic and prevent TOCTOU race conditions (P1-11).
+
+    Args:
+        db: Database session
+        jti: JWT unique identifier to blacklist
+        expires_at: When the token expires (for cleanup)
+    """
+    from sqlalchemy.exc import IntegrityError
+    from app.models.token_blacklist import TokenBlacklist
+    entry = TokenBlacklist(
+        jti=jti,
+        expires_at=expires_at,
+        blacklisted_at=datetime.now(timezone.utc),
+    )
+    try:
+        db.add(entry)
+        db.commit()
+    except IntegrityError:
+        # P1-11: JTI already blacklisted (concurrent request) — safe to ignore
+        db.rollback()
+
+
+def cleanup_expired_blacklist(db: Session) -> int:
+    """
+    Remove expired JTIs from the blacklist.
+
+    Tokens past their expiry cannot be used anyway, so their
+    blacklist entries are safe to purge.
+
+    Args:
+        db: Database session
+
+    Returns:
+        Number of entries purged
+    """
+    from app.models.token_blacklist import TokenBlacklist
+    count = (
+        db.query(TokenBlacklist)
+        .filter(TokenBlacklist.expires_at < datetime.now(timezone.utc))
+        .delete(synchronize_session=False)
+    )
+    db.commit()
+    return count

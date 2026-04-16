@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/widgets/premium/mint_loading_skeleton.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -8,6 +9,8 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 /// SLM Settings Screen — On-device AI model management.
 ///
@@ -18,6 +21,23 @@ import 'package:provider/provider.dart';
 ///   - Initialize the engine for on-device inference
 ///
 /// Privacy: model runs 100% on-device, zero data leaves the device.
+/// Resolve SLM error code keys to localized strings.
+String _resolveSlmError(String? errorKey, S l10n) {
+  if (errorKey == null) return l10n.slmDownloadFailedDefault;
+  return switch (errorKey) {
+    'slm_error_auth_denied' => l10n.slmErrorAuthDenied,
+    'slm_error_token_invalid' => l10n.slmErrorTokenInvalid,
+    'slm_error_model_not_found' => l10n.slmErrorModelNotFound,
+    'slm_error_token_missing' => l10n.slmErrorTokenMissing,
+    'slm_error_timeout' => l10n.slmErrorTimeout,
+    'slm_error_network' => l10n.slmErrorNetwork,
+    'slm_error_generic' => l10n.slmErrorGeneric,
+    'slm_init_failed' => l10n.slmErrorInitFailed,
+    'slm_auth_missing' => l10n.slmErrorAuthMissing,
+    _ => errorKey, // Fallback: show raw string
+  };
+}
+
 class SlmSettingsScreen extends StatelessWidget {
   const SlmSettingsScreen({super.key});
 
@@ -37,20 +57,20 @@ class SlmSettingsScreen extends StatelessWidget {
           style: MintTextStyles.headlineMedium(),
         ),
       ),
-      body: ListView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ListView(
         padding: const EdgeInsets.all(MintSpacing.md),
         children: [
-          _buildPrivacyBanner(context, l10n),
+          MintEntrance(child: _buildPrivacyBanner(context, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildTierSelector(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildTierSelector(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildModelCard(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildModelCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildStatusCard(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildStatusCard(context, slm, l10n)),
           const SizedBox(height: MintSpacing.md),
-          _buildInfoCard(context, slm, l10n),
+          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildInfoCard(context, slm, l10n)),
         ],
-      ),
+      ))),
     );
   }
 
@@ -82,13 +102,9 @@ class SlmSettingsScreen extends StatelessWidget {
     final active = slm.activeTier;
     final isDownloading = slm.downloadState == DownloadState.downloading;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -212,14 +228,10 @@ class SlmSettingsScreen extends StatelessWidget {
 
   Widget _buildModelCard(BuildContext context, SlmProvider slm, S l10n) {
     if (slm.modelInfo == null) {
-      return Container(
-        padding: const EdgeInsets.all(MintSpacing.lg),
-        decoration: BoxDecoration(
-          color: MintColors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: MintColors.border),
-        ),
-        child: const Center(child: CircularProgressIndicator()),
+      return const MintSurface(
+        padding: EdgeInsets.all(MintSpacing.lg),
+        radius: 16,
+        child: MintLoadingSkeleton(),
       );
     }
 
@@ -227,13 +239,9 @@ class SlmSettingsScreen extends StatelessWidget {
     final isDownloading = slm.downloadState == DownloadState.downloading;
     final isFailed = slm.downloadState == DownloadState.failed;
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -256,7 +264,7 @@ class SlmSettingsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   info.displayName,
-                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(),
                 ),
               ),
             ],
@@ -293,7 +301,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
-                      slm.prerequisiteWarning!,
+                      _resolveSlmError(slm.prerequisiteWarning, l10n),
                       style: MintTextStyles.bodySmall(
                         color: MintColors.warning,
                       ),
@@ -390,7 +398,7 @@ class SlmSettingsScreen extends StatelessWidget {
                   const SizedBox(width: MintSpacing.sm),
                   Expanded(
                     child: Text(
-                      slm.lastError ?? l10n.slmDownloadFailedMessage,
+                      _resolveSlmError(slm.lastError, l10n),
                       style: MintTextStyles.bodySmall(
                         color: MintColors.error,
                       ),
@@ -488,7 +496,7 @@ class SlmSettingsScreen extends StatelessWidget {
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(
-            slm.prerequisiteWarning ?? l10n.slmDownloadNotAvailable,
+            _resolveSlmError(slm.prerequisiteWarning, l10n),
           ),
           backgroundColor: MintColors.error,
           duration: const Duration(seconds: 6),
@@ -532,8 +540,7 @@ class SlmSettingsScreen extends StatelessWidget {
     if (!success &&
         context.mounted &&
         slm.downloadState == DownloadState.failed) {
-      final reason =
-          slm.lastError ?? l10n.slmDownloadFailedDefault;
+      final reason = _resolveSlmError(slm.lastError, l10n);
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(
         SnackBar(
           content: Text(l10n.slmDownloadFailedSnack(reason)),
@@ -631,13 +638,9 @@ class SlmSettingsScreen extends StatelessWidget {
         statusIcon = Icons.cloud_off;
     }
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -709,13 +712,9 @@ class SlmSettingsScreen extends StatelessWidget {
   }
 
   Widget _buildInfoCard(BuildContext context, SlmProvider slm, S l10n) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(MintSpacing.lg - 4),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

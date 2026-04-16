@@ -147,11 +147,11 @@ class TestInsertCompleteness:
         assert len(insert.sources) >= 1
 
     @pytest.mark.parametrize("question_id", ALL_QUESTION_IDS)
-    def test_insert_has_non_empty_chiffre_choc(self, service, question_id):
-        """Every insert must have a non-empty chiffre_choc."""
+    def test_insert_has_non_empty_premier_eclairage(self, service, question_id):
+        """Every insert must have a non-empty premier_eclairage."""
         insert = service.get_insert(question_id)
         assert insert is not None
-        assert len(insert.chiffre_choc) > 10
+        assert len(insert.premier_eclairage) > 10
 
     @pytest.mark.parametrize("question_id", ALL_QUESTION_IDS)
     def test_insert_has_at_least_2_learning_goals(self, service, question_id):
@@ -180,14 +180,14 @@ class TestCompliance:
     """Test compliance with MINT rules: no banned terms, disclaimer, sources."""
 
     @pytest.mark.parametrize("question_id", ALL_QUESTION_IDS)
-    def test_no_banned_words_in_chiffre_choc(self, service, question_id):
-        """chiffre_choc must not contain any banned terms."""
+    def test_no_banned_words_in_premier_eclairage(self, service, question_id):
+        """premier_eclairage must not contain any banned terms."""
         insert = service.get_insert(question_id)
         assert insert is not None
-        text = insert.chiffre_choc.lower()
+        text = insert.premier_eclairage.lower()
         for term in BANNED_TERMS:
             assert term not in text, (
-                f"{question_id} chiffre_choc contains banned term '{term}'"
+                f"{question_id} premier_eclairage contains banned term '{term}'"
             )
 
     @pytest.mark.parametrize("question_id", ALL_QUESTION_IDS)

@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -6,19 +8,94 @@ import 'package:mint_mobile/models/minimal_profile_models.dart';
 import 'package:mint_mobile/models/session.dart';
 import 'package:mint_mobile/models/profile.dart';
 import 'package:mint_mobile/services/financial_core/arbitrage_models.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 import 'package:mint_mobile/services/auth_service.dart';
+
+/// P2-18: Error codes for i18n — UI layer maps these to AppLocalizations.
+enum ApiErrorCode {
+  offline,
+  timeout,
+  sessionExpired,
+  serverError,
+  unknown,
+}
 
 class ApiException implements Exception {
   final String message;
   final int? statusCode;
+  final bool isOffline;
 
-  const ApiException(this.message, {this.statusCode});
+  /// P2-18: Typed error code so the UI layer can map to i18n strings.
+  final ApiErrorCode errorCode;
+
+  const ApiException(
+    this.message, {
+    this.statusCode,
+    this.isOffline = false,
+    this.errorCode = ApiErrorCode.unknown,
+  });
+
+  /// FIX-071: User-friendly offline detection.
+  static ApiException offline() => const ApiException(
+    'Network offline',
+    isOffline: true,
+    errorCode: ApiErrorCode.offline,
+  );
+
+  static const ApiException timeout = ApiException(
+    'Request timeout',
+    errorCode: ApiErrorCode.timeout,
+  );
+
+  static ApiException sessionExpired() => const ApiException(
+    'Session expired',
+    statusCode: 401,
+    errorCode: ApiErrorCode.sessionExpired,
+  );
+
+  /// P2-18: Resolve a user-facing message from AppLocalizations.
+  /// Call this in UI layers that have BuildContext.
+  String localizedMessage(dynamic l10n) {
+    // l10n is AppLocalizations — dynamic to avoid import cycle.
+    // UI consumers: `e.localizedMessage(AppLocalizations.of(context)!)`
+    return switch (errorCode) {
+      ApiErrorCode.offline => l10n.apiErrorOffline as String,
+      ApiErrorCode.timeout => l10n.apiErrorTimeout as String,
+      ApiErrorCode.sessionExpired => l10n.apiErrorSessionExpired as String,
+      ApiErrorCode.serverError => l10n.apiErrorServer as String,
+      ApiErrorCode.unknown => message,
+    };
+  }
 
   @override
   String toString() => message;
 }
 
+// DECISION(2026-03-30): TLS certificate pinning DEFERRED for V1.
+// Rationale: Railway uses Let's Encrypt with 90-day auto-renewal.
+// Pinning would require rotating pins every 90 days — high risk of
+// bricking the app if a pin rotation is missed. Railway handles TLS
+// termination with HSTS (verified: Strict-Transport-Security header active).
+// Revisit when: custom domain with controlled certificate lifecycle.
+// Risk accepted: MITM via compromised CA (low probability, standard for fintech V1).
 class ApiService {
+  /// P1-7: Global HTTP timeout for all API calls.
+  static const Duration _httpTimeout = Duration(seconds: 30);
+
+  /// CHAOS-4: Safe JSON decode — Railway can return HTML error pages
+  /// that crash jsonDecode. Wraps in try-catch with ApiException.
+  static dynamic _safeJsonDecode(String body, {int? statusCode}) {
+    try {
+      return jsonDecode(body);
+    } on FormatException {
+      throw ApiException(
+        'Invalid server response',
+        statusCode: statusCode,
+        errorCode: ApiErrorCode.serverError,
+      );
+    }
+  }
+
   static const String _definedApiBaseUrl =
       String.fromEnvironment('API_BASE_URL');
 
@@ -28,9 +105,9 @@ class ApiService {
   static final List<String> _baseUrlCandidates = (() {
     final candidates = <String>[
       if (_definedApiBaseUrl.isNotEmpty) _definedApiBaseUrl,
-      // Active Railway production domain (kept before legacy fallbacks).
+      // Production first — release builds should default to production.
       if (kReleaseMode) 'https://mint-production-3a41.up.railway.app/api/v1',
-      if (kReleaseMode) 'https://api.mint.ch/api/v1',
+      if (kReleaseMode) 'https://mint-staging.up.railway.app/api/v1',
       if (kReleaseMode) 'https://mint-api.up.railway.app/api/v1',
       if (!kReleaseMode) 'http://localhost:8888/api/v1',
     ];
@@ -91,14 +168,28 @@ class ApiService {
     }
   }
 
-  // Helper method to get auth headers with JWT token
+  /// App version sent with every request for backend compatibility checks.
+  static const String _appVersion = '1.0.0';
+
+  // Helper method to get auth headers with JWT token + version
   static Future<Map<String, String>> _authHeaders() async {
     final token = await AuthService.getToken();
-    final headers = {'Content-Type': 'application/json'};
+    final headers = {
+      'Content-Type': 'application/json',
+      'X-App-Version': _appVersion,
+    };
     if (token != null) {
       headers['Authorization'] = 'Bearer $token';
     }
     return headers;
+  }
+
+  /// F5: Proactively refresh the auth token on app resume.
+  /// Silently no-ops if no refresh token or if user is not logged in.
+  static Future<void> refreshTokenIfNeeded() async {
+    final isLoggedIn = await AuthService.isLoggedIn();
+    if (!isLoggedIn) return;
+    await _tryRefreshToken();
   }
 
   /// Attempt to refresh tokens using the stored refresh token.
@@ -115,126 +206,194 @@ class ApiService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = _safeJsonDecode(response.body, statusCode: response.statusCode);
+        // FIX-087: null-safe field extraction — backend may omit fields.
+        final token = data['access_token'] as String?;
+        final userId = data['user_id'] as String?;
+        final email = data['email'] as String?;
+        if (token == null || userId == null) return false;
         await AuthService.saveToken(
-          data['access_token'],
-          data['user_id'],
-          data['email'],
-          refreshToken: data['refresh_token'],
+          token,
+          userId,
+          email ?? '',
+          refreshToken: data['refresh_token'] as String?,
         );
         return true;
       }
     } catch (_) {
       // Refresh failed — user will need to re-login
     }
+    // P1-11: Clear stale tokens when refresh fails — prevents cached token bypass.
+    await AuthService.logout();
     return false;
   }
 
-  // Méthodes génériques HTTP (now with JWT injection + auto-refresh)
+  // Méthodes génériques HTTP (now with JWT injection + auto-refresh + P1-7 timeout)
   static Future<Map<String, dynamic>> get(String endpoint) async {
-    var response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-    );
-
-    // Auto-refresh on 401
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.get(
+    try {
+      var response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('GET $endpoint failed: ${response.body}');
+      // Auto-refresh on 401
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.get(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200) {
+        return _safeJsonDecode(response.body, statusCode: response.statusCode);
+      } else if (response.statusCode == 401) {
+        // FIX-048: After refresh failure + still 401, clear auth state.
+        // User must re-login. Don't leave stale token in secure storage.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
+      } else {
+        throw ApiException('GET $endpoint failed: ${response.body}', statusCode: response.statusCode);
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw ApiException.timeout;
     }
   }
 
   static Future<String> getText(String endpoint) async {
-    var response = await http.get(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.get(
+    try {
+      var response = await http.get(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200) {
-      return response.body;
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.get(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200) {
+        return response.body;
+      } else if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
+      }
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'GET $endpoint failed'),
+        statusCode: response.statusCode,
+      );
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw ApiException.timeout;
     }
-    throw ApiException(
-      _extractErrorDetail(response.body, fallback: 'GET $endpoint failed'),
-      statusCode: response.statusCode,
-    );
   }
 
   static Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
-    var response = await http.post(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.post(
+    try {
+      var response = await http.post(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
         body: jsonEncode(data),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('POST $endpoint failed: ${response.body}');
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.post(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+          body: jsonEncode(data),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return _safeJsonDecode(response.body, statusCode: response.statusCode);
+      } else if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
+      } else {
+        throw ApiException(
+          _extractErrorDetail(response.body, fallback: 'Request failed'),
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw ApiException.timeout;
     }
   }
 
   static Future<Map<String, dynamic>> put(
       String endpoint, Map<String, dynamic> data) async {
-    var response = await http.put(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-      body: jsonEncode(data),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.put(
+    try {
+      var response = await http.put(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
         body: jsonEncode(data),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      throw Exception('PUT $endpoint failed: ${response.body}');
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.put(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+          body: jsonEncode(data),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 200) {
+        return _safeJsonDecode(response.body, statusCode: response.statusCode);
+      } else if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
+      } else {
+        throw ApiException(
+          _extractErrorDetail(response.body, fallback: 'Request failed'),
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw ApiException.timeout;
     }
   }
 
   static Future<void> delete(String endpoint) async {
-    var response = await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
-      headers: await _authHeaders(),
-    );
-
-    if (response.statusCode == 401 && await _tryRefreshToken()) {
-      response = await http.delete(
+    try {
+      var response = await http.delete(
         Uri.parse('$baseUrl$endpoint'),
         headers: await _authHeaders(),
-      );
-    }
+      ).timeout(_httpTimeout);
 
-    if (response.statusCode != 200 && response.statusCode != 204) {
-      throw Exception('DELETE $endpoint failed: ${response.body}');
+      if (response.statusCode == 401 && await _tryRefreshToken()) {
+        response = await http.delete(
+          Uri.parse('$baseUrl$endpoint'),
+          headers: await _authHeaders(),
+        ).timeout(_httpTimeout);
+      }
+
+      if (response.statusCode == 401) {
+        // P1-11: Clear auth state on 401 after refresh failure.
+        await AuthService.logout();
+        throw ApiException.sessionExpired();
+      }
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw ApiException(
+          _extractErrorDetail(response.body, fallback: 'Request failed'),
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw ApiException.offline();
+    } on TimeoutException {
+      throw ApiException.timeout;
     }
   }
 
@@ -258,7 +417,7 @@ class ApiService {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Registration failed'),
@@ -282,10 +441,70 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Login failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
+  /// Send a magic link to the given email address.
+  /// Returns: { message: "..." }
+  static Future<Map<String, dynamic>> sendMagicLink(String email) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/magic-link/send'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Failed to send magic link'),
+      statusCode: response.statusCode,
+    );
+  }
+
+  /// Verify a magic link token and return JWT.
+  /// Returns: { accessToken: "...", tokenType: "bearer" }
+  static Future<Map<String, dynamic>> verifyMagicLink(String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/magic-link/verify'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'token': token}),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Magic link verification failed'),
+      statusCode: response.statusCode,
+    );
+  }
+
+  /// Verify an Apple identity token with the backend.
+  /// Returns: { accessToken, tokenType, userId, email }
+  static Future<Map<String, dynamic>> postAppleVerify({
+    required String identityToken,
+    required String nonce,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/auth/apple/verify'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'identityToken': identityToken,
+        'nonce': nonce,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
+    }
+    throw ApiException(
+      _extractErrorDetail(response.body, fallback: 'Apple Sign-In verification failed'),
       statusCode: response.statusCode,
     );
   }
@@ -299,9 +518,12 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     } else {
-      throw Exception('Failed to get user info: ${response.body}');
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to get user info'),
+        statusCode: response.statusCode,
+      );
     }
   }
 
@@ -327,7 +549,7 @@ class ApiService {
       body: jsonEncode({'email': email}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -348,7 +570,7 @@ class ApiService {
       body: jsonEncode({'token': token, 'new_password': newPassword}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -368,7 +590,7 @@ class ApiService {
       body: jsonEncode({'email': email}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -388,7 +610,7 @@ class ApiService {
       body: jsonEncode({'token': token}),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -509,9 +731,12 @@ class ApiService {
       isPropertyOwner: isPropertyOwner ?? false,
       existing3a: existing3a ?? 0,
       existingLpp: existingLpp ?? 0,
-      employmentStatus: _readString(response, const ['employmentStatus', 'employment_status'], fallback: 'salarie'),
-      nationalityGroup: _readString(response, const ['nationalityGroup', 'nationality_group'], fallback: 'CH'),
-      plafond3a: _readDouble(response, const ['plafond3a', 'plafond_3a']),
+      // These fields are NOT served by the backend API — null means unknown.
+      // When the API does return them, use the value; otherwise leave null
+      // so consuming screens can handle missing data gracefully.
+      employmentStatus: _readStringOrNull(response, const ['employmentStatus', 'employment_status']),
+      nationalityGroup: _readStringOrNull(response, const ['nationalityGroup', 'nationality_group']),
+      plafond3a: _readDoubleOrNull(response, const ['plafond3a', 'plafond_3a']),
       estimatedFields: _readStringList(
         response,
         const ['estimatedFields', 'estimated_fields'],
@@ -519,7 +744,7 @@ class ApiService {
     );
   }
 
-  static Future<ChiffreChoc> computeOnboardingChiffreChoc({
+  static Future<PremierEclairage> computeOnboardingPremierEclairage({
     required int age,
     required double grossSalary,
     required String canton,
@@ -531,8 +756,9 @@ class ApiService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
+    String? stressType,
   }) async {
-    final response = await post('/onboarding/chiffre-choc', {
+    final response = await post('/onboarding/premier-eclairage', {
       'age': age,
       'gross_salary': grossSalary,
       'canton': canton,
@@ -545,6 +771,7 @@ class ApiService {
       if (totalDebts != null) 'total_debts': totalDebts,
       if (monthlyDebtService != null)
         'monthly_debt_service': monthlyDebtService,
+      if (stressType != null) 'stress_type': stressType,
     });
 
     final category = _readString(
@@ -566,40 +793,65 @@ class ApiService {
     );
 
     final type = switch (category) {
-      'liquidity' => ChiffreChocType.liquidityAlert,
-      'tax_saving' => ChiffreChocType.taxSaving3a,
-      'retirement_gap' => ChiffreChocType.retirementGap,
-      _ => ChiffreChocType.retirementIncome,
+      'liquidity' => PremierEclairageType.liquidityAlert,
+      'tax_saving' => PremierEclairageType.taxSaving3a,
+      'retirement_gap' => PremierEclairageType.retirementGap,
+      'retirement_income' => PremierEclairageType.retirementIncome,
+      'compound_growth' => PremierEclairageType.compoundGrowth,
+      'hourly_rate' => PremierEclairageType.hourlyRate,
+      _ => PremierEclairageType.retirementIncome,
     };
 
     final (title, iconName, colorKey, value) = switch (type) {
-      ChiffreChocType.liquidityAlert => (
+      PremierEclairageType.liquidityAlert => (
           'Ta reserve de liquidite',
           'warning_amber',
           'error',
           '${primaryNumber.toStringAsFixed(1)} mois',
         ),
-      ChiffreChocType.taxSaving3a => (
+      PremierEclairageType.taxSaving3a => (
           'Ton economie d\'impot potentielle',
           'savings',
           'success',
-          '${_formatChf(primaryNumber)}/an',
+          '${chf.formatChfWithPrefix(primaryNumber)}/an',
         ),
-      ChiffreChocType.retirementGap => (
+      PremierEclairageType.retirementGap => (
           'Ton ecart de retraite',
           'trending_down',
           'warning',
-          '${_formatChf(primaryNumber)}/mois',
+          '${chf.formatChfWithPrefix(primaryNumber)}/mois',
         ),
-      ChiffreChocType.retirementIncome => (
+      PremierEclairageType.retirementIncome => (
           'Ton revenu estime a la retraite',
           'account_balance',
           'info',
-          '${_formatChf(primaryNumber)}/mois',
+          '${chf.formatChfWithPrefix(primaryNumber)}/mois',
+        ),
+      PremierEclairageType.compoundGrowth => (
+          'Ton avantage temps',
+          'trending_up',
+          'success',
+          chf.formatChfWithPrefix(primaryNumber),
+        ),
+      PremierEclairageType.hourlyRate => (
+          'Ton salaire reel',
+          'schedule',
+          'info',
+          'CHF\u00A0${primaryNumber.round()}/h',
         ),
     };
 
-    return ChiffreChoc(
+    // Read confidence_mode from API response (V2 contract)
+    final confidenceModeStr = _readString(
+      response,
+      const ['confidenceMode', 'confidence_mode'],
+      fallback: 'factual',
+    );
+    final confidenceMode = confidenceModeStr == 'pedagogical'
+        ? PremierEclairageConfidence.pedagogical
+        : PremierEclairageConfidence.factual;
+
+    return PremierEclairage(
       type: type,
       value: value,
       rawValue: primaryNumber,
@@ -609,6 +861,7 @@ class ApiService {
           : displayText,
       iconName: iconName,
       colorKey: colorKey,
+      confidenceMode: confidenceMode,
     );
   }
 
@@ -711,9 +964,9 @@ class ApiService {
     return ArbitrageResult(
       options: options,
       breakevenYear: breakeven != null && breakeven >= 0 ? breakeven : null,
-      chiffreChoc: _readString(
+      premierEclairage: _readString(
         response,
-        const ['chiffreChoc', 'chiffre_choc'],
+        const ['premierEclairage'],
       ),
       displaySummary: _readString(
         response,
@@ -799,6 +1052,17 @@ class ApiService {
     return fallback;
   }
 
+  static String? _readStringOrNull(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is String) return value;
+    }
+    return null;
+  }
+
   static double _readDouble(
     Map<String, dynamic> data,
     List<String> keys, {
@@ -809,6 +1073,17 @@ class ApiService {
       if (value is num) return value.toDouble();
     }
     return fallback;
+  }
+
+  static double? _readDoubleOrNull(
+    Map<String, dynamic> data,
+    List<String> keys,
+  ) {
+    for (final key in keys) {
+      final value = data[key];
+      if (value is num) return value.toDouble();
+    }
+    return null;
   }
 
   static int _readInt(
@@ -850,18 +1125,7 @@ class ApiService {
     return const [];
   }
 
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF ${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
+  // F3: _formatChf removed — use centralized chf.formatChfWithPrefix()
 
   static Future<Map<String, dynamic>> claimLocalData({
     required int localDataVersion,
@@ -871,12 +1135,14 @@ class ApiService {
     Map<String, dynamic> budgetSnapshot = const {},
     List<Map<String, dynamic>> checkins = const [],
   }) async {
+    // FIX-W11-1: Send ISO 8601 UTC timestamp for conflict resolution
     final response = await http.post(
       Uri.parse('$baseUrl/sync/claim-local-data'),
       headers: await _authHeaders(),
       body: jsonEncode({
         'local_data_version': localDataVersion,
         'device_id': deviceId,
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
         'wizard_answers': wizardAnswers,
         'mini_onboarding': miniOnboarding,
         'budget_snapshot': budgetSnapshot,
@@ -884,7 +1150,7 @@ class ApiService {
       }),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(response.body, fallback: 'Local data sync failed'),
@@ -916,7 +1182,7 @@ class ApiService {
       }),
     );
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return _safeJsonDecode(response.body, statusCode: response.statusCode);
     }
     throw ApiException(
       _extractErrorDetail(
@@ -943,7 +1209,10 @@ class ApiService {
     }
   }
 
-  // Méthodes spécifiques (legacy)
+  // Legacy methods — kept for backward compatibility.
+  // All data entry now goes through CoachProfile + chat.
+
+  @Deprecated('Use CoachProfile instead — this legacy method predates chat-central architecture')
   static Future<Profile> createProfile({
     int? birthYear,
     String? canton,
@@ -957,7 +1226,7 @@ class ApiService {
   }) async {
     final response = await http.post(
       Uri.parse('$baseUrl/profiles'),
-      headers: {'Content-Type': 'application/json'},
+      headers: await _authHeaders(),
       body: jsonEncode({
         'birthYear': birthYear,
         'canton': canton,
@@ -972,9 +1241,12 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return Profile.fromJson(jsonDecode(response.body));
+      return Profile.fromJson(_safeJsonDecode(response.body, statusCode: response.statusCode));
     } else {
-      throw Exception('Failed to create profile: ${response.body}');
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to create profile'),
+        statusCode: response.statusCode,
+      );
     }
   }
 
@@ -998,19 +1270,11 @@ class ApiService {
     if (response.statusCode == 200) {
       return Session.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Failed to create session: ${response.body}');
+      throw ApiException(
+        _extractErrorDetail(response.body, fallback: 'Failed to create session'),
+        statusCode: response.statusCode,
+      );
     }
   }
 
-  static Future<SessionReport> getSessionReport(String sessionId) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/sessions/$sessionId/report'),
-    );
-
-    if (response.statusCode == 200) {
-      return SessionReport.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to get session report: ${response.body}');
-    }
-  }
 }

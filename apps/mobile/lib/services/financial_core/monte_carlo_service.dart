@@ -1,3 +1,4 @@
+import 'dart:isolate';
 import 'dart:math';
 
 import 'package:mint_mobile/constants/social_insurance.dart';
@@ -52,7 +53,7 @@ class MonteCarloProjectionService {
   //  PUBLIC API
   // ════════════════════════════════════════════════════════════
 
-  /// Lance une simulation Monte Carlo de retraite.
+  /// Lance une simulation Monte Carlo de retraite (async, via Isolate).
   ///
   /// [profile] : profil financier complet de l'utilisateur.
   /// [retirementAgeUser] : age de depart a la retraite (defaut 65).
@@ -60,9 +61,28 @@ class MonteCarloProjectionService {
   /// [depensesMensuelles] : depenses mensuelles estimees a la retraite.
   /// [numSimulations] : nombre de simulations (defaut 500).
   /// [seed] : graine pour le generateur aleatoire (tests reproductibles).
-  static MonteCarloResult simulate({
+  static Future<MonteCarloResult> simulate({
     required CoachProfile profile,
     int retirementAgeUser = 65,
+    double lppCapitalPct = 0.0,
+    double? depensesMensuelles,
+    int numSimulations = 1000,
+    int? seed,
+  }) async {
+    return Isolate.run(() => _simulateSync(
+          profile: profile,
+          retirementAgeUser: retirementAgeUser,
+          lppCapitalPct: lppCapitalPct,
+          depensesMensuelles: depensesMensuelles,
+          numSimulations: numSimulations,
+          seed: seed,
+        ));
+  }
+
+  /// Synchronous simulation (runs inside Isolate).
+  static MonteCarloResult _simulateSync({
+    required CoachProfile profile,
+    int retirementAgeUser = avsAgeReferenceHomme,
     double lppCapitalPct = 0.0,
     double? depensesMensuelles,
     int numSimulations = 1000,
@@ -85,8 +105,8 @@ class MonteCarloProjectionService {
     final hasConjoint = profile.isCouple && profile.conjoint != null;
     final conjoint = profile.conjoint;
     final conjointAge = conjoint?.age;
-    // Default conjoint retirement age: 65 (could differ but we simplify)
-    const conjointRetirementAge = 65;
+    // Default conjoint retirement age: avsAgeReferenceHomme (could differ but we simplify)
+    final conjointRetirementAge = reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
 
     // ── Early retirement: AVS deferred start (LAVS art. 40) ─
     // AVS anticipation only possible from age 63. If retirement < 63,
@@ -117,6 +137,8 @@ class MonteCarloProjectionService {
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
         grossAnnualSalary: profile.revenuBrutAnnuel,
+        isFemale: profile.gender == 'F' ? true : null,
+        birthYear: profile.gender == 'F' ? profile.birthYear : null,
       );
 
       // ── AVS conjoint ──────────────────────────────────────
@@ -129,10 +151,12 @@ class MonteCarloProjectionService {
           anneesContribuees: conjoint.prevoyance?.anneesContribuees,
           arrivalAge: conjoint.arrivalAge,
           grossAnnualSalary: conjoint.revenuBrutAnnuel,
+          isFemale: conjoint.gender == 'F' ? true : (conjoint.gender == 'M' ? false : null),
+          birthYear: conjoint.birthYear,
         );
       }
 
-      // ── AVS couple cap (LAVS art. 35) ─────────────────────
+      // ── AVS couple cap (LAVS art. 35) + 13ème rente ────────
       double avsUserMonthly;
       double avsConjointMonthly;
       if (hasConjoint) {
@@ -147,6 +171,9 @@ class MonteCarloProjectionService {
         avsUserMonthly = avsUserRaw;
         avsConjointMonthly = 0;
       }
+      // Apply 13th rente (8.3% uplift) — AVS pays 13 monthly rentes per year.
+      avsUserMonthly = AvsCalculator.annualRente(avsUserMonthly) / 12;
+      avsConjointMonthly = AvsCalculator.annualRente(avsConjointMonthly) / 12;
 
       // ── LPP utilisateur : projection simplifiee jusqu'a la retraite ─
       // Inclut bonifications annuelles + rachats LPP planifies (LPP art. 79b)
@@ -182,12 +209,12 @@ class MonteCarloProjectionService {
       double lppCapitalNet = 0;
       // Split oblig/suroblig conversion rates (LPP art. 14)
       final convRateOblig = LppCalculator.adjustedConversionRate(
-        baseRate: lppTauxConversionMinDecimal,
+        baseRate: reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal),
         retirementAge: retirementAgeUser,
       );
       final convRateSurob = LppCalculator.adjustedConversionRate(
         baseRate: profile.prevoyance.tauxConversionSuroblig
-            ?? lppTauxConversionSurobligDecimal,
+            ?? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal),
         retirementAge: retirementAgeUser,
       );
       final userOblig = profile.prevoyance.avoirLppObligatoire;
@@ -202,9 +229,9 @@ class MonteCarloProjectionService {
         }
         // No certificate split: use conservative rate when profile has default 6.8%
         final profileRate = profile.prevoyance.tauxConversion;
-        final isDefault = (profileRate - lppTauxConversionMinDecimal).abs() < 0.001;
+        final isDefault = (profileRate - reg('lpp.conversion_rate_min', lppTauxConversionMinDecimal)).abs() < 0.001;
         final baseRate = isDefault
-            ? lppTauxConversionSurobligDecimal
+            ? reg('lpp.conversion_rate_suroblig', lppTauxConversionSurobligDecimal)
             : profileRate;
         final envRate = LppCalculator.adjustedConversionRate(
           baseRate: baseRate,
@@ -371,11 +398,12 @@ class MonteCarloProjectionService {
         final libreReturnYear =
             _normalRandom(random, mean: 0.04, sd: 0.08);
 
-        // AVS indexee chaque annee — seulement apres le delai d'anticipation
+        // FIX-005: AVS indexation starts from the year AVS begins paying,
+        // not from year 0. Was over-indexing by 1-5% in early retirement.
         final avsUserThisYear = y >= yearsUntilAvsUser
-            ? avsUserMonthly * pow(1 + avsIndexation, y.toDouble())
+            ? avsUserMonthly * pow(1 + avsIndexation, (y - yearsUntilAvsUser).toDouble())
             : 0.0;
-        // Conjoint AVS: starts immediately (conjoint retires at 65)
+        // Conjoint AVS: indexation from year 0 (conjoint already retired)
         final avsConjointThisYear = hasConjoint
             ? avsConjointMonthly * pow(1 + avsIndexation, y.toDouble())
             : 0.0;
@@ -536,7 +564,7 @@ class MonteCarloProjectionService {
           : 'ZH',
       currentAge: profile.age,
       targetRetirementAge:
-          retirementAge ?? profile.targetRetirementAge ?? 65,
+          retirementAge ?? profile.targetRetirementAge ?? reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt(),
       propertyMarketValue: profile.patrimoine.propertyMarketValue,
       mortgageBalance: profile.patrimoine.mortgageBalance,
       mortgageRate: profile.patrimoine.mortgageRate,

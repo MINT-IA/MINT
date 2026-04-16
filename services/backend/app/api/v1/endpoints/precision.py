@@ -15,7 +15,9 @@ Sources:
     - LIFD art. 38 (imposition du capital)
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
+
+from app.core.rate_limit import limiter
 
 from app.schemas.precision import (
     FieldHelpResponse,
@@ -65,7 +67,8 @@ _SOURCES = [
 
 
 @router.get("/help/{field_name}", response_model=FieldHelpResponse)
-def get_help(field_name: str) -> FieldHelpResponse:
+@limiter.limit("60/minute")
+def get_help(request: Request, field_name: str) -> FieldHelpResponse:
     """Retourne l'aide contextuelle pour un champ financier.
 
     Fournit pour chaque champ: ou trouver le chiffre exact,
@@ -86,8 +89,8 @@ def get_help(field_name: str) -> FieldHelpResponse:
             german_name=help_data.german_name,
             fallback_estimation=help_data.fallback_estimation,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Field not found")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -96,7 +99,8 @@ def get_help(field_name: str) -> FieldHelpResponse:
 
 
 @router.post("/validate", response_model=CrossValidationResponse)
-def validate_profile(request: CrossValidationRequest) -> CrossValidationResponse:
+@limiter.limit("30/minute")
+def validate_profile(request: Request, body: CrossValidationRequest) -> CrossValidationResponse:
     """Valide la coherence des donnees du profil.
 
     Effectue des verifications croisees entre les champs fournis:
@@ -112,32 +116,32 @@ def validate_profile(request: CrossValidationRequest) -> CrossValidationResponse
     """
     # Convert Pydantic model to dict for service (only non-None fields)
     profile = {}
-    if request.age is not None:
-        profile["age"] = request.age
-    if request.salaire_brut is not None:
-        profile["salaire_brut"] = request.salaire_brut
-    if request.salaire_net is not None:
-        profile["salaire_net"] = request.salaire_net
-    if request.canton is not None:
-        profile["canton"] = request.canton.upper()
-    if request.lpp_total is not None:
-        profile["lpp_total"] = request.lpp_total
-    if request.lpp_obligatoire is not None:
-        profile["lpp_obligatoire"] = request.lpp_obligatoire
-    if request.pillar_3a_balance is not None:
-        profile["pillar_3a_balance"] = request.pillar_3a_balance
-    if request.mortgage_remaining is not None:
-        profile["mortgage_remaining"] = request.mortgage_remaining
-    if request.is_property_owner is not None:
-        profile["is_property_owner"] = request.is_property_owner
-    if request.is_independant is not None:
-        profile["is_independant"] = request.is_independant
-    if request.has_lpp is not None:
-        profile["has_lpp"] = request.has_lpp
-    if request.taux_marginal is not None:
-        profile["taux_marginal"] = request.taux_marginal
-    if request.monthly_expenses is not None:
-        profile["monthly_expenses"] = request.monthly_expenses
+    if body.age is not None:
+        profile["age"] = body.age
+    if body.salaire_brut is not None:
+        profile["salaire_brut"] = body.salaire_brut
+    if body.salaire_net is not None:
+        profile["salaire_net"] = body.salaire_net
+    if body.canton is not None:
+        profile["canton"] = body.canton.upper()
+    if body.lpp_total is not None:
+        profile["lpp_total"] = body.lpp_total
+    if body.lpp_obligatoire is not None:
+        profile["lpp_obligatoire"] = body.lpp_obligatoire
+    if body.pillar_3a_balance is not None:
+        profile["pillar_3a_balance"] = body.pillar_3a_balance
+    if body.mortgage_remaining is not None:
+        profile["mortgage_remaining"] = body.mortgage_remaining
+    if body.is_property_owner is not None:
+        profile["is_property_owner"] = body.is_property_owner
+    if body.is_independant is not None:
+        profile["is_independant"] = body.is_independant
+    if body.has_lpp is not None:
+        profile["has_lpp"] = body.has_lpp
+    if body.taux_marginal is not None:
+        profile["taux_marginal"] = body.taux_marginal
+    if body.monthly_expenses is not None:
+        profile["monthly_expenses"] = body.monthly_expenses
 
     alerts = cross_validate(profile)
 
@@ -162,7 +166,8 @@ def validate_profile(request: CrossValidationRequest) -> CrossValidationResponse
 
 
 @router.post("/smart-defaults", response_model=SmartDefaultResponse)
-def get_smart_defaults(request: SmartDefaultRequest) -> SmartDefaultResponse:
+@limiter.limit("30/minute")
+def get_smart_defaults(request: Request, body: SmartDefaultRequest) -> SmartDefaultResponse:
     """Calcule des estimations contextuelles pour les champs manquants.
 
     Prend en compte l'archetype, l'age, le salaire et le canton
@@ -172,10 +177,10 @@ def get_smart_defaults(request: SmartDefaultRequest) -> SmartDefaultResponse:
         SmartDefaultResponse avec estimations, disclaimer et sources legales.
     """
     defaults = compute_smart_defaults(
-        archetype=request.archetype,
-        age=request.age,
-        salary=request.salary,
-        canton=request.canton.upper(),
+        archetype=body.archetype,
+        age=body.age,
+        salary=body.salary,
+        canton=body.canton.upper(),
     )
 
     return SmartDefaultResponse(
@@ -199,7 +204,8 @@ def get_smart_defaults(request: SmartDefaultRequest) -> SmartDefaultResponse:
 
 
 @router.post("/prompts", response_model=PrecisionPromptResponse)
-def get_prompts(request: PrecisionPromptRequest) -> PrecisionPromptResponse:
+@limiter.limit("30/minute")
+def get_prompts(request: Request, body: PrecisionPromptRequest) -> PrecisionPromptResponse:
     """Retourne les demandes de precision adaptees au contexte.
 
     Determine quels champs manquants impactent le plus le resultat
@@ -217,23 +223,23 @@ def get_prompts(request: PrecisionPromptRequest) -> PrecisionPromptResponse:
     """
     # Build profile dict from request fields
     profile: dict = {}
-    if request.lpp_total is not None:
-        profile["lpp_total"] = request.lpp_total
-    if request.lpp_obligatoire is not None:
-        profile["lpp_obligatoire"] = request.lpp_obligatoire
-    if request.taux_marginal is not None:
-        profile["taux_marginal"] = request.taux_marginal
-    if request.pillar_3a_balance is not None:
-        profile["pillar_3a_balance"] = request.pillar_3a_balance
-    if request.avs_contribution_years is not None:
-        profile["avs_contribution_years"] = request.avs_contribution_years
-    if request.monthly_expenses is not None:
-        profile["monthly_expenses"] = request.monthly_expenses
-    if request.mortgage_remaining is not None:
-        profile["mortgage_remaining"] = request.mortgage_remaining
+    if body.lpp_total is not None:
+        profile["lpp_total"] = body.lpp_total
+    if body.lpp_obligatoire is not None:
+        profile["lpp_obligatoire"] = body.lpp_obligatoire
+    if body.taux_marginal is not None:
+        profile["taux_marginal"] = body.taux_marginal
+    if body.pillar_3a_balance is not None:
+        profile["pillar_3a_balance"] = body.pillar_3a_balance
+    if body.avs_contribution_years is not None:
+        profile["avs_contribution_years"] = body.avs_contribution_years
+    if body.monthly_expenses is not None:
+        profile["monthly_expenses"] = body.monthly_expenses
+    if body.mortgage_remaining is not None:
+        profile["mortgage_remaining"] = body.mortgage_remaining
 
     prompts = get_precision_prompts(
-        context=request.context,
+        context=body.context,
         profile=profile,
     )
 

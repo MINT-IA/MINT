@@ -22,6 +22,16 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0.0"
 }
 
+// Release signing: reads from key.properties (gitignored).
+// CI/CD injects the keystore via secrets.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader("UTF-8") { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 android {
     namespace = "ch.mint.coach"
     compileSdk = 34
@@ -44,13 +54,36 @@ android {
         versionName = flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                keyAlias = keystoreProperties["keyAlias"]
+                keyPassword = keystoreProperties["keyPassword"]
+                storeFile = file(keystoreProperties["storeFile"])
+                storePassword = keystoreProperties["storePassword"]
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig = keystorePropertiesFile.exists()
+                ? signingConfigs.release
+                : signingConfigs.debug
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+// Phase 28-03 — Google ML Kit Document Scanner (GA 2024). Pulled by
+// flutter_doc_scanner transitively, declared explicitly to pin GA channel
+// and ensure availability in release builds without R8 surprises.
+dependencies {
+    implementation 'com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1'
 }

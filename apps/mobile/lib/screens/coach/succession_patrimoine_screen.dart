@@ -16,6 +16,8 @@ import 'package:mint_mobile/widgets/coach/edu_shared_widgets.dart';
 import 'package:mint_mobile/widgets/coach/testament_invisible_widget.dart';
 import 'package:mint_mobile/widgets/coach/avancement_hoirie_widget.dart';
 import 'package:mint_mobile/widgets/coach/death_urgency_guide_widget.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class SuccessionPatrimoineScreen extends StatelessWidget {
   const SuccessionPatrimoineScreen({super.key});
@@ -26,7 +28,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: MintColors.white,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           // ── AppBar white standard ──────────────────────────────
           SliverAppBar(
@@ -77,7 +79,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Concepts clés ────────────────────────────
-                EduSectionTitle(text: l.successionNotionsCles),
+                MintEntrance(child: EduSectionTitle(text: l.successionNotionsCles)),
                 const SizedBox(height: MintSpacing.sm + 4),
 
                 _ConceptCard(
@@ -126,9 +128,9 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── P14-A : Guide de première urgence ────────────
-                EduSectionTitle(text: l.successionDecesProche),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: EduSectionTitle(text: l.successionDecesProche)),
                 const SizedBox(height: MintSpacing.sm + 4),
-                DeathUrgencyGuideWidget(
+                MintEntrance(delay: const Duration(milliseconds: 200), child: DeathUrgencyGuideWidget(
                   phases: [
                     UrgencyPhase(
                       timeframe: 'J+1 à J+7',
@@ -136,10 +138,10 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       title: S.of(context)!.successionUrgence,
                       color: MintColors.urgentOrange,
                       actions: [
-                        'Déclarer le décès à l\'état civil dans les 2 jours',
-                        'Informer l\'employeur et les assurances (LAMal, LPP)',
-                        'Bloquer les comptes bancaires conjoints si nécessaire',
-                        'Contacter le notaire si la personne avait un testament',
+                        S.of(context)!.successionUrgenceAction1,
+                        S.of(context)!.successionUrgenceAction2,
+                        S.of(context)!.successionUrgenceAction3,
+                        S.of(context)!.successionUrgenceAction4,
                       ],
                     ),
                     UrgencyPhase(
@@ -148,11 +150,11 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       title: S.of(context)!.successionDemarches,
                       color: MintColors.orangeDarkDeep,
                       actions: [
-                        'Demander les rentes de survivants AVS (LAVS art. 23)',
-                        'Contacter la caisse LPP pour le capital décès',
-                        'Résilier les abonnements et contrats au nom du défunt',
-                        'Faire l\'inventaire des avoirs et dettes',
-                        'Demander les certificats d\'héritiers au notaire',
+                        S.of(context)!.successionDemarchesAction1,
+                        S.of(context)!.successionDemarchesAction2,
+                        S.of(context)!.successionDemarchesAction3,
+                        S.of(context)!.successionDemarchesAction4,
+                        S.of(context)!.successionDemarchesAction5,
                       ],
                     ),
                     UrgencyPhase(
@@ -161,18 +163,18 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                       title: S.of(context)!.successionLegale,
                       color: MintColors.successDeep,
                       actions: [
-                        'Ouvrir la procédure de succession avec le notaire',
-                        'Partager les biens selon le testament ou la loi (CC art. 537)',
-                        'Déposer la déclaration fiscale pour l\'année du décès',
-                        'Mettre à jour les bénéficiaires de vos propres contrats',
+                        S.of(context)!.successionLegaleAction1,
+                        S.of(context)!.successionLegaleAction2,
+                        S.of(context)!.successionLegaleAction3,
+                        S.of(context)!.successionLegaleAction4,
                       ],
                     ),
                   ],
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Checklist pratique ────────────────────────
-                EduSectionTitle(text: l.successionChecklistTitle),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: EduSectionTitle(text: l.successionChecklistTitle)),
                 const SizedBox(height: MintSpacing.sm + 4),
                 _ChecklistCard(
                   items: [
@@ -186,12 +188,12 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── CTA spécialiste ───────────────────────────
-                EduSpecialistCta(
+                MintEntrance(delay: const Duration(milliseconds: 400), child: EduSpecialistCta(
                   icon: Icons.gavel_outlined,
                   color: MintColors.successionDark,
                   title: l.successionSpecialisteTitle,
                   body: l.successionSpecialisteBody,
-                ),
+                )),
                 const SizedBox(height: MintSpacing.lg),
 
                 // ── Sources légales ───────────────────────────
@@ -205,7 +207,7 @@ class SuccessionPatrimoineScreen extends StatelessWidget {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 }
@@ -246,7 +248,7 @@ class _AlertCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 14, height: 1.3),
+                    style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600, height: 1.3),
                   ),
                 ),
               ],
@@ -254,7 +256,7 @@ class _AlertCard extends StatelessWidget {
             const SizedBox(height: MintSpacing.sm + 4),
             Text(
               body,
-              style: MintTextStyles.bodyMedium().copyWith(fontSize: 13, height: 1.5),
+              style: MintTextStyles.bodyMedium().copyWith(height: 1.5),
             ),
           ],
         ),
@@ -282,13 +284,10 @@ class _ConceptCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       container: true,
-      child: Container(
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
         padding: const EdgeInsets.all(MintSpacing.md),
-        decoration: BoxDecoration(
-          color: MintColors.surface,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: MintColors.border),
-        ),
+        radius: 14,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -316,7 +315,7 @@ class _ConceptCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: MintSpacing.sm + 2),
-            Text(body, style: MintTextStyles.bodyMedium().copyWith(fontSize: 12, height: 1.5)),
+            Text(body, style: MintTextStyles.labelMedium().copyWith(height: 1.5)),
           ],
         ),
       ),
@@ -330,13 +329,10 @@ class _ChecklistCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 14,
       child: Column(
         children: items
             .map(

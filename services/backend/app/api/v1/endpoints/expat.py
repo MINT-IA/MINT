@@ -15,7 +15,9 @@ POST /api/v1/expat/tax-comparison              — Comparaison fiscale internati
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
+
+from app.core.rate_limit import limiter
 
 from app.schemas.expat import (
     SourceTaxRequest,
@@ -54,7 +56,8 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 
 @router.post("/frontalier/source-tax", response_model=SourceTaxResponse)
-def calculate_source_tax(request: SourceTaxRequest) -> SourceTaxResponse:
+@limiter.limit("30/minute")
+def calculate_source_tax(request: Request, body: SourceTaxRequest) -> SourceTaxResponse:
     """Calcule l'impot a la source pour un travailleur frontalier.
 
     Couvre les regimes speciaux GE (quasi-resident) et TI (accord Italie).
@@ -63,11 +66,11 @@ def calculate_source_tax(request: SourceTaxRequest) -> SourceTaxResponse:
     """
     service = FrontalierService()
     result = service.calculate_source_tax(
-        salary=request.salary,
-        canton=request.canton,
-        marital_status=request.marital_status.value,
-        children=request.children,
-        church_tax=request.church_tax,
+        salary=body.salary,
+        canton=body.canton,
+        marital_status=body.marital_status.value,
+        children=body.children,
+        church_tax=body.church_tax,
     )
     return SourceTaxResponse(
         salaire_brut=result.salaire_brut,
@@ -89,7 +92,8 @@ def calculate_source_tax(request: SourceTaxRequest) -> SourceTaxResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/frontalier/quasi-resident", response_model=QuasiResidentResponse)
-def check_quasi_resident(request: QuasiResidentRequest) -> QuasiResidentResponse:
+@limiter.limit("30/minute")
+def check_quasi_resident(request: Request, body: QuasiResidentRequest) -> QuasiResidentResponse:
     """Verifie l'eligibilite au statut quasi-resident.
 
     Si >=90% du revenu mondial est gagne en CH, acces a l'imposition ordinaire.
@@ -99,9 +103,9 @@ def check_quasi_resident(request: QuasiResidentRequest) -> QuasiResidentResponse
     """
     service = FrontalierService()
     result = service.check_quasi_resident(
-        ch_income=request.ch_income,
-        worldwide_income=request.worldwide_income,
-        canton=request.canton,
+        ch_income=body.ch_income,
+        worldwide_income=body.worldwide_income,
+        canton=body.canton,
     )
     return QuasiResidentResponse(
         eligible=result.eligible,
@@ -121,7 +125,8 @@ def check_quasi_resident(request: QuasiResidentRequest) -> QuasiResidentResponse
 # ---------------------------------------------------------------------------
 
 @router.post("/frontalier/90-day-rule", response_model=NinetyDayRuleResponse)
-def simulate_90_day_rule(request: NinetyDayRuleRequest) -> NinetyDayRuleResponse:
+@limiter.limit("30/minute")
+def simulate_90_day_rule(request: Request, body: NinetyDayRuleRequest) -> NinetyDayRuleResponse:
     """Simule la regle des 90 jours pour le teletravail frontalier.
 
     Plus de 90 jours de teletravail a l'etranger => imposition bascule.
@@ -130,8 +135,8 @@ def simulate_90_day_rule(request: NinetyDayRuleRequest) -> NinetyDayRuleResponse
     """
     service = FrontalierService()
     result = service.simulate_90_day_rule(
-        home_office_days=request.home_office_days,
-        commute_days=request.commute_days,
+        home_office_days=body.home_office_days,
+        commute_days=body.commute_days,
     )
     return NinetyDayRuleResponse(
         jours_teletravail=result.jours_teletravail,
@@ -150,7 +155,8 @@ def simulate_90_day_rule(request: NinetyDayRuleRequest) -> NinetyDayRuleResponse
 # ---------------------------------------------------------------------------
 
 @router.post("/frontalier/social-charges", response_model=SocialChargesResponse)
-def compare_social_charges(request: SocialChargesRequest) -> SocialChargesResponse:
+@limiter.limit("30/minute")
+def compare_social_charges(request: Request, body: SocialChargesRequest) -> SocialChargesResponse:
     """Compare les charges sociales CH vs pays de residence.
 
     Les frontaliers cotisent toujours en CH (Reglement CE 883/2004).
@@ -159,8 +165,8 @@ def compare_social_charges(request: SocialChargesRequest) -> SocialChargesRespon
     """
     service = FrontalierService()
     result = service.compare_social_charges(
-        salary=request.salary,
-        country_of_residence=request.country_of_residence.value,
+        salary=body.salary,
+        country_of_residence=body.country_of_residence.value,
     )
     return SocialChargesResponse(
         salaire_brut=result.salaire_brut,
@@ -186,7 +192,8 @@ def compare_social_charges(request: SocialChargesRequest) -> SocialChargesRespon
 # ---------------------------------------------------------------------------
 
 @router.post("/frontalier/lamal-option", response_model=LamalOptionResponse)
-def estimate_lamal_option(request: LamalOptionRequest) -> LamalOptionResponse:
+@limiter.limit("30/minute")
+def estimate_lamal_option(request: Request, body: LamalOptionRequest) -> LamalOptionResponse:
     """Compare l'option LAMal vs assurance du pays de residence.
 
     Droit d'option pour les frontaliers (LAMal art. 3, OLCP art. 9).
@@ -195,10 +202,10 @@ def estimate_lamal_option(request: LamalOptionRequest) -> LamalOptionResponse:
     """
     service = FrontalierService()
     result = service.estimate_lamal_option(
-        age=request.age,
-        canton=request.canton,
-        family_size=request.family_size,
-        residence_country=request.residence_country.value,
+        age=body.age,
+        canton=body.canton,
+        family_size=body.family_size,
+        residence_country=body.residence_country.value,
     )
     return LamalOptionResponse(
         canton=result.canton,
@@ -219,7 +226,8 @@ def estimate_lamal_option(request: LamalOptionRequest) -> LamalOptionResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/forfait-fiscal", response_model=ForfaitFiscalResponse)
-def simulate_forfait_fiscal(request: ForfaitFiscalRequest) -> ForfaitFiscalResponse:
+@limiter.limit("30/minute")
+def simulate_forfait_fiscal(request: Request, body: ForfaitFiscalRequest) -> ForfaitFiscalResponse:
     """Simule le forfait fiscal (imposition d'apres la depense).
 
     Reserve aux non-Suisses sans activite lucrative en CH.
@@ -229,9 +237,9 @@ def simulate_forfait_fiscal(request: ForfaitFiscalRequest) -> ForfaitFiscalRespo
     """
     service = ExpatService()
     result = service.simulate_forfait_fiscal(
-        canton=request.canton,
-        living_expenses=request.living_expenses,
-        actual_income=request.actual_income,
+        canton=body.canton,
+        living_expenses=body.living_expenses,
+        actual_income=body.actual_income,
     )
     return ForfaitFiscalResponse(
         canton=result.canton,
@@ -254,7 +262,8 @@ def simulate_forfait_fiscal(request: ForfaitFiscalRequest) -> ForfaitFiscalRespo
 # ---------------------------------------------------------------------------
 
 @router.post("/double-taxation", response_model=DoubleTaxationResponse)
-def check_double_taxation(request: DoubleTaxationRequest) -> DoubleTaxationResponse:
+@limiter.limit("30/minute")
+def check_double_taxation(request: Request, body: DoubleTaxationRequest) -> DoubleTaxationResponse:
     """Analyse la repartition de l'imposition selon la CDI applicable.
 
     Conventions de double imposition CH avec les pays partenaires.
@@ -262,9 +271,9 @@ def check_double_taxation(request: DoubleTaxationRequest) -> DoubleTaxationRespo
     Sources: CDI bilaterales, convention modele OCDE.
     """
     service = ExpatService()
-    income_types_values = [t.value for t in request.income_types] if request.income_types else None
+    income_types_values = [t.value for t in body.income_types] if body.income_types else None
     result = service.check_double_taxation(
-        residence_country=request.residence_country.value,
+        residence_country=body.residence_country.value,
         income_types=income_types_values,
     )
     return DoubleTaxationResponse(
@@ -286,7 +295,8 @@ def check_double_taxation(request: DoubleTaxationRequest) -> DoubleTaxationRespo
 # ---------------------------------------------------------------------------
 
 @router.post("/avs-gap", response_model=AVSGapResponse)
-def estimate_avs_gap(request: AVSGapRequest) -> AVSGapResponse:
+@limiter.limit("30/minute")
+def estimate_avs_gap(request: Request, body: AVSGapRequest) -> AVSGapResponse:
     """Estime la reduction de rente AVS due aux annees a l'etranger.
 
     Chaque annee manquante reduit la rente proportionnellement.
@@ -295,8 +305,8 @@ def estimate_avs_gap(request: AVSGapRequest) -> AVSGapResponse:
     """
     service = ExpatService()
     result = service.estimate_avs_gap(
-        years_abroad=request.years_abroad,
-        years_in_ch=request.years_in_ch,
+        years_abroad=body.years_abroad,
+        years_in_ch=body.years_in_ch,
     )
     return AVSGapResponse(
         annees_cotisation_ch=result.annees_cotisation_ch,
@@ -321,7 +331,8 @@ def estimate_avs_gap(request: AVSGapRequest) -> AVSGapResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/departure-plan", response_model=DeparturePlanResponse)
-def plan_departure(request: DeparturePlanRequest) -> DeparturePlanResponse:
+@limiter.limit("30/minute")
+def plan_departure(request: Request, body: DeparturePlanRequest) -> DeparturePlanResponse:
     """Planifie le depart de Suisse avec les impacts financiers.
 
     Checklist complete, timing optimal, impot sur le capital de prevoyance.
@@ -330,10 +341,10 @@ def plan_departure(request: DeparturePlanRequest) -> DeparturePlanResponse:
     """
     service = ExpatService()
     result = service.plan_departure(
-        departure_date=request.departure_date,
-        canton=request.canton,
-        pillar_3a_balance=request.pillar_3a_balance,
-        lpp_balance=request.lpp_balance,
+        departure_date=body.departure_date,
+        canton=body.canton,
+        pillar_3a_balance=body.pillar_3a_balance,
+        lpp_balance=body.lpp_balance,
     )
     checklist_items = [
         ChecklistItem(
@@ -364,7 +375,8 @@ def plan_departure(request: DeparturePlanRequest) -> DeparturePlanResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/tax-comparison", response_model=TaxComparisonResponse)
-def compare_tax_burden(request: TaxComparisonRequest) -> TaxComparisonResponse:
+@limiter.limit("30/minute")
+def compare_tax_burden(request: Request, body: TaxComparisonRequest) -> TaxComparisonResponse:
     """Compare la charge fiscale totale CH vs pays de destination.
 
     Inclut impots + charges sociales pour une vue globale.
@@ -374,9 +386,9 @@ def compare_tax_burden(request: TaxComparisonRequest) -> TaxComparisonResponse:
     """
     service = ExpatService()
     result = service.compare_tax_burden(
-        salary=request.salary,
-        canton=request.canton,
-        target_country=request.target_country.value,
+        salary=body.salary,
+        canton=body.canton,
+        target_country=body.target_country.value,
     )
     return TaxComparisonResponse(
         salaire_brut=result.salaire_brut,

@@ -17,8 +17,9 @@ GET  /api/v1/family/concubinage/checklist — Checklist concubinage
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.family import (
     MariageFiscalRequest,
     MariageFiscalResponse,
@@ -63,7 +64,8 @@ DISCLAIMER = (
 # ---------------------------------------------------------------------------
 
 @router.post("/mariage/compare", response_model=MariageFiscalResponse)
-def compare_mariage_fiscal(request: MariageFiscalRequest) -> MariageFiscalResponse:
+@limiter.limit("30/minute")
+def compare_mariage_fiscal(request: Request, body: MariageFiscalRequest) -> MariageFiscalResponse:
     """Compare l'impot en tant que 2 celibataires vs couple marie.
 
     Montre la 'penalite' ou le 'bonus' du mariage selon les revenus.
@@ -72,10 +74,10 @@ def compare_mariage_fiscal(request: MariageFiscalRequest) -> MariageFiscalRespon
     """
     service = MariageService()
     result = service.compare_fiscal_impact(
-        revenu_1=request.revenu_1,
-        revenu_2=request.revenu_2,
-        canton=request.canton,
-        enfants=request.enfants,
+        revenu_1=body.revenu_1,
+        revenu_2=body.revenu_2,
+        canton=body.canton,
+        enfants=body.enfants,
     )
     return MariageFiscalResponse(
         impot_celibataires_total=result.impot_celibataires_total,
@@ -86,7 +88,7 @@ def compare_mariage_fiscal(request: MariageFiscalRequest) -> MariageFiscalRespon
         detail_celibataire_2=result.detail_celibataire_2,
         revenus_cumules=result.revenus_cumules,
         deductions_mariage=result.deductions_mariage,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -97,7 +99,8 @@ def compare_mariage_fiscal(request: MariageFiscalRequest) -> MariageFiscalRespon
 # ---------------------------------------------------------------------------
 
 @router.post("/mariage/regime", response_model=RegimeMatrimonialResponse)
-def simulate_regime(request: RegimeMatrimonialRequest) -> RegimeMatrimonialResponse:
+@limiter.limit("30/minute")
+def simulate_regime(request: Request, body: RegimeMatrimonialRequest) -> RegimeMatrimonialResponse:
     """Simule la repartition du patrimoine selon le regime matrimonial choisi.
 
     Regimes: participation aux acquets, separation de biens, communaute de biens.
@@ -106,9 +109,9 @@ def simulate_regime(request: RegimeMatrimonialRequest) -> RegimeMatrimonialRespo
     """
     service = MariageService()
     result = service.simulate_regime_matrimonial(
-        patrimoine_1=request.patrimoine_1,
-        patrimoine_2=request.patrimoine_2,
-        regime=request.regime.value,
+        patrimoine_1=body.patrimoine_1,
+        patrimoine_2=body.patrimoine_2,
+        regime=body.regime.value,
     )
     return RegimeMatrimonialResponse(
         regime=result.regime,
@@ -127,7 +130,8 @@ def simulate_regime(request: RegimeMatrimonialRequest) -> RegimeMatrimonialRespo
 # ---------------------------------------------------------------------------
 
 @router.post("/mariage/survivant", response_model=SurvivorBenefitsResponse)
-def estimate_survivant(request: SurvivorBenefitsRequest) -> SurvivorBenefitsResponse:
+@limiter.limit("30/minute")
+def estimate_survivant(request: Request, body: SurvivorBenefitsRequest) -> SurvivorBenefitsResponse:
     """Estime les rentes de survivant en cas de deces du conjoint.
 
     AVS = 80% de la rente du defunt, LPP = 60% de la rente assuree.
@@ -136,8 +140,8 @@ def estimate_survivant(request: SurvivorBenefitsRequest) -> SurvivorBenefitsResp
     """
     service = MariageService()
     result = service.estimate_survivor_benefits(
-        rente_lpp=request.rente_lpp,
-        rente_avs=request.rente_avs,
+        rente_lpp=body.rente_lpp,
+        rente_avs=body.rente_avs,
     )
     return SurvivorBenefitsResponse(
         rente_survivant_avs_mensuelle=result.rente_survivant_avs_mensuelle,
@@ -146,7 +150,7 @@ def estimate_survivant(request: SurvivorBenefitsRequest) -> SurvivorBenefitsResp
         rente_survivant_lpp_annuelle=result.rente_survivant_lpp_annuelle,
         total_survivant_mensuel=result.total_survivant_mensuel,
         total_survivant_annuel=result.total_survivant_annuel,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -157,7 +161,8 @@ def estimate_survivant(request: SurvivorBenefitsRequest) -> SurvivorBenefitsResp
 # ---------------------------------------------------------------------------
 
 @router.post("/mariage/checklist", response_model=ChecklistMariageResponse)
-def checklist_mariage(request: ChecklistMariageRequest) -> ChecklistMariageResponse:
+@limiter.limit("30/minute")
+def checklist_mariage(request: Request, body: ChecklistMariageRequest) -> ChecklistMariageResponse:
     """Retourne une checklist actionable personnalisee pour les futurs maries.
 
     Actions classees par priorite (haute, moyenne, basse), personnalisees
@@ -167,17 +172,17 @@ def checklist_mariage(request: ChecklistMariageRequest) -> ChecklistMariageRespo
     """
     service = MariageService()
     result = service.checklist_mariage(
-        has_3a=request.has_3a,
-        has_lpp=request.has_lpp,
-        has_property=request.has_property,
-        canton=request.canton,
+        has_3a=body.has_3a,
+        has_lpp=body.has_lpp,
+        has_property=body.has_property,
+        canton=body.canton,
     )
     return ChecklistMariageResponse(
         items=result.items,
         priorite_haute=result.priorite_haute,
         priorite_moyenne=result.priorite_moyenne,
         priorite_basse=result.priorite_basse,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -188,7 +193,8 @@ def checklist_mariage(request: ChecklistMariageRequest) -> ChecklistMariageRespo
 # ---------------------------------------------------------------------------
 
 @router.post("/naissance/conge", response_model=CongeParentalResponse)
-def simulate_conge(request: CongeParentalRequest) -> CongeParentalResponse:
+@limiter.limit("30/minute")
+def simulate_conge(request: Request, body: CongeParentalRequest) -> CongeParentalResponse:
     """Calcule les APG maternite ou paternite.
 
     Maternite: 14 semaines, 80%, max CHF 220/jour.
@@ -198,8 +204,8 @@ def simulate_conge(request: CongeParentalRequest) -> CongeParentalResponse:
     """
     service = NaissanceService()
     result = service.simulate_conge_parental(
-        salaire_mensuel=request.salaire_mensuel,
-        is_mother=request.is_mother,
+        salaire_mensuel=body.salaire_mensuel,
+        is_mother=body.is_mother,
     )
     return CongeParentalResponse(
         type_conge=result.type_conge,
@@ -210,7 +216,7 @@ def simulate_conge(request: CongeParentalRequest) -> CongeParentalResponse:
         apg_total=result.apg_total,
         perte_revenu=result.perte_revenu,
         est_plafonne=result.est_plafonne,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -221,7 +227,8 @@ def simulate_conge(request: CongeParentalRequest) -> CongeParentalResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/naissance/allocations", response_model=AllocationsFamilialesResponse)
-def estimate_allocations(request: AllocationsFamilialesRequest) -> AllocationsFamilialesResponse:
+@limiter.limit("30/minute")
+def estimate_allocations(request: Request, body: AllocationsFamilialesRequest) -> AllocationsFamilialesResponse:
     """Estime les allocations familiales cantonales.
 
     Allocation enfant: CHF 200-300/mois, allocation formation: +CHF 50/mois.
@@ -230,9 +237,9 @@ def estimate_allocations(request: AllocationsFamilialesRequest) -> AllocationsFa
     """
     service = NaissanceService()
     result = service.estimate_allocations(
-        canton=request.canton,
-        nb_enfants=request.nb_enfants,
-        ages_enfants=request.ages_enfants,
+        canton=body.canton,
+        nb_enfants=body.nb_enfants,
+        ages_enfants=body.ages_enfants,
     )
     return AllocationsFamilialesResponse(
         canton=result.canton,
@@ -251,7 +258,8 @@ def estimate_allocations(request: AllocationsFamilialesRequest) -> AllocationsFa
 # ---------------------------------------------------------------------------
 
 @router.post("/naissance/impact-fiscal", response_model=ImpactFiscalEnfantResponse)
-def impact_fiscal_enfant(request: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfantResponse:
+@limiter.limit("30/minute")
+def impact_fiscal_enfant(request: Request, body: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfantResponse:
     """Calcule l'economie fiscale liee aux enfants.
 
     Deduction par enfant: CHF 6'700. Frais de garde: max CHF 25'500.
@@ -260,10 +268,10 @@ def impact_fiscal_enfant(request: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfa
     """
     service = NaissanceService()
     result = service.calculate_impact_fiscal_enfant(
-        revenu_imposable=request.revenu_imposable,
-        taux_marginal=request.taux_marginal,
-        nb_enfants=request.nb_enfants,
-        frais_garde=request.frais_garde,
+        revenu_imposable=body.revenu_imposable,
+        taux_marginal=body.taux_marginal,
+        nb_enfants=body.nb_enfants,
+        frais_garde=body.frais_garde,
     )
     return ImpactFiscalEnfantResponse(
         nb_enfants=result.nb_enfants,
@@ -271,7 +279,7 @@ def impact_fiscal_enfant(request: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfa
         deduction_frais_garde=result.deduction_frais_garde,
         deduction_totale=result.deduction_totale,
         economie_impot_estimee=result.economie_impot_estimee,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -282,7 +290,8 @@ def impact_fiscal_enfant(request: ImpactFiscalEnfantRequest) -> ImpactFiscalEnfa
 # ---------------------------------------------------------------------------
 
 @router.post("/naissance/career-gap", response_model=CareerGapResponse)
-def project_career_gap(request: CareerGapRequest) -> CareerGapResponse:
+@limiter.limit("30/minute")
+def project_career_gap(request: Request, body: CareerGapRequest) -> CareerGapResponse:
     """Projette l'impact d'une interruption de carriere sur LPP et 3a.
 
     Calcule les bonifications LPP manquees et les versements 3a non effectues.
@@ -291,9 +300,9 @@ def project_career_gap(request: CareerGapRequest) -> CareerGapResponse:
     """
     service = NaissanceService()
     result = service.project_career_gap(
-        salaire_annuel=request.salaire_annuel,
-        duree_interruption_mois=request.duree_interruption_mois,
-        age=request.age,
+        salaire_annuel=body.salaire_annuel,
+        duree_interruption_mois=body.duree_interruption_mois,
+        age=body.age,
     )
     return CareerGapResponse(
         duree_interruption_mois=result.duree_interruption_mois,
@@ -303,7 +312,7 @@ def project_career_gap(request: CareerGapRequest) -> CareerGapResponse:
         perte_3a_annuelle=result.perte_3a_annuelle,
         perte_3a_totale=result.perte_3a_totale,
         perte_revenu_totale=result.perte_revenu_totale,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -314,7 +323,8 @@ def project_career_gap(request: CareerGapRequest) -> CareerGapResponse:
 # ---------------------------------------------------------------------------
 
 @router.post("/naissance/checklist", response_model=ChecklistNaissanceResponse)
-def checklist_naissance(request: ChecklistNaissanceRequest) -> ChecklistNaissanceResponse:
+@limiter.limit("30/minute")
+def checklist_naissance(request: Request, body: ChecklistNaissanceRequest) -> ChecklistNaissanceResponse:
     """Retourne une checklist actionable personnalisee pour les futurs parents.
 
     Actions classees par priorite (haute, moyenne, basse), personnalisees
@@ -324,17 +334,17 @@ def checklist_naissance(request: ChecklistNaissanceRequest) -> ChecklistNaissanc
     """
     service = NaissanceService()
     result = service.checklist_naissance(
-        civil_status=request.civil_status,
-        canton=request.canton,
-        has_3a=request.has_3a,
-        has_lpp=request.has_lpp,
+        civil_status=body.civil_status,
+        canton=body.canton,
+        has_3a=body.has_3a,
+        has_lpp=body.has_lpp,
     )
     return ChecklistNaissanceResponse(
         items=result.items,
         priorite_haute=result.priorite_haute,
         priorite_moyenne=result.priorite_moyenne,
         priorite_basse=result.priorite_basse,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -345,7 +355,8 @@ def checklist_naissance(request: ChecklistNaissanceRequest) -> ChecklistNaissanc
 # ---------------------------------------------------------------------------
 
 @router.post("/concubinage/compare", response_model=ConcubinageCompareResponse)
-def compare_concubinage(request: ConcubinageCompareRequest) -> ConcubinageCompareResponse:
+@limiter.limit("30/minute")
+def compare_concubinage(request: Request, body: ConcubinageCompareRequest) -> ConcubinageCompareResponse:
     """Compare mariage vs concubinage : fiscal, prevoyance, succession, protection.
 
     Analyse complete sur 6 domaines avec scores de protection.
@@ -354,11 +365,11 @@ def compare_concubinage(request: ConcubinageCompareRequest) -> ConcubinageCompar
     """
     service = ConcubinageService()
     result = service.compare_mariage_vs_concubinage(
-        revenu_1=request.revenu_1,
-        revenu_2=request.revenu_2,
-        canton=request.canton,
-        enfants=request.enfants,
-        patrimoine=request.patrimoine,
+        revenu_1=body.revenu_1,
+        revenu_2=body.revenu_2,
+        canton=body.canton,
+        enfants=body.enfants,
+        patrimoine=body.patrimoine,
     )
     comparaisons_schema = [
         ComparisonItemSchema(
@@ -379,7 +390,7 @@ def compare_concubinage(request: ConcubinageCompareRequest) -> ConcubinageCompar
         impot_succession_conjoint=result.impot_succession_conjoint,
         impot_succession_concubin=result.impot_succession_concubin,
         synthese=result.synthese,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -390,7 +401,8 @@ def compare_concubinage(request: ConcubinageCompareRequest) -> ConcubinageCompar
 # ---------------------------------------------------------------------------
 
 @router.post("/concubinage/succession", response_model=SuccessionResponse)
-def compare_succession(request: SuccessionRequest) -> SuccessionResponse:
+@limiter.limit("30/minute")
+def compare_succession(request: Request, body: SuccessionRequest) -> SuccessionResponse:
     """Compare l'impot de succession conjoint vs concubin.
 
     Le conjoint est exonere dans la plupart des cantons. Le concubin
@@ -400,9 +412,9 @@ def compare_succession(request: SuccessionRequest) -> SuccessionResponse:
     """
     service = ConcubinageService()
     result = service.estimate_inheritance_tax(
-        patrimoine=request.patrimoine,
-        canton=request.canton,
-        is_married=request.is_married,
+        patrimoine=body.patrimoine,
+        canton=body.canton,
+        is_married=body.is_married,
     )
     return SuccessionResponse(
         canton=result.canton,
@@ -412,7 +424,7 @@ def compare_succession(request: SuccessionRequest) -> SuccessionResponse:
         difference=result.difference,
         taux_conjoint=result.taux_conjoint,
         taux_concubin=result.taux_concubin,
-        chiffre_choc=result.chiffre_choc,
+        premier_eclairage=result.premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=result.sources,
     )
@@ -423,7 +435,8 @@ def compare_succession(request: SuccessionRequest) -> SuccessionResponse:
 # ---------------------------------------------------------------------------
 
 @router.get("/concubinage/checklist", response_model=ChecklistConcubinageResponse)
-def checklist_concubinage() -> ChecklistConcubinageResponse:
+@limiter.limit("30/minute")
+def checklist_concubinage(request: Request) -> ChecklistConcubinageResponse:
     """Retourne une checklist actionable pour les concubins.
 
     Actions classees par priorite (haute, moyenne, basse).

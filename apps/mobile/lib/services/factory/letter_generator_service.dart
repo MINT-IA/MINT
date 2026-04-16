@@ -75,7 +75,7 @@ Je vous prie de bien vouloir me faire parvenir mon attestation fiscale relative 
 
 Merci de me l'envoyer par courrier ou email dès que possible.
 
-Meilleures salutations,
+Salutations distinguées,
 
 $userName
 """,

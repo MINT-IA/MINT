@@ -209,12 +209,9 @@ Rente d'invalidité | CHF 30'000 | CHF 12'000 | CHF 42'000
 
 
 @pytest.fixture(autouse=True)
-def _clear_document_store():
-    """Clear the in-memory document store between tests."""
-    from app.api.v1.endpoints.documents import _document_store
-    _document_store.clear()
+def _clean_documents():
+    """Document cleanup handled by conftest.clean_database."""
     yield
-    _document_store.clear()
 
 
 @pytest.fixture
@@ -591,7 +588,7 @@ class TestDocumentEndpoints:
         assert response.status_code == 200
 
         data = response.json()
-        assert "document_id" in data
+        assert "id" in data
         assert data["document_type"] in ("lpp_certificate", "unknown")
         assert "extracted_fields" in data
         assert "confidence" in data
@@ -608,7 +605,7 @@ class TestDocumentEndpoints:
             files={"file": ("document.txt", b"Hello world", "text/plain")},
         )
         assert response.status_code == 400
-        assert "Unsupported file type" in response.json()["detail"]
+        assert "PDF" in response.json()["detail"]
 
     def test_upload_wrong_extension_rejected(self, client):
         """POST /api/v1/documents/upload with wrong extension is rejected."""
@@ -656,7 +653,7 @@ class TestDocumentEndpoints:
             files={"file": ("cert.pdf", sample_pdf_bytes, "application/pdf")},
         )
         assert upload_resp.status_code == 200
-        doc_id = upload_resp.json()["document_id"]
+        doc_id = upload_resp.json()["id"]
 
         # List
         list_resp = client.get("/api/v1/documents/")
@@ -672,7 +669,7 @@ class TestDocumentEndpoints:
             "/api/v1/documents/upload",
             files={"file": ("cert.pdf", sample_pdf_bytes, "application/pdf")},
         )
-        doc_id = upload_resp.json()["document_id"]
+        doc_id = upload_resp.json()["id"]
 
         # Get
         get_resp = client.get(f"/api/v1/documents/{doc_id}")
@@ -694,7 +691,7 @@ class TestDocumentEndpoints:
             "/api/v1/documents/upload",
             files={"file": ("cert.pdf", sample_pdf_bytes, "application/pdf")},
         )
-        doc_id = upload_resp.json()["document_id"]
+        doc_id = upload_resp.json()["id"]
 
         # Delete
         del_resp = client.delete(f"/api/v1/documents/{doc_id}")
@@ -724,8 +721,14 @@ class TestDocumentEndpoints:
         assert len(data["raw_text_preview"]) <= 500
 
     def test_upload_multiple_documents(self, client, sample_pdf_bytes):
-        """Upload multiple documents and verify list returns all."""
-        for i in range(3):
+        """Upload multiple documents within the free-tier 2-doc cap.
+
+        Free-tier users are limited to 2 uploaded documents (vault feature
+        required for more). The test validates list aggregation up to the
+        cap; the 3rd upload returning 403 is part of the billing-gate spec
+        and is exercised by the billing test suite.
+        """
+        for i in range(2):
             resp = client.post(
                 "/api/v1/documents/upload",
                 files={"file": (f"cert_{i}.pdf", sample_pdf_bytes, "application/pdf")},
@@ -734,7 +737,7 @@ class TestDocumentEndpoints:
 
         list_resp = client.get("/api/v1/documents/")
         assert list_resp.status_code == 200
-        assert len(list_resp.json()["documents"]) == 3
+        assert len(list_resp.json()["documents"]) == 2
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -952,13 +955,13 @@ class TestEdgeCases:
 
         # Valid upload response
         resp = DocumentUploadResponse(
-            document_id="test-123",
+            id="test-123",
             document_type="lpp_certificate",
             confidence=0.85,
             fields_found=15,
             fields_total=18,
         )
-        assert resp.document_id == "test-123"
+        assert resp.id == "test-123"
 
         # Valid summary
         summary = DocumentSummary(

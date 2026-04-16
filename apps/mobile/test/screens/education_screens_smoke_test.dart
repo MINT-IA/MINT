@@ -74,7 +74,7 @@ void main() {
         findsOneWidget,
       );
       expect(
-        find.textContaining('action concrète'),
+        find.textContaining('action simple'),
         findsOneWidget,
       );
     });
@@ -284,12 +284,12 @@ void main() {
           home: ThemeDetailScreen(themeId: '3a'),
         ),
       );
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
-      // The 3a theme question
+      // The 3a theme question (inside MintEntrance animation)
       expect(
-        find.text("C'est quoi le 3a et pourquoi tout le monde en parle ?"),
-        findsOneWidget,
+        find.textContaining('3a et pourquoi'),
+        findsWidgets,
       );
     });
 

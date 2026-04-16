@@ -94,13 +94,17 @@ class StreakService {
     // Compute current streak (counting backwards from most recent)
     int currentStreak = 1;
     final now = DateTime.now();
+    // Normalize to first-of-month to avoid day-of-month edge cases
+    final nowMonth = DateTime(now.year, now.month);
     final sortedDesc = checkIns.reversed.toList();
 
     // Check if the most recent check-in is within current or previous month
     final latest = sortedDesc.first.month;
-    final isRecent = (latest.year == now.year && latest.month == now.month) ||
-        (latest.year == now.year && latest.month == now.month - 1) ||
-        (latest.year == now.year - 1 && latest.month == 12 && now.month == 1);
+    final latestMonth = DateTime(latest.year, latest.month);
+    // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
+    final prevMonth = DateTime(now.year, now.month - 1);
+    final isRecent = latestMonth == nowMonth ||
+        (latestMonth.year == prevMonth.year && latestMonth.month == prevMonth.month);
 
     if (!isRecent) {
       currentStreak = 0;
@@ -108,6 +112,7 @@ class StreakService {
       for (int i = 1; i < sortedDesc.length; i++) {
         final prev = sortedDesc[i - 1].month;
         final curr = sortedDesc[i].month;
+        // Dart normalizes month=0 → Dec of prev year, so this is safe in January.
         final expectedMonth = DateTime(prev.year, prev.month - 1);
         if (curr.year == expectedMonth.year &&
             curr.month == expectedMonth.month) {
@@ -219,8 +224,8 @@ class StreakService {
         label: '3a au max',
         description: 'Versement 3a au plafond (7\'258 CHF)',
         icon: Icons.savings,
-        threshold: pilier3aPlafondAvecLpp,
-        isReached: annual3a >= pilier3aPlafondAvecLpp,
+        threshold: reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
+        isReached: annual3a >= reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp),
       ),
       MintMilestone(
         id: 'emergency_fund',

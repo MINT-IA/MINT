@@ -83,7 +83,7 @@ class PrecisionPromptCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     s.precisionPromptTitle,
-                    style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(color: MintColors.textPrimary),
                   ),
                 ),
               ],
@@ -118,7 +118,7 @@ class PrecisionPromptCard extends StatelessWidget {
                   Flexible(
                     child: Text(
                       prompt.impactText,
-                      style: MintTextStyles.bodySmall(color: MintColors.info).copyWith(fontSize: 12, fontWeight: FontWeight.w600),
+                      style: MintTextStyles.labelMedium(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],

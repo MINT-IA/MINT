@@ -96,7 +96,7 @@ class CircleScoreCard extends StatelessWidget {
                   // Score %
                   Text(
                     '${score.percentage.toInt()}%',
-                    style: MintTextStyles.displayMedium(color: color).copyWith(fontSize: 28, fontWeight: FontWeight.bold),
+                    style: MintTextStyles.displaySmall(color: color).copyWith(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),

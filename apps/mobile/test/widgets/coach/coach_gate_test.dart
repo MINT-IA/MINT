@@ -12,10 +12,10 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 /// Tests verify:
 ///   - Child is shown when user has a paid tier
 ///   - Locked state is shown when user is on free tier
-///   - Locked state shows "Debloquer" button
+///   - Locked state shows "Débloquer" button
 ///   - Custom locked placeholder is used when provided
 ///   - Lock icon is visible in locked state
-///   - "Debloquer" button opens paywall sheet
+///   - "Débloquer" button opens paywall sheet
 void main() {
   setUp(() {
     SubscriptionService.setMockTier(SubscriptionTier.free);
@@ -62,7 +62,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Coach Content'), findsOneWidget);
-      expect(find.text('Debloquer'), findsNothing);
+      expect(find.text('Débloquer'), findsNothing);
     });
 
     testWidgets('shows child when user has starter tier for starter feature', (tester) async {
@@ -72,7 +72,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Coach Content'), findsOneWidget);
-      expect(find.text('Debloquer'), findsNothing);
+      expect(find.text('Débloquer'), findsNothing);
     });
 
     testWidgets('shows locked state when user is on free tier', (tester) async {
@@ -83,17 +83,17 @@ void main() {
 
       // The child text should still be in the tree (rendered blurred behind)
       // but the unlock button should be visible
-      expect(find.text('Debloquer'), findsOneWidget);
+      expect(find.text('Débloquer'), findsOneWidget);
     });
 
-    testWidgets('locked state shows Debloquer button', (tester) async {
+    testWidgets('locked state shows Débloquer button', (tester) async {
       SubscriptionService.setMockTier(SubscriptionTier.free);
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
       // Verify unlock button text is present
-      expect(find.text('Debloquer'), findsOneWidget);
+      expect(find.text('Débloquer'), findsOneWidget);
     });
 
     testWidgets('locked state shows lock icon', (tester) async {
@@ -124,7 +124,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Custom Locked'), findsOneWidget);
-      expect(find.text('Debloquer'), findsNothing);
+      expect(find.text('Débloquer'), findsNothing);
     });
 
     testWidgets('works with all CoachFeature values', (tester) async {
@@ -135,7 +135,7 @@ void main() {
         await tester.pump();
 
         expect(
-          find.text('Debloquer'),
+          find.text('Débloquer'),
           findsOneWidget,
           reason: 'Locked state should show for feature $feature on free tier',
         );
@@ -156,7 +156,7 @@ void main() {
       await tester.pump();
 
       expect(find.text('Coach Content'), findsOneWidget);
-      expect(find.text('Debloquer'), findsNothing);
+      expect(find.text('Débloquer'), findsNothing);
     });
 
     testWidgets('shows locked state for expired trial', (tester) async {
@@ -171,7 +171,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.text('Debloquer'), findsOneWidget);
+      expect(find.text('Débloquer'), findsOneWidget);
     });
   });
 }

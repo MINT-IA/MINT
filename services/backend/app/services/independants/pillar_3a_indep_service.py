@@ -57,7 +57,7 @@ class Pillar3aIndepResult:
     economie_fiscale: float
     comparaison_salarie: float
     avantage_independant: float
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str] = field(default_factory=list)
 
@@ -91,7 +91,7 @@ def calculer_3a_independant(
             economie_fiscale=0.0,
             comparaison_salarie=0.0,
             avantage_independant=0.0,
-            chiffre_choc=(
+            premier_eclairage=(
                 "Avec un revenu nul, aucune cotisation 3a n'est possible."
             ),
             disclaimer=DISCLAIMER,
@@ -117,12 +117,12 @@ def calculer_3a_independant(
     avantage = round(economie_fiscale - comparaison_salarie, 2)
 
     if affilie_lpp:
-        chiffre_choc = (
+        premier_eclairage = (
             f"Avec une affiliation LPP, ton plafond 3a est de "
             f"{plafond:,.0f} CHF/an, identique a celui d'un-e salarie-e."
         )
     else:
-        chiffre_choc = (
+        premier_eclairage = (
             f"En tant qu'independant-e sans LPP, tu economises "
             f"{avantage:,.0f} CHF/an d'impots en plus qu'un-e salarie-e "
             f"grace au grand 3a ({plafond:,.0f} CHF/an)."
@@ -133,7 +133,7 @@ def calculer_3a_independant(
         economie_fiscale=economie_fiscale,
         comparaison_salarie=comparaison_salarie,
         avantage_independant=avantage,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )

@@ -1,10 +1,11 @@
 // ────────────────────────────────────────────────────────────
-//  OPEN BANKING SERVICE — Sprint S14
+//  OPEN BANKING — Phase 3+ (FINMA gate)
 // ────────────────────────────────────────────────────────────
 //
-// Local mock service for Open Banking (bLink/SFTI) UI.
-// All data is local — no real API calls until FINMA
-// consultation is complete and isEnabled is set to true.
+// Ce service est ENTIEREMENT MOCKE. isEnabled = false.
+// Aucune donnee reelle n'est echangee.
+// Activation prevue apres consultation reglementaire FINMA.
+// Ne PAS supprimer — l'architecture est prete pour l'activation.
 //
 // Compliance: nLPD consent, read-only, FINMA gate,
 // no banned terms ("garanti", "assure" in guarantee sense,

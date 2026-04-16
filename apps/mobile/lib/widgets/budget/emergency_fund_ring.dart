@@ -117,7 +117,7 @@ class _EmergencyFundRingState extends State<EmergencyFundRing>
                   children: [
                     Text(
                       displayMonths.toStringAsFixed(1),
-                      style: MintTextStyles.displayMedium(color: _ringColor).copyWith(fontSize: 28, height: 1.0),
+                      style: MintTextStyles.displaySmall(color: _ringColor).copyWith(height: 1.0),
                     ),
                     const SizedBox(height: 2),
                     Text(

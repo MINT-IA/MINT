@@ -484,7 +484,7 @@ class FamilyService {
     );
 
     // AVS survivor
-    const avsSurvivorRente = avsRenteMaxMensuelle * avsSurvivorFactor;
+    final avsSurvivorRente = reg('avs.max_monthly_pension', avsRenteMaxMensuelle) * avsSurvivorFactor;
 
     // Score comparison
     int scoreMariage = 0;

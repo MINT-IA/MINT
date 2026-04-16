@@ -1,4 +1,6 @@
 """
+OPEN BANKING INFRASTRUCTURE — Phase 3+ (FINMA gate)
+
 ApiConnectorBase — abstract base class for all external API connectors.
 
 Provides:
@@ -9,6 +11,12 @@ Provides:
 
 All institutional API connectors (bLink, caisse de pension, AVS)
 must inherit from this class.
+
+Status:
+    Aucun connecteur concret n'existe encore. La classe abstraite et le
+    CircuitBreaker sont testés (test_connectors_and_consent_db.py) et prêts
+    pour l'activation après consultation réglementaire FINMA.
+    Ne PAS supprimer — l'architecture est prête pour l'activation.
 
 Sources:
     - nLPD art. 6 (data minimization)

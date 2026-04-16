@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/services/open_banking_service.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 // ────────────────────────────────────────────────────────────
 //  TRANSACTION LIST SCREEN — Sprint S14
@@ -77,24 +80,24 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
 
     return Scaffold(
       backgroundColor: MintColors.background,
-      body: CustomScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: CustomScrollView(
         slivers: [
           _buildAppBar(context),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                _buildFinmaGateBanner(),
+                MintEntrance(child: _buildFinmaGateBanner()),
                 const SizedBox(height: 12),
-                _buildDemoModeBadge(),
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildDemoModeBadge()),
                 const SizedBox(height: 16),
 
                 // Period selector
-                _buildPeriodSelector(),
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildPeriodSelector()),
                 const SizedBox(height: 16),
 
                 // Category filters
-                _buildCategoryFilters(),
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildCategoryFilters()),
                 const SizedBox(height: 20),
 
                 // Transaction groups
@@ -114,7 +117,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 const SizedBox(height: 16),
 
                 // Monthly summary
-                _buildMonthlySummary(summary),
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildMonthlySummary(summary)),
                 const SizedBox(height: 20),
 
                 // Disclaimer
@@ -124,7 +127,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             ),
           ),
         ],
-      ),
+      ))),
     );
   }
 
@@ -138,7 +141,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         S.of(context)!.openBankingTransactions,
@@ -312,14 +315,9 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
     final amountColor = isCredit ? MintColors.success : MintColors.error;
     final amountPrefix = isCredit ? '+' : '-';
 
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(14),
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.5), width: 0.8),
-      ),
+      radius: 14,
       child: Row(
         children: [
           // Category icon
@@ -332,7 +330,7 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
               children: [
                 Text(
                   tx.merchant,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 14),
+                  style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 2),
                 Row(
@@ -406,41 +404,19 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
   // ── Empty State ────────────────────────────────────────────
 
   Widget _buildEmptyState() {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      child: Column(
-        children: [
-          Icon(Icons.receipt_long_outlined,
-              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
-          const SizedBox(height: 16),
-          Text(
-            S.of(context)!.transactionListNoTransaction,
-            style: MintTextStyles.titleMedium(color: MintColors.textMuted),
-          ),
-        ],
-      ),
+    return MintEmptyState(
+      icon: Icons.receipt_long_outlined,
+      title: S.of(context)!.transactionListNoTransaction,
+      subtitle: '', // No subtitle in original
     );
   }
 
   // ── Monthly Summary ────────────────────────────────────────
 
   Widget _buildMonthlySummary(Map<String, double> summary) {
-    return Container(
+    return MintSurface(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: MintColors.primary.withValues(alpha: 0.06),
-            blurRadius: 20,
-            offset: const Offset(0, 6),
-            spreadRadius: -4,
-          ),
-        ],
-        border:
-            Border.all(color: MintColors.border.withValues(alpha: 0.6), width: 0.8),
-      ),
+      elevated: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

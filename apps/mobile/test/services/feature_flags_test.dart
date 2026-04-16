@@ -14,11 +14,8 @@ void main() {
     FeatureFlags.enableCouplePlusTier = true;
     FeatureFlags.slmPluginReady = false;
     FeatureFlags.safeModeDegraded = false;
-    FeatureFlags.enableCoachPhase2 = true;
-    FeatureFlags.enableLifeEventScreens = true;
-    FeatureFlags.enableAdvancedSimulators = true;
-    FeatureFlags.enableMortgageTools = true;
-    FeatureFlags.enableIndependantTools = true;
+    // F7: enableCoachPhase2, enableLifeEventScreens, enableAdvancedSimulators,
+    //     enableMortgageTools, enableIndependantTools removed (always true, no consumers)
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
   });
@@ -118,28 +115,5 @@ void main() {
     });
   });
 
-  group('FeatureFlags — V1 screen gating flags', () {
-    test('all V1 screen flags default to correct values', () {
-      expect(FeatureFlags.enableCoachPhase2, isTrue);
-      expect(FeatureFlags.enableLifeEventScreens, isTrue);
-      expect(FeatureFlags.enableAdvancedSimulators, isTrue);
-      expect(FeatureFlags.enableMortgageTools, isTrue);
-      expect(FeatureFlags.enableIndependantTools, isTrue);
-    });
-
-    test('screen gating flags can be disabled via map', () {
-      FeatureFlags.applyFromMap({
-        'enableCoachPhase2': false,
-        'enableLifeEventScreens': false,
-        'enableAdvancedSimulators': false,
-        'enableMortgageTools': false,
-        'enableIndependantTools': false,
-      });
-      expect(FeatureFlags.enableCoachPhase2, isFalse);
-      expect(FeatureFlags.enableLifeEventScreens, isFalse);
-      expect(FeatureFlags.enableAdvancedSimulators, isFalse);
-      expect(FeatureFlags.enableMortgageTools, isFalse);
-      expect(FeatureFlags.enableIndependantTools, isFalse);
-    });
-  });
+  // F7: V1 screen gating flags group removed — flags were always true with no consumers.
 }

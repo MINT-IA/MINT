@@ -226,7 +226,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
               ),
               Text(
                 '26 cantons  ·  Célibataire, CHF 80\'000',
-                style: MintTextStyles.bodyMedium().copyWith(fontSize: 12),
+                style: MintTextStyles.labelMedium(),
               ),
             ],
           ),

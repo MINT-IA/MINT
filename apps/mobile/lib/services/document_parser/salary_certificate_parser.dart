@@ -33,7 +33,7 @@
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 
 // Reusable regex fragment: Swiss number capture group
-const String _numCapture = r"([CHFfr.\s]*[\d\s'.,]+)";
+const String _numCapture = "([CHFfr.\\s]*[\\d\\s'.,\u2019]+)";
 
 /// Service for parsing salary certificate OCR text into structured fields.
 ///

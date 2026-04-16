@@ -122,12 +122,12 @@ class DisabilityScorecardWidget extends StatelessWidget {
               children: [
                 Text(
                   'Ton bulletin de couverture invalidité',
-                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Note A–F sur chaque pilier de ta protection',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -300,7 +300,7 @@ class DisabilityScorecardWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             worst.detail,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
           ),
           if (worst.legalRef != null) ...[
             const SizedBox(height: 4),

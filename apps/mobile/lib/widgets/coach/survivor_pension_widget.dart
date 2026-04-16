@@ -77,7 +77,7 @@ class SurvivorPensionWidget extends StatelessWidget {
                 children: [
                   _buildComparison(),
                   const SizedBox(height: 16),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDetailRows(),
                   const SizedBox(height: 16),
@@ -113,7 +113,7 @@ class SurvivorPensionWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   'Si ton·ta partenaire décède — combien touches-tu ?',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -171,7 +171,7 @@ class SurvivorPensionWidget extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '${formatChfWithPrefix(total)}/mois',
-            style: MintTextStyles.headlineMedium(color: color).copyWith(fontSize: 18, fontWeight: FontWeight.w800),
+            style: MintTextStyles.titleLarge(color: color).copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 4),
           Text(
@@ -183,7 +183,7 @@ class SurvivorPensionWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -208,7 +208,7 @@ class SurvivorPensionWidget extends StatelessWidget {
                 Text(
                   'Concubin·e sans désignation LPP ni testament = 0 CHF automatique. '
                   'LAVS art. 23 : seul·e le·la conjoint·e légal·e a droit à la rente de veuf/veuve.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
@@ -284,7 +284,7 @@ class SurvivorPensionWidget extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textPrimary),
                 ),
                 Text(
                   ref,

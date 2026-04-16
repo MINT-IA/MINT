@@ -6,6 +6,11 @@ import 'package:mint_mobile/services/financial_core/financial_core.dart';
 
 /// Minimal profile computation service (Sprint S31 — Onboarding Redesign).
 ///
+/// ARCHITECTURE: Local computation engine for onboarding.
+/// Used as fallback when backend API is unavailable.
+/// The backend MinimalProfileService is the authoritative source.
+/// Constants are synced via reg() from RegulatoryRegistry.
+///
 /// Computes a financial snapshot from as few as 3 inputs (age, salary, canton).
 /// All calculations delegate to [financial_core] — NEVER duplicates formulas.
 ///
@@ -33,6 +38,11 @@ class MinimalProfileService {
     String? lppCaisseType,
     double? totalDebts,
     double? monthlyDebtService,
+    /// Gender: 'M', 'F', or null. Passed to AvsCalculator for AVS21
+    /// reference age (LAVS art. 21 al. 1). Null defaults to male (65).
+    String? gender,
+    /// Birth year — used with [gender] for AVS21 transitional cohorts.
+    int? birthYear,
   }) {
     final estimatedFields = <String>[];
 
@@ -64,17 +74,27 @@ class MinimalProfileService {
         ?? (isIndependantNoLpp ? 0.0 : _estimateLppBalance(age, grossSalary));
     if (existingLpp == null) estimatedFields.add('existingLpp');
 
-    final effectiveRetAge = targetRetirementAge ?? 65;
+    // F7-2: Use gender-aware retirement age when gender + birth year are provided.
+    // Falls back to male reference age (65) when gender is unknown.
+    final effectiveBirthYear = birthYear ?? (DateTime.now().year - age);
+    final effectiveRetAge = targetRetirementAge
+        ?? (gender != null
+            ? avsReferenceAge(birthYear: effectiveBirthYear, isFemale: gender == 'F')
+            : avsAgeReferenceHomme);
 
     // --- AVS monthly rente (financial_core) ---
     // Sans emploi: use minimum AVS contribution salary
     final avsGrossSalary = isSansEmploi
-        ? lppSeuilEntree.toDouble() // minimum contribution base
+        ? reg('lpp.entry_threshold', lppSeuilEntree) // minimum contribution base
         : grossSalary;
+    // F7-2: Pass gender and birthYear when available so AvsCalculator
+    // uses AVS21 reference age (64F / 65M — LAVS art. 21 al. 1).
     final avsMonthly = AvsCalculator.computeMonthlyRente(
       currentAge: age,
       retirementAge: effectiveRetAge,
       grossAnnualSalary: avsGrossSalary,
+      isFemale: gender != null ? gender == 'F' : null,
+      birthYear: gender != null ? effectiveBirthYear : null,
     );
 
     // --- LPP projection (financial_core) ---
@@ -87,13 +107,13 @@ class MinimalProfileService {
       // vs standard minimum 6.8% (LPP art. 14 al. 2).
       final effectiveConversionRate = lppCaisseType == 'complementaire'
           ? 0.058
-          : lppTauxConversionMin / 100;
+          : reg('lpp.conversion_rate_pct', lppTauxConversionMin) / 100;
       lppAnnualRente = LppCalculator.projectToRetirement(
         currentBalance: effectiveLpp,
         currentAge: age,
         retirementAge: effectiveRetAge,
         grossAnnualSalary: grossSalary,
-        caisseReturn: lppTauxInteretMin / 100,
+        caisseReturn: reg('lpp.min_interest_rate', lppTauxInteretMin) / 100,
         conversionRate: effectiveConversionRate,
       );
     }
@@ -115,8 +135,8 @@ class MinimalProfileService {
     // Salarié avec LPP: plafond 3a = 7'258 CHF
     final marginalRate = RetirementTaxCalculator.estimateMarginalRate(grossSalary, canton);
     final plafond3a = isIndependantNoLpp
-        ? min(grossSalary * 0.20, pilier3aPlafondSansLpp)
-        : pilier3aPlafondAvecLpp;
+        ? min(grossSalary * 0.20, reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp))
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final taxSaving3a = marginalRate * plafond3a;
 
     // --- Liquidity analysis ---
@@ -149,8 +169,8 @@ class MinimalProfileService {
       isPropertyOwner: effectivePropertyOwner,
       existing3a: effective3a,
       existingLpp: effectiveLpp,
-      employmentStatus: effectiveEmployment,
-      nationalityGroup: nationalityGroup ?? 'CH',
+      employmentStatus: employmentStatus ?? effectiveEmployment,
+      nationalityGroup: nationalityGroup,
       plafond3a: plafond3a,
       estimatedFields: estimatedFields,
     );
@@ -161,13 +181,13 @@ class MinimalProfileService {
   /// Applies LPP art. 16 age-dependent bonification rates since age 25.
   /// Returns 0 if below LPP seuil d'entree (LPP art. 7).
   static double _estimateLppBalance(int age, double grossAnnualSalary) {
-    if (grossAnnualSalary < lppSeuilEntree) return 0.0;
+    if (grossAnnualSalary < reg('lpp.entry_threshold', lppSeuilEntree)) return 0.0;
 
-    final salaireCoord = (grossAnnualSalary - lppDeductionCoordination)
-        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    final salaireCoord = (grossAnnualSalary - reg('lpp.coordination_deduction', lppDeductionCoordination))
+        .clamp(reg('lpp.min_coordinated_salary', lppSalaireCoordMin), reg('lpp.max_coordinated_salary', lppSalaireCoordMax));
     double balance = 0;
     for (int a = 25; a < age && a < 65; a++) {
-      balance *= (1 + lppTauxInteretMin / 100);
+      balance *= (1 + reg('lpp.min_interest_rate', lppTauxInteretMin) / 100);
       balance += salaireCoord * getLppBonificationRate(a);
     }
     return balance;
@@ -185,8 +205,12 @@ class MinimalProfileService {
     bool isPropertyOwner,
   ) {
     // Expense base ≈ 75% of gross — intentionally different from NetIncomeBreakdown
-    // (which computes actual net payslip). Here 0.75 approximates disposable spending
-    // capacity for the minimal profile expense estimator, not salary net.
+    // (which computes actual net payslip and requires canton + age).
+    // Here 0.75 approximates disposable spending capacity as a quick proxy
+    // for the minimal profile context where canton may not be reliable yet.
+    // Swiss average: social charges ~6.4%, LPP ~5-9%, taxes ~10-15% → net ~70-78%.
+    // 0.75 is a reasonable median. For canton-aware precision, use
+    // NetIncomeBreakdown.compute() when canton and age are confirmed.
     final netMonthly = grossAnnualSalary * 0.75 / 12;
 
     // Expense ratio depends on household type

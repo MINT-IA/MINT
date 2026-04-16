@@ -6,7 +6,7 @@ Implements INV-1 through INV-6 from P6_BILLING_INVARIANTS.md.
 from __future__ import annotations
 
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import HTTPException, status
@@ -24,7 +24,7 @@ MAX_ACTIVE_MEMBERS = 2
 
 
 def _now() -> datetime:
-    return datetime.utcnow()
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def get_household_for_user(db: Session, user_id: str) -> Optional[HouseholdModel]:
@@ -59,14 +59,17 @@ def get_household_details(db: Session, user: User) -> dict:
     if not household:
         return {"household": None, "members": [], "role": None}
 
+    # FIX-032: single query with join instead of N+1 per member.
+    from sqlalchemy.orm import joinedload
     members = (
         db.query(HouseholdMemberModel)
         .filter(HouseholdMemberModel.household_id == household.id)
+        .options(joinedload(HouseholdMemberModel.user))
         .all()
     )
     member_list = []
     for m in members:
-        u = db.query(User).filter(User.id == m.user_id).first()
+        u = m.user  # pre-loaded via joinedload
         member_list.append({
             "user_id": m.user_id,
             "email": u.email if u else None,
@@ -91,7 +94,13 @@ def get_household_details(db: Session, user: User) -> dict:
 
 def create_household_for_billing_owner(db: Session, user: User) -> HouseholdModel:
     """Auto-create household when user subscribes to couple_plus."""
-    # Check user is not already in a household
+    # TOCTOU fix: check-then-create with FOR UPDATE lock on existing membership
+    from sqlalchemy import text
+    try:
+        db.execute(text("SELECT 1 FROM household_members WHERE user_id = :uid FOR UPDATE"),
+                   {"uid": user.id})
+    except Exception:
+        pass  # SQLite doesn't support FOR UPDATE — acceptable in test/dev
     existing = get_household_for_user(db, user.id)
     if existing:
         return existing
@@ -279,7 +288,18 @@ def accept_invitation(db: Session, user: User, invitation_code: str) -> dict:
             detail="Cette invitation a expire",
         )
 
-    # Check household is not full (INV-5)
+    # FIX-062: Lock the household row to prevent TOCTOU race on member count.
+    # FOR UPDATE is PostgreSQL-only; skip on SQLite (test/dev).
+    from sqlalchemy import text
+    try:
+        db.execute(
+            text("SELECT 1 FROM households WHERE id = :hid FOR UPDATE"),
+            {"hid": str(member.household_id)},
+        )
+    except Exception:
+        # SQLite doesn't support SELECT FOR UPDATE — acceptable in test/dev.
+        # PostgreSQL in production handles this correctly.
+        pass
     active_count = (
         db.query(HouseholdMemberModel)
         .filter(
@@ -408,8 +428,9 @@ def transfer_ownership(db: Session, caller: User, new_owner_id: str) -> dict:
             detail="Le nouveau proprietaire doit etre un membre actif du menage",
         )
 
-    # Transfer
+    # Transfer ownership AND billing (P2-16: billing must follow ownership)
     household.household_owner_user_id = new_owner_id
+    household.billing_owner_user_id = new_owner_id
     household.updated_at = _now()
 
     # Update roles
@@ -427,6 +448,71 @@ def transfer_ownership(db: Session, caller: User, new_owner_id: str) -> dict:
 
     db.commit()
     return {"status": "transferred", "new_owner_id": new_owner_id}
+
+
+def dissolve_household(db: Session, caller: User) -> dict:
+    """Dissolve a household — remove all members except owner, reset state.
+
+    Only the household_owner can dissolve.
+    All non-owner members are revoked. The household record is deleted.
+
+    Args:
+        db: Database session.
+        caller: Authenticated user (must be household owner).
+
+    Returns:
+        Dict with status and count of revoked members.
+
+    Raises:
+        HTTPException 403 if caller is not the household owner.
+        HTTPException 404 if no household found.
+    """
+    household = (
+        db.query(HouseholdModel)
+        .filter(HouseholdModel.household_owner_user_id == caller.id)
+        .first()
+    )
+    if not household:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Aucun menage trouve dont tu es proprietaire",
+        )
+
+    # Revoke all non-owner members
+    non_owner_members = (
+        db.query(HouseholdMemberModel)
+        .filter(
+            HouseholdMemberModel.household_id == household.id,
+            HouseholdMemberModel.user_id != caller.id,
+        )
+        .all()
+    )
+    # W12: Collect user_ids first, batch recompute after all status changes (N+1 fix).
+    revoked_count = 0
+    user_ids_to_recompute = []
+    for member in non_owner_members:
+        if member.status in ("active", "pending"):
+            member.status = "revoked"
+            revoked_count += 1
+            user_ids_to_recompute.append(member.user_id)
+
+    db.flush()  # Persist status changes first
+
+    # Batch recompute after all status changes
+    for uid in user_ids_to_recompute:
+        recompute_entitlements(db, uid)
+
+    # Delete owner membership
+    db.query(HouseholdMemberModel).filter(
+        HouseholdMemberModel.household_id == household.id,
+        HouseholdMemberModel.user_id == caller.id,
+    ).delete(synchronize_session=False)
+
+    # Delete the household record
+    db.delete(household)
+    db.commit()
+
+    return {"status": "dissolved", "revoked_members": revoked_count}
 
 
 def admin_override_cooldown(

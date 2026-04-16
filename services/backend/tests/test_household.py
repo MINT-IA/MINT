@@ -2,7 +2,8 @@
 Tests for household management endpoints (Couple+ billing, P6.4 + P6.5).
 """
 
-from datetime import datetime, timedelta
+import os
+from datetime import datetime, timedelta, timezone
 
 from fastapi.testclient import TestClient
 
@@ -334,7 +335,7 @@ def test_e8_accept_expired_invitation(client: TestClient):
         member = db.query(HouseholdMemberModel).filter(
             HouseholdMemberModel.invitation_code == code
         ).first()
-        member.invited_at = datetime.utcnow() - timedelta(hours=73)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=73)
         db.commit()
     finally:
         db.close()
@@ -391,7 +392,7 @@ def test_a1_invitation_expiry_72h(client: TestClient):
             HouseholdMemberModel.invitation_code == code
         ).first()
         # Set to just under 72h -- should still work
-        member.invited_at = datetime.utcnow() - timedelta(hours=71, minutes=59)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=71, minutes=59)
         db.commit()
     finally:
         db.close()
@@ -420,7 +421,7 @@ def test_a2_accept_expired_code(client: TestClient):
         member = db.query(HouseholdMemberModel).filter(
             HouseholdMemberModel.invitation_code == code
         ).first()
-        member.invited_at = datetime.utcnow() - timedelta(hours=100)
+        member.invited_at = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=100)
         db.commit()
     finally:
         db.close()
@@ -507,6 +508,7 @@ def test_a3_accept_on_full_household_direct(client: TestClient):
 # Admin override cooldown
 # ---------------------------------------------------------------------------
 def test_admin_override_cooldown(client: TestClient):
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     auth_client = _auth_client(client)
     owner_token, partner_token, owner_id, partner_id, code = _setup_household_with_invite(auth_client)
 
@@ -525,6 +527,15 @@ def test_admin_override_cooldown(client: TestClient):
 
     # Register an admin user
     admin_token = _register_and_token(auth_client, "admin@mint.ch")
+
+    # P0-4: Set both role AND email allowlist (defense in depth).
+    from tests.conftest import TestingSessionLocal
+    from app.models.user import User as UserModel
+    db = TestingSessionLocal()
+    admin_user = db.query(UserModel).filter(UserModel.email == "admin@mint.ch").first()
+    admin_user.role = "support_admin"
+    db.commit()
+    db.close()
 
     # Set admin allowlist
     prev = settings.AUTH_ADMIN_EMAIL_ALLOWLIST
@@ -551,6 +562,7 @@ def test_admin_override_cooldown(client: TestClient):
 # Admin override without admin role -> 403
 # ---------------------------------------------------------------------------
 def test_admin_override_without_admin_role(client: TestClient):
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     auth_client = _auth_client(client)
     token = _register_and_token(auth_client, "hh-nonadmin@example.com")
 
@@ -665,8 +677,18 @@ def test_revoke_idempotent(client: TestClient):
 # Admin override cooldown with short reason -> 400
 # ---------------------------------------------------------------------------
 def test_admin_override_short_reason(client: TestClient):
+    os.environ["FF_ENABLE_ADMIN_SCREENS"] = "true"
     auth_client = _auth_client(client)
     admin_token = _register_and_token(auth_client, "admin-short@mint.ch")
+
+    # P0-4: Set role for admin user (defense in depth — requires role AND email).
+    from tests.conftest import TestingSessionLocal
+    from app.models.user import User as UserModel
+    db = TestingSessionLocal()
+    admin_user = db.query(UserModel).filter(UserModel.email == "admin-short@mint.ch").first()
+    admin_user.role = "support_admin"
+    db.commit()
+    db.close()
 
     prev = settings.AUTH_ADMIN_EMAIL_ALLOWLIST
     settings.AUTH_ADMIN_EMAIL_ALLOWLIST = "admin-short@mint.ch"

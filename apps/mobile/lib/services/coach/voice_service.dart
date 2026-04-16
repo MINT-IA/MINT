@@ -5,11 +5,19 @@
 /// on platform plugins. Default backend stubs return unavailable.
 ///
 /// Swiss French (`fr-CH`) as default locale. Rate 0.85 for accessibility.
+///
+/// [VoiceStateMachine] is used internally to validate every state transition.
+/// Invalid transitions (e.g. listen while speaking) throw [StateError] before
+/// touching the backend — providing a clean guard layer independent of the
+/// [VoiceBackend] implementation.
 library;
 
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:mint_mobile/services/voice/voice_state_machine.dart';
 
 import 'voice_config.dart';
 
@@ -152,6 +160,21 @@ class VoiceService {
   /// Observable voice state.
   final ValueNotifier<VoiceState> state = ValueNotifier(VoiceState.idle);
 
+  /// Internal state machine — validates every transition before it occurs.
+  ///
+  /// [VoiceStateMachine] uses [VoiceMode] (its own enum); [VoiceService]
+  /// maps to/from [VoiceState] for the public API. They stay in sync via
+  /// [_applyMode].
+  final VoiceStateMachine _machine = VoiceStateMachine();
+
+  /// Cancellation generation counter.
+  ///
+  /// Incremented whenever [stopListening], [stopSpeaking], or [_forceIdle]
+  /// is called. In-flight listen/speak coroutines compare their captured
+  /// generation to [_generation] before applying further state transitions —
+  /// if different, the operation was cancelled and they exit silently.
+  int _generation = 0;
+
   /// Whether [dispose] has been called. Prevents setting state on a disposed
   /// notifier (e.g. from the error-recovery timer).
   bool _disposed = false;
@@ -160,9 +183,46 @@ class VoiceService {
   VoiceService({VoiceBackend? backend})
       : _backend = backend ?? StubVoiceBackend();
 
+  // ── State helpers ─────────────────────────────────────────
+
   /// Safely set state, guarding against use-after-dispose.
   void _setState(VoiceState newState) {
     if (!_disposed) state.value = newState;
+  }
+
+  /// Apply a [VoiceMode] through the state machine, then mirror it to the
+  /// public [VoiceState] notifier. Throws [StateError] on invalid transitions
+  /// (propagated from [VoiceStateMachine.transition]).
+  void _applyMode(VoiceMode mode) {
+    _machine.transition(mode);
+    _setState(_modeToState(mode));
+  }
+
+  /// Force both the state machine and the public notifier back to idle.
+  ///
+  /// Increments [_generation] so any in-flight coroutine that captured the
+  /// old generation will detect cancellation and exit without applying further
+  /// state transitions.
+  ///
+  /// Used for error recovery and cancellation — always succeeds.
+  void _forceIdle() {
+    _generation++;
+    _machine.forceIdle();
+    _setState(VoiceState.idle);
+  }
+
+  /// Map [VoiceMode] → [VoiceState] for the public API.
+  static VoiceState _modeToState(VoiceMode mode) {
+    switch (mode) {
+      case VoiceMode.idle:
+        return VoiceState.idle;
+      case VoiceMode.listening:
+        return VoiceState.listening;
+      case VoiceMode.processing:
+        return VoiceState.processing;
+      case VoiceMode.speaking:
+        return VoiceState.speaking;
+    }
   }
 
   // ── STT ──────────────────────────────────────────────────
@@ -176,36 +236,49 @@ class VoiceService {
   /// Start listening and return the transcription result.
   ///
   /// Respects [config] for silence timeout. Max duration capped at 30 s.
-  /// Throws on backend error and sets [state] to [VoiceState.error].
+  /// [VoiceStateMachine] guards against calling this while speaking or
+  /// already listening — throws [StateError] in both cases.
+  /// On backend error: sets [state] to [VoiceState.error] then
+  /// auto-recovers to idle after 500 ms.
   Future<VoiceResult> listen({
     Duration? maxDuration,
     String locale = 'fr-CH',
     VoiceConfig config = VoiceConfig.standard,
   }) async {
-    if (state.value == VoiceState.speaking) {
-      throw StateError(
-          'Impossible d\'écouter pendant la synthèse vocale');
-    }
-    if (state.value == VoiceState.listening) {
+    // State machine validates: only idle → listening is allowed.
+    // Throws StateError if we are already listening or speaking.
+    if (!_machine.canStartListening) {
+      final current = state.value;
+      if (current == VoiceState.speaking) {
+        throw StateError(
+            'Impossible d\'écouter pendant la synthèse vocale');
+      }
       throw StateError('Écoute déjà en cours');
     }
 
-    _setState(VoiceState.listening);
+    _applyMode(VoiceMode.listening);
+    // Capture generation before the async gap. If stopListening() fires while
+    // the backend awaits, _generation is incremented and the coroutine exits.
+    final gen = _generation;
     try {
       final result = await _backend.listen(
         maxDuration: maxDuration ?? const Duration(seconds: 30),
         silenceTimeout: config.silenceTimeout,
         locale: locale,
       );
-      _setState(VoiceState.processing);
+      // Cancelled while waiting — do not apply further transitions.
+      if (gen != _generation) return result;
+      _applyMode(VoiceMode.processing);
       // In a real implementation, post-processing (punctuation, etc.) goes here.
-      _setState(VoiceState.idle);
+      _applyMode(VoiceMode.idle);
       return result;
     } catch (e) {
+      // If already force-idled by cancellation, do not double-set error.
+      if (gen != _generation) rethrow;
       _setState(VoiceState.error);
       // Auto-recover to idle so next call works.
       Future.delayed(
-          const Duration(milliseconds: 500), () => _setState(VoiceState.idle));
+          const Duration(milliseconds: 500), _forceIdle);
       rethrow;
     }
   }
@@ -214,24 +287,30 @@ class VoiceService {
   Future<void> stopListening() async {
     if (state.value == VoiceState.listening) {
       await _backend.cancelListening();
-      _setState(VoiceState.idle);
+      _forceIdle();
     }
   }
 
   // ── TTS ──────────────────────────────────────────────────
 
   /// Speak [text] aloud using the given [config].
+  ///
+  /// [VoiceStateMachine] guards against calling this while listening.
+  /// Throws [StateError] when mic is active.
   Future<void> speak(
     String text, {
     String locale = 'fr-CH',
     VoiceConfig config = VoiceConfig.standard,
   }) async {
-    if (state.value == VoiceState.listening) {
+    // State machine validates: idle → speaking and processing → speaking.
+    if (!_machine.canStartSpeaking) {
       throw StateError(
           'Impossible de parler pendant l\'écoute');
     }
 
-    _setState(VoiceState.speaking);
+    _applyMode(VoiceMode.speaking);
+    // Capture generation before the async gap.
+    final gen = _generation;
     try {
       await _backend.speak(
         text,
@@ -239,11 +318,13 @@ class VoiceService {
         rate: config.speechRate,
         pitch: config.pitch,
       );
-      _setState(VoiceState.idle);
+      if (gen != _generation) return; // cancelled by stopSpeaking()
+      _applyMode(VoiceMode.idle);
     } catch (e) {
+      if (gen != _generation) rethrow;
       _setState(VoiceState.error);
       Future.delayed(
-          const Duration(milliseconds: 500), () => _setState(VoiceState.idle));
+          const Duration(milliseconds: 500), _forceIdle);
       rethrow;
     }
   }
@@ -252,7 +333,7 @@ class VoiceService {
   Future<void> stopSpeaking() async {
     if (state.value == VoiceState.speaking) {
       await _backend.stopSpeaking();
-      _setState(VoiceState.idle);
+      _forceIdle();
     }
   }
 
@@ -260,5 +341,20 @@ class VoiceService {
   void dispose() {
     _disposed = true;
     state.dispose();
+  }
+
+  // ── Voice disclosure (nLPD) ──────────────────────────────
+
+  /// FIX-W11-nLPD: Check if voice disclosure has been shown to the user.
+  /// Audio is sent to Apple/Google for transcription — this must be disclosed.
+  static Future<bool> hasShownDisclosure() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('_voice_disclosure_shown') == true;
+  }
+
+  /// Mark the voice disclosure as shown and accepted by the user.
+  static Future<void> markDisclosureShown() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('_voice_disclosure_shown', true);
   }
 }

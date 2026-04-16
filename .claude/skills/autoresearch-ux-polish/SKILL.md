@@ -4,10 +4,10 @@ description: "Autonomous UX violation fixer. Scans for hardcoded colors, Navigat
 compatibility: Requires Flutter SDK
 metadata:
   author: mint-team
-  version: "2.0"
+  version: "3.0"
 ---
 
-# Autoresearch UX Polish v2 — Karpathy UX Violation Fixer
+# Autoresearch UX Polish v3 — Karpathy UX Violation Fixer
 
 > "Every pixel must respect the 7 laws. Violations are bugs."
 
@@ -18,6 +18,30 @@ metadata:
 - **Single target**: ONE file per iteration. Fix all violations in that file → verify → commit → next.
 - **Guard**: `flutter analyze` (0 new errors) + `flutter test` (no regressions).
 - **Scope**: visual/structural fixes ONLY. Never change business logic or add features.
+
+## Context Budget Protocol
+
+Your context window is a finite resource. Quality degrades as it fills.
+
+| Tier | Context Used | Behavior |
+|------|-------------|----------|
+| PEAK | 0-30% | Full operations. Read freely, explore, try multiple approaches. |
+| GOOD | 30-50% | Normal. Prefer targeted reads over exploratory. |
+| DEGRADING | 50-70% | Economize. No exploration. Targeted fixes only. Warn in log. |
+| POOR | 70%+ | STOP new iterations. Finish current only. Write report. Commit. |
+
+### Degradation Warning Signs — STOP and assess if you notice:
+
+- **Silent partial completion**: Claiming done but skipping verify steps you'd normally follow.
+- **Increasing vagueness**: Writing "appropriate handling" instead of specific code references.
+- **Skipped steps**: Iteration normally has 6 steps but you only did 4.
+
+If ANY sign is present → treat as POOR tier. Write final report and stop.
+
+### Iteration Budget
+
+Estimate remaining iterations: `(100 - context_used%) / 3`.
+At < 10 remaining → plan exit. At < 5 → STOP. Report only.
 
 ## Violation Types (automatable, measured by grep)
 
@@ -83,6 +107,52 @@ grep -rn "Navigator.push\|Navigator.of" lib/widgets/ lib/screens/ | wc -l   # Na
 - **NEVER guess routes** — always check GoRouter definitions first
 - **Defer bulk i18n** to `/autoresearch-i18n` — only flag, don't fix here
 - **NEVER fix >1 file without verifying** between fixes
+
+## Verification Gate (IRON LAW)
+
+**NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE.**
+
+After EVERY file fix, before reporting it as done:
+
+1. **RUN** `flutter analyze 2>&1 | tail -10` AND `flutter test 2>&1 | tail -10` fresh.
+2. **RUN** detection commands on the fixed file. Confirm violation count = 0 for that file.
+3. **PASTE** all outputs in your experiment log. "Should pass" is FORBIDDEN.
+4. If violations remain in the file → the fix is incomplete. Do not move to next file.
+
+| Rationalization | Response |
+|----------------|----------|
+| "Should work now" | RUN IT. Paste output. |
+| "I'm confident it passes" | Confidence is not evidence. Run the test. |
+| "I already tested earlier" | Code changed since then. Test AGAIN. |
+| "It's a trivial change" | Trivial changes break production. Verify. |
+| "This color is close enough to MintColors" | Close is not correct. Use the exact token from colors.dart. |
+| "The old Navigator.push works fine" | Consistency is a feature. GoRouter everywhere (except dialogs). |
+
+**If verification FAILS:** Do NOT commit. Revert: `git checkout -- <files>`. If fix caused cascading issues → revert ALL and skip this file. Return to the Loop.
+
+Claiming work is complete without verification is dishonesty, not efficiency.
+
+### Common Failures — what your claim REQUIRES (Superpowers)
+
+| Claim | Requires | NOT Sufficient |
+|-------|----------|----------------|
+| "Violation fixed" | Fresh grep count = 0 for that pattern in file | Code changed, "should be clean" |
+| "No regressions" | `flutter analyze` + `flutter test` both green | Running only analyze |
+| "Count decreased" | Fresh detection count < previous count | "I fixed 5 violations" without re-counting |
+| "Iteration complete" | All loop steps executed + output pasted | Steps skipped, partial evidence |
+| "Ready to commit" | Grep + analyze + test all green, this iteration | Green from previous iteration |
+
+### Red Flags — STOP if you catch yourself doing ANY of these:
+
+- Using "should", "probably", "seems to" about test results
+- Expressing satisfaction before verification ("Great!", "Perfect!", "Done!")
+- About to commit without fresh verification in THIS iteration
+- Trusting a previous run's results after code changed
+- Relying on partial verification ("I tested the main case")
+- Thinking "just this once I can skip verification"
+- Feeling rushed and wanting to move to the next iteration
+- Using different words to dodge this rule ("appears to work" = "should work")
+- Reporting fewer steps than the loop specifies (silent step-skipping)
 
 ## Experiment Log (append-only)
 

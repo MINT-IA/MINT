@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,9 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/coach/coach_paywall_sheet.dart';
+import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
+import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 /// "Coffre-fort" (Document Vault) screen.
 ///
@@ -60,7 +64,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => safePop(context),
         ),
         title: Text(
           s.vaultTitle,
@@ -94,21 +98,35 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: MintSpacing.sm),
         ],
       ),
-      body: SingleChildScrollView(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
+        top: false,
+        child: SingleChildScrollView(
         padding: const EdgeInsets.all(MintSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Loading indicator for initial document fetch
+            if (docProvider.isLoading)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
+                child: Center(
+                  child: Text(
+                    S.of(context)!.loadingGeneric,
+                    style: MintTextStyles.bodySmall(color: MintColors.textMuted),
+                  ),
+                ),
+              ),
+
             // 1. Header card
-            _buildHeaderCard(s, totalDocs),
+            MintEntrance(child: _buildHeaderCard(s, totalDocs)),
             const SizedBox(height: MintSpacing.lg),
 
             // 2. Category grid
-            _buildCategoryGrid(s, docProvider),
+            MintEntrance(delay: const Duration(milliseconds: 100), child: _buildCategoryGrid(s, docProvider)),
             const SizedBox(height: MintSpacing.xl),
 
             // 3. Legal guidance section
-            _buildGuidanceSection(s),
+            MintEntrance(delay: const Duration(milliseconds: 200), child: _buildGuidanceSection(s)),
             const SizedBox(height: MintSpacing.xl),
 
             // Uploading indicator
@@ -131,11 +149,11 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ],
 
             // 4. Documents list
-            _buildDocumentsList(s, docProvider, sub),
+            MintEntrance(delay: const Duration(milliseconds: 300), child: _buildDocumentsList(s, docProvider, sub)),
             const SizedBox(height: MintSpacing.lg),
 
             // Bank import card (kept as fallback)
-            _buildBankImportCard(s),
+            MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBankImportCard(s)),
             const SizedBox(height: MintSpacing.lg),
 
             // Privacy footer
@@ -147,7 +165,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             const SizedBox(height: MintSpacing.xl),
           ],
         ),
-      ),
+      )))),
     );
   }
 
@@ -159,13 +177,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     // Compute confidence choc: rough heuristic
     final confidencePct = totalDocs >= 6 ? 95 : (totalDocs * 15).clamp(0, 90);
 
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -215,9 +229,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   const Icon(Icons.folder_outlined,
                       color: MintColors.info, size: 18),
                   const SizedBox(width: MintSpacing.sm),
-                  Text(
-                    s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
-                    style: MintTextStyles.bodySmall(color: MintColors.info),
+                  Flexible(
+                    child: Text(
+                      s.documentsConfidenceChoc(totalDocs.toString(), confidencePct.toString()),
+                      style: MintTextStyles.bodySmall(color: MintColors.info),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
@@ -268,13 +286,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: InkWell(
         onTap: () => _pickAndUpload(type),
         borderRadius: BorderRadius.circular(20),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: MintColors.border),
-          ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -399,7 +413,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   title,
-                  style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                  style: MintTextStyles.labelLarge(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -524,13 +540,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           child: InkWell(
             onTap: () => context.push('/documents/${doc.id}'),
             borderRadius: BorderRadius.circular(16),
-          child: Container(
+          child: MintSurface(
+            tone: MintSurfaceTone.blanc,
             padding: const EdgeInsets.all(MintSpacing.md),
-            decoration: BoxDecoration(
-              color: MintColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: MintColors.border),
-            ),
+            radius: 16,
             child: Row(
               children: [
                 Container(
@@ -548,7 +561,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     children: [
                       Text(
                         typeLabel,
-                        style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                        style: MintTextStyles.labelLarge(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: MintSpacing.xs),
                       Row(
@@ -593,48 +608,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildEmptyState(S s) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(MintSpacing.xl),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.folder_open_outlined,
-              size: 48, color: MintColors.textMuted.withValues(alpha: 0.4)),
-          const SizedBox(height: MintSpacing.md),
-          Text(
-            s.vaultEmptyTitle,
-            style: MintTextStyles.headlineMedium().copyWith(fontSize: 18),
-          ),
-          const SizedBox(height: MintSpacing.sm),
-          Text(
-            s.documentsEmptyVoice,
-            textAlign: TextAlign.center,
-            style: MintTextStyles.bodyMedium(),
-          ),
-          const SizedBox(height: MintSpacing.lg),
-          FilledButton.icon(
-            onPressed: () => _showUploadTypeSheet(s),
-            style: FilledButton.styleFrom(
-              backgroundColor: MintColors.primary,
-              foregroundColor: MintColors.white,
-              padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: Text(
-              s.vaultUploadButton,
-              style: MintTextStyles.titleMedium(color: MintColors.white).copyWith(fontSize: 14),
-            ),
-          ),
-        ],
-      ),
+    return MintEmptyState(
+      icon: Icons.folder_open_outlined,
+      title: s.vaultEmptyTitle,
+      subtitle: s.documentsEmptyVoice,
+      ctaLabel: s.vaultUploadButton,
+      onCta: () => _showUploadTypeSheet(s),
     );
   }
 
@@ -670,7 +649,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               Expanded(
                 child: Text(
                   s.vaultPremiumTitle,
-                  style: MintTextStyles.headlineMedium(color: MintColors.white).copyWith(fontSize: 18),
+                  style: MintTextStyles.titleLarge(color: MintColors.white),
                 ),
               ),
             ],
@@ -685,7 +664,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                safePop(context);
                 CoachPaywallSheet.show(context);
               },
               style: FilledButton.styleFrom(
@@ -699,7 +678,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
               ),
               child: Text(
                 s.vaultPremiumCta,
-                style: MintTextStyles.titleMedium(color: MintColors.primary).copyWith(fontSize: 14),
+                style: MintTextStyles.bodyMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -713,13 +692,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildUploadingIndicator(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.lg),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: MintColors.border),
-      ),
       child: Row(
         children: [
           const SizedBox(
@@ -731,9 +706,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             ),
           ),
           const SizedBox(width: MintSpacing.md),
-          Text(
-            s.vaultAnalyzing,
-            style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+          Flexible(
+            child: Text(
+              s.vaultAnalyzing,
+              style: MintTextStyles.bodyMedium(color: MintColors.textPrimary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -873,29 +852,28 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   }
 
   Widget _buildFieldRow(String label, String value) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: MintSpacing.sm),
-      padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
-      decoration: BoxDecoration(
-        color: MintColors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: MintColors.border),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Text(
-              label,
-              style: MintTextStyles.bodyMedium(),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.sm),
+      child: MintSurface(
+        tone: MintSurfaceTone.blanc,
+        padding: const EdgeInsets.symmetric(horizontal: MintSpacing.md, vertical: 14),
+        radius: 14,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Text(
+                label,
+                style: MintTextStyles.bodyMedium(),
+              ),
             ),
-          ),
-          const SizedBox(width: MintSpacing.sm),
-          Text(
-            value,
-            style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
-          ),
-        ],
+            const SizedBox(width: MintSpacing.sm),
+            Text(
+              value,
+              style: MintTextStyles.labelLarge(),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -956,13 +934,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       child: InkWell(
         onTap: () => context.push('/bank-import'),
         borderRadius: BorderRadius.circular(20),
-        child: Container(
+        child: MintSurface(
+          tone: MintSurfaceTone.blanc,
           padding: const EdgeInsets.all(MintSpacing.md),
-          decoration: BoxDecoration(
-            color: MintColors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: MintColors.info.withValues(alpha: 0.3)),
-          ),
         child: Row(
           children: [
             Container(
@@ -981,7 +955,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 children: [
                   Text(
                     s.bankImportTitle,
-                    style: MintTextStyles.titleMedium().copyWith(fontSize: 15),
+                    style: MintTextStyles.labelLarge(),
                   ),
                   const SizedBox(height: MintSpacing.xs),
                   Text(
@@ -1041,13 +1015,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   // ──────────────────────────────────────────────────────────
 
   Widget _buildDisclaimer(S s) {
-    return Container(
+    return MintSurface(
+      tone: MintSurfaceTone.porcelaine,
       padding: const EdgeInsets.all(MintSpacing.md),
-      decoration: BoxDecoration(
-        color: MintColors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: MintColors.border),
-      ),
+      radius: 16,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1077,6 +1048,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     if (!sub.isCoach && docProvider.documentCount >= _freeDocLimit) {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -1105,6 +1080,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
+      ),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -1136,7 +1115,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   s.vaultUploadTitle,
-                  style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+                  style: MintTextStyles.headlineSmall(),
                 ),
               ),
             ),
@@ -1249,7 +1228,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           s.vaultTitle,
-          style: MintTextStyles.headlineMedium().copyWith(fontSize: 20),
+          style: MintTextStyles.headlineSmall(),
         ),
         content: Text(
           s.vaultPrivacy,

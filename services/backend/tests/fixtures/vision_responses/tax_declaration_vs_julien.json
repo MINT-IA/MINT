@@ -1,0 +1,64 @@
+{
+  "id": "msg_fixture_tax_declaration_vs_julien",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_tax_declaration_vs_julien",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "tax_declaration",
+        "subtype": null,
+        "issuer_guess": "Canton VS",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "revenu_imposable",
+            "value": 112400,
+            "confidence": "high",
+            "source_text": "Revenu imposable 112'400"
+          },
+          {
+            "field_name": "fortune_imposable",
+            "value": 248000,
+            "confidence": "high",
+            "source_text": "Fortune imposable 248'000"
+          },
+          {
+            "field_name": "deduction_3a",
+            "value": 7258,
+            "confidence": "high",
+            "source_text": "3a 7'258 CHF"
+          },
+          {
+            "field_name": "deduction_rachat_lpp",
+            "value": 20000,
+            "confidence": "high",
+            "source_text": "Rachat 20'000 CHF"
+          },
+          {
+            "field_name": "etat_civil",
+            "value": "marie",
+            "confidence": "high",
+            "source_text": "Marie"
+          }
+        ],
+        "overall_confidence": 0.91,
+        "extraction_status": "success",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Declaration VS 2025: revenu imposable 112'400 CHF, fortune 248'000 CHF.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

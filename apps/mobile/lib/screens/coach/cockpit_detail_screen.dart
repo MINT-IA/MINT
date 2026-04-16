@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -21,8 +22,8 @@ import 'package:mint_mobile/services/fri_computation_service.dart';
 import 'package:mint_mobile/services/plan_tracking_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 
-import 'package:mint_mobile/widgets/coach/confidence_bar.dart';
 import 'package:mint_mobile/widgets/coach/confidence_blocks_bar.dart';
+import 'package:mint_mobile/widgets/trust/mint_trame_confiance.dart';
 import 'package:mint_mobile/widgets/coach/early_retirement_comparison.dart';
 import 'package:mint_mobile/widgets/coach/impact_mint_card.dart';
 import 'package:mint_mobile/widgets/coach/mint_score_gauge.dart';
@@ -49,7 +50,7 @@ import 'package:mint_mobile/widgets/dashboard/retirement_checklist_card.dart';
 //  "Voir le cockpit detaille" sur le dashboard principal.
 //
 //  Lit le CoachProfile depuis Provider et recalcule toutes
-//  les donnees necessaires (projection, confidence, FRI,
+//  les données nécessaires (projection, confidence, FRI,
 //  Monte Carlo, etc.) exactement comme le dashboard.
 //
 //  Accessible via un lien depuis le tableau de bord simplifie.
@@ -73,6 +74,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   RetirementProjectionResult? _retirementProjection;
   double _confidenceScore = 0;
   ProjectionConfidence? _confidence;
+  EnhancedConfidence? _enhancedConfidence;
   Map<String, BlockScore> _confidenceBlocs = const {};
   DashboardProjectionSnapshot? _snapshot;
 
@@ -99,6 +101,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       _profile = null;
       _projection = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
       _monteCarloResult = null;
@@ -125,6 +128,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       );
       _confidence = ConfidenceScorer.score(_profile!);
       _confidenceScore = _confidence!.score;
+      _enhancedConfidence = ConfidenceScorer.scoreEnhanced(_profile!);
       _confidenceBlocs = ConfidenceScorer.scoreAsBlocs(_profile!);
 
       // Detailed retirement projection (budget gap, phases, etc.)
@@ -139,8 +143,10 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
         _baselineProjection = null;
       }
 
-      // Monte Carlo + Tornado (State A only, confidence >= 70%)
-      _computeMonteCarloAndTornado(_profile!);
+      // Monte Carlo + Tornado (State A only, confidence >= 70%) — async
+      _computeMonteCarloAndTornado(_profile!).then((_) {
+        if (mounted) setState(() {});
+      });
 
       // FRI + Plan tracking
       _computeFri(_profile!);
@@ -151,6 +157,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       _projection = null;
       _snapshot = null;
       _confidence = null;
+      _enhancedConfidence = null;
       _confidenceScore = 0;
       _confidenceBlocs = const {};
       _monteCarloResult = null;
@@ -164,7 +171,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
   //  MONTE CARLO + TORNADO COMPUTATION
   // ────────────────────────────────────────────────────────────
 
-  void _computeMonteCarloAndTornado(CoachProfile profile) {
+  Future<void> _computeMonteCarloAndTornado(CoachProfile profile) async {
     // Only compute for confidence >= 70%
     if (_confidenceScore < 70) {
       _monteCarloResult = null;
@@ -173,7 +180,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
     }
 
     try {
-      _monteCarloResult = MonteCarloProjectionService.simulate(
+      _monteCarloResult = await MonteCarloProjectionService.simulate(
         profile: profile,
         retirementAgeUser: profile.effectiveRetirementAge,
       );
@@ -317,13 +324,24 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: MintSpacing.lg, vertical: MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // ── Confidence Bar ──────────────────────────
-                ConfidenceBar(score: _confidenceScore),
-                const SizedBox(height: 16),
+                // ── MintTrameConfiance (detail) ─────────────
+                // Plan 08a-02 Batch A: MTC replaces the legacy
+                // ConfidenceBar. Standalone screen → firstAppearance.
+                if (_enhancedConfidence != null) ...[
+                  MintTrameConfiance.detail(
+                    confidence: _enhancedConfidence!,
+                    bloomStrategy: BloomStrategy.firstAppearance,
+                    hypotheses: const [],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
-                // ── Confidence Blocks Bar (per-category) ────
+                // ── Data-block completeness (extraction) ────
+                // Sibling of MTC per AUDIT-01: this is an
+                // extraction-confidence visualisation, not a
+                // calculation-confidence one.
                 if (_confidenceBlocs.isNotEmpty) ...[
-                  ConfidenceBlocksBar(blocs: _confidenceBlocs),
+                  DataBlockConfidenceBar(blocs: _confidenceBlocs),
                   const SizedBox(height: 16),
                 ],
 
@@ -498,7 +516,7 @@ class _CockpitDetailScreenState extends State<CockpitDetailScreen> {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: MintColors.textPrimary),
-        onPressed: () => context.pop(),
+        onPressed: () => safePop(context),
       ),
       title: Text(
         S.of(context)!.cockpitDetailTitle,

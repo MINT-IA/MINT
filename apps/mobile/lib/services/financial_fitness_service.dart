@@ -1,6 +1,7 @@
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 
 // ────────────────────────────────────────────────────────────
 //  FINANCIAL FITNESS SERVICE — Sprint C2 / MINT Coach
@@ -29,7 +30,7 @@ extension FitnessLevelExtension on FitnessLevel {
       case FitnessLevel.critique:
         return 'Priorite : stabilisons tes bases.';
       case FitnessLevel.attention:
-        return 'Attention : quelques points a ameliorer.';
+        return 'Attention : quelques points à améliorer.';
       case FitnessLevel.bon:
         return 'Bien ! Tu es sur la bonne voie.';
       case FitnessLevel.excellent:
@@ -312,8 +313,8 @@ class FinancialFitnessService {
 
     // 1. 3a maximise (0-25 points)
     final plafond3a = profile.employmentStatus == 'independant'
-        ? pilier3aPlafondSansLpp
-        : pilier3aPlafondAvecLpp;
+        ? reg('pillar3a.max_without_lpp', pilier3aPlafondSansLpp)
+        : reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
     final contribution3aAnnuelle = profile.total3aMensuel * 12;
     final ratio3a = plafond3a > 0 ? contribution3aAnnuelle / plafond3a : 0.0;
     final points3a = ratio3a >= 1.0
@@ -325,8 +326,8 @@ class FinancialFitnessService {
       points: points3a,
       maxPoints: 25,
       detail: ratio3a >= 1.0
-          ? 'Plafond 3a atteint (${_formatChf(plafond3a)})'
-          : '${_formatChf(contribution3aAnnuelle)} / ${_formatChf(plafond3a)} par an',
+          ? 'Plafond 3a atteint (${chf.formatChfWithPrefix(plafond3a)})'
+          : '${chf.formatChfWithPrefix(contribution3aAnnuelle)} / ${chf.formatChfWithPrefix(plafond3a)} par an',
     ));
 
     // 2. LPP : rachat en cours ou lacune comblee (0-25 points)
@@ -343,10 +344,10 @@ class FinancialFitnessService {
       final anneesRachat = lacune / (rachatMensuel * 12);
       pointsLpp = anneesRachat <= 5 ? 20 : anneesRachat <= 10 ? 15 : 10;
       detailLpp =
-          'Rachat en cours (${_formatChf(rachatMensuel)}/mois, ~${anneesRachat.toStringAsFixed(0)} ans restants)';
+          'Rachat en cours (${chf.formatChfWithPrefix(rachatMensuel)}/mois, ~${anneesRachat.toStringAsFixed(0)} ans restants)';
     } else {
       pointsLpp = 0;
-      detailLpp = 'Lacune de ${_formatChf(lacune)} — aucun rachat planifie';
+      detailLpp = 'Lacune de ${chf.formatChfWithPrefix(lacune)} — aucun rachat planifie';
     }
     criteria.add(ScoreCriterion(
       id: 'lpp_buyback',
@@ -482,7 +483,7 @@ class FinancialFitnessService {
       points: pointsCroissance,
       maxPoints: 25,
       detail: monthlyGrowth > 0
-          ? '${_formatChf(monthlyGrowth)}/mois en contributions'
+          ? '${chf.formatChfWithPrefix(monthlyGrowth)}/mois en contributions'
           : 'Aucune contribution mensuelle planifiee',
     ));
 
@@ -504,7 +505,7 @@ class FinancialFitnessService {
       detailTrajectoire = '$streak mois consecutifs on-track';
     } else {
       pointsTrajectoire = 8;
-      detailTrajectoire = '$checkIns check-in(s) — continue pour ameliorer';
+      detailTrajectoire = '$checkIns check-in(s) — continue pour améliorer';
     }
     criteria.add(ScoreCriterion(
       id: 'trajectoire',
@@ -581,16 +582,4 @@ class FinancialFitnessService {
     }
   }
 
-  static String _formatChf(double value) {
-    final intVal = value.round();
-    final str = intVal.abs().toString();
-    final buffer = StringBuffer();
-    for (int i = 0; i < str.length; i++) {
-      if (i > 0 && (str.length - i) % 3 == 0) {
-        buffer.write("'");
-      }
-      buffer.write(str[i]);
-    }
-    return 'CHF\u00A0${intVal < 0 ? '-' : ''}${buffer.toString()}';
-  }
 }

@@ -4,7 +4,7 @@
 /// invalidation triggers tied to user actions.
 ///
 /// Each narrative component (greeting, scoreSummary, tipNarrative,
-/// chiffreChocReframe) is cached independently with its own TTL.
+/// premierEclairageReframe) is cached independently with its own TTL.
 ///
 /// Cache keys combine component name + context hash to ensure
 /// stale data from a different profile state is never served.
@@ -28,7 +28,7 @@ enum InvalidationTrigger {
   newDay,
 
   /// User completed an arbitrage simulation.
-  /// Invalidates: chiffreChocReframe.
+  /// Invalidates: premierEclairageReframe.
   arbitrageCompleted,
 
   /// User explicitly requested a refresh.
@@ -78,15 +78,15 @@ class CoachCacheService {
       'greeting',
       'scoreSummary',
       'tipNarrative',
-      'chiffreChocReframe',
+      'premierEclairageReframe',
     ],
     InvalidationTrigger.newDay: ['greeting'],
-    InvalidationTrigger.arbitrageCompleted: ['chiffreChocReframe'],
+    InvalidationTrigger.arbitrageCompleted: ['premierEclairageReframe'],
     InvalidationTrigger.manualRefresh: [
       'greeting',
       'scoreSummary',
       'tipNarrative',
-      'chiffreChocReframe',
+      'premierEclairageReframe',
     ],
   };
 
@@ -100,7 +100,7 @@ class CoachCacheService {
   ///   - No entry exists for the component+context combination
   ///   - The entry has expired (TTL exceeded)
   ///
-  /// [component]: One of 'greeting', 'scoreSummary', 'tipNarrative', 'chiffreChocReframe'.
+  /// [component]: One of 'greeting', 'scoreSummary', 'tipNarrative', 'premierEclairageReframe'.
   /// [contextHash]: Hash of the CoachContext to ensure freshness.
   static String? get(String component, String contextHash) {
     final key = _buildKey(component, contextHash);
@@ -115,7 +115,7 @@ class CoachCacheService {
 
   /// Store a narrative component in the cache.
   ///
-  /// [component]: One of 'greeting', 'scoreSummary', 'tipNarrative', 'chiffreChocReframe'.
+  /// [component]: One of 'greeting', 'scoreSummary', 'tipNarrative', 'premierEclairageReframe'.
   /// [contextHash]: Hash of the CoachContext.
   /// [content]: The generated narrative text.
   /// [ttl]: Time-to-live for this entry.

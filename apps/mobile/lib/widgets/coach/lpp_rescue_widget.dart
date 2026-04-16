@@ -87,7 +87,7 @@ class LppRescueWidget extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _buildChiffreChoc(),
+                  _buildPremierEclairage(),
                   const SizedBox(height: 16),
                   _buildDisclaimer(),
                 ],
@@ -224,7 +224,7 @@ class LppRescueWidget extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             option.description,
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
           ),
           if (option.fiveYearGain != 0) ...[
             const SizedBox(height: 8),
@@ -247,7 +247,7 @@ class LppRescueWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildChiffreChoc() {
+  Widget _buildPremierEclairage() {
     // Estimation pédagogique : surcoût institutionnel ~1.5 % du solde sur 5 ans
     // (taux technique bas + frais de gestion suppl.). Source : CHS PP rapports.
     final estimatedLoss = (lppBalance * 0.015).clamp(500.0, 15000.0);
@@ -277,7 +277,7 @@ class LppRescueWidget extends StatelessWidget {
                   'Le taux technique est bas et les frais élevés. '
                   'Un avoir de CHF ${_fmt(lppBalance)} peut perdre jusqu\'à '
                   'CHF ${_fmt(estimatedLoss)} sur 5 ans vs un compte libre passage optimisé.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.5),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.5),
                 ),
               ],
             ),

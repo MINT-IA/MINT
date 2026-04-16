@@ -217,7 +217,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
                       Expanded(
                         child: Text(
                           act.insight,
-                          style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.3),
+                          style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.3),
                         ),
                       ),
                     ],
@@ -247,7 +247,7 @@ class CoupleNarrativeTimeline extends StatelessWidget {
           Expanded(
             child: Text(
               coachTip!,
-              style: MintTextStyles.labelSmall(color: MintColors.textPrimary).copyWith(fontSize: 12, fontWeight: FontWeight.w500, height: 1.4),
+              style: MintTextStyles.labelMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w500, height: 1.4),
             ),
           ),
         ],

@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/educational/educational_insert_widget.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Insert didactique pour q_has_consumer_credit
 /// Alerte coût réel du crédit consommation
@@ -32,7 +32,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  final _currencyFormat = NumberFormat.currency(symbol: 'CHF ', decimalDigits: 0);
+  // Using centralized formatChfWithPrefix from chf_formatter.dart
 
   @override
   void initState() {
@@ -97,7 +97,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
             min: 1000,
             max: 50000,
             divisions: 49,
-            format: (v) => _currencyFormat.format(v),
+            format: (v) => formatChfWithPrefix(v),
             onChanged: (v) => _onValueChanged(() => _amount = v),
           ),
 
@@ -165,7 +165,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _currencyFormat.format(_totalInterest),
+                    formatChfWithPrefix(_totalInterest),
                     style: const TextStyle(
                       fontSize: 42,
                       fontWeight: FontWeight.bold,
@@ -211,7 +211,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                   children: [
                     const Text('Tu rembourses au total'),
                     Text(
-                      _currencyFormat.format(_totalCost),
+                      formatChfWithPrefix(_totalCost),
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
@@ -222,7 +222,7 @@ class _CreditCostInsertWidgetState extends State<CreditCostInsertWidget>
                   children: [
                     const Text('Mensualite'),
                     Text(
-                      '${_currencyFormat.format(_monthlyPayment)} / mois',
+                      '${formatChfWithPrefix(_monthlyPayment)} / mois',
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],

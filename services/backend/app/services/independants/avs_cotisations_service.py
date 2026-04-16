@@ -51,7 +51,7 @@ class AvsCotisationResult:
     taux_effectif: float
     comparaison_salarie: float
     difference_vs_salarie: float
-    chiffre_choc: str
+    premier_eclairage: str
     disclaimer: str
     sources: List[str] = field(default_factory=list)
 
@@ -88,7 +88,7 @@ def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
             taux_effectif=0.0,
             comparaison_salarie=0.0,
             difference_vs_salarie=0.0,
-            chiffre_choc=(
+            premier_eclairage=(
                 "Avec un revenu nul ou negatif, aucune cotisation AVS n'est due."
             ),
             disclaimer=DISCLAIMER,
@@ -105,7 +105,7 @@ def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
     cotisation_salarie = round(revenu_net_activite * AVS_COTISATION_SALARIE, 2)
     difference = round(cotisation - cotisation_salarie, 2)
 
-    chiffre_choc = (
+    premier_eclairage = (
         f"En tant qu'independant-e, tu paies {cotisation:,.0f} CHF/an de cotisations "
         f"AVS/AI/APG, soit {difference:+,.0f} CHF de plus qu'un-e salarie-e "
         f"sur le meme revenu."
@@ -116,7 +116,7 @@ def calculer_cotisation_avs(revenu_net_activite: float) -> AvsCotisationResult:
         taux_effectif=taux_effectif,
         comparaison_salarie=cotisation_salarie,
         difference_vs_salarie=difference,
-        chiffre_choc=chiffre_choc,
+        premier_eclairage=premier_eclairage,
         disclaimer=DISCLAIMER,
         sources=list(SOURCES),
     )

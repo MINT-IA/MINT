@@ -11,8 +11,9 @@ Calcule le deficit financier si l'utilisateur ne peut plus travailler:
 All endpoints are stateless (no data storage). Pure computation on the fly.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 
+from app.core.rate_limit import limiter
 from app.schemas.disability_gap import (
     DisabilityGapRequest,
     DisabilityGapResponse,
@@ -26,7 +27,8 @@ router = APIRouter()
 
 
 @router.post("/compute", response_model=DisabilityGapResponse)
-def compute(request: DisabilityGapRequest) -> DisabilityGapResponse:
+@limiter.limit("30/minute")
+def compute(request: Request, body: DisabilityGapRequest) -> DisabilityGapResponse:
     """Calcule le gap financier en cas d'invalidite sur 3 phases.
 
     Phase 1 : couverture employeur (CO art. 324a), duree selon echelle cantonale.
@@ -35,7 +37,7 @@ def compute(request: DisabilityGapRequest) -> DisabilityGapResponse:
 
     Returns:
         DisabilityGapResponse avec le detail des 3 phases, risque, alertes,
-        chiffre choc, disclaimer et sources legales.
+        premier éclairage, disclaimer et sources legales.
     """
     try:
         # Map schema enum to service enum
@@ -46,16 +48,16 @@ def compute(request: DisabilityGapRequest) -> DisabilityGapResponse:
             "unemployed": EmploymentStatus.UNEMPLOYED,
             "student": EmploymentStatus.STUDENT,
         }
-        statut = status_map[request.statut_professionnel.value]
+        statut = status_map[body.statut_professionnel.value]
 
         result = compute_disability_gap(
-            revenu_mensuel_net=request.revenu_mensuel_net,
+            revenu_mensuel_net=body.revenu_mensuel_net,
             statut_professionnel=statut,
-            canton=request.canton.upper(),
-            annees_anciennete=request.annees_anciennete,
-            has_ijm_collective=request.has_ijm_collective,
-            degre_invalidite=request.degre_invalidite,
-            lpp_disability_benefit=request.lpp_disability_benefit,
+            canton=body.canton.upper(),
+            annees_anciennete=body.annees_anciennete,
+            has_ijm_collective=body.has_ijm_collective,
+            degre_invalidite=body.degre_invalidite,
+            lpp_disability_benefit=body.lpp_disability_benefit,
         )
 
         return DisabilityGapResponse(
@@ -72,10 +74,10 @@ def compute(request: DisabilityGapRequest) -> DisabilityGapResponse:
             alerts=result.alerts,
             ai_rente_mensuelle=result.ai_rente_mensuelle,
             lpp_disability_benefit=result.lpp_disability_benefit,
-            chiffre_choc=result.chiffre_choc,
+            premier_eclairage=result.premier_eclairage,
             disclaimer=result.disclaimer,
             sources=result.sources,
         )
 
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid request parameters")

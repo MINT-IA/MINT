@@ -460,16 +460,13 @@ void main() {
       expect(rate, closeTo(0.10, 0.001));
     });
 
-    test('S10.3 — Lauren AVS rente: salary 67000 → interpolated between min and max', () {
-      // LAVS art. 34: RAMD 67000 is between 14700 and 88200
-      // fraction = (67000 - 14700) / (88200 - 14700) = 52300/73500 = 0.7116
-      // rente = 1260 + (2520-1260) × 0.7116 = 1260 + 896.6 = 2156.6/mois
-      // But Lauren has fewer contribution years (expat arrived later).
-      // For this test, just verify RAMD interpolation.
+    test('S10.3 — Lauren AVS rente: salary 67000 → Echelle 44 concave interpolation', () {
+      // LAVS art. 34: RAMD 67000 via Echelle 44 concave table (OFAS 2025)
+      // 67000 is between 64680 (rente 2142) and 67620 (rente 2199)
+      // ratio = (67000 - 64680) / (67620 - 64680) = 2320/2940 ≈ 0.789
+      // rente = 2142 + (2199 - 2142) × 0.789 = 2142 + 44.98 ≈ 2187
       final rente = AvsCalculator.renteFromRAMD(67000);
-      const expectedFraction = (67000 - 14700) / (88200 - 14700);
-      const expectedRente = 1260 + (2520 - 1260) * expectedFraction;
-      expect(rente, closeTo(expectedRente, 1.0));
+      expect(rente, closeTo(2187, 2.0));
     });
 
     test('S10.4 — Lauren capital withdrawal tax VS: 19620 → first bracket only', () {

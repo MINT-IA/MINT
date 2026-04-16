@@ -1,37 +1,64 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
-import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/services/backend_coach_service.dart';
-import 'package:mint_mobile/widgets/coach/widget_renderer.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
-import 'package:mint_mobile/widgets/coach/response_card_widget.dart';
 import 'package:mint_mobile/services/coach/context_injector_service.dart';
-import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
+import 'package:mint_mobile/services/coach/tool_call_parser.dart';
+import 'package:mint_mobile/services/coach/chat_tool_dispatcher.dart';
+import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
-import 'package:mint_mobile/widgets/coach/rich_chat_widgets.dart';
-import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
+import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
+import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
+import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
+import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
+import 'package:mint_mobile/models/coach_insight.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
+import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/models/screen_return.dart';
+import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
+    show VoicePreference;
+import 'package:mint_mobile/widgets/coach/chat_drawer_host.dart';
+import 'package:mint_mobile/widgets/pulse/cap_card.dart' show CapCoachBridge;
 
 // ────────────────────────────────────────────────────────────
 //  COACH CHAT SCREEN — SLM-first, streaming, prod-ready
+//
+//  Extracted components (W13 refactoring, 4193→836 lines):
+//  - CoachAppBar         → widgets/coach/coach_app_bar.dart
+//  - CoachEmptyState     → DELETED (KILL-02, Phase 2)
+//  - CoachInputBar       → widgets/coach/coach_input_bar.dart
+//  - CoachLoadingIndicator → widgets/coach/coach_loading_indicator.dart
+//  - CoachMessageBubble  → widgets/coach/coach_message_bubble.dart
+//  - CoachRichWidgets    → widgets/coach/coach_rich_widgets.dart
+//  - LightningMenu       → widgets/coach/lightning_menu.dart
+//  Greeting card, canvas background, and disclaimer remain inline
+//  (tightly coupled to screen state — extraction deferred).
 // ────────────────────────────────────────────────────────────
 //
 // Priority chain:
@@ -61,11 +88,17 @@ class CoachChatScreen extends StatefulWidget {
   /// When true, hides the back button (used when embedded as a tab).
   final bool isEmbeddedInTab;
 
+  /// Optional structured entry payload for contextual coach sessions.
+  /// When present, overrides initialPrompt with topic-specific context.
+  /// Wire Spec V2 §3.6 — CoachEntryPayload carries source + topic + data.
+  final CoachEntryPayload? entryPayload;
+
   const CoachChatScreen({
     super.key,
     this.initialPrompt,
     this.conversationId,
     this.isEmbeddedInTab = false,
+    this.entryPayload,
   });
 
   @override
@@ -80,6 +113,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   CoachProfile? _profile;
   bool _hasProfile = false;
   final List<ChatMessage> _messages = [];
+  /// Maximum messages kept in memory to prevent Watchdog RAM termination.
+  static const int _maxMessages = 150;
+
+  /// Remove oldest messages when list exceeds [_maxMessages].
+  void _trimMessages() {
+    if (_messages.length > _maxMessages) {
+      _messages.removeRange(0, _messages.length - _maxMessages);
+    }
+  }
+
   bool _isLoading = false;
   bool _isStreaming = false;
   final StringBuffer _streamBuffer = StringBuffer();
@@ -100,6 +143,49 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Once answered, the picker is replaced by the user's response text.
   final Set<int> _answeredInputIndices = {};
 
+  /// Voice intensity level (1-5). Persisted in SharedPreferences.
+  /// 1 = Tranquille, 2 = Clair (default), 3 = Direct, 4 = Cash, 5 = Brut
+  int _cashLevel = 2;
+
+  /// Whether the silent opener is currently displayed (no messages yet).
+  bool _showSilentOpener = false;
+
+  /// Random greeting index — picked once per screen open.
+  final int _greetingIndex = Random().nextInt(20);
+
+  /// SharedPreferences keys for proactive opt-in tracking.
+  static const String _conversationCountKey = 'mint_coach_conversation_count';
+  static const String _proactiveOptInKey = 'mint_coach_proactive_optin';
+  static const String _proactiveOptInAskedKey = 'mint_coach_proactive_optin_asked';
+
+  /// Whether the proactive opt-in question has been shown this session.
+  bool _optInShownThisSession = false;
+
+  /// Whether the user has already chosen an intensity (hides picker chips).
+  bool _intensityChosen = false;
+
+  /// Whether the cash level has been loaded from SharedPreferences.
+  bool _cashLevelLoaded = false;
+
+  /// SharedPreferences key for voice intensity level.
+  static const String _cashLevelKey = 'mint_coach_cash_level';
+
+  /// Extra context from CoachEntryPayload, injected into the system prompt.
+  /// One-shot: cleared after first use.
+  String? _entryPayloadContext;
+
+  /// ARB chip key from onboarding intent selection (e.g. 'intentChip3a').
+  /// Set in _loadOnboardingPayload. Consumed once in _addInitialGreeting.
+  String? _pendingIntentChipKey;
+
+  /// Intent-specific opener text for the silent opener (D-06).
+  /// Non-null only on the first session after intent selection.
+  String? _intentOpenerText;
+
+  /// Subscription to ScreenCompletionTracker for immediate reaction
+  /// when user completes a simulation and returns to coach.
+  StreamSubscription<ScreenReturn>? _screenReturnSub;
+
   @override
   void initState() {
     super.initState();
@@ -110,6 +196,94 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       _isResumingConversation = true;
       _loadExistingConversation(widget.conversationId!);
     }
+    _loadCashLevel();
+    _loadOnboardingPayload();
+    _subscribeToScreenReturns();
+    _consumeCapCoachBridge();
+  }
+
+  /// Consume any pending prompt from CapCoachBridge (set by CapCard).
+  /// Converts the raw prompt string into a CoachEntryPayload context injection.
+  void _consumeCapCoachBridge() {
+    final capPrompt = CapCoachBridge.consume();
+    if (capPrompt != null && capPrompt.isNotEmpty) {
+      _entryPayloadContext = const CoachEntryPayload(
+        source: CoachEntrySource.signal,
+        topic: 'capAction',
+      ).toContextInjection();
+    }
+  }
+
+  /// Load voice intensity from SharedPreferences.
+  Future<void> _loadCashLevel() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final level = prefs.getInt(_cashLevelKey);
+      if (mounted) {
+        setState(() {
+          _cashLevelLoaded = true;
+          if (level != null) {
+            _cashLevel = level.clamp(1, 5);
+            _intensityChosen = true;
+          }
+        });
+      }
+    } catch (e) {
+      // Graceful degradation: default level 3, show picker.
+      if (mounted) {
+        setState(() => _cashLevelLoaded = true);
+      }
+    }
+  }
+
+  /// Save voice intensity to SharedPreferences.
+  Future<void> _saveCashLevel(int level) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(_cashLevelKey, level);
+    } catch (e) {
+      // Best-effort persistence.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+    }
+  }
+
+  /// Phase 10-02a: write the miniOnboardingCompleted flag on first chat
+  /// entry from an onboarding-intent payload. Idempotent: re-entering the
+  /// coach chat later with another intent payload is a no-op.
+  Future<void> _markOnboardingCompletedIfNeeded() async {
+    try {
+      final already =
+          await ReportPersistenceService.isMiniOnboardingCompleted();
+      if (!already) {
+        await ReportPersistenceService.setMiniOnboardingCompleted(true);
+      }
+    } catch (e) {
+      // Best-effort: chat continues even if the flag cannot be written.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+    }
+  }
+
+  /// Load onboarding payload (one-shot).
+  ///
+  /// Phase 10-02a: emotion replay dropped — coach reacts to facts, not
+  /// to a pre-captured mood. Only the selected intent chip key is loaded
+  /// for the first-session opener (D-06).
+  Future<void> _loadOnboardingPayload() async {
+    try {
+      // Load onboarding intent for first-session opener (D-06).
+      final selectedIntent =
+          await ReportPersistenceService.getSelectedOnboardingIntent();
+      final hasSeen =
+          await ReportPersistenceService.hasSeenPremierEclairage();
+      if (selectedIntent != null && !hasSeen && mounted) {
+        setState(() {
+          _pendingIntentChipKey = selectedIntent;
+        });
+      }
+    } catch (e) {
+      // Graceful degradation: coach works without onboarding payload.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+    }
   }
 
   /// Load an existing conversation from persistent storage.
@@ -118,6 +292,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (messages.isNotEmpty && mounted) {
       setState(() {
         _messages.addAll(messages);
+        _trimMessages();
         _profileInitialized = true; // Skip greeting for resumed conversations
       });
     }
@@ -144,11 +319,58 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           _addInitialGreeting();
         }
         if (mounted) setState(() {});
-        // Auto-send initial prompt if provided (contextual routing)
-        final prompt = widget.initialPrompt;
-        if (prompt != null && prompt.isNotEmpty) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _sendMessage(prompt);
+        // Wire Spec V2: structured entry payload takes priority
+        if (widget.entryPayload != null) {
+          final payload = widget.entryPayload!;
+          // Phase 10-02a: onboarding-done ownership moved here from
+          // intent_screen. Conversation is the only honest "onboarding
+          // done" signal — the flag is set on the first successful chat
+          // entry carried by an onboarding-intent payload.
+          if (payload.source == CoachEntrySource.onboardingIntent &&
+              payload.data?['fromOnboarding'] == true) {
+            _markOnboardingCompletedIfNeeded();
+          }
+          if (payload.userMessage != null) {
+            // User typed a free-form message — send it directly
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _sendMessage(payload.userMessage!);
+            });
+          } else if (payload.topic == 'onboarding') {
+            // Onboarding topic — send a real intake question instead of
+            // injecting raw context. This replaces the old ?prompt=onboarding.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _sendMessage(
+                'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
+              );
+            });
+          } else if (_isNotificationTopic(payload.topic)) {
+            // Notification topics (monthlyCheckIn, commitmentReminder,
+            // freshStart): inject a coach-authored opening message so the
+            // conversation starts with a concrete question tied to the
+            // notification intent, not a generic greeting.
+            final opener = _notificationOpener(payload.topic!, payload.data);
+            if (opener != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _addCoachOpenerMessage(opener);
+              });
+            }
+            // Still inject the topic context so downstream prompts know
+            // this is a notification-driven entry.
+            _entryPayloadContext = payload.toContextInjection();
+          } else if (payload.topic != null) {
+            // Topic-based entry — inject context into system prompt.
+            // The topic context is injected via the memory block,
+            // not as a user message.
+            _entryPayloadContext = payload.toContextInjection();
+          }
+        }
+      } else {
+        // CHAT-01: Anonymous user (no profile) — show silent opener
+        // with the question text. The opener invites the user to type,
+        // and data capture (CHAT-04) will collect profile data inline.
+        if (!_isResumingConversation) {
+          setState(() {
+            _showSilentOpener = true;
           });
         }
       }
@@ -157,6 +379,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   @override
   void dispose() {
+    _screenReturnSub?.cancel();
     _autoSaveConversation();
     _controller.dispose();
     _scrollController.dispose();
@@ -172,58 +395,340 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
+  /// Subscribe to ScreenCompletionTracker stream so the coach can react
+  /// immediately when the user completes a simulation (e.g., document scan,
+  /// retirement dashboard) and returns to the chat.
+  void _subscribeToScreenReturns() {
+    _screenReturnSub = ScreenCompletionTracker.stream.listen((screenReturn) {
+      if (!mounted) return;
+      // Inject the screen return as context for the next coach response.
+      final fields = screenReturn.updatedFields;
+      final fieldSummary = fields != null && fields.isNotEmpty
+          ? fields.entries.map((e) => '${e.key}: ${e.value}').join(', ')
+          : '';
+      final contextLine = "L'utilisateur vient de terminer une simulation "
+          "(${screenReturn.route}, r\u00e9sultat\u00a0: ${screenReturn.outcome.name})"
+          "${fieldSummary.isNotEmpty ? '. Donn\u00e9es mises \u00e0 jour\u00a0: $fieldSummary' : ''}.";
+      _entryPayloadContext = contextLine;
+    });
+  }
+
   // ════════════════════════════════════════════════════════════
-  //  GREETING
+  //  SILENT OPENER — coach shows a NUMBER, not a greeting
   // ════════════════════════════════════════════════════════════
 
   void _addInitialGreeting() {
     assert(_profile != null);
-    final p = _profile!;
 
-    // SILENT greeting: no CapEngine, no score, no retirement mention.
-    // The user guides the direction. Silence is premium.
-    final name = p.firstName;
-    final greeting = name != null && name.isNotEmpty
-        ? '$name, on commence par quoi\u00a0?'
-        : 'On commence par quoi\u00a0?';
+    // Intent-aware opener (D-06): resolve chip-specific text on first session.
+    if (_pendingIntentChipKey != null) {
+      final l10n = S.of(context);
+      if (l10n != null) {
+        final resolved = resolveIntentOpener(_pendingIntentChipKey!, l10n);
+        if (resolved != null) {
+          _intentOpenerText = resolved;
+        }
+      }
+      _pendingIntentChipKey = null; // consume once
+    }
 
-    // Emotional suggestions based on age/situation + life event trigger
-    final personalizedPrompts = ResponseCardService.suggestedPrompts(p);
-    final suggestions = personalizedPrompts.isNotEmpty
-        ? [...personalizedPrompts.take(2), 'Il m\u2019arrive quelque chose']
-        : [
-            'Par o\u00f9 commencer\u00a0?',
-            'C\u2019est quoi tout \u00e7a\u00a0?',
-            'Il m\u2019arrive quelque chose',
-          ];
+    // Show silent opener (key number) instead of a proactive message.
+    // The opener disappears as soon as the user types.
+    setState(() {
+      _showSilentOpener = true;
+    });
 
-    _messages.add(ChatMessage(
-      role: 'assistant',
-      content: greeting,
-      timestamp: DateTime.now(),
-      suggestedActions: suggestions,
-      tier: ChatTier.none,
-    ));
+    // Track analytics: silent opener shown
+    AnalyticsService().trackEvent('coach_silent_opener_shown', data: {
+      'engaged': false,
+    });
+
+    // Increment conversation count for opt-in tracking.
+    _incrementConversationCount();
+  }
+
+  /// Returns true if [topic] is a notification-driven entry topic that
+  /// should trigger a coach-authored opening message.
+  bool _isNotificationTopic(String? topic) {
+    if (topic == null) return false;
+    return topic == 'monthlyCheckIn' ||
+        topic == 'commitmentReminder' ||
+        topic == 'freshStart';
+  }
+
+  /// Returns the opening coach message for a notification topic, or null
+  /// if the topic has no dedicated opener.
+  ///
+  /// [data] may carry notification-specific fields. For commitmentReminder,
+  /// `data['commitment']` (String) is interpolated into the message.
+  String? _notificationOpener(String topic, Map<String, dynamic>? data) {
+    switch (topic) {
+      case 'monthlyCheckIn':
+        return 'On fait le point sur le mois\u00a0?';
+      case 'commitmentReminder':
+        final commitment = data?['commitment']?.toString();
+        if (commitment != null && commitment.trim().isNotEmpty) {
+          return 'Tu m\u2019avais dit que tu allais $commitment. C\u2019est fait\u00a0?';
+        }
+        return 'Tu avais un engagement a tenir. C\u2019est fait\u00a0?';
+      case 'freshStart':
+        return 'Nouveau mois. On commence par quoi\u00a0?';
+      default:
+        return null;
+    }
+  }
+
+  /// Appends a coach-authored opening message to the conversation.
+  /// Dismisses the silent opener so the chat feels like a live conversation.
+  void _addCoachOpenerMessage(String content) {
+    if (!mounted) return;
+    setState(() {
+      _showSilentOpener = false;
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: content,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _scrollToBottom();
+  }
+
+  /// Increment the conversation count in SharedPreferences.
+  Future<void> _incrementConversationCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final count = prefs.getInt(_conversationCountKey) ?? 0;
+      await prefs.setInt(_conversationCountKey, count + 1);
+    } catch (e) {
+      // Best-effort persistence.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+    }
+  }
+
+  /// Compute the key financial number to display in the silent opener.
+  /// Returns (formattedNumber, headline) or null if no data available.
+  ({String number, String headline})? _computeKeyNumber() {
+    if (_profile == null) return null;
+    final s = S.of(context)!;
+
+    // Priority 1: replacement rate (most impactful)
+    try {
+      final proj = ForecasterService.project(
+        profile: _profile!,
+        targetDate: _profile!.goalA.targetDate,
+      );
+      final taux = proj.tauxRemplacementBase;
+      if (taux.isFinite && taux > 0) {
+        return (
+          number: '${taux.round()}\u00a0%',
+          headline: s.coachSilentOpenerReplacementRate,
+        );
+      }
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+
+    // Priority 2: financial fitness score
+    try {
+      final score = FinancialFitnessService.calculate(profile: _profile!);
+      final g = score.global;
+      if (g > 0) {
+        return (
+          number: '$g/100',
+          headline: s.coachSilentOpenerFitnessScore,
+        );
+      }
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+
+    // Priority 3: projected capital
+    try {
+      final proj = ForecasterService.project(
+        profile: _profile!,
+        targetDate: _profile!.goalA.targetDate,
+      );
+      final cap = proj.base.capitalFinal;
+      if (cap.isFinite && cap > 0) {
+        final formatted = _formatChf(cap);
+        return (
+          number: formatted,
+          headline: s.coachSilentOpenerRetirementCapital,
+        );
+      }
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+
+    return null;
+  }
+
+  /// Format a CHF amount for display (e.g. "1'234'567").
+  String _formatChf(double amount) {
+    final rounded = amount.round();
+    final digits = rounded.toString();
+    return digits.replaceAllMapped(
+        RegExp(r'(\d)(?=(\d{3})+$)'), (m) => "${m[1]}'");
   }
 
   // ════════════════════════════════════════════════════════════
   //  MESSAGE SENDING — SLM streaming or standard
   // ════════════════════════════════════════════════════════════
 
-  void _showLightningMenu() {
-    showModalBottomSheet<void>(
+  Future<void> _showLightningMenu() async {
+    final capMem = await CapMemoryStore.load();
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => LightningMenu(
         profile: _profile,
-        onSendMessage: _sendMessage,
+        capMemory: capMem,
+        onSendMessage: (message) {
+          if (mounted) _sendMessage(message);
+        },
+        onNavigate: (route) {
+          if (!mounted) return;
+          // CHAT-02: Open as drawer over chat instead of full-page push.
+          final widget = ChatDrawerHost.resolveDrawerWidget(route);
+          if (widget != null) {
+            showChatDrawer(context: context, child: widget);
+          } else {
+            // NAV-03/WID-03: Routes without drawer support (e.g. /scan,
+            // /profile/bilan) fall back to standard push navigation.
+            context.push(route);
+          }
+        },
       ),
     );
   }
 
+  /// Handle intensity chip selection.
+  void _onIntensitySelected(int level) {
+    setState(() {
+      _cashLevel = level;
+      _intensityChosen = true;
+    });
+    _saveCashLevel(level);
+
+    // Add adapted confirmation message.
+    final l10n = S.of(context)!;
+    final String confirmation;
+    switch (level) {
+      case 1:
+        confirmation = l10n.intensityConfirmation1;
+        break;
+      case 2:
+        confirmation = l10n.intensityConfirmation2;
+        break;
+      case 3:
+        confirmation = l10n.intensityConfirmation3;
+        break;
+      case 4:
+        confirmation = l10n.intensityConfirmation4;
+        break;
+      case 5:
+        confirmation = l10n.intensityConfirmation5;
+        break;
+      default:
+        confirmation = l10n.intensityDirect;
+    }
+
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: confirmation,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
+    });
+    _scrollToBottom();
+  }
+
+  /// Regex patterns for voice intensity adjustment commands.
+  static final RegExp _intensityUpPattern = RegExp(
+    r'(plus cash|plus direct|mode brut|sois plus direct|parle.?moi plus cash|monte.*cran|plus franc)',
+    caseSensitive: false,
+  );
+  static final RegExp _intensityDownPattern = RegExp(
+    r'(plus doux|plus gentil|sois plus doux|calme|moins direct|baisse.*cran|plus tranquille|doucement)',
+    caseSensitive: false,
+  );
+
+  /// Check if the user message is a voice intensity adjustment command.
+  /// Returns true if handled (message should not be sent to LLM).
+  bool _handleVoiceIntensityCommand(String text) {
+    final s = S.of(context)!;
+    if (_intensityUpPattern.hasMatch(text)) {
+      final newLevel = (_cashLevel + 1).clamp(1, 5);
+      if (newLevel == _cashLevel) return false; // Already at max
+      setState(() {
+        _cashLevel = newLevel;
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: s.intensityAdjustedUp,
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _saveCashLevel(newLevel);
+      _scrollToBottom();
+      return true;
+    }
+    if (_intensityDownPattern.hasMatch(text)) {
+      final newLevel = (_cashLevel - 1).clamp(1, 5);
+      if (newLevel == _cashLevel) return false; // Already at min
+      setState(() {
+        _cashLevel = newLevel;
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: s.intensityAdjustedDown,
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _saveCashLevel(newLevel);
+      _scrollToBottom();
+      return true;
+    }
+    return false;
+  }
+
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
+    _focusNode.unfocus();
+
+    // AUTH NOTE: Auth gate was moved AFTER SLM attempt (see _handleStandardResponse).
+    // Anonymous users CAN chat via SLM (on-device, no auth needed).
+    // Auth is only required when falling back to server-key API calls.
+
+    // Dismiss silent opener when user types their first message.
+    if (_showSilentOpener) {
+      setState(() {
+        _showSilentOpener = false;
+      });
+      // Track analytics: user engaged with the silent opener
+      AnalyticsService().trackEvent('coach_silent_opener_shown', data: {
+        'engaged': true,
+      });
+    }
+
+    // Check for voice intensity adjustment commands before sending to LLM.
+    if (_handleVoiceIntensityCommand(text.trim())) {
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: text.trim(),
+          timestamp: DateTime.now(),
+        ));
+      });
+      _controller.clear();
+      // Re-order: user message first, then response.
+      if (_messages.length >= 2) {
+        final assistantMsg = _messages.removeLast();
+        final userMsg = _messages.removeLast();
+        _messages.add(userMsg);
+        _messages.add(assistantMsg);
+      }
+      _scrollToBottom();
+      return;
+    }
 
     setState(() {
       _messages.add(ChatMessage(
@@ -237,8 +742,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     _scrollToBottom();
 
     // Build enriched context for AI memory injection (S58).
-    // Timeout + try/catch: if SharedPreferences or any dependency fails/hangs,
-    // the chat still works without memory enrichment (graceful degradation).
     String? memoryBlock;
     try {
       final enrichedContext = await ContextInjectorService.buildContext(
@@ -248,8 +751,29 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: chat works without memory block.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+    }
+
+    // Wire Spec V2: append entry payload context if present (one-shot).
+    if (_entryPayloadContext != null) {
+      memoryBlock = '${memoryBlock ?? ''}\n$_entryPayloadContext';
+      _entryPayloadContext = null; // one-shot: clear after first use
+    }
+
+    // CHAT-01: Load profile if available — never invent fake data.
+    // If no profile exists, use default CoachProfile (all zeros/empty).
+    // The system prompt detects confidence=0 and asks for real data.
+    if (_profile == null) {
+      final provider = context.read<CoachProfileProvider>();
+      if (provider.hasProfile) {
+        _profile = provider.profile;
+      } else {
+        // Minimal profile with no fake data — zeros mean "unknown".
+        _profile = CoachProfile.defaults();
+      }
+      _hasProfile = provider.hasProfile;
     }
 
     // Try SLM streaming first.
@@ -265,10 +789,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       await _handleStreamResponse(stream, text.trim(), ctx);
       return;
     }
-
-    // Try backend Claude proxy (S56 — server-side, no BYOK needed).
-    final backendSuccess = await _tryBackendClaude(text.trim());
-    if (backendSuccess) return;
 
     // Fallback to standard (BYOK → fallback chain).
     await _handleStandardResponse(text.trim(), memoryBlock: memoryBlock);
@@ -350,96 +870,63 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         context: ctx,
         componentType: ComponentType.general,
       );
-    } catch (_) {
-      // ComplianceGuard crashed — still sanitize banned terms manually
-      // since SLM can generate them despite system prompt.
+    } catch (e) {
       compliance = ComplianceResult(
         isCompliant: true,
         sanitizedText: ComplianceGuard.sanitizeBannedTerms(rawText),
       );
     }
 
-    final finalText = compliance.useFallback
+    final complianceText = compliance.useFallback
         ? S.of(context)!.coachComplianceError
         : (compliance.sanitizedText.isNotEmpty
             ? compliance.sanitizedText
             : rawText);
 
-    final suggestedActions =
-        compliance.useFallback ? null : _inferSuggestedActions(userMessage);
+    // Wire Spec V2 §3.6: parse tool call markers from response.
+    final parseResult = ToolCallParser.parse(complianceText);
+    final finalText = parseResult.cleanText.isNotEmpty
+        ? parseResult.cleanText
+        : complianceText;
 
     // Phase 1: generate inline response cards from user message
     final cards = _profile != null
-        ? ResponseCardService.generateForChat(_profile!, userMessage)
+        ? ResponseCardService.generateForChat(_profile!, userMessage, l: S.of(context)!)
         : <ResponseCard>[];
+
+    // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
+    final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
+
+    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
+    final inferredActions = compliance.useFallback
+        ? <String>[]
+        : _inferSuggestedActions(userMessage, finalText);
+    final routeChips = _extractRouteChips(richCalls);
+    final suggestedActions = <String>{
+      ...inferredActions,
+      ...routeChips,
+    }.take(4).toList();
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
         role: 'assistant',
         content: finalText,
         timestamp: DateTime.now(),
-        suggestedActions: suggestedActions,
+        suggestedActions: suggestedActions.isEmpty ? null : suggestedActions,
         responseCards: cards,
         tier: ChatTier.slm,
-        userQuery: userMessage,
+        richToolCalls: richCalls,
       );
       _isStreaming = false;
+      _trimMessages();
     });
     _scrollToBottom();
-  }
 
-  /// Try backend Claude proxy (S56). Returns true if successful.
-  Future<bool> _tryBackendClaude(String text) async {
-    if (_profile == null) return false;
+    // Wire S58: extract and persist insight from SLM exchange.
+    _extractAndSaveInsight(userMessage, finalText);
 
-    try {
-      final history = _messages
-          .where((m) => m.role == 'user' || m.role == 'assistant')
-          .map((m) => {'role': m.role, 'content': m.content})
-          .toList();
-
-      final response = await BackendCoachService.chat(
-        message: text,
-        profile: _profile!,
-        history: history,
-      );
-
-      if (response == null) return false;
-
-      // Generate inline response cards
-      final cards = ResponseCardService.generateForChat(_profile!, text);
-
-      if (!mounted) return true;
-
-      // Build widgetCall map from Claude tool_use response
-      Map<String, dynamic>? widgetCallMap;
-      if (response.widget != null) {
-        widgetCallMap = {
-          'tool': response.widget!.tool,
-          'params': response.widget!.params,
-        };
-      }
-
-      setState(() {
-        _messages.add(ChatMessage(
-          role: 'assistant',
-          content: response.reply,
-          timestamp: DateTime.now(),
-          suggestedActions: _inferSuggestedActions(text),
-          responseCards: cards,
-          tier: ChatTier.byok,
-          disclaimers: [response.disclaimer],
-          userQuery: text,
-          widgetCall: widgetCallMap,
-        ));
-        _isLoading = false;
-      });
-      _scrollToBottom();
-      return true;
-    } catch (e) {
-      debugPrint('[CoachChat] Backend Claude error: $e');
-      return false;
-    }
+    // Check if we should propose proactive opt-in.
+    _maybeShowProactiveOptIn();
   }
 
   /// Handle standard (non-streaming) response via orchestrator.
@@ -447,36 +934,77 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       {String? memoryBlock}) async {
     try {
       final config = _buildConfig();
+      // Capture l10n before await to avoid using BuildContext across async gap.
+      final l10n = S.of(context)!;
       final response = await CoachLlmService.chat(
         userMessage: text,
         profile: _profile!,
         history: _messages,
         config: config,
         memoryBlock: memoryBlock,
+        cashLevel: _cashLevel,
       );
 
       final tier = config.hasApiKey ? ChatTier.byok : ChatTier.fallback;
 
       // Phase 1: generate inline response cards from user message context
       final cards = _profile != null
-          ? ResponseCardService.generateForChat(_profile!, text)
+          ? ResponseCardService.generateForChat(_profile!, text, l: l10n)
           : <ResponseCard>[];
+
+      // Wire Spec V2 §3.6: parse tool call markers from response.
+      final parseResult = ToolCallParser.parse(response.message);
+      final cleanMessage = parseResult.cleanText.isNotEmpty
+          ? parseResult.cleanText
+          : response.message;
+
+      // T-02-06: normalize and cap tool calls via ChatToolDispatcher.
+      // STAB-03 / STAB-04: merge structured toolCalls from the orchestrator
+      // (BYOK path — Claude tool_use blocks re-exposed by CoachLlmService.chat)
+      // with marker-parsed toolCalls (SLM / legacy text path). Both feed
+      // WidgetRenderer via CoachMessageBubble.richToolCalls.
+      final markerCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
+      final structuredCalls = ChatToolDispatcher.filterRag(response.toolCalls);
+      final richCalls = <RagToolCall>[
+        ...structuredCalls,
+        ...markerCalls,
+      ].take(5).toList();
+
+      // UX-04: Use LLM-provided suggestions if available, otherwise infer
+      // from conversation context. Enrich with route_to_screen tool calls
+      // so the coach's navigation proposals also appear as tappable chips.
+      final inferredActions = response.suggestedActions ??
+          _inferSuggestedActions(text, cleanMessage);
+      final routeChips = _extractRouteChips(richCalls);
+      final suggestedActions = <String>{
+        ...inferredActions,
+        ...routeChips,
+      }.take(4).toList();
 
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: response.message,
+          content: cleanMessage,
           timestamp: DateTime.now(),
-          suggestedActions: response.suggestedActions,
+          suggestedActions: suggestedActions,
           sources: response.sources,
           disclaimers: response.disclaimers,
           responseCards: cards,
           tier: tier,
-          userQuery: text,
+          richToolCalls: richCalls,
+          // v2.7 Task 8: surface degraded flag to bubble for subtle chip.
+          degraded: response.degraded,
         ));
         _isLoading = false;
+        _trimMessages();
       });
       _scrollToBottom();
+
+      // Wire S58: extract and persist insight from BYOK/fallback exchange.
+      _extractAndSaveInsight(text, cleanMessage);
+
+      // Check if we should propose proactive opt-in.
+      _maybeShowProactiveOptIn();
     } on RagApiException catch (e) {
       if (!mounted) return;
       final s = S.of(context)!;
@@ -491,24 +1019,154 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         default:
           errorMsg = s.coachErrorGeneric;
       }
+      // Recover last user message so the user can retry with one tap.
+      final lastUserText = _messages
+          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
+                role: 'user',
+                content: '',
+                timestamp: DateTime.now(),
+              ))
+          .content;
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
           content: errorMsg,
           timestamp: DateTime.now(),
+          suggestedActions: [
+            if (lastUserText.isNotEmpty) lastUserText,
+          ],
         ));
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
+      debugPrint('[CoachChat] Standard response error: $e');
+      // Recover the last user message for retry suggestion.
+      final lastUserMsg = _messages
+          .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
+                role: 'user',
+                content: '',
+                timestamp: DateTime.now(),
+              ))
+          .content;
+      final retryActions = <String>[
+        if (lastUserMsg.isNotEmpty) lastUserMsg,
+      ];
       setState(() {
         _messages.add(ChatMessage(
           role: 'system',
           content: S.of(context)!.coachErrorConnection,
           timestamp: DateTime.now(),
+          suggestedActions: retryActions,
         ));
         _isLoading = false;
       });
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  INSIGHT EXTRACTION (S58 — AI Memory wiring)
+  // ════════════════════════════════════════════════════════════
+
+  /// Regex for detecting financial topics in conversation text.
+  static final RegExp _financialTopicPattern = RegExp(
+    r'\b(3a|3e|lpp|retraite|fiscalit[eé]|budget|logement|avs|imp[oô]t|rente|capital|pilier)\b',
+    caseSensitive: false,
+  );
+
+  /// Extract a key insight from a coach exchange and persist it.
+  ///
+  /// Fire-and-forget: errors are caught silently so chat flow is never blocked.
+  /// Skips short exchanges (user < 20 chars or coach < 50 chars) to avoid
+  /// storing trivial greetings / acknowledgements.
+  void _extractAndSaveInsight(String userMessage, String coachResponse) {
+    // Skip trivial exchanges.
+    if (userMessage.length < 20 || coachResponse.length < 50) return;
+
+    // Detect financial topic via regex.
+    final match = _financialTopicPattern.firstMatch(
+      '${userMessage.toLowerCase()} ${coachResponse.toLowerCase()}',
+    );
+    if (match == null) return;
+
+    final topic = match.group(1) ?? 'general';
+
+    // Build a privacy-safe summary (max 200 chars, no PII).
+    final summary = coachResponse.length > 200
+        ? coachResponse.substring(0, 197).replaceAll(RegExp(r'\s+\S*$'), '...')
+        : coachResponse;
+
+    final insight = CoachInsight(
+      id: '${DateTime.now().millisecondsSinceEpoch}_$topic',
+      createdAt: DateTime.now(),
+      topic: topic,
+      summary: summary,
+      type: InsightType.fact,
+    );
+
+    // Fire-and-forget — never block the UI.
+    CoachMemoryService.saveInsight(insight).catchError((_) {});
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  PROACTIVE OPT-IN (after 3rd conversation)
+  // ════════════════════════════════════════════════════════════
+
+  /// Check if we should propose proactive opt-in at end of conversation.
+  /// Called after each assistant response when user has sent messages.
+  Future<void> _maybeShowProactiveOptIn() async {
+    if (_optInShownThisSession) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      // Already asked and declined? Never ask again.
+      final alreadyAsked = prefs.getBool(_proactiveOptInAskedKey) ?? false;
+      if (alreadyAsked) return;
+      // Already opted in? No need to ask.
+      final optedIn = prefs.getBool(_proactiveOptInKey) ?? false;
+      if (optedIn) return;
+      // Only ask after 3rd conversation.
+      final count = prefs.getInt(_conversationCountKey) ?? 0;
+      if (count < 3) return;
+      // Only ask if user has sent at least 2 messages this session.
+      final userMsgCount = _messages.where((m) => m.isUser).length;
+      if (userMsgCount < 2) return;
+
+      _optInShownThisSession = true;
+      if (!mounted) return;
+
+      final s = S.of(context)!;
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: s.coachProactiveOptIn,
+          timestamp: DateTime.now(),
+          suggestedActions: [s.coachOptInAccept, s.coachOptInDecline],
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+    } catch (e) {
+      // Best-effort — don't block chat.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
+    }
+  }
+
+  /// Handle the user's response to the proactive opt-in question.
+  Future<void> _handleOptInResponse(bool accepted) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(_proactiveOptInAskedKey, true);
+      if (accepted) {
+        await prefs.setBool(_proactiveOptInKey, true);
+      }
+      // Track analytics
+      AnalyticsService().trackEvent('coach_proactive_optin', data: {
+        'accepted': accepted,
+        'conversationCount': prefs.getInt(_conversationCountKey) ?? 0,
+      });
+    } catch (e) {
+      // Best-effort.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -517,21 +1175,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   /// Called when the user selects a value from an inline input picker.
-  /// Updates the profile, marks the picker as answered, and sends
-  /// the value as a user message to continue the conversation.
   void _handleInputSubmitted(int messageIndex, String field, String value) {
-    // 1. Mark this input as answered so the picker disappears.
     setState(() {
       _answeredInputIndices.add(messageIndex);
     });
-
-    // 2. Update the profile with the new value.
     _updateProfileField(field, value);
-
-    // 3. Build a human-readable response for the chat.
     final displayText = _displayTextForInput(field, value);
-
-    // 4. Send as user message to continue the conversation.
     _sendMessage(displayText);
   }
 
@@ -567,13 +1216,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
     if (answers.isNotEmpty) {
       provider.mergeAnswers(answers);
-      // Refresh local profile reference.
       _profile = provider.profile;
       _hasProfile = provider.hasProfile;
     }
   }
 
-  /// Map a user-facing civil status label to the internal wizard key.
   String _mapCivilStatus(String display) {
     final lower = display.toLowerCase();
     if (lower.contains('mari')) return 'married';
@@ -582,7 +1229,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return 'single';
   }
 
-  /// Map a user-facing employment status label to the internal wizard key.
   String _mapEmploymentStatus(String display) {
     final lower = display.toLowerCase();
     if (lower.contains('ind\u00e9pendant') || lower.contains('independant')) {
@@ -592,7 +1238,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     return 'employed';
   }
 
-  /// Build a natural display text for the user's input response.
   String _displayTextForInput(String field, String value) {
     switch (field) {
       case 'age':
@@ -615,7 +1260,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
   }
 
-  /// Format a numeric string with Swiss apostrophe separators for display.
   String _formatForDisplay(String value) {
     final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
     if (digits.isEmpty) return '0';
@@ -658,7 +1302,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     try {
       final proj = ForecasterService.project(
@@ -669,7 +1313,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
@@ -679,255 +1323,87 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
-  List<String> _inferSuggestedActions(String userMessage) {
+  List<String> _inferSuggestedActions(
+    String userMessage,
+    String coachResponse,
+  ) {
     final s = S.of(context)!;
-    final lower = userMessage.toLowerCase();
-    if (lower.contains('3a')) {
-      return [s.coachSuggestSimulate3a, s.coachSuggestView3a];
+    final combined = '$userMessage $coachResponse'.toLowerCase();
+    final actions = <String>[];
+
+    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
     }
-    if (lower.contains('lpp') || lower.contains('rachat')) {
-      return [s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp];
+    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
     }
-    if (lower.contains('retraite')) {
-      return [s.coachSuggestTrajectory, s.coachSuggestScenarios];
+    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
     }
-    if (lower.contains('impot') || lower.contains('fiscal')) {
-      return [s.coachSuggestDeductions, s.coachSuggestTaxImpact];
+    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
     }
-    return [s.coachSuggestFitness, s.coachSuggestRetirement];
+    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
+        .hasMatch(combined)) {
+      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
+    }
+    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
+        .hasMatch(combined)) {
+      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
+    }
+
+    // UX-04: No hardcoded defaults. Chips appear ONLY when the
+    // conversation matches a topic regex — otherwise the list is empty
+    // and no chips are shown. This prevents static/irrelevant chips
+    // from appearing after every response regardless of context.
+    // Deduplicate and cap at 3
+    return actions.toSet().take(3).toList();
   }
 
-  // ════════════════════════════════════════════════════════════
-  //  RICH INLINE WIDGETS — S56
-  // ════════════════════════════════════════════════════════════
-
-  /// Build an optional rich inline widget based on the user's message
-  /// and profile data. Returns null if no widget is appropriate or if
-  /// required data is missing.
-  Widget? _buildRichWidget(String userMessage, CoachProfile profile) {
-    final lower = userMessage.toLowerCase();
-
-    // --- Rente vs Capital ---
-    if ((lower.contains('rente') && lower.contains('capital')) ||
-        lower.contains('rente ou capital') ||
-        lower.contains('capital ou rente')) {
-      return _buildRenteVsCapitalWidget(profile);
+  /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
+  ///
+  /// When the LLM returns a route_to_screen tool call, it includes a
+  /// context_message explaining why the user should navigate there.
+  /// We surface these as tappable suggestion chips so the user has
+  /// both the inline card AND a quick-tap chip option.
+  List<String> _extractRouteChips(List<RagToolCall> toolCalls) {
+    final chips = <String>[];
+    for (final call in toolCalls) {
+      if (call.name != 'route_to_screen') continue;
+      final contextMsg = call.input['context_message'] as String? ??
+          call.input['narrative'] as String?;
+      if (contextMsg != null && contextMsg.isNotEmpty) {
+        // Cap chip text at 60 chars for UI readability
+        final label = contextMsg.length > 60
+            ? '${contextMsg.substring(0, 57)}...'
+            : contextMsg;
+        chips.add(label);
+      }
     }
-
-    // --- Retirement projection ---
-    if (lower.contains('retraite') ||
-        lower.contains('pension') ||
-        lower.contains('combien a la retraite') ||
-        lower.contains('combien à la retraite')) {
-      return _buildRetirementComparisonWidget(profile);
-    }
-
-    // --- Financial fitness score ---
-    if (lower.contains('score') ||
-        lower.contains('fitness') ||
-        lower.contains('forme financ') ||
-        lower.contains('fri')) {
-      return _buildFitnessGaugeWidget(profile);
-    }
-
-    // --- Tax / 3a ---
-    if (lower.contains('impot') ||
-        lower.contains('impôt') ||
-        lower.contains('fiscal') ||
-        lower.contains('3a') ||
-        lower.contains('déduction')) {
-      return _buildTaxFactWidget(profile);
-    }
-
-    // --- Budget ---
-    if (lower.contains('budget') ||
-        lower.contains('dépense') ||
-        lower.contains('depense') ||
-        lower.contains('épargne') ||
-        lower.contains('epargne')) {
-      return _buildBudgetComparisonWidget(profile);
-    }
-
-    return null;
-  }
-
-  /// Retirement comparison: current monthly income vs projected retirement income.
-  Widget? _buildRetirementComparisonWidget(CoachProfile profile) {
-    try {
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton,
-        age: profile.age,
-      );
-      final netMensuel = breakdown.monthlyNetPayslip;
-      if (netMensuel <= 0) return null;
-
-      final proj = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      final revenuRetraite = proj.base.revenuAnnuelRetraite / 12;
-      final taux = proj.tauxRemplacementBase;
-
-      return ChatComparisonCard(
-        title: 'Revenus\u00a0: aujourd\u2019hui vs retraite',
-        leftLabel: 'Aujourd\u2019hui',
-        leftValue: formatChfWithPrefix(netMensuel),
-        rightLabel: 'Retraite (sc. base)',
-        rightValue: formatChfWithPrefix(revenuRetraite),
-        leftAmount: netMensuel,
-        rightAmount: revenuRetraite,
-        narrative: 'Taux de remplacement\u00a0: '
-            '${(taux * 100).toStringAsFixed(0)}\u00a0% '
-            'de ton revenu actuel.',
-        onTap: () => context.push('/retraite'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// FRI gauge widget.
-  Widget? _buildFitnessGaugeWidget(CoachProfile profile) {
-    try {
-      final score = FinancialFitnessService.calculate(profile: profile);
-      return ChatGaugeCard(
-        title: 'Forme financi\u00e8re',
-        value: score.global.toDouble(),
-        maxValue: 100,
-        valueLabel: '${score.global}',
-        subtitle: score.level.shortLabel,
-        narrative: score.coachMessage,
-        onTap: () => context.push('/confidence'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Rente vs Capital comparison widget.
-  Widget? _buildRenteVsCapitalWidget(CoachProfile profile) {
-    try {
-      final proj = ForecasterService.project(
-        profile: profile,
-        targetDate: profile.goalA.targetDate,
-      );
-      final capitalTotal = proj.base.capitalFinal;
-      if (capitalTotal <= 0) return null;
-
-      // Rente: use LPP conversion rate on the LPP portion
-      final lppPortion = proj.base.decomposition['lpp'] ?? 0;
-      final tauxConversion = profile.prevoyance.tauxConversion;
-      final renteMensuelle = (lppPortion * tauxConversion) / 12;
-
-      return ChatChoiceComparison(
-        title: 'Rente vs Capital (sc. base)',
-        leftTitle: 'Rente LPP',
-        leftValue: '${formatChf(renteMensuelle)}/mois',
-        leftDescription: 'Revenu garanti \u00e0 vie, imposable',
-        rightTitle: 'Capital',
-        rightValue: formatChfWithPrefix(capitalTotal),
-        rightDescription: 'Tax\u00e9 au retrait, flexibilit\u00e9',
-        onTap: () => context.push('/rente-vs-capital'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Tax savings fact card (3a deduction).
-  Widget? _buildTaxFactWidget(CoachProfile profile) {
-    try {
-      // Max 3a deduction for salaried with LPP
-      const max3a = 7258.0;
-
-      // Estimate marginal tax savings
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton,
-        age: profile.age,
-      );
-      final netAnnuel = breakdown.netPayslip;
-      // Approximate marginal rate (25-35% depending on canton/income)
-      final marginalRate = netAnnuel > 100000 ? 0.32 : 0.25;
-      final economieFiscale = max3a * marginalRate;
-
-      return ChatFactCard(
-        eyebrow: '\u00c9conomie fiscale 3a',
-        value: '${formatChf(economieFiscale)}\u00a0CHF/an',
-        description: 'En versant le maximum 3a '
-            '(${formatChf(max3a)}\u00a0CHF), '
-            'tu pourrais r\u00e9duire tes imp\u00f4ts d\u2019environ '
-            'ce montant chaque ann\u00e9e.',
-        accentColor: MintColors.success,
-        onTap: () => context.push('/pilier-3a'),
-      );
-    } catch (_) {
-      return null;
-    }
-  }
-
-  /// Budget comparison: income vs expenses.
-  Widget? _buildBudgetComparisonWidget(CoachProfile profile) {
-    try {
-      final breakdown = NetIncomeBreakdown.compute(
-        grossSalary: profile.salaireBrutMensuel * 12,
-        canton: profile.canton,
-        age: profile.age,
-      );
-      final netMensuel = breakdown.monthlyNetPayslip;
-      if (netMensuel <= 0) return null;
-
-      final depenses = profile.totalDepensesMensuelles;
-      if (depenses <= 0) return null;
-
-      final epargne = netMensuel - depenses;
-      final tauxEpargne = epargne / netMensuel;
-
-      return ChatComparisonCard(
-        title: 'Budget mensuel',
-        leftLabel: 'Revenu net',
-        leftValue: formatChfWithPrefix(netMensuel),
-        rightLabel: 'D\u00e9penses',
-        rightValue: formatChfWithPrefix(depenses),
-        leftAmount: netMensuel,
-        rightAmount: depenses,
-        narrative: epargne > 0
-            ? '\u00c9pargne\u00a0: ${formatChf(epargne)}\u00a0CHF/mois '
-                '(${(tauxEpargne * 100).toStringAsFixed(0)}\u00a0% du net)'
-            : 'Tes d\u00e9penses d\u00e9passent ton revenu net. '
-                'Le coach peut t\u2019aider \u00e0 identifier des leviers.',
-        onTap: () => context.push('/budget'),
-      );
-    } catch (_) {
-      return null;
-    }
+    return chips;
   }
 
   /// Map suggested action labels to direct navigation routes.
-  /// Returns null if the action should be sent as a chat message instead.
   String? _routeForAction(String action) {
     final s = S.of(context)!;
     final routes = <String, String>{
-      // 3a
       s.coachSuggestSimulate3a: '/pilier-3a',
       s.coachSuggestView3a: '/pilier-3a',
-      // LPP
       s.coachSuggestSimulateLpp: '/rachat-lpp',
       s.coachSuggestUnderstandLpp: '/rachat-lpp',
-      // Retraite
       s.coachSuggestTrajectory: '/retraite',
       s.coachSuggestScenarios: '/rente-vs-capital',
-      // Fiscal
       s.coachSuggestDeductions: '/fiscal',
       s.coachSuggestTaxImpact: '/fiscal',
-      // Default
       s.coachSuggestFitness: '/confidence',
       s.coachSuggestRetirement: '/retraite',
+      s.coachSuggestBudget: '/budget',
+      s.coachSuggestBudgetGap: '/budget',
+      s.coachSuggestMortgage: '/hypotheque',
+      s.coachSuggestMortgageCapacity: '/hypotheque',
     };
     if (routes.containsKey(action)) return routes[action];
 
-    // Keyword fallback for greeting prompts (suggestedPrompts)
     final lower = action.toLowerCase();
     if (lower.contains('retraite') || lower.contains('partir')) {
       return '/retraite';
@@ -944,7 +1420,14 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (lower.contains('impot') || lower.contains('fiscal')) {
       return '/fiscal';
     }
-    // No route → send as chat message
+    if (lower.contains('budget') || lower.contains('depense')) {
+      return '/budget';
+    }
+    if (lower.contains('immobilier') ||
+        lower.contains('hypotheque') ||
+        lower.contains('maison')) {
+      return '/hypotheque';
+    }
     return null;
   }
 
@@ -988,7 +1471,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final score = FinancialFitnessService.calculate(profile: _profile!);
       fitnessScore = score.global;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     await PdfService.generateDecisionReportPdf(
       firstName: _profile!.firstName ?? 'Utilisateur',
@@ -999,199 +1482,402 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     );
   }
 
+  /// Handle action tap from suggested action chips.
+  void _handleActionTap(String action) {
+    final s = S.of(context)!;
+
+    // Handle proactive opt-in responses.
+    if (action == s.coachOptInAccept) {
+      _handleOptInResponse(true);
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: action,
+          timestamp: DateTime.now(),
+        ));
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: 'Parfait, je te signalerai ce qui compte.',
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+      return;
+    }
+    if (action == s.coachOptInDecline) {
+      _handleOptInResponse(false);
+      setState(() {
+        _messages.add(ChatMessage(
+          role: 'user',
+          content: action,
+          timestamp: DateTime.now(),
+        ));
+        _messages.add(ChatMessage(
+          role: 'assistant',
+          content: S.of(context)!.coachProactiveDecline,
+          timestamp: DateTime.now(),
+          tier: ChatTier.none,
+        ));
+      });
+      _scrollToBottom();
+      return;
+    }
+
+    final isLifeEvent = action.toLowerCase().contains('il m') &&
+        action.toLowerCase().contains('arrive');
+    if (isLifeEvent) {
+      _showLightningMenu();
+      return;
+    }
+    final route = _routeForAction(action);
+    if (route != null) {
+      // CHAT-02: Open as drawer over chat instead of full-page push.
+      final drawerWidget = ChatDrawerHost.resolveDrawerWidget(route);
+      if (drawerWidget != null) {
+        showChatDrawer(context: context, child: drawerWidget);
+      }
+    } else {
+      _sendMessage(action);
+    }
+  }
+
   // ════════════════════════════════════════════════════════════
   //  BUILD
   // ════════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
-    if (!_hasProfile) {
-      return _buildEmptyState(context);
-    }
+    // CoachEmptyState deleted (KILL-02). Chat always renders — coach speaks first.
 
     return Scaffold(
       backgroundColor: MintColors.craie,
-      body: Column(
-        children: [
-          _buildAppBar(context),
-          Expanded(child: _buildMessageList()),
-          if (_isLoading) _buildLoadingIndicator(),
-          _buildInputBar(),
-        ],
+      resizeToAvoidBottomInset: true,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            CoachAppBar(
+              isEmbeddedInTab: widget.isEmbeddedInTab,
+              hasUserMessages: _messages.any((m) => m.isUser),
+              onBack: () => safePop(context),
+              onHistory: () async {
+                final router = GoRouter.of(context);
+                await _autoSaveConversation();
+                if (mounted) router.push('/coach/history');
+              },
+              onExport: _exportConversation,
+              onSettings: () => context.push('/profile/byok'),
+            ),
+            Expanded(
+              child: GestureDetector(
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: _showSilentOpener
+                    ? _buildSilentOpenerWithTone()
+                    : _buildMessageList(),
+              ),
+            ),
+            if (_isLoading) const CoachLoadingIndicator(),
+            Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewPadding.bottom,
+              ),
+              child: CoachInputBar(
+                controller: _controller,
+                focusNode: _focusNode,
+                isStreaming: _isStreaming,
+                onSend: () => _sendMessage(_controller.text),
+                onLightningMenu: _showLightningMenu,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    final s = S.of(context)!;
-    return Scaffold(
-      backgroundColor: MintColors.craie,
-      appBar: AppBar(
-        title: Text(
-          'MINT',
-          style: MintTextStyles.titleMedium(color: MintColors.textPrimary)
-              .copyWith(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.2,
+  // ════════════════════════════════════════════════════════════
+  //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
+  // ════════════════════════════════════════════════════════════
+
+  /// CHAT-05: Wraps the silent opener with tone preference chips
+  /// if the user hasn't chosen a tone yet.
+  Widget _buildSilentOpenerWithTone() {
+    final opener = _buildSilentOpener();
+
+    // Random greeting when no messages yet.
+    final greeting = _messages.isEmpty ? _buildRandomGreeting() : const SizedBox.shrink();
+
+    if (_intensityChosen || !_cashLevelLoaded) {
+      return Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  opener,
+                  greeting,
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                opener,
+                greeting,
+              ],
+            ),
           ),
         ),
-        backgroundColor: Colors.transparent,
-        foregroundColor: MintColors.textSecondary,
-        elevation: 0,
+        Padding(
+          padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
+          child: _buildIntensityChips(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRandomGreeting() {
+    final s = S.of(context)!;
+    final greetings = [
+      s.coachGreetingRandom1,  s.coachGreetingRandom2,
+      s.coachGreetingRandom3,  s.coachGreetingRandom4,
+      s.coachGreetingRandom5,  s.coachGreetingRandom6,
+      s.coachGreetingRandom7,  s.coachGreetingRandom8,
+      s.coachGreetingRandom9,  s.coachGreetingRandom10,
+      s.coachGreetingRandom11, s.coachGreetingRandom12,
+      s.coachGreetingRandom13, s.coachGreetingRandom14,
+      s.coachGreetingRandom15, s.coachGreetingRandom16,
+      s.coachGreetingRandom17, s.coachGreetingRandom18,
+      s.coachGreetingRandom19, s.coachGreetingRandom20,
+    ];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      child: Text(
+        greetings[_greetingIndex],
+        style: GoogleFonts.montserrat(
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+          color: MintColors.textPrimary,
+          height: 1.5,
+        ),
+        textAlign: TextAlign.center,
       ),
-      body: Center(
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  SILENT OPENER WIDGET — a key number, not a greeting
+  // ════════════════════════════════════════════════════════════
+
+  Widget _buildSilentOpener() {
+    final s = S.of(context)!;
+
+    // D-06: intent-aware opener on first session.
+    if (_intentOpenerText != null) {
+      return Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: MintSpacing.xl),
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: MintColors.bleuAir.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Icon(Icons.auto_awesome_outlined,
-                    size: 28,
-                    color: MintColors.textSecondary.withValues(alpha: 0.5)),
-              ),
-              const SizedBox(height: MintSpacing.lg),
               Text(
-                s.coachEmptyStateMessage,
-                style: MintTextStyles.bodyLarge(
-                    color: MintColors.textSecondary),
+                _intentOpenerText!,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                  color: MintColors.textPrimary,
+                  height: 1.4,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: MintSpacing.lg),
-              FilledButton(
-                onPressed: () => context.go('/onboarding/quick'),
-                style: FilledButton.styleFrom(
-                  backgroundColor: MintColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 14),
-                ),
-                child: Text(
-                  s.coachEmptyStateButton,
-                  style: MintTextStyles.bodyMedium(
-                      color: MintColors.white).copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              const SizedBox(height: 24),
+              Text(
+                s.coachSilentOpenerQuestion,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                  color: MintColors.textSecondary.withValues(alpha: 0.6),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  // ════════════════════════════════════════════════════════════
-  //  APP BAR
-  // ════════════════════════════════════════════════════════════
+    final keyData = _computeKeyNumber();
 
-  Widget _buildAppBar(BuildContext context) {
-    final s = S.of(context)!;
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.craie,
-        border: Border(
-          bottom: BorderSide(
-            color: MintColors.border.withValues(alpha: 0.1),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        bottom: false,
+    // If no financial data available, show a minimal empty state.
+    if (keyData == null) {
+      return Center(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(6, 4, 6, 8),
-          child: Row(
-            children: [
-              if (!widget.isEmbeddedInTab) ...[
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                      color: MintColors.textSecondary, size: 18),
-                  onPressed: () => context.pop(),
-                ),
-              ] else
-                const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'MINT',
-                  style: MintTextStyles.titleMedium(
-                          color: MintColors.textPrimary)
-                      .copyWith(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.history_rounded,
-                    color: MintColors.textMuted, size: 20),
-                tooltip: s.coachTooltipHistory,
-                onPressed: () async {
-                  final router = GoRouter.of(context);
-                  await _autoSaveConversation();
-                  if (mounted) router.push('/coach/history');
-                },
-              ),
-              if (_messages.any((m) => m.isUser))
-                IconButton(
-                  icon: const Icon(Icons.ios_share_rounded,
-                      color: MintColors.textMuted, size: 20),
-                  tooltip: s.coachTooltipExport,
-                  onPressed: _exportConversation,
-                ),
-              IconButton(
-                icon: const Icon(Icons.more_horiz_rounded,
-                    color: MintColors.textMuted, size: 20),
-                tooltip: s.coachTooltipSettings,
-                onPressed: () => context.push('/profile/byok'),
-              ),
-            ],
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+          child: Text(
+            s.coachSilentOpenerQuestion,
+            style: TextStyle(
+              fontSize: 16,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textSecondary.withValues(alpha: 0.7),
+            ),
           ),
+        ),
+      );
+    }
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // The number, big, alone
+            Text(
+              keyData.number,
+              style: const TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.w700,
+                color: MintColors.primary,
+                height: 1.1,
+                letterSpacing: -1,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Short context headline
+            Text(
+              keyData.headline,
+              style: const TextStyle(
+                fontSize: 15,
+                color: MintColors.textSecondary,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            // "Tu veux en parler ?"
+            Text(
+              s.coachSilentOpenerQuestion,
+              style: TextStyle(
+                fontSize: 14,
+                fontStyle: FontStyle.italic,
+                color: MintColors.textSecondary.withValues(alpha: 0.6),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
-
-  // Disclaimer removed from chat header — accessible via settings menu.
-  // Educational disclaimer text is still shown in disclaimers section
-  // when returned by RAG backend responses.
 
   // ════════════════════════════════════════════════════════════
   //  MESSAGE LIST
   // ════════════════════════════════════════════════════════════
 
   Widget _buildMessageList() {
-    return ListView.builder(
+    return RepaintBoundary(
+      child: ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.symmetric(
-          horizontal: MintSpacing.md, vertical: MintSpacing.md),
+          horizontal: MintSpacing.md, vertical: 24),
       itemCount: _messages.length,
       itemBuilder: (context, index) {
         final msg = _messages[index];
         final Widget child;
         if (msg.isSystem) {
-          child = _buildSystemMessage(msg);
+          child = SystemMessageBubble(message: msg);
         } else if (msg.isUser) {
           child = Semantics(
             label: S.of(context)!.coachUserMessage,
-            child: _buildUserBubble(msg),
+            child: UserMessageBubble(message: msg),
           );
         } else {
+          // v2.7 Task 8: compose bubble + subtle degraded chip (if applicable).
+          final bubbleWidget = CoachMessageBubble(
+            message: msg,
+            messageIndex: index,
+            isStreaming:
+                _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
+            isInputAnswered: _answeredInputIndices.contains(index),
+            onInputSubmitted: _handleInputSubmitted,
+            onActionTap: _handleActionTap,
+          );
           child = Semantics(
             label: S.of(context)!.coachCoachMessage,
-            child: _buildCoachBubble(msg, index),
+            child: msg.degraded
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      bubbleWidget,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 42, top: 4),
+                        child: Text(
+                          S.of(context)!.coachResponseDegradedHint,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: MintColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : bubbleWidget,
           );
         }
+
+        // Wrap with intensity picker for first assistant message if needed.
+        final bool showIntensity = _cashLevelLoaded &&
+            !_intensityChosen &&
+            index == 0 &&
+            msg.isAssistant &&
+            !(_isStreaming && msg == _messages.last);
+
+        // Show transparency badge under the first assistant response in session.
+        final bool isFirstAssistantInSession = msg.isAssistant &&
+            !(_isStreaming && msg == _messages.last) &&
+            index == _messages.indexWhere((m) => m.isAssistant);
+
+        final Widget wrappedChild = (showIntensity || isFirstAssistantInSession)
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  child,
+                  if (isFirstAssistantInSession) ...[
+                    const SizedBox(height: 4),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 42),
+                      child: Text(
+                        msg.tier == ChatTier.slm
+                            ? S.of(context)!.coachTransparencySLM
+                            : S.of(context)!.coachTransparencyBYOK,
+                        style: MintTextStyles.micro(
+                          color: MintColors.textMuted.withValues(alpha: 0.5),
+                        ).copyWith(
+                          fontStyle: FontStyle.italic,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (showIntensity) ...[
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 42),
+                      child: _buildIntensityChips(),
+                    ),
+                  ],
+                ],
+              )
+            : child;
+
         return TweenAnimationBuilder<double>(
           key: ValueKey('msg_$index'),
           tween: Tween<double>(begin: 0.0, end: 1.0),
@@ -1206,702 +1892,128 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
             );
           },
-          child: child,
+          child: wrappedChild,
         );
       },
-    );
-  }
-
-  Widget _buildUserBubble(ChatMessage msg) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          const SizedBox(width: 72),
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              decoration: const BoxDecoration(
-                color: MintColors.primary,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(22),
-                  topRight: Radius.circular(22),
-                  bottomLeft: Radius.circular(22),
-                  bottomRight: Radius.circular(6),
-                ),
-              ),
-              child: Text(
-                msg.content,
-                style: MintTextStyles.bodyMedium(
-                    color: MintColors.white).copyWith(height: 1.55),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildCoachBubble(ChatMessage msg, int messageIndex) {
-    final isStreamingThis =
-        _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm;
-    final isInputAnswered = _answeredInputIndices.contains(messageIndex);
-    final isAskUserInput =
-        msg.widgetCall != null &&
-        (msg.widgetCall!['tool'] as String?) == 'ask_user_input';
+  /// CHAT-05: Build tone preference chips (Doux / Direct / Sans filtre).
+  ///
+  /// Shown once in the first conversation after the first assistant message.
+  /// Maps to VoicePreference enum and persists via CoachProfileProvider.
+  Widget _buildIntensityChips() {
+    final chips = <MapEntry<VoicePreference, String>>[
+      const MapEntry(VoicePreference.soft, 'Doux'),
+      const MapEntry(VoicePreference.direct, 'Direct'),
+      const MapEntry(VoicePreference.unfiltered, 'Sans filtre'),
+    ];
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Coach avatar — refined 24px dot
-              Container(
-                width: 24,
-                height: 24,
-                margin: const EdgeInsets.only(top: 4),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      MintColors.saugeClaire,
-                      MintColors.bleuAir.withValues(alpha: 0.6),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    'M',
-                    style: MintTextStyles.micro(
-                      color: MintColors.ardoise,
-                    ).copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 10,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                  decoration: const BoxDecoration(
-                    color: MintColors.porcelaine,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(6),
-                      topRight: Radius.circular(22),
-                      bottomLeft: Radius.circular(22),
-                      bottomRight: Radius.circular(22),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        msg.content.isEmpty && isStreamingThis
-                            ? '...'
-                            : msg.content,
-                        style: MintTextStyles.bodyMedium(
-                            color: MintColors.textPrimary).copyWith(height: 1.6),
-                      ),
-                      // Streaming cursor
-                      if (isStreamingThis) ...[
-                        const SizedBox(height: MintSpacing.xs),
-                        SizedBox(
-                          width: 8,
-                          height: 14,
-                          child: _buildCursor(),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 48),
-            ],
-          ),
-          // Tier badge — very subtle, only on non-greeting messages
-          if (!isStreamingThis &&
-              msg.tier != ChatTier.none &&
-              messageIndex > 0) ...[
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsets.only(left: 42),
-              child: _buildTierBadge(msg.tier),
-            ),
-          ],
-          // Rich widget or input request from Claude tool calling (S56)
-          if (!isStreamingThis &&
-              msg.widgetCall != null &&
-              !(isAskUserInput && isInputAnswered)) ...[
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 42, right: 16),
-              child: WidgetRenderer.build(
-                context,
-                WidgetCall(
-                  tool: msg.widgetCall!['tool'] as String? ?? '',
-                  params: Map<String, dynamic>.from(
-                      msg.widgetCall!['params'] as Map? ?? {}),
-                ),
-                onInputSubmitted: (field, value) {
-                  _handleInputSubmitted(messageIndex, field, value);
-                },
-              ) ?? const SizedBox.shrink(),
-            ),
-          ],
-          // Sources
-          if (msg.sources.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 42, right: 48),
-              child: _buildSourcesSection(msg.sources),
-            ),
-          ],
-          // Disclaimers (from RAG backend)
-          if (msg.disclaimers.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.only(left: 42, right: 48),
-              child: _buildDisclaimersSection(msg.disclaimers),
-            ),
-          ],
-          // Response Cards (Phase 1 — inline strip)
-          if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.only(left: 42),
-              child: ResponseCardStrip(cards: msg.responseCards),
-            ),
-          ],
-          // Rich inline widget (S56 — data-driven visual cards)
-          if (!isStreamingThis &&
-              msg.userQuery != null &&
-              _profile != null) ...[
-            Builder(builder: (context) {
-              final richWidget =
-                  _buildRichWidget(msg.userQuery!, _profile!);
-              if (richWidget == null) return const SizedBox.shrink();
-              return Padding(
-                padding: const EdgeInsets.only(
-                    left: 42, right: 16, top: 10),
-                child: richWidget,
-              );
-            }),
-          ],
-          // Suggested actions
-          if (!isStreamingThis &&
-              msg.suggestedActions != null &&
-              msg.suggestedActions!.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.only(left: 42),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 10,
-                children: msg.suggestedActions!.map((action) {
-                  // "Il m'arrive quelque chose" gets a different tone
-                  final isLifeEvent = action.toLowerCase().contains('il m') &&
-                      action.toLowerCase().contains('arrive');
-                  return GestureDetector(
-                    onTap: () {
-                      if (isLifeEvent) {
-                        _showLightningMenu();
-                        return;
-                      }
-                      final route = _routeForAction(action);
-                      if (route != null) {
-                        context.push(route);
-                      } else {
-                        _sendMessage(action);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isLifeEvent
-                            ? MintColors.pecheDouce.withValues(alpha: 0.18)
-                            : MintColors.porcelaine,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isLifeEvent
-                              ? MintColors.pecheDouce.withValues(alpha: 0.3)
-                              : MintColors.border.withValues(alpha: 0.3),
-                          width: 0.5,
-                        ),
-                      ),
-                      child: Text(
-                        action,
-                        style: MintTextStyles.bodySmall(
-                          color: MintColors.textPrimary,
-                        ).copyWith(fontWeight: FontWeight.w500, height: 1.3),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCursor() {
-    return const _BlinkingCursor();
-  }
-
-  Widget _buildTierBadge(ChatTier tier) {
-    final s = S.of(context)!;
-    final String label;
-    final IconData icon;
-    switch (tier) {
-      case ChatTier.slm:
-        label = s.coachBadgeSlm;
-        icon = Icons.smartphone;
-        break;
-      case ChatTier.byok:
-        label = s.coachBadgeByok;
-        icon = Icons.cloud_outlined;
-        break;
-      case ChatTier.fallback:
-        label = s.coachBadgeFallback;
-        icon = Icons.wifi_off;
-        break;
-      default:
-        return const SizedBox.shrink();
-    }
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon,
-            size: 9,
-            color: MintColors.textMuted.withValues(alpha: 0.5)),
-        const SizedBox(width: 3),
-        Text(
-          label,
-          style: MintTextStyles.micro(
-            color: MintColors.textMuted.withValues(alpha: 0.5),
-          ).copyWith(fontWeight: FontWeight.w400),
+        const Text(
+          'Au fait, tu pr\u00e9f\u00e8res que je sois plut\u00f4t\u2026',
+          style: TextStyle(
+            fontSize: 14,
+            color: MintColors.textSecondary,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 10,
+          children: chips.map((entry) {
+            return GestureDetector(
+              onTap: () => _onTonePreferenceSelected(entry.key),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: MintColors.porcelaine,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: MintColors.border.withValues(alpha: 0.3),
+                    width: 0.5,
+                  ),
+                ),
+                child: Text(
+                  entry.value,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.3,
+                    color: MintColors.textPrimary,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
   }
 
-  Widget _buildSystemMessage(ChatMessage msg) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: MintSpacing.md),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: MintColors.porcelaine.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            msg.content,
-            style: MintTextStyles.micro(color: MintColors.textMuted)
-                .copyWith(fontStyle: FontStyle.italic),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingIndicator() {
-    final loadingText = S.of(context)!.coachLoading;
-    return Semantics(
-      label: loadingText,
-      liveRegion: true,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-            horizontal: MintSpacing.md, vertical: MintSpacing.xs),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              margin: const EdgeInsets.only(top: 4),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    MintColors.saugeClaire,
-                    MintColors.bleuAir.withValues(alpha: 0.6),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Text(
-                  'M',
-                  style: MintTextStyles.micro(
-                    color: MintColors.ardoise,
-                  ).copyWith(fontWeight: FontWeight.w700, fontSize: 10),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-              decoration: const BoxDecoration(
-                color: MintColors.porcelaine,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(6),
-                  topRight: Radius.circular(22),
-                  bottomLeft: Radius.circular(22),
-                  bottomRight: Radius.circular(22),
-                ),
-              ),
-              child: _buildTypingDots(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Animated three-dot typing indicator (replaces spinner).
-  Widget _buildTypingDots() {
-    return SizedBox(
-      width: 24,
-      height: 16,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(3, (i) => _TypingDot(delay: i * 200)),
-      ),
-    );
-  }
-
-  // ════════════════════════════════════════════════════════════
-  //  SOURCES & DISCLAIMERS
-  // ════════════════════════════════════════════════════════════
-
-  Widget _buildSourcesSection(List<RagSource> sources) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: MintColors.bleuAir.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            S.of(context)!.coachSources,
-            style: MintTextStyles.micro(
-              color: MintColors.textMuted,
-            ).copyWith(
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.3,
-            ),
-          ),
-          const SizedBox(height: MintSpacing.xs),
-          for (final source in sources)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 3),
-              child: Semantics(
-                label: source.title,
-                button: true,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => _navigateToSource(source),
-                  child: Row(
-                    children: [
-                      Icon(Icons.description_outlined,
-                          size: 12,
-                          color: MintColors.textSecondary.withValues(alpha: 0.6)),
-                      const SizedBox(width: 5),
-                      Expanded(
-                        child: Text(
-                          '${source.title}${source.section.isNotEmpty ? ' \u2014 ${source.section}' : ''}',
-                          style: MintTextStyles.micro(
-                            color: MintColors.textSecondary,
-                          ).copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor:
-                                MintColors.textSecondary.withValues(alpha: 0.3),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDisclaimersSection(List<String> disclaimers) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: MintColors.pecheDouce.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline_rounded,
-              size: 13, color: MintColors.textMuted.withValues(alpha: 0.6)),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              disclaimers.join('\n'),
-              style: MintTextStyles.micro(
-                color: MintColors.textMuted,
-              ).copyWith(height: 1.4),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _navigateToSource(RagSource source) {
-    final file = source.file.toLowerCase();
-    if (file.contains('3a') ||
-        file.contains('opp3') ||
-        file.contains('pilier')) {
-      context.push('/pilier-3a');
-    } else if (file.contains('lpp') || file.contains('pension')) {
-      context.push('/rente-vs-capital');
-    } else if (file.contains('lifd') || file.contains('fiscal')) {
-      context.push('/fiscal');
-    } else if (file.contains('lavs') || file.contains('avs')) {
-      context.push('/retraite');
-    } else if (file.contains('budget')) {
-      context.push('/budget');
-    } else {
-      context.push('/education/hub');
+  /// CHAT-05: Handle tone preference chip selection.
+  void _onTonePreferenceSelected(VoicePreference pref) {
+    final int level;
+    final String confirmation;
+    switch (pref) {
+      case VoicePreference.soft:
+        level = 1;
+        confirmation = 'Not\u00e9. Je serai tout en douceur.';
+      case VoicePreference.direct:
+        level = 3;
+        confirmation = 'Compris. Je vais droit au but.';
+      case VoicePreference.unfiltered:
+        level = 5;
+        confirmation = 'OK. Accroche-toi, je ne filtre rien.';
     }
-  }
 
-  // ════════════════════════════════════════════════════════════
-  //  INPUT BAR
-  // ════════════════════════════════════════════════════════════
+    final provider = context.read<CoachProfileProvider>();
+    provider.setVoiceCursorPreference(pref);
 
-  Widget _buildInputBar() {
-    final s = S.of(context)!;
-    return Container(
-      decoration: BoxDecoration(
-        color: MintColors.craie,
-        border: Border(
-          top: BorderSide(
-            color: MintColors.border.withValues(alpha: 0.15),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // Lightning menu trigger
-              GestureDetector(
-                onTap: _isStreaming ? null : _showLightningMenu,
-                child: Container(
-                  width: 38,
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: MintColors.porcelaine,
-                    borderRadius: BorderRadius.circular(19),
-                  ),
-                  child: Icon(Icons.bolt_rounded,
-                      color: _isStreaming
-                          ? MintColors.textMuted.withValues(alpha: 0.3)
-                          : MintColors.textSecondary,
-                      size: 18),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Semantics(
-                  textField: true,
-                  label: s.coachInputHint,
-                  child: TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    textInputAction: TextInputAction.send,
-                    maxLines: null,
-                    enabled: !_isStreaming,
-                    style: MintTextStyles.bodyMedium(
-                        color: MintColors.textPrimary),
-                    decoration: InputDecoration(
-                      hintText: s.coachInputHint,
-                      hintStyle: MintTextStyles.bodyMedium(
-                          color: MintColors.textMuted.withValues(alpha: 0.4)),
-                      filled: true,
-                      fillColor: MintColors.porcelaine,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 10,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onSubmitted: (text) => _sendMessage(text),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              // Send button
-              Semantics(
-                button: true,
-                label: s.coachSendButton,
-                child: GestureDetector(
-                  onTap: _isStreaming
-                      ? null
-                      : () => _sendMessage(_controller.text),
-                  child: Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: _isStreaming
-                          ? MintColors.textMuted.withValues(alpha: 0.15)
-                          : MintColors.primary,
-                      borderRadius: BorderRadius.circular(19),
-                    ),
-                    child: const Icon(Icons.arrow_upward_rounded,
-                        color: MintColors.white, size: 18),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Isolated blinking cursor — manages its own animation lifecycle.
-///
-/// Avoids triggering parent [setState] for blink cycles, preventing
-/// full [ListView] rebuilds during streaming.
-class _BlinkingCursor extends StatefulWidget {
-  const _BlinkingCursor();
-
-  @override
-  State<_BlinkingCursor> createState() => _BlinkingCursorState();
-}
-
-class _BlinkingCursorState extends State<_BlinkingCursor>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: _controller.value < 0.5 ? 1.0 : 0.0,
-          child: child,
-        );
-      },
-      child: Container(
-        width: 2,
-        height: 14,
-        decoration: BoxDecoration(
-          color: MintColors.textSecondary.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(1),
-        ),
-      ),
-    );
-  }
-}
-
-/// Individual typing dot with staggered animation for the loading indicator.
-class _TypingDot extends StatefulWidget {
-  final int delay;
-  const _TypingDot({required this.delay});
-
-  @override
-  State<_TypingDot> createState() => _TypingDotState();
-}
-
-class _TypingDotState extends State<_TypingDot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    Future.delayed(Duration(milliseconds: widget.delay), () {
-      if (mounted) _controller.repeat(reverse: true);
+    setState(() {
+      _cashLevel = level;
+      _intensityChosen = true;
+      _showSilentOpener = false;
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content: confirmation,
+        timestamp: DateTime.now(),
+        tier: ChatTier.none,
+      ));
     });
+    _saveCashLevel(level);
+    _scrollToBottom();
   }
+}
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+// ═══════════════════════════════════════════════════════════════════════════════
+//  INTENT OPENER RESOLVER — top-level for testability (D-06, D-07)
+// ═══════════════════════════════════════════════════════════════════════════════
 
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return Opacity(
-          opacity: 0.3 + (_controller.value * 0.7),
-          child: child,
-        );
-      },
-      child: Container(
-        width: 5,
-        height: 5,
-        decoration: BoxDecoration(
-          color: MintColors.textMuted,
-          borderRadius: BorderRadius.circular(2.5),
-        ),
-      ),
-    );
-  }
+/// Maps an onboarding chip key to an intent-specific coach opener string.
+///
+/// Returns null when:
+///   - [chipKey] is unrecognised (graceful degradation → generic opener)
+///
+/// Kept as a top-level function so tests can call it directly without
+/// needing to mount the full CoachChatScreen widget tree.
+///
+/// Each of the 7 intent keys must produce a **distinct** non-null string.
+/// Unknown keys must return null (D-07).
+String? resolveIntentOpener(String chipKey, S l10n) {
+  final openers = <String, String>{
+    'intentChip3a': l10n.coachOpenerIntent3a,
+    'intentChipBilan': l10n.coachOpenerIntentBilan,
+    'intentChipPrevoyance': l10n.coachOpenerIntentPrevoyance,
+    'intentChipFiscalite': l10n.coachOpenerIntentFiscalite,
+    'intentChipProjet': l10n.coachOpenerIntentProjet,
+    'intentChipChangement': l10n.coachOpenerIntentChangement,
+    'intentChipAutre': l10n.coachOpenerIntentAutre,
+  };
+  return openers[chipKey];
 }

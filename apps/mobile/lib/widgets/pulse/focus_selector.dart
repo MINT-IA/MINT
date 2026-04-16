@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
-
-
-// TODO: add Semantics for accessibility
 
 /// Two-level focus selector for Pulse hero adaptation.
 ///
@@ -70,7 +68,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             "Qu'est-ce qui t'occupe ?",
-            style: MintTextStyles.headlineMedium(color: MintColors.textPrimary).copyWith(fontSize: 18, height: 1.3),
+            style: MintTextStyles.titleLarge(color: MintColors.textPrimary).copyWith(height: 1.3),
           ),
         ),
         const SizedBox(height: 12),
@@ -108,13 +106,17 @@ class _FocusSelectorState extends State<FocusSelector> {
 
   Widget _buildGridTile(_FocusCategory cat) {
     final isExpanded = _expandedCategory == cat.key;
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _expandedCategory = isExpanded ? null : cat.key;
-        });
-      },
-      child: AnimatedContainer(
+    return Semantics(
+      label: '${cat.label} — ${cat.subtitle}',
+      button: true,
+      selected: isExpanded,
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _expandedCategory = isExpanded ? null : cat.key;
+          });
+        },
+        child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -160,6 +162,7 @@ class _FocusSelectorState extends State<FocusSelector> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -312,7 +315,7 @@ class _FocusSelectorState extends State<FocusSelector> {
                   ),
                   Text(
                     opt.apercu,
-                    style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                    style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                   ),
                 ],
               ),
@@ -341,9 +344,12 @@ class _FocusSelectorState extends State<FocusSelector> {
 
   String _taxApercu(CoachProfile p) {
     if (p.salaireBrutMensuel <= 0) return 'Économies potentielles';
-    // Rough 3a tax saving estimate
-    const marginalRate = 0.25; // ~25% average marginal rate
-    final saving3a = (7258 * marginalRate).round();
+    final grossAnnual = p.salaireBrutMensuel * 12;
+    final canton = p.canton.isNotEmpty ? p.canton : 'ZH';
+    final saving3a = RetirementTaxCalculator.estimate3aTaxSaving(
+      grossAnnualSalary: grossAnnual,
+      canton: canton,
+    ).round();
     return '~CHF $saving3a/an récupérables';
   }
 

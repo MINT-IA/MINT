@@ -2,19 +2,39 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mint_mobile/services/api_service.dart';
 
+/// A tool call returned by the LLM (e.g. route_to_screen).
+class RagToolCall {
+  final String name;
+  final Map<String, dynamic> input;
+
+  const RagToolCall({required this.name, required this.input});
+
+  factory RagToolCall.fromJson(Map<String, dynamic> json) {
+    return RagToolCall(
+      name: json['name'] as String? ?? '',
+      input: (json['input'] as Map<String, dynamic>?) ?? {},
+    );
+  }
+}
+
 /// Response from the RAG query endpoint
 class RagResponse {
   final String answer;
   final List<RagSource> sources;
   final List<String> disclaimers;
   final int tokensUsed;
+  final List<RagToolCall> toolCalls;
 
   const RagResponse({
     required this.answer,
     required this.sources,
     required this.disclaimers,
     required this.tokensUsed,
+    this.toolCalls = const [],
   });
+
+  /// Whether the LLM returned tool_use blocks alongside text.
+  bool get hasToolCalls => toolCalls.isNotEmpty;
 
   factory RagResponse.fromJson(Map<String, dynamic> json) {
     return RagResponse(
@@ -27,7 +47,14 @@ class RagResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
+      toolCalls: (json['tool_calls'] as List<dynamic>?)
+              ?.map((t) => RagToolCall.fromJson(t as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -115,7 +142,10 @@ class RagVisionResponse {
               ?.map((d) => d as String)
               .toList() ??
           [],
-      tokensUsed: json['tokens_used'] as int? ?? 0,
+      // FIX-088: Safe int parse — backend may return String or int.
+      tokensUsed: json['tokens_used'] is int
+          ? json['tokens_used'] as int
+          : int.tryParse(json['tokens_used']?.toString() ?? '') ?? 0,
     );
   }
 }
@@ -161,6 +191,8 @@ class RagService {
     String? model,
     Map<String, dynamic>? profileContext,
     String language = 'fr',
+    List<Map<String, dynamic>>? tools,
+    int cashLevel = 3,
   }) async {
     final uri = Uri.parse('$baseUrl/rag/query');
 
@@ -169,39 +201,72 @@ class RagService {
       'api_key': apiKey,
       'provider': provider,
       'language': language,
+      'cash_level': cashLevel.clamp(1, 5),
     };
 
     if (model != null) body['model'] = model;
     if (profileContext != null) body['profile_context'] = profileContext;
+    if (tools != null) body['tools'] = tools;
 
-    final response = await http
-        .post(
-          uri,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 60));
+    // T3-11: Retry with exponential backoff on 429 rate limit.
+    const maxRetries = 2;
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      final response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 60));
 
-    if (response.statusCode == 200) {
-      final json = jsonDecode(response.body) as Map<String, dynamic>;
-      return RagResponse.fromJson(json);
-    } else if (response.statusCode == 401) {
-      throw const RagApiException(
-        code: 'invalid_key',
-        message: 'La cl\u00e9 API est invalide ou expir\u00e9e.',
-      );
-    } else if (response.statusCode == 429) {
-      throw const RagApiException(
-        code: 'rate_limit',
-        message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
-      );
-    } else {
-      final errorBody = _tryDecodeError(response.body);
-      throw RagApiException(
-        code: 'server_error',
-        message: errorBody ?? 'Erreur serveur (${response.statusCode}).',
-      );
+      if (response.statusCode == 200) {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return RagResponse.fromJson(json);
+      } else if (response.statusCode == 401) {
+        throw const RagApiException(
+          code: 'invalid_key',
+          // ragErrorInvalidKey — user-visible, extracted to ARB
+          message: 'La cl\u00e9 API est invalide ou expir\u00e9e.',
+        );
+      } else if (response.statusCode == 429) {
+        if (attempt < maxRetries) {
+          await Future<void>.delayed(Duration(seconds: (attempt + 1) * 2));
+          continue;
+        }
+        throw const RagApiException(
+          code: 'rate_limit',
+          // ragErrorRateLimit — user-visible, extracted to ARB
+          message: 'Limite de requ\u00eates atteinte. R\u00e9essaie dans quelques instants.',
+        );
+      } else if (response.statusCode == 400) {
+        // T3-12: Specific error for bad request.
+        final errorBody = _tryDecodeError(response.body);
+        throw RagApiException(
+          code: 'bad_request',
+          // ragErrorBadRequest — user-visible fallback, extracted to ARB
+          message: errorBody ?? 'Requ\u00eate invalide.',
+        );
+      } else if (response.statusCode == 503) {
+        // T3-12: Specific error for service unavailable.
+        throw const RagApiException(
+          code: 'service_unavailable',
+          // ragErrorServiceUnavailable — user-visible, extracted to ARB
+          message: 'Service temporairement indisponible. R\u00e9essaie plus tard.',
+        );
+      } else {
+        final errorBody = _tryDecodeError(response.body);
+        throw RagApiException(
+          code: 'server_error',
+          message: errorBody ?? 'Service temporarily unavailable',
+        );
+      }
     }
+    // Should never reach here, but dart analyzer needs it.
+    throw const RagApiException(
+      code: 'rate_limit',
+      // ragErrorRateLimitShort — user-visible, extracted to ARB
+      message: 'Limite de requ\u00eates atteinte.',
+    );
   }
 
   /// Extract structured fields from a document image via BYOK vision LLM.
@@ -236,13 +301,24 @@ class RagService {
     if (model != null) body['model'] = model;
     if (profileContext != null) body['profile_context'] = profileContext;
 
-    final response = await http
-        .post(
-          uri,
-          headers: {'Content-Type': 'application/json'},
-          body: jsonEncode(body),
-        )
-        .timeout(const Duration(seconds: 120));
+    // FIX-084: Retry on 429 (same pattern as query()).
+    const maxRetries = 2;
+    late http.Response response;
+    for (var attempt = 0; attempt <= maxRetries; attempt++) {
+      response = await http
+          .post(
+            uri,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(body),
+          )
+          .timeout(const Duration(seconds: 120));
+
+      if (response.statusCode == 429 && attempt < maxRetries) {
+        await Future<void>.delayed(Duration(seconds: (attempt + 1) * 2));
+        continue;
+      }
+      break;
+    }
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -251,18 +327,20 @@ class RagService {
       final errorBody = _tryDecodeError(response.body);
       throw RagApiException(
         code: 'vision_bad_request',
-        message: errorBody ?? 'Requete vision invalide.',
+        // ragErrorVisionBadRequest — user-visible fallback, extracted to ARB
+        message: errorBody ?? 'Requ\u00eate vision invalide.',
       );
     } else if (response.statusCode == 413) {
       throw const RagApiException(
         code: 'image_too_large',
-        message: 'L\'image depasse la taille limite de 20 MB.',
+        // ragErrorImageTooLarge — user-visible, extracted to ARB
+        message: 'L\'image d\u00e9passe la taille limite de 20\u00a0MB.',
       );
     } else {
       final errorBody = _tryDecodeError(response.body);
       throw RagApiException(
         code: 'vision_error',
-        message: errorBody ?? 'Erreur d\'extraction vision (${response.statusCode}).',
+        message: errorBody ?? 'Service temporarily unavailable',
       );
     }
   }
@@ -281,6 +359,7 @@ class RagService {
     } else {
       throw const RagApiException(
         code: 'status_error',
+        // ragErrorStatus — user-visible, extracted to ARB
         message: 'Impossible de v\u00e9rifier le statut du syst\u00e8me RAG.',
       );
     }

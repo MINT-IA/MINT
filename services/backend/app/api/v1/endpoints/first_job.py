@@ -68,7 +68,7 @@ def analyze_first_job(
         recommandation_lamal=recommandation_lamal,
         checklist_premier_emploi=result["checklist_premier_emploi"],
         alertes=result.get("alertes", []),
-        chiffre_choc=result["chiffre_choc"],
+        premier_eclairage=result["premier_eclairage"],
         disclaimer=result["disclaimer"],
         sources=result["sources"],
     )

@@ -7,6 +7,7 @@ import 'package:mint_mobile/services/financial_core/avs_calculator.dart';
 import 'package:mint_mobile/services/financial_core/lpp_calculator.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 
 /// Early retirement comparison mini-table for 45-60 age group.
 ///
@@ -39,6 +40,9 @@ class EarlyRetirementComparison extends StatelessWidget {
     final ages = [63, 64, 65, 67, 70];
     final rows = <_ComparisonRow>[];
 
+    // F3-3: Gender-aware AVS21 reference age for early retirement comparison.
+    final ercIsFemale = profile.gender == 'F' ? true : (profile.gender == 'M' ? false : null);
+
     for (final retAge in ages) {
       if (retAge <= profile.age) continue;
 
@@ -50,6 +54,8 @@ class EarlyRetirementComparison extends StatelessWidget {
         lacunes: profile.prevoyance.lacunesAVS ?? 0,
         anneesContribuees: profile.prevoyance.anneesContribuees,
         arrivalAge: profile.arrivalAge,
+        isFemale: ercIsFemale,
+        birthYear: profile.birthYear,
       );
 
       // ── User LPP ──
@@ -73,6 +79,8 @@ class EarlyRetirementComparison extends StatelessWidget {
         // Conjoint retires at their own effective age; project at same retAge
         // only if it's above their current age
         if (retAge > conjAge) {
+          // F6-2: Pass conjoint gender/birthYear for AVS21 transitional age.
+          final conjIsFemale = conj.gender == 'F' ? true : (conj.gender == 'M' ? false : null);
           avsConjMonthly = AvsCalculator.computeMonthlyRente(
             currentAge: conjAge,
             retirementAge: retAge.clamp(conjAge + 1, 70),
@@ -80,6 +88,8 @@ class EarlyRetirementComparison extends StatelessWidget {
             lacunes: conj.prevoyance?.lacunesAVS ?? 0,
             anneesContribuees: conj.prevoyance?.anneesContribuees,
             arrivalAge: conj.arrivalAge,
+            isFemale: conjIsFemale,
+            birthYear: conj.birthYear,
           );
           final conjLpp = conj.prevoyance?.avoirLppTotal ?? 0;
           if (conjLpp > 0) {
@@ -152,14 +162,14 @@ class EarlyRetirementComparison extends StatelessWidget {
         children: [
           Text(
             'Comparaison retraite anticip\u00e9e',
-            style: MintTextStyles.titleMedium(color: MintColors.textPrimary).copyWith(fontSize: 15, fontWeight: FontWeight.w700),
+            style: MintTextStyles.labelLarge(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
             isCouple
                 ? 'Taux de remplacement m\u00e9nage par \u00e2ge de d\u00e9part'
                 : 'Estimation du taux de remplacement par \u00e2ge de d\u00e9part',
-            style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+            style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
           ),
           const SizedBox(height: 12),
           // Header row
@@ -247,7 +257,7 @@ class EarlyRetirementComparison extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              'CHF ${r.totalMonthly.toStringAsFixed(0)}',
+              formatChfWithPrefix(r.totalMonthly),
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: textWeight),
             ),
           ),

@@ -112,7 +112,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                 const SizedBox(height: 4),
                 Text(
                   'Besoins / Envies / Épargne — avant et après',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary),
                 ),
               ],
             ),
@@ -321,7 +321,7 @@ class _BudgetBebeWidgetState extends State<BudgetBebeWidget> {
                       ? 'Tes enfants coûtent CHF ${_fmt(_childrenCost)}/mois, '
                         'ce qui réduit ton épargne de CHF ${_fmt(savingsLost)}/mois.'
                       : 'Tes enfants sont financés par tes envies — ton épargne reste intacte.',
-                  style: MintTextStyles.labelSmall(color: MintColors.textSecondary).copyWith(fontSize: 12, height: 1.4),
+                  style: MintTextStyles.labelMedium(color: MintColors.textSecondary).copyWith(height: 1.4),
                 ),
               ],
             ),
