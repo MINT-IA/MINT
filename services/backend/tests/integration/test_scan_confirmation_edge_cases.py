@@ -108,18 +108,22 @@ def test_unknown_field_name_is_dropped(client_and_token):
     assert _get_profile(client, token).get("avoirLpp") == 70000
 
 
-def test_near_duplicate_value_does_not_churn(client_and_token):
+def test_rescan_with_similar_value_overwrites(client_and_token):
+    """User-confirmed values always overwrite — no drift threshold.
+
+    The old implementation had a 1% drift gate, but user confirmation is
+    explicit intent: if they confirmed 70350, that's the authoritative value.
+    """
     client, token = client_and_token
     _confirm(client, token, [
         {"fieldName": "avoirLppTotal", "value": 70000,
          "confidence": "high", "sourceText": "first"},
     ])
-    # 70350 is 0.5% drift — below 1% threshold → no overwrite
     _confirm(client, token, [
         {"fieldName": "avoirLppTotal", "value": 70350,
          "confidence": "high", "sourceText": "rescan"},
     ])
-    assert _get_profile(client, token).get("avoirLpp") == 70000
+    assert _get_profile(client, token).get("avoirLpp") == 70350
 
 
 def test_distinct_value_does_overwrite(client_and_token):
@@ -136,9 +140,14 @@ def test_distinct_value_does_overwrite(client_and_token):
     assert _get_profile(client, token).get("avoirLpp") == 73500
 
 
-def test_completion_index_bumps_on_merge(client_and_token):
+def test_fields_persist_after_merge(client_and_token):
+    """After scan merge, profile exposes the merged fields via GET /profiles/me.
+
+    factfindCompletionIndex is no longer bumped by scan-confirmation (the
+    /overview/me endpoint computes completeness server-side from actual
+    profile state, which is more accurate than a client-side counter).
+    """
     client, token = client_and_token
-    before = _get_profile(client, token).get("factfindCompletionIndex", 0.0) or 0.0
     _confirm(client, token, [
         {"fieldName": "avoirLppTotal", "value": 70000,
          "confidence": "high", "sourceText": "a"},
@@ -147,9 +156,10 @@ def test_completion_index_bumps_on_merge(client_and_token):
         {"fieldName": "rachatMaximum", "value": 539414,
          "confidence": "high", "sourceText": "c"},
     ])
-    after = _get_profile(client, token).get("factfindCompletionIndex", 0.0) or 0.0
-    assert after > before
-    assert after <= 1.0
+    profile = _get_profile(client, token)
+    assert profile.get("avoirLpp") == 70000
+    assert profile.get("lppInsuredSalary") == 91967
+    assert profile.get("lppBuybackMax") == 539414
 
 
 def test_completion_index_caps_at_one(client_and_token):

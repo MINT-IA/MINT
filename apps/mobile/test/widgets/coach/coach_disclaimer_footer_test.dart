@@ -44,8 +44,8 @@ void main() {
   // ────────────────────────────────────────────────────────────
 
   testWidgets(
-      'CoachMessageBubble no longer renders any disclaimer card even when '
-      'msg.disclaimers is populated', (tester) async {
+      'CoachMessageBubble renders collapsed disclaimer section when '
+      'msg.disclaimers is populated (CLAUDE.md §6 compliance)', (tester) async {
     final msg = ChatMessage(
       role: 'assistant',
       content: 'Bonjour',
@@ -61,24 +61,18 @@ void main() {
     ));
     await tester.pump();
 
-    // The bubble still renders the text content.
+    // The bubble renders the text content.
     expect(find.text('Bonjour'), findsOneWidget);
 
-    // Legacy per-message disclaimer strings must NOT appear in the tree.
-    expect(
-      find.text('Outil educatif. Ne constitue pas un conseil financier.'),
-      findsNothing,
-    );
-    expect(find.text('Reference LSFin art. 3.'), findsNothing);
-
-    // The collapsible label of the old card must not appear inside the bubble.
+    // Compliance: disclaimers are shown via the collapsible
+    // CoachDisclaimersSection. The collapsed label is present.
     final fr = await S.delegate.load(const Locale('fr'));
     expect(
       find.descendant(
         of: find.byType(CoachMessageBubble),
         matching: find.text(fr.coachDisclaimerCollapsed),
       ),
-      findsNothing,
+      findsOneWidget,
     );
   });
 
