@@ -228,7 +228,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           }
         });
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: default level 3, show picker.
       if (mounted) {
         setState(() => _cashLevelLoaded = true);
@@ -241,8 +241,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_cashLevelKey, level);
-    } catch (_) {
+    } catch (e) {
       // Best-effort persistence.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -256,8 +257,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (!already) {
         await ReportPersistenceService.setMiniOnboardingCompleted(true);
       }
-    } catch (_) {
+    } catch (e) {
       // Best-effort: chat continues even if the flag cannot be written.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -278,8 +280,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           _pendingIntentChipKey = selectedIntent;
         });
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: coach works without onboarding payload.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -497,8 +500,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final prefs = await SharedPreferences.getInstance();
       final count = prefs.getInt(_conversationCountKey) ?? 0;
       await prefs.setInt(_conversationCountKey, count + 1);
-    } catch (_) {
+    } catch (e) {
       // Best-effort persistence.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -521,7 +525,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerReplacementRate,
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     // Priority 2: financial fitness score
     try {
@@ -533,7 +537,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerFitnessScore,
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     // Priority 3: projected capital
     try {
@@ -549,7 +553,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerRetirementCapital,
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     return null;
   }
@@ -747,8 +751,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: chat works without memory block.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
 
     // Wire Spec V2: append entry payload context if present (one-shot).
@@ -865,7 +870,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         context: ctx,
         componentType: ComponentType.general,
       );
-    } catch (_) {
+    } catch (e) {
       compliance = ComplianceResult(
         isCompliant: true,
         sanitizedText: ComplianceGuard.sanitizeBannedTerms(rawText),
@@ -1140,8 +1145,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
       });
       _scrollToBottom();
-    } catch (_) {
+    } catch (e) {
       // Best-effort — don't block chat.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -1158,8 +1164,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         'accepted': accepted,
         'conversationCount': prefs.getInt(_conversationCountKey) ?? 0,
       });
-    } catch (_) {
+    } catch (e) {
       // Best-effort.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -1295,7 +1302,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     try {
       final proj = ForecasterService.project(
@@ -1306,7 +1313,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
@@ -1464,7 +1471,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final score = FinancialFitnessService.calculate(profile: _profile!);
       fitnessScore = score.global;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     await PdfService.generateDecisionReportPdf(
       firstName: _profile!.firstName ?? 'Utilisateur',

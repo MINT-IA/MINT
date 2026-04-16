@@ -114,7 +114,7 @@ class AuthProvider extends ChangeNotifier {
         await _hydrateProfileFromBackend();
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (_) {}
+        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -188,7 +188,7 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: schedule fresh-start notifications
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (_) {}
+        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
       }
 
       notifyListeners();

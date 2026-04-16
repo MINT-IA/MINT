@@ -14,8 +14,14 @@ import pytest
 from app.services.privacy import pii_scrubber
 from app.services.privacy.log_filter import PIILogFilter
 
+from app.services.privacy import fpe
+
 pytestmark = pytest.mark.skipif(
     pii_scrubber is None, reason="pii_scrubber not installed (optional extra)"
+)
+
+_skip_fpe = pytest.mark.skipif(
+    fpe is None, reason="pyffx not installed (optional extra)"
 )
 
 
@@ -87,6 +93,7 @@ def test_scrub_mixed_pii():
     assert "Roche" not in out
 
 
+@_skip_fpe
 def test_scrub_fpe_mode_iban():
     """FPE mode produces structurally-valid IBAN replacement."""
     text = "IBAN CH9300762011623852957 confirmed"

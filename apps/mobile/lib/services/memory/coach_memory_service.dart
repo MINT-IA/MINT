@@ -51,8 +51,8 @@ class CoachMemoryService {
       if (uid != null && uid.isNotEmpty) {
         return '${_baseKey}_$uid';
       }
-    } catch (_) {
-      // Never block memory ops on auth lookup failure — fall back to anon.
+    } catch (e) {
+      debugPrint('[CoachMemory] auth lookup failed, anon namespace: $e');
     }
     return '${_baseKey}___anon';
   }
