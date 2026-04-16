@@ -109,7 +109,7 @@ class CoachOrchestrator {
   /// Set to 60s to handle Railway cold starts on the server-key tier
   /// (first request after worker restart takes ~20-25s due to ChromaDB
   /// vector store initialization + RAG retrieval + Claude agent loop).
-  static const Duration _byokTimeout = Duration(seconds: 60);
+  static const Duration _byokTimeout = Duration(seconds: 20);
 
   /// Average chars per token (French with accents).
   static const double _charsPerToken = 3.5;

@@ -24,7 +24,8 @@ def _set_fpe_keys(monkeypatch):
     monkeypatch.setenv("MINT_FPE_KEY", "test-master-key-deterministic-32b")
     monkeypatch.setenv("MINT_FPE_AUDIT_KEY", "test-audit-key-deterministic-32by")
     from app.services.privacy import fpe
-    fpe._reset_key_cache()
+    if fpe is not None:
+        fpe._reset_key_cache()
     yield
 
 

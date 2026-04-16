@@ -966,6 +966,50 @@ _SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
 _SCAN_MERGE_CONFIDENCE = {"high", "medium"}
 
 
+# Profile keys that MUST be float. Swiss-format strings ("122'206.80")
+# are coerced; anything else is rejected.
+_SCAN_NUMERIC_KEYS: set[str] = {
+    "avoirLpp", "avoirLppObligatoire", "avoirLppSurobligatoire",
+    "lppInsuredSalary", "lppBuybackMax", "lppBuybackMaxAnticipe",
+    "tauxConversion", "capitalDeces", "renteInvaliditeAnnuelle",
+    "renteConjointAnnuelle", "renteEnfantAnnuelle", "eplMax",
+    "incomeGrossYearly", "incomeNetYearly", "incomeGrossMonthly",
+    "incomeNetMonthly", "annualBonus", "employmentRate",
+    "cotisationsLpp", "lpp_employee_contribution", "cotisationsAvs",
+    "pillar3aAnnual", "pillar3aBalance",
+}
+
+_SCAN_STRING_KEYS: set[str] = {
+    "dateOfBirth", "commune", "canton",
+}
+
+
+def _coerce_scan_value(key: str, value) -> object:
+    """Coerce a scan-confirmed value to the type ProfileModel.data expects.
+
+    Returns None when the value cannot be safely coerced — caller skips
+    that field with a log (never writes a string where a float is expected).
+    """
+    if value is None:
+        return None
+    if key in _SCAN_NUMERIC_KEYS:
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                cleaned = value.replace("'", "").replace("\u2019", "").replace(" ", "").replace(",", ".")
+                return float(cleaned)
+            except (TypeError, ValueError):
+                return None
+        return None
+    if key in _SCAN_STRING_KEYS:
+        return str(value).strip() if value else None
+    # Unknown key type — pass through (safe: whitelist already restricts which
+    # keys are allowed, so this only fires on new keys added to the whitelist
+    # but not yet categorised as numeric/string).
+    return value
+
+
 def _merge_scan_fields_into_profile(
     db: Session,
     user_id: str,
@@ -996,7 +1040,14 @@ def _merge_scan_fields_into_profile(
         if not mapped_keys:
             continue
         for key in mapped_keys:
-            data[key] = field.value
+            coerced = _coerce_scan_value(key, field.value)
+            if coerced is None:
+                logger.info(
+                    "scan merge skip: key=%s value=%r (coercion failed)",
+                    key, field.value,
+                )
+                continue
+            data[key] = coerced
             written += 1
 
     if written > 0:

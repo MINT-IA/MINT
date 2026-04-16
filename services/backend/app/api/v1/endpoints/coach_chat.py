@@ -959,6 +959,26 @@ _SAVE_FACT_BOOL_KEYS: set[str] = {
     "has2ndPillar", "hasVoluntaryLpp", "hasDebt", "hasAvsGaps",
 }
 
+# Enum constraints for string-valued keys. Keys NOT in this dict accept
+# any non-empty string (commune, dateOfBirth). Keys IN this dict reject
+# values outside the set — prevents Claude from persisting typos like
+# "coupl" for householdType which silently breaks couple logic.
+_SAVE_FACT_ENUM_VALUES: dict[str, set[str]] = {
+    "householdType": {"single", "couple", "concubine", "family"},
+    "employmentStatus": {
+        "salarie", "independant", "retraite",
+        "employee", "self_employed", "retired",
+        "mixed", "unemployed", "student",
+    },
+    "goal": {"house", "retire", "emergency", "invest", "optimize_taxes", "other"},
+    "gender": {"M", "F"},
+    "canton": {
+        "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR",
+        "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG",
+        "TI", "UR", "VD", "VS", "ZG", "ZH",
+    },
+}
+
 
 def _coerce_fact_value(key: str, value):
     """Coerce an LLM-provided value into the expected column type.
@@ -990,10 +1010,17 @@ def _coerce_fact_value(key: str, value):
             if v in {"false", "no", "non", "0"}:
                 return False
         return None
-    # String-valued keys: canton/commune/goal/householdType/employmentStatus/
-    # gender/dateOfBirth
+    # String-valued keys with enum validation. Unknown values are rejected
+    # so Claude can't persist "coupl" as householdType and silently break
+    # downstream logic (audit finding 2026-04-16).
     if isinstance(value, str):
-        return value.strip() or None
+        stripped = value.strip()
+        if not stripped:
+            return None
+        valid = _SAVE_FACT_ENUM_VALUES.get(key)
+        if valid is not None and stripped not in valid:
+            return None
+        return stripped
     return None
 AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
