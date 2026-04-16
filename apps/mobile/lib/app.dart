@@ -185,6 +185,14 @@ final _router = GoRouter(
     final isLoggedIn = auth.isLoggedIn;
     final path = state.uri.path;
 
+    // Gate 0 #2 (splash gate): while checkAuth() is still resolving
+    // the JWT from SecureStorage, suppress ALL redirects. Each route
+    // builder handles isLoading individually (CircularProgressIndicator).
+    // Without this guard, the first redirect cycle sees isLoggedIn=false
+    // and bounces to /auth/register — then checkAuth completes, fires
+    // refreshListenable, and the user sees a flash of the auth screen.
+    if (auth.isLoading) return null;
+
     // ── Parse /home?tab=N&intent=X query params ─────────────
     // Notifications emit /home?tab=1&intent=monthlyCheckIn etc.
     // Redirect to the correct tab route so the shell navigates properly.

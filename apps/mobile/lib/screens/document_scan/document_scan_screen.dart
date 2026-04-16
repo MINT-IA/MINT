@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
@@ -743,8 +744,15 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
         });
       }
       return null;
-    } catch (_) {
-      return null; // Graceful fallback to OCR
+    } on TimeoutException catch (_) {
+      debugPrint('[DocumentScan] Vision extraction timed out');
+      if (mounted) {
+        _showErrorSnack(S.of(context)!.docScanScannerError);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[DocumentScan] Vision extraction failed: $e');
+      return null;
     }
   }
 
