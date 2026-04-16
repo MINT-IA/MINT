@@ -1249,6 +1249,79 @@
         "title": "AnomalyResponse",
         "type": "object"
       },
+      "AnonymousChatRequest": {
+        "description": "Request for anonymous discovery chat.\n\nNo authentication required. Limited to 3 messages per device token.",
+        "properties": {
+          "intent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Felt-state pill text selected by the user (e.g. 'Je me sens perdu').",
+            "title": "Intent"
+          },
+          "language": {
+            "default": "fr",
+            "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
+            "title": "Language",
+            "type": "string"
+          },
+          "message": {
+            "description": "Message de l'utilisateur anonyme.",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "AnonymousChatRequest",
+        "type": "object"
+      },
+      "AnonymousChatResponse": {
+        "description": "Response for anonymous discovery chat.\n\nIncludes compliance disclaimers and remaining message count.",
+        "properties": {
+          "disclaimers": {
+            "description": "Disclaimers de conformite.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Disclaimers",
+            "type": "array"
+          },
+          "message": {
+            "description": "Reponse du coach en mode decouverte.",
+            "title": "Message",
+            "type": "string"
+          },
+          "messagesRemaining": {
+            "description": "Nombre de messages restants pour cette session anonyme.",
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Messagesremaining",
+            "type": "integer"
+          },
+          "tokensUsed": {
+            "default": 0,
+            "description": "Estimation de l'utilisation de tokens.",
+            "minimum": 0.0,
+            "title": "Tokensused",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "message",
+          "messagesRemaining"
+        ],
+        "title": "AnonymousChatResponse",
+        "type": "object"
+      },
       "AppleVerifyPurchaseRequest": {
         "properties": {
           "expires_at": {
@@ -2614,6 +2687,174 @@
         "title": "BudgetImportPreview",
         "type": "object"
       },
+      "BudgetLine": {
+        "description": "A single recurring monthly budget line (rent, insurance, leasing…).",
+        "properties": {
+          "amount": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1000000.0,
+            "title": "Amount",
+            "type": "number"
+          },
+          "category": {
+            "default": "other",
+            "title": "Category",
+            "type": "string"
+          },
+          "id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stable id; auto-generated on POST.",
+            "title": "Id"
+          },
+          "label": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "amount"
+        ],
+        "title": "BudgetLine",
+        "type": "object"
+      },
+      "BudgetResponse": {
+        "description": "Budget as exposed to the client — includes computed signals.",
+        "properties": {
+          "alertes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Alertes",
+            "type": "array"
+          },
+          "fixedLines": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetLine"
+            },
+            "title": "Fixedlines",
+            "type": "array"
+          },
+          "freeMarginMonthly": {
+            "title": "Freemarginmonthly",
+            "type": "number"
+          },
+          "incomeMonthly": {
+            "title": "Incomemonthly",
+            "type": "number"
+          },
+          "incomeSource": {
+            "description": "'override' if user-set, 'profile' if from profile, 'unknown' otherwise.",
+            "title": "Incomesource",
+            "type": "string"
+          },
+          "premierEclairage": {
+            "title": "Premiereclairage",
+            "type": "string"
+          },
+          "riskLevel": {
+            "description": "green | amber | red",
+            "title": "Risklevel",
+            "type": "string"
+          },
+          "savingsRate": {
+            "description": "0.0–1.0 of monthly income.",
+            "title": "Savingsrate",
+            "type": "number"
+          },
+          "savingsTargetMonthly": {
+            "title": "Savingstargetmonthly",
+            "type": "number"
+          },
+          "totalFixedMonthly": {
+            "title": "Totalfixedmonthly",
+            "type": "number"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          },
+          "variableTargetMonthly": {
+            "title": "Variabletargetmonthly",
+            "type": "number"
+          }
+        },
+        "required": [
+          "incomeMonthly",
+          "incomeSource",
+          "fixedLines",
+          "totalFixedMonthly",
+          "variableTargetMonthly",
+          "savingsTargetMonthly",
+          "freeMarginMonthly",
+          "savingsRate",
+          "riskLevel",
+          "premierEclairage",
+          "alertes"
+        ],
+        "title": "BudgetResponse",
+        "type": "object"
+      },
+      "BudgetUpsert": {
+        "description": "Full budget upsert payload.",
+        "properties": {
+          "fixedLines": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetLine"
+            },
+            "maxItems": 80,
+            "title": "Fixedlines",
+            "type": "array"
+          },
+          "incomeMonthly": {
+            "anyOf": [
+              {
+                "maximum": 1000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Override monthly income. If omitted, profile.incomeNetMonthly is used.",
+            "title": "Incomemonthly"
+          },
+          "savingsTargetMonthly": {
+            "default": 0,
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Savingstargetmonthly",
+            "type": "number"
+          },
+          "variableTargetMonthly": {
+            "default": 0,
+            "maximum": 100000.0,
+            "minimum": 0.0,
+            "title": "Variabletargetmonthly",
+            "type": "number"
+          }
+        },
+        "title": "BudgetUpsert",
+        "type": "object"
+      },
       "ByokDetailResponse": {
         "description": "Detail of exactly which fields are sent to LLM provider.",
         "properties": {
@@ -3698,6 +3939,25 @@
             "title": "Cashlevel",
             "type": "integer"
           },
+          "conversationHistory": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                },
+                "maxItems": 20,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Prior conversation messages for multi-turn context. Each item: {role: 'user'|'assistant', content: str}. Last 8 messages max. Sanitized client-side.",
+            "title": "Conversationhistory"
+          },
           "language": {
             "default": "fr",
             "description": "Langue de la reponse: 'fr', 'de', 'en', 'it'.",
@@ -3785,6 +4045,19 @@
             "description": "Reponse textuelle du coach (validee par ComplianceGuard).",
             "title": "Message",
             "type": "string"
+          },
+          "responseMeta": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Metadata sur la generation de la reponse. Cles: degraded (bool — true si fallback Haiku active), model_used (str — id du modele qui a servi la reponse).",
+            "title": "Responsemeta"
           },
           "sources": {
             "description": "Sources de la base de connaissance utilisees (RAG retrieval).",
@@ -4202,6 +4475,188 @@
           "icon"
         ],
         "title": "CoachingTipResponse",
+        "type": "object"
+      },
+      "CoherenceWarning": {
+        "description": "Cross-field validation warning.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "array"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "CoherenceWarning",
+        "type": "object"
+      },
+      "CommitmentCreate": {
+        "description": "Request schema for creating a commitment device.",
+        "properties": {
+          "ifThenText": {
+            "maxLength": 500,
+            "title": "Ifthentext",
+            "type": "string"
+          },
+          "reminderAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reminderat"
+          },
+          "whenText": {
+            "maxLength": 500,
+            "title": "Whentext",
+            "type": "string"
+          },
+          "whereText": {
+            "maxLength": 500,
+            "title": "Wheretext",
+            "type": "string"
+          }
+        },
+        "required": [
+          "whenText",
+          "whereText",
+          "ifThenText"
+        ],
+        "title": "CommitmentCreate",
+        "type": "object"
+      },
+      "CommitmentResponse": {
+        "description": "Response schema for a commitment device.",
+        "properties": {
+          "createdAt": {
+            "format": "date-time",
+            "title": "Createdat",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "ifThenText": {
+            "title": "Ifthentext",
+            "type": "string"
+          },
+          "reminderAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reminderat"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "whenText": {
+            "title": "Whentext",
+            "type": "string"
+          },
+          "whereText": {
+            "title": "Wheretext",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "whenText",
+          "whereText",
+          "ifThenText",
+          "createdAt"
+        ],
+        "title": "CommitmentResponse",
+        "type": "object"
+      },
+      "CommitmentStatusUpdate": {
+        "description": "Request schema for updating commitment status.",
+        "properties": {
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "CommitmentStatusUpdate",
+        "type": "object"
+      },
+      "CommitmentSuggestion": {
+        "description": "Implementation intention proposed by the narrative path.",
+        "properties": {
+          "actionLabel": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actionlabel"
+          },
+          "ifThen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ifthen"
+          },
+          "when": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "When"
+          },
+          "where": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Where"
+          }
+        },
+        "title": "CommitmentSuggestion",
         "type": "object"
       },
       "CommuneListResponse": {
@@ -5107,6 +5562,169 @@
         "title": "ConsentDashboardResponse",
         "type": "object"
       },
+      "ConsentGrantNominativeRequest": {
+        "description": "PRIV-02: opposable declaration for a detected third party on an upload.",
+        "properties": {
+          "docHash": {
+            "maxLength": 128,
+            "minLength": 16,
+            "title": "Dochash",
+            "type": "string"
+          },
+          "policyVersion": {
+            "default": "v2.3.0",
+            "title": "Policyversion",
+            "type": "string"
+          },
+          "subjectName": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Subjectname",
+            "type": "string"
+          },
+          "subjectRole": {
+            "default": "declared_other",
+            "pattern": "^(declared_partner|declared_other)$",
+            "title": "Subjectrole",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectName",
+          "docHash"
+        ],
+        "title": "ConsentGrantNominativeRequest",
+        "type": "object"
+      },
+      "ConsentGrantRequest": {
+        "properties": {
+          "policyVersion": {
+            "description": "Privacy policy version, e.g. v2.3.0",
+            "title": "Policyversion",
+            "type": "string"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/ConsentPurpose"
+          }
+        },
+        "required": [
+          "purpose",
+          "policyVersion"
+        ],
+        "title": "ConsentGrantRequest",
+        "type": "object"
+      },
+      "ConsentListResponse": {
+        "properties": {
+          "chainBreakReceiptId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chainbreakreceiptid"
+          },
+          "chainValid": {
+            "title": "Chainvalid",
+            "type": "boolean"
+          },
+          "consents": {
+            "items": {
+              "$ref": "#/components/schemas/ConsentReceiptOut"
+            },
+            "title": "Consents",
+            "type": "array"
+          }
+        },
+        "required": [
+          "consents",
+          "chainValid"
+        ],
+        "title": "ConsentListResponse",
+        "type": "object"
+      },
+      "ConsentPurpose": {
+        "description": "The 4 granular purposes enforced per nLPD art. 6 al. 6.",
+        "enum": [
+          "vision_extraction",
+          "persistence_365d",
+          "transfer_us_anthropic",
+          "couple_projection",
+          "third_party_attestation"
+        ],
+        "title": "ConsentPurpose",
+        "type": "string"
+      },
+      "ConsentReceiptOut": {
+        "properties": {
+          "consentTimestamp": {
+            "format": "date-time",
+            "title": "Consenttimestamp",
+            "type": "string"
+          },
+          "policyHash": {
+            "title": "Policyhash",
+            "type": "string"
+          },
+          "policyVersion": {
+            "title": "Policyversion",
+            "type": "string"
+          },
+          "prevHash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prevhash"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/ConsentPurpose"
+          },
+          "receiptId": {
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "receiptJson": {
+            "additionalProperties": true,
+            "title": "Receiptjson",
+            "type": "object"
+          },
+          "revokedAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revokedat"
+          },
+          "signature": {
+            "title": "Signature",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receiptId",
+          "purpose",
+          "policyVersion",
+          "policyHash",
+          "consentTimestamp",
+          "signature",
+          "receiptJson"
+        ],
+        "title": "ConsentReceiptOut",
+        "type": "object"
+      },
       "ConsentRequest": {
         "description": "Request to create a new banking consent.",
         "properties": {
@@ -5189,27 +5807,6 @@
           "status"
         ],
         "title": "ConsentResponse",
-        "type": "object"
-      },
-      "ConsentRevokeResponse": {
-        "description": "Response after revoking a banking consent.",
-        "properties": {
-          "consentId": {
-            "description": "Identifiant du consentement revoque",
-            "title": "Consentid",
-            "type": "string"
-          },
-          "status": {
-            "description": "Statut du consentement apres revocation",
-            "title": "Status",
-            "type": "string"
-          }
-        },
-        "required": [
-          "status",
-          "consentId"
-        ],
-        "title": "ConsentRevokeResponse",
         "type": "object"
       },
       "ConsentStateResponse": {
@@ -7155,6 +7752,26 @@
         "title": "DivorceSimulationResponse",
         "type": "object"
       },
+      "DocumentClass": {
+        "description": "Canonical document classes recognised by the fused Vision call.",
+        "enum": [
+          "lpp_certificate",
+          "salary_certificate",
+          "avs_extract",
+          "pillar_3a_attestation",
+          "tax_declaration",
+          "payslip",
+          "lease",
+          "mortgage_attestation",
+          "insurance_policy",
+          "lamal_statement",
+          "bank_statement",
+          "non_financial",
+          "unknown"
+        ],
+        "title": "DocumentClass",
+        "type": "string"
+      },
       "DocumentDeleteResponse": {
         "description": "Response for document deletion.",
         "properties": {
@@ -7405,6 +8022,271 @@
         ],
         "title": "DocumentType",
         "type": "string"
+      },
+      "DocumentUnderstandingResult": {
+        "description": "Canonical contract for what MINT understood about a document.\n\nDiscriminated by `document_class`; the per-class field shapes are\nenforced in `extracted_fields` (open-ended list) rather than via a\nUnion to keep the schema serialisable to JSON for tool_use.",
+        "properties": {
+          "classificationConfidence": {
+            "default": 0.0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Classificationconfidence",
+            "type": "number"
+          },
+          "coherenceWarnings": {
+            "items": {
+              "$ref": "#/components/schemas/CoherenceWarning"
+            },
+            "title": "Coherencewarnings",
+            "type": "array"
+          },
+          "commitmentSuggestion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CommitmentSuggestion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "costTokensIn": {
+            "default": 0,
+            "title": "Costtokensin",
+            "type": "integer"
+          },
+          "costTokensOut": {
+            "default": 0,
+            "title": "Costtokensout",
+            "type": "integer"
+          },
+          "diffFromPrevious": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/FieldDiff"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Difffromprevious"
+          },
+          "documentClass": {
+            "$ref": "#/components/schemas/DocumentClass"
+          },
+          "extractedFields": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractedField"
+            },
+            "title": "Extractedfields",
+            "type": "array"
+          },
+          "extractionStatus": {
+            "$ref": "#/components/schemas/ExtractionStatus"
+          },
+          "fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fingerprint"
+          },
+          "guardBlocked": {
+            "default": false,
+            "title": "Guardblocked",
+            "type": "boolean"
+          },
+          "guardCostUsd": {
+            "default": 0.0,
+            "title": "Guardcostusd",
+            "type": "number"
+          },
+          "guardFlaggedCategories": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Guardflaggedcategories",
+            "type": "array"
+          },
+          "guardReason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guardreason"
+          },
+          "issuerGuess": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issuerguess"
+          },
+          "narrative": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Narrative"
+          },
+          "overallConfidence": {
+            "default": 0.0,
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Overallconfidence",
+            "type": "number"
+          },
+          "pagesProcessed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pagesprocessed"
+          },
+          "pagesTotal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pagestotal"
+          },
+          "pdfWarning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pdfwarning"
+          },
+          "planType": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantype"
+          },
+          "planTypeWarning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plantypewarning"
+          },
+          "questionsForUser": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Questionsforuser",
+            "type": "array"
+          },
+          "renderMode": {
+            "$ref": "#/components/schemas/RenderMode"
+          },
+          "sanityHumanReviewFields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sanityhumanreviewfields",
+            "type": "array"
+          },
+          "sanityRejectedFields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sanityrejectedfields",
+            "type": "array"
+          },
+          "schemaVersion": {
+            "const": "1.0",
+            "default": "1.0",
+            "title": "Schemaversion",
+            "type": "string"
+          },
+          "subtype": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subtype"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "thirdPartyDetected": {
+            "default": false,
+            "title": "Thirdpartydetected",
+            "type": "boolean"
+          },
+          "thirdPartyName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Thirdpartyname"
+          }
+        },
+        "required": [
+          "documentClass",
+          "extractionStatus",
+          "renderMode"
+        ],
+        "title": "DocumentUnderstandingResult",
+        "type": "object"
       },
       "DocumentUploadResponse": {
         "description": "Response from a document upload and extraction.",
@@ -8559,6 +9441,58 @@
         "title": "ExtractedDocumentField",
         "type": "object"
       },
+      "ExtractedField": {
+        "description": "A single extracted field with provenance.",
+        "properties": {
+          "confidence": {
+            "$ref": "#/components/schemas/ConfidenceLevel",
+            "default": "medium"
+          },
+          "fieldName": {
+            "title": "Fieldname",
+            "type": "string"
+          },
+          "humanReviewFlag": {
+            "default": false,
+            "title": "Humanreviewflag",
+            "type": "boolean"
+          },
+          "sourceText": {
+            "default": "",
+            "title": "Sourcetext",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/FieldStatus",
+            "default": "needs_review"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "fieldName"
+        ],
+        "title": "ExtractedField",
+        "type": "object"
+      },
       "ExtractedFieldConfirmation": {
         "description": "A single confirmed extracted field.",
         "properties": {
@@ -8726,6 +9660,20 @@
         "title": "ExtractionResultResponse",
         "type": "object"
       },
+      "ExtractionStatus": {
+        "description": "Exhaustive outcomes from the understand pipeline.",
+        "enum": [
+          "success",
+          "partial",
+          "no_fields_found",
+          "parse_error",
+          "encrypted_needs_password",
+          "non_financial",
+          "rejected_local"
+        ],
+        "title": "ExtractionStatus",
+        "type": "string"
+      },
       "FeatureFlagsResponse": {
         "properties": {
           "enableAdminScreens": {
@@ -8873,6 +9821,64 @@
           "disclaimer"
         ],
         "title": "FeatureGatesResponse",
+        "type": "object"
+      },
+      "FieldDiff": {
+        "description": "A single field's change between current upload and previous one.",
+        "properties": {
+          "deltaPct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deltapct"
+          },
+          "new": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New"
+          },
+          "old": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Old"
+          }
+        },
+        "title": "FieldDiff",
         "type": "object"
       },
       "FieldHelpResponse": {
@@ -9027,6 +10033,18 @@
         ],
         "title": "FieldSourceSchema",
         "type": "object"
+      },
+      "FieldStatus": {
+        "description": "Validation status of an extracted field.\n\nv2.7 Phase 29-04 / PRIV-08: the legacy ``confirmed`` auto-status was\nremoved. Per LSFin art. 7-10, an auto-validated numeric output equates\nto implicit financial advice — the user MUST promote a field to\n``user_validated`` via an explicit action (tap or swipe on the\nBatchValidationBubble). Every Vision extraction now persists as\n``needs_review`` regardless of model confidence (including 0.99).\n\n``human_review`` is a NumericSanity flag — the value passed the bound\nbut needs an extra eyes-on step (e.g. avoir_lpp > 5M CHF). The field\nstill persists, still starts at ``needs_review``, and surfaces a\nsecondary ``humanReviewBadge`` in the UI.",
+        "enum": [
+          "needs_review",
+          "user_validated",
+          "corrected_by_user",
+          "rejected",
+          "human_review"
+        ],
+        "title": "FieldStatus",
+        "type": "string"
       },
       "FirstJobRequest": {
         "description": "Request for first job salary analysis.",
@@ -9327,6 +10345,22 @@
           "coutAnnuelMax"
         ],
         "title": "FranchiseOption",
+        "type": "object"
+      },
+      "FreshStartResponse": {
+        "properties": {
+          "landmarks": {
+            "items": {
+              "$ref": "#/components/schemas/LandmarkResponse"
+            },
+            "title": "Landmarks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "landmarks"
+        ],
+        "title": "FreshStartResponse",
         "type": "object"
       },
       "FriBreakdownResponse": {
@@ -11942,6 +12976,39 @@
         "title": "LamalOptionResponse",
         "type": "object"
       },
+      "LandmarkResponse": {
+        "properties": {
+          "date": {
+            "title": "Date",
+            "type": "string"
+          },
+          "daysUntil": {
+            "title": "Daysuntil",
+            "type": "integer"
+          },
+          "intent": {
+            "title": "Intent",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "date",
+          "daysUntil",
+          "message",
+          "intent"
+        ],
+        "title": "LandmarkResponse",
+        "type": "object"
+      },
       "LibrePassageRequest": {
         "description": "Request for libre passage analysis.",
         "properties": {
@@ -14075,6 +15142,97 @@
         "title": "OrpLinkResponse",
         "type": "object"
       },
+      "OverviewResponse": {
+        "properties": {
+          "alertes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Alertes",
+            "type": "array"
+          },
+          "assurancesSociales": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "budget": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "completenessIndex": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Completenessindex",
+            "type": "number"
+          },
+          "couple": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "dettes": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "identity": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "income": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "patrimoine": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "premierEclairage": {
+            "title": "Premiereclairage",
+            "type": "string"
+          },
+          "prevoyance": {
+            "$ref": "#/components/schemas/OverviewSection"
+          },
+          "profileGaps": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Profilegaps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "identity",
+          "income",
+          "patrimoine",
+          "prevoyance",
+          "assurancesSociales",
+          "dettes",
+          "couple",
+          "budget",
+          "completenessIndex",
+          "profileGaps",
+          "alertes",
+          "premierEclairage"
+        ],
+        "title": "OverviewResponse",
+        "type": "object"
+      },
+      "OverviewSection": {
+        "properties": {
+          "missingFields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missingfields",
+            "type": "array"
+          },
+          "present": {
+            "default": false,
+            "title": "Present",
+            "type": "boolean"
+          },
+          "values": {
+            "additionalProperties": true,
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "title": "OverviewSection",
+        "type": "object"
+      },
       "PaginatedAuditResponse": {
         "description": "Paginated list of audit events.",
         "properties": {
@@ -14808,6 +15966,19 @@
       },
       "Profile": {
         "properties": {
+          "avoirLpp": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avoirlpp"
+          },
           "avsContributionYears": {
             "anyOf": [
               {
@@ -15002,6 +16173,19 @@
             ],
             "title": "Legalform"
           },
+          "lppBuybackMax": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lppbuybackmax"
+          },
           "lppInsuredSalary": {
             "anyOf": [
               {
@@ -15034,6 +16218,19 @@
               }
             ],
             "title": "Pillar3Aannual"
+          },
+          "pillar3aBalance": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar3Abalance"
           },
           "primaryActivity": {
             "anyOf": [
@@ -15220,6 +16417,19 @@
       },
       "ProfileCreate": {
         "properties": {
+          "avoirLpp": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avoirlpp"
+          },
           "avsContributionYears": {
             "anyOf": [
               {
@@ -15404,6 +16614,19 @@
             ],
             "title": "Legalform"
           },
+          "lppBuybackMax": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lppbuybackmax"
+          },
           "lppInsuredSalary": {
             "anyOf": [
               {
@@ -15436,6 +16659,19 @@
               }
             ],
             "title": "Pillar3Aannual"
+          },
+          "pillar3aBalance": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar3Abalance"
           },
           "primaryActivity": {
             "anyOf": [
@@ -15550,6 +16786,19 @@
       },
       "ProfileUpdate": {
         "properties": {
+          "avoirLpp": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avoirlpp"
+          },
           "avsContributionYears": {
             "anyOf": [
               {
@@ -15779,6 +17028,19 @@
             ],
             "title": "Legalform"
           },
+          "lppBuybackMax": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lppbuybackmax"
+          },
           "lppInsuredSalary": {
             "anyOf": [
               {
@@ -15814,6 +17076,19 @@
               }
             ],
             "title": "Pillar3Aannual"
+          },
+          "pillar3aBalance": {
+            "anyOf": [
+              {
+                "maximum": 10000000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pillar3Abalance"
           },
           "primaryActivity": {
             "anyOf": [
@@ -17702,6 +18977,17 @@
         ],
         "title": "RegisterResponse",
         "type": "object"
+      },
+      "RenderMode": {
+        "description": "One of 4 opaque render modes the client switches its UI on.",
+        "enum": [
+          "confirm",
+          "ask",
+          "narrative",
+          "reject"
+        ],
+        "title": "RenderMode",
+        "type": "string"
       },
       "RenteVsCapitalRequest": {
         "description": "Requete pour la comparaison rente vs capital LPP.",
@@ -21065,7 +22351,7 @@
             "$ref": "#/components/schemas/DocumentType"
           },
           "imageBase64": {
-            "description": "Base64-encoded document image (JPEG/PNG)",
+            "description": "Base64-encoded document (JPEG, PNG, or PDF)",
             "maxLength": 5000000,
             "title": "Imagebase64",
             "type": "string"
@@ -21114,6 +22400,12 @@
           "extractionMethod": {
             "default": "claude_vision",
             "title": "Extractionmethod",
+            "type": "string"
+          },
+          "extractionStatus": {
+            "default": "success",
+            "description": "Extraction outcome: 'success' (fields extracted and validated), 'partial' (some fields extracted, some rejected by validation), 'no_fields_found' (Claude parsed OK but returned zero fields — document unreadable or empty), or 'parse_error' (Claude returned non-JSON). Flutter surfaces a targeted error for each status.",
+            "title": "Extractionstatus",
             "type": "string"
           },
           "overallConfidence": {
@@ -21822,6 +23114,65 @@
         ],
         "title": "EtatCivil",
         "type": "string"
+      },
+      "h_650a94ee56a9__ConsentRevokeResponse": {
+        "properties": {
+          "cascadeEtaDays": {
+            "default": 0,
+            "title": "Cascadeetadays",
+            "type": "integer"
+          },
+          "cascadeScheduled": {
+            "default": false,
+            "title": "Cascadescheduled",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/ConsentPurpose"
+          },
+          "receiptId": {
+            "title": "Receiptid",
+            "type": "string"
+          },
+          "revokedAt": {
+            "format": "date-time",
+            "title": "Revokedat",
+            "type": "string"
+          }
+        },
+        "required": [
+          "receiptId",
+          "purpose",
+          "revokedAt",
+          "message"
+        ],
+        "title": "ConsentRevokeResponse",
+        "type": "object"
+      },
+      "h_8e4e6d71cfb0__ConsentRevokeResponse": {
+        "description": "Response after revoking a banking consent.",
+        "properties": {
+          "consentId": {
+            "description": "Identifiant du consentement revoque",
+            "title": "Consentid",
+            "type": "string"
+          },
+          "status": {
+            "description": "Statut du consentement apres revocation",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "consentId"
+        ],
+        "title": "ConsentRevokeResponse",
+        "type": "object"
       },
       "h_9602b9ec805b__EtatCivil": {
         "enum": [
@@ -22533,6 +23884,162 @@
         ]
       }
     },
+    "/api/v1/admin/flags/{flag}": {
+      "get": {
+        "operationId": "get_feature_flag_api_v1_admin_flags__flag__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "flag",
+            "required": true,
+            "schema": {
+              "title": "Flag",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "user",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Feature Flag",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "post": {
+        "description": "Toggle a feature flag globally or add/remove a user from dogfood.\n\nExamples:\n    POST /admin/flags/COACH_FSM_ENABLED?value=true            → global on\n    POST /admin/flags/COACH_FSM_ENABLED?value=true&user=u1    → dogfood u1\n    POST /admin/flags/COACH_FSM_ENABLED?value=false&user=u1   → remove u1",
+        "operationId": "set_feature_flag_api_v1_admin_flags__flag__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "flag",
+            "required": true,
+            "schema": {
+              "title": "Flag",
+              "type": "string"
+            }
+          },
+          {
+            "description": "True to enable, False to disable",
+            "in": "query",
+            "name": "value",
+            "required": true,
+            "schema": {
+              "description": "True to enable, False to disable",
+              "title": "Value",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "If set, scope change to dogfood list for this user_id",
+            "in": "query",
+            "name": "user",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "If set, scope change to dogfood list for this user_id",
+              "title": "User"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-Admin-Token",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Admin-Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Feature Flag",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
     "/api/v1/analytics/events": {
       "post": {
         "description": "Batch analytics event ingestion endpoint.\n\nRequires authentication. The authenticated user's ID is used as user_id\nfor all events (V6-1 audit fix: prevents fake user_id injection).\n\nArgs:\n    batch: Batch of analytics events to store\n    current_user: Authenticated user from JWT token\n    db: Database session\n\nReturns:\n    AnalyticsEventBatchResponse with count of events stored",
@@ -22752,6 +24259,48 @@
         "summary": "Get Analytics Summary",
         "tags": [
           "analytics"
+        ]
+      }
+    },
+    "/api/v1/anonymous/chat": {
+      "post": {
+        "description": "Anonymous discovery chat with device-scoped rate limiting.\n\nRequires X-Anonymous-Session header (UUID format).\nLimited to 3 messages per device token (lifetime).\nUses stripped-down discovery system prompt (no tools, no profile).",
+        "operationId": "anonymous_chat_api_v1_anonymous_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnonymousChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnonymousChatResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Anonymous Chat",
+        "tags": [
+          "Anonymous Chat P13"
         ]
       }
     },
@@ -24210,6 +25759,169 @@
         ]
       }
     },
+    "/api/v1/budget/me": {
+      "get": {
+        "operationId": "get_my_budget_api_v1_budget_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get My Budget",
+        "tags": [
+          "Budget Anomaly Detection"
+        ]
+      },
+      "put": {
+        "operationId": "upsert_my_budget_api_v1_budget_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetUpsert"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Upsert My Budget",
+        "tags": [
+          "Budget Anomaly Detection"
+        ]
+      }
+    },
+    "/api/v1/budget/me/lines": {
+      "post": {
+        "operationId": "add_or_update_line_api_v1_budget_me_lines_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BudgetLine"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Or Update Line",
+        "tags": [
+          "Budget Anomaly Detection"
+        ]
+      }
+    },
+    "/api/v1/budget/me/lines/{line_id}": {
+      "delete": {
+        "operationId": "delete_line_api_v1_budget_me_lines__line_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "line_id",
+            "required": true,
+            "schema": {
+              "title": "Line Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BudgetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Line",
+        "tags": [
+          "Budget Anomaly Detection"
+        ]
+      }
+    },
     "/api/v1/coach/chat": {
       "post": {
         "description": "Coach chat endpoint — tools + system prompt + RAG + agent loop.\n\nCombines:\n    1. System prompt (lifecycle + regional voice + plan awareness)\n    2. Coach tools (route_to_screen, show_*, ask_user_input, retrieve_memories)\n    3. RAG retrieval (FAQ fallback + cantonal enrichment)\n    4. Agent loop (internal tool execute -> re-call LLM until end_turn)\n    5. ComplianceGuard filter on all LLM output\n\nInternal tools (INTERNAL_TOOL_NAMES):\n    - retrieve_memories: intercepted by the backend agent loop; searches\n      memory_block locally and returns tool_result to the LLM for the\n      next iteration.  Never forwarded to Flutter.\n\nThe API key is used for a single request and is never stored by MINT.\n\nReturns:\n    CoachChatResponse with message, optional tool_calls, sources,\n    disclaimers, and token usage.  tool_calls never contains internal tools.\n\nRaises:\n    400: Invalid request (missing fields, malformed provider).\n    401: Authentication required.\n    502: LLM API call failed.\n    503: RAG dependencies not installed.",
@@ -24254,6 +25966,209 @@
         "summary": "Coach Chat",
         "tags": [
           "Coach Chat S56"
+        ]
+      }
+    },
+    "/api/v1/coach/commitment/": {
+      "get": {
+        "description": "List user's commitments, optionally filtered by status.",
+        "operationId": "list_commitments_api_v1_coach_commitment__get",
+        "parameters": [
+          {
+            "description": "Filter by status (pending, completed, dismissed)",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status (pending, completed, dismissed)",
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CommitmentResponse"
+                  },
+                  "title": "Response List Commitments Api V1 Coach Commitment  Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Commitments",
+        "tags": [
+          "Commitment P14"
+        ]
+      },
+      "post": {
+        "description": "Create a new implementation intention commitment.\n\nT-14-08: Rate limit — max 50 pending commitments per user.\nT-14-07: Length validation enforced by Pydantic schema (500 char max).",
+        "operationId": "create_commitment_api_v1_coach_commitment__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Commitment",
+        "tags": [
+          "Commitment P14"
+        ]
+      }
+    },
+    "/api/v1/coach/commitment/{commitment_id}": {
+      "patch": {
+        "description": "Update commitment status (completed or dismissed).\n\nT-14-06: IDOR protection — query filters by BOTH commitment_id AND user_id.",
+        "operationId": "update_commitment_status_api_v1_coach_commitment__commitment_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commitment_id",
+            "required": true,
+            "schema": {
+              "title": "Commitment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentStatusUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Update Commitment Status",
+        "tags": [
+          "Commitment P14"
+        ]
+      }
+    },
+    "/api/v1/coach/fresh-start/": {
+      "get": {
+        "description": "Return upcoming fresh-start landmarks with personalized messages.\n\nRate-limited to max 2 landmarks per calendar month (T-14-10).",
+        "operationId": "get_fresh_start_api_v1_coach_fresh_start__get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreshStartResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Fresh Start",
+        "tags": [
+          "Fresh Start P14"
         ]
       }
     },
@@ -24999,6 +26914,249 @@
         ]
       }
     },
+    "/api/v1/consents": {
+      "get": {
+        "operationId": "list_consents_api_v1_consents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Consents",
+        "tags": [
+          "Consents PRIV-01"
+        ]
+      }
+    },
+    "/api/v1/consents/grant": {
+      "post": {
+        "operationId": "grant_consent_api_v1_consents_grant_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentGrantRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentReceiptOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Grant Consent",
+        "tags": [
+          "Consents PRIV-01"
+        ]
+      }
+    },
+    "/api/v1/consents/grant-nominative": {
+      "post": {
+        "description": "PRIV-02: opposable declaration for a detected third party.\n\nBinds the nominative receipt to (user_id, subject_name, doc_hash). Client\nnormally hits this in response to a 428 Precondition Required from the\nupload flow.",
+        "operationId": "grant_nominative_consent_api_v1_consents_grant_nominative_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentGrantNominativeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentReceiptOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Grant Nominative Consent",
+        "tags": [
+          "Consents PRIV-01"
+        ]
+      }
+    },
+    "/api/v1/consents/verify-chain": {
+      "get": {
+        "operationId": "verify_chain_api_v1_consents_verify_chain_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Verify Chain Api V1 Consents Verify Chain Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verify Chain",
+        "tags": [
+          "Consents PRIV-01"
+        ]
+      }
+    },
+    "/api/v1/consents/{receipt_id}/receipt": {
+      "get": {
+        "operationId": "get_receipt_json_api_v1_consents__receipt_id__receipt_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "receipt_id",
+            "required": true,
+            "schema": {
+              "title": "Receipt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Receipt Json Api V1 Consents  Receipt Id  Receipt Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Receipt Json",
+        "tags": [
+          "Consents PRIV-01"
+        ]
+      }
+    },
+    "/api/v1/consents/{receipt_id}/revoke": {
+      "post": {
+        "operationId": "revoke_consent_api_v1_consents__receipt_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "receipt_id",
+            "required": true,
+            "schema": {
+              "title": "Receipt Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/h_650a94ee56a9__ConsentRevokeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Revoke Consent",
+        "tags": [
+          "Consents PRIV-01"
+        ]
+      }
+    },
     "/api/v1/debt/ratio": {
       "post": {
         "description": "Calculate the debt-to-income ratio and assess risk level.\n\nThresholds: < 15% green, 15-30% orange, > 30% red.\nAlso calculates the minimum vital insaisissable (LP art. 93).\n\nSources: LP art. 93; SchKG.",
@@ -25373,7 +27531,7 @@
     },
     "/api/v1/documents/extract-vision": {
       "post": {
-        "description": "Extract structured data from a document image using Claude Vision.\n\nHardened pipeline (02-01):\n1. Pre-extraction classification — rejects non-financial documents (DOC-10)\n2. Audit log creation — metadata only, no image data (DOC-08)\n3. Finally-block deletion — image cleared even on error (COMP-04)\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
+        "description": "Extract structured data from a document image using Claude Vision.\n\nHardened pipeline (02-01):\n1. Pre-extraction classification — rejects non-financial documents (DOC-10)\n2. Audit log creation — metadata only, no image data (DOC-08)\n3. Finally-block deletion — image cleared even on error (COMP-04)\n\nv2.7 Phase 28: when DOCUMENTS_V2_ENABLED is on for this user, the new\nfused understand_document() returns DocumentUnderstandingResult instead\nof the legacy VisionExtractionResponse. Flag default is False — legacy\npath stays the prod default until corpus validation in phase 30.\n\nPrivacy: image is sent to Claude API for processing but NOT stored.\nOnly extracted structured fields are returned.",
         "operationId": "extract_with_claude_vision_api_v1_documents_extract_vision_post",
         "requestBody": {
           "content": {
@@ -25390,7 +27548,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/VisionExtractionResponse"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/DocumentUnderstandingResult"
+                    },
+                    {
+                      "$ref": "#/components/schemas/VisionExtractionResponse"
+                    }
+                  ],
+                  "title": "Response Extract With Claude Vision Api V1 Documents Extract Vision Post"
                 }
               }
             },
@@ -25527,6 +27693,22 @@
               "description": "Whether to index extracted data in the RAG vector store",
               "title": "Index In Rag",
               "type": "boolean"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
             }
           }
         ],
@@ -28996,7 +31178,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ConsentRevokeResponse"
+                  "$ref": "#/components/schemas/h_8e4e6d71cfb0__ConsentRevokeResponse"
                 }
               }
             },
@@ -29174,6 +31356,32 @@
         "summary": "Get Monthly Summary",
         "tags": [
           "open-banking"
+        ]
+      }
+    },
+    "/api/v1/overview/me": {
+      "get": {
+        "operationId": "get_overview_me_api_v1_overview_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverviewResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Overview Me",
+        "tags": [
+          "Overview — Aperçu financier"
         ]
       }
     },
@@ -29631,7 +31839,7 @@
     },
     "/api/v1/profiles/me": {
       "get": {
-        "description": "Get the authenticated user's profile.\nReturns the most recently updated profile linked to the current user.",
+        "description": "Get the authenticated user's profile.\n\nGet-or-create semantics (FIX-B, 2026-04-13): if the authenticated user\nsomehow has no profile row (legacy account, partial migration, aborted\nbootstrap during auth), auto-create an empty one on the fly rather than\nreturning 404 forever. Every auth path SHOULD already call\n`ensure_empty_profile`, but this endpoint is the last line of defence\nfor the downstream screens that depend on a profile existing.",
         "operationId": "get_my_profile_api_v1_profiles_me_get",
         "responses": {
           "200": {
