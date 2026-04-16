@@ -38,8 +38,21 @@ JURISDICTION = "CH"
 LAWFUL_BASIS = "consent_nLPD_art_6_al_6"
 POLICY_URL_TEMPLATE = "https://mint.ch/privacy/{version}"
 POLICY_DIR = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "legal"
-# also check repo-level docs/legal
-_REPO_ROOT = Path(__file__).resolve().parents[5]
+# Repo root: walk up from this file until we find a directory containing
+# CLAUDE.md or .git — works both locally (deep nesting) and on Railway
+# (where the app lives at /app/).
+def _find_repo_root() -> Path:
+    p = Path(__file__).resolve().parent
+    for _ in range(10):
+        if (p / "CLAUDE.md").exists() or (p / ".git").exists():
+            return p
+        if p.parent == p:
+            break
+        p = p.parent
+    # Fallback: services/backend root (parent×4 from this file)
+    return Path(__file__).resolve().parent.parent.parent.parent
+
+_REPO_ROOT = _find_repo_root()
 _REPO_POLICY_DIR = _REPO_ROOT / "docs" / "legal"
 
 
