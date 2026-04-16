@@ -11,6 +11,10 @@ import pytest
 
 from app.services.privacy import fpe
 
+# fpe is None when the [privacy] optional extra (pyffx) is not installed.
+# CI runs with [dev] only — skip the entire module gracefully.
+pytestmark = pytest.mark.skipif(fpe is None, reason="pyffx not installed (optional extra)")
+
 
 @pytest.fixture(autouse=True)
 def _set_keys(monkeypatch):

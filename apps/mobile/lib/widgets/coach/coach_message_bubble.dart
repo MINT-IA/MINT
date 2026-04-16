@@ -111,7 +111,7 @@ class CoachMessageBubble extends StatelessWidget {
                                     height: 1.6),
                           ),
                           shrinkWrap: true,
-                          softLineBreak: true,
+                          softLineBreak: false,
                           selectable: true,
                         ),
                       ),

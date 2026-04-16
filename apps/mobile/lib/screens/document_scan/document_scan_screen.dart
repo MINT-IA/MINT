@@ -735,13 +735,21 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             .toList() ?? const [],
       );
     } on DocumentServiceException catch (e) {
-      // 422: non-financial document detected by backend (DOC-10)
-      if (e.code == 'not_financial' && mounted) {
-        setState(() {
-          _isProcessing = false;
-          _preValidationError = S.of(context)!.docNotFinancial;
-          _preValidationHint = S.of(context)!.docNotFinancialHint;
-        });
+      debugPrint('[DocumentScan] Vision error: code=${e.code} msg=${e.message}');
+      if (!mounted) return null;
+      switch (e.code) {
+        case 'not_financial':
+          setState(() {
+            _isProcessing = false;
+            _preValidationError = S.of(context)!.docNotFinancial;
+            _preValidationHint = S.of(context)!.docNotFinancialHint;
+          });
+        case 'file_too_large':
+          _showErrorSnack(e.message);
+        case 'upload_failed':
+          _showErrorSnack(S.of(context)!.docScanScannerError);
+        default:
+          _showErrorSnack(S.of(context)!.docScanGenericError);
       }
       return null;
     } on TimeoutException catch (_) {

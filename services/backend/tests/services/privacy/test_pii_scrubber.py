@@ -14,6 +14,10 @@ import pytest
 from app.services.privacy import pii_scrubber
 from app.services.privacy.log_filter import PIILogFilter
 
+pytestmark = pytest.mark.skipif(
+    pii_scrubber is None, reason="pii_scrubber not installed (optional extra)"
+)
+
 
 @pytest.fixture(autouse=True)
 def _set_fpe_keys(monkeypatch):

@@ -283,6 +283,17 @@ class AuthProvider extends ChangeNotifier {
       final displayName = response['displayName'] as String?;
       final refreshToken = response['refreshToken'] as String?;
 
+      // Apple Sign-In with "Hide My Email" may return an empty userId
+      // or email. saveToken now throws ArgumentError on empty values
+      // (Gate 0 #9 zombie-auth guard). Catch it here and surface a
+      // recoverable error instead of crashing.
+      if (userId.isEmpty || userEmail.isEmpty) {
+        _error = AuthError.serviceUnavailable;
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
       await AuthService.saveToken(
         accessToken,
         userId,
