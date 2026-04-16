@@ -134,7 +134,7 @@ def test_ci_gate_passes_on_clean_log_fixture(tmp_path):
         [sys.executable, "scripts/check_pii_in_logs.py",
          "--fixture", str(clean_log)],
         capture_output=True, text=True,
-        cwd=str(Path(__file__).resolve().parents[3]),
+        cwd=str(Path(__file__).resolve().parents[5]),
     )
     assert result.returncode == 0, (
         f"clean log fixture should pass; stderr={result.stderr}"
@@ -155,7 +155,7 @@ def test_ci_gate_fails_on_polluted_log_fixture(tmp_path):
         [sys.executable, "scripts/check_pii_in_logs.py",
          "--fixture", str(bad_log)],
         capture_output=True, text=True,
-        cwd=str(Path(__file__).resolve().parents[3]),
+        cwd=str(Path(__file__).resolve().parents[5]),
     )
     assert result.returncode == 1, (
         f"polluted log fixture should fail (exit 1); stdout={result.stdout}"
