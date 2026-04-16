@@ -592,6 +592,36 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
     # ─────────────────────────────────────────────────────────────────
+    # suggest_actions — READ: compute personalized next steps
+    # Gate 0 #6: replaces static chips with dynamic suggestions
+    # computed from the user's profile completeness + financial gaps.
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "suggest_actions",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "MANDATORY: call at the END of every response to generate "
+            "2-3 personalized suggestion chips for the user. Returns a "
+            "JSON list of next actions based on what MINT knows and "
+            "doesn't know about the user.\n\n"
+            "Examples of returned suggestions:\n"
+            "  - 'Dis-moi ton salaire net mensuel' (profile gap)\n"
+            "  - 'Upload ton certificat LPP' (missing document)\n"
+            "  - 'Configure ton budget' (no budget set up)\n"
+            "  - 'Simule ton rachat LPP' (has avoirLpp + buybackMax)\n"
+            "  - 'Compare rente vs capital' (has LPP projection)\n\n"
+            "Do NOT call this tool for goodbye/clarification messages.\n"
+            "Present the returned suggestions as follow-up questions "
+            "or action chips — never hide them."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
     # DATA LOOKUP TOOLS — INTERNAL: read pre-computed data from profile_context
     # These tools let the LLM READ the user's financial calculations
     # (budget, retirement, cross-pillar, cap) so it can reason about them.

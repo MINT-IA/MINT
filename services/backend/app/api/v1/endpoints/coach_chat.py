@@ -841,6 +841,78 @@ def _handle_retrieve_memories(
 # Agent loop — tool_use -> execute -> re-call LLM
 # ---------------------------------------------------------------------------
 
+def _compute_suggested_actions(
+    user_id: Optional[str],
+    db: Optional[Session],
+) -> list[dict[str, str]]:
+    """Compute 2-3 personalized next actions from profile state.
+
+    Returns a list of {label, type} dicts. 'type' is one of:
+      question — ask the user for missing data
+      upload   — suggest uploading a document
+      simulate — suggest running a calculator
+      budget   — suggest budget setup
+    """
+    actions: list[dict[str, str]] = []
+    if not user_id or not db:
+        return [{"label": "Dis-moi ton âge et ton canton pour commencer", "type": "question"}]
+
+    try:
+        from app.models.profile_model import ProfileModel as _PM
+        profile = (
+            db.query(_PM)
+            .filter(_PM.user_id == user_id)
+            .order_by(_PM.updated_at.desc())
+            .first()
+        )
+        data = dict(profile.data or {}) if profile else {}
+    except Exception:
+        return [{"label": "Parle-moi de ta situation financière", "type": "question"}]
+
+    # Profile gaps → question chips
+    if not data.get("birthYear"):
+        actions.append({"label": "Quel âge as-tu ?", "type": "question"})
+    if not data.get("canton"):
+        actions.append({"label": "Dans quel canton vis-tu ?", "type": "question"})
+    if not data.get("incomeNetMonthly") and not data.get("incomeGrossYearly"):
+        actions.append({"label": "Quel est ton salaire net mensuel ?", "type": "question"})
+
+    if len(actions) >= 3:
+        return actions[:3]
+
+    # Document gaps → upload chips
+    if not data.get("avoirLpp"):
+        actions.append({"label": "Upload ton certificat LPP", "type": "upload"})
+
+    if len(actions) >= 3:
+        return actions[:3]
+
+    # Budget gap
+    budget = data.get("budget") or {}
+    if not budget.get("fixed_lines"):
+        actions.append({"label": "Configure ton budget mensuel", "type": "budget"})
+
+    if len(actions) >= 3:
+        return actions[:3]
+
+    # Simulation suggestions based on available data
+    if data.get("avoirLpp") and data.get("lppBuybackMax"):
+        actions.append({"label": "Simule un plan de rachat LPP", "type": "simulate"})
+    elif data.get("avoirLpp"):
+        actions.append({"label": "Compare rente vs capital à 65 ans", "type": "simulate"})
+
+    if data.get("incomeNetMonthly") and not data.get("pillar3aAnnual"):
+        actions.append({"label": "Combien verses-tu en 3a par an ?", "type": "question"})
+
+    if data.get("hasDebt") is True and not data.get("totalDebt"):
+        actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+
+    if not actions:
+        actions.append({"label": "Pose-moi une question sur ta situation", "type": "question"})
+
+    return actions[:3]
+
+
 MAX_AGENT_LOOP_ITERATIONS = 4  # v2.7: 3→4 to allow one reflective retry on empty end_turn
 MAX_AGENT_LOOP_TOKENS = 8000
 
@@ -1273,6 +1345,15 @@ def _execute_internal_tool(
                 logger.exception("save_fact DB commit failed: %s", fact_key)
                 return f"[save_fact ÉCHEC: {type(exc).__name__}]"
         return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+
+    # ─────────────────────────────────────────────────────────────────
+    # suggest_actions — READ: dynamic chips from profile gaps + financial
+    # state. Gate 0 #6: replaces static chips with contextual next steps.
+    # ─────────────────────────────────────────────────────────────────
+    if name == "suggest_actions":
+        suggestions = _compute_suggested_actions(user_id, db)
+        import json as _json
+        return _json.dumps(suggestions, ensure_ascii=False)
 
     # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
     # Actual DB persistence happens via dedicated endpoint (Plan 02).
