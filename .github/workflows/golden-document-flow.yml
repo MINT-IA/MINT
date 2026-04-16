@@ -10,13 +10,11 @@ name: golden-document-flow
 #   - After the graduation date below, flip `continue-on-error` to `false`
 #     and remove this comment block. The grep-able marker is intentional.
 
+# Disabled 2026-04-16: cassettes not up-to-date, warn-only anyway,
+# costs 1h CI per push for zero value. Re-enable after cassette
+# re-baseline (ANTHROPIC_API_KEY record script).
 on:
-  pull_request:
-    paths:
-      - services/backend/**
-      - .github/workflows/golden-document-flow.yml
-  push:
-    branches: [dev, staging, main]
+  workflow_dispatch: # manual trigger only
 
 jobs:
   golden-flow:
