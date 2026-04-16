@@ -47,6 +47,7 @@ GUARDRAIL_FILES = {
     "educational_content_service.py",
     "claude_coach_service.py",         # system prompt with banned terms list
     "coach_tools.py",                  # tool schema with banned terms reminder
+    "vision_guard.py",                 # LLM-as-judge prompt: literally lists banned terms
     # Dart
     "compliance_guard.dart",
     "coach_checkin_screen.dart",

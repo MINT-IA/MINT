@@ -19,7 +19,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
+from fastapi import APIRouter, Depends, File, Header, HTTPException, Query, Request, Response, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.auth import require_current_user
@@ -27,6 +27,7 @@ from app.services.billing_service import recompute_entitlements
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.document import DocumentModel
+from app.models.profile_model import ProfileModel
 from app.models.user import User
 from anthropic import Anthropic
 
@@ -40,6 +41,8 @@ from app.schemas.document_scan import (
     VisionExtractionRequest,
     VisionExtractionResponse,
 )
+from app.schemas.document_understanding import DocumentUnderstandingResult
+from typing import Union
 from app.services.reengagement.consent_manager import ConsentManager
 from app.services.reengagement.reengagement_models import ConsentType
 
@@ -204,18 +207,14 @@ _PREMIER_ECLAIRAGE_SYSTEM_PROMPT = """\
 Tu es Mint, l'intelligence financiere suisse. Tu viens d'analyser un {document_type} \
 pour un utilisateur{canton_clause}.
 
-CONTRAT DE SORTIE — reponds en JSON strict avec ces 4 cles (ce schema est INTERNE,
-il structure la sortie machine ; les VALEURS des champs doivent etre en prose naturelle) :
-- "factual_extraction": Resume les faits cles extraits du document (montants, taux, dates). 2-3 phrases max.
-- "human_translation": Explique en langage simple ce que ces chiffres signifient, sans jargon. 2-3 phrases max.
-- "personal_perspective": Ce que cela implique concretement pour cet utilisateur (points forts, points d'attention, opportunites manquees). 2-3 phrases max.
-- "questions_to_ask": Liste de 2-3 questions pertinentes que l'utilisateur devrait poser a sa caisse ou son employeur.
+MOTEUR 4 COUCHES — reponds en JSON strict avec ces 4 cles :
+1. "factual_extraction": Resume les faits cles extraits du document (montants, taux, dates). 2-3 phrases max.
+2. "human_translation": Explique en langage simple ce que ces chiffres signifient, sans jargon. 2-3 phrases max.
+3. "personal_perspective": Ce que cela implique concretement pour cet utilisateur (points forts, points d'attention, opportunites manquees). 2-3 phrases max.
+4. "questions_to_ask": Liste de 2-3 questions pertinentes que l'utilisateur devrait poser a sa caisse ou son employeur.
 
 DOCTRINE : Mint eclaire, Mint ne juge pas. Mint explicite le contrat. Mint dit 'voici ce que cela implique pour toi'.
 INTERDICTIONS : Pas de 'garanti', 'optimal', 'meilleur', 'sans risque'. Pas de conseil produit. Conditionnel ('pourrait', 'envisager').
-INTERDICTION STRICTE dans les valeurs de chaque champ : n'ecris JAMAIS 'couche 1', 'couche 2',
-'couche 3', 'couche 4', 'layer', 'niveau 1/2', 'etape 1/2/3', 'MOTEUR'. Ces termes sont de la
-doctrine INTERNE, ils ne doivent JAMAIS apparaitre dans le texte lu par l'utilisateur.
 FORMAT : Reponds UNIQUEMENT en JSON valide, sans texte autour. Les valeurs sont des strings sauf questions_to_ask qui est une liste de strings.
 {plan_1e_context}
 DONNEES EXTRAITES DU DOCUMENT :
@@ -394,11 +393,13 @@ async def document_premier_eclairage(
 @limiter.limit("10/minute")
 async def upload_document(
     request: Request,
+    response: Response,
     file: UploadFile = File(...),
     index_in_rag: bool = Query(
         False,
         description="Whether to index extracted data in the RAG vector store",
     ),
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
     db: Session = Depends(get_db),
     _user: User = Depends(require_current_user),
 ):
@@ -410,6 +411,14 @@ async def upload_document(
 
     The raw PDF is never stored — only the extracted fields are kept.
     """
+    # v2.7 Task 7: Idempotency-Key primary cache (UUID v4 client-generated).
+    from app.services import idempotency as _idem
+    if idempotency_key:
+        cached = await _idem.lookup_by_key(idempotency_key)
+        if cached is not None:
+            response.headers["X-Idempotent-Replay"] = "true"
+            return DocumentUploadResponse(**cached)
+
     # Entitlement gate: vault feature required for unlimited uploads.
     # Free users are limited to 2 documents.
     effective_tier, active_features = recompute_entitlements(db, str(_user.id))
@@ -462,6 +471,16 @@ async def upload_document(
 
     if not file_bytes:
         raise HTTPException(status_code=400, detail="Empty file uploaded.")
+
+    # v2.7 Task 7: SHA256 secondary dedup.
+    file_sha = _idem.sha256_hex(file_bytes)
+    cached_sha = await _idem.lookup_by_file_sha(file_sha)
+    if cached_sha is not None:
+        response.headers["X-Idempotent-Replay"] = "true"
+        # Also mirror into key cache if a key was provided.
+        if idempotency_key and _idem.is_valid_idempotency_key(idempotency_key):
+            await _idem.store_by_key(idempotency_key, cached_sha)
+        return DocumentUploadResponse(**cached_sha)
 
     # FIX-W12: Validate PDF magic bytes (first 5 bytes must be %PDF-)
     if not file_bytes[:5] == b"%PDF-":
@@ -555,7 +574,7 @@ async def upload_document(
     if index_in_rag and extracted.extracted_fields_count > 0:
         rag_indexed = _index_in_rag(doc_id, extracted_dict, doc_type)
 
-    return DocumentUploadResponse(
+    resp = DocumentUploadResponse(
         id=doc_id,
         document_type=doc_type,
         extracted_fields=extracted_dict,
@@ -566,6 +585,14 @@ async def upload_document(
         warnings=warnings,
         rag_indexed=rag_indexed,
     )
+
+    # v2.7 Task 7: cache the successful response for idempotent replay.
+    payload = resp.model_dump(mode="json")
+    if idempotency_key and _idem.is_valid_idempotency_key(idempotency_key):
+        await _idem.store_by_key(idempotency_key, payload)
+    await _idem.store_by_file_sha(file_sha, payload)
+
+    return resp
 
 
 @router.get("/", response_model=DocumentListResponse)
@@ -873,6 +900,163 @@ async def preview_budget_import(
 #  SCAN CONFIRMATION + CLAUDE VISION EXTRACTION
 # ════════════════════════════════════════════════════════════
 
+# Whitelist mapping: mobile scan field_name → ProfileModel.data key (camelCase).
+# Only these fields are merged into the profile when confidence is high/medium.
+# Keep the set narrow so adversarial scans can't clobber arbitrary profile keys.
+#
+# Canonical extractor → profile mapping (LPP certificate, Swiss 2e pilier).
+# The LEFT column is the `field_name` the client sends in scan-confirmation;
+# the RIGHT column is the authoritative ProfileModel.data key.
+#
+# Cert-label → extractor-field → profile-key lineage (documented 2026-04-15):
+#   "Prestation de sortie au DATE"          → avoir_vieillesse_total   → avoirLpp
+#   "Avoir de vieillesse LPP"               → avoir_vieillesse_oblig   → avoirLppObligatoire
+#   "Salaire assuré / salaire d'épargne"    → salaire_assure           → lppInsuredSalary
+#   "Rachat en vue de la retraite ordinaire"→ rachat_maximum           → lppBuybackMax
+#   "Salaire déterminant"                   → (manual confirm)         → incomeGrossYearly
+# IMPORTANT: capital_deces ≠ lppBuybackMax. The CPE cert prints a
+# règlement boilerplate "s'applique au capital décès" without a figure,
+# which earlier hijacked the next unrelated amount. If a cert does print
+# a real capital décès number, it lands in `capitalDeces` below — NOT in
+# lppBuybackMax.
+_SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
+    # LPP avoir / buyback / insured salary
+    "avoirLpp": ["avoirLpp"],
+    "avoirLppTotal": ["avoirLpp"],
+    "avoirVieillesseTotal": ["avoirLpp"],
+    "prestationDeSortie": ["avoirLpp"],
+    "avoirLppObligatoire": ["avoirLppObligatoire"],
+    "avoirLppSurobligatoire": ["avoirLppSurobligatoire"],
+    "lppInsuredSalary": ["lppInsuredSalary"],
+    "salaireAssure": ["lppInsuredSalary"],
+    "lppBuybackMax": ["lppBuybackMax"],
+    "rachatMaximum": ["lppBuybackMax"],
+    "rachatRetraiteOrdinaire": ["lppBuybackMax"],
+    "rachatRetraiteAnticipee": ["lppBuybackMaxAnticipe"],
+    "tauxConversion": ["tauxConversion"],
+    # Prévoyance risques (read from cert but distinct from rachat)
+    "capitalDeces": ["capitalDeces"],
+    "renteInvalidite": ["renteInvaliditeAnnuelle"],
+    "renteConjoint": ["renteConjointAnnuelle"],
+    "renteEnfant": ["renteEnfantAnnuelle"],
+    "eplMax": ["eplMax"],
+    # Salary / income fields
+    "salaireBrutAnnuel": ["incomeGrossYearly"],
+    "salaireNetAnnuel": ["incomeNetYearly"],
+    "salaireBrutMensuel": ["incomeGrossMonthly"],
+    "salaireNetMensuel": ["incomeNetMonthly"],
+    "bonus": ["annualBonus"],
+    "tauxOccupation": ["employmentRate"],
+    # Cotisations
+    "cotisationsLpp": ["cotisationsLpp", "lpp_employee_contribution"],
+    "cotisationsAvs": ["cotisationsAvs"],
+    # 3a fields
+    "versementAnnuel3a": ["pillar3aAnnual"],
+    "pillar3aBalance": ["pillar3aBalance"],
+    # Personal fields (safe)
+    "dateNaissance": ["dateOfBirth"],
+    "npa": ["commune"],
+    "canton": ["canton"],
+}
+
+# Minimum confidence level required to merge a scan field into the profile.
+# Low-confidence extractions still land in the DocumentModel audit trail
+# so the UI can display them for manual review, but they never overwrite
+# authoritative profile state.
+_SCAN_MERGE_CONFIDENCE = {"high", "medium"}
+
+
+# Profile keys that MUST be float. Swiss-format strings ("122'206.80")
+# are coerced; anything else is rejected.
+_SCAN_NUMERIC_KEYS: set[str] = {
+    "avoirLpp", "avoirLppObligatoire", "avoirLppSurobligatoire",
+    "lppInsuredSalary", "lppBuybackMax", "lppBuybackMaxAnticipe",
+    "tauxConversion", "capitalDeces", "renteInvaliditeAnnuelle",
+    "renteConjointAnnuelle", "renteEnfantAnnuelle", "eplMax",
+    "incomeGrossYearly", "incomeNetYearly", "incomeGrossMonthly",
+    "incomeNetMonthly", "annualBonus", "employmentRate",
+    "cotisationsLpp", "lpp_employee_contribution", "cotisationsAvs",
+    "pillar3aAnnual", "pillar3aBalance",
+}
+
+_SCAN_STRING_KEYS: set[str] = {
+    "dateOfBirth", "commune", "canton",
+}
+
+
+def _coerce_scan_value(key: str, value) -> object:
+    """Coerce a scan-confirmed value to the type ProfileModel.data expects.
+
+    Returns None when the value cannot be safely coerced — caller skips
+    that field with a log (never writes a string where a float is expected).
+    """
+    if value is None:
+        return None
+    if key in _SCAN_NUMERIC_KEYS:
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return float(value)
+        if isinstance(value, str):
+            try:
+                cleaned = value.replace("'", "").replace("\u2019", "").replace(" ", "").replace(",", ".")
+                return float(cleaned)
+            except (TypeError, ValueError):
+                return None
+        return None
+    if key in _SCAN_STRING_KEYS:
+        return str(value).strip() if value else None
+    # Unknown key type — pass through (safe: whitelist already restricts which
+    # keys are allowed, so this only fires on new keys added to the whitelist
+    # but not yet categorised as numeric/string).
+    return value
+
+
+def _merge_scan_fields_into_profile(
+    db: Session,
+    user_id: str,
+    body: DocumentScanConfirmation,
+) -> int:
+    """Merge confirmed scan fields into the user's ProfileModel.data.
+
+    Returns the number of profile keys actually written. High/medium
+    confidence fields pass through the whitelist and overwrite existing
+    values; low confidence is skipped here (audit-only).
+    """
+    profile = (
+        db.query(ProfileModel)
+        .filter(ProfileModel.user_id == user_id)
+        .order_by(ProfileModel.updated_at.desc())
+        .first()
+    )
+    if profile is None:
+        return 0
+
+    data = dict(profile.data or {})
+    written = 0
+    for field in body.confirmed_fields:
+        conf = getattr(field.confidence, "value", field.confidence)
+        if str(conf).lower() not in _SCAN_MERGE_CONFIDENCE:
+            continue
+        mapped_keys = _SCAN_FIELD_TO_PROFILE_KEYS.get(field.field_name)
+        if not mapped_keys:
+            continue
+        for key in mapped_keys:
+            coerced = _coerce_scan_value(key, field.value)
+            if coerced is None:
+                logger.info(
+                    "scan merge skip: key=%s value=%r (coercion failed)",
+                    key, field.value,
+                )
+                continue
+            data[key] = coerced
+            written += 1
+
+    if written > 0:
+        profile.data = data
+        profile.updated_at = datetime.now(timezone.utc)
+        db.add(profile)
+    return written
+
+
 @router.post("/scan-confirmation", response_model=DocumentScanResponse)
 @limiter.limit("30/minute")
 async def confirm_document_scan(
@@ -913,140 +1097,26 @@ async def confirm_document_scan(
         warnings=[],
     )
     db.add(doc_model)
+
+    # Merge high/medium confidence fields into the user's profile
+    # (P0 FLOW#4 fix 2026-04-15: audit entry alone is not enough — the
+    # whole upload→profile pipeline advertises "MINT remembers what you
+    # uploaded", which requires persisting values into ProfileModel.data
+    # so GET /profiles/me and the coach user_facts_block can read them.)
+    profile_fields_written = _merge_scan_fields_into_profile(
+        db, str(current_user.id), body
+    )
     db.commit()
 
     # Calculate confidence delta (how much this scan improves profile)
     confidence_delta = _estimate_scan_confidence_delta(body)
 
-    # ────────────────────────────────────────────────────────────────
-    # BUG #1 FIX (2026-04-15): merge confirmed fields into ProfileModel.
-    # Before this fix the endpoint only stored scan metadata and NEVER
-    # wrote the confirmed values back to the user's profile, so
-    # /profiles/me kept returning null for avoirLpp et al. despite the
-    # mobile UX showing "scan synced".
-    #
-    # Mapping: Vision `fieldName` → ProfileModel.data key(s). We mirror
-    # to both canonical and legacy keys so every downstream consumer
-    # (coach context, LPP deep, mortgage, retirement) sees the value.
-    # ────────────────────────────────────────────────────────────────
-    merged_fields: list[str] = []
-    try:
-        from app.models.profile_model import ProfileModel as _ProfileModel
-
-        profile = (
-            db.query(_ProfileModel)
-            .filter(_ProfileModel.user_id == str(current_user.id))
-            .order_by(_ProfileModel.updated_at.desc())
-            .first()
-        )
-        if profile is not None:
-            data = dict(profile.data) if profile.data else {}
-            for field in body.confirmed_fields:
-                targets = _SCAN_FIELD_TO_PROFILE_KEYS.get(field.field_name)
-                if not targets:
-                    continue
-                conf_value = (
-                    field.confidence.value
-                    if hasattr(field.confidence, "value")
-                    else str(field.confidence)
-                )
-                # Rule: only high/medium confidence fields merge. Low
-                # confidence would pollute the profile with OCR noise.
-                if conf_value not in ("high", "medium"):
-                    continue
-                if field.value is None:
-                    continue
-                for key in targets:
-                    old = data.get(key)
-                    # Skip near-duplicates (< 1% drift) for numeric values —
-                    # avoids churn when the user rescans the same doc.
-                    try:
-                        old_f = float(old) if old is not None else None
-                        new_f = float(field.value)
-                        if (
-                            old_f is not None
-                            and old_f > 0
-                            and abs(old_f - new_f) / old_f < 0.01
-                        ):
-                            continue
-                    except (TypeError, ValueError):
-                        pass
-                    data[key] = field.value
-                    if key == targets[0]:
-                        merged_fields.append(field.field_name)
-                    # Log field name only — never the value (PII).
-                    logger.info(
-                        "scan_confirmation.profile_merged user=%s... field=%s key=%s overwrite=%s",
-                        str(current_user.id)[:8],
-                        field.field_name,
-                        key,
-                        old is not None,
-                    )
-            if merged_fields:
-                # Bump completion index proportionally (cap 1.0).
-                try:
-                    prev = float(data.get("factfindCompletionIndex") or 0.0)
-                    bump = min(0.08 * len(merged_fields), 0.30)
-                    data["factfindCompletionIndex"] = min(1.0, prev + bump)
-                except (TypeError, ValueError):
-                    pass
-                data["lastDocumentScan"] = {
-                    "documentType": body.document_type.value,
-                    "fieldsUpdated": merged_fields,
-                    "at": datetime.now(timezone.utc).isoformat(),
-                }
-                profile.data = data
-                profile.updated_at = datetime.now(timezone.utc)
-                db.commit()
-    except Exception as merge_exc:
-        # Best-effort: never break the scan-confirm response on merge error.
-        logger.warning(
-            "scan_confirmation.profile_merge failed user=%s...: %s",
-            str(current_user.id)[:8],
-            type(merge_exc).__name__,
-        )
-        try:
-            db.rollback()
-        except Exception:
-            pass
-
     return DocumentScanResponse(
         status="confirmed",
-        fields_updated=len(body.confirmed_fields),
+        fields_updated=profile_fields_written,
         confidence_delta=confidence_delta,
-        message=f"Scan {body.document_type.value} synced ({len(body.confirmed_fields)} fields)",
+        message=f"Scan {body.document_type.value} synced ({profile_fields_written} profile fields)",
     )
-
-
-# Vision fieldName → ProfileModel.data key(s). Multiple targets = mirror
-# canonical + legacy key so all downstream consumers see the value.
-_SCAN_FIELD_TO_PROFILE_KEYS: dict[str, list[str]] = {
-    # LPP certificate
-    "avoirLppTotal": ["avoirLpp", "lppTotalBalance", "lpp_capital"],
-    "avoirLppObligatoire": ["avoirLppObligatoire"],
-    "avoirLppSurobligatoire": ["avoirLppSurobligatoire"],
-    "rachatMaximum": ["rachatMaximum", "lppBuybackMax", "lpp_buyback_max"],
-    "salaireAssure": ["lppInsuredSalary"],
-    "tauxConversion": ["tauxConversion", "lpp_conversion_rate"],
-    "bonificationVieillesse": ["bonificationVieillesse"],
-    # Salary certificate (Run-005 added 2026-04-15 — Sophie's salaireBrutAnnuel
-    # was extracted by Vision but never persisted because no mapping existed,
-    # so the coach kept asking for income info already in the document).
-    "salaireBrutAnnuel": ["incomeGrossYearly", "salaireBrutAnnuel"],
-    "salaireNetAnnuel": ["incomeNetYearly"],
-    "salaireBrutMensuel": ["incomeGrossMonthly"],
-    "salaireNetMensuel": ["incomeNetMonthly"],
-    "cotisationsLpp": ["cotisationsLpp", "lpp_employee_contribution"],
-    "cotisationsAvs": ["cotisationsAvs"],
-    "tauxOccupation": ["employmentRate", "tauxOccupation"],
-    "bonus": ["annualBonus"],
-    # Tax declaration
-    "revenuImposable": ["incomeTaxable"],
-    "fortuneImposable": ["fortuneImposable", "wealthEstimate"],
-    # 3a attestation
-    "avoir3a": ["pillar3aBalance", "existing_3a_ytd"],
-    "versementAnnuel3a": ["pillar3aAnnual"],
-}
 
 
 def _classify_and_reject_if_needed(image_base64: str) -> Optional[str]:
@@ -1066,7 +1136,10 @@ def _classify_and_reject_if_needed(image_base64: str) -> Optional[str]:
     return None
 
 
-@router.post("/extract-vision", response_model=VisionExtractionResponse)
+@router.post(
+    "/extract-vision",
+    response_model=Union[DocumentUnderstandingResult, VisionExtractionResponse],
+)
 @limiter.limit("10/minute")
 async def extract_with_claude_vision(
     body: VisionExtractionRequest,
@@ -1081,11 +1154,21 @@ async def extract_with_claude_vision(
     2. Audit log creation — metadata only, no image data (DOC-08)
     3. Finally-block deletion — image cleared even on error (COMP-04)
 
+    v2.7 Phase 28: when DOCUMENTS_V2_ENABLED is on for this user, the new
+    fused understand_document() returns DocumentUnderstandingResult instead
+    of the legacy VisionExtractionResponse. Flag default is False — legacy
+    path stays the prod default until corpus validation in phase 30.
+
     Privacy: image is sent to Claude API for processing but NOT stored.
     Only extracted structured fields are returned.
     """
-    from app.services.document_vision_service import extract_with_vision
+    from app.services.document_vision_service import (
+        extract_with_vision,
+        understand_document,
+    )
     from app.models.document_audit import create_audit_log
+    from app.services.flags_service import flags as _flags
+    from app.services import idempotency as _idempotency
 
     logger.info(
         "Vision extraction: user=%s type=%s canton=%s",
@@ -1093,6 +1176,102 @@ async def extract_with_claude_vision(
         body.document_type.value,
         body.canton,
     )
+
+    # ── DOCUMENTS_V2_ENABLED gate (phase 28 fused path) ──
+    v2_enabled = await _flags.is_enabled("DOCUMENTS_V2_ENABLED", str(current_user.id))
+    if v2_enabled:
+        # Decode base64 → raw bytes once; understand_document handles preflight.
+        try:
+            import base64 as _b64
+            file_bytes = _b64.b64decode(body.image_base64 or "")
+        except Exception:
+            raise HTTPException(status_code=400, detail="Invalid base64 image")
+
+        file_sha = _idempotency.sha256_hex(file_bytes)
+
+        # ── Phase 28-02: SSE streaming when client requests text/event-stream ──
+        accept_header = (request.headers.get("accept") or "").lower()
+        if "text/event-stream" in accept_header:
+            from sse_starlette.sse import EventSourceResponse
+            from app.services import document_stream as _ds
+
+            user_id_str = str(current_user.id)
+            canton_v = body.canton
+            lang_v = body.language_hint
+            # Cleanup base64 from request body now — the generator owns the bytes.
+            body.image_base64 = ""
+
+            async def _event_publisher():
+                try:
+                    async for ev in _ds.stream_understanding(
+                        file_bytes=file_bytes,
+                        user_id=user_id_str,
+                        canton=canton_v,
+                        lang=lang_v,
+                        file_sha=file_sha,
+                        db=db,
+                    ):
+                        yield {"event": ev["event"], "data": json.dumps(ev["data"])}
+                except Exception as exc:  # pragma: no cover - defensive
+                    logger.error("SSE publisher failed: %s", exc)
+                    yield {
+                        "event": "done",
+                        "data": json.dumps({
+                            "render_mode": "reject",
+                            "overall_confidence": 0.0,
+                            "error": "stream_failed",
+                        }),
+                    }
+
+            return EventSourceResponse(_event_publisher(), media_type="text/event-stream")
+
+        try:
+            result = await understand_document(
+                file_bytes=file_bytes,
+                user_id=str(current_user.id),
+                canton=body.canton,
+                lang=body.language_hint,
+                file_sha=file_sha,
+                db=db,
+            )
+            # v2.7 Phase 29 / PRIV-02: block persistence when a third-party
+            # name was detected and no fresh opposable declaration exists for
+            # this exact doc_hash. Client retries after POST to
+            # /consents/grant-nominative.
+            from app.services.document_third_party import (
+                ThirdPartyDeclarationRequired,
+                require_declaration_or_block,
+            )
+            try:
+                require_declaration_or_block(
+                    db,
+                    user_id=str(current_user.id),
+                    understanding=result,
+                    doc_hash=file_sha,
+                )
+            except ThirdPartyDeclarationRequired as gate:
+                raise HTTPException(
+                    status_code=428,
+                    detail={
+                        "code": "third_party_declaration_required",
+                        "subjectNames": gate.subject_names,
+                        "docHash": gate.doc_hash,
+                        "declarationEndpoint": "/api/v1/consents/grant-nominative",
+                    },
+                )
+            return result
+        except HTTPException:
+            raise
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            logger.error("understand_document failed: %s", e)
+            raise HTTPException(
+                status_code=502,
+                detail="Document extraction failed. Please try again.",
+            )
+        finally:
+            body.image_base64 = ""  # in-memory cleanup
 
     # ── Step 1: Pre-extraction classification (DOC-10) ──
     rejection_message = _classify_and_reject_if_needed(body.image_base64)

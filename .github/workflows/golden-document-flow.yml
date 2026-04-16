@@ -1,0 +1,46 @@
+name: golden-document-flow
+
+# Phase 30 / GATE-04 — mocked-Vision golden flow over the 10-document
+# corpus + 7 adversarial fixtures. Runs OFFLINE (no Anthropic API key
+# required — cassettes replay Vision responses).
+#
+# Graduation protocol (per .planning/phases/30-device-gate/30-CONTEXT.md):
+#   - Ship WARN-ONLY for 2 weeks so infra flakes / cassette drift surface
+#     without blocking unrelated PRs.
+#   - After the graduation date below, flip `continue-on-error` to `false`
+#     and remove this comment block. The grep-able marker is intentional.
+
+on:
+  pull_request:
+    paths:
+      - services/backend/**
+      - .github/workflows/golden-document-flow.yml
+  push:
+    branches: [dev, staging, main]
+
+jobs:
+  golden-flow:
+    name: Golden document flow (warn-only until 2026-04-28)
+    runs-on: ubuntu-latest
+    # WARN-ONLY UNTIL: 2026-04-28
+    continue-on-error: true
+    defaults:
+      run:
+        working-directory: services/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          pip install -U pip
+          pip install -e ".[dev,privacy]"
+      - name: Run golden flow
+        run: |
+          python -m pytest tests/integration/test_golden_document_flow.py -v --tb=short
+      - name: Summary
+        if: always()
+        run: |
+          echo "Graduation target: flip continue-on-error to false after 2026-04-28."
+          echo "Re-baseline cassettes via ANTHROPIC_API_KEY record script (future work)."

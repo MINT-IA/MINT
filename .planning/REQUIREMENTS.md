@@ -121,5 +121,71 @@ Requirements for the Transformation milestone. Each maps to roadmap phases.
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-04-12*
-*Last updated: 2026-04-12 -- traceability updated after roadmap creation*
+
+## v2.7 Coach Stabilisation + Document Digestion
+
+**Defined:** 2026-04-14
+**Core Value:** Le coach fonctionne bout en bout (MSG2 fiable, mémoire typée, réponses denses) ET MINT digère n'importe quel document (photo / scan / screenshot / PDF) via un contrat canonique interne, sans jamais afficher "Analyse indisponible".
+
+### Stabilisation Critique (Phase 27)
+
+- [x] **STAB-01**: MSG2 follow-up renvoie une réponse Claude valide dans 100% des scénarios testés (agent loop re-prompte quand tool_use sans texte)
+- [x] **STAB-02**: Retry automatique Anthropic (tenacity, 3x, backoff exponentiel) sur 429/529/503 sans erreur visible user
+- [x] **STAB-03**: Upload idempotent — SHA256(file) caché, même fichier renvoie résultat sans re-appeler Vision
+- [x] **STAB-04**: Token budget par user/jour (default 50k), dépassement = message explicite "limite quotidienne atteinte"
+- [x] **STAB-05**: Feature flag `DOCUMENTS_V2_ENABLED` + `COACH_MSG2_FIX_ENABLED` permettent rollback sans redeploy
+
+### Pipeline Document Honnête (Phase 28)
+
+- [x] **DOC-01**: Contrat Pydantic canonique interne `DocumentUnderstandingResult` partagé par coach + doc scanner + review (une seule source de vérité, pas de re-fragmentation)
+- [x] **DOC-02**: 1 seul appel Claude Vision par document (classify + extract fusionnés dans le prompt), pas 2
+- [x] **DOC-03**: `extraction_status` étendu avec `non_financial` — détection heuristique locale AVANT envoi Vision (titre, mots-clés) *(backend extraction_status.non_financial done in 28-01; local pre-reject ML Kit deferred to 28-03)*
+- [x] **DOC-04**: Queue async + SSE streaming : backend émet `detected` → `summary` → `render` en 3 events progressifs
+- [x] **DOC-05**: Client reçoit 4 `render_mode` opaques (`confirm` / `ask` / `narrative` / `reject`) — les `processing_mode` internes backend ne fuient pas *(backend selector done in 28-01; client switching deferred to 28-04)*
+- [x] **DOC-06**: `ExtractionReviewScreen` réduit aux docs haut enjeu (LPP, attestation tax, bank statement) ; autres flows passent par bulle coach + chips dans le chat
+- [x] **DOC-07**: Prétraitement client : VisionKit iOS (`VNDocumentCameraViewController`) + `cunning_document_scanner` Android font crop/deskew/multi-page offline
+- [x] **DOC-08**: Gestion PDF robuste — détection `pymupdf.is_encrypted` avant Vision, `pages_processed/pages_total/warning` transparent, pas de truncation silencieuse
+
+### Compliance & Privacy (Phase 29)
+
+- [x] **PRIV-01**: Checkbox consentement explicite pré-upload, horodatée, versionnée (table `consents`), révocable avec cascade delete
+- [x] **PRIV-02**: Détection "document de tiers" (nom ≠ user) → déclaration obligatoire "J'ai l'autorisation de X" avant traitement
+- [x] **PRIV-03**: Scrubbing PII systématique dans logs — IBAN tokenisé, AVS haché, employeur → `EMPLOYER_1`, filename haché
+- [x] **PRIV-04**: `evidence_text` persisté chiffré at-rest (Fernet + clé dérivée user)
+- [x] **PRIV-05**: ComplianceGuard appliqué aux `summary` et `questions_for_user` issus de Claude Vision
+- [x] **PRIV-06**: Allowlist `fact_key` — minimisation nLPD, champs inutiles à MINT dropés post-extraction
+- [x] **PRIV-07**: DPA Anthropic signé + Zero Data Retention activé + privacy policy MINT mise à jour (sous-traitant US documenté)
+- [x] **PRIV-08**: Statut `confirmed` auto à 0.9 supprimé — toujours validation user explicite (LSFin éducatif, pas décisionnel)
+
+### Device & Test Gate (Phase 30)
+
+- [~] **GATE-01**: Scénario Sophie validé en `flutter run --release` sur iPhone physique — *code ready, awaiting device walkthrough (docs/DEVICE_GATE_V27_CHECKLIST.md section A)*
+- [~] **GATE-02**: Scénario équivalent validé sur Android — *code ready, awaiting device walkthrough (section B)*
+- [x] **GATE-03**: Corpus `test/fixtures/documents/` avec 10 docs anonymisés couvrant : Julien CPE LPP, Lauren HOTELA, AVS IK, salary AFC, tax VS, US W-2, scan froissé, photo biais, screenshot mobile banking, PDF allemand
+- [x] **GATE-04**: Golden flow CI upload chaque fixture, assert `render_mode` + fields critiques ; prompt injection fixture ignorée par Vision ; coût < $0.05/doc ; p95 < 10s
+
+### v2.7 Traceability
+
+| REQ | Phase | Status |
+|-----|-------|--------|
+| STAB-01..05 | Phase 27 | Complete |
+| DOC-01, DOC-02, DOC-08 | Phase 28-01 | Complete |
+| DOC-03 | Phase 28-01 + 28-03 | Complete |
+| DOC-04 | Phase 28-02 | Complete |
+| DOC-05 | Phase 28-01 + 28-04 | Complete |
+| DOC-06 | Phase 28-04 | Complete |
+| DOC-07 | Phase 28-03 | Complete |
+| PRIV-01 | Phase 29-02 | Complete |
+| PRIV-02 | Phase 29-05 | Complete |
+| PRIV-03, PRIV-06 | Phase 29-03 | Complete |
+| PRIV-04 | Phase 29-01 | Complete |
+| PRIV-05, PRIV-08 | Phase 29-04 | Complete |
+| PRIV-07 | Phase 29-06 | Complete |
+| GATE-03, GATE-04 | Phase 30-01 | Complete |
+| GATE-01, GATE-02 | Phase 30-02 | Code ready — awaiting device walkthrough |
+
+**v2.7 Coverage:** 25/25 requirements code-complete. GATE-01 + GATE-02 creator-device walkthrough pending (blocking milestone shipped-date stamp).
+
+---
+*Requirements defined: 2026-04-12 (v2.5), 2026-04-14 (v2.7)*
+*Last updated: 2026-04-15 -- v2.7 all requirements code-complete; GATE-01/02 awaiting creator-device walkthrough (docs/DEVICE_GATE_V27_CHECKLIST.md)*

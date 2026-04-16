@@ -51,7 +51,12 @@ class Settings(BaseSettings):
     # Anthropic Claude API (coach AI)
     ANTHROPIC_API_KEY: str = ""
     COACH_MODEL: str = "claude-sonnet-4-20250514"  # Also valid: claude-3-5-sonnet-20241022
-    COACH_MAX_TOKENS: int = 500
+    # Hard cap so coach replies stay under ~120 words (Gate 0 P1 — long
+    # responses were flooding the chat bubble). Sonnet at 350 tokens
+    # produces 5-7 dense sentences of French — exactly what we want.
+    # Override per-deployment via env if needed; never raise above 500
+    # without re-running the length-cap E2E suite.
+    COACH_MAX_TOKENS: int = 350
     COACH_DAILY_QUOTA: int = 30  # per user, free tier
 
     # Apple IAP / StoreKit

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
@@ -11,7 +12,10 @@ import 'package:go_router/go_router.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart' show XFile;
+import 'package:mint_mobile/services/native_document_scanner.dart';
+import 'package:mint_mobile/services/local_image_classifier.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/document_service.dart';
@@ -23,6 +27,7 @@ import 'package:mint_mobile/services/document_parser/tax_declaration_parser.dart
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/services/rag_service.dart';
+import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
@@ -73,7 +78,10 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   /// Accepted file extensions for image/PDF capture.
   static const _acceptedExtensions = {'jpg', 'jpeg', 'png', 'heic', 'pdf'};
 
-  final _imagePicker = ImagePicker();
+  /// Phase 28-03 — kept as nullable for tests to inject a fake. Production
+  /// code uses the default constructor (real ML Kit labeler).
+  @visibleForTesting
+  LocalImageClassifier? imageClassifierOverride;
   DocumentType _selectedType = DocumentType.lppCertificate;
   bool _isProcessing = false;
   String? _preValidationError;
@@ -432,28 +440,72 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
   }
 
   Future<void> _onCameraPressed() async {
-    if (kIsWeb) {
-      // On web we fallback to file upload to avoid a dead-end camera path.
+    // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
+    final granted = await ConsentService().requireGrantedOrPrompt(
+      context,
+      const [
+        ConsentPurpose.visionExtraction,
+        ConsentPurpose.persistence365d,
+        ConsentPurpose.transferUsAnthropic,
+      ],
+    );
+    if (!granted) return;
+    if (!mounted) return;
+
+    // Web/desktop have no native scanner — degrade gracefully to gallery upload.
+    if (!NativeDocumentScanner.isAvailable) {
       await _onGalleryPressed();
       return;
     }
 
     try {
-      final image = await _imagePicker.pickImage(
-        source: ImageSource.camera,
-        maxWidth: 1920,
-        maxHeight: 1920,
-        imageQuality: 85,
-      );
-      if (image == null) return;
-      await _processImageFile(image);
+      // Phase 28-03 — VisionKit (iOS) / ML Kit Document Scanner (Android).
+      // Auto crop + deskew + shadow removal happen client-side, gratis,
+      // offline. Multi-page natively supported (capped at 5 here).
+      final pages = await NativeDocumentScanner.scan(maxPages: 5);
+      if (pages == null || pages.isEmpty) return; // user cancelled
+      // Pipeline today consumes one page at a time; we ship the first page
+      // and queue the rest for the streaming flow in 28-04.
+      final firstFile = await _materializeBytesAsXFile(pages.first);
+      await _processImageFile(firstFile);
+    } on DocumentScannerException catch (e) {
+      debugPrint('[DocumentScan] Scanner error: ${e.code}');
+      if (!mounted) return;
+      _showErrorSnack(S.of(context)!.docScanScannerError);
     } catch (e) {
+      debugPrint('[DocumentScan] Unexpected scanner error: $e');
       if (!mounted) return;
       _showErrorSnack(S.of(context)!.docScanCameraError);
     }
   }
 
+  /// Phase 28-03 — write scanned bytes to a temp JPEG so the rest of the
+  /// pipeline (which expects [XFile.path]) keeps working unchanged.
+  Future<XFile> _materializeBytesAsXFile(Uint8List bytes) async {
+    final tmpDir = await getTemporaryDirectory();
+    final path =
+        '${tmpDir.path}/mint_scan_${DateTime.now().microsecondsSinceEpoch}.jpg';
+    await File(path).writeAsBytes(bytes, flush: true);
+    return XFile(path);
+  }
+
   Future<void> _onGalleryPressed() async {
+    // v2.7 Phase 29 / PRIV-01 — granular consent gate (nLPD art. 6 al. 6).
+    // Guarded here too because _onGalleryPressed is sometimes called directly
+    // (from _onCameraPressed fallback path). requireGrantedOrPrompt is a no-op
+    // when all required purposes are already granted at the current policy
+    // version, so the double-check has zero UX cost.
+    final granted = await ConsentService().requireGrantedOrPrompt(
+      context,
+      const [
+        ConsentPurpose.visionExtraction,
+        ConsentPurpose.persistence365d,
+        ConsentPurpose.transferUsAnthropic,
+      ],
+    );
+    if (!granted) return;
+    if (!mounted) return;
+
     try {
       final allowedExtensions = <String>[
         'jpg',
@@ -543,6 +595,29 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
           _preValidationHint = null;
         });
         return;
+      }
+    }
+
+    // Phase 28-03 — local pre-reject before paying ~3500 Vision tokens + 15s
+    // for clearly non-financial images (food, selfie, landscape, pet, meme).
+    // Web is skipped (labeler unavailable). PDFs short-circuit inside the
+    // classifier itself (not labeled). Failure mode is fail-open.
+    if (!kIsWeb) {
+      try {
+        final classifier = imageClassifierOverride ?? LocalImageClassifier();
+        final bytes = await file.readAsBytes();
+        final decision = await classifier.shouldRejectAsNonFinancial(bytes);
+        if (decision.reject) {
+          if (!mounted) return;
+          setState(() {
+            _preValidationError = S.of(context)!.docScanRejectedNonFinancial;
+            _preValidationHint = null;
+          });
+          _cleanupTempFile(file.path);
+          return;
+        }
+      } catch (_) {
+        // Fail-open: never block a legit doc on classifier hiccup.
       }
     }
 
@@ -660,17 +735,32 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
             .toList() ?? const [],
       );
     } on DocumentServiceException catch (e) {
-      // 422: non-financial document detected by backend (DOC-10)
-      if (e.code == 'not_financial' && mounted) {
-        setState(() {
-          _isProcessing = false;
-          _preValidationError = S.of(context)!.docNotFinancial;
-          _preValidationHint = S.of(context)!.docNotFinancialHint;
-        });
+      debugPrint('[DocumentScan] Vision error: code=${e.code} msg=${e.message}');
+      if (!mounted) return null;
+      switch (e.code) {
+        case 'not_financial':
+          setState(() {
+            _isProcessing = false;
+            _preValidationError = S.of(context)!.docNotFinancial;
+            _preValidationHint = S.of(context)!.docNotFinancialHint;
+          });
+        case 'file_too_large':
+          _showErrorSnack(e.message);
+        case 'upload_failed':
+          _showErrorSnack(S.of(context)!.docScanScannerError);
+        default:
+          _showErrorSnack(S.of(context)!.docScanGenericError);
       }
       return null;
-    } catch (_) {
-      return null; // Graceful fallback to OCR
+    } on TimeoutException catch (_) {
+      debugPrint('[DocumentScan] Vision extraction timed out');
+      if (mounted) {
+        _showErrorSnack(S.of(context)!.docScanScannerError);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('[DocumentScan] Vision extraction failed: $e');
+      return null;
     }
   }
 

@@ -47,12 +47,28 @@ def setup_logging(level: str = "INFO") -> None:
     handler = logging.StreamHandler()
     handler.setFormatter(JsonFormatter())
 
+    # PRIV-03 — every log record passes through PIILogFilter before any
+    # handler emits it. Attached to the root logger so all loggers and
+    # handlers (including future Sentry / OTLP exporters) inherit it.
+    try:
+        from app.services.privacy.log_filter import PIILogFilter
+        handler.addFilter(PIILogFilter())
+    except Exception:  # pragma: no cover — defensive: never break startup
+        pass
+
     root_logger = logging.getLogger()
     root_logger.setLevel(numeric_level)
 
     # Remove existing handlers to avoid duplicate output
     root_logger.handlers.clear()
     root_logger.addHandler(handler)
+    # Also attach the filter at the logger level so synthetic log records
+    # (e.g. handler-less subscribers in tests) still see scrubbed output.
+    try:
+        from app.services.privacy.log_filter import PIILogFilter
+        root_logger.addFilter(PIILogFilter())
+    except Exception:  # pragma: no cover
+        pass
 
     # Suppress noisy third-party loggers
     for noisy in ("uvicorn.access", "uvicorn.error", "sqlalchemy.engine"):

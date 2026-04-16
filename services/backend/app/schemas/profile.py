@@ -35,11 +35,8 @@ class ProfileBase(BaseModel):
     savingsMonthly: Optional[float] = Field(None, ge=0, le=10_000_000)
     totalSavings: Optional[float] = Field(None, ge=0, le=10_000_000)
     lppInsuredSalary: Optional[float] = Field(None, ge=0, le=10_000_000)
-    # Scan-confirmation merges (2026-04-15). These are read-only on the
-    # profile response — they surface Vision-extracted figures so consumers
-    # (coach context, mortgage, LPP deep) can read a single source of truth.
-    avoirLpp: Optional[float] = Field(None, ge=0, le=100_000_000)
-    lppBuybackMax: Optional[float] = Field(None, ge=0, le=100_000_000)
+    avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
+    lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
     pillar3aBalance: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasDebt: bool = False
     goal: Goal = Goal.other
@@ -138,6 +135,9 @@ class ProfileUpdate(BaseModel):
     savingsMonthly: Optional[float] = None
     totalSavings: Optional[float] = None
     lppInsuredSalary: Optional[float] = None
+    avoirLpp: Optional[float] = Field(None, ge=0, le=10_000_000)
+    lppBuybackMax: Optional[float] = Field(None, ge=0, le=10_000_000)
+    pillar3aBalance: Optional[float] = Field(None, ge=0, le=10_000_000)
     hasDebt: Optional[bool] = None
     goal: Optional[Goal] = None
     factfindCompletionIndex: Optional[float] = None

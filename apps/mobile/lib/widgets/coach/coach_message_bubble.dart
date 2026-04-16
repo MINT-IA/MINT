@@ -111,7 +111,7 @@ class CoachMessageBubble extends StatelessWidget {
                                     height: 1.6),
                           ),
                           shrinkWrap: true,
-                          softLineBreak: true,
+                          softLineBreak: false,
                           selectable: true,
                         ),
                       ),
@@ -163,10 +163,14 @@ class CoachMessageBubble extends StatelessWidget {
               child: CoachSourcesSection(sources: msg.sources),
             ),
           ],
-          // Disclaimers — NO LONGER rendered per-message.
-          // State-of-the-art pattern (Wise/Revolut/Cleo): a single permanent
-          // slim footer lives in CoachChatScreen's Scaffold. The data field
-          // `msg.disclaimers` remains on the model (API contract preserved).
+          // Disclaimers (from RAG backend)
+          if (msg.disclaimers.isNotEmpty) ...[
+            const SizedBox(height: MintSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 44, right: MintSpacing.xxl),
+              child: CoachDisclaimersSection(disclaimers: msg.disclaimers),
+            ),
+          ],
           // Response Cards (Phase 1 — inline strip)
           if (!isStreamingThis && msg.responseCards.isNotEmpty) ...[
             const SizedBox(height: MintSpacing.md - 4),
@@ -446,12 +450,87 @@ class CoachSourcesSection extends StatelessWidget {
   }
 }
 
-// CoachDisclaimersSection removed (Phase C — 2026-04-14).
-// Legacy per-message disclaimer card (~56-68px, one per coach response) has
-// been replaced by a single permanent slim footer in the coach chat Scaffold
-// (CoachDisclaimerFooter, see coach_chat_screen.dart). LSFin/FINMA require
-// the disclaimer accessible at-a-tap, NOT duplicated per message.
-// The `msg.disclaimers` field is preserved on ChatMessage (API contract).
+/// Disclaimers section displayed under coach messages — collapsed by default.
+class CoachDisclaimersSection extends StatefulWidget {
+  final List<String> disclaimers;
+
+  const CoachDisclaimersSection({super.key, required this.disclaimers});
+
+  @override
+  State<CoachDisclaimersSection> createState() =>
+      _CoachDisclaimersSectionState();
+}
+
+class _CoachDisclaimersSectionState extends State<CoachDisclaimersSection> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: MintSpacing.md - 4,
+        vertical: MintSpacing.md - 4,
+      ),
+      decoration: BoxDecoration(
+        color: MintColors.pecheDouce.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () => setState(() => _expanded = !_expanded),
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              children: [
+                Icon(Icons.info_outline_rounded,
+                    size: 13,
+                    // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                    color: MintColors.textMutedAaa.withValues(alpha: 0.6)),
+                const SizedBox(width: MintSpacing.sm),
+                Expanded(
+                  child: Text(
+                    S.of(context)!.coachDisclaimerCollapsed,
+                    style: MintTextStyles.micro(
+                      // AESTH-05 per AUDIT_RETRAIT S3 (D-03 swap map)
+                      color: MintColors.textMutedAaa,
+                    ).copyWith(height: 1.4),
+                  ),
+                ),
+                Icon(
+                  _expanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: MintColors.textMutedAaa.withValues(alpha: 0.6),
+                ),
+              ],
+            ),
+          ),
+          AnimatedCrossFade(
+            firstChild: const SizedBox.shrink(),
+            secondChild: Padding(
+              padding: const EdgeInsets.only(
+                top: MintSpacing.sm,
+                left: 13 + MintSpacing.sm, // align with text after icon
+              ),
+              child: Text(
+                widget.disclaimers.join('\n'),
+                style: MintTextStyles.micro(
+                  color: MintColors.textMutedAaa,
+                ).copyWith(height: 1.4),
+              ),
+            ),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 /// Suggested action chips displayed under coach messages.
 class CoachSuggestedActions extends StatelessWidget {

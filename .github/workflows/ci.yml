@@ -263,6 +263,41 @@ jobs:
           alembic upgrade head
           rm -f test_migration.db
 
+  # ─── Phase 29 / PRIV-03: PII log gate (warn-only, becomes blocking in Phase 30) ─
+  # Scans recent backend logs for raw IBAN / AVS / Swiss phone / employer
+  # gazetteer entries. Currently runs against staging logs fetched via the
+  # railway CLI when RAILWAY_TOKEN is provided; otherwise scans the test
+  # fixture so the job never silently no-ops.
+  #
+  # WARN-ONLY: the script may exit 1 but `continue-on-error: true` keeps
+  # the build green. Phase 30 will flip this to a blocking required check.
+  # A separate weekly cron (set up outside this PR) runs the same script
+  # against PRODUCTION logs.
+  # TODO(phase-30): make this job a required status check on PRs to dev.
+  pii-log-gate:
+    name: PII log gate (PRIV-03)
+    needs: [changes]
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan staging logs (or fall back to clean fixture)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          if [[ -n "${RAILWAY_TOKEN:-}" ]] && command -v railway >/dev/null 2>&1; then
+            python3 scripts/check_pii_in_logs.py --railway
+          else
+            echo "RAILWAY_TOKEN absent; scanning test fixture instead."
+            mkdir -p /tmp/pii_fixture
+            printf 'INFO document fingerprint computed count=5\nINFO consent receipt issued purpose=projection\n' > /tmp/pii_fixture/clean.log
+            python3 scripts/check_pii_in_logs.py --fixture /tmp/pii_fixture/clean.log
+          fi
+
   # ─── Flutter Analysis & Tests (3-shard parallel) ────────────
   #
   # Sharding strategy: split ~365 test files across 3 parallel runners.

@@ -114,7 +114,7 @@ class AuthProvider extends ChangeNotifier {
         await _hydrateProfileFromBackend();
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (_) {}
+        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -188,7 +188,7 @@ class AuthProvider extends ChangeNotifier {
         // Best-effort: schedule fresh-start notifications
         try {
           await FreshStartService().scheduleAllFreshStartNotifications();
-        } catch (_) {}
+        } catch (e) { debugPrint('[Auth] best-effort failed: $e'); }
       }
 
       notifyListeners();
@@ -282,6 +282,17 @@ class AuthProvider extends ChangeNotifier {
       final userEmail = response['email']?.toString() ?? '';
       final displayName = response['displayName'] as String?;
       final refreshToken = response['refreshToken'] as String?;
+
+      // Apple Sign-In with "Hide My Email" may return an empty userId
+      // or email. saveToken now throws ArgumentError on empty values
+      // (Gate 0 #9 zombie-auth guard). Catch it here and surface a
+      // recoverable error instead of crashing.
+      if (userId.isEmpty || userEmail.isEmpty) {
+        _error = AuthError.serviceUnavailable;
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
 
       await AuthService.saveToken(
         accessToken,

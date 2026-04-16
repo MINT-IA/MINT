@@ -32,7 +32,6 @@ import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
-import 'package:mint_mobile/widgets/coach/coach_disclaimer_footer.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
@@ -229,7 +228,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           }
         });
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: default level 3, show picker.
       if (mounted) {
         setState(() => _cashLevelLoaded = true);
@@ -242,8 +241,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(_cashLevelKey, level);
-    } catch (_) {
+    } catch (e) {
       // Best-effort persistence.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -257,8 +257,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (!already) {
         await ReportPersistenceService.setMiniOnboardingCompleted(true);
       }
-    } catch (_) {
+    } catch (e) {
       // Best-effort: chat continues even if the flag cannot be written.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -279,8 +280,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           _pendingIntentChipKey = selectedIntent;
         });
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: coach works without onboarding payload.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -498,8 +500,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final prefs = await SharedPreferences.getInstance();
       final count = prefs.getInt(_conversationCountKey) ?? 0;
       await prefs.setInt(_conversationCountKey, count + 1);
-    } catch (_) {
+    } catch (e) {
       // Best-effort persistence.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -522,7 +525,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerReplacementRate,
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     // Priority 2: financial fitness score
     try {
@@ -534,7 +537,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerFitnessScore,
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     // Priority 3: projected capital
     try {
@@ -550,7 +553,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           headline: s.coachSilentOpenerRetirementCapital,
         );
       }
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     return null;
   }
@@ -748,8 +751,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       if (enrichedContext.memoryBlock.isNotEmpty) {
         memoryBlock = enrichedContext.memoryBlock;
       }
-    } catch (_) {
+    } catch (e) {
       // Graceful degradation: chat works without memory block.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
 
     // Wire Spec V2: append entry payload context if present (one-shot).
@@ -866,7 +870,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         context: ctx,
         componentType: ComponentType.general,
       );
-    } catch (_) {
+    } catch (e) {
       compliance = ComplianceResult(
         isCompliant: true,
         sanitizedText: ComplianceGuard.sanitizeBannedTerms(rawText),
@@ -893,12 +897,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
-    // Phase D: chips come from the backend's `suggest_followups` tool (or
-    // the anonymous `<followups>` block) — never inferred client-side. The
-    // SLM path does not emit follow-up questions of its own, so here we only
-    // surface route_to_screen narration chips.
+    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
+    final inferredActions = compliance.useFallback
+        ? <String>[]
+        : _inferSuggestedActions(userMessage, finalText);
     final routeChips = _extractRouteChips(richCalls);
-    final suggestedActions = routeChips.take(2).toList();
+    final suggestedActions = <String>{
+      ...inferredActions,
+      ...routeChips,
+    }.take(4).toList();
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
@@ -963,15 +970,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...markerCalls,
       ].take(5).toList();
 
-      // Phase D: chips are backend-piloted via `suggest_followups`
-      // (/coach/chat) or the `<followups>` JSON block (/anonymous/chat).
-      // Merge with route_to_screen narration chips so navigation proposals
-      // remain tappable. Cap at 2 items to match the backend contract.
+      // UX-04: Use LLM-provided suggestions if available, otherwise infer
+      // from conversation context. Enrich with route_to_screen tool calls
+      // so the coach's navigation proposals also appear as tappable chips.
+      final inferredActions = response.suggestedActions ??
+          _inferSuggestedActions(text, cleanMessage);
       final routeChips = _extractRouteChips(richCalls);
       final suggestedActions = <String>{
-        ...response.followUpQuestions,
+        ...inferredActions,
         ...routeChips,
-      }.take(2).toList();
+      }.take(4).toList();
 
       setState(() {
         _messages.add(ChatMessage(
@@ -984,6 +992,8 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           responseCards: cards,
           tier: tier,
           richToolCalls: richCalls,
+          // v2.7 Task 8: surface degraded flag to bubble for subtle chip.
+          degraded: response.degraded,
         ));
         _isLoading = false;
         _trimMessages();
@@ -1135,8 +1145,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
       });
       _scrollToBottom();
-    } catch (_) {
+    } catch (e) {
       // Best-effort — don't block chat.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -1153,8 +1164,9 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         'accepted': accepted,
         'conversationCount': prefs.getInt(_conversationCountKey) ?? 0,
       });
-    } catch (_) {
+    } catch (e) {
       // Best-effort.
+      debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
   }
 
@@ -1290,7 +1302,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final score = FinancialFitnessService.calculate(profile: profile);
       final g = score.global.toDouble();
       if (g.isFinite && g > 0) knownValues['fri_total'] = g;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     try {
       final proj = ForecasterService.project(
@@ -1301,7 +1313,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       final taux = proj.tauxRemplacementBase;
       if (cap.isFinite && cap > 0) knownValues['capital_final'] = cap;
       if (taux.isFinite && taux > 0) knownValues['replacement_ratio'] = taux;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     return CoachContext(
       firstName: profile.firstName ?? 'utilisateur',
@@ -1309,6 +1321,43 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       canton: profile.canton,
       knownValues: knownValues,
     );
+  }
+
+  List<String> _inferSuggestedActions(
+    String userMessage,
+    String coachResponse,
+  ) {
+    final s = S.of(context)!;
+    final combined = '$userMessage $coachResponse'.toLowerCase();
+    final actions = <String>[];
+
+    if (RegExp(r'3a|pilier|troisi[eè]me|versement').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestSimulate3a, s.coachSuggestView3a]);
+    }
+    if (RegExp(r'lpp|rachat|2e\s*pilier|deuxi[eè]me').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestSimulateLpp, s.coachSuggestUnderstandLpp]);
+    }
+    if (RegExp(r'retraite|pension|avs|rente').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestTrajectory, s.coachSuggestScenarios]);
+    }
+    if (RegExp(r'imp[oô]t|fiscal|d[eé]duction').hasMatch(combined)) {
+      actions.addAll([s.coachSuggestDeductions, s.coachSuggestTaxImpact]);
+    }
+    if (RegExp(r'budget|d[eé]pense|train\s*de\s*vie|niveau\s*de\s*vie')
+        .hasMatch(combined)) {
+      actions.addAll([s.coachSuggestBudget, s.coachSuggestBudgetGap]);
+    }
+    if (RegExp(r'immobilier|hypoth[eè]que|maison|achat|propri[eé]t[eé]|logement')
+        .hasMatch(combined)) {
+      actions.addAll([s.coachSuggestMortgage, s.coachSuggestMortgageCapacity]);
+    }
+
+    // UX-04: No hardcoded defaults. Chips appear ONLY when the
+    // conversation matches a topic regex — otherwise the list is empty
+    // and no chips are shown. This prevents static/irrelevant chips
+    // from appearing after every response regardless of context.
+    // Deduplicate and cap at 3
+    return actions.toSet().take(3).toList();
   }
 
   /// UX-04: Extract contextual chip labels from route_to_screen tool calls.
@@ -1422,7 +1471,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     try {
       final score = FinancialFitnessService.calculate(profile: _profile!);
       fitnessScore = score.global;
-    } catch (_) {}
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
     await PdfService.generateDecisionReportPdf(
       firstName: _profile!.firstName ?? 'Utilisateur',
@@ -1533,20 +1582,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewPadding.bottom,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CoachInputBar(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    isStreaming: _isStreaming,
-                    onSend: () => _sendMessage(_controller.text),
-                    onLightningMenu: _showLightningMenu,
-                  ),
-                  // Phase C — permanent slim legal footer. Replaces the
-                  // legacy per-message CoachDisclaimersSection card.
-                  const CoachDisclaimerFooter(),
-                ],
+              child: CoachInputBar(
+                controller: _controller,
+                focusNode: _focusNode,
+                isStreaming: _isStreaming,
+                onSend: () => _sendMessage(_controller.text),
+                onLightningMenu: _showLightningMenu,
               ),
             ),
           ],
@@ -1758,17 +1799,37 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             child: UserMessageBubble(message: msg),
           );
         } else {
+          // v2.7 Task 8: compose bubble + subtle degraded chip (if applicable).
+          final bubbleWidget = CoachMessageBubble(
+            message: msg,
+            messageIndex: index,
+            isStreaming:
+                _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
+            isInputAnswered: _answeredInputIndices.contains(index),
+            onInputSubmitted: _handleInputSubmitted,
+            onActionTap: _handleActionTap,
+          );
           child = Semantics(
             label: S.of(context)!.coachCoachMessage,
-            child: CoachMessageBubble(
-              message: msg,
-              messageIndex: index,
-              isStreaming:
-                  _isStreaming && msg == _messages.last && msg.tier == ChatTier.slm,
-              isInputAnswered: _answeredInputIndices.contains(index),
-              onInputSubmitted: _handleInputSubmitted,
-              onActionTap: _handleActionTap,
-            ),
+            child: msg.degraded
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      bubbleWidget,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 42, top: 4),
+                        child: Text(
+                          S.of(context)!.coachResponseDegradedHint,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: MintColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                : bubbleWidget,
           );
         }
 

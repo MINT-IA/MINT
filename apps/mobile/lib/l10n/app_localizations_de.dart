@@ -22594,4 +22594,248 @@ class SDe extends S {
 
   @override
   String get coachDisclaimerCollapsed => 'Bildungstool — Disclaimer anzeigen';
+
+  @override
+  String get coachResponseDegradedHint => 'Schnelle Antwort';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'Wir sind heute gut vorangekommen. Ruh dich aus, ich bin morgen da.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'Dieses Bild sieht nicht nach einem Finanzdokument aus. Versuch es nochmal mit einem Foto deines Ausweises, Lohnabrechnung oder Kontoauszugs.';
+
+  @override
+  String get docScanScannerError =>
+      'Der Scanner konnte nicht gestartet werden. Du kannst stattdessen eine Datei aus deiner Galerie importieren.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ich habe $count nützliche Angaben gelesen.',
+      one: 'Ich habe 1 nützliche Angabe gelesen.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'Alles gut';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Korrigieren';
+
+  @override
+  String get documentBubbleAskTitle =>
+      'Ich habe fast alles. Bestätige mir nur das:';
+
+  @override
+  String get documentBubbleAskSubmit => 'Senden';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Erinnere mich im Mai';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'Das sieht nicht nach einem Finanzdokument aus. Kein Problem – probier ein anderes Foto.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Erneut versuchen';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'Ist das wirklich $name?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Ja';
+
+  @override
+  String get documentThirdPartyNo => 'Nein';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'jemand anderes';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Über einen Direktlink geöffnet. Die meisten Dokumente erscheinen jetzt direkt im Chat.';
+
+  @override
+  String get documentReviewMineButton => 'Gehört mir';
+
+  @override
+  String get documentReviewNotMineButton => 'Gehört mir nicht';
+
+  @override
+  String get documentReviewCorrectButton => 'Korrigieren';
+
+  @override
+  String get documentScanReadingStage => 'Ich lese…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Sieht aus wie ein weiteres $issuer, ich prüfe, was sich verändert hat…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field: $value';
+  }
+
+  @override
+  String get consentSheetTitle => 'Deine Einwilligungen';
+
+  @override
+  String get consentSheetSubtitle =>
+      'MINT verarbeitet deine Daten nur mit deiner ausdrücklichen Einwilligung pro Zweck.';
+
+  @override
+  String get consentSheetAccept => 'Akzeptieren';
+
+  @override
+  String get consentSheetRefuse => 'Ablehnen';
+
+  @override
+  String get consentPurposeVisionExtraction => 'KI-Dokumentenlesung';
+
+  @override
+  String get consentPurposeVisionExtractionWhy =>
+      'MINT liest deine BVG-Ausweise, Lohnabrechnungen und Verträge, um die relevanten Zahlen zu extrahieren. Dauer: nur während der Verarbeitung. Jederzeit widerrufbar.';
+
+  @override
+  String get consentPurposePersistence365d =>
+      'Verschlüsselter Speicher 365 Tage';
+
+  @override
+  String get consentPurposePersistence365dWhy =>
+      'Extrahierte Daten werden verschlüsselt (AES-256) 365 Tage lang gespeichert, danach gelöscht. Widerruf: kryptografische Löschung innerhalb von 30 Tagen.';
+
+  @override
+  String get consentPurposeTransferUsAnthropic =>
+      'KI-Verarbeitung (Anthropic, USA)';
+
+  @override
+  String get consentPurposeTransferUsAnthropicWhy =>
+      'Dokumente laufen über die Claude-API (Anthropic, USA) im Zero-Data-Retention-Modus. Dieser Transfer entfällt nach der AWS-Frankfurt-Migration.';
+
+  @override
+  String get consentPurposeCoupleProjection => 'Paar-Projektionen';
+
+  @override
+  String get consentPurposeCoupleProjectionWhy =>
+      'MINT nutzt die Daten deines Partners / deiner Partnerin für Paar-Szenarien. Du bestätigst, dass du deren Einwilligung eingeholt hast.';
+
+  @override
+  String get consentRevoke => 'Widerrufen';
+
+  @override
+  String get consentCancel => 'Abbrechen';
+
+  @override
+  String get consentRevokeConfirmTitle => 'Diese Einwilligung widerrufen?';
+
+  @override
+  String get consentRevokeConfirmBody =>
+      'Sofort wirksam, jederzeit erneut erteilbar.';
+
+  @override
+  String get consentRevokeCascadeWarning =>
+      'Der Widerruf startet die kryptografische Löschung deiner Dokumente innerhalb von 30 Tagen. Danach unumkehrbar.';
+
+  @override
+  String get consentBlockedUntilAccept =>
+      'Um fortzufahren, bitte die oben genannten Einwilligungen akzeptieren.';
+
+  @override
+  String get privacyCenterTitle => 'Meine Privatsphäre';
+
+  @override
+  String get privacyCenterSectionActive => 'AKTIVE EINWILLIGUNGEN';
+
+  @override
+  String get privacyCenterSectionHistory => 'VERLAUF';
+
+  @override
+  String get privacyCenterEmpty => 'Noch keine aktive Einwilligung.';
+
+  @override
+  String get privacyCenterGrantedOn => 'Erteilt am';
+
+  @override
+  String get privacyCenterRevokedOn => 'Widerrufen am';
+
+  @override
+  String get policyDiffTitle => 'Richtlinien-Update';
+
+  @override
+  String get policyDiffAcceptDelta =>
+      'Ich habe die Änderungen gelesen und akzeptiere sie';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT hat $count Zahlen gelesen. Alles korrekt?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Alles korrekt';
+
+  @override
+  String get batchValidationCorrectOne => 'Eine korrigieren';
+
+  @override
+  String get batchValidationRejectAll => 'Nichts stimmt';
+
+  @override
+  String get fieldCorrectionTitle => 'Wert korrigieren';
+
+  @override
+  String get fieldCorrectionSave => 'Speichern';
+
+  @override
+  String get fieldCorrectionCancel => 'Abbrechen';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Ein Wert erschien unmöglich. MINT hat gestoppt.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT konnte diese Zusammenfassung nicht lehrreich aufbereiten. Prüfe die Rohzahlen.';
+
+  @override
+  String get humanReviewBadge => 'Braucht ein menschliches Auge';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Einen Moment bevor wir fortfahren';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Bestätigst du, dass du die Einwilligung von $name hast, damit MINT dieses Dokument verarbeitet?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Bestätigst du, dass du die Einwilligung von $names hast, damit MINT dieses Dokument verarbeitet?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Ja, ich habe die Einwilligung';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'Nein, Upload abbrechen';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return '$name zu MINT einladen';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Einladungen folgen bald — wir haben deine Absicht notiert.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Ohne Einwilligung kann MINT die Daten einer anderen Person nicht verarbeiten.';
 }

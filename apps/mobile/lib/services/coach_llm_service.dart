@@ -198,6 +198,11 @@ class ChatMessage {
   /// Non-null when the message carries a guided sequence step transition.
   final SequenceMessagePayload? sequencePayload;
 
+  /// v2.7 Task 8: true when the backend served this response via the Haiku
+  /// fallback path (Sonnet upstream failure or timeout). Triggers a subtle
+  /// "Réponse rapide" chip in CoachChatScreen — NOT an error indicator.
+  final bool degraded;
+
   const ChatMessage({
     required this.role,
     required this.content,
@@ -211,6 +216,7 @@ class ChatMessage {
     this.documentPayload,
     this.richToolCalls = const [],
     this.sequencePayload,
+    this.degraded = false,
   });
 
   bool get isUser => role == 'user';
@@ -242,13 +248,9 @@ class CoachResponse {
   /// Structured tool_calls from the backend LLM (e.g. show_fact_card, set_goal).
   final List<RagToolCall> toolCalls;
 
-  /// Backend-piloted follow-up question chips (max 2).
-  ///
-  /// Populated by the LLM via the `suggest_followups` internal tool on the
-  /// authenticated path, or by the `<followups>` JSON block on the
-  /// anonymous path. Never inferred client-side. See
-  /// feedback_chat_must_be_silent.md.
-  final List<String> followUpQuestions;
+  /// v2.7 Task 8: true when backend fell back to Haiku (graceful degradation).
+  /// Surface as a subtle chip, NOT as an error.
+  final bool degraded;
 
   const CoachResponse({
     required this.message,
@@ -258,7 +260,7 @@ class CoachResponse {
     this.disclaimers = const [],
     this.wasFiltered = false,
     this.toolCalls = const [],
-    this.followUpQuestions = const [],
+    this.degraded = false,
   });
 }
 
@@ -325,9 +327,8 @@ class CoachLlmService {
       cashLevel: cashLevel,
     );
 
-    // suggestedActions are now backend-piloted: populated from the coach's
-    // `suggest_followups` tool (coach/chat) or `<followups>` JSON block
-    // (anonymous/chat). Never inferred client-side — see Phase D.
+    // suggestedActions are resolved at the screen layer (CoachChatScreen)
+    // using inferSuggestedActions(userMessage, l) with BuildContext localizations.
     //
     // STAB-03 / STAB-04: re-expose `toolCalls` on the return so the chat
     // screen can dispatch structured tool_use blocks (generate_financial_plan,
@@ -342,7 +343,6 @@ class CoachLlmService {
       disclaimers: orchestratorResponse.disclaimers,
       wasFiltered: orchestratorResponse.wasFiltered,
       toolCalls: orchestratorResponse.toolCalls,
-      followUpQuestions: orchestratorResponse.followUpQuestions,
     );
   }
 
@@ -374,6 +374,26 @@ class CoachLlmService {
       buf.write(str[i]);
     }
     return '~$buf CHF';
+  }
+
+  /// Infere les actions suggerees a partir du message utilisateur.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static List<String> inferSuggestedActions(String userMessage, S l) {
+    final lower = userMessage.toLowerCase();
+    if (lower.contains('3a')) {
+      return [l.coachSuggestSimulate3a, l.coachSuggestView3a];
+    }
+    if (lower.contains('lpp') || lower.contains('rachat')) {
+      return [l.coachSuggestSimulateLpp, l.coachSuggestUnderstandLpp];
+    }
+    if (lower.contains('retraite')) {
+      return [l.coachSuggestTrajectory, l.coachSuggestScenarios];
+    }
+    if (lower.contains('impot') || lower.contains('fiscal')) {
+      return [l.coachSuggestDeductions, l.coachSuggestTaxImpact];
+    }
+    return [l.coachSuggestFitness, l.coachSuggestRetirement];
   }
 
   /// Construit le system prompt avec le contexte utilisateur.
@@ -571,4 +591,13 @@ class CoachLlmService {
     return l.coachGreetingDefault(firstName, '');
   }
 
+  /// Suggestions initiales.
+  ///
+  /// Requires [S] localizations — callers must pass the context's [S] instance.
+  static List<String> initialSuggestions(S l) => [
+        l.coachSuggestRetirement,
+        l.coachSuggestDeductions,
+        l.coachSuggestSimulate3a,
+        l.coachSuggestFitness,
+      ];
 }

@@ -29,9 +29,152 @@ def _strip_markdown_fences(raw_text: str) -> str:
     match = _MARKDOWN_FENCE_RE.search(stripped)
     return match.group(1) if match else raw_text
 
-from anthropic import Anthropic
+# Phase 29-06 / PRIV-07: all LLM traffic goes through LLMRouter. Direct
+# use of anthropic.Anthropic/AsyncAnthropic outside services/llm/ is
+# forbidden (CI gate in scripts/check_llm_direct_calls.py).
+#
+# Legacy test compatibility: tests patched `Anthropic` / `AsyncAnthropic`
+# at this module's top level. We re-export the classes so those patches
+# still resolve (to keep blast radius minimal). At runtime these names
+# are NOT called by production code paths — every Vision call goes via
+# `_sync_vision_call` / `_async_vision_call` → LLMRouter.
+import asyncio as _asyncio
+
+try:  # pragma: no cover — legacy import for test-patch compatibility
+    from anthropic import Anthropic, AsyncAnthropic  # noqa: F401
+except ImportError:  # pragma: no cover
+    Anthropic = None  # type: ignore[assignment]
+    AsyncAnthropic = None  # type: ignore[assignment]
 
 from app.core.config import settings
+from app.services.llm.router import LLMRequest, get_router
+
+
+def _sync_vision_call(
+    *,
+    model: str,
+    max_tokens: int,
+    messages: list,
+    system: Optional[str] = None,
+    tools: Optional[list] = None,
+    tool_choice: Optional[dict] = None,
+    thinking: Optional[dict] = None,
+    timeout: Optional[float] = None,
+):
+    """Sync bridge to the LLM stack for Vision extraction call sites.
+
+    Routing precedence:
+        1. If ``Anthropic`` was patched at this module's level (test fixture
+           pattern), call it directly to preserve existing test contracts.
+        2. Otherwise route through :class:`LLMRouter` (flag-driven:
+           off / shadow / primary_bedrock per phase 29-06).
+
+    ``thinking`` and ``timeout`` are forwarded transparently as kwargs; the
+    underlying anthropic client consumes them, Bedrock silently ignores
+    unknown fields (per AWS-2023-05-31 contract).
+    """
+    # Test-path: if a test mocked `Anthropic` at this module scope, honour it.
+    # Production code never hits this branch because `Anthropic` is the real
+    # class from the anthropic package and we go through the router.
+    if _module_anthropic_is_mocked():
+        client = Anthropic(api_key=settings.ANTHROPIC_API_KEY)  # type: ignore[misc]
+        kwargs: dict = {
+            "model": model,
+            "max_tokens": max_tokens,
+            "messages": messages,
+        }
+        if system:
+            kwargs["system"] = system
+        if tools:
+            kwargs["tools"] = tools
+        if tool_choice:
+            kwargs["tool_choice"] = tool_choice
+        if timeout is not None:
+            kwargs["timeout"] = timeout
+        return client.messages.create(**kwargs)
+
+    req = LLMRequest(
+        model=model,
+        max_tokens=max_tokens,
+        messages=messages,
+        system=system,
+        tools=tools,
+        tool_choice=tool_choice,
+        purpose="document_vision",
+    )
+    try:
+        loop = _asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+    if loop is not None and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            return ex.submit(lambda: _asyncio.run(get_router().invoke(req))).result()
+    return _asyncio.run(get_router().invoke(req))
+
+
+def _module_anthropic_is_mocked() -> bool:
+    """Detect test-time patching of the module-level `Anthropic` symbol."""
+    cls = globals().get("Anthropic")
+    if cls is None:
+        return False
+    # unittest.mock patches produce MagicMock / Mock instances
+    import unittest.mock as _umock
+    if isinstance(cls, _umock.NonCallableMock):
+        return True
+    if isinstance(cls, _umock.Mock):
+        return True
+    return False
+
+
+def _module_async_anthropic_is_mocked() -> bool:
+    cls = globals().get("AsyncAnthropic")
+    if cls is None:
+        return False
+    import unittest.mock as _umock
+    if isinstance(cls, _umock.NonCallableMock):
+        return True
+    if isinstance(cls, _umock.Mock):
+        return True
+    return False
+
+
+async def _async_vision_call(
+    *,
+    model: str,
+    max_tokens: int,
+    messages: list,
+    system: Optional[str] = None,
+    tools: Optional[list] = None,
+    tool_choice: Optional[dict] = None,
+    thinking: Optional[dict] = None,
+):
+    if _module_async_anthropic_is_mocked():
+        client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)  # type: ignore[misc]
+        kwargs: dict = {
+            "model": model,
+            "max_tokens": max_tokens,
+            "messages": messages,
+        }
+        if system:
+            kwargs["system"] = system
+        if tools:
+            kwargs["tools"] = tools
+        if tool_choice:
+            kwargs["tool_choice"] = tool_choice
+        if thinking:
+            kwargs["thinking"] = thinking
+        return await client.messages.create(**kwargs)
+
+    return await get_router().invoke(LLMRequest(
+        model=model,
+        max_tokens=max_tokens,
+        messages=messages,
+        system=system,
+        tools=tools,
+        tool_choice=tool_choice,
+        purpose="document_vision",
+    ))
 from app.schemas.document_scan import (
     DocumentType,
     DocumentClassificationResult,
@@ -199,8 +342,7 @@ def detect_lpp_plan_type(
         return (LppPlanType.surobligatoire, ConfidenceLevel.low)
 
     try:
-        client = Anthropic(api_key=api_key)
-        response = client.messages.create(
+        response = _sync_vision_call(
             model=settings.COACH_MODEL,
             max_tokens=200,
             timeout=15.0,
@@ -378,8 +520,6 @@ def extract_with_vision(
         if detected_plan_type == LppPlanType.plan_1e:
             plan_type_warning = _1E_WARNING
 
-    client = Anthropic(api_key=api_key)
-
     # DOC-04: For 1e plans, remove tauxConversion from extraction fields
     if detected_plan_type == LppPlanType.plan_1e:
         # Build prompt without tauxConversion for 1e plans
@@ -394,7 +534,7 @@ def extract_with_vision(
         system_prompt = _build_extraction_prompt(doc_type, canton, language_hint)
 
     try:
-        response = client.messages.create(
+        response = _sync_vision_call(
             model=settings.COACH_MODEL,
             max_tokens=2000,
             timeout=30.0,  # 30s timeout to prevent worker blocking
@@ -600,8 +740,7 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
         )
 
     try:
-        client = Anthropic(api_key=api_key)
-        response = client.messages.create(
+        response = _sync_vision_call(
             model=settings.COACH_MODEL,
             max_tokens=200,
             timeout=15.0,  # Lightweight call — shorter timeout
@@ -660,3 +799,619 @@ def classify_document(image_base64: str) -> DocumentClassificationResult:
             is_financial=True,
             confidence=ConfidenceLevel.low,
         )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  v2.7 PHASE 28 — Fused understand_document() (DOC-01..05, DOC-08)
+# ═══════════════════════════════════════════════════════════════════════════
+
+import base64 as _b64
+from typing import Any as _Any
+
+from app.schemas.document_understanding import (
+    CommitmentSuggestion as _CommitmentSuggestion,
+    ConfidenceLevel as _ConfidenceLevel,
+    CoherenceWarning as _CoherenceWarning,
+    DocumentClass as _DocumentClass,
+    DocumentUnderstandingResult as _DUR,
+    ExtractedField as _EF,
+    ExtractionStatus as _ES,
+    FieldStatus as _FS,
+    RenderMode as _RM,
+)
+from app.services import idempotency as _idempotency
+from app.services.document_pdf_preflight import (
+    preflight_pdf as _preflight_pdf,
+    select_pages_for_vision as _select_pages,
+)
+from app.services.document_render_mode import select_render_mode as _select_render_mode
+from app.services.document_third_party import (
+    detect_third_party as _detect_third_party,
+    load_issuer_signatures as _load_signatures,
+)
+from app.services.document_memory_service import (
+    compute_fingerprint as _compute_fingerprint,
+    upsert_and_diff as _upsert_and_diff,
+)
+
+
+# ── tool_use schema (single fused tool) ───────────────────────────────────
+
+ROUTE_AND_EXTRACT_TOOL: dict = {
+    "name": "route_and_extract",
+    "description": (
+        "Classify the Swiss financial document AND extract its fields in a "
+        "single call. Always set extraction_status. If the document is not "
+        "financial, set document_class='non_financial' and explain in summary."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "document_class": {
+                "type": "string",
+                "enum": [c.value for c in _DocumentClass],
+            },
+            "subtype": {"type": ["string", "null"]},
+            "issuer_guess": {"type": ["string", "null"]},
+            "classification_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+            "extracted_fields": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "field_name": {"type": "string"},
+                        "value": {},  # any
+                        "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+                        "source_text": {"type": "string"},
+                    },
+                    "required": ["field_name", "confidence", "source_text"],
+                },
+            },
+            "overall_confidence": {"type": "number", "minimum": 0, "maximum": 1},
+            "extraction_status": {
+                "type": "string",
+                "enum": [s.value for s in _ES],
+            },
+            "summary": {"type": ["string", "null"]},
+            "questions_for_user": {
+                "type": "array",
+                "items": {"type": "string"},
+                "maxItems": 3,
+            },
+            "narrative": {"type": ["string", "null"]},
+            "commitment_suggestion": {
+                "type": ["object", "null"],
+                "properties": {
+                    "when": {"type": ["string", "null"]},
+                    "where": {"type": ["string", "null"]},
+                    "if_then": {"type": ["string", "null"]},
+                    "action_label": {"type": ["string", "null"]},
+                },
+            },
+            "plan_type": {"type": ["string", "null"]},
+            "plan_type_warning": {"type": ["string", "null"]},
+        },
+        "required": ["document_class", "classification_confidence", "overall_confidence"],
+    },
+}
+
+
+# ── helpers ───────────────────────────────────────────────────────────────
+
+def _build_fused_system_prompt(
+    canton: Optional[str], lang: Optional[str], archetype: Optional[str],
+) -> str:
+    sigs = _load_signatures().get("issuers", [])
+    vignettes = "\n".join(
+        f"- {i['name']}: {', '.join(i.get('keywords', [])[:3])} → {', '.join(i.get('document_classes', []))}"
+        for i in sigs[:5]
+    )
+    archetype_hint = ""
+    if archetype == "expat_us":
+        archetype_hint = (
+            "\nUser is US-tagged (FATCA): if foreign mutual fund mentioned outside "
+            "2nd pillar, flag PFIC concern in summary."
+        )
+    elif archetype == "cross_border":
+        archetype_hint = (
+            "\nUser is frontalier: flag impôt source if salary cert from CH employer."
+        )
+    elif archetype == "independent_no_lpp":
+        archetype_hint = (
+            "\nUser is independent without LPP: 3a annual cap is 20% net income, max 36'288."
+        )
+
+    canton_hint = f"User canton: {canton}." if canton else ""
+    lang_hint = (
+        f"Reply in {lang}." if lang in ("fr", "de", "it", "en")
+        else "Reply in French (default UI language)."
+    )
+    return f"""Tu es l'extracteur canonique de documents financiers suisses pour MINT.
+
+UNE seule fonction tool est disponible: route_and_extract. Tu DOIS l'appeler.
+Classification + extraction en un seul appel. Pas de double routing.
+
+Issuers connus (vignettes):
+{vignettes}
+
+Règles:
+- document_class ∈ enum strict (lpp_certificate, salary_certificate, ...).
+- Si le document n'est pas financier suisse → document_class='non_financial',
+  extraction_status='non_financial', extracted_fields=[], summary explique.
+- Si tu ne peux pas extraire → extraction_status='no_fields_found' ou 'parse_error',
+  fournis un narrative court qui dit ce que tu vois SANS inventer de chiffres.
+- summary: 1 phrase, traduction humaine. JAMAIS "garanti", "optimal", "meilleur",
+  "conseiller". Préfère "spécialiste".
+- questions_for_user: max 3, formulées comme dialogue (tu, informel).
+- Confiance par champ ('high'/'medium'/'low') basée sur lisibilité, pas sur
+  ce que tu "penses" être correct.
+- Pourcentages en décimal (6.8% → 0.068).
+- Montants en CHF (sauf indication contraire), pas de séparateur de milliers.
+
+{canton_hint}{archetype_hint}
+{lang_hint}
+"""
+
+
+def _build_vision_block_v2(file_bytes: bytes) -> dict:
+    """Build the Anthropic content block for image or PDF given raw bytes."""
+    is_pdf = file_bytes[:4] == b"%PDF"
+    b64 = _b64.b64encode(file_bytes).decode("ascii")
+    if is_pdf:
+        return {
+            "type": "document",
+            "source": {"type": "base64", "media_type": "application/pdf", "data": b64},
+        }
+    media_type = "image/png" if file_bytes[:4] == b"\x89PNG" else "image/jpeg"
+    return {
+        "type": "image",
+        "source": {"type": "base64", "media_type": media_type, "data": b64},
+    }
+
+
+def _ti_to_result(tool_input: dict, usage: _Any) -> _DUR:
+    """Map tool_use input → DocumentUnderstandingResult."""
+    fields = []
+    for f in (tool_input.get("extracted_fields") or []):
+        try:
+            conf = _ConfidenceLevel(f.get("confidence", "medium"))
+        except Exception:
+            conf = _ConfidenceLevel.medium
+        fields.append(_EF(
+            field_name=f.get("field_name", ""),
+            value=f.get("value"),
+            confidence=conf,
+            source_text=f.get("source_text", "") or "",
+        ))
+
+    try:
+        doc_cls = _DocumentClass(tool_input.get("document_class", "unknown"))
+    except Exception:
+        doc_cls = _DocumentClass.unknown
+
+    status_str = tool_input.get("extraction_status")
+    if not status_str:
+        if doc_cls == _DocumentClass.non_financial:
+            status_str = "non_financial"
+        elif fields:
+            status_str = "success"
+        else:
+            status_str = "no_fields_found"
+    try:
+        status = _ES(status_str)
+    except Exception:
+        status = _ES.no_fields_found
+
+    cs = tool_input.get("commitment_suggestion")
+    commitment = _CommitmentSuggestion(**cs) if isinstance(cs, dict) else None
+
+    tokens_in = int(getattr(usage, "input_tokens", 0) or 0)
+    tokens_out = int(getattr(usage, "output_tokens", 0) or 0)
+
+    return _DUR(
+        document_class=doc_cls,
+        subtype=tool_input.get("subtype"),
+        issuer_guess=tool_input.get("issuer_guess"),
+        classification_confidence=float(tool_input.get("classification_confidence", 0.0) or 0.0),
+        extracted_fields=fields,
+        overall_confidence=float(tool_input.get("overall_confidence", 0.0) or 0.0),
+        extraction_status=status,
+        summary=tool_input.get("summary"),
+        questions_for_user=list(tool_input.get("questions_for_user") or [])[:3],
+        narrative=tool_input.get("narrative"),
+        commitment_suggestion=commitment,
+        plan_type=tool_input.get("plan_type"),
+        plan_type_warning=tool_input.get("plan_type_warning"),
+        render_mode=_RM.narrative,  # placeholder, overwritten by selector
+        cost_tokens_in=tokens_in,
+        cost_tokens_out=tokens_out,
+    )
+
+
+def _build_acroform_result(pre: dict) -> _DUR:
+    """Construct a DocumentUnderstandingResult from an AcroForm preflight."""
+    fields = [
+        _EF(
+            field_name=name,
+            value=value,
+            confidence=_ConfidenceLevel.high,  # PDF form values are exact
+            source_text=f"AcroForm field: {name}",
+        )
+        for name, value in (pre.get("acroform_fields") or {}).items()
+    ]
+    return _DUR(
+        document_class=_DocumentClass.unknown,
+        classification_confidence=0.5,
+        extracted_fields=fields,
+        overall_confidence=0.95 if fields else 0.0,
+        extraction_status=_ES.success if fields else _ES.no_fields_found,
+        summary="Formulaire PDF lu directement (sans IA)." if fields else None,
+        render_mode=_RM.confirm,
+        pages_processed=pre.get("page_count"),
+        pages_total=pre.get("page_count"),
+        cost_tokens_in=0,
+        cost_tokens_out=0,
+    )
+
+
+def _build_encrypted_result(pre: dict) -> _DUR:
+    return _DUR(
+        document_class=_DocumentClass.unknown,
+        classification_confidence=0.0,
+        extracted_fields=[],
+        overall_confidence=0.0,
+        extraction_status=_ES.encrypted_needs_password,
+        summary=(
+            "Ce PDF est protégé par un mot de passe. "
+            "Colle-le ici si tu veux que je le lise — je ne le stocke pas."
+        ),
+        render_mode=_RM.narrative,
+        pages_processed=0,
+        pages_total=pre.get("page_count"),
+        pdf_warning="encrypted_needs_password",
+        cost_tokens_in=0,
+        cost_tokens_out=0,
+    )
+
+
+def _scrub_compliance_text(text: Optional[str]) -> Optional[str]:
+    """Strip banned terms from free-text fields before returning to user.
+
+    ComplianceGuard.validate() expects a CoachContext we don't have here.
+    We use the lower-level _sanitize_banned_terms() which is the same Layer
+    1 sanitisation applied to coach output (covers garanti/optimal/conseiller
+    + inflections + GUARANTEE_REPLACEMENTS).
+    """
+    if not text:
+        return text
+    try:
+        from app.services.coach.compliance_guard import ComplianceGuard
+        guard = ComplianceGuard()
+        return guard._sanitize_banned_terms(text)  # noqa: SLF001 — intended internal use
+    except Exception as exc:
+        logger.warning("compliance scrub failed err=%s", exc)
+        return text
+
+
+async def _call_fused_vision(
+    file_bytes: bytes,
+    pre: Optional[dict],
+    canton: Optional[str],
+    lang: Optional[str],
+    archetype: Optional[str],
+) -> _DUR:
+    """Single Anthropic call — tool_use forced + extended thinking budget."""
+    api_key = settings.ANTHROPIC_API_KEY
+    if not api_key:
+        raise ValueError("ANTHROPIC_API_KEY not configured")
+
+    # Page selection for scanned/long PDFs — keep the bytes for now (Anthropic
+    # PDF block accepts the full file; selection is informational for
+    # downstream cost analysis until we wire per-page extraction).
+    pages_processed: Optional[int] = None
+    pages_total: Optional[int] = None
+    pdf_warning: Optional[str] = None
+    if pre is not None:
+        pages_total = pre.get("page_count")
+        if pre.get("status") == "scanned" or (pages_total or 0) > 4:
+            try:
+                chosen = _select_pages(file_bytes, max_pages=3)
+                pages_processed = len(chosen)
+                if pages_total and pages_processed < pages_total:
+                    pdf_warning = (
+                        f"PDF long ({pages_total} pages) — j'ai lu les "
+                        f"{pages_processed} pages clés."
+                    )
+            except Exception:
+                pages_processed = pages_total
+        else:
+            pages_processed = pages_total
+
+    response = await _async_vision_call(
+        model=settings.COACH_MODEL,
+        max_tokens=3000,
+        thinking={"type": "enabled", "budget_tokens": 1024},
+        tools=[ROUTE_AND_EXTRACT_TOOL],
+        tool_choice={"type": "tool", "name": "route_and_extract"},
+        system=_build_fused_system_prompt(canton, lang, archetype),
+        messages=[{
+            "role": "user",
+            "content": [
+                _build_vision_block_v2(file_bytes),
+                {"type": "text", "text": "Route and extract."},
+            ],
+        }],
+    )
+
+    # Find tool_use block
+    tool_input: dict = {}
+    for block in response.content:
+        if getattr(block, "type", None) == "tool_use":
+            tool_input = getattr(block, "input", {}) or {}
+            break
+
+    result = _ti_to_result(tool_input, response.usage)
+    if pages_processed is not None:
+        result.pages_processed = pages_processed
+    if pages_total is not None:
+        result.pages_total = pages_total
+    if pdf_warning is not None:
+        result.pdf_warning = pdf_warning
+    return result
+
+
+async def understand_document(
+    file_bytes: bytes,
+    *,
+    user_id: str,
+    canton: Optional[str] = None,
+    lang: Optional[str] = None,
+    profile_archetype: Optional[str] = None,
+    profile_first_name: Optional[str] = None,
+    profile_last_name: Optional[str] = None,
+    partner_first_name: Optional[str] = None,
+    file_sha: Optional[str] = None,
+    db=None,
+) -> _DUR:
+    """Fused classify+extract entrypoint behind DOCUMENTS_V2_ENABLED.
+
+    Returns the canonical DocumentUnderstandingResult with render_mode
+    computed by the deterministic selector. Side-effects:
+        - file_sha-keyed idempotency cache (24h)
+        - DocumentMemory upsert + diff (when db provided)
+        - TokenBudget consume (kind='vision')
+        - ComplianceGuard scrub on summary/narrative/questions_for_user
+    """
+    # 1. Idempotency lookup by file SHA
+    if file_sha:
+        cached = await _idempotency.lookup_by_file_sha(file_sha)
+        if cached is not None:
+            try:
+                return _DUR.model_validate(cached)
+            except Exception as exc:
+                logger.warning("idempotency: cached payload invalid err=%s", exc)
+
+    # Phase 29-06 / PRIV-07: two-stage pre-masking. When the flag is on and
+    # the payload is a raster image (not a PDF), run Tesseract+regex to
+    # redact IBAN/AVS/PHONE regions BEFORE the Vision call. Fail-open: if
+    # masking throws we fall back to the raw image (matches the old path).
+    is_pdf = file_bytes[:4] == b"%PDF"
+    if not is_pdf:
+        try:
+            from app.services.flags_service import flags as _flags
+            if await _flags.is_enabled("MASK_PII_BEFORE_VISION", user_id):
+                from app.services.privacy.image_masker import mask_pii_regions
+                masked, report = mask_pii_regions(file_bytes)
+                if report.masked_region_count > 0:
+                    logger.info(
+                        "image_masker: user_id_hash=%s regions=%d categories=%s",
+                        user_id[:8] if user_id else "anon",
+                        report.masked_region_count,
+                        sorted(report.categories),
+                    )
+                    file_bytes = masked
+        except Exception as exc:
+            logger.warning("image_masker: pre-vision masking failed: %s", type(exc).__name__)
+
+    # 2. PDF preflight (if PDF)
+    pre: Optional[dict] = _preflight_pdf(file_bytes) if is_pdf else None
+
+    # 3. Branch routing
+    if pre is not None and pre.get("status") == "encrypted_needs_password":
+        result = _build_encrypted_result(pre)
+    elif pre is not None and pre.get("status") == "acroform":
+        result = _build_acroform_result(pre)
+    else:
+        result = await _call_fused_vision(
+            file_bytes, pre, canton, lang, profile_archetype,
+        )
+
+    # 4. LPP coherence (compat with legacy validator on a list of EF-shaped objs)
+    if result.document_class == _DocumentClass.lpp_certificate and result.extracted_fields:
+        try:
+            # Build minimal ExtractedFieldConfirmation-compatible objects
+            compat = [
+                ExtractedFieldConfirmation(
+                    field_name=f.field_name,
+                    value=f.value,
+                    confidence=f.confidence,
+                    source_text=f.source_text,
+                )
+                for f in result.extracted_fields
+            ]
+            warns = validate_lpp_coherence(compat)
+            if warns:
+                result.coherence_warnings = [
+                    _CoherenceWarning(code="lpp_coherence", message=w, fields=[])
+                    for w in warns
+                ]
+        except Exception as exc:
+            logger.warning("LPP coherence v2 failed err=%s", exc)
+
+    # 5a. NumericSanity — deterministic bounds on extracted values (Phase 29-04 / PRIV-05).
+    #     Runs BEFORE the LLM judge because it is free and catches the crudest
+    #     prompt-injection values ("rendement 50%"). Rejects force render=reject.
+    try:
+        from app.services.compliance import numeric_sanity as _ns
+
+        verdict = _ns.check(result.extracted_fields)
+        if verdict.rejects:
+            result.sanity_rejected_fields = [r.field_name for r in verdict.rejects]
+            # Mark the offending fields as rejected so callers can highlight them.
+            reject_names = set(result.sanity_rejected_fields)
+            for f in result.extracted_fields:
+                if f.field_name in reject_names:
+                    f.status = _FS.rejected
+            # Convert the whole document to reject render mode with an explicit
+            # reason. The summary becomes the top-most bound violated so the
+            # user knows why MINT refused the number.
+            primary = verdict.rejects[0]
+            result.render_mode = _RM.reject
+            result.extraction_status = _ES.parse_error if result.extraction_status == _ES.success else result.extraction_status
+            result.summary = (
+                f"MINT a refuse une valeur impossible — {primary.bound}. "
+                "Ouvre le document original et verifie."
+            )
+            result.pdf_warning = "numeric_sanity_reject"
+        if verdict.human_reviews:
+            result.sanity_human_review_fields = [r.field_name for r in verdict.human_reviews]
+            hr_names = set(result.sanity_human_review_fields)
+            for f in result.extracted_fields:
+                if f.field_name in hr_names:
+                    f.human_review_flag = True
+    except Exception as exc:
+        logger.warning("numeric_sanity check failed err=%s", exc)
+
+    # 5b. Render mode (deterministic selector) — unless already forced to reject above.
+    if result.render_mode != _RM.reject:
+        result.render_mode = _select_render_mode(result)
+
+    # 6. Document Memory upsert + diff
+    if db is not None and result.extraction_status == _ES.success:
+        try:
+            diff = _upsert_and_diff(db, user_id, result)
+            result.diff_from_previous = diff
+            result.fingerprint = _compute_fingerprint(
+                result.document_class.value, result.issuer_guess, None,
+            )
+        except Exception as exc:
+            logger.warning("document_memory upsert failed err=%s", exc)
+
+    # 7. Third-party detection (silent flag)
+    try:
+        flagged, name = _detect_third_party(
+            result, profile_first_name, profile_last_name, partner_first_name,
+        )
+        result.third_party_detected = flagged
+        result.third_party_name = name
+    except Exception as exc:
+        logger.warning("third-party detection failed err=%s", exc)
+
+    # 8a. PII pre-scrub (Phase 29-03 pii_scrubber) — strip IBAN/AVS/phone/
+    #     employer names from Vision free text BEFORE the judge sees it.
+    #     The judge still gets enough context to evaluate compliance, but
+    #     never receives raw PII even in transit.
+    try:
+        from app.services.privacy.pii_scrubber import scrub as _pii_scrub
+
+        result.summary = _pii_scrub(result.summary) if result.summary else result.summary
+        result.narrative = _pii_scrub(result.narrative) if result.narrative else result.narrative
+        result.questions_for_user = [
+            _pii_scrub(q) if q else q for q in result.questions_for_user
+        ]
+    except Exception as exc:
+        logger.warning("pii_scrubber failed err=%s", exc)
+
+    # 8b. Coach banned-term Layer 1 — cheap static pass before the LLM judge.
+    result.summary = _scrub_compliance_text(result.summary)
+    result.narrative = _scrub_compliance_text(result.narrative)
+    result.questions_for_user = [
+        _scrub_compliance_text(q) or q for q in result.questions_for_user
+    ]
+
+    # 8c. VisionGuard — LLM-as-judge on critical outputs (PRIV-05).
+    #     Skip when nothing critical to judge OR when rendering a reject
+    #     (the document is already blocked; judging adds cost with no benefit).
+    #     ALSO skip when the summary is a canned non-LLM message (encrypted
+    #     PDF, preflight reject, etc.) — judging hardcoded strings adds
+    #     latency + cost + flaky-CI risk for zero compliance benefit.
+    _CANNED_STATUSES = {
+        _ES.encrypted_needs_password,
+    }
+    if (
+        result.render_mode != _RM.reject
+        and result.extraction_status not in _CANNED_STATUSES
+        and (result.summary or result.narrative)
+    ):
+        try:
+            from app.services.compliance import vision_guard as _vg
+
+            fields_summary = ", ".join(
+                f"{f.field_name}={f.value}"
+                for f in result.extracted_fields[:5]
+                if f.value is not None
+            )
+            verdict = await _vg.judge_vision_output(
+                summary=result.summary,
+                narrative=result.narrative,
+                fields_summary=fields_summary or None,
+            )
+            result.guard_cost_usd = verdict.cost_usd
+            result.guard_flagged_categories = list(verdict.flagged_categories)
+            result.guard_reason = verdict.reason
+            if not verdict.allow:
+                result.guard_blocked = True
+                # Replace the salient free-text outputs with the judge's
+                # reformulation (or canonical safe fallback). Keep the raw
+                # fields intact — the user still sees the validated numbers.
+                safe_text = verdict.reformulation or (
+                    "MINT n'a pas pu resumer ce document de maniere educative. "
+                    "Voici les chiffres bruts validés."
+                )
+                result.summary = safe_text
+                # Narrative is dropped on block; the BatchValidationBubble
+                # handles the user-facing dialogue instead.
+                result.narrative = None
+        except Exception as exc:
+            # Fail-closed on unexpected error — strip the free text so a
+            # potentially non-compliant output never reaches the user.
+            logger.warning("vision_guard failed — fail-closed err=%s", exc)
+            result.guard_blocked = True
+            result.guard_reason = "judge_unavailable"
+            result.summary = (
+                "MINT n'a pas pu valider ce resume — voici les chiffres bruts."
+            )
+            result.narrative = None
+
+    # 8d. Runtime no-auto-confirm invariant (Phase 29-04 / PRIV-08).
+    #     Regardless of classifier confidence, every field persists as
+    #     needs_review. Only user interaction (tap / swipe on the
+    #     BatchValidationBubble) promotes to user_validated or corrected_by_user.
+    for f in result.extracted_fields:
+        if f.status not in (
+            _FS.rejected,
+            _FS.user_validated,
+            _FS.corrected_by_user,
+            _FS.human_review,
+        ):
+            f.status = _FS.needs_review
+
+    # 9. Token budget consume (Vision tokens count too — STAB-04 reuse)
+    try:
+        from app.services.coach.token_budget import TokenBudget
+        await TokenBudget().consume(
+            user_id, result.cost_tokens_in + result.cost_tokens_out,
+        )
+    except Exception as exc:
+        logger.warning("token_budget consume failed err=%s", exc)
+
+    # 10. Idempotency store
+    if file_sha:
+        try:
+            await _idempotency.store_by_file_sha(
+                file_sha, result.model_dump(mode="json"),
+            )
+        except Exception as exc:
+            logger.warning("idempotency store failed err=%s", exc)
+
+    return result

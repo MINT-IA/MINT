@@ -72,10 +72,6 @@ INTERNAL_TOOL_NAMES: list[str] = [
     "set_goal",
     "mark_step_completed",
     "save_insight",
-    # Chip pilotage: LLM-emitted follow-up questions captured server-side.
-    # Never forwarded to Flutter as a tool_call — surfaced via
-    # CoachChatResponse.follow_up_questions instead.
-    "suggest_followups",
     # P14 commitment devices: ack-only handlers (persistence via dedicated endpoint in Plan 02)
     "record_commitment",
     "save_pre_mortem",
@@ -485,44 +481,144 @@ COACH_TOOLS: list[dict[str, Any]] = [
         },
     },
     # ─────────────────────────────────────────────────────────────────
-    # suggest_followups — INTERNAL: backend-piloted chip suggestions
-    # The LLM calls this with 1-2 genuine next questions the user might
-    # ask. Handler captures them into the response's follow_up_questions
-    # field. Never forwarded to Flutter as a tool_call — the chips render
-    # from CoachChatResponse.follow_up_questions directly.
+    # save_fact — WRITE: persist a TYPED quantitative fact to ProfileModel.data
+    # Unlike save_insight (which writes a free-text summary to a memory table),
+    # save_fact writes a canonical, machine-readable value that downstream
+    # calculators (AVS, LPP, 3a, budget, tax) consume directly.
     # ─────────────────────────────────────────────────────────────────
     {
-        "name": "suggest_followups",
-        "category": "read",
+        "name": "save_fact",
+        "category": "write",
         "access_level": "user_scoped",
         "description": (
-            "MANDATORY tool — call once per response with 1 or 2 genuine "
-            "follow-up questions the user might want to ask NEXT. This "
-            "tool MUST be called on every substantive answer; the chips "
-            "it produces are how MINT renders the next-step UX. Skip the "
-            "call ONLY if the user said goodbye, you are asking THEM a "
-            "clarification question, or the topic is genuinely closed.\n"
+            "MANDATORY: call this whenever the user states a concrete numeric "
+            "or categorical fact about themselves. This is how MINT's profile "
+            "fills up from conversation — without it, every calculator must "
+            "fall back to estimates.\n\n"
+            "Trigger examples:\n"
+            "  - 'mon salaire net c'est 7600' → key='incomeNetMonthly', value=7600\n"
+            "  - 'je gagne 120k brut par an' → key='incomeGrossYearly', value=120000\n"
+            "  - 'j'ai 70k sur mon 2e pilier' → key='avoirLpp', value=70000\n"
+            "  - 'j'ai un 3a avec 32000 dessus' → key='pillar3aBalance', value=32000\n"
+            "  - 'je mets 7258 par an sur mon 3a' → key='pillar3aAnnual', value=7258\n"
+            "  - 'je vis à Sion' → key='commune', value='Sion'\n"
+            "  - 'en Valais' → key='canton', value='VS'\n"
+            "  - 'je suis marié' → key='householdType', value='couple'\n"
+            "  - 'je suis indépendant' → key='employmentStatus', value='independant'\n"
+            "  - 'j'ai 15000 de dettes carte crédit' → key='totalDebt', value=15000 "
+            "    AND key='hasDebt', value=true\n"
+            "  - 'je mets 500 de côté par mois' → key='savingsMonthly', value=500\n\n"
             "Rules:\n"
-            "  - Never reformulate the question the user JUST asked "
-            "(anti-listening — the user sees their own words echoed back "
-            "and abandons).\n"
-            "  - Write them in first-person user voice: a genuine open "
-            "question under 15 words that EXTENDS the conversation "
-            "(deeper, adjacent, or 'what's the concrete next move?').\n"
-            "  - Keep each question under 80 chars.\n"
-            "  - Max 2 questions. Call at most ONCE per response."
+            "  - Only call save_fact for facts the user STATED explicitly. "
+            "    Never save inferred or assumed values.\n"
+            "  - confidence='high' when the user is unambiguous. 'medium' when "
+            "    rounded/approximate ('about 5k' → medium). 'low' when unclear — "
+            "    ask for clarification instead of saving low-confidence facts.\n"
+            "  - For currency values, always pass the number in CHF, "
+            "    without thousand separators (7600, not '7'600 CHF')."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "questions": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "maxItems": 2,
-                    "description": "1 or 2 follow-up questions in first-person user voice.",
+                "key": {
+                    "type": "string",
+                    "enum": [
+                        # Identity / location
+                        "birthYear",
+                        "dateOfBirth",
+                        "canton",
+                        "commune",
+                        "householdType",
+                        "employmentStatus",
+                        "has2ndPillar",
+                        "goal",
+                        "targetRetirementAge",
+                        "gender",
+                        # Income
+                        "incomeNetMonthly",
+                        "incomeGrossMonthly",
+                        "incomeNetYearly",
+                        "incomeGrossYearly",
+                        "selfEmployedNetIncome",
+                        "employmentRate",
+                        "annualBonus",
+                        # LPP
+                        "lppInsuredSalary",
+                        "avoirLpp",
+                        "avoirLppObligatoire",
+                        "avoirLppSurobligatoire",
+                        "lppBuybackMax",
+                        "hasVoluntaryLpp",
+                        # 3a
+                        "pillar3aAnnual",
+                        "pillar3aBalance",
+                        # Savings / wealth / debt
+                        "savingsMonthly",
+                        "totalSavings",
+                        "wealthEstimate",
+                        "hasDebt",
+                        "totalDebt",
+                        # Spouse (couple)
+                        "spouseBirthYear",
+                        "spouseIncomeNetMonthly",
+                        "spouseAvsContributionYears",
+                        # Insurance / social
+                        "hasAvsGaps",
+                        "avsContributionYears",
+                    ],
+                    "description": (
+                        "The canonical profile key to update. Must be one of "
+                        "the enum values. Do not invent keys."
+                    ),
+                },
+                "value": {
+                    "description": (
+                        "The value to store. Numeric for amounts (in CHF), "
+                        "boolean for flags, string for canton/commune/goal/"
+                        "householdType/employmentStatus enums."
+                    ),
+                },
+                "confidence": {
+                    "type": "string",
+                    "enum": ["high", "medium"],
+                    "description": (
+                        "'high' for explicit exact statements, 'medium' for "
+                        "approximations. Never call with 'low' — ask the user "
+                        "to clarify instead."
+                    ),
                 },
             },
-            "required": ["questions"],
+            "required": ["key", "value", "confidence"],
+        },
+    },
+    # ─────────────────────────────────────────────────────────────────
+    # suggest_actions — READ: compute personalized next steps
+    # Gate 0 #6: replaces static chips with dynamic suggestions
+    # computed from the user's profile completeness + financial gaps.
+    # ─────────────────────────────────────────────────────────────────
+    {
+        "name": "suggest_actions",
+        "category": "read",
+        "access_level": "user_scoped",
+        "description": (
+            "MANDATORY: call at the END of every response to generate "
+            "2-3 personalized suggestion chips for the user. Returns a "
+            "JSON list of next actions based on what MINT knows and "
+            "doesn't know about the user.\n\n"
+            "Examples of returned suggestions:\n"
+            "  - 'Dis-moi ton salaire net mensuel' (profile gap)\n"
+            "  - 'Upload ton certificat LPP' (missing document)\n"
+            "  - 'Configure ton budget' (no budget set up)\n"
+            "  - 'Simule ton rachat LPP' (has avoirLpp + buybackMax)\n"
+            "  - 'Compare rente vs capital' (has LPP projection)\n\n"
+            "Do NOT call this tool for goodbye/clarification messages.\n"
+            "Present the returned suggestions as follow-up questions "
+            "or action chips — never hide them."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {},
+            "required": [],
         },
     },
     # ─────────────────────────────────────────────────────────────────

@@ -149,17 +149,22 @@ class TestSanitizeConversationHistory:
         assert len(out) == 1
         assert out[0]["content"] == "real message"
 
-    def test_caps_at_8_messages(self):
+    def test_caps_at_16_messages(self):
+        """Gate 0 P0-2 fix (2026-04-15): cap raised 8→16 to keep multi-turn
+        threading coherent past 4 exchanges."""
         from app.api.v1.endpoints.coach_chat import _sanitize_conversation_history
         history = [{"role": "user", "content": f"msg {i}"} for i in range(20)]
         out = _sanitize_conversation_history(history)
-        assert len(out) == 8
+        assert len(out) == 16
 
-    def test_truncates_long_content(self):
+    def test_truncates_long_content_at_2000_chars(self):
+        """Gate 0 P0-2 fix (2026-04-15): per-message cap raised 500→2000
+        chars so dense user statements (full PDF excerpts, cert quotes)
+        no longer get cut off mid-sentence."""
         from app.api.v1.endpoints.coach_chat import _sanitize_conversation_history
-        history = [{"role": "user", "content": "x" * 1000}]
+        history = [{"role": "user", "content": "x" * 5000}]
         out = _sanitize_conversation_history(history)
-        assert len(out[0]["content"]) == 500
+        assert len(out[0]["content"]) == 2000
 
     def test_all_invalid_returns_none(self):
         from app.api.v1.endpoints.coach_chat import _sanitize_conversation_history

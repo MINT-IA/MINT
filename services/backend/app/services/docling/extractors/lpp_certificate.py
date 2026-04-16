@@ -134,6 +134,10 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 r"capital\s+vieillesse\s+total",
                 r"total\s+avoir\s+de\s+vieillesse",
                 r"total\s+des?\s+avoirs?",
+                # Swiss LPP: "prestation de sortie" IS the total avoir at the
+                # certificate date — CPE / Publica / many other caisses use
+                # this wording instead of "avoir total" (2e pilier LPP art. 16).
+                r"prestation\s+de\s+sortie",
             ],
             "de": [
                 r"altersguthaben\s+total",
@@ -148,6 +152,11 @@ FIELD_DEFINITIONS: dict[str, dict] = {
     },
     "salaire_assure": {
         "type": "amount",
+        # Swiss certs often print two columns per line: "Bonus  Base" (CPE,
+        # PKE, etc.). The authoritative value for salaried employees is the
+        # Base column — always the larger of the two. Tell the extractor to
+        # pick the max amount found in the keyword context window.
+        "prefer": "max",
         "keywords": {
             "fr": [
                 r"salaire\s+assur[ée]",
@@ -257,6 +266,7 @@ FIELD_DEFINITIONS: dict[str, dict] = {
     },
     "rente_invalidite_annuelle": {
         "type": "amount",
+        "prefer": "max",
         "keywords": {
             "fr": [
                 r"rente\s+d['\u2019]?invalidit[ée]\s+annuelle",
@@ -279,9 +289,14 @@ FIELD_DEFINITIONS: dict[str, dict] = {
         "type": "amount",
         "keywords": {
             "fr": [
-                r"capital[- ]?d[ée]c[èe]s",
-                r"capital\s+en\s+cas\s+de\s+d[ée]c[èe]s",
-                r"prestation\s+de\s+d[ée]c[èe]s",
+                # Require the label to be followed by a digit/"CHF" within ~40
+                # chars — otherwise we capture the règlement boilerplate
+                # "Les dispositions s'appliquent au capital décès" and grab the
+                # next unrelated amount (CPE bug: returned rachat-max 539k as
+                # capital_deces 2026-04-15).
+                r"capital[- ]?d[ée]c[èe]s\s*(?:CHF|Fr\.|\d|:|=)",
+                r"capital\s+en\s+cas\s+de\s+d[ée]c[èe]s\s*(?:CHF|Fr\.|\d|:|=)",
+                r"prestation\s+de\s+d[ée]c[èe]s\s*(?:CHF|Fr\.|\d|:|=)",
             ],
             "de": [
                 r"todesfallkapital",
@@ -296,6 +311,7 @@ FIELD_DEFINITIONS: dict[str, dict] = {
     },
     "rente_conjoint_annuelle": {
         "type": "amount",
+        "prefer": "max",
         "keywords": {
             "fr": [
                 r"rente\s+de?\s+conjoint",
@@ -317,6 +333,7 @@ FIELD_DEFINITIONS: dict[str, dict] = {
     },
     "rente_enfant_annuelle": {
         "type": "amount",
+        "prefer": "max",
         "keywords": {
             "fr": [
                 r"rente\s+d['\u2019]?enfant",
@@ -342,6 +359,11 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 r"montant\s+de?\s+rachat",
                 r"possibilit[ée]\s+de?\s+rachat",
                 r"rachat\s+disponible",
+                # CPE / Publica / Swiss Life formulation: "Rachat en vue de la
+                # retraite ordinaire à l'âge de 65 ans X'XXX'XXX.XX" — this is
+                # the canonical rachat_max (LPP art. 79b), distinct from the
+                # early-retirement bridging buyback which is a different number.
+                r"rachat\s+en\s+vue\s+de?\s+(?:la\s+)?retraite\s+ordinaire",
             ],
             "de": [
                 r"(?:maximaler?|m[öo]glicher?)\s+einkauf",
@@ -555,9 +577,10 @@ class LPPCertificateExtractor:
 
             field_type = field_def.get("type", "amount")
             keywords = field_def.get("keywords", {})
+            prefer = field_def.get("prefer")
 
             value = self._extract_field(
-                combined_text, keywords, field_type, lang_order
+                combined_text, keywords, field_type, lang_order, prefer=prefer
             )
 
             # Also search tables directly for amount/rate fields
@@ -581,6 +604,7 @@ class LPPCertificateExtractor:
         keywords: dict[str, list[str]],
         field_type: str,
         lang_order: list[str],
+        prefer: Optional[str] = None,
     ) -> Optional[float | str]:
         """
         Extract a single field value from text using keyword matching.
@@ -609,6 +633,14 @@ class LPPCertificateExtractor:
                     context = text[start : start + 300]
 
                     if field_type == "amount":
+                        if prefer == "max":
+                            # Bi-column Swiss cert (Bonus | Base): pick the
+                            # larger amount found on the first line of the
+                            # keyword window.
+                            first_line_ctx = context.split("\n", 1)[0]
+                            amounts = self._extract_all_amounts(first_line_ctx)
+                            if amounts:
+                                return max(amounts)
                         amount = self._extract_amount(context)
                         if amount is not None:
                             return amount
@@ -667,6 +699,28 @@ class LPPCertificateExtractor:
                                         if rate is not None:
                                             return rate
         return None
+
+    def _extract_all_amounts(self, text: str) -> list[float]:
+        """Extract every CHF amount in the text (used when a field is known
+        to span a Bonus | Base bi-column layout and we need to pick one)."""
+        found: list[float] = []
+        for pattern in _AMOUNT_PATTERNS:
+            for m in pattern.finditer(text):
+                raw = m.group(1)
+                if not raw:
+                    continue
+                value = self._parse_number(raw)
+                if value is not None and 0 <= value <= 10_000_000:
+                    found.append(value)
+        # Dedupe while preserving order (same digit could match multiple
+        # patterns) — keep unique floats only.
+        seen: set[float] = set()
+        unique: list[float] = []
+        for v in found:
+            if v not in seen:
+                seen.add(v)
+                unique.append(v)
+        return unique
 
     def _extract_amount(self, text: str) -> Optional[float]:
         """
@@ -746,21 +800,40 @@ class LPPCertificateExtractor:
         return None
 
     def _extract_text_value(self, context: str) -> Optional[str]:
-        """Extract a text value following a keyword match."""
-        # Take the rest of the line after the keyword
+        """Extract a text value following a keyword match.
+
+        The keyword match may land in the middle of a header line (e.g.
+        "CPE Caisse de Pension Energie" → match starts at "Caisse", so
+        first_line is "Caisse de Pension Energie"). Previous logic returned
+        the next line whenever no separator was present, which meant
+        caisse_name got the phone number line. Corrected behaviour:
+
+          • If the first line contains a separator → value is after sep.
+          • Else if the first line has meaningful content (> keyword alone),
+            return it.
+          • Only fall back to next line if first line is empty or looks
+            like a bare label.
+        """
         lines = context.split("\n")
         if not lines:
             return None
 
         first_line = lines[0].strip()
+
         # Remove common separators
-        for sep in [":", "–", "-", "|"]:
+        for sep in [":", "–", "|"]:
             if sep in first_line:
                 parts = first_line.split(sep, 1)
                 if len(parts) > 1 and parts[1].strip():
                     return parts[1].strip()
 
-        # If first line is just the keyword, check next line
+        # Meaningful first line (not just a label) — return it directly.
+        # A "meaningful" first line has more than 12 chars and contains at
+        # least one alphabetic word beyond the keyword itself.
+        if first_line and len(first_line) > 12:
+            return first_line
+
+        # Otherwise (first line too short / just a label) try the next line.
         if len(lines) > 1:
             next_line = lines[1].strip()
             if next_line and len(next_line) > 2:

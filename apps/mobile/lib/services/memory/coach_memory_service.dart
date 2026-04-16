@@ -27,17 +27,39 @@ import 'package:mint_mobile/services/auth_service.dart';
 //
 // Pure static methods for testability (injectable SharedPreferences).
 //
-// ARCHITECTURAL NOTE (V12-5): SharedPreferences keys are global, not per-account.
-// Account isolation relies on purge at logout/deleteAccount (auth_provider.dart).
-// TODO: Prefix all keys with user ID for native multi-account isolation.
+// ACCOUNT ISOLATION (Gate 0 fix 2026-04-15): SharedPreferences key now
+// includes the authenticated user_id, so insights persisted under one
+// account never leak into another. Anonymous sessions land under the
+// '__anon' namespace which is wiped on first authentication.
 // ────────────────────────────────────────────────────────────
 
 /// Persists and retrieves [CoachInsight] records across sessions.
 class CoachMemoryService {
   CoachMemoryService._();
 
-  /// SharedPreferences key for the insights list.
-  static const _key = '_coach_insights';
+  /// Base SharedPreferences key. The actual storage key is
+  /// `${_baseKey}_$userId` (or `${_baseKey}___anon` when no user is
+  /// authenticated). See [_keyFor].
+  static const _baseKey = '_coach_insights';
+
+  /// Compute the per-user storage key. Falls back to an anonymous
+  /// namespace if no JWT user_id is available — that data NEVER
+  /// crosses into an authenticated account.
+  static Future<String> _keyFor() async {
+    try {
+      final uid = await AuthService.getUserId();
+      if (uid != null && uid.isNotEmpty) {
+        return '${_baseKey}_$uid';
+      }
+    } catch (e) {
+      debugPrint('[CoachMemory] auth lookup failed, anon namespace: $e');
+    }
+    return '${_baseKey}___anon';
+  }
+
+  // Backwards compat alias (used internally; resolves at call time).
+  // The constant name is preserved so call sites remain readable.
+  static Future<String> get _key => _keyFor();
 
   /// Maximum number of insights to retain (FIFO pruning).
   static const _maxInsights = 50;
@@ -55,7 +77,7 @@ class CoachMemoryService {
     SharedPreferences? prefs,
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final insights = _load(sp);
+    final insights = await _load(sp);
 
     // Deduplicate: replace existing insight with same id
     insights.removeWhere((i) => i.id == insight.id);
@@ -91,8 +113,12 @@ class CoachMemoryService {
           'created_at': insight.createdAt.toUtc().toIso8601String(),
         }),
       );
-    } catch (_) {
-      // Fire-and-forget: sync failure is not user-facing.
+    } catch (e, st) {
+      // Fire-and-forget: sync failure is not user-facing, but Gate 0 #10
+      // requires observability — silent catches were hiding flaky network
+      // and stale-token bugs for weeks. Log so it shows up in Sentry /
+      // device console without breaking the user flow.
+      debugPrint('[CoachMemory] _syncToBackend failed: $e\n$st');
     }
   }
 
@@ -106,8 +132,8 @@ class CoachMemoryService {
         Uri.parse('$baseUrl/coach/sync-insight/$insightId'),
         headers: {'Authorization': 'Bearer $token'},
       );
-    } catch (_) {
-      // Fire-and-forget: cleanup failure is not user-facing.
+    } catch (e, st) {
+      debugPrint('[CoachMemory] _syncRemoveToBackend($insightId) failed: $e\n$st');
     }
   }
 
@@ -129,7 +155,7 @@ class CoachMemoryService {
     SharedPreferences? prefs,
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
-    return _load(sp);
+    return await _load(sp);
   }
 
   /// Get insights relevant to a specific topic / intent tag.
@@ -140,7 +166,7 @@ class CoachMemoryService {
     SharedPreferences? prefs,
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final all = _load(sp);
+    final all = await _load(sp);
     final tag = intentTag.toLowerCase().trim();
     return all
         .where((i) => i.topic.toLowerCase().contains(tag))
@@ -155,7 +181,7 @@ class CoachMemoryService {
   /// manually on app startup.
   static Future<void> prune({SharedPreferences? prefs}) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
-    final insights = _load(sp);
+    final insights = await _load(sp);
 
     if (insights.length <= _maxInsights) return;
 
@@ -175,25 +201,31 @@ class CoachMemoryService {
   /// Used for testing, account reset, or GDPR deletion.
   static Future<void> clear({SharedPreferences? prefs}) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
-    await sp.remove(_key);
+    final k = await _key;
+    await sp.remove(k);
+    // Also clear the anonymous namespace so logging out of one account
+    // and into another can't surface stale anon-era insights.
+    await sp.remove('${_baseKey}___anon');
   }
 
   // ── Private helpers ─────────────────────────────────────
 
-  /// Load insights from SharedPreferences (sync decode).
+  /// Load insights from SharedPreferences (per-user namespaced).
   ///
   /// Returns empty list on missing key or parse error.
-  static List<CoachInsight> _load(SharedPreferences sp) {
-    final raw = sp.getString(_key);
+  static Future<List<CoachInsight>> _load(SharedPreferences sp) async {
+    final k = await _key;
+    final raw = sp.getString(k);
     if (raw == null) return [];
     return CoachInsight.decodeList(raw);
   }
 
-  /// Persist insights to SharedPreferences.
+  /// Persist insights to SharedPreferences (per-user namespaced).
   static Future<void> _save(
     SharedPreferences sp,
     List<CoachInsight> insights,
   ) async {
-    await sp.setString(_key, CoachInsight.encodeList(insights));
+    final k = await _key;
+    await sp.setString(k, CoachInsight.encodeList(insights));
   }
 }

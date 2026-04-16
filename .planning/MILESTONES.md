@@ -1,5 +1,57 @@
 # Milestones
 
+## v2.7 Coach Stabilisation + Document Digestion (Shipped: `<PENDING_DEVICE_GATE>`)
+
+**Status:** Code-complete, awaiting creator-device walkthrough (GATE-01 iPhone + GATE-02 Android).
+**Phases completed:** 4 phases (27, 28, 29, 30), 13 plans, ~32 tasks, ~315 new tests.
+**Requirements:** 25/25 code-complete (STAB-01..05 + DOC-01..08 + PRIV-01..08 + GATE-01..04).
+
+**Goal:** Le coach fonctionne bout en bout (MSG2 fiable, mémoire typée, réponses denses) ET
+MINT digère n'importe quel document (photo / scan / screenshot / PDF) via un contrat canonique
+interne, sans jamais afficher "Analyse indisponible".
+
+**Key accomplishments:**
+
+- **Phase 27 — Stabilisation Critique:** Redis-backed token budget (soft-cap → Haiku →
+  truncate → hard-cap, 50k/day default); `LLMRouter` Sonnet→Haiku fallback + tenacity retry;
+  `SLOMonitor` auto-rollback (2-consecutive-breach, 10-req floor); SHA256 idempotency;
+  3 feature flags + admin endpoints for instant rollback; Flutter degraded chip (anti-shame
+  italic textSecondary); agent loop re-prompt on empty-text tool_use (fixes MSG2).
+- **Phase 28 — Pipeline Document Honnête:** canonical `DocumentUnderstandingResult` Pydantic
+  contract shared by coach + scanner + review; fused Vision call (classify + extract in one
+  prompt); pymupdf encrypted-PDF preflight + pages_processed transparency; 4 opaque render_mode
+  (confirm/ask/narrative/reject); SSE streaming (3 ordered events); native scanners (VisionKit
+  iOS + ML Kit Android) + local image pre-reject (16 labels, fail-open); 4 UI bubbles +
+  reduced ExtractionReviewSheet (snap 0.3/0.6/0.95).
+- **Phase 29 — Compliance & Privacy:** envelope encryption AES-256-GCM + per-user DEK vault +
+  crypto-shredding; ISO 29184 granular consent (4 purposes) + HMAC + merkle chain; Presidio PII
+  + regex fallback + FPE + fact_key allowlist (8 keys) + CI log-gate; VisionGuard Haiku
+  LLM-as-judge (fail-closed) + NumericSanity deterministic bounds + FieldStatus.needs_review
+  default; third-party opposable declaration + session-scoped routing; Bedrock EU router
+  (off/shadow/primary) + two-stage image masker + DPA technical annex + legal checklist.
+- **Phase 30 — Device & Test Gate:** 10 PII-clean corpus fixtures + 17 Vision cassettes +
+  golden flow pytest (17 parametrised + 2 aggregators, 19 green) + warn-only CI (graduates
+  2026-04-28); bilingual FR/EN device-gate checklist (36 checkboxes covering 25 REQs);
+  performance report template; legal sign-off template.
+
+**Known carryover:**
+
+- **GATE-01, GATE-02** — creator-device walkthrough (iPhone + Android) blocking milestone
+  shipped-date stamp. Checklist in `docs/DEVICE_GATE_V27_CHECKLIST.md`.
+- Pre-existing failures on `test_agent_loop.py` + `test_docling.py` (unrelated to v2.7, out-of-scope).
+- Encrypted-PDF VisionGuard overwrite (one-line fix deferred to v2.8).
+- Legal sign-off session pending (Walder Wyss / MLL Legal) — template in
+  `docs/LEGAL_SIGNOFF_V27.md`.
+
+**Follow-ups to v2.8:** TokenBudget.kind tagging, RAG → LLMRouter migration, JSONB GIN index,
+Presidio NER upgrade, default scanner path flip, real-Vision cassette recorder, BEDROCK_EU flip,
+MASK_PII_BEFORE_VISION enable.
+
+**Next milestone:** v2.8 "La Confiance" — Privacy Nutrition Label + Data Vault + Trust Mode +
+Graduation Protocol v1. Scope TBD via `/gsd-start-milestone v2.8`.
+
+---
+
 ## v2.1 Stabilisation v2.0 (Shipped: 2026-04-07)
 
 **Phases completed:** 1 phase (Phase 7), 6 plans, 16/17 STAB requirements DONE

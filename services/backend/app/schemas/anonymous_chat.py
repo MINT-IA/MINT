@@ -76,21 +76,3 @@ class AnonymousChatResponse(BaseModel):
         ge=0,
         description="Estimation de l'utilisation de tokens.",
     )
-    follow_up_questions: list[str] = Field(
-        default_factory=list,
-        description=(
-            "Up to 2 genuine follow-up questions the user might ask next. "
-            "Parsed server-side from a <followups>[\"q1\",\"q2\"]</followups> "
-            "JSON block emitted by the LLM. Empty when absent or malformed. "
-            "Never a reformulation of the user's own question."
-        ),
-    )
-
-    @field_validator("follow_up_questions")
-    @classmethod
-    def cap_follow_ups(cls, v: list[str]) -> list[str]:
-        """Silently cap follow-up questions at 2 items."""
-        if not v:
-            return []
-        cleaned = [s.strip() for s in v if isinstance(s, str) and s.strip()]
-        return cleaned[:2]

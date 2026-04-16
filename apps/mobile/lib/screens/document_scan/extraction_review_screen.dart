@@ -82,6 +82,8 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
                 const SizedBox(height: 12),
                 MintEntrance(child: _buildHeader()),
                 const SizedBox(height: 8),
+                _buildDeeplinkBanner(),
+                const SizedBox(height: 8),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildOverallConfidenceBadge()),
                 const SizedBox(height: 20),
                 if (widget.result.planTypeWarning != null) ...[
@@ -152,6 +154,37 @@ class _ExtractionReviewScreenState extends State<ExtractionReviewScreen> {
           style: MintTextStyles.labelLarge(color: MintColors.textSecondary).copyWith(height: 1.5),
         ),
       ],
+    );
+  }
+
+  // ── Deep-link fallback banner (Phase 28-04) ──────────────
+  //
+  // The full-screen review is now reserved for high-stakes documents
+  // and deep-link entries; the default flow renders chat bubbles +
+  // ExtractionReviewSheet inline. Surface a soft reminder so the user
+  // understands why this screen looks different from the chat path.
+
+  Widget _buildDeeplinkBanner() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: MintColors.lightBorder),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.link_rounded,
+              size: 16, color: MintColors.textSecondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              S.of(context)!.documentReviewOpenedFromDeeplink,
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

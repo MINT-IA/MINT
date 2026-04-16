@@ -88,7 +88,11 @@ class CoachChatApiService {
           },
           body: jsonEncode(body),
         )
-        .timeout(const Duration(seconds: 60));
+        // Gate 0 P0-3: 60s was 3× the user's patience threshold and made
+        // the app feel "disconnected" when Sonnet took 25-40s on a long
+        // tool chain. 20s catches genuine hangs while letting healthy
+        // responses through (P95 backend latency on staging = 8-12s).
+        .timeout(const Duration(seconds: 20));
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -166,7 +170,6 @@ class CoachChatApiService {
           'disclaimers': <String>[],
           'messagesRemaining': 0,
           'tokensUsed': 0,
-          'followUpQuestions': <String>[],
         };
       } else {
         return _anonymousFallback();
@@ -183,7 +186,6 @@ class CoachChatApiService {
       'disclaimers': <String>[],
       'messagesRemaining': -1,
       'tokensUsed': 0,
-      'followUpQuestions': <String>[],
       'error': true,
     };
   }
@@ -206,13 +208,15 @@ class CoachChatApiResponse {
   final List<String> disclaimers;
   final int tokensUsed;
 
-  /// Backend-piloted follow-up question chips (max 2).
-  ///
-  /// Populated from the LLM's `suggest_followups` internal tool call.
-  /// Empty when the model produced none. Never contains a reformulation
-  /// of the user's own question. See docs/feedback_chat_must_be_silent.md
-  /// — chips come from the conversation, never from client-side inference.
-  final List<String> followUpQuestions;
+  /// v2.7 Task 8: true when backend fell back to Haiku (graceful degradation).
+  /// UI surfaces a subtle "Réponse rapide" chip — NOT an error indicator.
+  final bool degraded;
+
+  /// Model id that produced the response (e.g. "claude-haiku-4-5-...").
+  final String? modelUsed;
+
+  /// Budget tier: normal / soft_cap / truncate / hard_cap.
+  final String? budgetTier;
 
   const CoachChatApiResponse({
     required this.message,
@@ -220,10 +224,13 @@ class CoachChatApiResponse {
     this.sources = const [],
     this.disclaimers = const [],
     this.tokensUsed = 0,
-    this.followUpQuestions = const [],
+    this.degraded = false,
+    this.modelUsed,
+    this.budgetTier,
   });
 
   factory CoachChatApiResponse.fromJson(Map<String, dynamic> json) {
+    final meta = (json['responseMeta'] as Map<String, dynamic>?) ?? const {};
     return CoachChatApiResponse(
       message: json['message'] as String? ?? '',
       toolCalls: (json['toolCalls'] as List?)
@@ -246,21 +253,10 @@ class CoachChatApiResponse {
               .toList() ??
           const [],
       tokensUsed: json['tokensUsed'] as int? ?? 0,
-      followUpQuestions: _parseFollowUps(json['followUpQuestions']),
+      degraded: meta['degraded'] as bool? ?? false,
+      modelUsed: meta['modelUsed'] as String?,
+      budgetTier: meta['budgetTier'] as String?,
     );
-  }
-
-  static List<String> _parseFollowUps(dynamic raw) {
-    if (raw is! List) return const [];
-    final out = <String>[];
-    for (final item in raw) {
-      if (item is String) {
-        final trimmed = item.trim();
-        if (trimmed.isNotEmpty) out.add(trimmed);
-      }
-      if (out.length >= 2) break;
-    }
-    return out;
   }
 }
 

@@ -22543,4 +22543,246 @@ class SFr extends S {
 
   @override
   String get coachDisclaimerCollapsed => 'Outil éducatif — voir le disclaimer';
+
+  @override
+  String get coachResponseDegradedHint => 'Réponse rapide';
+
+  @override
+  String get coachBudgetDailyLimitReached =>
+      'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.';
+
+  @override
+  String get docScanRejectedNonFinancial =>
+      'Cette image ne ressemble pas à un document financier. Réessaie avec une photo de ton certificat, ta fiche de salaire ou un relevé.';
+
+  @override
+  String get docScanScannerError =>
+      'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.';
+
+  @override
+  String documentBubbleConfirmTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'J\'\'ai lu $count données utiles.',
+      one: 'J\'\'ai lu 1 donnée utile.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get documentBubbleConfirmAllGood => 'Tout bon';
+
+  @override
+  String get documentBubbleConfirmCorrect => 'Je corrige';
+
+  @override
+  String get documentBubbleAskTitle =>
+      'J\'ai presque tout. Confirme-moi juste ça :';
+
+  @override
+  String get documentBubbleAskSubmit => 'Envoyer';
+
+  @override
+  String get documentBubbleNarrativeRemindLater => 'Rappelle-moi en mai';
+
+  @override
+  String get documentBubbleRejectMessage =>
+      'Ce document ne semble pas financier. Pas grave — réessaie avec une autre photo.';
+
+  @override
+  String get documentBubbleRejectRetry => 'Réessayer';
+
+  @override
+  String documentThirdPartyQuestion(String name) {
+    return 'C\'\'est bien $name ?';
+  }
+
+  @override
+  String get documentThirdPartyYes => 'Oui';
+
+  @override
+  String get documentThirdPartyNo => 'Non';
+
+  @override
+  String get documentThirdPartySomeoneElse => 'quelqu\'un d\'autre';
+
+  @override
+  String get documentReviewOpenedFromDeeplink =>
+      'Ouvert depuis un lien direct. La plupart des documents apparaissent maintenant directement dans le chat.';
+
+  @override
+  String get documentReviewMineButton => 'C\'est à moi';
+
+  @override
+  String get documentReviewNotMineButton => 'Ce n\'est pas moi';
+
+  @override
+  String get documentReviewCorrectButton => 'Je corrige';
+
+  @override
+  String get documentScanReadingStage => 'Je regarde…';
+
+  @override
+  String documentScanFamiliarIssuer(String issuer) {
+    return 'Je crois que c\'\'est un autre $issuer, je regarde ce qui a bougé…';
+  }
+
+  @override
+  String documentScanFieldFound(String field, String value) {
+    return '$field : $value';
+  }
+
+  @override
+  String get consentSheetTitle => 'Tes consentements';
+
+  @override
+  String get consentSheetSubtitle =>
+      'MINT ne traite tes données qu\'avec ton accord explicite, pour chaque finalité.';
+
+  @override
+  String get consentSheetAccept => 'Accepter';
+
+  @override
+  String get consentSheetRefuse => 'Refuser';
+
+  @override
+  String get consentPurposeVisionExtraction => 'Lecture IA de tes documents';
+
+  @override
+  String get consentPurposeVisionExtractionWhy =>
+      'MINT lit tes certificats LPP, fiches de paie et contrats pour en extraire les chiffres utiles. Durée : le temps du traitement. Révocable à tout moment.';
+
+  @override
+  String get consentPurposePersistence365d => 'Mémoire chiffrée 365 jours';
+
+  @override
+  String get consentPurposePersistence365dWhy =>
+      'Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.';
+
+  @override
+  String get consentPurposeTransferUsAnthropic =>
+      'Traitement IA (Anthropic, US)';
+
+  @override
+  String get consentPurposeTransferUsAnthropicWhy =>
+      'Les documents passent par l\'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.';
+
+  @override
+  String get consentPurposeCoupleProjection => 'Projections de couple';
+
+  @override
+  String get consentPurposeCoupleProjectionWhy =>
+      'MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.';
+
+  @override
+  String get consentRevoke => 'Révoquer';
+
+  @override
+  String get consentCancel => 'Annuler';
+
+  @override
+  String get consentRevokeConfirmTitle => 'Révoquer ce consentement ?';
+
+  @override
+  String get consentRevokeConfirmBody =>
+      'Cette opération est immédiate et révocable à tout moment.';
+
+  @override
+  String get consentRevokeCascadeWarning =>
+      'La révocation programme la suppression cryptographique de tes documents sous 30 jours. Action irréversible au-delà.';
+
+  @override
+  String get consentBlockedUntilAccept =>
+      'Pour continuer, il faut accepter les consentements ci-dessus.';
+
+  @override
+  String get privacyCenterTitle => 'Ma vie privée';
+
+  @override
+  String get privacyCenterSectionActive => 'CONSENTEMENTS ACTIFS';
+
+  @override
+  String get privacyCenterSectionHistory => 'HISTORIQUE';
+
+  @override
+  String get privacyCenterEmpty => 'Aucun consentement actif pour le moment.';
+
+  @override
+  String get privacyCenterGrantedOn => 'Accordé le';
+
+  @override
+  String get privacyCenterRevokedOn => 'Révoqué le';
+
+  @override
+  String get policyDiffTitle => 'Mise à jour de la politique';
+
+  @override
+  String get policyDiffAcceptDelta => 'J\'ai lu et j\'accepte les changements';
+
+  @override
+  String batchValidationTitle(int count) {
+    return 'MINT a lu $count chiffres. Tout bon ?';
+  }
+
+  @override
+  String get batchValidationConfirmAll => 'Tout bon';
+
+  @override
+  String get batchValidationCorrectOne => 'Corriger un chiffre';
+
+  @override
+  String get batchValidationRejectAll => 'Rien ne colle';
+
+  @override
+  String get fieldCorrectionTitle => 'Corriger la valeur';
+
+  @override
+  String get fieldCorrectionSave => 'Enregistrer';
+
+  @override
+  String get fieldCorrectionCancel => 'Annuler';
+
+  @override
+  String get renderModeRejectBannerSanity =>
+      'Une valeur paraît impossible. MINT a préféré s\'arrêter.';
+
+  @override
+  String get renderModeRejectBannerGuard =>
+      'MINT n\'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.';
+
+  @override
+  String get humanReviewBadge => 'À vérifier par un œil humain';
+
+  @override
+  String get thirdPartyDeclarationTitle => 'Un moment avant de continuer';
+
+  @override
+  String thirdPartyDeclarationBody(String name) {
+    return 'Tu confirmes avoir obtenu le consentement de $name pour que MINT traite ce document ?';
+  }
+
+  @override
+  String thirdPartyDeclarationMultipleBody(String names) {
+    return 'Tu confirmes avoir obtenu le consentement de $names pour que MINT traite ce document ?';
+  }
+
+  @override
+  String get thirdPartyDeclarationConfirm => 'Oui, j\'ai son consentement';
+
+  @override
+  String get thirdPartyDeclarationCancel => 'Non, annuler l\'upload';
+
+  @override
+  String thirdPartyInviteCta(String name) {
+    return 'Inviter $name sur MINT';
+  }
+
+  @override
+  String get thirdPartyInviteComingSoon =>
+      'Invitation bientôt disponible — on note ton intention.';
+
+  @override
+  String get thirdPartyDeclarationNoticeLink =>
+      'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.';
 }

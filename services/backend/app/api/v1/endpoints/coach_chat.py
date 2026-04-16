@@ -59,8 +59,12 @@ from pydantic import BaseModel as _BaseModel
 
 logger = logging.getLogger(__name__)
 
-# SEC-6: PII patterns to scrub from user messages before LLM processing
-_PII_PATTERNS = [
+# SEC-6 / PRIV-03 — PII scrubbing now delegates to the centralized
+# privacy.pii_scrubber module (Presidio + custom CH recognizers + regex
+# fallback). The legacy regex list below is kept ONLY as the safety net
+# triggered if the privacy module fails to import (e.g. mis-configured
+# deploy). Normal path goes through ``_scrub_pii``'s wrapper.
+_LEGACY_PII_PATTERNS = [
     re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}"),  # IBAN
     re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),  # AHV/AVS
     re.compile(r"\b\d{4,7}\s*(?:CHF|francs?)\b", re.IGNORECASE),  # salary
@@ -68,10 +72,18 @@ _PII_PATTERNS = [
 
 
 def _scrub_pii(text: str) -> str:
-    """Remove PII patterns from text (defense-in-depth)."""
-    for pattern in _PII_PATTERNS:
-        text = pattern.sub("[***]", text)
-    return text
+    """Remove PII patterns from text. Delegates to privacy.pii_scrubber.
+
+    PRIV-03 — Phase 29 upgrade. Falls back to the legacy regex list only
+    if the privacy module is unavailable (defense-in-depth).
+    """
+    try:
+        from app.services.privacy.pii_scrubber import scrub
+        return scrub(text, mode="mask")
+    except Exception:  # pragma: no cover — should never trigger in prod
+        for pattern in _LEGACY_PII_PATTERNS:
+            text = pattern.sub("[***]", text)
+        return text
 
 
 router = APIRouter()
@@ -374,15 +386,22 @@ def _sanitize_conversation_history(
     """Sanitize conversation history: PII scrub + injection filter + limit.
 
     Threat mitigations:
-        T-20-01 (Tampering): role whitelist, 8-message cap, 500-char truncation
+        T-20-01 (Tampering): role whitelist, 16-message cap, 2000-char truncation
         T-20-02 (PII): regex scrub on user messages
         T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
-        T-20-04 (DoS): hard cap at 8 messages, 500 chars each
+        T-20-04 (DoS): hard cap at 16 messages, 2000 chars each
+
+    Gate 0 P0-2 fix (2026-04-15): caps were 8 msg / 500 chars which made
+    the coach lose context across more than 4-5 turns and truncated any
+    payload longer than 2 sentences. Bumped to 16 / 2000 — still bounded
+    enough for DoS protection, generous enough to keep multi-turn
+    threading coherent (Cleo-grade conversations average 12-14 turns
+    before topic shift).
     """
     if not history:
         return None
     sanitized: list[dict[str, str]] = []
-    for msg in history[-8:]:  # hard cap at 8 messages
+    for msg in history[-16:]:  # hard cap at 16 messages (was 8)
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role not in ("user", "assistant") or not content.strip():
@@ -393,8 +412,8 @@ def _sanitize_conversation_history(
                 content = pattern.sub("[***]", content)
             for pattern in _INJECTION_PATTERNS:
                 content = pattern.sub("", content)
-        # Truncate individual messages to 500 chars
-        content = content[:500]
+        # Truncate individual messages to 2000 chars (was 500)
+        content = content[:2000]
         sanitized.append({"role": role, "content": content})
     return sanitized if sanitized else None
 
@@ -434,16 +453,6 @@ _PROFILE_SAFE_FIELDS = {
     "years_since_last_buyback",
     # Planned contributions (consumed by claude_coach_service system prompt)
     "planned_contributions",
-    # BUG #2 FIX (2026-04-15): LPP salary + completion fields from persisted profile.
-    "lpp_insured_salary",
-    # Run-005 FIX (2026-04-15): salary income + wealth fields from
-    # /documents/scan-confirmation merge — the whitelist gated them out
-    # so even when persisted, the coach never saw them.
-    "income_gross_yearly",
-    "income_net_yearly",
-    "income_gross_monthly",
-    "wealth_estimate",
-    "commune",
 }
 
 
@@ -511,203 +520,6 @@ def _build_coach_context_from_profile(profile_context: Optional[dict]):
     except Exception as exc:
         logger.warning("Could not build CoachContext from profile_context: %s", exc)
         return None
-
-
-def _load_persisted_profile_fields(
-    user_id: Optional[str], db: Optional[Session]
-) -> dict:
-    """Read the authenticated user's ProfileModel and return a dict of fields
-    safe to inject into the coach context / system prompt.
-
-    BUG #2 FIX (2026-04-15): before this helper, /coach/chat relied entirely
-    on `profile_context` passed by Flutter. If the mobile cache was empty or
-    stale the coach would reply "je n'ai aucune donnee" even when the user
-    had a fully populated profile on the server. We now read the persisted
-    ProfileModel and merge it UNDER any fields Flutter explicitly sent (so
-    mobile-side overrides still win).
-
-    Privacy: we translate raw profile.data keys (which may include legacy
-    camelCase aliases) to the whitelisted CoachContext keys. No PII (name,
-    IBAN, employer, NPA) is ever extracted.
-    """
-    if not user_id or not db:
-        return {}
-    try:
-        from app.models.profile_model import ProfileModel as _PM
-
-        row = (
-            db.query(_PM)
-            .filter(_PM.user_id == str(user_id))
-            .order_by(_PM.updated_at.desc())
-            .first()
-        )
-    except Exception as exc:
-        logger.warning("coach_chat: profile lookup failed: %s", type(exc).__name__)
-        return {}
-    if row is None or not row.data:
-        return {}
-    d = row.data or {}
-    result: dict = {}
-    # Age: prefer explicit age, else derive from birthYear.
-    if d.get("age"):
-        result["age"] = int(d["age"])
-    elif d.get("birthYear"):
-        try:
-            from datetime import datetime as _dt
-            result["age"] = _dt.now().year - int(d["birthYear"])
-        except (TypeError, ValueError):
-            pass
-    if d.get("canton"):
-        result["canton"] = str(d["canton"])[:4]
-    # Archetype detection (minimal, safe fallback to swiss_native).
-    archetype = d.get("archetype")
-    if not archetype:
-        if d.get("employmentStatus") in ("independant", "self_employed"):
-            archetype = "independent_with_lpp" if d.get("has2ndPillar") else "independent_no_lpp"
-        else:
-            archetype = "swiss_native"
-    result["archetype"] = archetype
-    # Numeric fields: safe to inject.
-    # Run-005: added income_gross_yearly + income_net_yearly so the coach
-    # can answer "quel est mon salaire brut/net annuel" once the salary
-    # certificate has been confirmed (was returning "je n'ai pas ton brut").
-    _SAFE_NUMERIC_KEYS = {
-        "incomeNetMonthly": "monthly_income",
-        "incomeGrossYearly": "income_gross_yearly",
-        "incomeNetYearly": "income_net_yearly",
-        "incomeGrossMonthly": "income_gross_monthly",
-        "pillar3aAnnual": "annual_3a_contribution",
-        "lppInsuredSalary": "lpp_insured_salary",
-        "avoirLpp": "lpp_capital",
-        "lppTotalBalance": "lpp_capital",
-        "rachatMaximum": "lpp_buyback_max",
-        "lppBuybackMax": "lpp_buyback_max",
-        "pillar3aBalance": "existing_3a_ytd",
-        "wealthEstimate": "wealth_estimate",
-        "fortuneImposable": "wealth_estimate",
-    }
-    for src, dst in _SAFE_NUMERIC_KEYS.items():
-        v = d.get(src)
-        if v is not None and dst not in result:
-            try:
-                result[dst] = float(v)
-            except (TypeError, ValueError):
-                pass
-    # Civil/household
-    if d.get("householdType"):
-        ht = str(d["householdType"])
-        result["civil_status"] = ht
-        result["is_married"] = ht == "couple"
-    if d.get("employmentStatus"):
-        result["employment_status"] = str(d["employmentStatus"])
-    if d.get("has2ndPillar") is not None:
-        result["has_2nd_pillar"] = bool(d["has2ndPillar"])
-    return result
-
-
-def _build_user_facts_block(merged_profile: dict) -> str:
-    """Build a `<facts_user>` block for system prompt injection.
-
-    Mirrors the anonymous_chat `<facts_user>` contract but for authenticated
-    users. Lists only concrete numeric/categorical facts so Claude can cite
-    them verbatim. Returns empty string if no facts are available.
-    """
-    if not merged_profile:
-        return ""
-    lines: list[str] = []
-    age = merged_profile.get("age")
-    if age:
-        # Approximate birthYear for context (only if age is realistic).
-        try:
-            from datetime import datetime as _dt
-            by = _dt.now().year - int(age)
-            lines.append(f"- Age : {int(age)} ans (ne en {by})")
-        except Exception:
-            lines.append(f"- Age : {int(age)} ans")
-    if merged_profile.get("canton"):
-        lines.append(f"- Canton : {merged_profile['canton']}")
-    inc = merged_profile.get("monthly_income")
-    if inc:
-        lines.append(f"- Salaire net mensuel : {int(inc)} CHF")
-    inc_gross_yr = merged_profile.get("income_gross_yearly")
-    if inc_gross_yr:
-        lines.append(f"- Salaire brut annuel : {int(inc_gross_yr)} CHF")
-    inc_net_yr = merged_profile.get("income_net_yearly")
-    if inc_net_yr:
-        lines.append(f"- Salaire net annuel : {int(inc_net_yr)} CHF")
-    inc_gross_mo = merged_profile.get("income_gross_monthly")
-    if inc_gross_mo:
-        lines.append(f"- Salaire brut mensuel : {int(inc_gross_mo)} CHF")
-    lpp_sal = merged_profile.get("lpp_insured_salary")
-    if lpp_sal:
-        lines.append(f"- Salaire assure LPP : {int(lpp_sal)} CHF")
-    wealth = merged_profile.get("wealth_estimate")
-    if wealth:
-        lines.append(f"- Fortune imposable : {int(wealth)} CHF")
-    lpp_cap = merged_profile.get("lpp_capital")
-    if lpp_cap:
-        lines.append(f"- Avoir LPP total : {int(lpp_cap)} CHF")
-    buyback = merged_profile.get("lpp_buyback_max")
-    if buyback:
-        lines.append(f"- Rachat LPP max : {int(buyback)} CHF")
-    p3a = merged_profile.get("annual_3a_contribution")
-    if p3a:
-        lines.append(f"- Cotisation 3a annuelle : {int(p3a)} CHF")
-    if merged_profile.get("is_married"):
-        lines.append("- Couple : oui")
-    if merged_profile.get("employment_status"):
-        lines.append(f"- Statut : {merged_profile['employment_status']}")
-    if not lines:
-        return ""
-    out = [
-        "<facts_user>",
-        *lines,
-        "</facts_user>",
-        "Appuie-toi sur ces elements pour ancrer ta reponse. Cite-les explicitement quand l'utilisateur demande ce que tu sais de lui.",
-    ]
-    return "\n".join(out)
-
-
-# Regex to strip "**Header:**" style markdown doctrine leaks (Les faits,
-# Pour toi, Questions, Couche, etc.) from coach output. The 4-layer engine
-# is internal doctrine — never surfaced as headers in user-facing text.
-_MARKDOWN_HEADER_RE = re.compile(
-    r"(?im)^\s*\*\*\s*(les\s+faits|pour\s+toi|questions?|couche\s*\d|layer\s*\d|verdict|analyse)\b[^*\n]*\*\*\s*:?\s*",
-)
-
-# Coach response hard length cap. 5 FR sentences ≈ richer than anonymous
-# (3) but still bounded — tighter than Claude's natural verbosity.
-COACH_RESPONSE_MAX_SENTENCES = 5
-# 400 tokens ≈ 6-8 short FR sentences (buffer above the post-hoc cap so
-# Claude doesn't cut a sentence mid-word before we can trim).
-COACH_RESPONSE_MAX_TOKENS = 400
-
-
-def _enforce_coach_length(text: str) -> str:
-    """Post-process a coach answer: strip markdown doctrine headers and
-    truncate to COACH_RESPONSE_MAX_SENTENCES.
-
-    BUG #3 FIX (2026-04-15): /coach/chat previously had NO length cap.
-    Claude returned 14-sentence / 177-word answers with "**Les faits :**"
-    and "**Pour toi :**" style headers — a direct leak of the 4-layer
-    doctrine that must remain INTERNAL.
-    """
-    if not text:
-        return text
-    # 1. Strip doctrine headers everywhere (not just line starts, in case
-    # Claude inlines them after whitespace).
-    cleaned = _MARKDOWN_HEADER_RE.sub("", text)
-    # Collapse empty lines created by header stripping.
-    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
-    # 2. Truncate to max sentences using the guardrails helper.
-    try:
-        from app.services.rag.guardrails import ComplianceGuardrails
-        cleaned, _ = ComplianceGuardrails.truncate_to_sentences(
-            cleaned, max_sentences=COACH_RESPONSE_MAX_SENTENCES,
-        )
-    except Exception as exc:
-        logger.debug("coach length trim fallback: %s", type(exc).__name__)
-    return cleaned
 
 
 def _build_commitment_memory_block(user_id: Optional[str], db: Optional[Session] = None) -> str:
@@ -1029,11 +841,295 @@ def _handle_retrieve_memories(
 # Agent loop — tool_use -> execute -> re-call LLM
 # ---------------------------------------------------------------------------
 
-MAX_AGENT_LOOP_ITERATIONS = 3  # Reduced from 5: 3 iterations sufficient for tool_use + response
+def _compute_suggested_actions(
+    user_id: Optional[str],
+    db: Optional[Session],
+) -> list[dict[str, str]]:
+    """Compute 2-3 personalized next actions from profile state.
+
+    Returns a list of {label, type} dicts. 'type' is one of:
+      question — ask the user for missing data
+      upload   — suggest uploading a document
+      simulate — suggest running a calculator
+      budget   — suggest budget setup
+    """
+    actions: list[dict[str, str]] = []
+    if not user_id or not db:
+        return [{"label": "Dis-moi ton âge et ton canton pour commencer", "type": "question"}]
+
+    try:
+        from app.models.profile_model import ProfileModel as _PM
+        profile = (
+            db.query(_PM)
+            .filter(_PM.user_id == user_id)
+            .order_by(_PM.updated_at.desc())
+            .first()
+        )
+        data = dict(profile.data or {}) if profile else {}
+    except Exception:
+        return [{"label": "Parle-moi de ta situation financière", "type": "question"}]
+
+    # Profile gaps → question chips
+    if not data.get("birthYear"):
+        actions.append({"label": "Quel âge as-tu ?", "type": "question"})
+    if not data.get("canton"):
+        actions.append({"label": "Dans quel canton vis-tu ?", "type": "question"})
+    if not data.get("incomeNetMonthly") and not data.get("incomeGrossYearly"):
+        actions.append({"label": "Quel est ton salaire net mensuel ?", "type": "question"})
+
+    if len(actions) >= 3:
+        return actions[:3]
+
+    # Document gaps → upload chips
+    if not data.get("avoirLpp"):
+        actions.append({"label": "Upload ton certificat LPP", "type": "upload"})
+
+    if len(actions) >= 3:
+        return actions[:3]
+
+    # Budget gap
+    budget = data.get("budget") or {}
+    if not budget.get("fixed_lines"):
+        actions.append({"label": "Configure ton budget mensuel", "type": "budget"})
+
+    if len(actions) >= 3:
+        return actions[:3]
+
+    # Simulation suggestions based on available data
+    if data.get("avoirLpp") and data.get("lppBuybackMax"):
+        actions.append({"label": "Simule un plan de rachat LPP", "type": "simulate"})
+    elif data.get("avoirLpp"):
+        actions.append({"label": "Compare rente vs capital à 65 ans", "type": "simulate"})
+
+    if data.get("incomeNetMonthly") and not data.get("pillar3aAnnual"):
+        actions.append({"label": "Combien verses-tu en 3a par an ?", "type": "question"})
+
+    if data.get("hasDebt") is True and not data.get("totalDebt"):
+        actions.append({"label": "Quel est le montant total de tes dettes ?", "type": "question"})
+
+    if not actions:
+        actions.append({"label": "Pose-moi une question sur ta situation", "type": "question"})
+
+    return actions[:3]
+
+
+MAX_AGENT_LOOP_ITERATIONS = 4  # v2.7: 3→4 to allow one reflective retry on empty end_turn
 MAX_AGENT_LOOP_TOKENS = 8000
+
+# save_fact whitelist: only these ProfileModel.data keys can be written from
+# conversational tool calls. Mirrors the enum exposed in coach_tools.py so
+# the two stay in lockstep. Any key not in this set is rejected.
+_SAVE_FACT_ALLOWED_KEYS: set[str] = {
+    # Identity / location
+    "birthYear", "dateOfBirth", "canton", "commune",
+    "householdType", "employmentStatus", "has2ndPillar",
+    "goal", "targetRetirementAge", "gender",
+    # Income
+    "incomeNetMonthly", "incomeGrossMonthly",
+    "incomeNetYearly", "incomeGrossYearly",
+    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    # LPP
+    "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
+    "avoirLppSurobligatoire", "lppBuybackMax", "hasVoluntaryLpp",
+    # 3a
+    "pillar3aAnnual", "pillar3aBalance",
+    # Savings / wealth / debt
+    "savingsMonthly", "totalSavings", "wealthEstimate",
+    "hasDebt", "totalDebt",
+    # Spouse
+    "spouseBirthYear", "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears",
+    # AVS
+    "hasAvsGaps", "avsContributionYears",
+}
+
+_SAVE_FACT_NUMERIC_KEYS: set[str] = {
+    "birthYear", "targetRetirementAge", "incomeNetMonthly",
+    "incomeGrossMonthly", "incomeNetYearly", "incomeGrossYearly",
+    "selfEmployedNetIncome", "employmentRate", "annualBonus",
+    "lppInsuredSalary", "avoirLpp", "avoirLppObligatoire",
+    "avoirLppSurobligatoire", "lppBuybackMax",
+    "pillar3aAnnual", "pillar3aBalance", "savingsMonthly",
+    "totalSavings", "wealthEstimate", "totalDebt",
+    "spouseBirthYear", "spouseIncomeNetMonthly",
+    "spouseAvsContributionYears", "avsContributionYears",
+}
+
+_SAVE_FACT_BOOL_KEYS: set[str] = {
+    "has2ndPillar", "hasVoluntaryLpp", "hasDebt", "hasAvsGaps",
+}
+
+# Enum constraints for string-valued keys. Keys NOT in this dict accept
+# any non-empty string (commune, dateOfBirth). Keys IN this dict reject
+# values outside the set — prevents Claude from persisting typos like
+# "coupl" for householdType which silently breaks couple logic.
+_SAVE_FACT_ENUM_VALUES: dict[str, set[str]] = {
+    "householdType": {"single", "couple", "concubine", "family"},
+    "employmentStatus": {
+        "salarie", "independant", "retraite",
+        "employee", "self_employed", "retired",
+        "mixed", "unemployed", "student",
+    },
+    "goal": {"house", "retire", "emergency", "invest", "optimize_taxes", "other"},
+    "gender": {"M", "F"},
+    "canton": {
+        "AG", "AI", "AR", "BE", "BL", "BS", "FR", "GE", "GL", "GR",
+        "JU", "LU", "NE", "NW", "OW", "SG", "SH", "SO", "SZ", "TG",
+        "TI", "UR", "VD", "VS", "ZG", "ZH",
+    },
+}
+
+
+def _coerce_fact_value(key: str, value):
+    """Coerce an LLM-provided value into the expected column type.
+
+    Returns None when the value cannot be safely coerced — caller reports
+    an error back to Claude so it can ask the user to restate.
+    """
+    if value is None:
+        return None
+    if key in _SAVE_FACT_NUMERIC_KEYS:
+        try:
+            if isinstance(value, bool):  # bool is a subclass of int in Python
+                return None
+            if isinstance(value, (int, float)):
+                return float(value)
+            if isinstance(value, str):
+                cleaned = value.replace("'", "").replace(" ", "").replace(",", ".")
+                return float(cleaned)
+        except (TypeError, ValueError):
+            return None
+        return None
+    if key in _SAVE_FACT_BOOL_KEYS:
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, str):
+            v = value.strip().lower()
+            if v in {"true", "yes", "oui", "1"}:
+                return True
+            if v in {"false", "no", "non", "0"}:
+                return False
+        return None
+    # String-valued keys with enum validation. Unknown values are rejected
+    # so Claude can't persist "coupl" as householdType and silently break
+    # downstream logic (audit finding 2026-04-16).
+    if isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            return None
+        valid = _SAVE_FACT_ENUM_VALUES.get(key)
+        if valid is not None and stripped not in valid:
+            return None
+        return stripped
+    return None
 AGENT_LOOP_DEADLINE_SECONDS = 55  # Total wall-clock cap — leaves margin before Gunicorn's 120s
 AGENT_ITERATION_TIMEOUT_SECONDS = 25  # Per-iteration cap — one hung API call doesn't consume all time
 MAX_REQUEST_TOKENS = 4000  # Per-request budget
+
+# v2.7 STAB-02 Task 3: Graceful model fallback chain.
+# When Sonnet fails with CoachUpstreamError (429/5xx/529 retries exhausted) or
+# exceeds FALLBACK_TIMEOUT_SECONDS, we retry ONCE with Haiku 4.5 using a
+# truncated message tail (system + last 10 conversation turns max). This keeps
+# the coach responsive under upstream pressure and flags the response as
+# `degraded=True` so Flutter can surface a subtle "Réponse rapide" chip.
+PRIMARY_MODEL_DEFAULT = "claude-sonnet-4-5-20250929"
+FALLBACK_MODEL_HAIKU = "claude-haiku-4-5-20251001"
+FALLBACK_TIMEOUT_SECONDS = 20
+FALLBACK_HISTORY_MAX_TURNS = 10
+
+# v2.7 Task 4: hard-cap user-facing text (FR only in backend; mobile
+# MUST re-localize via ARB key coach.budget.daily_limit_reached).
+HARD_CAP_MESSAGE_FR_FALLBACK = (
+    "On a déjà bien avancé aujourd'hui. Repose-toi, je t'attends demain."
+)
+
+
+async def _call_with_fallback(
+    orchestrator,
+    *,
+    question: str,
+    api_key: str,
+    provider: str,
+    model: Optional[str],
+    profile_context: Optional[dict],
+    language: str,
+    tools: list,
+    system_prompt: str,
+    user_id,
+    conversation_history: Optional[list],
+) -> tuple[dict, dict]:
+    """Call orchestrator.query() with Sonnet→Haiku graceful degradation.
+
+    Returns:
+        (result, degraded_meta) — degraded_meta = {degraded: bool, model_used: str}
+
+    Behavior:
+        1. Primary attempt: requested model (default Sonnet 4.5).
+        2. On CoachUpstreamError OR asyncio.TimeoutError at
+           FALLBACK_TIMEOUT_SECONDS → retry with Haiku 4.5 + truncated history.
+        3. If provider != 'claude' or already Haiku, no fallback.
+
+    Fail-open: if even Haiku fails, re-raise so the existing outer handler
+    returns the calm 502/template answer.
+    """
+    from app.services.rag.llm_client import CoachUpstreamError
+
+    primary_model = model or PRIMARY_MODEL_DEFAULT
+    can_fallback = (
+        provider == "claude"
+        and primary_model != FALLBACK_MODEL_HAIKU
+    )
+
+    async def _do_query(q_model: str, q_history):
+        return await orchestrator.query(
+            question=question,
+            api_key=api_key,
+            provider=provider,
+            model=q_model,
+            profile_context=profile_context,
+            language=language,
+            tools=tools,
+            system_prompt=system_prompt,
+            user_id=user_id,
+            conversation_history=q_history,
+        )
+
+    try:
+        if can_fallback:
+            result = await asyncio.wait_for(
+                _do_query(primary_model, conversation_history),
+                timeout=FALLBACK_TIMEOUT_SECONDS,
+            )
+        else:
+            result = await _do_query(primary_model, conversation_history)
+        return result, {"degraded": False, "model_used": primary_model}
+    except (CoachUpstreamError, asyncio.TimeoutError) as exc:
+        if not can_fallback:
+            raise
+        logger.warning(
+            "coach_chat model fallback Sonnet→Haiku user=%s reason=%s",
+            user_id, type(exc).__name__,
+        )
+        truncated = (
+            conversation_history[-FALLBACK_HISTORY_MAX_TURNS:]
+            if conversation_history else None
+        )
+        result = await _do_query(FALLBACK_MODEL_HAIKU, truncated)
+        return result, {"degraded": True, "model_used": FALLBACK_MODEL_HAIKU}
+
+# v2.7 STAB-01: Re-prompt strings for content-block edge cases.
+# Anthropic Sonnet 4.5 (oct 2025+) occasionally returns stop_reason=end_turn with
+# empty text and no tool_use. Without an explicit re-prompt we exit the loop with
+# answer="" and the user sees the safe fallback. One extra iteration fixes this.
+_REPROMPT_EMPTY_NARRATION = (
+    "Tu viens d'émettre des actions UI mais pas de message texte. "
+    "Maintenant écris ta réponse à l'utilisateur en texte clair "
+    "(verdict-first, max 4 phrases, pas de préambule)."
+)
+_REPROMPT_EMPTY_END_TURN = (
+    "Tu n'as rien écrit pour l'utilisateur. Écris maintenant ta réponse "
+    "en français, 1 à 3 phrases claires, sans préambule. Réponds à la question initiale."
+)
 
 
 def _execute_internal_tool(
@@ -1122,16 +1218,6 @@ def _execute_internal_tool(
     # STAB-12 (07-04): set_goal / mark_step_completed are acknowledgement-only tools.
     # They let the LLM track conversational state without rendering a widget.
     # save_insight was upgraded to persist to DB in Phase 21 (CTX-02).
-    if name == "suggest_followups":
-        # Handled by the agent loop: results are captured into the response's
-        # follow_up_questions field, not returned as tool_result text. We just
-        # return an ack so Claude knows the call succeeded. Extraction of the
-        # questions happens at the loop level (see _run_agent_loop).
-        raw_qs = tool_input.get("questions")
-        count = len(raw_qs) if isinstance(raw_qs, list) else 0
-        logger.info("suggest_followups received %d question(s)", count)
-        return "Follow-ups notés."
-
     if name == "set_goal":
         goal = tool_input.get("goal") or tool_input.get("title") or ""
         logger.info("set_goal ack (non-persisted): %s", goal[:100])
@@ -1227,6 +1313,74 @@ def _execute_internal_tool(
                 logger.warning("Could not mirror insight to profile: %s", mirror_exc)
                 db.rollback()
         return f"Insight enregistré : {summary}" if summary else "Insight enregistré."
+
+    # ─────────────────────────────────────────────────────────────────
+    # save_fact — WRITE typed fact directly into ProfileModel.data so
+    # downstream calculators read it. Whitelist-guarded; unknown keys
+    # are rejected so Claude can't invent columns.
+    # ─────────────────────────────────────────────────────────────────
+    if name == "save_fact":
+        fact_key = tool_input.get("key", "")
+        fact_value = tool_input.get("value")
+        fact_conf = tool_input.get("confidence", "medium")
+        if fact_key not in _SAVE_FACT_ALLOWED_KEYS:
+            logger.info("save_fact rejected unknown key: %s", fact_key[:40])
+            return (
+                f"[save_fact ÉCHEC: clé inconnue '{fact_key}'] "
+                "Utilise une des clés canoniques définies dans le schema."
+            )
+        if fact_conf == "low":
+            return (
+                "Pour cette info j'aimerais qu'on soit plus sûr — "
+                "tu peux me le redire plus précisément ?"
+            )
+        if user_id and db:
+            try:
+                from app.models.profile_model import ProfileModel as _PM
+
+                profile = (
+                    db.query(_PM)
+                    .filter(_PM.user_id == user_id)
+                    .order_by(_PM.updated_at.desc())
+                    .first()
+                )
+                if profile is None:
+                    return "[save_fact ÉCHEC: profil introuvable]"
+                data = dict(profile.data or {})
+                # Coerce basic types: numbers come back as int/float from
+                # Claude; booleans as true/false; strings untouched.
+                coerced = _coerce_fact_value(fact_key, fact_value)
+                if coerced is None:
+                    return (
+                        f"[save_fact ÉCHEC: valeur invalide pour '{fact_key}']"
+                    )
+                data[fact_key] = coerced
+                profile.data = data
+                profile.updated_at = datetime.now(timezone.utc)
+                db.add(profile)
+                db.commit()
+                logger.info(
+                    "save_fact: user=%s key=%s value=%r conf=%s",
+                    str(user_id)[:8] + "...",
+                    fact_key,
+                    coerced,
+                    fact_conf,
+                )
+                return f"Fait enregistré : {fact_key} = {coerced}"
+            except Exception as exc:
+                db.rollback()
+                logger.exception("save_fact DB commit failed: %s", fact_key)
+                return f"[save_fact ÉCHEC: {type(exc).__name__}]"
+        return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+
+    # ─────────────────────────────────────────────────────────────────
+    # suggest_actions — READ: dynamic chips from profile gaps + financial
+    # state. Gate 0 #6: replaces static chips with contextual next steps.
+    # ─────────────────────────────────────────────────────────────────
+    if name == "suggest_actions":
+        suggestions = _compute_suggested_actions(user_id, db)
+        import json as _json
+        return _json.dumps(suggestions, ensure_ascii=False)
 
     # P14 commitment devices — ack-only handlers (CMIT-01, CMIT-05)
     # Actual DB persistence happens via dedicated endpoint (Plan 02).
@@ -1618,12 +1772,15 @@ async def _run_agent_loop(
     flutter_tool_calls: list = []
     all_sources: list = []
     all_disclaimers: list = []
-    follow_up_questions: list[str] = []
     total_tokens = 0
     request_tokens_used = 0
     final_answer = ""
     current_question = question
     answer_text = ""  # initialized to prevent NameError in for/else
+    # v2.7 STAB-02 Task 3: track degraded state across iterations.
+    # Any single iteration that falls back to Haiku marks the whole response.
+    degraded_any = False
+    model_used_last = model or PRIMARY_MODEL_DEFAULT
     # P0-5: Counter for unknown tool calls — stop loop after 2 to prevent infinite retry
     _MAX_UNKNOWN_TOOL_CALLS = 2
     unknown_tool_count = 0
@@ -1647,8 +1804,13 @@ async def _run_agent_loop(
             # context from the first call's response.
             iter_history = conversation_history if iteration == 0 else None
 
-            result = await asyncio.wait_for(
-                orchestrator.query(
+            # v2.7 Task 3: route through graceful model fallback (Sonnet→Haiku).
+            # _call_with_fallback has its own inner timeout; outer wait_for keeps
+            # AGENT_ITERATION_TIMEOUT_SECONDS as a hard upper bound for the
+            # primary + fallback path combined.
+            result, degraded_meta = await asyncio.wait_for(
+                _call_with_fallback(
+                    orchestrator,
                     question=current_question,
                     api_key=api_key,
                     provider=provider,
@@ -1662,6 +1824,9 @@ async def _run_agent_loop(
                 ),
                 timeout=AGENT_ITERATION_TIMEOUT_SECONDS,
             )
+            if degraded_meta.get("degraded"):
+                degraded_any = True
+            model_used_last = degraded_meta.get("model_used", model_used_last)
         except asyncio.TimeoutError:
             logger.warning(
                 "Agent iteration %d timed out after %ds for user %s",
@@ -1730,33 +1895,27 @@ async def _run_agent_loop(
         flutter_tool_calls.extend(external_calls)
 
         # If no internal tools to execute, we're done — but only if Claude
-        # actually produced text. If answer_text is empty (Claude only emitted
-        # external/Flutter-bound tool calls without narration), force one more
-        # iteration without tools so Claude generates the user-facing reply.
+        # actually produced text. If answer_text is empty, we have two edge
+        # cases to cover (v2.7 STAB-01):
+        #   (a) Claude emitted external/Flutter tools without narration →
+        #       re-prompt for the user-facing reply.
+        #   (b) Claude emitted neither text nor tools (Sonnet 4.5 empty end_turn
+        #       bug) → reflective re-prompt forcing a plain-text answer.
         if not internal_calls:
             if answer_text and answer_text.strip():
                 final_answer = answer_text
                 break
-            # Empty text + only external/Flutter tools → re-prompt for narration
-            current_question = (
-                "Tu viens d'émettre des actions UI mais pas de message texte. "
-                "Maintenant écris ta réponse à l'utilisateur en texte clair "
-                "(verdict-first, max 4 phrases, pas de préambule)."
-            )
+            if external_calls:
+                # (a) tools emitted, no text → ask for narration
+                current_question = _REPROMPT_EMPTY_NARRATION
+            else:
+                # (b) empty end_turn with no tools → reflective retry
+                logger.warning(
+                    "Agent loop iter %d: empty end_turn with no tool_use (user=%s) — reflective retry",
+                    iteration, user_id,
+                )
+                current_question = _REPROMPT_EMPTY_END_TURN
             continue
-
-        # Capture suggest_followups inputs (never re-injected as text —
-        # surfaced on the final response via follow_up_questions).
-        for call in internal_calls:
-            if call.get("name") == "suggest_followups":
-                raw_qs = call.get("input", {}).get("questions")
-                if isinstance(raw_qs, list):
-                    for q in raw_qs:
-                        if not isinstance(q, str):
-                            continue
-                        q_clean = q.strip()
-                        if q_clean:
-                            follow_up_questions.append(q_clean[:160])
 
         # Execute internal tools and collect results
         tool_results: list = []
@@ -1806,24 +1965,14 @@ async def _run_agent_loop(
             seen_sources.add(key)
             unique_sources.append(source)
 
-    # Dedup follow-ups and silently cap at 2 (schema will re-cap anyway —
-    # belt-and-braces against duplicate LLM calls across iterations).
-    seen_fu: set = set()
-    unique_fu: list[str] = []
-    for q in follow_up_questions:
-        if q not in seen_fu:
-            seen_fu.add(q)
-            unique_fu.append(q)
-        if len(unique_fu) >= 2:
-            break
-
     return {
         "answer": final_answer,
         "tool_calls": flutter_tool_calls if flutter_tool_calls else None,
         "sources": unique_sources,
         "disclaimers": list(set(all_disclaimers)),
         "tokens_used": total_tokens,
-        "follow_up_questions": unique_fu,
+        "degraded": degraded_any,
+        "model_used": model_used_last,
     }
 
 
@@ -1866,6 +2015,10 @@ async def coach_chat(
         502: LLM API call failed.
         503: RAG dependencies not installed.
     """
+    # v2.7 Task 6: latency timer for SLO monitor.
+    import time as _time
+    _req_start_ms = _time.monotonic() * 1000.0
+
     # Entitlement gate: coachLlm requires Premium or higher.
     # TODO(billing): Re-enable full entitlement gate when billing goes live.
     # BETA EXCEPTION: When using server-side API key (no BYOK), allow all
@@ -1889,32 +2042,6 @@ async def coach_chat(
     # ------------------------------------------------------------------
     safe_profile = _sanitize_profile_context(body.profile_context)
     safe_history = _sanitize_conversation_history(body.conversation_history)
-
-    # BUG #2 FIX (2026-04-15): merge server-persisted profile into safe_profile.
-    # Mobile may not always pass a complete profile_context (cold start,
-    # empty cache, race). Reading ProfileModel guarantees the coach sees
-    # the user's real data even if Flutter sent `{}`.
-    try:
-        persisted = _load_persisted_profile_fields(
-            str(_user.id) if _user else None, db
-        )
-        if persisted:
-            # Mobile-provided fields win (they may reflect fresher in-session
-            # edits not yet PATCHed). Persisted fields fill the gaps.
-            for k, v in persisted.items():
-                if k in _PROFILE_SAFE_FIELDS and safe_profile.get(k) in (None, ""):
-                    safe_profile[k] = v
-            logger.info(
-                "coach_chat: merged %d field(s) from ProfileModel for user=%s... keys=%s",
-                len(persisted),
-                str(_user.id)[:8] if _user else "?",
-                sorted(persisted.keys()),
-            )
-    except Exception as persist_exc:
-        logger.warning(
-            "coach_chat: persisted profile merge failed: %s",
-            type(persist_exc).__name__,
-        )
 
     # ------------------------------------------------------------------
     # Step 0.5: Resolve API key — BYOK or server-side default
@@ -2042,24 +2169,6 @@ async def coach_chat(
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
-    # BUG #2 FIX (2026-04-15): inject `<facts_user>` block so Claude cites
-    # the user's real numbers when asked "que sais-tu de moi ?". Without
-    # this block the model falls back to "je n'ai aucune donnee".
-    facts_block = _build_user_facts_block(safe_profile)
-    if facts_block:
-        system_prompt = system_prompt + "\n\n" + facts_block
-
-    # BUG #3 FIX (2026-04-15): strict length + no-markdown-header directive.
-    # Mirrors the tight cap already enforced on /anonymous/chat.
-    system_prompt = system_prompt + "\n\n" + (
-        "LONGUEUR STRICTE :\n"
-        f"- Reponse en {COACH_RESPONSE_MAX_SENTENCES} phrases MAXIMUM, jamais plus.\n"
-        "- Premiere ligne = verdict ou chiffre concret. Pas de preambule type 'Voici...'.\n"
-        "- AUCUN en-tete en gras type '**Les faits :**', '**Pour toi :**', '**Questions :**',\n"
-        "  '**Couche 1/2/3/4**' — c'est la doctrine interne des 4 couches, jamais visible.\n"
-        "- Prose continue. Pas de listes a puces sauf demande explicite 'liste'."
-    )
-
     # P3-B readiness metric: track system prompt size for multi-agent trigger.
     # When tokens_est > 3500 regularly, activate domain-specific prompt routing.
     prompt_len = len(system_prompt)
@@ -2081,6 +2190,43 @@ async def coach_chat(
         orchestrator = _NoRagOrchestrator()
 
     # ------------------------------------------------------------------
+    # Step 3.5: v2.7 Task 4 — token budget pre-check.
+    # Hard cap → return calm message without calling the LLM.
+    # Soft cap / truncate → model recommendation overrides body.model.
+    # Fail-open: on Redis error, budget.current_state() returns tier=normal.
+    # ------------------------------------------------------------------
+    from app.services.coach.token_budget import TokenBudget
+    budget = TokenBudget()
+    budget_state = await budget.current_state(str(_user.id)) if _user else None
+    if budget_state and budget_state.tier == "hard_cap":
+        logger.info(
+            "coach_chat hard_cap user=%s used=%d/%d",
+            _user.id, budget_state.used, budget_state.limit,
+        )
+        return CoachChatResponse(
+            message=budget_state.hard_cap_message or HARD_CAP_MESSAGE_FR_FALLBACK,
+            tool_calls=None,
+            sources=[],
+            disclaimers=[],
+            tokens_used=0,
+            system_prompt_used=True,
+            response_meta={
+                "degraded": True,
+                "model_used": FALLBACK_MODEL_HAIKU,
+                "budget_tier": "hard_cap",
+            },
+        )
+    # Budget overrides body.model when soft_cap/truncate active.
+    effective_model: Optional[str] = body.model
+    budget_tier = budget_state.tier if budget_state else "normal"
+    if budget_state and budget_state.tier in ("soft_cap", "truncate"):
+        effective_model = budget_state.recommended_model
+        logger.info(
+            "coach_chat budget tier=%s user=%s switching to %s",
+            budget_state.tier, _user.id, effective_model,
+        )
+
+    # ------------------------------------------------------------------
     # Step 4: Agent loop — tool_use -> execute -> re-call LLM
     # Internal tools (retrieve_memories) are executed and their results
     # fed back to the LLM for a contextually enriched final answer.
@@ -2094,7 +2240,7 @@ async def coach_chat(
                 question=body.message,
                 api_key=effective_api_key,
                 provider=body.provider,
-                model=body.model,
+                model=effective_model,
                 profile_context=safe_profile,
                 language=body.language,
                 memory_block=effective_memory_block,
@@ -2118,6 +2264,8 @@ async def coach_chat(
             "sources": [],
             "disclaimers": [],
             "tokens_used": 0,
+            "degraded": True,
+            "model_used": PRIMARY_MODEL_DEFAULT,
         }
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid request parameters")
@@ -2161,24 +2309,37 @@ async def coach_chat(
     # The orchestrator already ran ComplianceGuard (guardrails.filter_response)
     # on each iteration.  Only non-internal tool_calls are returned.
     # ------------------------------------------------------------------
-    # BUG #3 FIX (2026-04-15): hard length cap + markdown header scrub.
-    # Applied AFTER compliance filter so the cap is the last word on the
-    # text that reaches the client.
-    final_answer = _enforce_coach_length(loop_result["answer"])
-    if final_answer != loop_result["answer"]:
-        logger.info(
-            "coach_chat length enforcement: %d chars -> %d chars",
-            len(loop_result["answer"]),
-            len(final_answer),
-        )
+    # v2.7 Task 6: SLO metrics (fire-and-forget, fail-open).
+    try:
+        from app.services.slo_monitor import record_response
+        _latency_ms = int(_time.monotonic() * 1000.0 - _req_start_ms)
+        asyncio.create_task(record_response(
+            degraded=bool(loop_result.get("degraded", False)),
+            fallback=not bool(loop_result.get("answer", "").strip()),
+            latency_ms=_latency_ms,
+        ))
+    except Exception:
+        pass
+
+    # v2.7 Task 4: consume actual tokens from this request (fail-open).
+    if _user and loop_result.get("tokens_used", 0) > 0:
+        try:
+            await budget.consume(str(_user.id), int(loop_result["tokens_used"]))
+        except Exception as exc:  # pragma: no cover — defensive
+            logger.warning("token_budget consume failed user=%s err=%s", _user.id, exc)
+
     return CoachChatResponse(
-        message=final_answer,
+        message=loop_result["answer"],
         tool_calls=loop_result["tool_calls"],
         sources=loop_result["sources"],
         disclaimers=loop_result["disclaimers"],
         tokens_used=loop_result["tokens_used"],
         system_prompt_used=True,
-        follow_up_questions=loop_result.get("follow_up_questions", []),
+        response_meta={
+            "degraded": bool(loop_result.get("degraded", False)),
+            "model_used": loop_result.get("model_used", PRIMARY_MODEL_DEFAULT),
+            "budget_tier": budget_tier,
+        },
     )
 
 

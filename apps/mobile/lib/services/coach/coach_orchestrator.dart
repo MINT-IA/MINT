@@ -109,7 +109,7 @@ class CoachOrchestrator {
   /// Set to 60s to handle Railway cold starts on the server-key tier
   /// (first request after worker restart takes ~20-25s due to ChromaDB
   /// vector store initialization + RAG retrieval + Claude agent loop).
-  static const Duration _byokTimeout = Duration(seconds: 60);
+  static const Duration _byokTimeout = Duration(seconds: 20);
 
   /// Average chars per token (French with accents).
   static const double _charsPerToken = 3.5;
@@ -252,113 +252,8 @@ class CoachOrchestrator {
       if (serverKeyResponse != null) return serverKeyResponse;
     }
 
-    // 2.75. Anonymous tier — calls /anonymous/chat (no auth required).
-    // Bridges the gap when user is not logged in OR the server-key path
-    // failed for any reason (401, 5xx, timeout). Without this, every cold
-    // open of the coach screen pre-auth dead-ends in the "Coach IA pas
-    // disponible" template — which is technically true (the LLM is fine, the
-    // app just didn't have credentials) but reads to the user as "broken".
-    if (!FeatureFlags.safeModeDegraded) {
-      final anonymousResponse = await _tryAnonymousChat(
-        userMessage: userMessage,
-        language: language,
-      );
-      if (anonymousResponse != null) return anonymousResponse;
-    }
-
     // 3. Mock fallback (no LLM, keyword-based)
     return _chatFallback(language);
-  }
-
-  /// Tier-level timeout for the anonymous fallback.
-  ///
-  /// `sendAnonymousMessage` already has an internal 30 s HTTP timeout, but
-  /// that is too long for a *fallback* tier — we have already spent up to
-  /// [_byokTimeout] on the server-key tier before landing here, and the
-  /// whole chat turn has a UI-level budget around 20 s before users walk
-  /// away.  Cap the tier at 8 s so tests without an HTTP mock fail fast
-  /// (`pumpAndSettle` needs to settle within a reasonable window) and so
-  /// prod users get the calm template response before losing patience.
-  static const Duration _anonymousTierTimeout = Duration(seconds: 8);
-
-  /// Anonymous chat fallback — calls /anonymous/chat which doesn't require a
-  /// JWT. Used when the user is not authenticated yet, when their token is
-  /// expired, or when the server-key path returned null. Returns null on hard
-  /// failure (network, rate-limit, empty body, timeout) so the orchestrator
-  /// can fall through to the localized template.
-  static Future<CoachResponse?> _tryAnonymousChat({
-    required String userMessage,
-    String language = 'fr',
-  }) async {
-    try {
-      final response = await CoachChatApiService.sendAnonymousMessage(
-        message: userMessage,
-        language: language,
-      ).timeout(
-        _anonymousTierTimeout,
-        onTimeout: () => {'error': true},
-      );
-
-      if (response['error'] == true) return null;
-      final text = (response['message'] as String? ?? '').trim();
-      if (text.isEmpty) return null;
-
-      // Apply ComplianceGuard so anonymous output gets the same scrub as
-      // server-key output (defense-in-depth — backend already guards but
-      // never trust upstream alone).
-      try {
-        final compliance = ComplianceGuard.validate(
-          text,
-          context: const CoachContext(),
-          componentType: ComponentType.general,
-        );
-        // Anonymous responses come from a stripped discovery prompt; if the
-        // guard rejects them outright we just fall through to the template
-        // so the user gets a calm error rather than a guarded sentence.
-        if (compliance.useFallback) return null;
-        final safeText = compliance.sanitizedText.isNotEmpty
-            ? compliance.sanitizedText
-            : text;
-        final disclaimers =
-            (response['disclaimers'] as List?)?.cast<String>() ?? const [];
-        final followUps = (response['followUpQuestions'] as List?)
-                ?.whereType<String>()
-                .map((s) => s.trim())
-                .where((s) => s.isNotEmpty)
-                .take(2)
-                .toList() ??
-            const <String>[];
-        return CoachResponse(
-          message: safeText,
-          disclaimer: ComplianceGuard.standardDisclaimer,
-          disclaimers: disclaimers,
-          wasFiltered: !compliance.isCompliant,
-          followUpQuestions: followUps,
-        );
-      } catch (_) {
-        // ComplianceGuard crash on anonymous text — return raw with the
-        // standard disclaimer rather than swallow the response.
-        final disclaimers =
-            (response['disclaimers'] as List?)?.cast<String>() ?? const [];
-        final followUps = (response['followUpQuestions'] as List?)
-                ?.whereType<String>()
-                .map((s) => s.trim())
-                .where((s) => s.isNotEmpty)
-                .take(2)
-                .toList() ??
-            const <String>[];
-        return CoachResponse(
-          message: text,
-          disclaimer: ComplianceGuard.standardDisclaimer,
-          disclaimers: disclaimers,
-          wasFiltered: false,
-          followUpQuestions: followUps,
-        );
-      }
-    } catch (e) {
-      debugPrint('[Orchestrator] Anonymous chat error: $e');
-      return null;
-    }
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -844,6 +739,8 @@ class CoachOrchestrator {
       disclaimers: ragResponse.disclaimers,
       wasFiltered: !compliance.isCompliant,
       toolCalls: ragResponse.toolCalls,
+      // ragResponse has no degraded flag — BYOK path uses user's own key.
+      degraded: false,
     );
   }
 
@@ -867,12 +764,15 @@ class CoachOrchestrator {
     final service = CoachChatApiService();
 
     // Build conversation history for multi-turn context (same as BYOK path).
-    // Last 8 messages (4 exchanges) — sanitized user messages, raw assistant.
+    // Last 16 messages (8 exchanges) — sanitized user messages, raw assistant.
+    // Bumped from 8 → 16 (Gate 0 P0-2, 2026-04-15) so the coach keeps
+    // multi-turn threading coherent. Backend cap matches at 16 msg /
+    // 2000 chars (coach_chat.py:_sanitize_conversation_history).
     final recentHistory = history
         .where((m) => m.isUser || m.isAssistant)
         .toList();
-    final tail = recentHistory.length > 8
-        ? recentHistory.sublist(recentHistory.length - 8)
+    final tail = recentHistory.length > 16
+        ? recentHistory.sublist(recentHistory.length - 16)
         : recentHistory;
     final conversationHistory = tail
         .map((m) => {
@@ -966,7 +866,8 @@ class CoachOrchestrator {
         disclaimers: response.disclaimers,
         wasFiltered: !compliance.isCompliant,
         toolCalls: response.toolCalls,
-        followUpQuestions: response.followUpQuestions,
+        // v2.7 Task 8: surface Haiku-fallback flag from backend response_meta.
+        degraded: response.degraded,
       );
     } on TimeoutException {
       debugPrint('[Orchestrator] Server-key chat timed out');

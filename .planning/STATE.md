@@ -1,36 +1,47 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.6
-milestone_name: Le Coach Qui Marche
-status: verifying
-stopped_at: Completed 26-01-PLAN.md
-last_updated: "2026-04-13T18:49:14.933Z"
-last_activity: 2026-04-13
+milestone: v2.7
+milestone_name: Coach Stabilisation + Document Digestion
+status: v2.7 code-complete — all 4 phases (27/28/29/30) closed on dev; milestone awaiting_device_gate (creator iPhone + Android walkthrough blocking close). Next: v2.8 "La Confiance" proposed.
+stopped_at: Completed 30-02-PLAN.md — device-gate checklist + perf report + legal signoff + milestone summary. STATE/ROADMAP/REQUIREMENTS/MILESTONES marked code-complete with <PENDING_DEVICE_GATE> placeholder.
+last_updated: "2026-04-15T00:30:00.000Z"
+last_activity: 2026-04-15
+milestone_status: awaiting_device_gate
+next_milestone_proposal: v2.8 "La Confiance" (Privacy Nutrition Label + Data Vault + Trust Mode + Graduation Protocol v1)
 progress:
-  total_phases: 14
-  completed_phases: 11
-  total_plans: 18
-  completed_plans: 20
+  total_phases: 18
+  completed_phases: 4
+  total_plans: 13
+  completed_plans: 13
   percent: 100
 ---
 
-# GSD State: MINT v2.5 — Transformation
+# GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-12)
+See: .planning/PROJECT.md (updated 2026-04-14)
 
-**Core value:** Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.
-**Current focus:** Phase 18 — Living Timeline Full Timeline
+**Core value:** Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo/scan/screenshot/PDF) via contrat canonique interne — jamais "Analyse indisponible".
+**Current focus:** Phase 27 — Stabilisation Critique (pending plan)
+
+## Architecture Decisions (pre-phase)
+
+- Audit externe challengé par 4 experts (pipeline/UX/SRE/DPO). Architecture astronaute rejetée.
+- Contrat canonique INTERNE (pas endpoint public /documents/understand).
+- 1 appel Vision fusionné, pas 2.
+- 4 render_mode client opaque (`confirm/ask/narrative/reject`).
+- VisionKit + cunning_document_scanner = prétraitement client.
+- ExtractionReviewScreen réduit, pas supprimé.
 
 ## Current Position
 
-Phase: 26
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-04-13
+Phase: 29 (compliance & privacy in progress)
+Plan: 29-04 complete — PRIV-05 + PRIV-08 shipped (VisionGuard Haiku LLM-as-judge, NumericSanity, no auto-confirm, BatchValidationBubble, adversarial fixtures). 4/6 phase-29 plans done.
+Status: Phase 29-04 shipped — VisionGuard + NumericSanity + FieldStatus.needs_review default + BatchValidationBubble + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green.
+Last activity: 2026-04-14
 
-Progress: [##########] 100%
+Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) — Phase 28 awaiting device-gate sign-off.
 
 ## Performance Metrics
 
@@ -78,6 +89,17 @@ Progress: [##########] 100%
 | 25 | 1 | - | - |
 | Phase 26 P01 | 4min | 3 tasks | 2 files |
 | 26 | 1 | - | - |
+| Phase 28 P03 | 22 min | 3 tasks | 17 files |
+| Phase 28-pipeline-document P02 | 18 min | 2 tasks | 8 files |
+| Phase 28-pipeline-document P04 | 28 min | 3 tasks | 22 files |
+| Phase 29-compliance-privacy P01 | 45 | 2 tasks | 20 files |
+| Phase 29 P02 | 60 | 2 tasks | 21 files |
+| Phase 29-compliance-privacy P03 | 90 | 2 tasks | 17 files |
+| Phase 29 P04 | 18 | 2 tasks | 23 files |
+| Phase 29-compliance-privacy P05 | 40 | 2 tasks | 20 files |
+| Phase 29 P06 | 55 min | 2 tasks | 15 files |
+| Phase 30 P01 | 40 | 3 tasks | 32 files |
+| Phase 30 P02 | 25 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -121,6 +143,42 @@ Progress: [##########] 100%
 - [Phase 25]: Track user-provided fields via Set on CoachProfile to distinguish user-entered vs default data
 - [Phase 26]: Push navigation fallback for lightning menu routes without drawer support
 - [Phase 26]: Auth loading indicator prevents LandingScreen flash during checkAuth resolution
+- [Phase 27]: redis>=5.0 added (direct client) — slowapi's limits transport is not a public async Redis API
+- [Phase 27]: Fail-open everywhere Redis touches — outage degrades feature, never crashes request
+- [Phase 27]: Sonnet→Haiku fallback truncates history to last 10 turns (latency guard)
+- [Phase 27]: SLO auto-rollback requires 2 consecutive breaches + 10-request floor to prevent flapping
+- [Phase 27]: Admin flag endpoints use X-Admin-Token env var (ops-bootstrap, intentionally bypasses support_admin RBAC)
+- [Phase 27]: Degraded chip uses textSecondary italic, NOT error red — anti-shame doctrine
+- [Phase 28-01]: Single fused tool_use call replaces classify→extract bifurcation (Anthropic structured outputs 2025)
+- [Phase 28-01]: render_mode is opaque enum computed by deterministic selector — internal processing_mode never leaks to client
+- [Phase 28-01]: Plan referenced app/db/models/ — repo uses app/models/ convention; followed existing pattern
+- [Phase 28-01]: pymupdf 1.26 has no get_form_text_fields() — iterate page.widgets() directly gated by doc.is_form_pdf
+- [Phase 28-01]: ComplianceGuard has no scrub() — used _sanitize_banned_terms() (Layer 1) on summary/narrative/questions
+- [Phase 28-01]: TokenBudget.consume() takes (user_id, tokens) only (no kind=) per phase 27; per-kind tagging deferred
+- [Phase 28]: [Phase 28-03]: Picked flutter_doc_scanner (wraps VisionKit + ML Kit Doc Scanner GA 2024) over hand-rolled MethodChannel
+- [Phase 28]: [Phase 28-03]: google_mlkit_image_labeling bumped from 0.13 to 0.14.2 due to commons ^0.11 conflict with text_recognition 0.15
+- [Phase 28]: [Phase 28-03]: Local pre-reject = 16 labels, 0.7 confidence, top-3, fail-open everywhere; Screenshot deliberately excluded (banking screenshots are valid input)
+- [Phase 28-02]: Single endpoint, two content types via Accept header — no new SSE route
+- [Phase 28-02]: Field events ordered by EMOTIONAL_IMPORTANCE not PDF reading order — Tom Hanks reading effect
+- [Phase 28-02]: No new Flutter dep — custom 60-line SSE parser on http.StreamedResponse + LineSplitter; Dart 3 sealed DocumentEvent
+- [Phase 28-pipeline-document]: [Phase 28-04]: DocumentResultView extracted as testable progressive renderer; DocumentStreamResultScreen as routable host
+- [Phase 28-pipeline-document]: [Phase 28-04]: ExtractionReviewSheet uses DraggableScrollableSheet snap [0.3, 0.6, 0.95] with inline TextField edit (no dialog)
+- [Phase 28-pipeline-document]: [Phase 28-04]: DocumentScanScreen default path NOT switched yet — legacy ExtractionReviewScreen kept as default until DOCUMENTS_V2_ENABLED rollout sign-off
+- [Phase 28-pipeline-document]: [Phase 28-04]: Reject palette uses neutral textSecondary on surface — anti-shame doctrine, never error red
+- [Phase 28-pipeline-document]: [Phase 28-04]: Plain-string apostrophes in ARB use single ' (not doubled '') — gen-l10n only treats strings as ICU when placeholders/plural present
+- [Phase 29-compliance-privacy]: PRIV-04 envelope encryption AES-256-GCM + crypto-shredding wired (Fernet fallback, KMS optional)
+- [Phase 29]: Granular 4-purpose consent with ISO 29184 receipts + HMAC signature + sha256 merkle chain per user. Cascade to crypto_shred on persistence_365d revoke.
+- [Phase 29-compliance-privacy]: [Phase 29-03]: Presidio added as [privacy] OPTIONAL extra (Python 3.10+ only); regex fallback always-on covers dev 3.9 + acts as defense-in-depth belt in prod
+- [Phase 29-compliance-privacy]: [Phase 29-03]: Hashed-key drop logging (sha256[:12]) — fact_key names themselves can be PII signals (iban, numero_avs); raw key never logged
+- [Phase 29-compliance-privacy]: [Phase 29-03]: persist_fact policy gate is canonical; DB write is best-effort — decouples allowlist semantics from migration timing
+- [Phase 29]: Phase 29-04: LLM-as-judge (Haiku 4.5) on Vision with fail-closed + numeric sanity deterministic bounds + FieldStatus.needs_review default per LSFin art. 7-10
+- [Phase 29-compliance-privacy]: 29-05: purpose_category is String(64) not PG enum — no alembic migration needed for new ConsentPurpose values
+- [Phase 29]: Phase 29-06: Bedrock EU router (off/shadow/primary), shadow comparator logs metrics-only, image masker fail-open, DPA annex + legal checklist DRAFT ready for lawyer walk-in; rag/llm_client+documents endpoint tracked for follow-up migration
+- [Phase 30]: Golden flow uses pymupdf (not reportlab) — matches 29-04 pattern, zero new install
+- [Phase 30]: Prompt-injection cassettes keep render_mode=confirm in expectations — guard runs AFTER selector per 28-01 step order; security invariant asserted is guard_blocked + no attacker token
+- [Phase 30]: Golden CI warn-only until 2026-04-28 (grep-able UNTIL marker)
+- [Phase 30-02]: Milestone close gated on creator-device walkthrough (iPhone + Android). No YYYY-MM-DD stamped until Julien signs `device-gate(v2.7): iPhone approved` + `Android approved` + `legal-signoff(v2.7)`. Placeholders `<PENDING_DEVICE_GATE>` in ROADMAP/STATE/MILESTONES until then.
+- [Phase 30-02]: Next milestone proposed as v2.8 "La Confiance" — Privacy Nutrition Label + Data Vault + Trust Mode + Graduation Protocol v1; scope TBD via /gsd-start-milestone v2.8.
 
 ### From Previous Milestones
 
@@ -143,9 +201,9 @@ Progress: [##########] 100%
 
 ## Session Continuity
 
-Last session: 2026-04-13T18:48:08.116Z
-Stopped at: Completed 26-01-PLAN.md
-Resume file: None
+Last session: 2026-04-15T00:30:00.000Z
+Stopped at: Completed 30-02-PLAN.md — device-gate checklist + perf report + legal signoff + milestone summary (v2.7 code-complete, awaiting device walkthrough)
+Resume file: docs/DEVICE_GATE_V27_CHECKLIST.md (Julien fills before milestone close)
 
 ---
 *Last activity: 2026-04-12 — Roadmap v2.5 created with 6 phases, 25 requirements mapped*

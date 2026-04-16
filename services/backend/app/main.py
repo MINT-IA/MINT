@@ -110,7 +110,27 @@ async def lifespan(app: FastAPI):
 
     # Auto-ingest education inserts into RAG vector store if empty
     _auto_ingest_rag()
+
+    # v2.7 Task 6: SLO monitor background task (fail-open).
+    slo_task = None
+    try:
+        from app.services.slo_monitor import slo_monitor
+        import asyncio as _asyncio
+        slo_task = _asyncio.create_task(slo_monitor.run_forever())
+        logger.info("SLO monitor started")
+    except Exception as exc:
+        logger.warning("SLO monitor startup failed (non-fatal): %s", exc)
+
     yield
+
+    # Shutdown: stop SLO monitor
+    if slo_task is not None:
+        try:
+            from app.services.slo_monitor import slo_monitor
+            slo_monitor.stop()
+            slo_task.cancel()
+        except Exception:
+            pass
 
 
 _is_production = settings.ENVIRONMENT == "production"
@@ -165,6 +185,10 @@ app.add_middleware(SecurityHeadersMiddleware)
 
 # Request logging middleware
 app.add_middleware(LoggingMiddleware)
+
+# v2.7 Phase 29 / PRIV-04 — envelope encryption request context
+from app.middleware.encryption_context import EncryptionContextMiddleware  # noqa: E402
+app.add_middleware(EncryptionContextMiddleware)
 
 # Setup CORS — production MUST set CORS_ORIGINS env var
 _cors_origins_raw = os.getenv("CORS_ORIGINS", "")

@@ -50,22 +50,6 @@ class Fact:
     `value` field is advisory only — it is the parsed numeric/string form
     of the fact and is not persisted directly (the textual `text` carries
     it to the LLM on reload).
-
-    SECURITY CONTRACT — `text` must be a **deterministic template** built
-    from validated captures, never raw user input passthrough. On the
-    anonymous path, `Fact.text` is injected into the system prompt as-is,
-    so any leak of T-13-05 forbidden tokens (`outil|tool|dossier|profil|
-    memoire|memory`) would break the information-disclosure guard. New
-    extractors that echo user strings MUST scrub these tokens first. Tests:
-    `test_profile_extractor_v2_patterns.py::test_facts_never_contain_forbidden_lexicon`.
-
-    DOCTRINE — PII vs facts: the extractor runs on the raw (pre-scrub)
-    message on the anonymous path by design, so salaries and LPP amounts
-    ARE propagated to the LLM via the `<facts_user>` block. This is a
-    conscious trade-off: without it the coach cannot cite the user's
-    numbers and the MSG1 insight regresses to generic advice. The raw
-    `question` field reaching the orchestrator stays scrubbed — the facts
-    block is the narrow, explicit channel for numeric grounding.
     """
 
     topic: str  # "identity", "salary", "location", "household", "lpp", "3a", "debt"
@@ -258,67 +242,7 @@ def _extract_age(msg: str) -> Fact | None:
 
 
 def _extract_salary(msg: str) -> Fact | None:
-    """Extract salary fact from a user message.
-
-    Handles (in priority order):
-    1. Monthly salaries with explicit "par mois" / "mensuel" / "/mois".
-       Annualises × 12 with a 3k-40k/month plausibility gate — this is the
-       dominant way Swiss residents state their income ("7600 Fr net /mois").
-    2. Annual salaries with keyword ("gagne / salaire / revenu") or marker
-       ("brut / net / par an").
-    3. Short "XXk brut" form.
-    """
-    net_or_brut_marker = re.search(r"\b(brut|net)\b", msg, re.IGNORECASE)
-    marker = (net_or_brut_marker.group(1).lower() if net_or_brut_marker else "brut")
-
-    # ------------------------------------------------------------------
-    # (1) Monthly salary — highest priority (most common natural phrasing).
-    # If a monthly phrasing is present ANYWHERE in the message, we do NOT
-    # fall through to the annual pass — otherwise "80000 francs par mois"
-    # would be mis-detected as an annual salary of 80k.
-    # ------------------------------------------------------------------
-    has_monthly_context = bool(
-        re.search(
-            r"\b(?:par\s+mois|/\s*mois|mensuel(?:s|le)?|monthly)\b",
-            msg,
-            re.IGNORECASE,
-        )
-    )
-    monthly_patterns = [
-        # "7600 Fr net par mois", "7'600 CHF /mois", "8500 par mois"
-        _NUM + r"\s*(?:chf|francs?|fr\.?)?\s*(?:brut|net)?\s*"
-        r"(?:par\s+mois|/\s*mois|mensuel(?:s|le)?|monthly)",
-        # "salaire mensuel (de) 6200", "mon salaire mensuel est de 6200"
-        r"(?:salaire|revenu|income)\s+(?:mensuel(?:s|le)?|monthly)"
-        r"[^\d]{0,12}" + _NUM,
-    ]
-    for pattern in monthly_patterns:
-        m = re.search(pattern, msg, re.IGNORECASE)
-        if not m:
-            continue
-        monthly = _to_int(m.group(1))
-        if monthly is None:
-            continue
-        # Plausibility: 3k-40k/month (covers Geneva cadres, excludes rente +
-        # CEO fantasy). 40k cap keeps annual ≤ 480k, inside the annual band.
-        if not (3_000 <= monthly <= 40_000):
-            continue
-        annual = monthly * 12
-        return Fact(
-            topic="salary",
-            insight_type="fact",
-            text=f"{annual:,} CHF {marker}/an ({monthly:,}/mois)"
-                 .replace(",", "'"),
-            value=annual,
-        )
-    if has_monthly_context:
-        # The user clearly stated a monthly figure. Don't invent an annual
-        # one by pattern-matching the same number as CHF/year.
-        return None
-
-    # ------------------------------------------------------------------
-    # (2) Annual salary / existing behaviour (kept verbatim for regression)
-    # ------------------------------------------------------------------
+    # "gagne 95'000 brut", "95k brut", "salaire 120000", "I earn 95000"
     patterns = [
         # "XXk" or "XX k" short form with salary keyword
         (
@@ -352,6 +276,9 @@ def _extract_salary(msg: str) -> Fact | None:
         # Plausibility gate: full-time Swiss salaries 15k-500k/year.
         if not (15_000 <= amount <= 500_000):
             continue
+        marker = "brut" if re.search(r"\bbrut\b", msg, re.IGNORECASE) else (
+            "net" if re.search(r"\bnet\b", msg, re.IGNORECASE) else "brut"
+        )
         return Fact(
             topic="salary",
             insight_type="fact",
@@ -478,56 +405,28 @@ def _extract_family(msg: str) -> Fact | None:
 
 
 def _extract_lpp(msg: str) -> Fact | None:
-    """Extract a 2e-pilier / LPP amount.
-
-    Covers the natural-language forms actually used by Swiss residents in
-    addition to the technical lexicon:
-    - Technical: `LPP`, `2e pilier`, `deuxième pilier`, `2nd pillar`
-    - Natural: `valeur de rachat`, `caisse de pension`, `avoir de vieillesse`,
-               `rachat possible`, `montant de rachat`
-    All share the same plausibility band (1'000 – 5'000'000 CHF).
-    """
-    # Keyword set — ordered widest-first so the first hit wins.
-    keywords = (
-        r"lpp|2e\s+pilier|deuxi[èe]me\s+pilier|2nd\s+pillar|"
-        r"valeur\s+de\s+rachat|caisse\s+de\s+pension|avoir\s+de\s+vieillesse|"
-        r"rachat\s+(?:possible|maximum|max)|montant\s+de\s+rachat"
-    )
-    # Number AFTER keyword: "LPP 70'000", "valeur de rachat de 300 000"
+    # "LPP 70'000", "2e pilier 70000", "avoir LPP de 120k"
     m = re.search(
-        rf"\b(?:{keywords})[^\d]{{0,30}}" + _NUM + r"\s*(?:chf|k|francs?|fr\.?)?",
+        r"\b(?:lpp|2e\s+pilier|deuxi[èe]me\s+pilier|2nd\s+pillar)"
+        r"[^\d]{0,20}" + _NUM + r"\s*(?:chf|k|francs?)?",
         msg,
         re.IGNORECASE,
     )
-    # Number BEFORE keyword: "300'000 Fr de valeur de rachat".
-    # REQUIRE an explicit currency marker (CHF / francs / Fr.) to avoid
-    # capturing years ("en 2025 la caisse de pension a valu ...") — the
-    # year would pass the 1'000-5'000'000 band silently.
-    if not m:
-        m = re.search(
-            _NUM
-            + r"\s*(?:chf|k|francs?|fr\.?)"
-            + rf"(?:\s+\w+){{0,6}}\s+(?:{keywords})",
-            msg,
-            re.IGNORECASE,
-        )
-    if not m:
-        return None
-    raw = m.group(1)
-    amount = _to_int(raw)
-    if amount is None:
-        return None
-    # "k" suffix handling
-    if re.search(r"\b\d{1,3}\s*k\b", m.group(0), re.IGNORECASE) and amount < 1000:
-        amount *= 1000
-    if not (1_000 <= amount <= 5_000_000):
-        return None
-    return Fact(
-        topic="lpp",
-        insight_type="fact",
-        text=f"LPP ≈ {amount:,} CHF".replace(",", "'"),
-        value=amount,
-    )
+    if m:
+        raw = m.group(1)
+        amount = _to_int(raw)
+        if amount is not None:
+            # "k" suffix handling
+            if re.search(r"\b\d{1,3}\s*k\b", m.group(0), re.IGNORECASE) and amount < 1000:
+                amount *= 1000
+            if 1_000 <= amount <= 5_000_000:
+                return Fact(
+                    topic="lpp",
+                    insight_type="fact",
+                    text=f"LPP ≈ {amount:,} CHF".replace(",", "'"),
+                    value=amount,
+                )
+    return None
 
 
 def _extract_pillar3a(msg: str) -> Fact | None:

@@ -1,0 +1,64 @@
+{
+  "id": "msg_fixture_cpe_plan_maxi_julien",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-sonnet-4-5-20250929",
+  "stop_reason": "tool_use",
+  "usage": {
+    "input_tokens": 800,
+    "output_tokens": 300
+  },
+  "content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_fixture_cpe_plan_maxi_julien",
+      "name": "route_and_extract",
+      "input": {
+        "document_class": "lpp_certificate",
+        "subtype": "cpe_plan_maxi",
+        "issuer_guess": "CPE",
+        "classification_confidence": 0.92,
+        "extracted_fields": [
+          {
+            "field_name": "avoir_vieillesse_lpp",
+            "value": 70377,
+            "confidence": "high",
+            "source_text": "Avoir total 70'377 CHF"
+          },
+          {
+            "field_name": "salaire_assure",
+            "value": 91967,
+            "confidence": "high",
+            "source_text": "Salaire assure 91'967 CHF"
+          },
+          {
+            "field_name": "rachat_maximum",
+            "value": 539414,
+            "confidence": "high",
+            "source_text": "Rachat 539'414 CHF"
+          },
+          {
+            "field_name": "taux_conversion",
+            "value": 0.068,
+            "confidence": "high",
+            "source_text": "Taux 6.8 %"
+          },
+          {
+            "field_name": "bonification_vieillesse",
+            "value": 0.24,
+            "confidence": "high",
+            "source_text": "Bonif. 24 %"
+          }
+        ],
+        "overall_confidence": 0.93,
+        "extraction_status": "success",
+        "plan_type": null,
+        "coherence_warnings": [],
+        "summary": "Ton certificat CPE Plan Maxi est lu. Avoir 70'377 CHF, salaire assure 91'967 CHF.",
+        "questions_for_user": [],
+        "narrative": null,
+        "commitment_suggestion": null
+      }
+    }
+  ]
+}

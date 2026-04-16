@@ -10,7 +10,62 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
+from tenacity import (
+    AsyncRetrying,
+    retry_if_exception,
+    stop_after_attempt,
+    wait_exponential,
+)
+
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# v2.7 STAB-02: Anthropic retry policy
+# ---------------------------------------------------------------------------
+
+# HTTP status codes that warrant a retry (server-side, original request not
+# processed so retry is idempotent-safe for POST).
+_ANTHROPIC_RETRYABLE_STATUSES = {429, 500, 502, 503, 504, 529}
+
+
+class CoachUpstreamError(RuntimeError):
+    """Raised when the LLM upstream fails after all retries are exhausted.
+
+    Downstream (coach_chat agent loop) uses this to decide whether to attempt
+    the Haiku fallback path (STAB-02 / Task 3) before surfacing an error to
+    the user.
+    """
+
+    def __init__(self, message: str, status: Optional[int] = None) -> None:
+        super().__init__(message)
+        self.status = status
+
+
+def _is_retryable_anthropic_error(exc: BaseException) -> bool:
+    """Return True if the exception is a transient Anthropic API error.
+
+    We retry on:
+      - anthropic.APIStatusError with status in _ANTHROPIC_RETRYABLE_STATUSES
+      - anthropic.APIConnectionError / APITimeoutError (network-level)
+
+    Non-retryable (user error):
+      - 400 BadRequest (bad payload)
+      - 401 AuthenticationError (bad key)
+      - 403 PermissionDenied
+      - 404 NotFound
+    """
+    try:
+        import anthropic  # type: ignore
+    except ImportError:
+        return False
+
+    if isinstance(exc, (anthropic.APIConnectionError, anthropic.APITimeoutError)):
+        return True
+    if isinstance(exc, anthropic.APIStatusError):
+        status = getattr(exc, "status_code", None)
+        return status in _ANTHROPIC_RETRYABLE_STATUSES
+    return False
 
 # Default models per provider
 DEFAULT_MODELS = {
@@ -61,7 +116,6 @@ class LLMClient:
         context_chunks: list[str],
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
-        max_tokens: int | None = None,
     ) -> str | dict:
         """
         Generate a response using the configured LLM.
@@ -73,10 +127,6 @@ class LLMClient:
             tools: Optional list of tool definitions (Anthropic format).
                    When provided and the LLM returns tool_use blocks,
                    the response is a dict with "text" and "tool_calls" keys.
-            max_tokens: Optional explicit token cap. When None, providers
-                   fall back to their internal defaults (typically 2048).
-                   Used by the anonymous/discovery path to enforce a tight
-                   length contract (~180 tokens ≈ 3 short sentences).
 
         Returns:
             str if no tool calls, or dict with "text" and "tool_calls" keys.
@@ -90,16 +140,11 @@ class LLMClient:
             return await self._call_claude(
                 system_prompt, augmented_message, tools=tools,
                 conversation_history=conversation_history,
-                max_tokens=max_tokens,
             )
         elif self.provider == "openai":
-            return await self._call_openai(
-                system_prompt, augmented_message, max_tokens=max_tokens,
-            )
+            return await self._call_openai(system_prompt, augmented_message)
         elif self.provider == "mistral":
-            return await self._call_mistral(
-                system_prompt, augmented_message, max_tokens=max_tokens,
-            )
+            return await self._call_mistral(system_prompt, augmented_message)
         else:
             raise ValueError(f"Unsupported provider: {self.provider}")
 
@@ -126,7 +171,6 @@ class LLMClient:
         user_message: str,
         tools: list[dict] | None = None,
         conversation_history: list[dict] | None = None,
-        max_tokens: int | None = None,
     ) -> str | dict:
         """Call the Anthropic Claude API, optionally with tool definitions.
 
@@ -157,16 +201,50 @@ class LLMClient:
 
             kwargs: dict = {
                 "model": self.model,
-                "max_tokens": max_tokens if max_tokens is not None else 2048,
+                "max_tokens": 2048,
                 "system": system_prompt,
                 "messages": messages,
             }
             if tools:
                 kwargs["tools"] = tools
 
-            response = await client.messages.create(**kwargs)
+            # v2.7 STAB-02: retry transient upstream failures (429/5xx/529 +
+            # connection/timeout). Wait: 0.5s, 1s, 2s (max 8s). Final failure
+            # is wrapped into CoachUpstreamError so the orchestrator can
+            # trigger the Haiku fallback chain (Task 3).
+            attempt_no = 0
+            response = None
+            try:
+                async for attempt in AsyncRetrying(
+                    stop=stop_after_attempt(3),
+                    wait=wait_exponential(multiplier=0.5, max=8),
+                    retry=retry_if_exception(_is_retryable_anthropic_error),
+                    reraise=True,
+                ):
+                    with attempt:
+                        attempt_no = attempt.retry_state.attempt_number
+                        if attempt_no > 1:
+                            logger.warning(
+                                "anthropic retry %d/3 for model=%s",
+                                attempt_no, self.model,
+                            )
+                        response = await client.messages.create(**kwargs)
+            except Exception as retry_exc:
+                # All retries exhausted OR non-retryable error.
+                status = getattr(retry_exc, "status_code", None)
+                if _is_retryable_anthropic_error(retry_exc):
+                    logger.error(
+                        "Claude upstream exhausted after %d attempts: status=%s",
+                        attempt_no, status,
+                    )
+                    raise CoachUpstreamError(
+                        f"anthropic upstream exhausted: {retry_exc}",
+                        status=status,
+                    ) from retry_exc
+                # Non-retryable (auth, bad payload) — surface as-is.
+                raise
 
-            if not response.content:
+            if not response or not response.content:
                 raise ValueError("Claude returned an empty response")
 
             # Parse response: extract text and tool_use blocks separately.
@@ -203,12 +281,7 @@ class LLMClient:
             logger.error("Claude API call failed: %s", e)
             raise
 
-    async def _call_openai(
-        self,
-        system_prompt: str,
-        user_message: str,
-        max_tokens: int | None = None,
-    ) -> str:
+    async def _call_openai(self, system_prompt: str, user_message: str) -> str:
         """Call the OpenAI API."""
         try:
             from openai import AsyncOpenAI
@@ -221,7 +294,7 @@ class LLMClient:
         try:
             response = await client.chat.completions.create(
                 model=self.model,
-                max_tokens=max_tokens if max_tokens is not None else 2048,
+                max_tokens=2048,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message},
@@ -365,12 +438,7 @@ class LLMClient:
             logger.error("OpenAI vision API call failed: %s", e)
             raise
 
-    async def _call_mistral(
-        self,
-        system_prompt: str,
-        user_message: str,
-        max_tokens: int | None = None,
-    ) -> str:
+    async def _call_mistral(self, system_prompt: str, user_message: str) -> str:
         """
         Call the Mistral API (via OpenAI-compatible endpoint).
 
@@ -391,7 +459,7 @@ class LLMClient:
         try:
             response = await client.chat.completions.create(
                 model=self.model,
-                max_tokens=max_tokens if max_tokens is not None else 2048,
+                max_tokens=2048,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message},

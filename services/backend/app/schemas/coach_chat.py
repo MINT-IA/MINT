@@ -161,21 +161,11 @@ class CoachChatResponse(CoachChatBaseModel):
         default=True,
         description="Indique si le system prompt coach a ete applique.",
     )
-    follow_up_questions: list[str] = Field(
-        default_factory=list,
+    response_meta: Optional[dict[str, Any]] = Field(
+        default=None,
         description=(
-            "Up to 2 genuine follow-up questions the user might ask next. "
-            "Backend-piloted (via suggest_followups tool or <followups> JSON block). "
-            "Empty list when the LLM produced none. Never a reformulation "
-            "of the question the user just asked."
+            "Metadata sur la generation de la reponse. Cles: "
+            "degraded (bool — true si fallback Haiku active), "
+            "model_used (str — id du modele qui a servi la reponse)."
         ),
     )
-
-    @field_validator("follow_up_questions")
-    @classmethod
-    def cap_follow_ups(cls, v: list[str]) -> list[str]:
-        """Silently cap follow-up questions at 2 items."""
-        if not v:
-            return []
-        cleaned = [s.strip() for s in v if isinstance(s, str) and s.strip()]
-        return cleaned[:2]

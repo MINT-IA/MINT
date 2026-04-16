@@ -39548,6 +39548,408 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Outil éducatif — voir le disclaimer'**
   String get coachDisclaimerCollapsed;
+
+  /// v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réponse rapide'**
+  String get coachResponseDegradedHint;
+
+  /// v2.7 Task 4 — shown when user hits daily token budget hard cap.
+  ///
+  /// In fr, this message translates to:
+  /// **'On a déjà bien avancé aujourd\'hui. Repose-toi, je t\'attends demain.'**
+  String get coachBudgetDailyLimitReached;
+
+  /// v2.7 Phase 28-03 — surfaced when LocalImageClassifier rejects an image (food/selfie/landscape/etc.) before backend call.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette image ne ressemble pas à un document financier. Réessaie avec une photo de ton certificat, ta fiche de salaire ou un relevé.'**
+  String get docScanRejectedNonFinancial;
+
+  /// v2.7 Phase 28-03 — shown when native VisionKit/ML Kit document scanner fails to launch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le scanner n\'a pas pu démarrer. Tu peux importer un fichier depuis ta galerie.'**
+  String get docScanScannerError;
+
+  /// Phase 28-04 — header of ConfirmExtractionBubble when no backend summary is provided.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{J\'\'ai lu 1 donnée utile.} other{J\'\'ai lu {count} données utiles.}}'**
+  String documentBubbleConfirmTitle(int count);
+
+  /// Phase 28-04 — primary chip on ConfirmExtractionBubble: confirm extracted values as-is.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout bon'**
+  String get documentBubbleConfirmAllGood;
+
+  /// Phase 28-04 — secondary chip on ConfirmExtractionBubble: opens the editable bottom sheet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je corrige'**
+  String get documentBubbleConfirmCorrect;
+
+  /// Phase 28-04 — header of AskQuestionBubble (hybrid confirm+ask).
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai presque tout. Confirme-moi juste ça :'**
+  String get documentBubbleAskTitle;
+
+  /// Phase 28-04 — submit answers in AskQuestionBubble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer'**
+  String get documentBubbleAskSubmit;
+
+  /// Phase 28-04 — default label for the commitment CTA in NarrativeBubble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rappelle-moi en mai'**
+  String get documentBubbleNarrativeRemindLater;
+
+  /// Phase 28-04 — gentle rejection copy in RejectBubble. Anti-shame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce document ne semble pas financier. Pas grave — réessaie avec une autre photo.'**
+  String get documentBubbleRejectMessage;
+
+  /// Phase 28-04 — retry CTA on RejectBubble.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get documentBubbleRejectRetry;
+
+  /// Phase 28-04 — third-party attribution chip rendered above bubbles when backend detects a partner name.
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'\'est bien {name} ?'**
+  String documentThirdPartyQuestion(String name);
+
+  /// Phase 28-04 — yes chip on ThirdPartyChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui'**
+  String get documentThirdPartyYes;
+
+  /// Phase 28-04 — no chip on ThirdPartyChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non'**
+  String get documentThirdPartyNo;
+
+  /// Phase 28-04 — fallback name when no first name detected.
+  ///
+  /// In fr, this message translates to:
+  /// **'quelqu\'un d\'autre'**
+  String get documentThirdPartySomeoneElse;
+
+  /// Phase 28-04 — banner on legacy ExtractionReviewScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvert depuis un lien direct. La plupart des documents apparaissent maintenant directement dans le chat.'**
+  String get documentReviewOpenedFromDeeplink;
+
+  /// Phase 28-04 — primary action on ExtractionReviewSheet (replaces Confirmer).
+  ///
+  /// In fr, this message translates to:
+  /// **'C\'est à moi'**
+  String get documentReviewMineButton;
+
+  /// Phase 28-04 — chip on ExtractionReviewSheet for third-party documents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce n\'est pas moi'**
+  String get documentReviewNotMineButton;
+
+  /// Phase 28-04 — chip on ExtractionReviewSheet to enable inline edit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je corrige'**
+  String get documentReviewCorrectButton;
+
+  /// Phase 28-04 — Tom Hanks reading stage label on document_scan_screen during streaming.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je regarde…'**
+  String get documentScanReadingStage;
+
+  /// Phase 28-04 — optimistic stage line when client recognises issuer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je crois que c\'\'est un autre {issuer}, je regarde ce qui a bougé…'**
+  String documentScanFamiliarIssuer(String issuer);
+
+  /// Phase 28-04 — incremental field row revealed during streaming.
+  ///
+  /// In fr, this message translates to:
+  /// **'{field} : {value}'**
+  String documentScanFieldFound(String field, String value);
+
+  /// No description provided for @consentSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes consentements'**
+  String get consentSheetTitle;
+
+  /// No description provided for @consentSheetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne traite tes données qu\'avec ton accord explicite, pour chaque finalité.'**
+  String get consentSheetSubtitle;
+
+  /// No description provided for @consentSheetAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter'**
+  String get consentSheetAccept;
+
+  /// No description provided for @consentSheetRefuse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Refuser'**
+  String get consentSheetRefuse;
+
+  /// No description provided for @consentPurposeVisionExtraction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture IA de tes documents'**
+  String get consentPurposeVisionExtraction;
+
+  /// No description provided for @consentPurposeVisionExtractionWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT lit tes certificats LPP, fiches de paie et contrats pour en extraire les chiffres utiles. Durée : le temps du traitement. Révocable à tout moment.'**
+  String get consentPurposeVisionExtractionWhy;
+
+  /// No description provided for @consentPurposePersistence365d.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mémoire chiffrée 365 jours'**
+  String get consentPurposePersistence365d;
+
+  /// No description provided for @consentPurposePersistence365dWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les données extraites sont conservées chiffrées (AES-256) pendant 365 jours, puis purgées. Révocation : suppression cryptographique sous 30 jours.'**
+  String get consentPurposePersistence365dWhy;
+
+  /// No description provided for @consentPurposeTransferUsAnthropic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Traitement IA (Anthropic, US)'**
+  String get consentPurposeTransferUsAnthropic;
+
+  /// No description provided for @consentPurposeTransferUsAnthropicWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les documents passent par l\'API Claude (Anthropic, États-Unis) en mode Zero Data Retention. Ce transfert sera supprimé à la migration AWS Frankfurt.'**
+  String get consentPurposeTransferUsAnthropicWhy;
+
+  /// No description provided for @consentPurposeCoupleProjection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Projections de couple'**
+  String get consentPurposeCoupleProjection;
+
+  /// No description provided for @consentPurposeCoupleProjectionWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.'**
+  String get consentPurposeCoupleProjectionWhy;
+
+  /// No description provided for @consentRevoke.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer'**
+  String get consentRevoke;
+
+  /// No description provided for @consentCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get consentCancel;
+
+  /// No description provided for @consentRevokeConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoquer ce consentement ?'**
+  String get consentRevokeConfirmTitle;
+
+  /// No description provided for @consentRevokeConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette opération est immédiate et révocable à tout moment.'**
+  String get consentRevokeConfirmBody;
+
+  /// No description provided for @consentRevokeCascadeWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'La révocation programme la suppression cryptographique de tes documents sous 30 jours. Action irréversible au-delà.'**
+  String get consentRevokeCascadeWarning;
+
+  /// No description provided for @consentBlockedUntilAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour continuer, il faut accepter les consentements ci-dessus.'**
+  String get consentBlockedUntilAccept;
+
+  /// No description provided for @privacyCenterTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ma vie privée'**
+  String get privacyCenterTitle;
+
+  /// No description provided for @privacyCenterSectionActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'CONSENTEMENTS ACTIFS'**
+  String get privacyCenterSectionActive;
+
+  /// No description provided for @privacyCenterSectionHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'HISTORIQUE'**
+  String get privacyCenterSectionHistory;
+
+  /// No description provided for @privacyCenterEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun consentement actif pour le moment.'**
+  String get privacyCenterEmpty;
+
+  /// No description provided for @privacyCenterGrantedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accordé le'**
+  String get privacyCenterGrantedOn;
+
+  /// No description provided for @privacyCenterRevokedOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Révoqué le'**
+  String get privacyCenterRevokedOn;
+
+  /// No description provided for @policyDiffTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour de la politique'**
+  String get policyDiffTitle;
+
+  /// No description provided for @policyDiffAcceptDelta.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai lu et j\'accepte les changements'**
+  String get policyDiffAcceptDelta;
+
+  /// Phase 29-04 — BatchValidationBubble headline (PRIV-08).
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT a lu {count} chiffres. Tout bon ?'**
+  String batchValidationTitle(int count);
+
+  /// No description provided for @batchValidationConfirmAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout bon'**
+  String get batchValidationConfirmAll;
+
+  /// No description provided for @batchValidationCorrectOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger un chiffre'**
+  String get batchValidationCorrectOne;
+
+  /// No description provided for @batchValidationRejectAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ne colle'**
+  String get batchValidationRejectAll;
+
+  /// No description provided for @fieldCorrectionTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corriger la valeur'**
+  String get fieldCorrectionTitle;
+
+  /// No description provided for @fieldCorrectionSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get fieldCorrectionSave;
+
+  /// No description provided for @fieldCorrectionCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get fieldCorrectionCancel;
+
+  /// No description provided for @renderModeRejectBannerSanity.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une valeur paraît impossible. MINT a préféré s\'arrêter.'**
+  String get renderModeRejectBannerSanity;
+
+  /// No description provided for @renderModeRejectBannerGuard.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'a pas pu présenter ce résumé de manière éducative. Regarde les chiffres bruts.'**
+  String get renderModeRejectBannerGuard;
+
+  /// No description provided for @humanReviewBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'À vérifier par un œil humain'**
+  String get humanReviewBadge;
+
+  /// Phase 29-05 — title of the opposable declaration sheet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un moment avant de continuer'**
+  String get thirdPartyDeclarationTitle;
+
+  /// Phase 29-05 — single-subject declaration body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document ?'**
+  String thirdPartyDeclarationBody(String name);
+
+  /// Phase 29-05 — multi-subject declaration body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document ?'**
+  String thirdPartyDeclarationMultipleBody(String names);
+
+  /// Phase 29-05 — primary CTA (grants the nominative receipt).
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, j\'ai son consentement'**
+  String get thirdPartyDeclarationConfirm;
+
+  /// Phase 29-05 — cancel CTA (aborts the upload).
+  ///
+  /// In fr, this message translates to:
+  /// **'Non, annuler l\'upload'**
+  String get thirdPartyDeclarationCancel;
+
+  /// Phase 29-05 — secondary CTA (logs intent, real invite deferred).
+  ///
+  /// In fr, this message translates to:
+  /// **'Inviter {name} sur MINT'**
+  String thirdPartyInviteCta(String name);
+
+  /// Phase 29-05 — toast shown after tapping the invite stub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Invitation bientôt disponible — on note ton intention.'**
+  String get thirdPartyInviteComingSoon;
+
+  /// Phase 29-05 — nLPD art. 19 notice text shown below the body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.'**
+  String get thirdPartyDeclarationNoticeLink;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
