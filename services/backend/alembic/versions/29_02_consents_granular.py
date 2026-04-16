@@ -71,7 +71,7 @@ def upgrade():
     rows = conn.execute(
         sa.text(
             "SELECT id, user_id, consent_type, enabled, updated_at "
-            "FROM consents WHERE enabled = 1 OR enabled = TRUE"
+            "FROM consents WHERE enabled = TRUE"
         )
     ).fetchall()
 
