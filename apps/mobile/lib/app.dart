@@ -144,6 +144,7 @@ import 'package:mint_mobile/screens/explore/explore_hub_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
+final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
 final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellExplorer');
 
@@ -314,7 +315,29 @@ final _router = GoRouter(
             ),
           ],
         ),
-        // Tab 1: Coach
+        // Tab 1: Mon argent — patrimoine + budget hub.
+        // Added 2026-04-17 to fix MintShell's 4th destination pointing to
+        // an out-of-range branch (shell had 4 tabs, router had 3 branches).
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorKeyMonArgent,
+          routes: [
+            GoRoute(
+              path: '/mon-argent',
+              builder: (context, state) => const ExploreHubScreen(
+                title: 'Mon argent',
+                entries: [
+                  HubEntry(icon: Icons.savings, label: 'Budget mensuel', route: '/budget'),
+                  HubEntry(icon: Icons.account_balance, label: 'LPP — 2e pilier', route: '/lpp-deep'),
+                  HubEntry(icon: Icons.savings_outlined, label: '3e pilier', route: '/3a-deep'),
+                  HubEntry(icon: Icons.assessment, label: 'Bilan arbitrage', route: '/arbitrage/bilan'),
+                  HubEntry(icon: Icons.pie_chart, label: 'Allocation annuelle', route: '/arbitrage/allocation-annuelle'),
+                  HubEntry(icon: Icons.card_giftcard, label: 'Donation', route: '/life-event/donation'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        // Tab 2: Coach
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyCoach,
           routes: [
@@ -341,7 +364,7 @@ final _router = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Explorer
+        // Tab 3: Explorer
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyExplorer,
           routes: [
