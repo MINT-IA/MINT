@@ -41,14 +41,44 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
-      # 2026-04-17: MLKit 7.x (TextRecognition 7.0.0 transitive deps —
-      # GoogleMLKit, MLKitCommon, MLKitVision, MLImage) and TensorFlowLite
-      # ship without an arm64 simulator slice. On Apple Silicon macs running
-      # iOS 26+ simulators, xcodebuild refuses to link them. Excluding arm64
-      # for the iphonesimulator SDK forces the simulator build to x86_64
-      # (Rosetta); devices still get native arm64. Remove once MLKit
-      # TextRecognition migrates to 9.x with an arm64 simulator slice.
-      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      # 2026-04-17: some MLKit 7.x pods (GoogleMLKit, MLKitCommon, MLImage,
+      # MLKitVision) declare EXCLUDED_ARCHS=arm64 for simulator themselves.
+      # We explicitly do NOT set a blanket EXCLUDED_ARCHS here: iOS 26+
+      # simulators on Apple Silicon require arm64 host binaries (Rosetta
+      # isn't available for the simulator runtime on Tahoe). The pod-level
+      # exclusions still apply, producing harmless warnings; the app
+      # itself links as arm64-simulator and runs on iPhone 17 Pro.
     end
+  end
+
+  # 2026-04-17: flutter_gemma ships only an ios-arm64 slice of
+  # TensorFlowLiteSelectTfOps — no simulator slice at all. Xcode's aggregate
+  # OTHER_LDFLAGS links it unconditionally, so simulator builds fail with
+  # "Framework 'TensorFlowLiteSelectTfOps' not found". SLM is gated off at
+  # runtime via FeatureFlags.slmPluginReady=false, so dropping the framework
+  # on the simulator link line is safe (no symbol is ever called). Devices
+  # still link the arm64 slice. Rewrite the generated Pods-Runner xcconfig
+  # to make the TFLite framework iphoneos-only. Rerun on every pod install.
+  # flutter_gemma ships only an ios-arm64 slice of TensorFlowLiteSelectTfOps
+  # (no simulator slice). SLM is gated off at runtime via
+  # FeatureFlags.slmPluginReady=false, so dropping this framework from the
+  # simulator link line is safe. Devices still link the arm64 slice.
+  require 'pathname'
+  Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner/*.xcconfig").each do |xcconfig|
+    contents = xcconfig.read
+    next unless contents.include?('-framework "TensorFlowLiteSelectTfOps"')
+    contents.gsub!(' -framework "TensorFlowLiteSelectTfOps"', '')
+    if contents =~ /^OTHER_LDFLAGS\[sdk=iphoneos\*\] = (.+)$/
+      existing_device = Regexp.last_match(1)
+      unless existing_device.include?('TensorFlowLiteSelectTfOps')
+        contents.sub!(
+          /^OTHER_LDFLAGS\[sdk=iphoneos\*\] = .+$/,
+          "OTHER_LDFLAGS[sdk=iphoneos*] = #{existing_device} -framework \"TensorFlowLiteSelectTfOps\"",
+        )
+      end
+    else
+      contents << "\nOTHER_LDFLAGS[sdk=iphoneos*] = $(inherited) -framework \"TensorFlowLiteSelectTfOps\"\n"
+    end
+    xcconfig.write(contents)
   end
 end

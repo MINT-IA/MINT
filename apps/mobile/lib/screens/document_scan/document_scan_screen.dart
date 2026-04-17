@@ -639,9 +639,16 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // If 422 rejection was shown, don't fall through to OCR
       if (_preValidationError != null) return;
 
-      // Fallback: local MLKit OCR (for offline or when Vision fails)
+      // Fallback: local MLKit OCR (for offline or when Vision fails).
+      // Skipped on iOS simulator: google_mlkit_text_recognition 7.x has no
+      // arm64-simulator slice and the Podfile stubs it out of the sim link
+      // with dynamic_lookup. Calling TextRecognizer here would crash with a
+      // missing-symbol at runtime. Backend Vision path is authoritative.
       String extractedText = '';
-      if (!kIsWeb) {
+      final bool isIosSimulator = !kIsWeb &&
+          Platform.isIOS &&
+          Platform.environment.containsKey('SIMULATOR_DEVICE_NAME');
+      if (!kIsWeb && !isIosSimulator) {
         final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
         try {
           final input = InputImage.fromFilePath(file.path);
