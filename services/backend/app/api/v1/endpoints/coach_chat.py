@@ -1981,7 +1981,20 @@ async def _run_agent_loop(
 # ---------------------------------------------------------------------------
 
 
-@router.post("/chat", response_model=CoachChatResponse)
+@router.post(
+    "/chat",
+    response_model=CoachChatResponse,
+    # CoachChatResponse.model_config sets alias_generator=to_camel so the
+    # schema fields expose camelCase aliases (toolCalls, tokensUsed,
+    # responseMeta, cashLevel, systemPromptUsed). FastAPI's default
+    # serialization uses the python field name (snake_case) unless told
+    # otherwise — so without this flag the Flutter client silently drops
+    # every non-trivial field (it reads json['toolCalls'], backend emits
+    # json['tool_calls'], JSON keys are case-sensitive). Setting
+    # response_model_by_alias=True is the one-line fix that restores the
+    # documented contract. Root-caused 2026-04-17 during deep-audit.
+    response_model_by_alias=True,
+)
 @limiter.limit("30/minute;500/day")
 async def coach_chat(
     request: Request,
