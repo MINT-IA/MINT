@@ -96,6 +96,21 @@ class ComplianceGuard:
         "seraient garanties",
         "assurerait",
         "assureront",
+        # Gerund / present-participle forms (GAP #6, deep-audit 2026-04-17:
+        # "Haiku emits 'en garantissant le rendement' which bypassed every
+        # prior rule because all conjugations listed were finite-verb only").
+        "garantissant",
+        "en garantissant",
+        "assurant",
+        "en assurant",
+        # Promise-family verbs — equivalent semantics to guarantee, same risk
+        # profile. Coach must never promise a return.
+        "promettant",
+        "en promettant",
+        "promet un rendement",
+        "promet un retour",
+        "promettre un rendement",
+        "promettre un retour",
         # Infinitive prescriptive bypass
         "garantir un rendement",
         "assurer un retour",
@@ -201,6 +216,17 @@ class ComplianceGuard:
         "seraient garanties": "seraient envisageables",
         "assurerait": "pourrait offrir",
         "assureront": "pourraient offrir",
+        # Gerund / present-participle sanitisation (deep-audit 2026-04-17)
+        "garantissant": "permettant potentiellement",
+        "en garantissant": "en visant",
+        "assurant": "offrant potentiellement",
+        "en assurant": "en visant",
+        "promettant": "visant",
+        "en promettant": "en visant",
+        "promet un rendement": "vise un rendement",
+        "promet un retour": "vise un retour",
+        "promettre un rendement": "viser un rendement",
+        "promettre un retour": "viser un retour",
         "garantir un rendement": "viser un rendement",
         "assurer un retour": "viser un retour",
     }
