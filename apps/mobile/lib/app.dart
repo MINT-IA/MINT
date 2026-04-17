@@ -22,9 +22,9 @@ import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 // consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)
-import 'package:mint_mobile/theme/colors.dart';
-// portfolio_screen.dart — zombie redirect (Plan 11-02)
+// portfolio_screen.dart DELETED (deep-audit 2026-04-17) — route /portfolio still redirects to /home
 // profile_screen.dart DELETED (KILL-04, Phase 2)
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
@@ -41,7 +41,7 @@ import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
 import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
 import 'package:mint_mobile/screens/about_screen.dart';
-// ask_mint_screen.dart — zombie redirect (Plan 11-02)
+// ask_mint_screen.dart DELETED (deep-audit 2026-04-17) — route /ask-mint redirects to /coach/chat
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -75,7 +75,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-// score_reveal_screen.dart — zombie redirect (Plan 11-02)
+// score_reveal_screen.dart DELETED (deep-audit 2026-04-17) — route /score-reveal redirects to /home
 // coach_profile.dart — unused after score-reveal zombie (Plan 11-02)
 // financial_fitness_service.dart — unused after score-reveal zombie (Plan 11-02)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
@@ -102,8 +102,7 @@ import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart'
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
-// annual_refresh_screen.dart — zombie redirect (Plan 11-02)
-// cockpit_detail_screen.dart — zombie redirect (Plan 11-02)
+// annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -136,7 +135,7 @@ import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
-// achievements_screen.dart — zombie redirect (Plan 11-02)
+// achievements_screen.dart DELETED (deep-audit 2026-04-17) — route /achievements redirects to /home
 import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 // KILL-07: Explorer hub screen imports removed (Phase 2).
 // Hub screen FILES preserved for Phase 3 chat-summoned drawers.
