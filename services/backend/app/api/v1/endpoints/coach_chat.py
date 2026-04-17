@@ -2234,6 +2234,71 @@ async def coach_chat(
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
 
+    # ARCH-FIX (hallucination root cause): inject the user's actual profile
+    # values from the DB as a HARD authoritative block. The existing
+    # CoachContext / profile_context chain silently drops most fields (snake_
+    # case vs camelCase whitelist mismatches, field renames). Without a direct
+    # anchor Claude fabricates numbers ("168k brut, Lausanne, 1 enfant" when
+    # profile says 122k/Sion/married). This block is the last line of defence.
+    if _user and db:
+        try:
+            from app.models.profile_model import ProfileModel as _PM_PROF
+            _db_prof = (
+                db.query(_PM_PROF)
+                .filter(_PM_PROF.user_id == _user.id)
+                .order_by(_PM_PROF.updated_at.desc())
+                .first()
+            )
+            if _db_prof and _db_prof.data:
+                _d = _db_prof.data
+                import datetime as _dt_now
+                _age = None
+                if _d.get("birthYear"):
+                    _age = _dt_now.datetime.now(_dt_now.timezone.utc).year - int(_d["birthYear"])
+                _facts = []
+                if _age is not None:
+                    _facts.append(f"- Age: {_age} ans (ne en {_d.get('birthYear')})")
+                if _d.get("canton"):
+                    _facts.append(f"- Canton: {_d['canton']}")
+                if _d.get("commune"):
+                    _facts.append(f"- Commune: {_d['commune']}")
+                if _d.get("householdType"):
+                    _hh_map = {"single": "celibataire", "couple": "marie", "concubine": "concubinage", "family": "famille"}
+                    _facts.append(f"- Statut civil: {_hh_map.get(_d['householdType'], _d['householdType'])}")
+                if _d.get("gender"):
+                    _facts.append(f"- Genre: {_d['gender']}")
+                if _d.get("employmentStatus"):
+                    _facts.append(f"- Statut emploi: {_d['employmentStatus']}")
+                if _d.get("incomeGrossYearly"):
+                    _facts.append(f"- Salaire brut annuel: {int(_d['incomeGrossYearly']):,} CHF".replace(",", "'"))
+                if _d.get("incomeNetMonthly"):
+                    _facts.append(f"- Salaire net mensuel: {int(_d['incomeNetMonthly']):,} CHF".replace(",", "'"))
+                if _d.get("avoirLpp"):
+                    _facts.append(f"- Avoir LPP actuel: {int(_d['avoirLpp']):,} CHF".replace(",", "'"))
+                if _d.get("lppInsuredSalary"):
+                    _facts.append(f"- Salaire assure LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
+                if _d.get("lppBuybackMax"):
+                    _facts.append(f"- Rachat LPP maximum: {int(_d['lppBuybackMax']):,} CHF".replace(",", "'"))
+                if _d.get("pillar3aBalance"):
+                    _facts.append(f"- Avoir 3a: {int(_d['pillar3aBalance']):,} CHF".replace(",", "'"))
+                if _d.get("avsContributionYears"):
+                    _facts.append(f"- Annees cotisation AVS: {_d['avsContributionYears']}")
+                if _facts:
+                    profile_block = (
+                        "\n\n## PROFIL UTILISATEUR (donnees reelles, NE PAS INVENTER) :\n"
+                        + "\n".join(_facts)
+                        + "\n\nRAPPEL: utilise UNIQUEMENT ces valeurs. "
+                        + "Si une info manque, dis-le et propose de la saisir. "
+                        + "N'invente JAMAIS un canton, un age, un salaire ou un capital."
+                    )
+                    system_prompt = system_prompt + profile_block
+                    logger.info(
+                        "coach_chat injected profile block (user=%s, facts=%d)",
+                        str(_user.id)[:8] + "...", len(_facts),
+                    )
+        except Exception as _pf_exc:
+            logger.warning("profile block injection failed: %s", _pf_exc)
+
     # P3-B readiness metric: track system prompt size for multi-agent trigger.
     # When tokens_est > 3500 regularly, activate domain-specific prompt routing.
     prompt_len = len(system_prompt)
