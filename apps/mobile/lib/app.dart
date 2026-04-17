@@ -127,6 +127,7 @@ import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
+import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
@@ -194,19 +195,39 @@ final _router = GoRouter(
     // refreshListenable, and the user sees a flash of the auth screen.
     if (auth.isLoading) return null;
 
-    // ── Parse /home?tab=N&intent=X query params ─────────────
-    // Notifications emit /home?tab=N&intent=monthlyCheckIn etc.
+    // ── Parse /home?tab=N&intent=X&screen=S query params ────
+    // Notifications emit /home?tab=N&intent=monthlyCheckIn etc. The
+    // `screen=` param (new 2026-04-17) is the forward-compatible semantic
+    // discriminator and always wins over `tab=`, so re-indexing the shell
+    // won't silently misroute future links.
     //
-    // V11 shell indexing (2026-04-17):
+    // V11 shell indexing:
     //   0 = Aujourd'hui | 1 = Mon argent | 2 = Coach | 3 = Explorer
     //
-    // Backward-compat: notifications built before V11 emit tab=1 meaning
-    // Coach; they always come with `intent` set. We treat `intent` as the
-    // semantic routing signal — any link carrying an intent is a coach
-    // entry regardless of the tab index.
+    // Backward-compat matrix (tab=):
+    //   V1 (pre-2026-03) was a 3-tab shell (0=Home, 1=Coach, 2=Dossier).
+    //   V1 notifications always carried `intent=` → caught first.
+    //   V1 shortcuts without intent are rare enough to accept the V11
+    //   mapping (tab=1 → /mon-argent); users will simply land one tap
+    //   away from their old target rather than on a crash.
     if (path == '/home') {
+      final screen = state.uri.queryParameters['screen'];
       final tab = state.uri.queryParameters['tab'];
       final intent = state.uri.queryParameters['intent'];
+      // Semantic routing wins over positional indexing.
+      switch (screen) {
+        case 'coach':
+          final query = intent != null ? '?topic=$intent' : '';
+          return '/coach/chat$query';
+        case 'mon-argent':
+        case 'money':
+          return '/mon-argent';
+        case 'explore':
+          return '/explore';
+        case 'dossier':
+        case 'profile':
+          return '/profile/bilan';
+      }
       if (intent != null || tab == '2') {
         final query = intent != null ? '?topic=$intent' : '';
         return '/coach/chat$query';
@@ -320,25 +341,16 @@ final _router = GoRouter(
             ),
           ],
         ),
-        // Tab 1: Mon argent — patrimoine + budget hub.
-        // Added 2026-04-17 to fix MintShell's 4th destination pointing to
-        // an out-of-range branch (shell had 4 tabs, router had 3 branches).
+        // Tab 1: Mon argent — dashboard with 2 cards (budget + patrimoine).
+        // Architecture A→B: PatrimoineAggregator + CoachWhisperService are
+        // pure reads from CoachProfileProvider. Phase B will add a spending
+        // synthesis card when Open Banking data lands.
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyMonArgent,
           routes: [
             GoRoute(
               path: '/mon-argent',
-              builder: (context, state) => const ExploreHubScreen(
-                title: 'Mon argent',
-                entries: [
-                  HubEntry(icon: Icons.savings, label: 'Budget mensuel', route: '/budget'),
-                  HubEntry(icon: Icons.account_balance, label: 'LPP — 2e pilier', route: '/lpp-deep'),
-                  HubEntry(icon: Icons.savings_outlined, label: '3e pilier', route: '/3a-deep'),
-                  HubEntry(icon: Icons.assessment, label: 'Bilan arbitrage', route: '/arbitrage/bilan'),
-                  HubEntry(icon: Icons.pie_chart, label: 'Allocation annuelle', route: '/arbitrage/allocation-annuelle'),
-                  HubEntry(icon: Icons.card_giftcard, label: 'Donation', route: '/life-event/donation'),
-                ],
-              ),
+              builder: (context, state) => const MonArgentScreen(),
             ),
           ],
         ),
