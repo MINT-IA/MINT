@@ -13,6 +13,14 @@ library;
 import 'package:flutter/foundation.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
+/// Keys that have already emitted a fallback warning in this process.
+///
+/// In tests and dev, `RegulatorySyncService._cachedConstants` stays null,
+/// so every [reg] call used to spam `debugPrint` — thousands of duplicate
+/// lines per test run, overflowing CI log buffers and drowning real output.
+/// We now log each missing key at most once per process.
+final Set<String> _regFallbackLogged = <String>{};
+
 /// Read a constant from the synced backend cache, falling back to [fallback].
 ///
 /// Usage: `reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp)`
@@ -20,11 +28,21 @@ import 'package:mint_mobile/services/regulatory_sync_service.dart';
 double reg(String key, double fallback) {
   final cached = RegulatorySyncService.getCached(key);
   if (cached != null) return cached;
-  // Fallback: backend cache not available for this key
-  if (kDebugMode) {
-    debugPrint('reg() FALLBACK: $key → $fallback (cache miss)');
+  // Fallback: backend cache not available for this key.
+  // Log once per key per process to avoid flooding CI / dev consoles.
+  if (kDebugMode && _regFallbackLogged.add(key)) {
+    debugPrint('reg() FALLBACK: $key → $fallback (cache miss, logged once)');
   }
   return fallback;
+}
+
+/// Test hook: reset the one-shot fallback log cache.
+///
+/// Some tests exercise the fallback path intentionally and want to observe
+/// the log for a fresh key. Not exported from the library.
+@visibleForTesting
+void debugResetRegFallbackLog() {
+  _regFallbackLogged.clear();
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
