@@ -389,13 +389,18 @@ class ComplianceGuard:
             violations.extend(
                 [f"Terme interdit: '{term}'" for term in banned_found]
             )
-            if len(banned_found) > 2:
+            # Always sanitize banned terms instead of fallback.
+            # The >2 threshold was killing legitimate French finance responses
+            # where "meilleur/optimal" appear naturally. Sanitization replaces
+            # terms with compliant alternatives — sufficient for LSFin.
+            text = self._sanitize_banned_terms(text)
+            if len(banned_found) > 5:
+                # Only fallback on truly egregious cases (5+ distinct banned terms
+                # suggests a fundamentally non-compliant response).
                 use_fallback = True
                 fallback_reasons.append(
-                    f"banned_terms>2 ({len(banned_found)}: {banned_found[:5]})"
+                    f"banned_terms>5 ({len(banned_found)}: {banned_found[:5]})"
                 )
-            else:
-                text = self._sanitize_banned_terms(text)
 
         # ── Layer 2: Prescriptive patterns ──
         # NEVER fallback on prescriptive language — always log only.

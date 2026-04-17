@@ -22838,4 +22838,95 @@ class SDe extends S {
   @override
   String get thirdPartyDeclarationNoticeLink =>
       'Ohne Einwilligung kann MINT die Daten einer anderen Person nicht verarbeiten.';
+
+  @override
+  String get monArgentTabTitle => 'Mein Geld';
+
+  @override
+  String get monArgentBudgetTitle => 'Dein Budget diesen Monat';
+
+  @override
+  String get monArgentBudgetEmpty =>
+      'Erstelle dein Budget, um zu sehen, wo du diesen Monat stehst.';
+
+  @override
+  String get monArgentBudgetStart => 'Starten';
+
+  @override
+  String get monArgentBudgetError => 'Budget konnte nicht geladen werden.';
+
+  @override
+  String get monArgentBudgetIncome => 'Einnahmen';
+
+  @override
+  String get monArgentBudgetSpent => 'Ausgaben';
+
+  @override
+  String get monArgentBudgetRemaining => 'Übrig';
+
+  @override
+  String get monArgentRetry => 'Erneut versuchen';
+
+  @override
+  String get monArgentPatrimoineTitle => 'Dein Ausgangspunkt';
+
+  @override
+  String get monArgentPatrimoineEmpty =>
+      'Scanne ein Dokument oder sprich mit dem Coach.';
+
+  @override
+  String get monArgentPatrimoineError => 'Daten konnten nicht geladen werden.';
+
+  @override
+  String get monArgentPatrimoineNet => 'Netto';
+
+  @override
+  String get monArgentPatrimoinePartial =>
+      'Ergänze deine Daten für eine vollständige Übersicht.';
+
+  @override
+  String get monArgentLpp => '2. Säule';
+
+  @override
+  String get monArgentPillar3a => 'Säule 3a';
+
+  @override
+  String get monArgentEpargne => 'Ersparnisse';
+
+  @override
+  String get monArgentScan => 'Scannen';
+
+  @override
+  String get monArgentEnrichCta =>
+      'Ergänze dein Dossier für eine genauere Übersicht';
+
+  @override
+  String get tabAujourdhui => 'Heute';
+
+  @override
+  String get tabMonArgent => 'Mein Geld';
+
+  @override
+  String get tabExplorer => 'Entdecken';
+
+  @override
+  String get hubRetraite => 'Vorsorge & Rente';
+
+  @override
+  String get hubFamille => 'Familie';
+
+  @override
+  String get hubTravail => 'Arbeit & Status';
+
+  @override
+  String get hubLogement => 'Wohnen';
+
+  @override
+  String get hubFiscalite => 'Steuern';
+
+  @override
+  String get hubPatrimoine => 'Vermögen & Erbschaft';
+
+  @override
+  String get hubSante => 'Gesundheit & Schutz';
 }

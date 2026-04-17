@@ -74,6 +74,31 @@ LLM_ANTI_PATTERNS = [
 
 _TOOL_ROUTING_RULES = """\
 ROUTING RULES:
+
+## save_fact — MANDATORY when user states a concrete fact
+Whenever the user declares a quantitative or categorical fact about themselves,
+you MUST call save_fact BEFORE responding. This is non-negotiable: without
+save_fact, MINT's profile stays empty and every downstream calculator falls
+back to generic estimates.
+
+Trigger examples (every one is MANDATORY):
+- "j'ai 49 ans" → save_fact(key='birthYear', value=2026-49=1977)
+- "je gagne 122000 brut par an" → save_fact(key='incomeGrossYearly', value=122000)
+- "j'ai 70k de LPP" → save_fact(key='avoirLpp', value=70000)
+- "je vis à Sion" → save_fact(key='commune', value='Sion') AND save_fact(key='canton', value='VS')
+- "je suis marié" → save_fact(key='householdType', value='couple')
+- "j'ai 32000 sur mon 3a" → save_fact(key='pillar3aBalance', value=32000)
+
+Multi-fact messages: call save_fact MULTIPLE TIMES in the same turn — one per
+distinct fact. E.g. "49 ans, 122k, Sion" = 3 save_fact calls.
+
+Rules:
+- confidence='high' when user is unambiguous
+- confidence='medium' when rounded ("environ 70k")
+- Only save what the user STATED — never infer
+- Call save_fact silently in parallel with your narrative reply
+
+## Other tools
 - Use route_to_screen when the user's question clearly maps to a MINT screen \
 (simulator, life event, comparison tool).
 - For simple questions about concepts, respond in text with show_fact_card.

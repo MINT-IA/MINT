@@ -290,12 +290,14 @@ class JitaiNudgeService {
   }
 
   /// 3a contribution deadline: Dec 1-31 → remind to max out.
+  /// Skips FATCA/expat_us: most 3a providers refuse US persons.
   static void _checkThreeADeadline(
     List<JitaiNudge> nudges,
     DateTime now,
     CoachProfile profile,
     S? l,
   ) {
+    if (profile.archetype == FinancialArchetype.expatUs) return;
     if (now.month == 12) {
       final daysLeft = 31 - now.day;
       // M2: Dec 31 edge case
@@ -463,7 +465,7 @@ class JitaiNudgeService {
           title: l?.nudgeStreakRiskTitle ?? 'Ta série est en danger\u00a0!',
           message: 'Tu as une série de $currentStreak\u00a0jours. '
               'Une petite action aujourd\'hui suffit pour la maintenir.', // Dynamic with streak count — not extracted
-          actionRoute: '/home?tab=1',
+          actionRoute: '/coach/chat',
           actionLabel: l?.nudgeStreakRiskAction ?? 'Continuer ma série',
           triggeredAt: now,
           priority: NudgePriority.high,
@@ -491,7 +493,7 @@ class JitaiNudgeService {
           message: l?.streakAtRiskBody(daysLeft, totalCheckIns) ??
               'Il te reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''} '
                   'pour maintenir ta s\u00e9rie de $totalCheckIns\u00a0mois.',
-          actionRoute: '/home?tab=1&intent=monthlyCheckIn',
+          actionRoute: '/coach/chat?topic=monthlyCheckIn',
           actionLabel: l?.nudgeStreakRiskAction ?? 'Faire mon point du mois',
           triggeredAt: now,
           priority: NudgePriority.high,
@@ -525,7 +527,7 @@ class JitaiNudgeService {
           message: '«\u00a0$desc\u00a0» — '
               'il reste $daysLeft\u00a0jour${daysLeft > 1 ? 's' : ''}. '
               'As-tu avancé sur ce sujet\u00a0?', // Dynamic with goal desc/days — not extracted
-          actionRoute: '/home?tab=1',
+          actionRoute: '/coach/chat',
           actionLabel: l?.nudgeGoalApproachingAction ?? 'En parler au coach',
           triggeredAt: now,
           priority: NudgePriority.medium,

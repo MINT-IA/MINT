@@ -66,11 +66,36 @@ class _MariageScreenState extends State<MariageScreen>
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
+  bool _prefilled = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _recalculate();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_prefilled) {
+      _prefilled = true;
+      final profile = context.read<CoachProfileProvider>().profile;
+      if (profile != null) {
+        final gross = profile.salaireBrutMensuel * 12;
+        if (gross > 0) _revenu1 = gross;
+        if (profile.canton.isNotEmpty && profile.canton != 'unknown') {
+          _canton = profile.canton;
+        }
+        if (profile.nombreEnfants > 0) _nbEnfants = profile.nombreEnfants;
+        final lppRente = profile.prevoyance.avoirLppTotal;
+        if (lppRente != null && lppRente > 0) {
+          // Rough annual rente estimate: avoir × 6.8% / 12
+          _renteLpp = (lppRente * 0.068 / 12).roundToDouble();
+        }
+        _recalculate();
+      }
+    }
   }
 
   @override

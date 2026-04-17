@@ -183,6 +183,18 @@ class HallucinationDetector:
         if not known_values:
             return []
 
+        # Filter out zero/None values — these indicate profile fields the user
+        # hasn't declared yet. Comparing "122000 CHF" from the user's new
+        # declaration against a profile value of 0 produces infinite deviation
+        # and wrongly flags every legit mention of a new fact as hallucination.
+        # This killed every "J'ai X CHF" declaration as a compliance violation.
+        known_values = {
+            k: v for k, v in known_values.items()
+            if v is not None and v != 0
+        }
+        if not known_values:
+            return []
+
         extracted = self.extract_numbers(llm_output)
         if not extracted:
             return []

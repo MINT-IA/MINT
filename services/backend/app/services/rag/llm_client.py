@@ -207,6 +207,15 @@ class LLMClient:
             }
             if tools:
                 kwargs["tools"] = tools
+                # Explicit tool_choice so Claude always considers tools.
+                # Without this, Sonnet sometimes skips tool_use entirely even
+                # when the system prompt says "MANDATORY call save_fact".
+                # disable_parallel_tool_use=False → Claude can call multiple
+                # save_fact in a single turn when user declares several facts.
+                kwargs["tool_choice"] = {
+                    "type": "auto",
+                    "disable_parallel_tool_use": False,
+                }
 
             # v2.7 STAB-02: retry transient upstream failures (429/5xx/529 +
             # connection/timeout). Wait: 0.5s, 1s, 2s (max 8s). Final failure

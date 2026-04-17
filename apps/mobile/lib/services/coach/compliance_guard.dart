@@ -287,14 +287,17 @@ class ComplianceGuard {
       // useFallback intentionally NOT set — log only.
     }
 
-    // Layer 1: Banned terms
+    // Layer 1: Banned terms — always sanitize, never fallback.
+    // The >2 threshold was killing legitimate French finance responses
+    // where "meilleur/optimal/parfait" appear naturally. Sanitize replaces
+    // terms with compliant alternatives — sufficient for LSFin.
+    // Only fallback on truly egregious cases (5+ distinct banned terms).
     final bannedFound = _checkBannedTerms(text);
     if (bannedFound.isNotEmpty) {
       violations.addAll(bannedFound.map((t) => "Terme interdit: '$t'"));
-      if (bannedFound.length > 2) {
+      text = _sanitizeBannedTerms(text);
+      if (bannedFound.length > 5) {
         useFallback = true;
-      } else {
-        text = _sanitizeBannedTerms(text);
       }
     }
 
@@ -308,6 +311,10 @@ class ComplianceGuard {
     }
 
     // Layer 3: Hallucination detection
+    // Only MAJOR deviations (>= 30%) trigger fallback — matches backend logic.
+    // Minor drift (e.g. "70k" when profile has 70'377) is rounding, not
+    // hallucination. Killing every response over rounding destroys the coach.
+    const double hallucinationMajorThresholdPct = 30.0;
     if (context != null && context.knownValues.isNotEmpty) {
       final hallucinations = HallucinationDetector.detect(text, context.knownValues);
       if (hallucinations.isNotEmpty) {
@@ -318,7 +325,10 @@ class ComplianceGuard {
             "déviation ${h.deviationPct.toStringAsFixed(1)}%)",
           );
         }
-        useFallback = true;
+        final major = hallucinations.where((h) => h.deviationPct >= hallucinationMajorThresholdPct).toList();
+        if (major.isNotEmpty) {
+          useFallback = true;
+        }
       }
     }
 
