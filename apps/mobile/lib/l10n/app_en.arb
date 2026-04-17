@@ -10468,13 +10468,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "Money in Switzerland. The thing nobody talks about.",
+  "anonymousIntentLine1": "Your financial life, in plain sight.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Short and sober — sets up the 'We clarify. You decide.' promise below."
   },
-  "anonymousIntentLine2": "Not even to themselves.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "I pay, I sign, but I don't really get all of it",
   "@anonymousIntentPill1": {

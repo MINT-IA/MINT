@@ -10468,13 +10468,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "El dinero, en Suiza, es el tema del que nadie habla.",
+  "anonymousIntentLine1": "Tu vida financiera, a la vista.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener."
   },
-  "anonymousIntentLine2": "Ni siquiera con uno mismo.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "Pago, firmo, pero no entiendo todo",
   "@anonymousIntentPill1": {

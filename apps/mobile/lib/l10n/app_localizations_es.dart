@@ -22304,11 +22304,10 @@ class SEs extends S {
   String get tonSectionLabel => 'Voz';
 
   @override
-  String get anonymousIntentLine1 =>
-      'El dinero, en Suiza, es el tema del que nadie habla.';
+  String get anonymousIntentLine1 => 'Tu vida financiera, a la vista.';
 
   @override
-  String get anonymousIntentLine2 => 'Ni siquiera con uno mismo.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 => 'Pago, firmo, pero no entiendo todo';

@@ -22353,11 +22353,10 @@ class SDe extends S {
   String get tonSectionLabel => 'Stimme';
 
   @override
-  String get anonymousIntentLine1 =>
-      'Geld. In der Schweiz redet niemand darüber.';
+  String get anonymousIntentLine1 => 'Dein Finanzleben, klar und deutlich.';
 
   @override
-  String get anonymousIntentLine2 => 'Nicht mal mit sich selbst.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>

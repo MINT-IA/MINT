@@ -39123,16 +39123,16 @@ abstract class S {
   /// **'Voix'**
   String get tonSectionLabel;
 
-  /// Anonymous intent screen — opening line about money taboo in Switzerland.
+  /// Landing opener. Short and sober — sets up the 'On éclaire. Tu décides.' promise below.
   ///
   /// In fr, this message translates to:
-  /// **'L\'argent, en Suisse, c\'est le sujet dont personne ne parle.'**
+  /// **'Ta vie financière, en clair.'**
   String get anonymousIntentLine1;
 
-  /// Anonymous intent screen — follow-up line.
+  /// Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it.
   ///
   /// In fr, this message translates to:
-  /// **'Même pas à soi-même.'**
+  /// **''**
   String get anonymousIntentLine2;
 
   /// Anonymous intent — felt-state pill 1.

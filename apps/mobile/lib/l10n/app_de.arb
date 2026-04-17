@@ -10468,13 +10468,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "Geld. In der Schweiz redet niemand darüber.",
+  "anonymousIntentLine1": "Dein Finanzleben, klar und deutlich.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Kurz und nüchtern — baut das Versprechen 'Wir klären auf. Du entscheidest.' darunter auf."
   },
-  "anonymousIntentLine2": "Nicht mal mit sich selbst.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "Ich zahle, ich unterschreibe, aber ich verstehe nicht alles",
   "@anonymousIntentPill1": {

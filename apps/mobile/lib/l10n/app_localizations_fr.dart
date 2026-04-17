@@ -22302,11 +22302,10 @@ class SFr extends S {
   String get tonSectionLabel => 'Voix';
 
   @override
-  String get anonymousIntentLine1 =>
-      'L\'argent, en Suisse, c\'est le sujet dont personne ne parle.';
+  String get anonymousIntentLine1 => 'Ta vie financière, en clair.';
 
   @override
-  String get anonymousIntentLine2 => 'Même pas à soi-même.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>

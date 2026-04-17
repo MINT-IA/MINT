@@ -11177,13 +11177,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01 — ProfileDrawer section heading for Ton chooser."
   },
-  "anonymousIntentLine1": "L'argent, en Suisse, c'est le sujet dont personne ne parle.",
+  "anonymousIntentLine1": "Ta vie financière, en clair.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Short and sober — sets up the 'On éclaire. Tu décides.' promise below."
   },
-  "anonymousIntentLine2": "Même pas à soi-même.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it."
   },
   "anonymousIntentPill1": "Je paye, je signe, mais je comprends pas tout",
   "@anonymousIntentPill1": {

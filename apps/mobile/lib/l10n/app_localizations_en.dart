@@ -22190,11 +22190,10 @@ class SEn extends S {
   String get tonSectionLabel => 'Voice';
 
   @override
-  String get anonymousIntentLine1 =>
-      'Money in Switzerland. The thing nobody talks about.';
+  String get anonymousIntentLine1 => 'Your financial life, in plain sight.';
 
   @override
-  String get anonymousIntentLine2 => 'Not even to themselves.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>

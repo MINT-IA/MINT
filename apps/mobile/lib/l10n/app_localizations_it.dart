@@ -22362,11 +22362,10 @@ class SIt extends S {
   String get tonSectionLabel => 'Voce';
 
   @override
-  String get anonymousIntentLine1 =>
-      'I soldi, in Svizzera, sono il tema di cui nessuno parla.';
+  String get anonymousIntentLine1 => 'La tua vita finanziaria, in chiaro.';
 
   @override
-  String get anonymousIntentLine2 => 'Nemmeno con sé stessi.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
