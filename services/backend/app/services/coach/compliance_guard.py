@@ -228,6 +228,25 @@ class ComplianceGuard:
         re.compile(r"devant\s+\d+\s*%\s+des", re.IGNORECASE),
         re.compile(r"parmi\s+les\s+meilleurs", re.IGNORECASE),
         re.compile(r"au-dessus\s+de\s+la\s+moyenne", re.IGNORECASE),
+        # Named product detection (AUDIT-2026-04-17 — LSFin "no-advice"):
+        # ISIN format (2 letters + 9 alphanumerics + 1 check digit).
+        # Case-sensitive: real ISINs are uppercase, lowering false positives
+        # on mid-sentence acronyms.
+        re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}[0-9]\b"),
+        # Common Swiss/US tickers paired with an investment action word.
+        # 2-5 uppercase letters (rules out French words) followed by an
+        # explicit "action"/"titre"/"stock"/"ETF" context marker.
+        re.compile(
+            r"\b[A-Z]{2,5}\b\s+"
+            r"(?:action|actions|titre|titres|ETF|fonds|stock|shares?)",
+        ),
+        # "achète/vends/investis dans <TICKER>" — catches conjugated forms
+        # even when the ticker is mentioned without a noun marker.
+        re.compile(
+            r"(?:ach[eè]te|vend[s]?|investi[sr]?|souscri[sr]?)\s+"
+            r"(?:des?\s+|du\s+)?[A-Z]{2,5}\b",
+            re.IGNORECASE,
+        ),
     ]
 
     # ═══════════════════════════════════════════════════════════════════
