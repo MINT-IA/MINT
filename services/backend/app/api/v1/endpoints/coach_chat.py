@@ -2064,6 +2064,31 @@ async def coach_chat(
     # ------------------------------------------------------------------
     # Step 1: Build CoachContext from sanitized profile_context
     # ------------------------------------------------------------------
+    # ARCH-FIX: If client didn't send profile_context (or sent empty),
+    # hydrate from the authenticated user's ProfileModel.data. Otherwise
+    # Claude has no access to the user's real numbers and hallucinates
+    # (e.g. "180k LPP + 45k 3a + Genève" when profile is 70k/32k/VS).
+    # Client-supplied profile_context still wins when present — lets mobile
+    # pass richer runtime data (confidence, nudges, etc.).
+    if (not safe_profile) and _user and db:
+        try:
+            from app.models.profile_model import ProfileModel as _PM
+            _db_prof = (
+                db.query(_PM)
+                .filter(_PM.user_id == _user.id)
+                .order_by(_PM.updated_at.desc())
+                .first()
+            )
+            if _db_prof and _db_prof.data:
+                # Pass through the sanitize path so banned keys are filtered.
+                safe_profile = _sanitize_profile_context(dict(_db_prof.data))
+                logger.info(
+                    "coach_chat hydrated profile from DB (user=%s, keys=%d)",
+                    str(_user.id)[:8] + "...", len(safe_profile),
+                )
+        except Exception as exc:
+            logger.warning("coach_chat profile hydration failed: %s", exc)
+
     coach_ctx = _build_coach_context_from_profile(safe_profile)
 
     # ------------------------------------------------------------------
