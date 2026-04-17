@@ -150,6 +150,18 @@ class LLMRouter:
             return self._anthropic
         return _default_anthropic_client()
 
+    def _anthropic_is_owned(self) -> bool:
+        """True when the router created its own transient client.
+
+        Ownership drives the close policy in ``_invoke_anthropic``: transient
+        clients must be closed deterministically inside the current event loop
+        so the underlying ``httpx``/``anyio`` transport does not linger and
+        trigger ``RuntimeError: Event loop is closed`` during late GC on the
+        ``asyncio.run`` bridge used by sync callers. Injected clients belong
+        to the caller — never touch their lifetime.
+        """
+        return self._anthropic is None
+
     def _get_bedrock(self) -> Optional[BedrockClient]:
         if self._bedrock is None:
             try:
@@ -192,7 +204,20 @@ class LLMRouter:
         client = self._get_anthropic()
         if client is None:
             raise RuntimeError("anthropic client unavailable (missing API key or package)")
-        return await _call_anthropic(client, request)
+        if not self._anthropic_is_owned():
+            return await _call_anthropic(client, request)
+        try:
+            return await _call_anthropic(client, request)
+        finally:
+            close = getattr(client, "close", None)
+            if close is not None:
+                try:
+                    await close()
+                except Exception as exc:
+                    logger.debug(
+                        "llm_router: transient anthropic close failed: %s",
+                        type(exc).__name__,
+                    )
 
     async def _invoke_bedrock(self, request: LLMRequest) -> Any:
         bedrock = self._get_bedrock()
