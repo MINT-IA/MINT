@@ -439,6 +439,39 @@ class TestCoachChatSystemPrompt:
         prompt = build_system_prompt(ctx=None)
         assert "ROUTING RULES" in prompt
 
+    def test_system_prompt_includes_life_event_catalog(self):
+        """Life-event enum (18 types) must be present so Claude can match raw
+        user text to the canonical MINT event and apply the Swiss specificity.
+        Regression guard for deep-audit 2026-04-17 P0-1."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "EVENEMENTS DE VIE" in prompt
+        # Spot-check four events across four categories so the catalog can't
+        # silently shrink in a future refactor.
+        for event in ("marriage", "jobLoss", "housingPurchase", "debtCrisis"):
+            assert event in prompt, f"life event {event!r} missing from prompt"
+
+    def test_system_prompt_includes_archetype_catalog(self):
+        """8 archetypes must be present so Claude doesn't default to swiss_native
+        and miss FATCA/frontalier/returning_swiss specifics."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "ARCHETYPES" in prompt
+        for archetype in (
+            "swiss_native", "expat_us", "cross_border", "returning_swiss"
+        ):
+            assert archetype in prompt, f"archetype {archetype!r} missing"
+
+    def test_system_prompt_expat_us_mentions_fatca(self):
+        """expat_us archetype description must include FATCA (load-bearing for
+        any US-person coaching — persona-journey audit Lauren)."""
+        from app.services.coach.claude_coach_service import build_system_prompt
+
+        prompt = build_system_prompt(ctx=None)
+        assert "FATCA" in prompt
+
     def test_system_prompt_includes_coach_tools_list(self):
         """All 5 coach tool names must be referenced in the system prompt."""
         from app.services.coach.claude_coach_service import build_system_prompt

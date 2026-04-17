@@ -215,6 +215,67 @@ L'utilisateur commence son premier emploi. Sujets prioritaires :
 Ton adapte : direct, concret, chiffres exacts. Pas de condescendance. Le data IS the tone.
 """
 
+# Life event catalog + archetype catalog — always injected so Claude has the
+# taxonomy map when the user describes a fact in natural language. Added
+# 2026-04-17 after deep-audit flagged P0-1: coach was inferring life events
+# from raw text with no structured enum, missing Swiss specifics like AVS
+# couple cap, EPL 3-year block, FATCA impact on 3a, frontalier impot source.
+_LIFE_EVENT_CATALOG = """\
+## EVENEMENTS DE VIE (18 — enum canonique MINT)
+Quand l'utilisateur decrit un fait qui correspond a un evenement ci-dessous,
+nomme-le explicitement ("Ca s'appelle un evenement 'jobLoss' chez MINT") et
+applique la specificite suisse associee. Ne force pas un match si le fait
+est generique.
+
+Famille :
+  marriage       -> regimes matrimoniaux CC art.181+, cap AVS couple 150%
+  divorce        -> partage LPP art.122-124, rente pont eventuelle
+  birth          -> allocations familiales LAFam, conge maternite LAPG
+  concubinage    -> aucune protection LPP de survie par defaut
+  deathOfRelative-> rente de veuf/veuve AVS, succession CC art.457+
+
+Professionnel :
+  firstJob       -> seuil LPP 22'680 CHF, choix 3a, bonification age
+  newJob         -> libre-passage a transferer sous 6 mois (LFLP art.4)
+  selfEmployment -> 3a porte a 20% du revenu, max 36'288 CHF/an sans LPP
+  jobLoss        -> LACI, maintien LPP compte libre-passage, Safe Mode possible
+  retirement     -> AVS 65/64, rente vs capital LIFD art.38, 13e rente
+
+Patrimoine :
+  housingPurchase-> EPL LPP art.79b, 3 ans de blocage apres rachat
+  housingSale    -> impot gain immobilier cantonal, reinvestissement
+  inheritance    -> quotite disponible post-2023, reserve heritiere
+  donation       -> impot cantonal sur donation, reserve descendants
+
+Sante :
+  disability     -> AI 1er pilier + LPP art.23-26, taux invalidite
+
+Mobilite :
+  cantonMove     -> bareme fiscal different, EPL timing
+  countryMove    -> libre-passage conservation, totalisation UE/CH si bilateral
+
+Crise :
+  debtCrisis     -> Safe Mode : desactiver optimisation 3a, priorite desendettement
+"""
+
+_ARCHETYPE_CATALOG = """\
+## ARCHETYPES (8 — ne presume jamais swiss_native)
+L'archetype change quelles regles suisses s'appliquent. Si l'archetype est
+connu (profile_context.archetype), suis les regles ci-dessous; sinon, pose
+une question de clarification avant de projeter des montants.
+
+  swiss_native          -> modele par defaut (arrive < 22 ans)
+  expat_eu              -> UE + arrivee > 20 ans : totalisation ALCP
+  expat_non_eu          -> hors UE, pas de convention : rachats frequents
+  expat_us              -> US citizen/green card : FATCA obligatoire, PFIC sur
+                           fonds CH, double imposition, beaucoup de caisses 3a
+                           refusent les US persons
+  independent_with_lpp  -> rachat LPP possible
+  independent_no_lpp    -> 3a max 36'288 CHF/an (20% revenu), pas de LPP a racheter
+  cross_border          -> permis G / frontalier : impot source, prevoyance separee
+  returning_swiss       -> CH + sejour etranger long : fenetre rachat avantageuse
+"""
+
 _PLAN_AWARENESS = """\
 PLAN AWARENESS:
 - The user's plan progress is in the memory block (PLAN EN COURS section).
@@ -513,6 +574,13 @@ def build_system_prompt(
 
     # 4-layer insight engine (always included for premier eclairage)
     base += "\n" + _FOUR_LAYER_ENGINE
+
+    # Life event + archetype taxonomies (deep-audit 2026-04-17 P0-1).
+    # Always included — they're the keyboard map for Swiss-specific
+    # guidance; without them Claude improvises from raw text and misses
+    # FATCA / EPL block / AVS couple cap etc.
+    base += "\n" + _LIFE_EVENT_CATALOG
+    base += "\n" + _ARCHETYPE_CATALOG
 
     # Intent-specific context injection
     if ctx and ctx.intent:
