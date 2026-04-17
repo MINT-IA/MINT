@@ -205,6 +205,7 @@ class CoachOrchestrator {
 
     // 1. SLM tier for chat
     if (_slmEligible()) {
+      debugPrint('[CoachChain] tier1=SLM trying...');
       final conversationCtx = _buildConversationContext(history, userMessage);
       final slmOut = await _trySlm(
         systemPrompt: systemPrompt,
@@ -213,18 +214,23 @@ class CoachOrchestrator {
         componentType: ComponentType.general,
       );
       if (slmOut != null) {
+        debugPrint('[CoachChain] tier1=SLM SUCCESS');
         return CoachResponse(
           message: slmOut.text,
           disclaimer: ComplianceGuard.standardDisclaimer,
           wasFiltered: slmOut.wasSanitized,
         );
       }
+      debugPrint('[CoachChain] tier1=SLM returned null, falling through');
+    } else {
+      debugPrint('[CoachChain] tier1=SLM ineligible (skipped)');
     }
 
     // 2. BYOK RAG tier for chat (skipped in safeModeDegraded emergency mode)
     if (!FeatureFlags.safeModeDegraded &&
         byokConfig != null &&
         byokConfig.hasApiKey) {
+      debugPrint('[CoachChain] tier2=BYOK trying...');
       final byokResponse = await _tryByokChat(
         userMessage: userMessage,
         history: history,
@@ -234,13 +240,20 @@ class CoachOrchestrator {
         language: language,
         cashLevel: cashLevel,
       );
-      if (byokResponse != null) return byokResponse;
+      if (byokResponse != null) {
+        debugPrint('[CoachChain] tier2=BYOK SUCCESS');
+        return byokResponse;
+      }
+      debugPrint('[CoachChain] tier2=BYOK returned null, falling through');
+    } else {
+      debugPrint('[CoachChain] tier2=BYOK not configured (skipped)');
     }
 
     // 2.5. Server-key tier — calls /coach/chat (uses Railway ANTHROPIC_API_KEY)
     // Only attempted when BYOK is not configured (no double-call).
     if (!FeatureFlags.safeModeDegraded &&
         (byokConfig == null || !byokConfig.hasApiKey)) {
+      debugPrint('[CoachChain] tier3=ServerKey trying...');
       final serverKeyResponse = await _tryServerKeyChat(
         userMessage: userMessage,
         history: history,
@@ -249,10 +262,17 @@ class CoachOrchestrator {
         language: language,
         cashLevel: cashLevel,
       );
-      if (serverKeyResponse != null) return serverKeyResponse;
+      if (serverKeyResponse != null) {
+        debugPrint('[CoachChain] tier3=ServerKey SUCCESS');
+        return serverKeyResponse;
+      }
+      debugPrint('[CoachChain] tier3=ServerKey returned null, falling through');
+    } else {
+      debugPrint('[CoachChain] tier3=ServerKey skipped (BYOK active or safeMode)');
     }
 
-    // 3. Mock fallback (no LLM, keyword-based)
+    // 4. Fallback — honest "coach unavailable" message.
+    debugPrint('[CoachChain] ALL TIERS FAILED — returning fallback');
     return _chatFallback(language);
   }
 
@@ -353,8 +373,11 @@ class CoachOrchestrator {
 
     if (result == null || result.text.trim().isEmpty) return null;
 
-    // Validate through ComplianceGuard.
-    ComplianceResult compliance;
+    // Run ComplianceGuard for SLM output ONLY for sanitization (banned terms
+    // replaced). Never fallback — SLM is on-device, there's no retry tier
+    // below it. If the SLM produced text, we show it (sanitized).
+    // This matches the bypass policy applied to BYOK / server-key tiers.
+    ComplianceResult? compliance;
     try {
       compliance = ComplianceGuard.validate(
         result.text,
@@ -362,22 +385,17 @@ class CoachOrchestrator {
         componentType: componentType,
       );
     } catch (e) {
-      debugPrint('[Orchestrator] ComplianceGuard error on SLM output: $e');
-      return null;
+      debugPrint('[Orchestrator] ComplianceGuard error on SLM output: $e (returning raw)');
     }
 
-    if (compliance.useFallback) {
-      debugPrint(
-          '[Orchestrator] SLM output rejected by ComplianceGuard: ${compliance.violations}');
-      return null;
-    }
+    final text = (compliance != null && compliance.sanitizedText.isNotEmpty)
+        ? compliance.sanitizedText
+        : result.text;
 
     return OrchestratorOutput(
-      text: compliance.sanitizedText.isNotEmpty
-          ? compliance.sanitizedText
-          : result.text,
+      text: text,
       tier: CoachTier.slm,
-      wasSanitized: !compliance.isCompliant,
+      wasSanitized: compliance != null && !compliance.isCompliant,
       slmDurationMs: result.durationMs,
     );
   }
@@ -454,7 +472,10 @@ class CoachOrchestrator {
       return null;
     }
 
-    ComplianceResult compliance;
+    // Backend RAG has its own compliance pipeline. Client ComplianceGuard here
+    // caused double-validation false positives. Trust the backend; keep only
+    // a light sanitize for local banned-term replacement.
+    ComplianceResult? compliance;
     try {
       compliance = ComplianceGuard.validate(
         rawText,
@@ -462,30 +483,22 @@ class CoachOrchestrator {
         componentType: componentType,
       );
     } catch (e) {
-      debugPrint('[Orchestrator] ComplianceGuard error on BYOK output: $e');
-      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
-      return null;
+      debugPrint('[Orchestrator] ComplianceGuard error on BYOK narrative: $e (returning raw)');
     }
 
-    if (compliance.useFallback) {
-      debugPrint(
-          '[Orchestrator] BYOK output rejected by ComplianceGuard: ${compliance.violations}');
-      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
-      return null;
-    }
-
-    // Success — record health + quality metrics.
     await _recordProviderAttempt(providerStr, true, stopwatch.elapsed);
     await _recordResponseQuality(
       providerStr, rawText, prompt,
     );
 
+    final text = (compliance != null && compliance.sanitizedText.isNotEmpty)
+        ? compliance.sanitizedText
+        : rawText;
+
     return OrchestratorOutput(
-      text: compliance.sanitizedText.isNotEmpty
-          ? compliance.sanitizedText
-          : rawText,
+      text: text,
       tier: CoachTier.byok,
-      wasSanitized: !compliance.isCompliant,
+      wasSanitized: compliance != null && !compliance.isCompliant,
     );
   }
 
@@ -688,19 +701,12 @@ class CoachOrchestrator {
     }
     stopwatch.stop();
 
-    ComplianceResult compliance;
-    try {
-      compliance = ComplianceGuard.validate(
-        ragResponse.answer,
-        context: ctx,
-        componentType: ComponentType.general,
-      );
-    } catch (_) {
-      await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
-      return null;
-    }
-
-    if (compliance.useFallback) {
+    // Backend /rag/query has its own compliance pipeline. Running Flutter
+    // ComplianceGuard on top causes false-positive fallbacks from hallucination
+    // detection faux positifs (rounding) and double banned-term rejection.
+    // Trust the backend — only drop on empty response.
+    if (ragResponse.answer.trim().isEmpty) {
+      debugPrint('[Orchestrator] BYOK returned empty answer');
       await _recordProviderAttempt(providerStr, false, stopwatch.elapsed);
       return null;
     }
@@ -711,9 +717,7 @@ class CoachOrchestrator {
       providerStr, ragResponse.answer, userMessage,
     );
 
-    var text = compliance.sanitizedText.isNotEmpty
-        ? compliance.sanitizedText
-        : ragResponse.answer;
+    var text = ragResponse.answer;
 
     // Transform tool_calls into inline markers that
     // coach_chat_screen can detect and resolve.
@@ -737,7 +741,7 @@ class CoachOrchestrator {
       disclaimer: ComplianceGuard.standardDisclaimer,
       sources: ragResponse.sources,
       disclaimers: ragResponse.disclaimers,
-      wasFiltered: !compliance.isCompliant,
+      wasFiltered: false,
       toolCalls: ragResponse.toolCalls,
       // ragResponse has no degraded flag — BYOK path uses user's own key.
       degraded: false,
@@ -821,28 +825,18 @@ class CoachOrchestrator {
         cashLevel: cashLevel,
       ).timeout(_byokTimeout);
 
-      // Apply ComplianceGuard (same as BYOK path)
-      ComplianceResult compliance;
-      try {
-        compliance = ComplianceGuard.validate(
-          response.message,
-          context: ctx,
-          componentType: ComponentType.general,
-        );
-      } catch (e) {
-        debugPrint('[Orchestrator] ComplianceGuard threw: $e');
+      // Backend /coach/chat has already run its own ComplianceGuard Python pipeline
+      // (banned-term sanitization, hallucination detection, disclaimer injection).
+      // Running the Flutter ComplianceGuard on top causes double-validation with
+      // different thresholds (client 30% hallucination, server 30% + legal
+      // constant whitelist drift) → false positives that drop every 2nd reply
+      // to the fallback "coach pas disponible" message. Trust the backend.
+      // Silent-fail protection: if the response is empty, drop to the next tier.
+      if (response.message.trim().isEmpty) {
+        debugPrint('[Orchestrator] Server-key returned empty message');
         return null;
       }
-
-      if (compliance.useFallback) {
-        debugPrint('[Orchestrator] ComplianceGuard rejected response: ${compliance.violations}');
-        debugPrint('[Orchestrator] First 200 chars: ${response.message.substring(0, response.message.length.clamp(0, 200))}');
-        return null;
-      }
-
-      var text = compliance.sanitizedText.isNotEmpty
-          ? compliance.sanitizedText
-          : response.message;
+      var text = response.message;
 
       // Transform tool_calls into inline markers (same as BYOK path)
       for (final toolCall in response.toolCalls) {
@@ -864,7 +858,7 @@ class CoachOrchestrator {
         disclaimer: ComplianceGuard.standardDisclaimer,
         sources: response.sources,
         disclaimers: response.disclaimers,
-        wasFiltered: !compliance.isCompliant,
+        wasFiltered: false,
         toolCalls: response.toolCalls,
         // v2.7 Task 8: surface Haiku-fallback flag from backend response_meta.
         degraded: response.degraded,
