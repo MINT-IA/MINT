@@ -101,14 +101,29 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Fail-fast: reject hardcoded secret in production
-if (
-    os.getenv("ENVIRONMENT", "development") in ("production", "staging")
-    and settings.JWT_SECRET_KEY == "mint-dev-secret-change-in-production"
-):
+# Fail-fast: reject hardcoded / weak secret outside a known development
+# context. Previous logic only tripped when ENVIRONMENT explicitly equalled
+# "production" or "staging" — if the variable was unset, misspelled, or
+# defaulted to "development" on a prod deploy, the dev secret leaked
+# through. Flip to fail-closed: only ENVIRONMENT="development" is allowed
+# to use weak secrets, and any other value (including unset) requires a
+# strong JWT_SECRET_KEY.
+_env = os.getenv("ENVIRONMENT", "development").strip().lower()
+_is_dev = _env == "development"
+_default_secret = "mint-dev-secret-change-in-production"
+
+if not _is_dev and settings.JWT_SECRET_KEY == _default_secret:
     raise RuntimeError(
-        "CRITICAL: JWT_SECRET_KEY must be set via environment variable in production. "
-        "Do not use the default dev secret."
+        f"CRITICAL: JWT_SECRET_KEY must be set via environment variable "
+        f"(ENVIRONMENT={_env!r}). Do not use the default dev secret. "
+        f"Generate one with: openssl rand -hex 32"
+    )
+
+if not _is_dev and len(settings.JWT_SECRET_KEY) < 32:
+    raise RuntimeError(
+        f"CRITICAL: JWT_SECRET_KEY too short ({len(settings.JWT_SECRET_KEY)} "
+        f"chars) for ENVIRONMENT={_env!r}. Use at least 32 chars "
+        f"(openssl rand -hex 32 produces 64)."
     )
 
 # Fail-fast: reject SQLite in production/staging (P0-INFRA-1)

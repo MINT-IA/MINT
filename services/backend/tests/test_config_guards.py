@@ -20,10 +20,13 @@ def _run_config_import(env_overrides: dict) -> subprocess.CompletedProcess:
     """Run a subprocess that imports config.py with given env vars."""
     env = {
         **os.environ,
-        # Ensure clean state — remove vars that might interfere
+        # Ensure clean state — remove vars that might interfere.
+        # The JWT secret is >=32 chars so the length guard does not trip;
+        # SQLite / OpenAI guards run afterwards and are what these tests
+        # are asserting.
         "ENVIRONMENT": "development",
         "DATABASE_URL": "sqlite:///./test.db",
-        "JWT_SECRET_KEY": "test-secret-not-default",
+        "JWT_SECRET_KEY": "test-secret-not-default-32-chars-long-abcdef",
         **env_overrides,
     }
     # Remove empty-string overrides that should be truly absent
@@ -79,6 +82,55 @@ class TestSQLiteFailFast:
         })
         assert result.returncode == 0, f"Should not crash with postgres: {result.stderr}"
         assert "OK" in result.stdout
+
+
+class TestJWTSecretGuard:
+    """Fail-closed JWT secret validation (2026-04-17 hardening)."""
+
+    def test_default_secret_rejected_in_staging(self):
+        result = _run_config_import({
+            "ENVIRONMENT": "staging",
+            "DATABASE_URL": "postgresql://user:pass@host:5432/mintdb",
+            "JWT_SECRET_KEY": "mint-dev-secret-change-in-production",
+        })
+        assert result.returncode != 0
+        assert "JWT_SECRET_KEY" in result.stderr
+
+    def test_default_secret_rejected_when_env_unset(self):
+        # ENVIRONMENT unset → treated as non-dev → refuse default secret.
+        result = _run_config_import({
+            "ENVIRONMENT": "",
+            "DATABASE_URL": "postgresql://user:pass@host:5432/mintdb",
+            "JWT_SECRET_KEY": "mint-dev-secret-change-in-production",
+        })
+        assert result.returncode != 0
+        assert "JWT_SECRET_KEY" in result.stderr
+
+    def test_short_secret_rejected_in_production(self):
+        result = _run_config_import({
+            "ENVIRONMENT": "production",
+            "DATABASE_URL": "postgresql://user:pass@host:5432/mintdb",
+            "JWT_SECRET_KEY": "short-secret",
+        })
+        assert result.returncode != 0
+        assert "too short" in result.stderr
+
+    def test_strong_secret_accepted_in_production(self):
+        result = _run_config_import({
+            "ENVIRONMENT": "production",
+            "DATABASE_URL": "postgresql://user:pass@host:5432/mintdb",
+            "JWT_SECRET_KEY": "a" * 64,
+            "OPENAI_API_KEY": "sk-test",
+        })
+        assert result.returncode == 0, f"Should not crash: {result.stderr}"
+        assert "OK" in result.stdout
+
+    def test_default_secret_ok_in_dev(self):
+        result = _run_config_import({
+            "ENVIRONMENT": "development",
+            "JWT_SECRET_KEY": "mint-dev-secret-change-in-production",
+        })
+        assert result.returncode == 0, f"Should not crash in dev: {result.stderr}"
 
 
 class TestOpenAIKeyWarning:
