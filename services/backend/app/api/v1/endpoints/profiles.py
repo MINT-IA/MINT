@@ -131,7 +131,7 @@ def create_profile(
 
     # Convert to response model
     profile = Profile(
-        id=profile_id,
+        id=str(profile_id),
         birthYear=profile_create.birthYear,
         dateOfBirth=profile_create.dateOfBirth,
         canton=profile_create.canton,
