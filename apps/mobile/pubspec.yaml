@@ -29,20 +29,25 @@ dependencies:
   sentry_flutter: ^8.0.0
   file_picker: ^8.0.0
   image_picker: ^1.1.2
-  google_mlkit_text_recognition: ^0.15.0
+  # 2026-04-17: google_mlkit_text_recognition removed. MLKit 7.x has no
+  # arm64-simulator slice, blocking simulator QA on Apple Silicon. Backend
+  # Claude Vision (/documents/extract-vision) is the single OCR path now.
+  # The local OCR fallback in DocumentScanScreen is gone.
   # Phase 28-03 — native document scanner (VisionKit iOS / ML Kit Doc Scanner Android)
   flutter_doc_scanner: ^0.0.13
-  # Phase 28-03 — local image labeling was stubbed 2026-04-17: MLKit 9.x
-  # (image_labeling 0.14) conflicts with MLKit 7.x (text_recognition 0.15)
-  # at the CocoaPods level. LocalImageClassifier runs fail-open without
-  # the pod; backend Vision filters non-financial images. Restore when
-  # text_recognition migrates to MLKit 9.x.
+  # 2026-04-17: google_mlkit_image_labeling removed (MLKit 7.x/9.x conflict).
+  # LocalImageClassifier is stubbed fail-open; backend Vision rejects
+  # non-financial images server-side.
   in_app_purchase: ^3.2.0
   in_app_purchase_platform_interface: ^1.4.0
   confetti: ^0.7.0
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.1
-  flutter_gemma: ^0.11.16
+  # 2026-04-17: flutter_gemma removed. SLM was already gated off at runtime
+  # (FeatureFlags.slmPluginReady=false) and its TensorFlowLiteSelectTfOps
+  # pod has no arm64-simulator slice. SlmEngine/SlmDownloadService are
+  # preserved as stubs so the orchestrator's tier chain still compiles and
+  # falls through to the server-key path on msg 1.
   flutter_tts: ^4.2.0
   speech_to_text: ^7.0.0
   sign_in_with_apple: ^6.1.0

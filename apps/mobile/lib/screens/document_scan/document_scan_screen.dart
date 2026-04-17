@@ -9,7 +9,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:image_picker/image_picker.dart' show XFile;
@@ -639,25 +638,12 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
       // If 422 rejection was shown, don't fall through to OCR
       if (_preValidationError != null) return;
 
-      // Fallback: local MLKit OCR (for offline or when Vision fails).
-      // Skipped on iOS simulator: google_mlkit_text_recognition 7.x has no
-      // arm64-simulator slice and the Podfile stubs it out of the sim link
-      // with dynamic_lookup. Calling TextRecognizer here would crash with a
-      // missing-symbol at runtime. Backend Vision path is authoritative.
-      String extractedText = '';
-      final bool isIosSimulator = !kIsWeb &&
-          Platform.isIOS &&
-          Platform.environment.containsKey('SIMULATOR_DEVICE_NAME');
-      if (!kIsWeb && !isIosSimulator) {
-        final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
-        try {
-          final input = InputImage.fromFilePath(file.path);
-          final result = await recognizer.processImage(input);
-          extractedText = result.text;
-        } finally {
-          recognizer.close();
-        }
-      }
+      // Local MLKit OCR fallback was removed 2026-04-17 along with the
+      // google_mlkit_text_recognition dep (MLKit 7.x has no arm64-simulator
+      // slice, which blocked iterating on Apple Silicon simulators). Backend
+      // Claude Vision is the single source of OCR — it already ran above;
+      // if it produced nothing, the user sees the OCR recovery sheet.
+      final String extractedText = '';
 
       if (extractedText.trim().length < 12) {
         if (!mounted) return;

@@ -41,44 +41,24 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
-      # 2026-04-17: some MLKit 7.x pods (GoogleMLKit, MLKitCommon, MLImage,
-      # MLKitVision) declare EXCLUDED_ARCHS=arm64 for simulator themselves.
-      # We explicitly do NOT set a blanket EXCLUDED_ARCHS here: iOS 26+
-      # simulators on Apple Silicon require arm64 host binaries (Rosetta
-      # isn't available for the simulator runtime on Tahoe). The pod-level
-      # exclusions still apply, producing harmless warnings; the app
-      # itself links as arm64-simulator and runs on iPhone 17 Pro.
     end
   end
 
-  # 2026-04-17: flutter_gemma ships only an ios-arm64 slice of
-  # TensorFlowLiteSelectTfOps — no simulator slice at all. Xcode's aggregate
-  # OTHER_LDFLAGS links it unconditionally, so simulator builds fail with
-  # "Framework 'TensorFlowLiteSelectTfOps' not found". SLM is gated off at
-  # runtime via FeatureFlags.slmPluginReady=false, so dropping the framework
-  # on the simulator link line is safe (no symbol is ever called). Devices
-  # still link the arm64 slice. Rewrite the generated Pods-Runner xcconfig
-  # to make the TFLite framework iphoneos-only. Rerun on every pod install.
-  # flutter_gemma ships only an ios-arm64 slice of TensorFlowLiteSelectTfOps
-  # (no simulator slice). SLM is gated off at runtime via
-  # FeatureFlags.slmPluginReady=false, so dropping this framework from the
-  # simulator link line is safe. Devices still link the arm64 slice.
+  # Sentry embeds a C++ crash monitor (SentryCrashMonitor_CPPException.cpp) that
+  # needs libc++ + its unwind personality. flutter_gemma used to pull these in
+  # transitively via `s.library = 'c++'`; with that dep gone, inject -lc++ +
+  # -lc++abi into the Pods-Runner aggregate xcconfig so the final link picks
+  # them up. Safe on device and simulator; both ship with every iOS SDK.
   require 'pathname'
   Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner/*.xcconfig").each do |xcconfig|
     contents = xcconfig.read
-    next unless contents.include?('-framework "TensorFlowLiteSelectTfOps"')
-    contents.gsub!(' -framework "TensorFlowLiteSelectTfOps"', '')
-    if contents =~ /^OTHER_LDFLAGS\[sdk=iphoneos\*\] = (.+)$/
-      existing_device = Regexp.last_match(1)
-      unless existing_device.include?('TensorFlowLiteSelectTfOps')
-        contents.sub!(
-          /^OTHER_LDFLAGS\[sdk=iphoneos\*\] = .+$/,
-          "OTHER_LDFLAGS[sdk=iphoneos*] = #{existing_device} -framework \"TensorFlowLiteSelectTfOps\"",
-        )
-      end
-    else
-      contents << "\nOTHER_LDFLAGS[sdk=iphoneos*] = $(inherited) -framework \"TensorFlowLiteSelectTfOps\"\n"
-    end
+    next unless contents =~ /^OTHER_LDFLAGS = (.+)$/
+    existing = Regexp.last_match(1)
+    next if existing.include?('-l"c++"') || existing.include?('-lc++')
+    contents.sub!(
+      /^OTHER_LDFLAGS = .+$/,
+      "OTHER_LDFLAGS = #{existing} -l\"c++\" -l\"c++abi\"",
+    )
     xcconfig.write(contents)
   end
 end
