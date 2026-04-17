@@ -454,14 +454,17 @@ class ComplianceGuard:
                 # use_fallback intentionally NOT set — log only.
 
         # ── Layer 3: Hallucination detection ──
-        # Threshold-based: only MAJOR deviations (>= 30%) trigger fallback.
-        # Minor deviations (< 30%) are logged and the response is preserved —
-        # small numeric drift (e.g. 7.0% conversion rate vs 6.8%) is closer
-        # to a rounding slip than a material hallucination, and killing the
-        # whole reply over it silently erases substantive coach output.
-        # Major deviations (>= 30%) still fallback: these are genuine
-        # fabrications (e.g. "tu as 500k LPP" when user has 70k).
-        _HALLUCINATION_MAJOR_THRESHOLD_PCT = 30.0
+        # Threshold-based: MAJOR deviations trigger fallback, MINOR are
+        # logged and the response is preserved. Tightened 30% → 15%
+        # (AUDIT-2026-04-17) after the security audit flagged the 30%
+        # band as too lenient — a 28% deviation on LPP (e.g. coach says
+        # 90k when user has 70k) passed silently.
+        #
+        # Cumulative tracking: when 3+ MINOR deviations accumulate in a
+        # single response, we also trigger fallback. Drift that is
+        # individually small can still compound into a wrong picture.
+        _HALLUCINATION_MAJOR_THRESHOLD_PCT = 15.0
+        _HALLUCINATION_MINOR_CUMULATIVE_LIMIT = 3
         if context and context.known_values:
             hallucinations = self._detector.detect(text, context.known_values)
             if hallucinations:
@@ -476,9 +479,10 @@ class ComplianceGuard:
                 if minor:
                     logger.info(
                         "ComplianceGuard L3: minor hallucinations (<%s%%) "
-                        "component=%s user=%s hits=%s (logged, response preserved)",
+                        "component=%s user=%s count=%d hits=%s",
                         _HALLUCINATION_MAJOR_THRESHOLD_PCT,
                         component_type, user_id or "anonymous",
+                        len(minor),
                         [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in minor[:5]],
                     )
                 if major:
@@ -492,6 +496,20 @@ class ComplianceGuard:
                     use_fallback = True
                     fallback_reasons.append(
                         f"hallucination_major hits={[(h.found_text, h.found_value, h.closest_value) for h in major[:3]]}"
+                    )
+                elif len(minor) >= _HALLUCINATION_MINOR_CUMULATIVE_LIMIT:
+                    logger.warning(
+                        "ComplianceGuard L3: cumulative minor hallucinations "
+                        "(%d >= %d) component=%s user=%s hits=%s",
+                        len(minor),
+                        _HALLUCINATION_MINOR_CUMULATIVE_LIMIT,
+                        component_type, user_id or "anonymous",
+                        [(h.found_text, h.found_value, h.closest_value, round(h.deviation_pct, 1)) for h in minor[:5]],
+                    )
+                    use_fallback = True
+                    fallback_reasons.append(
+                        f"hallucination_cumulative count={len(minor)} "
+                        f"hits={[(h.found_text, h.found_value, h.closest_value) for h in minor[:3]]}"
                     )
 
         # ── Layer 4: Disclaimer injection ──
