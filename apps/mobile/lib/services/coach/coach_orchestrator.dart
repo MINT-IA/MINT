@@ -105,11 +105,13 @@ class CoachOrchestrator {
   /// SLM inference timeout (generous for first-init which loads ~2.3 GB).
   static const Duration _slmTimeout = Duration(seconds: 30);
 
-  /// BYOK cloud LLM timeout.
-  /// Set to 60s to handle Railway cold starts on the server-key tier
-  /// (first request after worker restart takes ~20-25s due to ChromaDB
-  /// vector store initialization + RAG retrieval + Claude agent loop).
-  static const Duration _byokTimeout = Duration(seconds: 20);
+  /// BYOK / server-key cloud LLM timeout.
+  /// Backend hard cap is 55s (Claude tool-chain + RAG + compliance). This
+  /// orchestrator-level timeout wraps the HTTP call (own 50s timeout) plus
+  /// any 401-refresh retry (~1s). 55s keeps the user from staring at a
+  /// spinner past the point of no return; genuine hangs are surfaced by
+  /// the chat screen's retry UI, not by cutting short live turns.
+  static const Duration _byokTimeout = Duration(seconds: 55);
 
   /// Average chars per token (French with accents).
   static const double _charsPerToken = 3.5;
@@ -876,8 +878,21 @@ class CoachOrchestrator {
         degraded: response.degraded,
       );
     } on TimeoutException {
+      // 2026-04-17 audit: we used to return null here, which dropped the
+      // turn to `_chatFallback` ("Le coach IA n'est pas disponible").
+      // The user then perceived the coach as permanently gone. Rethrow as
+      // a typed network failure so the chat screen's catch block renders
+      // a retry CTA with the last user message.
       debugPrint('[Orchestrator] Server-key chat timed out');
-      return null;
+      throw const CoachChatApiException(
+        code: 'timeout',
+        message: 'Coach request timed out.',
+      );
+    } on CoachChatApiException {
+      // Auth / entitlement / service_unavailable / server_error: propagate
+      // so the chat screen can tell the user something specific and offer
+      // a retry. Do NOT fall to the silent fallback template.
+      rethrow;
     } catch (e) {
       debugPrint('[Orchestrator] Server-key chat error: $e');
       return null;

@@ -1081,7 +1081,10 @@ class DocumentService {
 
   /// Sync confirmed scan extraction to backend.
   /// Called after user reviews and confirms extracted fields.
-  /// Offline-first: failure is logged but never blocks the UX.
+  /// Offline-first: failure is logged but never blocks the UX. The caller
+  /// (ExtractionReviewScreen._sendWithRetry) handles its own retry loop
+  /// with backoff; this method tries a JWT refresh on 401 once so we
+  /// don't burn 3 retries when all that's needed is a fresh access token.
   static Future<Map<String, dynamic>?> sendScanConfirmation({
     required String documentType,
     required List<Map<String, dynamic>> confirmedFields,
@@ -1090,23 +1093,40 @@ class DocumentService {
   }) async {
     try {
       final baseUrl = ApiService.baseUrl;
-      final token = await AuthService.getToken();
-      if (token == null) return null;
+      var token = await AuthService.getToken();
+      if (token == null || token.isEmpty) return null;
 
-      final response = await http.post(
+      final body = jsonEncode({
+        'documentType': documentType,
+        'confirmedFields': confirmedFields,
+        'overallConfidence': overallConfidence,
+        'extractionMethod': extractionMethod,
+        'timestamp': DateTime.now().toUtc().toIso8601String(),
+      });
+
+      var response = await http.post(
         Uri.parse('$baseUrl/documents/scan-confirmation'),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'documentType': documentType,
-          'confirmedFields': confirmedFields,
-          'overallConfidence': overallConfidence,
-          'extractionMethod': extractionMethod,
-          'timestamp': DateTime.now().toUtc().toIso8601String(),
-        }),
+        body: body,
       );
+
+      if (response.statusCode == 401) {
+        final fresh = await AuthService.refreshAccessToken();
+        if (fresh != null && fresh.isNotEmpty) {
+          token = fresh;
+          response = await http.post(
+            Uri.parse('$baseUrl/documents/scan-confirmation'),
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+            body: body,
+          );
+        }
+      }
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
