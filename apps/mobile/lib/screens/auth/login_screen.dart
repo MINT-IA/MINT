@@ -15,7 +15,6 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
-import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,6 +34,17 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _appleSignInError;
   int _countdownSeconds = 0;
   Timer? _countdownTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Clear any stale auth error from a previous screen so a fresh arrival
+    // doesn't surface a red banner before the user has tried anything.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().clearError();
+    });
+  }
 
   @override
   void dispose() {
@@ -160,20 +170,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         const SizedBox(height: MintSpacing.xl),
-                        // Logo
-                        const MintEntrance(
-                            child: Center(
-                          child: MintSurface(
-                            padding: EdgeInsets.all(MintSpacing.md),
-                            radius: 24,
-                            elevated: true,
-                            child: Icon(
-                              Icons.token_rounded,
-                              color: MintColors.primary,
-                              size: 48,
+                        // Brand mark — typographic, matches LandingScreen.
+                        MintEntrance(
+                          child: Center(
+                            child: Text(
+                              'MINT',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: MintColors.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                    letterSpacing: 4,
+                                  ),
                             ),
                           ),
-                        )),
+                        ),
                         const SizedBox(height: MintSpacing.xl),
                         // Title
                         MintEntrance(

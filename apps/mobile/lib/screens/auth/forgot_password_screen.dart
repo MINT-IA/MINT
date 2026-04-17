@@ -26,6 +26,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   String? _debugToken;
 
   @override
+  void initState() {
+    super.initState();
+    // Clear any stale auth error from a previous screen — a fresh arrival
+    // should never show a red banner before the user has tried anything.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().clearError();
+    });
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _tokenController.dispose();

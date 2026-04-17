@@ -1679,43 +1679,28 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
   // ════════════════════════════════════════════════════════════
 
-  /// CHAT-05: Wraps the silent opener with tone preference chips
-  /// if the user hasn't chosen a tone yet.
+  /// Silent opener + optional intensity chips. One visual anchor at a time:
+  /// if the profile carries a key number, show just that; otherwise show
+  /// just the random sharp greeting. Stacking both produced two competing
+  /// attention targets and undermined the doctrine of a calm first frame.
   Widget _buildSilentOpenerWithTone() {
-    final opener = _buildSilentOpener();
+    final keyData = _computeKeyNumber();
+    final intentOverride = _intentOpenerText != null;
+    final Widget hero = (keyData != null || intentOverride)
+        ? _buildSilentOpener()
+        : _buildRandomGreeting();
 
-    // Random greeting when no messages yet.
-    final greeting = _messages.isEmpty ? _buildRandomGreeting() : const SizedBox.shrink();
+    final body = Expanded(
+      child: SingleChildScrollView(child: hero),
+    );
 
     if (_intensityChosen || !_cashLevelLoaded) {
-      return Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  opener,
-                  greeting,
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
+      return Column(children: [body]);
     }
 
     return Column(
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                opener,
-                greeting,
-              ],
-            ),
-          ),
-        ),
+        body,
         Padding(
           padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
           child: _buildIntensityChips(),
@@ -1818,7 +1803,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // The number, big, alone
+            // The number, big, alone — the headline below qualifies it and
+            // the input bar at the bottom already invites the user in, so
+            // we drop the faded "Tu veux en parler ?" prompt (60% opacity
+            // italic undermined the calm of the frame and the adult tone).
             Text(
               keyData.number,
               style: const TextStyle(
@@ -1830,7 +1818,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Short context headline
             Text(
               keyData.headline,
               style: const TextStyle(
@@ -1839,16 +1826,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 fontWeight: FontWeight.w400,
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            // "Tu veux en parler ?"
-            Text(
-              s.coachSilentOpenerQuestion,
-              style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: MintColors.textSecondary.withValues(alpha: 0.6),
-              ),
             ),
           ],
         ),
