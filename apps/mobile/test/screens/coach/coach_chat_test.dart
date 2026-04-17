@@ -128,9 +128,14 @@ void main() {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await pumpUntilGreeting(tester);
-      // Silent opener copy (coachSilentOpenerQuestion):
-      // "Tu veux en parler ?" — current ARB value.
-      expect(find.textContaining('veux en parler'), findsOneWidget);
+      // Silent opener post-polish 2026-04-17 (commit f95c8ad9): the italic
+      // "Tu veux en parler ?" glued under the key number was removed so the
+      // frame has a single visual anchor. With a profile the screen shows
+      // either the key-number + headline or the random greeting (if no key
+      // data is computable) — both render at least one Text. The old literal
+      // assertion no longer applies.
+      expect(find.byType(Scaffold), findsOneWidget);
+      expect(find.byType(Text), findsWidgets);
     });
 
     testWidgets('shows silent opener with financial data', (tester) async {
@@ -146,8 +151,10 @@ void main() {
       await tester.pumpWidget(buildTestWidget(withProfile: true));
       await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(TextField), findsOneWidget);
-      // coachInputHint: "Dis-moi ce qui te trotte dans la tête."
-      expect(find.textContaining('trotte dans la tête'), findsWidgets);
+      // coachInputHint shortened 2026-04-17 (commit d1ce63b5) from
+      // "Dis-moi ce qui te trotte dans la tête." to "Dis-moi." — same
+      // direction as the opener polish (invite conversation, not essays).
+      expect(find.textContaining('Dis-moi'), findsWidgets);
     });
 
     testWidgets('shows send button', (tester) async {
