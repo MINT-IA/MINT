@@ -101,11 +101,26 @@ class TestBannedTerms:
         assert "spécialiste" in result.sanitized_text
 
     def test_fallback_on_multiple_banned_terms(self, guard):
+        # Post-fix (2026-04-17): threshold raised from >2 to >5 banned terms
+        # because French finance text naturally contains "meilleur/optimal/
+        # parfait" and the old threshold rejected every 2nd coach reply.
+        # 3 banned terms → sanitize only (not fallback).
         result = guard.validate(
             "C'est garanti, le meilleur et le plus certain choix."
         )
-        assert result.use_fallback
+        assert not result.use_fallback  # sanitized, not rejected
         assert len(result.violations) >= 3
+        # Verify sanitization replaced the banned terms
+        assert "garanti" not in result.sanitized_text.lower() or "possible" in result.sanitized_text.lower()
+
+    def test_fallback_on_egregious_banned_terms(self, guard):
+        # 6+ banned terms still trigger fallback (new threshold).
+        result = guard.validate(
+            "C'est garanti, assuré, certain, optimal, parfait, "
+            "sans risque, le meilleur et l'idéal."
+        )
+        assert result.use_fallback
+        assert len(result.violations) >= 6
 
 
 # ═══════════════════════════════════════════════════════════════════════
