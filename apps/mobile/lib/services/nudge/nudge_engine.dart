@@ -236,12 +236,16 @@ class NudgeEngine {
 
   /// Pillar 3a deadline: December.
   /// Uses archetype-aware plafond.
+  /// Skips FATCA residents who may not be able to contribute (PFIC restrictions).
   static void _checkPillar3aDeadline(
     List<Nudge> nudges,
     DateTime now,
     CoachProfile profile,
   ) {
     if (now.month != 12) return;
+    // FATCA residents: most 3a providers refuse US persons.
+    if (profile.conjoint?.isFatcaResident == true && profile.archetype == FinancialArchetype.expatUs) return;
+    if (profile.archetype == FinancialArchetype.expatUs) return;
 
     final daysLeft = 31 - now.day;
     final isIndependentNoLpp =
@@ -355,7 +359,7 @@ class NudgeEngine {
       priority: goalProgressPct == 100
           ? NudgePriority.high
           : NudgePriority.medium,
-      intentTag: '/home?tab=1',
+      intentTag: '/coach/chat',
       titleKey: 'nudgeGoalProgressTitle',
       bodyKey: 'nudgeGoalProgressBody',
       params: {'progress': goalProgressPct.toString()},

@@ -59,7 +59,13 @@ class _AffordabilityScreenState extends State<AffordabilityScreen> {
       if (profile == null) return;
 
       bool changed = false;
-      final revenuAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
+      // Use household income if married/concubinage (both salaries count
+      // for mortgage capacity per ASB directive).
+      var revenuAnnuel = profile.salaireBrutMensuel * profile.nombreDeMois;
+      final conjointRevenu = profile.conjoint?.salaireBrutMensuel ?? 0;
+      if (conjointRevenu > 0) {
+        revenuAnnuel += conjointRevenu * profile.nombreDeMois;
+      }
       if (revenuAnnuel > 0) {
         _revenuBrut = revenuAnnuel;
         _prefilledFields.add('revenu_brut');

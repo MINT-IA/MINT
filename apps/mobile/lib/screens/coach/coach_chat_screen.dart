@@ -28,6 +28,8 @@ import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
+import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -1003,6 +1005,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
       _extractAndSaveInsight(text, cleanMessage);
 
+      // Sync profile from backend after each coach exchange.
+      // save_fact writes server-side; this pulls those updates into Flutter.
+      if (mounted) {
+        context.read<CoachProfileProvider>().syncFromBackend();
+      }
+
       // Check if we should propose proactive opt-in.
       _maybeShowProactiveOptIn();
     } on RagApiException catch (e) {
@@ -1041,6 +1049,47 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     } catch (e) {
       if (!mounted) return;
       debugPrint('[CoachChat] Standard response error: $e');
+
+      // ── Anonymous fallback: if user is not logged in, try the public
+      // /anonymous/chat endpoint (3 free messages) before showing an error.
+      // This bridges the gap between the SLM-first path (which needs no auth)
+      // and the server-key path (which requires JWT).
+      final auth = context.read<AuthProvider>();
+      if (!auth.isLoggedIn) {
+        try {
+          final anonResponse = await CoachChatApiService.sendAnonymousMessage(
+            message: text,
+          );
+          if (!mounted) return;
+          final anonMsg = anonResponse['message'] as String? ?? '';
+          final remaining = anonResponse['messagesRemaining'] as int? ?? -1;
+
+          if (anonMsg.isNotEmpty) {
+            setState(() {
+              _messages.add(ChatMessage(
+                role: 'assistant',
+                content: anonMsg,
+                timestamp: DateTime.now(),
+                disclaimers: (anonResponse['disclaimers'] as List?)
+                        ?.cast<String>() ??
+                    const [],
+                tier: ChatTier.fallback,
+              ));
+              _isLoading = false;
+            });
+            _scrollToBottom();
+
+            // Show auth gate when anonymous quota is exhausted.
+            if (remaining == 0) {
+              _showAnonymousAuthGate();
+            }
+            return;
+          }
+        } catch (anonError) {
+          debugPrint('[CoachChat] Anonymous fallback also failed: $anonError');
+        }
+      }
+
       // Recover the last user message for retry suggestion.
       final lastUserMsg = _messages
           .lastWhere((m) => m.isUser, orElse: () => ChatMessage(
@@ -1149,6 +1198,26 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Best-effort — don't block chat.
       debugPrint('[CoachChat] ${e.toString().substring(0, (e.toString().length > 80) ? 80 : e.toString().length)}');
     }
+  }
+
+  /// Show auth gate when anonymous message quota is exhausted.
+  ///
+  /// Adds a coach message inviting the user to create an account,
+  /// with tappable chips for register / login.
+  void _showAnonymousAuthGate() {
+    if (!mounted) return;
+    setState(() {
+      _messages.add(ChatMessage(
+        role: 'assistant',
+        content:
+            'On a deja decouvert quelques pistes ensemble. '
+            'Cree ton compte pour que je me souvienne de tout.',
+        timestamp: DateTime.now(),
+        suggestedActions: ['Creer mon compte', 'J\'ai deja un compte'],
+        tier: ChatTier.none,
+      ));
+    });
+    _scrollToBottom();
   }
 
   /// Handle the user's response to the proactive opt-in question.
@@ -1485,6 +1554,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Handle action tap from suggested action chips.
   void _handleActionTap(String action) {
     final s = S.of(context)!;
+
+    // Handle anonymous auth gate chips.
+    if (action == 'Creer mon compte') {
+      context.push('/auth/register');
+      return;
+    }
+    if (action == 'J\'ai deja un compte') {
+      context.push('/auth/login');
+      return;
+    }
 
     // Handle proactive opt-in responses.
     if (action == s.coachOptInAccept) {

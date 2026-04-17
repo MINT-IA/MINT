@@ -175,6 +175,63 @@ class CoachProfileProvider extends ChangeNotifier {
   /// when the backend profile is empty.
   Future<void> triggerBackendSync() => _syncToBackend();
 
+  /// Pull fresh profile data from backend and merge into local state.
+  ///
+  /// Called after each coach chat exchange to capture data written by
+  /// save_fact (which executes server-side and never reaches Flutter).
+  /// Fire-and-forget: errors are caught silently so chat flow is never blocked.
+  Future<void> syncFromBackend() async {
+    try {
+      final isLoggedIn = await AuthService.isLoggedIn();
+      if (!isLoggedIn) return;
+      final remoteData = await ApiService.get('/profiles/me');
+      if (remoteData is Map<String, dynamic>) {
+        mergeFromRemoteProfile(remoteData);
+        // Also merge financial fields that the basic merge doesn't cover.
+        _mergeFinancialFieldsFromRemote(remoteData);
+      }
+    } catch (e) {
+      debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
+    }
+  }
+
+  /// Merge financial fields from backend that save_fact may have written.
+  ///
+  /// Complements [mergeFromRemoteProfile] which only covers identity fields.
+  /// Maps backend camelCase keys → wizard answer keys understood by
+  /// [CoachProfile.fromWizardAnswers], then calls [mergeAnswers] which
+  /// handles persistence + notifyListeners.
+  void _mergeFinancialFieldsFromRemote(Map<String, dynamic> remote) {
+    if (_profile == null) return;
+    final p = _profile!.prevoyance;
+    final partial = <String, dynamic>{};
+
+    // LPP avoir
+    final remoteLpp = (remote['avoirLpp'] as num?)?.toDouble();
+    if ((p.avoirLppTotal ?? 0) <= 0 && remoteLpp != null && remoteLpp > 0) {
+      partial['_coach_avoir_lpp'] = remoteLpp;
+    }
+    // LPP salaire assuré
+    final remoteSalaire = (remote['lppInsuredSalary'] as num?)?.toDouble();
+    if ((p.salaireAssure ?? 0) <= 0 && remoteSalaire != null && remoteSalaire > 0) {
+      partial['_coach_salaire_assure'] = remoteSalaire;
+    }
+    // LPP rachat max
+    final remoteRachat = (remote['lppBuybackMax'] as num?)?.toDouble();
+    if ((p.rachatMaximum ?? 0) <= 0 && remoteRachat != null && remoteRachat > 0) {
+      partial['_coach_rachat_maximum'] = remoteRachat;
+    }
+    // 3a balance
+    final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
+    if ((p.totalEpargne3a ?? 0) <= 0 && remote3a != null && remote3a > 0) {
+      partial['_coach_total_3a'] = remote3a;
+    }
+
+    if (partial.isNotEmpty) {
+      mergeAnswers(partial); // handles persist + notifyListeners + backend sync
+    }
+  }
+
   String get personaKey {
     final p = _profile;
     if (p == null) return 'unknown';

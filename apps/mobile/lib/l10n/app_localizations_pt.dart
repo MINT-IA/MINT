@@ -22788,4 +22788,96 @@ class SPt extends S {
   @override
   String get thirdPartyDeclarationNoticeLink =>
       'Sem o consentimento dela, o MINT não pode tratar os dados de outra pessoa.';
+
+  @override
+  String get monArgentTabTitle => 'Meu dinheiro';
+
+  @override
+  String get monArgentBudgetTitle => 'Teu orçamento este mês';
+
+  @override
+  String get monArgentBudgetEmpty =>
+      'Define o teu orçamento para ver como estás este mês.';
+
+  @override
+  String get monArgentBudgetStart => 'Começar';
+
+  @override
+  String get monArgentBudgetError => 'Não foi possível carregar o orçamento.';
+
+  @override
+  String get monArgentBudgetIncome => 'Receitas';
+
+  @override
+  String get monArgentBudgetSpent => 'Despesas';
+
+  @override
+  String get monArgentBudgetRemaining => 'Resta';
+
+  @override
+  String get monArgentRetry => 'Tentar novamente';
+
+  @override
+  String get monArgentPatrimoineTitle => 'O teu ponto de partida';
+
+  @override
+  String get monArgentPatrimoineEmpty =>
+      'Digitaliza um documento ou fala com o coach para começar.';
+
+  @override
+  String get monArgentPatrimoineError =>
+      'Não foi possível carregar os teus dados.';
+
+  @override
+  String get monArgentPatrimoineNet => 'Líquido';
+
+  @override
+  String get monArgentPatrimoinePartial =>
+      'Adiciona os teus dados para uma vista completa.';
+
+  @override
+  String get monArgentLpp => '2.º pilar';
+
+  @override
+  String get monArgentPillar3a => 'Pilar 3a';
+
+  @override
+  String get monArgentEpargne => 'Poupança';
+
+  @override
+  String get monArgentScan => 'Digitalizar';
+
+  @override
+  String get monArgentEnrichCta =>
+      'Adiciona documentos para uma vista mais precisa';
+
+  @override
+  String get tabAujourdhui => 'Hoje';
+
+  @override
+  String get tabMonArgent => 'Meu dinheiro';
+
+  @override
+  String get tabExplorer => 'Explorar';
+
+  @override
+  String get hubRetraite => 'Reforma e Previdência';
+
+  @override
+  String get hubFamille => 'Família';
+
+  @override
+  String get hubTravail => 'Trabalho e Estatuto';
+
+  @override
+  String get hubLogement => 'Habitação';
+
+  @override
+  String get hubFiscalite => 'Impostos';
+
+  @override
+  String get hubPatrimoine => 'Património e Sucessão';
+
+  @override
+  String get hubSante => 'Saúde e Proteção';
 }
