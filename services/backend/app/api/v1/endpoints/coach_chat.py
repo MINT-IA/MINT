@@ -2080,8 +2080,48 @@ async def coach_chat(
                 .first()
             )
             if _db_prof and _db_prof.data:
-                # Pass through the sanitize path so banned keys are filtered.
-                safe_profile = _sanitize_profile_context(dict(_db_prof.data))
+                # Map DB camelCase → whitelist snake_case expected by
+                # _sanitize_profile_context. Without this mapping, every DB
+                # field is filtered out and Claude sees an empty context.
+                _d = _db_prof.data
+                import datetime as _dt
+                _mapped: dict = {}
+                # Identity
+                if _d.get("birthYear"):
+                    _mapped["age"] = _dt.datetime.now(_dt.timezone.utc).year - int(_d["birthYear"])
+                if _d.get("canton"):
+                    _mapped["canton"] = _d["canton"]
+                if _d.get("householdType"):
+                    hh = _d["householdType"]
+                    _mapped["marital_status"] = hh
+                    _mapped["is_married"] = (hh == "couple")
+                    _mapped["civil_status"] = hh
+                if _d.get("gender"):
+                    _mapped["gender"] = _d["gender"]
+                if _d.get("employmentStatus"):
+                    _mapped["employment_status"] = _d["employmentStatus"]
+                if _d.get("has2ndPillar") is not None:
+                    _mapped["has_2nd_pillar"] = bool(_d["has2ndPillar"])
+                # Income
+                if _d.get("incomeNetMonthly"):
+                    _mapped["monthly_income"] = _d["incomeNetMonthly"]
+                # LPP
+                if _d.get("avoirLpp"):
+                    _mapped["lpp_balance_total"] = _d["avoirLpp"]
+                    _mapped["lpp_capital"] = _d["avoirLpp"]
+                if _d.get("lppBuybackMax"):
+                    _mapped["lpp_buyback_max"] = _d["lppBuybackMax"]
+                    _mapped["lpp_buyback_potential"] = _d["lppBuybackMax"]
+                # 3a
+                if _d.get("pillar3aBalance"):
+                    _mapped["existing_3a_ytd"] = _d["pillar3aBalance"]
+                if _d.get("pillar3aAnnual"):
+                    _mapped["annual_3a_contribution"] = _d["pillar3aAnnual"]
+                # AVS
+                if _d.get("avsContributionYears"):
+                    _mapped["avs_contribution_years"] = _d["avsContributionYears"]
+                # Pass mapped dict through sanitize to enforce whitelist.
+                safe_profile = _sanitize_profile_context(_mapped)
                 logger.info(
                     "coach_chat hydrated profile from DB (user=%s, keys=%d)",
                     str(_user.id)[:8] + "...", len(safe_profile),
