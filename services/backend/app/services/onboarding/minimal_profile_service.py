@@ -68,17 +68,44 @@ _EU_CODES = {
 
 
 def _detect_archetype(input: MinimalProfileInput) -> str:
-    """Detect financial archetype from nationality + arrival data.
+    """Detect financial archetype from nationality + arrival + employment data.
 
     See CLAUDE.md §5 — 8 archetypes, each with different AVS/LPP treatment.
+    Resolution order (most specific → least specific):
+      1. Cross-border worker (permit G) — fiscal/social regime = source taxation
+      2. Self-employed (with or without LPP) — 3a ceiling differs (7'258 vs 36'288)
+      3. Expat US / FATCA
+      4. Returning Swiss (CH national, arrived late)
+      5. Native Swiss
+      6. Expat EU / non-EU (late arrival without CH nationality)
     """
     nat = (input.nationality_country or "").upper()
     group = (input.nationality_group or "").upper()
     arrival = input.arrival_age
+    employment = (input.employment_status or "").lower()
+    permit = (input.permit_type or "").upper()
 
-    # US citizens → FATCA archetype (regardless of arrival)
+    # Cross-border worker — takes priority: permit G = frontalier regime
+    # (source taxation, AVS contributions via employer, no LPP from the
+    # first franc, different 3a rules). LAVS art. 1a + CDI transfrontaliers.
+    if permit == "G":
+        return "cross_border"
+
+    # US citizens → FATCA archetype (regardless of arrival/employment).
+    # Must run before self-employed branch because FATCA + independent
+    # carries PFIC implications that dominate the 3a discussion.
     if nat in _US_CODES or group == "US":
         return "expat_us"
+
+    # Self-employed — ceiling for 3a is 20% of net income capped at 36'288
+    # when the person has NO LPP (OPP3 art. 7 al. 1 let. b); reverts to the
+    # salaried ceiling (7'258) as soon as an LPP account exists. Detect LPP
+    # presence via existing_lpp > 0 or an explicit caisse type.
+    if employment == "self_employed":
+        has_lpp = (input.existing_lpp is not None and input.existing_lpp > 0) or bool(
+            input.lpp_caisse_type
+        )
+        return "independent_with_lpp" if has_lpp else "independent_no_lpp"
 
     # Swiss native: born in CH or arrived < 22 (full contribution years possible)
     if nat == "CH" or group == "CH":

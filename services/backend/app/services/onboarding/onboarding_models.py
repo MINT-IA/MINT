@@ -47,6 +47,10 @@ class MinimalProfileInput:
     nationality_group: Optional[str] = None       # "CH", "EU", "non_EU", "US"
     nationality_country: Optional[str] = None     # ISO 2-letter code
     arrival_age: Optional[int] = None             # Age at arrival in Switzerland (None = born in CH)
+    # AUDIT-2026-04-17: Fields required to fill the last 3 archetypes
+    # (independent_with_lpp / independent_no_lpp / cross_border).
+    employment_status: Optional[str] = None       # "employed" | "self_employed" | "unemployed" | "student"
+    permit_type: Optional[str] = None             # "B" | "C" | "G" (frontalier) | "L" | "CH"
 
 
 @dataclass
