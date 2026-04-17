@@ -531,31 +531,18 @@ void main() {
   });
 
   // ─── AUDIT-2026-04-17: year-aware AVS13 helper ────────────────────
-  group('AVS13 year-aware constants', () {
-    test('pre-2026 year returns 12-month cap (30 240)', () {
-      expect(avsMaxAnnualRenteForYear(2025), 30240.0);
-      expect(avsMaxAnnualRenteForYear(2024), 30240.0);
+  // The 12m and 13m constants are derived from avsRenteMaxMensuelle in
+  // code (no numeric literal drift possible), so we only test the
+  // year-branching logic here — not the arithmetic identities.
+  group('avsMaxAnnualRenteForYear — branching logic', () {
+    test('returns 12-month cap for years < avs13emeRenteAnneeDebut', () {
+      expect(avsMaxAnnualRenteForYear(2025), avsRenteMaxAnnuelle);
+      expect(avsMaxAnnualRenteForYear(2024), avsRenteMaxAnnuelle);
     });
 
-    test('2026 and later returns 13-month cap (32 760)', () {
-      expect(avsMaxAnnualRenteForYear(2026), 32760.0);
-      expect(avsMaxAnnualRenteForYear(2027), 32760.0);
-      expect(avsMaxAnnualRenteForYear(2035), 32760.0);
-    });
-
-    test('13-month cap equals monthly x 13', () {
-      expect(avsRenteMaxAnnuelle13m, avsRenteMaxMensuelle * 13);
-    });
-
-    test('12-month cap equals monthly x 12 (sanity)', () {
-      expect(avsRenteMaxAnnuelle, avsRenteMaxMensuelle * 12);
-    });
-
-    test('13m premium equals one monthly rente', () {
-      expect(
-        avsRenteMaxAnnuelle13m - avsRenteMaxAnnuelle,
-        avsRenteMaxMensuelle,
-      );
+    test('returns 13-month cap from avs13emeRenteAnneeDebut onwards', () {
+      expect(avsMaxAnnualRenteForYear(2026), avsRenteMaxAnnuelle13m);
+      expect(avsMaxAnnualRenteForYear(2035), avsRenteMaxAnnuelle13m);
     });
   });
 }

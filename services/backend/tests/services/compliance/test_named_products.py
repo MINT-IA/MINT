@@ -9,6 +9,8 @@ PRESCRIPTIVE_PATTERNS so future edits cannot remove them silently.
 
 import re
 
+import pytest
+
 from app.services.coach.compliance_guard import ComplianceGuard
 
 
@@ -24,14 +26,16 @@ def _any_match(text: str) -> list[str]:
 class TestISINDetection:
     """ISIN = 2 letters + 9 alphanumerics + 1 check digit (uppercase)."""
 
-    def test_swiss_isin_detected(self):
-        assert _any_match("achète CH0012221716 cette semaine")
-
-    def test_us_isin_detected(self):
-        assert _any_match("regarde US0378331005 dans ton portefeuille")
-
-    def test_isin_inside_sentence(self):
-        assert _any_match("Le titre DE000BASF111 a bien performé")
+    @pytest.mark.parametrize(
+        "sentence",
+        [
+            "achète CH0012221716 cette semaine",          # Swiss
+            "regarde US0378331005 dans ton portefeuille",  # US
+            "Le titre DE000BASF111 a bien performé",       # DE mid-sentence
+        ],
+    )
+    def test_valid_isin_detected(self, sentence):
+        assert _any_match(sentence)
 
     def test_lowercase_isin_not_matched(self):
         # Real ISINs are uppercase; lowering case avoids matching mid-

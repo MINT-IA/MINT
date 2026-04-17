@@ -159,16 +159,19 @@ int avsReferenceAge({required int birthYear, required bool isFemale}) {
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 
-/// Rente AVS maximale individuelle annuelle, base 12 mois (= avsRenteMaxMensuelle x 12).
+/// Rente AVS maximale individuelle annuelle, base 12 mois.
 ///
-/// Ne contient PAS la 13eme rente. Utiliser [avsRenteMaxAnnuelle13m] ou
-/// [avsMaxAnnualRenteForYear] pour une projection year-aware.
-const double avsRenteMaxAnnuelle = 30240.0;
+/// Derived from [avsRenteMaxMensuelle] so the 12m and 13m caps cannot drift
+/// out of sync with the monthly figure. Ne contient PAS la 13eme rente —
+/// utiliser [avsRenteMaxAnnuelle13m] ou [avsMaxAnnualRenteForYear] pour une
+/// projection year-aware.
+const double avsRenteMaxAnnuelle = avsRenteMaxMensuelle * 12;
 
-/// Rente AVS maximale individuelle annuelle avec 13eme rente (= avsRenteMaxMensuelle x 13).
+/// Rente AVS maximale individuelle annuelle avec 13eme rente.
 ///
-/// Active a partir de [avs13emeRenteAnneeDebut] (decembre 2026, LAVS art. 34 nouveau).
-const double avsRenteMaxAnnuelle13m = 32760.0;
+/// Derived from [avsRenteMaxMensuelle]; active a partir de
+/// [avs13emeRenteAnneeDebut] (decembre 2026, LAVS art. 34 nouveau).
+const double avsRenteMaxAnnuelle13m = avsRenteMaxMensuelle * 13;
 
 /// Return the AVS max annual rente for [year], accounting for the 13th
 /// pension that becomes effective from [avs13emeRenteAnneeDebut].
