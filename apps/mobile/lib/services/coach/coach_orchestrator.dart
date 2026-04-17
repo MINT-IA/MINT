@@ -768,17 +768,29 @@ class CoachOrchestrator {
     final service = CoachChatApiService();
 
     // Build conversation history for multi-turn context (same as BYOK path).
-    // Last 16 messages (8 exchanges) — sanitized user messages, raw assistant.
-    // Bumped from 8 → 16 (Gate 0 P0-2, 2026-04-15) so the coach keeps
-    // multi-turn threading coherent. Backend cap matches at 16 msg /
-    // 2000 chars (coach_chat.py:_sanitize_conversation_history).
+    // Bumped 8 → 16 (Gate 0 P0-2, 2026-04-15), then 16 → 32 (Gate 0 P0,
+    // 2026-04-17) after users reported the coach forgetting context around
+    // turn 4-5. First assistant greeting is pinned (carries lifecycle, plan,
+    // regional identity injected at onboarding) so it survives deep
+    // conversations. Backend cap is also bumped to 32 msg
+    // (coach_chat.py:_sanitize_conversation_history).
     final recentHistory = history
         .where((m) => m.isUser || m.isAssistant)
         .toList();
-    final tail = recentHistory.length > 16
-        ? recentHistory.sublist(recentHistory.length - 16)
-        : recentHistory;
-    final conversationHistory = tail
+    final List<ChatMessage> kept;
+    if (recentHistory.length <= _conversationContextMaxMessages) {
+      kept = recentHistory;
+    } else {
+      final greeting = recentHistory.firstWhere(
+        (m) => m.isAssistant,
+        orElse: () => recentHistory.first,
+      );
+      final tail = recentHistory.sublist(
+        recentHistory.length - (_conversationContextMaxMessages - 1),
+      );
+      kept = tail.contains(greeting) ? tail : [greeting, ...tail];
+    }
+    final conversationHistory = kept
         .map((m) => {
               'role': m.isUser ? 'user' : 'assistant',
               'content': m.isUser ? _sanitizeUserInput(m.content) : m.content,
@@ -1214,9 +1226,19 @@ class CoachOrchestrator {
     return s.trim();
   }
 
+  /// Maximum conversation history to include in SLM/BYOK context.
+  ///
+  /// Bumped from 8 → 32 (Gate 0 P0, 2026-04-17). Smaller caps caused the coach
+  /// to "forget" the user mid-conversation: the first assistant message carries
+  /// lifecycle, plan, and regional identity injected by the greeting, and was
+  /// being purged as early as turn 4.
+  static const int _conversationContextMaxMessages = 32;
+
   /// Build conversation context string for multi-turn chat.
   ///
-  /// Keeps the last 8 messages (4 exchanges) to stay within token limits.
+  /// Keeps the last [_conversationContextMaxMessages] messages. The first
+  /// assistant greeting is pinned (carries system context — lifecycle, plan,
+  /// regional identity) and never purged even if history exceeds the cap.
   /// User messages are sanitized to prevent prompt injection.
   static String _buildConversationContext(
     List<ChatMessage> history,
@@ -1226,11 +1248,24 @@ class CoachOrchestrator {
         history.where((m) => m.isUser || m.isAssistant).toList();
     if (relevant.length <= 1) return _sanitizeUserInput(currentMessage);
 
-    final tail =
-        relevant.length > 8 ? relevant.sublist(relevant.length - 8) : relevant;
+    final List<ChatMessage> kept;
+    if (relevant.length <= _conversationContextMaxMessages) {
+      kept = relevant;
+    } else {
+      // Preserve the first assistant message (greeting) + tail, so system
+      // context injected at turn 0 survives deep conversations.
+      final greeting = relevant.firstWhere(
+        (m) => m.isAssistant,
+        orElse: () => relevant.first,
+      );
+      final tail = relevant.sublist(
+        relevant.length - (_conversationContextMaxMessages - 1),
+      );
+      kept = tail.contains(greeting) ? tail : [greeting, ...tail];
+    }
 
     final buf = StringBuffer('Contexte de la conversation :\n');
-    for (final msg in tail) {
+    for (final msg in kept) {
       final content = msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
       buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: $content');
     }

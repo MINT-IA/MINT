@@ -386,7 +386,7 @@ def _sanitize_conversation_history(
     """Sanitize conversation history: PII scrub + injection filter + limit.
 
     Threat mitigations:
-        T-20-01 (Tampering): role whitelist, 16-message cap, 2000-char truncation
+        T-20-01 (Tampering): role whitelist, 32-message cap, 2000-char truncation
         T-20-02 (PII): regex scrub on user messages
         T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
         T-20-04 (DoS): hard cap at 16 messages, 2000 chars each
@@ -401,7 +401,7 @@ def _sanitize_conversation_history(
     if not history:
         return None
     sanitized: list[dict[str, str]] = []
-    for msg in history[-16:]:  # hard cap at 16 messages (was 8)
+    for msg in history[-32:]:  # hard cap at 32 messages (8 → 16 → 32, 2026-04-17)
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role not in ("user", "assistant") or not content.strip():
