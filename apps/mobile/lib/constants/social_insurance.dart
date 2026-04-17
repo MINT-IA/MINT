@@ -159,8 +159,28 @@ int avsReferenceAge({required int birthYear, required bool isFemale}) {
 /// Reduction par annee d'anticipation de la rente AVS: 6.8%.
 const double avsReductionAnticipation = 0.068;
 
-/// Rente AVS maximale individuelle annuelle (= avsRenteMaxMensuelle x 12).
+/// Rente AVS maximale individuelle annuelle, base 12 mois (= avsRenteMaxMensuelle x 12).
+///
+/// Ne contient PAS la 13eme rente. Utiliser [avsRenteMaxAnnuelle13m] ou
+/// [avsMaxAnnualRenteForYear] pour une projection year-aware.
 const double avsRenteMaxAnnuelle = 30240.0;
+
+/// Rente AVS maximale individuelle annuelle avec 13eme rente (= avsRenteMaxMensuelle x 13).
+///
+/// Active a partir de [avs13emeRenteAnneeDebut] (decembre 2026, LAVS art. 34 nouveau).
+const double avsRenteMaxAnnuelle13m = 32760.0;
+
+/// Return the AVS max annual rente for [year], accounting for the 13th
+/// pension that becomes effective from [avs13emeRenteAnneeDebut].
+///
+/// 2025 and earlier → 30'240 (12 months)
+/// 2026 and later  → 32'760 (13 months)
+double avsMaxAnnualRenteForYear(int year) {
+  if (avs13emeRenteActive && year >= avs13emeRenteAnneeDebut) {
+    return avsRenteMaxAnnuelle13m;
+  }
+  return avsRenteMaxAnnuelle;
+}
 
 /// Cotisation AVS minimale annuelle pour independants (LAVS art. 8).
 const double avsCotisationMinIndependant = 530.0;

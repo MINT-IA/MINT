@@ -20,7 +20,21 @@ class RetirementService {
   // All constants delegated to social_insurance.dart.
   // Kept as static getters for backward compatibility with callers
   // using RetirementService.avsMaxRenteAnnuelle etc.
+  /// 12-month annual maximum — kept for backward compatibility with
+  /// legacy callers. Prefer [avsMaxRenteAnnuelleForYear] or the 13m
+  /// variant for retirement-year-aware projections (AVS13 effective
+  /// from 2026).
   static double get avsMaxRenteAnnuelle => reg('avs.max_annual_pension', avsRenteMaxAnnuelle);
+
+  /// Year-aware AVS annual maximum — returns the 13-month figure
+  /// (32'760) for years >= avs13emeRenteAnneeDebut (2026), otherwise
+  /// the legacy 12-month cap (30'240). Use this for any projection
+  /// that reports annual income at retirement.
+  static double avsMaxRenteAnnuelleForYear(int year) {
+    final base = avsMaxAnnualRenteForYear(year);
+    // Respect backend overrides via the regulatory registry.
+    return reg('avs.max_annual_pension_${year >= avs13emeRenteAnneeDebut ? "13m" : "12m"}', base);
+  }
   static double get avsCoupleFactor => 1.50;
   static int get avsRetirementAge => reg('avs.reference_age_men', avsAgeReferenceHomme.toDouble()).toInt();
   static double get avsAnticipationPenaltyPerYear => reg('avs.early_retirement_reduction', avsReductionAnticipation);
