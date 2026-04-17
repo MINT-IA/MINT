@@ -22673,4 +22673,93 @@ class SEn extends S {
   @override
   String get thirdPartyDeclarationNoticeLink =>
       'Without their consent, MINT cannot process another person\'s data.';
+
+  @override
+  String get monArgentTabTitle => 'My money';
+
+  @override
+  String get monArgentBudgetTitle => 'Your budget this month';
+
+  @override
+  String get monArgentBudgetEmpty =>
+      'Set up your budget to see where you stand this month.';
+
+  @override
+  String get monArgentBudgetStart => 'Get started';
+
+  @override
+  String get monArgentBudgetError => 'Unable to load your budget.';
+
+  @override
+  String get monArgentBudgetIncome => 'Income';
+
+  @override
+  String get monArgentBudgetSpent => 'Expenses';
+
+  @override
+  String get monArgentBudgetRemaining => 'Remaining';
+
+  @override
+  String get monArgentRetry => 'Retry';
+
+  @override
+  String get monArgentPatrimoineTitle => 'Your starting point';
+
+  @override
+  String get monArgentPatrimoineEmpty =>
+      'Scan a document or talk to the coach to get started.';
+
+  @override
+  String get monArgentPatrimoineError => 'Unable to load your data.';
+
+  @override
+  String get monArgentPatrimoineNet => 'Net';
+
+  @override
+  String get monArgentPatrimoinePartial => 'Add your data for a complete view.';
+
+  @override
+  String get monArgentLpp => 'Pillar 2';
+
+  @override
+  String get monArgentPillar3a => 'Pillar 3a';
+
+  @override
+  String get monArgentEpargne => 'Savings';
+
+  @override
+  String get monArgentScan => 'Scan';
+
+  @override
+  String get monArgentEnrichCta => 'Add documents for a more precise view';
+
+  @override
+  String get tabAujourdhui => 'Today';
+
+  @override
+  String get tabMonArgent => 'My money';
+
+  @override
+  String get tabExplorer => 'Explore';
+
+  @override
+  String get hubRetraite => 'Retirement & Pension';
+
+  @override
+  String get hubFamille => 'Family';
+
+  @override
+  String get hubTravail => 'Work & Status';
+
+  @override
+  String get hubLogement => 'Housing';
+
+  @override
+  String get hubFiscalite => 'Taxes';
+
+  @override
+  String get hubPatrimoine => 'Wealth & Succession';
+
+  @override
+  String get hubSante => 'Health & Protection';
 }

@@ -16,6 +16,7 @@ library;
 
 import 'dart:convert';
 
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // ════════════════════════════════════════════════════════════════
@@ -161,7 +162,7 @@ class CommunityChallengeService {
     '/pulse',
     '/pulse/fhs',
     '/pulse/achievements',
-    '/home?tab=1',
+    '/coach/chat',
     '/profile',
   };
 
@@ -370,6 +371,7 @@ class CommunityChallengeService {
   static Future<List<CommunityChallenge>> getActiveChallenges({
     SharedPreferences? prefs,
     DateTime? now,
+    CoachProfile? profile,
   }) async {
     final effectiveNow = now ?? DateTime.now();
     final pool = _challengePool(effectiveNow.year);
@@ -378,6 +380,11 @@ class CommunityChallengeService {
     final active = pool.where((c) =>
         !c.startDate.isAfter(effectiveNow) &&
         !c.endDate.isBefore(effectiveNow)).toList();
+
+    // FATCA/expat_us: exclude 3a challenges (most providers refuse US persons).
+    if (profile?.archetype == FinancialArchetype.expatUs) {
+      active.removeWhere((c) => c.category == ChallengeCategory.pillar3a);
+    }
 
     // Exclude already-completed challenges.
     if (prefs != null) {

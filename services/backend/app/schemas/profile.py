@@ -177,7 +177,7 @@ class ProfileUpdate(BaseModel):
 
 
 class Profile(ProfileBase):
-    id: UUID4
+    id: str  # String in DB, not necessarily UUID4 (legacy/anonymous profiles)
     createdAt: datetime
 
     model_config = ConfigDict(from_attributes=True)

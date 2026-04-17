@@ -39950,6 +39950,180 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.'**
   String get thirdPartyDeclarationNoticeLink;
+
+  /// Nav V11 — Mon argent tab AppBar title
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon argent'**
+  String get monArgentTabTitle;
+
+  /// Nav V11 — budget card header
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton budget ce mois'**
+  String get monArgentBudgetTitle;
+
+  /// Nav V11 — budget card empty state
+  ///
+  /// In fr, this message translates to:
+  /// **'Définis ton budget pour voir où tu en es ce mois.'**
+  String get monArgentBudgetEmpty;
+
+  /// Nav V11 — budget card empty CTA
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get monArgentBudgetStart;
+
+  /// Nav V11 — budget card error state
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger ton budget.'**
+  String get monArgentBudgetError;
+
+  /// Nav V11 — budget income label
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus'**
+  String get monArgentBudgetIncome;
+
+  /// Nav V11 — budget expenses label
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses'**
+  String get monArgentBudgetSpent;
+
+  /// Nav V11 — budget remaining label
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste'**
+  String get monArgentBudgetRemaining;
+
+  /// Nav V11 — retry button
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get monArgentRetry;
+
+  /// Nav V11 — patrimoine card header
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton point de départ'**
+  String get monArgentPatrimoineTitle;
+
+  /// Nav V11 — patrimoine card empty state
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne un document ou parle au coach pour commencer.'**
+  String get monArgentPatrimoineEmpty;
+
+  /// Nav V11 — patrimoine card error state
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger tes données.'**
+  String get monArgentPatrimoineError;
+
+  /// Nav V11 — patrimoine net label
+  ///
+  /// In fr, this message translates to:
+  /// **'Net'**
+  String get monArgentPatrimoineNet;
+
+  /// Nav V11 — patrimoine partial state hint
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute tes données pour une vue complète.'**
+  String get monArgentPatrimoinePartial;
+
+  /// Nav V11 — LPP label
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier'**
+  String get monArgentLpp;
+
+  /// Nav V11 — 3a label
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get monArgentPillar3a;
+
+  /// Nav V11 — savings label
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get monArgentEpargne;
+
+  /// Nav V11 — scan button
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner'**
+  String get monArgentScan;
+
+  /// Nav V11 — enrich CTA text
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichis ton dossier pour une vue plus précise'**
+  String get monArgentEnrichCta;
+
+  /// Shell tab label — Today
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get tabAujourdhui;
+
+  /// Shell tab label — My money
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon argent'**
+  String get tabMonArgent;
+
+  /// Shell tab label — Explore
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer'**
+  String get tabExplorer;
+
+  /// Explorer hub — Retirement
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite & Prévoyance'**
+  String get hubRetraite;
+
+  /// Explorer hub — Family
+  ///
+  /// In fr, this message translates to:
+  /// **'Famille'**
+  String get hubFamille;
+
+  /// Explorer hub — Work
+  ///
+  /// In fr, this message translates to:
+  /// **'Travail & Statut'**
+  String get hubTravail;
+
+  /// Explorer hub — Housing
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement'**
+  String get hubLogement;
+
+  /// Explorer hub — Tax
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get hubFiscalite;
+
+  /// Explorer hub — Wealth
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine & Succession'**
+  String get hubPatrimoine;
+
+  /// Explorer hub — Health
+  ///
+  /// In fr, this message translates to:
+  /// **'Santé & Protection'**
+  String get hubSante;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

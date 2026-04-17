@@ -133,6 +133,7 @@ def create_profile(
     profile = Profile(
         id=profile_id,
         birthYear=profile_create.birthYear,
+        dateOfBirth=profile_create.dateOfBirth,
         canton=profile_create.canton,
         householdType=profile_create.householdType,
         incomeNetMonthly=profile_create.incomeNetMonthly,
@@ -190,6 +191,7 @@ def get_profile(
     profile = Profile(
         id=data["id"],
         birthYear=data.get("birthYear"),
+        dateOfBirth=data.get("dateOfBirth"),
         canton=data.get("canton"),
         householdType=data["householdType"],
         incomeNetMonthly=data.get("incomeNetMonthly"),
@@ -273,6 +275,7 @@ def update_profile(
     profile = Profile(
         id=data["id"],
         birthYear=data.get("birthYear"),
+        dateOfBirth=data.get("dateOfBirth"),
         canton=data.get("canton"),
         householdType=data["householdType"],
         incomeNetMonthly=data.get("incomeNetMonthly"),
