@@ -195,19 +195,24 @@ final _router = GoRouter(
     if (auth.isLoading) return null;
 
     // ── Parse /home?tab=N&intent=X query params ─────────────
-    // Notifications emit /home?tab=1&intent=monthlyCheckIn etc.
-    // Redirect to the correct tab route so the shell navigates properly.
+    // Notifications emit /home?tab=N&intent=monthlyCheckIn etc.
+    //
+    // V11 shell indexing (2026-04-17):
+    //   0 = Aujourd'hui | 1 = Mon argent | 2 = Coach | 3 = Explorer
+    //
+    // Backward-compat: notifications built before V11 emit tab=1 meaning
+    // Coach; they always come with `intent` set. We treat `intent` as the
+    // semantic routing signal — any link carrying an intent is a coach
+    // entry regardless of the tab index.
     if (path == '/home') {
       final tab = state.uri.queryParameters['tab'];
       final intent = state.uri.queryParameters['intent'];
-      if (tab == '1') {
-        // Tab 1 = Coach — redirect to /coach/chat with intent as topic
+      if (intent != null || tab == '2') {
         final query = intent != null ? '?topic=$intent' : '';
         return '/coach/chat$query';
       }
-      if (tab == '2') {
-        return '/explorer';
-      }
+      if (tab == '1') return '/mon-argent';
+      if (tab == '3') return '/explore';
       // tab=0 or no tab → stay on /home (Aujourd'hui)
     }
 
