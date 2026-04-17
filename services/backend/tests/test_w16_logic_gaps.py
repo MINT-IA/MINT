@@ -98,7 +98,7 @@ class TestRecommendationsUse3aCeiling:
 
     def _make_profile(self, employment_status="salarie", has_2nd_pillar=True):
         return Profile(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             birthYear=1980,
             canton="VD",
             householdType=HouseholdType.single,
@@ -276,7 +276,7 @@ class TestTargetRetirementAge:
     def test_recommendations_use_target_retirement_age(self):
         """When targetRetirementAge is set, 3a recommendation should use it."""
         profile_early = Profile(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             birthYear=1980,
             canton="VD",
             householdType=HouseholdType.single,
@@ -287,7 +287,7 @@ class TestTargetRetirementAge:
             createdAt=datetime.now(timezone.utc),
         )
         profile_late = Profile(
-            id=uuid.uuid4(),
+            id=str(uuid.uuid4()),
             birthYear=1980,
             canton="VD",
             householdType=HouseholdType.single,
