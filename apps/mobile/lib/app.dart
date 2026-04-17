@@ -254,9 +254,9 @@ final _router = GoRouter(
         return null;
 
       case RouteScope.authenticated:
-        // Require signed-in user; localAnonymous mode also passes
-        // (users who skipped registration still access simulators).
-        if (!isLoggedIn) {
+        // Require signed-in user OR opted-in anonymous local mode.
+        // Local mode is default-on for fresh installs per AuthProvider.checkAuth.
+        if (!isLoggedIn && !auth.isLocalMode) {
           return '/auth/register?redirect=${Uri.encodeComponent(path)}';
         }
         return null;

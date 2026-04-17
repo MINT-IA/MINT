@@ -83,6 +83,11 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   AuthError? _error;
   bool _requiresEmailVerification = false;
+  // Local-mode default-on: the router's "authenticated" scope passes when
+  // `isLoggedIn || isLocalMode`. Starting true keeps tab navigation alive
+  // even if `checkAuth()` throws before the prefs block runs (e.g. on a
+  // keychain failure). `register()`/`login()` explicitly flip this to false.
+  bool _isLocalMode = true;
 
   bool get isLoggedIn => _isLoggedIn;
   String? get userId => _userId;
@@ -91,6 +96,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   AuthError? get error => _error;
   bool get requiresEmailVerification => _requiresEmailVerification;
+  bool get isLocalMode => _isLocalMode;
 
   /// Check stored auth on app startup
   Future<void> checkAuth() async {
@@ -121,6 +127,13 @@ class AuthProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       _requiresEmailVerification =
           prefs.getBool('requires_email_verification') ?? false;
+      // Local-mode default: true on fresh install (local-first per UX copy
+      // "Compte optionnel : tes données restent locales par défaut").
+      // Explicit register/login flips it to false.
+      if (!prefs.containsKey('auth_local_mode')) {
+        await prefs.setBool('auth_local_mode', true);
+      }
+      _isLocalMode = prefs.getBool('auth_local_mode') ?? true;
     } catch (e) {
       _error = _toUserFriendlyAuthError(e);
       _isLoggedIn = false;
@@ -163,6 +176,9 @@ class AuthProvider extends ChangeNotifier {
           refreshToken: response['refresh_token'] as String?,
         );
         _isLoggedIn = true;
+        _isLocalMode = false;
+        await (await SharedPreferences.getInstance())
+            .setBool('auth_local_mode', false);
         // FIX-W11-7: Set user prefix for conversation isolation.
         ConversationStore.setCurrentUserId(userId);
       } else {
@@ -228,6 +244,9 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = response['display_name'] as String?;
       _isLoggedIn = true;
+      _isLocalMode = false;
+      await (await SharedPreferences.getInstance())
+          .setBool('auth_local_mode', false);
       // FIX-W11-7: Set user prefix for conversation isolation.
       ConversationStore.setCurrentUserId(userId);
       _requiresEmailVerification = false;
@@ -306,6 +325,9 @@ class AuthProvider extends ChangeNotifier {
       _email = userEmail;
       _displayName = displayName;
       _isLoggedIn = true;
+      _isLocalMode = false;
+      await (await SharedPreferences.getInstance())
+          .setBool('auth_local_mode', false);
       _requiresEmailVerification = false;
       _error = null;
       // FIX-W11-7: Set user prefix for conversation isolation.
@@ -389,6 +411,9 @@ class AuthProvider extends ChangeNotifier {
       }
 
       _isLoggedIn = true;
+      _isLocalMode = false;
+      await (await SharedPreferences.getInstance())
+          .setBool('auth_local_mode', false);
       _requiresEmailVerification = false;
       _error = null;
       _isLoading = false;
@@ -425,6 +450,9 @@ class AuthProvider extends ChangeNotifier {
       _email = null;
       _displayName = null;
       _requiresEmailVerification = false;
+      _isLocalMode = false;
+      await (await SharedPreferences.getInstance())
+          .setBool('auth_local_mode', false);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -522,6 +550,12 @@ class AuthProvider extends ChangeNotifier {
     _email = null;
     _displayName = null;
     _requiresEmailVerification = false;
+    _isLocalMode = false;
+    // Persist AFTER _purgeLocalData (which prefs.clear()s the store).
+    // Logout = fully out; the user can re-enable local mode by tapping
+    // "Continuer en mode local" on the register/login screens.
+    await (await SharedPreferences.getInstance())
+        .setBool('auth_local_mode', false);
     _error = null;
     notifyListeners();
   }
@@ -707,6 +741,15 @@ class AuthProvider extends ChangeNotifier {
   /// Clear error message
   void clearError() {
     _error = null;
+    notifyListeners();
+  }
+
+  /// Enable anonymous local mode so the router's auth guard lets users
+  /// browse tabs without creating an account. Persisted across launches.
+  Future<void> enableLocalMode() async {
+    _isLocalMode = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auth_local_mode', true);
     notifyListeners();
   }
 

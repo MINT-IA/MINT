@@ -502,8 +502,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: OutlinedButton(
                             onPressed: authProvider.isLoading
                                 ? null
-                                : () {
-                                    context.go('/coach/chat');
+                                : () async {
+                                    await authProvider.enableLocalMode();
+                                    if (!context.mounted) return;
+                                    final redirect = GoRouterState.of(context)
+                                        .uri
+                                        .queryParameters['redirect'];
+                                    context.go(redirect ?? '/home');
                                   },
                             child: Text(l10n.authContinueLocal),
                           ),
