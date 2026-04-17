@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -75,6 +76,10 @@ class _DefaultLoading extends StatelessWidget {
 }
 
 class _DefaultError extends StatelessWidget {
+  // `error` is captured for future debug surfacing (Sentry context, debug
+  // banner) but intentionally not shown to the user in the default UI.
+  // Use the [FutureBuilderSafe.errorBuilder] hook when a screen wants to
+  // render the error details itself.
   final Object error;
   final VoidCallback? onRetry;
 
@@ -88,6 +93,12 @@ class _DefaultError extends StatelessWidget {
     const title = "Impossible de charger cette page";
     const body = "Vérifie ta connexion et réessaie dans quelques instants.";
     const retryLabel = "Réessayer";
+
+    // Surface the raw error in debug so engineers see it even though the
+    // UI stays neutral. Release builds stay silent.
+    if (kDebugMode) {
+      debugPrint('[FutureBuilderSafe] error rendered: $error');
+    }
 
     return Center(
       child: Padding(
