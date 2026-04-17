@@ -3597,7 +3597,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Diz-me o que te anda na cabeça.",
+  "coachInputHint": "Diz-me.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",

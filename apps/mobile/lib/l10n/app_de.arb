@@ -3597,7 +3597,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Sag mir, was dir durch den Kopf geht.",
+  "coachInputHint": "Sag's mir.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",

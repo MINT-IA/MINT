@@ -7829,7 +7829,7 @@ class SEs extends S {
   String get coachSources => 'Fuentes';
 
   @override
-  String get coachInputHint => 'Dime qué te ronda por la cabeza.';
+  String get coachInputHint => 'Dime.';
 
   @override
   String get coachUserMessage => 'Tu mensaje';

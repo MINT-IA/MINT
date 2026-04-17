@@ -7847,7 +7847,7 @@ class SDe extends S {
   String get coachSources => 'Quellen';
 
   @override
-  String get coachInputHint => 'Sag mir, was dir durch den Kopf geht.';
+  String get coachInputHint => 'Sag\'s mir.';
 
   @override
   String get coachUserMessage => 'Deine Nachricht';

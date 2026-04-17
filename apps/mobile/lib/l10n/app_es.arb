@@ -3597,7 +3597,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dime qué te ronda por la cabeza.",
+  "coachInputHint": "Dime.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",

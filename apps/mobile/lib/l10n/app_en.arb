@@ -3597,7 +3597,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Tell me what's on your mind.",
+  "coachInputHint": "Tell me.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",

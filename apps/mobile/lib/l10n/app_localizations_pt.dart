@@ -7823,7 +7823,7 @@ class SPt extends S {
   String get coachSources => 'Fontes';
 
   @override
-  String get coachInputHint => 'Diz-me o que te anda na cabeça.';
+  String get coachInputHint => 'Diz-me.';
 
   @override
   String get coachUserMessage => 'A tua mensagem';

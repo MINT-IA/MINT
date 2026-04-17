@@ -7839,7 +7839,7 @@ class SIt extends S {
   String get coachSources => 'Fonti';
 
   @override
-  String get coachInputHint => 'Dimmi cosa ti passa per la testa.';
+  String get coachInputHint => 'Dimmi.';
 
   @override
   String get coachUserMessage => 'Il tuo messaggio';

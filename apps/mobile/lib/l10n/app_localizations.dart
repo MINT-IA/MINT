@@ -13905,7 +13905,7 @@ abstract class S {
   /// No description provided for @coachInputHint.
   ///
   /// In fr, this message translates to:
-  /// **'Dis-moi ce qui te trotte dans la tête.'**
+  /// **'Dis-moi.'**
   String get coachInputHint;
 
   /// No description provided for @coachUserMessage.

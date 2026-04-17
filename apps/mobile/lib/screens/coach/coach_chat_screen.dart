@@ -1970,7 +1970,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Au fait, tu pr\u00e9f\u00e8res que je sois plut\u00f4t\u2026',
+          // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
+          // ellipsis read as a truncation bug and the chips below already
+          // list the options, making the long phrasing redundant.
+          'Comment je te parle\u00a0?',
           style: TextStyle(
             fontSize: 14,
             color: MintColors.textSecondary,

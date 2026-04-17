@@ -7830,7 +7830,7 @@ class SFr extends S {
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Dis-moi ce qui te trotte dans la tête.';
+  String get coachInputHint => 'Dis-moi.';
 
   @override
   String get coachUserMessage => 'Ton message';

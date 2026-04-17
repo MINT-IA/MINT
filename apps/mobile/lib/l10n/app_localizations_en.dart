@@ -7780,7 +7780,7 @@ class SEn extends S {
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Tell me what\'s on your mind.';
+  String get coachInputHint => 'Tell me.';
 
   @override
   String get coachUserMessage => 'Your message';

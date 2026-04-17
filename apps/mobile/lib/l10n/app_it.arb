@@ -3597,7 +3597,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dimmi cosa ti passa per la testa.",
+  "coachInputHint": "Dimmi.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",

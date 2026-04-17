@@ -3890,7 +3890,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dis-moi ce qui te trotte dans la tête.",
+  "coachInputHint": "Dis-moi.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
