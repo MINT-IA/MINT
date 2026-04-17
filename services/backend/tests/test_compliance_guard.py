@@ -191,15 +191,17 @@ class TestHallucinationDetection:
     """Layer 3 — Hallucinated numbers: threshold-based fallback (>= 30% major)."""
 
     def test_catches_wrong_score_minor_logs_but_no_fallback(self, guard, context_with_values):
-        # Known 62 vs found 72 → deviation ~16%, below the 30% major threshold.
-        # New semantics (2026-04-13): minor hallucinations are logged as
-        # violations but do NOT kill the response. Defense for minor drift
-        # lives in the prompt; the guard only hard-fails on material fabrication.
+        # Known 62 vs found 67 -> deviation ~8%, below the 15% major threshold
+        # (tightened 30% -> 15% on 2026-04-17 per security audit). Minor
+        # hallucinations are logged as violations but do NOT kill the
+        # response on their own — defense for minor drift lives in the
+        # prompt; the guard only hard-fails on material fabrication or
+        # when minor drifts accumulate (>= 3 hits, tested below).
         result = guard.validate(
-            "Ton score est à 72/100, en progression.",
+            "Ton score est à 67/100, en progression.",
             context=context_with_values,
         )
-        assert not result.use_fallback, "Minor (<30%) hallucination must not trigger fallback"
+        assert not result.use_fallback, "Minor (<15%) hallucination must not trigger fallback"
         assert any("hallucination" in v.lower() for v in result.violations), \
             "Minor hallucination must still be logged as a violation"
 
