@@ -20901,8 +20901,7 @@ class SIt extends S {
   String get intensityAdjustedDown => 'OK, abbasso di un livello.';
 
   @override
-  String get coachSuggestBudget =>
-      'Qual è il mio budget realistico per la pensione?';
+  String get coachSuggestBudget => 'Dove va il mio denaro ogni mese?';
 
   @override
   String get coachSuggestBudgetGap => 'Quanto mi manca al mese?';

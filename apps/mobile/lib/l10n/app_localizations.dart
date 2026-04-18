@@ -36672,7 +36672,7 @@ abstract class S {
   /// No description provided for @coachSuggestBudget.
   ///
   /// In fr, this message translates to:
-  /// **'Quel est mon budget réaliste à la retraite ?'**
+  /// **'Où part mon argent chaque mois ?'**
   String get coachSuggestBudget;
 
   /// No description provided for @coachSuggestBudgetGap.

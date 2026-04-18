@@ -20849,8 +20849,7 @@ class SPt extends S {
   String get intensityAdjustedDown => 'OK, desci um nível.';
 
   @override
-  String get coachSuggestBudget =>
-      'Qual é o meu orçamento realista para a reforma?';
+  String get coachSuggestBudget => 'Para onde vai o meu dinheiro cada mês?';
 
   @override
   String get coachSuggestBudgetGap => 'Quanto me falta por mês?';

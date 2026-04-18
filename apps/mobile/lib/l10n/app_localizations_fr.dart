@@ -20842,8 +20842,7 @@ class SFr extends S {
   String get intensityAdjustedDown => 'OK, je baisse d’un cran.';
 
   @override
-  String get coachSuggestBudget =>
-      'Quel est mon budget réaliste à la retraite ?';
+  String get coachSuggestBudget => 'Où part mon argent chaque mois ?';
 
   @override
   String get coachSuggestBudgetGap => 'Il me manque combien par mois ?';
