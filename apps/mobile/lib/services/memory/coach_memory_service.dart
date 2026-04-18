@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter/foundation.dart' show debugPrint, visibleForTesting;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/models/coach_insight.dart';
@@ -220,49 +220,52 @@ class CoachMemoryService {
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
     final events = await _loadEvents(sp);
-    final now = (date ?? DateTime.now()).toUtc();
-
-    // Dedup: replace any existing entry with same topic on same day.
-    final dayKey = DateTime(now.year, now.month, now.day);
+    // A2-fix (2026-04-18) post-exec audit panel bugs BUG #4:
+    // Dedup MUST use the user's LOCAL day, not UTC. A Swiss user
+    // scanning at 01h30 local (CEST) creates an event at 23h30 UTC
+    // the previous day; if they re-scan at 23h30 local (21h30 UTC
+    // same day) the old logic would treat it as a different UTC day
+    // and skip dedup, while the user saw two same-day scans. The
+    // inverse also happened in winter. Compare local calendar days.
+    final nowLocal = (date ?? DateTime.now()).toLocal();
+    final dayKey = DateTime(nowLocal.year, nowLocal.month, nowLocal.day);
     events.removeWhere((e) {
-      final eDay = DateTime(
-        e.createdAt.toUtc().year,
-        e.createdAt.toUtc().month,
-        e.createdAt.toUtc().day,
-      );
+      final eLocal = e.createdAt.toLocal();
+      final eDay = DateTime(eLocal.year, eLocal.month, eLocal.day);
       return e.topic == topic && eDay == dayKey;
     });
 
     final entry = CoachInsight(
-      id: 'event_${topic}_${now.toIso8601String()}',
-      createdAt: now,
+      // Deterministic id per (topic, local day) so the dedup is
+      // idempotent — repeated saveEvent calls on the same day
+      // produce identical ids and the removeWhere above collapses
+      // them before insertion.
+      id: 'event_${topic}_${dayKey.toIso8601String().substring(0, 10)}',
+      createdAt: nowLocal,
       topic: topic,
       summary: summary,
       type: InsightType.event,
       metadata: metadata,
     );
     events.insert(0, entry);
-    await _saveEvents(sp, events);
+    try {
+      await _saveEvents(sp, events);
+    } catch (e, st) {
+      // A2-fix (panel façade #6): _saveEvents can throw synchronously
+      // on SharedPreferences write failures. Surface the error via
+      // debugPrint so Sentry/device console can pick it up, but never
+      // break the caller's flow — scans continue working even if the
+      // memory persistence fails for this one entry.
+      debugPrint('[CoachMemory] saveEvent($topic) persist failed: $e\n$st');
+    }
   }
 
-  /// Return true iff an event with [topic] exists AND was created
-  /// within the last [maxAgeDays]. Used by retention schedulers
-  /// (e.g. J+30 re-scan dedup: skip if scan was done within 365 days).
-  static Future<bool> hasEvent(
-    String topic, {
-    int maxAgeDays = 365,
-    SharedPreferences? prefs,
-  }) async {
-    final sp = prefs ?? await SharedPreferences.getInstance();
-    final events = await _loadEvents(sp);
-    final threshold = DateTime.now().toUtc().subtract(Duration(days: maxAgeDays));
-    return events.any((e) => e.topic == topic && e.createdAt.toUtc().isAfter(threshold));
-  }
-
-  /// Return all events (most recent first). Non-pruned list — may grow
-  /// unbounded over a long-lived account. In practice events are rare
-  /// (scans, life events) so linear growth stays low.
-  static Future<List<CoachInsight>> getEvents({
+  /// Visible-for-testing inspection of the events list. Not part of
+  /// the production API — callers that need to read events in prod
+  /// should re-introduce a purposeful getter in the same commit that
+  /// wires the consumer (façade-sans-câblage hard-stop, 2026-04-18).
+  @visibleForTesting
+  static Future<List<CoachInsight>> debugGetEvents({
     SharedPreferences? prefs,
   }) async {
     final sp = prefs ?? await SharedPreferences.getInstance();

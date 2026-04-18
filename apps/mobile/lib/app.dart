@@ -1294,7 +1294,19 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // fired once at onboarding intent and never re-fired when a
         // user completed the triad mid-conversation via save_fact.
         // Panel adversaire 2026-04-18 BUG 2+3 mitigation.
+        //
+        // A2-fix (2026-04-18): `lazy: false` is MANDATORY. Without it,
+        // ChangeNotifierProxyProvider defers `create`/`update` until a
+        // widget downstream calls `context.watch<NotificationsWiringService>()`.
+        // No screen does — the service is purely reactive plumbing,
+        // not a UI dependency. The 3-panel post-exec audit unanimously
+        // flagged this as a P0 "façade sans câblage" that would ship
+        // 100% dead code while all 7 unit tests passed. The `lazy: false`
+        // flag materialises the service at MultiProvider mount time so
+        // its `update` actually fires on every CoachProfileProvider
+        // notifyListeners.
         ChangeNotifierProxyProvider<CoachProfileProvider, NotificationsWiringService>(
+          lazy: false,
           create: (_) => NotificationsWiringService(),
           update: (_, profileProvider, wiring) {
             final service = wiring ?? NotificationsWiringService();

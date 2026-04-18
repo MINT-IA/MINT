@@ -22908,4 +22908,24 @@ class SPt extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'Estes levantamentos continuam possíveis em caso de procedimento formal de saneamento de dívidas — fala com um especialista.';
+
+  @override
+  String get scanSummaryLppCertificate => 'Certificado LPP digitalizado';
+
+  @override
+  String get scanSummary3aAttestation => 'Atestação 3a digitalizada';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Declaração fiscal digitalizada';
+
+  @override
+  String get scanSummaryAvsExtract => 'Extrato AVS digitalizado';
+
+  @override
+  String get scanSummaryMortgageAttestation =>
+      'Atestação hipoteca digitalizada';
+
+  @override
+  String get scanSummarySalaryCertificate =>
+      'Certificado de salário digitalizado';
 }

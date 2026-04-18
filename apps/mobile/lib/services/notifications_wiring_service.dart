@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/constants/social_insurance.dart' show resolveCanton;
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 
@@ -73,17 +74,31 @@ class NotificationsWiringService extends ChangeNotifier {
   }
 
   bool _hasTriad(CoachProfile p) {
-    return p.birthYear >= 1900 &&
-        p.canton.isNotEmpty &&
-        p.salaireBrutMensuel > 0;
+    // A2-fix (2026-04-18) post-exec audit findings:
+    // - Panel bugs BUG #2: `>= 1900` alone accepted absurd future years
+    //   (3000, 4242). Upper bound added to mirror backend
+    //   `_coerce_fact_value` range [1900, currentYear+1].
+    // - Panel bugs BUG #3: `canton.isNotEmpty` accepted "xyz", "VS "
+    //   (trailing space), "ZZ". Route through `resolveCanton()` so the
+    //   26-code Swiss allowlist gates the check uniformly.
+    final currentYear = DateTime.now().year;
+    final birthYearOk =
+        p.birthYear >= 1900 && p.birthYear <= currentYear + 1;
+    final cantonOk = !resolveCanton(p.canton).isFallback;
+    return birthYearOk && cantonOk && p.salaireBrutMensuel > 0;
   }
 
   /// Deterministic signature of the triad — any change invalidates.
-  /// Uses the salary bucket (rounded to nearest 100 CHF) so every
-  /// keystroke during a manual edit doesn't thrash notifications.
+  ///
+  /// A2-fix (2026-04-18) panel UX #4: the prior 100 CHF bucket was a
+  /// magic number without source. The 500ms debounce in [onProfileChanged]
+  /// already absorbs keystroke bursts on the salary field; bucketing on
+  /// top of it was defensive duplication with no ADR. We now sign the
+  /// raw salary, which makes the signature strictly a function of
+  /// observable profile state.
   String _triadSignature(CoachProfile p) {
-    final salaryBucket = (p.salaireBrutMensuel / 100).round() * 100;
-    return '${p.birthYear}|${p.canton}|$salaryBucket';
+    return '${p.birthYear}|${resolveCanton(p.canton).code}|'
+        '${p.salaireBrutMensuel.toStringAsFixed(2)}';
   }
 
   @visibleForTesting

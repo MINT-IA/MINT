@@ -22963,4 +22963,23 @@ class SIt extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.';
+
+  @override
+  String get scanSummaryLppCertificate => 'Certificato LPP scansionato';
+
+  @override
+  String get scanSummary3aAttestation => 'Attestato 3a scansionato';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Dichiarazione fiscale scansionata';
+
+  @override
+  String get scanSummaryAvsExtract => 'Estratto AVS scansionato';
+
+  @override
+  String get scanSummaryMortgageAttestation => 'Attestato ipoteca scansionato';
+
+  @override
+  String get scanSummarySalaryCertificate =>
+      'Certificato di stipendio scansionato';
 }

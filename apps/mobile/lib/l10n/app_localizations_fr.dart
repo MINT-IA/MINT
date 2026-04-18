@@ -22903,4 +22903,22 @@ class SFr extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.';
+
+  @override
+  String get scanSummaryLppCertificate => 'Certificat LPP scanné';
+
+  @override
+  String get scanSummary3aAttestation => 'Attestation 3a scannée';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Déclaration fiscale scannée';
+
+  @override
+  String get scanSummaryAvsExtract => 'Extrait AVS scanné';
+
+  @override
+  String get scanSummaryMortgageAttestation => 'Attestation hypothèque scannée';
+
+  @override
+  String get scanSummarySalaryCertificate => 'Certificat de salaire scanné';
 }

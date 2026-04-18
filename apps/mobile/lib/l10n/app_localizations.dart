@@ -36951,19 +36951,19 @@ abstract class S {
   /// **'Capital projeté à la retraite'**
   String get coachSilentOpenerRetirementCapital;
 
-  /// No description provided for @coachSilentOpenerProjectedCapital.
+  /// Silent opener label when the coach surfaces a generic projected-capital number across any life-event horizon (not only retraite). Wave 2 debias — replaces retirement-framed default.
   ///
   /// In fr, this message translates to:
   /// **'Capital projeté sur ton horizon'**
   String get coachSilentOpenerProjectedCapital;
 
-  /// No description provided for @coachSilentOpenerLppAvoir.
+  /// Silent opener label for the user's current LPP balance, surfaced first when enriched via scan. Factual indicative voice.
   ///
   /// In fr, this message translates to:
   /// **'Avoir LPP'**
   String get coachSilentOpenerLppAvoir;
 
-  /// No description provided for @coachSilentOpener3aEpargne.
+  /// Silent opener label for 3a savings snapshot. Factual indicative voice.
   ///
   /// In fr, this message translates to:
   /// **'Épargne 3a'**
@@ -40178,6 +40178,42 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
   String get safeModeFormalDesendettementNote;
+
+  /// Persistent event summary when an LPP certificate is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP scanné'**
+  String get scanSummaryLppCertificate;
+
+  /// Persistent event summary when a Pillar 3a attestation is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation 3a scannée'**
+  String get scanSummary3aAttestation;
+
+  /// Persistent event summary when a tax declaration is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale scannée'**
+  String get scanSummaryTaxDeclaration;
+
+  /// Persistent event summary when an AVS extract is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extrait AVS scanné'**
+  String get scanSummaryAvsExtract;
+
+  /// Persistent event summary when a mortgage attestation is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation hypothèque scannée'**
+  String get scanSummaryMortgageAttestation;
+
+  /// Persistent event summary when a salary certificate is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat de salaire scanné'**
+  String get scanSummarySalaryCertificate;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

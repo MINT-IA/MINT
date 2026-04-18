@@ -22957,4 +22957,23 @@ class SDe extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.';
+
+  @override
+  String get scanSummaryLppCertificate => 'BVG-Ausweis gescannt';
+
+  @override
+  String get scanSummary3aAttestation => 'Säule-3a-Bescheinigung gescannt';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Steuererklärung gescannt';
+
+  @override
+  String get scanSummaryAvsExtract => 'AHV-Auszug gescannt';
+
+  @override
+  String get scanSummaryMortgageAttestation =>
+      'Hypothekenbescheinigung gescannt';
+
+  @override
+  String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
 }

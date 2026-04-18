@@ -83,7 +83,10 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 30));
 
       expect(rec.scheduled, hasLength(1));
-      expect(service.lastScheduledSignature, equals('1977|VS|10000'));
+      // A2-fix (2026-04-18) panel UX #4: signature uses raw salary
+      // (toStringAsFixed(2)) after the 100 CHF magic bucket was removed
+      // as a doctrine-violation (no ADR / no source).
+      expect(service.lastScheduledSignature, equals('1977|VS|10000.00'));
     });
 
     test('same triad seen twice → schedule fires once (signature dedup)',

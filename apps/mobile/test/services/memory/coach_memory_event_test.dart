@@ -1,4 +1,4 @@
-/// Tests for [CoachMemoryService.saveEvent] / [hasEvent] — Wave A-MINIMAL A1.
+/// Tests for [CoachMemoryService.saveEvent] — Wave A-MINIMAL A1 + A2-fix.
 ///
 /// Contract: events are durable anchors (scan LPP, life event, major
 /// financial action) stored in a separate namespace from regular insights
@@ -6,7 +6,13 @@
 ///
 /// Refs:
 /// - Panel adversaire BUG 5 (FIFO 50 evicts scan events after ~1 week active coaching)
+/// - Panel bugs BUG #4 (timezone dedup — local day, not UTC)
 /// - .planning/wave-a-notifs-wiring/PLAN.md (A1)
+///
+/// A2-fix (2026-04-18): hasEvent and getEvents were removed as façade
+/// (zero production callers). Tests now use `debugGetEvents` to inspect
+/// persistence state — marked `@visibleForTesting` so the API cannot
+/// leak into production consumers.
 library;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -24,87 +30,49 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
     });
 
-    test('saveEvent persists + hasEvent returns true within freshness window',
-        () async {
+    test('saveEvent persists the entry', () async {
       await CoachMemoryService.saveEvent(
         'scan_lpp',
         'Certificat LPP CPE — 70 377 CHF',
         prefs: prefs,
       );
-      final found = await CoachMemoryService.hasEvent(
-        'scan_lpp',
-        maxAgeDays: 30,
-        prefs: prefs,
-      );
-      expect(found, isTrue);
+      final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
+      expect(events, hasLength(1));
+      expect(events.first.topic, 'scan_lpp');
+      expect(events.first.type, InsightType.event);
+      expect(events.first.summary, 'Certificat LPP CPE — 70 377 CHF');
     });
 
-    test('hasEvent returns false when no matching topic', () async {
-      await CoachMemoryService.saveEvent(
-        'scan_lpp',
-        'Certificat LPP',
-        prefs: prefs,
-      );
-      final found = await CoachMemoryService.hasEvent(
-        'scan_3a',
-        prefs: prefs,
-      );
-      expect(found, isFalse);
-    });
-
-    test('hasEvent returns false when event too old (beyond maxAgeDays)',
+    test('saveEvent dedup: same topic same LOCAL day → 1 entry, latest wins',
         () async {
-      await CoachMemoryService.saveEvent(
-        'scan_lpp',
-        'Certificat ancien',
-        date: DateTime.now().toUtc().subtract(const Duration(days: 400)),
-        prefs: prefs,
-      );
-      // Within 365 days → not found.
-      expect(
-        await CoachMemoryService.hasEvent(
-          'scan_lpp',
-          maxAgeDays: 365,
-          prefs: prefs,
-        ),
-        isFalse,
-      );
-      // Within 500 days → found.
-      expect(
-        await CoachMemoryService.hasEvent(
-          'scan_lpp',
-          maxAgeDays: 500,
-          prefs: prefs,
-        ),
-        isTrue,
-      );
-    });
-
-    test('saveEvent dedup: same topic same day collapses to one entry',
-        () async {
-      final now = DateTime.now().toUtc();
+      // Use explicit mid-morning times so the 3-hour gap never straddles
+      // midnight in any timezone (prior version used DateTime.now()
+      // which made the test flaky when CI ran after 21:00 local).
+      final morning = DateTime(2026, 4, 18, 10);
+      final afternoon = DateTime(2026, 4, 18, 14);
       await CoachMemoryService.saveEvent(
         'scan_lpp',
         'V1',
-        date: now,
+        date: morning,
         prefs: prefs,
       );
       await CoachMemoryService.saveEvent(
         'scan_lpp',
         'V2 (updated)',
-        date: now.add(const Duration(hours: 3)),
+        date: afternoon,
         prefs: prefs,
       );
-      final events = await CoachMemoryService.getEvents(prefs: prefs);
+      final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
       final scanLpp = events.where((e) => e.topic == 'scan_lpp').toList();
       expect(scanLpp, hasLength(1),
-          reason: 'Same topic same day should dedup to 1 entry');
+          reason: 'Same topic same local day should dedup to 1 entry');
       expect(scanLpp.first.summary, equals('V2 (updated)'));
     });
 
-    test('different days for same topic create distinct entries', () async {
-      final day1 = DateTime.utc(2026, 4, 1, 10);
-      final day2 = DateTime.utc(2026, 4, 5, 10);
+    test('different local days for same topic create distinct entries',
+        () async {
+      final day1 = DateTime(2026, 4, 1, 10);
+      final day2 = DateTime(2026, 4, 5, 10);
       await CoachMemoryService.saveEvent(
         'scan_lpp',
         'First scan',
@@ -117,8 +85,38 @@ void main() {
         date: day2,
         prefs: prefs,
       );
-      final events = await CoachMemoryService.getEvents(prefs: prefs);
+      final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
       expect(events.where((e) => e.topic == 'scan_lpp'), hasLength(2));
+    });
+
+    test(
+        'A2-fix BUG #4 regression: dedup respects LOCAL day, not UTC day. '
+        'Two scans that share the same UTC day but straddle midnight in '
+        'CEST should be treated as two distinct entries.', () async {
+      // Simulate CEST (UTC+2) 00:15 on day N+1 ≈ 22:15 UTC on day N.
+      // And 23:45 local on day N ≈ 21:45 UTC on day N.
+      // Under UTC bucketing both would collapse to day N → 1 entry.
+      // Under LOCAL bucketing they split into day N and day N+1 → 2 entries.
+      final lateEvening = DateTime(2026, 4, 3, 23, 45);
+      final earlyNextMorning = DateTime(2026, 4, 4, 0, 15);
+
+      await CoachMemoryService.saveEvent(
+        'scan_lpp',
+        'Late evening scan',
+        date: lateEvening,
+        prefs: prefs,
+      );
+      await CoachMemoryService.saveEvent(
+        'scan_lpp',
+        'Next morning scan',
+        date: earlyNextMorning,
+        prefs: prefs,
+      );
+
+      final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
+      expect(events.where((e) => e.topic == 'scan_lpp'), hasLength(2),
+          reason:
+              'Local calendar day is the dedup key — panel bugs BUG #4');
     });
 
     test('events namespace isolated from regular insights', () async {
@@ -145,15 +143,10 @@ void main() {
 
       // The event MUST still be retrievable despite FIFO eviction in
       // the insights namespace — this is the point of the separate ns.
-      final events = await CoachMemoryService.getEvents(prefs: prefs);
-      expect(events.where((e) => e.topic == 'scan_lpp'), hasLength(1));
-
-      // hasEvent still true.
-      expect(
-        await CoachMemoryService.hasEvent('scan_lpp', prefs: prefs),
-        isTrue,
-        reason: 'Scan event must survive FIFO 50 eviction of regular insights',
-      );
+      final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
+      expect(events.where((e) => e.topic == 'scan_lpp'), hasLength(1),
+          reason:
+              'Scan event must survive FIFO 50 eviction of regular insights');
 
       // Sanity: the regular insights WERE pruned to 50.
       final insights = await CoachMemoryService.getInsights(prefs: prefs);
@@ -166,7 +159,7 @@ void main() {
         'Summary',
         prefs: prefs,
       );
-      final events = await CoachMemoryService.getEvents(prefs: prefs);
+      final events = await CoachMemoryService.debugGetEvents(prefs: prefs);
       expect(events.first.type, equals(InsightType.event));
     });
 
@@ -189,7 +182,7 @@ void main() {
 
       await CoachMemoryService.clear(prefs: prefs);
 
-      expect(await CoachMemoryService.getEvents(prefs: prefs), isEmpty);
+      expect(await CoachMemoryService.debugGetEvents(prefs: prefs), isEmpty);
       expect(await CoachMemoryService.getInsights(prefs: prefs), isEmpty);
     });
   });

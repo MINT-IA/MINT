@@ -94,32 +94,33 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         canton: null, // Canton from profile context if available
       );
 
+      // A2-fix (2026-04-18) post-exec audit panel façade #1:
+      // persist the scan event BEFORE the `mounted` check so that a
+      // user who navigates away between network return and setState
+      // still has the event recorded. Memory persistence does not
+      // touch `setState` and therefore is safe to fire on an unmounted
+      // State; the scan DID happen, its memory must not depend on
+      // whether the user stayed on this screen.
+      _persistScanEvent();
+
       if (!mounted) return;
       setState(() {
         _premierEclairage = result;
         _premierEclairageLoading = false;
         _premierEclairageFailed = result == null;
       });
-
-      // Wave A-MINIMAL A1: persist a durable scan event so the coach
-      // can reference the scan in later sessions. This fires whether
-      // or not the server returned a non-null premier éclairage —
-      // the SCAN itself happened, which is the memory we want. The
-      // call is fire-and-forget (SharedPreferences write is sync +
-      // fast enough; exceptions already caught inside saveEvent via
-      // the underlying _save).
-      _persistScanEvent();
     } catch (_) {
+      // Same ordering rule on the error path: persist the event first,
+      // regardless of whether the user is still on screen when the
+      // exception lands. Panel adversaire 2026-04-18 + panel façade
+      // hunter both flagged this as a memory-loss bug.
+      _persistScanEvent();
+
       if (!mounted) return;
       setState(() {
         _premierEclairageLoading = false;
         _premierEclairageFailed = true;
       });
-      // Even when the premier éclairage fetch fails (network, timeout,
-      // backend 5xx), the user DID scan a document. Record the event
-      // so J+30 dedup works and the coach can still reference "tu as
-      // scanné ton certificat" independently of the narrative layer.
-      _persistScanEvent();
     }
   }
 
@@ -133,7 +134,13 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
   void _persistScanEvent() {
     try {
       final topic = _scanTopicForType(widget.result.documentType);
-      final summary = _scanSummary();
+      // A2-fix (2026-04-18) panel UX #2: pull the localized label from
+      // AppLocalizations so the persisted summary respects the user's
+      // current language instead of shipping FR literals into all 6
+      // locales. The context is still valid here because
+      // _persistScanEvent is called synchronously from the fetch
+      // handlers (mounted at entry — see ordering rule A2-fix).
+      final summary = _scanSummary(_scanTypeLabel(widget.result.documentType));
       CoachMemoryService.saveEvent(topic, summary).catchError((e) {
         debugPrint('[document_impact] saveEvent failed: $e');
       });
@@ -160,8 +167,7 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     }
   }
 
-  String _scanSummary() {
-    final type = widget.result.documentType;
+  String _scanSummary(String typeLabel) {
     String? caisse;
     String? avoir;
 
@@ -178,11 +184,16 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
       if (avoir == null &&
           (name.contains('avoir') || name.contains('balance') ||
            name.contains('capital') || name.contains('total'))) {
-        avoir = value;
+        // A2-fix (2026-04-18) panel UX #3: bucketize raw financial
+        // amounts to nearest 10 000 CHF before persistence. A raw
+        // "70377.00" violates CLAUDE.md §6.7 (no exact salary / wealth
+        // in logs or memory); the rounded "~70'000 CHF" preserves
+        // enough signal for the coach to reason about order of
+        // magnitude without leaking the identifying precision.
+        avoir = _bucketizeAvoir(value);
       }
     }
 
-    final typeLabel = _scanTypeLabel(type);
     if (caisse != null && avoir != null) {
       return '$typeLabel $caisse — $avoir';
     }
@@ -195,20 +206,45 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
     return typeLabel;
   }
 
+  /// Round a raw numeric string to the nearest 10 000 CHF and format
+  /// it Swiss-style (`~70'000 CHF`). Non-numeric input or parse
+  /// failures fall back to `"montant non précisé"` — never return the
+  /// raw value to avoid leaking PII into persisted summaries.
+  String _bucketizeAvoir(String raw) {
+    final cleaned = raw.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
+    final parsed = double.tryParse(cleaned);
+    if (parsed == null) return 'montant non précisé';
+    if (parsed <= 0) return 'montant non précisé';
+    final bucket = (parsed / 10000).round() * 10000;
+    // Swiss thousands separator: apostrophe (e.g. 70'000).
+    final asInt = bucket.toInt();
+    final withSep = asInt.toString().replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (m) => "${m[1]}'",
+        );
+    return "~$withSep CHF";
+  }
+
   String _scanTypeLabel(DocumentType type) {
+    // A2-fix (2026-04-18) panel UX #2: pull strings from ARB so
+    // persisted summaries respect the active locale. Keys declared in
+    // all 6 ARB files (scanSummaryLppCertificate etc.). Uses the
+    // current BuildContext — safe because _scanTypeLabel is called
+    // synchronously from the fetch handlers before any unmount.
+    final l10n = S.of(context)!;
     switch (type) {
       case DocumentType.lppCertificate:
-        return 'Certificat LPP scanné';
+        return l10n.scanSummaryLppCertificate;
       case DocumentType.threeAAttestation:
-        return 'Attestation 3a scannée';
+        return l10n.scanSummary3aAttestation;
       case DocumentType.taxDeclaration:
-        return 'Déclaration fiscale scannée';
+        return l10n.scanSummaryTaxDeclaration;
       case DocumentType.avsExtract:
-        return 'Extrait AVS scanné';
+        return l10n.scanSummaryAvsExtract;
       case DocumentType.mortgageAttestation:
-        return 'Attestation hypothèque scannée';
+        return l10n.scanSummaryMortgageAttestation;
       case DocumentType.salaryCertificate:
-        return 'Certificat de salaire scanné';
+        return l10n.scanSummarySalaryCertificate;
     }
   }
 

@@ -22901,4 +22901,23 @@ class SEs extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'Estas retiradas siguen siendo posibles en caso de procedimiento formal de saneamiento de deudas — habla con un especialista.';
+
+  @override
+  String get scanSummaryLppCertificate => 'Certificado LPP escaneado';
+
+  @override
+  String get scanSummary3aAttestation => 'Certificado 3a escaneado';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Declaración fiscal escaneada';
+
+  @override
+  String get scanSummaryAvsExtract => 'Extracto AVS escaneado';
+
+  @override
+  String get scanSummaryMortgageAttestation =>
+      'Certificado hipotecario escaneado';
+
+  @override
+  String get scanSummarySalaryCertificate => 'Certificado de salario escaneado';
 }

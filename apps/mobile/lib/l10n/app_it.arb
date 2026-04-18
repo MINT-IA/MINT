@@ -10965,5 +10965,11 @@
   "safeModeWhyBlockedTitle": "Perché è in pausa",
   "safeModeWhyBlockedBody": "In modalità protezione, MINT privilegia la stabilità della liquidità prima delle ottimizzazioni fiscali e previdenziali.",
   "safeModeWhyBlockedLink": "Perché è in pausa?",
-  "safeModeFormalDesendettementNote": "Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista."
+  "safeModeFormalDesendettementNote": "Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.",
+  "scanSummaryLppCertificate": "Certificato LPP scansionato",
+  "scanSummary3aAttestation": "Attestato 3a scansionato",
+  "scanSummaryTaxDeclaration": "Dichiarazione fiscale scansionata",
+  "scanSummaryAvsExtract": "Estratto AVS scansionato",
+  "scanSummaryMortgageAttestation": "Attestato ipoteca scansionato",
+  "scanSummarySalaryCertificate": "Certificato di stipendio scansionato"
 }

@@ -22791,4 +22791,22 @@ class SEn extends S {
   @override
   String get safeModeFormalDesendettementNote =>
       'These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.';
+
+  @override
+  String get scanSummaryLppCertificate => 'LPP certificate scanned';
+
+  @override
+  String get scanSummary3aAttestation => 'Pillar 3a attestation scanned';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Tax declaration scanned';
+
+  @override
+  String get scanSummaryAvsExtract => 'AVS extract scanned';
+
+  @override
+  String get scanSummaryMortgageAttestation => 'Mortgage attestation scanned';
+
+  @override
+  String get scanSummarySalaryCertificate => 'Salary certificate scanned';
 }

@@ -310,14 +310,26 @@ class NotificationService {
     // reminders on an empty profile was the "greet-and-bounce" trap
     // flagged by panel adversaire 2026-04-18 (a user who types "Salut"
     // and leaves would otherwise receive Monday reminders for life).
-    if (profile.birthYear < 1900 ||
-        profile.canton.isEmpty ||
-        profile.salaireBrutMensuel <= 0) {
+    // A2-fix (2026-04-18): widened triad checks per 3-panel post-exec audit.
+    // - `birthYear` upper bound (panel bugs BUG #2): reject absurd future
+    //   years (3000, 4242) that would pass `>= 1900` alone. Mirror of the
+    //   backend _coerce_fact_value range [1900, currentYear+1].
+    // - `canton` validity (panel bugs BUG #3): route through
+    //   `resolveCanton()` so "xyz" / "VS " / "" all fail uniformly.
+    // - PII hygiene in debugPrint (panel UX #1, PRIV-07 regression): log
+    //   only presence booleans, never raw birthYear/canton/salary. The
+    //   prior log was a direct quasi-identifier leak (nLPD art. 4).
+    final currentYear = DateTime.now().year;
+    final cantonCheck = resolveCanton(profile.canton);
+    final birthYearOk = profile.birthYear >= 1900 &&
+        profile.birthYear <= currentYear + 1;
+    final cantonOk = !cantonCheck.isFallback;
+    final salaryOk = profile.salaireBrutMensuel > 0;
+    if (!birthYearOk || !cantonOk || !salaryOk) {
       debugPrint(
         '[NotificationService] scheduleCoachingReminders skipped: '
-        'incomplete triad (birthYear=${profile.birthYear}, '
-        'canton="${profile.canton}", '
-        'salaireBrutMensuel=${profile.salaireBrutMensuel})',
+        'triad incomplete '
+        '(birthYearOk=$birthYearOk, cantonOk=$cantonOk, salaryOk=$salaryOk)',
       );
       return;
     }
