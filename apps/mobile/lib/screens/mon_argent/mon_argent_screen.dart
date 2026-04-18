@@ -121,7 +121,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         onTap: () => context.push('/profile/bilan'),
                         onScan: () => context.push('/scan'),
                         onTapAmount: (topic) =>
-                            context.push('/coach/chat?topic=$topic'),
+                            context.go('/coach/chat?topic=$topic'),
                       ),
                     ),
 
@@ -132,7 +132,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         delay: const Duration(milliseconds: 200),
                         child: GestureDetector(
                           onTap: () =>
-                              context.push('/coach/chat?topic=budget'),
+                              context.go('/coach/chat?topic=budget'),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
                               horizontal: MintSpacing.sm,
