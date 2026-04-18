@@ -162,11 +162,14 @@ void main() {
       expect(find.text('Retour'), findsOneWidget);
     });
 
-    testWidgets('shows MINT logo icon', (tester) async {
+    testWidgets('shows MINT wordmark', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const LoginScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.token_rounded), findsOneWidget);
+      // Login brand mark was refactored from `Icons.token_rounded` to a
+      // typographic wordmark matching LandingScreen. See login_screen.dart
+      // line ~176 (Text 'MINT' with letter-spacing 4).
+      expect(find.text('MINT'), findsOneWidget);
     });
 
     testWidgets('has Form widget for validation', (tester) async {
@@ -318,11 +321,13 @@ void main() {
       expect(find.textContaining('inscrit'), findsOneWidget);
     });
 
-    testWidgets('shows MINT logo icon', (tester) async {
+    testWidgets('shows MINT wordmark', (tester) async {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
-      expect(find.byIcon(Icons.token_rounded), findsOneWidget);
+      // Register brand mark was refactored from `Icons.token_rounded` to
+      // a typographic wordmark. See register_screen.dart line ~151.
+      expect(find.text('MINT'), findsOneWidget);
     });
 
     testWidgets('has Form widget for validation', (tester) async {

@@ -10267,8 +10267,20 @@
   "coachSilentOpenerFitnessScore": "Score de santé financière",
   "coachSilentOpenerRetirementCapital": "Capital projeté à la retraite",
   "coachSilentOpenerProjectedCapital": "Capital projeté sur ton horizon",
+  "@coachSilentOpenerProjectedCapital": {
+    "description": "Silent opener label when the coach surfaces a generic projected-capital number across any life-event horizon (not only retraite). Wave 2 debias — replaces retirement-framed default.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachSilentOpenerLppAvoir": "Avoir LPP",
+  "@coachSilentOpenerLppAvoir": {
+    "description": "Silent opener label for the user's current LPP balance, surfaced first when enriched via scan. Factual indicative voice.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "coachSilentOpener3aEpargne": "Épargne 3a",
+  "@coachSilentOpener3aEpargne": {
+    "description": "Silent opener label for 3a savings snapshot. Factual indicative voice.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "confidenceLow": "Tes chiffres sont très approximatifs. Ajoute ton certificat LPP pour +25 %.",
   "confidenceMedium": "Bon début. Scanne ton extrait AVS pour confirmer tes années de cotisation.",
   "confidenceAction": "Scanner mon certificat LPP (+25 % de précision)",
