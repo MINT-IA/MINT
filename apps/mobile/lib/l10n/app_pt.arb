@@ -10965,5 +10965,11 @@
   "safeModeWhyBlockedTitle": "Porquê está em pausa",
   "safeModeWhyBlockedBody": "Em modo de proteção, o MINT prioriza a estabilidade da tesouraria antes das otimizações fiscais e de previdência.",
   "safeModeWhyBlockedLink": "Porquê está em pausa?",
-  "safeModeFormalDesendettementNote": "Estes levantamentos continuam possíveis em caso de procedimento formal de saneamento de dívidas — fala com um especialista."
+  "safeModeFormalDesendettementNote": "Estes levantamentos continuam possíveis em caso de procedimento formal de saneamento de dívidas — fala com um especialista.",
+  "scanSummaryLppCertificate": "Certificado LPP digitalizado",
+  "scanSummary3aAttestation": "Atestação 3a digitalizada",
+  "scanSummaryTaxDeclaration": "Declaração fiscal digitalizada",
+  "scanSummaryAvsExtract": "Extrato AVS digitalizado",
+  "scanSummaryMortgageAttestation": "Atestação hipoteca digitalizada",
+  "scanSummarySalaryCertificate": "Certificado de salário digitalizado"
 }

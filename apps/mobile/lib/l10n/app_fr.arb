@@ -11741,5 +11741,17 @@
   "safeModeWhyBlockedTitle": "Pourquoi c'est en pause",
   "safeModeWhyBlockedBody": "En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.",
   "safeModeWhyBlockedLink": "Pourquoi est-ce en pause\u00a0?",
-  "safeModeFormalDesendettementNote": "Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste."
+  "safeModeFormalDesendettementNote": "Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.",
+  "scanSummaryLppCertificate": "Certificat LPP scanné",
+  "@scanSummaryLppCertificate": { "description": "Persistent event summary when an LPP certificate is scanned." },
+  "scanSummary3aAttestation": "Attestation 3a scannée",
+  "@scanSummary3aAttestation": { "description": "Persistent event summary when a Pillar 3a attestation is scanned." },
+  "scanSummaryTaxDeclaration": "Déclaration fiscale scannée",
+  "@scanSummaryTaxDeclaration": { "description": "Persistent event summary when a tax declaration is scanned." },
+  "scanSummaryAvsExtract": "Extrait AVS scanné",
+  "@scanSummaryAvsExtract": { "description": "Persistent event summary when an AVS extract is scanned." },
+  "scanSummaryMortgageAttestation": "Attestation hypothèque scannée",
+  "@scanSummaryMortgageAttestation": { "description": "Persistent event summary when a mortgage attestation is scanned." },
+  "scanSummarySalaryCertificate": "Certificat de salaire scanné",
+  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." }
 }

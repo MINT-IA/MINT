@@ -50,6 +50,7 @@ import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
 import 'package:mint_mobile/services/notification_service.dart';
+import 'package:mint_mobile/services/notifications_wiring_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
 import 'package:mint_mobile/screens/gender_gap_screen.dart';
 import 'package:mint_mobile/screens/frontalier_screen.dart';
@@ -1285,6 +1286,34 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
         ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
         ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
+        // Wave A-MINIMAL A2 (2026-04-18): notifications wiring listens
+        // to CoachProfileProvider and reschedules coaching reminders
+        // when the triad (birthYear + canton + salaireBrutMensuel)
+        // transitions incomplete→complete or changes signature. The
+        // previous wiring (`_markOnboardingCompletedIfNeeded` only)
+        // fired once at onboarding intent and never re-fired when a
+        // user completed the triad mid-conversation via save_fact.
+        // Panel adversaire 2026-04-18 BUG 2+3 mitigation.
+        //
+        // A2-fix (2026-04-18): `lazy: false` is MANDATORY. Without it,
+        // ChangeNotifierProxyProvider defers `create`/`update` until a
+        // widget downstream calls `context.watch<NotificationsWiringService>()`.
+        // No screen does — the service is purely reactive plumbing,
+        // not a UI dependency. The 3-panel post-exec audit unanimously
+        // flagged this as a P0 "façade sans câblage" that would ship
+        // 100% dead code while all 7 unit tests passed. The `lazy: false`
+        // flag materialises the service at MultiProvider mount time so
+        // its `update` actually fires on every CoachProfileProvider
+        // notifyListeners.
+        ChangeNotifierProxyProvider<CoachProfileProvider, NotificationsWiringService>(
+          lazy: false,
+          create: (_) => NotificationsWiringService(),
+          update: (_, profileProvider, wiring) {
+            final service = wiring ?? NotificationsWiringService();
+            service.onProfileChanged(profileProvider.profile);
+            return service;
+          },
+        ),
       ],
       child: _AuthRouterBridge(
         child: Builder(

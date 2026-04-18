@@ -10965,5 +10965,11 @@
   "safeModeWhyBlockedTitle": "Why it's on hold",
   "safeModeWhyBlockedBody": "In protection mode, MINT prioritises cash flow stability before tax and pension optimisations.",
   "safeModeWhyBlockedLink": "Why is this on hold?",
-  "safeModeFormalDesendettementNote": "These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist."
+  "safeModeFormalDesendettementNote": "These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.",
+  "scanSummaryLppCertificate": "LPP certificate scanned",
+  "scanSummary3aAttestation": "Pillar 3a attestation scanned",
+  "scanSummaryTaxDeclaration": "Tax declaration scanned",
+  "scanSummaryAvsExtract": "AVS extract scanned",
+  "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
+  "scanSummarySalaryCertificate": "Salary certificate scanned"
 }

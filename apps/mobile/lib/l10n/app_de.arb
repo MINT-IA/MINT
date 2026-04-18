@@ -10965,5 +10965,11 @@
   "safeModeWhyBlockedTitle": "Warum ist das pausiert",
   "safeModeWhyBlockedBody": "Im Schutzmodus priorisiert MINT die Liquiditätsstabilisierung vor Steuer- und Vorsorgeoptimierungen.",
   "safeModeWhyBlockedLink": "Warum ist das pausiert?",
-  "safeModeFormalDesendettementNote": "Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten."
+  "safeModeFormalDesendettementNote": "Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.",
+  "scanSummaryLppCertificate": "BVG-Ausweis gescannt",
+  "scanSummary3aAttestation": "Säule-3a-Bescheinigung gescannt",
+  "scanSummaryTaxDeclaration": "Steuererklärung gescannt",
+  "scanSummaryAvsExtract": "AHV-Auszug gescannt",
+  "scanSummaryMortgageAttestation": "Hypothekenbescheinigung gescannt",
+  "scanSummarySalaryCertificate": "Lohnausweis gescannt"
 }

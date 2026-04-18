@@ -228,4 +228,15 @@ def test_facts_to_insight_rows_shape():
         assert row["user_id"] == "user-123"
         assert row["topic"]
         assert row["summary"]
-        assert row["insight_type"] in {"fact", "decision", "preference", "concern"}
+        # Wave A-MINIMAL (2026-04-18): "event" joins the allowed set for
+        # durable anchors (scan, life event). See coach_tools.py save_insight
+        # enum — backend CoachInsightRecord.insight_type is Column(String)
+        # so the set is purely a client/test contract, not a DB constraint.
+        assert row["insight_type"] in {
+            "fact",
+            "decision",
+            "preference",
+            "concern",
+            "event",
+            "goal",
+        }

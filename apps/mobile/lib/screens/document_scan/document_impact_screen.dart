@@ -8,6 +8,10 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_service.dart';
+// Wave A-MINIMAL (2026-04-18) A1: persist a durable scan event so the
+// coach can reference "tu as scanné ton certificat CPE mardi" later.
+// Events live in a separate non-FIFO namespace from regular insights.
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -90,6 +94,15 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         canton: null, // Canton from profile context if available
       );
 
+      // A2-fix (2026-04-18) post-exec audit panel façade #1:
+      // persist the scan event BEFORE the `mounted` check so that a
+      // user who navigates away between network return and setState
+      // still has the event recorded. Memory persistence does not
+      // touch `setState` and therefore is safe to fire on an unmounted
+      // State; the scan DID happen, its memory must not depend on
+      // whether the user stayed on this screen.
+      _persistScanEvent();
+
       if (!mounted) return;
       setState(() {
         _premierEclairage = result;
@@ -97,11 +110,141 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         _premierEclairageFailed = result == null;
       });
     } catch (_) {
+      // Same ordering rule on the error path: persist the event first,
+      // regardless of whether the user is still on screen when the
+      // exception lands. Panel adversaire 2026-04-18 + panel façade
+      // hunter both flagged this as a memory-loss bug.
+      _persistScanEvent();
+
       if (!mounted) return;
       setState(() {
         _premierEclairageLoading = false;
         _premierEclairageFailed = true;
       });
+    }
+  }
+
+  /// Persist a scan event in [CoachMemoryService] — Wave A-MINIMAL A1.
+  ///
+  /// Topic is derived from [DocumentType]. Summary is best-effort:
+  /// pulls caisse + avoir from extracted fields when present, falls
+  /// back gracefully when fields are missing. The event lives in the
+  /// non-pruned events namespace so it survives `fact`-heavy coaching
+  /// bursts (panel adversaire 2026-04-18 B5).
+  void _persistScanEvent() {
+    try {
+      final topic = _scanTopicForType(widget.result.documentType);
+      // A2-fix (2026-04-18) panel UX #2: pull the localized label from
+      // AppLocalizations so the persisted summary respects the user's
+      // current language instead of shipping FR literals into all 6
+      // locales. The context is still valid here because
+      // _persistScanEvent is called synchronously from the fetch
+      // handlers (mounted at entry — see ordering rule A2-fix).
+      final summary = _scanSummary(_scanTypeLabel(widget.result.documentType));
+      CoachMemoryService.saveEvent(topic, summary).catchError((e) {
+        debugPrint('[document_impact] saveEvent failed: $e');
+      });
+    } catch (e, st) {
+      // Never let memory persistence break the scan UX.
+      debugPrint('[document_impact] _persistScanEvent threw: $e\n$st');
+    }
+  }
+
+  String _scanTopicForType(DocumentType type) {
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return 'scan_lpp';
+      case DocumentType.threeAAttestation:
+        return 'scan_3a';
+      case DocumentType.taxDeclaration:
+        return 'scan_tax';
+      case DocumentType.avsExtract:
+        return 'scan_avs';
+      case DocumentType.mortgageAttestation:
+        return 'scan_mortgage';
+      case DocumentType.salaryCertificate:
+        return 'scan_salary';
+    }
+  }
+
+  String _scanSummary(String typeLabel) {
+    String? caisse;
+    String? avoir;
+
+    // Pull common LPP / 3a fields without hardcoding locale strings.
+    for (final f in widget.result.fields) {
+      final name = f.fieldName.toLowerCase();
+      final value = f.value?.toString().trim();
+      if (value == null || value.isEmpty) continue;
+      if (caisse == null &&
+          (name.contains('caisse') || name.contains('institution') ||
+           name.contains('pension') || name.contains('fund'))) {
+        caisse = value;
+      }
+      if (avoir == null &&
+          (name.contains('avoir') || name.contains('balance') ||
+           name.contains('capital') || name.contains('total'))) {
+        // A2-fix (2026-04-18) panel UX #3: bucketize raw financial
+        // amounts to nearest 10 000 CHF before persistence. A raw
+        // "70377.00" violates CLAUDE.md §6.7 (no exact salary / wealth
+        // in logs or memory); the rounded "~70'000 CHF" preserves
+        // enough signal for the coach to reason about order of
+        // magnitude without leaking the identifying precision.
+        avoir = _bucketizeAvoir(value);
+      }
+    }
+
+    if (caisse != null && avoir != null) {
+      return '$typeLabel $caisse — $avoir';
+    }
+    if (caisse != null) {
+      return '$typeLabel $caisse';
+    }
+    if (avoir != null) {
+      return '$typeLabel — $avoir';
+    }
+    return typeLabel;
+  }
+
+  /// Round a raw numeric string to the nearest 10 000 CHF and format
+  /// it Swiss-style (`~70'000 CHF`). Non-numeric input or parse
+  /// failures fall back to `"montant non précisé"` — never return the
+  /// raw value to avoid leaking PII into persisted summaries.
+  String _bucketizeAvoir(String raw) {
+    final cleaned = raw.replaceAll("'", '').replaceAll(' ', '').replaceAll(',', '.');
+    final parsed = double.tryParse(cleaned);
+    if (parsed == null) return 'montant non précisé';
+    if (parsed <= 0) return 'montant non précisé';
+    final bucket = (parsed / 10000).round() * 10000;
+    // Swiss thousands separator: apostrophe (e.g. 70'000).
+    final asInt = bucket.toInt();
+    final withSep = asInt.toString().replaceAllMapped(
+          RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+          (m) => "${m[1]}'",
+        );
+    return "~$withSep CHF";
+  }
+
+  String _scanTypeLabel(DocumentType type) {
+    // A2-fix (2026-04-18) panel UX #2: pull strings from ARB so
+    // persisted summaries respect the active locale. Keys declared in
+    // all 6 ARB files (scanSummaryLppCertificate etc.). Uses the
+    // current BuildContext — safe because _scanTypeLabel is called
+    // synchronously from the fetch handlers before any unmount.
+    final l10n = S.of(context)!;
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return l10n.scanSummaryLppCertificate;
+      case DocumentType.threeAAttestation:
+        return l10n.scanSummary3aAttestation;
+      case DocumentType.taxDeclaration:
+        return l10n.scanSummaryTaxDeclaration;
+      case DocumentType.avsExtract:
+        return l10n.scanSummaryAvsExtract;
+      case DocumentType.mortgageAttestation:
+        return l10n.scanSummaryMortgageAttestation;
+      case DocumentType.salaryCertificate:
+        return l10n.scanSummarySalaryCertificate;
     }
   }
 
