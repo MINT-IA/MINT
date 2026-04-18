@@ -418,8 +418,8 @@ class ArbitrageEngine {
     } else {
       premierEclairage =
           'Sur $horizon ans, l\'écart de valeur économique totale entre rente et capital '
-          'est d\'environ ${chf.formatChfWithPrefix(delta)}. À toi de peser revenu garanti à vie '
-          'contre liquidité.';
+          'est d\'environ ${chf.formatChfWithPrefix(delta)}. À toi de peser revenu à vie (LPP art. 14) '
+          'contre liquidité et transmission.';
     }
 
     final displaySummary = breakevenYear != null
