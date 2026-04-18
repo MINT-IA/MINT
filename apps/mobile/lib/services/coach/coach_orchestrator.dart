@@ -449,6 +449,7 @@ class CoachOrchestrator {
               'confidence_score': ctx.confidenceScore > 0
                   ? ctx.confidenceScore
                   : null,
+              'has_debt': ctx.hasDebt,
               // Spread knownValues for data lookup tools
               ...ctx.knownValues.map((k, v) =>
                   MapEntry(k, v.isFinite && v > 0 ? v : null)),
@@ -680,6 +681,7 @@ class CoachOrchestrator {
               'confidence_score': ctx.confidenceScore > 0
                   ? ctx.confidenceScore
                   : null,
+              'has_debt': ctx.hasDebt,
               // Spread knownValues for data lookup tools
               ...ctx.knownValues.map((k, v) =>
                   MapEntry(k, v.isFinite && v > 0 ? v : null)),
@@ -821,6 +823,7 @@ class CoachOrchestrator {
               ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
           'confidence_score':
               ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+          'has_debt': ctx.hasDebt,
           'days_since_last_visit': ctx.daysSinceLastVisit,
           'fiscal_season':
               ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,

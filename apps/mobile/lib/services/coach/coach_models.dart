@@ -84,6 +84,11 @@ class CoachContext {
   // e.g. {'avoirLpp': 'certified', 'patrimoine': 'estimated'}
   final Map<String, String> dataReliability;
 
+  /// SafeMode flag — true when CoachProfile.isInDebtCrisis is active.
+  /// Forwarded to backend as profile_context.has_debt.
+  /// When true, backend injects MODE PROTECTION system-prompt block.
+  final bool hasDebt;
+
   const CoachContext({
     this.firstName = 'utilisateur',
     this.archetype = 'swiss_native',
@@ -103,9 +108,10 @@ class CoachContext {
     this.lastMilestone = '',
     this.knownValues = const {},
     this.dataReliability = const {},
+    this.hasDebt = false,
   });
 
-  CoachContext copyWith({String? fiscalSeason}) {
+  CoachContext copyWith({String? fiscalSeason, bool? hasDebt}) {
     return CoachContext(
       firstName: firstName,
       archetype: archetype,
@@ -125,6 +131,7 @@ class CoachContext {
       lastMilestone: lastMilestone,
       knownValues: knownValues,
       dataReliability: dataReliability,
+      hasDebt: hasDebt ?? this.hasDebt,
     );
   }
 }

@@ -7,6 +7,8 @@
 /// Sprint C1 — MINT Coach Redesign
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
@@ -1786,6 +1788,81 @@ class CoachProfile {
   bool get isCouple =>
       etatCivil == CoachCivilStatus.marie ||
       etatCivil == CoachCivilStatus.concubinage;
+
+  /// SafeMode activation flag — ACTIVE when ANY of three signals is true.
+  ///
+  /// Authoritative rule: RULES.md §1 (2026-04-18). Threshold = 0.33 (ASB 2014).
+  ///
+  /// Signal A — Consumer debt stress (binary wizard keys stored in dettes):
+  ///   hasDette on creditConsommation/leasing > 0 (proxy for consumer debt).
+  /// Signal B — Consumer debt-to-income ratio > 0.33 (ASB affordability).
+  ///   Mortgage excess (above 0.33 × brut) also contributes if it pushes the
+  ///   combined consumer ratio past 0.33.
+  /// Signal C — Emergency fund shortfall (months_liquidity < 3).
+  ///
+  /// Edge cases per RULES.md §1:
+  ///   E1: retiree — uses rente estimates when salary is zero.
+  ///   E2: individual gate — no cross-spouse contamination.
+  ///   E4: student (zero income, no debt, no housing) → false (vacuous).
+  bool get isInDebtCrisis {
+    // ── Signal A — consumer debt present (structural proxy) ──────────────────
+    final hasConsumerDebt = (dettes.creditConsommation != null &&
+            dettes.creditConsommation! > 0) ||
+        (dettes.leasing != null && dettes.leasing! > 0) ||
+        (dettes.autresDettes != null && dettes.autresDettes! > 0);
+    if (hasConsumerDebt) return true;
+
+    // ── Net monthly income (E1: retiree, E4: student guard) ─────────────────
+    double netMensuel;
+    if (salaireBrutMensuel > 0) {
+      final breakdown = NetIncomeBreakdown.compute(
+        grossSalary: salaireBrutMensuel * nombreDeMois,
+        canton: canton,
+        age: age,
+      );
+      netMensuel = breakdown.monthlyNetPayslip;
+    } else if (employmentStatus == 'retraite') {
+      // E1 — retiree: use rente estimates as income denominator
+      final renteAvs = prevoyance.renteAVSEstimeeMensuelle ?? 0.0;
+      final renteLpp = prevoyance.projectedRenteLpp != null
+          ? prevoyance.projectedRenteLpp! / 12.0
+          : 0.0;
+      netMensuel = renteAvs + renteLpp;
+      if (netMensuel < 2000 && dettes.totalDettes > 0) return true;
+    } else {
+      // E4 — zero income, no consumer debt, no housing → inactive (vacuous)
+      return false;
+    }
+
+    // ── Signal B — consumer ratio > 0.33 (ASB 2014) ─────────────────────────
+    if (netMensuel > 0) {
+      final consumerMonthly = (dettes.mensualiteCreditConso ?? 0.0) +
+          (dettes.mensualiteLeasing ?? 0.0);
+
+      // Mortgage excess: only the portion above 0.33 × brut counts
+      double mortgageExcess = 0.0;
+      final brutMonthly = salaireBrutMensuel;
+      if (brutMonthly > 0) {
+        final mortgageCap = brutMonthly * 0.33;
+        final mortgageMonthly = dettes.mensualiteHypotheque ?? 0.0;
+        mortgageExcess = math.max(0.0, mortgageMonthly - mortgageCap);
+      }
+
+      final ratio = (consumerMonthly + mortgageExcess) / netMensuel;
+      if (ratio > 0.33) return true;
+    }
+
+    // ── Signal C — emergency fund shortfall (< 3 months) ────────────────────
+    final monthlyExpenses = depenses.totalMensuel > 0
+        ? depenses.totalMensuel
+        : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
+    if (monthlyExpenses > 0) {
+      final monthsLiquidity = patrimoine.epargneLiquide / monthlyExpenses;
+      if (monthsLiquidity < 3) return true;
+    }
+
+    return false;
+  }
 
   /// Copie le profil avec des champs optionnels mis a jour.
   /// Utilise par le annual refresh pour persister updatedAt, prevoyance, etc.

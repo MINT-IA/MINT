@@ -1389,6 +1389,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       age: profile.age,
       canton: profile.canton,
       knownValues: knownValues,
+      hasDebt: profile.isInDebtCrisis,
     );
   }
 

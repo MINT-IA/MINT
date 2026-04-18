@@ -271,6 +271,8 @@ class AgentSafetyGate {
   static const List<AgentTaskType> _safeModeBlockedTypes = [
     AgentTaskType.threeAFormPreFill,
     AgentTaskType.fiscalDossierPrep,
+    AgentTaskType.lppCertificateRequest,
+    AgentTaskType.taxDeclarationPreFill,
   ];
 
   /// Validate an agent task against all safety rules.
