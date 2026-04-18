@@ -314,7 +314,14 @@ class PrevoyanceProfile {
   final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
-  final double? rachatEffectue; // deja rachete
+  final double? rachatEffectue; // deja rachete (montant CHF cumulé)
+  /// Historique daté des rachats LPP (ordre chronologique, plus récent en
+  /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
+  /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date
+  /// du DERNIER rachat et s'applique à TOUT versement capital, pas
+  /// seulement au montant racheté. Sans date précise on ne peut pas
+  /// calculer le jour de déblocage ni alerter sur la reprise fiscale AFC.
+  final List<DateTime> dateRachats;
   final double tauxConversion; // taux de la caisse (min legal 6.8%)
   final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
@@ -350,6 +357,7 @@ class PrevoyanceProfile {
     this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
+    this.dateRachats = const [],
     this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
@@ -422,6 +430,10 @@ class PrevoyanceProfile {
           (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
+      dateRachats: (json['dateRachats'] as List?)
+              ?.map((s) => DateTime.parse(s as String))
+              .toList() ??
+          const [],
       tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
@@ -458,6 +470,7 @@ class PrevoyanceProfile {
     double? avoirLppSurobligatoire,
     double? rachatMaximum,
     double? rachatEffectue,
+    List<DateTime>? dateRachats,
     double? tauxConversion,
     double? tauxConversionSuroblig,
     double? rendementCaisse,
@@ -485,6 +498,7 @@ class PrevoyanceProfile {
       avoirLppSurobligatoire: avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
       rachatMaximum: rachatMaximum ?? this.rachatMaximum,
       rachatEffectue: rachatEffectue ?? this.rachatEffectue,
+      dateRachats: dateRachats ?? this.dateRachats,
       tauxConversion: tauxConversion ?? this.tauxConversion,
       tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
       rendementCaisse: rendementCaisse ?? this.rendementCaisse,
@@ -514,6 +528,8 @@ class PrevoyanceProfile {
         'avoirLppSurobligatoire': avoirLppSurobligatoire,
         'rachatMaximum': rachatMaximum,
         'rachatEffectue': rachatEffectue,
+        'dateRachats':
+            dateRachats.map((d) => d.toIso8601String()).toList(),
         'tauxConversion': tauxConversion,
         'tauxConversionSuroblig': tauxConversionSuroblig,
         'rendementCaisse': rendementCaisse,
@@ -546,6 +562,7 @@ class PrevoyanceProfile {
           avoirLppSurobligatoire == other.avoirLppSurobligatoire &&
           rachatMaximum == other.rachatMaximum &&
           rachatEffectue == other.rachatEffectue &&
+          listEquals(dateRachats, other.dateRachats) &&
           tauxConversion == other.tauxConversion &&
           tauxConversionSuroblig == other.tauxConversionSuroblig &&
           rendementCaisse == other.rendementCaisse &&
@@ -574,6 +591,7 @@ class PrevoyanceProfile {
         avoirLppSurobligatoire,
         rachatMaximum,
         rachatEffectue,
+        Object.hashAll(dateRachats),
         tauxConversion,
         tauxConversionSuroblig,
         rendementCaisse,

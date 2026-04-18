@@ -221,6 +221,19 @@ class _EplScreenState extends State<EplScreen> {
         // Gross annual salary
         final revenu = profile.revenuBrutAnnuel;
         if (revenu > 0) _grossAnnualSalary = revenu;
+
+        // Audit 2026-04-18 Q4 (swiss-brain ruling) : le blocage 3 ans LPP
+        // art. 79b al. 3 dépend de la DATE du dernier rachat (ATF 142 II
+        // 399, 148 II 189). On lit le plus récent `dateRachats` du profil
+        // pour alimenter `_aRachete` et `_anneesSDepuisRachat`.
+        final dates = profile.prevoyance.dateRachats;
+        if (dates.isNotEmpty) {
+          final lastRachat = dates.reduce((a, b) => a.isAfter(b) ? a : b);
+          final yearsSince =
+              DateTime.now().difference(lastRachat).inDays / 365.0;
+          _aRachete = yearsSince < 3.0;
+          _anneesSDepuisRachat = yearsSince.floor();
+        }
       });
     } catch (_) {
       // Provider not in tree (tests) — keep defaults

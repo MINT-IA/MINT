@@ -232,9 +232,18 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       if (profile == null) return;
 
       final result = _result;
+      // Audit 2026-04-18 Q4 (swiss-brain) : on enregistre la date du rachat
+      // simulé pour que l'EPL simulator puisse calculer le blocage 3 ans
+      // (LPP art. 79b al. 3, ATF 142 II 399 + 148 II 189). L'ancien code
+      // écrivait `rachatEffectue` (un double) de façon identitaire (no-op)
+      // et n'avait aucune trace temporelle → blocage EPL jamais déclenché.
+      final newDates = [...profile.prevoyance.dateRachats, DateTime.now()];
       final updated = profile.copyWith(
         prevoyance: profile.prevoyance.copyWith(
-          rachatEffectue: profile.prevoyance.rachatEffectue,
+          rachatEffectue:
+              (profile.prevoyance.rachatEffectue ?? 0) + result.yearlyPlan
+                  .fold<double>(0, (sum, p) => sum + p.montantRachat),
+          dateRachats: newDates,
           projectedRenteLpp: result.delta > 0
               ? null // Not projecting rente here, just marking interaction
               : null,
