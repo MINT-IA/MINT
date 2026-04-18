@@ -333,7 +333,16 @@ final _router = GoRouter(
                     ),
                   );
                 }
-                return auth.isLoggedIn
+                // Wave B-minimal B0 — Unblock tab Aujourd'hui for anonymous
+                // local-mode users. AuthProvider.dart:87 documents the
+                // intended gate as `isLoggedIn || isLocalMode`; the actual
+                // code shipped only `isLoggedIn`, making /home redirect to
+                // LandingScreen for every fresh-install user who hadn't
+                // explicitly signed in. Wave 0 walkthrough (iPhone 17 Pro
+                // sim, 2026-04-18) confirmed this empirically.
+                // Ref: `.planning/wave-0-walkthrough-verite/FINDINGS.md`,
+                // `.planning/wave-b-home-orchestrateur/PLAN.md` (B0).
+                return (auth.isLoggedIn || auth.isLocalMode)
                     ? const AujourdhuiScreen()
                     : const LandingScreen();
               },
