@@ -89,47 +89,62 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     }
 
     if (provider.isEmpty) {
+      // Wave B-minimal B1-fix (2026-04-18): Cap du jour banner was only
+      // rendered in the "has content" branch. On fresh install with an
+      // empty timeline, the early return here silently skipped CapEngine
+      // entirely, making B1's wiring invisible for every first-open user.
+      // UAT device walkthrough caught the gap — fix surfaces the banner
+      // above the empty-state card so even a brand-new user sees the cap
+      // fallback "Parle-moi de toi" (or their first cap once a profile
+      // fact exists).
       return Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: GestureDetector(
-                onTap: () => context.go('/coach/chat'),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: MintColors.craie,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l10n.tensionEmptyWelcome,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
+          child: Column(
+            children: [
+              const CapDuJourBanner(),
+              Expanded(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: GestureDetector(
+                      onTap: () => context.go('/coach/chat'),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: MintColors.craie,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.tensionEmptySubtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: MintColors.textSecondary,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.tensionEmptyWelcome,
+                              style: GoogleFonts.montserrat(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: MintColors.textPrimary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.tensionEmptySubtitle,
+                              style: GoogleFonts.inter(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w400,
+                                color: MintColors.textSecondary,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       );
