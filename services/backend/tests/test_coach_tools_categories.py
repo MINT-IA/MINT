@@ -313,6 +313,12 @@ class TestSaveInsightTool:
         assert "decision" in enum_vals
         assert "concern" in enum_vals
         assert "fact" in enum_vals
+        # Wave A-MINIMAL (2026-04-18): "event" added for durable anchors
+        # (scan, life event, major financial action) the coach can reference
+        # later. Backend CoachInsightRecord.insight_type is Column(String)
+        # so no migration needed; Anthropic tool_use schema must allow it
+        # or calls from Flutter are rejected at the API level.
+        assert "event" in enum_vals
 
     def test_save_insight_required_fields(self):
         required = _find_tool("save_insight")["input_schema"]["required"]

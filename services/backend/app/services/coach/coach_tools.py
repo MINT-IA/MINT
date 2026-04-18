@@ -467,13 +467,17 @@ COACH_TOOLS: list[dict[str, Any]] = [
                 },
                 "type": {
                     "type": "string",
-                    "enum": ["goal", "decision", "concern", "fact"],
+                    "enum": ["goal", "decision", "concern", "fact", "event"],
                     "description": (
                         "Classification of the insight: "
                         "'goal' = user objective, "
                         "'decision' = choice the user has made, "
                         "'concern' = worry or blocker, "
-                        "'fact' = factual data point shared by the user."
+                        "'fact' = factual data point shared by the user, "
+                        "'event' = a structured event the user experienced "
+                        "(scan, life event, major financial action). Events "
+                        "are durable anchors — the coach can reference them "
+                        "later (\"tu as scanné ton certificat mardi\")."
                     ),
                 },
             },
