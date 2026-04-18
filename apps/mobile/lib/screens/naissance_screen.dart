@@ -15,7 +15,6 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
-import 'package:provider/provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -78,7 +77,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     super.didChangeDependencies();
     if (!_prefilled) {
       _prefilled = true;
-      final profile = context.read<CoachProfileProvider>().profile;
+      final profile = context.coachProfileOrNull;
       if (profile != null) {
         if (profile.salaireBrutMensuel > 0) {
           _salaireMensuel = profile.salaireBrutMensuel;

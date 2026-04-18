@@ -82,27 +82,47 @@ class Retroactive3aCalculator {
   /// [tauxMarginal] — user's marginal tax rate as a decimal (0.0-1.0).
   /// [hasLpp] — true for "petit 3a" (fixed limit), false for "grand 3a" (20% revenu, capped).
   /// [revenuNetAnnuel] — only used when [hasLpp] is false (for 20% income cap).
-  /// [referenceYear] — the year the catch-up payment is made (default 2026).
+  /// [referenceYear] — the year the catch-up payment is made.
+  /// Defaults to the current calendar year (pas de hardcode 2026).
   static Retroactive3aResult calculate({
     required int gapYears,
     required double tauxMarginal,
     bool hasLpp = true,
     double? revenuNetAnnuel,
-    int referenceYear = 2026,
+    int? referenceYear,
   }) {
-    final effectiveGap = gapYears.clamp(1, reg('pillar3a.max_retroactive_years', pilier3aMaxRetroactiveYears.toDouble()).toInt());
-    // Clamp taux marginal to valid range to prevent absurd results.
-    final effectiveTaux = tauxMarginal.clamp(0.0, 0.60);
+    final effectiveRefYear = referenceYear ?? DateTime.now().year;
+    // swiss-brain Q1 2026-04-18 : OPP3 art. 7a entré en vigueur
+    // 01.01.2025 (RO 2024 687). Les lacunes rachetables sont celles
+    // postérieures au 31.12.2024, cap à 10 ans d'historique max.
+    //   - 2025 : 0 année passée rachetable (seule l'année courante).
+    //   - 2026 : 1 année passée (2025).
+    //   - 2035+ : 10 ans permanent.
+    final dynamicCap = (effectiveRefYear - pilier3aRetroactiveFirstEligibleYear)
+        .clamp(0, pilier3aMaxRetroactiveYears);
+    final effectiveGap = gapYears.clamp(0, dynamicCap);
+    // Clamp taux marginal at the realistic Swiss maximum (~45%).
+    // Audit simulateur 2026-04-18 P1-9 : ancien clamp à 60% surestimait
+    // l'économie de 15-33%. Le taux marginal fédéral+cantonal+communal
+    // plafonne autour de 43-45% dans les cantons les plus lourds
+    // (GE couple, fortune élevée, enfants = 0). Cohérent avec
+    // tax_calculator.dart:estimateMarginalRate qui cap aussi ~45%.
+    final effectiveTaux = tauxMarginal.clamp(0.0, 0.45);
 
     // Build yearly breakdown (most recent gap year first).
     final breakdown = <YearlyRetroactiveEntry>[];
     double totalRetroactive = 0;
 
+    // Plafond de l'année du rachat (pas de l'année manquée) — OPP3 art. 7a al. 2.
+    // swiss-brain Q1 2026-04-18 : pas de table historique — tout se rachète
+    // au plafond courant.
+    final baseLimit = pilier3aHistoricalLimits[effectiveRefYear] ??
+        reg('pillar3a.max_with_lpp', pilier3aPlafondAvecLpp);
+
     for (int i = 1; i <= effectiveGap; i++) {
-      final year = referenceYear - i;
-      // Cannot retroactively contribute before 2025 (OPP3 art. 7 starts 2026).
-      if (year < 2025) break;
-      final baseLimit = pilier3aHistoricalLimits[year] ?? 6768.0;
+      final year = effectiveRefYear - i;
+      // Défensif : ceinture/bretelles malgré le clamp plus haut.
+      if (year < pilier3aRetroactiveFirstEligibleYear) break;
 
       double effectiveLimit;
       if (hasLpp) {

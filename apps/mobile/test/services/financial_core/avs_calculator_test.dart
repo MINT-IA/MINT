@@ -529,4 +529,20 @@ void main() {
       expect(renteWoman, greaterThan(renteMan));
     });
   });
+
+  // ─── AUDIT-2026-04-17: year-aware AVS13 helper ────────────────────
+  // The 12m and 13m constants are derived from avsRenteMaxMensuelle in
+  // code (no numeric literal drift possible), so we only test the
+  // year-branching logic here — not the arithmetic identities.
+  group('avsMaxAnnualRenteForYear — branching logic', () {
+    test('returns 12-month cap for years < avs13emeRenteAnneeDebut', () {
+      expect(avsMaxAnnualRenteForYear(2025), avsRenteMaxAnnuelle);
+      expect(avsMaxAnnualRenteForYear(2024), avsRenteMaxAnnuelle);
+    });
+
+    test('returns 13-month cap from avs13emeRenteAnneeDebut onwards', () {
+      expect(avsMaxAnnualRenteForYear(2026), avsRenteMaxAnnuelle13m);
+      expect(avsMaxAnnualRenteForYear(2035), avsRenteMaxAnnuelle13m);
+    });
+  });
 }

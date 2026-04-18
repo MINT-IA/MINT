@@ -15,14 +15,16 @@
 //   - The labeler is injected through `ImageLabelerPort` so tests can mock the
 //     ML Kit MethodChannel.
 
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-import 'package:google_mlkit_image_labeling/google_mlkit_image_labeling.dart'
-    as mlkit;
-import 'package:path_provider/path_provider.dart';
+
+// 2026-04-17 — Stubbed (was google_mlkit_image_labeling). The iOS pod graph
+// wants MLKitCore 9.x for ImageLabeling but MLKitCore 7.x for
+// TextRecognition 7.x (keept for OCR accuracy on Swiss LPP certs). This is
+// structural at the CocoaPods level — image labeling is disabled until we
+// migrate TextRecognition to MLKit 9.x. Fail-open keeps scanning usable;
+// the backend Vision endpoint filters non-financial images on its side.
 
 /// Single labeled prediction returned by an [ImageLabelerPort].
 class ScoredLabel {
@@ -55,9 +57,8 @@ abstract class ImageLabelerPort {
 }
 
 class LocalImageClassifier {
-  /// Labels (Google's base label-map names) that disqualify an image as a
-  /// financial document. Exact strings — ML Kit returns capitalised English
-  /// labels regardless of UI locale.
+  /// Label names kept for tests that still reference the constant; unused
+  /// at runtime while the classifier is stubbed.
   static const Set<String> blockLabels = {
     'Food', 'Plate', 'Drink', 'Beverage',
     'Selfie', 'Person',
@@ -65,8 +66,6 @@ class LocalImageClassifier {
     'Landscape', 'Sky', 'Mountain', 'Sea', 'Beach',
     'Plant', 'Flower', 'Tree',
     'Cartoon', 'Meme', 'Sticker',
-    // Note: we deliberately do NOT include "Screenshot" because banking app
-    // screenshots are valid input and trigger narrative mode server-side.
   };
 
   static const double confidenceThreshold = 0.7;
@@ -74,13 +73,17 @@ class LocalImageClassifier {
 
   final ImageLabelerPort Function() labelerFactory;
 
-  /// Default constructor wires the real ML Kit labeler.
+  /// Constructor preserved for call-sites and tests. The default factory
+  /// returns a no-op labeler so the `shouldRejectAsNonFinancial` contract
+  /// still holds without the MLKit image-labeling pod.
   LocalImageClassifier({ImageLabelerPort Function()? labelerFactory})
       : labelerFactory = labelerFactory ?? _defaultLabelerFactory;
 
+  /// Stubbed: always accepts. Backend Vision filters non-financial images.
+  /// Tests that inject a [labelerFactory] still exercise the branching.
   Future<RejectDecision> shouldRejectAsNonFinancial(Uint8List bytes) async {
     if (_isPdf(bytes)) return RejectDecision.accept;
-    if (kIsWeb) return RejectDecision.accept; // labeler unavailable on web
+    if (kIsWeb) return RejectDecision.accept;
     if (bytes.isEmpty) return RejectDecision.accept;
 
     final labeler = labelerFactory();
@@ -98,7 +101,6 @@ class LocalImageClassifier {
       }
       return RejectDecision.accept;
     } catch (_) {
-      // Fail-open: never wrongly reject a legitimate document.
       return RejectDecision.accept;
     } finally {
       try {
@@ -115,34 +117,15 @@ class LocalImageClassifier {
         bytes[3] == 0x46; // F
   }
 
-  static ImageLabelerPort _defaultLabelerFactory() => _MlKitLabeler();
+  static ImageLabelerPort _defaultLabelerFactory() => _NoopLabeler();
 }
 
-class _MlKitLabeler implements ImageLabelerPort {
-  late final mlkit.ImageLabeler _labeler = mlkit.ImageLabeler(
-    options: mlkit.ImageLabelerOptions(confidenceThreshold: 0.5),
-  );
+/// No-op labeler used while the MLKit image-labeling pod is disabled.
+/// Emits an empty label set so every image is accepted (fail-open).
+class _NoopLabeler implements ImageLabelerPort {
+  @override
+  Future<List<ScoredLabel>> process(Uint8List bytes) async => const [];
 
   @override
-  Future<List<ScoredLabel>> process(Uint8List bytes) async {
-    final tmpDir = await getTemporaryDirectory();
-    final path =
-        '${tmpDir.path}/mint_classifier_${DateTime.now().microsecondsSinceEpoch}.bin';
-    final file = File(path);
-    try {
-      await file.writeAsBytes(bytes, flush: true);
-      final input = InputImage.fromFilePath(path);
-      final raw = await _labeler.processImage(input);
-      return raw
-          .map((l) => ScoredLabel(label: l.label, confidence: l.confidence))
-          .toList(growable: false);
-    } finally {
-      try {
-        if (await file.exists()) await file.delete();
-      } catch (_) {/* best effort */}
-    }
-  }
-
-  @override
-  Future<void> close() => _labeler.close();
+  Future<void> close() async {}
 }

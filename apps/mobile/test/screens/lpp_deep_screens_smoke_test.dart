@@ -135,14 +135,22 @@ void main() {
 
     testWidgets('displays privacy note with nLPD', (tester) async {
       await tester.pumpWidget(buildScreen());
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -800));
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
-      await tester.pump();
-      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1000));
-      await tester.pump();
-      expect(find.textContaining('nLPD'), findsWidgets);
+      await tester.pumpAndSettle();
+      // The nLPD privacy note lives near the bottom of the CustomScrollView,
+      // after the "Centrale du 2e pilier" info card (libre_passage_screen.dart
+      // line 193). Sliver rebuilds are lazy so three pumps between drags
+      // weren't enough on larger viewports — ensureVisible scrolls to the
+      // target deterministically without guessing offsets.
+      final privacyNote = find.byWidgetPredicate(
+        (w) => w is Text && (w.data?.contains('nLPD') ?? false),
+      );
+      await tester.dragUntilVisible(
+        privacyNote,
+        find.byType(CustomScrollView),
+        const Offset(0, -400),
+      );
+      await tester.pumpAndSettle();
+      expect(privacyNote, findsWidgets);
     });
 
     testWidgets('displays disclaimer after scrolling', (tester) async {

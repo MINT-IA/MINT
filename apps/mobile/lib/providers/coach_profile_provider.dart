@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show BuildContext;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -2241,3 +2243,23 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+/// Safe [CoachProfile] lookup extensions.
+///
+/// Screens that watch [CoachProfileProvider] for prefill / SafeMode decisions
+/// need to tolerate the provider being absent (isolated unit widget tests
+/// that pump a single screen without the full shell). These helpers return
+/// `null` / `false` instead of throwing [ProviderNotFoundException].
+extension CoachProfileContextLookup on BuildContext {
+  /// Read the current [CoachProfile] without subscribing. Returns `null` if
+  /// the provider isn't in the widget tree. Intended for `didChangeDependencies`
+  /// / `initState`-style eager reads (prefill).
+  CoachProfile? get coachProfileOrNull {
+    try {
+      return read<CoachProfileProvider>().profile;
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+}
+

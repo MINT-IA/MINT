@@ -7839,7 +7839,7 @@ class SIt extends S {
   String get coachSources => 'Fonti';
 
   @override
-  String get coachInputHint => 'Dimmi cosa ti passa per la testa.';
+  String get coachInputHint => 'Dimmi.';
 
   @override
   String get coachUserMessage => 'Il tuo messaggio';
@@ -9369,11 +9369,11 @@ class SIt extends S {
       'In modalità protezione, le raccomandazioni 3a sono disattivate. La priorità è stabilizzare la situazione finanziaria.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategia bloccata';
+  String get sim3aDebtStrategyTitle => 'Strategia in pausa';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Le strategie d\'investimento 3a sono disattivate finché hai debiti attivi. Rimborsare i debiti ha un rendimento più alto di qualsiasi investimento.';
+      'Le strategie d\'investimento 3a sono in pausa finché i tuoi debiti attivi gravano sul budget. Ordine consigliato: prima stabilizzare, poi investire.';
 
   @override
   String get realReturnTitle => 'Rendimento reale 3a';
@@ -10694,6 +10694,9 @@ class SIt extends S {
   String get eplReductionDeces => 'Riduzione capitale decesso (stima)';
 
   @override
+  String get eplReductionAskCaisse => 'Chiedi alla tua cassa';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Il prelievo EPL riduce proporzionalmente le tue prestazioni di rischio. Verifica con la tua cassa pensione gli importi esatti e le possibilità di assicurazione complementare.';
 
@@ -11005,7 +11008,7 @@ class SIt extends S {
   String get retroactive3aTitle => 'Recupero 3a';
 
   @override
-  String get retroactive3aHeroTitle => 'Recupero 3a — Novità 2026';
+  String get retroactive3aHeroTitle => 'Recupero 3a — Novità 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
@@ -11655,14 +11658,14 @@ class SIt extends S {
 
   @override
   String get reportSafeMode3a =>
-      'Il comparatore 3a è disattivato finché hai debiti attivi. Rimborsare i debiti è prioritario prima di qualsiasi risparmio 3a.';
+      'Il comparatore 3a è in pausa finché i tuoi debiti attivi gravano sul budget. Priorità: stabilizzare la liquidità.';
 
   @override
-  String get reportSafeModeLpp => 'Riscatto LPP bloccato';
+  String get reportSafeModeLpp => 'Riscatto LPP in pausa';
 
   @override
   String get reportSafeModeLppMessage =>
-      'Il riscatto LPP è disattivato in modalità protezione. Rimborsa i tuoi debiti prima di bloccare liquidità nella previdenza.';
+      'Il riscatto LPP è in pausa in modalità protezione. Ordine consigliato: rimborsare i debiti prima di bloccare liquidità nella previdenza.';
 
   @override
   String get reportLppTitle => '💰 Strategia di Riscatto LPP';
@@ -18234,7 +18237,7 @@ class SIt extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'I consigli di allocazione sono disattivati in modalità protezione. La tua priorità è ridurre i debiti prima di ribilanciare il patrimonio.';
+      'I consigli di allocazione sono in pausa in modalità protezione. Ordine consigliato: ridurre i debiti prima di ribilanciare il patrimonio.';
 
   @override
   String get portfolioSafeModeLocked => 'Priorità al risanamento debiti';
@@ -19320,7 +19323,7 @@ class SIt extends S {
 
   @override
   String get safeModeMessage =>
-      'Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.';
+      'Finché un segnale di debito è attivo, le ottimizzazioni avanzate sono in pausa. Priorità: stabilizzare la liquidità. Il resto può aspettare.';
 
   @override
   String get safeModeTitle => 'Concentrazione Prioritaria';
@@ -20898,8 +20901,7 @@ class SIt extends S {
   String get intensityAdjustedDown => 'OK, abbasso di un livello.';
 
   @override
-  String get coachSuggestBudget =>
-      'Qual è il mio budget realistico per la pensione?';
+  String get coachSuggestBudget => 'Dove va il mio denaro ogni mese?';
 
   @override
   String get coachSuggestBudgetGap => 'Quanto mi manca al mese?';
@@ -21059,7 +21061,7 @@ class SIt extends S {
 
   @override
   String get coachSilentOpenerReplacementRate =>
-      'Tasso di sostituzione alla pensione';
+      'Tasso di sostituzione proiettato';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Punteggio di salute finanziaria';
@@ -21067,6 +21069,16 @@ class SIt extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capitale proiettato alla pensione';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Capitale proiettato sul tuo orizzonte';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'Saldo LPP';
+
+  @override
+  String get coachSilentOpener3aEpargne => 'Risparmio 3a';
 
   @override
   String get confidenceLow =>
@@ -22362,11 +22374,10 @@ class SIt extends S {
   String get tonSectionLabel => 'Voce';
 
   @override
-  String get anonymousIntentLine1 =>
-      'I soldi, in Svizzera, sono il tema di cui nessuno parla.';
+  String get anonymousIntentLine1 => 'La tua vita finanziaria, in chiaro.';
 
   @override
-  String get anonymousIntentLine2 => 'Nemmeno con sé stessi.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
@@ -22935,4 +22946,21 @@ class SIt extends S {
 
   @override
   String get hubSante => 'Salute e Protezione';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Perché è in pausa';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Perché è in pausa';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'In modalità protezione, MINT privilegia la stabilità della liquidità prima delle ottimizzazioni fiscali e previdenziali.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Perché è in pausa?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.';
 }

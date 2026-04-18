@@ -655,6 +655,58 @@ class ComplianceGuardrails:
                 "mais adapte tes explications et exemples en conséquence."
             )
 
+        # ── Life event taxonomy (deep-audit 2026-04-17 P0-1) ─────────────────
+        # Teach Claude the 18 canonical MINT life events so it can match a
+        # user-typed phrase ("je viens de perdre mon emploi") to an event and
+        # apply the Swiss-specific guidance below instead of improvising.
+        # Only the enum + one-line Swiss specificity per event — the deep
+        # content lives in RAG docs; this block is the keyboard map.
+        extra_blocks.append(
+            "\n\n--- ÉVÉNEMENTS DE VIE SUIVIS PAR MINT (18) ---\n"
+            "Famille: marriage (régimes matrimoniaux CC art.181+, cap AVS couple 150%), "
+            "divorce (partage LPP art. 122-124, rente pont), birth (allocations familiales LAFam, "
+            "congé maternité LAPG), concubinage (aucune protection LPP de survie par défaut), "
+            "deathOfRelative (rente de veuf/veuve AVS, succession CC art.457+).\n"
+            "Professionnel: firstJob (seuil LPP 22'680 CHF, choix 3a), newJob (libre-passage à "
+            "transférer sous 6 mois), selfEmployment (3a porté à 20% du revenu, max 36'288 CHF "
+            "sans LPP), jobLoss (assurance-chômage LACI, maintien LPP compte libre-passage), "
+            "retirement (AVS 65/64, rente vs capital LIFD art.38).\n"
+            "Patrimoine: housingPurchase (EPL LPP art.79b, 3 ans de blocage après rachat), "
+            "housingSale (impôt sur gain immobilier cantonal, réinvestissement), "
+            "inheritance (quotité disponible post-2023, réserve héritière), "
+            "donation (impôt cantonal sur donation, réserve descendants).\n"
+            "Santé: disability (AI 1er pilier + LPP art. 23-26, taux invalidité).\n"
+            "Mobilité: cantonMove (barème fiscal différent, EPL timing), countryMove "
+            "(libre-passage conservation, totalisation UE/CH si traité bilatéral).\n"
+            "Crise: debtCrisis (Safe Mode — désactiver optimisation 3a, priorité désendettement).\n"
+            "--- FIN ÉVÉNEMENTS ---\n\n"
+            "Quand l'utilisateur mentionne un fait qui correspond à l'un de ces "
+            "événements, nomme-le explicitement dans ta réponse (« Ça s'appelle un "
+            "événement 'jobLoss' chez MINT ») et rappelle la spécificité suisse "
+            "pertinente. Pour les questions générales sans événement, ignore ce bloc."
+        )
+
+        # ── Archetype taxonomy (deep-audit 2026-04-17 P0-1) ──────────────────
+        # 8 detected profiles that change which Swiss rules apply. Coach must
+        # NOT assume swiss_native — fatalement wrong for FATCA (expat_us),
+        # totalisation (returning_swiss, expat_eu), impôt source (cross_border).
+        extra_blocks.append(
+            "\n\n--- ARCHÉTYPES FISCAUX/PRÉVOYANCE ---\n"
+            "swiss_native: modèle par défaut (Suisse arrivé < 22 ans).\n"
+            "expat_eu: UE + arrivée > 20 ans — totalisation périodes UE (ALCP).\n"
+            "expat_non_eu: hors UE, pas de convention — rachats fréquents.\n"
+            "expat_us: US citizen/green card — FATCA obligatoire, PFIC sur fonds CH, "
+            "double imposition, beaucoup de caisses 3a refusent les US persons.\n"
+            "independent_with_lpp: indépendant avec LPP déclarée — rachat possible.\n"
+            "independent_no_lpp: indépendant sans LPP — 3a max 36'288 CHF/an (20% revenu).\n"
+            "cross_border: permis G / frontalier — impôt source, prévoyance séparée.\n"
+            "returning_swiss: CH + séjour étranger long — fenêtre rachat avantageuse.\n"
+            "--- FIN ARCHÉTYPES ---\n\n"
+            "Ne présume jamais swiss_native. Si l'archétype utilisateur est connu "
+            "(via profile_context.archetype), applique les règles ci-dessus; sinon, "
+            "pose une question de clarification avant de projeter des montants."
+        )
+
         return base + "".join(extra_blocks)
 
     def _get_replacement(self, term: str, language: str) -> str:

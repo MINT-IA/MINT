@@ -42,6 +42,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.initState();
     _passwordController.addListener(() => setState(() {}));
     _confirmPasswordController.addListener(() => setState(() {}));
+    // Clear any stale auth error that would otherwise surface a red "Action
+    // impossible" banner the moment the screen mounts — killing conversion
+    // before the user has done anything. Fresh arrival = fresh form.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AuthProvider>().clearError();
+    });
   }
 
   @override
@@ -134,19 +141,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: MintSpacing.xl),
-                // Logo
-                const MintEntrance(child: Center(
-                  child: MintSurface(
-                    padding: EdgeInsets.all(MintSpacing.md),
-                    radius: 24,
-                    elevated: true,
-                    child: Icon(
-                      Icons.token_rounded,
-                      color: MintColors.primary,
-                      size: 48,
+                // Brand mark — typographic, consistent with LandingScreen.
+                // Was a generic `Icons.token_rounded` in a soft surface; it
+                // read as a misplaced UI chip on an otherwise text-heavy
+                // form. The letter-spaced wordmark keeps the identity
+                // without adding a second visual language.
+                MintEntrance(
+                  child: Center(
+                    child: Text(
+                      'MINT',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(
+                            color: MintColors.textPrimary,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 4,
+                          ),
                     ),
                   ),
-                )),
+                ),
                 const SizedBox(height: MintSpacing.xl),
                 // Title
                 MintEntrance(delay: const Duration(milliseconds: 100), child: Text(
@@ -595,8 +609,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: OutlinedButton(
                     onPressed: authProvider.isLoading
                         ? null
-                        : () {
-                            context.go('/coach/chat');
+                        : () async {
+                            await authProvider.enableLocalMode();
+                            if (!context.mounted) return;
+                            final redirect = GoRouterState.of(context)
+                                .uri
+                                .queryParameters['redirect'];
+                            context.go(redirect ?? '/home');
                           },
                     child: Text(l10n.authContinueLocal),
                   ),

@@ -73,20 +73,35 @@ class RachatEchelonneSimulator {
     required String canton,
     required String civilStatus,
     required int horizon,
+    int age = 50, // P1-1 audit 2026-04-18 : accepte age réel, impacte bonif LPP
+    /// Salaire LPP-assuré — requis pour appliquer la règle OPP2 art. 60b
+    /// aux expats arrivés < 5 ans en CH (plafond 20% du salaire assuré).
+    /// Audit 2026-04-18 Q2 swiss-brain.
+    double? salaireAssure,
+    /// Nombre d'années de cotisation LPP en CH. Si < 5 et l'archetype
+    /// est `expat*`, OPP2 art. 60b s'applique.
+    int anneesCotisationCH = 100, // sentinel "pas expat récent" par défaut
+    /// Archétype financier (`swiss_native`, `expat_eu`, `expat_non_eu`,
+    /// `expat_us`, `returning_swiss`, `independent_with_lpp`,
+    /// `independent_no_lpp`, `cross_border`).
+    String archetype = 'swiss_native',
     // Legacy param kept for backwards compatibility, ignored if canton provided
     double tauxMarginalEstime = 0.30,
     S? l,
   }) {
-    final clampedHorizon = horizon.clamp(1, 15);
+    // Horizon jusqu'à 25 ans (audit 2026-04-18 P0-1 : rachats 350k+ demandent
+    // un étalement long au rythme cashflow soutenable).
+    final clampedHorizon = horizon.clamp(1, 25);
     // No arbitrary 500k cap — use actual rachat max from profile/slider
     final clampedRachat = rachatMax.clamp(0.0, double.infinity);
+    final clampedAge = age.clamp(18, 70);
 
     // --- Impôt de base (sans rachat) ---
     // Use NetIncomeBreakdown to convert gross → net (replaces hardcoded * 0.87)
     final baseBreakdown = NetIncomeBreakdown.compute(
       grossSalary: revenuImposable,
       canton: canton,
-      age: 50,
+      age: clampedAge,
     );
     final netMensuel = baseBreakdown.monthlyNetPayslip;
     final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
@@ -94,7 +109,7 @@ class RachatEchelonneSimulator {
       cantonCode: canton,
       civilStatus: civilStatus,
       childrenCount: 0,
-      age: 50,
+      age: clampedAge,
     );
 
     // --- Bloc (1 an) ---
@@ -103,7 +118,7 @@ class RachatEchelonneSimulator {
     final blocBreakdown = NetIncomeBreakdown.compute(
       grossSalary: revenuImposable - blocDeductible,
       canton: canton,
-      age: 50,
+      age: clampedAge,
     );
     final netMensuelApresBloc = blocBreakdown.monthlyNetPayslip;
     final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
@@ -111,23 +126,55 @@ class RachatEchelonneSimulator {
       cantonCode: canton,
       civilStatus: civilStatus,
       childrenCount: 0,
-      age: 50,
+      age: clampedAge,
     );
     final economieBlocTotal =
         (impotSansRachat - impotApresBloc).clamp(0.0, impotSansRachat);
 
     // --- Echelonne ---
     final rachatAnnuel = clampedRachat / clampedHorizon;
-    // Cap annuel : on ne peut pas déduire plus que le revenu
-    final rachatAnnuelEffectif =
-        rachatAnnuel.clamp(0.0, revenuImposable);
+    // Trois plafonds cumulés (audit simulateur 2026-04-18) :
+    //   (a) LIFD art. 33 al. 1 let. d — déduction plafonnée au revenu
+    //       imposable (tax rule).
+    //   (b) Réalité cashflow : un ménage suisse peut rarement absorber
+    //       plus de 25% de son brut en rachat LPP une année donnée
+    //       (littérature actuarielle + pratique fiduciaire). Pour
+    //       350k de rachat max avec horizon=3, sans ce cap on
+    //       calculait un rachat annuel de 116'667 CHF = 95% du brut,
+    //       non faisable en trésorerie.
+    //   (c) Plafond pratique absolu 50'000 CHF/an — au-delà, les
+    //       progressifs fiscaux rendent l'étalement sur plus d'années
+    //       plus efficace fiscalement ET plus réaliste en cashflow.
+    const double cashflowRatioMax = 0.25;
+    const double cashflowAbsoluteCap = 50000.0;
+    final cashflowCap =
+        min(revenuImposable * cashflowRatioMax, cashflowAbsoluteCap);
+
+    // OPP2 art. 60b al. 1 (swiss-brain Q2 2026-04-18) : les personnes
+    // arrivées de l'étranger sont plafonnées à 20% du salaire assuré LPP
+    // par an durant les 5 premières années de contribution en CH. Au-delà,
+    // le plafond légal disparaît (seul reste la contrainte LIFD art. 33
+    // ≤ revenu imposable).
+    // Accepte les deux conventions (enum .name camelCase "expatEu" et
+    // schéma doctrine snake_case "expat_eu") pour tolérer les callers.
+    final a = archetype.toLowerCase().replaceAll('_', '');
+    final isExpatArchetype =
+        a == 'expateu' || a == 'expatnoneu' || a == 'expatus';
+    final isExpatRecent = anneesCotisationCH < 5 && isExpatArchetype;
+    final opp2LegalCap = (isExpatRecent && salaireAssure != null && salaireAssure > 0)
+        ? salaireAssure * 0.20
+        : double.infinity;
+
+    final rachatAnnuelEffectif = rachatAnnuel
+        .clamp(0.0, min(min(revenuImposable, cashflowCap), opp2LegalCap))
+        .toDouble();
     final List<RachatYearPlan> plan = [];
     double totalEconomieEchelonne = 0;
 
     final echelonBreakdown = NetIncomeBreakdown.compute(
       grossSalary: revenuImposable - rachatAnnuelEffectif,
       canton: canton,
-      age: 50,
+      age: clampedAge,
     );
     final netMensuelApresEchelon = echelonBreakdown.monthlyNetPayslip;
     final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
@@ -135,7 +182,7 @@ class RachatEchelonneSimulator {
       cantonCode: canton,
       civilStatus: civilStatus,
       childrenCount: 0,
-      age: 50,
+      age: clampedAge,
     );
     final economieAnnuelle =
         (impotSansRachat - impotApresEchelon).clamp(0.0, impotSansRachat);
@@ -150,18 +197,34 @@ class RachatEchelonneSimulator {
       ));
     }
 
+    // Check si le total effectif couvre le rachat max — sinon signaler à l'user
+    // que l'horizon choisi est trop court pour absorber tout le rachat au rythme
+    // réaliste (cashflow 20% brut, cap absolu 50k/an).
+    final totalEffectifRachat = rachatAnnuelEffectif * clampedHorizon;
+    final rachatNonAbsorbe = clampedRachat - totalEffectifRachat;
+    String cashflowNote = '';
+    if (rachatNonAbsorbe > 1000 && rachatAnnuel > cashflowCap) {
+      final horizonNecessaire = (clampedRachat / rachatAnnuelEffectif).ceil();
+      cashflowNote = 'Au rythme réaliste de '
+          '${rachatAnnuelEffectif.round()}\u00a0CHF/an, ton rachat '
+          'max demanderait $horizonNecessaire\u00a0années — '
+          'l\'horizon actuel ($clampedHorizon\u00a0ans) ne couvre qu\'une partie '
+          '(${totalEffectifRachat.round()}\u00a0CHF sur ${clampedRachat.round()}). ';
+    }
+
     return RachatEchelonneResult(
       economieBlocTotal: economieBlocTotal,
       economieEchelonneTotal: totalEconomieEchelonne,
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
-      disclaimer: l?.lppRachatDisclaimerEchelonne ??
+      disclaimer: cashflowNote + (l?.lppRachatDisclaimerEchelonne ??
           'Simulation pédagogique basée sur les barèmes cantonaux estimés. '
           'Le rachat LPP est soumis à acceptation par la caisse de pension. '
-          'La déduction annuelle est plafonnée au revenu imposable. '
-          'Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). '
+          'La déduction annuelle est plafonnée au revenu imposable (LIFD art.\u00a033) '
+          'et cappée à 20% du brut ou 50\'000\u00a0CHF/an pour rester réaliste en trésorerie. '
+          'Blocage EPL de 3 ans après chaque rachat (LPP art.\u00a079b al.\u00a03). '
           'Consulte ta caisse de pension et un·e spécialiste '
-          'en prévoyance avant toute décision.',
+          'en prévoyance avant toute décision.'),
     );
   }
 }
@@ -393,8 +456,13 @@ class EplResult {
   final double montantMaxRetirable;
   final double montantSouhaiteApplicable;
   final double impotEstime;
-  final double reductionRenteInvalidite;
-  final double reductionCapitalDeces;
+  /// Réduction estimée de la rente invalidité suite au retrait EPL.
+  /// `null` quand MINT n'a pas de certificat de caisse (le calcul exact
+  /// dépend du règlement caisse — cf. audit P1-2 2026-04-18). La UI
+  /// affiche alors "à demander à ta caisse" plutôt qu'un chiffre magique.
+  final double? reductionRenteInvalidite;
+  /// Réduction estimée du capital décès. Même sémantique null que ci-dessus.
+  final double? reductionCapitalDeces;
   final List<String> alerts;
   final String disclaimer;
 
@@ -439,17 +507,22 @@ class EplSimulator {
       // Avant 50 ans : la totalite de l'avoir peut etre retiree
       montantMax = avoirTotal;
     } else {
-      // Des 50 ans : le plus eleve entre (LPP art. 30e) :
-      // a) l'avoir a 50 ans — sans info exacte, on estime via les
-      //    bonifications cumulees (moindre part de l'avoir actuel)
-      // b) la moitie de l'avoir actuel
-      // L'estimation a) utilise un ratio base sur les annees restantes:
-      // un assure ayant cotise de 25 a 50 ans (25 ans) vs 25 a age actuel.
-      final anneesDepuis25 = max(1, age - 25);
-      const annees25a50 = 25; // 25 ans de 25 a 50 ans
-      final ratioA50 = (annees25a50 / anneesDepuis25).clamp(0.3, 1.0);
-      final avoirEstimeA50 = avoirTotal * ratioA50;
-      montantMax = max(avoirEstimeA50, avoirTotal / 2);
+      // Dès 50 ans (LPP art. 30e al. 2) : max retirable = le plus élevé
+      // entre (a) l'avoir à 50 ans et (b) la moitié de l'avoir actuel.
+      //
+      // (a) exigerait le certificat de la caisse (avoir_vieillesse à 50 ans)
+      //     — MINT ne le connaît qu'après scan d'un certificat récent, pas
+      //     inférable fiablement par ratio linéaire (audit P0-3 2026-04-18
+      //     a retiré la formule inventée `25/(age-25)`).
+      // Fallback honnête : utiliser la demi-part (b), toujours valide, et
+      //     avertir l'utilisateur que son plafond réel peut être plus élevé
+      //     s'il consulte son certificat.
+      montantMax = avoirTotal / 2;
+      alerts.add(
+        'Estimation conservatrice basée sur la demi-part (LPP art.\u00a030e al.\u00a02). '
+        'Ton plafond réel peut être plus élevé si ton avoir à 50\u00a0ans '
+        'l\'est — consulte ton certificat de prévoyance pour le montant exact.',
+      );
     }
 
     // Minimum 20'000 CHF (OPP2 art. 5)
@@ -465,10 +538,15 @@ class EplSimulator {
     if (aRachete && anneesSDepuisRachat < 3) {
       final anneesRestantes = 3 - anneesSDepuisRachat;
       montantMax = 0;
+      // P1-3 audit 2026-04-18 : communique la date concrète de déblocage.
+      final unlockDate = DateTime.now().add(Duration(days: anneesRestantes * 365));
+      final unlockStr = '${unlockDate.day.toString().padLeft(2, '0')}.'
+          '${unlockDate.month.toString().padLeft(2, '0')}.'
+          '${unlockDate.year}';
       alerts.add(
         'Blocage EPL : tu as effectué un rachat LPP il y a moins de '
-        '3 ans. Le retrait EPL sera possible dans $anneesRestantes an(s) '
-        '(LPP art. 79b al. 3).',
+        '3 ans. Retrait EPL possible dès le\u00a0$unlockStr '
+        '(environ $anneesRestantes an${anneesRestantes > 1 ? 's' : ''}, LPP art.\u00a079b al.\u00a03).',
       );
     }
 
@@ -483,15 +561,28 @@ class EplSimulator {
     );
 
     // --- Impact sur les prestations de risque ---
-    // Estimation simplifiee : reduction proportionnelle
+    // Audit P1-2 2026-04-18 : ancien calcul `reductionRatio × avoirTotal × 0.06`
+    // pour l'invalidité et `× 0.5` pour le décès étaient des pseudo-formules
+    // sans base légale. La vraie réduction dépend du règlement de la caisse
+    // (LPP art. 24 al. 2 : rente invalidité = avoir_vieillesse_projeté ×
+    // taux_conversion × salaire_assuré/référence), que MINT ne connaît pas
+    // sans le certificat. On expose l'impact QUALITATIVEMENT : un retrait
+    // EPL réduit l'avoir de vieillesse, donc les prestations risque et
+    // décès sont mécaniquement réduites — le montant exact vient du
+    // règlement de la caisse, pas d'une formule magique.
     final reductionRatio =
         avoirTotal > 0 ? (applicable / avoirTotal).clamp(0.0, 1.0) : 0.0;
-
-    // Rente invalidite : ~60% du salaire assure, reduite proportionnellement
-    final reductionInvalidite = reductionRatio * avoirTotal * 0.06;
-
-    // Capital deces : souvent 1x salaire assure ou % de l'avoir
-    final reductionDeces = reductionRatio * avoirTotal * 0.5;
+    // `null` = "à demander à la caisse" ; la UI rend un message qualitatif
+    // à la place d'un chiffre (pas de sentinel -1, cf. feedback_no_shortcuts_ever).
+    const double? reductionInvalidite = null;
+    const double? reductionDeces = null;
+    if (applicable > 0 && reductionRatio > 0) {
+      alerts.add(
+        'Le retrait EPL réduit ton avoir de vieillesse et donc tes '
+        'prestations en cas d\'invalidité et de décès. Le montant exact '
+        'dépend du règlement de ta caisse — demande-le avant de signer.',
+      );
+    }
 
     // Alertes supplementaires
     if (applicable > 0 && age >= 50) {

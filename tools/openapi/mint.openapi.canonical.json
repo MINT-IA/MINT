@@ -16127,7 +16127,6 @@
             "$ref": "#/components/schemas/HouseholdType"
           },
           "id": {
-            "format": "uuid4",
             "title": "Id",
             "type": "string"
           },

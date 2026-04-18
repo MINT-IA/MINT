@@ -246,9 +246,11 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(Switch), findsOneWidget);
+      // The phrase "LPP volontaire" appears in both the toggle label AND the
+      // 3a explanation paragraph that references it. Expect at least one match.
       expect(
         find.textContaining('LPP volontaire'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 

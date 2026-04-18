@@ -880,7 +880,11 @@ void main() {
       expect(pilier3aPlafondAvecLpp, equals(7258.0));
       expect(pilier3aPlafondSansLpp, equals(36288.0));
       expect(tauxImpotRetraitCapital['VS'], equals(0.060));
-      expect(marriedCapitalTaxDiscount, equals(0.85));
+      // Audit 2026-04-18 Q5 : remplacement du scalaire uniforme par une
+      // map cantonale. VS = 0.81, fallback 0.82, ZG le plus bas à 0.70.
+      expect(marriedCapitalTaxDiscountFor('VS'), equals(0.81));
+      expect(marriedCapitalTaxDiscountFor('ZG'), equals(0.70));
+      expect(marriedCapitalTaxDiscountFor('AG'), equals(0.82)); // fallback
     });
 
     // ── TEST 9: AVS reduction from gaps ────────────────────────────────────

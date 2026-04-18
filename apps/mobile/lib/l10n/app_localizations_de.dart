@@ -7847,7 +7847,7 @@ class SDe extends S {
   String get coachSources => 'Quellen';
 
   @override
-  String get coachInputHint => 'Sag mir, was dir durch den Kopf geht.';
+  String get coachInputHint => 'Sag\'s mir.';
 
   @override
   String get coachUserMessage => 'Deine Nachricht';
@@ -9375,11 +9375,11 @@ class SDe extends S {
       'Im Schutzmodus sind 3a-Empfehlungen deaktiviert. Priorität ist die Stabilisierung deiner Finanzen vor Einzahlungen in die 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategie gesperrt';
+  String get sim3aDebtStrategyTitle => 'Strategie pausiert';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a-Anlagestrategien sind gesperrt, solange du aktive Schulden hast. Schuldenrückzahlung bringt eine höhere Rendite als jede Anlage.';
+      '3a-Anlagestrategien sind pausiert, solange deine aktiven Schulden dein Budget belasten. Empfohlene Reihenfolge: erst stabilisieren, dann anlegen.';
 
   @override
   String get realReturnTitle => 'Reale Rendite 3a';
@@ -10702,6 +10702,9 @@ class SDe extends S {
   String get eplReductionDeces => 'Todesfallkapital Kürzung (Schätzung)';
 
   @override
+  String get eplReductionAskCaisse => 'Bei deiner Pensionskasse erfragen';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Der WEF-Bezug reduziert proportional deine Risikoleistungen. Erkundige dich bei deiner Pensionskasse nach den genauen Beträgen und Zusatzversicherungen.';
 
@@ -11012,7 +11015,7 @@ class SDe extends S {
   String get retroactive3aTitle => '3a Nachholung';
 
   @override
-  String get retroactive3aHeroTitle => '3a Nachholung — Neu 2026';
+  String get retroactive3aHeroTitle => '3a Nachholung — Neu seit 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
@@ -11659,14 +11662,14 @@ class SDe extends S {
 
   @override
   String get reportSafeMode3a =>
-      'Der 3a-Vergleich ist deaktiviert, solange du aktive Schulden hast. Die Rückzahlung hat Vorrang vor jeglichem 3a-Sparen.';
+      'Der 3a-Vergleich ist pausiert, solange deine aktiven Schulden dein Budget belasten. Priorität: Liquidität stabilisieren.';
 
   @override
-  String get reportSafeModeLpp => 'BVG-Einkauf gesperrt';
+  String get reportSafeModeLpp => 'BVG-Einkauf pausiert';
 
   @override
   String get reportSafeModeLppMessage =>
-      'Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden zurück, bevor du Liquidität in der Vorsorge bindest.';
+      'Der BVG-Einkauf ist im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor Liquidität in der Vorsorge gebunden wird.';
 
   @override
   String get reportLppTitle => '💰 BVG-Einkauf-Strategie';
@@ -18225,7 +18228,7 @@ class SDe extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.';
+      'Allokationsempfehlungen sind im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor das Portfolio umgeschichtet wird.';
 
   @override
   String get portfolioSafeModeLocked => 'Priorität Schuldenabbau';
@@ -19312,7 +19315,7 @@ class SDe extends S {
 
   @override
   String get safeModeMessage =>
-      'Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.';
+      'Solange ein Schuldensignal aktiv ist, sind erweiterte Optimierungen pausiert. Priorität: Liquidität stabilisieren. Der Rest wartet.';
 
   @override
   String get safeModeTitle => 'Prioritätsfokus';
@@ -20887,8 +20890,7 @@ class SDe extends S {
   String get intensityAdjustedDown => 'OK, ich nehme es etwas zurück.';
 
   @override
-  String get coachSuggestBudget =>
-      'Was ist mein realistisches Budget bei der Pensionierung?';
+  String get coachSuggestBudget => 'Wo geht mein Geld jeden Monat hin?';
 
   @override
   String get coachSuggestBudgetGap => 'Wie viel fehlt mir pro Monat?';
@@ -21047,7 +21049,7 @@ class SDe extends S {
   String get coachOptInDecline => 'Nein, ich komme wenn ich will';
 
   @override
-  String get coachSilentOpenerReplacementRate => 'Ersatzrate bei Pensionierung';
+  String get coachSilentOpenerReplacementRate => 'Projizierte Ersatzrate';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Finanzieller Fitness-Score';
@@ -21055,6 +21057,16 @@ class SDe extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projiziertes Pensionierungskapital';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Projiziertes Kapital auf deinem Horizont';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'BVG-Guthaben';
+
+  @override
+  String get coachSilentOpener3aEpargne => '3a-Ersparnis';
 
   @override
   String get confidenceLow =>
@@ -22353,11 +22365,10 @@ class SDe extends S {
   String get tonSectionLabel => 'Stimme';
 
   @override
-  String get anonymousIntentLine1 =>
-      'Geld. In der Schweiz redet niemand darüber.';
+  String get anonymousIntentLine1 => 'Dein Finanzleben, klar und deutlich.';
 
   @override
-  String get anonymousIntentLine2 => 'Nicht mal mit sich selbst.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
@@ -22929,4 +22940,21 @@ class SDe extends S {
 
   @override
   String get hubSante => 'Gesundheit & Schutz';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Warum ist das pausiert';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Warum ist das pausiert';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'Im Schutzmodus priorisiert MINT die Liquiditätsstabilisierung vor Steuer- und Vorsorgeoptimierungen.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Warum ist das pausiert?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.';
 }

@@ -88,6 +88,7 @@ class CoachContextBuilder {
     String lastMilestone = '',
     String upcomingEvent = '',
     Map<String, String> dataSources = const {},
+    bool hasDebt = false,
   }) {
     // Build grounding values map — only include non-zero values
     // so HallucinationDetector doesn't false-positive on missing data.
@@ -123,6 +124,7 @@ class CoachContextBuilder {
       lastMilestone: lastMilestone,
       knownValues: knownValues,
       dataReliability: dataSources,
+      hasDebt: hasDebt,
     );
   }
 }

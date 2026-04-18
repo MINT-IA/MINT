@@ -7780,7 +7780,7 @@ class SEn extends S {
   String get coachSources => 'Sources';
 
   @override
-  String get coachInputHint => 'Tell me what\'s on your mind.';
+  String get coachInputHint => 'Tell me.';
 
   @override
   String get coachUserMessage => 'Your message';
@@ -9305,11 +9305,11 @@ class SEn extends S {
       'In safe mode, 3a action recommendations are disabled. The priority is to stabilise your finances before contributing to 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategy locked';
+  String get sim3aDebtStrategyTitle => 'Strategy on hold';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a investment strategies are disabled while you have active debts. Repaying your debts yields a higher return than any investment.';
+      '3a investment strategies are on hold while your active debts weigh on your budget. Recommended order: stabilise first, invest later.';
 
   @override
   String get realReturnTitle => 'Real return 3a';
@@ -10622,6 +10622,9 @@ class SEn extends S {
   String get eplReductionDeces => 'Death capital reduction (estimate)';
 
   @override
+  String get eplReductionAskCaisse => 'Ask your pension fund';
+
+  @override
   String get eplImpactPrestationsNote =>
       'EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.';
 
@@ -10932,7 +10935,7 @@ class SEn extends S {
   String get retroactive3aTitle => '3a catch-up';
 
   @override
-  String get retroactive3aHeroTitle => '3a catch-up — New in 2026';
+  String get retroactive3aHeroTitle => '3a catch-up — New since 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
@@ -11577,14 +11580,14 @@ class SEn extends S {
 
   @override
   String get reportSafeMode3a =>
-      'The 3a comparator is disabled while you have active debts. Repaying debts takes priority over any 3a savings.';
+      'The 3a comparator is on hold while your active debts weigh on your budget. Priority: stabilise your cash flow.';
 
   @override
-  String get reportSafeModeLpp => 'LPP buyback blocked';
+  String get reportSafeModeLpp => 'LPP buyback on hold';
 
   @override
   String get reportSafeModeLppMessage =>
-      'LPP buyback is disabled in protection mode. Repay your debts before locking liquidity in pension savings.';
+      'LPP buyback is on hold in protection mode. Recommended order: repay debts before locking liquidity in pension savings.';
 
   @override
   String get reportLppTitle => '💰 LPP Buyback Strategy';
@@ -18096,7 +18099,7 @@ class SEn extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.';
+      'Allocation advice is on hold in protection mode. Recommended order: reduce your debts before rebalancing your portfolio.';
 
   @override
   String get portfolioSafeModeLocked => 'Debt reduction priority';
@@ -19175,7 +19178,7 @@ class SEn extends S {
 
   @override
   String get safeModeMessage =>
-      'For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.';
+      'While a debt signal is active, advanced optimisations are on hold. Priority: stabilise your cash flow. The rest can wait.';
 
   @override
   String get safeModeTitle => 'Priority Focus';
@@ -20735,7 +20738,7 @@ class SEn extends S {
   String get intensityAdjustedDown => 'OK, I’ve toned it down a notch.';
 
   @override
-  String get coachSuggestBudget => 'What’s my realistic retirement budget?';
+  String get coachSuggestBudget => 'Where does my money go each month?';
 
   @override
   String get coachSuggestBudgetGap => 'How much am I short per month?';
@@ -20890,7 +20893,7 @@ class SEn extends S {
   String get coachOptInDecline => 'No, I\'ll come when I want';
 
   @override
-  String get coachSilentOpenerReplacementRate => 'Retirement replacement rate';
+  String get coachSilentOpenerReplacementRate => 'Projected replacement rate';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Financial fitness score';
@@ -20898,6 +20901,16 @@ class SEn extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projected retirement capital';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Projected capital on your horizon';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'LPP balance';
+
+  @override
+  String get coachSilentOpener3aEpargne => '3a savings';
 
   @override
   String get confidenceLow =>
@@ -22190,11 +22203,10 @@ class SEn extends S {
   String get tonSectionLabel => 'Voice';
 
   @override
-  String get anonymousIntentLine1 =>
-      'Money in Switzerland. The thing nobody talks about.';
+  String get anonymousIntentLine1 => 'Your financial life, in plain sight.';
 
   @override
-  String get anonymousIntentLine2 => 'Not even to themselves.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
@@ -22762,4 +22774,21 @@ class SEn extends S {
 
   @override
   String get hubSante => 'Health & Protection';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Why is this on hold';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Why it\'s on hold';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'In protection mode, MINT prioritises cash flow stability before tax and pension optimisations.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Why is this on hold?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.';
 }

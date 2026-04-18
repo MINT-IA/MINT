@@ -3890,7 +3890,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dis-moi ce qui te trotte dans la tête.",
+  "coachInputHint": "Dis-moi.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4682,8 +4682,8 @@
   "sim3aDisclaimer": "Estimation éducative. Les économies réelles dépendent de ton lieu de résidence et de ta situation familiale. Ne constitue pas un conseil financier (LSFin).",
   "sim3aDebtLockedTitle": "Priorité au désendettement",
   "sim3aDebtLockedMessage": "En mode protection, les recommandations d'action 3a sont désactivées. La priorité est de stabiliser ta situation financière avant de verser dans le 3a.",
-  "sim3aDebtStrategyTitle": "Stratégie bloquée",
-  "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.",
+  "sim3aDebtStrategyTitle": "Stratégie en pause",
+  "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé\u00a0: stabiliser d'abord, placer ensuite.",
   "realReturnTitle": "Rendement réel 3a",
   "realReturnPremierEclairageLabel": "Taux équivalent sur effort net",
   "realReturnVsNominal": "vs {rate} % taux net 3a (brut − frais)",
@@ -5390,6 +5390,7 @@
   "eplSectionImpactPrestations": "Impact sur les prestations",
   "eplReductionInvalidite": "Réduction rente invalidité (estimation annuelle)",
   "eplReductionDeces": "Réduction capital-décès (estimation)",
+  "eplReductionAskCaisse": "À demander à ta caisse",
   "eplImpactPrestationsNote": "Le retrait EPL réduit proportionnellement tes prestations de risque. Vérifie auprès de ta caisse de pension les montants exacts et les possibilités d’assurance complémentaire.",
   "eplSectionImpactRente": "Impact sur la rente",
   "eplRenteSansEpl": "Rente sans EPL",
@@ -5530,7 +5531,7 @@
   "repaymentTimelinePaiement": "Paiement",
   "repaymentTimelineSolde": "Solde restant",
   "retroactive3aTitle": "Rattrapage 3a",
-  "retroactive3aHeroTitle": "Rattrapage 3a — Nouveauté 2026",
+  "retroactive3aHeroTitle": "Rattrapage 3a — Nouveauté 2025",
   "retroactive3aHeroSubtitle": "Rattrape jusqu’à 10 ans de cotisations manquées",
   "retroactive3aParametres": "Paramètres",
   "retroactive3aAnneesARattraper": "Années à rattraper",
@@ -5836,9 +5837,9 @@
   },
   "reportSafeModePriority": "Priorité au désendettement",
   "reportSafeModeActions": "Tes actions prioritaires sont remplacées par un plan de désendettement. Stabilise ta situation avant d'explorer les recommandations.",
-  "reportSafeMode3a": "Le comparateur 3a est désactivée tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.",
-  "reportSafeModeLpp": "Rachat LPP bloqué",
-  "reportSafeModeLppMessage": "Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.",
+  "reportSafeMode3a": "Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité\u00a0: stabiliser ta trésorerie.",
+  "reportSafeModeLpp": "Rachat LPP en pause",
+  "reportSafeModeLppMessage": "Le rachat LPP est en pause en mode protection. L'ordre recommandé\u00a0: rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.",
   "reportLppTitle": "💰 Stratégie Rachat LPP",
   "reportLppEconomie": "Économie fiscale totale : CHF {amount}",
   "@reportLppEconomie": {
@@ -9283,7 +9284,7 @@
   "portfolioNoData": "Aucune donnée patrimoniale renseignée.",
   "portfolioRepartitionEnveloppe": "Répartition par enveloppe",
   "portfolioReserveFondsUrgence": "Réservé (Fonds d'urgence)",
-  "portfolioSafeModeBody": "Les conseils d'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.",
+  "portfolioSafeModeBody": "Les conseils d'allocation sont en pause en mode protection. Ordre recommandé\u00a0: réduire tes dettes avant de rééquilibrer ton patrimoine.",
   "portfolioSafeModeLocked": "Priorité au désendettement",
   "portfolioValeurTotaleNette": "Valeur totale nette",
   "proactiveConfidenceUp": "Ta confiance a progressé de {delta} pts depuis la dernière fois.",
@@ -9597,7 +9598,7 @@
   "routeSuggestionCta": "Ouvrir",
   "routeSuggestionPartialWarning": "Estimation — données incomplètes",
   "safeModeCta": "Voir mon plan de désendettement",
-  "safeModeMessage": "Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.",
+  "safeModeMessage": "Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité\u00a0: stabiliser ta trésorerie. Le reste attendra.",
   "safeModeTitle": "Concentration Prioritaire",
   "saronCostLabel": "de coût supplémentaire avec SARON",
   "saronEyebrow": "SARON vs Taux fixe",
@@ -10191,7 +10192,7 @@
   "cashModeSubtitle": "Comment le coach s’adresse à toi",
   "intensityAdjustedUp": "OK, je monte d’un cran.",
   "intensityAdjustedDown": "OK, je baisse d’un cran.",
-  "coachSuggestBudget": "Quel est mon budget réaliste à la retraite ?",
+  "coachSuggestBudget": "Où part mon argent chaque mois ?",
   "coachSuggestBudgetGap": "Il me manque combien par mois ?",
   "coachSuggestMortgage": "Est-ce que je peux me permettre un achat ?",
   "coachSuggestMortgageCapacity": "Quelle capacité d’emprunt j’ai ?",
@@ -10262,9 +10263,24 @@
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
   "coachOptInDecline": "Non, je viens quand je veux",
-  "coachSilentOpenerReplacementRate": "Taux de remplacement à la retraite",
+  "coachSilentOpenerReplacementRate": "Taux de remplacement projeté",
   "coachSilentOpenerFitnessScore": "Score de santé financière",
   "coachSilentOpenerRetirementCapital": "Capital projeté à la retraite",
+  "coachSilentOpenerProjectedCapital": "Capital projeté sur ton horizon",
+  "@coachSilentOpenerProjectedCapital": {
+    "description": "Silent opener label when the coach surfaces a generic projected-capital number across any life-event horizon (not only retraite). Wave 2 debias — replaces retirement-framed default.",
+    "x-mint-meta": { "level": "N3" }
+  },
+  "coachSilentOpenerLppAvoir": "Avoir LPP",
+  "@coachSilentOpenerLppAvoir": {
+    "description": "Silent opener label for the user's current LPP balance, surfaced first when enriched via scan. Factual indicative voice.",
+    "x-mint-meta": { "level": "N3" }
+  },
+  "coachSilentOpener3aEpargne": "Épargne 3a",
+  "@coachSilentOpener3aEpargne": {
+    "description": "Silent opener label for 3a savings snapshot. Factual indicative voice.",
+    "x-mint-meta": { "level": "N3" }
+  },
   "confidenceLow": "Tes chiffres sont très approximatifs. Ajoute ton certificat LPP pour +25 %.",
   "confidenceMedium": "Bon début. Scanne ton extrait AVS pour confirmer tes années de cotisation.",
   "confidenceAction": "Scanner mon certificat LPP (+25 % de précision)",
@@ -11177,13 +11193,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01 — ProfileDrawer section heading for Ton chooser."
   },
-  "anonymousIntentLine1": "L'argent, en Suisse, c'est le sujet dont personne ne parle.",
+  "anonymousIntentLine1": "Ta vie financière, en clair.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Short and sober — sets up the 'On éclaire. Tu décides.' promise below."
   },
-  "anonymousIntentLine2": "Même pas à soi-même.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it."
   },
   "anonymousIntentPill1": "Je paye, je signe, mais je comprends pas tout",
   "@anonymousIntentPill1": {
@@ -11720,5 +11736,10 @@
   "hubPatrimoine": "Patrimoine & Succession",
   "@hubPatrimoine": { "description": "Explorer hub — Wealth" },
   "hubSante": "Santé & Protection",
-  "@hubSante": { "description": "Explorer hub — Health" }
+  "@hubSante": { "description": "Explorer hub — Health" },
+  "safeModeWhyBlockedSemantics": "Pourquoi est-ce en pause",
+  "safeModeWhyBlockedTitle": "Pourquoi c'est en pause",
+  "safeModeWhyBlockedBody": "En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.",
+  "safeModeWhyBlockedLink": "Pourquoi est-ce en pause\u00a0?",
+  "safeModeFormalDesendettementNote": "Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste."
 }

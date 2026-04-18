@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du retrait 3a echelonne multi-comptes.
 ///
@@ -180,7 +181,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
           title: S.of(context)!.staggeredWithdrawalEmptyTitle,
           subtitle: S.of(context)!.staggeredWithdrawalEmptySubtitle,
           ctaLabel: S.of(context)!.staggeredWithdrawalEmptyCta,
-          onCta: () => context.push('/coach/chat'),
+          onCta: () => context.go('/coach/chat'),
         ),
       );
     }
@@ -210,27 +211,35 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Chiffre choc
-                _buildPremierEclairage(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                // Sequencing block — gated in SafeMode (debt crisis)
+                SafeModeGate(
+                  hasDebt: lookupSafeModeFlag(context),
+                  child: Column(
+                    children: [
+                      // Chiffre choc
+                      _buildPremierEclairage(result, l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Introduction
-                _buildIntroCard(l),
-                const SizedBox(height: MintSpacing.lg),
+                      // Introduction
+                      _buildIntroCard(l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Sliders
-                _buildSlidersSection(l),
-                const SizedBox(height: MintSpacing.lg),
+                      // Sliders
+                      _buildSlidersSection(l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Resultat comparaison
-                _buildComparisonSection(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                      // Resultat comparaison
+                      _buildComparisonSection(result, l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Plan annuel
-                if (result.planAnnuel.isNotEmpty) ...[
-                  _buildYearlyPlanTable(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Plan annuel
+                      if (result.planAnnuel.isNotEmpty) ...[
+                        _buildYearlyPlanTable(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+                    ],
+                  ),
+                ),
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),
@@ -286,13 +295,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                   : MintColors.warning,
             ),
           ),
-          if (result.nbComptesOptimal != _nbComptes) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              '${result.nbComptesOptimal} comptes',
-              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
+          // nbComptesOptimal badge retiré 2026-04-18 (doctrine §6.4 No-Ranking).
+          // L'ancien affichage "${nbComptesOptimal} comptes" en bleu info
+          // désignait un optimum visuel — l'utilisateur lit maintenant les
+          // chiffres pour chaque configuration sans que l'app pousse une
+          // recommandation (qui ignorait les frais de garde par compte).
         ],
       ),
     );

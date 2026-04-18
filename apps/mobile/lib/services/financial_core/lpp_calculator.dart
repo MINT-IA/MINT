@@ -179,8 +179,10 @@ class LppCalculator {
     final capitalBrut = projectedBalance * lppCapitalPct;
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    final effectiveBaseRate =
-        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
+    // Audit 2026-04-18 Q5 : coefficient marié cantonal (ZH 0.73, ZG 0.70,
+    // VS 0.81, ...) au lieu du scalaire 0.85 uniforme.
+    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
+    final effectiveBaseRate = baseRate * discount;
     final tax = RetirementTaxCalculator.progressiveTax(
         capitalBrut, effectiveBaseRate);
     final capitalNet = capitalBrut - tax;
@@ -428,8 +430,9 @@ class LppCalculator {
 
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    final effectiveRate =
-        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
+    // Audit 2026-04-18 Q5 : coefficient marié par canton (map + fallback).
+    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
+    final effectiveRate = baseRate * discount;
 
     // Strategy 1: same year — combined capital taxed together
     final taxSameYear =

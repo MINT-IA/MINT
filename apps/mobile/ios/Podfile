@@ -43,4 +43,22 @@ post_install do |installer|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
     end
   end
+
+  # Sentry embeds a C++ crash monitor (SentryCrashMonitor_CPPException.cpp) that
+  # needs libc++ + its unwind personality. flutter_gemma used to pull these in
+  # transitively via `s.library = 'c++'`; with that dep gone, inject -lc++ +
+  # -lc++abi into the Pods-Runner aggregate xcconfig so the final link picks
+  # them up. Safe on device and simulator; both ship with every iOS SDK.
+  require 'pathname'
+  Pathname.glob("#{installer.sandbox.root}/Target Support Files/Pods-Runner/*.xcconfig").each do |xcconfig|
+    contents = xcconfig.read
+    next unless contents =~ /^OTHER_LDFLAGS = (.+)$/
+    existing = Regexp.last_match(1)
+    next if existing.include?('-l"c++"') || existing.include?('-lc++')
+    contents.sub!(
+      /^OTHER_LDFLAGS = .+$/,
+      "OTHER_LDFLAGS = #{existing} -l\"c++\" -l\"c++abi\"",
+    )
+    xcconfig.write(contents)
+  end
 end

@@ -105,11 +105,13 @@ class CoachOrchestrator {
   /// SLM inference timeout (generous for first-init which loads ~2.3 GB).
   static const Duration _slmTimeout = Duration(seconds: 30);
 
-  /// BYOK cloud LLM timeout.
-  /// Set to 60s to handle Railway cold starts on the server-key tier
-  /// (first request after worker restart takes ~20-25s due to ChromaDB
-  /// vector store initialization + RAG retrieval + Claude agent loop).
-  static const Duration _byokTimeout = Duration(seconds: 20);
+  /// BYOK / server-key cloud LLM timeout.
+  /// Backend hard cap is 55s (Claude tool-chain + RAG + compliance). This
+  /// orchestrator-level timeout wraps the HTTP call (own 50s timeout) plus
+  /// any 401-refresh retry (~1s). 55s keeps the user from staring at a
+  /// spinner past the point of no return; genuine hangs are surfaced by
+  /// the chat screen's retry UI, not by cutting short live turns.
+  static const Duration _byokTimeout = Duration(seconds: 55);
 
   /// Average chars per token (French with accents).
   static const double _charsPerToken = 3.5;
@@ -271,9 +273,57 @@ class CoachOrchestrator {
       debugPrint('[CoachChain] tier3=ServerKey skipped (BYOK active or safeMode)');
     }
 
+    // 3.5. Anonymous tier — 3 free messages via /anonymous/chat, no auth
+    // required. Critical for local-mode users (fresh install, no login, no
+    // BYOK, SLM disabled-in-build). Audit 2026-04-18 Wave 5 : previously
+    // only fired in the chat-screen catch block, which was never reached
+    // when the orchestrator degraded gracefully — users saw "Le coach IA
+    // n'est pas disponible" even though anonymous would have worked.
+    debugPrint('[CoachChain] tier3.5=Anonymous trying...');
+    final anonymousResponse = await _tryAnonymousChat(
+      userMessage: userMessage,
+      language: language,
+    );
+    if (anonymousResponse != null) {
+      debugPrint('[CoachChain] tier3.5=Anonymous SUCCESS');
+      return anonymousResponse;
+    }
+    debugPrint('[CoachChain] tier3.5=Anonymous returned null');
+
     // 4. Fallback — honest "coach unavailable" message.
     debugPrint('[CoachChain] ALL TIERS FAILED — returning fallback');
     return _chatFallback(language);
+  }
+
+  /// Call the public `/anonymous/chat` endpoint (3 free messages, UUID-
+  /// scoped session). Returns null on any failure so the caller falls
+  /// through to the offline template.
+  static Future<CoachResponse?> _tryAnonymousChat({
+    required String userMessage,
+    required String language,
+  }) async {
+    try {
+      final anonResponse = await CoachChatApiService.sendAnonymousMessage(
+        message: userMessage,
+        language: language,
+      ).timeout(const Duration(seconds: 35));
+
+      final msg = (anonResponse['message'] as String? ?? '').trim();
+      if (msg.isEmpty) return null;
+
+      final disclaimers =
+          (anonResponse['disclaimers'] as List?)?.cast<String>() ?? const [];
+
+      return CoachResponse(
+        message: msg,
+        disclaimer: ComplianceGuard.standardDisclaimer,
+        disclaimers: disclaimers,
+        wasFiltered: false,
+      );
+    } catch (e) {
+      debugPrint('[Orchestrator] Anonymous chat error: $e');
+      return null;
+    }
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -447,6 +497,7 @@ class CoachOrchestrator {
               'confidence_score': ctx.confidenceScore > 0
                   ? ctx.confidenceScore
                   : null,
+              'has_debt': ctx.hasDebt,
               // Spread knownValues for data lookup tools
               ...ctx.knownValues.map((k, v) =>
                   MapEntry(k, v.isFinite && v > 0 ? v : null)),
@@ -678,6 +729,7 @@ class CoachOrchestrator {
               'confidence_score': ctx.confidenceScore > 0
                   ? ctx.confidenceScore
                   : null,
+              'has_debt': ctx.hasDebt,
               // Spread knownValues for data lookup tools
               ...ctx.knownValues.map((k, v) =>
                   MapEntry(k, v.isFinite && v > 0 ? v : null)),
@@ -768,17 +820,29 @@ class CoachOrchestrator {
     final service = CoachChatApiService();
 
     // Build conversation history for multi-turn context (same as BYOK path).
-    // Last 16 messages (8 exchanges) — sanitized user messages, raw assistant.
-    // Bumped from 8 → 16 (Gate 0 P0-2, 2026-04-15) so the coach keeps
-    // multi-turn threading coherent. Backend cap matches at 16 msg /
-    // 2000 chars (coach_chat.py:_sanitize_conversation_history).
+    // Bumped 8 → 16 (Gate 0 P0-2, 2026-04-15), then 16 → 32 (Gate 0 P0,
+    // 2026-04-17) after users reported the coach forgetting context around
+    // turn 4-5. First assistant greeting is pinned (carries lifecycle, plan,
+    // regional identity injected at onboarding) so it survives deep
+    // conversations. Backend cap is also bumped to 32 msg
+    // (coach_chat.py:_sanitize_conversation_history).
     final recentHistory = history
         .where((m) => m.isUser || m.isAssistant)
         .toList();
-    final tail = recentHistory.length > 16
-        ? recentHistory.sublist(recentHistory.length - 16)
-        : recentHistory;
-    final conversationHistory = tail
+    final List<ChatMessage> kept;
+    if (recentHistory.length <= _conversationContextMaxMessages) {
+      kept = recentHistory;
+    } else {
+      final greeting = recentHistory.firstWhere(
+        (m) => m.isAssistant,
+        orElse: () => recentHistory.first,
+      );
+      final tail = recentHistory.sublist(
+        recentHistory.length - (_conversationContextMaxMessages - 1),
+      );
+      kept = tail.contains(greeting) ? tail : [greeting, ...tail];
+    }
+    final conversationHistory = kept
         .map((m) => {
               'role': m.isUser ? 'user' : 'assistant',
               'content': m.isUser ? _sanitizeUserInput(m.content) : m.content,
@@ -807,6 +871,7 @@ class CoachOrchestrator {
               ctx.taxSavingPotential > 0 ? ctx.taxSavingPotential : null,
           'confidence_score':
               ctx.confidenceScore > 0 ? ctx.confidenceScore : null,
+          'has_debt': ctx.hasDebt,
           'days_since_last_visit': ctx.daysSinceLastVisit,
           'fiscal_season':
               ctx.fiscalSeason.isNotEmpty ? ctx.fiscalSeason : null,
@@ -864,8 +929,21 @@ class CoachOrchestrator {
         degraded: response.degraded,
       );
     } on TimeoutException {
+      // 2026-04-17 audit: we used to return null here, which dropped the
+      // turn to `_chatFallback` ("Le coach IA n'est pas disponible").
+      // The user then perceived the coach as permanently gone. Rethrow as
+      // a typed network failure so the chat screen's catch block renders
+      // a retry CTA with the last user message.
       debugPrint('[Orchestrator] Server-key chat timed out');
-      return null;
+      throw const CoachChatApiException(
+        code: 'timeout',
+        message: 'Coach request timed out.',
+      );
+    } on CoachChatApiException {
+      // Auth / entitlement / service_unavailable / server_error: propagate
+      // so the chat screen can tell the user something specific and offer
+      // a retry. Do NOT fall to the silent fallback template.
+      rethrow;
     } catch (e) {
       debugPrint('[Orchestrator] Server-key chat error: $e');
       return null;
@@ -1214,9 +1292,19 @@ class CoachOrchestrator {
     return s.trim();
   }
 
+  /// Maximum conversation history to include in SLM/BYOK context.
+  ///
+  /// Bumped from 8 → 32 (Gate 0 P0, 2026-04-17). Smaller caps caused the coach
+  /// to "forget" the user mid-conversation: the first assistant message carries
+  /// lifecycle, plan, and regional identity injected by the greeting, and was
+  /// being purged as early as turn 4.
+  static const int _conversationContextMaxMessages = 32;
+
   /// Build conversation context string for multi-turn chat.
   ///
-  /// Keeps the last 8 messages (4 exchanges) to stay within token limits.
+  /// Keeps the last [_conversationContextMaxMessages] messages. The first
+  /// assistant greeting is pinned (carries system context — lifecycle, plan,
+  /// regional identity) and never purged even if history exceeds the cap.
   /// User messages are sanitized to prevent prompt injection.
   static String _buildConversationContext(
     List<ChatMessage> history,
@@ -1226,11 +1314,24 @@ class CoachOrchestrator {
         history.where((m) => m.isUser || m.isAssistant).toList();
     if (relevant.length <= 1) return _sanitizeUserInput(currentMessage);
 
-    final tail =
-        relevant.length > 8 ? relevant.sublist(relevant.length - 8) : relevant;
+    final List<ChatMessage> kept;
+    if (relevant.length <= _conversationContextMaxMessages) {
+      kept = relevant;
+    } else {
+      // Preserve the first assistant message (greeting) + tail, so system
+      // context injected at turn 0 survives deep conversations.
+      final greeting = relevant.firstWhere(
+        (m) => m.isAssistant,
+        orElse: () => relevant.first,
+      );
+      final tail = relevant.sublist(
+        relevant.length - (_conversationContextMaxMessages - 1),
+      );
+      kept = tail.contains(greeting) ? tail : [greeting, ...tail];
+    }
 
     final buf = StringBuffer('Contexte de la conversation :\n');
-    for (final msg in tail) {
+    for (final msg in kept) {
       final content = msg.isUser ? _sanitizeUserInput(msg.content) : msg.content;
       buf.writeln('${msg.isUser ? "Utilisateur" : "Coach"}: $content');
     }

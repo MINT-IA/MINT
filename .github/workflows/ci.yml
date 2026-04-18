@@ -263,23 +263,26 @@ jobs:
           alembic upgrade head
           rm -f test_migration.db
 
-  # ─── Phase 29 / PRIV-03: PII log gate (warn-only, becomes blocking in Phase 30) ─
+  # ─── Phase 30 / PRIV-03: PII log gate (BLOCKING) ─────────────────
   # Scans recent backend logs for raw IBAN / AVS / Swiss phone / employer
-  # gazetteer entries. Currently runs against staging logs fetched via the
-  # railway CLI when RAILWAY_TOKEN is provided; otherwise scans the test
-  # fixture so the job never silently no-ops.
+  # gazetteer entries. Runs against staging logs fetched via the railway
+  # CLI when RAILWAY_TOKEN is provided; otherwise scans the test fixture
+  # so the job never silently no-ops.
   #
-  # WARN-ONLY: the script may exit 1 but `continue-on-error: true` keeps
-  # the build green. Phase 30 will flip this to a blocking required check.
+  # BLOCKING (AUDIT-2026-04-17): the gate now fails the build on any PII
+  # hit. Phase 29 ran it warn-only; the security audit flagged that
+  # tolerance as a GDPR Article 5 / nLPD compliance risk and a
+  # FINMA-blocking issue, so we flip it ahead of schedule. Make sure
+  # scripts/check_pii_in_logs.py has been green on staging before
+  # merging — a fresh regression will now block every PR to dev.
+  #
   # A separate weekly cron (set up outside this PR) runs the same script
   # against PRODUCTION logs.
-  # TODO(phase-30): make this job a required status check on PRs to dev.
   pii-log-gate:
     name: PII log gate (PRIV-03)
     needs: [changes]
     if: needs.changes.outputs.backend == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

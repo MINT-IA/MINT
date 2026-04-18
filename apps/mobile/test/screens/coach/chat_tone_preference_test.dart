@@ -98,9 +98,12 @@ void main() {
       // Since _intensityChosen is false and _cashLevelLoaded is true,
       // the chips should appear in the message list once the opener is dismissed.
 
-      // The tone preference question text
+      // The tone preference question text — shortened 2026-04-17 from
+      // "Au fait, tu préfères que je sois plutôt…" to "Comment je te parle ?"
+      // (commit d1ce63b5: the trailing ellipsis read as a truncation bug and
+      // the 3 chips below already enumerate the options).
       expect(
-        find.textContaining('tu pr\u00e9f\u00e8res que je sois'),
+        find.textContaining('Comment je te parle'),
         findsOneWidget,
       );
 

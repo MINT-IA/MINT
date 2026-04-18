@@ -238,7 +238,7 @@ class _BudgetScreenState extends State<BudgetScreen>
           title: S.of(context)!.budgetEmptyTitle,
           subtitle: S.of(context)!.budgetEmptySubtitle,
           ctaLabel: S.of(context)!.budgetEmptyCta,
-          onCta: () => context.push('/coach/chat'),
+          onCta: () => context.go('/coach/chat'),
         ),
       );
     }

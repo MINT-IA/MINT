@@ -386,7 +386,7 @@ def _sanitize_conversation_history(
     """Sanitize conversation history: PII scrub + injection filter + limit.
 
     Threat mitigations:
-        T-20-01 (Tampering): role whitelist, 16-message cap, 2000-char truncation
+        T-20-01 (Tampering): role whitelist, 32-message cap, 2000-char truncation
         T-20-02 (PII): regex scrub on user messages
         T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
         T-20-04 (DoS): hard cap at 16 messages, 2000 chars each
@@ -401,7 +401,7 @@ def _sanitize_conversation_history(
     if not history:
         return None
     sanitized: list[dict[str, str]] = []
-    for msg in history[-16:]:  # hard cap at 16 messages (was 8)
+    for msg in history[-32:]:  # hard cap at 32 messages (8 → 16 → 32, 2026-04-17)
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role not in ("user", "assistant") or not content.strip():
@@ -453,6 +453,8 @@ _PROFILE_SAFE_FIELDS = {
     "years_since_last_buyback",
     # Planned contributions (consumed by claude_coach_service system prompt)
     "planned_contributions",
+    # SafeMode signal: consumer debt stress or emergency-fund shortfall (RULES.md §1)
+    "has_debt",
 }
 
 
@@ -1981,7 +1983,20 @@ async def _run_agent_loop(
 # ---------------------------------------------------------------------------
 
 
-@router.post("/chat", response_model=CoachChatResponse)
+@router.post(
+    "/chat",
+    response_model=CoachChatResponse,
+    # CoachChatResponse.model_config sets alias_generator=to_camel so the
+    # schema fields expose camelCase aliases (toolCalls, tokensUsed,
+    # responseMeta, cashLevel, systemPromptUsed). FastAPI's default
+    # serialization uses the python field name (snake_case) unless told
+    # otherwise — so without this flag the Flutter client silently drops
+    # every non-trivial field (it reads json['toolCalls'], backend emits
+    # json['tool_calls'], JSON keys are case-sensitive). Setting
+    # response_model_by_alias=True is the one-line fix that restores the
+    # documented contract. Root-caused 2026-04-17 during deep-audit.
+    response_model_by_alias=True,
+)
 @limiter.limit("30/minute;500/day")
 async def coach_chat(
     request: Request,

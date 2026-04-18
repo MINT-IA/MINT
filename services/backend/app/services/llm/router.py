@@ -88,8 +88,25 @@ async def _call_anthropic(client: Any, req: LLMRequest) -> Any:
         "max_tokens": req.max_tokens,
         "messages": req.messages,
     }
+    # Prompt caching (2026-04-18 cost optimisation) — Anthropic caches the
+    # large system prompt (~4-5k tokens) for 5 minutes with 90% input-token
+    # discount on subsequent messages. Break-even is ~1 reuse; MINT's chat
+    # sessions reuse the prompt dozens of times.
+    # Ref: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+    # Caveat: only prompts ≥1024 tokens are cacheable (Sonnet) — we only
+    # tag the prompt when long enough, otherwise we skip the wrap.
     if req.system:
-        kwargs["system"] = req.system
+        system_text = req.system
+        if isinstance(system_text, str) and len(system_text) >= 1500:
+            kwargs["system"] = [
+                {
+                    "type": "text",
+                    "text": system_text,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ]
+        else:
+            kwargs["system"] = system_text
     if req.tools:
         kwargs["tools"] = req.tools
     if req.tool_choice:
@@ -150,6 +167,18 @@ class LLMRouter:
             return self._anthropic
         return _default_anthropic_client()
 
+    def _anthropic_is_owned(self) -> bool:
+        """True when the router created its own transient client.
+
+        Ownership drives the close policy in ``_invoke_anthropic``: transient
+        clients must be closed deterministically inside the current event loop
+        so the underlying ``httpx``/``anyio`` transport does not linger and
+        trigger ``RuntimeError: Event loop is closed`` during late GC on the
+        ``asyncio.run`` bridge used by sync callers. Injected clients belong
+        to the caller — never touch their lifetime.
+        """
+        return self._anthropic is None
+
     def _get_bedrock(self) -> Optional[BedrockClient]:
         if self._bedrock is None:
             try:
@@ -192,7 +221,20 @@ class LLMRouter:
         client = self._get_anthropic()
         if client is None:
             raise RuntimeError("anthropic client unavailable (missing API key or package)")
-        return await _call_anthropic(client, request)
+        if not self._anthropic_is_owned():
+            return await _call_anthropic(client, request)
+        try:
+            return await _call_anthropic(client, request)
+        finally:
+            close = getattr(client, "close", None)
+            if close is not None:
+                try:
+                    await close()
+                except Exception as exc:
+                    logger.debug(
+                        "llm_router: transient anthropic close failed: %s",
+                        type(exc).__name__,
+                    )
 
     async def _invoke_bedrock(self, request: LLMRequest) -> Any:
         bedrock = self._get_bedrock()

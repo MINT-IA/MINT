@@ -22,9 +22,9 @@ import 'package:mint_mobile/screens/simulator_3a_screen.dart';
 import 'package:mint_mobile/screens/consumer_credit_screen.dart';
 import 'package:mint_mobile/screens/debt_risk_check_screen.dart';
 // consent_dashboard_screen.dart DELETED (KILL-03, Phase 2)
-import 'package:mint_mobile/theme/colors.dart';
-// portfolio_screen.dart — zombie redirect (Plan 11-02)
+// portfolio_screen.dart DELETED (deep-audit 2026-04-17) — route /portfolio still redirects to /home
 // profile_screen.dart DELETED (KILL-04, Phase 2)
+import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/screens/profile/financial_summary_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
@@ -41,7 +41,7 @@ import 'package:mint_mobile/screens/byok_settings_screen.dart';
 import 'package:mint_mobile/screens/slm_settings_screen.dart';
 import 'package:mint_mobile/screens/settings/langue_settings_screen.dart';
 import 'package:mint_mobile/screens/about_screen.dart';
-// ask_mint_screen.dart — zombie redirect (Plan 11-02)
+// ask_mint_screen.dart DELETED (deep-audit 2026-04-17) — route /ask-mint redirects to /coach/chat
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/document_provider.dart';
 import 'package:mint_mobile/screens/documents_screen.dart';
@@ -75,7 +75,7 @@ import 'package:mint_mobile/screens/naissance_screen.dart';
 import 'package:mint_mobile/screens/concubinage_screen.dart';
 import 'package:mint_mobile/screens/expat_screen.dart';
 import 'package:mint_mobile/screens/advisor/financial_report_screen_v2.dart';
-// score_reveal_screen.dart — zombie redirect (Plan 11-02)
+// score_reveal_screen.dart DELETED (deep-audit 2026-04-17) — route /score-reveal redirects to /home
 // coach_profile.dart — unused after score-reveal zombie (Plan 11-02)
 // financial_fitness_service.dart — unused after score-reveal zombie (Plan 11-02)
 import 'package:mint_mobile/screens/housing_sale_screen.dart';
@@ -102,8 +102,7 @@ import 'package:mint_mobile/screens/coach/optimisation_decaissement_screen.dart'
 import 'package:mint_mobile/screens/coach/succession_patrimoine_screen.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
-// annual_refresh_screen.dart — zombie redirect (Plan 11-02)
-// cockpit_detail_screen.dart — zombie redirect (Plan 11-02)
+// annual_refresh_screen.dart + cockpit_detail_screen.dart DELETED (deep-audit 2026-04-17)
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
@@ -127,6 +126,7 @@ import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
+import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
@@ -135,7 +135,7 @@ import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
-// achievements_screen.dart — zombie redirect (Plan 11-02)
+// achievements_screen.dart DELETED (deep-audit 2026-04-17) — route /achievements redirects to /home
 import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 // KILL-07: Explorer hub screen imports removed (Phase 2).
 // Hub screen FILES preserved for Phase 3 chat-summoned drawers.
@@ -144,6 +144,7 @@ import 'package:mint_mobile/screens/explore/explore_hub_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
+final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
 final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellExplorer');
 
@@ -193,20 +194,45 @@ final _router = GoRouter(
     // refreshListenable, and the user sees a flash of the auth screen.
     if (auth.isLoading) return null;
 
-    // ── Parse /home?tab=N&intent=X query params ─────────────
-    // Notifications emit /home?tab=1&intent=monthlyCheckIn etc.
-    // Redirect to the correct tab route so the shell navigates properly.
+    // ── Parse /home?tab=N&intent=X&screen=S query params ────
+    // Notifications emit /home?tab=N&intent=monthlyCheckIn etc. The
+    // `screen=` param (new 2026-04-17) is the forward-compatible semantic
+    // discriminator and always wins over `tab=`, so re-indexing the shell
+    // won't silently misroute future links.
+    //
+    // V11 shell indexing:
+    //   0 = Aujourd'hui | 1 = Mon argent | 2 = Coach | 3 = Explorer
+    //
+    // Backward-compat matrix (tab=):
+    //   V1 (pre-2026-03) was a 3-tab shell (0=Home, 1=Coach, 2=Dossier).
+    //   V1 notifications always carried `intent=` → caught first.
+    //   V1 shortcuts without intent are rare enough to accept the V11
+    //   mapping (tab=1 → /mon-argent); users will simply land one tap
+    //   away from their old target rather than on a crash.
     if (path == '/home') {
+      final screen = state.uri.queryParameters['screen'];
       final tab = state.uri.queryParameters['tab'];
       final intent = state.uri.queryParameters['intent'];
-      if (tab == '1') {
-        // Tab 1 = Coach — redirect to /coach/chat with intent as topic
+      // Semantic routing wins over positional indexing.
+      switch (screen) {
+        case 'coach':
+          final query = intent != null ? '?topic=$intent' : '';
+          return '/coach/chat$query';
+        case 'mon-argent':
+        case 'money':
+          return '/mon-argent';
+        case 'explore':
+          return '/explore';
+        case 'dossier':
+        case 'profile':
+          return '/profile/bilan';
+      }
+      if (intent != null || tab == '2') {
         final query = intent != null ? '?topic=$intent' : '';
         return '/coach/chat$query';
       }
-      if (tab == '2') {
-        return '/explorer';
-      }
+      if (tab == '1') return '/mon-argent';
+      if (tab == '3') return '/explore';
       // tab=0 or no tab → stay on /home (Aujourd'hui)
     }
 
@@ -228,9 +254,9 @@ final _router = GoRouter(
         return null;
 
       case RouteScope.authenticated:
-        // Require signed-in user; localAnonymous mode also passes
-        // (users who skipped registration still access simulators).
-        if (!isLoggedIn) {
+        // Require signed-in user OR opted-in anonymous local mode.
+        // Local mode is default-on for fresh installs per AuthProvider.checkAuth.
+        if (!isLoggedIn && !auth.isLocalMode) {
           return '/auth/register?redirect=${Uri.encodeComponent(path)}';
         }
         return null;
@@ -314,7 +340,20 @@ final _router = GoRouter(
             ),
           ],
         ),
-        // Tab 1: Coach
+        // Tab 1: Mon argent — dashboard with 2 cards (budget + patrimoine).
+        // Architecture A→B: PatrimoineAggregator + CoachWhisperService are
+        // pure reads from CoachProfileProvider. Phase B will add a spending
+        // synthesis card when Open Banking data lands.
+        StatefulShellBranch(
+          navigatorKey: _shellNavigatorKeyMonArgent,
+          routes: [
+            GoRoute(
+              path: '/mon-argent',
+              builder: (context, state) => const MonArgentScreen(),
+            ),
+          ],
+        ),
+        // Tab 2: Coach
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyCoach,
           routes: [
@@ -341,7 +380,7 @@ final _router = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Explorer
+        // Tab 3: Explorer
         StatefulShellBranch(
           navigatorKey: _shellNavigatorKeyExplorer,
           routes: [

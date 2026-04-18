@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -152,8 +150,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Whether the silent opener is currently displayed (no messages yet).
   bool _showSilentOpener = false;
 
-  /// Random greeting index — picked once per screen open.
-  final int _greetingIndex = Random().nextInt(20);
+  // Random greeting index removed 2026-04-18 (performative voice deprecated).
 
   /// SharedPreferences keys for proactive opt-in tracking.
   static const String _conversationCountKey = 'mint_coach_conversation_count';
@@ -514,7 +511,41 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_profile == null) return null;
     final s = S.of(context)!;
 
-    // Priority 1: replacement rate (most impactful)
+    // Priority 1: most recent enrichment fact (LPP avoir or 3a épargne) —
+    // surfaces a raw number the user JUST added to their profile, so the
+    // coach acknowledges the upload instead of opening silent. Factual,
+    // not projected (anti-shame: fact of the world, not judgment of user).
+    final avoirLpp = _profile!.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp > 0) {
+      return (
+        number: _formatChf(avoirLpp),
+        headline: s.coachSilentOpenerLppAvoir,
+      );
+    }
+    final epargne3a = _profile!.prevoyance.totalEpargne3a;
+    if (epargne3a > 0) {
+      return (
+        number: _formatChf(epargne3a),
+        headline: s.coachSilentOpener3aEpargne,
+      );
+    }
+
+    // Priority 2: financial fitness score — neutral, life-event-agnostic.
+    try {
+      final score = FinancialFitnessService.calculate(profile: _profile!);
+      final g = score.global;
+      if (g > 0) {
+        return (
+          number: '$g/100',
+          headline: s.coachSilentOpenerFitnessScore,
+        );
+      }
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+
+    // Priority 3: replacement rate (retirement-framed — only surfaces when
+    // nothing neutral above is available and the user has enough data for
+    // a projection; headline now neutralized to "taux de remplacement
+    // projeté" without the "à la retraite" qualifier).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -529,19 +560,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
-    // Priority 2: financial fitness score
-    try {
-      final score = FinancialFitnessService.calculate(profile: _profile!);
-      final g = score.global;
-      if (g > 0) {
-        return (
-          number: '$g/100',
-          headline: s.coachSilentOpenerFitnessScore,
-        );
-      }
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
-
-    // Priority 3: projected capital
+    // Priority 4: projected capital (same neutralization rationale).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -552,7 +571,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         final formatted = _formatChf(cap);
         return (
           number: formatted,
-          headline: s.coachSilentOpenerRetirementCapital,
+          headline: s.coachSilentOpenerProjectedCapital,
         );
       }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
@@ -899,15 +918,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
-    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
-    final inferredActions = compliance.useFallback
-        ? <String>[]
-        : _inferSuggestedActions(userMessage, finalText);
+    // Audit 2026-04-18 Wave 5 (user feedback): les 3 chips statiques
+    // inférées par regex ("Si je verse plus sur mon 3a", "J'ai combien sur
+    // mes comptes 3a", "Ça vaut le coup de racheter du LPP") remplissaient
+    // l'écran à CHAQUE réponse coach et étaient insupportables. On ne garde
+    // que les chips générées par le LLM via route_to_screen tool_use — ce
+    // sont des actions CONTEXTUELLES produites par le modèle, pas une
+    // béquille regex. Si le coach ne demande aucune action, l'user tape ce
+    // qui l'intéresse. Panel contrarian 2026-04-18 : les chips par défaut
+    // sont une béquille.
     final routeChips = _extractRouteChips(richCalls);
-    final suggestedActions = <String>{
-      ...inferredActions,
-      ...routeChips,
-    }.take(4).toList();
+    final suggestedActions = routeChips.take(3).toList();
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
@@ -972,16 +993,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...markerCalls,
       ].take(5).toList();
 
-      // UX-04: Use LLM-provided suggestions if available, otherwise infer
-      // from conversation context. Enrich with route_to_screen tool calls
-      // so the coach's navigation proposals also appear as tappable chips.
-      final inferredActions = response.suggestedActions ??
-          _inferSuggestedActions(text, cleanMessage);
+      // Audit 2026-04-18 Wave 5 : on ne garde que les chips produites par
+      // le LLM (suggestedActions directes + route_to_screen tool_use).
+      // L'ancienne inférence regex générait 3 chips statiques à chaque
+      // réponse, même quand le sujet ne s'y prêtait pas — fatigant UX.
+      final llmActions = response.suggestedActions ?? const <String>[];
       final routeChips = _extractRouteChips(richCalls);
       final suggestedActions = <String>{
-        ...inferredActions,
+        ...llmActions,
         ...routeChips,
-      }.take(4).toList();
+      }.take(3).toList();
 
       setState(() {
         _messages.add(ChatMessage(
@@ -1389,6 +1410,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       age: profile.age,
       canton: profile.canton,
       knownValues: knownValues,
+      hasDebt: profile.isInDebtCrisis,
     );
   }
 
@@ -1679,77 +1701,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   //  SILENT OPENER WITH TONE CHIPS (CHAT-05)
   // ════════════════════════════════════════════════════════════
 
-  /// CHAT-05: Wraps the silent opener with tone preference chips
-  /// if the user hasn't chosen a tone yet.
+  /// Silent opener + optional intensity chips. One visual anchor at a time:
+  /// if the profile carries a key number or intent override, show that;
+  /// otherwise the SilentOpener's own minimal empty state renders — no
+  /// piquant random greeting (deprecated 2026-04-18 — performative voice
+  /// was fatiguing users who open the app daily; calm minimalism wins).
   Widget _buildSilentOpenerWithTone() {
-    final opener = _buildSilentOpener();
+    final Widget hero = _buildSilentOpener();
 
-    // Random greeting when no messages yet.
-    final greeting = _messages.isEmpty ? _buildRandomGreeting() : const SizedBox.shrink();
+    final body = Expanded(
+      child: SingleChildScrollView(child: hero),
+    );
 
     if (_intensityChosen || !_cashLevelLoaded) {
-      return Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  opener,
-                  greeting,
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
+      return Column(children: [body]);
     }
 
     return Column(
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                opener,
-                greeting,
-              ],
-            ),
-          ),
-        ),
+        body,
         Padding(
           padding: const EdgeInsets.only(left: 42, right: 24, bottom: 16),
           child: _buildIntensityChips(),
         ),
       ],
-    );
-  }
-
-  Widget _buildRandomGreeting() {
-    final s = S.of(context)!;
-    final greetings = [
-      s.coachGreetingRandom1,  s.coachGreetingRandom2,
-      s.coachGreetingRandom3,  s.coachGreetingRandom4,
-      s.coachGreetingRandom5,  s.coachGreetingRandom6,
-      s.coachGreetingRandom7,  s.coachGreetingRandom8,
-      s.coachGreetingRandom9,  s.coachGreetingRandom10,
-      s.coachGreetingRandom11, s.coachGreetingRandom12,
-      s.coachGreetingRandom13, s.coachGreetingRandom14,
-      s.coachGreetingRandom15, s.coachGreetingRandom16,
-      s.coachGreetingRandom17, s.coachGreetingRandom18,
-      s.coachGreetingRandom19, s.coachGreetingRandom20,
-    ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      child: Text(
-        greetings[_greetingIndex],
-        style: GoogleFonts.montserrat(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: MintColors.textPrimary,
-          height: 1.5,
-        ),
-        textAlign: TextAlign.center,
-      ),
     );
   }
 
@@ -1818,7 +1793,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // The number, big, alone
+            // The number, big, alone — the headline below qualifies it and
+            // the input bar at the bottom already invites the user in, so
+            // we drop the faded "Tu veux en parler ?" prompt (60% opacity
+            // italic undermined the calm of the frame and the adult tone).
             Text(
               keyData.number,
               style: const TextStyle(
@@ -1830,7 +1808,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // Short context headline
             Text(
               keyData.headline,
               style: const TextStyle(
@@ -1839,16 +1816,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
                 fontWeight: FontWeight.w400,
               ),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            // "Tu veux en parler ?"
-            Text(
-              s.coachSilentOpenerQuestion,
-              style: TextStyle(
-                fontSize: 14,
-                fontStyle: FontStyle.italic,
-                color: MintColors.textSecondary.withValues(alpha: 0.6),
-              ),
             ),
           ],
         ),
@@ -1993,7 +1960,10 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Au fait, tu pr\u00e9f\u00e8res que je sois plut\u00f4t\u2026',
+          // Was 'Au fait, tu préfères que je sois plutôt…' — the dangling
+          // ellipsis read as a truncation bug and the chips below already
+          // list the options, making the long phrasing redundant.
+          'Comment je te parle\u00a0?',
           style: TextStyle(
             fontSize: 14,
             color: MintColors.textSecondary,

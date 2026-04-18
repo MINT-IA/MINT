@@ -109,7 +109,11 @@ class StaggeredWithdrawalSimulator {
     final impotBloc = _calculerImpotRetrait(clampedAvoir, tauxBase);
 
     // --- Retrait echelonne ---
-    final dureeEchelonnement = (clampedFin - clampedDebut + 1).clamp(1, 7);
+    // Fenêtre légale OPP3 art. 3 al. 1 : 5 ans avant → 5 ans après âge
+    // ordinaire (59-70 = 12 années fiscales). Audit simulateur 2026-04-18
+    // P0-4 : ancien clamp(1, 7) empêchait l'étalement complet et divergeait
+    // du backend (multi_account_service.py) qui n'a pas ce cap.
+    final dureeEchelonnement = (clampedFin - clampedDebut + 1).clamp(1, 12);
     final comptesEffectifs = min(clampedComptes, dureeEchelonnement);
     final montantParRetrait = clampedAvoir / comptesEffectifs;
 
@@ -131,8 +135,18 @@ class StaggeredWithdrawalSimulator {
 
     final economie = impotBloc - totalImpotEchelonne;
 
-    // Nombre optimal de comptes (maximise l'economie)
-    int optimalComptes = 1;
+    // Économie pour chaque nombre de comptes (1 à 5), calculée pour que
+    // la UI affiche side-by-side sans désigner de vainqueur.
+    // Audit 2026-04-18 P0-7 / doctrine §6.4 No-Ranking : l'ancien code
+    // retournait `nbComptesOptimal` ce qui poussait la UI à afficher "5
+    // comptes = optimal", ignorant les frais de garde (5 × ~60 CHF/an sur
+    // 10 ans = 3'000 CHF qui peuvent dépasser l'économie fiscale sur petits
+    // montants) et la tranche plate 0-100k (pas d'économie scindable).
+    // La constante `nbComptesOptimal` garde la valeur qui minimise l'impôt
+    // fiscal BRUT pour compatibilité code (callers), mais cette valeur
+    // NE DOIT PAS être rendue visible comme "recommandation" dans la UI —
+    // à la place, afficher les 5 scénarios cote à cote.
+    int nbComptesMinImpot = 1;
     double meilleurEconomie = 0;
     for (int n = 1; n <= 5; n++) {
       if (n > dureeEchelonnement) break;
@@ -144,9 +158,10 @@ class StaggeredWithdrawalSimulator {
       final ecoN = impotBloc - impotN;
       if (ecoN > meilleurEconomie) {
         meilleurEconomie = ecoN;
-        optimalComptes = n;
+        nbComptesMinImpot = n;
       }
     }
+    final optimalComptes = nbComptesMinImpot;
 
     return StaggeredWithdrawalResult(
       impotBloc: impotBloc,
@@ -270,8 +285,11 @@ class RealReturnCalculator {
     // Economie fiscale totale (cumul simple, non capitalisee)
     final totalEconomieFiscale = clampedVersement * clampedTaux * clampedDuree;
 
-    // Capital final epargne classique (1.5% brut, pas de deduction fiscale)
-    const tauxEpargne = 0.015;
+    // Capital final epargne classique (0.5% brut — médiane taux épargne
+    // UBS/PostFinance/Raiffeisen 2026. Audit simulateur P1-5 : ancien
+    // hardcoded 1.5% surestimait le rendement épargne et minorait l'avantage
+    // 3a vs épargne. 0.5% reflète la réalité Suisse post-2023).
+    const tauxEpargne = 0.005;
     final capitalEpargne =
         fvAnnuityDue(clampedVersement, tauxEpargne, clampedDuree);
 
@@ -539,8 +557,8 @@ class ProviderComparator {
     final List<ProviderResult> results = [];
     double maxCapital = 0;
     double minCapital = double.infinity;
-    String? bestRendementNom;
-    String? bestFraisNom;
+    // bestRendementNom / bestFraisNom supprimés 2026-04-18 (No-Ranking doctrine —
+    // pas de vainqueur désigné parmi les providers, comparison side-by-side).
     double lowestFrais = double.infinity;
 
     for (final provider in _providers) {
@@ -557,14 +575,12 @@ class ProviderComparator {
 
       if (capital > maxCapital) {
         maxCapital = capital;
-        bestRendementNom = provider.nom;
       }
       if (capital < minCapital) {
         minCapital = capital;
       }
       if (provider.fraisGestion < lowestFrais && provider.fraisGestion > 0) {
         lowestFrais = provider.fraisGestion;
-        bestFraisNom = provider.nom;
       }
 
       // Warning assurance si < 35 ans
@@ -596,20 +612,18 @@ class ProviderComparator {
       ));
     }
 
-    // Attribuer les badges
+    // Attribuer les badges (side-by-side, pas de winner — CLAUDE.md §6.4).
+    // Audit simulateur 2026-04-18 P0-6 : l'ancien code écrasait `badge` avec
+    // la chaîne hardcodée "WARNING" (non-i18n). On ne désigne plus de
+    // vainqueur via "le plus eleve / plus bas" (No-Ranking doctrine) — on
+    // expose les facts side-by-side dans la UI sans hiérarchie implicite.
     final badgedResults = results.map((r) {
-      String? badge;
-      if (r.provider.nom == bestRendementNom) badge = 'Rendement le plus eleve';
-      if (r.provider.nom == bestFraisNom) {
-        badge = badge != null ? '$badge + Plus bas frais' : 'Plus bas frais';
-      }
-      if (r.provider.type == 'assurance') badge = 'WARNING';
       return ProviderResult(
         provider: r.provider,
         capitalFinal: r.capitalFinal,
         totalFrais: r.totalFrais,
         rendementNet: r.rendementNet,
-        badge: badge,
+        badge: null, // No-Ranking: pas de winner désigné
         hasWarning: r.hasWarning,
         warningMessage: r.warningMessage,
       );

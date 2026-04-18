@@ -3597,7 +3597,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dimmi cosa ti passa per la testa.",
+  "coachInputHint": "Dimmi.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4380,8 +4380,8 @@
   "sim3aDisclaimer": "Stima educativa. I risparmi reali dipendono dal luogo di residenza e dalla situazione familiare. Non costituisce consulenza finanziaria (LSFin).",
   "sim3aDebtLockedTitle": "Priorità al disdebitamento",
   "sim3aDebtLockedMessage": "In modalità protezione, le raccomandazioni 3a sono disattivate. La priorità è stabilizzare la situazione finanziaria.",
-  "sim3aDebtStrategyTitle": "Strategia bloccata",
-  "sim3aDebtStrategyMessage": "Le strategie d'investimento 3a sono disattivate finché hai debiti attivi. Rimborsare i debiti ha un rendimento più alto di qualsiasi investimento.",
+  "sim3aDebtStrategyTitle": "Strategia in pausa",
+  "sim3aDebtStrategyMessage": "Le strategie d'investimento 3a sono in pausa finché i tuoi debiti attivi gravano sul budget. Ordine consigliato: prima stabilizzare, poi investire.",
   "realReturnTitle": "Rendimento reale 3a",
   "realReturnPremierEclairageLabel": "Tasso equivalente sullo sforzo netto",
   "realReturnVsNominal": "vs {rate} % tasso netto 3a (lordo − spese)",
@@ -5088,6 +5088,7 @@
   "eplSectionImpactPrestations": "Impatto sulle prestazioni",
   "eplReductionInvalidite": "Riduzione rendita invalidità (stima annuale)",
   "eplReductionDeces": "Riduzione capitale decesso (stima)",
+  "eplReductionAskCaisse": "Chiedi alla tua cassa",
   "eplImpactPrestationsNote": "Il prelievo EPL riduce proporzionalmente le tue prestazioni di rischio. Verifica con la tua cassa pensione gli importi esatti e le possibilità di assicurazione complementare.",
   "eplSectionImpactRente": "Impatto sulla rendita",
   "eplRenteSansEpl": "Rendita senza EPL",
@@ -5220,7 +5221,7 @@
   "repaymentTimelinePaiement": "Pagamento",
   "repaymentTimelineSolde": "Saldo restante",
   "retroactive3aTitle": "Recupero 3a",
-  "retroactive3aHeroTitle": "Recupero 3a — Novità 2026",
+  "retroactive3aHeroTitle": "Recupero 3a — Novità 2025",
   "retroactive3aHeroSubtitle": "Recupera fino a 10 anni di contributi mancati",
   "retroactive3aParametres": "Parametri",
   "retroactive3aAnneesARattraper": "Anni da recuperare",
@@ -5529,9 +5530,9 @@
   },
   "reportSafeModePriority": "Priorità al disendebita mento",
   "reportSafeModeActions": "Le tue azioni prioritarie sono sostituite da un piano di riduzione del debito. Stabilizza la tua situazione prima di esplorare le raccomandazioni.",
-  "reportSafeMode3a": "Il comparatore 3a è disattivato finché hai debiti attivi. Rimborsare i debiti è prioritario prima di qualsiasi risparmio 3a.",
-  "reportSafeModeLpp": "Riscatto LPP bloccato",
-  "reportSafeModeLppMessage": "Il riscatto LPP è disattivato in modalità protezione. Rimborsa i tuoi debiti prima di bloccare liquidità nella previdenza.",
+  "reportSafeMode3a": "Il comparatore 3a è in pausa finché i tuoi debiti attivi gravano sul budget. Priorità: stabilizzare la liquidità.",
+  "reportSafeModeLpp": "Riscatto LPP in pausa",
+  "reportSafeModeLppMessage": "Il riscatto LPP è in pausa in modalità protezione. Ordine consigliato: rimborsare i debiti prima di bloccare liquidità nella previdenza.",
   "reportLppTitle": "💰 Strategia di Riscatto LPP",
   "reportLppEconomie": "Risparmio fiscale totale: CHF {amount}",
   "@reportLppEconomie": {
@@ -8843,7 +8844,7 @@
   "portfolioNoData": "Nessun dato patrimoniale inserito.",
   "portfolioRepartitionEnveloppe": "Ripartizione per busta",
   "portfolioReserveFondsUrgence": "Riservato (Fondo di emergenza)",
-  "portfolioSafeModeBody": "I consigli di allocazione sono disattivati in modalità protezione. La tua priorità è ridurre i debiti prima di ribilanciare il patrimonio.",
+  "portfolioSafeModeBody": "I consigli di allocazione sono in pausa in modalità protezione. Ordine consigliato: ridurre i debiti prima di ribilanciare il patrimonio.",
   "portfolioSafeModeLocked": "Priorità al risanamento debiti",
   "portfolioValeurTotaleNette": "Valore totale netto",
   "proactiveConfidenceUp": "La tua fiducia è migliorata di {delta} pts dall’ultima volta.",
@@ -9157,7 +9158,7 @@
   "routeSuggestionCta": "Aprire",
   "routeSuggestionPartialWarning": "Stima — dati incompleti",
   "safeModeCta": "Vedi il mio piano di riduzione del debito",
-  "safeModeMessage": "Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.",
+  "safeModeMessage": "Finché un segnale di debito è attivo, le ottimizzazioni avanzate sono in pausa. Priorità: stabilizzare la liquidità. Il resto può aspettare.",
   "safeModeTitle": "Concentrazione Prioritaria",
   "saronCostLabel": "di costo aggiuntivo con SARON",
   "saronEyebrow": "SARON vs Tasso fisso",
@@ -9727,7 +9728,7 @@
   "cashModeSubtitle": "Come ti parla il coach",
   "intensityAdjustedUp": "OK, alzo di un livello.",
   "intensityAdjustedDown": "OK, abbasso di un livello.",
-  "coachSuggestBudget": "Qual è il mio budget realistico per la pensione?",
+  "coachSuggestBudget": "Dove va il mio denaro ogni mese?",
   "coachSuggestBudgetGap": "Quanto mi manca al mese?",
   "coachSuggestMortgage": "Posso permettermi un acquisto immobiliare?",
   "coachSuggestMortgageCapacity": "Qual è la mia capacità di credito?",
@@ -9798,9 +9799,12 @@
   "coachProactiveOptIn": "A proposito — vuoi che ti segnali le cose importanti quando apri l'app? O preferisci che parliamo solo quando ne hai voglia?",
   "coachOptInAccept": "Sì, segnalami",
   "coachOptInDecline": "No, vengo quando voglio",
-  "coachSilentOpenerReplacementRate": "Tasso di sostituzione alla pensione",
+  "coachSilentOpenerReplacementRate": "Tasso di sostituzione proiettato",
   "coachSilentOpenerFitnessScore": "Punteggio di salute finanziaria",
   "coachSilentOpenerRetirementCapital": "Capitale proiettato alla pensione",
+  "coachSilentOpenerProjectedCapital": "Capitale proiettato sul tuo orizzonte",
+  "coachSilentOpenerLppAvoir": "Saldo LPP",
+  "coachSilentOpener3aEpargne": "Risparmio 3a",
   "confidenceLow": "I tuoi numeri sono molto approssimativi. Aggiungi il tuo certificato LPP per +25%.",
   "confidenceMedium": "Buon inizio. Scansiona il tuo estratto AVS per confermare i tuoi anni di contribuzione.",
   "confidenceAction": "Scansiona il mio certificato LPP (+25% di precisione)",
@@ -10468,13 +10472,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "I soldi, in Svizzera, sono il tema di cui nessuno parla.",
+  "anonymousIntentLine1": "La tua vita finanziaria, in chiaro.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener."
   },
-  "anonymousIntentLine2": "Nemmeno con sé stessi.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "Pago, firmo, ma non capisco proprio tutto",
   "@anonymousIntentPill1": {
@@ -10956,5 +10960,10 @@
   "hubLogement": "Alloggio",
   "hubFiscalite": "Fiscalità",
   "hubPatrimoine": "Patrimonio e Successione",
-  "hubSante": "Salute e Protezione"
+  "hubSante": "Salute e Protezione",
+  "safeModeWhyBlockedSemantics": "Perché è in pausa",
+  "safeModeWhyBlockedTitle": "Perché è in pausa",
+  "safeModeWhyBlockedBody": "In modalità protezione, MINT privilegia la stabilità della liquidità prima delle ottimizzazioni fiscali e previdenziali.",
+  "safeModeWhyBlockedLink": "Perché è in pausa?",
+  "safeModeFormalDesendettementNote": "Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista."
 }

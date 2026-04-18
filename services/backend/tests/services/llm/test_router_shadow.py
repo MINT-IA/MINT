@@ -187,3 +187,112 @@ async def test_route_mode_resolution():
     router = LLMRouter(anthropic_client=MagicMock(), bedrock_client=MagicMock(), flags=flags)
     mode = await router._resolve_mode(user_id="u1")
     assert mode == RouteMode.PRIMARY_BEDROCK
+
+
+# ---------------------------------------------------------------------------
+# Transient-client cleanup (Sentry: RuntimeError: Event loop is closed)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_injected_anthropic_client_is_not_closed_by_router(monkeypatch):
+    """Caller-owned client must survive the invocation — lifetime is not ours."""
+    from app.services.llm import router as router_mod
+
+    anthropic_client = AsyncMock()
+    anthropic_client.messages.create = AsyncMock(return_value=_make_resp("A"))
+    anthropic_client.close = AsyncMock()
+
+    flags = MagicMock()
+    flags.is_enabled = AsyncMock(return_value=False)
+
+    router = LLMRouter(anthropic_client=anthropic_client, flags=flags)
+    resp = await router.invoke(LLMRequest(
+        model="sonnet",
+        messages=[{"role": "user", "content": "hi"}],
+        max_tokens=10,
+    ))
+    assert resp.content[0].text == "A"
+    anthropic_client.close.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_transient_anthropic_client_is_closed_after_invoke(monkeypatch):
+    """Router-created client must be closed so its httpx transport shuts down
+    inside the current event loop. Otherwise the ``asyncio.run`` bridge used
+    by ``_sync_vision_call`` leaves an anyio transport to be finalized after
+    loop close → RuntimeError: Event loop is closed (Sentry issue
+    21a15b819e3e4ea984e9b9b348c97bc3)."""
+    from app.services.llm import router as router_mod
+
+    created = AsyncMock()
+    created.messages.create = AsyncMock(return_value=_make_resp("A"))
+    created.close = AsyncMock()
+
+    monkeypatch.setattr(router_mod, "_default_anthropic_client", lambda: created)
+
+    flags = MagicMock()
+    flags.is_enabled = AsyncMock(return_value=False)
+
+    router = LLMRouter(flags=flags)  # anthropic_client=None → transient path
+    resp = await router.invoke(LLMRequest(
+        model="sonnet",
+        messages=[{"role": "user", "content": "hi"}],
+        max_tokens=10,
+    ))
+    assert resp.content[0].text == "A"
+    created.close.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_transient_client_closed_even_when_api_raises(monkeypatch):
+    """If the upstream call raises, the client still gets closed — otherwise
+    the error path leaks the same anyio transport."""
+    from app.services.llm import router as router_mod
+
+    created = AsyncMock()
+    created.messages.create = AsyncMock(side_effect=RuntimeError("api down"))
+    created.close = AsyncMock()
+
+    monkeypatch.setattr(router_mod, "_default_anthropic_client", lambda: created)
+
+    flags = MagicMock()
+    flags.is_enabled = AsyncMock(return_value=False)
+
+    router = LLMRouter(flags=flags)
+    with pytest.raises(RuntimeError, match="api down"):
+        await router.invoke(LLMRequest(
+            model="sonnet",
+            messages=[{"role": "user", "content": "hi"}],
+            max_tokens=10,
+        ))
+    created.close.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_transient_client_close_failure_is_swallowed(monkeypatch, caplog):
+    """A failing close() must not mask the successful upstream response.
+
+    If close() raised, the router would leak exceptions from a finalizer
+    path — that's worse than the transport lingering. Log debug, continue."""
+    from app.services.llm import router as router_mod
+
+    created = AsyncMock()
+    created.messages.create = AsyncMock(return_value=_make_resp("A"))
+    created.close = AsyncMock(side_effect=RuntimeError("close boom"))
+
+    monkeypatch.setattr(router_mod, "_default_anthropic_client", lambda: created)
+
+    flags = MagicMock()
+    flags.is_enabled = AsyncMock(return_value=False)
+
+    router = LLMRouter(flags=flags)
+    with caplog.at_level(logging.DEBUG, logger="app.services.llm.router"):
+        resp = await router.invoke(LLMRequest(
+            model="sonnet",
+            messages=[{"role": "user", "content": "hi"}],
+            max_tokens=10,
+        ))
+    assert resp.content[0].text == "A"
+    created.close.assert_awaited_once()
+    assert any("transient anthropic close failed" in r.message for r in caplog.records)

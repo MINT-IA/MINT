@@ -316,11 +316,13 @@ void main() {
     });
 
     test('multiple violations in one response trigger fallback', () {
+      // Current doctrine (compliance_guard.dart line 294): fallback threshold
+      // is 6+ distinct banned terms. Below that, sanitize in place.
       final result = ComplianceGuard.validate(
-        'Ce rendement garanti est certain et sans risque. '
-        'C\'est la meilleure option possible.',
+        'Ce rendement garanti est certain, assuré et sans risque. '
+        "C'est la meilleure option, optimale et parfaite.",
       );
-      expect(result.violations.length, greaterThan(2));
+      expect(result.violations.length, greaterThan(5));
       expect(result.useFallback, true);
     });
 
@@ -1394,12 +1396,14 @@ void main() {
       // (useFallback = true only when >2 banned terms or prescriptive)
     });
 
-    test('3+ banned terms → forces fallback', () {
+    test('6+ banned terms → forces fallback', () {
+      // Fallback threshold tuned to egregious density (see compliance_guard.dart
+      // line 294). Below 6, sanitize without discarding the response.
       final result = ComplianceGuard.validate(
-        'Un rendement garanti, certain et sans risque.',
+        'Un rendement garanti, certain, assuré, sans risque, optimal, meilleur, parfait.',
       );
       expect(result.useFallback, true);
-      expect(result.violations.length, greaterThanOrEqualTo(3));
+      expect(result.violations.length, greaterThanOrEqualTo(6));
     });
 
     test('empty string returns useFallback=true', () {
