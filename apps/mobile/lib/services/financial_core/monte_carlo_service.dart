@@ -120,12 +120,42 @@ class MonteCarloProjectionService {
       bool simRuined = false;
 
       // ── Tirage aleatoire pour cette simulation ──────────
-      // Sim-level draws (stable over lifetime — reasonable simplification):
-      final inflationRate =
-          _normalRandom(random, mean: 0.012, sd: 0.005).clamp(0.0, 0.05);
+      // Wave 7 actuarial audit P0-M2 (2026-04-18) : l'inflation et
+      // l'indexation AVS sont désormais tirées ANNUELLEMENT, pas une
+      // seule fois par trajectoire. Un draw unique collapsait chaque
+      // path en « inflation basse pour toujours » ou « inflation haute
+      // pour toujours » et comprimait la queue de distribution — cause
+      // dominante du biais de ruin probability.
+      // Source : SNB 2010-2024 μ≈1.0 %, σ≈0.7 %.
+      final inflationPath = List<double>.generate(
+        _projectionYears,
+        (_) => _normalRandom(random, mean: 0.010, sd: 0.007)
+            .clamp(-0.005, 0.05),
+      );
+      // Cumulative deflator : `cpiFactor[y]` = Π(1 + inflation_i) for i ≤ y.
+      // Used everywhere we previously wrote `pow(1 + inflationRate, y)`.
+      final cpiFactor = List<double>.filled(_projectionYears, 1.0);
+      {
+        double acc = 1.0;
+        for (int i = 0; i < _projectionYears; i++) {
+          acc *= (1 + inflationPath[i]);
+          cpiFactor[i] = acc;
+        }
+      }
+      final avsIndexationPath = List<double>.generate(
+        _projectionYears,
+        (_) =>
+            _normalRandom(random, mean: 0.010, sd: 0.005).clamp(0.0, 0.03),
+      );
+      final avsFactor = List<double>.filled(_projectionYears, 1.0);
+      {
+        double acc = 1.0;
+        for (int i = 0; i < _projectionYears; i++) {
+          acc *= (1 + avsIndexationPath[i]);
+          avsFactor[i] = acc;
+        }
+      }
       final lifeExpectancy = 82 + random.nextInt(14); // 82-95
-      final avsIndexation =
-          _normalRandom(random, mean: 0.01, sd: 0.005).clamp(0.0, 0.03);
       // Annual draws for market-sensitive returns (captures sequence-of-returns risk):
       // lppReturn, libreReturn, salaryGrowth are drawn per-year inside loops below.
 
@@ -184,8 +214,13 @@ class MonteCarloProjectionService {
       final maxBuyback = profile.prevoyance.lacuneRachatRestante;
       double cumulBuyback = 0;
       for (int a = profile.age; a < retirementAgeUser && a < 70; a++) {
+        // Wave 7 actuarial audit P0-M1 (2026-04-18) : σ=3 % collapsait
+        // la variance LPP à ~½ de la réalité empirique (Pictet BVG-25
+        // historical σ ≈ 6.5 %, Credit Suisse PK Index ≈ 7.1 % 2000-2024).
+        // Mean revu à 1.5 % pour refléter taux technique 2.0-3.0 net
+        // des frais de gestion (moyenne prevoyance suisse 2020-2024).
         final lppReturnYear =
-            _normalRandom(random, mean: 0.02, sd: 0.03);
+            _normalRandom(random, mean: 0.015, sd: 0.065);
         final salaryGrowthYear =
             _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
         lppBalance *= (1 + lppReturnYear);
@@ -286,8 +321,9 @@ class MonteCarloProjectionService {
         double conjCumulBuyback = 0;
 
         for (int a = conjointAge; a < conjointRetirementAge && a < 70; a++) {
+          // Same Pictet BVG-25 calibration as user path — see P0-M1 note above.
           final lppReturnYear =
-              _normalRandom(random, mean: 0.02, sd: 0.03);
+              _normalRandom(random, mean: 0.015, sd: 0.065);
           final salaryGrowthYear =
               _normalRandom(random, mean: 0.01, sd: 0.015).clamp(-0.02, 0.05);
           conjLppBalance *= (1 + lppReturnYear);
@@ -384,8 +420,13 @@ class MonteCarloProjectionService {
           profile.patrimoine.epargneLiquide;
       final monthlyLibre = profile.totalEpargneLibreMensuel;
       for (int a = profile.age; a < retirementAgeUser; a++) {
+        // Wave 7 actuarial audit P1-M5 (2026-04-18) : σ=8 % sous-estimait
+        // le risque equity pour les users détenant un portefeuille global
+        // balanced (SPI σ ≈ 14-16 %, MSCI World CHF-hedged σ ≈ 12-14 %).
+        // σ=12 % correspond à un 60/40 equity/bonds global — élargit
+        // honnêtement la bande p10-p90 (protection-first, §6).
         final libreReturnYear =
-            _normalRandom(random, mean: 0.04, sd: 0.08);
+            _normalRandom(random, mean: 0.04, sd: 0.12);
         libreBalance *= (1 + libreReturnYear);
         libreBalance += monthlyLibre * 12;
       }
@@ -395,18 +436,23 @@ class MonteCarloProjectionService {
         final currentAge = retirementAgeUser + y;
 
         // Annual market return draw (sequence-of-returns risk)
+        // Wave 7 actuarial audit P1-M5 (2026-04-18) : σ=8 % sous-estimait
+        // le risque equity pour les users détenant un portefeuille global
+        // balanced (SPI σ ≈ 14-16 %, MSCI World CHF-hedged σ ≈ 12-14 %).
+        // σ=12 % correspond à un 60/40 equity/bonds global — élargit
+        // honnêtement la bande p10-p90 (protection-first, §6).
         final libreReturnYear =
-            _normalRandom(random, mean: 0.04, sd: 0.08);
+            _normalRandom(random, mean: 0.04, sd: 0.12);
 
         // FIX-005: AVS indexation starts from the year AVS begins paying,
         // not from year 0. Was over-indexing by 1-5% in early retirement.
         final avsUserThisYear = y >= yearsUntilAvsUser
-            ? avsUserMonthly * pow(1 + avsIndexation, (y - yearsUntilAvsUser).toDouble())
+            ? avsUserMonthly *
+                (avsFactor[y] / avsFactor[yearsUntilAvsUser])
             : 0.0;
         // Conjoint AVS: indexation from year 0 (conjoint already retired)
-        final avsConjointThisYear = hasConjoint
-            ? avsConjointMonthly * pow(1 + avsIndexation, y.toDouble())
-            : 0.0;
+        final avsConjointThisYear =
+            hasConjoint ? avsConjointMonthly * avsFactor[y] : 0.0;
 
         // LPP rente : fixe (pas d'indexation legale en Suisse)
         final lppRenteThisYear = lppMonthly;
@@ -452,8 +498,7 @@ class MonteCarloProjectionService {
         // Ruine : revenu < 50% des depenses indexees, avant 90 ans
         // Bug fix: ne pas compter les simulations ou la personne est decedee
         if (!simRuined && y < yearsTo90 && isAlive) {
-          final inflatedExpense =
-              expenses * pow(1 + inflationRate, y.toDouble());
+          final inflatedExpense = expenses * cpiFactor[y];
           if (totalMonthly < inflatedExpense * 0.5) {
             simRuined = true;
           }
