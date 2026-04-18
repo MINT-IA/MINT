@@ -459,6 +459,83 @@ const List<String> sortedCantonCodes = [
   'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
 ];
 
+/// Fallback canton code utilisé quand l'utilisateur n'a pas encore
+/// renseigné le sien. Exposé pour que les consommateurs puissent
+/// afficher un badge « donnée estimée — canton par défaut » à l'UI
+/// (protection-first : ne pas mentir sur la source).
+const String cantonFallbackDefault = 'ZH';
+
+/// Résultat de [resolveCanton] : le code normalisé et une indication
+/// de sa provenance.
+class ResolvedCanton {
+  final String code;
+  final bool isResolved;
+  final String? rawInput;
+
+  const ResolvedCanton({
+    required this.code,
+    required this.isResolved,
+    this.rawInput,
+  });
+
+  /// `true` quand le canton vient de l'utilisateur et est valide.
+  /// Les consommateurs DOIVENT afficher un disclaimer quand
+  /// `isResolved` est `false` (CLAUDE.md §6 information obligations).
+  bool get isFallback => !isResolved;
+}
+
+/// Normalise un canton et valide contre les 26 cantons suisses.
+///
+/// Wave 7 edge-case audit C1 (2026-04-18) : chaque simulateur
+/// retombait indépendamment sur 'ZH' quand `canton` était null, vide
+/// ou invalide, sans jamais le signaler à l'UI. Un utilisateur VS
+/// voyait silencieusement une fiscalité ZH (rates ZG 0.70 vs VS 0.81
+/// = écart ~15 %, ZH 0.73 = écart ~10 %). Cette version :
+///
+/// 1. Uppercase + trim le code.
+/// 2. Refuse codes vides ou non-listés → retombe sur le fallback.
+/// 3. Exposé la provenance via `ResolvedCanton.isFallback` pour que
+///    l'UI et le coach puissent router vers une enrichment prompt
+///    "quel canton ?" au lieu d'afficher une projection inexacte.
+/// 4. Log un avertissement en debug mode pour faire remonter les
+///    sites d'appel qui devraient toujours avoir un canton valide.
+ResolvedCanton resolveCanton(String? raw) {
+  if (raw == null) {
+    assert(() {
+      // ignore: avoid_print
+      print('[resolveCanton] null canton — falling back to '
+          '$cantonFallbackDefault. Caller should pass profile.canton.');
+      return true;
+    }());
+    return const ResolvedCanton(
+      code: cantonFallbackDefault,
+      isResolved: false,
+    );
+  }
+  final trimmed = raw.trim().toUpperCase();
+  if (trimmed.isEmpty) {
+    return ResolvedCanton(
+      code: cantonFallbackDefault,
+      isResolved: false,
+      rawInput: raw,
+    );
+  }
+  if (!sortedCantonCodes.contains(trimmed)) {
+    assert(() {
+      // ignore: avoid_print
+      print('[resolveCanton] unknown canton "$raw" — falling back to '
+          '$cantonFallbackDefault. Expected one of $sortedCantonCodes.');
+      return true;
+    }());
+    return ResolvedCanton(
+      code: cantonFallbackDefault,
+      isResolved: false,
+      rawInput: raw,
+    );
+  }
+  return ResolvedCanton(code: trimmed, isResolved: true, rawInput: raw);
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // EPL — Encouragement a la propriete du logement
 // Base legale: LPP art. 30c, OPP2 art. 5

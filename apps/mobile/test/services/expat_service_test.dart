@@ -92,13 +92,17 @@ void main() {
       expect(r['effectiveRate'] as double, closeTo(expected, 0.001));
     });
 
-    test('canton inconnu — taux par defaut 13%', () {
+    test('canton inconnu → fallback ZH (cantonFallbackDefault), pas 13 % générique', () {
+      // Wave 7 C1 — `resolveCanton('XX')` retombe sur ZH (documenté
+      // comme fallback), donc on utilise le vrai taux ZH (0.1287)
+      // plutôt que le 0.13 générique.
       final r = ExpatService.calculateSourceTax(
         salary: 10000,
         canton: 'XX',
       );
-
-      expect(r['effectiveRate'] as double, closeTo(0.13, 0.001));
+      final zhRate = ExpatService.sourceTaxRates['ZH']!;
+      expect(r['canton'], 'ZH');
+      expect(r['effectiveRate'] as double, closeTo(zhRate, 0.001));
     });
 
     test('disclaimer toujours present', () {

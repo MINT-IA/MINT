@@ -270,10 +270,15 @@ class ExpatService {
     bool isMarried = false,
     int children = 0,
   }) {
-    final baseRate = sourceTaxRates[canton] ?? 0.13;
+    // Wave 7 edge-case audit P0-E33 : un canton en minuscule ou avec
+    // espace ("ge", "GE ", "Geneva") tombait silencieusement sur le
+    // fallback 13 % au lieu du vrai taux cantonal. resolveCanton()
+    // normalise + valide.
+    final cantonCode = resolveCanton(canton).code;
+    final baseRate = sourceTaxRates[cantonCode] ?? 0.13;
 
     // TI special case: taxed in Italy, not at source in CH
-    if (canton == 'TI') {
+    if (cantonCode == 'TI') {
       return {
         'monthlySalary': salary,
         'canton': canton,
@@ -304,8 +309,8 @@ class ExpatService {
 
     return {
       'monthlySalary': salary,
-      'canton': canton,
-      'cantonNom': cantonNames[canton] ?? canton,
+      'canton': cantonCode,
+      'cantonNom': cantonNames[cantonCode] ?? cantonCode,
       'monthlyTax': monthlyTax,
       'effectiveRate': effectiveRate,
       'annualTax': annualTax,
