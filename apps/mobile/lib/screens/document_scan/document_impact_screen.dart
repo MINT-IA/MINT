@@ -8,6 +8,10 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/screen_return.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
 import 'package:mint_mobile/services/document_service.dart';
+// Wave A-MINIMAL (2026-04-18) A1: persist a durable scan event so the
+// coach can reference "tu as scanné ton certificat CPE mardi" later.
+// Events live in a separate non-FIFO namespace from regular insights.
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
@@ -96,12 +100,115 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
         _premierEclairageLoading = false;
         _premierEclairageFailed = result == null;
       });
+
+      // Wave A-MINIMAL A1: persist a durable scan event so the coach
+      // can reference the scan in later sessions. This fires whether
+      // or not the server returned a non-null premier éclairage —
+      // the SCAN itself happened, which is the memory we want. The
+      // call is fire-and-forget (SharedPreferences write is sync +
+      // fast enough; exceptions already caught inside saveEvent via
+      // the underlying _save).
+      _persistScanEvent();
     } catch (_) {
       if (!mounted) return;
       setState(() {
         _premierEclairageLoading = false;
         _premierEclairageFailed = true;
       });
+      // Even when the premier éclairage fetch fails (network, timeout,
+      // backend 5xx), the user DID scan a document. Record the event
+      // so J+30 dedup works and the coach can still reference "tu as
+      // scanné ton certificat" independently of the narrative layer.
+      _persistScanEvent();
+    }
+  }
+
+  /// Persist a scan event in [CoachMemoryService] — Wave A-MINIMAL A1.
+  ///
+  /// Topic is derived from [DocumentType]. Summary is best-effort:
+  /// pulls caisse + avoir from extracted fields when present, falls
+  /// back gracefully when fields are missing. The event lives in the
+  /// non-pruned events namespace so it survives `fact`-heavy coaching
+  /// bursts (panel adversaire 2026-04-18 B5).
+  void _persistScanEvent() {
+    try {
+      final topic = _scanTopicForType(widget.result.documentType);
+      final summary = _scanSummary();
+      CoachMemoryService.saveEvent(topic, summary).catchError((e) {
+        debugPrint('[document_impact] saveEvent failed: $e');
+      });
+    } catch (e, st) {
+      // Never let memory persistence break the scan UX.
+      debugPrint('[document_impact] _persistScanEvent threw: $e\n$st');
+    }
+  }
+
+  String _scanTopicForType(DocumentType type) {
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return 'scan_lpp';
+      case DocumentType.threeAAttestation:
+        return 'scan_3a';
+      case DocumentType.taxDeclaration:
+        return 'scan_tax';
+      case DocumentType.avsExtract:
+        return 'scan_avs';
+      case DocumentType.mortgageAttestation:
+        return 'scan_mortgage';
+      case DocumentType.salaryCertificate:
+        return 'scan_salary';
+    }
+  }
+
+  String _scanSummary() {
+    final type = widget.result.documentType;
+    String? caisse;
+    String? avoir;
+
+    // Pull common LPP / 3a fields without hardcoding locale strings.
+    for (final f in widget.result.fields) {
+      final name = f.fieldName.toLowerCase();
+      final value = f.value?.toString().trim();
+      if (value == null || value.isEmpty) continue;
+      if (caisse == null &&
+          (name.contains('caisse') || name.contains('institution') ||
+           name.contains('pension') || name.contains('fund'))) {
+        caisse = value;
+      }
+      if (avoir == null &&
+          (name.contains('avoir') || name.contains('balance') ||
+           name.contains('capital') || name.contains('total'))) {
+        avoir = value;
+      }
+    }
+
+    final typeLabel = _scanTypeLabel(type);
+    if (caisse != null && avoir != null) {
+      return '$typeLabel $caisse — $avoir';
+    }
+    if (caisse != null) {
+      return '$typeLabel $caisse';
+    }
+    if (avoir != null) {
+      return '$typeLabel — $avoir';
+    }
+    return typeLabel;
+  }
+
+  String _scanTypeLabel(DocumentType type) {
+    switch (type) {
+      case DocumentType.lppCertificate:
+        return 'Certificat LPP scanné';
+      case DocumentType.threeAAttestation:
+        return 'Attestation 3a scannée';
+      case DocumentType.taxDeclaration:
+        return 'Déclaration fiscale scannée';
+      case DocumentType.avsExtract:
+        return 'Extrait AVS scanné';
+      case DocumentType.mortgageAttestation:
+        return 'Attestation hypothèque scannée';
+      case DocumentType.salaryCertificate:
+        return 'Certificat de salaire scanné';
     }
   }
 

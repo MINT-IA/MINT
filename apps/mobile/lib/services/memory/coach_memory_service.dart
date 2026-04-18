@@ -42,6 +42,16 @@ class CoachMemoryService {
   /// authenticated). See [_keyFor].
   static const _baseKey = '_coach_insights';
 
+  /// Base SharedPreferences key for [InsightType.event] records. Events
+  /// live in a separate namespace from `_baseKey` because they are
+  /// durable anchors (scan LPP, life event, major financial action)
+  /// that must survive the 50-insight FIFO pruning applied to `fact`
+  /// insights. Per panel adversaire 2026-04-18 B5: with the coach's
+  /// system prompt ordering `save_insight` "on every key fact", 50 is
+  /// exhausted within a week of active coaching and scan anchors get
+  /// silently evicted. Events get their own non-pruned list.
+  static const _eventsBaseKey = '_coach_events';
+
   /// Compute the per-user storage key. Falls back to an anonymous
   /// namespace if no JWT user_id is available — that data NEVER
   /// crosses into an authenticated account.
@@ -57,9 +67,24 @@ class CoachMemoryService {
     return '${_baseKey}___anon';
   }
 
+  /// Compute the per-user events storage key. Same account-isolation
+  /// contract as [_keyFor] but for the non-pruned event namespace.
+  static Future<String> _eventsKeyFor() async {
+    try {
+      final uid = await AuthService.getUserId();
+      if (uid != null && uid.isNotEmpty) {
+        return '${_eventsBaseKey}_$uid';
+      }
+    } catch (e) {
+      debugPrint('[CoachMemory] auth lookup failed, anon events namespace: $e');
+    }
+    return '${_eventsBaseKey}___anon';
+  }
+
   // Backwards compat alias (used internally; resolves at call time).
   // The constant name is preserved so call sites remain readable.
   static Future<String> get _key => _keyFor();
+  static Future<String> get _eventsKey => _eventsKeyFor();
 
   /// Maximum number of insights to retain (FIFO pruning).
   static const _maxInsights = 50;
@@ -173,6 +198,92 @@ class CoachMemoryService {
         .toList();
   }
 
+  // ── Events (non-pruned durable anchors) ────────────────
+  // Wave A-MINIMAL 2026-04-18. Events are stored in a separate
+  // namespace from regular `fact`/`goal`/etc insights so they survive
+  // the 50-insight FIFO pruning. Examples: scan LPP, life event,
+  // major financial action. Events are local-only (NOT synced to
+  // backend RAG) for v1 — panel archi AJ-2 2026-04-18 — because the
+  // coach_tools enum + tests have been widened but backend extractor
+  // and embedder have not been reviewed for `event` fidelity.
+  // ──────────────────────────────────────────────────────
+
+  /// Persist a durable event anchor. Dedup by (topic + date-day):
+  /// calling saveEvent twice for the same topic on the same calendar
+  /// day replaces the previous entry instead of creating a duplicate.
+  static Future<void> saveEvent(
+    String topic,
+    String summary, {
+    DateTime? date,
+    Map<String, dynamic>? metadata,
+    SharedPreferences? prefs,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    final events = await _loadEvents(sp);
+    final now = (date ?? DateTime.now()).toUtc();
+
+    // Dedup: replace any existing entry with same topic on same day.
+    final dayKey = DateTime(now.year, now.month, now.day);
+    events.removeWhere((e) {
+      final eDay = DateTime(
+        e.createdAt.toUtc().year,
+        e.createdAt.toUtc().month,
+        e.createdAt.toUtc().day,
+      );
+      return e.topic == topic && eDay == dayKey;
+    });
+
+    final entry = CoachInsight(
+      id: 'event_${topic}_${now.toIso8601String()}',
+      createdAt: now,
+      topic: topic,
+      summary: summary,
+      type: InsightType.event,
+      metadata: metadata,
+    );
+    events.insert(0, entry);
+    await _saveEvents(sp, events);
+  }
+
+  /// Return true iff an event with [topic] exists AND was created
+  /// within the last [maxAgeDays]. Used by retention schedulers
+  /// (e.g. J+30 re-scan dedup: skip if scan was done within 365 days).
+  static Future<bool> hasEvent(
+    String topic, {
+    int maxAgeDays = 365,
+    SharedPreferences? prefs,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    final events = await _loadEvents(sp);
+    final threshold = DateTime.now().toUtc().subtract(Duration(days: maxAgeDays));
+    return events.any((e) => e.topic == topic && e.createdAt.toUtc().isAfter(threshold));
+  }
+
+  /// Return all events (most recent first). Non-pruned list — may grow
+  /// unbounded over a long-lived account. In practice events are rare
+  /// (scans, life events) so linear growth stays low.
+  static Future<List<CoachInsight>> getEvents({
+    SharedPreferences? prefs,
+  }) async {
+    final sp = prefs ?? await SharedPreferences.getInstance();
+    return _loadEvents(sp);
+  }
+
+  static Future<List<CoachInsight>> _loadEvents(SharedPreferences sp) async {
+    final k = await _eventsKey;
+    final raw = sp.getString(k);
+    if (raw == null) return [];
+    return CoachInsight.decodeList(raw);
+  }
+
+  static Future<void> _saveEvents(
+    SharedPreferences sp,
+    List<CoachInsight> events,
+  ) async {
+    final k = await _eventsKey;
+    await sp.setString(k, CoachInsight.encodeList(events));
+  }
+
   // ── Maintenance ──────────────────────────────────────────
 
   /// Prune old insights — keeps the [_maxInsights] most recent.
@@ -199,6 +310,8 @@ class CoachMemoryService {
   /// Clear all stored insights.
   ///
   /// Used for testing, account reset, or GDPR deletion.
+  /// Wave A-MINIMAL 2026-04-18: also clears the events namespace so
+  /// logout/reset wipes durable anchors alongside regular insights.
   static Future<void> clear({SharedPreferences? prefs}) async {
     final sp = prefs ?? await SharedPreferences.getInstance();
     final k = await _key;
@@ -206,6 +319,10 @@ class CoachMemoryService {
     // Also clear the anonymous namespace so logging out of one account
     // and into another can't surface stale anon-era insights.
     await sp.remove('${_baseKey}___anon');
+    // Events namespace (non-pruned durable anchors).
+    final ek = await _eventsKey;
+    await sp.remove(ek);
+    await sp.remove('${_eventsBaseKey}___anon');
   }
 
   // ── Private helpers ─────────────────────────────────────
