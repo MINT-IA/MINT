@@ -118,24 +118,37 @@ class _CapBannerCard extends StatelessWidget {
     switch (cap.ctaMode) {
       case CtaMode.route:
         final route = cap.ctaRoute;
-        if (route != null && route.isNotEmpty) {
+        if (route == null || route.isEmpty) return;
+        // Tab-root routes (Coach, Mon argent, Aujourd'hui, Explorer)
+        // MUST use `go` so the StatefulShellRoute switches branch.
+        // `push` would stack the screen on the current tab and break
+        // the shell invariant (cf. Wave 1 RSoD fix, MEMORY.md
+        // "12 context.push('/coach/chat') → .go()"). For simulator /
+        // leaf routes (`/rachat-lpp`, `/rente-vs-capital`, etc.) push
+        // remains the right call.
+        if (_isTabRootRoute(route)) {
+          context.go(route);
+        } else {
           context.push(route);
         }
       case CtaMode.coach:
-        // Inject coach prompt when the cap's CTA is conversational.
-        // Deep-link to coach chat with the prompt as query param — the
-        // coach screen consumes the `topic` param to seed the opener.
         final prompt = cap.coachPrompt ?? '';
-        if (prompt.isNotEmpty) {
-          context.push('/coach/chat?topic=${Uri.encodeComponent(prompt)}');
-        } else {
-          context.push('/coach/chat');
-        }
+        final target = prompt.isNotEmpty
+            ? '/coach/chat?topic=${Uri.encodeComponent(prompt)}'
+            : '/coach/chat';
+        context.go(target);
       case CtaMode.capture:
-        // Capture caps route to the document scan flow; the specific
-        // captureType is tracked by the CapEngine memory for follow-up.
+        // /scan is a full screen outside the shell — push is correct.
         context.push('/scan');
     }
+  }
+
+  bool _isTabRootRoute(String route) {
+    final path = route.split('?').first;
+    return path == '/coach/chat' ||
+        path == '/home' ||
+        path == '/explore' ||
+        path == '/argent';
   }
 }
 
@@ -146,38 +159,71 @@ class _CapBannerFallback extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => context.push('/coach/chat'),
-        child: Ink(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: MintColors.craie.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Parle-moi de toi',
-                style: GoogleFonts.montserrat(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: MintColors.textPrimary,
-                ),
+      // Semantics(button: true) so screen readers announce a tappable
+      // surface; GestureDetector instead of InkWell so the tap fires
+      // without needing a Material ancestor (AujourdhuiScreen uses a
+      // Scaffold but when embedded in the empty-state Column the ink
+      // feedback was suppressed and users perceived the card as inert).
+      child: Semantics(
+        container: true,
+        button: true,
+        label: 'Parle-moi de toi, ouvre le coach',
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => context.go('/coach/chat'),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: MintColors.craie.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: MintColors.success.withValues(alpha: 0.18),
+                width: 1,
               ),
-              const SizedBox(height: 6),
-              Text(
-                'Dis-moi quelques mots sur ta situation, et je te montrerai '
-                'ce qui mérite ton attention aujourd’hui.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: MintColors.textSecondary,
-                  height: 1.4,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Parle-moi de toi',
+                  style: GoogleFonts.montserrat(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: MintColors.textPrimary,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 6),
+                Text(
+                  'Dis-moi quelques mots sur ta situation, et je te montrerai '
+                  'ce qui mérite ton attention aujourd’hui.',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    color: MintColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Text(
+                      'Ouvrir le coach',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: MintColors.success,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: MintColors.success,
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
