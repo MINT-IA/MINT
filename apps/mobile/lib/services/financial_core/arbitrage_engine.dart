@@ -386,25 +386,33 @@ class ArbitrageEngine {
     final capitalTotalValue = capitalCumulativeWithdrawals + capitalResidual;
 
     final delta = (capitalTotalValue - renteTotalValue).abs();
-    final betterOption =
-        capitalTotalValue > renteTotalValue ? 'capital' : 'rente';
 
     // Income gap: what you actually receive to live on
     final incomeGap = (renteTotalValue - capitalCumulativeWithdrawals).abs();
     final moreIncome =
         renteTotalValue > capitalCumulativeWithdrawals ? 'rente' : 'capital';
 
+    // CLAUDE.md §6.4 No-Ranking: describe the trade-off neutrally, never
+    // name a "meilleur" option. Each side states its concrete consequence
+    // so the user can weigh them against personal constraints.
     String premierEclairage;
     if (capitalResidual > 10000 && moreIncome == 'rente') {
-      // Typical case: rente gives more income, but capital preserves wealth
+      // Typical case: rente gives more income, capital preserves transmissible wealth.
       premierEclairage =
           'La rente te verse ~${chf.formatChfWithPrefix(incomeGap)} de revenu net '
-          'de plus sur $horizon ans. Mais avec le capital, tu conserves '
+          'de plus sur $horizon ans. Avec le capital, tu conserves '
           '~${chf.formatChfWithPrefix(capitalResidual)} de patrimoine transmissible.';
+    } else if (capitalResidual > 10000) {
+      // Capital yields more cumulative income AND keeps a residual stock.
+      premierEclairage =
+          'Sur $horizon ans, le capital retiré génère ~${chf.formatChfWithPrefix(delta)} '
+          'de valeur économique de plus et laisse ~${chf.formatChfWithPrefix(capitalResidual)} '
+          'de patrimoine résiduel. La rente, elle, reste versée à vie.';
     } else {
       premierEclairage =
-          'Sur $horizon ans, l\'option $betterOption genere '
-          '~${chf.formatChfWithPrefix(delta)} de valeur economique nette supplementaire.';
+          'Sur $horizon ans, l\'écart de valeur économique totale entre rente et capital '
+          'est d\'environ ${chf.formatChfWithPrefix(delta)}. À toi de peser revenu garanti à vie '
+          'contre liquidité.';
     }
 
     final displaySummary = breakevenYear != null
@@ -1014,11 +1022,12 @@ class ArbitrageEngine {
     final breakevenYear = _findBreakevenYear(rentSnapshots, buySnapshots);
 
     final delta = (optionA.terminalValue - optionB.terminalValue).abs();
-    final betterLabel =
-        optionA.terminalValue > optionB.terminalValue ? 'louer' : 'acheter';
-    final premierEclairage = 'Dans ce scenario simule, $betterLabel genere '
-        '~${chf.formatChfWithPrefix(delta)} de patrimoine net supplementaire sur '
-        '$horizonAnnees ans.';
+    // CLAUDE.md §6.4 No-Ranking: each option's terminal value is stated
+    // separately so the user weighs liquidité vs propriété explicitly.
+    final premierEclairage =
+        'Sur $horizonAnnees ans : louer laisse ${chf.formatChfWithPrefix(optionA.terminalValue)} '
+        'de patrimoine net, acheter laisse ${chf.formatChfWithPrefix(optionB.terminalValue)}. '
+        'Écart ~${chf.formatChfWithPrefix(delta)} — à peser contre flexibilité et frais.';
 
     // FINMA affordability check
     final alertes = <String>[];

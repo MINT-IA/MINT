@@ -582,14 +582,14 @@ class FinancialReportService {
       return ActionItem(
         title: l?.reportActionTitleDette ?? 'Rembourse tes dettes de consommation',
         description: l?.reportActionDescDette ??
-            'C\'est le placement le plus rentable : tu économises 6-10% par an sur les intérêts.',
+            'Chaque CHF remboursé te fait économiser l\'équivalent du taux d\'intérêt de la dette (souvent 6-10 % par an).',
         priority: ActionPriority.critical,
         potentialGainChf: 2000,
         category: ActionCategory.protection,
         steps: [
-          '1. Liste toutes tes dettes (Montant, Taux)',
+          '1. Liste toutes tes dettes (montant, taux)',
           '2. Attaque celle avec le plus haut taux',
-          '3. Arrête tout nouvel investissement',
+          '3. Arrête tout nouvel investissement tant qu\'il reste une dette > 5 % d\'intérêt',
         ],
       );
     }
@@ -601,8 +601,8 @@ class FinancialReportService {
         priority: ActionPriority.critical,
         category: ActionCategory.protection,
         steps: [
-          '1. Ouvre un compte épargne gratuit (ex: Zak, Neon)',
-          '2. Mets en place un virement auto (ex 10% salaire)',
+          '1. Ouvre un compte épargne sans frais dans ta banque',
+          '2. Mets en place un virement automatique (≈ 10 % du salaire)',
           '3. Ne touche pas à cet argent sauf urgence',
         ],
       );
