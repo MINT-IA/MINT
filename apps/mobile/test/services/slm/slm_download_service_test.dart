@@ -135,6 +135,12 @@ void main() {
 
     test('15. canAttemptDownload honors gated URL auth requirement', () {
       final service = SlmDownloadService.instance;
+      // SLM may be disabled in the current build (slm_download_service.dart:112).
+      // When disabled, canAttemptDownload is always false regardless of auth.
+      if (service.prerequisiteWarning == 'slm_disabled_in_build') {
+        expect(service.canAttemptDownload, isFalse);
+        return;
+      }
       if (service.requiresAuthForCurrentUrl) {
         expect(service.canAttemptDownload, equals(service.hasAuthToken));
       } else {
@@ -149,7 +155,8 @@ void main() {
       } else {
         final warning = service.prerequisiteWarning;
         expect(warning, isNotNull);
-        expect(warning, equals('slm_auth_missing'));
+        // Either disabled in build (feature flag) or auth missing.
+        expect(warning, anyOf('slm_auth_missing', 'slm_disabled_in_build'));
       }
     });
   });
