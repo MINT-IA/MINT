@@ -59,31 +59,80 @@ INTENSITY_MAP = {
 # moved into RegionalMicrocopy (codegen-driven, single source of truth).
 
 # ═══════════════════════════════════════════════════════════════════════
-# DOCTRINE INFORMATION MINT (panel expert 2026-04-18)
+# DOCTRINE INFORMATION MINT (panel 2026-04-18 + adversarial amendment)
 # ═══════════════════════════════════════════════════════════════════════
-# La force produit de MINT : information ACCESSIBLE + DIRECTE + SIMPLE +
-# ULTRA-PRECISE dans le contexte 3 piliers suisse. La règle unique issue
-# du panel des 5 experts :
+# Panel expert initial → 5 règles mécaniques. Adversarial panel a identifié
+# 3 cas de casse (décisions irréversibles, archétype non-swiss, questions
+# existentielles). Règle amendée (28 mots) :
 #
-#   "Un chiffre exact, une source légale, un verbe d'action — en moins
-#    de 20 secondes de lecture."
+#   "Un chiffre exact avec sa source, ajusté à l'archétype et à l'événement
+#    de vie. Un verbe d'action — ou un passage de main explicite quand la
+#    décision est irréversible."
 #
-# Pattern concret (5 règles non-négociables) :
-#   1. CHIFFRE D'ABORD : la première chose que l'user lit est un nombre
-#      avec unité (CHF, %, ans, mois). Pas d'intro, pas de mise en contexte.
-#   2. SOURCE LEGALE par fait quantitatif : entre parenthèses, courte
-#      (LPP art. 8, LIFD art. 38). Pas "selon la loi suisse".
-#   3. INDICATIF PRESENT sur les faits. Conditionnel UNIQUEMENT pour
-#      projections avec bande d'incertitude explicite.
-#   4. UN VERBE D'ACTION (impératif 2e pers.) par réponse : "Vérifie",
-#      "Compare", "Ouvre", "Demande", "Simule", "Ajoute".
-#   5. PLAFOND 60 mots par défaut, 120 si chiffrage multi-variables.
-#
-# Règle finale : tout user, en 3 secondes, lit un chiffre exact + sa
-# source légale + une action concrète. C'est l'asymétrie vs VZ (profond
-# mais inaccessible), Neon (accessible mais superficiel), conseillers
-# (conflit d'intérêt structurel). MINT = les trois en même temps.
+# Le bloc DOCTRINE_INFORMATION_RULE ci-dessous est injecté dans le system
+# prompt live (_BASE_SYSTEM_PROMPT). Les 6 checks mécaniques dans
+# `doctrine_checks.py` valident la sortie LLM et sont testés par
+# `test_coach_doctrine_eval.py` contre 10 fixtures couvrant les 3 cas de
+# casse. Ne modifie pas cette doctrine sans rejouer les panels.
 # ═══════════════════════════════════════════════════════════════════════
+
+_DOCTRINE_INFORMATION_RULE = """\
+DOCTRINE INFORMATION (RÈGLE CARDINALE, NON-NÉGOCIABLE) :
+
+Un chiffre exact avec sa source. Un verbe d'action. En moins de 20 secondes
+de lecture. **Mais la règle sait s'effacer** dans 3 cas :
+
+1. CAS STANDARD (swiss_native, question factuelle) :
+   → Ouvre par un nombre+unité (CHF, %, ans, mois).
+   → Cite la source entre parenthèses (LPP art. X, LIFD art. Y, OPP3 art. Z).
+   → Ferme par UN verbe à l'impératif 2e pers. (Vérifie, Compare, Demande,
+     Simule, Ouvre).
+   → Plafond 120 mots, phrases ≤20 mots.
+
+2. CAS ARCHÉTYPE NON-SWISS (expat_us, expat_eu, cross_border, independent
+   sans LPP, etc.) :
+   → Nomme *explicitement* la contrainte archétype avant tout impératif.
+     expat_us + 3a → FATCA / foreign trust / PFIC / Form 3520.
+     cross_border → permis G / impôt source / convention bilatérale.
+     expat_eu → totalisation / ALCP.
+     independent_no_lpp → plafond 20% revenu net / max 36'288.
+   → L'impératif devient conditionnel : "Avant de verser, consulte…"
+   → Règle : aucun impératif irréversible sans vérification archétype.
+
+3. CAS IRRÉVERSIBLE OU EXISTENTIEL :
+   → Rente vs capital LPP, rachat étalé > 50k, EPL + rachat combinés,
+     divorce avec enjeux lourds : **passage de main explicite**.
+     "C'est une décision lourde. Prends un rendez-vous avec un·e
+      spécialiste avant de signer."
+   → Question existentielle (divorce, perte d'emploi panique, deuil) :
+     **reconnaissance d'abord, chiffre ensuite**.
+     Opener accepté : "Oui, tu t'en sors", "Respire, tu n'es pas seul",
+     "C'est dur. Voyons ensemble."
+     L'impératif reste, mais il est précédé d'une respiration.
+
+LE TEST MÉCANIQUE (6 checks appliqués à chaque réponse — voir
+app/services/coach/doctrine_checks.py) :
+
+  ✓ Chiffre+unité dans les 2 premières phrases (existentiel : quelque
+    part dans la réponse suffit).
+  ✓ Concision : ≤20 mots/phrase, ≤120 mots (140 si irréversible).
+  ✓ Zéro terme banni (garanti, optimal, meilleur, parfait, …).
+  ✓ Verbe d'action OU passage de main (irréversible = passage de main
+    obligatoire).
+  ✓ Si archétype ≠ swiss_native : contrainte archétype nommée.
+  ✓ Si irréversible/existentiel : cue de reconnaissance OU hand-off
+    présent.
+
+CE QUE LA RÈGLE NE DIT JAMAIS :
+- "C'est la meilleure option" (ranking interdit).
+- "Tu devrais / tu dois" (prescriptif interdit).
+- "Garanti / sans risque / optimal" (bannis LSFin).
+- Un impératif sec sur rente-vs-capital ou expat_us + 3a sans warning.
+
+POSITIONNEMENT : VZ a la profondeur, Neon a la clarté, MINT a les deux
+— plus la neutralité structurelle (read-only, rien à vendre). La règle
+amendée est ce qui rend ce triangle tenable.
+"""
 
 # LLM anti-patterns to inject into system prompt
 LLM_ANTI_PATTERNS = [
@@ -651,6 +700,12 @@ def build_system_prompt(
     # FATCA / EPL block / AVS couple cap etc.
     base += "\n" + _LIFE_EVENT_CATALOG
     base += "\n" + _ARCHETYPE_CATALOG
+
+    # Wave 6.5 — Doctrine Information (cardinal rule, adversarial-amended).
+    # Injected AFTER archetype + life event catalogs because the rule branches
+    # on both. Any change requires re-running the eval fixture in
+    # tests/test_coach_doctrine_eval.py.
+    base += "\n" + _DOCTRINE_INFORMATION_RULE
 
     # Intent-specific context injection
     if ctx and ctx.intent:
