@@ -995,13 +995,26 @@ def _coerce_fact_value(key: str, value):
             if isinstance(value, bool):  # bool is a subclass of int in Python
                 return None
             if isinstance(value, (int, float)):
-                return float(value)
-            if isinstance(value, str):
+                coerced = float(value)
+            elif isinstance(value, str):
                 cleaned = value.replace("'", "").replace(" ", "").replace(",", ".")
-                return float(cleaned)
+                coerced = float(cleaned)
+            else:
+                return None
         except (TypeError, ValueError):
             return None
-        return None
+        # B6-minimal (2026-04-18): range checks for birth-year-like keys.
+        # Panel adversaire BUG 4 & panel archi A3: without an upstream
+        # range check, Claude could persist `birthYear=2099` and the mobile
+        # `profile.age` clamp silently returned 0 for every downstream
+        # calculator. Reject impossible values here so the LLM asks again.
+        current_year = datetime.now().year
+        if key in {"birthYear", "spouseBirthYear"}:
+            # Accept newborns (currentYear+1 tolerates local-timezone edge)
+            # down to 1900 (no living user pre-1900 for our purposes).
+            if coerced < 1900 or coerced > current_year + 1:
+                return None
+        return coerced
     if key in _SAVE_FACT_BOOL_KEYS:
         if isinstance(value, bool):
             return value
