@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+
+/// Read the SafeMode flag from [CoachProfileProvider] with graceful fallback.
+///
+/// Returns `false` when the provider isn't in the widget tree (unit widget
+/// tests pump isolated screens without the full shell). Production paths
+/// always have the provider injected via the top-level ChangeNotifierProvider
+/// so the flag is read correctly.
+bool lookupSafeModeFlag(BuildContext context) {
+  try {
+    return context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ??
+        false;
+  } on ProviderNotFoundException {
+    return false;
+  }
+}
 
 class SafeModeGate extends StatelessWidget {
   final bool hasDebt;

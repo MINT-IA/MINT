@@ -261,7 +261,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
 
                 // 3–6. Result sections — gated in SafeMode (debt crisis)
                 SafeModeGate(
-                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  hasDebt: lookupSafeModeFlag(context),
                   child: Column(
                     children: [
                       // 3. Premier Éclairage

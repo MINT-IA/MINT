@@ -213,7 +213,7 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
               delegate: SliverChildListDelegate([
                 // Sequencing block — gated in SafeMode (debt crisis)
                 SafeModeGate(
-                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  hasDebt: lookupSafeModeFlag(context),
                   child: Column(
                     children: [
                       // Chiffre choc

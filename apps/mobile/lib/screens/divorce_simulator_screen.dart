@@ -80,7 +80,7 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
     super.didChangeDependencies();
     if (!_prefilled) {
       _prefilled = true;
-      final profile = context.read<CoachProfileProvider>().profile;
+      final profile = context.coachProfileOrNull;
       if (profile != null) {
         final gross = profile.salaireBrutMensuel * 12;
         if (gross > 0) _incomeConjoint1 = gross;

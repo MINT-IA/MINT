@@ -140,7 +140,7 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 // LP result — gated in SafeMode (debt crisis).
                 // LP art. 5 escape note shown via reasons param (RULES.md §6).
                 SafeModeGate(
-                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  hasDebt: lookupSafeModeFlag(context),
                   reasons: [S.of(context)!.safeModeFormalDesendettementNote],
                   child: Column(
                     children: [

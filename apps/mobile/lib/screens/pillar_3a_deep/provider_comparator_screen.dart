@@ -113,7 +113,7 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
 
                 // Provider cards — gated in SafeMode (debt crisis)
                 SafeModeGate(
-                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  hasDebt: lookupSafeModeFlag(context),
                   child: Column(
                     children: [
                       _buildProviderCards(result, l),

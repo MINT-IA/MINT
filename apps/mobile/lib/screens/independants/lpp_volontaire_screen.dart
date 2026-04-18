@@ -76,7 +76,7 @@ class _LppVolontaireScreenState extends State<LppVolontaireScreen> {
                 if (_result != null) ...[
                   // Contribution planning — gated in SafeMode (debt crisis)
                   SafeModeGate(
-                    hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                    hasDebt: lookupSafeModeFlag(context),
                     child: Column(
                       children: [
                         MintEntrance(child: _buildPremierEclairage()),

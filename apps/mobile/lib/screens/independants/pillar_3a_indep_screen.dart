@@ -77,7 +77,7 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                 if (_result != null) ...[
                   // Plafond/strategy section — gated in SafeMode (debt crisis)
                   SafeModeGate(
-                    hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                    hasDebt: lookupSafeModeFlag(context),
                     child: Column(
                       children: [
                         MintEntrance(child: _buildPremierEclairage()),

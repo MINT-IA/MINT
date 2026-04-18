@@ -78,7 +78,7 @@ class _NaissanceScreenState extends State<NaissanceScreen>
     super.didChangeDependencies();
     if (!_prefilled) {
       _prefilled = true;
-      final profile = context.read<CoachProfileProvider>().profile;
+      final profile = context.coachProfileOrNull;
       if (profile != null) {
         if (profile.salaireBrutMensuel > 0) {
           _salaireMensuel = profile.salaireBrutMensuel;

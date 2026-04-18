@@ -351,7 +351,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: MintSpacing.md),
                 // Rachat table — gated in SafeMode (debt crisis)
                 SafeModeGate(
-                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  hasDebt: lookupSafeModeFlag(context),
                   child: Column(
                     children: [
                       MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
