@@ -9,7 +9,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -299,14 +299,40 @@ class NotificationService {
     final hasConsent = await ConsentManager.isConsentGiven(
       ConsentType.notifications,
     );
-    if (!hasConsent) return;
+    if (!hasConsent) {
+      debugPrint('[NotificationService] scheduleCoachingReminders skipped: no consent');
+      return;
+    }
+
+    // Wave A-MINIMAL A2 (2026-04-18): triad gate — do not schedule
+    // anything until the user has provided the three critical facts
+    // that the deadline / checkin copy depends on. Firing generic
+    // reminders on an empty profile was the "greet-and-bounce" trap
+    // flagged by panel adversaire 2026-04-18 (a user who types "Salut"
+    // and leaves would otherwise receive Monday reminders for life).
+    if (profile.birthYear < 1900 ||
+        profile.canton.isEmpty ||
+        profile.salaireBrutMensuel <= 0) {
+      debugPrint(
+        '[NotificationService] scheduleCoachingReminders skipped: '
+        'incomplete triad (birthYear=${profile.birthYear}, '
+        'canton="${profile.canton}", '
+        'salaireBrutMensuel=${profile.salaireBrutMensuel})',
+      );
+      return;
+    }
 
     // Request permission if not already granted (deferred, not at startup).
     // This is the right place because scheduleCoachingReminders is only
     // called after a check-in, not during app init.
     await requestPermission();
 
-    await cancelAll();
+    // Wave A-MINIMAL A2: scope cancel to the IDs owned by this
+    // coaching-reminder subsystem (panel archi AJ-1 2026-04-18).
+    // The prior `cancelAll()` call wiped notifications owned by other
+    // subsystems (commitments, fresh-starts) whenever a new profile
+    // landed — a side effect never documented, never tested.
+    await _cancelCoachingIds();
 
     final now = tz.TZDateTime.now(tz.local);
 
@@ -321,11 +347,14 @@ class NotificationService {
     // 3. Tax deadline reminders: Feb 15, Mar 15, Mar 25
     _scheduleTaxDeadlines(now, s);
 
-    // 4. Streak protection: 25th of each month if no check-in this month
-    _scheduleStreakProtection(profile, now, s);
-
-    // 5. Weekly recap: Monday 10:00 — "Ton récap de la semaine est prêt"
-    _scheduleWeeklyRecap(now, s);
+    // Wave A-MINIMAL A2 (2026-04-18): retention notifs (J+1/J+7/J+30),
+    // streak protection, and weekly recap are NOT scheduled here. They
+    // belong to Duolingo-style re-engagement loops that ADR-20260419
+    // killed for doctrine-lucidite reasons (same registre as
+    // MilestoneCelebrationSheet and StreakService visibility, already
+    // tuées). The services remain in the codebase and can be wired by
+    // a future Wave if signal justifies — panel iconoclaste 2026-04-18
+    // recommended observing 14 days before adding them back.
 
     // FIX-W11: Persist critical deadline dates for recovery on app resume
     final prefs = await SharedPreferences.getInstance();
@@ -333,6 +362,37 @@ class NotificationService {
       '3a_deadline': DateTime(DateTime.now().year, 12, 31).toIso8601String(),
       'last_scheduled': DateTime.now().toIso8601String(),
     }));
+  }
+
+  /// Cancel every notification ID owned by `scheduleCoachingReminders`.
+  ///
+  /// Wave A-MINIMAL A2 (2026-04-18) replaces the prior blanket
+  /// `cancelAll()` which wiped notifications scheduled by OTHER
+  /// subsystems (commitments, fresh-starts, retention) — a silent
+  /// anti-pattern flagged by panel archi AJ-1.
+  ///
+  /// IDs cancelled here must match every `_scheduleX` helper called
+  /// from [scheduleCoachingReminders]. If you add a new scheduler
+  /// helper, add its ID here too (or the old copy persists after a
+  /// re-schedule).
+  Future<void> _cancelCoachingIds() async {
+    if (_plugin == null) return;
+    // Single-shot / single-slot IDs.
+    await _plugin!.cancel(_idCheckinMonthly);
+    await _plugin!.cancel(_idCheckinReminder5d);
+    // 3a deadlines: base + up to 4 offsets (Oct 1, Nov 15, Dec 15, Dec 28).
+    for (var i = 0; i < 4; i++) {
+      await _plugin!.cancel(_id3aDeadlineBase + i);
+    }
+    // Tax deadlines: base + up to 3 offsets (Feb 15, Mar 15, Mar 25).
+    for (var i = 0; i < 3; i++) {
+      await _plugin!.cancel(_idTaxDeadlineBase + i);
+    }
+    // _idStreakProtection (2000) and retention IDs (9001/9007/9030) are
+    // NOT cancelled here — Wave A-MINIMAL stopped scheduling them, so
+    // cancelling would only be relevant for pre-Wave-A installs that
+    // had them queued. Those will expire naturally when their
+    // scheduled dates pass.
   }
 
   /// Schedule a 5-day reminder if the user hasn't checked in yet this month.
@@ -378,6 +438,13 @@ class NotificationService {
   }
 
   /// Weekly recap notification: fires every Monday at 10:00.
+  /// Weekly recap notification: fires every Monday at 10:00.
+  ///
+  /// Wave A-MINIMAL 2026-04-18: temporarily unreferenced — the call site
+  /// in [scheduleCoachingReminders] was removed because Wave C will
+  /// deliver the recap content (event plumbing scan→coach). Kept so a
+  /// future Wave can re-wire without re-implementing the scheduler.
+  // ignore: unused_element
   void _scheduleWeeklyRecap(tz.TZDateTime now, NotificationStrings s) {
     // FIX-W11: Correct Monday calculation — always schedule for NEXT Monday
     var daysUntilMonday = (DateTime.monday - now.weekday) % 7;
@@ -540,7 +607,12 @@ class NotificationService {
     }
   }
 
-  /// Streak protection: 25th of each month if no check-in this month
+  /// Streak protection: 25th of each month if no check-in this month.
+  ///
+  /// Wave A-MINIMAL 2026-04-18: temporarily unreferenced. ADR-20260419
+  /// killed StreakService visibility for doctrine-lucidite reasons; the
+  /// matching notification is dormant pending future product signal.
+  // ignore: unused_element
   void _scheduleStreakProtection(
     CoachProfile profile,
     tz.TZDateTime now,
