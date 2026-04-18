@@ -88,8 +88,25 @@ async def _call_anthropic(client: Any, req: LLMRequest) -> Any:
         "max_tokens": req.max_tokens,
         "messages": req.messages,
     }
+    # Prompt caching (2026-04-18 cost optimisation) — Anthropic caches the
+    # large system prompt (~4-5k tokens) for 5 minutes with 90% input-token
+    # discount on subsequent messages. Break-even is ~1 reuse; MINT's chat
+    # sessions reuse the prompt dozens of times.
+    # Ref: https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+    # Caveat: only prompts ≥1024 tokens are cacheable (Sonnet) — we only
+    # tag the prompt when long enough, otherwise we skip the wrap.
     if req.system:
-        kwargs["system"] = req.system
+        system_text = req.system
+        if isinstance(system_text, str) and len(system_text) >= 1500:
+            kwargs["system"] = [
+                {
+                    "type": "text",
+                    "text": system_text,
+                    "cache_control": {"type": "ephemeral"},
+                }
+            ]
+        else:
+            kwargs["system"] = system_text
     if req.tools:
         kwargs["tools"] = req.tools
     if req.tool_choice:

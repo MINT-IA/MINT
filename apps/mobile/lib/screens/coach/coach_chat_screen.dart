@@ -918,15 +918,17 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     // T-02-05: normalize and cap tool calls via ChatToolDispatcher.
     final richCalls = ChatToolDispatcher.normalize(parseResult.toolCalls);
 
-    // UX-04: Enrich inferred suggestions with route_to_screen chips (SLM path).
-    final inferredActions = compliance.useFallback
-        ? <String>[]
-        : _inferSuggestedActions(userMessage, finalText);
+    // Audit 2026-04-18 Wave 5 (user feedback): les 3 chips statiques
+    // inférées par regex ("Si je verse plus sur mon 3a", "J'ai combien sur
+    // mes comptes 3a", "Ça vaut le coup de racheter du LPP") remplissaient
+    // l'écran à CHAQUE réponse coach et étaient insupportables. On ne garde
+    // que les chips générées par le LLM via route_to_screen tool_use — ce
+    // sont des actions CONTEXTUELLES produites par le modèle, pas une
+    // béquille regex. Si le coach ne demande aucune action, l'user tape ce
+    // qui l'intéresse. Panel contrarian 2026-04-18 : les chips par défaut
+    // sont une béquille.
     final routeChips = _extractRouteChips(richCalls);
-    final suggestedActions = <String>{
-      ...inferredActions,
-      ...routeChips,
-    }.take(4).toList();
+    final suggestedActions = routeChips.take(3).toList();
 
     setState(() {
       _messages[_messages.length - 1] = ChatMessage(
@@ -991,16 +993,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ...markerCalls,
       ].take(5).toList();
 
-      // UX-04: Use LLM-provided suggestions if available, otherwise infer
-      // from conversation context. Enrich with route_to_screen tool calls
-      // so the coach's navigation proposals also appear as tappable chips.
-      final inferredActions = response.suggestedActions ??
-          _inferSuggestedActions(text, cleanMessage);
+      // Audit 2026-04-18 Wave 5 : on ne garde que les chips produites par
+      // le LLM (suggestedActions directes + route_to_screen tool_use).
+      // L'ancienne inférence regex générait 3 chips statiques à chaque
+      // réponse, même quand le sujet ne s'y prêtait pas — fatigant UX.
+      final llmActions = response.suggestedActions ?? const <String>[];
       final routeChips = _extractRouteChips(richCalls);
       final suggestedActions = <String>{
-        ...inferredActions,
+        ...llmActions,
         ...routeChips,
-      }.take(4).toList();
+      }.take(3).toList();
 
       setState(() {
         _messages.add(ChatMessage(
