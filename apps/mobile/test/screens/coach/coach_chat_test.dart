@@ -6,7 +6,6 @@ import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -46,7 +45,6 @@ void main() {
           create: (_) => withProfile ? buildProfileProvider() : CoachProfileProvider(),
         ),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
-        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
@@ -621,8 +619,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => buildProfileProvider()),
           ChangeNotifierProvider(create: (_) => ByokProvider()),
-          ChangeNotifierProvider(create: (_) => UserActivityProvider()),
-          ChangeNotifierProvider(create: (_) => MintStateProvider()),
+            ChangeNotifierProvider(create: (_) => MintStateProvider()),
         ],
         child: MaterialApp(
           locale: const Locale('fr'),

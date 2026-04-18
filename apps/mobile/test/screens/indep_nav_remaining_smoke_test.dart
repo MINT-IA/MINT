@@ -17,7 +17,6 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -59,9 +58,6 @@ Widget buildWithExploreProviders(Widget child) {
         ),
         ChangeNotifierProvider<CoachProfileProvider>(
           create: (_) => CoachProfileProvider(),
-        ),
-        ChangeNotifierProvider<UserActivityProvider>(
-          create: (_) => UserActivityProvider(),
         ),
       ],
       child: child,
