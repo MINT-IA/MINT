@@ -107,7 +107,7 @@ import 'package:mint_mobile/screens/coach/conversation_history_screen.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
+import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
@@ -123,16 +123,12 @@ import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart'
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
-import 'package:mint_mobile/providers/anticipation_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
-import 'package:mint_mobile/providers/contextual_card_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
-import 'package:mint_mobile/models/coach_entry_payload.dart';
-import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/screens/household/household_screen.dart';
 import 'package:mint_mobile/screens/household/accept_invitation_screen.dart';
@@ -1242,19 +1238,19 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           provider.load();
           return provider;
         }),
-        ChangeNotifierProvider(create: (_) {
-          final provider = UserActivityProvider();
-          provider.loadAll();
-          return provider;
-        }),
+        // Wave E-PRIME (2026-04-18): UserActivityProvider deleted — its 13
+        // public methods (markSimulatorExplored, dismissTip, etc.) had 0
+        // consumer. All call-sites use ReportPersistenceService directly.
+        // Panel A P0-1.
         ChangeNotifierProvider(create: (_) {
           final provider = SlmProvider();
           provider.init();
           return provider;
         }),
         ChangeNotifierProvider(create: (_) => BiographyProvider()),
-        ChangeNotifierProvider(create: (_) => AnticipationProvider()),
-        ChangeNotifierProvider(create: (_) => ContextualCardProvider()),
+        // Wave E-PRIME (2026-04-18): AnticipationProvider + ContextualCardProvider
+        // deleted — neither had a Consumer/context.watch/read. Panel A P0-2/P0-3.
+        // Cascade: services/anticipation/ + widgets/alert/MintAlertHost also deleted.
         // STAB-13 ROOT-B: 4 providers previously consumed by production
         // screens but registered only in test helpers (ProviderNotFoundException
         // masked by silent try/catch at consumer sites).
@@ -1284,7 +1280,10 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
           },
         ),
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
-        ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
+        // Wave E-PRIME (2026-04-18): CoachEntryPayloadProvider deleted —
+        // setPayload/consumePayload had 0 caller in prod (docstring claimed
+        // MintHomeScreen sets + MintCoachTab reads; neither exists).
+        // Panel A P0-5.
         ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),
         // Wave A-MINIMAL A2 (2026-04-18): notifications wiring listens
         // to CoachProfileProvider and reschedules coaching reminders

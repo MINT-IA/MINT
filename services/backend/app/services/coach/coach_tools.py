@@ -88,6 +88,17 @@ INTERNAL_TOOL_NAMES: list[str] = [
     # intentionally NOT listed here. They are Flutter-bound WRITE tools
     # dispatched to PlanPreviewCard / DocumentCard by widget_renderer.dart.
     # Backend never executes them — no stub handler is needed.
+    #
+    # Wave E-PRIME (2026-04-18): audit façade systémique Panel B identifié
+    # save_fact et suggest_actions comme shippés sans case dans
+    # widget_renderer.dart. Sans ce routage interne, les tool calls partaient
+    # en external_calls → Flutter → default null → silent drop. Wave A PRIV-07
+    # redaction + Gate 0 dynamic chips étaient code mort. Les handlers
+    # backend existent dans coach_chat.py (save_fact:1337, suggest_actions:1414)
+    # et persistent en DB / calculent respectivement — ils DOIVENT être marqués
+    # internal pour être atteints.
+    "save_fact",
+    "suggest_actions",
 ]
 
 # ---------------------------------------------------------------------------

@@ -1246,7 +1246,12 @@ def _execute_internal_tool(
     if name == "save_insight":
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
         topic = tool_input.get("topic", "general")
-        insight_type = tool_input.get("insight_type", "fact")
+        # Wave E-PRIME: schema expose `type` (coach_tools.py:468) mais handler
+        # lisait `insight_type` avec fallback "fact". Anthropic SDK sérialise
+        # tool_use params sous le nom exact du schema — donc tous les events
+        # Wave A A0 (event type) étaient silencieusement downgradés à "fact".
+        # Fallback sur l'ancien nom pour compat tests.
+        insight_type = tool_input.get("type") or tool_input.get("insight_type") or "fact"
         logger.info("save_insight: topic=%s, summary=%s", topic[:50], summary[:100])
         if user_id and db:
             try:

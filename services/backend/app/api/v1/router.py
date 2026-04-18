@@ -38,7 +38,6 @@ from app.api.v1.endpoints import (
     onboarding,
     arbitrage,
     snapshots,
-    coach,
     coach_chat,
     commitment,
     fresh_start,
@@ -159,9 +158,15 @@ api_router.include_router(
 api_router.include_router(
     snapshots.router, prefix="/snapshots", tags=["Snapshots S33"]
 )
-api_router.include_router(
-    coach.router, prefix="/coach", tags=["Coach Narrative S35"]
-)
+# Wave E-PRIME (2026-04-18): coach narrative S35 cluster removed.
+# Panel C audit showed 0 Flutter caller for /coach/narrative, /coach/greeting,
+# /coach/score-summary, /coach/tip, /coach/premier-eclairage. Flutter coach
+# narrative path is services/coach_narrative_service.dart + fallback_templates
+# (local) OR the /coach/chat conversational flow. The S35 cluster was
+# scaffolded but never wired; it collided with /onboarding/premier-eclairage
+# and /documents/premier-eclairage (both live) creating three endpoints for
+# one concept. Schemas coach.py + service coach_narrative_service.py removed
+# in this commit.
 api_router.include_router(
     coach_chat.router, prefix="/coach", tags=["Coach Chat S56"]
 )
