@@ -1640,7 +1640,30 @@ class CoachProfile {
   /// Age actuel — précis au jour si dateOfBirth est disponible,
   /// sinon fallback sur birthYear (précision ±1 an).
   /// CHAOS-3: Guard against invalid birthYear (e.g. 2100) producing negative age.
+  /// B6-minimal (2026-04-18): this getter preserves the legacy
+  /// "0 = data not available" sentinel for back-compat with readiness
+  /// gates. NEW consumers should prefer [ageOrNull] which returns `null`
+  /// on missing/invalid data so age-dependent logic can skip explicitly
+  /// rather than silently computing with `age=0`.
   int get age {
+    final a = ageOrNull;
+    return a ?? 0;
+  }
+
+  /// Nullable age — returns `null` when birthYear/dateOfBirth are missing
+  /// or invalid (e.g. future dates, birthYear < 1900, age > 150).
+  ///
+  /// Adopted by Wave B-minimal (2026-04-18) to replace the `age == 0`
+  /// sentinel pattern that was silently corrupting age-dependent
+  /// calculations (CapEngine rules `age >= 45`, simulators age comparisons,
+  /// AVS contribution projections). Consumers MUST branch explicitly on
+  /// null to either skip the age-dependent rule or prompt the user for
+  /// their birth year.
+  ///
+  /// Sources: Panel 7 Perfection Gap finding #7, Panel archi review
+  /// 2026-04-18 (30+ call-sites consume `profile.age` without null guard),
+  /// Panel adversaire BUG 4 (CapEngine 10 call-sites).
+  int? get ageOrNull {
     if (dateOfBirth != null) {
       final now = DateTime.now();
       int a = now.year - dateOfBirth!.year;
@@ -1648,15 +1671,20 @@ class CoachProfile {
           (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
         a--;
       }
-      return a.clamp(0, 150);
+      // Invalid range (future dates clamp negative, impossibly old
+      // exceeds 150): treat as "unknown".
+      if (a < 0 || a > 150) return null;
+      return a;
     }
     final currentYear = DateTime.now().year;
-    if (birthYear < 1900 || birthYear > currentYear - 10) {
-      // Invalid birthYear — return 0 to signal "data not available".
-      // Readiness gates use age==0 as "blocked/missing".
-      return 0;
-    }
-    return currentYear - birthYear;
+    // birthYear == 0 is the CoachProfile default (unset); treat as missing.
+    if (birthYear == 0) return null;
+    if (birthYear < 1900 || birthYear > currentYear + 1) return null;
+    // Still allow currentYear - 10 .. currentYear + 1 window for newborns
+    // (age can legitimately be < 10). But block truly-future birthYears.
+    final age = currentYear - birthYear;
+    if (age < 0 || age > 150) return null;
+    return age;
   }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
