@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -152,8 +150,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// Whether the silent opener is currently displayed (no messages yet).
   bool _showSilentOpener = false;
 
-  /// Random greeting index — picked once per screen open.
-  final int _greetingIndex = Random().nextInt(20);
+  // Random greeting index removed 2026-04-18 (performative voice deprecated).
 
   /// SharedPreferences keys for proactive opt-in tracking.
   static const String _conversationCountKey = 'mint_coach_conversation_count';
@@ -1681,15 +1678,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   // ════════════════════════════════════════════════════════════
 
   /// Silent opener + optional intensity chips. One visual anchor at a time:
-  /// if the profile carries a key number, show just that; otherwise show
-  /// just the random sharp greeting. Stacking both produced two competing
-  /// attention targets and undermined the doctrine of a calm first frame.
+  /// if the profile carries a key number or intent override, show that;
+  /// otherwise the SilentOpener's own minimal empty state renders — no
+  /// piquant random greeting (deprecated 2026-04-18 — performative voice
+  /// was fatiguing users who open the app daily; calm minimalism wins).
   Widget _buildSilentOpenerWithTone() {
-    final keyData = _computeKeyNumber();
-    final intentOverride = _intentOpenerText != null;
-    final Widget hero = (keyData != null || intentOverride)
-        ? _buildSilentOpener()
-        : _buildRandomGreeting();
+    final Widget hero = _buildSilentOpener();
 
     final body = Expanded(
       child: SingleChildScrollView(child: hero),
@@ -1707,35 +1701,6 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           child: _buildIntensityChips(),
         ),
       ],
-    );
-  }
-
-  Widget _buildRandomGreeting() {
-    final s = S.of(context)!;
-    final greetings = [
-      s.coachGreetingRandom1,  s.coachGreetingRandom2,
-      s.coachGreetingRandom3,  s.coachGreetingRandom4,
-      s.coachGreetingRandom5,  s.coachGreetingRandom6,
-      s.coachGreetingRandom7,  s.coachGreetingRandom8,
-      s.coachGreetingRandom9,  s.coachGreetingRandom10,
-      s.coachGreetingRandom11, s.coachGreetingRandom12,
-      s.coachGreetingRandom13, s.coachGreetingRandom14,
-      s.coachGreetingRandom15, s.coachGreetingRandom16,
-      s.coachGreetingRandom17, s.coachGreetingRandom18,
-      s.coachGreetingRandom19, s.coachGreetingRandom20,
-    ];
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-      child: Text(
-        greetings[_greetingIndex],
-        style: GoogleFonts.montserrat(
-          fontSize: 18,
-          fontWeight: FontWeight.w500,
-          color: MintColors.textPrimary,
-          height: 1.5,
-        ),
-        textAlign: TextAlign.center,
-      ),
     );
   }
 
