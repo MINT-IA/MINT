@@ -367,9 +367,9 @@ void main() {
         (i) => i.id == 'rachat_vs_marche',
         orElse: () => throw StateError('rachat item missing'),
       );
-      expect(rachat.fullResult?.alertes, isNotEmpty);
+      expect(rachat.fullResult.alertes, isNotEmpty);
       expect(
-        rachat.fullResult!.alertes.first.contains('ATF 142 II 399'),
+        rachat.fullResult.alertes.first.contains('ATF 142 II 399'),
         isTrue,
         reason: 'Plumbed plannedCapitalWithdrawalYearsFromNow must trigger '
             'the anti-abuse alerte when achatImmo is within 3 years.',
@@ -399,7 +399,7 @@ void main() {
         (i) => i.id == 'rachat_vs_marche',
         orElse: () => throw StateError('rachat item missing'),
       );
-      expect(rachat.fullResult?.alertes, isEmpty);
+      expect(rachat.fullResult.alertes, isEmpty);
     });
   });
 }
