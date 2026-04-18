@@ -5390,6 +5390,7 @@
   "eplSectionImpactPrestations": "Impact sur les prestations",
   "eplReductionInvalidite": "Réduction rente invalidité (estimation annuelle)",
   "eplReductionDeces": "Réduction capital-décès (estimation)",
+  "eplReductionAskCaisse": "À demander à ta caisse",
   "eplImpactPrestationsNote": "Le retrait EPL réduit proportionnellement tes prestations de risque. Vérifie auprès de ta caisse de pension les montants exacts et les possibilités d’assurance complémentaire.",
   "eplSectionImpactRente": "Impact sur la rente",
   "eplRenteSansEpl": "Rente sans EPL",

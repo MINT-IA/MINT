@@ -135,8 +135,18 @@ class StaggeredWithdrawalSimulator {
 
     final economie = impotBloc - totalImpotEchelonne;
 
-    // Nombre optimal de comptes (maximise l'economie)
-    int optimalComptes = 1;
+    // Économie pour chaque nombre de comptes (1 à 5), calculée pour que
+    // la UI affiche side-by-side sans désigner de vainqueur.
+    // Audit 2026-04-18 P0-7 / doctrine §6.4 No-Ranking : l'ancien code
+    // retournait `nbComptesOptimal` ce qui poussait la UI à afficher "5
+    // comptes = optimal", ignorant les frais de garde (5 × ~60 CHF/an sur
+    // 10 ans = 3'000 CHF qui peuvent dépasser l'économie fiscale sur petits
+    // montants) et la tranche plate 0-100k (pas d'économie scindable).
+    // La constante `nbComptesOptimal` garde la valeur qui minimise l'impôt
+    // fiscal BRUT pour compatibilité code (callers), mais cette valeur
+    // NE DOIT PAS être rendue visible comme "recommandation" dans la UI —
+    // à la place, afficher les 5 scénarios cote à cote.
+    int nbComptesMinImpot = 1;
     double meilleurEconomie = 0;
     for (int n = 1; n <= 5; n++) {
       if (n > dureeEchelonnement) break;
@@ -148,9 +158,10 @@ class StaggeredWithdrawalSimulator {
       final ecoN = impotBloc - impotN;
       if (ecoN > meilleurEconomie) {
         meilleurEconomie = ecoN;
-        optimalComptes = n;
+        nbComptesMinImpot = n;
       }
     }
+    final optimalComptes = nbComptesMinImpot;
 
     return StaggeredWithdrawalResult(
       impotBloc: impotBloc,
@@ -274,8 +285,11 @@ class RealReturnCalculator {
     // Economie fiscale totale (cumul simple, non capitalisee)
     final totalEconomieFiscale = clampedVersement * clampedTaux * clampedDuree;
 
-    // Capital final epargne classique (1.5% brut, pas de deduction fiscale)
-    const tauxEpargne = 0.015;
+    // Capital final epargne classique (0.5% brut — médiane taux épargne
+    // UBS/PostFinance/Raiffeisen 2026. Audit simulateur P1-5 : ancien
+    // hardcoded 1.5% surestimait le rendement épargne et minorait l'avantage
+    // 3a vs épargne. 0.5% reflète la réalité Suisse post-2023).
+    const tauxEpargne = 0.005;
     final capitalEpargne =
         fvAnnuityDue(clampedVersement, tauxEpargne, clampedDuree);
 

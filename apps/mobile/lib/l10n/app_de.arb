@@ -5088,6 +5088,7 @@
   "eplSectionImpactPrestations": "Auswirkung auf Leistungen",
   "eplReductionInvalidite": "Invalidenrente Kürzung (jährliche Schätzung)",
   "eplReductionDeces": "Todesfallkapital Kürzung (Schätzung)",
+  "eplReductionAskCaisse": "Bei deiner Pensionskasse erfragen",
   "eplImpactPrestationsNote": "Der WEF-Bezug reduziert proportional deine Risikoleistungen. Erkundige dich bei deiner Pensionskasse nach den genauen Beträgen und Zusatzversicherungen.",
   "eplSectionImpactRente": "Auswirkung auf die Rente",
   "eplRenteSansEpl": "Rente ohne WEF",

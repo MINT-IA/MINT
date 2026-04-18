@@ -10622,6 +10622,9 @@ class SEn extends S {
   String get eplReductionDeces => 'Death capital reduction (estimate)';
 
   @override
+  String get eplReductionAskCaisse => 'Ask your pension fund';
+
+  @override
   String get eplImpactPrestationsNote =>
       'EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.';
 

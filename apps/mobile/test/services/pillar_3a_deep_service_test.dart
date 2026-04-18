@@ -394,7 +394,10 @@ void main() {
       );
     });
 
-    test('capital epargne classique = fvAnnuityDue(versement, 0.015, n)', () {
+    test('capital epargne classique = fvAnnuityDue(versement, 0.005, n)', () {
+      // Audit 2026-04-18 P1-5 : rendement épargne hardcoded 1.5% → 0.5%
+      // (médiane taux épargne UBS/PostFinance/Raiffeisen 2026, 1.5% était
+      // irréaliste post-2023).
       final result = RealReturnCalculator.calculate(
         versementAnnuel: 10000,
         tauxMarginal: 0.30,
@@ -402,14 +405,15 @@ void main() {
         fraisGestion: 0.004,
         dureeAnnees: 1,
       );
-      // n=1 → fvAnnuityDue = pmt × (1+r) = 10000 × 1.015
+      // n=1 → fvAnnuityDue = pmt × (1+r) = 10000 × 1.005
       expect(
         result.capitalFinalEpargne,
-        closeTo(10000 * 1.015, 0.01),
+        closeTo(10000 * 1.005, 0.01),
       );
     });
 
-    test('rendementEpargne = 1.5 (taux brut du compte epargne)', () {
+    test('rendementEpargne = 0.5 (taux brut compte épargne CH 2026)', () {
+      // Audit P1-5 2026-04-18 : valeur alignée sur médiane Suisse post-2023.
       final result = RealReturnCalculator.calculate(
         versementAnnuel: 7258,
         tauxMarginal: 0.30,
@@ -417,7 +421,7 @@ void main() {
         fraisGestion: 0.004,
         dureeAnnees: 10,
       );
-      expect(result.rendementEpargne, closeTo(1.5, 0.01));
+      expect(result.rendementEpargne, closeTo(0.5, 0.01));
     });
 
     test('gain vs epargne positif (3a + fiscal > epargne classique)', () {

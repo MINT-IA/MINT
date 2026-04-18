@@ -5088,6 +5088,7 @@
   "eplSectionImpactPrestations": "Impact on benefits",
   "eplReductionInvalidite": "Disability pension reduction (annual estimate)",
   "eplReductionDeces": "Death capital reduction (estimate)",
+  "eplReductionAskCaisse": "Ask your pension fund",
   "eplImpactPrestationsNote": "EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.",
   "eplSectionImpactRente": "Impact on pension",
   "eplRenteSansEpl": "Pension without EPL",

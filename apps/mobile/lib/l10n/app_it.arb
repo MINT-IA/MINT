@@ -5088,6 +5088,7 @@
   "eplSectionImpactPrestations": "Impatto sulle prestazioni",
   "eplReductionInvalidite": "Riduzione rendita invalidità (stima annuale)",
   "eplReductionDeces": "Riduzione capitale decesso (stima)",
+  "eplReductionAskCaisse": "Chiedi alla tua cassa",
   "eplImpactPrestationsNote": "Il prelievo EPL riduce proporzionalmente le tue prestazioni di rischio. Verifica con la tua cassa pensione gli importi esatti e le possibilità di assicurazione complementare.",
   "eplSectionImpactRente": "Impatto sulla rendita",
   "eplRenteSansEpl": "Rendita senza EPL",

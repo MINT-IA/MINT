@@ -584,13 +584,19 @@ class _EplScreenState extends State<EplScreen> {
           _buildImpactRow(
             icon: Icons.accessible,
             label: l.eplReductionInvalidite,
-            amount: '-CHF ${formatChf(result.reductionRenteInvalidite)}',
+            // Null = "à demander à la caisse" (cf. audit P1-2, on ne
+            // magic-number plus les réductions de prestations risque).
+            amount: result.reductionRenteInvalidite == null
+                ? l.eplReductionAskCaisse
+                : '-CHF ${formatChf(result.reductionRenteInvalidite!)}',
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           _buildImpactRow(
             icon: Icons.heart_broken_outlined,
             label: l.eplReductionDeces,
-            amount: '-CHF ${formatChf(result.reductionCapitalDeces)}',
+            amount: result.reductionCapitalDeces == null
+                ? l.eplReductionAskCaisse
+                : '-CHF ${formatChf(result.reductionCapitalDeces!)}',
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           Text(

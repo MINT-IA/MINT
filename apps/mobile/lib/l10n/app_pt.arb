@@ -5088,6 +5088,7 @@
   "eplSectionImpactPrestations": "Impacto nas prestações",
   "eplReductionInvalidite": "Redução renda invalidez (estimativa anual)",
   "eplReductionDeces": "Redução capital-falecimento (estimativa)",
+  "eplReductionAskCaisse": "Pergunta à tua caixa",
   "eplImpactPrestationsNote": "O levantamento EPL reduz proporcionalmente as tuas prestações de risco. Verifica com a tua caixa de pensões os montantes exatos e as possibilidades de seguro complementar.",
   "eplSectionImpactRente": "Impacto na renda",
   "eplRenteSansEpl": "Renda sem EPL",

@@ -91,8 +91,13 @@ class Retroactive3aCalculator {
     int referenceYear = 2026,
   }) {
     final effectiveGap = gapYears.clamp(1, reg('pillar3a.max_retroactive_years', pilier3aMaxRetroactiveYears.toDouble()).toInt());
-    // Clamp taux marginal to valid range to prevent absurd results.
-    final effectiveTaux = tauxMarginal.clamp(0.0, 0.60);
+    // Clamp taux marginal at the realistic Swiss maximum (~45%).
+    // Audit simulateur 2026-04-18 P1-9 : ancien clamp à 60% surestimait
+    // l'économie de 15-33%. Le taux marginal fédéral+cantonal+communal
+    // plafonne autour de 43-45% dans les cantons les plus lourds
+    // (GE couple, fortune élevée, enfants = 0). Cohérent avec
+    // tax_calculator.dart:estimateMarginalRate qui cap aussi ~45%.
+    final effectiveTaux = tauxMarginal.clamp(0.0, 0.45);
 
     // Build yearly breakdown (most recent gap year first).
     final breakdown = <YearlyRetroactiveEntry>[];

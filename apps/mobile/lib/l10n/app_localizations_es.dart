@@ -10678,6 +10678,9 @@ class SEs extends S {
       'Reducción capital-fallecimiento (estimación)';
 
   @override
+  String get eplReductionAskCaisse => 'Consulta a tu caja';
+
+  @override
   String get eplImpactPrestationsNote =>
       'El retiro EPL reduce proporcionalmente tus prestaciones de riesgo. Consulta con tu caja de pensiones los montos exactos y las posibilidades de seguro complementario.';
 

@@ -10702,6 +10702,9 @@ class SDe extends S {
   String get eplReductionDeces => 'Todesfallkapital Kürzung (Schätzung)';
 
   @override
+  String get eplReductionAskCaisse => 'Bei deiner Pensionskasse erfragen';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Der WEF-Bezug reduziert proportional deine Risikoleistungen. Erkundige dich bei deiner Pensionskasse nach den genauen Beträgen und Zusatzversicherungen.';
 

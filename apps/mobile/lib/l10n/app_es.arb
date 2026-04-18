@@ -5088,6 +5088,7 @@
   "eplSectionImpactPrestations": "Impacto en las prestaciones",
   "eplReductionInvalidite": "Reducción renta invalidez (estimación anual)",
   "eplReductionDeces": "Reducción capital-fallecimiento (estimación)",
+  "eplReductionAskCaisse": "Consulta a tu caja",
   "eplImpactPrestationsNote": "El retiro EPL reduce proporcionalmente tus prestaciones de riesgo. Consulta con tu caja de pensiones los montos exactos y las posibilidades de seguro complementario.",
   "eplSectionImpactRente": "Impacto en la renta",
   "eplRenteSansEpl": "Renta sin EPL",

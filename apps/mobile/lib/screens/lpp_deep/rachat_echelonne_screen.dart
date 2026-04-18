@@ -781,16 +781,21 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         const SizedBox(height: MintSpacing.sm + 4),
         Row(
           children: [
-            Expanded(child: _buildComparisonCard(title: l.rachatEchelonneBlocTitle, subtitle: l.rachatEchelonneBlocSubtitle, amount: result.economieBlocTotal, color: MintColors.warning, isWinner: result.delta <= 0, adaptedLabel: l.rachatEchelonnePlusAdapte, savingsLabel: l.rachatEchelonneEconomieFiscale)),
+            // Audit 2026-04-18 doctrine : CLAUDE.md §6.4 No-Ranking —
+            // les deux options (bloc vs échelonné) sont side-by-side sans
+            // badge "Plus adapté" qui désigne un vainqueur. L'utilisateur
+            // lit les chiffres et décide — pas l'app.
+            Expanded(child: _buildComparisonCard(title: l.rachatEchelonneBlocTitle, subtitle: l.rachatEchelonneBlocSubtitle, amount: result.economieBlocTotal, color: MintColors.warning, savingsLabel: l.rachatEchelonneEconomieFiscale)),
             const SizedBox(width: MintSpacing.sm + 4),
-            Expanded(child: _buildComparisonCard(title: '$_horizon ${l.staggered3aAns}', subtitle: l.rachatEchelonneEchelonneSubtitle, amount: result.economieEchelonneTotal, color: MintColors.success, isWinner: result.delta > 0, adaptedLabel: l.rachatEchelonnePlusAdapte, savingsLabel: l.rachatEchelonneEconomieFiscale)),
+            Expanded(child: _buildComparisonCard(title: '$_horizon ${l.staggered3aAns}', subtitle: l.rachatEchelonneEchelonneSubtitle, amount: result.economieEchelonneTotal, color: MintColors.success, savingsLabel: l.rachatEchelonneEconomieFiscale)),
           ],
         ),
       ],
     );
   }
 
-  Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required bool isWinner, required String adaptedLabel, required String savingsLabel}) {
+  Widget _buildComparisonCard({required String title, required String subtitle, required double amount, required Color color, required String savingsLabel}) {
+    // isWinner + adaptedLabel supprimés 2026-04-18 (No-Ranking doctrine).
     return MintSurface(
       tone: MintSurfaceTone.blanc,
       padding: const EdgeInsets.all(MintSpacing.md),
@@ -798,13 +803,6 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (isWinner)
-            Container(
-              margin: const EdgeInsets.only(bottom: MintSpacing.sm),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(color: color.withAlpha(30), borderRadius: BorderRadius.circular(6)),
-              child: Text(adaptedLabel, style: MintTextStyles.micro(color: color).copyWith(fontWeight: FontWeight.w800, fontStyle: FontStyle.normal, letterSpacing: 0.5, fontSize: 9)),
-            ),
           Text(title, style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.5)),
           const SizedBox(height: MintSpacing.xs),
           Text(subtitle, style: MintTextStyles.labelMedium()),

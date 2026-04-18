@@ -295,13 +295,11 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
                   : MintColors.warning,
             ),
           ),
-          if (result.nbComptesOptimal != _nbComptes) ...[
-            const SizedBox(height: MintSpacing.sm),
-            Text(
-              '${result.nbComptesOptimal} comptes',
-              style: MintTextStyles.labelSmall(color: MintColors.info).copyWith(fontWeight: FontWeight.w600),
-            ),
-          ],
+          // nbComptesOptimal badge retiré 2026-04-18 (doctrine §6.4 No-Ranking).
+          // L'ancien affichage "${nbComptesOptimal} comptes" en bleu info
+          // désignait un optimum visuel — l'utilisateur lit maintenant les
+          // chiffres pour chaque configuration sans que l'app pousse une
+          // recommandation (qui ignorait les frais de garde par compte).
         ],
       ),
     );

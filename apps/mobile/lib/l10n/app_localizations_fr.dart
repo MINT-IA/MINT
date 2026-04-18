@@ -10684,6 +10684,9 @@ class SFr extends S {
   String get eplReductionDeces => 'Réduction capital-décès (estimation)';
 
   @override
+  String get eplReductionAskCaisse => 'À demander à ta caisse';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Le retrait EPL réduit proportionnellement tes prestations de risque. Vérifie auprès de ta caisse de pension les montants exacts et les possibilités d’assurance complémentaire.';
 

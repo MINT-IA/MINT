@@ -428,8 +428,13 @@ class EplResult {
   final double montantMaxRetirable;
   final double montantSouhaiteApplicable;
   final double impotEstime;
-  final double reductionRenteInvalidite;
-  final double reductionCapitalDeces;
+  /// Réduction estimée de la rente invalidité suite au retrait EPL.
+  /// `null` quand MINT n'a pas de certificat de caisse (le calcul exact
+  /// dépend du règlement caisse — cf. audit P1-2 2026-04-18). La UI
+  /// affiche alors "à demander à ta caisse" plutôt qu'un chiffre magique.
+  final double? reductionRenteInvalidite;
+  /// Réduction estimée du capital décès. Même sémantique null que ci-dessus.
+  final double? reductionCapitalDeces;
   final List<String> alerts;
   final String disclaimer;
 
@@ -474,17 +479,22 @@ class EplSimulator {
       // Avant 50 ans : la totalite de l'avoir peut etre retiree
       montantMax = avoirTotal;
     } else {
-      // Des 50 ans : le plus eleve entre (LPP art. 30e) :
-      // a) l'avoir a 50 ans — sans info exacte, on estime via les
-      //    bonifications cumulees (moindre part de l'avoir actuel)
-      // b) la moitie de l'avoir actuel
-      // L'estimation a) utilise un ratio base sur les annees restantes:
-      // un assure ayant cotise de 25 a 50 ans (25 ans) vs 25 a age actuel.
-      final anneesDepuis25 = max(1, age - 25);
-      const annees25a50 = 25; // 25 ans de 25 a 50 ans
-      final ratioA50 = (annees25a50 / anneesDepuis25).clamp(0.3, 1.0);
-      final avoirEstimeA50 = avoirTotal * ratioA50;
-      montantMax = max(avoirEstimeA50, avoirTotal / 2);
+      // Dès 50 ans (LPP art. 30e al. 2) : max retirable = le plus élevé
+      // entre (a) l'avoir à 50 ans et (b) la moitié de l'avoir actuel.
+      //
+      // (a) exigerait le certificat de la caisse (avoir_vieillesse à 50 ans)
+      //     — MINT ne le connaît qu'après scan d'un certificat récent, pas
+      //     inférable fiablement par ratio linéaire (audit P0-3 2026-04-18
+      //     a retiré la formule inventée `25/(age-25)`).
+      // Fallback honnête : utiliser la demi-part (b), toujours valide, et
+      //     avertir l'utilisateur que son plafond réel peut être plus élevé
+      //     s'il consulte son certificat.
+      montantMax = avoirTotal / 2;
+      alerts.add(
+        'Estimation conservatrice basée sur la demi-part (LPP art.\u00a030e al.\u00a02). '
+        'Ton plafond réel peut être plus élevé si ton avoir à 50\u00a0ans '
+        'l\'est — consulte ton certificat de prévoyance pour le montant exact.',
+      );
     }
 
     // Minimum 20'000 CHF (OPP2 art. 5)
@@ -500,10 +510,15 @@ class EplSimulator {
     if (aRachete && anneesSDepuisRachat < 3) {
       final anneesRestantes = 3 - anneesSDepuisRachat;
       montantMax = 0;
+      // P1-3 audit 2026-04-18 : communique la date concrète de déblocage.
+      final unlockDate = DateTime.now().add(Duration(days: anneesRestantes * 365));
+      final unlockStr = '${unlockDate.day.toString().padLeft(2, '0')}.'
+          '${unlockDate.month.toString().padLeft(2, '0')}.'
+          '${unlockDate.year}';
       alerts.add(
         'Blocage EPL : tu as effectué un rachat LPP il y a moins de '
-        '3 ans. Le retrait EPL sera possible dans $anneesRestantes an(s) '
-        '(LPP art. 79b al. 3).',
+        '3 ans. Retrait EPL possible dès le\u00a0$unlockStr '
+        '(environ $anneesRestantes an${anneesRestantes > 1 ? 's' : ''}, LPP art.\u00a079b al.\u00a03).',
       );
     }
 
@@ -518,15 +533,28 @@ class EplSimulator {
     );
 
     // --- Impact sur les prestations de risque ---
-    // Estimation simplifiee : reduction proportionnelle
+    // Audit P1-2 2026-04-18 : ancien calcul `reductionRatio × avoirTotal × 0.06`
+    // pour l'invalidité et `× 0.5` pour le décès étaient des pseudo-formules
+    // sans base légale. La vraie réduction dépend du règlement de la caisse
+    // (LPP art. 24 al. 2 : rente invalidité = avoir_vieillesse_projeté ×
+    // taux_conversion × salaire_assuré/référence), que MINT ne connaît pas
+    // sans le certificat. On expose l'impact QUALITATIVEMENT : un retrait
+    // EPL réduit l'avoir de vieillesse, donc les prestations risque et
+    // décès sont mécaniquement réduites — le montant exact vient du
+    // règlement de la caisse, pas d'une formule magique.
     final reductionRatio =
         avoirTotal > 0 ? (applicable / avoirTotal).clamp(0.0, 1.0) : 0.0;
-
-    // Rente invalidite : ~60% du salaire assure, reduite proportionnellement
-    final reductionInvalidite = reductionRatio * avoirTotal * 0.06;
-
-    // Capital deces : souvent 1x salaire assure ou % de l'avoir
-    final reductionDeces = reductionRatio * avoirTotal * 0.5;
+    // `null` = "à demander à la caisse" ; la UI rend un message qualitatif
+    // à la place d'un chiffre (pas de sentinel -1, cf. feedback_no_shortcuts_ever).
+    const double? reductionInvalidite = null;
+    const double? reductionDeces = null;
+    if (applicable > 0 && reductionRatio > 0) {
+      alerts.add(
+        'Le retrait EPL réduit ton avoir de vieillesse et donc tes '
+        'prestations en cas d\'invalidité et de décès. Le montant exact '
+        'dépend du règlement de ta caisse — demande-le avant de signer.',
+      );
+    }
 
     // Alertes supplementaires
     if (applicable > 0 && age >= 50) {

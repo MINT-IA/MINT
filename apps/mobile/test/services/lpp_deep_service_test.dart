@@ -325,7 +325,12 @@ void main() {
       expect(result.montantMaxRetirable, closeTo(150000, 0.01));
     });
 
-    test('des 50 ans : montant max = max(avoir estime a 50, moitie avoir)', () {
+    test('des 50 ans : fallback honnête = moitie avoir (LPP art. 30e al. 2)', () {
+      // Audit 2026-04-18 P0-3 : l'ancienne formule inventée
+      // `ratioA50 = 25/(age-25)` × avoirTotal n'avait aucune base légale.
+      // Sans certificat d'avoir-à-50-ans, MINT utilise le fallback légal
+      // garanti (la demi-part) et alerte l'utilisateur que son plafond
+      // réel peut être plus élevé s'il consulte son certificat.
       final result = EplSimulator.simulate(
         avoirTotal: 200000,
         avoirObligatoire: 140000,
@@ -334,10 +339,12 @@ void main() {
         montantSouhaite: 200000,
         aRachete: false,
       );
-      // A 55 ans: anneesDepuis25 = 30, ratioA50 = 25/30 = 0.833
-      // avoirEstimeA50 = 200000 * 0.833 = 166666.67
-      // montantMax = max(166666.67, 200000/2=100000) = 166666.67
-      expect(result.montantMaxRetirable, closeTo(166666.67, 1.0));
+      expect(result.montantMaxRetirable, closeTo(100000.0, 1.0));
+      expect(
+        result.alerts.any((a) => a.contains('30e')),
+        isTrue,
+        reason: 'Alerte doit mentionner l\'article LPP 30e et inciter au certificat',
+      );
     });
 
     test('minimum EPL de 20000 CHF', () {
@@ -428,7 +435,12 @@ void main() {
       expect(result150k.impotEstime, closeTo(10237.5, 1.0));
     });
 
-    test('reduction prestations de risque proportionnelle', () {
+    test('reduction prestations risque : null + alerte qualitative', () {
+      // Audit 2026-04-18 P1-2 : la formule magique
+      // `ratio × avoirTotal × 0.06` (invalidité) / `× 0.5` (décès) n'avait
+      // aucune base légale LPP art. 24 al. 2. Remplacée par null +
+      // alerte qualitative "à demander à ta caisse". La UI rend alors
+      // le label `eplReductionAskCaisse` au lieu d'un chiffre CHF trompeur.
       final result = EplSimulator.simulate(
         avoirTotal: 200000,
         avoirObligatoire: 140000,
@@ -437,11 +449,14 @@ void main() {
         montantSouhaite: 100000,
         aRachete: false,
       );
-      // Ratio = 100000 / 200000 = 0.5
-      // Reduction invalidite = 0.5 * 200000 * 0.06 = 6000
-      expect(result.reductionRenteInvalidite, closeTo(6000, 0.01));
-      // Reduction deces = 0.5 * 200000 * 0.5 = 50000
-      expect(result.reductionCapitalDeces, closeTo(50000, 0.01));
+      expect(result.reductionRenteInvalidite, isNull);
+      expect(result.reductionCapitalDeces, isNull);
+      // Une alerte qualitative doit apparaître mentionnant la caisse
+      expect(
+        result.alerts.any((a) => a.contains('caisse')),
+        isTrue,
+        reason: 'Alerte qualitative sur réduction prestations manquante',
+      );
     });
 
     test('alerte 50+ quand applicable > 0 et age >= 50', () {

@@ -18931,6 +18931,12 @@ abstract class S {
   /// **'Réduction capital-décès (estimation)'**
   String get eplReductionDeces;
 
+  /// No description provided for @eplReductionAskCaisse.
+  ///
+  /// In fr, this message translates to:
+  /// **'À demander à ta caisse'**
+  String get eplReductionAskCaisse;
+
   /// No description provided for @eplImpactPrestationsNote.
   ///
   /// In fr, this message translates to:

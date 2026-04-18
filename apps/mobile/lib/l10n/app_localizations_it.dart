@@ -10694,6 +10694,9 @@ class SIt extends S {
   String get eplReductionDeces => 'Riduzione capitale decesso (stima)';
 
   @override
+  String get eplReductionAskCaisse => 'Chiedi alla tua cassa';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Il prelievo EPL riduce proporzionalmente le tue prestazioni di rischio. Verifica con la tua cassa pensione gli importi esatti e le possibilità di assicurazione complementare.';
 

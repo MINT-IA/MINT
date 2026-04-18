@@ -10674,6 +10674,9 @@ class SPt extends S {
   String get eplReductionDeces => 'Redução capital-falecimento (estimativa)';
 
   @override
+  String get eplReductionAskCaisse => 'Pergunta à tua caixa';
+
+  @override
   String get eplImpactPrestationsNote =>
       'O levantamento EPL reduz proporcionalmente as tuas prestações de risco. Verifica com a tua caixa de pensões os montantes exatos e as possibilidades de seguro complementar.';
 
