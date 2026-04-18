@@ -276,6 +276,37 @@ une question de clarification avant de projeter des montants.
   returning_swiss       -> CH + sejour etranger long : fenetre rachat avantageuse
 """
 
+_SAFE_MODE_PROTOCOL = """\
+## MODE PROTECTION — DÉSENDETTEMENT PRIORITAIRE (ACTIF)
+
+La personne porte une dette de consommation toxique, un ratio dette/revenu
+supérieur à 33%, ou un matelas de trésorerie inférieur à 3 mois. Tant que
+ce mode est actif, les règles suivantes sont NON-NÉGOCIABLES :
+
+1. JAMAIS d'optimisation 3a, rachat LPP, comparateur de placement, stratégie
+   fiscale d'optimisation, ni allocation d'actifs — même éducative, même
+   conditionnelle. Ces surfaces sont verrouillées côté app ; en parler
+   créerait une dissonance visible.
+
+2. Si la personne demande explicitement "comment optimiser mon 3a" ou
+   "faut-il que je rachète ma LPP" : réponds que ces décisions sont mises
+   en pause le temps de stabiliser la situation. Explique l'ordre
+   (stabiliser d'abord, optimiser ensuite). Ne justifie pas par un calcul
+   de rendement — l'ordre est doctrinal, pas arithmétique.
+
+3. Priorité N°1 : comprendre la dette (type, taux effectif, charge
+   mensuelle, échéances). Priorité N°2 : reconstituer une trésorerie de
+   3 mois de charges.
+
+4. Redirige vers /debt/repayment si la personne insiste sur un sujet
+   d'optimisation. Tu peux parler budget, dette, trésorerie, assurances
+   de base (LAMal, IJM). Tu ne parles pas placement.
+
+5. Ne dis JAMAIS "tu devrais" — dis "l'ordre recommandé est". Pas de
+   honte, pas de reproche. La personne a déjà fait le travail difficile
+   en disant la vérité sur sa situation.
+"""
+
 _PLAN_AWARENESS = """\
 PLAN AWARENESS:
 - The user's plan progress is in the memory block (PLAN EN COURS section).
@@ -525,7 +556,7 @@ CONNAISSANCES SUISSES (utilise ces faits quand pertinent) :
 {lifecycle_awareness}
 {plan_awareness}
 {check_in_protocol}
-{routing_rules}
+{safe_mode_protocol}{routing_rules}
 """
 
 
@@ -563,12 +594,17 @@ def build_system_prompt(
     # and a neutral fallback otherwise. Replaces both legacy regional
     # identity blob and per-canton dict injection sites (deleted Phase 6).
     canton = ctx.canton if ctx else None
+    # Safe Mode: the protocol block is injected into the {safe_mode_protocol}
+    # slot which sits BEFORE {routing_rules} in _BASE_SYSTEM_PROMPT, guaranteeing
+    # the model reads "no optim advice" before it reads routing rules (RULES.md §2).
+    safe_mode_block = (_SAFE_MODE_PROTOCOL + "\n") if (ctx and ctx.has_debt) else ""
     base = _BASE_SYSTEM_PROMPT.format(
         banned_terms=_BANNED_TERMS_REMINDER,
         regional_identity=RegionalMicrocopy.identity_block(canton),
         lifecycle_awareness=_LIFECYCLE_AWARENESS,
         plan_awareness=_PLAN_AWARENESS,
         check_in_protocol=_CHECK_IN_PROTOCOL,
+        safe_mode_protocol=safe_mode_block,
         routing_rules=_TOOL_ROUTING_RULES,
     )
 
@@ -650,6 +686,8 @@ def _build_context_section(ctx: CoachContext) -> str:
         lines.append(f"- Âge : {ctx.age} ans")
     if ctx.canton:
         lines.append(f"- Canton : {ctx.canton}")
+    if ctx.has_debt:
+        lines.append("- Mode protection désendettement : ACTIF")
     if ctx.fri_total is not None:
         lines.append(f"- Score FRI : {ctx.fri_total}/100")
     if ctx.fri_delta is not None:
