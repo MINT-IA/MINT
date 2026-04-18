@@ -19510,7 +19510,7 @@ abstract class S {
   /// No description provided for @retroactive3aHeroTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Rattrapage 3a — Nouveauté 2026'**
+  /// **'Rattrapage 3a — Nouveauté 2025'**
   String get retroactive3aHeroTitle;
 
   /// No description provided for @retroactive3aHeroSubtitle.

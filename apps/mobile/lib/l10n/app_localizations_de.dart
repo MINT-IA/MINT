@@ -11015,7 +11015,7 @@ class SDe extends S {
   String get retroactive3aTitle => '3a Nachholung';
 
   @override
-  String get retroactive3aHeroTitle => '3a Nachholung — Neu 2026';
+  String get retroactive3aHeroTitle => '3a Nachholung — Neu seit 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>

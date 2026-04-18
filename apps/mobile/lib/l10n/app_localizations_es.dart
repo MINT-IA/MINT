@@ -10990,7 +10990,7 @@ class SEs extends S {
   String get retroactive3aTitle => 'Recuperación 3a';
 
   @override
-  String get retroactive3aHeroTitle => 'Recuperación 3a — Novedad 2026';
+  String get retroactive3aHeroTitle => 'Recuperación 3a — Novedad 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>

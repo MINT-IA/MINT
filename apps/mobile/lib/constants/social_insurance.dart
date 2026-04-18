@@ -397,9 +397,47 @@ const List<List<double>> retraitCapitalTranches = [
   [1000000, double.infinity, 1.70],
 ];
 
-/// Reduction d'impot pour les couples maries (splitting cantonal).
-/// Les maries paient ~15% de moins sur le retrait en capital.
-const double marriedCapitalTaxDiscount = 0.85;
+/// Coefficient appliqué à l'impôt capital célibataire quand le contribuable
+/// est marié — fonction du canton. Audit swiss-brain 2026-04-18 Q5 : le
+/// scalaire 0.85 uniforme était **faux** (cantons à splitting complet
+/// comme ZH/ZG descendent à 0.70). Chaque canton légifère son propre
+/// tarif couple (LHID art. 11 al. 1 autorise tarif marié ≤ 85% du tarif
+/// célibataire pour le revenu ; pour le capital, chaque canton fixe).
+///
+/// Valeurs 2026 pour un cumul capital ~250k (retrait médian LPP+3a) :
+///   ZH : splitting intégral, barème séparé → 0.73 (LF ZH §37)
+///   BE : barème couple dédié + splitting → 0.80 (LF BE art. 44)
+///   LU : tarif spécial marié → 0.82 (LF LU §58)
+///   ZG : splitting intégral (canton le plus bas CH) → 0.70 (LF ZG §36)
+///   VD : splitting intégral → 0.78 (LI VD art. 49)
+///   GE : quotient familial + splitting → 0.73 (LIPP art. 41)
+///   VS : barème marié progressif → 0.81 (LF VS art. 33b)
+///   TI : splitting intégral → 0.80 (LT TI art. 38)
+///
+/// Les 18 autres cantons (AG/AI/AR/BL/BS/FR/GL/GR/JU/NE/NW/OW/SG/SH/SO/
+/// SZ/TG/UR) utilisent le fallback — `marriedCapitalTaxDiscountFallback`.
+/// Approximation à ±5 points ; ADR-20260418-cantonal-capital-tax-married
+/// prévu pour la table exhaustive tabulée par tranche de montant.
+const Map<String, double> marriedCapitalTaxDiscountByCanton = {
+  'ZH': 0.73,
+  'BE': 0.80,
+  'LU': 0.82,
+  'ZG': 0.70,
+  'VD': 0.78,
+  'GE': 0.73,
+  'VS': 0.81,
+  'TI': 0.80,
+};
+
+/// Fallback pour les 18 cantons non tabulés (moyenne empirique). À
+/// remplacer par la matrice complète une fois l'ADR résolu. La UI DOIT
+/// signaler à l'utilisateur quand ce fallback s'applique.
+const double marriedCapitalTaxDiscountFallback = 0.82;
+
+/// Helper : retourne le coefficient du canton demandé ou le fallback.
+double marriedCapitalTaxDiscountFor(String canton) =>
+    marriedCapitalTaxDiscountByCanton[canton.toUpperCase()] ??
+    marriedCapitalTaxDiscountFallback;
 
 /// Noms complets des 26 cantons suisses en francais.
 const Map<String, String> cantonFullNames = {
@@ -471,29 +509,40 @@ const double lamalQuotePartMax = 700.0;
 const double lamalQuotePartMaxJeunesAdultes = 350.0;
 
 // ══════════════════════════════════════════════════════════════════════════════
-// Pilier 3a — Rattrapage retroactif (nouveau droit 2026+)
-// Base legale: OPP3 art. 7 (amendement 2026), OFAS publications annuelles
+// Pilier 3a — Rattrapage rétroactif (OPP3 art. 7a)
+// Base légale : OPP3 art. 7a nouveau, RO 2024 687, entrée en vigueur 01.01.2025.
+// swiss-brain ruling 2026-04-18 Q1 :
+//   * SEULES les lacunes postérieures au 31.12.2024 sont rachetables.
+//   * Les plafonds 2016-2024 NE SONT JAMAIS rachetables — pas de table
+//     historique stockée côté client (elle induit en erreur).
+//   * Le nombre d'années rachetables en année N = min(10, N - 2024).
+//     En 2026 : 2 ans max (2025 + 2026 partiel). En 2035+ : 10 permanent.
+//   * Le plafond appliqué au rachat est celui de L'ANNÉE DU RACHAT
+//     (art. 7a al. 2), pas de l'année manquée.
 // ══════════════════════════════════════════════════════════════════════════════
 
-/// Plafonds historiques 3a (avec LPP) par annee.
-/// Utilises pour calculer le montant de rattrapage retroactif.
-/// Source: OFAS publications annuelles, OPP3 art. 7.
+/// Plafond 3a salarié avec LPP — déjà défini plus haut (7258 CHF en 2026).
+/// C'est ce plafond (de l'année du rachat) qui s'applique à chaque année
+/// rachetée, PAS un plafond historique.
+///
+/// Map conservée pour compat code mais réduite aux années 2025+ (seules
+/// rachetables). Les valeurs 2025 et 2026 sont identiques par design
+/// fédéral (le plafond suit l'indexation OFAS mais n'a pas changé sur
+/// la courte fenêtre). À jour au 06.11.2024.
 const Map<int, double> pilier3aHistoricalLimits = {
-  2026: 7258.0,
   2025: 7258.0,
-  2024: 7056.0,
-  2023: 6883.0,
-  2022: 6826.0,
-  2021: 6826.0,
-  2020: 6826.0,
-  2019: 6826.0,
-  2018: 6826.0,
-  2017: 6768.0,
-  2016: 6768.0,
+  2026: 7258.0,
 };
 
-/// Nombre maximum d'annees de rattrapage retroactif 3a (OPP3 art. 7, amendement 2026).
+/// Nombre maximum d'années rachetables dans le futur (cap légal à 10 ans
+/// d'historique atteint en 2035). En attendant, la fenêtre effective
+/// est calculée dynamiquement par `retroactive_3a_calculator.dart` en
+/// `referenceYear - 2024`.
 const int pilier3aMaxRetroactiveYears = 10;
+
+/// Première année fiscale éligible au rachat rétroactif (entrée en vigueur
+/// OPP3 art. 7a, RO 2024 687).
+const int pilier3aRetroactiveFirstEligibleYear = 2025;
 
 // ══════════════════════════════════════════════════════════════════════════════
 // Financial Fitness Score (FRI) — Seuils d'affichage

@@ -10986,7 +10986,7 @@ class SPt extends S {
   String get retroactive3aTitle => 'Recuperação 3a';
 
   @override
-  String get retroactive3aHeroTitle => 'Recuperação 3a — Novidade 2026';
+  String get retroactive3aHeroTitle => 'Recuperação 3a — Novidade 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>

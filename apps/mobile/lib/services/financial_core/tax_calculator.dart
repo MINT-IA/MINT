@@ -227,8 +227,10 @@ class RetirementTaxCalculator {
     if (capitalBrut <= 0) return 0;
     final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : 'ZH';
     final baseRate = tauxImpotRetraitCapital[cantonCode] ?? 0.065;
-    final effectiveRate =
-        isMarried ? baseRate * reg('capital_tax.married_discount', marriedCapitalTaxDiscount) : baseRate;
+    // Audit 2026-04-18 Q5 : coefficient marié par CANTON, plus un scalaire
+    // uniforme 0.85. ZH/ZG (splitting intégral) → ~0.70 ; VS → 0.81 ; etc.
+    final discount = isMarried ? marriedCapitalTaxDiscountFor(cantonCode) : 1.0;
+    final effectiveRate = baseRate * discount;
     return progressiveTax(capitalBrut, effectiveRate);
   }
 

@@ -10935,7 +10935,7 @@ class SEn extends S {
   String get retroactive3aTitle => '3a catch-up';
 
   @override
-  String get retroactive3aHeroTitle => '3a catch-up — New in 2026';
+  String get retroactive3aHeroTitle => '3a catch-up — New since 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>

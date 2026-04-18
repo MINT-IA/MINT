@@ -10996,7 +10996,7 @@ class SFr extends S {
   String get retroactive3aTitle => 'Rattrapage 3a';
 
   @override
-  String get retroactive3aHeroTitle => 'Rattrapage 3a — Nouveauté 2026';
+  String get retroactive3aHeroTitle => 'Rattrapage 3a — Nouveauté 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>

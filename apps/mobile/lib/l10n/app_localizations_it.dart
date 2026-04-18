@@ -11008,7 +11008,7 @@ class SIt extends S {
   String get retroactive3aTitle => 'Recupero 3a';
 
   @override
-  String get retroactive3aHeroTitle => 'Recupero 3a — Novità 2026';
+  String get retroactive3aHeroTitle => 'Recupero 3a — Novità 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
