@@ -1257,7 +1257,31 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         // STAB-13 ROOT-B: 4 providers previously consumed by production
         // screens but registered only in test helpers (ProviderNotFoundException
         // masked by silent try/catch at consumer sites).
-        ChangeNotifierProvider(create: (_) => MintStateProvider()),
+        //
+        // Wave B-minimal A2 (2026-04-18): convert MintStateProvider to a
+        // ChangeNotifierProxyProvider<CoachProfileProvider, _>. The plain
+        // ChangeNotifierProvider shipped before A2 never had a caller
+        // invoking `.recompute(profile)`, so `state` stayed null in
+        // production and every consumer (BudgetScreen line 107,
+        // AujourdhuiScreen cap banner in B1) read null. The proxy
+        // guarantees recompute fires on every CoachProfileProvider
+        // notifyListeners (save_fact, scan enrichment, wizard load). The
+        // recompute call itself is idempotent (guarded by `_lastProfile`
+        // equality in mint_state_provider.dart:72).
+        // Ref: panel archi review 2026-04-18 R1.
+        ChangeNotifierProxyProvider<CoachProfileProvider, MintStateProvider>(
+          create: (_) => MintStateProvider(),
+          update: (_, profileProvider, mintState) {
+            final provider = mintState ?? MintStateProvider();
+            final profile = profileProvider.profile;
+            if (profile != null) {
+              // Fire-and-forget; recompute is guarded against concurrent
+              // calls and no-ops when the profile is unchanged.
+              provider.recompute(profile);
+            }
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => FinancialPlanProvider()),
         ChangeNotifierProvider(create: (_) => CoachEntryPayloadProvider()),
         ChangeNotifierProvider<TimelineProvider>(create: (_) => TimelineProvider()),

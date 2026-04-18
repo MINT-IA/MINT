@@ -17,6 +17,11 @@ import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+// Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
+// highest-priority CapDecision from MintStateProvider and surfaces it
+// above the TensionCards. The provider is kept fresh by the
+// ChangeNotifierProxyProvider wired in `app.dart`.
+import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
 import 'package:mint_mobile/widgets/timeline/month_header_widget.dart';
@@ -154,6 +159,15 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   ),
                 ),
               ),
+            ),
+
+            // ── Cap du jour (B1, above tension cards) ──────────
+            // Wave B-minimal B1: the single highest-priority CapDecision
+            // from MintStateProvider. Watches the proxy provider so the
+            // banner refreshes automatically whenever CoachProfile
+            // changes (save_fact, scan enrichment, wizard load).
+            const SliverToBoxAdapter(
+              child: CapDuJourBanner(),
             ),
 
             // ── Tension cards (Phase 17 header) ────────────────
