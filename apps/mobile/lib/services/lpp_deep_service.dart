@@ -74,6 +74,17 @@ class RachatEchelonneSimulator {
     required String civilStatus,
     required int horizon,
     int age = 50, // P1-1 audit 2026-04-18 : accepte age réel, impacte bonif LPP
+    /// Salaire LPP-assuré — requis pour appliquer la règle OPP2 art. 60b
+    /// aux expats arrivés < 5 ans en CH (plafond 20% du salaire assuré).
+    /// Audit 2026-04-18 Q2 swiss-brain.
+    double? salaireAssure,
+    /// Nombre d'années de cotisation LPP en CH. Si < 5 et l'archetype
+    /// est `expat*`, OPP2 art. 60b s'applique.
+    int anneesCotisationCH = 100, // sentinel "pas expat récent" par défaut
+    /// Archétype financier (`swiss_native`, `expat_eu`, `expat_non_eu`,
+    /// `expat_us`, `returning_swiss`, `independent_with_lpp`,
+    /// `independent_no_lpp`, `cross_border`).
+    String archetype = 'swiss_native',
     // Legacy param kept for backwards compatibility, ignored if canton provided
     double tauxMarginalEstime = 0.30,
     S? l,
@@ -138,8 +149,25 @@ class RachatEchelonneSimulator {
     const double cashflowAbsoluteCap = 50000.0;
     final cashflowCap =
         min(revenuImposable * cashflowRatioMax, cashflowAbsoluteCap);
-    final rachatAnnuelEffectif =
-        rachatAnnuel.clamp(0.0, min(revenuImposable, cashflowCap)).toDouble();
+
+    // OPP2 art. 60b al. 1 (swiss-brain Q2 2026-04-18) : les personnes
+    // arrivées de l'étranger sont plafonnées à 20% du salaire assuré LPP
+    // par an durant les 5 premières années de contribution en CH. Au-delà,
+    // le plafond légal disparaît (seul reste la contrainte LIFD art. 33
+    // ≤ revenu imposable).
+    // Accepte les deux conventions (enum .name camelCase "expatEu" et
+    // schéma doctrine snake_case "expat_eu") pour tolérer les callers.
+    final a = archetype.toLowerCase().replaceAll('_', '');
+    final isExpatArchetype =
+        a == 'expateu' || a == 'expatnoneu' || a == 'expatus';
+    final isExpatRecent = anneesCotisationCH < 5 && isExpatArchetype;
+    final opp2LegalCap = (isExpatRecent && salaireAssure != null && salaireAssure > 0)
+        ? salaireAssure * 0.20
+        : double.infinity;
+
+    final rachatAnnuelEffectif = rachatAnnuel
+        .clamp(0.0, min(min(revenuImposable, cashflowCap), opp2LegalCap))
+        .toDouble();
     final List<RachatYearPlan> plan = [];
     double totalEconomieEchelonne = 0;
 

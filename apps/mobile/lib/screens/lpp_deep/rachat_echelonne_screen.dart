@@ -47,6 +47,11 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   String _canton = 'ZH';
   String _civilStatus = 'single';
   int _age = 45; // P1-1 audit 2026-04-18 : pré-rempli depuis profile, impacte bonif LPP
+  // Audit 2026-04-18 Q2 swiss-brain : archetype + années CH alimentent
+  // le cap OPP2 art. 60b (expats < 5 ans → 20% salaire assuré).
+  double? _salaireAssure;
+  int _anneesCotisationCH = 100;
+  String _archetype = 'swiss_native';
   bool _manualTauxOverride = false;
   double _manualTaux = 0.32;
 
@@ -85,6 +90,9 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         civilStatus: _civilStatus,
         horizon: _horizon,
         age: _age,
+        salaireAssure: _salaireAssure,
+        anneesCotisationCH: _anneesCotisationCH,
+        archetype: _archetype,
       );
 
   bool _prefilled = false;
@@ -177,6 +185,16 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     // P1-1 : propager l'âge réel pour les bonifications LPP (7/10/15/18%).
     if (profile.age > 0) {
       _age = profile.age;
+    }
+    // Audit 2026-04-18 Q2 (swiss-brain) : OPP2 art. 60b s'applique aux
+    // expats < 5 ans de cotisation CH → cap rachat 20% du salaire assuré.
+    _archetype = profile.archetype.name.replaceAll('_', '_').toLowerCase();
+    final sAssure = profile.prevoyance.salaireAssure;
+    if (sAssure != null && sAssure > 0) {
+      _salaireAssure = sAssure;
+    }
+    if (profile.arrivalAge != null && profile.age > 0) {
+      _anneesCotisationCH = (profile.age - profile.arrivalAge!).clamp(0, 60);
     }
   }
 
