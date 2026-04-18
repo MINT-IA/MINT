@@ -17,6 +17,7 @@ import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du rendement reel 3a avec economie fiscale.
 ///
@@ -145,28 +146,36 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
           )),
           const SizedBox(height: MintSpacing.lg),
 
-          // Chiffre choc
-          MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairage(result)),
-          const SizedBox(height: MintSpacing.lg),
+          // Result — gated in SafeMode (debt crisis)
+          SafeModeGate(
+            hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+            child: Column(
+              children: [
+                // Chiffre choc
+                MintEntrance(delay: const Duration(milliseconds: 100), child: _buildPremierEclairage(result)),
+                const SizedBox(height: MintSpacing.lg),
 
-          // Aha moment narrative
-          MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAhaMoment(result)),
-          const SizedBox(height: MintSpacing.lg),
+                // Aha moment narrative
+                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildAhaMoment(result)),
+                const SizedBox(height: MintSpacing.lg),
 
-          // Sliders
-          MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection()),
-          const SizedBox(height: MintSpacing.lg),
+                // Sliders
+                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildSlidersSection()),
+                const SizedBox(height: MintSpacing.lg),
 
-          // Resultat rendement
-          MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRendementSection(result)),
-          const SizedBox(height: MintSpacing.lg),
+                // Resultat rendement
+                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildRendementSection(result)),
+                const SizedBox(height: MintSpacing.lg),
 
-          // Comparaison barres
-          MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonBars(result)),
-          const SizedBox(height: MintSpacing.lg),
+                // Comparaison barres
+                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildComparisonBars(result)),
+                const SizedBox(height: MintSpacing.lg),
 
-          // Detail economie fiscale
-          _buildFiscalDetail(result),
+                // Detail economie fiscale
+                _buildFiscalDetail(result),
+              ],
+            ),
+          ),
           const SizedBox(height: MintSpacing.lg),
 
           // Disclaimer

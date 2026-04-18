@@ -15,6 +15,7 @@ import 'package:mint_mobile/services/screen_completion_tracker.dart';
 import 'package:mint_mobile/widgets/common/mint_empty_state.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du retrait 3a echelonne multi-comptes.
 ///
@@ -210,27 +211,35 @@ class _StaggeredWithdrawalScreenState extends State<StaggeredWithdrawalScreen> {
             padding: const EdgeInsets.all(MintSpacing.md),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Chiffre choc
-                _buildPremierEclairage(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                // Sequencing block — gated in SafeMode (debt crisis)
+                SafeModeGate(
+                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  child: Column(
+                    children: [
+                      // Chiffre choc
+                      _buildPremierEclairage(result, l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Introduction
-                _buildIntroCard(l),
-                const SizedBox(height: MintSpacing.lg),
+                      // Introduction
+                      _buildIntroCard(l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Sliders
-                _buildSlidersSection(l),
-                const SizedBox(height: MintSpacing.lg),
+                      // Sliders
+                      _buildSlidersSection(l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Resultat comparaison
-                _buildComparisonSection(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                      // Resultat comparaison
+                      _buildComparisonSection(result, l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Plan annuel
-                if (result.planAnnuel.isNotEmpty) ...[
-                  _buildYearlyPlanTable(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Plan annuel
+                      if (result.planAnnuel.isNotEmpty) ...[
+                        _buildYearlyPlanTable(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+                    ],
+                  ),
+                ),
 
                 // Disclaimer
                 _buildDisclaimer(result.disclaimer),

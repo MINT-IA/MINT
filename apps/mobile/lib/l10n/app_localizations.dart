@@ -16588,13 +16588,13 @@ abstract class S {
   /// No description provided for @sim3aDebtStrategyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Stratégie bloquée'**
+  /// **'Stratégie en pause'**
   String get sim3aDebtStrategyTitle;
 
   /// No description provided for @sim3aDebtStrategyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Les stratégies d\'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.'**
+  /// **'Les stratégies d\'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d\'abord, placer ensuite.'**
   String get sim3aDebtStrategyMessage;
 
   /// No description provided for @realReturnTitle.
@@ -20656,19 +20656,19 @@ abstract class S {
   /// No description provided for @reportSafeMode3a.
   ///
   /// In fr, this message translates to:
-  /// **'Le comparateur 3a est désactivée tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.'**
+  /// **'Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité : stabiliser ta trésorerie.'**
   String get reportSafeMode3a;
 
   /// No description provided for @reportSafeModeLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Rachat LPP bloqué'**
+  /// **'Rachat LPP en pause'**
   String get reportSafeModeLpp;
 
   /// No description provided for @reportSafeModeLppMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.'**
+  /// **'Le rachat LPP est en pause en mode protection. L\'ordre recommandé : rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.'**
   String get reportSafeModeLppMessage;
 
   /// No description provided for @reportLppTitle.
@@ -32037,7 +32037,7 @@ abstract class S {
   /// No description provided for @portfolioSafeModeBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les conseils d\'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.'**
+  /// **'Les conseils d\'allocation sont en pause en mode protection. Ordre recommandé : réduire tes dettes avant de rééquilibrer ton patrimoine.'**
   String get portfolioSafeModeBody;
 
   /// No description provided for @portfolioSafeModeLocked.
@@ -33922,7 +33922,7 @@ abstract class S {
   /// No description provided for @safeModeMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.'**
+  /// **'Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité : stabiliser ta trésorerie. Le reste attendra.'**
   String get safeModeMessage;
 
   /// No description provided for @safeModeTitle.
@@ -40124,6 +40124,36 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Santé & Protection'**
   String get hubSante;
+
+  /// No description provided for @safeModeWhyBlockedSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi est-ce en pause'**
+  String get safeModeWhyBlockedSemantics;
+
+  /// No description provided for @safeModeWhyBlockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est en pause'**
+  String get safeModeWhyBlockedTitle;
+
+  /// No description provided for @safeModeWhyBlockedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.'**
+  String get safeModeWhyBlockedBody;
+
+  /// No description provided for @safeModeWhyBlockedLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi est-ce en pause ?'**
+  String get safeModeWhyBlockedLink;
+
+  /// No description provided for @safeModeFormalDesendettementNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
+  String get safeModeFormalDesendettementNote;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

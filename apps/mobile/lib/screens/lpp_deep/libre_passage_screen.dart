@@ -14,6 +14,7 @@ import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de conseil en libre passage.
 ///
@@ -136,11 +137,20 @@ class _LibrePassageScreenState extends State<LibrePassageScreen> {
                 MintEntrance(delay: const Duration(milliseconds: 300), child: _buildChecklistSection(result.checklist, l)),
                 const SizedBox(height: MintSpacing.lg),
 
-                // Recommendations
-                if (result.recommendations.isNotEmpty) ...[
-                  _buildRecommendationsSection(result.recommendations, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                // LP result — gated in SafeMode (debt crisis).
+                // LP art. 5 escape note shown via reasons param (RULES.md §6).
+                SafeModeGate(
+                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  reasons: [S.of(context)!.safeModeFormalDesendettementNote],
+                  child: Column(
+                    children: [
+                      if (result.recommendations.isNotEmpty) ...[
+                        _buildRecommendationsSection(result.recommendations, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+                    ],
+                  ),
+                ),
 
                 // ── P7-D : Opération sauvetage 2e pilier ─────────
                 MintEntrance(delay: const Duration(milliseconds: 400), child: LppRescueWidget(

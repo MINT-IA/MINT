@@ -9359,11 +9359,11 @@ class SFr extends S {
       'En mode protection, les recommandations d\'action 3a sont désactivées. La priorité est de stabiliser ta situation financière avant de verser dans le 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Stratégie bloquée';
+  String get sim3aDebtStrategyTitle => 'Stratégie en pause';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Les stratégies d\'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.';
+      'Les stratégies d\'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d\'abord, placer ensuite.';
 
   @override
   String get realReturnTitle => 'Rendement réel 3a';
@@ -11639,14 +11639,14 @@ class SFr extends S {
 
   @override
   String get reportSafeMode3a =>
-      'Le comparateur 3a est désactivée tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.';
+      'Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité : stabiliser ta trésorerie.';
 
   @override
-  String get reportSafeModeLpp => 'Rachat LPP bloqué';
+  String get reportSafeModeLpp => 'Rachat LPP en pause';
 
   @override
   String get reportSafeModeLppMessage =>
-      'Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.';
+      'Le rachat LPP est en pause en mode protection. L\'ordre recommandé : rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.';
 
   @override
   String get reportLppTitle => '💰 Stratégie Rachat LPP';
@@ -18175,7 +18175,7 @@ class SFr extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Les conseils d\'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.';
+      'Les conseils d\'allocation sont en pause en mode protection. Ordre recommandé : réduire tes dettes avant de rééquilibrer ton patrimoine.';
 
   @override
   String get portfolioSafeModeLocked => 'Priorité au désendettement';
@@ -19266,7 +19266,7 @@ class SFr extends S {
 
   @override
   String get safeModeMessage =>
-      'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.';
+      'Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité : stabiliser ta trésorerie. Le reste attendra.';
 
   @override
   String get safeModeTitle => 'Concentration Prioritaire';
@@ -22875,4 +22875,21 @@ class SFr extends S {
 
   @override
   String get hubSante => 'Santé & Protection';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Pourquoi est-ce en pause';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Pourquoi c\'est en pause';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Pourquoi est-ce en pause ?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.';
 }

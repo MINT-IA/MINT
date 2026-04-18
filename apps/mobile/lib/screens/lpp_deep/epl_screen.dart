@@ -16,6 +16,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
 ///
@@ -274,27 +275,37 @@ class _EplScreenState extends State<EplScreen> {
                 _buildSlidersSection(l),
                 const SizedBox(height: MintSpacing.lg),
 
-                // Results
-                _buildResultsSection(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                // EPL result — gated in SafeMode (debt crisis).
+                // LP art. 5 escape note shown via reasons param (RULES.md §6).
+                SafeModeGate(
+                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  reasons: [S.of(context)!.safeModeFormalDesendettementNote],
+                  child: Column(
+                    children: [
+                      // Results
+                      _buildResultsSection(result, l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Impact on benefits
-                if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildImpactSection(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Impact on benefits
+                      if (result.montantSouhaiteApplicable > 0) ...[
+                        _buildImpactSection(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
 
-                // Impact on retirement rente
-                if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildRenteImpactSection(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Impact on retirement rente
+                      if (result.montantSouhaiteApplicable > 0) ...[
+                        _buildRenteImpactSection(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
 
-                // Tax estimate
-                if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildTaxCard(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Tax estimate
+                      if (result.montantSouhaiteApplicable > 0) ...[
+                        _buildTaxCard(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+                    ],
+                  ),
+                ),
 
                 // Alerts
                 if (result.alerts.isNotEmpty) ...[

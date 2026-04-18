@@ -9354,11 +9354,11 @@ class SEs extends S {
       'En modo protección, las recomendaciones de acción 3a están desactivadas. La prioridad es estabilizar tu situación financiera.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Estrategia bloqueada';
+  String get sim3aDebtStrategyTitle => 'Estrategia en pausa';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Las estrategias de inversión 3a están desactivadas mientras tengas deudas activas. Pagar tus deudas es un rendimiento mayor que cualquier inversión.';
+      'Las estrategias de inversión 3a están en pausa mientras tus deudas activas pesan sobre tu presupuesto. Orden recomendado: estabilizar primero, invertir después.';
 
   @override
   String get realReturnTitle => 'Rendimiento real 3a';
@@ -11637,14 +11637,14 @@ class SEs extends S {
 
   @override
   String get reportSafeMode3a =>
-      'El comparador 3a está desactivado mientras tengas deudas activas. Pagar las deudas es prioritario antes de cualquier ahorro 3a.';
+      'El comparador 3a está en pausa mientras tus deudas activas pesan sobre tu presupuesto. Prioridad: estabilizar tu tesorería.';
 
   @override
-  String get reportSafeModeLpp => 'Rescate LPP bloqueado';
+  String get reportSafeModeLpp => 'Rescate LPP en pausa';
 
   @override
   String get reportSafeModeLppMessage =>
-      'El rescate LPP está desactivado en modo protección. Paga tus deudas antes de inmovilizar liquidez en la previsión.';
+      'El rescate LPP está en pausa en modo protección. Orden recomendado: pagar las deudas antes de inmovilizar liquidez en la previsión.';
 
   @override
   String get reportLppTitle => '💰 Estrategia de Rescate LPP';
@@ -18190,7 +18190,7 @@ class SEs extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Los consejos de asignación están desactivados en modo protección. Tu prioridad es reducir tus deudas antes de reequilibrar tu patrimonio.';
+      'Los consejos de asignación están en pausa en modo protección. Orden recomendado: reducir tus deudas antes de reequilibrar tu patrimonio.';
 
   @override
   String get portfolioSafeModeLocked => 'Prioridad al desendeudamiento';
@@ -19271,7 +19271,7 @@ class SEs extends S {
 
   @override
   String get safeModeMessage =>
-      'Por tu seguridad financiera, desactivamos las optimizaciones avanzadas mientras una señal de deuda esté activa.';
+      'Mientras una señal de deuda esté activa, las optimizaciones avanzadas están en pausa. Prioridad: estabilizar tu tesorería. El resto puede esperar.';
 
   @override
   String get safeModeTitle => 'Enfoque Prioritario';
@@ -22873,4 +22873,21 @@ class SEs extends S {
 
   @override
   String get hubSante => 'Salud y Protección';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Por qué está en pausa';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Por qué está en pausa';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'En modo protección, MINT prioriza la estabilidad de tesorería antes que las optimizaciones fiscales y de previsión.';
+
+  @override
+  String get safeModeWhyBlockedLink => '¿Por qué está en pausa?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Estas retiradas siguen siendo posibles en caso de procedimiento formal de saneamiento de deudas — habla con un especialista.';
 }

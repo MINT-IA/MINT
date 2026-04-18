@@ -90,7 +90,7 @@ class SafeModeGate extends StatelessWidget {
                 ],
                 const SizedBox(height: 12),
                 Semantics(
-                  label: 'Pourquoi est-ce bloqué',
+                  label: l.safeModeWhyBlockedSemantics,
                   button: true,
                   child: InkWell(
                     onTap: () {
@@ -112,13 +112,12 @@ class SafeModeGate extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pourquoi c’est bloqué',
+                              S.of(ctx)!.safeModeWhyBlockedTitle,
                               style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'En mode protection, MINT priorise la stabilité de trésorerie '
-                              'avant les optimisations fiscales et prévoyance.',
+                              S.of(ctx)!.safeModeWhyBlockedBody,
                               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                             ),
                             if (reasons.isNotEmpty) ...[
@@ -139,7 +138,7 @@ class SafeModeGate extends StatelessWidget {
                     );
                   },
                   child: Text(
-                    "Pourquoi est-ce bloqué ?",
+                    l.safeModeWhyBlockedLink,
                     style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),

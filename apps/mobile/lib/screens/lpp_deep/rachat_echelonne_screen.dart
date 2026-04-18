@@ -21,6 +21,7 @@ import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du rachat LPP echelonne vs bloc.
 ///
@@ -348,15 +349,23 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
                 const SizedBox(height: MintSpacing.md),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: _buildIntroCard(l)),
                 const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
-                const SizedBox(height: MintSpacing.lg),
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
-                const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
-                const SizedBox(height: MintSpacing.md),
-                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
-                const SizedBox(height: MintSpacing.lg),
-                _buildComparisonSection(result, l),
+                // Rachat table — gated in SafeMode (debt crisis)
+                SafeModeGate(
+                  hasDebt: context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ?? false,
+                  child: Column(
+                    children: [
+                      MintEntrance(delay: const Duration(milliseconds: 200), child: _buildHeroPremierEclairage(result, l)),
+                      const SizedBox(height: MintSpacing.lg),
+                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildLppSituationCard(l)),
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(delay: const Duration(milliseconds: 400), child: _buildFiscalSituationCard(l)),
+                      const SizedBox(height: MintSpacing.md),
+                      MintEntrance(delay: const Duration(milliseconds: 500), child: _buildStrategieCard(l)),
+                      const SizedBox(height: MintSpacing.lg),
+                      _buildComparisonSection(result, l),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: MintSpacing.lg),
                 const EarlyRetirementSlider(
                   monthlyIncomeAt65: 4000,

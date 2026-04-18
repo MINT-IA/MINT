@@ -9375,11 +9375,11 @@ class SDe extends S {
       'Im Schutzmodus sind 3a-Empfehlungen deaktiviert. Priorität ist die Stabilisierung deiner Finanzen vor Einzahlungen in die 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategie gesperrt';
+  String get sim3aDebtStrategyTitle => 'Strategie pausiert';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a-Anlagestrategien sind gesperrt, solange du aktive Schulden hast. Schuldenrückzahlung bringt eine höhere Rendite als jede Anlage.';
+      '3a-Anlagestrategien sind pausiert, solange deine aktiven Schulden dein Budget belasten. Empfohlene Reihenfolge: erst stabilisieren, dann anlegen.';
 
   @override
   String get realReturnTitle => 'Reale Rendite 3a';
@@ -11659,14 +11659,14 @@ class SDe extends S {
 
   @override
   String get reportSafeMode3a =>
-      'Der 3a-Vergleich ist deaktiviert, solange du aktive Schulden hast. Die Rückzahlung hat Vorrang vor jeglichem 3a-Sparen.';
+      'Der 3a-Vergleich ist pausiert, solange deine aktiven Schulden dein Budget belasten. Priorität: Liquidität stabilisieren.';
 
   @override
-  String get reportSafeModeLpp => 'BVG-Einkauf gesperrt';
+  String get reportSafeModeLpp => 'BVG-Einkauf pausiert';
 
   @override
   String get reportSafeModeLppMessage =>
-      'Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden zurück, bevor du Liquidität in der Vorsorge bindest.';
+      'Der BVG-Einkauf ist im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor Liquidität in der Vorsorge gebunden wird.';
 
   @override
   String get reportLppTitle => '💰 BVG-Einkauf-Strategie';
@@ -18225,7 +18225,7 @@ class SDe extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.';
+      'Allokationsempfehlungen sind im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor das Portfolio umgeschichtet wird.';
 
   @override
   String get portfolioSafeModeLocked => 'Priorität Schuldenabbau';
@@ -19312,7 +19312,7 @@ class SDe extends S {
 
   @override
   String get safeModeMessage =>
-      'Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.';
+      'Solange ein Schuldensignal aktiv ist, sind erweiterte Optimierungen pausiert. Priorität: Liquidität stabilisieren. Der Rest wartet.';
 
   @override
   String get safeModeTitle => 'Prioritätsfokus';
@@ -22928,4 +22928,21 @@ class SDe extends S {
 
   @override
   String get hubSante => 'Gesundheit & Schutz';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Warum ist das pausiert';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Warum ist das pausiert';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'Im Schutzmodus priorisiert MINT die Liquiditätsstabilisierung vor Steuer- und Vorsorgeoptimierungen.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Warum ist das pausiert?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.';
 }

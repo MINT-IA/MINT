@@ -9305,11 +9305,11 @@ class SEn extends S {
       'In safe mode, 3a action recommendations are disabled. The priority is to stabilise your finances before contributing to 3a.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategy locked';
+  String get sim3aDebtStrategyTitle => 'Strategy on hold';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      '3a investment strategies are disabled while you have active debts. Repaying your debts yields a higher return than any investment.';
+      '3a investment strategies are on hold while your active debts weigh on your budget. Recommended order: stabilise first, invest later.';
 
   @override
   String get realReturnTitle => 'Real return 3a';
@@ -11577,14 +11577,14 @@ class SEn extends S {
 
   @override
   String get reportSafeMode3a =>
-      'The 3a comparator is disabled while you have active debts. Repaying debts takes priority over any 3a savings.';
+      'The 3a comparator is on hold while your active debts weigh on your budget. Priority: stabilise your cash flow.';
 
   @override
-  String get reportSafeModeLpp => 'LPP buyback blocked';
+  String get reportSafeModeLpp => 'LPP buyback on hold';
 
   @override
   String get reportSafeModeLppMessage =>
-      'LPP buyback is disabled in protection mode. Repay your debts before locking liquidity in pension savings.';
+      'LPP buyback is on hold in protection mode. Recommended order: repay debts before locking liquidity in pension savings.';
 
   @override
   String get reportLppTitle => '💰 LPP Buyback Strategy';
@@ -18096,7 +18096,7 @@ class SEn extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.';
+      'Allocation advice is on hold in protection mode. Recommended order: reduce your debts before rebalancing your portfolio.';
 
   @override
   String get portfolioSafeModeLocked => 'Debt reduction priority';
@@ -19175,7 +19175,7 @@ class SEn extends S {
 
   @override
   String get safeModeMessage =>
-      'For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.';
+      'While a debt signal is active, advanced optimisations are on hold. Priority: stabilise your cash flow. The rest can wait.';
 
   @override
   String get safeModeTitle => 'Priority Focus';
@@ -22761,4 +22761,21 @@ class SEn extends S {
 
   @override
   String get hubSante => 'Health & Protection';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Why is this on hold';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Why it\'s on hold';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'In protection mode, MINT prioritises cash flow stability before tax and pension optimisations.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Why is this on hold?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.';
 }
