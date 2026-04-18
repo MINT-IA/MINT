@@ -4,6 +4,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/family_service.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 
 import '../models/financial_report.dart';
@@ -233,17 +234,24 @@ class FinancialReportService {
       deductions['Rachat LPP'] = lppBuyback;
     }
 
-    // Enfants
+    // Enfants — déduction fédérale LIFD art. 35 al. 1 let. a (6'700 CHF
+    // en 2025) + déduction cantonale LHID art. 9 al. 2 let. c (7'000-13'000
+    // CHF selon canton). Wave 7 fiscal audit P0-R4 : le flat 6'500 ignorait
+    // toute la couche cantonale (sous-estimation ~55 % pour VS/VD/GE).
     if (profile.hasChildren) {
-      deductions['Déduction enfants'] = profile.childrenCount * 6500.0;
+      final perChild = FamilyService.totalChildDeduction(profile.canton);
+      deductions['Déduction enfants'] = profile.childrenCount * perChild;
     }
 
     final taxableIncome =
         annualIncome - deductions.values.fold(0.0, (sum, val) => sum + val);
 
-    // Estimation fiscale simplifiée (à raffiner avec service dédié)
+    // Estimation fiscale simplifiée (à raffiner avec service dédié).
+    // `children` forwarded so married-with-children splitting (LIFD art. 36
+    // al. 2bis) is reflected via the AFC family adjustment table.
     final effectiveRate = _estimateEffectiveRate(
-        taxableIncome, profile.canton, profile.isMarried);
+        taxableIncome, profile.canton, profile.isMarried,
+        children: profile.childrenCount);
     final totalTax = taxableIncome * effectiveRate;
     // Approximation: ~75% of Swiss income tax is cantonal+communal, ~25% federal.
     // A precise split requires FiscalService per canton; acceptable for report overview.
@@ -260,7 +268,8 @@ class FinancialReportService {
       const buybackAmount = 50000.0; // 1ère tranche recommandée
       final taxableWithBuyback = taxableIncome - buybackAmount;
       final rateWithBuyback = _estimateEffectiveRate(
-          taxableWithBuyback, profile.canton, profile.isMarried);
+          taxableWithBuyback, profile.canton, profile.isMarried,
+          children: profile.childrenCount);
       taxWithBuyback = taxableWithBuyback * rateWithBuyback;
       savings = totalTax - taxWithBuyback;
     }
@@ -370,10 +379,25 @@ class FinancialReportService {
     double? savingsMultiple;
 
     if (nb3aAccounts == 1 && projections['fintech']! > 100000) {
+      // Wave 7 fiscal audit P0-R6 : the previous 8 %/5 % flat was invented
+      // AND the /2*2 algebraic split cancelled to `totalCapital × 0.05`.
+      // Delegate to RetirementTaxCalculator which implements LIFD art. 38
+      // progressive brackets (×1.0/×1.15/×1.30/×1.50/×1.70) + Wave 3
+      // cantonal married matrix (marriedCapitalTaxDiscountFor).
       final totalCapital = projections['fintech']!;
-      taxSingle = totalCapital * 0.08; // ~ 8% impôt capital Swiss moyenne
-      taxMultiple =
-          (totalCapital / 2) * 0.05 * 2; // Échelonné sur 2 ans = taux plus bas
+      taxSingle = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: totalCapital,
+        canton: profile.canton,
+        isMarried: profile.isMarried,
+      );
+      // Staggered over 2 tax years — each year taxed on half the capital,
+      // benefitting from lower progressive brackets.
+      final halfTax = RetirementTaxCalculator.capitalWithdrawalTax(
+        capitalBrut: totalCapital / 2,
+        canton: profile.canton,
+        isMarried: profile.isMarried,
+      );
+      taxMultiple = halfTax * 2;
       savingsMultiple = taxSingle - taxMultiple;
     }
 
@@ -634,14 +658,21 @@ class FinancialReportService {
   // ===== HELPERS =====
 
   double _estimateEffectiveRate(
-      double taxableIncome, String canton, bool isMarried) {
-    // Delegate to centralized marginal rate estimator (financial_core).
-    // RetirementTaxCalculator.estimateMarginalRate accounts for canton grouping
-    // and income-level brackets (AFC taux marginaux 2025).
-    final marginalRate =
-        RetirementTaxCalculator.estimateMarginalRate(taxableIncome, canton);
-    // Married couples benefit from splitting (~15% reduction, cf. LIFD art. 36).
-    return isMarried ? marginalRate * 0.85 : marginalRate;
+      double taxableIncome, String canton, bool isMarried,
+      {int children = 0}) {
+    // Wave 7 fiscal audit P0-R3 : the previous `× 0.85` flat ignored
+    // that cantonal splitting varies 8-25 % by income and canton
+    // (LIFD art. 36 al. 2bis, LHID art. 11 — ZH barème séparé, VS
+    // quotient familial, GE splitting modifié, VD ×0.5). The centralized
+    // estimateMarginalRate already consumes `isMarried` + `children`
+    // via its `_familyAdjustment` table sourced from AFC 2024, so we
+    // just forward the parameters instead of double-discounting.
+    return RetirementTaxCalculator.estimateMarginalRate(
+      taxableIncome,
+      canton,
+      isMarried: isMarried,
+      children: children,
+    );
   }
 
   double _estimateAvsRent(UserProfile profile) {
