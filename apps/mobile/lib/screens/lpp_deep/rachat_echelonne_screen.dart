@@ -46,6 +46,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
   // --- Fiscal situation ---
   String _canton = 'ZH';
   String _civilStatus = 'single';
+  int _age = 45; // P1-1 audit 2026-04-18 : pré-rempli depuis profile, impacte bonif LPP
   bool _manualTauxOverride = false;
   double _manualTaux = 0.32;
 
@@ -83,6 +84,7 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         canton: _canton,
         civilStatus: _civilStatus,
         horizon: _horizon,
+        age: _age,
       );
 
   bool _prefilled = false;
@@ -172,6 +174,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
     }
     final isMarried = profile.etatCivil == CoachCivilStatus.marie;
     _civilStatus = isMarried ? 'married' : 'single';
+    // P1-1 : propager l'âge réel pour les bonifications LPP (7/10/15/18%).
+    if (profile.age > 0) {
+      _age = profile.age;
+    }
   }
 
   /// Apply prefill values from GoRouter coach suggestion.
@@ -688,7 +694,10 @@ class _RachatEchelonneScreenState extends State<RachatEchelonneScreen>
         children: [
           _buildSectionHeader(Icons.timeline, l.rachatEchelonneStrategie),
           const SizedBox(height: MintSpacing.lg),
-          _buildSliderRow(label: l.rachatEchelonneHorizon, value: _horizon.toDouble(), min: 1, max: 15, divisions: 14, format: '$_horizon an${_horizon > 1 ? 's' : ''}', onChanged: (v) { _horizon = v.round(); _onInputChanged(); }),
+          // Horizon max étendu 15 → 25 ans (audit simulateur 2026-04-18 P0-1) :
+          // pour un rachat max 350k+ sur revenu modeste, l'étalement soutenable
+          // cashflow (25% brut max) demande 12-20 ans.
+          _buildSliderRow(label: l.rachatEchelonneHorizon, value: _horizon.toDouble(), min: 1, max: 25, divisions: 24, format: '$_horizon an${_horizon > 1 ? 's' : ''}', onChanged: (v) { _horizon = v.round(); _onInputChanged(); }),
         ],
       ),
     );

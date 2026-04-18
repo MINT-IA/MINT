@@ -21001,8 +21001,7 @@ class SEs extends S {
   String get coachOptInDecline => 'No, vengo cuando quiera';
 
   @override
-  String get coachSilentOpenerReplacementRate =>
-      'Tasa de reemplazo en la jubilación';
+  String get coachSilentOpenerReplacementRate => 'Tasa de reemplazo proyectada';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Puntuación de salud financiera';
@@ -21010,6 +21009,16 @@ class SEs extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capital proyectado a la jubilación';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Capital proyectado en tu horizonte';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'Saldo LPP';
+
+  @override
+  String get coachSilentOpener3aEpargne => 'Ahorro 3a';
 
   @override
   String get confidenceLow =>

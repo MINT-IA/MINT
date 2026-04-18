@@ -20997,8 +20997,7 @@ class SFr extends S {
   String get coachOptInDecline => 'Non, je viens quand je veux';
 
   @override
-  String get coachSilentOpenerReplacementRate =>
-      'Taux de remplacement à la retraite';
+  String get coachSilentOpenerReplacementRate => 'Taux de remplacement projeté';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Score de santé financière';
@@ -21006,6 +21005,16 @@ class SFr extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capital projeté à la retraite';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Capital projeté sur ton horizon';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'Avoir LPP';
+
+  @override
+  String get coachSilentOpener3aEpargne => 'Épargne 3a';
 
   @override
   String get confidenceLow =>

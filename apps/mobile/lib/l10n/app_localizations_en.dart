@@ -20890,7 +20890,7 @@ class SEn extends S {
   String get coachOptInDecline => 'No, I\'ll come when I want';
 
   @override
-  String get coachSilentOpenerReplacementRate => 'Retirement replacement rate';
+  String get coachSilentOpenerReplacementRate => 'Projected replacement rate';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Financial fitness score';
@@ -20898,6 +20898,16 @@ class SEn extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projected retirement capital';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Projected capital on your horizon';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'LPP balance';
+
+  @override
+  String get coachSilentOpener3aEpargne => '3a savings';
 
   @override
   String get confidenceLow =>

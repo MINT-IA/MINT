@@ -21059,7 +21059,7 @@ class SIt extends S {
 
   @override
   String get coachSilentOpenerReplacementRate =>
-      'Tasso di sostituzione alla pensione';
+      'Tasso di sostituzione proiettato';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Punteggio di salute finanziaria';
@@ -21067,6 +21067,16 @@ class SIt extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capitale proiettato alla pensione';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Capitale proiettato sul tuo orizzonte';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'Saldo LPP';
+
+  @override
+  String get coachSilentOpener3aEpargne => 'Risparmio 3a';
 
   @override
   String get confidenceLow =>

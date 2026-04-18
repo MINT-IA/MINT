@@ -73,20 +73,24 @@ class RachatEchelonneSimulator {
     required String canton,
     required String civilStatus,
     required int horizon,
+    int age = 50, // P1-1 audit 2026-04-18 : accepte age réel, impacte bonif LPP
     // Legacy param kept for backwards compatibility, ignored if canton provided
     double tauxMarginalEstime = 0.30,
     S? l,
   }) {
-    final clampedHorizon = horizon.clamp(1, 15);
+    // Horizon jusqu'à 25 ans (audit 2026-04-18 P0-1 : rachats 350k+ demandent
+    // un étalement long au rythme cashflow soutenable).
+    final clampedHorizon = horizon.clamp(1, 25);
     // No arbitrary 500k cap — use actual rachat max from profile/slider
     final clampedRachat = rachatMax.clamp(0.0, double.infinity);
+    final clampedAge = age.clamp(18, 70);
 
     // --- Impôt de base (sans rachat) ---
     // Use NetIncomeBreakdown to convert gross → net (replaces hardcoded * 0.87)
     final baseBreakdown = NetIncomeBreakdown.compute(
       grossSalary: revenuImposable,
       canton: canton,
-      age: 50,
+      age: clampedAge,
     );
     final netMensuel = baseBreakdown.monthlyNetPayslip;
     final impotSansRachat = TaxEstimatorService.estimateAnnualTax(
@@ -94,7 +98,7 @@ class RachatEchelonneSimulator {
       cantonCode: canton,
       civilStatus: civilStatus,
       childrenCount: 0,
-      age: 50,
+      age: clampedAge,
     );
 
     // --- Bloc (1 an) ---
@@ -103,7 +107,7 @@ class RachatEchelonneSimulator {
     final blocBreakdown = NetIncomeBreakdown.compute(
       grossSalary: revenuImposable - blocDeductible,
       canton: canton,
-      age: 50,
+      age: clampedAge,
     );
     final netMensuelApresBloc = blocBreakdown.monthlyNetPayslip;
     final impotApresBloc = TaxEstimatorService.estimateAnnualTax(
@@ -111,23 +115,38 @@ class RachatEchelonneSimulator {
       cantonCode: canton,
       civilStatus: civilStatus,
       childrenCount: 0,
-      age: 50,
+      age: clampedAge,
     );
     final economieBlocTotal =
         (impotSansRachat - impotApresBloc).clamp(0.0, impotSansRachat);
 
     // --- Echelonne ---
     final rachatAnnuel = clampedRachat / clampedHorizon;
-    // Cap annuel : on ne peut pas déduire plus que le revenu
+    // Trois plafonds cumulés (audit simulateur 2026-04-18) :
+    //   (a) LIFD art. 33 al. 1 let. d — déduction plafonnée au revenu
+    //       imposable (tax rule).
+    //   (b) Réalité cashflow : un ménage suisse peut rarement absorber
+    //       plus de 25% de son brut en rachat LPP une année donnée
+    //       (littérature actuarielle + pratique fiduciaire). Pour
+    //       350k de rachat max avec horizon=3, sans ce cap on
+    //       calculait un rachat annuel de 116'667 CHF = 95% du brut,
+    //       non faisable en trésorerie.
+    //   (c) Plafond pratique absolu 50'000 CHF/an — au-delà, les
+    //       progressifs fiscaux rendent l'étalement sur plus d'années
+    //       plus efficace fiscalement ET plus réaliste en cashflow.
+    const double cashflowRatioMax = 0.25;
+    const double cashflowAbsoluteCap = 50000.0;
+    final cashflowCap =
+        min(revenuImposable * cashflowRatioMax, cashflowAbsoluteCap);
     final rachatAnnuelEffectif =
-        rachatAnnuel.clamp(0.0, revenuImposable);
+        rachatAnnuel.clamp(0.0, min(revenuImposable, cashflowCap)).toDouble();
     final List<RachatYearPlan> plan = [];
     double totalEconomieEchelonne = 0;
 
     final echelonBreakdown = NetIncomeBreakdown.compute(
       grossSalary: revenuImposable - rachatAnnuelEffectif,
       canton: canton,
-      age: 50,
+      age: clampedAge,
     );
     final netMensuelApresEchelon = echelonBreakdown.monthlyNetPayslip;
     final impotApresEchelon = TaxEstimatorService.estimateAnnualTax(
@@ -135,7 +154,7 @@ class RachatEchelonneSimulator {
       cantonCode: canton,
       civilStatus: civilStatus,
       childrenCount: 0,
-      age: 50,
+      age: clampedAge,
     );
     final economieAnnuelle =
         (impotSansRachat - impotApresEchelon).clamp(0.0, impotSansRachat);
@@ -150,18 +169,34 @@ class RachatEchelonneSimulator {
       ));
     }
 
+    // Check si le total effectif couvre le rachat max — sinon signaler à l'user
+    // que l'horizon choisi est trop court pour absorber tout le rachat au rythme
+    // réaliste (cashflow 20% brut, cap absolu 50k/an).
+    final totalEffectifRachat = rachatAnnuelEffectif * clampedHorizon;
+    final rachatNonAbsorbe = clampedRachat - totalEffectifRachat;
+    String cashflowNote = '';
+    if (rachatNonAbsorbe > 1000 && rachatAnnuel > cashflowCap) {
+      final horizonNecessaire = (clampedRachat / rachatAnnuelEffectif).ceil();
+      cashflowNote = 'Au rythme réaliste de '
+          '${rachatAnnuelEffectif.round()}\u00a0CHF/an, ton rachat '
+          'max demanderait $horizonNecessaire\u00a0années — '
+          'l\'horizon actuel ($clampedHorizon\u00a0ans) ne couvre qu\'une partie '
+          '(${totalEffectifRachat.round()}\u00a0CHF sur ${clampedRachat.round()}). ';
+    }
+
     return RachatEchelonneResult(
       economieBlocTotal: economieBlocTotal,
       economieEchelonneTotal: totalEconomieEchelonne,
       delta: totalEconomieEchelonne - economieBlocTotal,
       yearlyPlan: plan,
-      disclaimer: l?.lppRachatDisclaimerEchelonne ??
+      disclaimer: cashflowNote + (l?.lppRachatDisclaimerEchelonne ??
           'Simulation pédagogique basée sur les barèmes cantonaux estimés. '
           'Le rachat LPP est soumis à acceptation par la caisse de pension. '
-          'La déduction annuelle est plafonnée au revenu imposable. '
-          'Blocage EPL de 3 ans après chaque rachat (LPP art. 79b al. 3). '
+          'La déduction annuelle est plafonnée au revenu imposable (LIFD art.\u00a033) '
+          'et cappée à 20% du brut ou 50\'000\u00a0CHF/an pour rester réaliste en trésorerie. '
+          'Blocage EPL de 3 ans après chaque rachat (LPP art.\u00a079b al.\u00a03). '
           'Consulte ta caisse de pension et un·e spécialiste '
-          'en prévoyance avant toute décision.',
+          'en prévoyance avant toute décision.'),
     );
   }
 }

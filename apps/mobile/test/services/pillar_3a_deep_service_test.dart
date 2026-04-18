@@ -597,7 +597,12 @@ void main() {
       expect(result.disclaimer, contains('specialiste'));
     });
 
-    test('assurance a badge WARNING', () {
+    test('assurance exposes hasWarning flag instead of hardcoded badge', () {
+      // Audit 2026-04-18 P0-6 + doctrine CLAUDE.md §6.4 No-Ranking : on ne
+      // désigne pas de "winner" ni d'écrase avec un badge "WARNING" anglais
+      // non-i18n. Le warning assurance est exposé via hasWarning +
+      // warningMessage — la UI les rend comme un badge contextuel localisé
+      // distinct du badge de ranking (qui n'existe plus).
       final result = ProviderComparator.compare(
         age: 30,
         versementAnnuel: 7258,
@@ -607,7 +612,10 @@ void main() {
       final assurance = result.providers.firstWhere(
         (p) => p.provider.type == 'assurance',
       );
-      expect(assurance.badge, 'WARNING');
+      expect(assurance.badge, isNull,
+          reason: 'No winner designation — No-Ranking doctrine');
+      expect(assurance.hasWarning, isTrue,
+          reason: 'Assurance provider should still surface a warning flag');
     });
   });
 }

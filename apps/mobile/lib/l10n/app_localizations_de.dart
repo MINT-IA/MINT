@@ -21047,7 +21047,7 @@ class SDe extends S {
   String get coachOptInDecline => 'Nein, ich komme wenn ich will';
 
   @override
-  String get coachSilentOpenerReplacementRate => 'Ersatzrate bei Pensionierung';
+  String get coachSilentOpenerReplacementRate => 'Projizierte Ersatzrate';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Finanzieller Fitness-Score';
@@ -21055,6 +21055,16 @@ class SDe extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Projiziertes Pensionierungskapital';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Projiziertes Kapital auf deinem Horizont';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'BVG-Guthaben';
+
+  @override
+  String get coachSilentOpener3aEpargne => '3a-Ersparnis';
 
   @override
   String get confidenceLow =>

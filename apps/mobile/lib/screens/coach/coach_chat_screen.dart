@@ -511,7 +511,41 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (_profile == null) return null;
     final s = S.of(context)!;
 
-    // Priority 1: replacement rate (most impactful)
+    // Priority 1: most recent enrichment fact (LPP avoir or 3a épargne) —
+    // surfaces a raw number the user JUST added to their profile, so the
+    // coach acknowledges the upload instead of opening silent. Factual,
+    // not projected (anti-shame: fact of the world, not judgment of user).
+    final avoirLpp = _profile!.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp > 0) {
+      return (
+        number: _formatChf(avoirLpp),
+        headline: s.coachSilentOpenerLppAvoir,
+      );
+    }
+    final epargne3a = _profile!.prevoyance.totalEpargne3a;
+    if (epargne3a > 0) {
+      return (
+        number: _formatChf(epargne3a),
+        headline: s.coachSilentOpener3aEpargne,
+      );
+    }
+
+    // Priority 2: financial fitness score — neutral, life-event-agnostic.
+    try {
+      final score = FinancialFitnessService.calculate(profile: _profile!);
+      final g = score.global;
+      if (g > 0) {
+        return (
+          number: '$g/100',
+          headline: s.coachSilentOpenerFitnessScore,
+        );
+      }
+    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
+
+    // Priority 3: replacement rate (retirement-framed — only surfaces when
+    // nothing neutral above is available and the user has enough data for
+    // a projection; headline now neutralized to "taux de remplacement
+    // projeté" without the "à la retraite" qualifier).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -526,19 +560,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
 
-    // Priority 2: financial fitness score
-    try {
-      final score = FinancialFitnessService.calculate(profile: _profile!);
-      final g = score.global;
-      if (g > 0) {
-        return (
-          number: '$g/100',
-          headline: s.coachSilentOpenerFitnessScore,
-        );
-      }
-    } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }
-
-    // Priority 3: projected capital
+    // Priority 4: projected capital (same neutralization rationale).
     try {
       final proj = ForecasterService.project(
         profile: _profile!,
@@ -549,7 +571,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         final formatted = _formatChf(cap);
         return (
           number: formatted,
-          headline: s.coachSilentOpenerRetirementCapital,
+          headline: s.coachSilentOpenerProjectedCapital,
         );
       }
     } catch (e) { debugPrint("[CoachChat] best-effort: $e"); }

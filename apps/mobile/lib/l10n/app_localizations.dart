@@ -36930,7 +36930,7 @@ abstract class S {
   /// No description provided for @coachSilentOpenerReplacementRate.
   ///
   /// In fr, this message translates to:
-  /// **'Taux de remplacement à la retraite'**
+  /// **'Taux de remplacement projeté'**
   String get coachSilentOpenerReplacementRate;
 
   /// No description provided for @coachSilentOpenerFitnessScore.
@@ -36944,6 +36944,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Capital projeté à la retraite'**
   String get coachSilentOpenerRetirementCapital;
+
+  /// No description provided for @coachSilentOpenerProjectedCapital.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital projeté sur ton horizon'**
+  String get coachSilentOpenerProjectedCapital;
+
+  /// No description provided for @coachSilentOpenerLppAvoir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get coachSilentOpenerLppAvoir;
+
+  /// No description provided for @coachSilentOpener3aEpargne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a'**
+  String get coachSilentOpener3aEpargne;
 
   /// No description provided for @confidenceLow.
   ///

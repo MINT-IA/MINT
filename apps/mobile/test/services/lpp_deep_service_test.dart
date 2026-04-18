@@ -157,20 +157,24 @@ void main() {
       }
     });
 
-    test('Julien golden test — rachat 33k/an sur revenu 122k VS marie', () {
+    test('Julien golden test — rachat cappé 25% brut sur revenu 122k VS marie', () {
+      // Audit 2026-04-18 P0-1 : le cap cashflow 25% brut force le rachat
+      // annuel à min(500k/15, 122207 × 0.25) = min(33'333, 30'552) = 30'552.
+      // Ancien calcul (pré-audit) : 33'333 CHF/an — irréaliste en cashflow
+      // pour un revenu de 122k net de charges et dépenses courantes.
       final result = RachatEchelonneSimulator.compare(
         avoirActuel: 70377,
-        rachatMax: 500000, // ~539k lacune
+        rachatMax: 500000,
         revenuImposable: 122207,
         canton: 'VS',
         civilStatus: 'married',
         horizon: 15,
       );
-      // Rachat annuel = 500k/15 = 33'333
-      expect(result.yearlyPlan.first.montantRachat, closeTo(33333, 1));
+      // Rachat annuel = min(500k/15 = 33'333, 122207 × 0.25 = 30'552) = 30'552
+      expect(result.yearlyPlan.first.montantRachat, closeTo(30551.75, 1));
       // Economie par an doit etre < impot total (~15-20k pour 122k VS marie)
       expect(result.yearlyPlan.first.economieFiscale, lessThan(20000));
-      // Economie par an doit etre raisonnable (5-10k pour 33k deduit)
+      // Economie par an doit etre raisonnable (5-10k pour ~30k deduit)
       expect(result.yearlyPlan.first.economieFiscale, greaterThan(2000));
     });
   });

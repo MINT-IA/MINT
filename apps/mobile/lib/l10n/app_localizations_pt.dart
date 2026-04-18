@@ -21005,7 +21005,7 @@ class SPt extends S {
 
   @override
   String get coachSilentOpenerReplacementRate =>
-      'Taxa de substituição na reforma';
+      'Taxa de substituição projetada';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Pontuação de saúde financeira';
@@ -21013,6 +21013,16 @@ class SPt extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capital projetado na reforma';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Capital projetado no teu horizonte';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'Saldo LPP';
+
+  @override
+  String get coachSilentOpener3aEpargne => 'Poupança 3a';
 
   @override
   String get confidenceLow =>
