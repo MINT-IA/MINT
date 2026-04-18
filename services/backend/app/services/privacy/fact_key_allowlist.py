@@ -68,4 +68,56 @@ __all__ = [
     "is_allowed",
     "purpose_of",
     "ttl_days_of",
+    "SAFE_LOG_FACT_KEYS",
+    "is_safe_to_log",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Save_fact log redaction allowlist (deny-by-default)
+#
+# Scope: the save_fact coach tool writes 40+ typed facts into ProfileModel.data.
+# Logging raw values of financial facts leaks PII (CLAUDE.md §6.7, nLPD art. 4).
+# Any fact_key NOT in this set is redacted to "[REDACTED]" in log lines AND in
+# the tool return string forwarded back to the LLM.
+#
+# Rationale for inclusion: only structural/categorical or non-identifying
+# markers. Numeric amounts (salary, balances, debt), contribution counts that
+# reveal wealth, and household-linked amounts are excluded.
+#
+# Sources of keys: coach_tools.COACH_TOOLS['save_fact'].input_schema.enum.
+# Adversarial panel 2026-04-18 (agent a39aa3c1db57f30a0) mandated deny-by-default
+# to prevent silent leaks when new enum values are introduced.
+# ---------------------------------------------------------------------------
+SAFE_LOG_FACT_KEYS: frozenset[str] = frozenset({
+    # Categorical low-entropy identifiers (no re-identification risk alone)
+    "canton",              # 26 values
+    "householdType",       # 3-4 values (single/couple/concubinage/famille)
+    "employmentStatus",    # 3-4 values (salarie/independant/chomeur/retraite)
+    "gender",              # 2-3 values
+    "goal",                # small enum
+    # Booleans (binary, no PII)
+    "has2ndPillar",
+    "hasVoluntaryLpp",
+    "hasDebt",
+    "hasAvsGaps",
+    # Ratios / small-range integers (low entropy, no re-identification)
+    "employmentRate",      # 0-100 percentage
+    "targetRetirementAge", # 58-70 range
+    # NOTE: birthYear, dateOfBirth, commune, avsContributionYears,
+    # spouseBirthYear, spouseAvsContributionYears are NOT in this set —
+    # they are quasi-identifiers under nLPD art. 4 (combined with canton
+    # they approach uniqueness). All numeric financial amounts (salary,
+    # avoirLpp, pillar3aBalance, totalDebt, savingsMonthly, etc.) are
+    # excluded by default.
+})
+
+
+def is_safe_to_log(fact_key: str) -> bool:
+    """Return True iff the raw value of ``fact_key`` may appear in logs or
+    tool-return strings. Deny-by-default: unknown keys return False.
+
+    Used by save_fact handler to decide whether to redact the value before
+    logging or before echoing it back to the LLM in the tool result.
+    """
+    return fact_key in SAFE_LOG_FACT_KEYS

@@ -1361,19 +1361,38 @@ def _execute_internal_tool(
                 profile.updated_at = datetime.now(timezone.utc)
                 db.add(profile)
                 db.commit()
+                # PRIV-07 — PII redaction on save_fact log + LLM return.
+                # Deny-by-default: only keys in SAFE_LOG_FACT_KEYS expose
+                # their value. All numeric financial amounts + quasi-
+                # identifiers (birthYear, dateOfBirth, commune, etc.) are
+                # redacted. The LLM already has `coerced` in its tool
+                # input history — the return string is a confirmation,
+                # not an echo (no need to repeat the value).
+                # Ref: CLAUDE.md §6.7, nLPD art. 4, adversarial panel
+                # 2026-04-18 (agent a39aa3c1db57f30a0).
+                from app.services.privacy.fact_key_allowlist import (
+                    is_safe_to_log,
+                )
+                log_value = coerced if is_safe_to_log(fact_key) else "[REDACTED]"
                 logger.info(
                     "save_fact: user=%s key=%s value=%r conf=%s",
                     str(user_id)[:8] + "...",
                     fact_key,
-                    coerced,
+                    log_value,
                     fact_conf,
                 )
-                return f"Fait enregistré : {fact_key} = {coerced}"
+                if is_safe_to_log(fact_key):
+                    return f"Fait enregistré : {fact_key} = {coerced}"
+                return f"Fait enregistré : {fact_key}"
             except Exception as exc:
                 db.rollback()
                 logger.exception("save_fact DB commit failed: %s", fact_key)
                 return f"[save_fact ÉCHEC: {type(exc).__name__}]"
-        return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+        # Hors-DB path: same redaction contract applies.
+        from app.services.privacy.fact_key_allowlist import is_safe_to_log
+        if is_safe_to_log(fact_key):
+            return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+        return f"Fait noté (hors DB) : {fact_key}"
 
     # ─────────────────────────────────────────────────────────────────
     # suggest_actions — READ: dynamic chips from profile gaps + financial
