@@ -273,9 +273,57 @@ class CoachOrchestrator {
       debugPrint('[CoachChain] tier3=ServerKey skipped (BYOK active or safeMode)');
     }
 
+    // 3.5. Anonymous tier — 3 free messages via /anonymous/chat, no auth
+    // required. Critical for local-mode users (fresh install, no login, no
+    // BYOK, SLM disabled-in-build). Audit 2026-04-18 Wave 5 : previously
+    // only fired in the chat-screen catch block, which was never reached
+    // when the orchestrator degraded gracefully — users saw "Le coach IA
+    // n'est pas disponible" even though anonymous would have worked.
+    debugPrint('[CoachChain] tier3.5=Anonymous trying...');
+    final anonymousResponse = await _tryAnonymousChat(
+      userMessage: userMessage,
+      language: language,
+    );
+    if (anonymousResponse != null) {
+      debugPrint('[CoachChain] tier3.5=Anonymous SUCCESS');
+      return anonymousResponse;
+    }
+    debugPrint('[CoachChain] tier3.5=Anonymous returned null');
+
     // 4. Fallback — honest "coach unavailable" message.
     debugPrint('[CoachChain] ALL TIERS FAILED — returning fallback');
     return _chatFallback(language);
+  }
+
+  /// Call the public `/anonymous/chat` endpoint (3 free messages, UUID-
+  /// scoped session). Returns null on any failure so the caller falls
+  /// through to the offline template.
+  static Future<CoachResponse?> _tryAnonymousChat({
+    required String userMessage,
+    required String language,
+  }) async {
+    try {
+      final anonResponse = await CoachChatApiService.sendAnonymousMessage(
+        message: userMessage,
+        language: language,
+      ).timeout(const Duration(seconds: 35));
+
+      final msg = (anonResponse['message'] as String? ?? '').trim();
+      if (msg.isEmpty) return null;
+
+      final disclaimers =
+          (anonResponse['disclaimers'] as List?)?.cast<String>() ?? const [];
+
+      return CoachResponse(
+        message: msg,
+        disclaimer: ComplianceGuard.standardDisclaimer,
+        disclaimers: disclaimers,
+        wasFiltered: false,
+      );
+    } catch (e) {
+      debugPrint('[Orchestrator] Anonymous chat error: $e');
+      return null;
+    }
   }
 
   // ══════════════════════════════════════════════════════════════
