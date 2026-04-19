@@ -5,6 +5,7 @@
 import 'dart:async';
 
 import 'package:mint_mobile/services/api_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
   /// Timer for periodic backend refresh (set in main, cancellable).
@@ -118,8 +119,29 @@ class FeatureFlags {
     try {
       final data = await ApiService.get('/config/feature-flags');
       applyFromMap(data);
-    } catch (_) {
+      // OBS-05 — feature_flags breadcrumb on success (D-03 4-level).
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: true,
+        flagCount: data.length,
+      );
+    } on TimeoutException {
       // Keep current values on failure — safe fallback
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: false,
+        errorCode: 'network_timeout',
+      );
+    } catch (e) {
+      // Keep current values on failure — safe fallback
+      // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
+      // literal `failure`, NOT `error`). Error code enum only — no raw
+      // exception message (may contain PII / stack detail).
+      final code = e is FormatException
+          ? 'parse_error'
+          : (e is ApiException && e.isOffline ? 'offline' : 'unknown');
+      MintBreadcrumbs.featureFlagsRefresh(
+        success: false,
+        errorCode: code,
+      );
     }
   }
 }

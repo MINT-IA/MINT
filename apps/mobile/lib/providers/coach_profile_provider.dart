@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
@@ -182,6 +183,14 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Called after each coach chat exchange to capture data written by
   /// save_fact (which executes server-side and never reaches Flutter).
   /// Fire-and-forget: errors are caught silently so chat flow is never blocked.
+  ///
+  /// OBS-05 note: save_fact itself runs server-side (no mobile dispatch
+  /// point). This method is the closest mobile-side proxy to observe the
+  /// save_fact outcome — if the remote profile merges new financial fields,
+  /// a save_fact succeeded on the server. Breadcrumbs emitted here use
+  /// factKind = `'profile_sync'` as the coarse category since we cannot
+  /// know which individual factKind was written server-side without a
+  /// dedicated response header (deferred to Phase 31-02 backend work).
   Future<void> syncFromBackend() async {
     try {
       final isLoggedIn = await AuthService.isLoggedIn();
@@ -191,9 +200,27 @@ class CoachProfileProvider extends ChangeNotifier {
         mergeFromRemoteProfile(remoteData);
         // Also merge financial fields that the basic merge doesn't cover.
         _mergeFinancialFieldsFromRemote(remoteData);
+        // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
+        // factKind is the coarse 'profile_sync' enum; the finer-grained
+        // per-field attribution is deferred to Phase 31-02 (backend can
+        // echo `facts_saved: [...]` in /profiles/me response).
+        MintBreadcrumbs.saveFact(
+          success: true,
+          factKind: 'profile_sync',
+        );
       }
     } catch (e) {
       debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
+      // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
+      // enum (no raw exception message — may contain PII).
+      final code = e is ApiException
+          ? (e.isOffline ? 'offline' : 'api_error')
+          : 'unknown';
+      MintBreadcrumbs.saveFact(
+        success: false,
+        factKind: 'profile_sync',
+        errorCode: code,
+      );
     }
   }
 

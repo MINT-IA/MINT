@@ -15,6 +15,8 @@
 ///   - FINMA circular 2008/21 (operational risk)
 library;
 
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
+
 import 'coach_models.dart';
 import 'hallucination_detector.dart';
 
@@ -212,11 +214,24 @@ class ComplianceGuard {
   /// Skips hallucination detection and disclaimer injection
   /// (alerts include source refs per ANT-03 and are template-based,
   /// not LLM-generated).
-  static ComplianceResult validateAlert(String alertText) {
+  ///
+  /// [surface] identifies the call site for Sentry breadcrumb routing
+  /// (defaults to `'alert'` — overridable by caller).
+  static ComplianceResult validateAlert(
+    String alertText, {
+    String surface = 'alert',
+  }) {
     final violations = <String>[];
+    final bannedTermsFound = <String>[];
 
     // Pre-check: empty alert
     if (alertText.trim().isEmpty) {
+      // OBS-05 — compliance breadcrumb on empty-alert fail branch.
+      MintBreadcrumbs.complianceGuard(
+        passed: false,
+        surface: surface,
+        flaggedTerms: bannedTermsFound,
+      );
       return const ComplianceResult(
         isCompliant: false,
         sanitizedText: '',
@@ -231,6 +246,7 @@ class ComplianceGuard {
     final bannedFound = _checkBannedTerms(text);
     if (bannedFound.isNotEmpty) {
       violations.addAll(bannedFound.map((t) => "Terme interdit: '$t'"));
+      bannedTermsFound.addAll(bannedFound);
       text = _sanitizeBannedTerms(text);
     }
 
@@ -245,11 +261,21 @@ class ComplianceGuard {
     // Layers 3-4 intentionally skipped: alerts are template-based,
     // not LLM-generated. No hallucination detection, no disclaimer injection.
 
+    final passed = violations.isEmpty;
+    // OBS-05 — compliance breadcrumb emitted on every validate path.
+    // D-03 4-level category literals + PII-safe payload (flagged_count
+    // is the only leaked term-related datum).
+    MintBreadcrumbs.complianceGuard(
+      passed: passed,
+      surface: surface,
+      flaggedTerms: bannedTermsFound.isEmpty ? null : bannedTermsFound,
+    );
+
     return ComplianceResult(
-      isCompliant: violations.isEmpty,
-      sanitizedText: violations.isEmpty ? text : '',
+      isCompliant: passed,
+      sanitizedText: passed ? text : '',
       violations: violations,
-      useFallback: violations.isNotEmpty,
+      useFallback: !passed,
     );
   }
 
@@ -258,17 +284,29 @@ class ComplianceGuard {
   // ═══════════════════════════════════════════════════════════════
 
   /// Validate LLM output through 5 compliance layers.
+  ///
+  /// [surface] identifies the call site for Sentry breadcrumb routing
+  /// (defaults to `'coach_reply'` — overridable by caller: premier_eclairage,
+  /// narrative, alert, etc.).
   static ComplianceResult validate(
     String llmOutput, {
     CoachContext? context,
     ComponentType componentType = ComponentType.general,
+    String surface = 'coach_reply',
   }) {
     final violations = <String>[];
+    final bannedTermsFound = <String>[];
     var text = llmOutput;
     var useFallback = false;
 
     // Pre-check: empty output
     if (text.trim().isEmpty) {
+      // OBS-05 — compliance breadcrumb on empty-output fail branch.
+      MintBreadcrumbs.complianceGuard(
+        passed: false,
+        surface: surface,
+        flaggedTerms: bannedTermsFound,
+      );
       return const ComplianceResult(
         isCompliant: false,
         sanitizedText: '',
@@ -295,6 +333,7 @@ class ComplianceGuard {
     final bannedFound = _checkBannedTerms(text);
     if (bannedFound.isNotEmpty) {
       violations.addAll(bannedFound.map((t) => "Terme interdit: '$t'"));
+      bannedTermsFound.addAll(bannedFound);
       text = _sanitizeBannedTerms(text);
       if (bannedFound.length > 5) {
         useFallback = true;
@@ -363,8 +402,18 @@ class ComplianceGuard {
       violations.add('Texte vide après sanitisation');
     }
 
+    final passed = violations.isEmpty;
+    // OBS-05 — compliance breadcrumb emitted on every validate exit.
+    // D-03 4-level category literals + PII-safe payload (flagged_count
+    // only; raw term strings never reach Sentry).
+    MintBreadcrumbs.complianceGuard(
+      passed: passed,
+      surface: surface,
+      flaggedTerms: bannedTermsFound.isEmpty ? null : bannedTermsFound,
+    );
+
     return ComplianceResult(
-      isCompliant: violations.isEmpty,
+      isCompliant: passed,
       sanitizedText: useFallback ? '' : text,
       violations: violations,
       useFallback: useFallback,
