@@ -171,7 +171,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 **Plans**: 5 plans (Wave 0 scaffolding + Wave 1 mobile + Wave 2 backend + Wave 3 PII audit + Wave 4 ops budget)
 - [x] 31-00-PLAN.md — Wave 0: 17 scaffolding artefacts + sentry-cli install + walker.sh J0 + OBS-01 audit on CTX-05 output
 - [x] 31-01-PLAN.md — Wave 1 mobile: OBS-02 error_boundary 3-prongs + OBS-04 sentry-trace/baggage propagation + OBS-05 SentryNavigatorObserver + MintBreadcrumbs (ComplianceGuard, save_fact, FeatureFlags) + D-01 sample rates
-- [ ] 31-02-PLAN.md — Wave 2 backend: OBS-03 global_exception_handler extension (trace_id + sentry_event_id + X-Trace-Id) + sentry-sdk[fastapi] 2.53.0 pin + staging real-HTTP trace round-trip test
+- [x] 31-02-PLAN.md — Wave 2 backend: OBS-03 global_exception_handler extension (trace_id + sentry_event_id + X-Trace-Id) + sentry-sdk[fastapi] 2.53.0 pin + staging real-HTTP trace round-trip test
 - [ ] 31-03-PLAN.md — Wave 3 PII audit: OBS-06 SENTRY_REPLAY_REDACTION_AUDIT.md kill-gate + CRITICAL_JOURNEYS.md + MintCustomPaintMask wrapper + creator-device gate Julien
 - [ ] 31-04-PLAN.md — Wave 4 ops budget: OBS-07 observability-budget.md + SENTRY_PRICING_2026_04 fresh fetch + sentry_quota_smoke.sh
 **Budget**: 1.5 sem (peut emprunter de 34 seulement) ; **+0.5j J0 livrable `tools/simulator/walker.sh`** (subset minimal de Phase 35 dogfood, primitive shell réutilisable par 31/32/33/34/36)

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 31-01-PLAN.md (OBS-02 + OBS-04 + OBS-05 mobile side)
-last_updated: "2026-04-19T17:07:29.841Z"
+stopped_at: Completed 31-02-PLAN.md (OBS-03 backend global_exception_handler + trace_id round-trip)
+last_updated: "2026-04-19T17:20:17.548Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 11
-  completed_plans: 8
-  percent: 73
+  completed_plans: 9
+  percent: 82
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,12 +40,12 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 31 (Instrumenter) — EXECUTING
-Plan: 3 of 6 (Plans 31-00 Wave 0 + 31-01 Wave 1 mobile shipped — Plan 31-02 backend next)
+Plan: 3 of 5 complete (Plans 31-00 Wave 0 + 31-01 Wave 1 mobile + 31-02 Wave 2 backend shipped — Plan 31-03 PII audit next)
 Status: Ready to execute
 Last activity: 2026-04-19
-Next: `/gsd-execute-phase 31` continue with Plan 31-02 (backend OBS-03 global exception handler + trace round-trip tightening) on `feature/v2.8-phase-31-instrumenter`
+Next: `/gsd-execute-phase 31` continue with Plan 31-03 (Wave 3 OBS-06 PII replay redaction audit on 5 sensitive screens) on `feature/v2.8-phase-31-instrumenter`
 
-Progress: [███████░░░] 73% (2/9 phases, 8/11 plans) — phase 31: 2/5 plans shipped (OBS-02 + OBS-04 + OBS-05 mobile live)
+Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phase 31: 3/5 plans shipped (OBS-02 + OBS-03 + OBS-04 + OBS-05 green)
 
 ## Build Order
 
@@ -108,6 +108,17 @@ Progress: [███████░░░] 73% (2/9 phases, 8/11 plans) — phas
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
 
+### Phase 31-02 Decisions (Wave 2 backend OBS-03, shipped 2026-04-19)
+
+- **31-02** (commits `6ea76af5` → `e39d3480`): `global_exception_handler` extended with 3-tier trace_id fallback (inbound `sentry-trace` > `trace_id_var` ContextVar > fresh `uuid4`). 500 JSON body surfaces `trace_id` + `sentry_event_id`. `X-Trace-Id` response header cohabits with LoggingMiddleware emission. FIX-077 nLPD `%.100s` log truncation preserved.
+- **3-tier fallback over plan's 2-tier** (Rule 1 deviation) — RED phase surfaced `trace_id_var.get("-")` returning default `"-"` when handler runs in exception-handler scope (BaseHTTPMiddleware+`call_next` interaction). Added `uuid4()` 3rd tier to guarantee non-empty trace_id on all 500 responses. Future exception paths should reuse this pattern.
+- **`sentry-sdk[fastapi]` pinned `==2.53.0`** in `services/backend/pyproject.toml` (was `>=2.0.0,<3.0.0`). Upgrade gated by rerunning `tools/simulator/trace_round_trip_test.sh` against staging.
+- **A2 (proxy strip) VERIFIED** — Railway delivered `sentry-trace` header intact through `/auth/login` (422 response proves header was not stripped by CDN/proxy). X-MINT-Trace-Id fallback NOT needed.
+- **A1 (auto-read cross-project link) PARTIAL** — capability documented upstream but unproven end-to-end here (staging 422 path never fires the 500 handler; cross-project link requires real Sentry event pair). Flip VERIFIED in Plan 31-04 quota probe.
+- **DEFERRED: test-only raise_500 endpoint (accepted limitation per revision Info 7)** — `trace_round_trip_test.sh` PASS-PARTIAL via `/auth/login` 422 path is the accepted ship state for Phase 31. Re-evaluate Phase 32 or Phase 35.
+- **Test fixture pattern** — app-level exception handler tests register a raising route via `@app.get` in a pytest fixture, use `TestClient(app, raise_server_exceptions=False)`, and pop the route from `app.router.routes` in teardown. Precedent: `tests/test_coach_chat_endpoint.py:91`.
+- **Full backend suite: 5958 passed + 6 skipped** (baseline 5955+9; delta +3/-3 expected). Zero regression on pre-existing tests.
+
 ### Phase 31-00 Decisions (Wave 0 scaffolding + J0 walker, shipped 2026-04-19)
 
 - **31-00** (plan 00, commits `6c265341` → `a8699856`): 17/17 Wave 0 scaffolds landed (8 Flutter test stubs + 1 pytest stub + 3 Python lints + 4 shell/simulator helpers + 1 README + integration_test/.gitkeep), `sentry-cli 3.3.5` installed, `.gitignore` extended with `.planning/walker/`.
@@ -151,8 +162,8 @@ Progress: [███████░░░] 73% (2/9 phases, 8/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-19T17:07:29.838Z
-Stopped at: Completed 31-01-PLAN.md (OBS-02 + OBS-04 + OBS-05 mobile side)
+Last session: 2026-04-19T17:20:17.546Z
+Stopped at: Completed 31-02-PLAN.md (OBS-03 backend global_exception_handler + trace_id round-trip)
 Resume file: None
 
 ---
