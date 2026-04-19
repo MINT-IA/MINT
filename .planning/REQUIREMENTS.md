@@ -45,10 +45,10 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 ### OBS — Observabilité / Oracle (Phase 31)
 
 - [x] **OBS-01**: Sentry Replay Flutter wired avec `maskAllText=true` + `maskAllImages=true` + `sessionSampleRate=0.05` + `onErrorSampleRate=1.0` (nLPD-safe defaults non-négociables, bump `sentry_flutter: 9.14.0`)
-- [ ] **OBS-02**: Global error boundary 3-prongs installé (`FlutterError.onError` + `PlatformDispatcher.instance.onError` + `Isolate.current.addErrorListener`) — NE PAS utiliser `runZonedGuarded`
+- [x] **OBS-02**: Global error boundary 3-prongs installé (`FlutterError.onError` + `PlatformDispatcher.instance.onError` + `Isolate.current.addErrorListener`) — NE PAS utiliser `runZonedGuarded`
 - [ ] **OBS-03**: Global exception handler FastAPI fail-loud — `trace_id` (read from `sentry-trace` header) + `sentry_event_id` dans JSON response + header `X-Trace-Id` sortie, backward-compatible avec `LoggingMiddleware` existant
-- [ ] **OBS-04**: Trace_id round-trip mobile→backend via headers `sentry-trace` + `baggage` sur `http: ^1.2.0` existant (pas Dio migration) — cross-project link Sentry UI actif
-- [ ] **OBS-05**: `SentryNavigatorObserver` sur `GoRouter` + breadcrumb custom (ComplianceGuard success/fail, save_fact tool call, FeatureFlags.refreshFromBackend outcome)
+- [x] **OBS-04**: Trace_id round-trip mobile→backend via headers `sentry-trace` + `baggage` sur `http: ^1.2.0` existant (pas Dio migration) — cross-project link Sentry UI actif
+- [x] **OBS-05**: `SentryNavigatorObserver` sur `GoRouter` + breadcrumb custom (ComplianceGuard success/fail, save_fact tool call, FeatureFlags.refreshFromBackend outcome)
 - [ ] **OBS-06**: Sentry Replay PII redaction audit artefact (`.planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md`) committed AVANT flip `sessionSampleRate>0` en prod — screens sensibles énumérés (CoachChat, DocumentScan, ExtractionReviewSheet, Onboarding, Budget), masks vérifiés sur simulateur
 - [ ] **OBS-07**: Sentry tier/pricing fresh fetch + quota budget documenté (staging vs prod DSN, replay quota, events/mois target ~5k users) — artefact `.planning/observability-budget.md`
 

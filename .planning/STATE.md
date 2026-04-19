@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 31-00-PLAN.md — Wave 0 scaffolding (17/17) + walker.sh smoke PASS + OBS-01 audit green on CTX-05
-last_updated: "2026-04-19T16:31:18.892Z"
-last_activity: 2026-04-19 -- Phase 31-00 complete (Wave 0 scaffolding + walker.sh smoke PASS + OBS-01 audit green)
+stopped_at: Completed 31-01-PLAN.md (OBS-02 + OBS-04 + OBS-05 mobile side)
+last_updated: "2026-04-19T17:07:29.841Z"
+last_activity: 2026-04-19
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 11
-  completed_plans: 7
-  percent: 64
+  completed_plans: 8
+  percent: 73
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,12 +40,12 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 31 (Instrumenter) — EXECUTING
-Plan: 2 of 6 (Plan 31-00 Wave 0 scaffolding shipped — Plan 31-01 mobile next)
-Status: Wave 0 complete, Wave 1+ unblocked
-Last activity: 2026-04-19 -- Phase 31-00 Wave 0 shipped (17 scaffolds + walker.sh smoke + OBS-01 audit)
-Next: `/gsd-execute-phase 31` continue with Plan 31-01 (mobile OBS-02/04/05) on `feature/v2.8-phase-31-instrumenter`
+Plan: 3 of 6 (Plans 31-00 Wave 0 + 31-01 Wave 1 mobile shipped — Plan 31-02 backend next)
+Status: Ready to execute
+Last activity: 2026-04-19
+Next: `/gsd-execute-phase 31` continue with Plan 31-02 (backend OBS-03 global exception handler + trace round-trip tightening) on `feature/v2.8-phase-31-instrumenter`
 
-Progress: [██████░░░░] 64% (2/9 phases, 7/11 plans) — phase 31: 1/5 plans shipped
+Progress: [███████░░░] 73% (2/9 phases, 8/11 plans) — phase 31: 2/5 plans shipped (OBS-02 + OBS-04 + OBS-05 mobile live)
 
 ## Build Order
 
@@ -151,8 +151,8 @@ Progress: [██████░░░░] 64% (2/9 phases, 7/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-19T16:31:18.890Z
-Stopped at: Completed 31-00-PLAN.md — Wave 0 scaffolding (17/17) + walker.sh smoke PASS + OBS-01 audit green on CTX-05
+Last session: 2026-04-19T17:07:29.838Z
+Stopped at: Completed 31-01-PLAN.md (OBS-02 + OBS-04 + OBS-05 mobile side)
 Resume file: None
 
 ---
