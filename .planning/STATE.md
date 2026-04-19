@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: verifying
-stopped_at: Completed 30.5-02-PLAN.md — Phase 30.5 Core 3/3 plans done, ready for /gsd-verify-work
-last_updated: "2026-04-19T12:53:15.347Z"
+status: executing
+stopped_at: Completed 30.6-00-PLAN.md — CTX-03 refonte CLAUDE.md shipped, bracket+triplets lints green, redundancy audit written
+last_updated: "2026-04-19T13:29:56.268Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 9
   completed_phases: 1
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 4
+  percent: 67
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 30.5 — Context Sanity Core
+**Current focus:** Phase 30.6 — Context Sanity Advanced
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,9 +39,9 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 30.5 (Context Sanity Core) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Phase: 30.6 (Context Sanity Advanced) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
 Last activity: 2026-04-19
 Next: `/gsd-plan-phase 30.5` (Context Sanity, 5j non-empruntable, foundation)
 
@@ -132,8 +132,8 @@ Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-19T12:53:15.345Z
-Stopped at: Completed 30.5-02-PLAN.md — Phase 30.5 Core 3/3 plans done, ready for /gsd-verify-work
+Last session: 2026-04-19T13:29:56.266Z
+Stopped at: Completed 30.6-00-PLAN.md — CTX-03 refonte CLAUDE.md shipped, bracket+triplets lints green, redundancy audit written
 Resume file: None
 
 ---
