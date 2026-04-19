@@ -87,7 +87,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 ---
 
-## v2.8 Phases
+### v2.8 Phases overview
 
 - [ ] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go
 - [ ] **Phase 30.6: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
@@ -98,7 +98,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [ ] **Phase 35: Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
 - [ ] **Phase 36: Finissage E2E** — 4 P0 fixes (UUID / anonymous / save_fact / Coach tab) + 388 catches → 0 + MintShell ARB parity audit + accents 100%
 
-## Phase Details
+### Phase Details
 
 ### Phase 30.5: Context Sanity
 **Goal**: Les agents Claude Code ne peuvent plus coder à l'aveugle — MEMORY.md est retrievable, le drift est mesuré, CLAUDE.md est restructuré contre lost-in-the-middle, un hook `UserPromptSubmit` injecte les rappels critiques contextuellement, et un spike agent valide go/no-go avant Phase 31.
