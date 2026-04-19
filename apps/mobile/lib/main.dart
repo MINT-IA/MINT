@@ -8,6 +8,7 @@ import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+import 'package:mint_mobile/services/error_boundary.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/pillar_3a_calculator.dart';
 import 'package:mint_mobile/services/slm/slm_download_service.dart';
@@ -24,6 +25,13 @@ import 'package:mint_mobile/services/snapshot_service.dart';
 Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // OBS-02 (Phase 31-01) — install the 3-prong global error boundary
+  // BEFORE SentryFlutter.init so PlatformDispatcher.onError + FlutterError
+  // .onError + Isolate.addErrorListener are already live when the SDK
+  // attaches. Single allowed source of Sentry.captureException — enforced
+  // by tools/checks/sentry_capture_single_source.py.
+  installGlobalErrorBoundary();
 
   // Lock portrait orientation globally (landscape only in fullscreen chart overlay)
   await SystemChrome.setPreferredOrientations([
@@ -115,10 +123,30 @@ Future<void> main() async {
         options.dsn = sentryDsn;
         options.tracesSampleRate = 0.1;
         options.sendDefaultPii = false; // nLPD compliance
-        options.environment = kDebugMode ? 'development' : 'production';
-        // Session Replay (sentry_flutter 9.x) — sampling kept low; event
-        // boundary rely on onErrorSampleRate to capture crash context only.
-        options.replay.sessionSampleRate = 0.05;
+        // D-02 Option A (CONTEXT.md) — single Sentry project with env tag.
+        // MINT_ENV dart-define drives the 3-way split (development /
+        // staging / production). Staging CI/TestFlight builds MUST pass
+        // --dart-define=MINT_ENV=staging to be tagged correctly; absence
+        // defaults to 'production' (see MINT_ENV_DART_DEFINE contract in
+        // .planning/phases/31-instrumenter/31-01-SUMMARY.md).
+        options.environment = kDebugMode
+            ? 'development'
+            : const String.fromEnvironment(
+                'MINT_ENV',
+                defaultValue: 'production',
+              );
+        // Session Replay (sentry_flutter 9.x) — D-01 Option C (CONTEXT.md).
+        // Error-only in prod (0.0 session + 1.0 onError) keeps crash signal
+        // while cutting Replay quota risk (Pitfall A2). Staging gets 10%
+        // sessions for debugging; dev is full (1.0) so local runs always
+        // capture. Prod flip to >0 is gated by OBS-06 PII audit sign-off.
+        if (kDebugMode) {
+          options.replay.sessionSampleRate = 1.0;
+        } else if (options.environment == 'staging') {
+          options.replay.sessionSampleRate = 0.10;
+        } else {
+          options.replay.sessionSampleRate = 0.0;
+        }
         options.replay.onErrorSampleRate = 1.0;
         // Privacy — masks MUST stay true (nLPD, A1 PITFALLS.md).
         // Defaults are already true in sentry_flutter 9.14.0, but we pin

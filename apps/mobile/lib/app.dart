@@ -16,6 +16,7 @@ import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
@@ -168,11 +169,27 @@ final _shellNavigatorKeyExplorer = GlobalKey<NavigatorState>(debugLabel: 'shellE
 // MultiProvider tree is built (see _bindRouterAuthListener below).
 final _authNotifier = ChangeNotifier();
 
+// OBS-05 (Phase 31-01) — SentryNavigatorObserver sits BESIDE the
+// existing AnalyticsRouteObserver (not instead of it). Analytics
+// pipeline keeps owning product events; SentryNavigatorObserver
+// auto-emits `navigation` breadcrumbs (push/pop/replace) so every
+// Sentry event gets a replay-independent route trail even when
+// sessionSampleRate=0.0 in prod (D-01 Option C).
+// Kept as a top-level `final` so `test/app_router_observers_test.dart`
+// can assert the list contents via `testOnlyRootRouterObservers`
+// without relying on @visibleForTesting getters on go_router
+// internals.
+final List<NavigatorObserver> _routerObservers = [
+  AnalyticsRouteObserver(),
+  SentryNavigatorObserver(),
+];
+
 final _router = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  observers: [AnalyticsRouteObserver()],
+  observers: _routerObservers,
   initialLocation: '/',
   refreshListenable: _authNotifier,
+
   errorBuilder: (context, state) => _MintErrorScreen(error: state.error),
   redirect: (context, state) {
     // ── Scope-based auth guard ───────────────────────────────
@@ -1154,6 +1171,18 @@ final _router = GoRouter(
     ScopedGoRoute(path: '/onboarding/enrichment', scope: RouteScope.onboarding, redirect: (_, __) => '/profile/bilan'),
   ],
 );
+
+/// Test-only accessor for the root GoRouter. Used by
+/// `test/app_router_observers_test.dart` (Phase 31-01 OBS-05) to assert
+/// that both AnalyticsRouteObserver and SentryNavigatorObserver are
+/// wired to the observers: list. Do NOT use in production code.
+@visibleForTesting
+GoRouter get testOnlyRootRouter => _router;
+
+/// Test-only accessor for the root GoRouter observers list. Used by
+/// `test/app_router_observers_test.dart` (Phase 31-01 OBS-05).
+@visibleForTesting
+List<NavigatorObserver> get testOnlyRootRouterObservers => _routerObservers;
 
 // ════════════════════════════════════════════════════════════
 //  APP
