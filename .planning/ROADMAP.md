@@ -9,7 +9,7 @@
 - ✅ **v2.5 Transformation** — Phases 13-18 (shipped 2026-04-13)
 - ✅ **v2.6 Le Coach Qui Marche** — Phases 19-26 (shipped 2026-04-13)
 - 🟡 **v2.7 Coach Stabilisation + Document Digestion** — Phases 27-30 (code-complete, awaiting device gate)
-- 🔵 **v2.8 L'Oracle & La Boucle** — Phases 30.5, 30.6, 31-36 (defining)
+- 🔵 **v2.8 L'Oracle & La Boucle** — Phases 30.5, 30.6, 30.7, 31-36 (defining)
 
 <details>
 <summary>Previous milestones (v1.0 → v2.7) — see MILESTONES.md + collapsed v2.5-v2.7 detail below</summary>
@@ -32,17 +32,21 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 **Phase numbering — intentional decimal inserts:**
 - v2.7 terminates at Phase 30.
-- Phases **30.5** (Context Sanity) and **30.6** (Tools Déterministes) are decimal **inserts BEFORE standard Phase 31**, introduced post-panel-debate (4 experts: Claude Code architect / peer tools / academic / devil's advocate).
+- Phases **30.5** (Context Sanity Core), **30.6** (Context Sanity Advanced), and **30.7** (Tools Déterministes) are decimal **inserts BEFORE standard Phase 31**, introduced post-panel-debate (4 experts: Claude Code architect / peer tools / academic / devil's advocate). Note: 30.5 was split into 30.5 + 30.6 on 2026-04-19 per expert panel Option F consensus (kill-policy reality + W3+W4 meta-recursive burn-in).
 - Phases 31-36 then follow standard integer numbering.
 
 ### Build order (dependency graph)
 
 ```
-  30.5 Context Sanity (5j, non-empruntable, foundation)
+  30.5 Context Sanity Core (3j, non-empruntable, foundation)
          │
-         │ CTX-05 spike gate (go/no-go)
+         │ baseline J0 captured
          ▼
-  30.6 Tools Déterministes (2-3j)
+  30.6 Context Sanity Advanced (2-3j + 72h burn-in)
+         │
+         │ CTX-05 spike gate (go/no-go, kill-policy Modeste 1)
+         ▼
+  30.7 Tools Déterministes (2-3j)
          │
          ▼
   ┌──────┴──────┐
@@ -74,8 +78,9 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 | Phase | Name | Budget | Borrowable | REQs | Kill gate | Auto profile |
 |-------|------|--------|------------|------|-----------|--------------|
-| 30.5 | Context Sanity | 5j (1 sem) | **non-empruntable** | 5 | CTX-05 spike go/no-go | **L1** (+0.25j verifier) |
-| 30.6 | Tools Déterministes | 2-3j (~0.5 sem) | — | 4 | — | **L1** (+0.25j verifier) |
+| 30.5 | Context Sanity Core | 3j | **non-empruntable** | 2 | baseline J0 gate | **L1** (+0.25j verifier) |
+| 30.6 | Context Sanity Advanced | 2-3j + 72h burn-in | **non-empruntable** | 3 | CTX-05 spike go/no-go (kill-policy Modeste 1) | **L1** (+0.25j verifier) |
+| 30.7 | Tools Déterministes | 2-3j (~0.5 sem) | — | 4 | — | **L1** (+0.25j verifier) |
 | 31 | Instrumenter | 1.5 sem | from 34 only | 7 | OBS-06 PII audit artefact | **L3** (+1.5j walker+ui-review, walker.sh ship J0) |
 | 34 | Guardrails | 1.5 sem | from 31 only | 8 | — | **L1** (+0.25j verifier) |
 | 32 | Cartographier | 1 sem | from 33 only | 5 | — | **L2** (+0.75j secure+inter-layer) |
@@ -95,7 +100,8 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 ### v2.8 Phases overview
 
 - [ ] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go
-- [ ] **Phase 30.6: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
+- [ ] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active)
+- [ ] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
 - [ ] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend
 - [ ] **Phase 32: Cartographier** — Route registry-as-code 148 routes + `/admin/routes` dashboard dev-only + parity lint + analytics legacy redirects
 - [ ] **Phase 33: Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems + admin UI
@@ -136,10 +142,10 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 **Budget**: 2-3j + 72h burn-in (post-30.5 observation window) — kill-policy active
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. Pas de simulator. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
-### Phase 30.6: Tools Déterministes (see note: numerotation collision post-split 2026-04-19)
-> **Note post-split 2026-04-19**: Phase "Context Sanity (Advanced)" shares the 30.6 label above. The numerotation collision is intentional pending a full REQUIREMENTS.md renumbering pass. Build order logically places "Context Sanity Advanced" immediately after 30.5 (same 30.6 bucket), and "Tools Déterministes" after that (was 30.6, could migrate to 30.7 later). REQUIREMENTS.md keeps TOOL-01..04 in phase 30.6; the split memo flags this for a follow-up renumbering if needed.
+### Phase 30.7: Tools Déterministes
+> **Renumbered 2026-04-19**: Was Phase 30.6 before the Context Sanity split. Now Phase 30.7 to accommodate "Context Sanity (Advanced)" as the true 30.6. REQUIREMENTS.md TOOL-01..04 moved accordingly.
 **Goal**: Transformer les constantes et lints permanents de CLAUDE.md en MCP tools on-demand. Les agents invoquent `get_swiss_constants()` / `check_banned_terms()` / `validate_arb_parity()` quand pertinent au lieu de traîner 800+ tokens de règles en contexte permanent.
-**Depends on**: Phase 30.5 (restructure CLAUDE.md existant avant de supprimer les sections vers tools)
+**Depends on**: Phase 30.6 (CLAUDE.md restructure complete before removing sections to migrate to tools)
 **Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-04
 **Success Criteria** (what must be TRUE):
   1. MCP tool `get_swiss_constants(category)` retourne les constantes 2025/2026 structurées pour 5 catégories (pillar3a / lpp / avs / mortgage / tax), sourcées depuis `services/backend/app/constants/` (single source of truth déjà existant).
@@ -152,7 +158,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 ### Phase 31: Instrumenter
 **Goal**: Tout ce qui casse dans l'app arrive dans Sentry en <60s avec assez de contexte pour diagnostiquer sans ouvrir l'IDE — session replay mobile, global error boundary 3-prongs, trace_id round-trip mobile↔backend, observer GoRouter, breadcrumbs custom sur les surfaces critiques (ComplianceGuard / save_fact / FeatureFlags).
-**Depends on**: Phase 30.5 (CTX-05 spike gate must succeed), Phase 30.6 (tools disponibles aux agents qui coderont cette phase)
+**Depends on**: Phase 30.6 (CTX-05 spike gate must succeed), Phase 30.7 (tools disponibles aux agents qui coderont cette phase)
 **Requirements**: OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-07
 **Success Criteria** (what must be TRUE):
   1. Tout 500 backend apparaît dans Sentry en <60s avec `trace_id` + `sentry_event_id` dans la JSON response + header `X-Trace-Id` sortie, et le mobile peut afficher "ref #abc123" cliquable.
@@ -239,7 +245,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 ## Progress
 
 **Execution Order:**
-Phases execute in dependency order: 30.5 → 30.6 → (31 ∥ 34) → (32 ∥ 33) → 35 → 36.
+Phases execute in dependency order: 30.5 → 30.6 → 30.7 → (31 ∥ 34) → (32 ∥ 33) → 35 → 36.
 Parallel windows: 31∥34 (disjoint concerns: instrumentation vs lints) ; 32∥33 (disjoint: cartographie vs kill-switches).
 Device gate (Julien simctl cold-start) mandatory for Phase 36 sign-off.
 Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression test OR be killed via its flag at milestone close.
@@ -247,7 +253,8 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 30.5. Context Sanity | v2.8 | 0/6 | Plans ready | — |
-| 30.6. Tools Déterministes | v2.8 | 0/0 | Not started | — |
+| 30.6. Context Sanity Advanced | v2.8 | 0/3 | Not started | — |
+| 30.7. Tools Déterministes | v2.8 | 0/0 | Not started | — |
 | 31. Instrumenter | v2.8 | 0/0 | Not started | — |
 | 32. Cartographier | v2.8 | 0/0 | Not started | — |
 | 33. Kill-switches | v2.8 | 0/0 | Not started | — |
@@ -261,4 +268,4 @@ Every Phase 36 P0 REQ (FIX-01..04) has a kill-switch flag provisioned in Phase 3
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle roadmap created post-panel-debate (8 phases, 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36)*
+*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle roadmap created post-panel-debate (8 phases, 48 REQ mapped 1:1). Phase 30.5 split into Core + Advanced on 2026-04-19 (expert panel Option F); Tools Déterministes renumbered 30.6 → 30.7. Build order 30.5 → 30.6 → 30.7 → (31∥34) → (32∥33) → 35 → 36.*
