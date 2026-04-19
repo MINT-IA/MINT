@@ -168,7 +168,12 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   4. Un appel mobile→backend propage `sentry-trace` + `baggage` headers sur `http: ^1.2.0` existant (pas migration Dio) et le Sentry UI affiche le cross-project link automatiquement.
   5. Artefact `.planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md` committed listant tous les screens sensibles auditoés sur simulateur AVANT flip de `sessionSampleRate>0` en production (gate nLPD non-négociable).
   6. Artefact `.planning/observability-budget.md` documente Sentry tier/pricing fresh, quota replay, events/mois target ~5k users, staging vs prod DSN séparés.
-**Plans**: TBD
+**Plans**: 5 plans (Wave 0 scaffolding + Wave 1 mobile + Wave 2 backend + Wave 3 PII audit + Wave 4 ops budget)
+- [ ] 31-00-PLAN.md — Wave 0: 17 scaffolding artefacts + sentry-cli install + walker.sh J0 + OBS-01 audit on CTX-05 output
+- [ ] 31-01-PLAN.md — Wave 1 mobile: OBS-02 error_boundary 3-prongs + OBS-04 sentry-trace/baggage propagation + OBS-05 SentryNavigatorObserver + MintBreadcrumbs (ComplianceGuard, save_fact, FeatureFlags) + D-01 sample rates
+- [ ] 31-02-PLAN.md — Wave 2 backend: OBS-03 global_exception_handler extension (trace_id + sentry_event_id + X-Trace-Id) + sentry-sdk[fastapi] 2.53.0 pin + staging real-HTTP trace round-trip test
+- [ ] 31-03-PLAN.md — Wave 3 PII audit: OBS-06 SENTRY_REPLAY_REDACTION_AUDIT.md kill-gate + CRITICAL_JOURNEYS.md + MintCustomPaintMask wrapper + creator-device gate Julien
+- [ ] 31-04-PLAN.md — Wave 4 ops budget: OBS-07 observability-budget.md + SENTRY_PRICING_2026_04 fresh fetch + sentry_quota_smoke.sh
 **Budget**: 1.5 sem (peut emprunter de 34 seulement) ; **+0.5j J0 livrable `tools/simulator/walker.sh`** (subset minimal de Phase 35 dogfood, primitive shell réutilisable par 31/32/33/34/36)
 **Auto profile**: **L3** (frontend/UI-touching) — Sentry Replay observable in app, error boundary triggers visibles. `/gsd-execute-phase` + walker.sh simctl gate par task UI + `gsd-verifier` 7-pass + `gsd-ui-review` + `gsd-secure-phase` (PII redaction audit OBS-06) + creator-device gate Julien manuel non-skippable. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
@@ -256,7 +261,7 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 | 30.5. Context Sanity | v2.8 | 0/6 | Plans ready | — |
 | 30.6. Context Sanity Advanced | v2.8 | 0/3 | Not started | — |
 | 30.7. Tools Déterministes | v2.8 | 0/0 | Not started | — |
-| 31. Instrumenter | v2.8 | 0/0 | Not started | — |
+| 31. Instrumenter | v2.8 | 0/5 | Plans ready | — |
 | 32. Cartographier | v2.8 | 0/0 | Not started | — |
 | 33. Kill-switches | v2.8 | 0/0 | Not started | — |
 | 34. Agent Guardrails mécaniques | v2.8 | 0/0 | Not started | — |
