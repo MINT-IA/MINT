@@ -2,384 +2,232 @@
 
 ## Milestones
 
-- ✅ **v1.0 MVP** - Phases 1-8 (shipped 2026-03-20)
-- ✅ **v2.0 Systeme Vivant** - Phases 1-6 (shipped 2026-04-07)
-- ✅ **v2.1 Stabilisation** - Phase 7 (shipped 2026-04-07)
-- ✅ **v2.4 Fondation** - Phases 9-12 (shipped 2026-04-12)
-- ✅ **v2.5 Transformation** - Phases 13-18 (shipped 2026-04-13)
-- ✅ **v2.6 Le Coach Qui Marche** - Phases 19-26 (shipped 2026-04-13)
-- 🟡 **v2.7 Coach Stabilisation + Document Digestion** - Phases 27-30 (code-complete, awaiting device gate — `<PENDING_DEVICE_GATE>`)
+- ✅ **v1.0 MVP** — Phases 1-8 (shipped 2026-03-20)
+- ✅ **v2.0 Systeme Vivant** — Phases 1-6 (shipped 2026-04-07)
+- ✅ **v2.1 Stabilisation** — Phase 7 (shipped 2026-04-07)
+- ✅ **v2.4 Fondation** — Phases 9-12 (shipped 2026-04-12)
+- ✅ **v2.5 Transformation** — Phases 13-18 (shipped 2026-04-13)
+- ✅ **v2.6 Le Coach Qui Marche** — Phases 19-26 (shipped 2026-04-13)
+- 🟡 **v2.7 Coach Stabilisation + Document Digestion** — Phases 27-30 (code-complete, awaiting device gate)
+- 🔵 **v2.8 L'Oracle & La Boucle** — Phases 30.5, 30.6, 31-36 (defining)
 
 <details>
-<summary>Previous milestones (v1.0, v2.0, v2.1, v2.4) -- see MILESTONES.md</summary>
+<summary>Previous milestones (v1.0 → v2.7) — see MILESTONES.md + collapsed v2.5-v2.7 detail below</summary>
 
-All previous milestone phases (1-12) are documented in `.planning/MILESTONES.md` and the v2.4 section below.
-Phase numbering continues from v2.4's last phase (Phase 12).
-
-### v2.4 Fondation (Phases 9-12)
-
-- [x] **Phase 9: Les tuyaux** - Backend infra hardening (2/2 plans, completed 2026-04-12)
-- [x] **Phase 10: Les connexions** - Front-back wiring (1/1 plan, completed 2026-04-12)
-- [x] **Phase 11: La navigation** - Shell architecture (2/2 plans, completed 2026-04-12)
-- [ ] **Phase 12: La preuve** - End-to-end human validation on real iPhone
+Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-30) preserved in git history of this file (pre-2026-04-19 revisions) + `.planning/MILESTONES.md`.
 
 </details>
 
-## Overview
+---
 
-MINT's infrastructure works (v2.4). Now it must become a product. v2.5 transforms MINT from working plumbing into a living experience: an anonymous stranger opens the app, feels something, gets a surprising response, creates an account to keep it, and returns monthly because MINT knows things nobody else knows about their financial life. Six phases deliver this in dependency order: anonymous hook first (user acquisition), commitment devices second (behavioral moat), coach intelligence third (relational depth), couple mode fourth (Swiss-specific value), then living timeline in two stages (the home screen that makes everything visible).
+## v2.8 L'Oracle & La Boucle — Overview
 
-## Phases
+**Goal:** Refonder le workflow de développement pour sortir de la façade-sans-câblage et du context-poisoning agent. À la fin de v2.8 : toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse (oracle = instrumentation + session replay + route-health board) ; aucun agent ne peut ignorer son contexte (guardrails pre-commit) ; Julien ouvre MINT 20 min sans taper un mur.
 
-**Phase Numbering:**
-- Phases 13-18 belong to milestone v2.5 (continuing from v2.4 Phase 12)
-- Decimal phases (13.1, 14.1): Urgent insertions if needed
+**Règle inversée non-négociable:** 0 feature nouvelle. Ce qui ne marche pas se kill (via flag) ou se répare. Compression = discipline transversale (pas une phase dédiée).
 
-- [x] **Phase 13: Anonymous Hook & Auth Bridge** - Anonymous user gets value in 20 seconds, converts without losing conversation (completed 2026-04-12)
-- [x] **Phase 14: Commitment Devices** - Implementation intentions, fresh-start anchors, pre-mortem -- behavioral moat no competitor has (completed 2026-04-12)
-- [x] **Phase 15: Coach Intelligence** - Provenance journal and implicit earmarking via conversation -- coach becomes relationally aware (completed 2026-04-12)
-- [x] **Phase 16: Couple Mode Dissymetrique** - One partner enters estimates, gets 5 questions to ask, couple projections with honest confidence (completed 2026-04-12)
-- [x] **Phase 17: Living Timeline -- 3 Tensions** - Aujourd'hui shows 3 tension cards (past/present/future) as living placeholder (completed 2026-04-12)
-- [x] **Phase 18: Living Timeline -- Full Timeline** - Single-screen center of gravity aggregating all previous phases into timeline nodes (completed 2026-04-13)
+**Kill-policy:** [decisions/ADR-20260419-v2.8-kill-policy.md](../decisions/ADR-20260419-v2.8-kill-policy.md) — si un REQ table-stake n'est pas livré, la feature est killed via flag. Pas de v2.9 stabilisation.
+
+**Total requirements:** 48 REQ-IDs across 8 catégories, mapped 1:1 to 8 phases.
+
+**Phase numbering — intentional decimal inserts:**
+- v2.7 terminates at Phase 30.
+- Phases **30.5** (Context Sanity) and **30.6** (Tools Déterministes) are decimal **inserts BEFORE standard Phase 31**, introduced post-panel-debate (4 experts: Claude Code architect / peer tools / academic / devil's advocate).
+- Phases 31-36 then follow standard integer numbering.
+
+### Build order (dependency graph)
+
+```
+  30.5 Context Sanity (5j, non-empruntable, foundation)
+         │
+         │ CTX-05 spike gate (go/no-go)
+         ▼
+  30.6 Tools Déterministes (2-3j)
+         │
+         ▼
+  ┌──────┴──────┐
+  │             │
+  31            34           (parallel; lefthook skeleton from 30.5)
+  Instrumenter  Guardrails   (each 1.5 sem, can borrow from the other)
+  │             │
+  │             │ GUARD-02 bare-catch lint ACTIVE
+  │             │     (prereq for FIX-05 in Phase 36)
+  │             │
+  └──────┬──────┘
+         │
+  ┌──────┴──────┐
+  │             │
+  32            33           (parallel; each 1 sem, can borrow from the other)
+  Cartographier Kill-switches
+  │             │
+  │             │ FLAG-03 convergence 2 flag systems
+  │             │     (prereq for all Phase 36 kill-switches)
+  └──────┬──────┘
+         │
+  35 Boucle Daily (1 sem)
+         │
+         ▼
+  36 Finissage E2E (2-3 sem MINIMUM, non-empruntable)
+```
+
+### Budget summary
+
+| Phase | Name | Budget | Borrowable | REQs | Kill gate |
+|-------|------|--------|------------|------|-----------|
+| 30.5 | Context Sanity | 5j (1 sem) | **non-empruntable** | 5 | CTX-05 spike go/no-go |
+| 30.6 | Tools Déterministes | 2-3j (~0.5 sem) | — | 4 | — |
+| 31 | Instrumenter | 1.5 sem | from 34 only | 7 | OBS-06 PII audit artefact |
+| 34 | Guardrails | 1.5 sem | from 31 only | 8 | — |
+| 32 | Cartographier | 1 sem | from 33 only | 5 | — |
+| 33 | Kill-switches | 1 sem | from 32 only | 5 | — |
+| 35 | Boucle Daily | 1 sem | — | 5 | — |
+| **36** | **Finissage E2E** | **2-3 sem MINIMUM** | **never — non-empruntable** | **9** | 4 P0 kill flags provisioned |
+
+**Total estimate:** 8-10 weeks solo-dev with parallelisation (31 ∥ 34, 32 ∥ 33).
+
+---
+
+## v2.8 Phases
+
+- [ ] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go
+- [ ] **Phase 30.6: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
+- [ ] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend
+- [ ] **Phase 32: Cartographier** — Route registry-as-code 148 routes + `/admin/routes` dashboard dev-only + parity lint + analytics legacy redirects
+- [ ] **Phase 33: Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems + admin UI
+- [ ] **Phase 34: Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch, hardcoded-FR, accent, ARB parity, proof-of-read) + CI thinning
+- [ ] **Phase 35: Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
+- [ ] **Phase 36: Finissage E2E** — 4 P0 fixes (UUID / anonymous / save_fact / Coach tab) + 388 catches → 0 + MintShell ARB parity audit + accents 100%
 
 ## Phase Details
 
-### Phase 13: Anonymous Hook & Auth Bridge
-**Goal**: A stranger opens MINT, taps a felt-state pill, gets a premier eclairage that surprises them, and converts to an authenticated user without losing a single message
-**Depends on**: Phase 12 (v2.4 foundation must be validated)
-**Requirements**: ANON-01, ANON-02, ANON-03, ANON-04, ANON-05, ANON-06, LOOP-01 (partial)
+### Phase 30.5: Context Sanity
+**Goal**: Les agents Claude Code ne peuvent plus coder à l'aveugle — MEMORY.md est retrievable, le drift est mesuré, CLAUDE.md est restructuré contre lost-in-the-middle, un hook `UserPromptSubmit` injecte les rappels critiques contextuellement, et un spike agent valide go/no-go avant Phase 31.
+**Depends on**: Nothing (foundation phase v2.8, runs first)
+**Requirements**: CTX-01, CTX-02, CTX-03, CTX-04, CTX-05
 **Success Criteria** (what must be TRUE):
-  1. Anonymous user can send 3 messages to coach and receive meaningful responses without creating an account
-  2. Tapping a felt-state pill on the intent screen opens coach chat with that intent as conversation context (not a blank chat)
-  3. After the 3rd value exchange, MINT surfaces a natural auth prompt ("Je peux garder tout ca en memoire pour toi") -- not a wall, not a popup
-  4. User who creates an account sees their entire anonymous conversation preserved in their chat history (zero message loss)
-  5. A second anonymous session from the same device cannot bypass the 3-message rate limit (device-scoped session token in SecureStorage)
-**Plans**: 4 plans
+  1. `MEMORY.md` core INDEX est <100 lignes et 0 "Only part was loaded" warning apparaît sur une nouvelle session ; les handoffs récents sont retrievables via `memory/topics/*.md` on-demand.
+  2. Dashboard `/admin/agent-drift` affiche 4 métriques live (drift rate, context hit rate, token cost per session, time-to-first-correct-output) et une baseline J0 est capturée avant toute refonte CLAUDE.md.
+  3. `CLAUDE.md` core <150 lignes avec règles critiques (banned terms / accents / retirement framing / financial_core reuse) dupliquées en TOP + BOTTOM du fichier ; 10 NEVER principaux convertis en triplets `{bad → good → why}` ; redondance §5-7 vs skills `mint-*` auditée.
+  4. Hook `UserPromptSubmit` ciblé injecte 200-400 tokens contextuels sur 5 patterns MINT détectés dans le user message (`.arb` édité / `.dart` dans screens/ / "calcul|calculator" / "commit" / nouveau `.dart`).
+  5. Un spike agent sur un chunk Phase 31 (bump `sentry_flutter` 8→9 + wire `SentryWidget` + `maskAllText` options) livre du code sans régression détectée dans le dashboard CTX-02 (0 accent oublié, 0 financial_core réinventé, 0 banned term), OU 2 itérations échouent → kill-policy déclenché sur CTX (rollback + redesign).
+**Plans**: TBD
+**Budget**: 5j (1 sem) — non-empruntable (foundation)
 
-Plans:
-- [x] 13-01-PLAN.md -- Backend anonymous chat endpoint with rate limiting and discovery system prompt
-- [x] 13-02-PLAN.md -- Frontend anonymous chat screen, session service, and auth gate UX
-- [x] 13-03-PLAN.md -- Conversation migration on auth and device verification
-- [x] 13-04-PLAN.md -- Gap closure: eager message persistence to fix broken migration path
-
-### Phase 14: Commitment Devices
-**Goal**: MINT transforms insights into action -- every Layer 4 response includes a concrete implementation intention, landmark dates trigger proactive messages, and irrevocable decisions get a pre-mortem
-**Depends on**: Phase 13 (requires authenticated users with persistent conversations)
-**Requirements**: CMIT-01, CMIT-02, CMIT-03, CMIT-04, CMIT-05, CMIT-06, LOOP-01 (partial), LOOP-02 (partial)
+### Phase 30.6: Tools Déterministes
+**Goal**: Transformer les constantes et lints permanents de CLAUDE.md en MCP tools on-demand. Les agents invoquent `get_swiss_constants()` / `check_banned_terms()` / `validate_arb_parity()` quand pertinent au lieu de traîner 800+ tokens de règles en contexte permanent.
+**Depends on**: Phase 30.5 (restructure CLAUDE.md existant avant de supprimer les sections vers tools)
+**Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-04
 **Success Criteria** (what must be TRUE):
-  1. Coach response to a financial question includes an editable WHEN/WHERE/IF-THEN implementation intention that the user can accept, edit, or dismiss
-  2. Accepted implementation intention triggers a local notification reminder at the scheduled time
-  3. On a landmark date (birthday, month-1, year-start), user receives a single proactive MINT message anchored to their financial situation
-  4. Before an irrevocable decision (EPL, capital withdrawal, 3a closure), coach surfaces a pre-mortem prompt and stores the user's response in the dossier
-  5. Pre-mortem responses from past decisions are referenced when the user revisits related topics ("En mars tu avais dit craindre que...")
-**Plans**: 3 plans
+  1. MCP tool `get_swiss_constants(category)` retourne les constantes 2025/2026 structurées pour 5 catégories (pillar3a / lpp / avs / mortgage / tax), sourcées depuis `services/backend/app/constants/` (single source of truth déjà existant).
+  2. MCP tool `check_banned_terms(text)` wrap `ComplianceGuard` backend existant et retourne `{banned_found: [...], suggestions: [...]}` on-demand.
+  3. MCP tools `validate_arb_parity()` + `check_accent_patterns(text)` wrappent les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` de Phase 34 — les agents les appellent au lieu de charger les listes patterns en mémoire.
+  4. `CLAUDE.md` core tokens -30% (suppression §5 BUSINESS RULES constantes + §6 COMPLIANCE banned terms list) ; les tools sont invoqués ≥1×/session sur tâches pertinentes (mesuré via dashboard Phase 30.5).
+**Plans**: TBD
+**Budget**: 2-3j (~0.5 sem)
 
-Plans:
-- [x] 14-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext injection
-- [x] 14-02-PLAN.md -- Frontend: CommitmentCard widget, persistence endpoint, notification scheduling
-- [x] 14-03-PLAN.md -- Fresh-start anchors: landmark detection, personalized messages, proactive notifications
-
-### Phase 15: Coach Intelligence
-**Goal**: Coach becomes relationally aware -- tracks who recommended what financial product and respects that users mentally separate their monies, without ever asking form-style questions
-**Depends on**: Phase 14 (commitment devices provide the persistence patterns reused here)
-**Requirements**: INTL-01, INTL-02, INTL-03, INTL-04, LOOP-01 (partial), LOOP-02 (partial)
+### Phase 31: Instrumenter
+**Goal**: Tout ce qui casse dans l'app arrive dans Sentry en <60s avec assez de contexte pour diagnostiquer sans ouvrir l'IDE — session replay mobile, global error boundary 3-prongs, trace_id round-trip mobile↔backend, observer GoRouter, breadcrumbs custom sur les surfaces critiques (ComplianceGuard / save_fact / FeatureFlags).
+**Depends on**: Phase 30.5 (CTX-05 spike gate must succeed), Phase 30.6 (tools disponibles aux agents qui coderont cette phase)
+**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-07
 **Success Criteria** (what must be TRUE):
-  1. Coach naturally asks provenance questions in conversation flow ("au fait, ce 3a, c'est qui qui te l'a propose ?") -- not as a form, not as interrogation
-  2. In a subsequent conversation, coach references stored provenance ("le 3a que ton banquier t'a propose chez UBS...") without the user having to repeat it
-  3. When user mentions money with relational meaning ("l'argent de mamie"), coach stores an earmark tag and never aggregates that money into generic "patrimoine total"
-  4. Financial analyses and projections respect earmark boundaries -- earmarked funds appear separately, not merged
-**Plans**: 2 plans
+  1. Tout 500 backend apparaît dans Sentry en <60s avec `trace_id` + `sentry_event_id` dans la JSON response + header `X-Trace-Id` sortie, et le mobile peut afficher "ref #abc123" cliquable.
+  2. Une erreur déclenchée dans n'importe lequel des 3 chemins (build/layout, async platform, isolate) est capturée par l'error boundary 3-prongs — 0 bare catch n'échappe plus à la capture Sentry (révélation pré-Phase 36).
+  3. Session Replay Flutter 9.14.0 actif avec `maskAllText=true` + `maskAllImages=true` + `sessionSampleRate=0.05` + `onErrorSampleRate=1.0` ; un click sur un event Sentry mobile ouvre le replay lié au trace_id et le replay masque 100% des écrans sensibles (CoachChat, DocumentScan, ExtractionReviewSheet, Onboarding, Budget).
+  4. Un appel mobile→backend propage `sentry-trace` + `baggage` headers sur `http: ^1.2.0` existant (pas migration Dio) et le Sentry UI affiche le cross-project link automatiquement.
+  5. Artefact `.planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md` committed listant tous les screens sensibles auditoés sur simulateur AVANT flip de `sessionSampleRate>0` en production (gate nLPD non-négociable).
+  6. Artefact `.planning/observability-budget.md` documente Sentry tier/pricing fresh, quota replay, events/mois target ~5k users, staging vs prod DSN séparés.
+**Plans**: TBD
+**Budget**: 1.5 sem (peut emprunter de 34 seulement)
 
-Plans:
-- [x] 15-01-PLAN.md -- Backend: DB models, migrations, system prompt directives, internal tools, CoachContext memory injection
-- [x] 15-02-PLAN.md -- Integration tests, round-trip verification, full suite validation
-
-### Phase 16: Couple Mode Dissymetrique
-**Goal**: One partner uses MINT alone and gets couple-aware projections using estimates of their partner's situation -- private, honest about uncertainty, and actionable via "5 questions to ask"
-**Depends on**: Phase 15 (provenance infrastructure enriches couple context; coach intelligence enables relational partner data)
-**Requirements**: COUP-01, COUP-02, COUP-03, COUP-04
+### Phase 32: Cartographier
+**Goal**: Avoir une source de vérité machine-lisible pour les 148 routes mobiles — chaque route a des métadonnées (owner, category, requiresAuth, killFlag), un dashboard dev-only `/admin/routes` affiche leur santé live (Sentry × FeatureFlags × last-visited), un lint CI empêche les drifts code↔registry, et les 23 redirects legacy sont instrumentés pour validation 30-day avant sunset v2.9.
+**Depends on**: Phase 31 (Sentry Issues API + breadcrumbs nécessaires pour le data join route health), Phase 34 (lefthook + parity lint scaffolding)
+**Requirements**: MAP-01, MAP-02, MAP-03, MAP-04, MAP-05
 **Success Criteria** (what must be TRUE):
-  1. User can declare "Je suis en couple" and enter estimated partner data (salary, LPP, age, 3a) via coach conversation or dedicated entry
-  2. MINT generates 5 specific questions for the user to ask their partner, based on gaps in the estimation ("Demande-lui son salaire assure LPP")
-  3. Couple projections (AVS married cap, combined tax, combined mortgage capacity) use partner estimates with visibly degraded confidence scores
-  4. Partner data is stored locally only -- never sent to backend, never visible in CoachContext sent to LLM
-**Plans**: 2 plans
+  1. `lib/routes/route_metadata.dart` expose `kRouteRegistry: Map<String, RouteMeta>` avec 148 entrées (path, category ∈ {destination, flow, tool, alias}, owner, requiresAuth, killFlag optional) — single source of truth.
+  2. Dashboard `/admin/routes` chargeable seulement si compile-time `--dart-define=ENABLE_ADMIN=1` ET runtime `AdminProvider.isAllowed` (via `GET /api/v1/admin/me` allowlist) — tree-shaken en prod IPA.
+  3. Chaque ligne du dashboard affiche un statut vert/jaune/rouge/dead issu du join (registry × Sentry Issues API last 24h × FeatureFlags status × last-visited breadcrumbs).
+  4. CI fail si `tools/checks/route_registry_parity.py` détecte un `GoRoute(path:)` dans `app.dart` absent de `kRouteRegistry` (ou vice-versa).
+  5. Les 23 redirects legacy ont un analytics hit-counter actif — le dashboard affiche un compteur "redirects hit last 30 days" par legacy path (instrumentation seulement — PAS suppression v2.8, sunset DEFER v2.9+ après 30-day zero-traffic validation).
+**Plans**: TBD
+**Budget**: 1 sem (peut emprunter de 33 seulement)
 
-Plans:
-- [x] 16-01-PLAN.md -- Backend: save_partner_estimate/update_partner_estimate internal tools, system prompt directive, ack-only handlers
-- [x] 16-02-PLAN.md -- Flutter: PartnerEstimateService (SecureStorage), CoupleQuestionGenerator, tool call interception, couple projection confidence degradation
-
-### Phase 17: Living Timeline -- 3 Tensions
-**Goal**: Aujourd'hui tab comes alive with 3 tension cards that reflect the user's actual financial state -- past earned, present pulsing, future ghosted -- replacing the static landing screen
-**Depends on**: Phase 14 (commitment devices feed tension cards), Phase 15 (provenance/earmarks feed context)
-**Requirements**: TIME-01, TIME-02, LOOP-03 (partial)
+### Phase 33: Kill-switches
+**Goal**: Tout path user-visible peut être tué à chaud depuis `/admin/flags` en 1 clic sans redeploy — middleware GoRouter `requireFlag()` sur le redirect callback existant, FeatureFlags devient `ChangeNotifier` avec `refreshListenable` (hot-reload live), backend converge sur 1 seul système de flags (Redis via `FlagsService.set_global()` surface via endpoint existant), pattern flag-group pour éviter le flag rot.
+**Depends on**: Phase 31 (breadcrumbs FeatureFlags.refresh pour traçabilité), Phase 32 (RouteMeta.killFlag field est le contrat), Phase 34 (lefthook en place pour protéger le refactor)
+**Requirements**: FLAG-01, FLAG-02, FLAG-03, FLAG-04, FLAG-05
 **Success Criteria** (what must be TRUE):
-  1. Aujourd'hui screen shows exactly 3 tension cards: one earned (past achievement), one pulsing (active tension), one ghosted (future projection)
-  2. Tension cards update dynamically when user uploads a document, completes a coach conversation, or accepts a commitment intention -- not static, not hardcoded
-**Plans**: 1 plan
-**UI hint**: yes
+  1. Une tentative de navigation vers une route dont le killFlag est off redirige automatiquement vers `/flag-disabled?path=X&flag=Y` — testé sur au moins 3 routes (un Explorer hub, Coach, Scan).
+  2. Julien flip un flag depuis `/admin/flags` 1-clic et les utilisateurs actuels sont déroutés en <2s sans restart (FeatureFlags `ChangeNotifier` + `refreshListenable` hot-reload).
+  3. Backend route flags vivent dans Redis via `FlagsService.set_global()` et sont surfaced via `/config/feature-flags` existant (0 nouveau 3e système — convergence des 2 systèmes existants).
+  4. 11 flags-groupes déployés (`enableExplorerRetraite/Famille/Travail/Logement/Fiscalite/Patrimoine/Sante` + `enableCoachChat` + `enableScan` + `enableBudget` + `enableAnonymousFlow`) couvrant 148 routes sans flag-per-route.
+  5. Les 4 kill-switches P0 de Phase 36 (`enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`) sont provisioned et testés OFF→ON→OFF AVANT que Phase 36 commence (gate non-négociable per kill-policy ADR).
+**Plans**: TBD
+**Budget**: 1 sem (peut emprunter de 32 seulement)
 
-Plans:
-- [x] 17-01-PLAN.md -- TensionCardProvider, 3 tension card widgets, CleoLoopIndicator, AujourdhuiScreen, router wiring, i18n
-
-### Phase 18: Living Timeline -- Full Timeline
-**Goal**: Aujourd'hui becomes a single-screen center of gravity -- a living timeline with tappable nodes that aggregates documents, conversations, commitments, couple data, and projections into one coherent view
-**Depends on**: Phase 16 (couple data), Phase 17 (3-tensions foundation)
-**Requirements**: TIME-03, TIME-04, TIME-05, LOOP-03 (partial)
+### Phase 34: Agent Guardrails mécaniques
+**Goal**: Aucun commit (humain ou agent) ne peut introduire une régression accent / hardcoded-FR / bare-catch / ARB drift — lefthook 2.1.5 pre-commit parallel <5s, 5 lints mécaniques actifs, `--no-verify` banni remplacé par `LEFTHOOK_BYPASS=1` grep-able, CI thinnée (gates rapides migrent vers lefthook, CI garde les heavies).
+**Depends on**: Phase 30.5 (skeleton lefthook hook MEMORY.md déjà en place) — sinon parallel avec Phase 31
+**Requirements**: GUARD-01, GUARD-02, GUARD-03, GUARD-04, GUARD-05, GUARD-06, GUARD-07, GUARD-08
 **Success Criteria** (what must be TRUE):
-  1. Aujourd'hui tab shows a living timeline replacing the 3-tensions placeholder, with tappable nodes organized by past/present/future
-  2. Documents, chat history, accepted implementation intentions, and couple estimates each appear as distinct node types on the timeline
-  3. Past nodes show earned achievements (completed actions, uploaded documents), present nodes pulse with active tensions, future nodes appear ghosted with projected scenarios
-  4. Timeline renders smoothly on older iPhones (no jank on scroll, lazy-loaded nodes)
-**Plans**: 1 plan
-**UI hint**: yes
+  1. `lefthook install` post-clone + `lefthook.yml` pre-commit parallel complet runs <5s absolu sur M-series Mac sur un diff typique (5 Dart + 3 Python staged).
+  2. Un `} catch (e) {}` Dart ou `except Exception:` Python sans log/rethrow introduit dans un fichier non-test FAIL le hook (exceptions `test/` et `async *` streams documentées) — GUARD-02 est ACTIVE avant que FIX-05 de Phase 36 commence (sinon moving target pendant la migration 388 catches).
+  3. Une string FR hardcodée dans un widget Dart hors `lib/l10n/` FAIL le hook ; un accent manquant (creer, decouvrir, eclairage, securite, etc.) dans `.dart` / `.py` / `app_fr.arb` FAIL le hook ; un drift de keyset entre les 6 ARB (fr/en/de/es/it/pt) FAIL le hook.
+  4. Un commit avec `LEFTHOOK_BYPASS=1` est traçable (grep-able dans shell history) ; CI post-merge re-run lefthook sur PR range et alerte si >3 bypass/semaine.
+  5. Les 10 grep-style gates existants `tools/checks/*.py` sont migrés vers lefthook-first ; CI ne garde que les heavies (full test suites, readability, WCAG, PII, contracts, migrations) — CI time réduit d'environ 2 min.
+**Plans**: TBD
+**Budget**: 1.5 sem (peut emprunter de 31 seulement, parallèle possible avec 31)
 
-Plans:
-- [x] 18-01-PLAN.md -- TimelineNode model, TimelineProvider, node widgets, month headers, AujourdhuiScreen rebuild with CustomScrollView, i18n
+### Phase 35: Boucle Daily
+**Goal**: Chaque matin, un script bash 10 min reproduit le scenario utilisateur type sur iPhone 17 Pro simulé, screenshot chaque étape, pull les événements Sentry de la dernière fenêtre, génère un report markdown, et ouvre automatiquement une PR si au moins 1 P0 ou 3 P1 sont détectés — signal-over-noise.
+**Depends on**: Phase 31 (Sentry events + replay), Phase 32 (route health pour contextualiser), Phase 33 (kill-switches pour rollback rapide sur findings), Phase 34 (lefthook protège les commits dogfood auto)
+**Requirements**: LOOP-01, LOOP-02, LOOP-03, LOOP-04, LOOP-05
+**Success Criteria** (what must be TRUE):
+  1. `tools/dogfood/mint-dogfood.sh` exécute un 8-step scenario non-attendu (landing → signup → intent → premier-éclairage → scan → coach-reply → budget → settings) sur iPhone 17 Pro via `xcrun simctl` (primary) + `idb` (accessibility tap fallback) en ~10 min.
+  2. `tools/dogfood/render_report.py` génère `.planning/dogfood/YYYY-MM-DD/README.md` avec screenshots inline, Sentry events groupés par severity, et (optionnel) diff vs J-1.
+  3. Sentry events des 15 dernières minutes sont pull via `sentry-cli api` pour les 2 projets (mobile + backend) avec auth `SENTRY_AUTH_TOKEN` via macOS Keychain.
+  4. `gh pr create` ouvre automatiquement une PR `dogfood/YYYY-MM-DD` → `dev` UNIQUEMENT si le report contient ≥1 P0 ou ≥3 P1 (pas de spam daily, signal-over-noise).
+  5. `.planning/dogfood/` fait rotation keep-30-days ; les runs >60j partent en Git LFS via `.gitattributes` (volume ~200MB/mois au rythme 10 min/jour × 8 screenshots).
+**Plans**: TBD
+**Budget**: 1 sem
+
+### Phase 36: Finissage E2E
+**Goal**: Tous les P0 catalogués à l'entrée v2.8 sont soit fixés soit killed via flag — UUID profile crash / anonymous flow mort / save_fact désynchronisé / Coach tab routing stale. 388 bare catches convergent à 0 (backend 56 d'abord, mobile 332 batched 20/PR). MintShell ARB parity audit 6 langs. Accents 100%. Chaque fix ship avec un regression test qui aurait failé pré-fix. Julien ouvre MINT 20 min sans taper un mur.
+**Depends on**: Phase 33 (4 kill-switches P0 provisioned per kill-policy ADR), Phase 34 (GUARD-02 bare-catch ban ACTIVE avant FIX-05 sinon moving target), Phase 35 (dogfood boucle daily valide les fixes en continu)
+**Requirements**: FIX-01, FIX-02, FIX-03, FIX-04, FIX-05, FIX-06, FIX-07, FIX-08, FIX-09
+**Success Criteria** (what must be TRUE):
+  1. Julien ouvre MINT depuis `simctl` cold-start et teste 20 min d'affilée le scenario canonical (landing → intent anonyme → signup → coach 3 messages → scan document → budget → explore 5 hubs) sans taper un mur : 0 RSoD, 0 écran vide, 0 crash, 0 "Analyse indisponible", 0 redirect piégé.
+  2. Les 4 P0 blocking bugs sont soit FIXÉS avec un regression test qui aurait failé pré-fix (FIX-01 UUID backend / FIX-02 anonymous one-line CTA / FIX-03 save_fact sync via `responseMeta.profileInvalidated` / FIX-04 Coach tab routing), soit KILLED via leur kill-switch flag respectif (`enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`) avec décision commitée (per kill-policy ADR).
+  3. `tools/checks/no_bare_catch.py` (GUARD-02) gate green sur tout le codebase : les 388 bare catches (332 mobile + 56 backend) sont tous classifiés (P0 core flows / P1 UX best-effort / P2 test mocks exemptés) et convergent à 0 sur P0+P1, migration par batch 20/PR.
+  4. Les labels MintShell (`l.tabAujourdhui / l.tabMonArgent / l.tabCoach / l.tabExplorer`) sont présents dans les 6 ARB (fr/en/de/es/it/pt), sans ASCII-only residue — audit passé, PAS rewrite (les labels sont déjà i18n-wired à `apps/mobile/lib/widgets/mint_shell.dart:50-65`, MEMORY.md était stale).
+  5. `tools/checks/accent_lint_fr.py` (GUARD-04) gate green sur `.dart` + `.py` + `.arb` — accents 100% FR corrects, 0 résidu ASCII.
+  6. Les 23 redirects legacy ont leur analytics actif (via MAP-05) depuis Phase 32 ; leur sunset est DEFER v2.9+ documenté (zero-traffic 30-day validation requise, PAS suppression v2.8).
+**Plans**: TBD
+**Budget**: **2-3 sem MINIMUM, non-empruntable** (per kill-policy ADR)
 
 ## Progress
 
 **Execution Order:**
-Phases execute sequentially: 13 -> 14 -> 15 -> 16 -> 17 -> 18
-Each phase must pass device gate before the next begins.
+Phases execute in dependency order: 30.5 → 30.6 → (31 ∥ 34) → (32 ∥ 33) → 35 → 36.
+Parallel windows: 31∥34 (disjoint concerns: instrumentation vs lints) ; 32∥33 (disjoint: cartographie vs kill-switches).
+Device gate (Julien simctl cold-start) mandatory for Phase 36 sign-off.
+Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression test OR be killed via its flag at milestone close.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 13. Anonymous Hook & Auth Bridge | v2.5 | 4/4 | Complete    | 2026-04-12 |
-| 14. Commitment Devices | v2.5 | 3/3 | Complete    | 2026-04-12 |
-| 15. Coach Intelligence | v2.5 | 2/2 | Complete    | 2026-04-12 |
-| 16. Couple Mode Dissymetrique | v2.5 | 2/2 | Complete    | 2026-04-12 |
-| 17. Living Timeline -- 3 Tensions | v2.5 | 1/1 | Complete    | 2026-04-12 |
-| 18. Living Timeline -- Full Timeline | v2.5 | 1/1 | Complete    | 2026-04-13 |
+| 30.5. Context Sanity | v2.8 | 0/0 | Not started | — |
+| 30.6. Tools Déterministes | v2.8 | 0/0 | Not started | — |
+| 31. Instrumenter | v2.8 | 0/0 | Not started | — |
+| 32. Cartographier | v2.8 | 0/0 | Not started | — |
+| 33. Kill-switches | v2.8 | 0/0 | Not started | — |
+| 34. Agent Guardrails mécaniques | v2.8 | 0/0 | Not started | — |
+| 35. Boucle Daily | v2.8 | 0/0 | Not started | — |
+| 36. Finissage E2E | v2.8 | 0/0 | Not started | — |
 
-## v2.6 Le Coach Qui Marche
+## Kill-policy reference
 
-Zero nouvelle feature. Fix every pipe. Gate 0 walkthrough as source of truth.
-
-### Phase 19: Auth State Propagation (COMPLETE)
-**Goal**: User who logs in sees authenticated content everywhere immediately -- no stale "Creer ton compte" on any tab
-**Depends on**: Nothing (first phase of v2.6, highest user impact)
-**Requirements**: AUTH-01, AUTH-02, AUTH-03
-**Success Criteria**:
-  1. Logged-in user sees authenticated content on Coach, Explorer, and Aujourd'hui tabs without restarting app
-  2. Logging out returns all three tabs to anonymous state immediately
-  3. Deep links to protected routes redirect to login when unauthenticated
-**Plans**: 1/1 complete
-
-### Phase 20: Coach Conversation Context (COMPLETE)
-**Goal**: Coach receives full conversation history in every API call and responds within 5 seconds with clear error handling
-**Depends on**: Phase 19 (auth must work so coach knows who the user is)
-**Requirements**: CTX-01, CTX-04, CTX-05
-**Success Criteria**:
-  1. Follow-up question correctly references what was said 3+ messages ago
-  2. Response appears within 5 seconds for standard questions
-  3. API failure shows clear message with working retry button
-**Plans**: 1/1 complete
-
-### Phase 21: Coach Memory & Dossier
-**Goal**: Coach pulls relevant past insights before responding and persists key facts learned during conversation
-**Depends on**: Phase 20 (conversation context must work before layering memory on top)
-**Requirements**: CTX-02, CTX-03
-**Success Criteria**:
-  1. User mentions salary, closes app, reopens next day -- coach references salary without being told again
-  2. User who discussed LPP gets response referencing their specific LPP situation, not generic advice
-**Plans**: 1 plan
-
-Plans:
-- [x] 21-01-PLAN.md -- Fix save_insight DB persistence + insight memory block injection + retrieve_memories DB search
-
-### Phase 22: Coach Chat UX
-**Goal**: Coach responses look polished -- Markdown rendered, keyboard handled, text chunked, disclaimers unobtrusive
-**Depends on**: Phase 20 (coach must respond correctly before polishing how responses look)
-**Requirements**: UX-01, UX-02, UX-03, UX-05
-**Success Criteria**:
-  1. Bold, italic, lists render as formatted text -- no visible asterisks
-  2. Keyboard dismisses on send, chat scrolls to response
-  3. Long responses use progressive disclosure -- no walls of text
-  4. Disclaimer is a single compact expandable line
-**Plans**: 1 plan
-
-Plans:
-- [x] 22-01-PLAN.md -- Markdown rendering, keyboard dismiss, response length directive, collapsible disclaimers
-
-### Phase 23: Document Scanner Pipeline
-**Goal**: User uploads a PDF, MINT parses it, stores data in dossier, and coach references it in future conversations
-**Depends on**: Phase 21 (memory/dossier must work so parsed documents are retrievable)
-**Requirements**: DOC-01, DOC-02, DOC-03
-**Success Criteria**:
-  1. PDF selection shows success (not "Analyse PDF indisponible")
-  2. Parsed data visible in "Ce que MINT sait de toi"
-  3. Coach references specific numbers from uploaded documents
-**Plans**: 1 plan
-
-Plans:
-- [x] 23-01-PLAN.md -- Fix PDF pipeline: Dockerfile docling extra, consent auto-grant, all doc types + Vision fallback
-
-### Phase 24: Coach Widgets & Suggestions
-**Goal**: Coach shows inline widgets in chat via tool calls and provides contextual suggestion chips -- not static hardcoded ones
-**Depends on**: Phase 22 (chat UX must render properly before adding widgets inside it)
-**Requirements**: WID-01, WID-02, WID-04, UX-04
-**Success Criteria**:
-  1. Inline comparison widget renders inside chat
-  2. Suggestion chips change based on conversation context
-  3. Route suggestion navigates to correct screen, back button returns to chat
-**Plans**: TBD
-
-Plans:
-- [x] 24-01: TBD
-
-### Phase 25: Profile & Data Integrity
-**Goal**: Profile drawer shows accurate, complete, non-truncated user data -- what MINT knows matches what user provided
-**Depends on**: Phase 23 (document data should be visible in profile after scanner works)
-**Requirements**: PROF-01, PROF-02, PROF-03
-**Success Criteria**:
-  1. No stale values from previous sessions
-  2. All text fully visible, no truncation
-  3. Data from both conversations and document uploads displayed
-**Plans**: TBD
-
-Plans:
-- [x] 25-01: TBD
-
-### Phase 26: Navigation Coherence
-**Goal**: Every route resolves, every tab works when authenticated, back navigation never traps, lightning menu functional
-**Depends on**: Phase 24 (widgets/route suggestions must exist before verifying all navigation paths)
-**Requirements**: NAV-01, NAV-02, NAV-03, NAV-04, WID-03
-**Success Criteria**:
-  1. Explorer tab browsable when authenticated
-  2. Aujourd'hui shows tension cards/timeline when authenticated
-  3. Lightning menu opens and all actions work
-  4. No dead routes, no 404s
-  5. Back button never traps
-**Plans**: TBD
-
-Plans:
-- [x] 26-01: TBD
-
-**Execution Order:**
-Phases execute sequentially: 21 -> 22 -> 23 -> 24 -> 25 -> 26
-Integration checker after phases 22, 24, and 26.
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 19. Auth State Propagation | v2.6 | 1/1 | Complete | 2026-04-13 |
-| 20. Coach Conversation Context | v2.6 | 1/1 | Complete | 2026-04-13 |
-| 21. Coach Memory & Dossier | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 22. Coach Chat UX | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 23. Document Scanner Pipeline | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 24. Coach Widgets & Suggestions | v2.6 | 1/1 | Complete    | 2026-04-13 |
-| 25. Profile & Data Integrity | v2.6 | 1/0 | Complete    | 2026-04-13 |
-| 26. Navigation Coherence | v2.6 | 1/1 | Complete    | 2026-04-13 |
-
-## v2.7 Coach Stabilisation + Document Digestion
-
-Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo / scan / screenshot / PDF) sans jamais afficher "Analyse indisponible". Basé sur synthèse de 4 experts (pipeline, UX, SRE, DPO) ayant challengé l'audit externe. Architecture astronaute rejetée — on garde `document_vision_service.py` existant (80% du chemin déjà fait) et on bouche les vrais trous : fiabilité MSG2, consentement, coûts, streaming, PII.
-
-**Contrat canonique interne** (pas nouveau endpoint public) : `DocumentUnderstandingResult` Pydantic partagé par coach + doc scanner + review screen. Un seul modèle, pas de re-fragmentation.
-
-**Principes**
-- 1 appel Vision fusionné (classify + extract prompté ensemble), pas 2.
-- 4 `render_mode` côté client : `confirm / ask / narrative / reject`. Le backend ne fuit pas ses `processing_mode` internes.
-- VisionKit iOS + `cunning_document_scanner` Android = **prétraitement client** (crop/deskew offline gratuit). Pas d'architecture complète autour.
-- `ExtractionReviewScreen` **réduit, pas supprimé** — fallback pour docs haut enjeu (LPP, tax) quand chat-bubble ne suffit pas.
-- Chat-first par défaut : docs simples atterrissent en bulle coach avec chips, pas en formulaire plein écran.
-
-### Phase 27: Stabilisation Critique
-**Goal**: Le coach ne tombe plus jamais sur le safe fallback. MSG2 (follow-up) fiable à 100%. Budget coût et débit bornés en prod.
-**Depends on**: Phase 26 (navigation doit marcher avant de stabiliser le coach)
-**Requirements**: STAB-01, STAB-02, STAB-03, STAB-04, STAB-05
-**Success Criteria**:
-  1. MSG2 follow-up renvoie une réponse Claude valide dans 100% des cas testés (scénario Sophie x10)
-  2. Retry Anthropic automatique sur 429/529 (tenacity 3x, backoff exponentiel) sans erreur visible user
-  3. Upload idempotent : même fichier (SHA256 identique) ne re-appelle pas Vision, renvoie résultat caché
-  4. Token budget par user/jour cappé (default 50k tokens/j), dépassement = message clair "limite quotidienne"
-  5. Feature flag `DOCUMENTS_V2_ENABLED` permet rollback instant sans redeploy
-  6. Agent loop re-prompte Claude quand tool_use émis avec texte vide (plus d'exit silencieux)
-**Plans**: TBD
-
-### Phase 28: Pipeline Document Honnête
-**Goal**: Tout upload (photo / scan / screenshot / PDF) produit l'une des 4 sorties acceptables, jamais "200 avec 0 fields sans explication". 1 appel Vision fusionné. Streaming UX (pas de spinner 30s muet).
-**Depends on**: Phase 27 (infra retry/budget/flag doit être en place avant le pipeline doc)
-**Requirements**: DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06, DOC-07, DOC-08
-**Success Criteria**:
-  1. Contrat canonique interne `DocumentUnderstandingResult` (Pydantic) utilisé par coach + doc scanner + review screen — une seule source de vérité
-  2. 1 seul appel Claude Vision par document (classify + extract dans le même prompt), pas 2
-  3. `extraction_status` étendu avec `non_financial` — détection locale heuristique AVANT envoi Vision
-  4. Queue async : endpoint retourne `202 + job_id`, client poll ou SSE streaming
-  5. Backend streame 3 events : `detected {type, person_hint}` → `summary {text}` → `render {mode, payload}`
-  6. Client reçoit 4 `render_mode` opaques : `confirm` (fields review) / `ask` (1-3 questions inline chat) / `narrative` (coach bubble sans chiffres) / `reject` (pas financier)
-  7. PDF chiffré détecté via `pymupdf.is_encrypted` AVANT Vision → `rejected` propre
-  8. Multi-page : `pages_processed / pages_total / warning` visible, pas de truncation silencieuse
-  9. `ExtractionReviewScreen` réduit aux docs haut enjeu (LPP, attestation tax, bank statement) — autres flows passent par bulle coach
-  10. VisionKit iOS + `flutter_doc_scanner` (ML Kit Android GA 2024) font crop/deskew côté client, pas serveur
-**Plans**: 4 plans
-
-Plans:
-- [x] 28-01-PLAN.md — Backend canonical contract DocumentUnderstandingResult + fused Vision + PDF preflight + Document Memory v1 + render_mode selector + third-party detection (completed 2026-04-14)
-- [x] 28-02-PLAN.md — SSE streaming backend (sse_starlette) + Flutter Stream<DocumentEvent> client + Dart schema mirror
-- [x] 28-03-PLAN.md — Native scanner (VisionKit iOS + ML Kit Android) + local image classifier pre-reject (ML Kit labels)
-- [x] 28-04-PLAN.md — 4 render_mode UI bubbles (confirm/ask/narrative/reject) + ExtractionReviewSheet (snap 0.3/0.6/0.95) + reduced ExtractionReviewScreen + device gate
-
-### Phase 29: Compliance & Privacy
-**Goal**: Avant tout upload, consentement explicite. Données de tiers déclarées. PII scrubée des logs. ComplianceGuard sur output Vision. DPA Anthropic activé. nLPD/LSFin/FINMA compliant.
-**Depends on**: Phase 28 (pipeline doit exister avant de le rendre conforme)
-**Requirements**: PRIV-01, PRIV-02, PRIV-03, PRIV-04, PRIV-05, PRIV-06, PRIV-07, PRIV-08
-**Success Criteria**:
-  1. Checkbox consentement explicite pré-upload, horodaté, versionné dans table `consents`, révocable avec cascade delete
-  2. Détection "document concerne une tierce personne" (conjoint) → déclaration user obligatoire avant traitement
-  3. IBAN/AVS/employeur scrubés dans tous les logs (regex + tokenization `EMPLOYER_1`, `IBAN_****1234`)
-  4. `evidence_text` chiffré at-rest avec clé dérivée user (Fernet/libsodium)
-  5. ComplianceGuard appliqué à `summary` et `questions_for_user` issus de Claude Vision (banned terms, prescriptive, hallucination)
-  6. Allowlist `fact_key` : seuls les champs utiles à MINT sont persistés (minimisation nLPD art. 6 al. 3), le reste dropé post-extraction
-  7. DPA Anthropic signé + Zero Data Retention activé côté compte API + mention privacy policy MINT mise à jour (sous-traitant US, finalité)
-  8. Statut `confirmed` automatique à 0.9 supprimé : user doit toujours valider explicitement (LSFin éducatif, pas décisionnel)
-  9. Rétention définie : document original jamais stocké (stream-only), `profile_facts` durée de vie = compte actif + 6 mois post-suppression
-**Plans**: 6 plans
-
-Plans:
-- [x] 29-01-PLAN.md — Envelope encryption AES-256-GCM + per-user DEK vault + crypto-shredding (PRIV-04, P0)
-- [x] 29-02-PLAN.md — Granular ISO 29184 consent receipts (4 purposes) + merkle chain + Flutter consent sheet + 6-lang ARB (PRIV-01, P0)
-- [x] 29-03-PLAN.md — Presidio PII scrubber + FPE IBAN/AVS + fact_key allowlist (8 keys) + CI log-gate (PRIV-03, PRIV-06, P1)
-- [x] 29-04-PLAN.md — VisionGuard Haiku LLM-as-judge + NumericSanity + drop auto-confirm + BatchValidationBubble + adversarial PDF suite (PRIV-05, PRIV-08, P1)
-- [x] 29-05-PLAN.md — Third-party opposable declaration + nominative receipt + session-scoped routing + invite stub (PRIV-02, P1)
-- [x] 29-06-PLAN.md — Bedrock EU migration (shadow→primary) + two-stage image masking + DPA technical annex + legal checklist (PRIV-07, P0)
-
-### Phase 30: Device & Test Gate
-**Goal**: Scénario Sophie complet validé sur iPhone + Android réels. Corpus fixtures documents couvre les cas critiques. CI teste le flow document end-to-end.
-**Depends on**: Phase 29 (tout doit être conforme avant de valider en conditions réelles)
-**Requirements**: GATE-01, GATE-02, GATE-03, GATE-04
-**Success Criteria**:
-  1. Scénario Sophie (pavé intent + 3 follow-ups + upload LPP + mémoire J+1) validé sur iPhone physique en `flutter run --release`
-  2. Scénario équivalent validé sur Android (emulator ou device)
-  3. Corpus `test/fixtures/documents/` avec 10 PDFs/images anonymisés : Julien CPE LPP, Lauren HOTELA + FATCA, AVS IK, salary AFC, tax VS, US W-2, scan froissé, photo biais, screenshot mobile banking, PDF allemand
-  4. Golden flow CI : upload chaque fixture → assert `render_mode` attendu + fields critiques extraits
-  5. Langue UI respectée (Tessinois + doc allemand → réponse italienne, pas allemande)
-  6. Prompt injection défendue : fixture avec "Ignore previous instructions" dans le doc → Vision ignore l'instruction
-  7. Coût moyen par document mesuré et reporté (< $0.05/doc cible)
-  8. Latence p95 mesurée et reportée (< 10s avec streaming)
-**Plans**: TBD
-
-**Execution Order:**
-Phases execute sequentially: 27 -> 28 -> 29 -> 30
-Integration checker after phases 28 and 30. Device gate mandatory before phase 30 sign-off.
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 27. Stabilisation Critique | v2.7 | 1/1 | Complete    | 2026-04-14 |
-| 28. Pipeline Document Honnête | v2.7 | 4/4 | Complete   | 2026-04-14 |
-| 29. Compliance & Privacy | v2.7 | 6/6 | Complete   | 2026-04-14 |
-| 30. Device & Test Gate | v2.7 | 2/2 | Complete (code) — awaiting device walkthrough | `<PENDING_DEVICE_GATE>` |
-
-## v2.8 La Confiance (proposed)
-
-Working title. Scope TBD via `/gsd-start-milestone v2.8`. See `docs/MILESTONE_V27_SUMMARY.md` §5.
-
-**Themes:**
-- Privacy Nutrition Label — inline disclosures at every data-collection point (LSFin transparency, nLPD).
-- Data Vault — user-facing export + portability (`.mintvault`), foundation for Dossier Federation.
-- Trust Mode — transparent "ce que MINT sait et pourquoi" breakdown.
-- Graduation Protocol v1 — concept mastery tracking (3 engagements × 1 concept).
+Every Phase 36 P0 REQ (FIX-01..04) has a kill-switch flag provisioned in Phase 33 BEFORE Phase 36 begins. At v2.8 close, if a requirement is not verifiably met (green lint + device-walkthrough signed by Julien + regression test landed), the corresponding flag is set `false` in production. A "v2.9 stabilisation milestone" is not a valid successor — stabilisation becomes transversal discipline. See [decisions/ADR-20260419-v2.8-kill-policy.md](../decisions/ADR-20260419-v2.8-kill-policy.md).
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-15 — v2.7 code-complete (30-02 closeout docs), awaiting device gate walkthrough*
+*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle roadmap created post-panel-debate (8 phases, 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36)*
