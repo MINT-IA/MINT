@@ -10,6 +10,7 @@
 - ✅ **v2.6 Le Coach Qui Marche** — Phases 19-26 (shipped 2026-04-13)
 - 🟡 **v2.7 Coach Stabilisation + Document Digestion** — Phases 27-30 (code-complete, awaiting device gate)
 - 🔵 **v2.8 L'Oracle & La Boucle** — Phases 30.5, 30.6, 30.7, 31-36 (defining)
+- 🌱 **v2.9 Chat Vivant** (planted 2026-04-19) — "Le chat ne raconte plus, il montre." 3 niveaux de projection (inline insight / scene interactive / canvas plein écran) à la Claude Artifacts. Source : `.planning/handoffs/chat-vivant-2026-04-19/` (8 docs + 6 JSX + captures HTML). Estimation P50 = 3 semaines calendar solo (refactor `CoachOrchestrator` Stream + i18n 6 langues + creator-device gate). 3 frictions à trancher avant exécution : (1) scenes inline vs écrans Explorer existants → single source of truth ? (2) `Future<CoachResponse>` → `Stream<ChatMessage>` refactor touche 3 code paths orchestrator, (3) i18n ARB 6 langues ~180 entries non comptées. À réveiller après Phase 31 shippée.
 
 <details>
 <summary>Previous milestones (v1.0 → v2.7) — see MILESTONES.md + collapsed v2.5-v2.7 detail below</summary>
