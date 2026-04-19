@@ -115,7 +115,14 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   3. `CLAUDE.md` core <150 lignes avec règles critiques (banned terms / accents / retirement framing / financial_core reuse) dupliquées en TOP + BOTTOM du fichier ; 10 NEVER principaux convertis en triplets `{bad → good → why}` ; redondance §5-7 vs skills `mint-*` auditée.
   4. Hook `UserPromptSubmit` ciblé injecte 200-400 tokens contextuels sur 5 patterns MINT détectés dans le user message (`.arb` édité / `.dart` dans screens/ / "calcul|calculator" / "commit" / nouveau `.dart`).
   5. Un spike agent sur un chunk Phase 31 (bump `sentry_flutter` 8→9 + wire `SentryWidget` + `maskAllText` options) livre du code sans régression détectée dans le dashboard CTX-02 (0 accent oublié, 0 financial_core réinventé, 0 banned term), OU 2 itérations échouent → kill-policy déclenché sur CTX (rollback + redesign).
-**Plans**: TBD
+**Plans**: 6 plans (Wave 0 scaffolding + 5 CTX plans, hard-sequenced per D-12 baseline-before-refonte)
+- [ ] 30.5-00-PLAN.md — Wave 0 test scaffolding + A4 mtime spike + A7 claude --headless spike (20 files, 0 production code)
+- [ ] 30.5-01-PLAN.md — CTX-02: drift.db schema + CLI dashboard + 4 ingesters + early-ship lints + baseline J0 capture (pre-refonte, D-12 non-negotiable)
+- [ ] 30.5-02-PLAN.md — CTX-01: MEMORY.md split + topics/ flat + 30j GC (mtime-based, D-03) + lefthook skeleton MEMORY gate only (D-04)
+- [ ] 30.5-03-PLAN.md — CTX-03: CLAUDE.md restructure <150L + 5-rule TOP+BOTTOM bracketing (D-06) + 10 triplets bad→good→why (D-07) + 3 AGENTS files (D-05) + redundancy audit (D-08) — REVERT-SAFE squash
+- [ ] 30.5-04-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) — REVERT-SAFE squash
+- [ ] 30.5-05-PLAN.md — CTX-05: spike validation on fresh-context branch + 5-dim grid review + dashboard regression + D-01 kill-policy Modeste 1 decision gate (bump sentry_flutter 8→9.14.0 + SentryWidget + maskAll*, A1 PII Replay mitigation HIGH severity)
+
 **Budget**: 5j (1 sem) — non-empruntable (foundation)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute (audit-as-second-agent obligatoire). Pas de simulator (rien à tester sur device). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
@@ -228,7 +235,7 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 30.5. Context Sanity | v2.8 | 0/0 | Not started | — |
+| 30.5. Context Sanity | v2.8 | 0/6 | Plans ready | — |
 | 30.6. Tools Déterministes | v2.8 | 0/0 | Not started | — |
 | 31. Instrumenter | v2.8 | 0/0 | Not started | — |
 | 32. Cartographier | v2.8 | 0/0 | Not started | — |
