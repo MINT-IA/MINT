@@ -2,18 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: executing
-stopped_at: Phase 30.5 context gathered (panel-augmented discuss mode, 22 decisions locked, kill-policy fallback Modeste 1 specced)
-last_updated: "2026-04-19T10:47:28.386Z"
-last_activity: 2026-04-19 -- Phase 30.5 planning complete
+status: verifying
+stopped_at: Completed 30.5-02-PLAN.md — Phase 30.5 Core 3/3 plans done, ready for /gsd-verify-work
+last_updated: "2026-04-19T12:53:15.347Z"
+last_activity: 2026-04-19
 progress:
-  total_phases: 8
-  completed_phases: 0
-  total_plans: 3
-  completed_plans: 0
-  percent: 0
-  history:
-    - "2026-04-19: Phase 30.5 split into 30.5 Core (CTX-01, CTX-02, 3 plans) + 30.6 Advanced (CTX-03, CTX-04, CTX-05, 3 plans) per expert panel consensus (Option F). total_plans reduced from 6 to 3 for 30.5; 30.6 Advanced now carries its own 3 plans."
+  total_phases: 9
+  completed_phases: 1
+  total_plans: 6
+  completed_plans: 3
+  percent: 50
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -23,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Roadmap created (8 phases : 30.5, 30.6, 31, 32, 33, 34, 35, 36). Awaiting `/gsd-plan-phase 30.5` to decompose Phase 30.5 Context Sanity into executable plans.
+**Current focus:** Phase 30.5 — Context Sanity Core
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -41,10 +39,10 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: Not started (roadmap created)
-Plan: —
-Status: Ready to execute
-Last activity: 2026-04-19 -- Phase 30.5 planning complete
+Phase: 30.5 (Context Sanity Core) — EXECUTING
+Plan: 3 of 3
+Status: Phase complete — ready for verification
+Last activity: 2026-04-19
 Next: `/gsd-plan-phase 30.5` (Context Sanity, 5j non-empruntable, foundation)
 
 Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
@@ -134,9 +132,9 @@ Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-19T09:34:16.647Z
-Stopped at: Phase 30.5 context gathered (panel-augmented discuss mode, 22 decisions locked, kill-policy fallback Modeste 1 specced)
-Resume file: .planning/phases/30.5-context-sanity/30.5-CONTEXT.md
+Last session: 2026-04-19T12:53:15.345Z
+Stopped at: Completed 30.5-02-PLAN.md — Phase 30.5 Core 3/3 plans done, ready for /gsd-verify-work
+Resume file: None
 
 ---
 *Last activity: 2026-04-19 — v2.8 ROADMAP.md created, 8 phases (30.5 → 36), 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36*

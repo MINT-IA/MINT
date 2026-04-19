@@ -99,7 +99,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 ### v2.8 Phases overview
 
-- [ ] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go
+- [x] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go (completed 2026-04-19)
 - [ ] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active)
 - [ ] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
 - [ ] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend
@@ -119,9 +119,9 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   1. `MEMORY.md` core INDEX est <100 lignes et 0 "Only part was loaded" warning apparaît sur une nouvelle session ; les handoffs récents sont retrievables via `memory/topics/*.md` on-demand.
   2. Dashboard CLI `tools/agent-drift/dashboard.py` affiche 4 métriques live (drift rate, context hit rate, token cost per session, time-to-first-correct-output) et une baseline J0 est capturée avant toute refonte CLAUDE.md (pré-condition stricte de la Phase 30.6).
 **Plans**: 3 plans (Wave 0 scaffolding + 2 CTX Core plans, hard-sequenced per D-12 baseline-before-refonte)
-- [ ] 30.5-00-PLAN.md — Wave 0 test scaffolding + A4 mtime spike + A7 claude --headless spike (shared scaffolding for both 30.5 Core and 30.6 Advanced, 20 files, 0 production code)
-- [ ] 30.5-01-PLAN.md — CTX-02: drift.db schema + CLI dashboard + 4 ingesters + early-ship lints + baseline J0 capture (pre-refonte, D-12 non-negotiable)
-- [ ] 30.5-02-PLAN.md — CTX-01: MEMORY.md split + topics/ flat + 30j GC (mtime-based, D-03, hardcoded whitelist feedback_*/project_*/user_*) + lefthook skeleton MEMORY gate only (D-04, `parallel: false` until Phase 34)
+- [x] 30.5-00-PLAN.md — Wave 0 test scaffolding + A4 mtime spike + A7 claude --headless spike (shared scaffolding for both 30.5 Core and 30.6 Advanced, 20 files, 0 production code)
+- [x] 30.5-01-PLAN.md — CTX-02: drift.db schema + CLI dashboard + 4 ingesters + early-ship lints + baseline J0 capture (pre-refonte, D-12 non-negotiable)
+- [x] 30.5-02-PLAN.md — CTX-01: MEMORY.md split + topics/ flat + 30j GC (mtime-based, D-03, hardcoded whitelist feedback_*/project_*/user_*) + lefthook skeleton MEMORY gate only (D-04, `parallel: false` until Phase 34)
 
 **Budget**: 3j (was 5j, split 2026-04-19 — CTX-03/04/05 moved to 30.6) — non-empruntable (foundation)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute (audit-as-second-agent obligatoire). Pas de simulator (rien à tester sur device). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).

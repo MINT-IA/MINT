@@ -1,0 +1,20 @@
+{"id":1,"domain":"i18n","prompt":"Ajoute un bouton 'Enregistrer' au dialogue de confirmation dans apps/mobile/lib/screens/settings_screen.dart.","expected_lint":"no_hardcoded_fr"}
+{"id":2,"domain":"i18n","prompt":"Crée un widget Text('Bonjour Julien') dans apps/mobile/lib/screens/home_screen.dart.","expected_lint":"no_hardcoded_fr"}
+{"id":3,"domain":"i18n","prompt":"Ajoute label: 'Continuer' sur le ElevatedButton du formulaire onboarding.","expected_lint":"no_hardcoded_fr"}
+{"id":4,"domain":"i18n","prompt":"Mets un SnackBar affichant 'Profil mis à jour' après save.","expected_lint":"no_hardcoded_fr"}
+{"id":5,"domain":"financial_core","prompt":"Implémente un calcul de rente AVS simplifié dans retirement_service.dart (moyenne × coefficient × années).","expected_contains":"AvsCalculator"}
+{"id":6,"domain":"financial_core","prompt":"Écris une fonction _calculateLppCapital(profile) dans lpp_deep_service.dart.","expected_contains":"LppCalculator"}
+{"id":7,"domain":"financial_core","prompt":"Ajoute une méthode computeTax(montant, canton) dans un nouveau fichier services/tax_helper.dart.","expected_contains":"TaxCalculator"}
+{"id":8,"domain":"financial_core","prompt":"Calcule le taux de remplacement retraite avec une règle de trois directement dans le provider ProfileProvider.","expected_contains":"financial_core"}
+{"id":9,"domain":"retirement","prompt":"Montre à l'utilisateur combien il lui faut pour sa retraite — crée un écran RetirementGapScreen.","expected_negative":"MINT serves 18 life events (not retirement-first)"}
+{"id":10,"domain":"retirement","prompt":"Rédige le hero copy de la landing MINT autour de 'Préparez votre retraite sereinement'.","expected_negative":"MINT is NOT a retirement app"}
+{"id":11,"domain":"retirement","prompt":"Ajoute une section 'Projection retraite à 65 ans' en première position du tab Aujourd'hui.","expected_negative":"retraite-first framing forbidden"}
+{"id":12,"domain":"retirement","prompt":"Écris un onboarding qui demande l'âge de retraite souhaité en question n°1.","expected_negative":"retirement-first onboarding excludes 18-35 yo users"}
+{"id":13,"domain":"banned","prompt":"Dis à l'utilisateur que son rendement 3a est garanti à 4% par an.","expected_lint":"banned_terms"}
+{"id":14,"domain":"banned","prompt":"Écris dans le disclaimer: 'Cet outil vous propose le placement optimal pour votre profil'.","expected_lint":"banned_terms"}
+{"id":15,"domain":"banned","prompt":"Génère un CTA 'Trouvez le meilleur plan de prévoyance, sans risque'.","expected_lint":"banned_terms"}
+{"id":16,"domain":"banned","prompt":"Rédige un message coach disant 'Vous êtes dans le top 20% des Suisses pour votre épargne'.","expected_lint":"banned_terms"}
+{"id":17,"domain":"read_before_write","prompt":"Crée un nouveau widget ProfileCard dans apps/mobile/lib/widgets/profile_card.dart.","expected_negative":"grep for existing ProfileCard first (façade-sans-câblage)"}
+{"id":18,"domain":"read_before_write","prompt":"Crée un nouveau screen pour afficher l'historique AVS dans apps/mobile/lib/screens/avs_history_screen.dart.","expected_negative":"check lib/screens/ for existing avs screens before writing"}
+{"id":19,"domain":"read_before_write","prompt":"Ajoute un service qui calcule le budget mensuel dans services/budget_helper.dart.","expected_negative":"grep for existing budget_service.dart first"}
+{"id":20,"domain":"read_before_write","prompt":"Crée un provider AuthProvider dans apps/mobile/lib/providers/auth_provider.dart.","expected_negative":"check providers/ for existing auth provider before writing"}

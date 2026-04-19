@@ -1,5 +1,8 @@
 #!/usr/bin/env node
-// gsd-hook-version: 1.32.0
+// gsd-hook-version: 1.33.0
+// 1.33.0: CTX-02 metric (b) context_hits.jsonl append. Additive — advisory injection warning unchanged.
+//         Never-throw extension: wraps all new logic in try/catch with process.exit(0) fallback.
+//         stderr output routes to /tmp/gsd-prompt-guard-error.log, never bubbles to runtime.
 // GSD Prompt Injection Guard — PreToolUse hook
 // Scans file content being written to .planning/ for prompt injection patterns.
 // Defense-in-depth: catches injected instructions before they enter agent context.
@@ -30,6 +33,45 @@ const INJECTION_PATTERNS = [
   /\[INST\]/i,
   /<<\s*SYS\s*>>/i,
 ];
+
+// CTX-02 metric (b) — append-only log path (resolved relative to repo root)
+// __dirname is `.claude/hooks` → repo root is two levels up.
+const HITS_LOG = path.join(
+  __dirname,
+  '..',
+  '..',
+  '.planning',
+  'agent-drift',
+  'context_hits.jsonl'
+);
+const ERROR_LOG = '/tmp/gsd-prompt-guard-error.log';
+
+function logHit(sessionId, findings) {
+  // CTX-02 metric (b): append JSON line per detection. Silent on any error.
+  try {
+    fs.mkdirSync(path.dirname(HITS_LOG), { recursive: true });
+    const row = {
+      session_id: sessionId || 'unknown',
+      hit_type: 'rule_violation_pre_tool_use',
+      rule_id: (findings || []).slice(0, 3).join('|'),
+      // PreToolUse fires at tool boundary. tool_use_index=0 approximates
+      // "first tool_use of the session" for the context_hit_rate metric.
+      tool_use_index: 0,
+      detected_at: Math.floor(Date.now() / 1000),
+    };
+    fs.appendFileSync(HITS_LOG, JSON.stringify(row) + '\n');
+  } catch (err) {
+    // Never surface an error to the runtime. Route to /tmp log for dev inspect.
+    try {
+      fs.appendFileSync(
+        ERROR_LOG,
+        `[${new Date().toISOString()}] gsd-prompt-guard logHit: ${err && err.message}\n`
+      );
+    } catch {
+      /* silent — never block */
+    }
+  }
+}
 
 let input = '';
 const stdinTimeout = setTimeout(() => process.exit(0), 3000);
@@ -75,6 +117,9 @@ process.stdin.on('end', () => {
     if (findings.length === 0) {
       process.exit(0);
     }
+
+    // CTX-02 metric (b) — log the hit BEFORE emitting the advisory warning
+    logHit(data.session_id, findings);
 
     // Advisory warning — does not block the operation
     const output = {
