@@ -4,14 +4,14 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
 stopped_at: Completed 30.6-02-PLAN.md — CTX-05 spike PASS 5/5 + 0 regression (merge 0d86d215)
-last_updated: "2026-04-19T15:08:56.067Z"
-last_activity: 2026-04-19 -- Phase 31 execution started
+last_updated: "2026-04-19T16:14:11.062Z"
+last_activity: 2026-04-19 -- Phase 31 planning complete
 progress:
   total_phases: 9
   completed_phases: 2
-  total_plans: 6
+  total_plans: 11
   completed_plans: 6
-  percent: 100
+  percent: 55
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -41,8 +41,8 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 Phase: 31 (Instrumenter) — EXECUTING
 Plan: 1 of 6
-Status: Executing Phase 31
-Last activity: 2026-04-19 -- Phase 31 execution started
+Status: Ready to execute
+Last activity: 2026-04-19 -- Phase 31 planning complete
 Next: `/gsd-verify-phase 30.6` (verify Phase 30.6), then `/gsd-plan-phase 30.7` (Tools Déterministes) OR `/gsd-plan-phase 31` (OBS-01 Instrumenter — CTX-05 unblocks)
 
 Progress: [██████████] 100% (2/9 phases, 6/6 plans in-phase)
