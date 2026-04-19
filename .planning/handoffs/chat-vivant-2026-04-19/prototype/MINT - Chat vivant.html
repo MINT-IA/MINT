@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Chat vivant</title>
+
+<!-- Fraunces + Montserrat + Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    background: #EDE9DF;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Stage — deux iPhones côte à côte avec légendes éditoriales */
+  .stage {
+    min-height: 100vh;
+    padding: 48px 32px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .stage-header {
+    max-width: 880px;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .stage-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #E6855E;
+    margin-bottom: 10px;
+  }
+  .stage-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 38px;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    color: #1D1D1F;
+    margin: 0 0 14px;
+  }
+  .stage-title em { color: #E6855E; font-style: italic; }
+  .stage-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.55;
+    color: #555560;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .devices {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+  }
+
+  .device-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .device-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .device-label-eyebrow {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+  }
+  .device-label-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #1D1D1F;
+    font-style: italic;
+  }
+  .device-label-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #737378;
+  }
+
+  .tweaks-panel {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: #fff;
+    border: 0.5px solid #D2D2D7;
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    z-index: 200;
+    max-width: 260px;
+    display: none;
+  }
+  .tweaks-panel.open { display: block; }
+  .tweaks-title {
+    font-family: 'Inter';
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #E6855E;
+    margin-bottom: 10px;
+  }
+  .tweak-row { margin-bottom: 10px; }
+  .tweak-row:last-child { margin-bottom: 0; }
+  .tweak-label {
+    font-family: 'Inter';
+    font-size: 13px;
+    color: #1D1D1F;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .tweak-seg {
+    display: flex;
+    background: #F7F4EE;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .tweak-seg button {
+    flex: 1;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-family: 'Inter';
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #555560;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tweak-seg button.on {
+    background: #1D1D1F;
+    color: #fff;
+  }
+
+  @media (max-width: 900px) {
+    .devices { gap: 32px; }
+    .stage-title { font-size: 28px; }
+    .stage { padding: 32px 16px 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<!-- React + Babel -->
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Composants -->
+<script type="text/babel" src="chat-vivant/tokens.jsx"></script>
+<script type="text/babel" src="chat-vivant/count-up.jsx"></script>
+<script type="text/babel" src="chat-vivant/insight-card.jsx"></script>
+<script type="text/babel" src="chat-vivant/scene-rente-capital.jsx"></script>
+<script type="text/babel" src="chat-vivant/scene-rachat-lpp.jsx"></script>
+<script type="text/babel" src="chat-vivant/canvas-rente-capital.jsx"></script>
+<script type="text/babel" src="chat-vivant/chat-ui.jsx"></script>
+<script type="text/babel" src="chat-vivant/conversation.jsx"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+
+<!-- Tweaks defaults -->
+<script>
+  window.__TWEAKS = /*EDITMODE-BEGIN*/{
+    "compareMode": true,
+    "showAfterOnly": true
+  }/*EDITMODE-END*/;
+</script>
+
+<!-- App principale -->
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+function MintPhone({ mode, label, eyebrow, color }) {
+  const [showCanvas, setShowCanvas] = useState(false);
+
+  return (
+    <div className="device-col">
+      <div className="device-label">
+        <div className="device-label-eyebrow" style={{ color }}>{eyebrow}</div>
+        <div className="device-label-title" data-screen-label={label}>{label}</div>
+      </div>
+      <div data-screen-label={`iPhone — ${label}`}>
+        <IOSDevice width={390} height={820}>
+          <div style={{
+            width: '100%', height: '100%',
+            display: 'flex', flexDirection: 'column',
+            background: MINT.craie,
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            <ChatHeader onBack={() => {}} />
+            <Conversation
+              mode={mode}
+              onOpenCanvas={() => setShowCanvas(true)}
+            />
+            <Composer />
+            {showCanvas && (
+              <CanvasRenteCapital
+                onClose={() => setShowCanvas(false)}
+                onReturnToChat={() => setShowCanvas(false)}
+              />
+            )}
+          </div>
+        </IOSDevice>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [tweaks, setTweaks] = useState(window.__TWEAKS);
+  const [tweaksOpen, setTweaksOpen] = useState(false);
+
+  // Edit mode protocol
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.data?.type === '__activate_edit_mode') setTweaksOpen(true);
+      if (e.data?.type === '__deactivate_edit_mode') setTweaksOpen(false);
+    };
+    window.addEventListener('message', handler);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  const setTweak = (key, value) => {
+    const next = { ...tweaks, [key]: value };
+    setTweaks(next);
+    window.__TWEAKS = next;
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: value } }, '*');
+  };
+
+  return (
+    <div className="stage">
+      <div className="stage-header">
+        <div className="stage-eyebrow">MINT · chat vivant · phase 1 retraite</div>
+        <h1 className="stage-title">
+          Le chat ne <em>raconte</em> plus.<br/>Il <em>montre</em>.
+        </h1>
+        <p className="stage-sub">
+          Comme quand Claude te dessine un graphe en parlant. MINT pose des scènes dans la conversation :
+          un insight, un petit widget interactif, puis — si tu veux creuser — une scène qui se déplie en plein écran.
+          Compare avec le chat actuel, à droite.
+        </p>
+      </div>
+
+      <div className="devices">
+        {tweaks.showAfterOnly ? (
+          <MintPhone
+            mode="vivant"
+            label="avec scènes"
+            eyebrow="APRÈS"
+            color="#E6855E"
+          />
+        ) : (
+          <>
+            <MintPhone
+              mode="vivant"
+              label="avec scènes"
+              eyebrow="APRÈS"
+              color="#E6855E"
+            />
+            {tweaks.compareMode && (
+              <MintPhone
+                mode="plain"
+                label="texte seul"
+                eyebrow="AVANT"
+                color="#737378"
+              />
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Tweaks panel */}
+      <div className={`tweaks-panel ${tweaksOpen ? 'open' : ''}`}>
+        <div className="tweaks-title">Tweaks</div>
+        <div className="tweak-row">
+          <div className="tweak-label">Affichage</div>
+          <div className="tweak-seg">
+            <button className={!tweaks.showAfterOnly ? 'on' : ''} onClick={() => setTweak('showAfterOnly', false)}>
+              Avant / Après
+            </button>
+            <button className={tweaks.showAfterOnly ? 'on' : ''} onClick={() => setTweak('showAfterOnly', true)}>
+              Après seul
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
