@@ -9,9 +9,11 @@ last_activity: 2026-04-19 -- Phase 30.5 planning complete
 progress:
   total_phases: 8
   completed_phases: 0
-  total_plans: 6
+  total_plans: 3
   completed_plans: 0
   percent: 0
+  history:
+    - "2026-04-19: Phase 30.5 split into 30.5 Core (CTX-01, CTX-02, 3 plans) + 30.6 Advanced (CTX-03, CTX-04, CTX-05, 3 plans) per expert panel consensus (Option F). total_plans reduced from 6 to 3 for 30.5; 30.6 Advanced now carries its own 3 plans."
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle

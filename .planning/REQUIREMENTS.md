@@ -162,9 +162,9 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 |-------------|-------|-----------|--------|
 | CTX-01 | **30.5** | — | Pending, Phase 30.5 assigned |
 | CTX-02 | **30.5** | — | Pending, Phase 30.5 assigned |
-| CTX-03 | **30.5** | — | Pending, Phase 30.5 assigned |
-| CTX-04 | **30.5** | — | Pending, Phase 30.5 assigned |
-| CTX-05 | **30.5** | spike gate go/no-go | Pending, Phase 30.5 assigned |
+| CTX-03 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
+| CTX-04 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
+| CTX-05 | **30.6** | spike gate go/no-go | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
 | TOOL-01 | **30.6** | — | Pending, Phase 30.6 assigned |
 | TOOL-02 | **30.6** | — | Pending, Phase 30.6 assigned |
 | TOOL-03 | **30.6** | — | Pending, Phase 30.6 assigned |

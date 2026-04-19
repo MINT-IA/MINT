@@ -105,28 +105,39 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 ### Phase Details
 
-### Phase 30.5: Context Sanity
-**Goal**: Les agents Claude Code ne peuvent plus coder à l'aveugle — MEMORY.md est retrievable, le drift est mesuré, CLAUDE.md est restructuré contre lost-in-the-middle, un hook `UserPromptSubmit` injecte les rappels critiques contextuellement, et un spike agent valide go/no-go avant Phase 31.
+### Phase 30.5: Context Sanity (Core)
+**Goal**: Foundation substrate phase 1/2 — MEMORY.md retrievable + agent drift measured (baseline J0). Prerequisites 30.6 (advanced: CLAUDE.md refonte, hook, spike).
 **Depends on**: Nothing (foundation phase v2.8, runs first)
-**Requirements**: CTX-01, CTX-02, CTX-03, CTX-04, CTX-05
+**Requirements**: CTX-01, CTX-02
 **Success Criteria** (what must be TRUE):
   1. `MEMORY.md` core INDEX est <100 lignes et 0 "Only part was loaded" warning apparaît sur une nouvelle session ; les handoffs récents sont retrievables via `memory/topics/*.md` on-demand.
-  2. Dashboard `/admin/agent-drift` affiche 4 métriques live (drift rate, context hit rate, token cost per session, time-to-first-correct-output) et une baseline J0 est capturée avant toute refonte CLAUDE.md.
-  3. `CLAUDE.md` core <150 lignes avec règles critiques (banned terms / accents / retirement framing / financial_core reuse) dupliquées en TOP + BOTTOM du fichier ; 10 NEVER principaux convertis en triplets `{bad → good → why}` ; redondance §5-7 vs skills `mint-*` auditée.
-  4. Hook `UserPromptSubmit` ciblé injecte 200-400 tokens contextuels sur 5 patterns MINT détectés dans le user message (`.arb` édité / `.dart` dans screens/ / "calcul|calculator" / "commit" / nouveau `.dart`).
-  5. Un spike agent sur un chunk Phase 31 (bump `sentry_flutter` 8→9 + wire `SentryWidget` + `maskAllText` options) livre du code sans régression détectée dans le dashboard CTX-02 (0 accent oublié, 0 financial_core réinventé, 0 banned term), OU 2 itérations échouent → kill-policy déclenché sur CTX (rollback + redesign).
-**Plans**: 6 plans (Wave 0 scaffolding + 5 CTX plans, hard-sequenced per D-12 baseline-before-refonte)
-- [ ] 30.5-00-PLAN.md — Wave 0 test scaffolding + A4 mtime spike + A7 claude --headless spike (20 files, 0 production code)
+  2. Dashboard CLI `tools/agent-drift/dashboard.py` affiche 4 métriques live (drift rate, context hit rate, token cost per session, time-to-first-correct-output) et une baseline J0 est capturée avant toute refonte CLAUDE.md (pré-condition stricte de la Phase 30.6).
+**Plans**: 3 plans (Wave 0 scaffolding + 2 CTX Core plans, hard-sequenced per D-12 baseline-before-refonte)
+- [ ] 30.5-00-PLAN.md — Wave 0 test scaffolding + A4 mtime spike + A7 claude --headless spike (shared scaffolding for both 30.5 Core and 30.6 Advanced, 20 files, 0 production code)
 - [ ] 30.5-01-PLAN.md — CTX-02: drift.db schema + CLI dashboard + 4 ingesters + early-ship lints + baseline J0 capture (pre-refonte, D-12 non-negotiable)
-- [ ] 30.5-02-PLAN.md — CTX-01: MEMORY.md split + topics/ flat + 30j GC (mtime-based, D-03) + lefthook skeleton MEMORY gate only (D-04)
-- [ ] 30.5-03-PLAN.md — CTX-03: CLAUDE.md restructure <150L + 5-rule TOP+BOTTOM bracketing (D-06) + 10 triplets bad→good→why (D-07) + 3 AGENTS files (D-05) + redundancy audit (D-08) — REVERT-SAFE squash
-- [ ] 30.5-04-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) — REVERT-SAFE squash
-- [ ] 30.5-05-PLAN.md — CTX-05: spike validation on fresh-context branch + 5-dim grid review + dashboard regression + D-01 kill-policy Modeste 1 decision gate (bump sentry_flutter 8→9.14.0 + SentryWidget + maskAll*, A1 PII Replay mitigation HIGH severity)
+- [ ] 30.5-02-PLAN.md — CTX-01: MEMORY.md split + topics/ flat + 30j GC (mtime-based, D-03, hardcoded whitelist feedback_*/project_*/user_*) + lefthook skeleton MEMORY gate only (D-04, `parallel: false` until Phase 34)
 
-**Budget**: 5j (1 sem) — non-empruntable (foundation)
+**Budget**: 3j (was 5j, split 2026-04-19 — CTX-03/04/05 moved to 30.6) — non-empruntable (foundation)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute (audit-as-second-agent obligatoire). Pas de simulator (rien à tester sur device). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
-### Phase 30.6: Tools Déterministes
+### Phase 30.6: Context Sanity (Advanced)
+**Goal**: Foundation substrate phase 2/2 — CLAUDE.md restructuré + UserPromptSubmit hook + spike validation go/no-go before Phase 31. Kill-policy D-01 applies here (CTX-05 fail 2× → revert 30.6 entirely, 30.5 preserved).
+**Depends on**: 30.5 Core complete + 72h burn-in observation window on 30.5 artefacts
+**Requirements**: CTX-03, CTX-04, CTX-05
+**Success Criteria** (what must be TRUE):
+  1. CLAUDE.md core <150 lignes avec 5 critical rules bracketing TOP+BOTTOM + 10 NEVERs convertis en triplets `{bad → good → why}`.
+  2. Hook `UserPromptSubmit` `mint-context-injector.js` injecte 200-400 tokens contextuels sur 5 patterns MINT avec fail-open timeout 500ms.
+  3. Un spike agent sur un chunk Phase 31 (bump `sentry_flutter` 8→9) livre du code sans régression détectée dans dashboard 30.5 CTX-02, OU 2 itérations échouent → kill-policy 30.6 déclenché (rollback CTX-03 + CTX-04).
+**Plans**: 3 plans
+- [ ] 30.6-00-PLAN.md — CTX-03: CLAUDE.md restructure <150L + 5-rule TOP+BOTTOM bracketing (D-06) + 10 triplets bad→good→why (D-07) + 3 AGENTS files (D-05) + redundancy audit (D-08) — REVERT-SAFE squash
+- [ ] 30.6-01-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) + 500ms fail-open timeout — REVERT-SAFE squash
+- [ ] 30.6-02-PLAN.md — CTX-05: spike validation on fresh-context branch + 5-dim grid review + dashboard regression + D-01 kill-policy Modeste 1 decision gate (bump sentry_flutter 8→9.14.0 + SentryWidget + maskAll*, A1 PII Replay mitigation HIGH severity)
+
+**Budget**: 2-3j + 72h burn-in (post-30.5 observation window) — kill-policy active
+**Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. Pas de simulator. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
+
+### Phase 30.6: Tools Déterministes (see note: numerotation collision post-split 2026-04-19)
+> **Note post-split 2026-04-19**: Phase "Context Sanity (Advanced)" shares the 30.6 label above. The numerotation collision is intentional pending a full REQUIREMENTS.md renumbering pass. Build order logically places "Context Sanity Advanced" immediately after 30.5 (same 30.6 bucket), and "Tools Déterministes" after that (was 30.6, could migrate to 30.7 later). REQUIREMENTS.md keeps TOOL-01..04 in phase 30.6; the split memo flags this for a follow-up renumbering if needed.
 **Goal**: Transformer les constantes et lints permanents de CLAUDE.md en MCP tools on-demand. Les agents invoquent `get_swiss_constants()` / `check_banned_terms()` / `validate_arb_parity()` quand pertinent au lieu de traîner 800+ tokens de règles en contexte permanent.
 **Depends on**: Phase 30.5 (restructure CLAUDE.md existant avant de supprimer les sections vers tools)
 **Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-04
