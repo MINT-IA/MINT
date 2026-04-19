@@ -23,7 +23,7 @@
 Foundation non-négociable phase 1/2 — capture baseline J0 metrics avant toute refonte. Sans docs agent-lisibles + métriques de drift, toutes les phases suivantes seront codées à l'aveugle.
 
 - [ ] **CTX-01**: Fix P0 bug runtime MEMORY.md truncation — split INDEX `MEMORY.md` (<100 lignes, pointeurs vers topics seulement) + `memory/topics/*.md` retrieval on-demand, move Wave C handoff + autres project_session vers topic files, lefthook hook enforce INDEX <100 lignes HARD (exempt entrées <7j pour préserver handoffs actifs). J1 matin, 2h. Mesure : 0 "Only part was loaded" warning sur nouvelles sessions.
-- [ ] **CTX-02**: Instrumentation métriques drift — 4 métriques mesurables : (a) drift rate = % commits agent avec régression accent/hardcoded-FR/bare-catch détectée post-hoc, (b) context hit rate = % règles pertinentes lues avant 1er tool_use (proxy via breadcrumb Sentry), (c) token cost per session (tracked via Anthropic API usage), (d) time-to-first-correct-output. Dashboard CLI `tools/agent-drift/dashboard.py` + baseline J0 avant refonte. J1-J2, 1j. Mesure : 4 métriques live, baseline capturée.
+- [x] **CTX-02**: Instrumentation métriques drift — 4 métriques mesurables : (a) drift rate = % commits agent avec régression accent/hardcoded-FR/bare-catch détectée post-hoc, (b) context hit rate = % règles pertinentes lues avant 1er tool_use (proxy via breadcrumb Sentry), (c) token cost per session (tracked via Anthropic API usage), (d) time-to-first-correct-output. Dashboard CLI `tools/agent-drift/dashboard.py` + baseline J0 avant refonte. J1-J2, 1j. Mesure : 4 métriques live, baseline capturée.
 
 ### CTX Advanced — Context Sanity Advanced (Phase 30.6, 2-3 jours + 72h burn-in, non-empruntable)
 

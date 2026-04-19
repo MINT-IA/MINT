@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 30.5-00-PLAN.md — Wave 0 scaffolding (21 tests collected, A4 PASS, A7 AVAILABLE)
-last_updated: "2026-04-19T11:55:49.459Z"
+stopped_at: Completed 30.5-01-PLAN.md — CTX-02 drift dashboard + baseline J0 locked
+last_updated: "2026-04-19T12:42:20.707Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 6
-  completed_plans: 1
-  percent: 17
+  completed_plans: 2
+  percent: 33
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 30.5 (Context Sanity Core) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-19
 Next: `/gsd-plan-phase 30.5` (Context Sanity, 5j non-empruntable, foundation)
@@ -132,8 +132,8 @@ Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-19T11:55:49.456Z
-Stopped at: Completed 30.5-00-PLAN.md — Wave 0 scaffolding (21 tests collected, A4 PASS, A7 AVAILABLE)
+Last session: 2026-04-19T12:42:20.705Z
+Stopped at: Completed 30.5-01-PLAN.md — CTX-02 drift dashboard + baseline J0 locked
 Resume file: None
 
 ---

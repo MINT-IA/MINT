@@ -120,7 +120,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   2. Dashboard CLI `tools/agent-drift/dashboard.py` affiche 4 métriques live (drift rate, context hit rate, token cost per session, time-to-first-correct-output) et une baseline J0 est capturée avant toute refonte CLAUDE.md (pré-condition stricte de la Phase 30.6).
 **Plans**: 3 plans (Wave 0 scaffolding + 2 CTX Core plans, hard-sequenced per D-12 baseline-before-refonte)
 - [x] 30.5-00-PLAN.md — Wave 0 test scaffolding + A4 mtime spike + A7 claude --headless spike (shared scaffolding for both 30.5 Core and 30.6 Advanced, 20 files, 0 production code)
-- [ ] 30.5-01-PLAN.md — CTX-02: drift.db schema + CLI dashboard + 4 ingesters + early-ship lints + baseline J0 capture (pre-refonte, D-12 non-negotiable)
+- [x] 30.5-01-PLAN.md — CTX-02: drift.db schema + CLI dashboard + 4 ingesters + early-ship lints + baseline J0 capture (pre-refonte, D-12 non-negotiable)
 - [ ] 30.5-02-PLAN.md — CTX-01: MEMORY.md split + topics/ flat + 30j GC (mtime-based, D-03, hardcoded whitelist feedback_*/project_*/user_*) + lefthook skeleton MEMORY gate only (D-04, `parallel: false` until Phase 34)
 
 **Budget**: 3j (was 5j, split 2026-04-19 — CTX-03/04/05 moved to 30.6) — non-empruntable (foundation)
