@@ -15,8 +15,8 @@
 # Modes:
 #   --quick-screenshot         Boot + install + launch + 1 screenshot (default)
 #   --smoke-test-inject-error  Above + inject known error + pull Sentry event
-#   --gate-phase-31            Wave 0: delegates to --smoke-test-inject-error
-#                              (Wave 3 adds OBS-06 mask asserts here)
+#   --gate-phase-31            Wave 3: smoke-test-inject-error + PII audit
+#                              screens (delegates to pii_audit_screens.sh)
 #
 # Required env:
 #   SENTRY_DSN_STAGING   (Railway staging env var)
@@ -130,7 +130,21 @@ case "$MODE" in
     log "--quick-screenshot done → ${OUTDIR}"
     ;;
 
-  --smoke-test-inject-error | --gate-phase-31)
+  --gate-phase-31)
+    # Wave 3: OBS-06 PII audit gate — smoke-test-inject-error + navigate
+    # through the 5 sensitive screens capturing one screenshot each.
+    # Visual mask verification (the actual audit) happens in Sentry UI
+    # Replay afterwards; this script only captures proof-of-reach state.
+    log "gate-phase-31: delegating to --smoke-test-inject-error"
+    bash "$0" --smoke-test-inject-error
+    log "gate-phase-31: delegating to pii_audit_screens.sh"
+    bash tools/simulator/pii_audit_screens.sh
+    log "gate-phase-31: smoke + pii-audit complete"
+    log "gate-phase-31: BLOCKING next step — manual Sentry UI replay review"
+    log "gate-phase-31: commit findings to .planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md"
+    ;;
+
+  --smoke-test-inject-error)
     # Generate a known 32-hex trace_id we can grep for in Sentry events.
     TRACE_ID="$(openssl rand -hex 16)"
     SPAN_ID="$(openssl rand -hex 8)"
