@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_motion.dart';
+import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 
 // ────────────────────────────────────────────────────────────
 //  MINT LIGNE — The signature horizontal line
@@ -144,13 +145,15 @@ class _MintLigneState extends State<MintLigne>
               alignment: Alignment.centerLeft,
               widthFactor: _widthFraction.value,
               child: _isDashed
-                  ? CustomPaint(
-                      size: Size(double.infinity, widget.thickness),
-                      painter: _DashedLinePainter(
-                        color: lineColor,
-                        thickness: widget.thickness,
-                        dashWidth: 4.0,
-                        gapWidth: 4.0,
+                  ? MintCustomPaintMask(
+                      child: CustomPaint(
+                        size: Size(double.infinity, widget.thickness),
+                        painter: _DashedLinePainter(
+                          color: lineColor,
+                          thickness: widget.thickness,
+                          dashWidth: 4.0,
+                          gapWidth: 4.0,
+                        ),
                       ),
                     )
                   : Container(

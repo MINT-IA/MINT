@@ -28,6 +28,7 @@ library mint_trame_confiance;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 
 import '../../l10n/app_localizations.dart' show S;
 import '../../services/financial_core/confidence_scorer.dart';
@@ -506,10 +507,12 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
               width: double.infinity,
               child: AnimatedBuilder(
                 animation: controller ?? const AlwaysStoppedAnimation(1.0),
-                builder: (_, __) => CustomPaint(
-                  painter: _TramePainter(
-                    density: density,
-                    progress: controller == null ? 1.0 : (_opacity?.value ?? 1.0),
+                builder: (_, __) => MintCustomPaintMask(
+                  child: CustomPaint(
+                    painter: _TramePainter(
+                      density: density,
+                      progress: controller == null ? 1.0 : (_opacity?.value ?? 1.0),
+                    ),
                   ),
                 ),
               ),
@@ -548,8 +551,10 @@ class _MintTrameConfianceState extends State<MintTrameConfiance>
             SizedBox(
               height: 4,
               width: double.infinity,
-              child: CustomPaint(
-                painter: _TramePainter(density: density, progress: 1.0),
+              child: MintCustomPaintMask(
+                child: CustomPaint(
+                  painter: _TramePainter(density: density, progress: 1.0),
+                ),
               ),
             ),
             const SizedBox(height: 6),
