@@ -136,7 +136,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   3. Un spike agent sur un chunk Phase 31 (bump `sentry_flutter` 8→9) livre du code sans régression détectée dans dashboard 30.5 CTX-02, OU 2 itérations échouent → kill-policy 30.6 déclenché (rollback CTX-03 + CTX-04).
 **Plans**: 3 plans
 - [x] 30.6-00-PLAN.md — CTX-03: CLAUDE.md restructure <150L + 5-rule TOP+BOTTOM bracketing (D-06) + 10 triplets bad→good→why (D-07) + 3 AGENTS files (D-05) + redundancy audit (D-08) — REVERT-SAFE squash
-- [ ] 30.6-01-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) + 500ms fail-open timeout — REVERT-SAFE squash
+- [x] 30.6-01-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) + 500ms fail-open timeout — REVERT-SAFE squash
 - [ ] 30.6-02-PLAN.md — CTX-05: spike validation on fresh-context branch + 5-dim grid review + dashboard regression + D-01 kill-policy Modeste 1 decision gate (bump sentry_flutter 8→9.14.0 + SentryWidget + maskAll*, A1 PII Replay mitigation HIGH severity)
 
 **Budget**: 2-3j + 72h burn-in (post-30.5 observation window) — kill-policy active
