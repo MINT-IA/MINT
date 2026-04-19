@@ -1,47 +1,49 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.7
-milestone_name: Coach Stabilisation + Document Digestion
-status: v2.7 code-complete — all 4 phases (27/28/29/30) closed on dev; milestone awaiting_device_gate (creator iPhone + Android walkthrough blocking close). Next: v2.8 "La Confiance" proposed.
-stopped_at: Completed 30-02-PLAN.md — device-gate checklist + perf report + legal signoff + milestone summary. STATE/ROADMAP/REQUIREMENTS/MILESTONES marked code-complete with <PENDING_DEVICE_GATE> placeholder.
-last_updated: "2026-04-15T00:30:00.000Z"
-last_activity: 2026-04-15
-milestone_status: awaiting_device_gate
-next_milestone_proposal: v2.8 "La Confiance" (Privacy Nutrition Label + Data Vault + Trust Mode + Graduation Protocol v1)
+milestone: v2.8
+milestone_name: L'Oracle & La Boucle
+status: Milestone v2.8 démarré — requirements à définir, roadmap à créer (phases 31-36)
+stopped_at: PROJECT.md + STATE.md updated for v2.8 start. Research panel (4 researchers parallel) pending launch.
+last_updated: "2026-04-19T00:00:00.000Z"
+last_activity: 2026-04-19
+milestone_status: defining_requirements
+previous_milestone: v2.7 Coach Stabilisation + Document Digestion (code-complete, awaiting device-gate GATE-01 iPhone + GATE-02 Android)
 progress:
-  total_phases: 18
-  completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
-  percent: 100
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
-# GSD State: MINT v2.7 — Coach Stabilisation + Document Digestion
+# GSD State: MINT v2.8 — L'Oracle & La Boucle
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-14)
+See: .planning/PROJECT.md (updated 2026-04-19)
 
-**Core value:** Le coach fonctionne bout en bout ET MINT digère n'importe quel document (photo/scan/screenshot/PDF) via contrat canonique interne — jamais "Analyse indisponible".
-**Current focus:** Phase 27 — Stabilisation Critique (pending plan)
+**Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte.
+**Current focus:** Requirements definition → Roadmap creation (phases 31-36)
 
-## Architecture Decisions (pre-phase)
+## Architecture Decisions (pre-phase, v2.8)
 
-- Audit externe challengé par 4 experts (pipeline/UX/SRE/DPO). Architecture astronaute rejetée.
-- Contrat canonique INTERNE (pas endpoint public /documents/understand).
-- 1 appel Vision fusionné, pas 2.
-- 4 render_mode client opaque (`confirm/ask/narrative/reject`).
-- VisionKit + cunning_document_scanner = prétraitement client.
-- ExtractionReviewScreen réduit, pas supprimé.
+- **Nom**: "L'Oracle & La Boucle" (pas "Pilote & Compression"). Capture le geste central.
+- **Rule inversée scellée**: 0 feature nouvelle. Tout ajout = out of scope by default.
+- **Compression transversale**: chaque phase tue du code mort au passage, pas phase isolée.
+- **Sentry existant étendu**, pas Datadog/Amplitude/PostHog (un seul vecteur = moins de surface nLPD + moins de divergence).
+- **Système flags custom étendu** ([feature_flags.dart](apps/mobile/lib/services/feature_flags.dart) + endpoint `/config/feature-flags`), pas LaunchDarkly.
+- **lefthook pre-commit local**, pas juste CI gates (feedback <5s vs 2-5 min).
+- **Phase numbering continué** depuis v2.7 (31-36), pas reset.
+- **Research activée** (Julien a choisi "Research first") — 4 researchers parallèles sur observabilité fintech mobile.
 
 ## Current Position
 
-Phase: 29 (compliance & privacy in progress)
-Plan: 29-04 complete — PRIV-05 + PRIV-08 shipped (VisionGuard Haiku LLM-as-judge, NumericSanity, no auto-confirm, BatchValidationBubble, adversarial fixtures). 4/6 phase-29 plans done.
-Status: Phase 29-04 shipped — VisionGuard + NumericSanity + FieldStatus.needs_review default + BatchValidationBubble + 7 adversarial PDF fixtures + 10 i18n keys x 6 langs. 42 new tests green.
-Last activity: 2026-04-14
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-19 — Milestone v2.8 L'Oracle & La Boucle started
 
-Progress: [██████████] 100% (1/4 phases, 5/5 plans tracked) — Phase 28 awaiting device-gate sign-off.
+Progress: [░░░░░░░░░░] 0% (0/6 phases, 0/0 plans)
 
 ## Performance Metrics
 
