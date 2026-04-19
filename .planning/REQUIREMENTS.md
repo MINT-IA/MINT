@@ -11,7 +11,7 @@
 
 ## v2.8 Requirements
 
-**50 REQ-IDs, 8 catégories, mappés 1:1 aux 8 phases (30.5, 30.6, 31, 32, 33, 34, 35, 36).** Table-stakes only — differentiators descopables listés plus bas.
+**48 REQ-IDs, 8 catégories, mappés 1:1 aux 8 phases (30.5, 30.6, 31, 32, 33, 34, 35, 36).** Table-stakes only — differentiators descopables listés plus bas.
 
 **Phase debate resolved** : Panel expert (4 agents — Claude Code architect / peer tools engineer / academic researcher / devil's advocate) a débattu GUARD-09/10/11. Synthèse :
 - **Convergence** : MEMORY.md truncation = bug runtime P0 confirmé (226L > limite 200, cause racine accents oubliés). Lints mécaniques ROI > refonte éditoriale. AST proof-of-read = theater.
@@ -156,31 +156,68 @@ Tracked but NOT in current roadmap :
 
 ## v2.8 Traceability
 
+Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assigned` until phase planning kicks off, at which point `/gsd-plan-phase X` flips status to `Planning`, then `In Progress`, then `Complete` after verifier sign-off.
+
 | Requirement | Phase | Kill flag | Status |
 |-------------|-------|-----------|--------|
-| CTX-01..05 | **30.5** | (CTX-05 spike gate) | Pending |
-| TOOL-01..04 | **30.6** | — | Pending |
-| OBS-01..07 | 31 | (OBS-06 gate) | Pending |
-| MAP-01..05 | 32 | MAP-02: `enableAdminScreens` | Pending |
-| FLAG-01..05 | 33 | FLAG-04: `enableAdminScreens` | Pending |
-| GUARD-01..08 | 34 | — | Pending |
-| LOOP-01..05 | 35 | — | Pending |
-| FIX-01 | 36 | `enableProfileLoad` | Pending |
-| FIX-02 | 36 | `enableAnonymousFlow` | Pending |
-| FIX-03 | 36 | `enableSaveFactSync` | Pending |
-| FIX-04 | 36 | `enableCoachTab` | Pending |
-| FIX-05 | 36 | cross-cutting | Pending |
-| FIX-06 | 36 | — | Pending |
-| FIX-07 | 36 | enforced GUARD-04 | Pending |
-| FIX-08 | 36 | defer v2.9+ | Pending |
-| FIX-09 | 36 | — | Pending |
+| CTX-01 | **30.5** | — | Pending, Phase 30.5 assigned |
+| CTX-02 | **30.5** | — | Pending, Phase 30.5 assigned |
+| CTX-03 | **30.5** | — | Pending, Phase 30.5 assigned |
+| CTX-04 | **30.5** | — | Pending, Phase 30.5 assigned |
+| CTX-05 | **30.5** | spike gate go/no-go | Pending, Phase 30.5 assigned |
+| TOOL-01 | **30.6** | — | Pending, Phase 30.6 assigned |
+| TOOL-02 | **30.6** | — | Pending, Phase 30.6 assigned |
+| TOOL-03 | **30.6** | — | Pending, Phase 30.6 assigned |
+| TOOL-04 | **30.6** | — | Pending, Phase 30.6 assigned |
+| OBS-01 | 31 | — | Pending, Phase 31 assigned |
+| OBS-02 | 31 | — | Pending, Phase 31 assigned |
+| OBS-03 | 31 | — | Pending, Phase 31 assigned |
+| OBS-04 | 31 | — | Pending, Phase 31 assigned |
+| OBS-05 | 31 | — | Pending, Phase 31 assigned |
+| OBS-06 | 31 | PII audit gate | Pending, Phase 31 assigned |
+| OBS-07 | 31 | — | Pending, Phase 31 assigned |
+| MAP-01 | 32 | — | Pending, Phase 32 assigned |
+| MAP-02 | 32 | `enableAdminScreens` | Pending, Phase 32 assigned |
+| MAP-03 | 32 | — | Pending, Phase 32 assigned |
+| MAP-04 | 32 | — | Pending, Phase 32 assigned |
+| MAP-05 | 32 | — | Pending, Phase 32 assigned |
+| FLAG-01 | 33 | — | Pending, Phase 33 assigned |
+| FLAG-02 | 33 | — | Pending, Phase 33 assigned |
+| FLAG-03 | 33 | — | Pending, Phase 33 assigned |
+| FLAG-04 | 33 | `enableAdminScreens` | Pending, Phase 33 assigned |
+| FLAG-05 | 33 | — | Pending, Phase 33 assigned |
+| GUARD-01 | 34 | — | Pending, Phase 34 assigned |
+| GUARD-02 | 34 | prereq FIX-05 Phase 36 | Pending, Phase 34 assigned |
+| GUARD-03 | 34 | — | Pending, Phase 34 assigned |
+| GUARD-04 | 34 | prereq FIX-07 Phase 36 | Pending, Phase 34 assigned |
+| GUARD-05 | 34 | — | Pending, Phase 34 assigned |
+| GUARD-06 | 34 | — | Pending, Phase 34 assigned |
+| GUARD-07 | 34 | — | Pending, Phase 34 assigned |
+| GUARD-08 | 34 | — | Pending, Phase 34 assigned |
+| LOOP-01 | 35 | — | Pending, Phase 35 assigned |
+| LOOP-02 | 35 | — | Pending, Phase 35 assigned |
+| LOOP-03 | 35 | — | Pending, Phase 35 assigned |
+| LOOP-04 | 35 | — | Pending, Phase 35 assigned |
+| LOOP-05 | 35 | — | Pending, Phase 35 assigned |
+| FIX-01 | 36 | `enableProfileLoad` | Pending, Phase 36 assigned |
+| FIX-02 | 36 | `enableAnonymousFlow` | Pending, Phase 36 assigned |
+| FIX-03 | 36 | `enableSaveFactSync` | Pending, Phase 36 assigned |
+| FIX-04 | 36 | `enableCoachTab` | Pending, Phase 36 assigned |
+| FIX-05 | 36 | cross-cutting (guarded by GUARD-02) | Pending, Phase 36 assigned |
+| FIX-06 | 36 | — | Pending, Phase 36 assigned |
+| FIX-07 | 36 | enforced by GUARD-04 | Pending, Phase 36 assigned |
+| FIX-08 | 36 | defer v2.9+ | Pending, Phase 36 assigned |
+| FIX-09 | 36 | — | Pending, Phase 36 assigned |
 
 **v2.8 Coverage:**
-- **50 REQ total**, 50 mapped, 0 unmapped ✓
-- Phases : 30.5 (5j) + 30.6 (2-3j) + 31 (1.5sem) + 32 (1sem) + 33 (1sem) + 34 (1.5sem ∥ 31) + 35 (1sem) + 36 (2-3sem NON-empruntable)
-- Budget total estimé : 8-10 semaines solo-dev (parallélisation 31∥34, 32∥33)
-- Phase 36 kill-switches provisioned: 4/4 P0 flags ✓
+- **48 REQ total**, **48 mapped to exactly one phase**, **0 unmapped** ✓
+- Category totals: CTX=5 + TOOL=4 + OBS=7 + MAP=5 + FLAG=5 + GUARD=8 + LOOP=5 + FIX=9 = **48** ✓
+- Phases: 30.5 (5j) + 30.6 (2-3j) + 31 (1.5sem) + 32 (1sem) + 33 (1sem) + 34 (1.5sem ∥ 31) + 35 (1sem) + 36 (2-3sem NON-empruntable)
+- Budget total estimé: 8-10 semaines solo-dev (parallélisation 31∥34, 32∥33)
+- Phase 36 kill-switches provisioned: 4/4 P0 flags ✓ (`enableProfileLoad`, `enableAnonymousFlow`, `enableSaveFactSync`, `enableCoachTab`)
 - Phase 30.5 spike validation go/no-go (CTX-05) gate Phase 31 start
+
+**Note on count:** Earlier draft of this document stated "50 REQ-IDs" in the §v2.8 Requirements header — corrected to **48** after per-REQ enumeration audit. Category breakdown (CTX=5, TOOL=4, OBS=7, MAP=5, FLAG=5, GUARD=8, LOOP=5, FIX=9) sums to 48, matching the expanded traceability table above.
 
 ---
 
@@ -221,4 +258,4 @@ See [MILESTONES.md](MILESTONES.md) for accomplishments summary.
 
 ---
 *Requirements defined: 2026-04-12 (v2.5), 2026-04-14 (v2.7), 2026-04-19 (v2.8)*
-*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle requirements defined post-research*
+*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle requirements defined post-research ; traceability expanded per-REQ, count corrected 50→48*
