@@ -1,14 +1,11 @@
 ---
 gsd_state_version: 1.0
 milestone: v2.8
-milestone_name: L'Oracle & La Boucle
-status: roadmap_created, awaiting_phase_planning
-stopped_at: ROADMAP.md written (8 phases, 48 REQ mapped 1:1). REQUIREMENTS.md traceability updated. Next — /gsd-plan-phase 30.5
-last_updated: "2026-04-19T12:00:00.000Z"
-last_activity: 2026-04-19
-milestone_status: roadmap_created
-previous_milestone: v2.7 Coach Stabilisation + Document Digestion (code-complete, awaiting device-gate GATE-01 iPhone + GATE-02 Android)
-current_phase: 30.5
+milestone_name: L'Oracle & La Boucle — Overview
+status: planning
+stopped_at: Phase 30.5 context gathered (panel-augmented discuss mode, 22 decisions locked, kill-policy fallback Modeste 1 specced)
+last_updated: "2026-04-19T09:34:16.654Z"
+last_activity: "2026-04-19 — ROADMAP.md written, 8 phases defined (30.5 → 36), 48 REQ mapped 1:1"
 progress:
   total_phases: 8
   completed_phases: 0
@@ -135,9 +132,9 @@ Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-19T12:00:00.000Z
-Stopped at: ROADMAP.md written post-panel-debate (8 phases, 48 REQ mapped, build order + budget table + kill-policy reference). REQUIREMENTS.md traceability updated. PROJECT.md already aligned.
-Resume file: `.planning/ROADMAP.md` (review) → then `/gsd-plan-phase 30.5` (Context Sanity kickoff)
+Last session: 2026-04-19T09:34:16.647Z
+Stopped at: Phase 30.5 context gathered (panel-augmented discuss mode, 22 decisions locked, kill-policy fallback Modeste 1 specced)
+Resume file: .planning/phases/30.5-context-sanity/30.5-CONTEXT.md
 
 ---
 *Last activity: 2026-04-19 — v2.8 ROADMAP.md created, 8 phases (30.5 → 36), 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36*
