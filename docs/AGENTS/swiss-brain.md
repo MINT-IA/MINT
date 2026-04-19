@@ -112,7 +112,7 @@ Crise:         debtCrisis
 
 - `disclaimer` — « outil éducatif », « ne constitue pas un conseil », « LSFin ».
 - `sources` — legal references (LPP art. X, LIFD art. Y).
-- `premier_eclairage` — first personalized insight (number, blind spot, implication, or question to ask). Remplace le legacy `chiffre_choc`.
+- `premier_eclairage` — first personalized insight (number, blind spot, implication, or question to ask).
 - `alertes` — warnings quand thresholds crossed.
 
 ## 10. Swiss Law References
