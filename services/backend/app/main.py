@@ -1,6 +1,7 @@
 import logging
 import os
 from contextlib import asynccontextmanager
+from uuid import uuid4
 
 import sentry_sdk
 from fastapi import FastAPI
@@ -12,7 +13,7 @@ from starlette.requests import Request
 from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.database import Base, engine
-from app.core.logging_config import setup_logging, LoggingMiddleware
+from app.core.logging_config import setup_logging, LoggingMiddleware, trace_id_var
 from app.core.rate_limit import limiter
 from app.api.v1.router import api_router
 
@@ -166,17 +167,61 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_handler)
 
 
 # Global exception handler — catch unhandled exceptions
+# Phase 31 OBS-03: Read inbound sentry-trace header (from mobile OBS-04),
+# fallback to LoggingMiddleware's trace_id_var ContextVar, fallback to
+# fresh uuid4. Surface trace_id + sentry_event_id in JSON body + echo
+# the trace_id via X-Trace-Id response header (cohabits with the
+# LoggingMiddleware header emission at logging_config.py:102 — identical
+# value in the common case where no inbound sentry-trace is present).
 @app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    # FIX-077 nLPD: Don't log full exception (may contain PII in values).
-    # Log only the type name + first 100 chars of message.
-    logger.error("Unhandled %s: %.100s", type(exc).__name__, str(exc))  # pragma: no cover
-    # F8: Explicit Sentry capture — auto-integration may miss custom handlers
+async def global_exception_handler(request: Request, exc: Exception):
+    # OBS-03 — 3-tier trace_id resolution:
+    #   (1) inbound sentry-trace header (mobile end-to-end propagation)
+    #   (2) trace_id_var ContextVar set by LoggingMiddleware on 2xx/4xx path
+    #   (3) fresh uuid4 — exception handler may run in a scope where
+    #       LoggingMiddleware has not (re-)set trace_id_var (default "-")
+    # D-05 decision: inbound sentry-trace wins for this request's response.
+    raw_sentry_trace = request.headers.get("sentry-trace") or ""
+    inbound_trace_id = (
+        raw_sentry_trace.split("-", 1)[0]
+        if raw_sentry_trace and "-" in raw_sentry_trace
+        else None
+    )
+    # Pitfall 9 mitigation — preserve LoggingMiddleware output when no inbound.
+    ctx_trace_id = trace_id_var.get("-")
+    trace_id = (
+        inbound_trace_id
+        or (ctx_trace_id if ctx_trace_id and ctx_trace_id != "-" else None)
+        or str(uuid4())
+    )
+
+    # F8: Explicit Sentry capture — auto-integration may miss custom handlers.
+    # sentry-sdk[fastapi] 2.53.0 auto-parses the sentry-trace header so Sentry
+    # UI cross-project link works (mobile tx <-> backend tx) without extra
+    # wiring. capture_exception returns the event_id (hex string) or None.
+    event_id: str | None = None
     if settings.SENTRY_DSN:  # pragma: no cover
-        sentry_sdk.capture_exception(exc)
+        event_id = sentry_sdk.capture_exception(exc)
+
+    # FIX-077 nLPD: Don't log full exception (may contain PII in values).
+    # Log type name + truncated message + event_id + trace_id for correlation.
+    logger.error(
+        "Unhandled %s: %.100s event_id=%s trace_id=%s",
+        type(exc).__name__, str(exc), event_id, trace_id,
+    )
+
+    # Pitfall 5 mitigation — mobile UI displays only the 8-char trace_id
+    # prefix as "ref #abc123de"; full event_id stays in JSON body for
+    # support debugging (non-PII opaque UUID).
     return JSONResponse(
         status_code=500,
-        content={"detail": "Erreur interne du serveur", "error_code": "internal_error"},
+        content={
+            "detail": "Erreur interne du serveur",
+            "error_code": "internal_error",
+            "trace_id": trace_id,
+            "sentry_event_id": event_id,
+        },
+        headers={"X-Trace-Id": trace_id},
     )
 
 
