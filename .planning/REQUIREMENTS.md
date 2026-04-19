@@ -15,20 +15,25 @@
 
 **Phase debate resolved** : Panel expert (4 agents — Claude Code architect / peer tools engineer / academic researcher / devil's advocate) a débattu GUARD-09/10/11. Synthèse :
 - **Convergence** : MEMORY.md truncation = bug runtime P0 confirmé (226L > limite 200, cause racine accents oubliés). Lints mécaniques ROI > refonte éditoriale. AST proof-of-read = theater.
-- **Divergence résolue** : 5 jours (pas 14) pour Context Sanity, ajout Phase 30.6 Tools Déterministes (insight Panel C), hook `UserPromptSubmit` ciblé (Panel A) remplace proof-of-read AST.
+- **Divergence résolue** : Context Sanity scope splitté en 30.5 Core (3j, CTX-01/02) + 30.6 Advanced (2-3j + 72h burn-in, CTX-03/04/05, kill-policy) post panel 2026-04-19, ajout Phase 30.7 Tools Déterministes (insight Panel C), hook `UserPromptSubmit` ciblé (Panel A) remplace proof-of-read AST.
 - Artefacts débat : [phase-30.5-context-foundation/PANEL-{A,B,C,D}-*.md](phase-30.5-context-foundation/)
 
-### CTX — Context Sanity (Phase 30.5, 5 jours max, non-empruntable)
+### CTX Core — Context Sanity Core (Phase 30.5, 3 jours, non-empruntable)
 
-Foundation non-négociable — s'active AVANT Phase 31. Sans docs agent-lisibles + métriques de drift, toutes les phases suivantes seront codées à l'aveugle.
+Foundation non-négociable phase 1/2 — capture baseline J0 metrics avant toute refonte. Sans docs agent-lisibles + métriques de drift, toutes les phases suivantes seront codées à l'aveugle.
 
 - [ ] **CTX-01**: Fix P0 bug runtime MEMORY.md truncation — split INDEX `MEMORY.md` (<100 lignes, pointeurs vers topics seulement) + `memory/topics/*.md` retrieval on-demand, move Wave C handoff + autres project_session vers topic files, lefthook hook enforce INDEX <100 lignes HARD (exempt entrées <7j pour préserver handoffs actifs). J1 matin, 2h. Mesure : 0 "Only part was loaded" warning sur nouvelles sessions.
-- [ ] **CTX-02**: Instrumentation métriques drift — 4 métriques mesurables : (a) drift rate = % commits agent avec régression accent/hardcoded-FR/bare-catch détectée post-hoc, (b) context hit rate = % règles pertinentes lues avant 1er tool_use (proxy via breadcrumb Sentry), (c) token cost per session (tracked via Anthropic API usage), (d) time-to-first-correct-output. Dashboard `/admin/agent-drift` + baseline J0 avant refonte. J1-J2, 1j. Mesure : 4 métriques live, baseline capturée.
-- [ ] **CTX-03**: CLAUDE.md restructure — split 4 fichiers : `CLAUDE.md` (quickref ~100L, routing par rôle) + `docs/AGENTS/flutter.md` + `docs/AGENTS/backend.md` + `docs/AGENTS/swiss-brain.md`. Règles critiques (banned terms, accents, retirement framing, financial_core reuse) placées en TOP + BOTTOM du quickref (fix lost-in-the-middle Liu 2024). Remplacer 10 principaux NEVER par triplets `{bad → good → why}` (fix "don't think of elephant" Min 2022, -15-25pts recall évité). Audit redondance CLAUDE.md §5-7 vs skills `mint-*`. J2-J3, 1j. Mesure : tokens chargés/session -40%, 0 redondance skills.
-- [ ] **CTX-04**: `UserPromptSubmit` hook ciblé 5 patterns MINT — inject 200-400 tokens par prompt si pattern détecté dans user message : (1) fichier `.arb` édité → inject ARB parity reminder, (2) fichier .dart dans screens/ → inject i18n + accent reminder, (3) mention "calcul|calculator" → inject financial_core reuse reminder, (4) mention "commit" → inject commit hygiene reminder, (5) nouveau fichier .dart → inject existing-code-check reminder. Fallback pattern léger, pas AST proof-of-read (rejeté Panel A + D comme theater). J3-J4, 1j. Mesure : drift -45 à -55% (baseline Panel A).
-- [ ] **CTX-05**: Spike validation go/no-go Phase 31 — 1 agent code chunk simple Phase 31 (bump `sentry_flutter` 8→9 + wire SentryWidget + maskAllText options dans main.dart). Mesure sur dashboard CTX-02 : accents oubliés ? financial_core réinventé ? NEVER banned terms violé ? Si drift détecté, itère CLAUDE.md (CTX-03) et relance spike. Si 2 itérations échouent, déclenche kill-policy sur CTX (rollback + redesign). J5, 1j. Mesure : spike agent livre code sans régression détectée, sinon itère.
+- [ ] **CTX-02**: Instrumentation métriques drift — 4 métriques mesurables : (a) drift rate = % commits agent avec régression accent/hardcoded-FR/bare-catch détectée post-hoc, (b) context hit rate = % règles pertinentes lues avant 1er tool_use (proxy via breadcrumb Sentry), (c) token cost per session (tracked via Anthropic API usage), (d) time-to-first-correct-output. Dashboard CLI `tools/agent-drift/dashboard.py` + baseline J0 avant refonte. J1-J2, 1j. Mesure : 4 métriques live, baseline capturée.
 
-### TOOL — Tools Déterministes (Phase 30.6, 2-3 jours)
+### CTX Advanced — Context Sanity Advanced (Phase 30.6, 2-3 jours + 72h burn-in, non-empruntable)
+
+Foundation non-négociable phase 2/2 — refonte + hook + spike validation. Kill-policy D-01 active : si CTX-05 spike fail 2× calendar-day, rollback 30.6 entirely (Modeste 1 fallback, 30.5 artifacts preserved).
+
+- [ ] **CTX-03**: CLAUDE.md restructure — split 4 fichiers : `CLAUDE.md` (quickref ~100L, routing par rôle) + `docs/AGENTS/flutter.md` + `docs/AGENTS/backend.md` + `docs/AGENTS/swiss-brain.md`. Règles critiques (banned terms, accents, retirement framing, financial_core reuse) placées en TOP + BOTTOM du quickref (fix lost-in-the-middle Liu 2024). Remplacer 10 principaux NEVER par triplets `{bad → good → why}` (fix "don't think of elephant" Min 2022, -15-25pts recall évité). Audit redondance CLAUDE.md §5-7 vs skills `mint-*`. J2-J3, 1j. Mesure : tokens chargés/session -40%, 0 redondance skills.
+- [ ] **CTX-04**: `UserPromptSubmit` hook ciblé 5 patterns MINT — inject 200-400 tokens par prompt si pattern détecté dans user message : (1) fichier `.arb` édité → inject ARB parity reminder, (2) fichier .dart dans screens/ → inject i18n + accent reminder, (3) mention "calcul|calculator" → inject financial_core reuse reminder, (4) mention "commit" → inject commit hygiene reminder, (5) nouveau fichier .dart → inject existing-code-check reminder. Fallback pattern léger + timeout 500ms fail-open, pas AST proof-of-read (rejeté Panel A + D comme theater). J3-J4, 1j. Mesure : drift -45 à -55% (baseline Panel A).
+- [ ] **CTX-05**: Spike validation go/no-go Phase 31 — 1 agent code chunk simple Phase 31 (bump `sentry_flutter` 8→9 + wire SentryWidget + maskAllText options dans main.dart). Mesure sur dashboard CTX-02 : accents oubliés ? financial_core réinventé ? NEVER banned terms violé ? Si drift détecté, itère CLAUDE.md (CTX-03) et relance spike. Si 2 itérations échouent, déclenche kill-policy Modeste 1 sur 30.6 (rollback CTX-03 + CTX-04, garde CTX-01 + CTX-02 + early lints). J5, 1j. Mesure : spike agent livre code sans régression détectée, sinon itère.
+
+### TOOL — Tools Déterministes (Phase 30.7, 2-3 jours)
 
 Insight Panel C : les constantes financières + règles compliance gaspillent ~400 tokens/turn dans CLAUDE.md. Les transformer en MCP tools `on-demand` économise 16k tokens/session × N sessions = gain massif cumulé.
 
@@ -162,13 +167,13 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 |-------------|-------|-----------|--------|
 | CTX-01 | **30.5** | — | Pending, Phase 30.5 assigned |
 | CTX-02 | **30.5** | — | Pending, Phase 30.5 assigned |
-| CTX-03 | **30.5** | — | Pending, Phase 30.5 assigned |
-| CTX-04 | **30.5** | — | Pending, Phase 30.5 assigned |
-| CTX-05 | **30.5** | spike gate go/no-go | Pending, Phase 30.5 assigned |
-| TOOL-01 | **30.6** | — | Pending, Phase 30.6 assigned |
-| TOOL-02 | **30.6** | — | Pending, Phase 30.6 assigned |
-| TOOL-03 | **30.6** | — | Pending, Phase 30.6 assigned |
-| TOOL-04 | **30.6** | — | Pending, Phase 30.6 assigned |
+| CTX-03 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
+| CTX-04 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
+| CTX-05 | **30.6** | spike gate go/no-go | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
+| TOOL-01 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
+| TOOL-02 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
+| TOOL-03 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
+| TOOL-04 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
 | OBS-01 | 31 | — | Pending, Phase 31 assigned |
 | OBS-02 | 31 | — | Pending, Phase 31 assigned |
 | OBS-03 | 31 | — | Pending, Phase 31 assigned |
