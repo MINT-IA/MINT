@@ -1,0 +1,3 @@
+# Phase 31 Wave 0 — placeholder to keep integration_test/ in the repo.
+# Wave 1 Plan 31-01 adds real-HTTP staging round-trip tests here,
+# exercised by tools/simulator/trace_round_trip_test.sh.
