@@ -1,41 +1,30 @@
 #!/usr/bin/env python3
-"""MEMORY.md retention gate CLI (CTX-01).
+"""CTX-01 memory_gate — thin wrapper around tools/checks/memory_retention.py.
 
-Per D-02: 30j retention, zero truncation silencieuse. GC archives files with
-mtime >30d to memory/archive/YYYY-MM/.
+Delegates to the single source of truth so dashboard, lefthook, and manual
+invocation all converge on the same retention semantics.
 
-Wave 2 Plan 02 Task 3 implements the actual gate. Wave 0: skeleton exits 0
-with TODO message so pre-commit hooks and phase-gate smoke can call it.
+VALIDATION.md row 30.5-02-02 calls this CLI directly. Per Plan 30.5-02 Task 2
+§action step 3, the Wave 0 skeleton is replaced by this thin shim.
+
+Usage:
+    python3 tools/agent-drift/memory_gate.py [--strict|--check]
 """
 from __future__ import annotations
 
-import argparse
+import subprocess
 import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+TARGET = REPO_ROOT / "tools" / "checks" / "memory_retention.py"
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
-        description=(
-            "30j retention gate for ~/.claude/.../memory/ (CTX-01, D-02). "
-            "Archives files older than 30j to memory/archive/YYYY-MM/."
-        )
-    )
-    parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="fail (exit 1) if >30d files remain in memory/topics/ not archived",
-    )
-    parser.add_argument(
-        "--apply",
-        action="store_true",
-        help="actually move stale files (default: dry-run diagnostic only)",
-    )
-    parser.parse_args()
-    print(
-        "TODO Wave 2 Plan 02 Task 3: check memory/topics/ for entries with "
-        "mtime >30d not in archive/ (30j retention per D-02)"
-    )
-    return 0
+    if not TARGET.exists():
+        print(f"error: {TARGET} missing", file=sys.stderr)
+        return 1
+    return subprocess.call(["python3", str(TARGET), *sys.argv[1:]])
 
 
 if __name__ == "__main__":
