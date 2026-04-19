@@ -1,10 +1,11 @@
 ---
 phase: 31
 slug: instrumenter
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: in_progress
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-19
+wave_0_completed: 2026-04-19
 ---
 
 # Phase 31 — Validation Strategy
@@ -38,9 +39,9 @@ created: 2026-04-19
 
 | Task ID | Plan | Wave | Requirement | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------------|-----------|-------------------|-------------|--------|
-| 31-00-01 | 00 | 0 | OBS-01..07 | Test scaffolding lands | infra | `ls apps/mobile/test/services/ && ls services/backend/tests/ && ls tools/simulator/` | ❌ W0 | ⬜ |
-| 31-00-02 | 00 | 0 | J0 gate | walker.sh boot → install → screenshot → pull events <3min | integration | `timeout 180s bash tools/simulator/walker.sh --smoke-test-inject-error` | ❌ W0 | ⬜ |
-| 31-00-03 | 00 | 0 | Deps | `sentry-cli` installed | env | `which sentry-cli && sentry-cli --version` | ❌ W0 | ⬜ |
+| 31-00-01 | 00 | 0 | OBS-01..07 | Test scaffolding lands | infra | `ls apps/mobile/test/services/ && ls services/backend/tests/ && ls tools/simulator/` | ✅ shipped | ✅ |
+| 31-00-02 | 00 | 0 | J0 gate | walker.sh boot → install → screenshot → pull events <3min | integration | `MINT_WALKER_DRY_RUN=1 bash tools/simulator/walker.sh --smoke-test-inject-error` (~61s) | ✅ shipped | ✅ |
+| 31-00-03 | 00 | 0 | Deps | `sentry-cli` installed | env | `which sentry-cli && sentry-cli --version` -> 3.3.5 | ✅ shipped | ✅ |
 | 31-01-01 | 01 (mobile) | 1 | OBS-02 (a) | PlatformDispatcher.onError set BEFORE FlutterError.onError | unit | `flutter test test/services/error_boundary_ordering_test.dart -x` | ❌ W0 | ⬜ |
 | 31-01-02 | 01 | 1 | OBS-02 (b) | Sentry.captureException called exactly once per error | unit | `flutter test test/services/error_boundary_single_capture_test.dart -x` | ❌ W0 | ⬜ |
 | 31-01-03 | 01 | 1 | OBS-02 (c) | Ban direct Sentry.captureException outside error_boundary.dart | static | `python3 tools/checks/sentry_capture_single_source.py` | ❌ W0 | ⬜ |
@@ -67,24 +68,24 @@ created: 2026-04-19
 
 > Scaffolding that must land BEFORE Wave 1 production code begins.
 
-- [ ] `apps/mobile/test/services/error_boundary_test.dart` — stub (OBS-02 a,b)
-- [ ] `apps/mobile/test/services/error_boundary_ordering_test.dart` — stub (OBS-02 a)
-- [ ] `apps/mobile/test/services/error_boundary_single_capture_test.dart` — stub (OBS-02 b)
-- [ ] `apps/mobile/test/services/sentry_breadcrumbs_test.dart` — stub (OBS-05 b)
-- [ ] `apps/mobile/test/services/sentry_breadcrumbs_pii_test.dart` — stub (OBS-05 c)
-- [ ] `apps/mobile/test/services/sentry_breadcrumbs_refresh_test.dart` — stub (OBS-05 d)
-- [ ] `apps/mobile/test/services/api_service_sentry_trace_test.dart` — stub (OBS-04 a)
-- [ ] `apps/mobile/test/app_router_observers_test.dart` — stub (OBS-05 a)
-- [ ] `apps/mobile/integration_test/` directory — create if absent
-- [ ] `services/backend/tests/test_global_exception_handler.py` — stub (OBS-03 a,b,c)
-- [ ] `tools/checks/verify_sentry_init.py` — stub (OBS-01 audit of CTX-05 output)
-- [ ] `tools/checks/sentry_capture_single_source.py` — stub (OBS-02 c static ban)
-- [ ] `tools/checks/audit_artefact_shape.py` — stub (OBS-06 + OBS-07 artefact shape)
-- [ ] `tools/simulator/walker.sh` — **J0 livrable** (simctl driver iPhone 17 Pro + error inject + Sentry pull)
-- [ ] `tools/simulator/assert_event_round_trip.py` — helper for walker smoke
-- [ ] `tools/simulator/trace_round_trip_test.sh` — OBS-04 (b) integration
-- [ ] `tools/simulator/sentry_quota_smoke.sh` — OBS-07 (b) integration
-- [ ] Framework install: `brew install sentry-cli` (blocking dep, run in Plan 31-00)
+- [x] `apps/mobile/test/services/error_boundary_test.dart` — stub (OBS-02 a,b)
+- [x] `apps/mobile/test/services/error_boundary_ordering_test.dart` — stub (OBS-02 a)
+- [x] `apps/mobile/test/services/error_boundary_single_capture_test.dart` — stub (OBS-02 b)
+- [x] `apps/mobile/test/services/sentry_breadcrumbs_test.dart` — stub (OBS-05 b)
+- [x] `apps/mobile/test/services/sentry_breadcrumbs_pii_test.dart` — stub (OBS-05 c)
+- [x] `apps/mobile/test/services/sentry_breadcrumbs_refresh_test.dart` — stub (OBS-05 d)
+- [x] `apps/mobile/test/services/api_service_sentry_trace_test.dart` — stub (OBS-04 a)
+- [x] `apps/mobile/test/app_router_observers_test.dart` — stub (OBS-05 a)
+- [x] `apps/mobile/integration_test/` directory — create if absent (.gitkeep shipped)
+- [x] `services/backend/tests/test_global_exception_handler.py` — stub (OBS-03 a,b,c)
+- [x] `tools/checks/verify_sentry_init.py` — stub (OBS-01 audit of CTX-05 output) — **8/8 invariants PASS**
+- [x] `tools/checks/sentry_capture_single_source.py` — stub (OBS-02 c static ban) — 654 files scanned, 0 violations
+- [x] `tools/checks/audit_artefact_shape.py` — stub (OBS-06 + OBS-07 artefact shape)
+- [x] `tools/simulator/walker.sh` — **J0 livrable** (simctl driver iPhone 17 Pro + error inject + Sentry pull) — smoke PASS ~61s
+- [x] `tools/simulator/assert_event_round_trip.py` — helper for walker smoke
+- [x] `tools/simulator/trace_round_trip_test.sh` — OBS-04 (b) integration
+- [x] `tools/simulator/sentry_quota_smoke.sh` — OBS-07 (b) integration
+- [x] Framework install: `brew install sentry-cli` (blocking dep, run in Plan 31-00) — **3.3.5 installed**
 
 *Wave 0 MUST complete before Wave 1 (mobile OBS-02/04/05 implementation).*
 

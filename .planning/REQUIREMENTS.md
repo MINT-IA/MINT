@@ -44,7 +44,7 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 
 ### OBS — Observabilité / Oracle (Phase 31)
 
-- [ ] **OBS-01**: Sentry Replay Flutter wired avec `maskAllText=true` + `maskAllImages=true` + `sessionSampleRate=0.05` + `onErrorSampleRate=1.0` (nLPD-safe defaults non-négociables, bump `sentry_flutter: 9.14.0`)
+- [x] **OBS-01**: Sentry Replay Flutter wired avec `maskAllText=true` + `maskAllImages=true` + `sessionSampleRate=0.05` + `onErrorSampleRate=1.0` (nLPD-safe defaults non-négociables, bump `sentry_flutter: 9.14.0`)
 - [ ] **OBS-02**: Global error boundary 3-prongs installé (`FlutterError.onError` + `PlatformDispatcher.instance.onError` + `Isolate.current.addErrorListener`) — NE PAS utiliser `runZonedGuarded`
 - [ ] **OBS-03**: Global exception handler FastAPI fail-loud — `trace_id` (read from `sentry-trace` header) + `sentry_event_id` dans JSON response + header `X-Trace-Id` sortie, backward-compatible avec `LoggingMiddleware` existant
 - [ ] **OBS-04**: Trace_id round-trip mobile→backend via headers `sentry-trace` + `baggage` sur `http: ^1.2.0` existant (pas Dio migration) — cross-project link Sentry UI actif

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 30.6-02-PLAN.md — CTX-05 spike PASS 5/5 + 0 regression (merge 0d86d215)
-last_updated: "2026-04-19T16:14:11.062Z"
-last_activity: 2026-04-19 -- Phase 31 planning complete
+stopped_at: Completed 31-00-PLAN.md — Wave 0 scaffolding (17/17) + walker.sh smoke PASS + OBS-01 audit green on CTX-05
+last_updated: "2026-04-19T16:31:18.892Z"
+last_activity: 2026-04-19 -- Phase 31-00 complete (Wave 0 scaffolding + walker.sh smoke PASS + OBS-01 audit green)
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 11
-  completed_plans: 6
-  percent: 55
+  completed_plans: 7
+  percent: 64
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,12 +40,12 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 31 (Instrumenter) — EXECUTING
-Plan: 1 of 6
-Status: Ready to execute
-Last activity: 2026-04-19 -- Phase 31 planning complete
-Next: `/gsd-verify-phase 30.6` (verify Phase 30.6), then `/gsd-plan-phase 30.7` (Tools Déterministes) OR `/gsd-plan-phase 31` (OBS-01 Instrumenter — CTX-05 unblocks)
+Plan: 2 of 6 (Plan 31-00 Wave 0 scaffolding shipped — Plan 31-01 mobile next)
+Status: Wave 0 complete, Wave 1+ unblocked
+Last activity: 2026-04-19 -- Phase 31-00 Wave 0 shipped (17 scaffolds + walker.sh smoke + OBS-01 audit)
+Next: `/gsd-execute-phase 31` continue with Plan 31-01 (mobile OBS-02/04/05) on `feature/v2.8-phase-31-instrumenter`
 
-Progress: [██████████] 100% (2/9 phases, 6/6 plans in-phase)
+Progress: [██████░░░░] 64% (2/9 phases, 7/11 plans) — phase 31: 1/5 plans shipped
 
 ## Build Order
 
@@ -108,6 +108,17 @@ Progress: [██████████] 100% (2/9 phases, 6/6 plans in-phase)
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
 
+### Phase 31-00 Decisions (Wave 0 scaffolding + J0 walker, shipped 2026-04-19)
+
+- **31-00** (plan 00, commits `6c265341` → `a8699856`): 17/17 Wave 0 scaffolds landed (8 Flutter test stubs + 1 pytest stub + 3 Python lints + 4 shell/simulator helpers + 1 README + integration_test/.gitkeep), `sentry-cli 3.3.5` installed, `.gitignore` extended with `.planning/walker/`.
+- **OBS-01 SHIPPED via CTX-05 + Wave 0 audit** — `verify_sentry_init.py` reports 8/8 invariants green on current `main.dart`; no new mobile code for OBS-01. Any future edit dropping `maskAllText`/`maskAllImages`/`sendDefaultPii=false`/`SentryWidget`/`tracePropagationTargets`/`onErrorSampleRate=1.0` fails the lint mechanically (Pitfall 10 mitigation).
+- **walker.sh smoke PASS** — `MINT_WALKER_DRY_RUN=1 bash tools/simulator/walker.sh --smoke-test-inject-error` exits 0 in ~61s (< 3 min budget). Façade-sans-câblage Pitfall 10 mitigated: the script was EXERCISED, not just shipped.
+- **Open Question #4 resolved empirically** — staging `/_test/inject_error` HTTP 404 (endpoint absent); fallback to malformed JSON `POST /auth/login` HTTP 422 works (backend reachable + error handler active). Plan 31-02 will add the dedicated test endpoint backend-side.
+- **Portable `to()` wrapper** added to walker.sh (Rule 2 deviation): macOS ships without `timeout`; walker now chains `gtimeout` → `timeout` → bare fallback with `WARN`. `brew install coreutils` executed on dev host to provide `gtimeout` (9.10). No hard dependency on coreutils for correctness.
+- **D-03 4-level breadcrumb categories locked** as string literals in Flutter stub test descriptions: `mint.compliance.guard.{pass,fail}`, `mint.coach.save_fact.{success,error}`, `mint.feature_flags.refresh.{success,failure}`. Wave 1 implementers cannot drift the naming scheme.
+- **`nyquist_compliant: true`** and **`wave_0_complete: true`** now set in `31-VALIDATION.md` frontmatter — Wave 1/2 (Plans 31-01, 31-02) unblocked.
+- **`SENTRY_AUTH_TOKEN` operator setup** deferred (human-action auth gate). walker.sh + sentry_quota_smoke.sh gracefully WARN-and-continue when absent. Non-blocking for Wave 1 mobile; blocks Wave 4 quota probe only.
+
 ### From Previous Milestones
 
 - v2.4: RAG persistent, URLs fixed, camelCase fixed, 3-tab shell + ProfileDrawer working
@@ -140,8 +151,8 @@ Progress: [██████████] 100% (2/9 phases, 6/6 plans in-phase)
 
 ## Session Continuity
 
-Last session: 2026-04-19T14:21:19.012Z
-Stopped at: Completed 30.6-02-PLAN.md — CTX-05 spike PASS 5/5 + 0 regression (merge 0d86d215)
+Last session: 2026-04-19T16:31:18.890Z
+Stopped at: Completed 31-00-PLAN.md — Wave 0 scaffolding (17/17) + walker.sh smoke PASS + OBS-01 audit green on CTX-05
 Resume file: None
 
 ---

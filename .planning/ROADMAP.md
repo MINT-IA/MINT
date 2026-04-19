@@ -169,7 +169,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   5. Artefact `.planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md` committed listant tous les screens sensibles auditoés sur simulateur AVANT flip de `sessionSampleRate>0` en production (gate nLPD non-négociable).
   6. Artefact `.planning/observability-budget.md` documente Sentry tier/pricing fresh, quota replay, events/mois target ~5k users, staging vs prod DSN séparés.
 **Plans**: 5 plans (Wave 0 scaffolding + Wave 1 mobile + Wave 2 backend + Wave 3 PII audit + Wave 4 ops budget)
-- [ ] 31-00-PLAN.md — Wave 0: 17 scaffolding artefacts + sentry-cli install + walker.sh J0 + OBS-01 audit on CTX-05 output
+- [x] 31-00-PLAN.md — Wave 0: 17 scaffolding artefacts + sentry-cli install + walker.sh J0 + OBS-01 audit on CTX-05 output
 - [ ] 31-01-PLAN.md — Wave 1 mobile: OBS-02 error_boundary 3-prongs + OBS-04 sentry-trace/baggage propagation + OBS-05 SentryNavigatorObserver + MintBreadcrumbs (ComplianceGuard, save_fact, FeatureFlags) + D-01 sample rates
 - [ ] 31-02-PLAN.md — Wave 2 backend: OBS-03 global_exception_handler extension (trace_id + sentry_event_id + X-Trace-Id) + sentry-sdk[fastapi] 2.53.0 pin + staging real-HTTP trace round-trip test
 - [ ] 31-03-PLAN.md — Wave 3 PII audit: OBS-06 SENTRY_REPLAY_REDACTION_AUDIT.md kill-gate + CRITICAL_JOURNEYS.md + MintCustomPaintMask wrapper + creator-device gate Julien
