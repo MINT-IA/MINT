@@ -12,13 +12,15 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Goal:** Refonder le workflow de développement pour sortir de la façade-sans-câblage et du context-poisoning agent. À la fin de v2.8, toute route user-visible marche end-to-end et on le prouve mécaniquement. On sait en <60s ce qui casse (oracle = instrumentation + session replay + route-health board). Aucun agent ne peut ignorer son contexte (guardrails pre-commit). Julien ouvre MINT 20 min sans taper un mur.
 
-**Target features (workflow + finishing, zero new product features):**
-- **Instrumenter** — Sentry Replay Flutter + global error boundaries fail-loud (mobile + backend) + catch-audit lint (0 bare catch) + breadcrumb user-step auto + trace_id round-trip mobile→backend
-- **Cartographier** — Screen board vivant `/admin/routes` (102 routes × last visit × last Sentry error × flag × screenshot), script `mint-route-health` sim walker, sunset des 23 redirects legacy
-- **Kill-switches** — Middleware GoRouter `requireFlag()` + 1 flag par route rouge + admin `/admin/flags` 1-clic (étend le système de 8 flags existant, pas de LaunchDarkly)
-- **Agent Guardrails** — lefthook pre-commit local (pas juste CI) : bare-catch ban, accent lint, hardcoded-FR-string lint étendu, proof-of-read via agent SDK, ARB 6-lang parity
-- **Boucle Daily** — Script `mint-dogfood` (simctl iPhone 17 Pro, scénario scripté, screenshots, pull Sentry, auto-PR `.planning/dogfood/YYYY-MM-DD.md`), 1x/jour 10 min
-- **Finissage E2E** — Fix P0 audités : UUID profile crash, flow anonyme restauré, save_fact sync mobile, Coach tab stable, 388 catches → 0, MintShell i18n, accents 100%
+**Target features (workflow + finishing, zero new product features) — 8 phases** :
+- **30.5 Context Sanity** (5j non-empruntable) — Fix P0 runtime MEMORY.md truncation + instrumentation métriques drift (dashboard `/admin/agent-drift`) + CLAUDE.md restructure (lost-in-the-middle fix) + `UserPromptSubmit` hook 5 patterns MINT + spike validation go/no-go Phase 31
+- **30.6 Tools Déterministes** (2-3j) — MCP tools `get_swiss_constants` / `check_banned_terms` / `validate_arb_parity` (on-demand, économise ~16k tokens/session)
+- **31 Instrumenter** — Sentry Replay Flutter (9.14.0) + global error boundaries 3-prongs fail-loud + trace_id round-trip mobile→backend via headers sur `http` existant
+- **32 Cartographier** — Route registry-as-code 148 routes + `/admin/routes` dashboard dev-only + `route_registry_parity.py` lint + analytics redirects legacy
+- **33 Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems backend + admin `/admin/flags` 1-clic
+- **34 Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch ban, hardcoded-FR, accent, ARB parity, proof-of-read léger) + CI thinning
+- **35 Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
+- **36 Finissage E2E** (2-3 sem MINIMUM non-empruntable) — 4 P0 fixes (UUID / anonymous / save_fact / Coach tab) + 388 catches → 0 + MintShell ARB parity + accents 100%
 
 **Règle inversée non-négociable v2.8**: 0 feature nouvelle. Zéro. Ce qui ne marche pas se kill (via flag) ou se répare. Compression = discipline transversale, chaque phase tue du code mort au passage.
 

@@ -11,7 +11,31 @@
 
 ## v2.8 Requirements
 
-45 REQ-IDs, 6 catégories, mappés 1:1 aux 6 phases (31-36). Table-stakes only — differentiators descopables listés plus bas si budget serre.
+**50 REQ-IDs, 8 catégories, mappés 1:1 aux 8 phases (30.5, 30.6, 31, 32, 33, 34, 35, 36).** Table-stakes only — differentiators descopables listés plus bas.
+
+**Phase debate resolved** : Panel expert (4 agents — Claude Code architect / peer tools engineer / academic researcher / devil's advocate) a débattu GUARD-09/10/11. Synthèse :
+- **Convergence** : MEMORY.md truncation = bug runtime P0 confirmé (226L > limite 200, cause racine accents oubliés). Lints mécaniques ROI > refonte éditoriale. AST proof-of-read = theater.
+- **Divergence résolue** : 5 jours (pas 14) pour Context Sanity, ajout Phase 30.6 Tools Déterministes (insight Panel C), hook `UserPromptSubmit` ciblé (Panel A) remplace proof-of-read AST.
+- Artefacts débat : [phase-30.5-context-foundation/PANEL-{A,B,C,D}-*.md](phase-30.5-context-foundation/)
+
+### CTX — Context Sanity (Phase 30.5, 5 jours max, non-empruntable)
+
+Foundation non-négociable — s'active AVANT Phase 31. Sans docs agent-lisibles + métriques de drift, toutes les phases suivantes seront codées à l'aveugle.
+
+- [ ] **CTX-01**: Fix P0 bug runtime MEMORY.md truncation — split INDEX `MEMORY.md` (<100 lignes, pointeurs vers topics seulement) + `memory/topics/*.md` retrieval on-demand, move Wave C handoff + autres project_session vers topic files, lefthook hook enforce INDEX <100 lignes HARD (exempt entrées <7j pour préserver handoffs actifs). J1 matin, 2h. Mesure : 0 "Only part was loaded" warning sur nouvelles sessions.
+- [ ] **CTX-02**: Instrumentation métriques drift — 4 métriques mesurables : (a) drift rate = % commits agent avec régression accent/hardcoded-FR/bare-catch détectée post-hoc, (b) context hit rate = % règles pertinentes lues avant 1er tool_use (proxy via breadcrumb Sentry), (c) token cost per session (tracked via Anthropic API usage), (d) time-to-first-correct-output. Dashboard `/admin/agent-drift` + baseline J0 avant refonte. J1-J2, 1j. Mesure : 4 métriques live, baseline capturée.
+- [ ] **CTX-03**: CLAUDE.md restructure — split 4 fichiers : `CLAUDE.md` (quickref ~100L, routing par rôle) + `docs/AGENTS/flutter.md` + `docs/AGENTS/backend.md` + `docs/AGENTS/swiss-brain.md`. Règles critiques (banned terms, accents, retirement framing, financial_core reuse) placées en TOP + BOTTOM du quickref (fix lost-in-the-middle Liu 2024). Remplacer 10 principaux NEVER par triplets `{bad → good → why}` (fix "don't think of elephant" Min 2022, -15-25pts recall évité). Audit redondance CLAUDE.md §5-7 vs skills `mint-*`. J2-J3, 1j. Mesure : tokens chargés/session -40%, 0 redondance skills.
+- [ ] **CTX-04**: `UserPromptSubmit` hook ciblé 5 patterns MINT — inject 200-400 tokens par prompt si pattern détecté dans user message : (1) fichier `.arb` édité → inject ARB parity reminder, (2) fichier .dart dans screens/ → inject i18n + accent reminder, (3) mention "calcul|calculator" → inject financial_core reuse reminder, (4) mention "commit" → inject commit hygiene reminder, (5) nouveau fichier .dart → inject existing-code-check reminder. Fallback pattern léger, pas AST proof-of-read (rejeté Panel A + D comme theater). J3-J4, 1j. Mesure : drift -45 à -55% (baseline Panel A).
+- [ ] **CTX-05**: Spike validation go/no-go Phase 31 — 1 agent code chunk simple Phase 31 (bump `sentry_flutter` 8→9 + wire SentryWidget + maskAllText options dans main.dart). Mesure sur dashboard CTX-02 : accents oubliés ? financial_core réinventé ? NEVER banned terms violé ? Si drift détecté, itère CLAUDE.md (CTX-03) et relance spike. Si 2 itérations échouent, déclenche kill-policy sur CTX (rollback + redesign). J5, 1j. Mesure : spike agent livre code sans régression détectée, sinon itère.
+
+### TOOL — Tools Déterministes (Phase 30.6, 2-3 jours)
+
+Insight Panel C : les constantes financières + règles compliance gaspillent ~400 tokens/turn dans CLAUDE.md. Les transformer en MCP tools `on-demand` économise 16k tokens/session × N sessions = gain massif cumulé.
+
+- [ ] **TOOL-01**: MCP tool `get_swiss_constants(category)` — catégories : pillar3a / lpp / avs / mortgage / tax. Retourne constantes 2025/2026 structurées (ex: `{pillar3a_salarie_lpp: 7258, pillar3a_independant_no_lpp: 36288}`). Source : `services/backend/app/constants/` (déjà single source of truth). Supprime les constantes hardcodées de CLAUDE.md §5 BUSINESS RULES (gain ~400 tokens/turn).
+- [ ] **TOOL-02**: MCP tool `check_banned_terms(text)` — wrap `ComplianceGuard` backend existant (déjà déployé Phase 29, sous-utilisé). Retourne `{banned_found: ["garanti", "optimal"], suggestions: ["pourrait", "envisager"]}` on-demand.
+- [ ] **TOOL-03**: MCP tool `validate_arb_parity()` + `check_accent_patterns(text)` — wrap les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` (Phase 34) en MCP tools. Agent appelle on-demand au lieu de charger les listes patterns en mémoire permanente.
+- [ ] **TOOL-04**: CLAUDE.md hook les 3 tools — remplace les sections §5 BUSINESS RULES (constantes) + §6 COMPLIANCE (banned terms list) par pointeurs "use `get_swiss_constants()` tool". Supprime ~800 tokens cumulés de CLAUDE.md core. Mesure : tokens core CLAUDE.md -30%, tools invoqués ≥1×/session sur tâches pertinentes.
 
 ### OBS — Observabilité / Oracle (Phase 31)
 
@@ -39,21 +63,18 @@
 - [ ] **FLAG-04**: Admin `/admin/flags` UI 1-clic toggle + `PATCH /admin/flags/{name}` endpoint (auth admin seulement, invalide cache immédiat, client refresh <2s)
 - [ ] **FLAG-05**: Flag-group pattern déployé — `enableExplorerRetraite/Famille/Travail/Logement/Fiscalite/Patrimoine/Sante` + `enableCoachChat` + `enableScan` + `enableBudget` + `enableAnonymousFlow` (11 flags, pas 147, évite flag rot)
 
-### GUARD — Agent Guardrails (Phase 34)
+### GUARD — Agent Guardrails mécaniques (Phase 34)
 
-**Critical note:** Per doctrine feedback (CLAUDE.md + MEMORY.md sont LA condition de stabilité/performance MINT), les REQ GUARD-09/10/11 sont traités avec la même rigueur que les REQ OBS de la Phase 31. Ce sont des REQ tier-1, pas des chores doc.
+**Note post-panel** : GUARD-09/10/11 (doc refonte + proof-of-read AST) hoistés vers Phase 30.5 CTX-* suite au débat panel. Phase 34 garde les 8 guards mécaniques (lints + CI thinning) — c'est le VRAI gardien long-terme selon Panel B + D (ROI mesurable, pas theater).
 
-- [ ] **GUARD-01**: lefthook 2.1.5 installed (brew) + `lefthook.yml` pre-commit parallel — target <5s absolu sur M-series Mac, scope changed-files only via glob filters
+- [ ] **GUARD-01**: lefthook 2.1.5 installed (brew) + `lefthook.yml` pre-commit parallel complet — target <5s absolu sur M-series Mac, scope changed-files only via glob filters. (Note : minimal lefthook installation déjà faite Phase 30.5 CTX-01 pour MEMORY.md gate. Phase 34 = full config avec tous les gates.)
 - [ ] **GUARD-02**: `tools/checks/no_bare_catch.py` — refuse `} catch (e) {}` Dart + `except Exception:` Python sans log/rethrow, exempte `test/` + streams `async *`
 - [ ] **GUARD-03**: `tools/checks/no_hardcoded_fr.py` — scan Dart widgets pour strings FR hors `AppLocalizations`, exclut `lib/l10n/`
-- [ ] **GUARD-04**: `tools/checks/accent_lint_fr.py` — ASCII-only flag sur `app_fr.arb` (patterns : creer, decouvrir, eclairage, securite, liberer, preter, realiser, deja, recu, elaborer, regler)
+- [ ] **GUARD-04**: `tools/checks/accent_lint_fr.py` — ASCII-only flag sur `app_fr.arb` + `.dart` + `.py` (patterns : creer, decouvrir, eclairage, securite, liberer, preter, realiser, deja, recu, elaborer, regler)
 - [ ] **GUARD-05**: `tools/checks/arb_parity.py` — 6 ARB files (fr, en, de, es, it, pt) mêmes keyset, fail CI si drift
-- [ ] **GUARD-06**: `tools/checks/proof_of_read.py` — agent co-author commits doivent avoir `.planning/<phase>/READ.md` mentionnant les fichiers modifiés (fallback si GUARD-11 indispo)
+- [ ] **GUARD-06**: `tools/checks/proof_of_read.py` — fallback léger (pas AST) — agent co-author commits doivent référencer `.planning/<phase>/READ.md` listant fichiers modifiés (complémentaire à CTX-04 UserPromptSubmit hook)
 - [ ] **GUARD-07**: `--no-verify` ban → `LEFTHOOK_BYPASS=1` convention (grep-able shell history) + CI post-merge audit re-run lefthook sur PR range + alerte si >3 bypass/semaine
 - [ ] **GUARD-08**: CI thinning — les 10 grep-style gates existants `tools/checks/*.py` deviennent lefthook-first, CI garde heavy gates only (full test suites, readability, WCAG, PII, contracts, migrations)
-- [ ] **GUARD-09**: **Expert-panel refonte CLAUDE.md** — 4 experts convoqués (ex-Anthropic prompt engineer, ex-Stripe dev-experience, ex-Cursor agent-context architect, ex-Linear documentation lead). Output : structure-par-rôle (quickref 20-30 lignes par agent-type : flutter-dev / backend-dev / swiss-brain / team-lead), sections détaillées @-référencées, anti-patterns spécialisés par type de tâche, target ~150 lignes core. Mesure : réduction tokens/tâche ≥40%, 0 redondance, conflict resolution linéaire (pas 11 docs).
-- [ ] **GUARD-10**: **Expert-panel refonte MEMORY.md** — même panel + ex-Chroma memory systems lead. Output : TTL structurel (feedback permanent / project_state 30j auto-archive vers `.claude/memory/archive/YYYY-MM/`), lefthook hook enforce <200 lignes HARD, catégorisation stricte (user/feedback/project/reference seulement, pas mélange), garbage-collect script `tools/memory/gc.py`. Mesure : MEMORY.md toujours <200 lignes, 0 entrée stale >30j, charge initiale agent réduite ≥50%.
-- [ ] **GUARD-11**: **Pre-task context-sheet injecteur** (Claude Agent SDK `PreToolUse` hook ou git-side fallback) — à chaque spawn d'agent, injecte un context-sheet minimal spécifique à la tâche : (a) fichiers obligatoires à lire avant tout tool use, (b) anti-patterns pertinents seulement (filtrés par type de tâche), (c) proof-of-read question AST-based à laquelle l'agent doit répondre avant commit. Si Agent SDK hook indispo sur version Julien, fallback git prepare-commit-msg (GUARD-06). Mesure : 0 commit agent sans proof-of-read valide, accent lint 0 régression sur 30j.
 
 ### LOOP — Boucle Daily (Phase 35)
 
@@ -137,10 +158,12 @@ Tracked but NOT in current roadmap :
 
 | Requirement | Phase | Kill flag | Status |
 |-------------|-------|-----------|--------|
+| CTX-01..05 | **30.5** | (CTX-05 spike gate) | Pending |
+| TOOL-01..04 | **30.6** | — | Pending |
 | OBS-01..07 | 31 | (OBS-06 gate) | Pending |
 | MAP-01..05 | 32 | MAP-02: `enableAdminScreens` | Pending |
 | FLAG-01..05 | 33 | FLAG-04: `enableAdminScreens` | Pending |
-| GUARD-01..11 | 34 | — | Pending |
+| GUARD-01..08 | 34 | — | Pending |
 | LOOP-01..05 | 35 | — | Pending |
 | FIX-01 | 36 | `enableProfileLoad` | Pending |
 | FIX-02 | 36 | `enableAnonymousFlow` | Pending |
@@ -153,8 +176,11 @@ Tracked but NOT in current roadmap :
 | FIX-09 | 36 | — | Pending |
 
 **v2.8 Coverage:**
-- 45 REQ total, 45 mapped, 0 unmapped ✓
+- **50 REQ total**, 50 mapped, 0 unmapped ✓
+- Phases : 30.5 (5j) + 30.6 (2-3j) + 31 (1.5sem) + 32 (1sem) + 33 (1sem) + 34 (1.5sem ∥ 31) + 35 (1sem) + 36 (2-3sem NON-empruntable)
+- Budget total estimé : 8-10 semaines solo-dev (parallélisation 31∥34, 32∥33)
 - Phase 36 kill-switches provisioned: 4/4 P0 flags ✓
+- Phase 30.5 spike validation go/no-go (CTX-05) gate Phase 31 start
 
 ---
 
