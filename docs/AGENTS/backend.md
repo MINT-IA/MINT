@@ -114,7 +114,7 @@ class TestMyCalculation:
 Chaque calculator/service output DOIT inclure :
 - `disclaimer` — « outil éducatif », « ne constitue pas un conseil », « LSFin ».
 - `sources` — Legal references (LPP art. X, LIFD art. Y).
-- `premier_eclairage` — First personalized insight (replaces legacy `chiffre_choc`).
+- `premier_eclairage` — First personalized insight (number, blind spot, implication, or question to ask).
 - `alertes` — Warnings quand thresholds crossed.
 
 Banned words dans texte backend user-facing : « garanti », « optimal », « meilleur », « assuré », « certain ». Voir `docs/AGENTS/swiss-brain.md` §1.
