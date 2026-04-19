@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: verifying
+status: executing
 stopped_at: Completed 30.6-02-PLAN.md — CTX-05 spike PASS 5/5 + 0 regression (merge 0d86d215)
-last_updated: "2026-04-19T14:21:19.015Z"
-last_activity: 2026-04-19
+last_updated: "2026-04-19T15:08:56.067Z"
+last_activity: 2026-04-19 -- Phase 31 execution started
 progress:
   total_phases: 9
   completed_phases: 2
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 30.6 — Context Sanity Advanced
+**Current focus:** Phase 31 — Instrumenter
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,10 +39,10 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 30.6 (Context Sanity Advanced) — SHIPPED (CTX-03 + CTX-04 + CTX-05)
-Plan: 3 of 3 complete
-Status: Phase complete — ready for verification
-Last activity: 2026-04-19
+Phase: 31 (Instrumenter) — EXECUTING
+Plan: 1 of 6
+Status: Executing Phase 31
+Last activity: 2026-04-19 -- Phase 31 execution started
 Next: `/gsd-verify-phase 30.6` (verify Phase 30.6), then `/gsd-plan-phase 30.7` (Tools Déterministes) OR `/gsd-plan-phase 31` (OBS-01 Instrumenter — CTX-05 unblocks)
 
 Progress: [██████████] 100% (2/9 phases, 6/6 plans in-phase)
