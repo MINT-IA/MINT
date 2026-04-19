@@ -82,6 +82,17 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/mint-context-injector.js",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   },
   "permissions": {

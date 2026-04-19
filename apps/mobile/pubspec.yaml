@@ -26,7 +26,7 @@ dependencies:
   flutter_markdown: ^0.7.6
   shared_preferences: ^2.3.2
   flutter_secure_storage: ^9.0.0
-  sentry_flutter: ^8.0.0
+  sentry_flutter: 9.14.0  # CTX-05 spike (STACK.md §A.1, v2.8 prep for OBS-01)
   file_picker: ^8.0.0
   image_picker: ^1.1.2
   # 2026-04-17: google_mlkit_text_recognition removed. MLKit 7.x has no

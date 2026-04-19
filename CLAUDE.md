@@ -1,429 +1,121 @@
 # CLAUDE.md — MINT Project Context (auto-loaded)
 
-> **DOMAIN RENAME (2026-04-07, Phase 1.5):** The legacy `chiffre_choc` / `ChiffreChoc` / `chiffreChoc` tokens have been renamed to `premier_eclairage` / `PremierEclairage` / `premierEclairage` across backend, mobile, ARB, OpenAPI, URL routes, and live docs. The previous "LEGACY NOTE" flag is cleared. CI gate `tools/checks/no_chiffre_choc.py` enforces zero residue in scoped paths.
+> Loaded at every session start. Quickref ~150L.
+> Role-scoped detail : [docs/AGENTS/flutter.md](docs/AGENTS/flutter.md) · [docs/AGENTS/backend.md](docs/AGENTS/backend.md) · [docs/AGENTS/swiss-brain.md](docs/AGENTS/swiss-brain.md).
+> Conflict resolution : `rules.md` (tier 1) > this file (tier 2) > `.claude/skills/*` (tier 3).
 
-> Loaded automatically at every session start. Single source of truth for all agents.
-> For conflict resolution: `rules.md` (tier 1) > this file (tier 2). See § HIERARCHY.
+## 🚨 TOP — 5 RULES CRITIQUES (repeat at BOTTOM — Liu 2024 lost-in-the-middle mitigation)
 
----
-
-## 1. IDENTITY
-
-> **Source of truth for identity & positioning: `docs/MINT_IDENTITY.md`**
-
-**MINT** — Swiss financial protection & education app (Flutter + FastAPI).
-**Mission**: "Mint te dit ce que personne n'a intérêt à te dire."
-**Positioning**: Protection-first. MINT is NOT a retirement app, NOT a calculator, NOT a dashboard. MINT is a calm, intimate, reliable intelligence in your pocket that protects users against poorly aligned financial products and decisions.
-**Doctrine**: "Mint n'accuse pas. Mint éclaire. Mint ne juge pas l'émetteur. Mint explicite le contrat. Mint ne dit pas 'c'est nul'. Mint dit 'voici ce que cela implique pour toi'."
-**4-layer insight engine**: (1) Factual extraction → (2) Human translation → (3) Personal perspective → (4) Questions to ask before signing. See `docs/MINT_IDENTITY.md` for full spec.
-**5 principles**: (1) Speak human — no jargon without translation. (2) Reduce shame — never make user feel behind. (3) Dialogue, not lecture. (4) Immediate grip — always a danger avoided, a trap illuminated, a next step. (5) Gentle but sharp — never aggressive, never soft.
-**Service loop** (internal, NOT the tagline): "Juste quand il faut: une explication, une action, un rappel."
-**Target**: ALL Swiss residents (18-99). No primary/secondary segmentation.
-**Segmentation**: By life event and lifecycle phase, NEVER by age or demographics. A 25-year-old starting their first job and a 55-year-old planning retirement are equally important users.
-**Design for ALL**: UX, copy, and features MUST work for 18-99. Never design screens, landing pages, or flows that exclude an age group or suggest MINT is "a retirement app" or any single-topic app.
-**Model**: Read-only, protection-first, education-first. No money movement. No investment advice. No product recommendations. No ranking.
-**NEVER**: frame MINT as a retirement app, use "chiffre choc" (legacy term → "premier éclairage"), default to retirement projections, compare named competitors, recommend specific products.
+1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur », « certain », « assuré », « sans risque », « parfait ». Use « pourrait », « envisager », « adapté ». Full list → [swiss-brain.md §1](docs/AGENTS/swiss-brain.md).
+2. **Accents 100% FR mandatory** — `creer → créer`, `eclairage → éclairage`, `decouvrir → découvrir`, `securite → sécurité`, `premier éclairage` (jamais `premier eclairage`). ASCII « e » à la place de « é » = bug. Lint : `tools/checks/accent_lint_fr.py`.
+3. **MINT ≠ retirement app** — 18 life events equally weighted (housing, family, tax, career, debt…). Never frame screens/prompts as « retraite-first ». Target : 18-99. Pivot 2026-04-12 : lucidité, pas protection.
+4. **Financial_core reuse mandatory** — `lib/services/financial_core/` est SOURCE OF TRUTH. Never re-implement `_calculate*()` dans services. ADR : `decisions/ADR-20260223-unified-financial-engine.md`.
+5. **i18n required** — Toutes strings user-facing via `AppLocalizations.of(context)!.key`. Never `Text('Bonjour')`. 6 ARB files (fr/en/de/es/it/pt) sous `lib/l10n/`. Run `flutter gen-l10n`.
 
 ---
 
-## 2. ARCHITECTURE
+## 1. IDENTITY (1-line)
+
+MINT = Swiss financial lucidity app (Flutter + FastAPI). Read-only, éducative, 4-layer insight engine. Full : `docs/MINT_IDENTITY.md`. **Pivot 2026-04-12 : lucidité, pas « protection-first ».** Target ALL Swiss residents 18-99, segmentation par life event + lifecycle phase, JAMAIS par âge.
+
+## 2. ARCHITECTURE (tree sketch)
 
 ```
-apps/mobile/              # Flutter (Dart) — iOS/Android/Web
-  lib/
-    screens/              # Screens by module
-    services/
-      financial_core/     # ★ SHARED CALCULATORS — single source of truth
-    widgets/              # Reusable widgets + educational inserts
-    models/               # Data models
-    constants/            # Centralized constants (social_insurance.dart)
-    theme/colors.dart     # MintColors palette
-    providers/            # Provider state management
-    l10n/                 # ARB files (6 languages)
-
-services/backend/         # FastAPI (Python)
-  app/
-    api/v1/endpoints/     # REST endpoints
-    services/             # Business logic (pure functions, dataclasses)
-    schemas/              # Pydantic v2 (camelCase alias)
-  tests/                  # pytest suite
-
-docs/                     # Strategy & specs (VISION_V1, CICD_ARCHITECTURE)
-decisions/                # ADR (Architecture Decision Records)
-visions/                  # Product vision (4 files)
-education/inserts/        # Educational content (18 concept files)
-legal/                    # CGU, Privacy, Disclaimer, Mentions légales
-.claude/skills/           # Agent-specific skill files
+apps/mobile/                 # Flutter (iOS/Android/Web)
+  lib/services/financial_core/   # ★ SHARED CALCULATORS — single source of truth
+  lib/theme/colors.dart          # MintColors palette
+  lib/l10n/                      # ARB files (6 languages)
+services/backend/            # FastAPI (Python, Pydantic v2, camelCase alias)
+docs/AGENTS/{flutter,backend,swiss-brain}.md    # role-scoped detail
+.claude/skills/mint-*/SKILL.md                  # operational skills
 ```
-
-### Financial Core Library (`lib/services/financial_core/`)
-
-> **ADR**: `decisions/ADR-20260223-unified-financial-engine.md`
-
-**All financial calculations MUST use these centralized calculators.**
-
-| Calculator | Key Methods | Source |
-|-----------|-------------|--------|
-| `avs_calculator.dart` | `computeMonthlyRente()`, `renteFromRAMD()`, `computeCouple()` | LAVS art. 21-40 |
-| `lpp_calculator.dart` | `projectToRetirement()`, `projectOneMonth()`, `blendedMonthly()` | LPP art. 14-16 |
-| `tax_calculator.dart` | `capitalWithdrawalTax()`, `progressiveTax()`, `estimateMonthlyIncomeTax()` | LIFD art. 38 |
-| `confidence_scorer.dart` | `EnhancedConfidence` — 4-axis: completeness × accuracy × freshness × understanding | Profile completeness |
-| `arbitrage_engine.dart` | `compareLumpSumVsAnnuity()`, `compareHousingOptions()` | Side-by-side scenarios |
-| `monte_carlo_service.dart` | `runSimulation()` — 1000+ stochastic projections | Financial planning probability |
-| `withdrawal_sequencing_service.dart` | `optimizeWithdrawalOrder()` — LIFO/FIFO tax optimization | Capital planning |
-| `tornado_sensitivity_service.dart` | `computeSensitivity()` — what-if ±1-5% analysis | Sensitivity charts |
-
-These calculators serve ALL life events — not just retirement. A 28-year-old buying property uses `tax_calculator`, `arbitrage_engine`, and `confidence_scorer` exactly like a 58-year-old planning retirement.
-
-**Consumers** (must import `financial_core.dart`, never reimplement):
-`retirement_projection_service`, `forecaster_service`, `lpp_deep_service`, `rente_vs_capital_calculator`, `expat_service`, `financial_report_service`, `budget_service`
-
----
 
 ## 3. COMMANDS
 
 ```bash
-# Backend (in services/backend/)
-python3 -m pytest tests/ -q          # Run all tests
-uvicorn app.main:app --reload        # Dev server
+# Backend
+cd services/backend && python3 -m pytest tests/ -q && uvicorn app.main:app --reload
 
-# Flutter (in apps/mobile/)
-flutter analyze                       # Must be 0 errors
-flutter test                          # Run tests
-flutter gen-l10n                      # Regenerate i18n after ARB changes
+# Mobile
+cd apps/mobile && flutter analyze && flutter test && flutter gen-l10n
 ```
 
----
+## 4. ROLE ROUTING
 
-## 4. DEV RULES
+- **Flutter work** → [docs/AGENTS/flutter.md](docs/AGENTS/flutter.md) (UX rules, design system, navigation, i18n setup, anti-bug discipline).
+- **Backend work** → [docs/AGENTS/backend.md](docs/AGENTS/backend.md) (Pydantic v2, pure functions, testing, FastAPI patterns, error handling).
+- **Compliance / Swiss law** → [docs/AGENTS/swiss-brain.md](docs/AGENTS/swiss-brain.md) (archetypes, banned terms full list, LPP/AVS/LIFD refs, golden couple Julien+Lauren).
 
-> Full git workflow details in `rules.md` (tier 1) and `docs/CICD_ARCHITECTURE.md`.
+## 5. DEV RULES (common)
 
-### Branch flow (NON-NEGOTIABLE)
-```
-feature/* ──PR──> dev ──PR──> staging ──PR──> main
-```
-- **Feature branches**: `feature/S{XX}-<slug>` from `dev`. Hotfix: `hotfix/<slug>`.
-- **Push**: Direct to `dev` OK. NEVER to `staging` or `main`.
-- **PRs**: feature→dev (squash), dev→staging (merge), staging→main (merge).
-- **Promotion PRs**: "Staging to vX.Y.Z" / "Production to vX.Y.Z". Only when user requests.
-- **Force push is BANNED**. Always `--rebase` on pull.
+- Branches : `feature/S{XX}-<slug>` depuis `dev`. Hotfix : `hotfix/<slug>`. Never force push. Always `--rebase` on pull.
+- PRs : feature→dev (squash), dev→staging (merge), staging→main (merge). Promotion PRs seulement sur demande user.
+- Before code mod : `git branch --show-current` (confirm feature branch) + `git status` (clean).
+- Testing : service files ≥ 10 unit tests, Julien + Lauren golden contre valeurs connues, `flutter analyze` 0 issues + `pytest -q` green.
+- **Lucidité pivot 2026-04-12** : voir MEMORY.md §VISION — LUCIDITE. Compliance guardrails inchangés, messaging hiérarchie à revoir (deferred v2.9+).
 
-### Before ANY code modification
-1. `git branch --show-current` — confirm feature branch (never `main`/`staging`)
-2. `git status` — if dirty, ask user to stash/commit/discard
+## 6. 10 TRIPLETS {bad → good → why} (D-07, ordered by violation frequency)
 
-### Sprint execution method
-**All sprints use autoresearch skills** as primary execution method (see `docs/ROADMAP_V2.md`):
-`/autoresearch-calculator-forge`, `/autoresearch-test-generation`, `/autoresearch-prompt-lab`,
-`/autoresearch-compliance-hardener`, `/autoresearch-ux-polish`, `/autoresearch-quality`,
-`/autoresearch-i18n`, `/autoresearch-coach-evolution`
+### NEVER #1 — Hardcode user-facing strings
+- ❌ NEVER: `Text('Bonjour')`
+- ✅ INSTEAD: `Text(AppLocalizations.of(context)!.greetingMorning)`
+- ⚠️ WHY: i18n drift 6 langues, ARB parity breaks, l10n CI fails, blocs MintShell audit.
 
-### Testing
-- **Service files**: minimum 10 unit tests (edge cases + compliance)
-- **Golden couple**: Julien + Lauren tested against known expected values
-- **Before merge**: `flutter analyze` (0 issues) + `flutter test` + `pytest tests/ -q`
+### NEVER #2 — Hardcode colors
+- ❌ NEVER: `Color(0xFF003B2F)`
+- ✅ INSTEAD: `MintColors.primary` (depuis `lib/theme/colors.dart`)
+- ⚠️ WHY: theme consistency, dark-mode ready, canton branding. 12 core tokens dans DESIGN_SYSTEM.md §3.2.
 
-### Backend Conventions
-- **Pure functions** for all calculations (deterministic, testable)
-- **Pydantic v2**: `ConfigDict(populate_by_name=True)`, `alias_generator = to_camel`
-- **Backend = source of truth** for constants and formulas. Flutter mirrors, never invents.
-- **Contract change** → update `tools/openapi/` + `SOT.md`
+### NEVER #3 — Duplicate calculation logic
+- ❌ NEVER: `double _calculateRente(profile) { ... }` dans un service file
+- ✅ INSTEAD: `AvsCalculator.computeMonthlyRente(profile)` depuis `lib/services/financial_core/`
+- ⚠️ WHY: single source of truth, testé contre Julien+Lauren golden, backend parity garantie.
 
----
+### NEVER #4 — Frame MINT as retirement app
+- ❌ NEVER: « Préparez votre retraite avec MINT » en hero copy
+- ✅ INSTEAD: framer par life event (housing, career, family, tax) — 18 events equally weighted
+- ⚠️ WHY: MINT sert 18-99. Retirement = 1 of 18 events. Exclure les 25 ans casse trust + growth.
 
-## 5. BUSINESS RULES
+### NEVER #5 — Use banned terms
+- ❌ NEVER: « rendement garanti », « l'optimal », « sans risque », « meilleur choix »
+- ✅ INSTEAD: « scénarios (Bas/Moyen/Haut) », « pourrait », « envisager », « adapté »
+- ⚠️ WHY: LSFin compliance, FINMA, disclaimer required sur chaque projection. `ComplianceGuard` enforce.
 
-### Key Constants (2025/2026)
+### NEVER #6 — Code without reading existing code
+- ❌ NEVER: écrire un nouveau widget sans grep pour un existant
+- ✅ INSTEAD: `grep -r "ClassName" apps/mobile/lib/` avant Write tool
+- ⚠️ WHY: façade-sans-câblage doctrine #1. W14 audit = 5 duplicates + 72 files supprimés en Wave E-PRIME.
 
-**Pillar 3a**: Salarié LPP: **7'258 CHF/an** | Indépendant sans LPP: **20% revenu net, max 36'288 CHF/an**
+### NEVER #7 — Assume Swiss native archetype
+- ❌ NEVER: default retirement projection à `swiss_native`
+- ✅ INSTEAD: detect archetype (`swiss_native`, `expat_eu`, `expat_us` FATCA, `cross_border` frontalier, `independent_no_lpp`, etc.) depuis profile
+- ⚠️ WHY: 8 archetypes, 3a/LPP/AVS divergent. FATCA, frontalier Permis G, expat EU totalisation ne sont pas edge cases.
 
-**LPP**: Seuil d'accès: **22'680** (art. 7) | Coordination: **26'460** (art. 8) | Min coordonné: **3'780** | Conversion: **6.8%** (art. 14) | Bonif.: 7% (25-34), 10% (35-44), 15% (45-54), 18% (55-65) | EPL min: **20'000** (OPP2 art. 5) | EPL blocage: **3 ans** (art. 79b al. 3)
+### NEVER #8 — Promise returns
+- ❌ NEVER: « Votre 3a rapportera X CHF »
+- ✅ INSTEAD: « Scénario Bas/Moyen/Haut avec hypothèses éditables + sensitivity range »
+- ⚠️ WHY: no-promise compliance, LSFin art. 7-10, sensitivity (« si rendement passe de X% à Y%… ») toujours visible.
 
-**AVS**: Taux total: **10.60%** (5.30+5.30) | Rente max: **30'240 CHF/an** | Cotisation min indép.: **530 CHF/an**
+### NEVER #9 — Projection without confidence score
+- ❌ NEVER: afficher LPP projected value en bare number
+- ✅ INSTEAD: show `EnhancedConfidence` + uncertainty band + `enrichmentPrompts`
+- ⚠️ WHY: 4-axis (completeness × accuracy × freshness × understanding), applies à ALL projections (pas juste retirement).
 
-**Mortgage** (FINMA/ASB): Taux théorique: **5%** | Amortissement: **1%/an** | Frais: **1%/an** | Charges max: **1/3 revenu brut** | Fonds propres: **20%** (max 10% du 2e pilier)
+### NEVER #10 — Skip tests
+- ❌ NEVER: commit service code sans `pytest tests/ -q` ou `flutter test`
+- ✅ INSTEAD: full suite green + Julien+Lauren golden contre valeurs connues + device walkthrough pour Gate 0
+- ⚠️ WHY: regressions silent sinon ; 9326 tests ne t'ont pas sauvé des 4 bugs device v2.2. Tests green ≠ app functional.
 
-**Capital withdrawal tax** (progressive):
-`0-100k: ×1.00 | 100-200k: ×1.15 | 200-500k: ×1.30 | 500k-1M: ×1.50 | 1M+: ×1.70`
+## 7. QUICK LINKS
 
-### Financial Archetypes (8 types)
+- `rules.md` (tier 1) | `docs/MINT_IDENTITY.md` (positioning) | `docs/DESIGN_SYSTEM.md` | `docs/VOICE_SYSTEM.md`.
+- `SOT.md` (data contracts) | `LEGAL_RELEASE_CHECK.md` | `DefinitionOfDone.md` | `docs/ROADMAP_V2.md`.
+- `.claude/skills/mint-swiss-compliance/SKILL.md` · `.claude/skills/mint-flutter-dev/SKILL.md` · `.claude/skills/mint-backend-dev/SKILL.md`.
 
-> **ADR**: `decisions/ADR-20260223-archetype-driven-retirement.md` (legacy name — applies to ALL projections, not just retirement)
+## 🚨 BOTTOM — 5 RULES CRITIQUES (duplicated intentionally, Liu 2024)
 
-Every projection MUST account for archetype. NEVER assume "Swiss native salarié".
-Archetypes affect ALL domains: tax, housing, 3a, LPP, family — not just retirement.
-
-| Archetype | Detection | Key difference |
-|-----------|-----------|----------------|
-| `swiss_native` | CH + arrivé < 22 | Modèle par défaut |
-| `expat_eu` | EU + arrivé > 20 | Totalisation périodes EU |
-| `expat_non_eu` | Hors EU + arrivé > 20 | Pas de convention |
-| `expat_us` | US citizen/green card | FATCA, PFIC, double taxation |
-| `independent_with_lpp` | Indép. + LPP déclarée | Rachat possible |
-| `independent_no_lpp` | Indép. + pas de LPP | 3a max 36'288 |
-| `cross_border` | Permis G / frontalier | Impôt source |
-| `returning_swiss` | CH + séjour étranger | Rachat avantageux |
-
-### Life Events (18 — definitive enum)
-```
-Famille:       marriage, divorce, birth, concubinage, deathOfRelative
-Professionnel: firstJob, newJob, selfEmployment, jobLoss, retirement
-Patrimoine:    housingPurchase, housingSale, inheritance, donation
-Santé:         disability
-Mobilité:      cantonMove, countryMove
-Crise:         debtCrisis
-```
-
-### Confidence Score (mandatory on ALL projections)
-- `EnhancedConfidence` (0-100%) — **4-axis**: completeness × accuracy × freshness × understanding (geometric mean)
-- `enrichmentPrompts` — actions to improve accuracy (axis-specific)
-- Uncertainty band (min/max) when confidence < 70%
-- Data sources: estimated(0.25), userInput(0.60), crossValidated(0.70), certificate(0.95), openBanking(1.00)
-- Understanding axis: financial literacy engagement (beginner/intermediate/advanced + coach session bonus)
-
-### Key Tax Rules (CRITICAL)
-- **Rente LPP** = revenu imposable annuel (LIFD art. 22)
-- **Capital retiré (2e/3a pilier)** = taxé séparément au retrait (LIFD art. 38) — applies at ANY age (EPL, retirement, departure)
-- **SWR withdrawals** = consommation de patrimoine, PAS un revenu imposable
-- **NEVER double-tax**: retrait tax + income tax on SWR
-- **EPL (propriété)** = retrait anticipé du 2e pilier pour achat immobilier — taxé comme capital (LIFD art. 38), même logique
-- **3a retrait** = taxé comme capital, même barème progressif — pertinent dès le premier emploi
-
----
-
-## 6. COMPLIANCE RULES (NON-NEGOTIABLE)
-
-### Interdictions Absolues
-1. **Read-Only**: No virements, paiements, or bank account modifications
-2. **No-Advice**: No specific product recommendations (no ISINs, no tickers). Asset classes only.
-3. **No-Promise**: No guaranteed returns. Always use scenarios (Bas/Moyen/Haut) + disclaimers.
-4. **No-Ranking**: Arbitrage options shown side-by-side, never ranked.
-5. **No-Social-Comparison**: "top 20% des Suisses" → BANNED. Compare only to user's own past.
-6. **No-LLM-Without-Guard**: All LLM output passes through ComplianceGuard before reaching user.
-7. **Privacy**: Never log identifiable data (IBANs, names, SSN, employer).
-
-### Banned Terms (never use in user-facing text)
-- "garanti", "certain", "assuré", "sans risque"
-- "optimal", "meilleur", "parfait" (as absolutes)
-- "conseiller" → use "spécialiste" (inclusive)
-
-### Required in Every Calculator/Service Output
-- `disclaimer` — "outil éducatif", "ne constitue pas un conseil", "LSFin"
-- `sources` — Legal references (LPP art. X, LIFD art. Y)
-- `premier_eclairage` — First personalized insight (number, blind spot, implication, or question to ask). Replaces legacy `chiffre_choc`.
-- `alertes` — Warnings when thresholds are crossed
-
-### Swiss Law References
-LPP (2e pilier) | LAVS (1er pilier) | OPP3 (3e pilier) | LIFD (impôt fédéral) | LAMal (assurance maladie) | CO (obligations) | CC (civil) | FINMA circulars
-
-### Language & Voice
-- **Full spec**: `docs/VOICE_SYSTEM.md` — pillars, tone by context, audience adaptations, 50 avant/après
-- User-facing text in French (informal "tu"), inclusive ("un·e spécialiste")
-- Educational tone, never prescriptive. Conditional language ("pourrait", "envisager").
-- Non-breaking space (`\u00a0`) before `!`, `?`, `:`, `;`, `%`
-- Voice: calme, précis, fin, rassurant, net. Jamais générique, jamais infantilisant.
-- Adapt by context (discovery/stress/victory), mastery level, and product moment — NOT by age.
-
-### Regional Swiss Voice Identity (NON-NEGOTIABLE)
-- **MINT must sound locally rooted** per the user's canton and linguistic region.
-- **Suisse Romande** (VD, GE, NE, JU, VS, FR): "septante/nonante", dry humor, pragmatic. VS = direct/montagnard, GE = cosmopolite, VD = détendu.
-- **Deutschschweiz** (ZH, BE, LU, ZG, AG, SG, etc.): "Znüni", savings culture, practical wisdom. ZH = urban/finance-savvy, BE = gemütlich, ZG = tax pride.
-- **Svizzera Italiana** (TI, GR partly): warm Mediterranean flair + Swiss rigor, family savings, grotto references, lake life.
-- **Implementation**: `RegionalVoiceService.forCanton()` → injects regional prompt into coach system prompt via `context_injector_service.dart`.
-- **Rule**: NEVER caricature. Always subtle — like an inside joke between locals. The kind of thing that makes someone smile and think "this app really knows my region."
-- **Backend**: `claude_coach_service.py` system prompt includes REGIONAL IDENTITY section guiding Claude's tone adaptation.
-
----
-
-## 7. UX RULES
-
-### Design System (Flutter)
-- **Full spec**: `docs/DESIGN_SYSTEM.md` — tokens, components, screen categories, checklist
-- **Fonts**: Montserrat (headings), Inter (body) via GoogleFonts. Outfit is deprecated.
-- **Colors**: `MintColors.*` from `lib/theme/colors.dart` — NEVER hardcode hex. Core palette = 12 tokens (see DESIGN_SYSTEM.md §3.2).
-- **Navigation**: GoRouter — no `Navigator.push`
-- **State**: Provider — no raw StatefulWidget for shared data
-- **Material 3**, responsive layout, CustomPainter for charts
-- **AppBar**: White background standard. Exception: Pulse only uses gradient primary.
-- **Deprecated**: `MintGlassCard`, `MintPremiumButton`, `Outfit` font — do not use in new code.
-
-### i18n (NON-NEGOTIABLE)
-- **6 languages**: fr (template), en, de, es, it, pt — ARB files in `lib/l10n/`
-- **ALL user-facing strings** → `AppLocalizations.of(context)!.key`
-- **New string**: add to ALL 6 ARB files, add keys at END (before `}`)
-- **Run `flutter gen-l10n`** after modifying ARB files
-- **French diacritics mandatory**: é, è, ê, ô, ù, ç, à — ASCII "e" for accented = bug
-
-### Navigation Architecture (Wire Spec V2 — current)
-- **Full spec**: `docs/NAVIGATION_GRAAL_V10.md`
-- **Philosophy**: Coach-first, UI-assisted. AI-as-layer, NOT chatbot-first.
-- **Shell**: 3 tabs + drawer — Aujourd'hui | Coach | Explorer + ProfileDrawer (endDrawer)
-- **Deep-link compat**: `/home?tab=3` opens ProfileDrawer (backward compat for old Dossier tab)
-- **Capture**: Contextual bottom sheet (scan, import, add data) — NOT a global FAB
-- **Explorer**: 7 hubs (Retraite, Famille, Travail & Statut, Logement, Fiscalité, Patrimoine & Succession, Santé & Protection)
-- **Screen types**: Destination (user mental map), Flow (triggered by intent), Tool (opened contextually), Alias (legacy compat)
-- **Internal taxonomies** (`arbitrage`, `lpp-deep`, `3a-deep`, `segments`) are NOT visible in user navigation
-- **All 67 canonical routes remain as deep links** — restructuring is UX surface, not route deletion
-- **Archived routes** (Wire Spec V2 P4): `/ask-mint`, `/tools`, `/coach/cockpit`, `/coach/checkin`, `/coach/refresh` → redirect to `/home?tab=N`
-
-### UX Principles (from `rules.md`)
-- Progressive disclosure — no bank connection upfront
-- 1 screen = 1 intention
-- Each recommendation → 1-3 concrete next actions
-- Onboarding minimal: intent + 3 inputs (age, revenu, canton) before first premier éclairage
-- Precision progressive: ask data when it matters, not during onboarding
-- Score FRI: never "bon/mauvais", always "progression personnelle"
-
-### Coach & Arbitrage Rules
-- **Coach**: LLM = narrator, never advisor. Fallback templates required (app works without BYOK).
-- **Arbitrage**: Always ≥ 2 options side-by-side. Rente vs Capital: always 3 (full rente, full capital, mixed).
-- **Hypotheses**: Always visible and editable by user.
-- **Sensitivity**: Always shown ("Si rendement passe de X% à Y%, le résultat s'inverse").
-- **Safe Mode**: If toxic debt detected → disable optimizations (3a/LPP), priority = debt reduction.
-- **CoachContext**: NEVER contains exact salary, savings, debts, NPA, or employer.
-
----
-
-## 8. GOLDEN TEST COUPLE: Julien + Lauren
-
-> Source of truth: `test/golden/` (xlsx + PDF certificats + JPEG)
-> This couple tests MULTIPLE life events, not just retirement: housing (EPL), tax optimization (3a), couple dynamics (married caps), archetype differences (swiss_native vs expat_us/FATCA).
-
-| | Julien | Lauren |
-|--|--------|--------|
-| Né le | 12.01.1977 | 23.06.1982 |
-| Âge (03.2026) | **49** | **43** |
-| Salaire brut | **122'207 CHF/an** | **67'000 CHF/an** |
-| Canton | **VS** (Sion) | **VS** (Crans-Montana) |
-| Nationalité | CH | US (FATCA) |
-| Archetype | swiss_native | expat_us |
-| Caisse LPP | **CPE** (rémun. 5%) | **HOTELA** |
-| Salaire assuré LPP | **91'967 CHF** (CPE Plan Maxi) | standard coordonné |
-| Bonif. vieillesse caisse | **24%** (CPE Plan Maxi, part vieillesse) | standard légal |
-| Avoir LPP | **70'377 CHF** | **19'620 CHF** |
-| Rachat max LPP | **539'414 CHF** | **52'949 CHF** |
-| LPP projeté 65 | 677'847 (rente ~33'892/an) | ~153'000 |
-| 3a capital | 32'000 | 14'000 |
-| AVS couple (marié, cap 150%) | **3'780 CHF/mois** (LAVS art. 35) |
-| Taux remplacement | **65.5%** (~8'505 vs 12'978 net/mois) |
-
-**Multi-domain test coverage** (not just retirement):
-- **Tax**: capital withdrawal tax comparison, income tax estimation, FATCA implications (Lauren)
-- **Housing**: EPL eligibility (min 20k), mortgage capacity (1/3 rule with combined income)
-- **3a**: annual max (7'258 salarié LPP), retrait anticipé scenarios
-- **Couple**: married AVS cap 150%, splitting rules, concubinage comparison
-- **Archetype**: swiss_native vs expat_us — different projections, different risks
-
-> Note : le taux de 65.5% utilise le revenu net combiné du couple (Julien + Lauren).
-> Le code peut produire un résultat différent selon la projection LPP utilisée
-> (formule légale standard vs certificat CPE Plan Maxi).
-
----
-
-## 9. ANTI-PATTERNS (never do)
-
-1. **Code without reading existing code** — understand before modifying
-2. **Diverge backend vs Flutter constants** — backend is source of truth
-3. **Use banned terms** in user-facing text
-4. **Skip tests** — always run before committing
-5. **Create files unnecessarily** — prefer editing existing
-6. **Promise returns** — use scenarios + disclaimers
-7. **Commit non-sprint files** — surgical `git add`
-8. **Assume Swiss native** — always check archetype
-9. **Projection without confidence score** — always include uncertainty band (ALL projections, not just retirement)
-10. **Double-tax capital** — capital taxed at withdrawal (LIFD art. 38), SWR ≠ income
-11. **Duplicate calculation logic** — NEVER create `_calculate*()` in services. Use `financial_core/`.
-12. **Ignore future AVS years** — `AvsCalculator` adds future years. Don't use raw `contributionYears / 44`.
-13. **Apply married AVS cap to concubins** — LAVS art. 35 cap (150%) = married only.
-14. **Hardcode strings** — ALL user-facing text in ARB files via `AppLocalizations`
-15. **Hardcode colors** — NEVER `Color(0xFF...)`, always `MintColors.*`
-16. **Frame MINT as retirement app** — MINT covers ALL life events (housing, family, tax, career, debt). Retirement is ONE of 18 life events, not the primary use case. Every screen, prompt, and feature MUST serve 22-65+ equally.
-
----
-
-## 10. AGENT TEAM & HIERARCHY
-
-### Team: Swiss-Brain (spec) → Python-Agent (backend) → Dart-Agent (UI) → Team Lead (review)
-
-| Agent | Model | Scope | Skill |
-|-------|-------|-------|-------|
-| Team Lead | Opus | orchestrate, review, merge | `mint-commit` |
-| dart-agent | Sonnet | `apps/mobile/` only | `mint-flutter-dev` |
-| python-agent | Sonnet | `services/backend/` only | `mint-backend-dev` |
-| swiss-brain | Opus | specs, compliance, docs | `mint-swiss-compliance` |
-
-### Autoresearch Skills (10 — Karpathy loop pattern)
-
-| Skill | Purpose | Metric |
-|-------|---------|--------|
-| `/autoresearch-quality` | Bug hunter (flutter test → fix code → verify) | test failure count |
-| `/autoresearch-calculator-forge` | Financial calc edge-case validator | calculation accuracy % |
-| `/autoresearch-test-generation` | Autonomous test factory | test coverage % |
-| `/autoresearch-prompt-lab` | Coach AI prompt optimizer | prompt quality score |
-| `/autoresearch-compliance-hardener` | Adversarial compliance tester | compliance pass rate |
-| `/autoresearch-coach-evolution` | Coaching content optimizer (lifecycle-aware) | composite text score |
-| `/autoresearch-i18n` | Hardcoded string extraction | hardcoded string count |
-| `/autoresearch-ux-polish` | UX law violation scanner+fixer | ux violations count |
-| `/autoresearch-test-coverage` | Test gap auditor + delegator | uncovered services |
-| `/autoresearch-privacy-guard` | PII leak scanner + fixer | PII violations count |
-
-### Conflict resolution (priority order)
-1. `rules.md` — Non-negotiable technical + ethical rules
-2. `CLAUDE.md` (this file) — Project context, constants, compliance
-3. `docs/MINT_UX_GRAAL_MASTERPLAN.md` — UX/product umbrella: templates, CapEngine, screen board
-4. `docs/DOCUMENTATION_OPERATING_SYSTEM.md` — Which doc to read for which task
-5. `.claude/skills/` — Agent-specific conventions
-6. `LEGAL_RELEASE_CHECK.md` — Wording compliance checklist
-7. `visions/` — Product vision + limits
-8. `decisions/` (ADR) — Architecture decisions
-9. `docs/` — Strategy specs
-10. `SOT.md` + OpenAPI — Data contracts
-11. Code — Implementation follows documents
-
-If code contradicts 1-9: fix the code OR write an ADR.
-
----
-
-## 11. STRATEGIC ROADMAP V2
-
-> Full details: `docs/ROADMAP_V2.md` | Based on: `visions/MINT_Analyse_Strategique_Benchmark.md`
-
-| Phase | Sprints | Focus | Key Features |
-|-------|---------|-------|-------------|
-| 1 "Le Conversationnel" | S51-S56 | MINT parle | Chat AI, 3a rétroactif, 13e rente AVS, Financial Health Score, streaks+milestones, RAG v1 |
-| 2 "Le Compagnon" | S57-S62 | MINT s'adapte | Lifecycle Engine (7 phases), AI memory, Weekly Recap, cantonal benchmarks, JITAI nudges |
-| 3 "L'Expert" | S63-S68 | MINT indispensable | Voice AI, multi-LLM, Expert tier (human advisors), advanced gamification |
-| 4 "La Référence" | S69+ | Standard suisse | Institutional APIs, B2B caisses+RH, Open Finance, expansion DACH |
-
-**Execution method**: All sprints use autoresearch dev skills (`visions/MINT_Autoresearch_Dev_Agents.md`).
-
----
-
-## 12. REFERENCE DOCUMENTS
-
-| Document | Purpose |
-|----------|---------|
-| `rules.md` | Tier 1: fintech-grade principles, UX rules, workflow |
-| `docs/MINT_IDENTITY.md` | **Identity, mission, positioning, 5 principles, 4-layer engine, compliance messaging** |
-| `docs/DOCUMENTATION_OPERATING_SYSTEM.md` | Task-based reading order + documentation hierarchy |
-| `SOT.md` | Data contracts: Profile, SessionReport, EnhancedConfidence |
-| `LEGAL_RELEASE_CHECK.md` | Pre-release compliance gate |
-| `DefinitionOfDone.md` | Sprint completion criteria |
-| `docs/ROADMAP_V2.md` | Strategic roadmap V2 (benchmark-driven, 4 phases) |
-| `docs/archive/VISION_UNIFIEE_V1.md` | Historical strategic vision (ARCHIVED); useful principles, obsolete IA |
-| `docs/CICD_ARCHITECTURE.md` | Full CI/CD pipeline reference |
-| `docs/archive/ONBOARDING_ARBITRAGE_ENGINE.md` | Onboarding + arbitrage specs (ARCHIVED) |
-| `docs/DATA_ACQUISITION_STRATEGY.md` | OCR, guided entry, Open Banking |
-| `docs/MINT_UX_GRAAL_MASTERPLAN.md` | UX/product umbrella: templates, visual graal, CapEngine, screen board |
-| `docs/DESIGN_SYSTEM.md` | Visual direction + tokens + components + screen categories + checklist |
-| `docs/VOICE_SYSTEM.md` | Editorial system: brand voice, tone by context, microcopy, 50 avant/après |
-| `docs/NAVIGATION_GRAAL_V10.md` | Detailed target IA; subordinate to masterplan for product direction |
-| `docs/BLUEPRINT_COACH_AI_LAYER.md` | Coach AI implementation blueprint; subordinate to masterplan |
-| `docs/UX_WIDGET_REDESIGN_MASTERPLAN.md` | UX 7 laws + 75 creative proposals |
-| `visions/MINT_Analyse_Strategique_Benchmark.md` | 40+ app benchmark + academic research |
-| `visions/MINT_Autoresearch_Dev_Agents.md` | 10 dev agents (build) — sprint execution method |
-| `visions/MINT_Autoresearch_Agents.md` | 10 veille agents (post-launch) |
-| `visions/vision_product.md` | Core promise, acquisition strategy |
-| `visions/vision_compliance.md` | LSFin, FINMA, nLPD framework |
-| `legal/DISCLAIMER.md` | User-facing educational disclaimer |
+1. **Banned terms (LSFin)** — NEVER « garanti », « optimal », « meilleur ». Use « pourrait », « envisager ».
+2. **Accents 100% FR mandatory** — `creer → créer`, `eclairage → éclairage`. ASCII = bug.
+3. **MINT ≠ retirement app** — 18 life events equally weighted. Frame generically, pas « retraite-first ».
+4. **Financial_core reuse mandatory** — `lib/services/financial_core/`. Never re-implement `_calculate*()`.
+5. **i18n required** — `AppLocalizations.of(context)!.key`. 6 ARB files. Run `flutter gen-l10n`.

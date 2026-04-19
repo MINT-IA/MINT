@@ -105,6 +105,9 @@ Future<void> main() async {
 
   // Sentry error tracking — DSN injected via dart-define in CI/production
   // flutter run --dart-define=SENTRY_DSN=https://xxx@sentry.io/xxx
+  // CTX-05 spike (Phase 30.6-02) — sentry_flutter 9.14.0 + Session Replay
+  // with nLPD-safe masks (A1 PITFALLS.md: maskAllText + maskAllImages
+  // NON-NEGOCIABLE — any user PII visible on screen would leak otherwise).
   const sentryDsn = String.fromEnvironment('SENTRY_DSN');
   if (sentryDsn.isNotEmpty) {
     await SentryFlutter.init(
@@ -113,8 +116,26 @@ Future<void> main() async {
         options.tracesSampleRate = 0.1;
         options.sendDefaultPii = false; // nLPD compliance
         options.environment = kDebugMode ? 'development' : 'production';
+        // Session Replay (sentry_flutter 9.x) — sampling kept low; event
+        // boundary rely on onErrorSampleRate to capture crash context only.
+        options.replay.sessionSampleRate = 0.05;
+        options.replay.onErrorSampleRate = 1.0;
+        // Privacy — masks MUST stay true (nLPD, A1 PITFALLS.md).
+        // Defaults are already true in sentry_flutter 9.14.0, but we pin
+        // them explicitly for audit/grep verification on any future edit.
+        options.privacy.maskAllText = true;
+        options.privacy.maskAllImages = true;
+        // Trace propagation allowlist — narrow from default `.*` to MINT
+        // backends only (avoids leaking sentry-trace headers to third-parties).
+        options.tracePropagationTargets
+          ..clear()
+          ..addAll([
+            'api.mint.app',
+            'mint-staging.up.railway.app',
+            'mint-production.up.railway.app',
+          ]);
       },
-      appRunner: () => runApp(const MintApp()),
+      appRunner: () => runApp(SentryWidget(child: const MintApp())),
     );
   } else {
     runApp(const MintApp());

@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: verifying
-stopped_at: Completed 30.5-02-PLAN.md — Phase 30.5 Core 3/3 plans done, ready for /gsd-verify-work
-last_updated: "2026-04-19T12:53:15.347Z"
+stopped_at: Completed 30.6-02-PLAN.md — CTX-05 spike PASS 5/5 + 0 regression (merge 0d86d215)
+last_updated: "2026-04-19T14:21:19.015Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 6
+  percent: 100
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 30.5 — Context Sanity Core
+**Current focus:** Phase 30.6 — Context Sanity Advanced
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,13 +39,13 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 30.5 (Context Sanity Core) — EXECUTING
-Plan: 3 of 3
+Phase: 30.6 (Context Sanity Advanced) — SHIPPED (CTX-03 + CTX-04 + CTX-05)
+Plan: 3 of 3 complete
 Status: Phase complete — ready for verification
 Last activity: 2026-04-19
-Next: `/gsd-plan-phase 30.5` (Context Sanity, 5j non-empruntable, foundation)
+Next: `/gsd-verify-phase 30.6` (verify Phase 30.6), then `/gsd-plan-phase 30.7` (Tools Déterministes) OR `/gsd-plan-phase 31` (OBS-01 Instrumenter — CTX-05 unblocks)
 
-Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
+Progress: [██████████] 100% (2/9 phases, 6/6 plans in-phase)
 
 ## Build Order
 
@@ -100,6 +100,14 @@ Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
 
+### Phase 30.6 Decisions (Context Sanity Advanced, shipped 2026-04-19)
+
+- **CTX-03** (plan 00, `fb85cc9e`): CLAUDE.md refonte 429L → 121L quickref with bracketing TOP+BOTTOM + 10 triplets + AGENTS split into 3 role-scoped files, SHA-pinned backup for revert-safety
+- **CTX-04** (plan 01, `89b6fb61`): `.claude/hooks/mint-context-injector.js` UserPromptSubmit hook with 5 patterns, top-3 dedup, 500ms fail-open, `MINT_NO_CONTEXT_INJECT=1` override
+- **CTX-05** (plan 02, spike `38a3950b`, merge `0d86d215`): `sentry_flutter 9.14.0` + SentryWidget + `options.privacy.maskAllText/maskAllImages = true` — 5/5 mechanical grid + 0 dashboard regression, **Kill-policy D-01 NOT triggered, PHASE SHIPS**
+- **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
+- **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
+
 ### From Previous Milestones
 
 - v2.4: RAG persistent, URLs fixed, camelCase fixed, 3-tab shell + ProfileDrawer working
@@ -132,8 +140,8 @@ Progress: [░░░░░░░░░░] 0% (0/8 phases, 0/0 plans)
 
 ## Session Continuity
 
-Last session: 2026-04-19T12:53:15.345Z
-Stopped at: Completed 30.5-02-PLAN.md — Phase 30.5 Core 3/3 plans done, ready for /gsd-verify-work
+Last session: 2026-04-19T14:21:19.012Z
+Stopped at: Completed 30.6-02-PLAN.md — CTX-05 spike PASS 5/5 + 0 regression (merge 0d86d215)
 Resume file: None
 
 ---

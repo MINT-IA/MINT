@@ -100,7 +100,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 ### v2.8 Phases overview
 
 - [x] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go (completed 2026-04-19)
-- [ ] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active)
+- [x] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active) (completed 2026-04-19)
 - [ ] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
 - [ ] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend
 - [ ] **Phase 32: Cartographier** — Route registry-as-code 148 routes + `/admin/routes` dashboard dev-only + parity lint + analytics legacy redirects
@@ -135,9 +135,9 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   2. Hook `UserPromptSubmit` `mint-context-injector.js` injecte 200-400 tokens contextuels sur 5 patterns MINT avec fail-open timeout 500ms.
   3. Un spike agent sur un chunk Phase 31 (bump `sentry_flutter` 8→9) livre du code sans régression détectée dans dashboard 30.5 CTX-02, OU 2 itérations échouent → kill-policy 30.6 déclenché (rollback CTX-03 + CTX-04).
 **Plans**: 3 plans
-- [ ] 30.6-00-PLAN.md — CTX-03: CLAUDE.md restructure <150L + 5-rule TOP+BOTTOM bracketing (D-06) + 10 triplets bad→good→why (D-07) + 3 AGENTS files (D-05) + redundancy audit (D-08) — REVERT-SAFE squash
-- [ ] 30.6-01-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) + 500ms fail-open timeout — REVERT-SAFE squash
-- [ ] 30.6-02-PLAN.md — CTX-05: spike validation on fresh-context branch + 5-dim grid review + dashboard regression + D-01 kill-policy Modeste 1 decision gate (bump sentry_flutter 8→9.14.0 + SentryWidget + maskAll*, A1 PII Replay mitigation HIGH severity)
+- [x] 30.6-00-PLAN.md — CTX-03: CLAUDE.md restructure <150L + 5-rule TOP+BOTTOM bracketing (D-06) + 10 triplets bad→good→why (D-07) + 3 AGENTS files (D-05) + redundancy audit (D-08) — REVERT-SAFE squash
+- [x] 30.6-01-PLAN.md — CTX-04: UserPromptSubmit hook mint-context-injector.js + 5 context snippets + settings.json registration + env override MINT_NO_CONTEXT_INJECT=1 (D-13..17) + 500ms fail-open timeout — REVERT-SAFE squash
+- [x] 30.6-02-PLAN.md — CTX-05: spike validation on fresh-context branch + 5-dim grid review + dashboard regression + D-01 kill-policy Modeste 1 decision gate (bump sentry_flutter 8→9.14.0 + SentryWidget + maskAll*, A1 PII Replay mitigation HIGH severity)
 
 **Budget**: 2-3j + 72h burn-in (post-30.5 observation window) — kill-policy active
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. Pas de simulator. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
