@@ -61,18 +61,81 @@ def cmd_init(args: argparse.Namespace) -> int:
 
 
 # ---------------------------------------------------------------------------
-# baseline — STUB in Task 1 (full impl in Task 3)
+# baseline — Task 3 full implementation (replaces Task 1 stub)
 # ---------------------------------------------------------------------------
 def cmd_baseline(args: argparse.Namespace) -> int:
-    """STUB — Task 3 implements full baseline capture with lockfile + J0 markdown.
+    """Capture the pre-refonte J0 snapshot per D-12 (single snapshot, locked).
 
-    NOTE: this stub is REPLACED in Task 3. Exits 2 per Task 1 acceptance criterion.
+    Flow:
+      1. If `.baseline-lock` exists → exit 1 with message (prevents moving-target).
+      2. Ensure drift.db exists (init if needed).
+      3. Run ingest to refresh current metrics from git+jsonl+hits.
+      4. Render the 4-metric markdown to `.planning/agent-drift/baseline-J0.md`
+         prefixed with a "# Baseline J0 — captured {ISO date}" banner.
+      5. Write `.baseline-lock` sentinel with capture timestamp + HEAD sha.
+
+    D-12 rationale: baseline MUST reflect PRE-refonte behaviour. If a caller
+    re-runs baseline post-refonte, the moving-target effect pollutes the
+    "-30% drift" claim (observer, not intervention). Lockfile enforces this
+    non-negotiably.
     """
-    print(
-        "baseline not yet implemented — see Task 3 (lockfile + J0 capture).",
-        file=sys.stderr,
+    if BASELINE_LOCK.exists():
+        lock_content = BASELINE_LOCK.read_text(encoding="utf-8").strip()
+        print(
+            f"baseline already captured ({lock_content}); "
+            f"delete {BASELINE_LOCK.relative_to(REPO_ROOT)} to recapture",
+            file=sys.stderr,
+        )
+        return 1
+
+    # Ensure DB + fresh metrics
+    if not DB_PATH.exists():
+        cmd_init(args)
+    cmd_ingest(args)
+
+    # Render J0 snapshot via render_report
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from importlib import import_module
+
+    render_report = import_module("render_report")
+    body = render_report.render(db_path=DB_PATH, out_path=None)
+
+    today_iso = datetime.now(timezone.utc).date().isoformat()
+    banner = (
+        f"# Baseline J0 — captured {today_iso} (UTC)\n\n"
+        "> Pre-refonte snapshot per D-12. DO NOT edit manually — this file is\n"
+        "> the frozen comparison point for all future CTX-01 / CTX-03 / CTX-04\n"
+        "> drift measurements. A companion `.baseline-lock` sentinel prevents\n"
+        "> accidental recapture.\n\n"
     )
-    return 2
+    content = banner + body
+    BASELINE_MD.parent.mkdir(parents=True, exist_ok=True)
+    BASELINE_MD.write_text(content, encoding="utf-8")
+
+    # Write lockfile with capture timestamp + git HEAD
+    head_sha = "unknown"
+    try:
+        r = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=str(REPO_ROOT),
+        )
+        head_sha = r.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    lock_text = f"captured_at: {now_iso}\ncommit_sha: {head_sha}\n"
+    BASELINE_LOCK.write_text(lock_text, encoding="utf-8")
+
+    print(
+        f"baseline: captured J0 snapshot at "
+        f"{BASELINE_MD.relative_to(REPO_ROOT)} (lock: "
+        f"{BASELINE_LOCK.relative_to(REPO_ROOT)})"
+    )
+    return 0
 
 
 # ---------------------------------------------------------------------------
