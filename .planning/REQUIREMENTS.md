@@ -50,7 +50,7 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 - [x] **OBS-04**: Trace_id round-trip mobile→backend via headers `sentry-trace` + `baggage` sur `http: ^1.2.0` existant (pas Dio migration) — cross-project link Sentry UI actif
 - [x] **OBS-05**: `SentryNavigatorObserver` sur `GoRouter` + breadcrumb custom (ComplianceGuard success/fail, save_fact tool call, FeatureFlags.refreshFromBackend outcome)
 - [x] **OBS-06**: Sentry Replay PII redaction audit artefact (`.planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md`) committed AVANT flip `sessionSampleRate>0` en prod — screens sensibles énumérés (CoachChat, DocumentScan, ExtractionReviewSheet, Onboarding, Budget), masks vérifiés sur simulateur
-- [ ] **OBS-07**: Sentry tier/pricing fresh fetch + quota budget documenté (staging vs prod DSN, replay quota, events/mois target ~5k users) — artefact `.planning/observability-budget.md`
+- [x] **OBS-07**: Sentry tier/pricing fresh fetch + quota budget documenté (staging vs prod DSN, replay quota, events/mois target ~5k users) — artefact `.planning/observability-budget.md`
 
 ### MAP — Cartographie vivante (Phase 32)
 
@@ -174,13 +174,13 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 | TOOL-02 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
 | TOOL-03 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
 | TOOL-04 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| OBS-01 | 31 | — | Pending, Phase 31 assigned |
-| OBS-02 | 31 | — | Pending, Phase 31 assigned |
-| OBS-03 | 31 | — | Pending, Phase 31 assigned |
-| OBS-04 | 31 | — | Pending, Phase 31 assigned |
-| OBS-05 | 31 | — | Pending, Phase 31 assigned |
-| OBS-06 | 31 | PII audit gate | Pending, Phase 31 assigned |
-| OBS-07 | 31 | — | Pending, Phase 31 assigned |
+| OBS-01 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
+| OBS-02 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
+| OBS-03 | 31 | — | Complete 2026-04-19 (Plan 31-02) |
+| OBS-04 | 31 | — | Complete 2026-04-19 (Plan 31-01 + 31-02) |
+| OBS-05 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
+| OBS-06 | 31 | PII audit gate | Complete 2026-04-19 (Plan 31-03, automated pre-creator-device pass) |
+| OBS-07 | 31 | — | Complete 2026-04-19 (Plan 31-04) |
 | MAP-01 | 32 | — | Pending, Phase 32 assigned |
 | MAP-02 | 32 | `enableAdminScreens` | Pending, Phase 32 assigned |
 | MAP-03 | 32 | — | Pending, Phase 32 assigned |
