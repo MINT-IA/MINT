@@ -139,6 +139,10 @@ import 'package:mint_mobile/screens/cantonal_benchmark_screen.dart';
 // Hub screen FILES preserved for Phase 3 chat-summoned drawers.
 import 'package:mint_mobile/screens/explore/explorer_screen.dart';
 import 'package:mint_mobile/screens/explore/explore_hub_screen.dart';
+// Phase 32 MAP-02b — dev-only admin schema viewer (tree-shaken when ENABLE_ADMIN=0).
+import 'package:mint_mobile/screens/admin/admin_gate.dart';
+import 'package:mint_mobile/screens/admin/admin_shell.dart';
+import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
@@ -1055,6 +1059,20 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const AboutScreen(),
     ),
+
+    // ─────────── Phase 32 MAP-02b — /admin/routes (dev-only, tree-shaken) ───────────
+    // Compile-time ENABLE_ADMIN=0 default -> Dart dead-code eliminates this branch
+    // entirely (D-11 Task 1 empirically verifies via `strings Runner | grep`).
+    if (AdminGate.isAvailable) ...[
+      ScopedGoRoute(
+        path: '/admin/routes',
+        parentNavigatorKey: _rootNavigatorKey,
+        builder: (context, state) => const AdminShell(
+          child: RoutesRegistryScreen(),
+        ),
+      ),
+      // Phase 33 adds /admin/flags here using the same AdminShell.
+    ],
 
     // ── OUTILS & DIVERS ─────────────────────────────────────
     ScopedGoRoute(path: '/ask-mint', redirect: (_, __) => '/coach/chat'),

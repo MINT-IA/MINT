@@ -79,6 +79,16 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  // Phase 32 D-10 — local-only gate for /admin/*.
+  // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
+  // NO backend call (D-10 v4 kills proposed /api/v1/admin/me).
+  //
+  // Phase 32: equals compile-time flag (hardcoded true when ENABLE_ADMIN=1).
+  // Phase 33 may refactor FeatureFlags to ChangeNotifier — `isAdmin`
+  // would then become an instance-level getter.
+  static bool get isAdmin =>
+      const bool.fromEnvironment('ENABLE_ADMIN', defaultValue: false);
+
   /// Apply flags from a backend response map.
   static void applyFromMap(Map<String, dynamic> data) {
     if (data.containsKey('enableCouplePlusTier')) {
