@@ -1,21 +1,21 @@
-// Phase 32 Wave 0 stub — MAP-01 JSON shape stability + schemaVersion:1 contract.
-// Implementation: Plan 32-01 Wave 1 + Plan 32-02 Wave 2 (schema publication).
+// Phase 32 MAP-03 — JSON contract stability tests.
 //
-// Wave 1 ships the registry; Wave 2 publishes lib/routes/route_health_schema.dart
-// defining kRouteHealthSchemaVersion == 1 (byte-stable contract Phase 35 dogfood
-// consumes). Bump schemaVersion only on breaking shape change.
+// Wave 2 (Plan 32-02) publishes `lib/routes/route_health_schema.dart` with
+// `kRouteHealthSchemaVersion = 1`. This file pins the version to 1 so any
+// unintentional bump breaks the build before it ships.
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/routes/route_health_schema.dart';
 
 void main() {
   group('RouteHealthJsonContract (MAP-03)', () {
-    test('kRouteHealthSchemaVersion == 1 (byte-stable across builds)', () {
-      // Will import kRouteHealthSchemaVersion from
-      // apps/mobile/lib/routes/route_health_schema.dart and assert == 1.
-    }, skip: 'Plan 32-02 Wave 2 publishes route_health_schema.dart');
+    test('kRouteHealthSchemaVersion == 1 (Phase 32 stable contract)', () {
+      expect(kRouteHealthSchemaVersion, 1);
+    });
 
-    test('emitted JSON matches documented contract example', () {
-      // Will compare RouteMeta.toJson() output byte-exact against a golden
-      // fixture (tests/tools/fixtures/route_meta_golden.json at Wave 2).
-    }, skip: 'Plan 32-02 Wave 2');
+    test('schema file declares RouteHealthJsonContract class', () {
+      // Compile-time proof only — if this test compiles, the class exists.
+      const contract = RouteHealthJsonContract;
+      expect(contract, isA<Type>());
+    });
   });
 }

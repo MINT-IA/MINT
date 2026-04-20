@@ -114,17 +114,32 @@ def main(argv: Optional[List[str]] = None) -> int:
 
 
 def _cmd_health(args: argparse.Namespace) -> int:
-    # Task 2 wires: from .sentry_client import fetch_health, get_sentry_token
-    #               from .output import render_health
-    #               from .dry_run import is_dry_run, load_fixture
-    raise NotImplementedError(
-        "Task 2 wires sentry_client + dry_run + output for health"
-    )
+    from .dry_run import is_dry_run, load_fixture
+    from .output import render_health
+    from .sentry_client import fetch_health, get_sentry_token
+
+    if is_dry_run():
+        data = load_fixture()
+    else:
+        token = get_sentry_token()  # exits 71 if missing
+        data = fetch_health(token=token, batch_size=args.batch_size)
+    if args.owner:
+        data = [r for r in data if r.get("owner") == args.owner]
+    return render_health(data, as_json=args.json, use_color=_should_color(args))
 
 
 def _cmd_redirects(args: argparse.Namespace) -> int:
-    raise NotImplementedError(
-        "Task 2 wires sentry_client + dry_run for redirects"
+    from .dry_run import is_dry_run, load_fixture_redirects
+    from .output import render_redirects
+    from .sentry_client import fetch_redirect_hits, get_sentry_token
+
+    if is_dry_run():
+        data = load_fixture_redirects()
+    else:
+        token = get_sentry_token()
+        data = fetch_redirect_hits(token=token, days=args.days)
+    return render_redirects(
+        data, as_json=args.json, use_color=_should_color(args)
     )
 
 
@@ -146,11 +161,18 @@ def _cmd_reconcile(args: argparse.Namespace) -> int:
 
 
 def _cmd_purge_cache(args: argparse.Namespace) -> int:
-    raise NotImplementedError("Task 2 wires sentry_client.purge_cache")
+    from .sentry_client import purge_cache
+
+    purge_cache()
+    print("[OK] .cache/route-health.json wiped (D-09 §3).")
+    return EX_OK
 
 
 def _cmd_verify_token(args: argparse.Namespace) -> int:
-    raise NotImplementedError("Task 2 wires sentry_client.verify_token_scope")
+    from .sentry_client import get_sentry_token, verify_token_scope
+
+    token = get_sentry_token()
+    return verify_token_scope(token)
 
 
 def _should_color(args: argparse.Namespace) -> bool:
