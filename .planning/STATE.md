@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 32-02-cli-PLAN.md (mint-routes CLI + nLPD D-09 redaction + schema v1 contract)
-last_updated: "2026-04-20T08:20:00.160Z"
+stopped_at: Completed 32-03-admin-ui-PLAN.md (/admin/routes schema viewer + 43-site breadcrumb wiring + behavioural + per-site coverage)
+last_updated: "2026-04-20T08:38:34.610Z"
 last_activity: 2026-04-20
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 17
-  completed_plans: 14
-  percent: 82
+  completed_plans: 15
+  percent: 88
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,12 +40,12 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 32 (cartographier) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 Status: Ready to execute
 Last activity: 2026-04-20
-Next: `/gsd-execute-phase 31` continue with Plan 31-03 (Wave 3 OBS-06 PII replay redaction audit on 5 sensitive screens) on `feature/v2.8-phase-31-instrumenter`
+Next: `/gsd-execute-phase 32` continue with Plan 32-04 (Wave 4 MAP-04 parity lint — `tools/checks/route_registry_parity.py`) on `feature/v2.8-phase-32-cartographier`
 
-Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phase 31: 3/5 plans shipped (OBS-02 + OBS-03 + OBS-04 + OBS-05 green)
+Progress: [█████████░] 88% (2/9 phases, 15/17 plans) — phase 32: 3/5 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui green)
 
 ## Build Order
 
@@ -87,9 +87,10 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 
 **v2.8 Execution Log:**
 
-| Phase-Plan | Duration | Tasks | Files | Completed  |
-|------------|----------|-------|-------|------------|
-| 32-02-cli  | 7 min    | 2     | 11    | 2026-04-20 |
+| Phase-Plan      | Duration | Tasks | Files | Completed  |
+|-----------------|----------|-------|-------|------------|
+| 32-02-cli       | 7 min    | 2     | 11    | 2026-04-20 |
+| 32-03-admin-ui  | 11 min   | 2     | 11    | 2026-04-20 |
 
 ## Accumulated Context
 
@@ -113,6 +114,17 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 - **CTX-05** (plan 02, spike `38a3950b`, merge `0d86d215`): `sentry_flutter 9.14.0` + SentryWidget + `options.privacy.maskAllText/maskAllImages = true` — 5/5 mechanical grid + 0 dashboard regression, **Kill-policy D-01 NOT triggered, PHASE SHIPS**
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
+
+### Phase 32-03 Decisions (Wave 3 Admin UI MAP-02b + MAP-05, shipped 2026-04-20)
+
+- **32-03** (commits `1639c3f0` → `95c21137`): `/admin/routes` pure schema viewer shipped behind compile-time `ENABLE_ADMIN` + runtime `FeatureFlags.isAdmin` double gate (D-10 local-only; NO backend call). 147 routes × 15 RouteOwner ExpansionTiles with `Semantics` labels (a11y). Footer points to `./tools/mint-routes health` for live status (D-06 CLI-exclusive health contract). AdminShell reusable for Phase 33 `/admin/flags` without refactor. 4 Wave 0 Flutter stubs flipped live (16 tests) + 1 new pytest (3 tests) — all green.
+- **MAP-05 wired end-to-end**: all 43 arrow-form legacy redirects in app.dart converted to block-form `(_, state) { MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/x'); return '/x'; }`. Per-site coverage asserted by `tests/tools/test_redirect_breadcrumb_coverage.py` parsing the 43-row RECONCILE-REPORT inventory — not a fragile `grep -c == 43` total count (M-3 fix). Sum check (43 == Σ redirect_branches == 43) cross-validates. 9 block-form Category 6 redirects (scope guards, FF gates, param-passing) intentionally left unwired.
+- **Behavioural breadcrumb test via `Sentry.init(beforeBreadcrumb: ...)` hook** (M-2 fix): captures real `Breadcrumb` objects from `MintBreadcrumbs.adminRoutesViewed` + `legacyRedirectHit`, asserts exact `data.keys.toSet()` equality (`{route_count, feature_flags_enabled_count}` when snapshotAgeMinutes null; `{route_count, feature_flags_enabled_count, snapshot_age_minutes}` when provided; `{from, to}` for redirects). Int-only structural check (`isNot(isA<String>())`) forbids String values (anti-PII gate). Supersedes Wave 0 source-string grep stub — behavioural contract matches nLPD Art. 12 processing record.
+- **M-1 English carve-out** declared in every admin file header (`admin_gate.dart`, `admin_shell.dart`, `routes_registry_screen.dart`): exact literal `// Dev-only admin surface per D-03 + D-10 (CONTEXT v4). English-only by executor discretion — no i18n/ARB keys. Phase 34 no_hardcoded_fr.py MUST exempt lib/screens/admin/**`. Phase 34 GUARD-03 can exempt the admin tree safely with an explicit provenance trail.
+- **MintBreadcrumbs pre-landed in Task 1 commit** (Rule 3 blocking auto-fix): plan structured `legacyRedirectHit` + `adminRoutesViewed` as Task 2 File 1, but `RoutesRegistryScreen.initState` calls `adminRoutesViewed` at mount. Compile-time dependency won — helpers land with Task 1. 43-site wiring + tests still owned by Task 2.
+- **Pytest indexes callsites by source path, not line number**: wiring 43 arrow-form redirects (1 line) into 4-line block forms shifts every downstream line in app.dart. `_extract_callback_body_by_source(src, source_path)` walks backward to `ScopedGoRoute(` then forward via balanced-paren tracking. Source paths are stable identifiers; line numbers are not.
+- **Widget-test viewport trick**: `tester.view.physicalSize = Size(800, 20000)` so ListView.builder materialises all 15 owner tiles (default 800x600 only fits ~10). Also `find.byWidgetPredicate((w) => w is ListTile && w.dense == true)` to exclude ExpansionTile's internal-header ListTiles (otherwise naive `find.byType(ListTile)` returns 147+15=162).
+- **Tree-shake empirical proof deferred to Plan 32-05 Wave 4 J0 Task 1**: `if (AdminGate.isAvailable) ...[ ScopedGoRoute(...) ]` is the compile-time guarantee; binary-grep `strings Runner | grep -c kRouteRegistry == 0` validates. Plan 32-05 also wires `admin-build-sanity` CI job scanning prod build YAMLs for accidental `--dart-define=ENABLE_ADMIN=1`.
 
 ### Phase 32-02 Decisions (Wave 2 CLI MAP-02a + MAP-03, shipped 2026-04-20)
 
@@ -180,8 +192,8 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-20T08:20:00.157Z
-Stopped at: Completed 32-02-cli-PLAN.md (mint-routes CLI + nLPD D-09 redaction + schema v1 contract)
+Last session: 2026-04-20T08:38:34.607Z
+Stopped at: Completed 32-03-admin-ui-PLAN.md (/admin/routes schema viewer + 43-site breadcrumb wiring + behavioural + per-site coverage)
 Resume file: None
 
 ---
