@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 31-04-PLAN.md (OBS-07 ops budget — Phase 31 ready for /gsd-verify-phase 31)
-last_updated: "2026-04-19T17:49:46.050Z"
+stopped_at: Phase 32 context gathered (expert-lock, 6 decisions locked)
+last_updated: "2026-04-20T05:36:49.000Z"
 last_activity: 2026-04-19
 progress:
   total_phases: 9
@@ -162,9 +162,9 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-19T17:49:46.048Z
-Stopped at: Completed 31-04-PLAN.md (OBS-07 ops budget — Phase 31 ready for /gsd-verify-phase 31)
-Resume file: None
+Last session: 2026-04-20T05:36:48.993Z
+Stopped at: Phase 32 context gathered (expert-lock, 6 decisions locked)
+Resume file: .planning/phases/32-cartographier/32-CONTEXT.md
 
 ---
 *Last activity: 2026-04-19 — v2.8 ROADMAP.md created, 8 phases (30.5 → 36), 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36*
