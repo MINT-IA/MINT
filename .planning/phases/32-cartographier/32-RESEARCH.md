@@ -844,7 +844,10 @@ class RouteHealthJsonContract {
 
 ---
 
-## Risks & Open Questions
+## Risks & Open Questions (RESOLVED)
+
+**RESOLVED:** all 7 risks below were closed during CONTEXT v4 lock and the 3-panel review pass. Entries retained for provenance; no open questions remain.
+
 
 ### 1. Sentry batch OR-query term limit unknown [MEDIUM risk]
 - **What we know:** Sentry supports `transaction:[a, b, c]` list syntax equivalent to OR [VERIFIED: docs]. Public docs don't specify max list length. D-02 hypothesizes ~200 terms per query, D-11 targets ≥30 empirically.
@@ -1123,7 +1126,7 @@ Given 5.5j budget and kill-policy discipline (never overrun >1.5j without descop
 **Confidence breakdown:**
 - Standard Stack: HIGH — all components in-house (Python stdlib, Flutter SDK 3.41, sentry_flutter 9.14.0 pinned, sentry-cli 3.3.5 installed). No new dependencies.
 - Architecture: HIGH — 12 decisions locked v4, 3-panel-audited, no ambiguity in extension points (app.dart observer list top-level, MintBreadcrumbs extension pattern, tools/checks/*.py script template).
-- Pitfalls: HIGH — each Panel 1/2/3 finding (tree-shake unverified, batch query limit, nLPD redaction, iOS sandbox, admin/me missing) is already closed in CONTEXT v4 or explicitly flagged in §Risks & Open Questions above.
+- Pitfalls: HIGH — each Panel 1/2/3 finding (tree-shake unverified, batch query limit, nLPD redaction, iOS sandbox, admin/me missing) is already closed in CONTEXT v4 or explicitly flagged in §Risks & Open Questions (RESOLVED) above.
 
 **Research date:** 2026-04-20
 **Valid until:** 2026-05-20 (30 days — stack stable, no fast-moving deps)
