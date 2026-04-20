@@ -1,83 +1,118 @@
-"""Phase 32 Wave 0 stub -- 12 pytest cases for MAP-02a CLI behavior.
+"""Phase 32 Wave 2 — pytest suite for mint-routes CLI.
 
-Implementation: Plan 32-02 Wave 2.
-Python version: 3.9-compatible (dev machine has 3.9.6; CI runs 3.11).
+Python 3.9-compatible. All tests run with MINT_ROUTES_DRY_RUN=1 when
+network access would otherwise be needed.
 
-Wave 2 flips these `pytest.mark.skip` stubs to live assertions once
-`./tools/mint-routes` (Python CLI) is implemented. Zero production imports here
-because the CLI module does not exist yet.
+Task 1 green: help, bad args, --no-color flag on help output.
+Task 2 flips the remaining tests green once sentry_client + dry_run land.
 """
+from __future__ import annotations
+
+import os
+import subprocess
+import sys
+from pathlib import Path
 
 import pytest
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+CLI = REPO_ROOT / "tools/mint-routes"
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2 implements CLI")
-def test_health_dry_run():
-    """MINT_ROUTES_DRY_RUN=1 reads fixture, emits JSON matching schema."""
+
+def _run(args, env_extra=None, input_bytes=None):
+    env = dict(os.environ)
+    if env_extra:
+        env.update(env_extra)
+    return subprocess.run(
+        [str(CLI)] + list(args),
+        capture_output=True,
+        env=env,
+        input=input_bytes,
+        cwd=str(REPO_ROOT),
+        timeout=30,
+    )
+
+
+# ---------- Task 1 green ----------
+
+
+def test_help_exits_zero_and_lists_subcommands():
+    r = _run(["--help"])
+    assert r.returncode == 0, "--help returned {}: {}".format(
+        r.returncode, r.stderr.decode()
+    )
+    out = r.stdout.decode()
+    for sub in ["health", "redirects", "reconcile", "purge-cache", "--verify-token"]:
+        assert sub in out, "{} missing from --help output".format(sub)
+
+
+def test_exit_codes_bad_args_returns_2():
+    r = _run(["--nonsense-flag"])
+    assert r.returncode == 2
+
+
+def test_no_color_flag_suppresses_ansi():
+    # --no-color with --help emits argparse help text which is never ANSI coloured.
+    # The real guarantee — that the health renderer honours --no-color — is covered
+    # by test_no_color_env_var_suppresses_ansi in Task 2 (requires health subcommand).
+    r = _run(["--no-color", "--help"])
+    assert r.returncode == 0
+    assert b"\x1b[" not in r.stdout
+
+
+# ---------- Task 2 wires (skipped until sentry_client + dry_run land) ----------
+
+
+@pytest.mark.skip(reason="Task 2 wires sentry_client: token resolution + exit 71")
+def test_missing_token_returns_71():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_exit_codes():
-    """Exit codes match sysexits.h: 0, 2, 71, 75, 78."""
+@pytest.mark.skip(reason="Task 2 wires dry_run: fixture-join produces 147 JSON lines")
+def test_health_dry_run_produces_147_json_lines():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2 (D-09 §2 redaction)")
-def test_pii_redaction():
-    """Redacts IBAN (CH/all), CHF>100, email, user.{id,email,ip,username}, AVS 756.xxxx.xxxx.xx."""
+@pytest.mark.skip(reason="Task 2 wires dry_run: --owner filter")
+def test_health_dry_run_owner_filter():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2 (no-color.org compliance)")
-def test_no_color():
-    """--no-color flag AND NO_COLOR env both suppress ANSI."""
+@pytest.mark.skip(reason="Task 2 wires health renderer: NO_COLOR env-var path")
+def test_no_color_env_var_suppresses_ansi():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_keychain_fallback():
-    """Env var wins; else subprocess.run(['security','find-generic-password','-s','SENTRY_AUTH_TOKEN','-w'])."""
+@pytest.mark.skip(reason="Task 2 wires sentry_client: argv safety guarantee")
+def test_keychain_fallback_token_never_in_argv():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_batch_chunking():
-    """147 routes split into chunks of 30 -> 5 chunks."""
+@pytest.mark.skip(reason="Task 2 wires redaction")
+def test_pii_redaction_covers_six_patterns():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_status_classification():
-    """classify(route, sentry_24h, ff_state, last_visit) -> green/yellow/red/dead."""
+@pytest.mark.skip(reason="Task 2 wires redaction")
+def test_pii_redaction_walks_dict_user_keys():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_json_output_schema():
-    """--json emits newline-delimited JSON matching route_health_schema.dart contract."""
+@pytest.mark.skip(reason="Task 2 wires classify_status")
+def test_status_classification_buckets():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_schema_contract_parity():
-    """Python JSON output vs Dart kRouteHealthSchemaVersion=1 contract -- drift check."""
+@pytest.mark.skip(reason="Task 2 wires schema + dart contract test")
+def test_json_output_schema_matches_dart_contract():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2")
-def test_redirects_aggregation():
-    """CLI `redirects` subcommand aggregates 30d breadcrumb hits per legacy path."""
+@pytest.mark.skip(reason="Task 2 wires _chunks helper")
+def test_batch_chunking_splits_30_per_batch():
     pass
 
 
-@pytest.mark.skip(reason="Plan 32-02 Wave 2 (D-09 §3 retention)")
-def test_cache_ttl():
-    """7-day auto-delete on startup + purge-cache command."""
-    pass
-
-
-@pytest.mark.skip(reason="Plan 32-02 Wave 2 (D-02 error differentiation)")
-def test_sentry_error_mapping():
-    """401 -> exit 78 token invalid; 403+'scope' -> exit 78 missing scope; 429 -> exit 75 after backoff; timeout -> exit 75."""
+@pytest.mark.skip(reason="Task 2 wires cache TTL + purge_cache")
+def test_cache_ttl_purge():
     pass
