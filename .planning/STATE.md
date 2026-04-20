@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: executing
-stopped_at: Completed 32-04-parity-lint-PLAN.md (route registry parity lint + fixtures + lefthook wrapper shipped; 9/9 pytest green; 140 routes parity OK after KNOWN-MISSES exemption)
-last_updated: "2026-04-20T08:51:47.648Z"
+status: verifying
+stopped_at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
+last_updated: "2026-04-20T09:10:18.089Z"
 last_activity: 2026-04-20
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 17
-  completed_plans: 16
-  percent: 94
+  completed_plans: 17
+  percent: 100
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -39,13 +39,13 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 32 (cartographier) — EXECUTING
+Phase: 32 (cartographier) — COMPLETE (6/6 plans shipped, AMBER J0 verdict awaiting Julien ack)
 Plan: 6 of 6
-Status: Ready to execute
+Status: Phase complete — ready for `/gsd-verify-work 32` + `/gsd-secure-phase 32`
 Last activity: 2026-04-20
-Next: `/gsd-execute-phase 32` continue with Plan 32-05 (Wave 5 CI + docs + J0 gates — route-registry-parity + mint-routes-tests + admin-build-sanity CI jobs per D-12) on `feature/v2.8-phase-32-cartographier`
+Next: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` — 6/6 plans have SUMMARY, VALIDATION.md reflects reality (3 PASS + 3 BLOCKED + 0 FAIL), 3 RISK entries await Julien ack for nyquist_compliant flip
 
-Progress: [█████████▌] 94% (3/9 phases, 16/17 plans) — phase 32: 5/6 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui + 32-04 parity-lint green)
+Progress: [██████████] 100% (4/9 phases, 17/17 plans) — phase 32: 6/6 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui + 32-04 parity-lint + 32-05 ci-docs-validation green)
 
 ## Build Order
 
@@ -92,6 +92,7 @@ Progress: [█████████▌] 94% (3/9 phases, 16/17 plans) — pha
 | 32-02-cli       | 7 min    | 2     | 11    | 2026-04-20 |
 | 32-03-admin-ui  | 11 min   | 2     | 11    | 2026-04-20 |
 | 32-04-parity-lint | 5 min  | 1     | 6     | 2026-04-20 |
+| Phase 32 P05 | 9min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,18 @@ Progress: [█████████▌] 94% (3/9 phases, 16/17 plans) — pha
 - **CTX-05** (plan 02, spike `38a3950b`, merge `0d86d215`): `sentry_flutter 9.14.0` + SentryWidget + `options.privacy.maskAllText/maskAllImages = true` — 5/5 mechanical grid + 0 dashboard regression, **Kill-policy D-01 NOT triggered, PHASE SHIPS**
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
+
+### Phase 32-05 Decisions (Wave 4b CI + Docs + J0 Validation, shipped 2026-04-20)
+
+- **32-05** (commits `69d6d87c` → `acd02c65`): 4 CI jobs wired into `.github/workflows/ci.yml` — `route-registry-parity` (D-12 §1, invokes Plan 04 lint), `mint-routes-tests` (D-12 §2, DRY_RUN pytest over Plans 02+03+04 = 26 tests), `admin-build-sanity` (D-12 §3, grep scan ENABLE_ADMIN=1 in testflight.yml+play-store.yml, T-32-05 mitigation), `cache-gitignore-check` (D-09 §3, T-32-02 residual). `ci-gate` needs[] extended; baseline clean pre-commit (no pre-existing ENABLE_ADMIN=1 leak).
+- **`docs/SETUP-MINT-ROUTES.md` shipped**: Keychain setup with `-U -A` hardening + scope lock (`project:read + event:read + org:read` only, DO-NOT list including `member:*`) + 7-row commands table + 5-row env vars table + 5 nLPD controls D-09 §1-§5 with Art. 5/6/7/9/12 mapping + 6-row troubleshooting + Phase 35/36/CI integration refs. Technical English, no FR user-facing prose, banned LSFin terms grep empty.
+- **`README.md` Developer Tools section added** with link to SETUP-MINT-ROUTES.md.
+- **`tools/simulator/walker.sh --admin-routes` mode added**: rebuilds booted sim with `--dart-define=ENABLE_ADMIN=1`, reinstalls, launches, opens `mint://admin/routes` deep link (soft-fail if scheme missing), captures 5 screenshots to `.planning/phases/32-cartographier/screenshots/walker-$(date +%Y-%m-%d)/`. Alias `--scenario=admin-routes` normalized to `--admin-routes` before case dispatch. `MINT_WALKER_DRY_RUN=1` short-circuits. Both invocations verified exit 0 DRY_RUN.
+- **Tree-shake gate (J0 Task 1) PASS on device target (not simulator)**: Flutter 3.41.6 rejects `--release` and `--profile` on simulator (documented deviation Rule 3). Built `flutter build ios --release --no-codesign --dart-define=ENABLE_ADMIN=0` → 8.86 MB Mach-O arm64. `strings Runner | grep -c kRouteRegistry` = 0. `grep -c "Retirement scenarios hub"` = 0. No admin symbols leaked. Tree-shake contract verified empirically.
+- **6 J0 gates verdict: AMBER** (3 PASS + 3 BLOCKED + 0 FAIL). PASS: Task 1 tree-shake, Task 4 parity lint (exit 0, 140 routes parity OK), Task 5 DRY_RUN pytest (26/26 green). BLOCKED: Task 2 SentryNavigatorObserver (Keychain denied to non-interactive subprocess + staging DSN env unset), Task 3 batch OR-query live (same env reason; client-side `_build_batch_query(30)`=302 chars PASS), Task 6 walker.sh screenshots (Xcode CodeSign failed on simulator rebuild — L3 partial, autonomous must NOT self-patch per feedback_tests_green_app_broken).
+- **M-4 strict 3-branch hierarchy applied**: `nyquist_compliant: false` STAYS false per strict rule — Task 2 is BLOCKED, not PASS, so flip condition not met. 3 §Risks entries (A/B operator choice each) written to `32-VALIDATION.md` awaiting Julien acknowledgment. The previous "soft defer / acceptable for now" wording was explicitly rejected per plan M-4 fix.
+- **Per-Task Verification Map flipped**: all 34 rows in `32-VALIDATION.md` table from `⬜ pending` → `✅ green` (Wave 0-4 empirically verified via pytest/flutter test/parity lint). 6 J0 gates documented separately in new `## J0 Empirical Results — 2026-04-20` matrix.
+- **VALIDATION.md frontmatter final**: `status: executed`, `wave_0_complete: true`, `nyquist_compliant: false`, `j0_verdict: AMBER`, `j0_pass_count: 3`, `j0_blocked_count: 3`, `j0_fail_count: 0`.
 
 ### Phase 32-04 Decisions (Wave 4 Parity Lint MAP-04, shipped 2026-04-20)
 
@@ -204,8 +217,8 @@ Progress: [█████████▌] 94% (3/9 phases, 16/17 plans) — pha
 
 ## Session Continuity
 
-Last session: 2026-04-20T08:51:47.645Z
-Stopped at: Completed 32-04-parity-lint-PLAN.md (route registry parity lint + fixtures + lefthook wrapper shipped; 9/9 pytest green; 140 routes parity OK after KNOWN-MISSES exemption)
+Last session: 2026-04-20T09:10:18.085Z
+Stopped at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
 Resume file: None
 
 ---
