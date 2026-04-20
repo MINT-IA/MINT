@@ -4,7 +4,7 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: verifying
 stopped_at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
-last_updated: "2026-04-20T09:10:18.089Z"
+last_updated: "2026-04-20T09:24:55.904Z"
 last_activity: 2026-04-20
 progress:
   total_phases: 9
@@ -39,8 +39,8 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 32 (cartographier) — COMPLETE (6/6 plans shipped, AMBER J0 verdict awaiting Julien ack)
-Plan: 6 of 6
+Phase: 33
+Plan: Not started
 Status: Phase complete — ready for `/gsd-verify-work 32` + `/gsd-secure-phase 32`
 Last activity: 2026-04-20
 Next: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` — 6/6 plans have SUMMARY, VALIDATION.md reflects reality (3 PASS + 3 BLOCKED + 0 FAIL), 3 RISK entries await Julien ack for nyquist_compliant flip
