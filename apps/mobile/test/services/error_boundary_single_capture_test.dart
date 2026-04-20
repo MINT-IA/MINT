@@ -60,8 +60,18 @@ void main() {
         // — reentrancy guard must dedupe it.
         PlatformDispatcher.instance.onError?.call(err, stack);
 
-        // Allow the async capture path to resolve.
-        await Future<void>.delayed(const Duration(milliseconds: 50));
+        // Poll until the first event is dispatched (up to 2s budget).
+        // A fixed 50ms wait was too tight on slower CI runners — timing
+        // jitter caused false negatives. We still assert length == 1
+        // afterwards, so dedup invariant is preserved.
+        final deadline = DateTime.now().add(const Duration(seconds: 2));
+        while (dispatched.isEmpty && DateTime.now().isBefore(deadline)) {
+          await Future<void>.delayed(const Duration(milliseconds: 20));
+        }
+
+        // Extra quiescence so a second dispatched event (reentrancy-guard
+        // violation) would still be visible before we assert.
+        await Future<void>.delayed(const Duration(milliseconds: 100));
 
         expect(
           dispatched.length,

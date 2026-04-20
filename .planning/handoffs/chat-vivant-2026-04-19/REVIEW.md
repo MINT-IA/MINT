@@ -3,12 +3,21 @@ handoff: chat-vivant
 received: 2026-04-19
 source: Cloud Design (external design system)
 target_milestone: v2.9
-status: planted (not executable as-is)
+target_phase: v2.9 Phase 3 (sub-phases 3.1 → 3.5)
+status: deferred-locked-by-ADR
+locked_by: decisions/ADR-20260420-chat-vivant-deferred-v2.9-phase3.md
+last_reviewed: 2026-04-20
+prerequisites:
+  - v2.8 Phase 32-36 shipped clean (kill-policy respected)
+  - Phase 31 creator-device gate green (physical iPhone + live DSN)
+  - v2.9 Phase 1 Wave E-PRIME debts wired (POST/PATCH profile, /overview/me, /budget CRUD, /fri/*, 7 intent tags)
+  - v2.9 Phase 2 BirthDate migration landed
+  - v2.9 Phase 2.5 V0 prep (ChatMessage.kind + FeatureFlags.enableChatVivant + ScenePayload stub)
 ---
 
-# Review — Chat Vivant HandOff (2026-04-19)
+# Review — Chat Vivant HandOff (2026-04-19, refreshed 2026-04-20)
 
-> Archived from `~/Downloads/HandOff/` into the repo on 2026-04-19 to preserve the specification. Do NOT execute the 11 prompts in `prompts.md` directly — see frictions below.
+> **DEFERRED to v2.9 Phase 3 per ADR-20260420.** Do not execute any handoff prompt until prerequisites above are complete. See `decisions/ADR-20260420-chat-vivant-deferred-v2.9-phase3.md` for full rationale (5 prerequisites, 5 sub-phases, tripwires). Archived from `~/Downloads/HandOff/` into the repo on 2026-04-19 to preserve the specification.
 
 ## Verdict
 
@@ -55,13 +64,24 @@ Prototype strings are FR-hardcoded. MINT ships in 6 languages (fr/en/de/es/it/pt
 
 **Total P50**: 12-16 calendar days (~3 weeks solo with creator-device gate between V3 and V4).
 
-## Before kicking off v2.9
+## Before kicking off v2.9 Phase 3 Chat Vivant (prerequisites locked by ADR-20260420)
 
-- [ ] Phase 31 Instrumenter shipped (current focus, in progress)
-- [ ] Run `/gsd-discuss-phase` on v2.9 kickoff with expert panel on F1 + F2 + F3 to lock decisions
-- [ ] Map each handoff prompt (0-10) to one of V1/V2/V3/V4 phases
-- [ ] Decide Flutter port priority: pnpm at root OR `pubspec.yaml` fonts bundle vs `google_fonts` runtime load (license check on Fraunces weights)
-- [ ] Verify prototype HTML can be opened on Julien's local browser (reference during V1 port)
+- [x] Phase 31 Instrumenter shipped (PR #367, f17e56c2, 2026-04-20 — awaiting merge)
+- [ ] Phase 31 creator-device gate (Julien iPhone physique + Sentry DSN live)
+- [ ] v2.8 Phase 32 Cartographier shipped
+- [ ] v2.8 Phase 33 Kill-switches shipped
+- [ ] v2.8 Phase 34 GUARD-02 bare-catch ban ACTIF
+- [ ] v2.8 Phase 35 Boucle Daily (mint-dogfood.sh) shipped
+- [ ] v2.8 Phase 36 Finissage E2E shipped + creator-device gate Julien 20 min cold-start PASS
+- [ ] v2.9 Phase 1 Wave E-PRIME debts wired (POST/PATCH profile, /overview/me, /budget CRUD, /fri/*, 7 intent tags orphelins)
+- [ ] v2.9 Phase 2 BirthDate migration landed
+- [ ] v2.9 Phase 2.5 V0 prep (ChatMessage.kind enum + FeatureFlags.enableChatVivant + ScenePayload stub, 0.5j)
+- [ ] v2.9 Phase 3.1 `/gsd-discuss-phase` chat-vivant — résoudre F1 (calculator partagé, scène read-only), F2 (stream refactor scope), F3 (i18n 180 entries)
+- [ ] v2.9 Phase 3.1 session de réduction design avec Julien (thumb 48pt, phrase d'orientation post-recul, Canvas v2.9 ou v2.10)
+- [ ] i18n traduction 180 entries démarré parallèle depuis Phase 3.1 (long pole, pas sur chemin critique)
+- [ ] Fraunces font delivery checklist (LTE fallback test, pubspec bundling vs google_fonts runtime decision)
+- [ ] Verify prototype HTML can be opened on Julien's local browser (reference during Phase 3.2 port)
+- [ ] Map each handoff prompt (0-10) to one of Phase 3.2/3.3/3.4/3.5 sub-phases
 
 ## Source files
 
