@@ -1,36 +1,39 @@
-// Phase 32 Wave 0 fixture — parity lint drift test case.
-// Used by tools/checks/route_registry_parity.py --dry-run-fixture.
-// Expected behavior: parity lint MUST exit non-zero when
-// app.dart has a GoRoute absent from kRouteRegistry.
+// Phase 32 Wave 4 (Plan 32-04) fixture — parity lint drift test case.
 //
-// Simulated app.dart snippet (has routes):
-//   GoRoute(path: '/a', ...)
-//   GoRoute(path: '/b', ...)
-//   GoRoute(path: '/c-drift-only-in-code', ...)  // <-- drift
+// Consumed by tools/checks/route_registry_parity.py --dry-run-fixture.
+// Expected behavior: parity lint MUST exit 1 (drift) and stderr MUST
+// mention '/c-drift-only-in-code'.
 //
-// Simulated kRouteRegistry keys: ['/a', '/b']
-// Expected: lint exits 1, stderr mentions '/c-drift-only-in-code'.
+// Simulated inputs encoded in the file:
+//   APP_DART_PATHS = ['/a', '/b', '/c-drift-only-in-code']
+//   REGISTRY_KEYS  = ['/a', '/b']
 //
-// Wave 4 (Plan 32-04) wires tools/checks/route_registry_parity.py to accept
-// --dry-run-fixture pointing at this file. Until then, this file is documentation
-// for the expected lint behavior.
+// The lint splits this file on the marker lines below and runs parity
+// against the two synthetic blocks.
+
+// ignore_for_file: unused_element, unused_local_variable, dead_code
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// Simulated router (do not import; this file is fixture-only, not compiled
-// into mint_mobile).
+// -- BEGIN fake app.dart --
 final _simulatedRouter = GoRouter(
   routes: [
     GoRoute(path: '/a', builder: (_, __) => const SizedBox()),
-    GoRoute(path: '/b', builder: (_, __) => const SizedBox()),
+    ScopedGoRoute(
+      path: '/b',
+      builder: (_, __) => const SizedBox(),
+    ),
     GoRoute(path: '/c-drift-only-in-code', builder: (_, __) => const SizedBox()),
   ],
 );
+// -- END fake app.dart --
 
-// Simulated kRouteRegistry: missing '/c-drift-only-in-code' deliberately.
-const List<String> _simulatedRegistryKeys = ['/a', '/b'];
+// -- BEGIN fake registry --
+const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
+  '/a': RouteMeta(path: '/a', category: RouteCategory.destination, owner: RouteOwner.system, requiresAuth: false),
+  '/b': RouteMeta(path: '/b', category: RouteCategory.destination, owner: RouteOwner.system, requiresAuth: false),
+};
+// -- END fake registry --
 
-// Reference use to avoid "unused" lint if this file is analyzed.
-// ignore: unused_element
-Object? _noop() => [_simulatedRouter, _simulatedRegistryKeys];
+Object? _noop() => [_simulatedRouter, kRouteRegistry];

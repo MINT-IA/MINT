@@ -60,10 +60,20 @@ Parent route's own `path:` is captured normally; nested children inherit prefix 
 runtime (e.g., `/profile` + `admin-observability` -> `/profile/admin-observability`).
 Parity lint treats nested entries as plain paths when `path: 'admin-observability'`
 is declared under a parent with `path: '/profile'`. Maintainers MUST register the full
-composed path in `kRouteRegistry` (e.g., `/profile/admin-observability`) — the
-parity lint has a hint mode for this (see `--resolve-nested` flag, Wave 4).
+composed path in `kRouteRegistry` (e.g., `/profile/admin-observability`).
 
-Current occurrences (6 nested-route sites at HEAD-b7a88cc8):
+**Wave 4 (Plan 32-04) resolution — explicit allow-list in the lint source.**
+
+Rather than shipping a fragile `--resolve-nested` parent-walker flag (which would need
+to balance-match `routes: [...]` block boundaries across arbitrary nesting), the lint
+exempts both sides of the comparison via a mapping constant
+`_NESTED_PROFILE_CHILDREN` in `tools/checks/route_registry_parity.py`. Each tuple
+`(segment, composed)` strips the bare segment from the app.dart side AND strips the
+composed form from the registry side — preserving drift detection for any NEW child
+that is not listed. This is deterministic, auditable, and fails loudly when a
+maintainer adds a nested child without updating this file + the lint constant.
+
+Current occurrences (7 nested-profile children + 4 absolute-path shell branches at HEAD-b7a88cc8):
 
 - **Parent L906 `ScopedGoRoute(path: '/profile', ...)`** -> 7 children at L913-948:
   - L915 `path: 'admin-observability'` -> runtime `/profile/admin-observability`
@@ -81,7 +91,15 @@ Current occurrences (6 nested-route sites at HEAD-b7a88cc8):
   - L409 `routes: [ GoRoute(path: '/explore', ...) ]` (Tab 3 — absolute path)
 
   Shell branches declare children with absolute paths (leading `/`), not segments, so they
-  do NOT require composition. Parity lint treats them as standalone entries — correct.
+  do NOT require composition. Parity lint treats them as standalone entries — correct,
+  no allow-list entry needed.
+
+  All 7 nested-profile entries are listed in `_NESTED_PROFILE_CHILDREN` in
+  `tools/checks/route_registry_parity.py`. When a new child lands under `/profile`
+  (or any other parent with nested `routes: [...]`), the maintainer MUST add the
+  `(segment, composed)` tuple to that constant AND append a bullet to the list
+  above. The lint will fail loudly until the allow-list catches up — which is
+  the desired fail-loud behavior (no_shortcuts_ever).
 
 ## Category 6 — Block-form redirect callbacks (NOT legacy redirects)
 
@@ -105,6 +123,52 @@ Current occurrences (9 sites at HEAD-b7a88cc8):
 Plan 03 Task 2 asserts breadcrumb coverage is >= 43 (the arrow-form count), NOT 52 (all
 redirects). Wave 3 breadcrumb wiring targets only the 43 sites in
 `.planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md §Redirect Call-Site Inventory`.
+
+## Category 7 — Admin-only compile-conditional routes
+
+Routes declared inside an `if (AdminGate.isAvailable) ...[` block in app.dart are
+dev-only surface (compile-time `--dart-define=ENABLE_ADMIN=1` plus runtime
+`FeatureFlags.isAdmin` per D-10 double gate). They are INTENTIONALLY absent from
+`kRouteRegistry` because:
+
+1. Prod builds tree-shake the entire `if (AdminGate.isAvailable) ...[` branch —
+   no registry reference survives in the IPA (binary-grep verification
+   scheduled for Plan 32-05 J0 Task 1).
+2. The admin surface is dev-only and maintained by the executor (M-1 English
+   carve-out per `apps/mobile/lib/screens/admin/**` file headers, see Plan 32-03
+   SUMMARY).
+3. Registering these paths in `kRouteRegistry` would force the registry (and its
+   `RouteOwner` / `RouteCategory` enums) to be live code in prod, partially
+   defeating the tree-shake.
+
+**Wave 4 (Plan 32-04) resolution — explicit allow-list in the lint source.**
+
+Alternatives considered and rejected:
+
+- _Detect the `if (AdminGate.isAvailable)` guard via regex preprocessing_ —
+  fragile because guard syntax can drift (spaces, comments, different condition
+  identifiers). Would require maintaining a second regex just for guard
+  detection + a balanced-bracket walker for the `...[` block body.
+- _Separate KNOWN-MISSES file for admin-only routes_ — scope bloat; the one
+  file is the canonical source and separate files invite divergence.
+
+**Chosen option:** the lint's `_ADMIN_CONDITIONAL` set in
+`tools/checks/route_registry_parity.py` strips these paths from the app.dart
+side only (they are never in the registry, so no symmetric registry-side
+subtraction is needed).
+
+Current occurrences (1 admin-conditional route at HEAD-b7a88cc8):
+
+- L1151 `ScopedGoRoute(path: '/admin/routes', ...)` inside
+  `if (AdminGate.isAvailable) ...[` (Plan 32-03 Wave 3 ship).
+  Exempt via `_ADMIN_CONDITIONAL = {'/admin/routes'}` in the lint source.
+
+When a new `/admin/*` route lands (Phase 33 `/admin/flags`, etc.), the
+maintainer MUST add the path to `_ADMIN_CONDITIONAL` in the lint AND append a
+bullet to the occurrence list above. The lint will fail loudly
+(`[FAIL] N path(s) in app.dart but absent from kRouteRegistry`) until the
+allow-list catches up — which is the desired fail-loud behavior
+(no_shortcuts_ever).
 
 ## Maintenance policy
 
