@@ -13,6 +13,7 @@ import 'package:mint_mobile/services/document_service.dart';
 // Events live in a separate non-FIFO namespace from regular insights.
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/services/screen_completion_tracker.dart';
+import 'package:mint_mobile/widgets/mint_custom_paint_mask.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 
 // ────────────────────────────────────────────────────────────
@@ -404,29 +405,37 @@ class _DocumentImpactScreenState extends State<DocumentImpactScreen>
 
     final pulseGlow = _pulseAnimation.value * 0.15;
 
+    // Phase 31-03 (OBS-06, D-06 default-deny): wrap the confidence
+    // CustomPaint in MintCustomPaintMask so that any Session Replay frame
+    // captured during an error-only replay (onErrorSampleRate=1.0) blanks
+    // the canvas. The inner Text children are already covered by
+    // options.privacy.maskAllText=true, but the arc overlays render
+    // pixels outside the text engine and must be masked explicitly.
     return SizedBox(
       width: 200,
       height: 200,
-      child: CustomPaint(
-        painter: _ConfidenceCirclePainter(
-          progress: displayedConfidence / 100.0,
-          oldProgress: widget.previousConfidence / 100.0,
-          animationProgress: _circleProgress.value,
-          glowIntensity: pulseGlow,
-        ),
-        child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '$displayedConfidence',
-                style: MintTextStyles.displayLarge(),
-              ),
-              Text(
-                S.of(context)!.docImpactConfidenceLabel,
-                style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
-              ),
-            ],
+      child: MintCustomPaintMask(
+        child: CustomPaint(
+          painter: _ConfidenceCirclePainter(
+            progress: displayedConfidence / 100.0,
+            oldProgress: widget.previousConfidence / 100.0,
+            animationProgress: _circleProgress.value,
+            glowIntensity: pulseGlow,
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '$displayedConfidence',
+                  style: MintTextStyles.displayLarge(),
+                ),
+                Text(
+                  S.of(context)!.docImpactConfidenceLabel,
+                  style: MintTextStyles.bodyMedium().copyWith(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
           ),
         ),
       ),
