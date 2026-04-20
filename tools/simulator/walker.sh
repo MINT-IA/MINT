@@ -17,6 +17,12 @@
 #   --smoke-test-inject-error  Above + inject known error + pull Sentry event
 #   --gate-phase-31            Wave 3: smoke-test-inject-error + PII audit
 #                              screens (delegates to pii_audit_screens.sh)
+#   --admin-routes             Phase 32 MAP-02b / J0 Task 6: rebuild with
+#                              ENABLE_ADMIN=1, launch, navigate to
+#                              /admin/routes, capture 5 screenshots under
+#                              .planning/phases/32-cartographier/screenshots/walker-YYYY-MM-DD/.
+#                              Alias: --scenario=admin-routes
+#   --scenario=admin-routes    Plan 32-05 canonical form; normalizes to --admin-routes
 #
 # Required env:
 #   SENTRY_DSN_STAGING   (Railway staging env var)
@@ -31,6 +37,13 @@ DEVICE="${MINT_WALKER_DEVICE:-iPhone 17 Pro}"
 BUNDLE="com.mint.mintMobile"
 MODE="${1:---quick-screenshot}"
 DRY_RUN="${MINT_WALKER_DRY_RUN:-0}"
+
+# Phase 32 MAP-02b — admin-routes scenario: accept both the existing
+# positional `--admin-routes` flag AND the plan's `--scenario=admin-routes`
+# form. Normalize to --admin-routes before dispatch.
+if [[ "$MODE" == "--scenario=admin-routes" || "$MODE" == "--scenario" && "${2:-}" == "admin-routes" ]]; then
+  MODE="--admin-routes"
+fi
 
 TS="$(date +%Y-%m-%d-%H%M%S)"
 OUTDIR=".planning/walker/${TS}"
@@ -144,6 +157,72 @@ case "$MODE" in
     log "gate-phase-31: commit findings to .planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md"
     ;;
 
+  --admin-routes)
+    # Phase 32 MAP-02b / D-11 J0 Task 6 — admin-routes smoke scenario.
+    # Rebuild the booted simulator with --dart-define=ENABLE_ADMIN=1 on
+    # top of the staging API URL, reinstall Runner.app, launch the bundle,
+    # navigate to /admin/routes, and capture 5 screenshots.
+    #
+    # The prior stage (boot/erase/build/install/launch at top of this
+    # script) already produced a staging Runner.app WITHOUT ENABLE_ADMIN.
+    # This mode rebuilds with both defines so the admin shell compiles in.
+    if [ "$DRY_RUN" = "1" ]; then
+      log "admin-routes: DRY_RUN=1 — skipping admin rebuild + navigate"
+      log "admin-routes: (dry-run) would have built with --dart-define=ENABLE_ADMIN=1"
+    else
+      : "${SENTRY_DSN_STAGING:?SENTRY_DSN_STAGING required for admin-routes build}"
+
+      ADMIN_OUT=".planning/phases/32-cartographier/screenshots/walker-$(date +%Y-%m-%d)"
+      mkdir -p "$ADMIN_OUT"
+      log "admin-routes: output dir ${ADMIN_OUT}"
+
+      log "admin-routes: flutter build ios --simulator with ENABLE_ADMIN=1"
+      (cd apps/mobile && flutter build ios --simulator \
+        --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+        --dart-define=SENTRY_DSN="${SENTRY_DSN_STAGING}" \
+        --dart-define=ENABLE_ADMIN=1) 2>&1 | tee -a "$LOG"
+
+      ADMIN_APP="apps/mobile/build/ios/iphonesimulator/Runner.app"
+      if [ ! -d "$ADMIN_APP" ]; then
+        log "FAIL: admin Runner.app not found at $ADMIN_APP"
+        exit 1
+      fi
+
+      log "admin-routes: simctl install (re-install with ENABLE_ADMIN=1)"
+      to 60s xcrun simctl install "$DEVICE" "$ADMIN_APP"
+
+      log "admin-routes: simctl launch ${BUNDLE}"
+      to 30s xcrun simctl launch "$DEVICE" "$BUNDLE"
+      sleep 6
+
+      # Attempt deep link first. The app may not yet declare a mint://
+      # URL scheme — a soft failure here is acceptable; the operator can
+      # navigate manually between screenshots.
+      log "admin-routes: simctl openurl mint://admin/routes"
+      if to 10s xcrun simctl openurl "$DEVICE" "mint://admin/routes" 2>>"$LOG"; then
+        log "admin-routes: deep link accepted"
+      else
+        log "WARN: deep link failed — operator may need to navigate manually between shots"
+      fi
+
+      # Capture 5 screenshots at 2 s intervals. The operator can scroll
+      # through owner buckets between shots if the screen is live.
+      for i in 1 2 3 4 5; do
+        sleep 2
+        SHOT="${ADMIN_OUT}/admin-routes-${i}.png"
+        if to 10s xcrun simctl io "$DEVICE" screenshot "$SHOT" 2>>"$LOG"; then
+          log "admin-routes: captured ${SHOT}"
+        else
+          log "WARN: screenshot ${i} failed"
+        fi
+      done
+
+      log "admin-routes: screenshots at ${ADMIN_OUT}"
+      ls -la "$ADMIN_OUT" | tee -a "$LOG"
+      log "admin-routes: remaining gate — review screenshots + verify mint.admin.routes.viewed breadcrumb in Sentry UI"
+    fi
+    ;;
+
   --smoke-test-inject-error)
     # Generate a known 32-hex trace_id we can grep for in Sentry events.
     TRACE_ID="$(openssl rand -hex 16)"
@@ -199,7 +278,7 @@ case "$MODE" in
     ;;
 
   *)
-    log "FAIL: unknown mode '${MODE}' (expect --quick-screenshot | --smoke-test-inject-error | --gate-phase-31)"
+    log "FAIL: unknown mode '${MODE}' (expect --quick-screenshot | --smoke-test-inject-error | --gate-phase-31 | --admin-routes | --scenario=admin-routes)"
     exit 2
     ;;
 esac
