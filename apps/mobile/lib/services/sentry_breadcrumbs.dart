@@ -126,4 +126,53 @@ class MintBreadcrumbs {
       data: data,
     ));
   }
+
+  /// Phase 32 MAP-05 — legacy redirect hit breadcrumb.
+  ///
+  /// category = `mint.routing.legacy_redirect.hit`
+  /// level    = info
+  /// data     = { 'from': String, 'to': String }
+  ///
+  /// nLPD D-09: [from] and [to] are path-only (no query string, no
+  /// user id). Callers MUST pass `state.uri.path` (which excludes query
+  /// by go_router contract) — NOT `state.uri.toString()`.
+  static void legacyRedirectHit({
+    required String from,
+    required String to,
+  }) {
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.routing.legacy_redirect.hit',
+      level: SentryLevel.info,
+      data: <String, dynamic>{
+        'from': from,
+        'to': to,
+      },
+    ));
+  }
+
+  /// Phase 32 D-09 §4 — admin tool access processing record (nLPD Art. 12).
+  ///
+  /// category = `mint.admin.routes.viewed`
+  /// level    = info
+  /// data     = { 'route_count': int, 'feature_flags_enabled_count': int,
+  ///              'snapshot_age_minutes': int? }
+  ///
+  /// **Aggregates only.** MUST NOT contain: user identifiers, route paths,
+  /// query params, email, IP, or any other PII. The parameter surface
+  /// here is int/int? — reviewers can verify no String field reaches Sentry.
+  static void adminRoutesViewed({
+    required int routeCount,
+    required int featureFlagsEnabledCount,
+    int? snapshotAgeMinutes,
+  }) {
+    Sentry.addBreadcrumb(Breadcrumb(
+      category: 'mint.admin.routes.viewed',
+      level: SentryLevel.info,
+      data: <String, dynamic>{
+        'route_count': routeCount,
+        'feature_flags_enabled_count': featureFlagsEnabledCount,
+        if (snapshotAgeMinutes != null) 'snapshot_age_minutes': snapshotAgeMinutes,
+      },
+    ));
+  }
 }

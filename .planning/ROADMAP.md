@@ -104,7 +104,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active) (completed 2026-04-19)
 - [ ] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
 - [x] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend (completed 2026-04-19)
-- [ ] **Phase 32: Cartographier** — Route registry-as-code **147 routes** (reconciled 2026-04-20) + CLI `./tools/mint-routes` live health + Flutter UI `/admin/routes` schema viewer + parity lint + analytics **43 legacy redirects** (reconciled)
+- [x] **Phase 32: Cartographier** — Route registry-as-code **147 routes** (reconciled 2026-04-20) + CLI `./tools/mint-routes` live health + Flutter UI `/admin/routes` schema viewer + parity lint + analytics **43 legacy redirects** (reconciled) (completed 2026-04-20)
 - [ ] **Phase 33: Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems + admin UI
 - [ ] **Phase 34: Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch, hardcoded-FR, accent, ARB parity, proof-of-read) + CI thinning
 - [ ] **Phase 35: Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
@@ -188,7 +188,13 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   4. Flutter UI affiche 147 routes groupées par owner (15 buckets collapsible), colonnes `path | category | owner | requiresAuth | killFlag | FeatureFlags enabled (local) | description`. **PAS de Sentry health data, PAS de snapshot JSON read.** Live health = CLI exclusif.
   5. CI fail si `tools/checks/route_registry_parity.py` détecte un `GoRoute|ScopedGoRoute(path:)` dans `app.dart` absent de `kRouteRegistry` (ou vice-versa). Ship avec `KNOWN-MISSES.md` documentant patterns regex-unparsables (multi-line, ternary, dynamic).
   6. Les **43 redirects legacy** ont un analytics hit-counter actif via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (PII redacted, paths only) — CLI `./tools/mint-routes redirects` affiche compteur 30d par legacy path. Instrumentation seulement — PAS suppression v2.8, sunset DEFER v2.9+ après 30-day zero-traffic validation.
-**Plans**: TBD
+**Plans**: 6 plans (Wave 0 reconciliation + Wave 1 Dart registry + Wave 2 CLI + Wave 3 Admin UI + Wave 4 parity lint + Wave 4 CI/docs/J0 validation)
+- [x] 32-00-reconcile-PLAN.md — Wave 0: empirical 147/43 grep + KNOWN-MISSES.md extraction + 11 test/fixture scaffolds
+- [x] 32-01-registry-PLAN.md — Wave 1: RouteMeta + RouteCategory + RouteOwner + kRouteRegistry 147 entries (MAP-01)
+- [x] 32-02-cli-PLAN.md — Wave 2: ./tools/mint-routes CLI + Keychain + redaction + schema publication (MAP-02a + MAP-03)
+- [x] 32-03-admin-ui-PLAN.md — Wave 3: AdminGate + AdminShell + RoutesRegistryScreen + adminRoutesViewed + legacyRedirectHit x43 (MAP-02b + MAP-05)
+- [x] 32-04-parity-lint-PLAN.md — Wave 4: route_registry_parity.py + lefthook wrapper + fixtures + pytest (MAP-04)
+- [x] 32-05-ci-docs-validation-PLAN.md — Wave 4: 4 CI jobs + SETUP-MINT-ROUTES.md + walker.sh admin-routes + 6 J0 gates
 **Budget**: 5.5j (~1 sem), peut emprunter de 33 seulement. v4 simplifications (Flutter UI pure schema viewer, no backend endpoint) tiennent le budget malgré ajout nLPD D-09 + VALIDATION D-11 + CI D-12.
 **Auto profile**: **L2** (backend/integration) — `/gsd-execute-phase` + `gsd-verifier` 7-pass + `gsd-secure-phase` + curl smoke staging Railway + inter-layer contracts check (route registry mobile↔backend OpenAPI parity). Dashboard `/admin/routes` UI sub-task = bascule **L3 partiel** (walker.sh simctl gate sur ce livrable seul). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
@@ -263,7 +269,7 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 | 30.6. Context Sanity Advanced | v2.8 | 0/3 | Not started | — |
 | 30.7. Tools Déterministes | v2.8 | 0/0 | Not started | — |
 | 31. Instrumenter | v2.8 | 0/5 | Plans ready | — |
-| 32. Cartographier | v2.8 | 0/0 | Not started | — |
+| 32. Cartographier | v2.8 | 5/6 | In Progress | — |
 | 33. Kill-switches | v2.8 | 0/0 | Not started | — |
 | 34. Agent Guardrails mécaniques | v2.8 | 0/0 | Not started | — |
 | 35. Boucle Daily | v2.8 | 0/0 | Not started | — |

@@ -93,3 +93,4 @@ tools/agent-drift/spikes/A7_headless_result.txt
 
 # Phase 31 walker.sh runtime output (timestamped screenshots, logs, sentry-event JSON dumps)
 .planning/walker/
+.cache/

@@ -426,10 +426,106 @@ jobs:
           echo "Running golden helper unit tests (CI-safe subset)"
           flutter test test/goldens/helpers/ --reporter compact
 
+  # ─── Phase 32 Plan 32-05 / D-12 §1: route registry parity gate ──
+  # Runs the stdlib-only Python lint (tools/checks/route_registry_parity.py)
+  # on every push / PR. Compares 148 extracted GoRoute|ScopedGoRoute(path:)
+  # literals in app.dart against the 147 keys of kRouteRegistry, with
+  # symmetric KNOWN-MISSES exemption (1 admin-conditional + 7 nested
+  # /profile children = 140 comparison paths parity OK on pristine HEAD).
+  #
+  # Fails the PR on any drift in either direction. Runtime ~30 ms
+  # (1000× under the plan's 30 s budget). Stdlib-only (no pip install),
+  # matches Python 3.9 dev / 3.11 CI forward-compat pattern.
+  route-registry-parity:
+    name: Route registry parity (MAP-04)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run parity lint
+        run: python3 tools/checks/route_registry_parity.py
+
+  # ─── Phase 32 Plan 32-05 / D-12 §2: mint-routes CLI DRY_RUN tests ─
+  # Runs pytest on tests/tools/test_mint_routes.py (14 cases, Plan 02
+  # deliverable) + tests/checks/test_route_registry_parity.py (9 cases,
+  # Plan 04 deliverable) + tests/tools/test_redirect_breadcrumb_coverage.py
+  # (3 cases, Plan 03 deliverable covering MAP-05 43-redirect instrumentation).
+  #
+  # MINT_ROUTES_DRY_RUN=1 routes all Sentry calls to the committed fixture
+  # tests/tools/fixtures/sentry_health_response.json — no network, no token,
+  # no Keychain. Runtime ~0.5 s total on CI.
+  mint-routes-tests:
+    name: mint-routes pytest (DRY_RUN)
+    runs-on: ubuntu-latest
+    env:
+      MINT_ROUTES_DRY_RUN: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: pip install pytest
+      - name: Run CLI + parity + redirect breadcrumb tests
+        run: pytest tests/tools/test_mint_routes.py tests/tools/test_redirect_breadcrumb_coverage.py tests/checks/test_route_registry_parity.py -q --tb=short
+
+  # ─── Phase 32 Plan 32-05 / D-12 §3: admin build sanity (T-32-05) ─
+  # Defensive scan against the tree-shake contract: the admin shell
+  # (/admin/routes + kRouteRegistry exposure) is compile-gated by
+  # `--dart-define=ENABLE_ADMIN=0` in every production build workflow.
+  # A reviewer miss where `ENABLE_ADMIN=1` leaks into testflight.yml or
+  # play-store.yml would ship the 147-route registry + dev descriptions
+  # to TestFlight / Play Store review — an nLPD D-09 §1 leak.
+  #
+  # This grep runs ≤5 s. Fails the PR if any occurrence is found in
+  # either prod build workflow.
+  admin-build-sanity:
+    name: Admin build sanity (T-32-05)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan prod workflows for ENABLE_ADMIN=1
+        run: |
+          set -euo pipefail
+          FOUND=0
+          for wf in .github/workflows/testflight.yml .github/workflows/play-store.yml; do
+            if [ ! -f "$wf" ]; then
+              echo "[info] $wf not present — skipping"
+              continue
+            fi
+            if grep -nE "dart-define=ENABLE_ADMIN=1" "$wf"; then
+              echo "::error file=$wf::ENABLE_ADMIN=1 detected in prod build workflow — D-03 tree-shake contract violated"
+              FOUND=1
+            fi
+          done
+          if [ "$FOUND" -ne 0 ]; then exit 1; fi
+          echo "[OK] no ENABLE_ADMIN=1 in prod build workflows"
+
+  # ─── Phase 32 Plan 32-05 / D-12 §5: .cache/ gitignore (D-09 §3) ──
+  # Belt-and-suspenders on the nLPD 7-day retention control. The CLI
+  # writes .cache/route-health.json with auto-expire; the file must
+  # never be committable. This job double-checks the `.gitignore`
+  # entry (Plan 02 added it). Removing the entry re-exposes a leak
+  # vector — this gate fails that regression in CI.
+  cache-gitignore-check:
+    name: .cache/ in .gitignore (D-09 §3)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify .cache/ entry
+        run: |
+          if ! grep -qE "^\.cache/" .gitignore; then
+            echo "::error::.cache/ must be gitignored per nLPD D-09 §3 (7-day retention artifact)"
+            exit 1
+          fi
+          echo "[OK] .cache/ is gitignored"
+
   # ─── Gate: all checks must pass ──────────────────────────────
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -440,12 +536,20 @@ jobs:
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
           wcag="${{ needs.wcag-aa-all-touched.result }}"
+          parity="${{ needs.route-registry-parity.result }}"
+          cli_tests="${{ needs.mint-routes-tests.result }}"
+          admin_sanity="${{ needs.admin-build-sanity.result }}"
+          cache_gi="${{ needs.cache-gitignore-check.result }}"
           [[ "$backend" == "skipped" ]] && backend="success"
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
           [[ "$wcag" == "skipped" ]] && wcag="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]]; then
-            echo "CI failed — backend=${{ needs.backend.result }}, flutter=${{ needs.flutter.result }}, readability=${{ needs.readability.result }}, wcag=${{ needs.wcag-aa-all-touched.result }}"
+          [[ "$parity" == "skipped" ]] && parity="success"
+          [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
+          [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
+          [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"

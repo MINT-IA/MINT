@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: executing
-stopped_at: Phase 32 context gathered (expert-lock, 6 decisions locked)
-last_updated: "2026-04-20T05:36:49.000Z"
-last_activity: 2026-04-19
+status: verifying
+stopped_at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
+last_updated: "2026-04-20T09:24:55.904Z"
+last_activity: 2026-04-20
 progress:
   total_phases: 9
-  completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  completed_phases: 4
+  total_plans: 17
+  completed_plans: 17
   percent: 100
 ---
 
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 31 — Instrumenter
+**Current focus:** Phase 32 — cartographier
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,13 +39,13 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 31 (Instrumenter) — EXECUTING
-Plan: 5 of 5 complete (Plans 31-00 Wave 0 + 31-01 Wave 1 mobile + 31-02 Wave 2 backend shipped — Plan 31-03 PII audit next)
-Status: Ready to execute
-Last activity: 2026-04-19
-Next: `/gsd-execute-phase 31` continue with Plan 31-03 (Wave 3 OBS-06 PII replay redaction audit on 5 sensitive screens) on `feature/v2.8-phase-31-instrumenter`
+Phase: 33
+Plan: Not started
+Status: Phase complete — ready for `/gsd-verify-work 32` + `/gsd-secure-phase 32`
+Last activity: 2026-04-20
+Next: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` — 6/6 plans have SUMMARY, VALIDATION.md reflects reality (3 PASS + 3 BLOCKED + 0 FAIL), 3 RISK entries await Julien ack for nyquist_compliant flip
 
-Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phase 31: 3/5 plans shipped (OBS-02 + OBS-03 + OBS-04 + OBS-05 green)
+Progress: [██████████] 100% (4/9 phases, 17/17 plans) — phase 32: 6/6 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui + 32-04 parity-lint + 32-05 ci-docs-validation green)
 
 ## Build Order
 
@@ -85,6 +85,15 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 - Average duration: ~15-30 min/plan (increasing complexity)
 - v2.7 plans: 30-90 min/plan (compliance + encryption + Vision)
 
+**v2.8 Execution Log:**
+
+| Phase-Plan      | Duration | Tasks | Files | Completed  |
+|-----------------|----------|-------|-------|------------|
+| 32-02-cli       | 7 min    | 2     | 11    | 2026-04-20 |
+| 32-03-admin-ui  | 11 min   | 2     | 11    | 2026-04-20 |
+| 32-04-parity-lint | 5 min  | 1     | 6     | 2026-04-20 |
+| Phase 32 P05 | 9min | 3 tasks | 5 files |
+
 ## Accumulated Context
 
 ### Decisions (v2.8 pre-phase)
@@ -107,6 +116,52 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 - **CTX-05** (plan 02, spike `38a3950b`, merge `0d86d215`): `sentry_flutter 9.14.0` + SentryWidget + `options.privacy.maskAllText/maskAllImages = true` — 5/5 mechanical grid + 0 dashboard regression, **Kill-policy D-01 NOT triggered, PHASE SHIPS**
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
+
+### Phase 32-05 Decisions (Wave 4b CI + Docs + J0 Validation, shipped 2026-04-20)
+
+- **32-05** (commits `69d6d87c` → `acd02c65`): 4 CI jobs wired into `.github/workflows/ci.yml` — `route-registry-parity` (D-12 §1, invokes Plan 04 lint), `mint-routes-tests` (D-12 §2, DRY_RUN pytest over Plans 02+03+04 = 26 tests), `admin-build-sanity` (D-12 §3, grep scan ENABLE_ADMIN=1 in testflight.yml+play-store.yml, T-32-05 mitigation), `cache-gitignore-check` (D-09 §3, T-32-02 residual). `ci-gate` needs[] extended; baseline clean pre-commit (no pre-existing ENABLE_ADMIN=1 leak).
+- **`docs/SETUP-MINT-ROUTES.md` shipped**: Keychain setup with `-U -A` hardening + scope lock (`project:read + event:read + org:read` only, DO-NOT list including `member:*`) + 7-row commands table + 5-row env vars table + 5 nLPD controls D-09 §1-§5 with Art. 5/6/7/9/12 mapping + 6-row troubleshooting + Phase 35/36/CI integration refs. Technical English, no FR user-facing prose, banned LSFin terms grep empty.
+- **`README.md` Developer Tools section added** with link to SETUP-MINT-ROUTES.md.
+- **`tools/simulator/walker.sh --admin-routes` mode added**: rebuilds booted sim with `--dart-define=ENABLE_ADMIN=1`, reinstalls, launches, opens `mint://admin/routes` deep link (soft-fail if scheme missing), captures 5 screenshots to `.planning/phases/32-cartographier/screenshots/walker-$(date +%Y-%m-%d)/`. Alias `--scenario=admin-routes` normalized to `--admin-routes` before case dispatch. `MINT_WALKER_DRY_RUN=1` short-circuits. Both invocations verified exit 0 DRY_RUN.
+- **Tree-shake gate (J0 Task 1) PASS on device target (not simulator)**: Flutter 3.41.6 rejects `--release` and `--profile` on simulator (documented deviation Rule 3). Built `flutter build ios --release --no-codesign --dart-define=ENABLE_ADMIN=0` → 8.86 MB Mach-O arm64. `strings Runner | grep -c kRouteRegistry` = 0. `grep -c "Retirement scenarios hub"` = 0. No admin symbols leaked. Tree-shake contract verified empirically.
+- **6 J0 gates verdict: AMBER** (3 PASS + 3 BLOCKED + 0 FAIL). PASS: Task 1 tree-shake, Task 4 parity lint (exit 0, 140 routes parity OK), Task 5 DRY_RUN pytest (26/26 green). BLOCKED: Task 2 SentryNavigatorObserver (Keychain denied to non-interactive subprocess + staging DSN env unset), Task 3 batch OR-query live (same env reason; client-side `_build_batch_query(30)`=302 chars PASS), Task 6 walker.sh screenshots (Xcode CodeSign failed on simulator rebuild — L3 partial, autonomous must NOT self-patch per feedback_tests_green_app_broken).
+- **M-4 strict 3-branch hierarchy applied**: `nyquist_compliant: false` STAYS false per strict rule — Task 2 is BLOCKED, not PASS, so flip condition not met. 3 §Risks entries (A/B operator choice each) written to `32-VALIDATION.md` awaiting Julien acknowledgment. The previous "soft defer / acceptable for now" wording was explicitly rejected per plan M-4 fix.
+- **Per-Task Verification Map flipped**: all 34 rows in `32-VALIDATION.md` table from `⬜ pending` → `✅ green` (Wave 0-4 empirically verified via pytest/flutter test/parity lint). 6 J0 gates documented separately in new `## J0 Empirical Results — 2026-04-20` matrix.
+- **VALIDATION.md frontmatter final**: `status: executed`, `wave_0_complete: true`, `nyquist_compliant: false`, `j0_verdict: AMBER`, `j0_pass_count: 3`, `j0_blocked_count: 3`, `j0_fail_count: 0`.
+
+### Phase 32-04 Decisions (Wave 4 Parity Lint MAP-04, shipped 2026-04-20)
+
+- **32-04** (commit `189aa0d6`): `tools/checks/route_registry_parity.py` ships stdlib-only Python 3.9 lint (argparse + re + pathlib + typing) with DOTALL regex over `GoRoute|ScopedGoRoute(path:...)`. Runtime 30ms (1000x under 30s CI budget). Extracts 148 path literals from app.dart (includes `/admin/routes` compile-conditional) vs 147 `kRouteRegistry` keys → 140 comparison paths parity OK after symmetric KNOWN-MISSES subtraction. Exits 0/1/2 per sysexits.h.
+- **KNOWN-MISSES exemption strategy**: explicit allow-list sets `_ADMIN_CONDITIONAL` (1 entry: `/admin/routes`) + `_NESTED_PROFILE_CHILDREN` (7 tuples for `/profile/<child>` pairings) in the lint source. Rejected regex-guard preprocessing (fragile syntax variance) and separate allow-list file (scope bloat). Static allow-list is deterministic, auditable, fails loud on new entries not in the list (no_shortcuts_ever).
+- **Symmetric subtraction for Category 5 nested children**: lint strips bare-segment from app.dart side AND composed `/profile/<segment>` from registry side. Asymmetric exemption would let ghost registry keys go unnoticed. Tuple form `(segment, composed)` in `_NESTED_PROFILE_CHILDREN` makes the pairing explicit, prevents half-updates.
+- **KNOWN-MISSES.md amended**: Category 5 rewritten to document allow-list strategy (dropping stale `--resolve-nested` flag reference); Category 7 (admin-only compile-conditional routes) added with 3-option decision trail + maintenance policy for Phase 33 `/admin/flags`.
+- **Shell wrapper anti-façade test** (`test_shell_wrapper_invokes_lint_and_propagates_exit_code`): `bash .lefthook/route_registry_parity.sh` asserted to exit 0 + forward "parity OK" stdout on pristine HEAD. Wrappers that exist but don't invoke the lint are `feedback_facade_sans_cablage` at the Bash level — tested end-to-end, not just chmod +x.
+- **`lefthook.yml` + `.github/workflows/ci.yml` INTENTIONALLY UNTOUCHED**: per D-12 §5 the hook wiring is Phase 34 GUARD-01 scope (avoids merge conflict with GUARD-02 bare-catch work); CI job is Plan 32-05 scope. Git diff on both files is empty for this commit — scope discipline.
+- **pytest 9/9 green** (9 cases, not the plan's stated 6): added 3 beyond plan scope — shell-wrapper-exists + shell-wrapper-invokes-lint + sort/dedup strictness. Pure additive coverage for anti-façade + regression-prevention.
+- **Python 3.9 strict compat**: verified via `python3 -m py_compile`. Uses `from __future__ import annotations` + `typing.List/Optional/Set/Tuple` (not PEP 585 builtins). Zero PEP 604 unions, no match/case, no dict|dict merge. Dev 3.9.6 ↔ CI 3.11 forward-compat safe.
+
+### Phase 32-03 Decisions (Wave 3 Admin UI MAP-02b + MAP-05, shipped 2026-04-20)
+
+- **32-03** (commits `1639c3f0` → `95c21137`): `/admin/routes` pure schema viewer shipped behind compile-time `ENABLE_ADMIN` + runtime `FeatureFlags.isAdmin` double gate (D-10 local-only; NO backend call). 147 routes × 15 RouteOwner ExpansionTiles with `Semantics` labels (a11y). Footer points to `./tools/mint-routes health` for live status (D-06 CLI-exclusive health contract). AdminShell reusable for Phase 33 `/admin/flags` without refactor. 4 Wave 0 Flutter stubs flipped live (16 tests) + 1 new pytest (3 tests) — all green.
+- **MAP-05 wired end-to-end**: all 43 arrow-form legacy redirects in app.dart converted to block-form `(_, state) { MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/x'); return '/x'; }`. Per-site coverage asserted by `tests/tools/test_redirect_breadcrumb_coverage.py` parsing the 43-row RECONCILE-REPORT inventory — not a fragile `grep -c == 43` total count (M-3 fix). Sum check (43 == Σ redirect_branches == 43) cross-validates. 9 block-form Category 6 redirects (scope guards, FF gates, param-passing) intentionally left unwired.
+- **Behavioural breadcrumb test via `Sentry.init(beforeBreadcrumb: ...)` hook** (M-2 fix): captures real `Breadcrumb` objects from `MintBreadcrumbs.adminRoutesViewed` + `legacyRedirectHit`, asserts exact `data.keys.toSet()` equality (`{route_count, feature_flags_enabled_count}` when snapshotAgeMinutes null; `{route_count, feature_flags_enabled_count, snapshot_age_minutes}` when provided; `{from, to}` for redirects). Int-only structural check (`isNot(isA<String>())`) forbids String values (anti-PII gate). Supersedes Wave 0 source-string grep stub — behavioural contract matches nLPD Art. 12 processing record.
+- **M-1 English carve-out** declared in every admin file header (`admin_gate.dart`, `admin_shell.dart`, `routes_registry_screen.dart`): exact literal `// Dev-only admin surface per D-03 + D-10 (CONTEXT v4). English-only by executor discretion — no i18n/ARB keys. Phase 34 no_hardcoded_fr.py MUST exempt lib/screens/admin/**`. Phase 34 GUARD-03 can exempt the admin tree safely with an explicit provenance trail.
+- **MintBreadcrumbs pre-landed in Task 1 commit** (Rule 3 blocking auto-fix): plan structured `legacyRedirectHit` + `adminRoutesViewed` as Task 2 File 1, but `RoutesRegistryScreen.initState` calls `adminRoutesViewed` at mount. Compile-time dependency won — helpers land with Task 1. 43-site wiring + tests still owned by Task 2.
+- **Pytest indexes callsites by source path, not line number**: wiring 43 arrow-form redirects (1 line) into 4-line block forms shifts every downstream line in app.dart. `_extract_callback_body_by_source(src, source_path)` walks backward to `ScopedGoRoute(` then forward via balanced-paren tracking. Source paths are stable identifiers; line numbers are not.
+- **Widget-test viewport trick**: `tester.view.physicalSize = Size(800, 20000)` so ListView.builder materialises all 15 owner tiles (default 800x600 only fits ~10). Also `find.byWidgetPredicate((w) => w is ListTile && w.dense == true)` to exclude ExpansionTile's internal-header ListTiles (otherwise naive `find.byType(ListTile)` returns 147+15=162).
+- **Tree-shake empirical proof deferred to Plan 32-05 Wave 4 J0 Task 1**: `if (AdminGate.isAvailable) ...[ ScopedGoRoute(...) ]` is the compile-time guarantee; binary-grep `strings Runner | grep -c kRouteRegistry == 0` validates. Plan 32-05 also wires `admin-build-sanity` CI job scanning prod build YAMLs for accidental `--dart-define=ENABLE_ADMIN=1`.
+
+### Phase 32-02 Decisions (Wave 2 CLI MAP-02a + MAP-03, shipped 2026-04-20)
+
+- **32-02** (commits `458b0dab` → `317ccdb7`): `./tools/mint-routes` Python 3.9-compat CLI shipped with 3 subcommands (health, redirects, reconcile) + purge-cache + `--verify-token`. Task-split 2-phase: Task 1 skeleton with `NotImplementedError` stubs (pytest collects clean, no `ImportError`); Task 2 wires sentry_client + redaction + dry_run + replaces all 4 stubs. 14/14 pytest green, 0 skipped; 2/2 Flutter `route_meta_json_test.dart` green.
+- **Keychain service name reused: `SENTRY_AUTH_TOKEN`** (matches Phase 31 `sentry_quota_smoke.sh:72`) — CONTEXT D-02 literal `mint-sentry-auth` **amended** inline. Zero onboarding friction: operator configures the Keychain entry ONCE for Phase 31 + 32 together.
+- **nLPD D-09 controls active**: 5-pattern redaction (IBAN_CH, IBAN_ANY, AVS 756.xxxx.xxxx.xx added as A2 defensive default, EMAIL, CHF >100) + recursive `user.{id,email,ip_address,username}` key stripper + 7d cache TTL auto-purge + `purge-cache` operator wipe + `--verify-token` scope enforcer (allowed: project:read + event:read + org:read; extras => exit 78).
+- **Token NEVER in argv** (T-32-03 mitigation): urllib.request with `Authorization: Bearer` header only. Test `test_keychain_fallback_token_never_in_argv` asserts no `--auth-token` string appears in sentry_client.py source. sentry-cli subprocess pattern explicitly rejected.
+- **Schema contract published**: `apps/mobile/lib/routes/route_health_schema.dart::kRouteHealthSchemaVersion = 1`. Python↔Dart parity enforced byte-exactly by `test_json_output_schema_matches_dart_contract` regex-parsing the Dart source for the literal and asserting equality with Python `__schema_version__`. Any future drift fails the test loudly.
+- **Exit codes (sysexits.h D-02 locked)**: 0/2/71/75/78. Graceful degradation on 414 (batch too large → 1 req/sec sequential fallback) and 429 (4s backoff → partial index). 401/403 → exit 78 with scope-diagnostic stderr.
+- **Batch size default = 30** (147 paths → 5 chunks: 30+30+30+30+27). D-11 J0 empirical validation deferred to Plan 32-05 Task 3.
+- **`reconcile` subcommand** graceful no-op until Plan 32-04 ships `tools/checks/route_registry_parity.py`: WARN to stderr + exit 0 (not crash). Auto-switches to lint-driven exit when script lands.
+- **Python 3.9-compat throughout**: no PEP 604 `X | Y` unions, no `match/case`, no `dict | dict` merge. stdlib-only (urllib + subprocess + json + re). Zero external deps. CI 3.11 forward-compat verified.
 
 ### Phase 31-02 Decisions (Wave 2 backend OBS-03, shipped 2026-04-19)
 
@@ -162,9 +217,9 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-20T05:36:48.993Z
-Stopped at: Phase 32 context gathered (expert-lock, 6 decisions locked)
-Resume file: .planning/phases/32-cartographier/32-CONTEXT.md
+Last session: 2026-04-20T09:10:18.085Z
+Stopped at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
+Resume file: None
 
 ---
 *Last activity: 2026-04-19 — v2.8 ROADMAP.md created, 8 phases (30.5 → 36), 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36*
