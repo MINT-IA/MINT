@@ -185,7 +185,7 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 | MAP-01 | 32 | — | Pending, Phase 32 assigned |
 | MAP-02 | 32 | `enableAdminScreens` | Pending, Phase 32 assigned |
 | MAP-03 | 32 | — | Pending, Phase 32 assigned |
-| MAP-04 | 32 | — | Pending, Phase 32 assigned |
+| MAP-04 | 32 | — | Complete 2026-04-20 (Plan 32-04, commit `189aa0d6`) |
 | MAP-05 | 32 | — | Pending, Phase 32 assigned |
 | FLAG-01 | 33 | — | Pending, Phase 33 assigned |
 | FLAG-02 | 33 | — | Pending, Phase 33 assigned |

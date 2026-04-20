@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 32-03-admin-ui-PLAN.md (/admin/routes schema viewer + 43-site breadcrumb wiring + behavioural + per-site coverage)
-last_updated: "2026-04-20T08:38:34.610Z"
+stopped_at: Completed 32-04-parity-lint-PLAN.md (route registry parity lint + fixtures + lefthook wrapper shipped; 9/9 pytest green; 140 routes parity OK after KNOWN-MISSES exemption)
+last_updated: "2026-04-20T08:51:47.648Z"
 last_activity: 2026-04-20
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 17
-  completed_plans: 15
-  percent: 88
+  completed_plans: 16
+  percent: 94
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,12 +40,12 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 32 (cartographier) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 Status: Ready to execute
 Last activity: 2026-04-20
-Next: `/gsd-execute-phase 32` continue with Plan 32-04 (Wave 4 MAP-04 parity lint — `tools/checks/route_registry_parity.py`) on `feature/v2.8-phase-32-cartographier`
+Next: `/gsd-execute-phase 32` continue with Plan 32-05 (Wave 5 CI + docs + J0 gates — route-registry-parity + mint-routes-tests + admin-build-sanity CI jobs per D-12) on `feature/v2.8-phase-32-cartographier`
 
-Progress: [█████████░] 88% (2/9 phases, 15/17 plans) — phase 32: 3/5 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui green)
+Progress: [█████████▌] 94% (3/9 phases, 16/17 plans) — phase 32: 5/6 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui + 32-04 parity-lint green)
 
 ## Build Order
 
@@ -91,6 +91,7 @@ Progress: [█████████░] 88% (2/9 phases, 15/17 plans) — pha
 |-----------------|----------|-------|-------|------------|
 | 32-02-cli       | 7 min    | 2     | 11    | 2026-04-20 |
 | 32-03-admin-ui  | 11 min   | 2     | 11    | 2026-04-20 |
+| 32-04-parity-lint | 5 min  | 1     | 6     | 2026-04-20 |
 
 ## Accumulated Context
 
@@ -114,6 +115,17 @@ Progress: [█████████░] 88% (2/9 phases, 15/17 plans) — pha
 - **CTX-05** (plan 02, spike `38a3950b`, merge `0d86d215`): `sentry_flutter 9.14.0` + SentryWidget + `options.privacy.maskAllText/maskAllImages = true` — 5/5 mechanical grid + 0 dashboard regression, **Kill-policy D-01 NOT triggered, PHASE SHIPS**
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
+
+### Phase 32-04 Decisions (Wave 4 Parity Lint MAP-04, shipped 2026-04-20)
+
+- **32-04** (commit `189aa0d6`): `tools/checks/route_registry_parity.py` ships stdlib-only Python 3.9 lint (argparse + re + pathlib + typing) with DOTALL regex over `GoRoute|ScopedGoRoute(path:...)`. Runtime 30ms (1000x under 30s CI budget). Extracts 148 path literals from app.dart (includes `/admin/routes` compile-conditional) vs 147 `kRouteRegistry` keys → 140 comparison paths parity OK after symmetric KNOWN-MISSES subtraction. Exits 0/1/2 per sysexits.h.
+- **KNOWN-MISSES exemption strategy**: explicit allow-list sets `_ADMIN_CONDITIONAL` (1 entry: `/admin/routes`) + `_NESTED_PROFILE_CHILDREN` (7 tuples for `/profile/<child>` pairings) in the lint source. Rejected regex-guard preprocessing (fragile syntax variance) and separate allow-list file (scope bloat). Static allow-list is deterministic, auditable, fails loud on new entries not in the list (no_shortcuts_ever).
+- **Symmetric subtraction for Category 5 nested children**: lint strips bare-segment from app.dart side AND composed `/profile/<segment>` from registry side. Asymmetric exemption would let ghost registry keys go unnoticed. Tuple form `(segment, composed)` in `_NESTED_PROFILE_CHILDREN` makes the pairing explicit, prevents half-updates.
+- **KNOWN-MISSES.md amended**: Category 5 rewritten to document allow-list strategy (dropping stale `--resolve-nested` flag reference); Category 7 (admin-only compile-conditional routes) added with 3-option decision trail + maintenance policy for Phase 33 `/admin/flags`.
+- **Shell wrapper anti-façade test** (`test_shell_wrapper_invokes_lint_and_propagates_exit_code`): `bash .lefthook/route_registry_parity.sh` asserted to exit 0 + forward "parity OK" stdout on pristine HEAD. Wrappers that exist but don't invoke the lint are `feedback_facade_sans_cablage` at the Bash level — tested end-to-end, not just chmod +x.
+- **`lefthook.yml` + `.github/workflows/ci.yml` INTENTIONALLY UNTOUCHED**: per D-12 §5 the hook wiring is Phase 34 GUARD-01 scope (avoids merge conflict with GUARD-02 bare-catch work); CI job is Plan 32-05 scope. Git diff on both files is empty for this commit — scope discipline.
+- **pytest 9/9 green** (9 cases, not the plan's stated 6): added 3 beyond plan scope — shell-wrapper-exists + shell-wrapper-invokes-lint + sort/dedup strictness. Pure additive coverage for anti-façade + regression-prevention.
+- **Python 3.9 strict compat**: verified via `python3 -m py_compile`. Uses `from __future__ import annotations` + `typing.List/Optional/Set/Tuple` (not PEP 585 builtins). Zero PEP 604 unions, no match/case, no dict|dict merge. Dev 3.9.6 ↔ CI 3.11 forward-compat safe.
 
 ### Phase 32-03 Decisions (Wave 3 Admin UI MAP-02b + MAP-05, shipped 2026-04-20)
 
@@ -192,8 +204,8 @@ Progress: [█████████░] 88% (2/9 phases, 15/17 plans) — pha
 
 ## Session Continuity
 
-Last session: 2026-04-20T08:38:34.607Z
-Stopped at: Completed 32-03-admin-ui-PLAN.md (/admin/routes schema viewer + 43-site breadcrumb wiring + behavioural + per-site coverage)
+Last session: 2026-04-20T08:51:47.645Z
+Stopped at: Completed 32-04-parity-lint-PLAN.md (route registry parity lint + fixtures + lefthook wrapper shipped; 9/9 pytest green; 140 routes parity OK after KNOWN-MISSES exemption)
 Resume file: None
 
 ---

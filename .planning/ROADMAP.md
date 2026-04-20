@@ -193,7 +193,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] 32-01-registry-PLAN.md — Wave 1: RouteMeta + RouteCategory + RouteOwner + kRouteRegistry 147 entries (MAP-01)
 - [x] 32-02-cli-PLAN.md — Wave 2: ./tools/mint-routes CLI + Keychain + redaction + schema publication (MAP-02a + MAP-03)
 - [x] 32-03-admin-ui-PLAN.md — Wave 3: AdminGate + AdminShell + RoutesRegistryScreen + adminRoutesViewed + legacyRedirectHit x43 (MAP-02b + MAP-05)
-- [ ] 32-04-parity-lint-PLAN.md — Wave 4: route_registry_parity.py + lefthook wrapper + fixtures + pytest (MAP-04)
+- [x] 32-04-parity-lint-PLAN.md — Wave 4: route_registry_parity.py + lefthook wrapper + fixtures + pytest (MAP-04)
 - [ ] 32-05-ci-docs-validation-PLAN.md — Wave 4: 4 CI jobs + SETUP-MINT-ROUTES.md + walker.sh admin-routes + 6 J0 gates
 **Budget**: 5.5j (~1 sem), peut emprunter de 33 seulement. v4 simplifications (Flutter UI pure schema viewer, no backend endpoint) tiennent le budget malgré ajout nLPD D-09 + VALIDATION D-11 + CI D-12.
 **Auto profile**: **L2** (backend/integration) — `/gsd-execute-phase` + `gsd-verifier` 7-pass + `gsd-secure-phase` + curl smoke staging Railway + inter-layer contracts check (route registry mobile↔backend OpenAPI parity). Dashboard `/admin/routes` UI sub-task = bascule **L3 partiel** (walker.sh simctl gate sur ce livrable seul). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
@@ -269,7 +269,7 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 | 30.6. Context Sanity Advanced | v2.8 | 0/3 | Not started | — |
 | 30.7. Tools Déterministes | v2.8 | 0/0 | Not started | — |
 | 31. Instrumenter | v2.8 | 0/5 | Plans ready | — |
-| 32. Cartographier | v2.8 | 0/0 | Not started | — |
+| 32. Cartographier | v2.8 | 5/6 | In Progress | — |
 | 33. Kill-switches | v2.8 | 0/0 | Not started | — |
 | 34. Agent Guardrails mécaniques | v2.8 | 0/0 | Not started | — |
 | 35. Boucle Daily | v2.8 | 0/0 | Not started | — |
