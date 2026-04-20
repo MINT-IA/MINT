@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
@@ -856,6 +857,9 @@ class CoachProfileProvider extends ChangeNotifier {
     _persistFullProfile(updated);
     // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
     CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
+    // Also invalidate daily narrative cache so greeting / topTip / scenarios
+    // pick up new profile data instead of showing stale pre-scan copy.
+    CoachNarrativeService.invalidateCache(profile: updated);
     // FIX-HIGH-2: Invalidate CapMemory on significant profile change
     // to prevent stale caps from being re-served.
     CapMemoryStore.load().then((mem) {
@@ -1362,6 +1366,11 @@ class CoachProfileProvider extends ChangeNotifier {
     // W15: Auto-trigger snapshot after LPP certificate scan
     _createSnapshotFromProfile('document_scan');
 
+    // Invalidate daily narrative cache — greeting / topTip / scenarios were
+    // computed before scan data landed and now show stale "scanne ton
+    // certificat" copy when the user just did exactly that.
+    CoachNarrativeService.invalidateCache(profile: _profile);
+
     notifyListeners();
     _syncToBackend(); // Fire-and-forget, does not block UI
   }
@@ -1470,6 +1479,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1600,6 +1610,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1700,6 +1711,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1772,6 +1784,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
