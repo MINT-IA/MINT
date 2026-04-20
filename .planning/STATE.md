@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 32-01-registry-PLAN.md (147 kRouteRegistry entries + RouteMeta schema)
-last_updated: "2026-04-20T08:07:55.585Z"
+stopped_at: Completed 32-02-cli-PLAN.md (mint-routes CLI + nLPD D-09 redaction + schema v1 contract)
+last_updated: "2026-04-20T08:20:00.160Z"
 last_activity: 2026-04-20
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 17
-  completed_plans: 13
-  percent: 76
+  completed_plans: 14
+  percent: 82
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 32 (cartographier) — EXECUTING
-Plan: 3 of 6
+Plan: 4 of 6
 Status: Ready to execute
 Last activity: 2026-04-20
 Next: `/gsd-execute-phase 31` continue with Plan 31-03 (Wave 3 OBS-06 PII replay redaction audit on 5 sensitive screens) on `feature/v2.8-phase-31-instrumenter`
@@ -85,6 +85,12 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 - Average duration: ~15-30 min/plan (increasing complexity)
 - v2.7 plans: 30-90 min/plan (compliance + encryption + Vision)
 
+**v2.8 Execution Log:**
+
+| Phase-Plan | Duration | Tasks | Files | Completed  |
+|------------|----------|-------|-------|------------|
+| 32-02-cli  | 7 min    | 2     | 11    | 2026-04-20 |
+
 ## Accumulated Context
 
 ### Decisions (v2.8 pre-phase)
@@ -107,6 +113,18 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 - **CTX-05** (plan 02, spike `38a3950b`, merge `0d86d215`): `sentry_flutter 9.14.0` + SentryWidget + `options.privacy.maskAllText/maskAllImages = true` — 5/5 mechanical grid + 0 dashboard regression, **Kill-policy D-01 NOT triggered, PHASE SHIPS**
 - **Dashboard deltas vs baseline-J0**: metric A drift rate +2.4 pts (noise band, <10 pts gate); metric B context hit rate +14.2 pts (positive — hook catches more rule-hits = working); metric C token cost -37.7% (memory gc win from CTX-01 confirmed)
 - **sentry_flutter 9.14.0 API learning**: `options.privacy.*` owns masks (not `.experimental.replay.*`); `options.replay.*` owns sampling rates; `tracePropagationTargets` is `final List<String>` (mutate via `..clear()..addAll([...])`)
+
+### Phase 32-02 Decisions (Wave 2 CLI MAP-02a + MAP-03, shipped 2026-04-20)
+
+- **32-02** (commits `458b0dab` → `317ccdb7`): `./tools/mint-routes` Python 3.9-compat CLI shipped with 3 subcommands (health, redirects, reconcile) + purge-cache + `--verify-token`. Task-split 2-phase: Task 1 skeleton with `NotImplementedError` stubs (pytest collects clean, no `ImportError`); Task 2 wires sentry_client + redaction + dry_run + replaces all 4 stubs. 14/14 pytest green, 0 skipped; 2/2 Flutter `route_meta_json_test.dart` green.
+- **Keychain service name reused: `SENTRY_AUTH_TOKEN`** (matches Phase 31 `sentry_quota_smoke.sh:72`) — CONTEXT D-02 literal `mint-sentry-auth` **amended** inline. Zero onboarding friction: operator configures the Keychain entry ONCE for Phase 31 + 32 together.
+- **nLPD D-09 controls active**: 5-pattern redaction (IBAN_CH, IBAN_ANY, AVS 756.xxxx.xxxx.xx added as A2 defensive default, EMAIL, CHF >100) + recursive `user.{id,email,ip_address,username}` key stripper + 7d cache TTL auto-purge + `purge-cache` operator wipe + `--verify-token` scope enforcer (allowed: project:read + event:read + org:read; extras => exit 78).
+- **Token NEVER in argv** (T-32-03 mitigation): urllib.request with `Authorization: Bearer` header only. Test `test_keychain_fallback_token_never_in_argv` asserts no `--auth-token` string appears in sentry_client.py source. sentry-cli subprocess pattern explicitly rejected.
+- **Schema contract published**: `apps/mobile/lib/routes/route_health_schema.dart::kRouteHealthSchemaVersion = 1`. Python↔Dart parity enforced byte-exactly by `test_json_output_schema_matches_dart_contract` regex-parsing the Dart source for the literal and asserting equality with Python `__schema_version__`. Any future drift fails the test loudly.
+- **Exit codes (sysexits.h D-02 locked)**: 0/2/71/75/78. Graceful degradation on 414 (batch too large → 1 req/sec sequential fallback) and 429 (4s backoff → partial index). 401/403 → exit 78 with scope-diagnostic stderr.
+- **Batch size default = 30** (147 paths → 5 chunks: 30+30+30+30+27). D-11 J0 empirical validation deferred to Plan 32-05 Task 3.
+- **`reconcile` subcommand** graceful no-op until Plan 32-04 ships `tools/checks/route_registry_parity.py`: WARN to stderr + exit 0 (not crash). Auto-switches to lint-driven exit when script lands.
+- **Python 3.9-compat throughout**: no PEP 604 `X | Y` unions, no `match/case`, no `dict | dict` merge. stdlib-only (urllib + subprocess + json + re). Zero external deps. CI 3.11 forward-compat verified.
 
 ### Phase 31-02 Decisions (Wave 2 backend OBS-03, shipped 2026-04-19)
 
@@ -162,8 +180,8 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-20T08:07:55.583Z
-Stopped at: Completed 32-01-registry-PLAN.md (147 kRouteRegistry entries + RouteMeta schema)
+Last session: 2026-04-20T08:20:00.157Z
+Stopped at: Completed 32-02-cli-PLAN.md (mint-routes CLI + nLPD D-09 redaction + schema v1 contract)
 Resume file: None
 
 ---
