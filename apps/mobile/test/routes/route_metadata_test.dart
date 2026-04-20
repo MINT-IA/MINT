@@ -101,28 +101,83 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test(
-      'has exactly 147 entries',
-      () {},
-      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
-    );
+    test('has exactly 147 entries', () {
+      expect(kRouteRegistry.length, 147);
+    });
 
-    test(
-      'all 15 RouteOwner enum values are used at least once',
-      () {},
-      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
-    );
+    test('every entry path matches its key', () {
+      for (final entry in kRouteRegistry.entries) {
+        expect(
+          entry.value.path,
+          entry.key,
+          reason:
+              'Registry key ${entry.key} does not match RouteMeta.path ${entry.value.path}',
+        );
+      }
+    });
 
-    test(
-      'every RouteCategory enum value has entries',
-      () {},
-      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
-    );
+    test('all 15 RouteOwner enum values are used at least once', () {
+      final used = kRouteRegistry.values.map((m) => m.owner).toSet();
+      expect(
+        used.length,
+        15,
+        reason: 'expected all 15 owners used, got ${used.length}: $used',
+      );
+      expect(used.containsAll(RouteOwner.values.toSet()), isTrue);
+    });
 
-    test(
-      'owner ambiguity rule: /explore/retraite owner=explore (D-01 v4 first-segment)',
-      () {},
-      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
-    );
+    test('every RouteCategory enum value has entries', () {
+      final used = kRouteRegistry.values.map((m) => m.category).toSet();
+      expect(used.containsAll(RouteCategory.values.toSet()), isTrue,
+          reason: 'expected all 4 categories used, got $used');
+    });
+
+    test('owner ambiguity rule: /explore/retraite owner=explore (D-01 v4 first-segment)', () {
+      final meta = kRouteRegistry['/explore/retraite'];
+      expect(meta, isNotNull);
+      expect(meta!.owner, RouteOwner.explore);
+      // Sanity: not accidentally owner=retraite
+      expect(meta.owner, isNot(RouteOwner.retraite));
+    });
+
+    test('/retraite standalone hub owner=retraite', () {
+      final meta = kRouteRegistry['/retraite'];
+      expect(meta, isNotNull);
+      expect(meta!.owner, RouteOwner.retraite);
+    });
+
+    test('/coach/chat owner=coach (first-segment rule)', () {
+      final meta = kRouteRegistry['/coach/chat'];
+      expect(meta, isNotNull);
+      expect(meta!.owner, RouteOwner.coach);
+    });
+
+    test('/ root owner=anonymous, requiresAuth=false', () {
+      final meta = kRouteRegistry['/'];
+      expect(meta, isNotNull);
+      expect(meta!.owner, RouteOwner.anonymous);
+      expect(meta.requiresAuth, isFalse);
+    });
+
+    test('/about is public (requiresAuth=false)', () {
+      final meta = kRouteRegistry['/about'];
+      expect(meta, isNotNull);
+      expect(meta!.requiresAuth, isFalse);
+    });
+
+    test('all /auth/* paths are public (requiresAuth=false)', () {
+      final authPaths = kRouteRegistry.entries
+          .where((e) => e.key.startsWith('/auth/'))
+          .toList();
+      expect(authPaths, isNotEmpty);
+      for (final entry in authPaths) {
+        expect(
+          entry.value.requiresAuth,
+          isFalse,
+          reason: '${entry.key} should be public (RouteScope.public in app.dart)',
+        );
+        expect(entry.value.owner, RouteOwner.auth);
+      }
+    });
   });
 }
