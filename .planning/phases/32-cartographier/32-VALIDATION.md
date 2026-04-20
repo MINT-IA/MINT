@@ -185,16 +185,23 @@ Per M-4 strict 3-branch hierarchy: `nyquist_compliant` STAYS **false** because T
 
 ## Risks (P0 pending operator acknowledgment)
 
-### RISK 1 — J0 Task 2 BLOCKED (SentryNavigatorObserver contract unverified) [requires Julien acknowledgment]
+### RISK 1 — J0 Task 2 → Option A (hotfix) executed 2026-04-20, empirical re-verification pending next TestFlight
 
-- **Operator:** autonomous agent session (Claude, feature/v2.8-phase-32-cartographier). **Date:** 2026-04-20.
-- **Reason:** macOS Keychain access denied to non-interactive subprocess (`SecKeychainSearchCop...`); `SENTRY_DSN_MOBILE_STAGING` env var unset in session.
-- **Impact:** D-07 contract (SentryNavigatorObserver auto-sets `transaction.name` per Phase 31 `app.dart:184`) not empirically validated end-to-end. If D-07 is broken, `./tools/mint-routes health` CLI lookups return 0 events for every route → Phase 35 dogfood hollow, Phase 36 FIX prioritization misleading.
-- **Mitigation already in CLI:** sentry_client.py falls back to sequential 1 req/sec on 414; exits 78 (`EX_CONFIG`) on 401/403/scope-missing — the CLI will not ship misleading data, it will exit loud.
-- **Fallback available:** `./tools/mint-routes health --owner=X` sequential mode does NOT rely on auto-named transactions (queries per-path individually). Phase 35 dogfood can fall back to this mode on first error, at a 3-min/scan cost instead of 15-sec/scan.
-- **Julien must choose ONE:**
-  - **A)** Arrange staging credentials on local dev machine (unlock Keychain + export `SENTRY_DSN_MOBILE_STAGING`); re-run walker smoke + Sentry Issues API queries; flip `nyquist_compliant: true` if `transaction.name` matches path on 3 probes. [preferred]
-  - **B)** Accept `nyquist_compliant: false` for Phase 32 ship; defer the empirical gate to Phase 35 dogfood startup where the first `health` call will prove/disprove the contract and trigger Phase 31 retroactive `scope.setTag('route', ...)` patch (2–4 h) if needed.
+- **Status:** ✅ **Code fix shipped via PR #369** (`hotfix/v2.8-phase-31-sentry-transaction-name`, commit `5859894b`). Empirical re-verification pending staging TestFlight send.
+- **Original BLOCKER:** macOS Keychain denial in non-interactive subprocess prevented running the gate during the autonomous session.
+- **Julien re-ran locally (2026-04-20)** with token in Keychain + corrected `SENTRY_ORG=moneyint` env:
+  - `./tools/mint-routes --verify-token` → `[OK] token scopes are within allowed set: []` (the empty `[]` was a cosmetic parsing glitch; actual scopes confirmed `project:read + event:read + org:read` via direct `curl /api/0/`)
+  - `./tools/mint-routes health --json` → 147 routes queried, valid JSON output, PII redaction applied, **but all 147 routes reported `sentry_count_24h: 0`**
+- **Root cause confirmed empirically:** `mint-mobile` Sentry project had 2 issues in 90 days — neither had a route-path transaction. Recorded transactions: `delegate.dart in GoRouterDelegate.pop` + null. `SentryNavigatorObserver()` default constructor has `setRouteNameAsTransaction: false` (`sentry_flutter 9.14.0 sentry_navigator_observer.dart:82`), so `scope.transaction` is NEVER bound to the GoRouter route path. D-07 contract was silently broken in Phase 31-01.
+- **Fix (PR #369):** `apps/mobile/lib/app.dart:190` now passes `setRouteNameAsTransaction: true`. Test added (`test/app_router_observers_test.dart`) as regression guard via source grep. 37/37 local tests pass, 0 regressions.
+- **What Julien still needs to do** (after PR #369 merges to dev):
+  1. Send next staging TestFlight build to iPhone 17 Pro
+  2. Trigger intentional errors on ≥3 different routes (e.g., `/budget`, `/coach/chat`, `/retraite`)
+  3. Wait ≥30 s for Sentry ingest
+  4. Query Sentry Issues API: `transaction:/budget`, `transaction:/coach/chat`, `transaction:/retraite`
+  5. Verify each returns ≥1 event with matching transaction
+  6. Flip `32-VALIDATION.md` frontmatter: `j0_verdict: GREEN`, `j0_blocked_count: 0`, `j0_pass_count: 6`, `nyquist_compliant: true`
+  7. Commit + push
 
 ### RISK 2 — J0 Task 3 BLOCKED (batch OR-query live limit not empirically validated) [requires Julien acknowledgment]
 
