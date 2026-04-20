@@ -34,7 +34,10 @@
 set -euo pipefail
 
 DEVICE="${MINT_WALKER_DEVICE:-iPhone 17 Pro}"
-BUNDLE="com.mint.mintMobile"
+# Bundle ID matches Xcode project CFBundleIdentifier (ch.mint.app).
+# Previously hardcoded "com.mint.mintMobile" which did not match — simctl
+# launch failed with FBSOpenApplicationServiceErrorDomain code=4.
+BUNDLE="${MINT_WALKER_BUNDLE:-ch.mint.app}"
 MODE="${1:---quick-screenshot}"
 DRY_RUN="${MINT_WALKER_DRY_RUN:-0}"
 
@@ -113,8 +116,8 @@ else
   # -------------------------------------------------------------------------
   : "${SENTRY_DSN_STAGING:?SENTRY_DSN_STAGING required for simulator build}"
 
-  log "build: flutter build ios --simulator (staging dart-defines)"
-  (cd apps/mobile && flutter build ios --simulator \
+  log "build: flutter build ios --simulator --no-codesign (staging dart-defines, macOS Tahoe)"
+  (cd apps/mobile && flutter build ios --simulator --no-codesign \
     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
     --dart-define=SENTRY_DSN="${SENTRY_DSN_STAGING}") 2>&1 | tee -a "$LOG"
 
@@ -176,8 +179,8 @@ case "$MODE" in
       mkdir -p "$ADMIN_OUT"
       log "admin-routes: output dir ${ADMIN_OUT}"
 
-      log "admin-routes: flutter build ios --simulator with ENABLE_ADMIN=1"
-      (cd apps/mobile && flutter build ios --simulator \
+      log "admin-routes: flutter build ios --simulator --no-codesign with ENABLE_ADMIN=1 (macOS Tahoe)"
+      (cd apps/mobile && flutter build ios --simulator --no-codesign \
         --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
         --dart-define=SENTRY_DSN="${SENTRY_DSN_STAGING}" \
         --dart-define=ENABLE_ADMIN=1) 2>&1 | tee -a "$LOG"
