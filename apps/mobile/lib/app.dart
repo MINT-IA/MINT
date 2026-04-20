@@ -185,9 +185,22 @@ final _authNotifier = ChangeNotifier();
 // can assert the list contents via `testOnlyRootRouterObservers`
 // without relying on @visibleForTesting getters on go_router
 // internals.
+//
+// Phase 32 J0 Task 2 retroactive hotfix (2026-04-20):
+// `setRouteNameAsTransaction: true` binds `scope.transaction` = current
+// route path on every didPush/didPop/didReplace. Without this flag the
+// SDK default is false (sentry_flutter 9.14.0
+// sentry_navigator_observer.dart:82) and Sentry issues report
+// `transaction = <file.dart in FunctionName>` instead of the route
+// path. This broke Phase 32 CLI `./tools/mint-routes health` which
+// queries `transaction:<path>` (D-07 contract) — empirically verified:
+// mint-mobile project had 2 issues in 90d, neither with route-path
+// transaction. Flipping the flag lets GoRouter's RouteSettings.name
+// flow into scope.transaction via _setCurrentRouteNameAsTransaction.
+// See .planning/phases/32-cartographier/32-VALIDATION.md §Risks Risk 1.
 final List<NavigatorObserver> _routerObservers = [
   AnalyticsRouteObserver(),
-  SentryNavigatorObserver(),
+  SentryNavigatorObserver(setRouteNameAsTransaction: true),
 ];
 
 final _router = GoRouter(
