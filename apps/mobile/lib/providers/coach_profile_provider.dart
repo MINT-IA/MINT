@@ -421,6 +421,22 @@ class CoachProfileProvider extends ChangeNotifier {
         return;
       }
 
+      // Scan-first onboarding: if a document scan has written fields to
+      // answers (via updateFrom*Extraction persisting `_coach_*` keys)
+      // without any wizard being completed, hydrate from those so the
+      // enriched profile survives app restart instead of being lost.
+      final hasScanData = answers.keys.any((k) => k.startsWith('_coach_'));
+      if (hasScanData && answers.isNotEmpty) {
+        _profile = CoachProfile.fromWizardAnswers(answers);
+        _isPartialProfile = true;
+        await _mergePersistedData();
+        _isLoading = false;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        notifyListeners();
+        return;
+      }
+
       // No profile at all
       _profile = null;
       _isPartialProfile = false;
@@ -1180,7 +1196,11 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    // Bootstrap scan-first onboarding: if no profile exists yet (fresh install,
+    // user scanned certificate before any wizard step), seed a default profile
+    // so extraction fields land somewhere. Without this, updateFrom*Extraction
+    // silently no-oped and next launch saw an empty Mon argent card.
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
     // FIX-095: Save previous state for undo capability.
@@ -1458,7 +1478,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Mappe les champs AVS extraits vers PrevoyanceProfile.
   /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
   Future<void> updateFromAvsExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
 
@@ -1592,7 +1612,7 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Reference: LIFD art. 33-33a (deductions), LIFD art. 38 (capital)
   Future<void> updateFromTaxExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
 
@@ -1688,7 +1708,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Stores: salaireBrutMensuel, nombreDeMois, bonusPourcentage.
   /// Tags dataSources as certificate. Stamps timestamps.
   Future<void> updateFromSalaryExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
     double? salaireBrut;
