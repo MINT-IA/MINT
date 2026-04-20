@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Phase 32 context gathered (expert-lock, 6 decisions locked)
-last_updated: "2026-04-20T05:36:49.000Z"
-last_activity: 2026-04-19
+stopped_at: Completed 32-00-reconcile-PLAN.md
+last_updated: "2026-04-20T07:52:52.587Z"
+last_activity: 2026-04-20
 progress:
   total_phases: 9
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
-  percent: 100
+  total_plans: 17
+  completed_plans: 12
+  percent: 71
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 31 — Instrumenter
+**Current focus:** Phase 32 — cartographier
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,10 +39,10 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 31 (Instrumenter) — EXECUTING
-Plan: 5 of 5 complete (Plans 31-00 Wave 0 + 31-01 Wave 1 mobile + 31-02 Wave 2 backend shipped — Plan 31-03 PII audit next)
+Phase: 32 (cartographier) — EXECUTING
+Plan: 2 of 6
 Status: Ready to execute
-Last activity: 2026-04-19
+Last activity: 2026-04-20
 Next: `/gsd-execute-phase 31` continue with Plan 31-03 (Wave 3 OBS-06 PII replay redaction audit on 5 sensitive screens) on `feature/v2.8-phase-31-instrumenter`
 
 Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phase 31: 3/5 plans shipped (OBS-02 + OBS-03 + OBS-04 + OBS-05 green)
@@ -162,9 +162,9 @@ Progress: [████████░░] 82% (2/9 phases, 9/11 plans) — phas
 
 ## Session Continuity
 
-Last session: 2026-04-20T05:36:48.993Z
-Stopped at: Phase 32 context gathered (expert-lock, 6 decisions locked)
-Resume file: .planning/phases/32-cartographier/32-CONTEXT.md
+Last session: 2026-04-20T07:52:52.584Z
+Stopped at: Completed 32-00-reconcile-PLAN.md
+Resume file: None
 
 ---
 *Last activity: 2026-04-19 — v2.8 ROADMAP.md created, 8 phases (30.5 → 36), 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36*

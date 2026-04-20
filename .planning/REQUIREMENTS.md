@@ -54,12 +54,12 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 
 ### MAP — Cartographie vivante (Phase 32)
 
-- [ ] **MAP-01**: Route registry-as-code `lib/routes/route_metadata.dart` — `kRouteRegistry: Map<String, RouteMeta>` avec 147 entrées (path, category, owner, requiresAuth, killFlag)
+- [x] **MAP-01**: Route registry-as-code `lib/routes/route_metadata.dart` — `kRouteRegistry: Map<String, RouteMeta>` avec 147 entrées (path, category, owner, requiresAuth, killFlag)
 - [ ] **MAP-02a**: CLI `./tools/mint-routes {health|redirects|reconcile}` (Python argparse stdlib, Keychain auth `SENTRY_AUTH_TOKEN` scope `project:read`+`event:read`, Sentry `transaction:<path>` query with batch OR optimization J0 validated, sysexits.h exit codes, `--json` mode for Phase 35 dogfood, `--no-color` + `NO_COLOR` env, `MINT_ROUTES_DRY_RUN=1` fixture, PII redaction layer per nLPD D-09)
 - [ ] **MAP-02b**: Flutter UI `/admin/routes` **pure schema viewer** dev-only (compile-time `--dart-define=ENABLE_ADMIN=1` + runtime `FeatureFlags.isAdmin` local check — **PAS de backend endpoint `/admin/me`** per v4 D-10). Displays 147 routes grouped by owner (15 buckets), columns `path | category | owner | requiresAuth | killFlag | FF enabled | description`. **NO Sentry health data, NO snapshot JSON read** (iOS sandbox limitation, v4 architectural simplification). Live health = CLI exclusive.
 - [ ] **MAP-03**: Route health data join **CLI EXCLUSIVE** (registry × Sentry Issues API last 24h via `transaction:<path>` query × FeatureFlags status × last-visited breadcrumbs) → affiché vert/jaune/rouge/dead par route dans le terminal CLI. Flutter UI schema viewer n'affiche PAS le health status.
-- [ ] **MAP-04**: `tools/checks/route_registry_parity.py` lint standalone (fail CI si `GoRoute|ScopedGoRoute(path:)` dans app.dart vs `kRouteRegistry` drift) + `KNOWN-MISSES.md` documentant patterns regex-unparsables (multi-line, ternary, dynamic builders). CI job wired Phase 32 D-12. Lefthook hook wiring = Phase 34 scope.
-- [ ] **MAP-05**: Analytics hit-counter sur **43 redirects legacy** (reconciled 2026-04-20, ROADMAP estimate was 23) via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (paths only, no query params, PII redacted per D-09). Instrumentation seulement, pas suppression — sunset DEFER v2.9+ après 30-day zero-traffic validation.
+- [x] **MAP-04**: `tools/checks/route_registry_parity.py` lint standalone (fail CI si `GoRoute|ScopedGoRoute(path:)` dans app.dart vs `kRouteRegistry` drift) + `KNOWN-MISSES.md` documentant patterns regex-unparsables (multi-line, ternary, dynamic builders). CI job wired Phase 32 D-12. Lefthook hook wiring = Phase 34 scope.
+- [x] **MAP-05**: Analytics hit-counter sur **43 redirects legacy** (reconciled 2026-04-20, ROADMAP estimate was 23) via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (paths only, no query params, PII redacted per D-09). Instrumentation seulement, pas suppression — sunset DEFER v2.9+ après 30-day zero-traffic validation.
 
 ### FLAG — Kill-switches par route (Phase 33)
 

@@ -188,7 +188,13 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   4. Flutter UI affiche 147 routes groupées par owner (15 buckets collapsible), colonnes `path | category | owner | requiresAuth | killFlag | FeatureFlags enabled (local) | description`. **PAS de Sentry health data, PAS de snapshot JSON read.** Live health = CLI exclusif.
   5. CI fail si `tools/checks/route_registry_parity.py` détecte un `GoRoute|ScopedGoRoute(path:)` dans `app.dart` absent de `kRouteRegistry` (ou vice-versa). Ship avec `KNOWN-MISSES.md` documentant patterns regex-unparsables (multi-line, ternary, dynamic).
   6. Les **43 redirects legacy** ont un analytics hit-counter actif via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (PII redacted, paths only) — CLI `./tools/mint-routes redirects` affiche compteur 30d par legacy path. Instrumentation seulement — PAS suppression v2.8, sunset DEFER v2.9+ après 30-day zero-traffic validation.
-**Plans**: TBD
+**Plans**: 6 plans (Wave 0 reconciliation + Wave 1 Dart registry + Wave 2 CLI + Wave 3 Admin UI + Wave 4 parity lint + Wave 4 CI/docs/J0 validation)
+- [x] 32-00-reconcile-PLAN.md — Wave 0: empirical 147/43 grep + KNOWN-MISSES.md extraction + 11 test/fixture scaffolds
+- [ ] 32-01-registry-PLAN.md — Wave 1: RouteMeta + RouteCategory + RouteOwner + kRouteRegistry 147 entries (MAP-01)
+- [ ] 32-02-cli-PLAN.md — Wave 2: ./tools/mint-routes CLI + Keychain + redaction + schema publication (MAP-02a + MAP-03)
+- [ ] 32-03-admin-ui-PLAN.md — Wave 3: AdminGate + AdminShell + RoutesRegistryScreen + adminRoutesViewed + legacyRedirectHit x43 (MAP-02b + MAP-05)
+- [ ] 32-04-parity-lint-PLAN.md — Wave 4: route_registry_parity.py + lefthook wrapper + fixtures + pytest (MAP-04)
+- [ ] 32-05-ci-docs-validation-PLAN.md — Wave 4: 4 CI jobs + SETUP-MINT-ROUTES.md + walker.sh admin-routes + 6 J0 gates
 **Budget**: 5.5j (~1 sem), peut emprunter de 33 seulement. v4 simplifications (Flutter UI pure schema viewer, no backend endpoint) tiennent le budget malgré ajout nLPD D-09 + VALIDATION D-11 + CI D-12.
 **Auto profile**: **L2** (backend/integration) — `/gsd-execute-phase` + `gsd-verifier` 7-pass + `gsd-secure-phase` + curl smoke staging Railway + inter-layer contracts check (route registry mobile↔backend OpenAPI parity). Dashboard `/admin/routes` UI sub-task = bascule **L3 partiel** (walker.sh simctl gate sur ce livrable seul). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
