@@ -55,10 +55,11 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 ### MAP — Cartographie vivante (Phase 32)
 
 - [ ] **MAP-01**: Route registry-as-code `lib/routes/route_metadata.dart` — `kRouteRegistry: Map<String, RouteMeta>` avec 147 entrées (path, category, owner, requiresAuth, killFlag)
-- [ ] **MAP-02**: `/admin/routes` dashboard dev-only (compile-time `--dart-define=ENABLE_ADMIN=1` + runtime `AdminProvider.isAllowed` via `GET /api/v1/admin/me`)
-- [ ] **MAP-03**: Route health data join (registry × Sentry Issues API last 24h × FeatureFlags status × last-visited breadcrumbs) → affiché vert/jaune/rouge/dead par route
-- [ ] **MAP-04**: `tools/checks/route_registry_parity.py` lint (fail CI si `GoRoute(path:)` dans app.dart vs `kRouteRegistry` drift)
-- [ ] **MAP-05**: Analytics hit-counter sur 23 redirects legacy (instrumentation seulement, pas suppression — sunset DEFER v2.9+ après 30-day zero-traffic validation)
+- [ ] **MAP-02a**: CLI `./tools/mint-routes {health|redirects|reconcile}` (Python argparse stdlib, Keychain auth `SENTRY_AUTH_TOKEN` scope `project:read`+`event:read`, Sentry `transaction:<path>` query with batch OR optimization J0 validated, sysexits.h exit codes, `--json` mode for Phase 35 dogfood, `--no-color` + `NO_COLOR` env, `MINT_ROUTES_DRY_RUN=1` fixture, PII redaction layer per nLPD D-09)
+- [ ] **MAP-02b**: Flutter UI `/admin/routes` **pure schema viewer** dev-only (compile-time `--dart-define=ENABLE_ADMIN=1` + runtime `FeatureFlags.isAdmin` local check — **PAS de backend endpoint `/admin/me`** per v4 D-10). Displays 147 routes grouped by owner (15 buckets), columns `path | category | owner | requiresAuth | killFlag | FF enabled | description`. **NO Sentry health data, NO snapshot JSON read** (iOS sandbox limitation, v4 architectural simplification). Live health = CLI exclusive.
+- [ ] **MAP-03**: Route health data join **CLI EXCLUSIVE** (registry × Sentry Issues API last 24h via `transaction:<path>` query × FeatureFlags status × last-visited breadcrumbs) → affiché vert/jaune/rouge/dead par route dans le terminal CLI. Flutter UI schema viewer n'affiche PAS le health status.
+- [ ] **MAP-04**: `tools/checks/route_registry_parity.py` lint standalone (fail CI si `GoRoute|ScopedGoRoute(path:)` dans app.dart vs `kRouteRegistry` drift) + `KNOWN-MISSES.md` documentant patterns regex-unparsables (multi-line, ternary, dynamic builders). CI job wired Phase 32 D-12. Lefthook hook wiring = Phase 34 scope.
+- [ ] **MAP-05**: Analytics hit-counter sur **43 redirects legacy** (reconciled 2026-04-20, ROADMAP estimate was 23) via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (paths only, no query params, PII redacted per D-09). Instrumentation seulement, pas suppression — sunset DEFER v2.9+ après 30-day zero-traffic validation.
 
 ### FLAG — Kill-switches par route (Phase 33)
 
@@ -100,7 +101,7 @@ Chaque FIX provisionné avec kill-switch flag AVANT Phase 36 (per kill-policy AD
 - [ ] **FIX-05**: 388 bare catches → 0 — classification-first (P0 : core flows / P1 : UX best-effort / P2 : test mocks exemptés), backend 56 d'abord (pattern simple), mobile 332 batched 20/PR, `tools/checks/no_bare_catch.py` (GUARD-02) empêche régression pendant migration
 - [ ] **FIX-06**: MintShell ARB parity 6 langs audit — labels `l.tabAujourdhui / l.tabMonArgent / l.tabCoach / l.tabExplorer` DÉJÀ i18n-wired ([apps/mobile/lib/widgets/mint_shell.dart:50-65](apps/mobile/lib/widgets/mint_shell.dart)), audit seulement : clés présentes dans fr/en/de/es/it/pt, pas de ASCII-only residue (pas rewrite, MEMORY.md était stale)
 - [ ] **FIX-07**: Accents 100% — `tools/checks/accent_lint_fr.py` (GUARD-04) gate green sur `.dart` + `.py` + `.arb`
-- [ ] **FIX-08**: 23 redirects legacy — analytics instrumentés (MAP-05, Phase 32), sunset DEFER v2.9+ (PAS suppression v2.8, zero-traffic validation d'abord)
+- [ ] **FIX-08**: **43 redirects legacy** (reconciled 2026-04-20, ROADMAP estimate was 23) — analytics instrumentés (MAP-05, Phase 32), sunset DEFER v2.9+ (PAS suppression v2.8, zero-traffic validation d'abord)
 - [ ] **FIX-09**: Regression test par P0 fix — chaque FIX-01 à FIX-05 ship avec test qui aurait failé pre-fix (empêche régression future, enforcé par code review)
 
 ---
@@ -135,7 +136,7 @@ Tracked but NOT in current roadmap :
 - **OBS-v9-03**: Screenshot pixel diffing
 
 ### Effective deletion
-- **DEL-v9-01**: Suppression des 23 redirects legacy après 30-day zero-traffic validation
+- **DEL-v9-01**: Suppression des **43 redirects legacy** (reconciled 2026-04-20) après 30-day zero-traffic validation
 
 ## Out of Scope (v2.8 explicit refusal)
 

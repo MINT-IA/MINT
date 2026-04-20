@@ -104,7 +104,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active) (completed 2026-04-19)
 - [ ] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
 - [x] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend (completed 2026-04-19)
-- [ ] **Phase 32: Cartographier** — Route registry-as-code 148 routes + `/admin/routes` dashboard dev-only + parity lint + analytics legacy redirects
+- [ ] **Phase 32: Cartographier** — Route registry-as-code **147 routes** (reconciled 2026-04-20) + CLI `./tools/mint-routes` live health + Flutter UI `/admin/routes` schema viewer + parity lint + analytics **43 legacy redirects** (reconciled)
 - [ ] **Phase 33: Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems + admin UI
 - [ ] **Phase 34: Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch, hardcoded-FR, accent, ARB parity, proof-of-read) + CI thinning
 - [ ] **Phase 35: Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
@@ -178,17 +178,18 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 **Auto profile**: **L3** (frontend/UI-touching) — Sentry Replay observable in app, error boundary triggers visibles. `/gsd-execute-phase` + walker.sh simctl gate par task UI + `gsd-verifier` 7-pass + `gsd-ui-review` + `gsd-secure-phase` (PII redaction audit OBS-06) + creator-device gate Julien manuel non-skippable. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
 ### Phase 32: Cartographier
-**Goal**: Avoir une source de vérité machine-lisible pour les 148 routes mobiles — chaque route a des métadonnées (owner, category, requiresAuth, killFlag), un dashboard dev-only `/admin/routes` affiche leur santé live (Sentry × FeatureFlags × last-visited), un lint CI empêche les drifts code↔registry, et les 23 redirects legacy sont instrumentés pour validation 30-day avant sunset v2.9.
-**Depends on**: Phase 31 (Sentry Issues API + breadcrumbs nécessaires pour le data join route health), Phase 34 (lefthook + parity lint scaffolding)
-**Requirements**: MAP-01, MAP-02, MAP-03, MAP-04, MAP-05
+**Goal**: Avoir une source de vérité machine-lisible pour les **147 routes** mobiles (reconciled 2026-04-20, ROADMAP estimate was 148) — chaque route a des métadonnées (owner, category, requiresAuth, killFlag). Livré en **dual affordance** : CLI `./tools/mint-routes` pour live health (Sentry × FeatureFlags × transaction.name queries) + Flutter UI `/admin/routes` comme schema viewer (registry + FeatureFlags local state, **PAS de health data côté UI** — iOS sandbox empêche cross-filesystem read du snapshot CLI, design simplifié v4 pour éviter la dépendance). Lint CI empêche les drifts code↔registry. Les **43 redirects legacy** (reconciled 2026-04-20, ROADMAP estimate was 23) sont instrumentés pour validation 30-day avant sunset v2.9.
+**Depends on**: Phase 31 (Sentry Issues API + SentryNavigatorObserver auto-set `transaction.name` pour query per-route, breadcrumb_helper pour D-05 analytics). **Phase 34 indépendant** (Phase 32 ship parity lint script standalone + CI job ; Phase 34 wire lefthook hook).
+**Requirements**: MAP-01, MAP-02a (CLI), MAP-02b (Flutter UI schema viewer), MAP-03, MAP-04, MAP-05
 **Success Criteria** (what must be TRUE):
-  1. `lib/routes/route_metadata.dart` expose `kRouteRegistry: Map<String, RouteMeta>` avec 148 entrées (path, category ∈ {destination, flow, tool, alias}, owner, requiresAuth, killFlag optional) — single source of truth.
-  2. Dashboard `/admin/routes` chargeable seulement si compile-time `--dart-define=ENABLE_ADMIN=1` ET runtime `AdminProvider.isAllowed` (via `GET /api/v1/admin/me` allowlist) — tree-shaken en prod IPA.
-  3. Chaque ligne du dashboard affiche un statut vert/jaune/rouge/dead issu du join (registry × Sentry Issues API last 24h × FeatureFlags status × last-visited breadcrumbs).
-  4. CI fail si `tools/checks/route_registry_parity.py` détecte un `GoRoute(path:)` dans `app.dart` absent de `kRouteRegistry` (ou vice-versa).
-  5. Les 23 redirects legacy ont un analytics hit-counter actif — le dashboard affiche un compteur "redirects hit last 30 days" par legacy path (instrumentation seulement — PAS suppression v2.8, sunset DEFER v2.9+ après 30-day zero-traffic validation).
+  1. `lib/routes/route_metadata.dart` expose `kRouteRegistry: Map<String, RouteMeta>` avec **147 entrées** (path, category ∈ {destination, flow, tool, alias}, owner ∈ enum 15 valeurs, requiresAuth, killFlag optional, description optional dev-only, sentryTag optional) — single source of truth.
+  2. CLI `./tools/mint-routes {health|redirects|reconcile}` (Python argparse stdlib) lit `SENTRY_AUTH_TOKEN` via macOS Keychain (scope `project:read` + `event:read` only per nLPD D-09), query Sentry via `transaction:<path>` (batch OR-query validé J0), supporte `--json` (Phase 35 dogfood dep), `--no-color`, `MINT_ROUTES_DRY_RUN=1`, exit codes sysexits.h, redaction PII layer. Unit tests via pytest + DRY_RUN fixture.
+  3. Flutter UI `/admin/routes` chargeable seulement si compile-time `--dart-define=ENABLE_ADMIN=1` ET runtime `FeatureFlags.isAdmin` local (PAS de backend endpoint — v4 kill du `/admin/me` proposé) — tree-shaken en prod IPA (verifié via `strings` sur binary = 0 occurrences de `kRouteRegistry`).
+  4. Flutter UI affiche 147 routes groupées par owner (15 buckets collapsible), colonnes `path | category | owner | requiresAuth | killFlag | FeatureFlags enabled (local) | description`. **PAS de Sentry health data, PAS de snapshot JSON read.** Live health = CLI exclusif.
+  5. CI fail si `tools/checks/route_registry_parity.py` détecte un `GoRoute|ScopedGoRoute(path:)` dans `app.dart` absent de `kRouteRegistry` (ou vice-versa). Ship avec `KNOWN-MISSES.md` documentant patterns regex-unparsables (multi-line, ternary, dynamic).
+  6. Les **43 redirects legacy** ont un analytics hit-counter actif via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (PII redacted, paths only) — CLI `./tools/mint-routes redirects` affiche compteur 30d par legacy path. Instrumentation seulement — PAS suppression v2.8, sunset DEFER v2.9+ après 30-day zero-traffic validation.
 **Plans**: TBD
-**Budget**: 1 sem (peut emprunter de 33 seulement)
+**Budget**: 5.5j (~1 sem), peut emprunter de 33 seulement. v4 simplifications (Flutter UI pure schema viewer, no backend endpoint) tiennent le budget malgré ajout nLPD D-09 + VALIDATION D-11 + CI D-12.
 **Auto profile**: **L2** (backend/integration) — `/gsd-execute-phase` + `gsd-verifier` 7-pass + `gsd-secure-phase` + curl smoke staging Railway + inter-layer contracts check (route registry mobile↔backend OpenAPI parity). Dashboard `/admin/routes` UI sub-task = bascule **L3 partiel** (walker.sh simctl gate sur ce livrable seul). Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
 ### Phase 33: Kill-switches
@@ -199,7 +200,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   1. Une tentative de navigation vers une route dont le killFlag est off redirige automatiquement vers `/flag-disabled?path=X&flag=Y` — testé sur au moins 3 routes (un Explorer hub, Coach, Scan).
   2. Julien flip un flag depuis `/admin/flags` 1-clic et les utilisateurs actuels sont déroutés en <2s sans restart (FeatureFlags `ChangeNotifier` + `refreshListenable` hot-reload).
   3. Backend route flags vivent dans Redis via `FlagsService.set_global()` et sont surfaced via `/config/feature-flags` existant (0 nouveau 3e système — convergence des 2 systèmes existants).
-  4. 11 flags-groupes déployés (`enableExplorerRetraite/Famille/Travail/Logement/Fiscalite/Patrimoine/Sante` + `enableCoachChat` + `enableScan` + `enableBudget` + `enableAnonymousFlow`) couvrant 148 routes sans flag-per-route.
+  4. 11 flags-groupes déployés (`enableExplorerRetraite/Famille/Travail/Logement/Fiscalite/Patrimoine/Sante` + `enableCoachChat` + `enableScan` + `enableBudget` + `enableAnonymousFlow`) couvrant **147 routes** (reconciled 2026-04-20) sans flag-per-route.
   5. Les 4 kill-switches P0 de Phase 36 (`enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`) sont provisioned et testés OFF→ON→OFF AVANT que Phase 36 commence (gate non-négociable per kill-policy ADR).
 **Plans**: TBD
 **Budget**: 1 sem (peut emprunter de 32 seulement)
@@ -243,7 +244,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   3. `tools/checks/no_bare_catch.py` (GUARD-02) gate green sur tout le codebase : les 388 bare catches (332 mobile + 56 backend) sont tous classifiés (P0 core flows / P1 UX best-effort / P2 test mocks exemptés) et convergent à 0 sur P0+P1, migration par batch 20/PR.
   4. Les labels MintShell (`l.tabAujourdhui / l.tabMonArgent / l.tabCoach / l.tabExplorer`) sont présents dans les 6 ARB (fr/en/de/es/it/pt), sans ASCII-only residue — audit passé, PAS rewrite (les labels sont déjà i18n-wired à `apps/mobile/lib/widgets/mint_shell.dart:50-65`, MEMORY.md était stale).
   5. `tools/checks/accent_lint_fr.py` (GUARD-04) gate green sur `.dart` + `.py` + `.arb` — accents 100% FR corrects, 0 résidu ASCII.
-  6. Les 23 redirects legacy ont leur analytics actif (via MAP-05) depuis Phase 32 ; leur sunset est DEFER v2.9+ documenté (zero-traffic 30-day validation requise, PAS suppression v2.8).
+  6. Les **43 redirects legacy** (reconciled 2026-04-20) ont leur analytics actif (via MAP-05) depuis Phase 32 ; leur sunset est DEFER v2.9+ documenté (zero-traffic 30-day validation requise, PAS suppression v2.8).
 **Plans**: TBD
 **Budget**: **2-3 sem MINIMUM, non-empruntable** (per kill-policy ADR)
 **Auto profile**: **L3 mandatory** — 4 P0 fixes UI-visible + creator-device gate Julien 20 min cold-start déjà spec'd dans Success Criteria #1. `/gsd-execute-phase` + walker.sh simctl gate par batch fix + `gsd-verifier` 7-pass + `gsd-ui-review` + `gsd-secure-phase` (compliance touched par bare-catch migration) + creator-device gate Julien manuel non-skippable. **NOT autonomous** — c'est le sign-off final v2.8. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).

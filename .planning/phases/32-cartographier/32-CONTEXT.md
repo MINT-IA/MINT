@@ -1,139 +1,185 @@
 # Phase 32: Cartographier — Context
 
 **Gathered:** 2026-04-20
-**Status:** Ready for planning
-**Mode:** expert-lock (6 decisions locked to PM/engineering recommendations — see rationale per D-XX)
+**Status:** Ready for planning (final)
+**Mode:** expert-lock v4 (post-3-panel reviews, structural fix pass)
+**Supersedes:** v1 (initial) + v2 (Option C pivot) + v3 (hybrid) — v4 closes Panel 3 structural blockers
 
 <domain>
 ## Phase Boundary
 
-Route layer observabilité + source-of-truth v2.8. Quatre livrables :
+Route layer observabilité + source-of-truth v2.8, architected for **zero contradiction** :
 
-1. **MAP-01** : `lib/routes/route_metadata.dart` expose `kRouteRegistry: Map<String, RouteMeta>` avec ~148-156 entrées (exact count TBD via reconcile étape Wave 0 — `app.dart` a 156 `GoRoute|ScopedGoRoute` at session start, ROADMAP estimation 148). Single source of truth pour `{path, category, owner, requiresAuth, killFlag}`.
-2. **MAP-02** : `/admin/routes` dashboard gated par compile-time `--dart-define=ENABLE_ADMIN=1` ET runtime `AdminProvider.isAllowed` via `GET /api/v1/admin/me` allowlist. Tree-shaken prod IPA.
-3. **MAP-03** : Route health data join (Sentry Issues API last 24h × FeatureFlags status × last-visited breadcrumbs) → statut 4 couleurs vert/jaune/rouge/dead par route.
-4. **MAP-04** : `tools/checks/route_registry_parity.py` lint (CI fail si `GoRoute(path:)` in `app.dart` drift vs `kRouteRegistry`).
-5. **MAP-05** : Analytics hit-counter sur 23 redirects legacy — instrumentation seulement, sunset DEFER v2.9+ après 30-day zero-traffic validation.
+1. **MAP-01** — Registry `lib/routes/route_metadata.dart` — 147 entries, consumed by CLI + Flutter UI.
+2. **MAP-02a** — CLI `./tools/mint-routes` (Python dev-only, Keychain auth, transaction.name query, live health, Phase 35 dogfood integration).
+3. **MAP-02b** — Flutter UI `/admin/routes` = **pure registry schema viewer** — static registry data + local FeatureFlags state + `--dart-define=ENABLE_ADMIN=1` + `FeatureFlags.isAdmin` runtime gate. **PAS de snapshot JSON read** (v4 resolves iOS sandbox gap : CLI and Flutter UI don't share a filesystem path across Mac/simulator).
+4. **MAP-03** — Route health data join — **CLI EXCLUSIVE**. Flutter UI viewer does not display health status (only schema + FF state). Live health lives only in terminal.
+5. **MAP-04** — Parity lint `tools/checks/route_registry_parity.py` + `KNOWN-MISSES.md` + CI job wired.
+6. **MAP-05** — Analytics hit-counter on 43 redirects legacy via `mint.routing.legacy_redirect.hit` breadcrumb.
 
-**Phase 32 déverrouille** : Phase 33 `requireFlag()` middleware consomme `RouteMeta.killFlag` comme contrat. Phase 36 Finissage E2E consomme le dashboard pour prioriser fixes (join route × sentry issues).
+**Kill-gate** : none user-visible. Admin infra, dev-only.
 
-**Kill-gate** : aucun — Phase 32 est infra dev-only, 0 surface user-visible prod.
+**Phase 32 deliverables unblock** : Phase 33 consumes `RouteMeta.killFlag` contract + reuses AdminScaffold shipped Phase 32. Phase 35 dogfood consumes CLI `--json` output. Phase 36 uses CLI for P0 prioritization.
+
+**Budget** : 5.5j (≈ 1 week) — tenable after v3→v4 simplifications (Flutter UI scope narrowed, no backend endpoint).
 
 </domain>
 
 <decisions>
-## Implementation Decisions (6 locked)
+## Implementation Decisions (12 locked v4)
 
-Rationale : chaque décision a été raisonnée avec options/tradeoffs lors de la présentation gray areas. Julien a autorisé expert-lock 2026-04-20 ("b" / expert-lock). Si l'une se révèle wrong en execution → revert + flag dans SUMMARY.md comme Phase 31.
+v1 (6) → v2 Option C pivot (6) → v3 hybrid (8) → **v4 (12)** — v4 adds D-09 (nLPD controls), D-10 (AdminProvider source of truth), D-11 (VALIDATION artefact), D-12 (CI integration spec), and simplifies D-06 to resolve iOS sandbox gap.
 
-### D-01 — RouteMeta schema = 5 required + 2 optional, owner=enum feature-group
-- **Decision**: 
-  ```dart
-  class RouteMeta {
-    final String path;                    // '/coach/chat'
-    final RouteCategory category;          // enum {destination, flow, tool, alias}
-    final RouteOwner owner;                // enum (see below)
-    final bool requiresAuth;
-    final String? killFlag;                // nullable, references Phase 33 flag name (e.g., 'enableCoachChat')
-    final String? description;             // optional, 1-ligne pour dashboard
-    final String? sentryTag;               // optional, override si route tag Sentry != path
-  }
-  enum RouteCategory { destination, flow, tool, alias }
-  enum RouteOwner {
-    coach, scan, budget, profile, explorerRetraite, explorerFamille,
-    explorerTravail, explorerLogement, explorerFiscalite, explorerPatrimoine,
-    explorerSante, anonymous, auth, admin, system
-  }
-  ```
-- **Rationale owner=enum (pas string libre)** : miroir exact des 11 flag-groups Phase 33 + 4 groupes système (anonymous/auth/admin/system) = **15 owners total**. Évite string drift ("coach" vs "Coach" vs "coach-chat"). Enum = compile-time check, IDE autocomplete, lint-friendly. Julien solo mais le owner sert à grouper visuellement le dashboard (156 routes en 15 buckets lisibles).
-- **Rationale description + sentryTag optional** : dashboard lisible sans avoir à parser le path ("Premier éclairage coach" > "/coach/onboarding/premier-eclairage"). `sentryTag` pour les cas où la route Sentry capture utilise un tag distinct du path (rare — fallback `path` as tag par défaut).
-- **Rationale DROP `lastTouchedSha`** : volatile, dérivable via `git blame`/`git log` si besoin ponctuel. Pas à stocker en registry qui se veut stable.
-- **DROP `description` en prod ?** Non — registry entier est tree-shaken via `const` + `kIsAdminEnabled` guard. 148 descriptions = ~8kb texte, négligeable et dev-only.
+### D-01 — RouteMeta schema (UNCHANGED v1-v4)
+```dart
+class RouteMeta {
+  final String path;
+  final RouteCategory category;  // enum {destination, flow, tool, alias}
+  final RouteOwner owner;         // enum — 15 values (11 flag-groups + anonymous/auth/admin/system)
+  final bool requiresAuth;
+  final String? killFlag;         // nullable, references Phase 33 flag name
+  final String? description;      // optional, dev-only (tree-shaken prod via D-11)
+  final String? sentryTag;        // fallback to path at query time
+}
+```
+**Owner ambiguity rule** (v4 locks): for routes spanning multiple domains (e.g., `/coach/chat/from-budget`), **first path segment wins** — i.e., owner = `coach`. Cross-domain context = metadata only, not ownership.
 
-### D-02 — Sentry Issues API access = backend proxy + mount-only refresh
-- **Decision**: 
-  - Nouvel endpoint backend `GET /api/v1/admin/route-health` (requireAdmin), retourne `Map<String, RouteHealth>` avec `{status: 'green'|'yellow'|'red'|'dead', sentryIssueCount24h: int, lastVisitedAt: ISO8601?, featureFlagEnabled: bool}`.
-  - Backend lit `SENTRY_AUTH_TOKEN` depuis env Railway (pattern établi Phase 31), query `https://sentry.io/api/0/organizations/{org}/issues/?statsPeriod=24h&query=project:mint+event.type:error` filtre par `event.tag:route=<path>`.
-  - Mobile appelle depuis `/admin/routes` au mount + bouton refresh manuel. **Pas d'auto-refresh** (Sentry API rate-limited 40 req/min, dashboard solo usage, 40/min dépassable seulement en stress-test).
-  - Cache 30s côté backend via FastAPI `@lru_cache(ttl=30)` (évite hammer Sentry si admin rafraîchit).
-- **Rationale backend proxy (pas mobile direct)** : `SENTRY_AUTH_TOKEN` exposé dans `--dart-define=` serait baked dans l'IPA — exfiltrable par reverse-engineering. Backend proxy = token reste côté serveur, admin auth via JWT existant.
-- **Rationale mount-only + manual button (pas auto 60s)** : Julien va ouvrir le dashboard ponctuellement (pas continuous monitoring). Auto-refresh = Sentry API hammer for no value. Bouton refresh explicite + spinner = attente claire.
+### D-02 — CLI reads Sentry via Keychain, transaction-based query, batch optimization (v4 = v3 + batch J0 + docs refs)
+- `./tools/mint-routes` (Python 3.10+, argparse stdlib).
+- Keychain : `security find-generic-password -s mint-sentry-auth -w`. **Token scope locked D-09**. Validation before any API call: empty token → exit 71 EX_OSERR with setup instruction pointing to `docs/SETUP-MINT-ROUTES.md`.
+- **Query pattern** : `transaction:<path>` (not `event.tag:route:` — SDK SentryNavigatorObserver auto-sets transaction.name per Phase 31 `app.dart:184` wiring). Gap for async-errors-hors-transaction documented, acceptable.
+- **Batch OR-query (v4 J0 validation)** : Sentry Issues API supports `query=transaction:/a OR transaction:/b OR …` up to ~200 terms per query. CLI J0 smoke test empirically validates batch works → if yes, 147 routes ÷ 30 per batch = 5 requests = ~15 sec full scan. If Sentry rejects → 1 req/sec fallback = 3 min. Both safe; batch optimal for Phase 35 dogfood.
+- **Exit codes** sysexits.h : `0 OK`, `2 EX_USAGE`, `71 EX_OSERR` (Keychain), `75 EX_TEMPFAIL` (429/timeout), `78 EX_CONFIG` (401/403).
+- **Error differentiation** : 401 → "token invalid/expired" exit 78; 403 + "scope" → "missing event:read scope" exit 78; 429 → exponential backoff 1s/2s/4s, abort → exit 75; network timeout → exit 75.
+- **Output modes** : ANSI colors default; `--no-color` flag + `NO_COLOR` env var (no-color.org standard); `--json` newline-delimited per D-12 schema.
+- **DRY_RUN** : `MINT_ROUTES_DRY_RUN=1` reads `tests/tools/fixtures/sentry_health_response.json` (147-route fixture) — unit-testable + CI-friendly.
 
-### D-03 — /admin shell = scaffold partagé Phase 32 + Phase 33 reuse
-- **Decision**: Créer `lib/screens/admin/admin_shell.dart` dès Phase 32 comme AdminScaffold (AppBar + drawer/tabs pour naviguer entre sous-pages admin). Phase 32 ship `/admin/routes` comme child. Phase 33 ajoute `/admin/flags` comme 2e child sans re-scaffold.
-- **Gate commun** : `admin_shell.dart` check `ENABLE_ADMIN` compile-time + `AdminProvider.isAllowed` runtime **une seule fois**, les children sont rendus à l'intérieur du shell validé.
-- **Rationale** : économie 0.5j en Phase 33 (scaffold non-dupliqué) + UX cohérente (Julien navigue entre routes/flags via la même chrome). Phase 31 a posé Sentry navigator + breadcrumbs sur toutes les routes → admin shell hérite automatiquement de l'observabilité.
-- **Gate routing** : `/admin` lui-même redirige vers `/admin/routes` si compile-time et runtime OK, sinon 404-style "Admin disabled" screen (pas de leak qu'un gate admin existe en prod IPA — idéalement tree-shaken mais defense-in-depth via route absent du `kRouteRegistry` en build prod).
+### D-03 — AdminScaffold Phase 32, reused by Phase 33 (v4 = v3, clearer role split)
+- `lib/screens/admin/admin_shell.dart` — AdminScaffold (appBar + children).
+- Compile-time gate : `--dart-define=ENABLE_ADMIN=0` par défaut, `1` for dev builds. Tree-shaken prod per D-11.
+- Runtime gate : **`FeatureFlags.isAdmin` local check (per D-10)** — PAS de backend call.
+- Phase 32 ships child 1 : `/admin/routes` (registry viewer per D-06 v4 spec).
+- Phase 33 adds child 2 : `/admin/flags` (same shell, no refactor).
 
-### D-04 — Parity lint = mobile-only scope (GoRoute ↔ kRouteRegistry)
-- **Decision**: `tools/checks/route_registry_parity.py` compare UNIQUEMENT `app.dart` `GoRoute(path:)` / `ScopedGoRoute(path:)` extractions vs `kRouteRegistry` keys. Backend OpenAPI parity = **hors scope Phase 32**, défer v2.9+ si nécessaire.
-- **CI integration** : lint lance sur `apps/mobile/lib/app.dart` + `apps/mobile/lib/routes/route_metadata.dart`, diff set-symmetric, fail avec liste explicite des drifts.
-- **Rationale** : le L2 autonomous profile mentionnait "mobile↔backend OpenAPI parity" — c'est une overreach. ROADMAP success criterion 4 est clair : "GoRoute(path:) dans app.dart absent de kRouteRegistry (ou vice-versa)". Mobile-only = scope strict, 1 sem tenable. Backend routes = source of truth différente (FastAPI OpenAPI auto-gen). Si un jour on veut enforcer parity cross-layer, c'est une v2.9+ MAP-06 dédiée.
-- **Pre-commit via lefthook** : Phase 34 ajoutera ce lint au pre-commit — Phase 32 livre juste le script + CI integration, Phase 34 wire lefthook.
+### D-04 — Parity lint regex + KNOWN-MISSES.md + standalone script (UNCHANGED v3)
+- `tools/checks/route_registry_parity.py` — standalone Python executable, argparse stdlib.
+- Compares `app.dart` `GoRoute|ScopedGoRoute(path:...)` extractions vs `kRouteRegistry` keys.
+- Ships with `tools/checks/route_registry_parity-KNOWN-MISSES.md` documenting multi-line / ternary / dynamic / conditional patterns regex skips.
+- Wave 0 action : extract all `app.dart` patterns matching known-miss categories, populate `KNOWN-MISSES.md` with real examples BEFORE registry write.
+- CI integration wired in D-12. Lefthook wiring = Phase 34 scope (Phase 32 ships script only).
 
-### D-05 — Redirect legacy analytics storage = Sentry breadcrumb counter
-- **Decision**: Chacune des 23 routes legacy (patterns `ScopedGoRoute(path:..., redirect: (_, __) => '/new/path')`) émet un breadcrumb `mint.routing.legacy_redirect.hit` avec `data: {from: '<legacy_path>', to: '<new_path>'}` avant le redirect. Compteur agrégé via Sentry Issues API query `event.category:mint.routing.legacy_redirect.hit GROUP BY data.from`.
-- **Dashboard display** : colonne "redirect hits 30d" par legacy path, pulled lors du route-health refresh (D-02).
-- **Rationale** :
-  - 0 nouvelle infra (pas de table backend, pas de SQLite local)
-  - Phase 31 D-03 hierarchical naming convention `mint.<surface>.<action>.<outcome>` déjà établie, ici `mint.routing.legacy_redirect.hit` s'y conforme parfaitement
-  - 23 redirects × ~10 hits/jour moyen max = 230 events/jour = 0.005% du quota Sentry Business 50k events/mois → négligeable
-  - Évite backend endpoint + migration + maintenance pour un one-shot 30-day validation
-- **Sunset condition** : si un redirect legacy a 0 hits sur 30 jours consécutifs (via dashboard column), éligible suppression en v2.9+. Aucune suppression en v2.8 (per ROADMAP MAP-05 + kill-policy).
+### D-05 — Redirect legacy analytics via Sentry breadcrumb, count corrected (v4 = v3, retention tied to D-09)
+- 43 redirects emit `mint.routing.legacy_redirect.hit` breadcrumb with `data: {from, to}` before redirect.
+- Math: 43 × 10 hits/day × 30 = 12'900 events/mo = **0.258% Sentry Business 50k/mo** (v3 corrected). At 5k DAU real scale = ~1-2% quota (still safely under $160 ceiling). Revisit at 10k DAU for Enterprise tier upgrade (documented trigger).
+- Breadcrumb data redacted per D-09 (from/to paths only, no query params, no user context).
 
-### D-06 — Dashboard UX = MVP strict (pas de filter/search en Phase 32)
-- **Decision**: Dashboard = table scrollable simple, colonnes :
-  | Status dot | Path | Category | Owner | killFlag | Sentry 24h | FF enabled | Last visited | Redirect hits 30d (legacy only) |
-  
-  Group visuel par `owner` (15 buckets collapsible). Pas de search bar, pas de filter chips, pas d'export. Refresh button en AppBar.
-- **Rationale** :
-  - L2 auto profile = 1 sem, serrée. Filter/search = +0.5j-1j, inutile pour 156 routes en 15 groups (scroll court)
-  - `DIFF-02 heatmap user paths` est explicitement listé dans ROADMAP comme "Differentiators (Out of Scope v2.8)" — respect kill-policy
-  - MVP strict = code minimum = moins de surface à bug → fiable pour Phase 33+36 qui en dépendent
-- **Ship later (v2.9+ potentiel)** : search par path/owner, export CSV pour audits, heatmap visitation (DIFF-02).
+### D-06 — Dual affordance, Flutter UI = pure schema viewer (CHANGED from v3)
+- **CLI** (MAP-02a) = full live health via Sentry, `--json` for Phase 35, quality bar per D-02 + D-12.
+- **Flutter UI `/admin/routes`** (MAP-02b) = **REGISTRY SCHEMA VIEWER** :
+  - Columns : `path | category | owner | requiresAuth | killFlag | FeatureFlags enabled (local) | description`
+  - Groupe par owner (15 buckets collapsible)
+  - **Source de données : `kRouteRegistry` (static const) + `FeatureFlags` (runtime local)**
+  - **PAS de Sentry health data, PAS de snapshot JSON read, PAS de backend call**
+  - Use case : dev browse le registry pendant qu'il code, vérifie killFlag assignment, voit l'état local FF
+  - Pour live health → "use `./tools/mint-routes health` terminal" note affichée en footer de l'écran
+- **Rationale v4 simplification** :
+  - Panel 3 executor identifed : iOS simulator sandbox empêche Flutter UI de lire `.cache/route-health.json` écrit par le CLI sur le Mac. Problème architectural réel, pas design préférence.
+  - Trois options considerees : (a) backend endpoint (revert v2→v3 pivot), (b) simctl get_app_container write trick (fragile, simulator-only), (c) **simplify UI scope to eliminate dependency** (v4 choice).
+  - v4 : Flutter UI utile pour schema exploration (read-only). Live health = CLI job. Single responsibility per surface. No more fake-data risk (UI ne peut plus afficher des zeros trompeurs parce qu'elle n'a pas de health data à afficher).
+- **UX panel brand check** : "schema viewer utilitaire" s'inscrit dans DESIGN_SYSTEM.md "Utility Screens" category, même doctrine que PR #366 Aujourd'hui hub. Utility ≠ cliché dashboard.
+
+### D-07 — Route-tag query pattern (UNCHANGED v3)
+CLI queries `transaction:<path>` using SentryNavigatorObserver's SDK built-in `transaction.name = routePath` auto-setting (Phase 31 `app.dart:184`). Gap acknowledged : async errors hors transaction context not route-queryable (appearing in "system" bucket). **J0 smoke test in D-11 validates empirically.**
+
+### D-08 — CLI + Flutter UI quality bar (v4 = v3 base, clarified deliverables)
+- **CLI quality bar** : sysexits.h exit codes, `--json` mode (Phase 35 hard dep), `--no-color` + `NO_COLOR`, `MINT_ROUTES_DRY_RUN=1` fixture mode, pytest unit tests `tests/tools/test_mint_routes.py`, CI integration per D-12.
+- **Flutter UI quality bar** : tree-shake VALIDATION per D-11, `Semantics(label: ...)` sur owner buckets, empty-state "Registry not generated" si `kRouteRegistry.isEmpty`, FeatureFlags `select` memoization pour éviter rebuild full table sur chaque flag change (perf note panel 3).
+
+### D-09 — nLPD compliance controls (NEW v4, post-panel-3)
+**Required controls for Swiss deployment** :
+1. **Token scope minimization** : `SENTRY_AUTH_TOKEN` MUST have only `project:read` + `event:read` (NO write, NO admin). Documented in `docs/SETUP-MINT-ROUTES.md`, validated by CLI at startup via a `--verify-token` sub-command (optional one-shot check).
+2. **Event redaction layer** : CLI strips the following fields from Sentry API responses before display/JSON output :
+   - `user.*` (id, email, ip_address, username)
+   - `breadcrumb.data.user_*` fields
+   - Any CHF amount in error messages > 100 CHF → masked `CHF [REDACTED]`
+   - IBAN patterns → `CH[REDACTED]`
+   - Email patterns → `[EMAIL]`
+   - JSON output metadata : `{_redaction_applied: true, _redaction_version: 1}`
+3. **Snapshot JSON retention** (if Phase 35 dogfood writes `.cache/route-health.json` on dev machine) : 7-day auto-delete via `./tools/mint-routes` startup check. Emergency `./tools/mint-routes purge-cache` command. `.cache/` entry in `.gitignore` (CI gate verifies).
+4. **Admin access log** : Flutter UI `/admin/routes` mount emits breadcrumb `mint.admin.routes.viewed` with `data: {route_count, feature_flags_enabled_count, snapshot_age_minutes}` — zero PII, aggregates only. nLPD Art. 12 processing record.
+5. **Keychain storage hardening** : `security add-generic-password -a $USER -s mint-sentry-auth -w $TOKEN -U -A` (access control : single user, this device only). Documented in SETUP docs.
+
+**nLPD Art. mapping** : Art. 5 (accuracy) = D-07 transaction.name gap doc'd, Art. 6 (minimization) = token scope + redaction, Art. 9 (storage limitation) = 7d retention, Art. 12 (processing record) = admin breadcrumb, Art. 7 (security) = Keychain hardening.
+
+### D-10 — AdminProvider.isAllowed via FeatureFlags.isAdmin local (NEW v4, resolves v3 contradiction)
+- **Decision** : `AdminProvider.isAllowed` returns `FeatureFlags.isAdmin` (local FF state) — NO backend call.
+- **Rationale** : Panel 3 devops + executor identified v3 contradiction ("no backend endpoint" + "AdminProvider calls `/api/v1/admin/me`"). `/api/v1/admin/me` does not exist in backend. Options: (a) add endpoint (+2h backend scope), (b) use local FF. v4 picks (b) for simplicity + kill-policy (no new features hors roadmap).
+- **Trade-off** : compile-time gate `ENABLE_ADMIN=1` + runtime `FeatureFlags.isAdmin` = two gates but both LOCAL. Single-user dev-only tool = adequate for Phase 32 solo usage. If multi-user admin surface ever needed (v2.9+), re-introduce backend endpoint.
+- **FF wiring** : `FeatureFlags.isAdmin` = static getter reading a constant/env for Phase 32 (hardcoded `true` when ENABLE_ADMIN=1). Phase 33 ChangeNotifier refactor may evolve this.
+
+### D-11 — 32-VALIDATION.md artefact (NEW v4, post-panel-3 devops + executor)
+Ship `.planning/phases/32-cartographier/32-VALIDATION.md` documenting pre-merge gates :
+1. **Tree-shake gate** : `flutter build ios --simulator --release --no-codesign --dart-define=ENABLE_ADMIN=0` → `strings build/.../Runner.app/Runner | grep kRouteRegistry` = 0 occurrences. Proves registry absent from prod IPA.
+2. **J0 SentryNavigatorObserver smoke test** : install staging build, trigger 1 deliberate error on 3 test routes (`/coach`, `/budget`, `/scan`), wait 60s, verify `./tools/mint-routes health --json | jq '.[] | select(.sentry_count_24h > 0)'` returns those 3 routes. If fails → Phase 31 retroactive `scope.setTag('route', ...)` patch (2-4h).
+3. **Batch OR-query validation** : curl Sentry API with 30-route OR query, verify 2xx + results. Determine batch limit empirically (target ≥ 30). Document in CLI code + VALIDATION.
+4. **Parity lint local run** : `python3 tools/checks/route_registry_parity.py` on pristine checkout, verify clean output + KNOWN-MISSES.md entries match observed patterns.
+5. **CLI DRY_RUN test** : `MINT_ROUTES_DRY_RUN=1 ./tools/mint-routes health` outputs fixture data without network. Verifies offline testability.
+6. **Flutter UI smoke test** : boot iPhone 17 Pro sim, `./tools/simulator/walker.sh` script opens `/admin/routes`, screenshot captured, verifies 147 routes rendered grouped by owner.
+
+### D-12 — CI integration spec (NEW v4, post-panel-3 devops)
+**CI jobs wired in Phase 32 ship (not Phase 34 deferred)** :
+1. **`route-registry-parity` job** in `.github/workflows/ci.yml` — runs `python3 tools/checks/route_registry_parity.py` on every push. Fails PR on drift. Runtime ≤ 30s.
+2. **`mint-routes-tests` job** — runs `pytest tests/tools/test_mint_routes.py -q` with `MINT_ROUTES_DRY_RUN=1`. Fails on test failure. Fixture `tests/tools/fixtures/sentry_health_response.json` committed.
+3. **`admin-build-sanity` job** (defensive) — scans `.github/workflows/testflight.yml` + `play-store.yml` for `--dart-define=ENABLE_ADMIN=1` in prod build steps. Fails if found. Runtime ≤ 5s.
+4. **Schema publication** : `lib/routes/route_health_schema.dart` committed alongside registry — defines JSON shape Phase 35 dogfood consumes. Versioned (`schemaVersion: 1`).
+5. **Lefthook wiring** : Phase 32 ships `.lefthook/route_registry_parity.sh` script standalone. **Hook wiring in `lefthook.yml` = Phase 34 scope** (avoids merge conflict with GUARD-02 bare-catch work).
+6. **Documentation** : `docs/SETUP-MINT-ROUTES.md` ships with Phase 32 (Keychain setup + Sentry token scopes + troubleshooting) + README link.
 
 ### Claude's Discretion
-- Exact shape du `AdminProvider.isAllowed` Provider (ChangeNotifier vs StreamProvider) — planner décide selon pattern Flutter établi du projet.
-- Exact implémentation du tree-shaking verification pour `/admin/routes` en prod — planner décide (flutter build + grep IPA vs `--split-debug-info` check). Probablement `grep` sur binary post-build, documenté dans VALIDATION.md.
-- Exact format du status dot (CSS color circle vs icon) — executor décide selon MintColors existants.
-- Exact placement de `lib/routes/` vs `lib/router/` — existing pattern scan avant création (si app.dart sits at root of lib/, adopter le même niveau).
-- Exact naming du `/admin/me` endpoint backend vs reuse `/api/v1/auth/me` + claim `is_admin` — backend executor décide.
+- Exact `AdminProvider` class shape (ChangeNotifier vs static getter) — planner scans existing provider patterns.
+- Exact Flutter UI layout (ListView.builder vs CustomScrollView) — executor picks per perf memoization needs.
+- Exact Sentry batch OR-query term limit (30 vs 50 vs 100) — D-11 J0 empirical determines.
+- Exact CLI sub-command surface (`health`, `redirects`, `reconcile` locked; additional subs like `purge-cache` optional executor choice).
+- Exact `.cache/` path resolution (`~/.cache/mint/` vs `./.cache/` repo-local) — executor picks, `.gitignore` entry mandatory either way.
 
 </decisions>
 
 <canonical_refs>
 ## Canonical References
 
-**Downstream agents (researcher, planner, executor) MUST read these before planning or implementing.**
+**Downstream agents MUST read these before planning or implementing.**
 
 ### Phase scope + success criteria
-- `.planning/ROADMAP.md` §"Phase 32: Cartographier" — goal, depends on 31+34, success criteria 5 items, auto profile L2+L3-partial, budget 1 sem
-- `.planning/REQUIREMENTS.md` §MAP (MAP-01..05) — exact spec per REQ
-- `.planning/STATE.md` — milestone v2.8 status post-31 merge (ref: commit b7a88cc89 PR #367)
+- `.planning/ROADMAP.md` §"Phase 32: Cartographier" — **AMENDED 2026-04-20** (148→147, 23→43, MAP-02 dual affordance)
+- `.planning/REQUIREMENTS.md` §MAP (MAP-01..05) — **AMENDED 2026-04-20** (MAP-02 wording, MAP-05 count corrected)
+- `.planning/STATE.md` — v2.8 milestone post-31 (ref commit b7a88cc89 PR #367)
 
-### Upstream phase dependencies (must read for inheritance)
-- `.planning/phases/31-instrumenter/31-CONTEXT.md` D-03 — hierarchical breadcrumb naming `mint.<surface>.<action>.<outcome>` → Phase 32 adopts `mint.routing.*` + `mint.admin.*` namespaces
-- `.planning/phases/31-instrumenter/31-CONTEXT.md` D-05 — sentry-trace + baggage + X-MINT-Trace-Id propagation pattern → `/api/v1/admin/route-health` endpoint inherits this (auth + trace)
-- `.planning/phases/31-instrumenter/31-CONTEXT.md` D-06 — default-deny CustomPaint `MintCustomPaintMask` → si dashboard admin affiche des charts, wrap per D-06
-- `apps/mobile/lib/services/observability/breadcrumb_helper.dart` (shipped Phase 31) — `MintBreadcrumbs.log()` API à réutiliser pour `mint.routing.legacy_redirect.hit`
+### Upstream phase dependencies
+- `.planning/phases/31-instrumenter/31-CONTEXT.md` — D-03 breadcrumb naming, D-05 trace propagation, D-06 CustomPaint masking
+- `apps/mobile/lib/app.dart:184` — `SentryNavigatorObserver()` wiring (D-07 foundation)
+- `apps/mobile/lib/services/observability/breadcrumb_helper.dart` — `MintBreadcrumbs.log()` API (D-05 consumer)
+- `apps/mobile/lib/services/error_boundary.dart:96` — `scope.setTag` pattern (evidence D-07 `route` tag absent)
+- `tools/simulator/sentry_quota_smoke.sh` — Keychain pattern inheritance (D-02)
 
-### Downstream phase dependencies (provides contracts to)
-- `.planning/REQUIREMENTS.md` §FLAG (FLAG-01..05) — Phase 33 consumes `RouteMeta.killFlag` (nullable string) as contract for `requireFlag()` middleware
-- `.planning/REQUIREMENTS.md` §FIX (Phase 36) — Phase 36 uses dashboard route-health to prioritize P0 fixes (join route × Sentry issues)
+### Downstream phase dependencies
+- `.planning/REQUIREMENTS.md` §FLAG (Phase 33) — consumes `RouteMeta.killFlag` + reuses AdminScaffold
+- `tools/dogfood/mint-dogfood.sh` (Phase 35) — consumes CLI `--json` + schema per D-12
+- `.planning/REQUIREMENTS.md` §FIX (Phase 36) — consumes CLI + registry for P0 prioritization
 
 ### Related ADRs
-- `decisions/ADR-20260419-v2.8-kill-policy.md` — scope discipline v2.8 (pas de feature nouvelle hors roadmap) → DIFF-02 heatmap + filter/search deferred
-- `decisions/ADR-20260419-autonomous-profile-tiered.md` — L2 profile definition + `/admin/routes` UI sub-task bascule L3 partial (walker.sh simctl gate sur livrable dashboard)
+- `decisions/ADR-20260419-v2.8-kill-policy.md` — scope discipline (no new features hors roadmap, respected via v4)
+- `decisions/ADR-20260419-autonomous-profile-tiered.md` — L2 profile (this phase) + L3 partial (Flutter UI sub-task)
+- `decisions/ADR-20260420-chat-vivant-deferred-v2.9-phase3.md` — deferral discipline pattern
 
-### External specs (Sentry + GoRouter)
-- Sentry Issues API docs https://docs.sentry.io/api/events/list-an-organizations-issues/ — endpoint `GET /api/0/organizations/{org}/issues/` + query param `statsPeriod=24h`
-- Sentry rate limits — 40 req/min default (justifies backend cache 30s + mount-only refresh in D-02)
-- GoRouter `ScopedGoRoute` / `redirect:` callback semantics — Phase 33 dépendra de la position exacte du `redirect:` hook dans le pipeline
+### External specs
+- Sentry Issues API — https://docs.sentry.io/api/events/list-an-organizations-issues/
+- Sentry Flutter SDK `SentryNavigatorObserver` — SDK 9.14.0 auto-sets `transaction.name` (J0 validates)
+- sysexits.h — POSIX exit code convention (D-02)
+- NO_COLOR standard — https://no-color.org (D-02)
+- nLPD Swiss data protection law — Art. 5, 6, 7, 9, 12 mapping (D-09)
 
-### Codebase maps
-- `.planning/codebase/STRUCTURE.md` — existing `apps/mobile/lib/` layout (routes/router location TBD per D-Discretion)
-- `.planning/codebase/ARCHITECTURE.md` — Provider pattern (for `AdminProvider.isAllowed`)
-- `.planning/codebase/CONVENTIONS.md` — dart-define naming, feature flag patterns
+### Panel review audit trail
+- `.planning/phases/32-cartographier/32-DISCUSSION-LOG.md` v4 — 3 panel rounds (12 experts total), v1→v4 decision trail
 
 </canonical_refs>
 
@@ -141,51 +187,65 @@ Rationale : chaque décision a été raisonnée avec options/tradeoffs lors de l
 ## Existing Code Insights
 
 ### Reusable Assets
-- `apps/mobile/lib/app.dart` — **156 GoRoute|ScopedGoRoute declarations** at session start (2026-04-20). Extraction par regex scriptable. Wave 0 de Phase 32 reconcilie 148 vs 156 (ROADMAP estimation vs actual) et produit `kRouteRegistry` exhaustif.
-- `apps/mobile/lib/services/feature_flags.dart` — FeatureFlags service existe. Pattern `FeatureFlags.enableXXX` via bool fields + `applyFromMap()` 6h refresh. Phase 33 refactor en ChangeNotifier ; Phase 32 consomme l'API actuelle read-only (`FeatureFlags.isEnabled(flagName)` style).
-- `apps/mobile/lib/services/observability/breadcrumb_helper.dart` (Phase 31 ship) — `MintBreadcrumbs.log('mint.<surface>.<action>.<outcome>', data: {...})` — consommé par D-05 pour `mint.routing.legacy_redirect.hit`.
-- `services/backend/app/main.py` — FastAPI app avec auth middleware existant + Phase 31 global exception handler (lines 177-226). Nouvel endpoint `/api/v1/admin/route-health` s'y ajoute avec auth `requireAdmin` pattern existant.
+- `apps/mobile/lib/app.dart` — 147 GoRoute/ScopedGoRoute + 43 redirects (reconciled 2026-04-20)
+- `apps/mobile/lib/app.dart:184` — `SentryNavigatorObserver()` wired (D-07 foundation, SDK auto-sets transaction.name)
+- `apps/mobile/lib/services/feature_flags.dart` — FeatureFlags service, Phase 32 reads only, D-10 adds `isAdmin` getter
+- `apps/mobile/lib/services/observability/breadcrumb_helper.dart` — Phase 31 ship, D-05 + D-09 consumer
+- `apps/mobile/lib/services/error_boundary.dart:96` — `scope.setTag` pattern (D-07 evidence)
+- `tools/simulator/sentry_quota_smoke.sh` — Keychain + Sentry API patterns inherited by `./tools/mint-routes`
+- `apps/mobile/lib/theme/colors.dart` — MintColors `success/warning/error/textMuted` for status indicators
 
 ### Established Patterns
-- `--dart-define=XXX` compile-time flags → pattern déjà utilisé pour `API_BASE_URL`, `MINT_ENV`, `SENTRY_DSN`. `ENABLE_ADMIN=1` s'y ajoute.
-- Dashboard page mount-only fetch (pas realtime) → pattern établi dans `Aujourdhui` screen (calendar fetch on mount).
-- Sentry `SENTRY_AUTH_TOKEN` Keychain pattern → Phase 31 Plan 31-04 a posé la pattern pour `sentry_quota_smoke.sh` (bash via `security find-generic-password`). Backend utilise env var Railway directement (pas Keychain).
+- `tools/checks/*.py` — shebang, argparse stdlib, sys.exit codes, sys.stderr errors
+- Flutter compile-time flags : `--dart-define=API_BASE_URL`, `MINT_ENV`, `SENTRY_DSN`, `ENABLE_ADMIN` adds naturally
+- Lefthook : skeletal Phase 30.5, wiring expands Phase 34 (Phase 32 ships script standalone per D-12)
+- CI workflow `.github/workflows/ci.yml` — Python lint job slots available, backend pytest job for CLI tests
 
 ### Integration Points
-- `app.dart` router config : Phase 32 ship le registry SANS modifier le `GoRouter` config (parity lint valide consistency, mais registry est séparé). Phase 33 wire le `redirect:` callback pour `requireFlag()`.
-- `/admin` route nouvelle dans `app.dart` : ajouter après les routes auth guards, avec compile-time `if (kIsAdminEnabled)` guard autour de la déclaration (tree-shake prod).
-- Backend : nouveau fichier `services/backend/app/routers/admin_route_health.py` (pattern existant si d'autres routers existent, sinon `services/backend/app/main.py` direct).
-- Lefthook pre-commit : Phase 34 wire `route_registry_parity.py` ; Phase 32 livre le script exécutable standalone + CI job `.github/workflows/ci.yml` ajout.
+- `app.dart` router : Phase 32 ships registry without modifying GoRouter config. Phase 33 wires `requireFlag()` via redirect callback.
+- `/admin` route : new declaration in `app.dart` with compile-time `if (kIsAdminEnabled)` guard.
+- `lib/screens/admin/` : new directory, admin_shell.dart + routes_registry_screen.dart + route_health_schema.dart.
+- `tools/mint-routes` : new Python package (argparse stdlib), inherits Keychain + Sentry API patterns.
+- Backend : **zero changes** (v4 kills `/admin/me` endpoint, AdminProvider uses local FF per D-10).
 
 </code_context>
 
 <specifics>
 ## Specific Ideas
 
-- **Dashboard visuel = utility, pas beau** — Julien n'est pas consommateur UX de ce screen, c'est un admin tool. Pas de motion design, pas de MintColors raffinement, pas de transitions. Status dot + text. Priorité fiabilité > esthétique (inverse de Coach/Explorer).
-- **15 owners enum NON-exhaustive** — si une route existante n'a pas d'owner naturel (ex: `/legal`, `/privacy`), owner = `system`. Pas de creative "undefined" state.
-- **kRouteRegistry count mismatch 148 vs 156** — Wave 0 de Phase 32 doit réconcilier. Probable explication : ROADMAP a compté à l'œil, `app.dart` a eu des ajouts récents (30.5/30.6/31). La reconcile n'est pas un bug, juste un comptage actuel. Le registry enregistre L'ÉTAT ACTUEL, pas l'estimation ROADMAP.
-- **Pas de RouteMeta pour les routes dynamiques** (ex: `/coach/chat/:threadId`) — `path` dans registry = le pattern déclaré dans `app.dart` (`/coach/chat/:threadId`), PAS l'URL résolue. 1 entrée registry = 1 `GoRoute` declaration.
-- **Redirect legacy = 23 estimé, exact count TBD** — Wave 0 compte aussi les `ScopedGoRoute(..., redirect: ...)` patterns. Si > 23, pas un bug, ROADMAP estimation.
+- **v4 philosophical anchor** : "meilleure techno" = architecture sans contradiction, pas architecture maximale. v3 avait Flutter UI lisant un fichier Mac-local → cassé sur simulator. v4 simplifie Flutter UI à pure schema viewer, CLI garde toute la charge live. Single responsibility per surface.
+- **nLPD D-09 first-class citizen** : ajouter les controls dans le CONTEXT (pas dans une note à part) = executor voit les controls au même niveau que le schema RouteMeta. Implémentation impossible à oublier.
+- **CI integration D-12 first-class** : zero-CI-integration était un devops P0 blocker. Phase 32 ship les jobs explicitement, pas en "Phase 34 problem".
+- **D-11 VALIDATION artefact** : J0 gates empiriques lockés = batch OR-query test, SentryNavigatorObserver smoke test, tree-shake binary grep. Factualise ce que v3 avait en prose.
+- **147 vs 148, 43 vs 23** : ROADMAP amendment 2026-04-20 documente les reconciled counts. Future ROADMAP drafts incluront Wave 0 grep pre-commit.
+- **Panel 3 contrarian honesty** : j'ai reconnu panel-driven-design risk. v4 a ÉTÉ guidé par findings structurels (iOS sandbox = fait, missing endpoint = fait, nLPD = loi) pas par vibes. Self-discipline validation.
 
 </specifics>
 
 <deferred>
 ## Deferred Ideas
 
-Hors scope Phase 32 par décision expert-lock + kill-policy v2.8 :
+Hors scope Phase 32 par v4 + kill-policy v2.8 :
 
-- **Backend OpenAPI parity** — élargir MAP-04 pour comparer mobile routes vs backend endpoints. Défer v2.9+ MAP-06 si besoin (rarement nécessaire en pratique — les 2 layers ont des responsabilités différentes).
-- **Filter/search/export dashboard** — `/admin/routes` avec filter par owner, search par path, export CSV. v2.9+ si Julien utilise le dashboard >2×/semaine et ressent la friction.
-- **Heatmap user paths (DIFF-02)** — ROADMAP "Out of Scope v2.8" explicit, descopable. Nécessite analytics pipeline dense (pas juste Sentry breadcrumbs). v2.9+ standalone phase.
-- **Sunset 23 redirects legacy** — analytics instrumentés Phase 32, suppression EFFECTIVE defer v2.9+ après 30-day zero-traffic validation (par redirect).
-- **Mobile ↔ Backend route parity lint** — MAP-04 scoped mobile-only. Cross-layer parity = v2.9+ si tension se manifeste.
-- **Per-route flag** (au lieu de 11 flag-groups Phase 33) — FLAG-05 locke 11 groupes, éviter flag rot. Per-route flag = v2.9+ seulement si 1 groupe devient too coarse.
+- **Backend endpoint `/api/v1/admin/*`** — killed cleanly en v4 (AdminProvider uses local FF). Re-introduce v2.9+ if multi-user admin surface needed.
+- **Codegen via `build_runner`** — noted v2.9+ MAP-06 if >5 regex false negatives discovered in execution.
+- **AST-based parity lint** — v2.9+ if regex fragility becomes blocking.
+- **Filter/search/export CLI + UI** — MVP strict v2.8 (CLI `--owner=X` seul, UI schema viewer static). v2.9+ if friction emerges.
+- **Backend OpenAPI parity** — v2.9+ MAP-06.
+- **Sunset 43 redirects legacy** — analytics Phase 32, suppression EFFECTIVE v2.9+ (30-day zero-traffic per redirect).
+- **Mobile ↔ Backend cross-layer parity** — v2.9+.
+- **Per-route flag** (au lieu de 11 flag-groups Phase 33) — v2.9+ if coarse-grain becomes limiting.
+- **Phase 31 retroactive `scope.setTag('route')` patch** — only if D-11 J0 smoke test reveals `transaction.name` NOT set by SDK.
+- **Heatmap user paths (DIFF-02)** — explicit ROADMAP out-of-scope, v2.9+ standalone.
+- **Sentry tier upgrade Enterprise** — triggered at 5-10k DAU per D-05 math audit, not Phase 32.
 
 </deferred>
 
 ---
 
 *Phase: 32-cartographier*
-*Context gathered: 2026-04-20 (expert-lock mode, 6 decisions locked per Julien authorization)*
-*Mode: expert-lock — Julien relit avant /gsd-plan-phase 32, override D-XX si désaccord*
+*Context gathered: 2026-04-20 (v4 post-3-panel-reviews, structural fix pass per Julien "je valide ton call, je te fais confiance")*
+*Mode: expert-lock v4 — 12 decisions locked (D-01..D-12)*
+*Reconciled: 147 routes / 43 legacy redirects actual*
+*Budget: 5.5j (~1 week)*
+*Next: amend ROADMAP + REQUIREMENTS, then /gsd-plan-phase 32*
