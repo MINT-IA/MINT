@@ -1,29 +1,53 @@
-// Phase 32 Wave 0 stub — MAP-05: 43 redirects emit mint.routing.legacy_redirect.hit.
-// Implementation: Plan 32-03 Wave 3.
+// Phase 32 Plan 03 Wave 3 — static guards for MAP-05 legacy redirect wiring.
 //
-// Baseline (from RECONCILE-REPORT.md §Redirect Call-Site Inventory):
-// - 43 arrow-form `(_, __) => '/target'` redirects at app.dart L531..L1171
-// - Each site has redirect_branches=1, null_pass_through=0
-// - Expected total MintBreadcrumbs.legacyRedirectHit source-call count >= 43
-//
-// Wave 3 wires `MintBreadcrumbs.legacyRedirectHit(from, to)` at every arrow-form
-// site. D-09 §2 redaction requires data MUST NOT include query params or user
-// context.
+// Per-site coverage is asserted by
+// `tests/tools/test_redirect_breadcrumb_coverage.py` using the
+// RECONCILE-REPORT inventory. This file is the lightweight Dart-side
+// guard rail: (a) helper presence, (b) no query-param leak, (c) loose
+// lower bound on source-call count.
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  group('legacyRedirectHit breadcrumb (MAP-05)', () {
-    test('redirect /report -> /rapport emits category mint.routing.legacy_redirect.hit', () {
-      // Will drive GoRouter to /report, await redirect to /rapport, and assert
-      // Sentry breadcrumb queue contains one breadcrumb with
-      // category == 'mint.routing.legacy_redirect.hit' and
-      // data == {'from': '/report', 'to': '/rapport'}.
-    }, skip: 'Plan 32-03 Wave 3 wires legacyRedirectHit in app.dart');
+  group('legacyRedirectHit wiring (MAP-05) — static guards', () {
+    test('MintBreadcrumbs.legacyRedirectHit helper declared', () {
+      final src = File('lib/services/sentry_breadcrumbs.dart').readAsStringSync();
+      expect(src.contains('static void legacyRedirectHit'), isTrue);
+      expect(
+        src.contains("category: 'mint.routing.legacy_redirect.hit'"),
+        isTrue,
+      );
+    });
 
-    test('breadcrumb data contains from+to paths, NO query params, NO user context', () {
-      // Will drive /advisor?utm_source=email and assert breadcrumb data has
-      // exactly {'from': '/advisor', 'to': '/coach/chat'} — no utm_source,
-      // no user.id, no email. D-09 §2 nLPD minimization contract.
-    }, skip: 'Plan 32-03 Wave 3 (D-09 §2 redaction)');
+    test('breadcrumb data uses state.uri.path — never state.uri.toString()', () {
+      final src = File('lib/app.dart').readAsStringSync();
+      // Every MintBreadcrumbs.legacyRedirectHit call must use state.uri.path
+      // (not .toString()) so query params never reach Sentry.
+      final badPattern = RegExp(
+        r'legacyRedirectHit\([^)]*state\.uri\.toString\(\)',
+      );
+      expect(
+        badPattern.hasMatch(src),
+        isFalse,
+        reason:
+            'Using state.uri.toString() leaks query params — must use state.uri.path',
+      );
+    });
+
+    test('app.dart wires at least 43 legacyRedirectHit calls (inventory sum)', () {
+      // Per-site coverage is asserted by
+      // tests/tools/test_redirect_breadcrumb_coverage.py using the
+      // RECONCILE-REPORT inventory. This test is the loose lower bound
+      // (sum across all sites of redirect_branches >= 43, since no site
+      // has zero redirect-taking branches).
+      final src = File('lib/app.dart').readAsStringSync();
+      final count = 'MintBreadcrumbs.legacyRedirectHit'.allMatches(src).length;
+      expect(
+        count,
+        greaterThanOrEqualTo(43),
+        reason:
+            'Wave 0 reconciled 43 redirects; every one emits breadcrumb at least once',
+      );
+    });
   });
 }
