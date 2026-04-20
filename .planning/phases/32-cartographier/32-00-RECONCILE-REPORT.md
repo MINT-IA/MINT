@@ -117,10 +117,10 @@ exactly 1 redirect branch and 0 null-pass-through branches. Plan 03 Task 2 asser
 ## Extracted paths (full list for Wave 1 kRouteRegistry)
 
 Total unique path literals extracted from app.dart: **147**. Extraction regex:
-`(?:GoRoute|ScopedGoRoute)\s*\([^)]*?path\s*:\s*(['"])([^'"]+)\1` (DOTALL). Note: nested child routes inside
-`routes: [...]` blocks carry a path literal that is a segment (e.g., `admin-observability`, `byok`) — their
-runtime-composed path is parent + child (e.g., `/profile/admin-observability`). The raw list below captures
-declared path literals AS-WRITTEN.
+`path\s*:\s*(['"])([^'"]+)\1` (module-level scan; every `path:` literal in the file, independent of
+surrounding `GoRoute(...)` structure). Note: nested child routes inside `routes: [...]` blocks carry a path
+literal that is a segment (e.g., `admin-observability`, `byok`) — their runtime-composed path is parent +
+child (e.g., `/profile/admin-observability`). The raw list below captures declared path literals AS-WRITTEN.
 
 ```
 /
@@ -133,32 +133,55 @@ declared path literals AS-WRITTEN.
 /advisor
 /advisor/plan-30-days
 /advisor/wizard
-/anonymous-chat
+/anonymous/chat
+/arbitrage/allocation-annuelle
+/arbitrage/bilan
 /arbitrage/calendrier-retraits
+/arbitrage/location-vs-propriete
 /arbitrage/rachat-vs-marche
 /arbitrage/rente-vs-capital
 /ask-mint
+/assurances/coverage
+/assurances/lamal
+/auth/forgot-password
 /auth/login
 /auth/register
+/auth/verify
+/auth/verify-email
 /bank-import
 /budget
+/cantonal-benchmark
+/check/debt
 /coach/agir
-/coach/checkin
 /coach/chat
+/coach/checkin
 /coach/cockpit
 /coach/dashboard
 /coach/decaissement
+/coach/history
 /coach/refresh
 /coach/succession
-/connection-error
+/concubinage
+/confidence
 /couple
 /couple/accept
+/data-block/:type
+/debt/help
+/debt/ratio
+/debt/repayment
 /decaissement
 /disability/gap
+/disability/insurance
+/disability/self-employed
 /divorce
 /document-scan
 /document-scan/avs-guide
+/documents
+/documents/:id
+/education/hub
+/education/theme/:id
 /epl
+/expatriation
 /explore
 /explore/famille
 /explore/fiscalite
@@ -167,47 +190,36 @@ declared path literals AS-WRITTEN.
 /explore/retraite
 /explore/sante
 /explore/travail
-/expose/fri
-/expose/nav
-/expose/snapshot
-/facts
-/fiscalite
-/fiscalite/deductions/3a
-/fiscalite/declaration
-/fiscalite/lance-moi
-/frais-caches
-/habits
+/first-job
+/fiscal
 /home
 /household
 /household/accept
 /hypotheque
-/hypotheque-deep/amort-vs-3a
-/hypotheque-deep/fiscalite
-/hypotheque-deep/renewal
-/hypotheque-deep/sarona
-/hypotheque-deep/taux-mix
+/independants/3a
+/independants/avs
+/independants/dividende-salaire
+/independants/ijm
+/independants/lpp-volontaire
 /invalidite
-/journal
 /libre-passage
+/life-event/deces-proche
+/life-event/demenagement-cantonal
 /life-event/divorce
+/life-event/donation
+/life-event/housing-sale
 /life-event/succession
-/logement-deep/renovation
-/logement-deep/residence
-/logement-deep/vente
 /lpp-deep/epl
 /lpp-deep/libre-passage
 /lpp-deep/rachat
-/memoire
-/mode-survie
+/mariage
 /mon-argent
 /mortgage/affordability
-/nouveau-job
-/objectif/:id
-/objectifs
-/objectifs/famille
-/objectifs/liberte
-/objectifs/maison
-/objectifs/retraite
+/mortgage/amortization
+/mortgage/epl-combined
+/mortgage/imputed-rental
+/mortgage/saron-vs-fixed
+/naissance
 /onboarding/enrichment
 /onboarding/intent
 /onboarding/minimal
@@ -220,14 +232,10 @@ declared path literals AS-WRITTEN.
 /open-banking
 /open-banking/consents
 /open-banking/transactions
-/parental-sharing
-/pension
 /pilier-3a
 /portfolio
-/premier-lancement
 /profile
 /rachat-lpp
-/rachat-lpp-deep/simulateur
 /rapport
 /rente-vs-capital
 /report
@@ -235,32 +243,26 @@ declared path literals AS-WRITTEN.
 /retirement
 /retirement/projection
 /retraite
-/retraite/settings
-/rythme-mensuel
 /scan
 /scan/avs-guide
+/scan/impact
+/scan/review
 /score-reveal
-/segments/expat-perspective
+/segments/frontalier
 /segments/gender-gap
-/segments/life-phases
-/segments/tenant-dashboard
-/semester-preview
-/seuils
+/segments/independant
+/settings/langue
 /simulator/3a
+/simulator/compound
+/simulator/credit
 /simulator/disability-gap
+/simulator/job-comparison
+/simulator/leasing
 /simulator/rente-capital
-/simulator/retraite
-/situation-check
 /succession
-/timeline-vie
+/timeline
 /tools
-/univers
-/univers/famille
-/univers/fiscalite
-/univers/logement
-/univers/travail
-/verite-financiere
-/voix-rassurance
+/unemployment
 admin-analytics
 admin-observability
 bilan
@@ -295,30 +297,65 @@ Routes where first-segment-wins rule produces a non-obvious owner. All resolved 
 
 | Path | First segment | Potential owner ambiguity | D-01 v4 resolution |
 |------|---------------|---------------------------|---------------------|
-| `/explore/retraite` | `explore` | `retraite` enum value exists | owner=**explore** (cross-domain context = metadata only) |
-| `/explore/famille` | `explore` | `famille` enum value exists | owner=**explore** |
-| `/explore/travail` | `explore` | `travail` enum value exists | owner=**explore** |
-| `/explore/logement` | `explore` | `logement` enum value exists | owner=**explore** |
-| `/explore/fiscalite` | `explore` | `fiscalite` enum value exists | owner=**explore** |
-| `/explore/patrimoine` | `explore` | `patrimoine` enum value exists | owner=**explore** |
-| `/explore/sante` | `explore` | `sante` enum value exists | owner=**explore** |
-| `/univers/famille` | `univers` | `famille` enum value exists | owner=**univers** |
-| `/univers/fiscalite` | `univers` | `fiscalite` enum value exists | owner=**univers** |
-| `/univers/logement` | `univers` | `logement` enum value exists | owner=**univers** |
-| `/univers/travail` | `univers` | `travail` enum value exists | owner=**univers** |
-| `/life-event/divorce` | `life-event` | `divorce` destination exists | owner=**life-event** (redirect shim, shim owner) |
-| `/life-event/succession` | `life-event` | `succession` destination exists | owner=**life-event** |
-| `/coach/chat`, `/coach/checkin`, `/coach/dashboard`, ... | `coach` | coach is its own enum value | owner=**coach** (unambiguous) |
-| `/simulator/3a`, `/simulator/rente-capital`, `/simulator/disability-gap`, `/simulator/retraite` | `simulator` | second segment matches domain | owner=**simulator** |
-| `/arbitrage/*` | `arbitrage` | second segment matches domain | owner=**arbitrage** |
-| `/lpp-deep/*`, `/3a-deep/*`, `/hypotheque-deep/*`, `/logement-deep/*`, `/rachat-lpp-deep/*` | `*-deep` | deep-dive family | owner=**\*-deep** (dedicated bucket per CONTEXT D-01 owner list) |
+| `/explore/retraite` (L421) | `explore` | `retraite` enum value exists | owner=**explore** (cross-domain context = metadata only) |
+| `/explore/famille` (L436) | `explore` | `famille` enum value exists | owner=**explore** |
+| `/explore/travail` (L450) | `explore` | `travail` enum value exists | owner=**explore** |
+| `/explore/logement` (L465) | `explore` | `logement` enum value exists | owner=**explore** |
+| `/explore/fiscalite` (L481) | `explore` | `fiscalite` enum value exists | owner=**explore** |
+| `/explore/patrimoine` (L496) | `explore` | `patrimoine` enum value exists | owner=**explore** |
+| `/explore/sante` (L510) | `explore` | `sante` enum value exists | owner=**explore** |
+| `/life-event/divorce` (L688) | `life-event` | `divorce` destination exists | owner=**life-event** (redirect shim, shim owner) |
+| `/life-event/succession` (L583) | `life-event` | `succession` destination exists | owner=**life-event** |
+| `/life-event/deces-proche`, `/life-event/demenagement-cantonal`, `/life-event/donation`, `/life-event/housing-sale` | `life-event` | event type matches destination concept | owner=**life-event** (destination, not redirect) |
+| `/coach/chat`, `/coach/checkin`, `/coach/cockpit`, `/coach/dashboard`, `/coach/decaissement`, `/coach/history`, `/coach/refresh`, `/coach/succession`, `/coach/agir` | `coach` | coach is its own enum value | owner=**coach** (unambiguous) |
+| `/simulator/3a`, `/simulator/rente-capital`, `/simulator/disability-gap`, `/simulator/compound`, `/simulator/credit`, `/simulator/job-comparison`, `/simulator/leasing` | `simulator` | second segment matches domain in some cases | owner=**simulator** |
+| `/arbitrage/allocation-annuelle`, `/arbitrage/bilan`, `/arbitrage/calendrier-retraits`, `/arbitrage/location-vs-propriete`, `/arbitrage/rachat-vs-marche`, `/arbitrage/rente-vs-capital` | `arbitrage` | second segment matches domain | owner=**arbitrage** |
+| `/lpp-deep/epl`, `/lpp-deep/libre-passage`, `/lpp-deep/rachat`, `/3a-deep/comparator`, `/3a-deep/real-return`, `/3a-deep/staggered-withdrawal` | `*-deep` | deep-dive family | owner=**\*-deep** (dedicated bucket per CONTEXT D-01 owner list) |
+| `/independants/3a`, `/independants/avs`, `/independants/dividende-salaire`, `/independants/ijm`, `/independants/lpp-volontaire` | `independants` | segmentation-by-persona; second segment matches pillar | owner=**independants** |
+| `/disability/gap`, `/disability/insurance`, `/disability/self-employed` | `disability` | disability = bucket | owner=**disability** |
+| `/debt/help`, `/debt/ratio`, `/debt/repayment` | `debt` | debt = bucket | owner=**debt** |
+| `/documents`, `/documents/:id`, `/document-scan`, `/document-scan/avs-guide`, `/scan`, `/scan/avs-guide`, `/scan/impact`, `/scan/review` | `documents` / `document-scan` / `scan` | first-segment already unambiguous | owner per first segment (no drift) |
+| `/education/hub`, `/education/theme/:id` | `education` | education = bucket | owner=**education** |
+| `/assurances/coverage`, `/assurances/lamal` | `assurances` | assurances = bucket | owner=**assurances** |
+| `/mortgage/affordability`, `/mortgage/amortization`, `/mortgage/epl-combined`, `/mortgage/imputed-rental`, `/mortgage/saron-vs-fixed` | `mortgage` | mortgage = bucket | owner=**mortgage** |
+| `/segments/frontalier`, `/segments/gender-gap`, `/segments/independant` | `segments` | segments = persona bucket | owner=**segments** |
 
 No owner-ambiguity resolution drift from CONTEXT v4. Planner's 15-owner enum covers all observed first
-segments.
+segments. Note: the previously-listed `/univers/*` and `/*-deep` families beyond `/lpp-deep` and `/3a-deep`
+are NOT in the current app.dart (stale references from prior CONTEXT drafts). Updated owner list reflects
+empirically-observed first segments at HEAD-b7a88cc8.
 
 ## Scaffolding
 
-Task 3 results appended after scaffold creation (section reserved).
+Task 3 created 10 scaffold files at the paths mandated by plan frontmatter. Empirical smoke results:
+
+### JSON fixture smoke
+Command: `python3 -c "import json; d=json.load(open('tests/tools/fixtures/sentry_health_response.json')); assert d['_meta']['route_count']==147 and len(d['issues'])==147; print('OK')"`
+Result: **OK** — fixture has `_meta.route_count == 147` AND `len(issues) == 147`.
+Status distribution: 3 red (count_24h 15-17), 5 yellow (count_24h 2-6), 139 green (count_24h 0).
+
+### Python pytest stub collection
+Command: `python3 -m pytest tests/tools/test_mint_routes.py --collect-only -q`
+Result: **12 tests collected in 0.01s** — every test has a non-empty `pytest.mark.skip(reason=...)`.
+
+### Flutter stub compilation smoke
+Command: `cd apps/mobile && flutter test test/routes/route_metadata_test.dart test/routes/route_meta_json_test.dart test/routes/legacy_redirect_breadcrumb_test.dart test/screens/admin/`
+Result: **00:00 +0 ~17: All tests skipped.** — 17 test stubs across 6 files compile without analyzer errors; every stub skips with a reason pointing to its implementing Plan.
+
+### Files created
+
+| Path | Purpose |
+|------|---------|
+| `apps/mobile/test/routes/route_metadata_test.dart` | MAP-01 entry count + enum integrity stubs (4 tests) |
+| `apps/mobile/test/routes/route_meta_json_test.dart` | MAP-01 JSON shape + schemaVersion stubs (2 tests) |
+| `apps/mobile/test/routes/legacy_redirect_breadcrumb_test.dart` | MAP-05 breadcrumb stubs (2 tests, D-09 §2 redaction) |
+| `apps/mobile/test/screens/admin/admin_shell_gate_test.dart` | MAP-02b gate (2 tests, D-10 ENABLE_ADMIN × isAdmin matrix) |
+| `apps/mobile/test/screens/admin/routes_registry_screen_test.dart` | MAP-02b render (4 tests, 147 × 15 buckets) |
+| `apps/mobile/test/screens/admin/routes_registry_breadcrumb_test.dart` | D-09 §4 admin-access breadcrumb (3 tests, aggregates only) |
+| `tests/tools/test_mint_routes.py` | 12 pytest stubs for MAP-02a CLI (3.9-compatible) |
+| `tests/tools/fixtures/sentry_health_response.json` | 147-route DRY_RUN fixture |
+| `tests/checks/fixtures/parity_drift.dart` | Parity lint drift fixture (Wave 4 consumes) |
+| `tests/checks/fixtures/parity_known_miss.dart` | KNOWN-MISSES respect fixture (Wave 4 consumes) |
 
 ## Verdict
 
