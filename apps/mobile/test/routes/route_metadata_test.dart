@@ -1,33 +1,128 @@
-// Phase 32 Wave 0 stub — MAP-01 entry count + enum integrity.
-// Implementation: Plan 32-01 Wave 1.
+// Phase 32 MAP-01 — RouteMeta schema + enum integrity + kRouteRegistry.
 //
 // Baseline contract (from .planning/phases/32-cartographier/32-00-RECONCILE-REPORT.md):
 // - kRouteRegistry.length == 147
-// - RouteOwner enum has 15 values (11 flag-groups + anonymous/auth/admin/system)
-// - Owner ambiguity rule: /explore/retraite -> owner=explore (D-01 v4 first-segment-wins)
+// - RouteOwner enum has 15 values (11 flag-groups + auth/admin/system/explore)
+// - RouteCategory enum has 4 values (destination, flow, tool, alias)
+// - Owner ambiguity rule (D-01 v4): /explore/retraite -> owner=explore (first-segment-wins)
 //
-// Wave 1 flips these `skip:` stubs to live assertions. Zero production imports
-// here because lib/routes/route_metadata.dart does not exist yet.
+// Task 1 (Plan 32-01) flips the schema + enum tests green. Task 2 flips the
+// registry content tests green once `kRouteRegistry` is populated.
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/routes/route_category.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
+import 'package:mint_mobile/routes/route_owner.dart';
 
 void main() {
+  group('RouteMeta schema (MAP-01 D-01)', () {
+    test('RouteMeta is const-constructible with minimal required fields', () {
+      const meta = RouteMeta(
+        path: '/test',
+        category: RouteCategory.destination,
+        owner: RouteOwner.system,
+        requiresAuth: false,
+      );
+
+      expect(meta.path, '/test');
+      expect(meta.category, RouteCategory.destination);
+      expect(meta.owner, RouteOwner.system);
+      expect(meta.requiresAuth, isFalse);
+      expect(meta.killFlag, isNull);
+      expect(meta.description, isNull);
+      expect(meta.sentryTag, isNull);
+    });
+
+    test('RouteMeta exposes all 7 fields as final', () {
+      const meta = RouteMeta(
+        path: '/x',
+        category: RouteCategory.flow,
+        owner: RouteOwner.coach,
+        requiresAuth: true,
+        killFlag: 'enableCoachChat',
+        description: 'dev note',
+        sentryTag: '/coach-override',
+      );
+
+      expect(meta.path, '/x');
+      expect(meta.category, RouteCategory.flow);
+      expect(meta.owner, RouteOwner.coach);
+      expect(meta.requiresAuth, isTrue);
+      expect(meta.killFlag, 'enableCoachChat');
+      expect(meta.description, 'dev note');
+      expect(meta.sentryTag, '/coach-override');
+    });
+  });
+
+  group('RouteCategory enum (D-01)', () {
+    test('has exactly 4 values in declared order', () {
+      expect(RouteCategory.values, <RouteCategory>[
+        RouteCategory.destination,
+        RouteCategory.flow,
+        RouteCategory.tool,
+        RouteCategory.alias,
+      ]);
+    });
+  });
+
+  group('RouteOwner enum (D-01)', () {
+    test('has exactly 15 values', () {
+      expect(RouteOwner.values.length, 15);
+    });
+
+    test('includes 11 flag-group owners (Phase 33 FLAG-05)', () {
+      const flagGroups = <RouteOwner>{
+        RouteOwner.retraite,
+        RouteOwner.famille,
+        RouteOwner.travail,
+        RouteOwner.logement,
+        RouteOwner.fiscalite,
+        RouteOwner.patrimoine,
+        RouteOwner.sante,
+        RouteOwner.coach,
+        RouteOwner.scan,
+        RouteOwner.budget,
+        RouteOwner.anonymous,
+      };
+      expect(flagGroups.length, 11);
+      expect(RouteOwner.values.toSet().containsAll(flagGroups), isTrue);
+    });
+
+    test('includes 4 infra owners', () {
+      const infra = <RouteOwner>{
+        RouteOwner.auth,
+        RouteOwner.admin,
+        RouteOwner.system,
+        RouteOwner.explore,
+      };
+      expect(infra.length, 4);
+      expect(RouteOwner.values.toSet().containsAll(infra), isTrue);
+    });
+  });
+
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 147 entries', () {
-      // Will import kRouteRegistry from apps/mobile/lib/routes/route_metadata.dart
-      // and assert kRouteRegistry.length == 147.
-    }, skip: 'Plan 32-01 Wave 1 implements route_metadata.dart');
+    test(
+      'has exactly 147 entries',
+      () {},
+      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
+    );
 
-    test('all 15 RouteOwner enum values are used at least once', () {
-      // Will assert each RouteOwner appears >= 1 times across kRouteRegistry.
-    }, skip: 'Plan 32-01 Wave 1');
+    test(
+      'all 15 RouteOwner enum values are used at least once',
+      () {},
+      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
+    );
 
-    test('every RouteCategory enum value has entries', () {
-      // Will assert {destination, flow, tool, alias} each have >= 1 entries.
-    }, skip: 'Plan 32-01 Wave 1');
+    test(
+      'every RouteCategory enum value has entries',
+      () {},
+      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
+    );
 
-    test('owner ambiguity rule: /explore/retraite owner=explore (D-01 v4 first-segment)', () {
-      // Will assert the /explore/retraite entry has owner == RouteOwner.explore
-      // (NOT retraite). See CONTEXT v4 D-01 and RECONCILE-REPORT.md owner pre-audit.
-    }, skip: 'Plan 32-01 Wave 1');
+    test(
+      'owner ambiguity rule: /explore/retraite owner=explore (D-01 v4 first-segment)',
+      () {},
+      skip: 'Plan 32-01 Task 2 populates kRouteRegistry',
+    );
   });
 }
