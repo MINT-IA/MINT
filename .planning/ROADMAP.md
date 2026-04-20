@@ -190,7 +190,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   6. Les **43 redirects legacy** ont un analytics hit-counter actif via Sentry breadcrumb `mint.routing.legacy_redirect.hit` (PII redacted, paths only) — CLI `./tools/mint-routes redirects` affiche compteur 30d par legacy path. Instrumentation seulement — PAS suppression v2.8, sunset DEFER v2.9+ après 30-day zero-traffic validation.
 **Plans**: 6 plans (Wave 0 reconciliation + Wave 1 Dart registry + Wave 2 CLI + Wave 3 Admin UI + Wave 4 parity lint + Wave 4 CI/docs/J0 validation)
 - [x] 32-00-reconcile-PLAN.md — Wave 0: empirical 147/43 grep + KNOWN-MISSES.md extraction + 11 test/fixture scaffolds
-- [ ] 32-01-registry-PLAN.md — Wave 1: RouteMeta + RouteCategory + RouteOwner + kRouteRegistry 147 entries (MAP-01)
+- [x] 32-01-registry-PLAN.md — Wave 1: RouteMeta + RouteCategory + RouteOwner + kRouteRegistry 147 entries (MAP-01)
 - [ ] 32-02-cli-PLAN.md — Wave 2: ./tools/mint-routes CLI + Keychain + redaction + schema publication (MAP-02a + MAP-03)
 - [ ] 32-03-admin-ui-PLAN.md — Wave 3: AdminGate + AdminShell + RoutesRegistryScreen + adminRoutesViewed + legacyRedirectHit x43 (MAP-02b + MAP-05)
 - [ ] 32-04-parity-lint-PLAN.md — Wave 4: route_registry_parity.py + lefthook wrapper + fixtures + pytest (MAP-04)
