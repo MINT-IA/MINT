@@ -63,7 +63,17 @@ async def lifespan(app: FastAPI):
     """Create database tables and auto-ingest RAG knowledge base on startup."""
     # Import models to ensure they're registered with Base
     from app import models as _models  # noqa: F401
-    Base.metadata.create_all(bind=engine)
+
+    # Alembic is the source of truth in production — running create_all()
+    # after migrate conflicts with existing tables whose implicit row-type
+    # already exists in pg_type (UniqueViolation on pg_type_typname_nsp_index,
+    # observed 2026-04-21 for magic_link_tokens which has no alembic migration
+    # yet). Keep create_all() in dev/test where the DB can start empty and
+    # there is no alembic at boot time. Any production-only table missing a
+    # migration must be backfilled via a dedicated alembic revision, not by
+    # this bypass. Incident: Railway prod healthcheck loop post-#376.
+    if settings.ENVIRONMENT != "production":
+        Base.metadata.create_all(bind=engine)
 
     # FIX-106: Validate DB connectivity at startup — fail fast if misconfigured.
     try:
