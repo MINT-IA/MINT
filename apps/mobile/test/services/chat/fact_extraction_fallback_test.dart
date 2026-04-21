@@ -91,6 +91,15 @@ void main() {
       expect(applied, isEmpty);
     });
 
+    test('handles iOS autocorrect "jai" without apostrophe', () async {
+      final p = CoachProfileProvider();
+      // « j'ai 34 ans » → iOS keyboard often yields « jai 34 and »
+      final applied = await FactExtractionFallback.extract(
+        "jai 34 and et je gagne 7500 brut par mois", p);
+      expect(applied, contains('birthYear'));
+      expect(applied, contains('incomeGrossMonthly'));
+    });
+
     test('handles thousands separator (apostrophe)', () async {
       final p = CoachProfileProvider();
       final applied = await FactExtractionFallback.extract(

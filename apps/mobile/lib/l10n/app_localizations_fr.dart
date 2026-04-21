@@ -20989,6 +20989,28 @@ class SFr extends S {
   String get coachSilentOpenerQuestion => 'Tu veux en parler ?';
 
   @override
+  String get coachOpenerIdentity => 'Salut. Moi c\'est Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'Je ne vends rien, je ne note rien, je ne te compare à personne. Je t\'aide juste à voir clair dans ce que personne n\'a intérêt à t\'expliquer.';
+
+  @override
+  String get coachOpenerQuestion => 'Par quoi on commence ?';
+
+  @override
+  String get coachStarterPaper => 'Un papier que je comprends pas';
+
+  @override
+  String get coachStarterChoice => 'Un choix que je dois faire';
+
+  @override
+  String get coachStarterCost => 'Un truc qui me coûte, je sais pas quoi';
+
+  @override
+  String get coachStarterLurk => 'Je regarde, je me présente après';
+
+  @override
   String get coachProactiveOptIn =>
       'Au fait — tu veux que je te signale les choses importantes quand tu ouvres l\'app ? Ou tu préfères qu\'on se parle seulement quand tu en as envie ?';
 

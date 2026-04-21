@@ -21039,6 +21039,28 @@ class SDe extends S {
   String get coachSilentOpenerQuestion => 'Möchtest du darüber reden?';
 
   @override
+  String get coachOpenerIdentity => 'Hallo. Ich bin Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'Ich verkaufe nichts, ich bewerte nichts, ich vergleiche dich mit niemandem. Ich helfe dir nur, klar zu sehen bei dem, was dir niemand erklären will.';
+
+  @override
+  String get coachOpenerQuestion => 'Womit fangen wir an?';
+
+  @override
+  String get coachStarterPaper => 'Ein Dokument, das ich nicht verstehe';
+
+  @override
+  String get coachStarterChoice => 'Eine Entscheidung, die ich treffen muss';
+
+  @override
+  String get coachStarterCost => 'Etwas kostet mich, ich weiss nicht was';
+
+  @override
+  String get coachStarterLurk => 'Ich schaue erst mal rum';
+
+  @override
   String get coachProactiveOptIn =>
       'Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?';
 

@@ -9796,6 +9796,34 @@
       "phase": "11-01"
     }
   },
+  "coachOpenerIdentity": "Hi. I'm Mint.",
+  "@coachOpenerIdentity": {
+    "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
+  },
+  "coachOpenerPromise": "I sell nothing, I rate nothing, I compare you to no one. I just help you see clearly into what no one has any interest in explaining to you.",
+  "@coachOpenerPromise": {
+    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+  },
+  "coachOpenerQuestion": "Where do we start?",
+  "@coachOpenerQuestion": {
+    "description": "First-contact opener closing question."
+  },
+  "coachStarterPaper": "A paper I don't understand",
+  "@coachStarterPaper": {
+    "description": "Conversation starter chip — routes to scanner."
+  },
+  "coachStarterChoice": "A choice I have to make",
+  "@coachStarterChoice": {
+    "description": "Conversation starter chip — life events opener."
+  },
+  "coachStarterCost": "Something that costs me, I don't know what",
+  "@coachStarterCost": {
+    "description": "Conversation starter chip — budget/fiscal opener."
+  },
+  "coachStarterLurk": "I'll just look around for now",
+  "@coachStarterLurk": {
+    "description": "Conversation starter chip — dismisses opener without forcing engagement."
+  },
   "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
   "coachOptInAccept": "Yes, flag for me",
   "coachOptInDecline": "No, I'll come when I want",

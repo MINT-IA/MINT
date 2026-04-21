@@ -38,8 +38,12 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 class FactExtractionFallback {
   FactExtractionFallback._();
 
+  // First-person markers. iOS autocorrect routinely strips the apostrophe
+  // from « j'ai » / « j'habite » / « j'gagne » (= « jai / jhabite / jgagne »),
+  // so the pattern accepts both forms. Without this, every message typed on
+  // a French iPhone keyboard with autocorrect slipped through the filter.
   static const _firstPerson =
-      r"(?:\bje\b|\bj'ai\b|\bj'habite\b|\bj'gagne\b|\bmon\b|\bma\b)";
+      r"(?:\bje\b|\bj['’]?ai\b|\bjai\b|\bj['’]?habite\b|\bj['’]?gagne\b|\bmon\b|\bma\b)";
 
   // Group 1 = amount (digits with optional ' or space thousands separators).
   // Captures `7500`, `7'500`, `7 500`. Must be followed by context signalling
@@ -60,9 +64,11 @@ class FactExtractionFallback {
     caseSensitive: false,
   );
 
-  // Age: « j'ai 34 ans ». We normalize to birthYear with the current year.
+  // Age: « j'ai 34 ans ». iOS autocorrect occasionally mangles « ans » into
+  // « and » when the user types on an English keyboard or with
+  // auto-completion quirks — accept both.
   static final RegExp _age = RegExp(
-    r"\bj'ai\s+(\d{2})\s+ans\b",
+    r"\b(?:j['’]?ai|jai)\s+(\d{2})\s+(?:ans|and)\b",
     caseSensitive: false,
   );
 

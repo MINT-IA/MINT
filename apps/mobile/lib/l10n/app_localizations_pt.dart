@@ -20996,6 +20996,28 @@ class SPt extends S {
   String get coachSilentOpenerQuestion => 'Queres falar sobre isto?';
 
   @override
+  String get coachOpenerIdentity => 'Olá. Eu sou o Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'Não vendo nada, não classifico nada, não te comparo com ninguém. Só te ajudo a ver claro naquilo que ninguém tem interesse em te explicar.';
+
+  @override
+  String get coachOpenerQuestion => 'Por onde começamos?';
+
+  @override
+  String get coachStarterPaper => 'Um papel que não entendo';
+
+  @override
+  String get coachStarterChoice => 'Uma escolha que tenho de fazer';
+
+  @override
+  String get coachStarterCost => 'Algo me custa, não sei o quê';
+
+  @override
+  String get coachStarterLurk => 'Só vou olhar, apresento-me depois';
+
+  @override
   String get coachProactiveOptIn =>
       'A propósito — queres que te sinalize as coisas importantes quando abres a app? Ou preferes que falemos só quando te apetecer?';
 
