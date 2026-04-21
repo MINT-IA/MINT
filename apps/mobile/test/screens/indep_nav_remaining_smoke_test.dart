@@ -403,10 +403,12 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Faire mon diagnostic'), findsOneWidget);
+      // Empty-state CTA now routes to structured setup form (P0-MVP-3),
+      // not the coach "diagnostic" path — see budgetCardEmptyAction.
+      expect(find.text('Poser mes charges'), findsOneWidget);
       // FilledButton.icon creates a widget that may not match find.byType(FilledButton)
       // in all Flutter versions, so we check for the button text + icon instead
-      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.edit_note), findsOneWidget);
     });
 
     testWidgets('shows wallet icon in empty state', (tester) async {
