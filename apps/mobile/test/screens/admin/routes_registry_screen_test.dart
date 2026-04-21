@@ -32,7 +32,7 @@ void main() {
       expect(RouteOwner.values.length, 15);
     });
 
-    testWidgets('sum of route rows across all buckets == 147', (tester) async {
+    testWidgets('sum of route rows across all buckets == 148', (tester) async {
       // Force a large viewport so every ExpansionTile is laid out simultaneously
       // (default test surface is 800x600 which clips tiles below fold, preventing
       // taps from reaching them reliably after each expansion relayout).
@@ -68,8 +68,8 @@ void main() {
       );
       expect(
         rows,
-        findsNWidgets(147),
-        reason: 'registry has 147 entries; UI must render all',
+        findsNWidgets(148),
+        reason: 'registry has 148 entries; UI must render all',
       );
     });
 
