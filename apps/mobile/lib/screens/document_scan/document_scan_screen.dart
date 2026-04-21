@@ -66,6 +66,7 @@ class _DocumentScanScreenState extends State<DocumentScanScreen> {
     DocumentType.lppCertificate,
     DocumentType.taxDeclaration,
     DocumentType.avsExtract,
+    DocumentType.salaryCertificate,
   };
 
   /// Maximum file size: 4 MB.
