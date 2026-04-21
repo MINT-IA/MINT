@@ -16,6 +16,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
@@ -1042,6 +1043,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             unawaited(provider.applySaveFact(key, value, confidence: conf));
           }
         }
+
+        // Safety-net extraction: anonymous users don't get backend save_fact
+        // (user_id required) and the INTERNAL_TOOL_NAMES filter strips the
+        // tool from external_calls even for authenticated users. Run a
+        // first-person-only regex fallback on the user message so the
+        // profile actually fills when the user types « j'ai 34 ans, je
+        // gagne 7500 brut/mois ». Source: MVP-PLAN-2026-04-21 P0-MVP-1
+        // étape 1B. Never fires for canton/householdType — those require
+        // explicit LLM save_fact, not brittle regex.
+        unawaited(FactExtractionFallback.extract(text, provider));
       }
 
       // Sync profile from backend after each coach exchange.
