@@ -47,9 +47,26 @@ class CoachWhisperService {
       }
     }
 
-    // Rule 4: Patrimoine data very incomplete
+    // Rule 4: Patrimoine data very incomplete — contextual scan nudge.
+    // Only suggests what isn't already sourced from a certificate, so the
+    // hint doesn't parrot "scan LPP" once Julien already scanned his LPP.
     if (patrimoine.completionRatio < 0.34 && !patrimoine.isEmpty) {
-      return 'Scanne un certificat LPP ou 3a pour affiner ta vue.';
+      final sources = profile?.dataSources ?? const {};
+      final lppScanned =
+          sources['prevoyance.avoirLppTotal'] == ProfileDataSource.certificate;
+      final troisaScanned =
+          sources['prevoyance.avoir3a'] == ProfileDataSource.certificate;
+      if (!lppScanned && !troisaScanned) {
+        return 'Scanne un certificat LPP ou 3a pour affiner ta vue.';
+      }
+      if (lppScanned && !troisaScanned) {
+        return 'Ton 3a reste à capturer. Scanne ton attestation pour compléter.';
+      }
+      if (!lppScanned && troisaScanned) {
+        return 'Il manque ton certificat LPP. Scanne-le pour compléter.';
+      }
+      // Both scanned — the patrimoine gap is elsewhere (immo, placements).
+      // Silence beats a hint that parrots what's already done.
     }
 
     // Default: silence. No noise is better than generic advice.

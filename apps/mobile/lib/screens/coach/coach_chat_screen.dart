@@ -2223,22 +2223,26 @@ class _OpenerChip extends StatelessWidget {
     final borderColor = subtle
         ? MintColors.textSecondary.withValues(alpha: 0.2)
         : MintColors.textPrimary.withValues(alpha: 0.3);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: borderColor),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: subtle ? FontWeight.w400 : FontWeight.w500,
-            color: textColor,
+    return Semantics(
+      button: true,
+      label: label,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: subtle ? FontWeight.w400 : FontWeight.w500,
+              color: textColor,
+            ),
           ),
         ),
       ),

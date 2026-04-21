@@ -159,7 +159,7 @@ class LppCertificateParser {
     // ── Salaire assure ──
     _FieldPattern(
       fieldName: "lpp_insured_salary",
-      label: "Salaire assure",
+      label: "Salaire assuré",
       profileField: "lppInsuredSalary",
       patterns: [
         RegExp(
@@ -267,7 +267,7 @@ class LppCertificateParser {
     // ── Prestation d'invalidite ──
     _FieldPattern(
       fieldName: "disability_coverage",
-      label: "Prestation d'invalidite",
+      label: "Prestation d'invalidité",
       profileField: "disabilityCoverage",
       patterns: [
         RegExp(
@@ -284,7 +284,7 @@ class LppCertificateParser {
     // ── Prestation de deces ──
     _FieldPattern(
       fieldName: "death_coverage",
-      label: "Prestation de deces",
+      label: "Prestation de décès",
       profileField: "deathCoverage",
       patterns: [
         RegExp(
@@ -317,7 +317,7 @@ class LppCertificateParser {
     // ── Cotisation employe ──
     _FieldPattern(
       fieldName: "employee_contribution",
-      label: "Cotisation employe (mensuelle)",
+      label: "Cotisation employé (mensuelle)",
       profileField: "employeeLppContribution",
       patterns: [
         RegExp(
