@@ -513,14 +513,6 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     requiresAuth: true,
     killFlag: 'enableBudget',
   ),
-  '/budget/setup': RouteMeta(
-    path: '/budget/setup',
-    category: RouteCategory.destination,
-    owner: RouteOwner.budget,
-    requiresAuth: true,
-    killFlag: 'enableBudget',
-    description: 'Structured fixed-charges setup form — MVP P0-MVP-3',
-  ),
   '/check/debt': RouteMeta(
     path: '/check/debt',
     category: RouteCategory.destination,
