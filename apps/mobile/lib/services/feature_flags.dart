@@ -79,6 +79,11 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  /// MVP wedge onboarding — 7-screen flow with dossier strip
+  /// (doctrine V2, 2026-04-21). When true, the landing CTA routes new
+  /// users into `/onb` instead of the legacy coach anonymous flow.
+  static bool enableMvpWedgeOnboarding = true;
+
   // Phase 32 D-10 — local-only gate for /admin/*.
   // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
   // NO backend call (D-10 v4 kills proposed /api/v1/admin/me).
