@@ -259,10 +259,14 @@ void main() {
 
   group('FallbackTemplates.premierEclairageReframe', () {
     test('certified data mentions confidence and certification', () {
+      // Value is the stringified ProfileDataSource enum name — 'certificate',
+      // not 'certified'. Prior typo in fallback_templates.dart compared
+      // to 'certified' so this branch was unreachable in prod and the
+      // test incidentally matched. Fixed in commit c7e4cad1.
       final result = FallbackTemplates.premierEclairageReframe(
         _ctx(
           knownValues: {'confidence_score': 85},
-          dataReliability: {'avoirLpp': 'certified'},
+          dataReliability: {'avoirLpp': 'certificate'},
         ),
       );
       expect(result, contains('certifi\u00e9es'));

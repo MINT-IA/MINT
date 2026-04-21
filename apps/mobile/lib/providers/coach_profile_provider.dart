@@ -501,7 +501,17 @@ class CoachProfileProvider extends ChangeNotifier {
   /// overwriting the rest of the profile.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
-    final merged = Map<String, dynamic>.from(_lastAnswers)..addAll(partial);
+    // Deep-walk crack #15: always re-read the on-disk answers before
+    // merging. `_lastAnswers` is populated at startup by loadFromWizard
+    // but updateFrom*Extraction / budget setup / regex fallback each
+    // load+save independently. If mergeAnswers relied on the stale
+    // in-memory copy, a budget setup that ran after a scan would build
+    // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
+    // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
+    // after the card Budget populated. Read-then-merge-then-save is the
+    // only crash-safe discipline.
+    final current = await ReportPersistenceService.loadAnswers();
+    final merged = Map<String, dynamic>.from(current)..addAll(partial);
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;

@@ -1797,12 +1797,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       );
     }
 
+    // Sync local _profile from provider so keyData picks up scans / budget
+    // saves / save_fact writes that happened while the user was on another
+    // screen. Without this, a scanned LPP doesn't suppress the opener —
+    // deep walkthrough crack #8 « rupture de confiance ».
+    final freshProfile = context.watch<CoachProfileProvider>().profile;
+    if (freshProfile != null && !identical(freshProfile, _profile)) {
+      _profile = freshProfile;
+    }
+
     final keyData = _computeKeyNumber();
 
     // If no financial data available, show the first-contact opener +
-    // 4 conversation starter chips. Gated on _messages.isEmpty so the
-    // opener disappears as soon as the user starts typing or taps a chip.
-    // Spec: MVP-PLAN-2026-04-21 § P0-MVP-2 (PM panel wording).
+    // 4 conversation starter chips. Gated on BOTH « no conversation yet »
+    // AND « no captured data yet » — either signal means first contact.
+    // The previous version checked only _messages.isEmpty, so after
+    // scan+confirm the user was thrown back into the opener (deep walk
+    // crack #8). Now: once the profile has LPP / 3a / fitness data,
+    // the silent opener takes over, never the first-contact one.
     if (keyData == null && _messages.isEmpty) {
       return _buildFirstContactOpener(s);
     }
