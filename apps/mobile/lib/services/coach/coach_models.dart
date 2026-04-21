@@ -80,8 +80,10 @@ class CoachContext {
   final String lastMilestone;
   // Known numerical values for hallucination detection
   final Map<String, double> knownValues;
-  // Data reliability by field: 'certified', 'userInput', or 'estimated'
-  // e.g. {'avoirLpp': 'certified', 'patrimoine': 'estimated'}
+  // Data reliability by field: ProfileDataSource enum name — 'certificate',
+  // 'wizard', 'estimated', 'userInput'. Stringified in
+  // CoachNarrativeService._buildContext via `entry.value.name`.
+  // e.g. {'prevoyance.avoirLppTotal': 'certificate', 'patrimoine.epargneLiquide': 'estimated'}
   final Map<String, String> dataReliability;
 
   /// SafeMode flag — true when CoachProfile.isInDebtCrisis is active.
