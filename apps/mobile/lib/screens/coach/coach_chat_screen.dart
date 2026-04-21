@@ -1026,6 +1026,24 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
       _extractAndSaveInsight(text, cleanMessage);
 
+      // Dispatch `save_fact` tool_use blocks locally so that anonymous users
+      // (the default on fresh installs) actually persist the fields the coach
+      // just extracted. Backend `save_fact` only writes to ProfileModel.data
+      // when user_id is present — anon sessions fall through to "Fait noté
+      // (hors DB)" and lose the value otherwise.
+      if (mounted) {
+        final provider = context.read<CoachProfileProvider>();
+        for (final call in response.toolCalls) {
+          if (call.name != 'save_fact') continue;
+          final key = call.input['key'];
+          final value = call.input['value'];
+          final conf = call.input['confidence']?.toString() ?? 'medium';
+          if (key is String && value != null) {
+            unawaited(provider.applySaveFact(key, value, confidence: conf));
+          }
+        }
+      }
+
       // Sync profile from backend after each coach exchange.
       // save_fact writes server-side; this pulls those updates into Flutter.
       if (mounted) {

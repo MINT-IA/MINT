@@ -507,8 +507,116 @@ class CoachProfileProvider extends ChangeNotifier {
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
     await ReportPersistenceService.saveAnswers(merged);
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
     _syncToBackend(); // Fire-and-forget, does not block UI
+  }
+
+  /// Apply a `save_fact` tool call locally.
+  ///
+  /// Backend `save_fact` persists to `ProfileModel.data` only when `user_id`
+  /// is present. Anonymous local-mode users (the default for fresh installs)
+  /// never have a `user_id`, so the backend path hits `# Hors-DB path` and
+  /// returns "Fait noté (hors DB)" without persisting — the chat captures
+  /// data in theory but nothing lands in the profile.
+  ///
+  /// This method closes that gap: when the coach_chat_screen receives a
+  /// `save_fact` tool_use block, it dispatches here to translate the canonical
+  /// backend fact key (`incomeNetMonthly`, `canton`, `avoirLpp`, …) into the
+  /// wizard answer key(s) that `CoachProfile.fromWizardAnswers` reads, then
+  /// calls `mergeAnswers` to persist to SharedPreferences + refresh the
+  /// profile.
+  ///
+  /// Returns `true` when the fact was mapped and applied, `false` when the
+  /// key is unknown (caller can log — Claude occasionally hallucinates keys).
+  Future<bool> applySaveFact(
+    String factKey,
+    dynamic factValue, {
+    String confidence = 'medium',
+  }) async {
+    if (confidence == 'low') return false; // mirror backend skip
+    final mapped = _mapFactKeyToAnswers(factKey, factValue);
+    if (mapped.isEmpty) return false;
+    await mergeAnswers(mapped);
+    return true;
+  }
+
+  /// Translates a `save_fact` canonical key + value into the corresponding
+  /// wizard answer keys expected by `CoachProfile.fromWizardAnswers`.
+  /// Returns an empty map when the key is unknown.
+  Map<String, dynamic> _mapFactKeyToAnswers(String factKey, dynamic value) {
+    if (value == null) return const {};
+    switch (factKey) {
+      // Identity / location
+      case 'birthYear':
+        return {'q_birth_year': value};
+      case 'dateOfBirth':
+        return {'q_date_of_birth': value};
+      case 'canton':
+        return {'q_canton': value};
+      case 'commune':
+        return {'q_commune': value};
+      case 'householdType':
+        return {'q_civil_status': value};
+      case 'employmentStatus':
+        return {'q_employment_status': value};
+      case 'gender':
+        return {'q_gender': value};
+      case 'targetRetirementAge':
+        return {'q_target_retirement_age': value};
+      // Income — map each fact into a pay-frequency-consistent pair so
+      // fromWizardAnswers computes salaireBrutMensuel correctly.
+      case 'incomeNetMonthly':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'monthly',
+        };
+      case 'incomeNetYearly':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'yearly',
+        };
+      case 'incomeGrossMonthly':
+        final monthly = _asNum(value);
+        if (monthly == null) return const {};
+        return {'q_gross_salary_annual': monthly * 12};
+      case 'incomeGrossYearly':
+        return {'q_gross_salary_annual': value};
+      case 'employmentRate':
+        return {'q_employment_rate': value};
+      case 'annualBonus':
+        return {'q_annual_bonus': value};
+      // LPP — align with keys fromWizardAnswers reads for scan data
+      case 'avoirLpp':
+        return {'_coach_avoir_lpp': value};
+      case 'avoirLppObligatoire':
+        return {'_coach_avoir_lpp_oblig': value};
+      case 'avoirLppSurobligatoire':
+        return {'_coach_avoir_lpp_suroblig': value};
+      case 'lppInsuredSalary':
+        return {'_coach_salaire_assure': value};
+      case 'lppBuybackMax':
+        return {'_coach_rachat_maximum': value};
+      // 3a
+      case 'pillar3aAnnual':
+        return {'q_3a_annual_contribution': value};
+      case 'pillar3aBalance':
+        return {'q_total_3a': value};
+      // Savings / wealth / debt
+      case 'savingsMonthly':
+        return {'q_savings_monthly': value};
+      case 'totalSavings':
+      case 'wealthEstimate':
+        return {'q_epargne_liquide': value};
+      default:
+        return const {};
+    }
+  }
+
+  static num? _asNum(dynamic v) {
+    if (v is num) return v;
+    if (v is String) return num.tryParse(v);
+    return null;
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
