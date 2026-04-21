@@ -3021,6 +3021,120 @@ abstract class S {
   /// **'Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.'**
   String get budgetEmptyBody;
 
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges fixes'**
+  String get budgetSetupTitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui part chaque mois, quoi qu\'il arrive.'**
+  String get budgetSetupSubtitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer ou hypothèque'**
+  String get budgetSetupHousing;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance maladie'**
+  String get budgetSetupLamal;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transport'**
+  String get budgetSetupTransport;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécom'**
+  String get budgetSetupTelecom;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Électricité'**
+  String get budgetSetupElectricity;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais médicaux'**
+  String get budgetSetupMedical;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres'**
+  String get budgetSetupOther;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter d\'autres postes'**
+  String get budgetSetupAddOthers;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get budgetSetupSave;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'en parle plutôt au coach'**
+  String get budgetSetupChatFallback;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF / mois'**
+  String get budgetSetupFieldPlaceholder;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Requis'**
+  String get budgetSetupRequired;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total fixe : {amount} CHF / mois'**
+  String budgetSetupTotalFixed(String amount);
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te reste {amount} CHF après tes charges.'**
+  String budgetSetupResteAfterCharges(String amount);
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes charges fixes, au clair.'**
+  String get budgetCardEmptyTitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.'**
+  String get budgetCardEmptyBody;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poser mes charges'**
+  String get budgetCardEmptyAction;
+
   /// No description provided for @budgetEmptyAction.
   ///
   /// In fr, this message translates to:

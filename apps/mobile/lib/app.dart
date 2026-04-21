@@ -31,6 +31,7 @@ import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
 // main_navigation_shell.dart DELETED (KILL-07, Phase 2)
 import 'package:mint_mobile/screens/budget/budget_container_screen.dart';
+import 'package:mint_mobile/screens/budget/budget_setup_screen.dart';
 import 'package:mint_mobile/screens/education/comprendre_hub_screen.dart';
 import 'package:mint_mobile/screens/education/theme_detail_screen.dart';
 import 'package:mint_mobile/screens/disability/disability_gap_screen.dart';
@@ -730,6 +731,11 @@ final _router = GoRouter(
       path: '/budget',
       parentNavigatorKey: _rootNavigatorKey,
       builder: (context, state) => const BudgetContainerScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/budget/setup',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const BudgetSetupScreen(),
     ),
     ScopedGoRoute(
       path: '/check/debt',
