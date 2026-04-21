@@ -108,7 +108,11 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         hasError: _budgetError,
                         onTap: () => context.push('/budget'),
                         onRetry: _loadBudget,
-                        onSetup: () => context.push('/budget'),
+                        // Route the empty-state "Commencer" directly to the
+                        // structured setup form rather than /budget (which
+                        // loops back to the coach chat topic=budget path).
+                        // See MVP-PLAN-2026-04-21 § P0-MVP-3.
+                        onSetup: () => context.push('/budget/setup'),
                       ),
                     ),
                     const SizedBox(height: MintSpacing.lg),

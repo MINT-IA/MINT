@@ -90,12 +90,16 @@ class _CapBannerCard extends StatelessWidget {
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    Text(
-                      cap.ctaLabel,
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.success,
+                    Flexible(
+                      child: Text(
+                        cap.ctaLabel,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.success,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),
@@ -206,12 +210,16 @@ class _CapBannerFallback extends StatelessWidget {
                 const SizedBox(height: 14),
                 Row(
                   children: [
-                    Text(
-                      'Ouvrir le coach',
-                      style: GoogleFonts.inter(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: MintColors.success,
+                    Flexible(
+                      child: Text(
+                        'Ouvrir le coach',
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: MintColors.success,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 4),

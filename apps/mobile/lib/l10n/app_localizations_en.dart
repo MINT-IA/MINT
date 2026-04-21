@@ -1611,6 +1611,69 @@ class SEn extends S {
       'Complete your diagnosis to unlock your monthly plan with your real income and expenses.';
 
   @override
+  String get budgetSetupTitle => 'Fixed charges';
+
+  @override
+  String get budgetSetupSubtitle =>
+      'What goes out every month, no matter what.';
+
+  @override
+  String get budgetSetupHousing => 'Rent or mortgage';
+
+  @override
+  String get budgetSetupLamal => 'Health insurance';
+
+  @override
+  String get budgetSetupTransport => 'Transport';
+
+  @override
+  String get budgetSetupTelecom => 'Telecom';
+
+  @override
+  String get budgetSetupElectricity => 'Electricity';
+
+  @override
+  String get budgetSetupMedical => 'Medical expenses';
+
+  @override
+  String get budgetSetupOther => 'Other';
+
+  @override
+  String get budgetSetupAddOthers => 'Add more items';
+
+  @override
+  String get budgetSetupSave => 'Save';
+
+  @override
+  String get budgetSetupChatFallback => 'I\'d rather talk to the coach';
+
+  @override
+  String get budgetSetupFieldPlaceholder => 'CHF / month';
+
+  @override
+  String get budgetSetupRequired => 'Required';
+
+  @override
+  String budgetSetupTotalFixed(String amount) {
+    return 'Fixed total: $amount CHF / month';
+  }
+
+  @override
+  String budgetSetupResteAfterCharges(String amount) {
+    return 'You have $amount CHF left after charges.';
+  }
+
+  @override
+  String get budgetCardEmptyTitle => 'Your fixed charges, clearly.';
+
+  @override
+  String get budgetCardEmptyBody =>
+      'Seven items, two minutes. Then we calculate what truly remains.';
+
+  @override
+  String get budgetCardEmptyAction => 'Set my charges';
+
+  @override
   String get budgetEmptyAction => 'Start my diagnosis';
 
   @override

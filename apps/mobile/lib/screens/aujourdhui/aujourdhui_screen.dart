@@ -15,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 // Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
@@ -89,61 +90,68 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     }
 
     if (provider.isEmpty) {
-      // Wave B-minimal B1-fix (2026-04-18): Cap du jour banner was only
-      // rendered in the "has content" branch. On fresh install with an
-      // empty timeline, the early return here silently skipped CapEngine
-      // entirely, making B1's wiring invisible for every first-open user.
-      // UAT device walkthrough caught the gap — fix surfaces the banner
-      // above the empty-state card so even a brand-new user sees the cap
-      // fallback "Parle-moi de toi" (or their first cap once a profile
-      // fact exists).
+      // Wave B-minimal B1-fix (2026-04-18): Cap du jour banner surfaces
+      // even when the timeline is empty so CapEngine's fallback card
+      // ("Parle-moi de toi") is visible on first open.
+      //
+      // Deep-walk 2026-04-21 crack #11: the tension-empty card below
+      // used to always render, repeating "Commence par parler au coach"
+      // right under the banner that already says the same thing. Gate
+      // it on an actually-cold profile — once the user has any captured
+      // facts, CapEngine's real cap carries the conversation and the
+      // redundant copy disappears.
+      final hasAnyProfileFact =
+          context.watch<CoachProfileProvider>().profile != null;
       return Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
           child: Column(
             children: [
               const CapDuJourBanner(),
-              Expanded(
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: GestureDetector(
-                      onTap: () => context.go('/coach/chat'),
-                      child: Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: MintColors.craie,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              l10n.tensionEmptyWelcome,
-                              style: GoogleFonts.montserrat(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: MintColors.textPrimary,
+              if (!hasAnyProfileFact)
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: GestureDetector(
+                        onTap: () => context.go('/coach/chat'),
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: MintColors.craie,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l10n.tensionEmptyWelcome,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: MintColors.textPrimary,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              l10n.tensionEmptySubtitle,
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color: MintColors.textSecondary,
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.tensionEmptySubtitle,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: MintColors.textSecondary,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                )
+              else
+                const Spacer(),
             ],
           ),
         ),

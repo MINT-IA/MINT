@@ -193,7 +193,7 @@ class EducationData {
       question: "Comment fonctionnent les impôts en Suisse ?",
       actionLabel: "Comparer ma fiscalité cantonale",
       route: '/fiscal',
-      reminderText: "Deadline declaration fiscale : 31 mars (extensible)",
+      reminderText: "Deadline déclaration fiscale : 31 mars (extensible)",
       icon: Icons.calculate_outlined,
       color: MintColors.amber,
     ),
