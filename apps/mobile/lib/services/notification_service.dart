@@ -9,7 +9,7 @@ library;
 
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -180,14 +180,13 @@ class NotificationService {
   static const _channelName = 'Coaching MINT';
 
   // ── Notification IDs (ranges to avoid collisions) ────────
+  // Wave E-PRIME (2026-04-18): _idStreakProtection + _idRetentionDay{1,7,30}
+  // removed — their scheduling methods were killed by ADR-20260419 and
+  // Panel A P1 cleanup.
   static const _idCheckinMonthly = 1000;
   static const _idCheckinReminder5d = 1001;
-  static const _idStreakProtection = 2000;
   static const _id3aDeadlineBase = 3000;
   static const _idTaxDeadlineBase = 4000;
-  static const _idRetentionDay1 = 9001;
-  static const _idRetentionDay7 = 9007;
-  static const _idRetentionDay30 = 9030;
 
   // ── Init ──────────────────────────────────────────────────
 
@@ -299,14 +298,52 @@ class NotificationService {
     final hasConsent = await ConsentManager.isConsentGiven(
       ConsentType.notifications,
     );
-    if (!hasConsent) return;
+    if (!hasConsent) {
+      debugPrint('[NotificationService] scheduleCoachingReminders skipped: no consent');
+      return;
+    }
+
+    // Wave A-MINIMAL A2 (2026-04-18): triad gate — do not schedule
+    // anything until the user has provided the three critical facts
+    // that the deadline / checkin copy depends on. Firing generic
+    // reminders on an empty profile was the "greet-and-bounce" trap
+    // flagged by panel adversaire 2026-04-18 (a user who types "Salut"
+    // and leaves would otherwise receive Monday reminders for life).
+    // A2-fix (2026-04-18): widened triad checks per 3-panel post-exec audit.
+    // - `birthYear` upper bound (panel bugs BUG #2): reject absurd future
+    //   years (3000, 4242) that would pass `>= 1900` alone. Mirror of the
+    //   backend _coerce_fact_value range [1900, currentYear+1].
+    // - `canton` validity (panel bugs BUG #3): route through
+    //   `resolveCanton()` so "xyz" / "VS " / "" all fail uniformly.
+    // - PII hygiene in debugPrint (panel UX #1, PRIV-07 regression): log
+    //   only presence booleans, never raw birthYear/canton/salary. The
+    //   prior log was a direct quasi-identifier leak (nLPD art. 4).
+    final currentYear = DateTime.now().year;
+    final cantonCheck = resolveCanton(profile.canton);
+    final birthYearOk = profile.birthYear >= 1900 &&
+        profile.birthYear <= currentYear + 1;
+    final cantonOk = !cantonCheck.isFallback;
+    final salaryOk = profile.salaireBrutMensuel > 0;
+    if (!birthYearOk || !cantonOk || !salaryOk) {
+      debugPrint(
+        '[NotificationService] scheduleCoachingReminders skipped: '
+        'triad incomplete '
+        '(birthYearOk=$birthYearOk, cantonOk=$cantonOk, salaryOk=$salaryOk)',
+      );
+      return;
+    }
 
     // Request permission if not already granted (deferred, not at startup).
     // This is the right place because scheduleCoachingReminders is only
     // called after a check-in, not during app init.
     await requestPermission();
 
-    await cancelAll();
+    // Wave A-MINIMAL A2: scope cancel to the IDs owned by this
+    // coaching-reminder subsystem (panel archi AJ-1 2026-04-18).
+    // The prior `cancelAll()` call wiped notifications owned by other
+    // subsystems (commitments, fresh-starts) whenever a new profile
+    // landed — a side effect never documented, never tested.
+    await _cancelCoachingIds();
 
     final now = tz.TZDateTime.now(tz.local);
 
@@ -321,11 +358,14 @@ class NotificationService {
     // 3. Tax deadline reminders: Feb 15, Mar 15, Mar 25
     _scheduleTaxDeadlines(now, s);
 
-    // 4. Streak protection: 25th of each month if no check-in this month
-    _scheduleStreakProtection(profile, now, s);
-
-    // 5. Weekly recap: Monday 10:00 — "Ton récap de la semaine est prêt"
-    _scheduleWeeklyRecap(now, s);
+    // Wave A-MINIMAL A2 (2026-04-18): retention notifs (J+1/J+7/J+30),
+    // streak protection, and weekly recap are NOT scheduled here. They
+    // belong to Duolingo-style re-engagement loops that ADR-20260419
+    // killed for doctrine-lucidite reasons (same registre as
+    // MilestoneCelebrationSheet and StreakService visibility, already
+    // tuées). The services remain in the codebase and can be wired by
+    // a future Wave if signal justifies — panel iconoclaste 2026-04-18
+    // recommended observing 14 days before adding them back.
 
     // FIX-W11: Persist critical deadline dates for recovery on app resume
     final prefs = await SharedPreferences.getInstance();
@@ -333,6 +373,37 @@ class NotificationService {
       '3a_deadline': DateTime(DateTime.now().year, 12, 31).toIso8601String(),
       'last_scheduled': DateTime.now().toIso8601String(),
     }));
+  }
+
+  /// Cancel every notification ID owned by `scheduleCoachingReminders`.
+  ///
+  /// Wave A-MINIMAL A2 (2026-04-18) replaces the prior blanket
+  /// `cancelAll()` which wiped notifications scheduled by OTHER
+  /// subsystems (commitments, fresh-starts, retention) — a silent
+  /// anti-pattern flagged by panel archi AJ-1.
+  ///
+  /// IDs cancelled here must match every `_scheduleX` helper called
+  /// from [scheduleCoachingReminders]. If you add a new scheduler
+  /// helper, add its ID here too (or the old copy persists after a
+  /// re-schedule).
+  Future<void> _cancelCoachingIds() async {
+    if (_plugin == null) return;
+    // Single-shot / single-slot IDs.
+    await _plugin!.cancel(_idCheckinMonthly);
+    await _plugin!.cancel(_idCheckinReminder5d);
+    // 3a deadlines: base + up to 4 offsets (Oct 1, Nov 15, Dec 15, Dec 28).
+    for (var i = 0; i < 4; i++) {
+      await _plugin!.cancel(_id3aDeadlineBase + i);
+    }
+    // Tax deadlines: base + up to 3 offsets (Feb 15, Mar 15, Mar 25).
+    for (var i = 0; i < 3; i++) {
+      await _plugin!.cancel(_idTaxDeadlineBase + i);
+    }
+    // _idStreakProtection (2000) and retention IDs (9001/9007/9030) are
+    // NOT cancelled here — Wave A-MINIMAL stopped scheduling them, so
+    // cancelling would only be relevant for pre-Wave-A installs that
+    // had them queued. Those will expire naturally when their
+    // scheduled dates pass.
   }
 
   /// Schedule a 5-day reminder if the user hasn't checked in yet this month.
@@ -378,28 +449,12 @@ class NotificationService {
   }
 
   /// Weekly recap notification: fires every Monday at 10:00.
-  void _scheduleWeeklyRecap(tz.TZDateTime now, NotificationStrings s) {
-    // FIX-W11: Correct Monday calculation — always schedule for NEXT Monday
-    var daysUntilMonday = (DateTime.monday - now.weekday) % 7;
-    if (daysUntilMonday == 0) daysUntilMonday = 7; // Always schedule for NEXT Monday
-    final nextMonday = now.add(Duration(days: daysUntilMonday));
-    final scheduledDate = tz.TZDateTime(
-      tz.local,
-      nextMonday.year,
-      nextMonday.month,
-      nextMonday.day,
-      10, // 10:00
-    );
-
-    _scheduleNotification(
-      id: 500, // Unique ID for weekly recap
-      title: s.weeklyRecapTitle,
-      body: s.weeklyRecapBody,
-      scheduledDate: scheduledDate,
-      payload: '/coach/chat',
-      matchDateComponents: DateTimeComponents.dayOfWeekAndTime,
-    );
-  }
+  /// Weekly recap notification: fires every Monday at 10:00.
+  ///
+  // Wave E-PRIME (2026-04-18): _scheduleWeeklyRecap deleted — the recap
+  // surface was killed by ADR-20260419 (gamification layers) and Panel A
+  // P0-13 confirmed WeeklyRecapService itself is façade (deleted in Phase 2b).
+  // Re-implementation will start from scratch when product signal returns.
 
   /// Monthly check-in reminder (1st of month, 10:00)
   void _scheduleMonthlyCheckin(
@@ -540,141 +595,15 @@ class NotificationService {
     }
   }
 
-  /// Streak protection: 25th of each month if no check-in this month
-  void _scheduleStreakProtection(
-    CoachProfile profile,
-    tz.TZDateTime now,
-    NotificationStrings s,
-  ) {
-    final streak = profile.streak;
-    if (streak <= 0) return;
+  // Wave E-PRIME (2026-04-18): _scheduleStreakProtection deleted —
+  // ADR-20260419 killed StreakService visibility (doctrine-lucidite).
+  // Panel A P1-2 flagged as dormant.
 
-    // Check if current month already has a check-in
-    final hasCurrentMonthCheckin = profile.checkIns.any((ci) =>
-        ci.month.year == now.year && ci.month.month == now.month);
-    if (hasCurrentMonthCheckin) return;
-
-    // Schedule for the 25th of the current or next month
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      25,
-      18, // 18:00 — evening reminder
-      0,
-    );
-
-    if (scheduledDate.isBefore(now)) {
-      // If already past the 25th, schedule for next month
-      scheduledDate = tz.TZDateTime(
-        tz.local,
-        now.month == 12 ? now.year + 1 : now.year,
-        now.month == 12 ? 1 : now.month + 1,
-        25,
-        18,
-        0,
-      );
-    }
-
-    if (scheduledDate.isAfter(now)) {
-      _scheduleNotification(
-        id: _idStreakProtection,
-        title: s.streakProtectionTitle,
-        body: s.streakProtectionBody.replaceAll('{streak}', '$streak'),
-        scheduledDate: scheduledDate,
-        payload: '/coach/checkin',
-      );
-    }
-  }
-
-  // ── Retention notifications (post-onboarding) ─────────────
-
-  /// Schedule the 3 retention notifications after onboarding completes.
-  ///
-  /// J+1: Curiosity (no loss framing — trust not yet established)
-  /// J+7: Loss framing (3a tax saving)
-  /// J+30: Scan nudge (LPP certificate)
-  ///
-  /// [taxSaving3a] — monthly tax saving from 3a contribution.
-  /// If null or 0, the J+7 notification is skipped (no data to show).
-  /// [strings] — i18n notification text, resolved at call site.
-  Future<void> scheduleRetentionNotifications({
-    double? taxSaving3a,
-    NotificationStrings? strings,
-  }) async {
-    if (kIsWeb || _plugin == null) return;
-    if (!_isInitialized) await init();
-
-    final hasConsent = await ConsentManager.isConsentGiven(
-      ConsentType.notifications,
-    );
-    if (!hasConsent) return;
-
-    await requestPermission();
-
-    final s = strings ?? NotificationStrings.french;
-    final now = tz.TZDateTime.now(tz.local);
-
-    // J+1: Curiosity
-    final day1 = now.add(const Duration(hours: 24));
-    _scheduleNotification(
-      id: _idRetentionDay1,
-      title: s.day1NotifTitle,
-      body: s.day1NotifBody,
-      scheduledDate: tz.TZDateTime(
-        tz.local,
-        day1.year,
-        day1.month,
-        day1.day,
-        10, // 10:00 local
-      ),
-      payload: '/coach/chat',
-    );
-
-    // J+7: Loss framing (only if we have a real 3a tax saving figure)
-    if (taxSaving3a != null && taxSaving3a > 0) {
-      final day7 = now.add(const Duration(days: 7));
-      _scheduleNotification(
-        id: _idRetentionDay7,
-        title: s.day7NotifTitle,
-        body: s.day7NotifBody.replaceAll(
-          '{amount}',
-          taxSaving3a.toStringAsFixed(0),
-        ),
-        scheduledDate: tz.TZDateTime(
-          tz.local,
-          day7.year,
-          day7.month,
-          day7.day,
-          10,
-        ),
-        payload: '/coach/chat',
-      );
-    }
-
-    // J+30: Scan nudge
-    final day30 = now.add(const Duration(days: 30));
-    _scheduleNotification(
-      id: _idRetentionDay30,
-      title: s.day30NotifTitle,
-      body: s.day30NotifBody,
-      scheduledDate: tz.TZDateTime(
-        tz.local,
-        day30.year,
-        day30.month,
-        day30.day,
-        10,
-      ),
-      payload: '/scan',
-    );
-
-    // Persist onboarding date for recovery
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      '_retention_onboarding_date',
-      DateTime.now().toIso8601String(),
-    );
-  }
+  // Wave E-PRIME (2026-04-18): scheduleRetentionNotifications deleted —
+  // ADR-20260419 killed retention push guilt (J+1/J+7/J+30 Duolingo pattern).
+  // Panel A P1-1 flagged as public API with 0 prod caller. Re-implementation
+  // will require a product decision aligned with doctrine-lucidite before
+  // any retention notification returns.
 
   // ── Core scheduling helper ────────────────────────────────
 

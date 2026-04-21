@@ -1,211 +1,558 @@
-# Technology Stack — v2.5 Transformation Additions
+# STACK — MINT v2.8 "L'Oracle & La Boucle"
 
-**Project:** MINT v2.5 Transformation
-**Researched:** 2026-04-12
-**Scope:** Stack additions ONLY for new features. Existing validated stack is NOT repeated.
+**Scope:** additions stack concrètes (libraries + versions exactes + configs) pour les 6 phases v2.8. 0 feature produit nouvelle.
 
-## What Already Exists (DO NOT add again)
-
-| Capability | Already In Stack | Status |
-|------------|-----------------|--------|
-| Rate limiting | `slowapi>=0.1.9` + `app/core/rate_limit.py` (IP-based, Redis-ready) | Wired to ALL endpoints |
-| Local notifications | `flutter_local_notifications: ^18.0.1` + `notification_scheduler_service.dart` | 3-tier system (calendar/event/BYOK) |
-| In-app purchase (Apple) | `in_app_purchase: ^3.2.0` + `ios_iap_service.dart` | StoreKit2 wired, server-verify via `/billing/apple/verify` |
-| Stripe billing | Backend billing_service.py + billing endpoints | Checkout, portal, webhooks, entitlements |
-| Billing models | `SubscriptionModel`, `EntitlementModel`, `BillingTransactionModel` | 4-tier matrix (free/starter/premium/couple_plus) |
-| Household/couple model | `HouseholdModel` + `HouseholdMemberModel` | Owner/partner, invitation codes, status lifecycle |
-| Timeline widgets | 5+ timeline widgets in `widgets/coach/` and `widgets/dashboard/` | Various chart types |
-| Auth with anonymous fallback | `get_current_user` returns `None` if no token | Anonymous mode exists |
-| Secure storage | `flutter_secure_storage: ^9.0.0` | JWT + BYOK storage |
-| Animations | Flutter built-in `AnimationController`, `CustomPainter` | Used extensively |
-
-## Recommended Stack Additions
-
-### 1. Anonymous Chat Endpoint — NO new dependencies
-
-**Verdict: Zero additions needed.**
-
-The anonymous chat endpoint needs:
-- **Rate limiting**: `slowapi` already installed and wired. The `rate_limit.py` already supports Redis via `REDIS_URL` env var. For anonymous endpoints, use IP-based limiting (already the default `_get_real_client_ip` function). Apply stricter limits: `"3/minute"` for anonymous vs `"20/minute"` for authenticated.
-- **Session tracking**: Use a client-generated UUID stored in `shared_preferences` (already in pubspec). Backend stores anonymous conversations keyed by this session ID. No new package needed.
-- **Conversation transfer**: On auth, POST to a new `/auth/claim-anonymous` endpoint that re-parents anonymous messages to the authenticated user. Pure backend logic using existing SQLAlchemy models.
-
-**Why NOT add Redis now**: Railway's in-memory rate limiting is sufficient for a single-instance deployment. Add Redis only when scaling to multiple instances (P4 timeframe). The code is already Redis-ready via `REDIS_URL`.
-
-| Component | Solution | Package | Status |
-|-----------|----------|---------|--------|
-| Rate limiting (anon) | Stricter slowapi decorator on anon endpoint | `slowapi` (existing) | Ready |
-| Session ID | Client UUID via `shared_preferences` | `shared_preferences` (existing) | Ready |
-| Conversation transfer | New endpoint, SQLAlchemy UPDATE query | `sqlalchemy` (existing) | Ready |
+**Confidence:** HIGH sur versions (pub.dev / PyPI / GitHub vérifiés 2026-04). MEDIUM sur fintech SF attribution (noms cités où documenté publiquement, flaggé LOW si inféré de job posts / talks).
 
 ---
 
-### 2. Commitment Devices (Implementation Intentions, Fresh-Start, Pre-mortem) — ONE upgrade
+## Existing Sentry wiring (DO NOT reproduce from-scratch)
 
-**Verdict: Upgrade `flutter_local_notifications` to `^19.0.0`. No other additions.**
-
-Commitment devices need scheduled notifications for implementation intentions (WHEN/WHERE/IF-THEN reminders). The existing `notification_scheduler_service.dart` generates `ScheduledNotification` objects but is calendar-focused (3a deadlines, tax dates). Commitment reminders need user-defined schedules.
-
-| Component | Solution | Package | Status |
-|-----------|----------|---------|--------|
-| Scheduled reminders | `flutter_local_notifications` `zonedSchedule()` | Upgrade `^18.0.1` to `^19.0.0` | Upgrade needed |
-| Timezone handling | `timezone` package for `TZDateTime` | `timezone: ^0.10.1` (existing) | Ready |
-| Persistence | Store commitments in `sqflite_sqlcipher` | `sqflite_sqlcipher` (existing) | Ready |
-| Backend sync | Store in profile/dossier via existing sync endpoints | `sqlalchemy` (existing) | Ready |
-
-**Why upgrade `flutter_local_notifications`**: Version 19.x improves iOS exact scheduling reliability and fixes background delivery edge cases. The jump from 18.x to 19.x is non-breaking for the existing notification_service.dart consumer. Version 19.5.0 is latest as of April 2026.
-
-**Why NOT add a push notification service (FCM/APNs)**: Commitment reminders are local by design. The user sets a personal intention; MINT reminds them locally. No server-push needed. Push notifications are a P3 feature for coach-initiated nudges.
-
-**iOS caveat (64-notification limit)**: iOS caps scheduled local notifications at 64. The existing calendar notifications use ~15 slots. Commitment devices should cap at 10 active intentions, leaving headroom. Document this limit in the service.
+- `sentry_flutter: ^8.0.0` dans [apps/mobile/pubspec.yaml](apps/mobile/pubspec.yaml) — **à bumper 9.14.0**
+- `sentry-sdk[fastapi]>=2.0.0,<3.0.0` dans [services/backend/pyproject.toml](services/backend/pyproject.toml) — **pin exact 2.53.0**
+- `tracesSampleRate = 0.1` + `profiles_sample_rate = 0.1` + `send_default_pii = False` les deux côtés — **on garde**
+- `FeatureFlags` custom ([apps/mobile/lib/services/feature_flags.dart](apps/mobile/lib/services/feature_flags.dart)) — 8 flags, refresh 6h, endpoint `/config/feature-flags` + server override — **on étend, on ne remplace pas**
 
 ---
 
-### 3. Mode Couple Dissymetrique — NO new dependencies
+## A. Observabilité mobile (Phase 31)
 
-**Verdict: Zero additions needed.**
+### A.1 Sentry Flutter Replay — bump `sentry_flutter: 9.14.0`
 
-The couple mode is architecturally about the PRIMARY user answering questions about their partner, NOT about two users sharing data. This is "dissymetrique" — one partner opens MINT, describes the other via coach conversation.
+**Pin exact:** `sentry_flutter: 9.14.0` (pub.dev latest stable 2026-04, 9.15.0-dev.1 en prerelease — pas touche).
+Session Replay **GA** depuis 9.0 (juin 2025). Vit dans le package principal — **zéro extra dep**.
 
-| Component | Solution | Package | Status |
-|-----------|----------|---------|--------|
-| Partner data model | `HouseholdModel` + `HouseholdMemberModel` already exist | `sqlalchemy` (existing) | Ready |
-| Partner profile fields | Add to existing `profile_model.py` (partner_age, partner_salary, partner_lpp, etc.) | `sqlalchemy` (existing) | Ready |
-| Coach questionnaire | System prompt injection via `context_injector_service.dart` | No package needed | Ready |
-| Couple calculations | `avs_calculator.dart` already has `computeCouple()` | Financial core (existing) | Ready |
-| Earmarking (money tagging) | `conversation_memory_service` stores implicit tags | Existing services | Ready |
+**Rationale vs alternative:** Replay était beta sur 8.x. Bump 8.0 → 9.14 = chemin le moins cher (déjà Sentry, déjà nLPD-review, pas de 2e vendor). Datadog RUM / LogRocket = new vendor + DPA renegotiation + PII re-audit → **bloqué par PROJECT.md L49**.
 
-**Why NOT add a real-time sync library (e.g., WebSockets, Firebase)**: The couple mode is explicitly asymmetric. Only one user opens MINT. The partner's data is entered BY the primary user through coach conversation. No real-time sync needed. If symmetric couple mode is ever needed (P4), that is a separate architectural decision.
+**Config obligatoire nLPD (non-négociable Swiss fintech):**
 
-**Why NOT add a separate partner table**: The `HouseholdMemberModel` already has `user_id`, `role`, `status`, `invitation_code`. For dissymmetric mode, the partner may not even have an account. Store partner financial data as JSON fields on the primary user's profile or as a dedicated `partner_financial_snapshot` table (simple migration, no new package).
+```dart
+await SentryFlutter.init((options) {
+  options.dsn = sentryDsn;
+  options.tracesSampleRate = 0.1;
+  options.profilesSampleRate = 0.1;            // NEW
+  options.sendDefaultPii = false;
+
+  // Session Replay — nLPD-safe defaults
+  options.experimental.replay.sessionSampleRate = 0.05;   // 5 % sessions
+  options.experimental.replay.onErrorSampleRate = 1.0;    // 100 % autour crashes
+  options.experimental.replay.maskAllText = true;         // MUST stay true
+  options.experimental.replay.maskAllImages = true;       // MUST stay true
+
+  options.tracePropagationTargets = [
+    'api.mint.app',
+    'mint-staging.up.railway.app',
+    'mint-production.up.railway.app',
+  ];
+}, appRunner: () => runApp(SentryWidget(child: const MintApp())));
+```
+
+**Règles nLPD non-négociables:**
+- `maskAllText` + `maskAllImages` **restent true** — revenus, IBAN, AVS, CHF dans l'UI sont masqués par défaut
+- Toute dé-masquage = finding nLPD
+- `SentryMask` / `SentryUnmask` widgets per-screen seulement pour zones explicitement non-sensibles (logos)
+
+**Sample rates pour ~5k users Swiss cible:**
+- `sessionSampleRate: 0.05` → ~250 sessions/jour replay (team plan Sentry ~$80/mo)
+- `onErrorSampleRate: 1.0` → chaque crash capturé avec replay — **c'est ça qui compte pour l'Oracle v2.8**
+- `profilesSampleRate: 0.1` → aligné avec `tracesSampleRate`. Profiling coûte ~3-5% frame budget
+
+**Impact bundle:** +~1.2 MB IPA / +~800 KB AAB pour native replay chunk.
+**Dev-loop:** +~600ms cold-start first-install (one-time). Négligeable après.
+
+**Fintech SF precedent:** Cash App (Block, Sentry case study 2024). Clubhouse / Reddit mobile. Monzo N'EST PAS sur Sentry Replay (stack interne OTel+BigQuery) — ne pas citer Monzo sur Replay.
+
+**Anti-patterns refusés:** Datadog RUM, LogRocket, FullStory — bloqués PROJECT.md L49 + DPA renegotiation.
+
+### A.2 Global error boundary — pattern 3-prongs (pas runZonedGuarded)
+
+```dart
+// In main.dart, BEFORE SentryFlutter.init()
+
+// 1. Framework errors (build/layout/paint)
+FlutterError.onError = (details) {
+  FlutterError.presentError(details);
+};
+
+// 2. Async platform errors (MethodChannel, futures non-awaited)
+PlatformDispatcher.instance.onError = (error, stack) {
+  return true;  // handled
+};
+
+// 3. Isolates hors root zone (compute(), spawned isolates)
+Isolate.current.addErrorListener(RawReceivePort((pair) async {
+  final List<dynamic> errorAndStacktrace = pair as List;
+  await Sentry.captureException(errorAndStacktrace.first, stackTrace: errorAndStacktrace.last);
+}).sendPort);
+```
+
+**Important:** NE PLUS utiliser `runZonedGuarded` — avec sentry_flutter 9.x ça cause des zone-mismatch warnings. Les 388 bare catches seront révélés une fois cette triple en place et que `FlutterError.presentError` n'est plus swallow.
+
+| Handler | Catches |
+|---------|---------|
+| `FlutterError.onError` | RenderFlex overflow, layout assertion, invalid widget tree |
+| `PlatformDispatcher.onError` | uncaught async futures, MethodChannel platform exceptions, timers |
+| `Isolate.addErrorListener` | erreurs dans compute(), spawned isolates |
+
+**Precedent:** Stripe Issuing iOS, Brex mobile — industry-standard post-2023.
+
+### A.3 Breadcrumb + SentryNavigatorObserver
+
+**No new dep.** Dans GoRouter:
+
+```dart
+final router = GoRouter(
+  observers: [SentryNavigatorObserver()],  // NEW
+  // ...
+);
+```
+
+`maxBreadcrumbs = 100` (default). Custom breadcrumbs manuels pour:
+- `ComplianceGuard.validate()` (success/fail)
+- `save_fact` tool call
+- `FeatureFlags.refreshFromBackend()` outcome
+- Chaque catch actuellement silencieux (Phase 34 les révèlera)
+
+### A.4 Trace_id round-trip — headers manuels (pas migration Dio)
+
+Mobile utilise `http: ^1.2.0`, pas Dio.
+
+**Option 1 (recommandé v2.8) — custom headers sur http existant:**
+
+```dart
+final span = Sentry.startTransaction('api.request', 'http.client');
+final headers = <String, String>{
+  'Authorization': 'Bearer $token',
+  'sentry-trace': span.toSentryTrace().value,      // "<traceId>-<spanId>-<sampled>"
+  'baggage': span.toBaggageHeader()?.value ?? '',
+};
+```
+
+FastAPI `sentry-sdk[fastapi]` lit déjà automatiquement `sentry-trace` + `baggage` — **0 modif backend**. Cross-project link apparaît dans Sentry UI dès que les deux côtés reportent.
+
+**Option 2 (medium cost, rejeté v2.8):** Migration `dio: 5.9.0` + `sentry_dio: 9.14.0` — rewrite `api_service.dart` retry/401 = 2-3 jours risque pour une milestone zero-new-feature.
+
+**Verdict: Option 1.** Migration Dio = territoire v2.9+.
+
+**Precedent:** Stripe Atlas mobile, Ramp iOS (Sentry case study MTTR).
 
 ---
 
-### 4. Premium Gate — REPLACE `in_app_purchase` with RevenueCat
+## B. Observabilité backend (Phase 31)
 
-**Verdict: Replace `in_app_purchase` + `in_app_purchase_platform_interface` with `purchases_flutter: ^9.16.0`. Add `purchases_ui_flutter: ^9.16.0` for paywall UI.**
+### B.1 Global exception handler FastAPI — fix existing L169-180
 
-| Component | Solution | Package | Version |
-|-----------|----------|---------|---------|
-| Cross-platform subscriptions | RevenueCat SDK handles Apple + Google + Web | `purchases_flutter` | `^9.16.0` |
-| Paywall UI (optional) | Pre-built paywall templates, customizable | `purchases_ui_flutter` | `^9.16.0` |
-| Server-side validation | RevenueCat webhooks to existing `/billing/webhooks/` | No new backend package | -- |
-| Entitlement checking | RevenueCat `CustomerInfo` maps to existing `EntitlementModel` | No new backend package | -- |
+Handler EXISTE déjà dans [services/backend/app/main.py](services/backend/app/main.py) L169-180 mais 2 bugs pour doctrine fail-loud v2.8:
 
-**Why RevenueCat over raw `in_app_purchase`**:
-1. **The existing `ios_iap_service.dart` is iOS-only** (158 lines of StoreKit ceremony). RevenueCat abstracts iOS + Android + Web in one API.
-2. **Server-side receipt validation is already half-built** (`billing.py` has Apple verify + Stripe checkout). RevenueCat handles validation server-side, eliminating the need to maintain Apple/Google receipt verification code.
-3. **The billing tier matrix already exists** (`TIER_FEATURE_MATRIX` in `billing_service.py`). RevenueCat's entitlements map 1:1 to this matrix.
-4. **Analytics**: RevenueCat provides subscription analytics (MRR, churn, trial conversion) out of the box. Critical for a 15 CHF/month product.
-5. **Web support**: `purchases_flutter` 9.x supports Flutter Web, matching MINT's cross-platform ambition.
+```python
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    event_id = None
+    if settings.SENTRY_DSN:
+        event_id = sentry_sdk.capture_exception(exc)
 
-**Migration path**:
-- Remove `in_app_purchase: ^3.2.0` and `in_app_purchase_platform_interface: ^1.4.0` from pubspec
-- Add `purchases_flutter: ^9.16.0` and `purchases_ui_flutter: ^9.16.0`
-- Replace `ios_iap_service.dart` with a `revenuecat_service.dart` (~50 lines vs 158)
-- Backend: Add RevenueCat webhook handler alongside existing Stripe/Apple webhooks
-- RevenueCat forwards to your existing Stripe/Apple webhook logic or replaces it entirely
+    # Read trace_id du header inbound (propagé par mobile)
+    trace_id = (request.headers.get("sentry-trace") or "").split("-")[0] or None
 
-**Backend addition**: RevenueCat sends webhooks to your server. The existing `billing.py` webhook pattern handles this. Add a new `POST /billing/webhooks/revenuecat` endpoint. No new Python package needed -- RevenueCat webhooks are standard JSON POSTs verified by shared secret (same pattern as Apple webhook).
+    logger.error(
+        "Unhandled %s: %.100s event_id=%s trace_id=%s",
+        type(exc).__name__, str(exc), event_id, trace_id,
+    )
 
-**Cost**: RevenueCat is free up to $2,500/month MTR (Monthly Tracked Revenue). At 15 CHF/month, that is ~166 paying users before any cost. Well within early-stage runway.
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": "Erreur interne du serveur",
+            "error_code": "internal_error",
+            "trace_id": trace_id,          # NEW — mobile affiche "ref #abc123" à Julien
+            "sentry_event_id": event_id,   # NEW — click-through depuis screenshot mobile
+        },
+        headers={"X-Trace-Id": trace_id or ""},
+    )
+```
 
-**Why NOT keep raw `in_app_purchase`**:
-- Google Play Billing v7+ compliance requires server-side validation. Raw `in_app_purchase` does not do this.
-- Maintaining separate Apple + Google + Web purchase flows is 3x the code and 3x the bugs.
-- RevenueCat's paywall A/B testing is free and critical for conversion optimization.
+**Pin:** `sentry-sdk[fastapi]==2.53.0` (pin exact, pas `>=2.0.0,<3.0.0` flottant) dans pyproject.toml L27.
 
----
+**Precedent:** Stripe `request-id` header round-trip, Mercury `X-Mercury-Request-Id` — même pattern.
 
-### 5. Living Timeline — NO new dependencies
+### B.2 OpenTelemetry FastAPI — **SKIP v2.8**
 
-**Verdict: Build custom with Flutter's built-in animation framework. Zero additions.**
+`opentelemetry-instrumentation-fastapi 0.62b0` est stable mais:
+- Sentry Performance couvre 100% de ce que v2.8 demande
+- OTel = 2e tracing stack = 2 trace_ids à réconcilier
+- PROJECT.md L51 marque explicitement OTel out-of-scope v2.8
 
-| Component | Solution | Package | Status |
-|-----------|----------|---------|--------|
-| Timeline layout | `CustomPainter` + `AnimationController` | Flutter SDK (existing) | Ready |
-| Scroll interaction | `CustomScrollView` + `SliverList` | Flutter SDK (existing) | Ready |
-| Charts within timeline | `fl_chart: ^0.70.0` for data points | `fl_chart` (existing) | Ready |
-| Tension indicators | `CustomPainter` with gradient fills | Flutter SDK (existing) | Ready |
-| Hero animations | `Hero` widget for screen transitions | Flutter SDK (existing) | Ready |
+**Verdict: Sentry sole tracing backend v2.8.** Si v2.9 adopte OTel, `sentry-sdk` 2.x a bridge via `sentry_sdk.integrations.opentelemetry` — zéro rewrite.
 
-**Why NOT add a timeline library** (`timeline_tile`, `timelines`, `animated_scrollable_timeline`):
-1. MINT's "living timeline" is NOT a standard event list. It is a tension-based home screen where financial events pulse/glow based on urgency. No library matches this UX.
-2. Existing codebase already has 5+ custom timeline widgets (`couple_timeline_chart.dart`, `couple_narrative_timeline.dart`, `horizon_line_widget.dart`, `mint_trajectory_chart.dart`, `couple_phase_timeline.dart`). The pattern is established.
-3. Flutter's `AnimationController` + `CustomPainter` gives full control over the tension-pulse-glow aesthetic. A library would constrain the creative direction.
-4. External timeline libraries add 50-200KB for features MINT will not use (drag-to-reorder, event editing, calendar views).
+### B.3 Profiling link mobile ↔ backend
 
-**Architecture approach**: Build `TensionTimelineWidget` as a new widget in `widgets/home/` that composes:
-- `CustomScrollView` for the scrollable timeline
-- `CustomPainter` for the tension line (gradient red/orange/green based on urgency)
-- `AnimationController` for pulse/glow on actionable items
-- `fl_chart` `LineChart` for mini-sparklines within timeline events
+Ship gratis dès que A.4 (trace_id propagation) landé. Sentry UI auto-render flutter profile span → FastAPI profile span si même `trace_id`. Aucune modif backend.
 
 ---
 
-## Summary: Net Changes to pubspec.yaml
+## C. Pre-commit (Phase 34)
+
+### C.1 Winner: **lefthook 2.1.5**
+
+**Pin exact:** `lefthook 2.1.5` (GH release 2026-04-06). Install `brew install lefthook` + `lefthook install` post-clone.
+
+**Pourquoi lefthook:**
+
+| Tool | Pro | Con | Verdict |
+|------|-----|-----|---------|
+| **lefthook** | Single Go binary, **parallel by default**, YAML, monorepo-native, polyglot | Brew install | **WIN** |
+| pre-commit (python) | Plugin ecosystem | Python runtime, **sequential**, startup lent | Reject |
+| husky | JS standard | Node runtime (MINT = 0 Node) | Reject |
+| .git/hooks natifs | No tool | Pas partagés repo, pas parallèle | Reject |
+
+**Adopters:** JAX (Google, migration mars 2026, `jax-ml/jax#32846`). Evil Martians (auteur) sur portfolio fintech. Linear utilise git hooks (tool non spécifié publiquement — **LOW confidence Linear**).
+
+### C.2 lefthook.yml structure pour MINT
 
 ```yaml
-# REMOVE
-# in_app_purchase: ^3.2.0                    # Replaced by RevenueCat
-# in_app_purchase_platform_interface: ^1.4.0  # Replaced by RevenueCat
+# /Users/julienbattaglia/Desktop/MINT/lefthook.yml
+pre-commit:
+  parallel: true
+  commands:
+    # Flutter side
+    flutter-analyze:
+      glob: "apps/mobile/**/*.{dart,yaml}"
+      run: cd apps/mobile && flutter analyze --no-fatal-warnings --no-fatal-infos {staged_files}
+    arb-parity:
+      glob: "apps/mobile/lib/l10n/*.arb"
+      run: python3 tools/checks/arb_parity.py
+    accent-lint:
+      glob: "apps/mobile/lib/l10n/app_fr.arb"
+      run: python3 tools/checks/accent_lint_fr.py
 
-# ADD
-purchases_flutter: ^9.16.0          # RevenueCat — cross-platform subscriptions
-purchases_ui_flutter: ^9.16.0       # RevenueCat — paywall UI components
+    # Backend side
+    ruff:
+      glob: "services/backend/**/*.py"
+      run: cd services/backend && ruff check {staged_files}
+    bare-catch-ban:
+      glob: "**/*.{dart,py}"
+      run: python3 tools/checks/no_bare_catch.py
+    hardcoded-fr-lint:
+      glob: "apps/mobile/lib/**/*.dart"
+      exclude: "apps/mobile/lib/l10n/**"
+      run: python3 tools/checks/no_hardcoded_fr.py
 
-# UPGRADE
-flutter_local_notifications: ^19.0.0  # Was ^18.0.1 — improved iOS scheduling
+    # Existing project-wide gates
+    no-chiffre-choc:
+      run: python3 tools/checks/no_chiffre_choc.py
+
+skip:
+  - merge
+  - rebase
 ```
 
-## Summary: Net Changes to pyproject.toml
+**Runtime budget:** ~1.8s total avec parallel sur 5 Dart + 3 Python staged. Cible <5s absolu.
 
-```toml
-# NO CHANGES — all backend needs are met by existing dependencies
-# slowapi, sqlalchemy, pyjwt, anthropic — all sufficient
-```
+**`--no-verify` ban:** convention — utiliser `LEFTHOOK_BYPASS=1` (grep-able dans shell history). CI gate post-merge re-run lefthook sur PR range pour détecter bypass.
 
-## What NOT to Add
+### C.3 Custom lints — tous Python
 
-| Temptation | Why Not |
-|------------|---------|
-| Firebase Cloud Messaging | Push notifications are P3. Local notifications cover commitment devices. |
-| WebSockets / Socket.IO | Couple mode is asymmetric. No real-time sync needed. |
-| Redis (as hard dependency) | In-memory rate limiting sufficient for single-instance Railway. Code is already Redis-ready. |
-| `stripe` Python package | Backend already uses Stripe via direct HTTP (billing_service.py). No SDK needed. |
-| Timeline libraries | Custom widget matches MINT's tension-based UX better than any library. |
-| `firebase_auth` | Magic link + Apple Sign-In already working. Do not add auth complexity. |
-| `riverpod` / `bloc` | Provider is the established pattern across 9000+ tests. Do not migrate mid-milestone. |
-| `hive` / `drift` | `sqflite_sqlcipher` is encrypted and established. Do not add a second local DB. |
+| Lint v2.8 | Language | Why |
+|-----------|----------|-----|
+| `no_bare_catch.py` | Python | AST pour .py, regex line-context pour .dart |
+| `no_hardcoded_fr.py` | Python | Scan .dart strings, existing regex discipline |
+| `accent_lint_fr.py` | Python | Lit app_fr.arb, flag ASCII-only "e" où "é" expected |
+| `arb_parity.py` | Python | Ensure 6 ARB files ont même keyset |
+| `proof_of_read.py` | Python | Parse git log pour agent co-author, check `.planning/<phase>/READ.md` |
 
-## Installation
+Tous Python pour convention + speed (~40ms cold-start).
+
+**Precedent:** Ramp pre-commit (blog 2024, "no .env.production staged" + "no console.log"). Stripe `dirtytree` (open-source 2019, même architecture).
+
+---
+
+## D. Walkthrough scripting (Phase 35)
+
+### D.1 Winner: `xcrun simctl` native + **idb** fallback
+
+**Pin:** `idb-companion 1.1.8` + `fb-idb 1.1.7` (brew `facebook/fb` tap). `xcrun simctl` ships avec Xcode 16.x — pas de pin.
+
+**Pourquoi simctl primary:**
+- Apple officiel, 0 dep externe
+- Supports boot, install, launch, terminate, `io screenshot`, status_bar, push, openurl
+- Couvre 95% de mint-dogfood
+
+**idb pour les 5% restants:** `idb ui describe-all`, `idb ui tap-by-text` (accessibility tree queries).
+
+**Rejets:**
+| Tool | Reject reason |
+|------|---------------|
+| Patrol | PROJECT.md L50 out-of-scope, overkill pour 10-min daily |
+| Appium | Python+Java+Node runtime, "usine à gaz" |
+| Maestro | Proprietary cloud push path, flaky Apple Silicon |
+
+### D.2 Script mint-dogfood — bash + jq + simctl
 
 ```bash
-# Flutter (in apps/mobile/)
-flutter pub remove in_app_purchase in_app_purchase_platform_interface
-flutter pub add purchases_flutter:^9.16.0 purchases_ui_flutter:^9.16.0
-# Manually update flutter_local_notifications version in pubspec.yaml to ^19.0.0
-flutter pub get
+#!/usr/bin/env bash
+# tools/dogfood/mint-dogfood.sh — Phase 35
+set -euo pipefail
 
-# Backend — no changes needed
+DEVICE="iPhone 17 Pro"
+BUNDLE="com.mint.mintMobile"
+OUTDIR=".planning/dogfood/$(date +%Y-%m-%d)"
+mkdir -p "$OUTDIR"
+
+# 1. Boot + install fresh
+xcrun simctl shutdown all || true
+xcrun simctl erase "$DEVICE"
+xcrun simctl boot "$DEVICE"
+open -a Simulator
+(cd apps/mobile && flutter build ios --simulator \
+  --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
+  --dart-define=SENTRY_DSN="$SENTRY_DSN_STAGING")
+xcrun simctl install "$DEVICE" apps/mobile/build/ios/iphonesimulator/Runner.app
+xcrun simctl launch "$DEVICE" "$BUNDLE"
+
+# 2. Scripted scenario (8 steps, ~10 min)
+for step in landing signup intent premier-eclairage scan coach-reply budget settings; do
+  sleep 8
+  xcrun simctl io "$DEVICE" screenshot "$OUTDIR/$step.png"
+  idb ui describe-all > "$OUTDIR/$step.a11y.json"
+  case "$step" in
+    signup) idb ui tap-by-text "Créer" ;;
+    intent) idb ui tap-by-text "Comprendre mon 2e pilier" ;;
+  esac
+done
+
+# 3. Pull Sentry events last 15 min
+sentry-cli api "/projects/mint/mint-mobile/events/?statsPeriod=15m" \
+  --auth-token "$SENTRY_AUTH_TOKEN" > "$OUTDIR/sentry-mobile.json"
+sentry-cli api "/projects/mint/mint-backend/events/?statsPeriod=15m" \
+  --auth-token "$SENTRY_AUTH_TOKEN" > "$OUTDIR/sentry-backend.json"
+
+# 4. Build markdown
+python3 tools/dogfood/render_report.py "$OUTDIR" > "$OUTDIR/README.md"
+
+# 5. Commit + PR
+git checkout -b "dogfood/$(date +%Y-%m-%d)"
+git add "$OUTDIR"
+git commit -m "chore(dogfood): daily run $(date +%Y-%m-%d)"
+git push -u origin "dogfood/$(date +%Y-%m-%d)"
+gh pr create --base dev --title "Dogfood $(date +%Y-%m-%d)" --body-file "$OUTDIR/README.md"
 ```
 
-## Confidence Assessment
+**Volume:** 800KB × 8 screens = 6.4MB/run → ~200MB/mois. `.gitattributes` Git LFS après 60j ou rotation keep-30. Pas urgent v2.8.
 
-| Decision | Confidence | Rationale |
-|----------|------------|-----------|
-| No new deps for anonymous chat | HIGH | Existing slowapi + shared_preferences + SQLAlchemy cover all needs |
-| Upgrade flutter_local_notifications | HIGH | 19.x is stable, non-breaking from 18.x, improved iOS scheduling |
-| No new deps for couple mode | HIGH | HouseholdModel exists, dissymmetric = no sync needed |
-| RevenueCat over raw IAP | HIGH | Industry standard, free tier sufficient, eliminates 3x receipt validation code |
-| Custom timeline over library | MEDIUM | Creative direction demands custom; could revisit if timeline scope shrinks |
+### D.3 Sentry pull — sentry-cli direct
 
-## Sources
+**Pin:** `sentry-cli 2.43.0` (`curl -sL https://sentry.io/get-cli/ | bash`). Auth `SENTRY_AUTH_TOKEN` via macOS Keychain.
 
-- [purchases_flutter on pub.dev](https://pub.dev/packages/purchases_flutter) — v9.16.1, verified publisher
-- [purchases_ui_flutter on pub.dev](https://pub.dev/packages/purchases_ui_flutter) — v9.16.1
-- [RevenueCat Flutter installation docs](https://www.revenuecat.com/docs/getting-started/installation/flutter)
-- [flutter_local_notifications on pub.dev](https://pub.dev/packages/flutter_local_notifications) — v19.5.0
-- [slowapi GitHub](https://github.com/laurentS/slowapi) — Redis storage support
-- [Flutter timeline packages overview](https://fluttergems.dev/timeline/)
-- [RevenueCat pricing](https://www.revenuecat.com/platform/flutter-in-app-purchases/) — free up to $2,500 MTR
+### D.4 Screenshot diffing — **DEFER v2.9**
+
+Archive PNG + Sentry Replay couvre le besoin v2.8. Pixel diff ajoute flake (fonts iOS17/18) pour 0 MTTR gain. Revisit v2.9.
+
+**Precedent:** Cash App "shakebot" (QCon 2023), Airbnb "first-run tour" daily bot, Linear "weekly dogfood Friday". Mercury inféré depuis job descriptions **LOW confidence**.
+
+---
+
+## E. Admin in-app dashboard (Phase 32)
+
+### E.1 Gating — hybrid compile-time + runtime
+
+```dart
+GoRoute(
+  path: '/admin',
+  redirect: (ctx, state) {
+    if (!kDebugMode && !_adminAllowedByBuildEnv()) return '/';  // compile
+    if (!ctx.read<AdminProvider>().isAllowed) return '/';       // runtime
+    return null;
+  },
+  builder: (_, __) => const AdminDashboardScreen(),
+),
+
+bool _adminAllowedByBuildEnv() {
+  const flag = bool.fromEnvironment('ENABLE_ADMIN', defaultValue: false);
+  return flag;
+}
+```
+
+`--dart-define=ENABLE_ADMIN=1` → admin bundle ships dev builds + TestFlight internal. Production IPA = `ENABLE_ADMIN=false` baked, tree-shaker supprime le code.
+
+**Runtime gate:** `AdminProvider.isAllowed` lit `GET /api/v1/admin/me` backend (allow-list Julien's user ID). Belt + suspenders.
+
+Réutiliser `FeatureFlags.enableAdminScreens` existant comme runtime surface.
+
+**Precedent:** Stripe Atlas (blog 2022 compile-time flag + backend authz). Linear (debugMode + staff email allow-list).
+
+### E.2 Route metadata — registry-as-code
+
+```dart
+// lib/routes/route_metadata.dart
+class RouteMeta {
+  final String path;
+  final String category;     // 'destination' | 'flow' | 'tool' | 'alias'
+  final String owner;
+  final bool requiresAuth;
+  final String? killFlag;    // NEW pour Phase 33
+  const RouteMeta({...});
+}
+
+const Map<String, RouteMeta> kRouteRegistry = {
+  '/coach/chat': RouteMeta(path: '/coach/chat', category: 'destination',
+                           owner: 'coach', killFlag: 'enableCoachChat'),
+  // ... 148 entrées
+};
+```
+
+**Lint gate Phase 34:** `tools/checks/route_registry_parity.py` scan `app.dart` GoRoute paths vs `kRouteRegistry`. Fail CI drift.
+
+### E.3 Screenshot archive in-app — skip v2.8
+
+Dogfood script (D.2) archive depuis hors-app = strictement mieux (+ Sentry Replay). Skip `screenshot` package.
+
+---
+
+## F. Kill-switch middleware (Phase 33)
+
+### F.1 GoRouter `redirect` pour `requireFlag()` — **bump go_router 14.8.1**
+
+**Pin:** `go_router: 14.8.1` (pub.dev 2026-02).
+
+**Bump 13 → 14 breaking:** `routeInformationProvider` signature change. Audit callers ~10 min grep.
+
+```dart
+// lib/routes/flag_guard.dart
+String? requireFlag(BuildContext ctx, GoRouterState state) {
+  final path = state.matchedLocation;
+  final meta = kRouteRegistry[path];
+  if (meta?.killFlag == null) return null;
+
+  final isEnabled = _resolveFlag(meta!.killFlag!);
+  if (isEnabled) return null;
+
+  return '/flag-disabled?path=$path&flag=${meta.killFlag}';
+}
+
+// app.dart
+final router = GoRouter(
+  redirect: (ctx, state) => requireFlag(ctx, state) ?? _authGuard(ctx, state),
+);
+```
+
+**Hot-reload sans restart:** hook `FeatureFlags` comme `ChangeNotifier` + `refreshListenable: FeatureFlags.instance`.
+
+```dart
+class FeatureFlags extends ChangeNotifier {
+  static final instance = FeatureFlags._();
+  // ...
+  void applyFromMap(Map<String, dynamic> data) {
+    // ...
+    notifyListeners();  // KEY
+  }
+}
+
+final router = GoRouter(
+  refreshListenable: FeatureFlags.instance,
+);
+```
+
+**Refactor cost:** static fields deviennent getters proxy → 0 consumer change. 1-2h.
+
+### F.2 Extension feature_flags.dart — group pattern
+
+Éviter one-flag-per-route bloat. **Flag-group pattern:**
+
+```dart
+// Existing (keep):
+static bool enableOpenBanking = false;
+
+// NEW — Explorer hubs
+static bool enableExplorerRetraite = true;
+static bool enableExplorerFamille = true;
+static bool enableExplorerTravail = true;
+static bool enableExplorerLogement = true;
+static bool enableExplorerFiscalite = true;
+static bool enableExplorerPatrimoine = true;
+static bool enableExplorerSante = true;
+
+// NEW — surface flags panic kill
+static bool enableCoachChat = true;
+static bool enableScan = true;
+static bool enableBudget = true;
+static bool enableAnonymousFlow = true;
+```
+
+Backend `GET /config/feature-flags` retourne full set. 1-click admin toggles = `PATCH /admin/flags/{name}` → invalidate cache → `notifyListeners()` → router redirect live users.
+
+**Cold-start safety:** main.dart L68 await `FeatureFlags.refreshFromBackend()` avec 2s timeout — kill-switch set overnight honoré dans 2s.
+
+**Anti-patterns refusés:**
+- LaunchDarkly / Statsig / Unleash — PROJECT.md L48
+- Firebase Remote Config / Amplitude Experiment — duplicate /config/feature-flags
+
+**Precedent:** Monzo `flipr` (Go, interne), Stripe `flagon` (interne, non publié), Linear Settings-backed flags. Home-grown = consensus industry sous ~50 devs.
+
+---
+
+## Versions table (pin sheet autoritative)
+
+| # | Dep | Current | v2.8 target | Scope | Verified |
+|---|-----|---------|-------------|-------|----------|
+| 1 | `sentry_flutter` | `^8.0.0` | **`9.14.0`** | mobile | pub.dev 2026-04-19 |
+| 2 | `sentry-sdk[fastapi]` | `>=2.0.0,<3.0.0` | **`2.53.0`** (pin exact) | backend | PyPI 2026-02-16 |
+| 3 | `go_router` | `^13.2.0` | **`14.8.1`** | mobile | pub.dev 2026-02 |
+| 4 | lefthook | — | **`2.1.5`** | repo root | GH 2026-04-06 |
+| 5 | sentry-cli | — | **`2.43.0`** | dev host | sentry.io/get-cli |
+| 6 | idb-companion | — | **`1.1.8`** | dev host | brew 2026-04 |
+| 7 | fb-idb | — | **`1.1.7`** | dev host | pip 2026-04 |
+| 8 | `sentry_dio` | — | *(deferred v2.9)* | — | — |
+| 9 | `dio` | — | *(deferred v2.9)* | — | — |
+| 10 | OTel FastAPI | — | *(deferred v2.9)* | — | — |
+
+**Bundle delta:** +~1.2 MB IPA / +~800 KB AAB (Replay native chunk).
+
+---
+
+## Anti-patterns v2.8 refuse
+
+1. **Datadog RUM / Amplitude / LogRocket / FullStory** — PROJECT.md L49. Sentry-only.
+2. **LaunchDarkly / Statsig / Unleash** — PROJECT.md L48. Étendre 8-flag system.
+3. **OpenTelemetry backend instrumentation** — PROJECT.md L51. Sentry Performance suffit.
+4. **Patrol / Appium / Maestro** — PROJECT.md L50. simctl + idb.
+5. **Husky / pre-commit (python) git hooks** — sequential, slow. lefthook only.
+6. **`runZonedGuarded` wrapper autour `SentryFlutter.init`** — zone mismatch Flutter 3.3+ sentry_flutter 9.x. Utiliser triple pattern A.2.
+7. **`sentry_dio` migration** — rewrite ApiService. Manual header propagation sur `http: ^1.2.0`.
+8. **In-app screenshot archive (screenshot package)** — Sentry Replay + simctl mieux. Skip.
+9. **`--no-verify` commits** — `LEFTHOOK_BYPASS=1` grep-able.
+10. **One flag per route** — flag-group pattern (`enableExplorerRetraite` couvre 6 routes).
+11. **Screenshot pixel diffing** — defer v2.9. Flake pour 0 MTTR gain.
+12. **Firebase Remote Config** — duplique /config/feature-flags.
+
+---
+
+## Key file patches (roadmapper/planner input)
+
+- [apps/mobile/pubspec.yaml](apps/mobile/pubspec.yaml) L29 — `sentry_flutter: ^8.0.0` → `9.14.0` (exact pin)
+- [apps/mobile/pubspec.yaml](apps/mobile/pubspec.yaml) L18 — `go_router: ^13.2.0` → `14.8.1`
+- [apps/mobile/lib/main.dart](apps/mobile/lib/main.dart) L108-121 — ajouter Replay options, wrap `SentryWidget`, install 3-prong error boundary
+- [services/backend/pyproject.toml](services/backend/pyproject.toml) L27 — tighten `sentry-sdk[fastapi]==2.53.0`
+- [services/backend/app/main.py](services/backend/app/main.py) L169-180 — extend global handler trace_id + event_id
+- [apps/mobile/lib/services/feature_flags.dart](apps/mobile/lib/services/feature_flags.dart) — refactor `ChangeNotifier` + route-group flags
+- **New files Phase 34:** `lefthook.yml`, `tools/checks/no_bare_catch.py`, `no_hardcoded_fr.py`, `accent_lint_fr.py`, `arb_parity.py`, `route_registry_parity.py`, `proof_of_read.py`
+- **New files Phase 35:** `tools/dogfood/mint-dogfood.sh`, `tools/dogfood/render_report.py`
+
+---
+
+## References
+
+- [sentry_flutter pub.dev](https://pub.dev/packages/sentry_flutter/versions)
+- [Sentry Flutter SDK 9.0 blog](https://blog.sentry.io/introducing-sentrys-flutter-sdk-9-0/)
+- [Session Replay Flutter setup](https://docs.sentry.io/platforms/dart/guides/flutter/session-replay/)
+- [Session Replay Privacy](https://docs.sentry.io/platforms/dart/guides/flutter/session-replay/privacy/)
+- [Flutter SDK overhead](https://docs.sentry.io/platforms/dart/guides/flutter/overhead/)
+- [Trace Propagation Flutter](https://docs.sentry.io/platforms/flutter/tracing/trace-propagation/)
+- [FastAPI distributed tracing](https://docs.sentry.io/platforms/python/tracing/distributed-tracing/)
+- [sentry-sdk PyPI](https://pypi.org/project/sentry-sdk/)
+- [go_router 14.8.1 changelog](https://pub.dev/packages/go_router/versions/14.8.1/changelog)
+- [Lefthook v2.1.5 release](https://github.com/evilmartians/lefthook/releases)
+- [Lefthook docs](https://lefthook.dev/)
+- [JAX migration pre-commit → lefthook](https://github.com/jax-ml/jax/issues/32846)
+- [Sentry CLI config](https://docs.sentry.io/cli/configuration/)
+- [facebook/idb](https://github.com/facebook/idb)
+- [GDPR best practices Sentry](https://sentry.io/trust/privacy/gdpr-best-practices/)

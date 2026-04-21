@@ -178,11 +178,16 @@ void main() {
         ),
       );
 
-      // With FATCA restriction
+      // With FATCA restriction.
+      // 500 sims (not 100) — Wave 7 P0-M1 widened LPP σ from 3 % to 6.5 %
+      // (Pictet BVG-25 calibration), so 100-sim medians are noise-dominated
+      // relative to the structural ~CHF 125/mo delta driven by 15'000 CHF
+      // of conjoint 3a starting balance. 500 sims tightens the median
+      // standard error well below that delta.
       final r1 = await MonteCarloProjectionService.simulate(
         profile: fatcaProfile,
         seed: 42,
-        numSimulations: 100,
+        numSimulations: 500,
       );
 
       // Same profile but conjoint CAN contribute to 3a
@@ -239,10 +244,10 @@ void main() {
       final r2 = await MonteCarloProjectionService.simulate(
         profile: nonFatcaProfile,
         seed: 42,
-        numSimulations: 100,
+        numSimulations: 500,
       );
 
-      // FATCA profile should have lower median (no conjoint 3a growth)
+      // FATCA profile should have lower median (no conjoint 3a growth).
       expect(r1.medianAt65, lessThan(r2.medianAt65));
     });
   });

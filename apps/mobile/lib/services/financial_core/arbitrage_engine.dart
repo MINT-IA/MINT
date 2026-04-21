@@ -23,6 +23,13 @@ import 'package:mint_mobile/utils/chf_formatter.dart' as chf;
 class ArbitrageEngine {
   ArbitrageEngine._();
 
+  /// LPP art. 79b al. 3 / LIFD art. 33 al. 1 let. g : 3-year blockage
+  /// between a rachat and any capital withdrawal (EPL, retraite anticipée,
+  /// départ CH, retrait 3e pilier). Tribunal fédéral ATF 142 II 399
+  /// (reaffirmed 148 II 189, 2022) treats an overlap as abuse: the AFC
+  /// reverses the LIFD art. 33 déduction of the rachat.
+  static const int _rachatBlockageYears = 3;
+
   /// Compute dynamic confidence for an arbitrage result based on data sources.
   ///
   /// [inputKeys] The input field names used in this arbitrage.
@@ -386,25 +393,33 @@ class ArbitrageEngine {
     final capitalTotalValue = capitalCumulativeWithdrawals + capitalResidual;
 
     final delta = (capitalTotalValue - renteTotalValue).abs();
-    final betterOption =
-        capitalTotalValue > renteTotalValue ? 'capital' : 'rente';
 
     // Income gap: what you actually receive to live on
     final incomeGap = (renteTotalValue - capitalCumulativeWithdrawals).abs();
     final moreIncome =
         renteTotalValue > capitalCumulativeWithdrawals ? 'rente' : 'capital';
 
+    // CLAUDE.md §6.4 No-Ranking: describe the trade-off neutrally, never
+    // name a "meilleur" option. Each side states its concrete consequence
+    // so the user can weigh them against personal constraints.
     String premierEclairage;
     if (capitalResidual > 10000 && moreIncome == 'rente') {
-      // Typical case: rente gives more income, but capital preserves wealth
+      // Typical case: rente gives more income, capital preserves transmissible wealth.
       premierEclairage =
           'La rente te verse ~${chf.formatChfWithPrefix(incomeGap)} de revenu net '
-          'de plus sur $horizon ans. Mais avec le capital, tu conserves '
+          'de plus sur $horizon ans. Avec le capital, tu conserves '
           '~${chf.formatChfWithPrefix(capitalResidual)} de patrimoine transmissible.';
+    } else if (capitalResidual > 10000) {
+      // Capital yields more cumulative income AND keeps a residual stock.
+      premierEclairage =
+          'Sur $horizon ans, le capital retiré génère ~${chf.formatChfWithPrefix(delta)} '
+          'de valeur économique de plus et laisse ~${chf.formatChfWithPrefix(capitalResidual)} '
+          'de patrimoine résiduel. La rente, elle, reste versée à vie.';
     } else {
       premierEclairage =
-          'Sur $horizon ans, l\'option $betterOption genere '
-          '~${chf.formatChfWithPrefix(delta)} de valeur economique nette supplementaire.';
+          'Sur $horizon ans, l\'écart de valeur économique totale entre rente et capital '
+          'est d\'environ ${chf.formatChfWithPrefix(delta)}. À toi de peser revenu à vie (LPP art. 14) '
+          'contre liquidité et transmission.';
     }
 
     final displaySummary = breakevenYear != null
@@ -1014,11 +1029,12 @@ class ArbitrageEngine {
     final breakevenYear = _findBreakevenYear(rentSnapshots, buySnapshots);
 
     final delta = (optionA.terminalValue - optionB.terminalValue).abs();
-    final betterLabel =
-        optionA.terminalValue > optionB.terminalValue ? 'louer' : 'acheter';
-    final premierEclairage = 'Dans ce scenario simule, $betterLabel genere '
-        '~${chf.formatChfWithPrefix(delta)} de patrimoine net supplementaire sur '
-        '$horizonAnnees ans.';
+    // CLAUDE.md §6.4 No-Ranking: each option's terminal value is stated
+    // separately so the user weighs liquidité vs propriété explicitly.
+    final premierEclairage =
+        'Sur $horizonAnnees ans : louer laisse ${chf.formatChfWithPrefix(optionA.terminalValue)} '
+        'de patrimoine net, acheter laisse ${chf.formatChfWithPrefix(optionB.terminalValue)}. '
+        'Écart ~${chf.formatChfWithPrefix(delta)} — à peser contre flexibilité et frais.';
 
     // FINMA affordability check
     final alertes = <String>[];
@@ -1145,11 +1161,30 @@ class ArbitrageEngine {
     String canton = 'ZH',
     bool isMarried = false,
     Map<String, ProfileDataSource>? dataSources,
+    // Wave 7 A7 — anti-abuse ATF 142 II 399 + 148 II 189.
+    // Years from now at which the user plans to withdraw capital from
+    // LPP or 3a (EPL for housing, retirement capital, departure from CH).
+    // If set within `_rachatBlockageYears` (3 ans, LPP art. 79b al. 3),
+    // the tax deduction of the rachat is reversed by the AFC — the
+    // arbitrage then adds a protection-first alerte and removes
+    // `taxSavingRachat` from the terminal capital.
+    int? plannedCapitalWithdrawalYearsFromNow,
   }) {
     final startYear = DateTime.now().year;
 
+    // ── Anti-abuse detection: rachat + EPL / retrait dans les 3 ans ──
+    final bool blockageBreach = plannedCapitalWithdrawalYearsFromNow != null &&
+        plannedCapitalWithdrawalYearsFromNow >= 0 &&
+        plannedCapitalWithdrawalYearsFromNow < _rachatBlockageYears;
+
     // ── Option A: LPP Buyback ──
-    final taxSavingRachat = montant * tauxMarginal;
+    // When the 3-year blockage would be breached, the LIFD art. 33 al. 1
+    // let. g déduction is reversed (tribunal fédéral ATF 142 II 399 ;
+    // 148 II 189). We zero-out the tax saving for the scenario and keep
+    // the capital dynamics as-is so users see what they would actually
+    // have without the déduction.
+    final double taxSavingRachat =
+        blockageBreach ? 0.0 : montant * tauxMarginal;
     double balanceLpp = montant;
     final rachatSnapshots = <YearlySnapshot>[];
 
@@ -1236,14 +1271,35 @@ class ArbitrageEngine {
     final breakevenYear = _findBreakevenYear(rachatSnapshots, marcheSnapshots);
 
     final delta = (netCapitalLpp - balanceMarche).abs();
-    final premierEclairage =
-        'Economie d\'impot au rachat : ${chf.formatChfWithPrefix(taxSavingRachat)}. '
-        'Ecart final simule : ${chf.formatChfWithPrefix(delta)} sur $anneesAvantRetraite ans.';
 
-    final displaySummary =
-        'Le rachat LPP offre une deduction fiscale immediate de '
-        '${chf.formatChfWithPrefix(taxSavingRachat)}, mais le capital est bloque (LPP art. 79b al. 3). '
-        'L\'investissement libre est accessible a tout moment.';
+    // Alertes protection-first surfacées au-dessus du chiffrage.
+    final alertes = <String>[];
+    if (blockageBreach) {
+      final yrs = plannedCapitalWithdrawalYearsFromNow;
+      final plural = yrs == 1 ? '' : 's';
+      alertes.add(
+        'Retrait capital prévu dans $yrs an$plural : '
+        'la déduction fiscale du rachat sera ANNULÉE par l\'AFC '
+        '(LPP art. 79b al. 3 + ATF 142 II 399 / 148 II 189). '
+        'Laisse passer les 3 ans de blocage avant tout retrait.',
+      );
+    }
+
+    final premierEclairage = blockageBreach
+        ? 'Dans ce scénario, la déduction fiscale du rachat est annulée par '
+            'la règle des 3 ans (LPP art. 79b al. 3). '
+            'Écart final simulé : ${chf.formatChfWithPrefix(delta)} sur '
+            '$anneesAvantRetraite ans — mais le rachat ne sauve aucun impôt.'
+        : 'Économie d\'impôt au rachat : ${chf.formatChfWithPrefix(taxSavingRachat)}. '
+            'Écart final simulé : ${chf.formatChfWithPrefix(delta)} sur $anneesAvantRetraite ans.';
+
+    final displaySummary = blockageBreach
+        ? 'Un retrait capital (EPL, retraite anticipée, départ CH) dans les 3 ans '
+            'annule la déduction du rachat (ATF 142 II 399). Voyons ensemble le '
+            'calendrier avant toute opération.'
+        : 'Le rachat LPP offre une déduction fiscale immédiate de '
+            '${chf.formatChfWithPrefix(taxSavingRachat)}, mais le capital est bloqué '
+            '(LPP art. 79b al. 3). L\'investissement libre est accessible à tout moment.';
 
     final sensitivity = <String, double>{};
     final baseSpread = _terminalSpreadFromOptions(options);
@@ -1391,12 +1447,14 @@ class ArbitrageEngine {
         'LPP art. 14 (taux de conversion)',
         'LIFD art. 33 (deduction rachat)',
         'LIFD art. 38 (impot retrait capital)',
+        if (blockageBreach) 'ATF 142 II 399 / 148 II 189 (abus rachat+retrait)',
       ],
       confidenceScore: _computeArbitrageConfidence(
         ['montant', 'tauxMarginal', 'capitalLpp', 'canton'],
         dataSources,
       ),
       sensitivity: sensitivity,
+      alertes: alertes,
     );
   }
 

@@ -3021,6 +3021,120 @@ abstract class S {
   /// **'Complète ton diagnostic pour débloquer ton plan mensuel avec tes vrais revenus et charges.'**
   String get budgetEmptyBody;
 
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charges fixes'**
+  String get budgetSetupTitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui part chaque mois, quoi qu\'il arrive.'**
+  String get budgetSetupSubtitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Loyer ou hypothèque'**
+  String get budgetSetupHousing;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assurance maladie'**
+  String get budgetSetupLamal;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transport'**
+  String get budgetSetupTransport;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécom'**
+  String get budgetSetupTelecom;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Électricité'**
+  String get budgetSetupElectricity;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Frais médicaux'**
+  String get budgetSetupMedical;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autres'**
+  String get budgetSetupOther;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter d\'autres postes'**
+  String get budgetSetupAddOthers;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get budgetSetupSave;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'en parle plutôt au coach'**
+  String get budgetSetupChatFallback;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF / mois'**
+  String get budgetSetupFieldPlaceholder;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Requis'**
+  String get budgetSetupRequired;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Total fixe : {amount} CHF / mois'**
+  String budgetSetupTotalFixed(String amount);
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te reste {amount} CHF après tes charges.'**
+  String budgetSetupResteAfterCharges(String amount);
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes charges fixes, au clair.'**
+  String get budgetCardEmptyTitle;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.'**
+  String get budgetCardEmptyBody;
+
+  /// Budget setup label.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poser mes charges'**
+  String get budgetCardEmptyAction;
+
   /// No description provided for @budgetEmptyAction.
   ///
   /// In fr, this message translates to:
@@ -13905,7 +14019,7 @@ abstract class S {
   /// No description provided for @coachInputHint.
   ///
   /// In fr, this message translates to:
-  /// **'Dis-moi ce qui te trotte dans la tête.'**
+  /// **'Dis-moi.'**
   String get coachInputHint;
 
   /// No description provided for @coachUserMessage.
@@ -16588,13 +16702,13 @@ abstract class S {
   /// No description provided for @sim3aDebtStrategyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Stratégie bloquée'**
+  /// **'Stratégie en pause'**
   String get sim3aDebtStrategyTitle;
 
   /// No description provided for @sim3aDebtStrategyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Les stratégies d\'investissement 3a sont désactivées tant que tu as des dettes actives. Rembourser tes dettes est un rendement plus élevé que tout placement.'**
+  /// **'Les stratégies d\'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d\'abord, placer ensuite.'**
   String get sim3aDebtStrategyMessage;
 
   /// No description provided for @realReturnTitle.
@@ -18931,6 +19045,12 @@ abstract class S {
   /// **'Réduction capital-décès (estimation)'**
   String get eplReductionDeces;
 
+  /// No description provided for @eplReductionAskCaisse.
+  ///
+  /// In fr, this message translates to:
+  /// **'À demander à ta caisse'**
+  String get eplReductionAskCaisse;
+
   /// No description provided for @eplImpactPrestationsNote.
   ///
   /// In fr, this message translates to:
@@ -19504,7 +19624,7 @@ abstract class S {
   /// No description provided for @retroactive3aHeroTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Rattrapage 3a — Nouveauté 2026'**
+  /// **'Rattrapage 3a — Nouveauté 2025'**
   String get retroactive3aHeroTitle;
 
   /// No description provided for @retroactive3aHeroSubtitle.
@@ -20656,19 +20776,19 @@ abstract class S {
   /// No description provided for @reportSafeMode3a.
   ///
   /// In fr, this message translates to:
-  /// **'Le comparateur 3a est désactivée tant que tu as des dettes actives. Rembourser tes dettes est prioritaire avant toute épargne 3a.'**
+  /// **'Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité : stabiliser ta trésorerie.'**
   String get reportSafeMode3a;
 
   /// No description provided for @reportSafeModeLpp.
   ///
   /// In fr, this message translates to:
-  /// **'Rachat LPP bloqué'**
+  /// **'Rachat LPP en pause'**
   String get reportSafeModeLpp;
 
   /// No description provided for @reportSafeModeLppMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Le rachat LPP est désactivé en mode protection. Rembourser tes dettes avant de bloquer de la liquidité dans la prévoyance.'**
+  /// **'Le rachat LPP est en pause en mode protection. L\'ordre recommandé : rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.'**
   String get reportSafeModeLppMessage;
 
   /// No description provided for @reportLppTitle.
@@ -32037,7 +32157,7 @@ abstract class S {
   /// No description provided for @portfolioSafeModeBody.
   ///
   /// In fr, this message translates to:
-  /// **'Les conseils d\'allocation sont désactivés en mode protection. Ta priorité est de réduire tes dettes avant de rééquilibrer ton patrimoine.'**
+  /// **'Les conseils d\'allocation sont en pause en mode protection. Ordre recommandé : réduire tes dettes avant de rééquilibrer ton patrimoine.'**
   String get portfolioSafeModeBody;
 
   /// No description provided for @portfolioSafeModeLocked.
@@ -33922,7 +34042,7 @@ abstract class S {
   /// No description provided for @safeModeMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Pour ta sécurité financière, nous désactivons les optimisations avancées tant qu’un signal de dette est actif. La priorité est de construire ta sécurité.'**
+  /// **'Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité : stabiliser ta trésorerie. Le reste attendra.'**
   String get safeModeMessage;
 
   /// No description provided for @safeModeTitle.
@@ -36666,7 +36786,7 @@ abstract class S {
   /// No description provided for @coachSuggestBudget.
   ///
   /// In fr, this message translates to:
-  /// **'Quel est mon budget réaliste à la retraite ?'**
+  /// **'Où part mon argent chaque mois ?'**
   String get coachSuggestBudget;
 
   /// No description provided for @coachSuggestBudgetGap.
@@ -36909,6 +37029,48 @@ abstract class S {
   /// **'Tu veux en parler ?'**
   String get coachSilentOpenerQuestion;
 
+  /// First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut. Moi c\'est Mint.'**
+  String get coachOpenerIdentity;
+
+  /// First-contact opener line 2 — trust promise. LSFin-compatible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne vends rien, je ne note rien, je ne te compare à personne. Je t\'aide juste à voir clair dans ce que personne n\'a intérêt à t\'expliquer.'**
+  String get coachOpenerPromise;
+
+  /// First-contact opener closing question.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par quoi on commence ?'**
+  String get coachOpenerQuestion;
+
+  /// Conversation starter chip — routes to scanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un papier que je comprends pas'**
+  String get coachStarterPaper;
+
+  /// Conversation starter chip — life events opener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un choix que je dois faire'**
+  String get coachStarterChoice;
+
+  /// Conversation starter chip — budget/fiscal opener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un truc qui me coûte, je sais pas quoi'**
+  String get coachStarterCost;
+
+  /// Conversation starter chip — dismisses opener without forcing engagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je regarde, je me présente après'**
+  String get coachStarterLurk;
+
   /// No description provided for @coachProactiveOptIn.
   ///
   /// In fr, this message translates to:
@@ -36930,7 +37092,7 @@ abstract class S {
   /// No description provided for @coachSilentOpenerReplacementRate.
   ///
   /// In fr, this message translates to:
-  /// **'Taux de remplacement à la retraite'**
+  /// **'Taux de remplacement projeté'**
   String get coachSilentOpenerReplacementRate;
 
   /// No description provided for @coachSilentOpenerFitnessScore.
@@ -36944,6 +37106,24 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Capital projeté à la retraite'**
   String get coachSilentOpenerRetirementCapital;
+
+  /// Silent opener label when the coach surfaces a generic projected-capital number across any life-event horizon (not only retraite). Wave 2 debias — replaces retirement-framed default.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capital projeté sur ton horizon'**
+  String get coachSilentOpenerProjectedCapital;
+
+  /// Silent opener label for the user's current LPP balance, surfaced first when enriched via scan. Factual indicative voice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avoir LPP'**
+  String get coachSilentOpenerLppAvoir;
+
+  /// Silent opener label for 3a savings snapshot. Factual indicative voice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne 3a'**
+  String get coachSilentOpener3aEpargne;
 
   /// No description provided for @confidenceLow.
   ///
@@ -39123,16 +39303,16 @@ abstract class S {
   /// **'Voix'**
   String get tonSectionLabel;
 
-  /// Anonymous intent screen — opening line about money taboo in Switzerland.
+  /// Landing opener. Short and sober — sets up the 'On éclaire. Tu décides.' promise below.
   ///
   /// In fr, this message translates to:
-  /// **'L\'argent, en Suisse, c\'est le sujet dont personne ne parle.'**
+  /// **'Ta vie financière, en clair.'**
   String get anonymousIntentLine1;
 
-  /// Anonymous intent screen — follow-up line.
+  /// Retired 2026-04-17. Kept as empty string for ARB parity; the widget no longer renders it.
   ///
   /// In fr, this message translates to:
-  /// **'Même pas à soi-même.'**
+  /// **''**
   String get anonymousIntentLine2;
 
   /// Anonymous intent — felt-state pill 1.
@@ -39950,6 +40130,246 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Sans son accord, MINT ne peut pas traiter les données d\'une autre personne.'**
   String get thirdPartyDeclarationNoticeLink;
+
+  /// Nav V11 — Mon argent tab AppBar title
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon argent'**
+  String get monArgentTabTitle;
+
+  /// Nav V11 — budget card header
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton budget ce mois'**
+  String get monArgentBudgetTitle;
+
+  /// Nav V11 — budget card empty state
+  ///
+  /// In fr, this message translates to:
+  /// **'Définis ton budget pour voir où tu en es ce mois.'**
+  String get monArgentBudgetEmpty;
+
+  /// Nav V11 — budget card empty CTA
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer'**
+  String get monArgentBudgetStart;
+
+  /// Nav V11 — budget card error state
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger ton budget.'**
+  String get monArgentBudgetError;
+
+  /// Nav V11 — budget income label
+  ///
+  /// In fr, this message translates to:
+  /// **'Revenus'**
+  String get monArgentBudgetIncome;
+
+  /// Nav V11 — budget expenses label
+  ///
+  /// In fr, this message translates to:
+  /// **'Dépenses'**
+  String get monArgentBudgetSpent;
+
+  /// Nav V11 — budget remaining label
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste'**
+  String get monArgentBudgetRemaining;
+
+  /// Nav V11 — retry button
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get monArgentRetry;
+
+  /// Nav V11 — patrimoine card header
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton point de départ'**
+  String get monArgentPatrimoineTitle;
+
+  /// Nav V11 — patrimoine card empty state
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanne un document ou parle au coach pour commencer.'**
+  String get monArgentPatrimoineEmpty;
+
+  /// Nav V11 — patrimoine card error state
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de charger tes données.'**
+  String get monArgentPatrimoineError;
+
+  /// Nav V11 — patrimoine net label
+  ///
+  /// In fr, this message translates to:
+  /// **'Net'**
+  String get monArgentPatrimoineNet;
+
+  /// Nav V11 — patrimoine partial state hint
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoute tes données pour une vue complète.'**
+  String get monArgentPatrimoinePartial;
+
+  /// Nav V11 — LPP label
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier'**
+  String get monArgentLpp;
+
+  /// Nav V11 — 3a label
+  ///
+  /// In fr, this message translates to:
+  /// **'3e pilier'**
+  String get monArgentPillar3a;
+
+  /// Nav V11 — savings label
+  ///
+  /// In fr, this message translates to:
+  /// **'Épargne'**
+  String get monArgentEpargne;
+
+  /// Nav V11 — scan button
+  ///
+  /// In fr, this message translates to:
+  /// **'Scanner'**
+  String get monArgentScan;
+
+  /// Nav V11 — enrich CTA text
+  ///
+  /// In fr, this message translates to:
+  /// **'Enrichis ton dossier pour une vue plus précise'**
+  String get monArgentEnrichCta;
+
+  /// Shell tab label — Today
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get tabAujourdhui;
+
+  /// Shell tab label — My money
+  ///
+  /// In fr, this message translates to:
+  /// **'Mon argent'**
+  String get tabMonArgent;
+
+  /// Shell tab label — Explore
+  ///
+  /// In fr, this message translates to:
+  /// **'Explorer'**
+  String get tabExplorer;
+
+  /// Explorer hub — Retirement
+  ///
+  /// In fr, this message translates to:
+  /// **'Retraite & Prévoyance'**
+  String get hubRetraite;
+
+  /// Explorer hub — Family
+  ///
+  /// In fr, this message translates to:
+  /// **'Famille'**
+  String get hubFamille;
+
+  /// Explorer hub — Work
+  ///
+  /// In fr, this message translates to:
+  /// **'Travail & Statut'**
+  String get hubTravail;
+
+  /// Explorer hub — Housing
+  ///
+  /// In fr, this message translates to:
+  /// **'Logement'**
+  String get hubLogement;
+
+  /// Explorer hub — Tax
+  ///
+  /// In fr, this message translates to:
+  /// **'Fiscalité'**
+  String get hubFiscalite;
+
+  /// Explorer hub — Wealth
+  ///
+  /// In fr, this message translates to:
+  /// **'Patrimoine & Succession'**
+  String get hubPatrimoine;
+
+  /// Explorer hub — Health
+  ///
+  /// In fr, this message translates to:
+  /// **'Santé & Protection'**
+  String get hubSante;
+
+  /// No description provided for @safeModeWhyBlockedSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi est-ce en pause'**
+  String get safeModeWhyBlockedSemantics;
+
+  /// No description provided for @safeModeWhyBlockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi c\'est en pause'**
+  String get safeModeWhyBlockedTitle;
+
+  /// No description provided for @safeModeWhyBlockedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.'**
+  String get safeModeWhyBlockedBody;
+
+  /// No description provided for @safeModeWhyBlockedLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pourquoi est-ce en pause ?'**
+  String get safeModeWhyBlockedLink;
+
+  /// No description provided for @safeModeFormalDesendettementNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.'**
+  String get safeModeFormalDesendettementNote;
+
+  /// Persistent event summary when an LPP certificate is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat LPP scanné'**
+  String get scanSummaryLppCertificate;
+
+  /// Persistent event summary when a Pillar 3a attestation is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation 3a scannée'**
+  String get scanSummary3aAttestation;
+
+  /// Persistent event summary when a tax declaration is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaration fiscale scannée'**
+  String get scanSummaryTaxDeclaration;
+
+  /// Persistent event summary when an AVS extract is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extrait AVS scanné'**
+  String get scanSummaryAvsExtract;
+
+  /// Persistent event summary when a mortgage attestation is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Attestation hypothèque scannée'**
+  String get scanSummaryMortgageAttestation;
+
+  /// Persistent event summary when a salary certificate is scanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certificat de salaire scanné'**
+  String get scanSummarySalaryCertificate;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

@@ -162,8 +162,25 @@ class TestHallucinationDetection:
         assert hallucinations[0].deviation_pct > 50
 
     def test_zero_known_value(self, detector):
+        # Post-fix (2026-04-17): zero/None known_values are filtered before
+        # comparison. They signal "profile field not yet declared" — comparing
+        # user-declared numbers against 0 produces infinite deviation and
+        # wrongly flags every new-user message as hallucination.
+        # See fix in hallucination_detector.py (skip 0/None known values).
         hallucinations = detector.detect(
             "Tu as CHF 5'000 de dette.",
             known_values={"debt": 0.0},
         )
-        assert len(hallucinations) == 1
+        # With all known_values = 0, nothing to compare against → no hallucinations.
+        assert len(hallucinations) == 0
+
+    def test_zero_known_value_mixed_with_real_value(self, detector):
+        # When at least one known_value is real, the detector still compares
+        # against the real ones. The zero entry is filtered but the valid one
+        # catches fabrications.
+        hallucinations = detector.detect(
+            "Tu as CHF 500'000 de dette et CHF 0 d'épargne.",
+            known_values={"savings": 0.0, "debt": 50000.0},
+        )
+        # 500k vs 50k = 900% deviation → flagged against "debt"
+        assert len(hallucinations) >= 1

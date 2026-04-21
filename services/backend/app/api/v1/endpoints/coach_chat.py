@@ -386,7 +386,7 @@ def _sanitize_conversation_history(
     """Sanitize conversation history: PII scrub + injection filter + limit.
 
     Threat mitigations:
-        T-20-01 (Tampering): role whitelist, 16-message cap, 2000-char truncation
+        T-20-01 (Tampering): role whitelist, 32-message cap, 2000-char truncation
         T-20-02 (PII): regex scrub on user messages
         T-20-03 (Spoofing): reject 'system' role to prevent prompt injection
         T-20-04 (DoS): hard cap at 16 messages, 2000 chars each
@@ -401,7 +401,7 @@ def _sanitize_conversation_history(
     if not history:
         return None
     sanitized: list[dict[str, str]] = []
-    for msg in history[-16:]:  # hard cap at 16 messages (was 8)
+    for msg in history[-32:]:  # hard cap at 32 messages (8 → 16 → 32, 2026-04-17)
         role = msg.get("role", "")
         content = msg.get("content", "")
         if role not in ("user", "assistant") or not content.strip():
@@ -453,6 +453,8 @@ _PROFILE_SAFE_FIELDS = {
     "years_since_last_buyback",
     # Planned contributions (consumed by claude_coach_service system prompt)
     "planned_contributions",
+    # SafeMode signal: consumer debt stress or emergency-fund shortfall (RULES.md §1)
+    "has_debt",
 }
 
 
@@ -993,13 +995,26 @@ def _coerce_fact_value(key: str, value):
             if isinstance(value, bool):  # bool is a subclass of int in Python
                 return None
             if isinstance(value, (int, float)):
-                return float(value)
-            if isinstance(value, str):
+                coerced = float(value)
+            elif isinstance(value, str):
                 cleaned = value.replace("'", "").replace(" ", "").replace(",", ".")
-                return float(cleaned)
+                coerced = float(cleaned)
+            else:
+                return None
         except (TypeError, ValueError):
             return None
-        return None
+        # B6-minimal (2026-04-18): range checks for birth-year-like keys.
+        # Panel adversaire BUG 4 & panel archi A3: without an upstream
+        # range check, Claude could persist `birthYear=2099` and the mobile
+        # `profile.age` clamp silently returned 0 for every downstream
+        # calculator. Reject impossible values here so the LLM asks again.
+        current_year = datetime.now().year
+        if key in {"birthYear", "spouseBirthYear"}:
+            # Accept newborns (currentYear+1 tolerates local-timezone edge)
+            # down to 1900 (no living user pre-1900 for our purposes).
+            if coerced < 1900 or coerced > current_year + 1:
+                return None
+        return coerced
     if key in _SAVE_FACT_BOOL_KEYS:
         if isinstance(value, bool):
             return value
@@ -1231,7 +1246,12 @@ def _execute_internal_tool(
     if name == "save_insight":
         summary = tool_input.get("summary") or tool_input.get("insight") or ""
         topic = tool_input.get("topic", "general")
-        insight_type = tool_input.get("insight_type", "fact")
+        # Wave E-PRIME: schema expose `type` (coach_tools.py:468) mais handler
+        # lisait `insight_type` avec fallback "fact". Anthropic SDK sérialise
+        # tool_use params sous le nom exact du schema — donc tous les events
+        # Wave A A0 (event type) étaient silencieusement downgradés à "fact".
+        # Fallback sur l'ancien nom pour compat tests.
+        insight_type = tool_input.get("type") or tool_input.get("insight_type") or "fact"
         logger.info("save_insight: topic=%s, summary=%s", topic[:50], summary[:100])
         if user_id and db:
             try:
@@ -1359,19 +1379,38 @@ def _execute_internal_tool(
                 profile.updated_at = datetime.now(timezone.utc)
                 db.add(profile)
                 db.commit()
+                # PRIV-07 — PII redaction on save_fact log + LLM return.
+                # Deny-by-default: only keys in SAFE_LOG_FACT_KEYS expose
+                # their value. All numeric financial amounts + quasi-
+                # identifiers (birthYear, dateOfBirth, commune, etc.) are
+                # redacted. The LLM already has `coerced` in its tool
+                # input history — the return string is a confirmation,
+                # not an echo (no need to repeat the value).
+                # Ref: CLAUDE.md §6.7, nLPD art. 4, adversarial panel
+                # 2026-04-18 (agent a39aa3c1db57f30a0).
+                from app.services.privacy.fact_key_allowlist import (
+                    is_safe_to_log,
+                )
+                log_value = coerced if is_safe_to_log(fact_key) else "[REDACTED]"
                 logger.info(
                     "save_fact: user=%s key=%s value=%r conf=%s",
                     str(user_id)[:8] + "...",
                     fact_key,
-                    coerced,
+                    log_value,
                     fact_conf,
                 )
-                return f"Fait enregistré : {fact_key} = {coerced}"
+                if is_safe_to_log(fact_key):
+                    return f"Fait enregistré : {fact_key} = {coerced}"
+                return f"Fait enregistré : {fact_key}"
             except Exception as exc:
                 db.rollback()
                 logger.exception("save_fact DB commit failed: %s", fact_key)
                 return f"[save_fact ÉCHEC: {type(exc).__name__}]"
-        return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+        # Hors-DB path: same redaction contract applies.
+        from app.services.privacy.fact_key_allowlist import is_safe_to_log
+        if is_safe_to_log(fact_key):
+            return f"Fait noté (hors DB) : {fact_key} = {fact_value}"
+        return f"Fait noté (hors DB) : {fact_key}"
 
     # ─────────────────────────────────────────────────────────────────
     # suggest_actions — READ: dynamic chips from profile gaps + financial
@@ -1981,7 +2020,20 @@ async def _run_agent_loop(
 # ---------------------------------------------------------------------------
 
 
-@router.post("/chat", response_model=CoachChatResponse)
+@router.post(
+    "/chat",
+    response_model=CoachChatResponse,
+    # CoachChatResponse.model_config sets alias_generator=to_camel so the
+    # schema fields expose camelCase aliases (toolCalls, tokensUsed,
+    # responseMeta, cashLevel, systemPromptUsed). FastAPI's default
+    # serialization uses the python field name (snake_case) unless told
+    # otherwise — so without this flag the Flutter client silently drops
+    # every non-trivial field (it reads json['toolCalls'], backend emits
+    # json['tool_calls'], JSON keys are case-sensitive). Setting
+    # response_model_by_alias=True is the one-line fix that restores the
+    # documented contract. Root-caused 2026-04-17 during deep-audit.
+    response_model_by_alias=True,
+)
 @limiter.limit("30/minute;500/day")
 async def coach_chat(
     request: Request,
@@ -2064,6 +2116,71 @@ async def coach_chat(
     # ------------------------------------------------------------------
     # Step 1: Build CoachContext from sanitized profile_context
     # ------------------------------------------------------------------
+    # ARCH-FIX: If client didn't send profile_context (or sent empty),
+    # hydrate from the authenticated user's ProfileModel.data. Otherwise
+    # Claude has no access to the user's real numbers and hallucinates
+    # (e.g. "180k LPP + 45k 3a + Genève" when profile is 70k/32k/VS).
+    # Client-supplied profile_context still wins when present — lets mobile
+    # pass richer runtime data (confidence, nudges, etc.).
+    if (not safe_profile) and _user and db:
+        try:
+            from app.models.profile_model import ProfileModel as _PM
+            _db_prof = (
+                db.query(_PM)
+                .filter(_PM.user_id == _user.id)
+                .order_by(_PM.updated_at.desc())
+                .first()
+            )
+            if _db_prof and _db_prof.data:
+                # Map DB camelCase → whitelist snake_case expected by
+                # _sanitize_profile_context. Without this mapping, every DB
+                # field is filtered out and Claude sees an empty context.
+                _d = _db_prof.data
+                import datetime as _dt
+                _mapped: dict = {}
+                # Identity
+                if _d.get("birthYear"):
+                    _mapped["age"] = _dt.datetime.now(_dt.timezone.utc).year - int(_d["birthYear"])
+                if _d.get("canton"):
+                    _mapped["canton"] = _d["canton"]
+                if _d.get("householdType"):
+                    hh = _d["householdType"]
+                    _mapped["marital_status"] = hh
+                    _mapped["is_married"] = (hh == "couple")
+                    _mapped["civil_status"] = hh
+                if _d.get("gender"):
+                    _mapped["gender"] = _d["gender"]
+                if _d.get("employmentStatus"):
+                    _mapped["employment_status"] = _d["employmentStatus"]
+                if _d.get("has2ndPillar") is not None:
+                    _mapped["has_2nd_pillar"] = bool(_d["has2ndPillar"])
+                # Income
+                if _d.get("incomeNetMonthly"):
+                    _mapped["monthly_income"] = _d["incomeNetMonthly"]
+                # LPP
+                if _d.get("avoirLpp"):
+                    _mapped["lpp_balance_total"] = _d["avoirLpp"]
+                    _mapped["lpp_capital"] = _d["avoirLpp"]
+                if _d.get("lppBuybackMax"):
+                    _mapped["lpp_buyback_max"] = _d["lppBuybackMax"]
+                    _mapped["lpp_buyback_potential"] = _d["lppBuybackMax"]
+                # 3a
+                if _d.get("pillar3aBalance"):
+                    _mapped["existing_3a_ytd"] = _d["pillar3aBalance"]
+                if _d.get("pillar3aAnnual"):
+                    _mapped["annual_3a_contribution"] = _d["pillar3aAnnual"]
+                # AVS
+                if _d.get("avsContributionYears"):
+                    _mapped["avs_contribution_years"] = _d["avsContributionYears"]
+                # Pass mapped dict through sanitize to enforce whitelist.
+                safe_profile = _sanitize_profile_context(_mapped)
+                logger.info(
+                    "coach_chat hydrated profile from DB (user=%s, keys=%d)",
+                    str(_user.id)[:8] + "...", len(safe_profile),
+                )
+        except Exception as exc:
+            logger.warning("coach_chat profile hydration failed: %s", exc)
+
     coach_ctx = _build_coach_context_from_profile(safe_profile)
 
     # ------------------------------------------------------------------
@@ -2168,6 +2285,71 @@ async def coach_chat(
     system_prompt = _build_system_prompt_with_memory(coach_ctx, effective_memory_block, language=body.language, cash_level=body.cash_level, commitment_block=commitment_block, intelligence_block=intelligence_block, insight_block=insight_block)
     if reasoning_block:
         system_prompt = system_prompt + "\n\n" + reasoning_block
+
+    # ARCH-FIX (hallucination root cause): inject the user's actual profile
+    # values from the DB as a HARD authoritative block. The existing
+    # CoachContext / profile_context chain silently drops most fields (snake_
+    # case vs camelCase whitelist mismatches, field renames). Without a direct
+    # anchor Claude fabricates numbers ("168k brut, Lausanne, 1 enfant" when
+    # profile says 122k/Sion/married). This block is the last line of defence.
+    if _user and db:
+        try:
+            from app.models.profile_model import ProfileModel as _PM_PROF
+            _db_prof = (
+                db.query(_PM_PROF)
+                .filter(_PM_PROF.user_id == _user.id)
+                .order_by(_PM_PROF.updated_at.desc())
+                .first()
+            )
+            if _db_prof and _db_prof.data:
+                _d = _db_prof.data
+                import datetime as _dt_now
+                _age = None
+                if _d.get("birthYear"):
+                    _age = _dt_now.datetime.now(_dt_now.timezone.utc).year - int(_d["birthYear"])
+                _facts = []
+                if _age is not None:
+                    _facts.append(f"- Age: {_age} ans (ne en {_d.get('birthYear')})")
+                if _d.get("canton"):
+                    _facts.append(f"- Canton: {_d['canton']}")
+                if _d.get("commune"):
+                    _facts.append(f"- Commune: {_d['commune']}")
+                if _d.get("householdType"):
+                    _hh_map = {"single": "celibataire", "couple": "marie", "concubine": "concubinage", "family": "famille"}
+                    _facts.append(f"- Statut civil: {_hh_map.get(_d['householdType'], _d['householdType'])}")
+                if _d.get("gender"):
+                    _facts.append(f"- Genre: {_d['gender']}")
+                if _d.get("employmentStatus"):
+                    _facts.append(f"- Statut emploi: {_d['employmentStatus']}")
+                if _d.get("incomeGrossYearly"):
+                    _facts.append(f"- Salaire brut annuel: {int(_d['incomeGrossYearly']):,} CHF".replace(",", "'"))
+                if _d.get("incomeNetMonthly"):
+                    _facts.append(f"- Salaire net mensuel: {int(_d['incomeNetMonthly']):,} CHF".replace(",", "'"))
+                if _d.get("avoirLpp"):
+                    _facts.append(f"- Avoir LPP actuel: {int(_d['avoirLpp']):,} CHF".replace(",", "'"))
+                if _d.get("lppInsuredSalary"):
+                    _facts.append(f"- Salaire assure LPP: {int(_d['lppInsuredSalary']):,} CHF".replace(",", "'"))
+                if _d.get("lppBuybackMax"):
+                    _facts.append(f"- Rachat LPP maximum: {int(_d['lppBuybackMax']):,} CHF".replace(",", "'"))
+                if _d.get("pillar3aBalance"):
+                    _facts.append(f"- Avoir 3a: {int(_d['pillar3aBalance']):,} CHF".replace(",", "'"))
+                if _d.get("avsContributionYears"):
+                    _facts.append(f"- Annees cotisation AVS: {_d['avsContributionYears']}")
+                if _facts:
+                    profile_block = (
+                        "\n\n## PROFIL UTILISATEUR (donnees reelles, NE PAS INVENTER) :\n"
+                        + "\n".join(_facts)
+                        + "\n\nRAPPEL: utilise UNIQUEMENT ces valeurs. "
+                        + "Si une info manque, dis-le et propose de la saisir. "
+                        + "N'invente JAMAIS un canton, un age, un salaire ou un capital."
+                    )
+                    system_prompt = system_prompt + profile_block
+                    logger.info(
+                        "coach_chat injected profile block (user=%s, facts=%d)",
+                        str(_user.id)[:8] + "...", len(_facts),
+                    )
+        except Exception as _pf_exc:
+            logger.warning("profile block injection failed: %s", _pf_exc)
 
     # P3-B readiness metric: track system prompt size for multi-agent trigger.
     # When tokens_est > 3500 regularly, activate domain-specific prompt routing.

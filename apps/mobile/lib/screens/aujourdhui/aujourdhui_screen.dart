@@ -15,8 +15,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
+// Wave B-minimal B1 (2026-04-18): Cap du jour banner pulls the
+// highest-priority CapDecision from MintStateProvider and surfaces it
+// above the TensionCards. The provider is kept fresh by the
+// ChangeNotifierProxyProvider wired in `app.dart`.
+import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
 import 'package:mint_mobile/widgets/tension/cleo_loop_indicator.dart';
 import 'package:mint_mobile/widgets/tension/tension_card_widget.dart';
 import 'package:mint_mobile/widgets/timeline/month_header_widget.dart';
@@ -84,47 +90,69 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
     }
 
     if (provider.isEmpty) {
+      // Wave B-minimal B1-fix (2026-04-18): Cap du jour banner surfaces
+      // even when the timeline is empty so CapEngine's fallback card
+      // ("Parle-moi de toi") is visible on first open.
+      //
+      // Deep-walk 2026-04-21 crack #11: the tension-empty card below
+      // used to always render, repeating "Commence par parler au coach"
+      // right under the banner that already says the same thing. Gate
+      // it on an actually-cold profile — once the user has any captured
+      // facts, CapEngine's real cap carries the conversation and the
+      // redundant copy disappears.
+      final hasAnyProfileFact =
+          context.watch<CoachProfileProvider>().profile != null;
       return Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
-              child: GestureDetector(
-                onTap: () => context.go('/coach/chat'),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: MintColors.craie,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        l10n.tensionEmptyWelcome,
-                        style: GoogleFonts.montserrat(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: MintColors.textPrimary,
+          child: Column(
+            children: [
+              const CapDuJourBanner(),
+              if (!hasAnyProfileFact)
+                Expanded(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: GestureDetector(
+                        onTap: () => context.go('/coach/chat'),
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: MintColors.craie,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                l10n.tensionEmptyWelcome,
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: MintColors.textPrimary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                l10n.tensionEmptySubtitle,
+                                style: GoogleFonts.inter(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  color: MintColors.textSecondary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.tensionEmptySubtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          color: MintColors.textSecondary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-            ),
+                )
+              else
+                const Spacer(),
+            ],
           ),
         ),
       );
@@ -154,6 +182,15 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   ),
                 ),
               ),
+            ),
+
+            // ── Cap du jour (B1, above tension cards) ──────────
+            // Wave B-minimal B1: the single highest-priority CapDecision
+            // from MintStateProvider. Watches the proxy provider so the
+            // banner refreshes automatically whenever CoachProfile
+            // changes (save_fact, scan enrichment, wizard load).
+            const SliverToBoxAdapter(
+              child: CapDuJourBanner(),
             ),
 
             // ── Tension cards (Phase 17 header) ────────────────

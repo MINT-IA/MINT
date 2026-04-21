@@ -1,0 +1,892 @@
+{
+  "_meta": {
+    "fixture_version": 1,
+    "generated_by": "Phase 32 Wave 0 (plan 32-00)",
+    "route_count": 147,
+    "notes": "DRY_RUN fixture. Covers status classification edge cases: 3 red (count_24h>=10), 5 yellow (count_24h in [1,9]), 139 green (count_24h==0, fresh last_seen). Dead class tested separately via last_seen=null injection in Wave 2 unit tests."
+  },
+  "issues": [
+    {
+      "transaction": "/",
+      "count_24h": 15,
+      "last_seen": "2026-04-20T11:00:00Z",
+      "level": "error"
+    },
+    {
+      "transaction": "/3a-deep/comparator",
+      "count_24h": 16,
+      "last_seen": "2026-04-20T11:00:00Z",
+      "level": "error"
+    },
+    {
+      "transaction": "/3a-deep/real-return",
+      "count_24h": 17,
+      "last_seen": "2026-04-20T11:00:00Z",
+      "level": "error"
+    },
+    {
+      "transaction": "/3a-deep/staggered-withdrawal",
+      "count_24h": 2,
+      "last_seen": "2026-04-20T10:00:00Z",
+      "level": "warning"
+    },
+    {
+      "transaction": "/3a-retroactif",
+      "count_24h": 3,
+      "last_seen": "2026-04-20T10:00:00Z",
+      "level": "warning"
+    },
+    {
+      "transaction": "/about",
+      "count_24h": 4,
+      "last_seen": "2026-04-20T10:00:00Z",
+      "level": "warning"
+    },
+    {
+      "transaction": "/achievements",
+      "count_24h": 5,
+      "last_seen": "2026-04-20T10:00:00Z",
+      "level": "warning"
+    },
+    {
+      "transaction": "/advisor",
+      "count_24h": 6,
+      "last_seen": "2026-04-20T10:00:00Z",
+      "level": "warning"
+    },
+    {
+      "transaction": "/advisor/plan-30-days",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/advisor/wizard",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/anonymous/chat",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/arbitrage/allocation-annuelle",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/arbitrage/bilan",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/arbitrage/calendrier-retraits",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/arbitrage/location-vs-propriete",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/arbitrage/rachat-vs-marche",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/arbitrage/rente-vs-capital",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/ask-mint",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/assurances/coverage",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/assurances/lamal",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/auth/forgot-password",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/auth/login",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/auth/register",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/auth/verify",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/auth/verify-email",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/bank-import",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/budget",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/cantonal-benchmark",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/check/debt",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/agir",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/chat",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/checkin",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/cockpit",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/dashboard",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/decaissement",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/history",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/refresh",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/coach/succession",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/concubinage",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/confidence",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/couple",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/couple/accept",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/data-block/:type",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/debt/help",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/debt/ratio",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/debt/repayment",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/decaissement",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/disability/gap",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/disability/insurance",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/disability/self-employed",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/divorce",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/document-scan",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/document-scan/avs-guide",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/documents",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/documents/:id",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/education/hub",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/education/theme/:id",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/epl",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/expatriation",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/famille",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/fiscalite",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/logement",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/patrimoine",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/retraite",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/sante",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/explore/travail",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/first-job",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/fiscal",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/home",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/household",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/household/accept",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/hypotheque",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/independants/3a",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/independants/avs",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/independants/dividende-salaire",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/independants/ijm",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/independants/lpp-volontaire",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/invalidite",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/libre-passage",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/life-event/deces-proche",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/life-event/demenagement-cantonal",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/life-event/divorce",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/life-event/donation",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/life-event/housing-sale",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/life-event/succession",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/lpp-deep/epl",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/lpp-deep/libre-passage",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/lpp-deep/rachat",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mariage",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mon-argent",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mortgage/affordability",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mortgage/amortization",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mortgage/epl-combined",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mortgage/imputed-rental",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/mortgage/saron-vs-fixed",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/naissance",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/enrichment",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/intent",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/minimal",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/plan",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/premier-eclairage",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/promise",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/quick",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/quick-start",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/onboarding/smart",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/open-banking",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/open-banking/consents",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/open-banking/transactions",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/pilier-3a",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/portfolio",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/profile",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/rachat-lpp",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/rapport",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/rente-vs-capital",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/report",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/report/v2",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/retirement",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/retirement/projection",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/retraite",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/scan",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/scan/avs-guide",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/scan/impact",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/scan/review",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/score-reveal",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/segments/frontalier",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/segments/gender-gap",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/segments/independant",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/settings/langue",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/3a",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/compound",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/credit",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/disability-gap",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/job-comparison",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/leasing",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/simulator/rente-capital",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/succession",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/timeline",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/tools",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "/unemployment",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "admin-analytics",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "admin-observability",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "bilan",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "byok",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "privacy",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "privacy-control",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    },
+    {
+      "transaction": "slm",
+      "count_24h": 0,
+      "last_seen": "2026-04-15T12:00:00Z",
+      "level": "info"
+    }
+  ]
+}

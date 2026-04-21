@@ -17,7 +17,6 @@ import 'package:mint_mobile/providers/profile_provider.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 
@@ -59,9 +58,6 @@ Widget buildWithExploreProviders(Widget child) {
         ),
         ChangeNotifierProvider<CoachProfileProvider>(
           create: (_) => CoachProfileProvider(),
-        ),
-        ChangeNotifierProvider<UserActivityProvider>(
-          create: (_) => UserActivityProvider(),
         ),
       ],
       child: child,
@@ -246,9 +242,11 @@ void main() {
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byType(Switch), findsOneWidget);
+      // The phrase "LPP volontaire" appears in both the toggle label AND the
+      // 3a explanation paragraph that references it. Expect at least one match.
       expect(
         find.textContaining('LPP volontaire'),
-        findsOneWidget,
+        findsWidgets,
       );
     });
 
@@ -405,10 +403,12 @@ void main() {
       );
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      expect(find.text('Faire mon diagnostic'), findsOneWidget);
+      // Empty-state CTA now routes to structured setup form (P0-MVP-3),
+      // not the coach "diagnostic" path — see budgetCardEmptyAction.
+      expect(find.text('Poser mes charges'), findsOneWidget);
       // FilledButton.icon creates a widget that may not match find.byType(FilledButton)
       // in all Flutter versions, so we check for the button text + icon instead
-      expect(find.byIcon(Icons.play_arrow_rounded), findsOneWidget);
+      expect(find.byIcon(Icons.edit_note), findsOneWidget);
     });
 
     testWidgets('shows wallet icon in empty state', (tester) async {

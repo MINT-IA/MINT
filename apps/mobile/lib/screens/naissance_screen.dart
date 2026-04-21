@@ -15,6 +15,7 @@ import 'package:mint_mobile/widgets/premium/mint_surface.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/visualizations/fiscal_impact_waterfall.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 // ────────────────────────────────────────────────────────────
 //  NAISSANCE SCREEN — Category C (Life Event)
@@ -62,11 +63,36 @@ class _NaissanceScreenState extends State<NaissanceScreen>
   final Set<int> _checkedItems = {};
   final Map<int, bool> _expandedItems = {};
 
+  bool _prefilled = false;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _recalculateAll();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_prefilled) {
+      _prefilled = true;
+      final profile = context.coachProfileOrNull;
+      if (profile != null) {
+        if (profile.salaireBrutMensuel > 0) {
+          _salaireMensuel = profile.salaireBrutMensuel;
+        }
+        if (profile.canton.isNotEmpty && profile.canton != 'unknown') {
+          _cantonAlloc = profile.canton;
+        }
+        if (profile.salaireBrutMensuel * 12 > 0) {
+          _revenuImpact = profile.salaireBrutMensuel * 12;
+        }
+        if (profile.gender == 'F') _isMother = true;
+        if (profile.gender == 'M') _isMother = false;
+        _recalculateAll();
+      }
+    }
   }
 
   @override

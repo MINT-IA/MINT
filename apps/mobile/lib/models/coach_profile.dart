@@ -7,6 +7,8 @@
 /// Sprint C1 — MINT Coach Redesign
 library;
 
+import 'dart:math' as math;
+
 import 'package:flutter/foundation.dart' show listEquals;
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
@@ -312,7 +314,14 @@ class PrevoyanceProfile {
   final double? avoirLppObligatoire; // part obligatoire (taux min 6.8%)
   final double? avoirLppSurobligatoire; // part surobligatoire (taux caisse)
   final double? rachatMaximum; // lacune de rachat totale
-  final double? rachatEffectue; // deja rachete
+  final double? rachatEffectue; // deja rachete (montant CHF cumulé)
+  /// Historique daté des rachats LPP (ordre chronologique, plus récent en
+  /// dernier). swiss-brain Q4 2026-04-18 : le blocage 3 ans (LPP art. 79b
+  /// al. 3, confirmé par ATF 142 II 399 + ATF 148 II 189) part de la date
+  /// du DERNIER rachat et s'applique à TOUT versement capital, pas
+  /// seulement au montant racheté. Sans date précise on ne peut pas
+  /// calculer le jour de déblocage ni alerter sur la reprise fiscale AFC.
+  final List<DateTime> dateRachats;
   final double tauxConversion; // taux de la caisse (min legal 6.8%)
   final double? tauxConversionSuroblig; // taux surobligatoire de la caisse
   final double rendementCaisse; // rendement annuel estime de la caisse
@@ -348,6 +357,7 @@ class PrevoyanceProfile {
     this.avoirLppSurobligatoire,
     this.rachatMaximum,
     this.rachatEffectue,
+    this.dateRachats = const [],
     this.tauxConversion = lppTauxConversionMinDecimal,
     this.tauxConversionSuroblig,
     this.rendementCaisse = 0.02,
@@ -420,6 +430,10 @@ class PrevoyanceProfile {
           (json['avoirLppSurobligatoire'] as num?)?.toDouble(),
       rachatMaximum: (json['rachatMaximum'] as num?)?.toDouble(),
       rachatEffectue: (json['rachatEffectue'] as num?)?.toDouble(),
+      dateRachats: (json['dateRachats'] as List?)
+              ?.map((s) => DateTime.parse(s as String))
+              .toList() ??
+          const [],
       tauxConversion: (json['tauxConversion'] as num?)?.toDouble() ?? lppTauxConversionMinDecimal,
       tauxConversionSuroblig:
           (json['tauxConversionSuroblig'] as num?)?.toDouble(),
@@ -456,6 +470,7 @@ class PrevoyanceProfile {
     double? avoirLppSurobligatoire,
     double? rachatMaximum,
     double? rachatEffectue,
+    List<DateTime>? dateRachats,
     double? tauxConversion,
     double? tauxConversionSuroblig,
     double? rendementCaisse,
@@ -483,6 +498,7 @@ class PrevoyanceProfile {
       avoirLppSurobligatoire: avoirLppSurobligatoire ?? this.avoirLppSurobligatoire,
       rachatMaximum: rachatMaximum ?? this.rachatMaximum,
       rachatEffectue: rachatEffectue ?? this.rachatEffectue,
+      dateRachats: dateRachats ?? this.dateRachats,
       tauxConversion: tauxConversion ?? this.tauxConversion,
       tauxConversionSuroblig: tauxConversionSuroblig ?? this.tauxConversionSuroblig,
       rendementCaisse: rendementCaisse ?? this.rendementCaisse,
@@ -512,6 +528,8 @@ class PrevoyanceProfile {
         'avoirLppSurobligatoire': avoirLppSurobligatoire,
         'rachatMaximum': rachatMaximum,
         'rachatEffectue': rachatEffectue,
+        'dateRachats':
+            dateRachats.map((d) => d.toIso8601String()).toList(),
         'tauxConversion': tauxConversion,
         'tauxConversionSuroblig': tauxConversionSuroblig,
         'rendementCaisse': rendementCaisse,
@@ -544,6 +562,7 @@ class PrevoyanceProfile {
           avoirLppSurobligatoire == other.avoirLppSurobligatoire &&
           rachatMaximum == other.rachatMaximum &&
           rachatEffectue == other.rachatEffectue &&
+          listEquals(dateRachats, other.dateRachats) &&
           tauxConversion == other.tauxConversion &&
           tauxConversionSuroblig == other.tauxConversionSuroblig &&
           rendementCaisse == other.rendementCaisse &&
@@ -572,6 +591,7 @@ class PrevoyanceProfile {
         avoirLppSurobligatoire,
         rachatMaximum,
         rachatEffectue,
+        Object.hashAll(dateRachats),
         tauxConversion,
         tauxConversionSuroblig,
         rendementCaisse,
@@ -1620,7 +1640,30 @@ class CoachProfile {
   /// Age actuel — précis au jour si dateOfBirth est disponible,
   /// sinon fallback sur birthYear (précision ±1 an).
   /// CHAOS-3: Guard against invalid birthYear (e.g. 2100) producing negative age.
+  /// B6-minimal (2026-04-18): this getter preserves the legacy
+  /// "0 = data not available" sentinel for back-compat with readiness
+  /// gates. NEW consumers should prefer [ageOrNull] which returns `null`
+  /// on missing/invalid data so age-dependent logic can skip explicitly
+  /// rather than silently computing with `age=0`.
   int get age {
+    final a = ageOrNull;
+    return a ?? 0;
+  }
+
+  /// Nullable age — returns `null` when birthYear/dateOfBirth are missing
+  /// or invalid (e.g. future dates, birthYear < 1900, age > 150).
+  ///
+  /// Adopted by Wave B-minimal (2026-04-18) to replace the `age == 0`
+  /// sentinel pattern that was silently corrupting age-dependent
+  /// calculations (CapEngine rules `age >= 45`, simulators age comparisons,
+  /// AVS contribution projections). Consumers MUST branch explicitly on
+  /// null to either skip the age-dependent rule or prompt the user for
+  /// their birth year.
+  ///
+  /// Sources: Panel 7 Perfection Gap finding #7, Panel archi review
+  /// 2026-04-18 (30+ call-sites consume `profile.age` without null guard),
+  /// Panel adversaire BUG 4 (CapEngine 10 call-sites).
+  int? get ageOrNull {
     if (dateOfBirth != null) {
       final now = DateTime.now();
       int a = now.year - dateOfBirth!.year;
@@ -1628,15 +1671,20 @@ class CoachProfile {
           (now.month == dateOfBirth!.month && now.day < dateOfBirth!.day)) {
         a--;
       }
-      return a.clamp(0, 150);
+      // Invalid range (future dates clamp negative, impossibly old
+      // exceeds 150): treat as "unknown".
+      if (a < 0 || a > 150) return null;
+      return a;
     }
     final currentYear = DateTime.now().year;
-    if (birthYear < 1900 || birthYear > currentYear - 10) {
-      // Invalid birthYear — return 0 to signal "data not available".
-      // Readiness gates use age==0 as "blocked/missing".
-      return 0;
-    }
-    return currentYear - birthYear;
+    // birthYear == 0 is the CoachProfile default (unset); treat as missing.
+    if (birthYear == 0) return null;
+    if (birthYear < 1900 || birthYear > currentYear + 1) return null;
+    // Still allow currentYear - 10 .. currentYear + 1 window for newborns
+    // (age can legitimately be < 10). But block truly-future birthYears.
+    final age = currentYear - birthYear;
+    if (age < 0 || age > 150) return null;
+    return age;
   }
 
   /// Age de retraite effectif (custom ou 65 par defaut).
@@ -1786,6 +1834,81 @@ class CoachProfile {
   bool get isCouple =>
       etatCivil == CoachCivilStatus.marie ||
       etatCivil == CoachCivilStatus.concubinage;
+
+  /// SafeMode activation flag — ACTIVE when ANY of three signals is true.
+  ///
+  /// Authoritative rule: RULES.md §1 (2026-04-18). Threshold = 0.33 (ASB 2014).
+  ///
+  /// Signal A — Consumer debt stress (binary wizard keys stored in dettes):
+  ///   hasDette on creditConsommation/leasing > 0 (proxy for consumer debt).
+  /// Signal B — Consumer debt-to-income ratio > 0.33 (ASB affordability).
+  ///   Mortgage excess (above 0.33 × brut) also contributes if it pushes the
+  ///   combined consumer ratio past 0.33.
+  /// Signal C — Emergency fund shortfall (months_liquidity < 3).
+  ///
+  /// Edge cases per RULES.md §1:
+  ///   E1: retiree — uses rente estimates when salary is zero.
+  ///   E2: individual gate — no cross-spouse contamination.
+  ///   E4: student (zero income, no debt, no housing) → false (vacuous).
+  bool get isInDebtCrisis {
+    // ── Signal A — consumer debt present (structural proxy) ──────────────────
+    final hasConsumerDebt = (dettes.creditConsommation != null &&
+            dettes.creditConsommation! > 0) ||
+        (dettes.leasing != null && dettes.leasing! > 0) ||
+        (dettes.autresDettes != null && dettes.autresDettes! > 0);
+    if (hasConsumerDebt) return true;
+
+    // ── Net monthly income (E1: retiree, E4: student guard) ─────────────────
+    double netMensuel;
+    if (salaireBrutMensuel > 0) {
+      final breakdown = NetIncomeBreakdown.compute(
+        grossSalary: salaireBrutMensuel * nombreDeMois,
+        canton: canton,
+        age: age,
+      );
+      netMensuel = breakdown.monthlyNetPayslip;
+    } else if (employmentStatus == 'retraite') {
+      // E1 — retiree: use rente estimates as income denominator
+      final renteAvs = prevoyance.renteAVSEstimeeMensuelle ?? 0.0;
+      final renteLpp = prevoyance.projectedRenteLpp != null
+          ? prevoyance.projectedRenteLpp! / 12.0
+          : 0.0;
+      netMensuel = renteAvs + renteLpp;
+      if (netMensuel < 2000 && dettes.totalDettes > 0) return true;
+    } else {
+      // E4 — zero income, no consumer debt, no housing → inactive (vacuous)
+      return false;
+    }
+
+    // ── Signal B — consumer ratio > 0.33 (ASB 2014) ─────────────────────────
+    if (netMensuel > 0) {
+      final consumerMonthly = (dettes.mensualiteCreditConso ?? 0.0) +
+          (dettes.mensualiteLeasing ?? 0.0);
+
+      // Mortgage excess: only the portion above 0.33 × brut counts
+      double mortgageExcess = 0.0;
+      final brutMonthly = salaireBrutMensuel;
+      if (brutMonthly > 0) {
+        final mortgageCap = brutMonthly * 0.33;
+        final mortgageMonthly = dettes.mensualiteHypotheque ?? 0.0;
+        mortgageExcess = math.max(0.0, mortgageMonthly - mortgageCap);
+      }
+
+      final ratio = (consumerMonthly + mortgageExcess) / netMensuel;
+      if (ratio > 0.33) return true;
+    }
+
+    // ── Signal C — emergency fund shortfall (< 3 months) ────────────────────
+    final monthlyExpenses = depenses.totalMensuel > 0
+        ? depenses.totalMensuel
+        : (netMensuel > 0 ? netMensuel * 0.6 : 0.0);
+    if (monthlyExpenses > 0) {
+      final monthsLiquidity = patrimoine.epargneLiquide / monthlyExpenses;
+      if (monthsLiquidity < 3) return true;
+    }
+
+    return false;
+  }
 
   /// Copie le profil avec des champs optionnels mis a jour.
   /// Utilise par le annual refresh pour persister updatedAt, prevoyance, etc.

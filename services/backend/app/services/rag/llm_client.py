@@ -199,14 +199,35 @@ class LLMClient:
             # Always append the current (augmented) user message last.
             messages.append({"role": "user", "content": user_message})
 
+            # 2026-04-18 Wave 6 cost + UX optimisation :
+            # max_tokens 2048 → 600. Un coach qui répond en 2-4 phrases
+            # didactiques tient dans ~300-500 tokens. Laisser 2048 invitait
+            # Claude à dérouler des bullet lists de 10 points (signal
+            # founder-reported "trop long"). Cap à 600 force la concision ;
+            # le system prompt a une directive LONGUEUR qui converge aussi.
+            # Bénéfice API : jusqu'à 75% moins de tokens de sortie facturés
+            # sur les longues réponses.
+            # Avec prompt caching (router.py), l'input coûte aussi 90%
+            # moins cher sur les appels suivants de la même session.
+            # Tool-use réponses (save_fact/route_to_screen) ont besoin de
+            # ~100 tokens JSON, ça tient large dans 600.
             kwargs: dict = {
                 "model": self.model,
-                "max_tokens": 2048,
+                "max_tokens": 600,
                 "system": system_prompt,
                 "messages": messages,
             }
             if tools:
                 kwargs["tools"] = tools
+                # Explicit tool_choice so Claude always considers tools.
+                # Without this, Sonnet sometimes skips tool_use entirely even
+                # when the system prompt says "MANDATORY call save_fact".
+                # disable_parallel_tool_use=False → Claude can call multiple
+                # save_fact in a single turn when user declares several facts.
+                kwargs["tool_choice"] = {
+                    "type": "auto",
+                    "disable_parallel_tool_use": False,
+                }
 
             # v2.7 STAB-02: retry transient upstream failures (429/5xx/529 +
             # connection/timeout). Wait: 0.5s, 1s, 2s (max 8s). Final failure

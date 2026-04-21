@@ -24,7 +24,11 @@ dependencies = [
     "alembic>=1.13.0,<2.0.0",
     "tenacity>=8.2.0,<10.0.0",
     "anthropic>=0.40.0,<1.0.0",
-    "sentry-sdk[fastapi]>=2.0.0,<3.0.0",
+    # Phase 31 OBS-03 — pinned 2.53.0 for reliable auto-read of sentry-trace
+    # + baggage headers; upgrade requires re-running
+    # tools/simulator/trace_round_trip_test.sh against staging to confirm
+    # cross-project link behaviour with sentry-flutter 9.14.0.
+    "sentry-sdk[fastapi]==2.53.0",
     "defusedxml>=0.7.0,<1.0.0",
     "redis>=5.0,<6.0",
     "pymupdf>=1.24,<2.0",

@@ -79,20 +79,20 @@ class CoachChatApiService {
     }
     // No api_key — backend fills in server-side ANTHROPIC_API_KEY
 
-    final response = await http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(body),
-        )
-        // Gate 0 P0-3: 60s was 3× the user's patience threshold and made
-        // the app feel "disconnected" when Sonnet took 25-40s on a long
-        // tool chain. 20s catches genuine hangs while letting healthy
-        // responses through (P95 backend latency on staging = 8-12s).
-        .timeout(const Duration(seconds: 20));
+    var response = await _post(uri, token, body);
+
+    // 2026-04-17 audit: if the JWT expired between sessions the first
+    // authenticated call came back 401 and the orchestrator silently fell
+    // to the "coach pas disponible" template. We now redeem the stored
+    // refresh token once and retry the original request with the new
+    // access token. A second 401 is a genuine auth failure (refresh
+    // revoked, rotated, or expired) and propagates to the caller.
+    if (response.statusCode == 401) {
+      final fresh = await AuthService.refreshAccessToken();
+      if (fresh != null && fresh.isNotEmpty) {
+        response = await _post(uri, fresh, body);
+      }
+    }
 
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
@@ -120,6 +120,28 @@ class CoachChatApiService {
         message: errorBody ?? 'Server error (${response.statusCode}).',
       );
     }
+  }
+
+  /// Issue the authenticated POST with the given bearer token.
+  ///
+  /// Extracted so [chat] can retry with a freshly-refreshed token on 401
+  /// without duplicating the body construction. Backend hard cap is 55s;
+  /// 50s leaves a 5s buffer for HTTP overhead.
+  Future<http.Response> _post(
+    Uri uri,
+    String token,
+    Map<String, dynamic> body,
+  ) {
+    return http
+        .post(
+          uri,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 50));
   }
 
   /// Send a message to the anonymous chat endpoint (no auth required).

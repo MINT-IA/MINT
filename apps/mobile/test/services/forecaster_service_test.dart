@@ -779,4 +779,81 @@ void main() {
           greaterThan(resultBase.base.capitalFinal));
     });
   });
+
+  // ════════════════════════════════════════════════════════════
+  //  WAVE 7 — FATCA PARTNER 3a BLOCKER
+  // ════════════════════════════════════════════════════════════
+  //
+  // Regression guard for P0-F1 (fiscal audit 2026-04-18). A conjoint
+  // flagged as US person must NOT receive the auto-injected partner
+  // 3a contribution — IRC §1291 PFIC / IRS Notice 2014-7 makes that
+  // contribution a net loss under US tax. We assert the projected
+  // capital shrinks when we flip the conjoint from swiss_native to
+  // `isFatcaResident: true`, proving the FATCA branch removes the
+  // ~7'258 CHF/yr partner 3a potential.
+
+  group('ForecasterService - FATCA partner 3a blocker', () {
+    ConjointProfile baseConjoint(PrevoyanceProfile prev) => ConjointProfile(
+          firstName: 'Lauren',
+          birthYear: 1982,
+          salaireBrutMensuel: 5583, // ~67k/yr, well over LPP threshold
+          employmentStatus: 'salarie',
+          prevoyance: prev,
+        );
+
+    CoachProfile buildCoupleProfile({required ConjointProfile conj}) {
+      final demo = CoachProfile.buildDemo();
+      // Drop any pre-seeded partner 3a contributions from the demo so the
+      // FATCA/auto-injection branch is actually exercised (buildDemo ships
+      // with `3a_lauren` hardcoded, which short-circuits the auto path).
+      final filtered = demo.plannedContributions
+          .where((c) => !(c.category == '3a' &&
+              c.id.toLowerCase().contains('lauren')))
+          .toList();
+      return demo.copyWith(conjoint: conj).copyWithContributions(filtered);
+    }
+
+    test('non-FATCA conjoint: partner 3a injected, higher projected capital',
+        () {
+      final conj = baseConjoint(const PrevoyanceProfile());
+      final profile = buildCoupleProfile(conj: conj);
+      final result = ForecasterService.project(profile: profile);
+      expect(result.base.capitalFinal, greaterThan(500000));
+    });
+
+    test('FATCA conjoint: no partner 3a, capital strictly lower', () {
+      final nonFatca = baseConjoint(const PrevoyanceProfile());
+      final withFatca = baseConjoint(const PrevoyanceProfile())
+          .copyWith(isFatcaResident: true, canContribute3a: false);
+
+      final nonFatcaResult = ForecasterService.project(
+        profile: buildCoupleProfile(conj: nonFatca),
+      );
+      final fatcaResult = ForecasterService.project(
+        profile: buildCoupleProfile(conj: withFatca),
+      );
+
+      // The FATCA path must drop the partner 3a auto-contribution; the
+      // resulting capital should therefore be strictly below the
+      // non-FATCA baseline.
+      expect(fatcaResult.base.capitalFinal,
+          lessThan(nonFatcaResult.base.capitalFinal));
+    });
+
+    test('nationality=US also blocks partner 3a (isFatcaResident unset)', () {
+      final defaultConj = baseConjoint(const PrevoyanceProfile());
+      final usConj = baseConjoint(const PrevoyanceProfile())
+          .copyWith(nationality: 'US');
+
+      final defaultResult = ForecasterService.project(
+        profile: buildCoupleProfile(conj: defaultConj),
+      );
+      final usResult = ForecasterService.project(
+        profile: buildCoupleProfile(conj: usConj),
+      );
+
+      expect(usResult.base.capitalFinal,
+          lessThan(defaultResult.base.capitalFinal));
+    });
+  });
 }

@@ -1,0 +1,30 @@
+# lefthook.yml — Skeleton version (Phase 30.5 CTX-01, D-04)
+# Scope: STRICTLY MEMORY retention gate only.
+# Phase 34 GUARD-01 will ADD bare_catch, hardcoded_fr, accent_lint, arb_parity
+# ON TOP of this scaffold. Rails posés, lints NON-ACTIVÉS (D-04).
+
+min_version: 2.1.5
+
+pre-commit:
+  # parallel: false until phase 34 — race conditions on .git/index.lock
+  parallel: false
+  commands:
+    memory-retention-gate:
+      # Fails commit if memory/topics/*.md has entries >30d not archived
+      # (HARD gate per D-02). SOFT warning if MEMORY.md INDEX >100 lines
+      # (non-failing, per D-02). All other lints REPORTÉS à Phase 34
+      # GUARD-01 (D-04 strict skeleton scope).
+      run: python3 tools/checks/memory_retention.py
+      tags: [memory, phase-30.5]
+    map-freshness-hint:
+      # Hint (not a gate) — when the commit touches a subsystem with a
+      # map in docs/*.md, remind the author (or their LLM agent) to
+      # consult the map. Exits 0 unconditionally. Hard gate promotion
+      # deferred to Phase 34 proof_of_read lint once that lands.
+      run: python3 tools/checks/map_freshness_hint.py {staged_files}
+      glob: "*.{dart,py}"
+      tags: [map, agents]
+
+skip:
+  - merge
+  - rebase

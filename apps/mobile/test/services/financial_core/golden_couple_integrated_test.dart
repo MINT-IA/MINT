@@ -606,16 +606,17 @@ void main() {
     });
 
     test('G6.3 Married couple discount reduces capital tax vs single', () {
-      // isMarried discount = 0.85 (15% reduction — marriedCapitalTaxDiscount)
+      // Audit 2026-04-18 Q5 : coefficient marié par canton (pas uniforme).
+      // VS = 0.81 (barème marié progressif LF VS art. 33b), pas 0.85.
       const vsRate = 0.060;
       final taxSingle = RetirementTaxCalculator.progressiveTax(
           677847.0, vsRate);
       final taxMarried = RetirementTaxCalculator.progressiveTax(
-          677847.0, vsRate * marriedCapitalTaxDiscount);
+          677847.0, vsRate * marriedCapitalTaxDiscountFor('VS'));
       expect(
         taxMarried,
         lessThan(taxSingle),
-        reason: 'Married couple gets 15% capital tax discount in VS',
+        reason: 'Married couple gets cantonal capital tax discount in VS (0.81)',
       );
     });
 

@@ -82,15 +82,19 @@ void main() {
       expect(result.violations, anyElement(contains('conseiller')));
     });
 
-    test('triggers fallback when >2 banned terms found', () {
+    test('triggers fallback when >5 banned terms found', () {
+      // Threshold tuned to sanitize aggressively but only discard the LLM
+      // output when the density is egregious (6+ distinct banned terms).
+      // See compliance_guard.dart line 294: the old >2 threshold was
+      // killing legitimate French finance responses.
       final result = ComplianceGuard.validate(
-        'C\'est garanti, certain, et parfait pour toi.',
+        "C'est garanti, certain, assuré, sans risque, optimal, meilleur, parfait.",
       );
       expect(result.useFallback, isTrue);
-      expect(result.violations.length, greaterThanOrEqualTo(3));
+      expect(result.violations.length, greaterThanOrEqualTo(6));
     });
 
-    test('sanitizes ≤2 banned terms without fallback', () {
+    test('sanitizes ≤5 banned terms without fallback', () {
       final result = ComplianceGuard.validate(
         'C\'est une option adaptée. Le rendement est garanti.',
       );

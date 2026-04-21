@@ -681,6 +681,92 @@
   },
   "budgetEmptyTitle": "Tu presupuesto",
   "budgetEmptyBody": "Completa tu diagnóstico para desbloquear tu plan mensual con tus ingresos y gastos reales.",
+  "budgetSetupTitle": "Charges fixes",
+  "@budgetSetupTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSubtitle": "Ce qui part chaque mois, quoi qu'il arrive.",
+  "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupHousing": "Loyer ou hypothèque",
+  "@budgetSetupHousing": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupLamal": "Assurance maladie",
+  "@budgetSetupLamal": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTransport": "Transport",
+  "@budgetSetupTransport": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTelecom": "Télécom",
+  "@budgetSetupTelecom": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupElectricity": "Électricité",
+  "@budgetSetupElectricity": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupMedical": "Frais médicaux",
+  "@budgetSetupMedical": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupOther": "Autres",
+  "@budgetSetupOther": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupAddOthers": "Ajouter d'autres postes",
+  "@budgetSetupAddOthers": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSave": "Enregistrer",
+  "@budgetSetupSave": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupChatFallback": "J'en parle plutôt au coach",
+  "@budgetSetupChatFallback": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupFieldPlaceholder": "CHF / mois",
+  "@budgetSetupFieldPlaceholder": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupRequired": "Requis",
+  "@budgetSetupRequired": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
+  "@budgetSetupTotalFixed": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
+  "@budgetSetupResteAfterCharges": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetCardEmptyTitle": "Tes charges fixes, au clair.",
+  "@budgetCardEmptyTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyBody": "Sept postes, deux minutes. Ensuite on calcule ce qu'il te reste vraiment.",
+  "@budgetCardEmptyBody": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyAction": "Poser mes charges",
+  "@budgetCardEmptyAction": {
+    "description": "Budget setup label."
+  },
   "budgetEmptyAction": "Hacer mi diagnóstico",
   "budgetMonthlyTitle": "Presupuesto mensual",
   "budgetAvailableThisMonth": "Disponible este mes",
@@ -3597,7 +3683,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Dime qué te ronda por la cabeza.",
+  "coachInputHint": "Dime.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4380,8 +4466,8 @@
   "sim3aDisclaimer": "Estimación educativa. Los ahorros reales dependen de tu lugar de residencia y situación familiar. No constituye asesoramiento financiero (LSFin).",
   "sim3aDebtLockedTitle": "Prioridad al desendeudamiento",
   "sim3aDebtLockedMessage": "En modo protección, las recomendaciones de acción 3a están desactivadas. La prioridad es estabilizar tu situación financiera.",
-  "sim3aDebtStrategyTitle": "Estrategia bloqueada",
-  "sim3aDebtStrategyMessage": "Las estrategias de inversión 3a están desactivadas mientras tengas deudas activas. Pagar tus deudas es un rendimiento mayor que cualquier inversión.",
+  "sim3aDebtStrategyTitle": "Estrategia en pausa",
+  "sim3aDebtStrategyMessage": "Las estrategias de inversión 3a están en pausa mientras tus deudas activas pesan sobre tu presupuesto. Orden recomendado: estabilizar primero, invertir después.",
   "realReturnTitle": "Rendimiento real 3a",
   "realReturnPremierEclairageLabel": "Tasa equivalente sobre esfuerzo neto",
   "realReturnVsNominal": "vs {rate} % tasa neta 3a (bruto − gastos)",
@@ -5088,6 +5174,7 @@
   "eplSectionImpactPrestations": "Impacto en las prestaciones",
   "eplReductionInvalidite": "Reducción renta invalidez (estimación anual)",
   "eplReductionDeces": "Reducción capital-fallecimiento (estimación)",
+  "eplReductionAskCaisse": "Consulta a tu caja",
   "eplImpactPrestationsNote": "El retiro EPL reduce proporcionalmente tus prestaciones de riesgo. Consulta con tu caja de pensiones los montos exactos y las posibilidades de seguro complementario.",
   "eplSectionImpactRente": "Impacto en la renta",
   "eplRenteSansEpl": "Renta sin EPL",
@@ -5228,7 +5315,7 @@
   "repaymentTimelinePaiement": "Pago",
   "repaymentTimelineSolde": "Saldo restante",
   "retroactive3aTitle": "Recuperación 3a",
-  "retroactive3aHeroTitle": "Recuperación 3a — Novedad 2026",
+  "retroactive3aHeroTitle": "Recuperación 3a — Novedad 2025",
   "retroactive3aHeroSubtitle": "Recupera hasta 10 años de cotizaciones perdidas",
   "retroactive3aParametres": "Parámetros",
   "retroactive3aAnneesARattraper": "Años a recuperar",
@@ -5534,9 +5621,9 @@
   },
   "reportSafeModePriority": "Prioridad al desendeudamiento",
   "reportSafeModeActions": "Tus acciones prioritarias son reemplazadas por un plan de desendeudamiento. Estabiliza tu situación antes de explorar las recomendaciones.",
-  "reportSafeMode3a": "El comparador 3a está desactivado mientras tengas deudas activas. Pagar las deudas es prioritario antes de cualquier ahorro 3a.",
-  "reportSafeModeLpp": "Rescate LPP bloqueado",
-  "reportSafeModeLppMessage": "El rescate LPP está desactivado en modo protección. Paga tus deudas antes de inmovilizar liquidez en la previsión.",
+  "reportSafeMode3a": "El comparador 3a está en pausa mientras tus deudas activas pesan sobre tu presupuesto. Prioridad: estabilizar tu tesorería.",
+  "reportSafeModeLpp": "Rescate LPP en pausa",
+  "reportSafeModeLppMessage": "El rescate LPP está en pausa en modo protección. Orden recomendado: pagar las deudas antes de inmovilizar liquidez en la previsión.",
   "reportLppTitle": "💰 Estrategia de Rescate LPP",
   "reportLppEconomie": "Ahorro fiscal total: CHF {amount}",
   "@reportLppEconomie": {
@@ -8843,7 +8930,7 @@
   "portfolioNoData": "No se han proporcionado datos patrimoniales.",
   "portfolioRepartitionEnveloppe": "Distribución por sobre",
   "portfolioReserveFondsUrgence": "Reservado (Fondo de emergencia)",
-  "portfolioSafeModeBody": "Los consejos de asignación están desactivados en modo protección. Tu prioridad es reducir tus deudas antes de reequilibrar tu patrimonio.",
+  "portfolioSafeModeBody": "Los consejos de asignación están en pausa en modo protección. Orden recomendado: reducir tus deudas antes de reequilibrar tu patrimonio.",
   "portfolioSafeModeLocked": "Prioridad al desendeudamiento",
   "portfolioValeurTotaleNette": "Valor total neto",
   "proactiveConfidenceUp": "Tu confianza ha mejorado {delta} pts desde la última vez.",
@@ -9157,7 +9244,7 @@
   "routeSuggestionCta": "Abrir",
   "routeSuggestionPartialWarning": "Estimación — datos incompletos",
   "safeModeCta": "Ver mi plan de reducción de deuda",
-  "safeModeMessage": "Por tu seguridad financiera, desactivamos las optimizaciones avanzadas mientras una señal de deuda esté activa.",
+  "safeModeMessage": "Mientras una señal de deuda esté activa, las optimizaciones avanzadas están en pausa. Prioridad: estabilizar tu tesorería. El resto puede esperar.",
   "safeModeTitle": "Enfoque Prioritario",
   "saronCostLabel": "de coste adicional con SARON",
   "saronEyebrow": "SARON vs Tasa fija",
@@ -9727,7 +9814,7 @@
   "cashModeSubtitle": "Cómo te habla el coach",
   "intensityAdjustedUp": "OK, subo un punto.",
   "intensityAdjustedDown": "OK, bajo un punto.",
-  "coachSuggestBudget": "¿Cuál es mi presupuesto realista para la jubilación?",
+  "coachSuggestBudget": "¿A dónde va mi dinero cada mes?",
   "coachSuggestBudgetGap": "¿Cuánto me falta por mes?",
   "coachSuggestMortgage": "¿Puedo permitirme comprar una propiedad?",
   "coachSuggestMortgageCapacity": "¿Cuál es mi capacidad de endeudamiento?",
@@ -9795,12 +9882,43 @@
       "phase": "11-01"
     }
   },
+  "coachOpenerIdentity": "Hola. Soy Mint.",
+  "@coachOpenerIdentity": {
+    "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
+  },
+  "coachOpenerPromise": "No vendo nada, no califico nada, no te comparo con nadie. Solo te ayudo a ver claro en lo que nadie tiene interés en explicarte.",
+  "@coachOpenerPromise": {
+    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+  },
+  "coachOpenerQuestion": "¿Por dónde empezamos?",
+  "@coachOpenerQuestion": {
+    "description": "First-contact opener closing question."
+  },
+  "coachStarterPaper": "Un papel que no entiendo",
+  "@coachStarterPaper": {
+    "description": "Conversation starter chip — routes to scanner."
+  },
+  "coachStarterChoice": "Una decisión que tengo que tomar",
+  "@coachStarterChoice": {
+    "description": "Conversation starter chip — life events opener."
+  },
+  "coachStarterCost": "Algo me cuesta, no sé qué",
+  "@coachStarterCost": {
+    "description": "Conversation starter chip — budget/fiscal opener."
+  },
+  "coachStarterLurk": "Solo miro, me presento después",
+  "@coachStarterLurk": {
+    "description": "Conversation starter chip — dismisses opener without forcing engagement."
+  },
   "coachProactiveOptIn": "Por cierto — ¿quieres que te señale las cosas importantes al abrir la app? ¿O prefieres que hablemos solo cuando te apetezca?",
   "coachOptInAccept": "Sí, señálame",
   "coachOptInDecline": "No, vengo cuando quiera",
-  "coachSilentOpenerReplacementRate": "Tasa de reemplazo en la jubilación",
+  "coachSilentOpenerReplacementRate": "Tasa de reemplazo proyectada",
   "coachSilentOpenerFitnessScore": "Puntuación de salud financiera",
   "coachSilentOpenerRetirementCapital": "Capital proyectado a la jubilación",
+  "coachSilentOpenerProjectedCapital": "Capital proyectado en tu horizonte",
+  "coachSilentOpenerLppAvoir": "Saldo LPP",
+  "coachSilentOpener3aEpargne": "Ahorro 3a",
   "confidenceLow": "Tus números son muy aproximados. Añade tu certificado LPP para +25%.",
   "confidenceMedium": "Buen comienzo. Escanea tu extracto AVS para confirmar tus años de cotización.",
   "confidenceAction": "Escanear mi certificado LPP (+25% de precisión)",
@@ -10468,13 +10586,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "El dinero, en Suiza, es el tema del que nadie habla.",
+  "anonymousIntentLine1": "Tu vida financiera, a la vista.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener."
   },
-  "anonymousIntentLine2": "Ni siquiera con uno mismo.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "Pago, firmo, pero no entiendo todo",
   "@anonymousIntentPill1": {
@@ -10927,5 +11045,45 @@
   "thirdPartyInviteCta": "Invitar a {name} a MINT",
   "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
   "thirdPartyInviteComingSoon": "Invitaciones próximamente — tomamos nota de tu intención.",
-  "thirdPartyDeclarationNoticeLink": "Sin su consentimiento, MINT no puede procesar los datos de otra persona."
+  "thirdPartyDeclarationNoticeLink": "Sin su consentimiento, MINT no puede procesar los datos de otra persona.",
+  "monArgentTabTitle": "Mi dinero",
+  "monArgentBudgetTitle": "Tu presupuesto este mes",
+  "monArgentBudgetEmpty": "Define tu presupuesto para ver cómo vas este mes.",
+  "monArgentBudgetStart": "Empezar",
+  "monArgentBudgetError": "No se pudo cargar tu presupuesto.",
+  "monArgentBudgetIncome": "Ingresos",
+  "monArgentBudgetSpent": "Gastos",
+  "monArgentBudgetRemaining": "Resta",
+  "monArgentRetry": "Reintentar",
+  "monArgentPatrimoineTitle": "Tu punto de partida",
+  "monArgentPatrimoineEmpty": "Escanea un documento o habla con el coach para empezar.",
+  "monArgentPatrimoineError": "No se pudieron cargar tus datos.",
+  "monArgentPatrimoineNet": "Neto",
+  "monArgentPatrimoinePartial": "Añade tus datos para una vista completa.",
+  "monArgentLpp": "2.º pilar",
+  "monArgentPillar3a": "Pilar 3a",
+  "monArgentEpargne": "Ahorros",
+  "monArgentScan": "Escanear",
+  "monArgentEnrichCta": "Añade documentos para una vista más precisa",
+  "tabAujourdhui": "Hoy",
+  "tabMonArgent": "Mi dinero",
+  "tabExplorer": "Explorar",
+  "hubRetraite": "Jubilación y Previsión",
+  "hubFamille": "Familia",
+  "hubTravail": "Trabajo y Estatus",
+  "hubLogement": "Vivienda",
+  "hubFiscalite": "Impuestos",
+  "hubPatrimoine": "Patrimonio y Sucesión",
+  "hubSante": "Salud y Protección",
+  "safeModeWhyBlockedSemantics": "Por qué está en pausa",
+  "safeModeWhyBlockedTitle": "Por qué está en pausa",
+  "safeModeWhyBlockedBody": "En modo protección, MINT prioriza la estabilidad de tesorería antes que las optimizaciones fiscales y de previsión.",
+  "safeModeWhyBlockedLink": "¿Por qué está en pausa?",
+  "safeModeFormalDesendettementNote": "Estas retiradas siguen siendo posibles en caso de procedimiento formal de saneamiento de deudas — habla con un especialista.",
+  "scanSummaryLppCertificate": "Certificado LPP escaneado",
+  "scanSummary3aAttestation": "Certificado 3a escaneado",
+  "scanSummaryTaxDeclaration": "Declaración fiscal escaneada",
+  "scanSummaryAvsExtract": "Extracto AVS escaneado",
+  "scanSummaryMortgageAttestation": "Certificado hipotecario escaneado",
+  "scanSummarySalaryCertificate": "Certificado de salario escaneado"
 }

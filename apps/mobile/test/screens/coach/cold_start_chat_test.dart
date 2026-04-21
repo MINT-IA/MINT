@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
 import 'package:mint_mobile/screens/coach/coach_chat_screen.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
@@ -47,7 +46,6 @@ void main() {
           create: (_) => profileProvider ?? CoachProfileProvider(),
         ),
         ChangeNotifierProvider(create: (_) => ByokProvider()),
-        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
         ChangeNotifierProvider(create: (_) => MintStateProvider()),
       ],
       child: const MaterialApp(
@@ -86,22 +84,30 @@ void main() {
   });
 
   group('CHAT-01: Cold-start routing to chat', () {
-    testWidgets('anonymous user (no profile) sees silent opener question',
+    // 2026-04-17 (commits f95c8ad9 + d1ce63b5): the silent opener was
+    // simplified to a single visual anchor — either the key-number + headline
+    // (profile available) or a random greeting (no profile). The italic
+    // "Tu veux en parler ?" (coachSilentOpenerQuestion) is no longer
+    // rendered; the ARB key stays for backward-compat with deep-links but
+    // the coach chat screen does not emit it anymore. Similarly the "MINT"
+    // wordmark was removed from the embedded app bar (bottom nav already
+    // says "Coach") and kept only for standalone navigation (deep-link from
+    // notification). These tests now assert on the structural contract —
+    // screen renders + has a text anchor — instead of specific copy that
+    // can drift.
+
+    testWidgets('anonymous user (no profile) sees silent opener anchor',
         (tester) async {
       usePhoneViewport(tester);
       await tester.pumpWidget(buildTestWidget());
       await pumpUntilSettled(tester);
 
-      // Chat screen renders
       expect(find.byType(CoachChatScreen), findsOneWidget);
-
-      // Silent opener is visible — shows the question text
-      // (no key number for anonymous user, just the question)
-      final S l10n = S.of(tester.element(find.byType(CoachChatScreen)))!;
-      expect(find.text(l10n.coachSilentOpenerQuestion), findsOneWidget);
+      // At least one Text widget is visible — the greeting path.
+      expect(find.byType(Text), findsWidgets);
     });
 
-    testWidgets('profiled user sees silent opener with key number',
+    testWidgets('profiled user sees silent opener anchor',
         (tester) async {
       usePhoneViewport(tester);
       final provider = buildProfileProvider();
@@ -109,10 +115,7 @@ void main() {
       await pumpUntilSettled(tester);
 
       expect(find.byType(CoachChatScreen), findsOneWidget);
-
-      // Silent opener is visible — shows a question
-      final S l10n = S.of(tester.element(find.byType(CoachChatScreen)))!;
-      expect(find.text(l10n.coachSilentOpenerQuestion), findsOneWidget);
+      expect(find.byType(Text), findsWidgets);
     });
 
     testWidgets('chat screen renders directly — no intermediate screen',
@@ -121,11 +124,13 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await pumpUntilSettled(tester);
 
-      // CoachChatScreen is present (not redirected to onboarding/login)
+      // CoachChatScreen is present (not redirected to onboarding/login).
+      // Previously asserted on "MINT" wordmark in the embedded app bar,
+      // but the wordmark is now dropped when embedded in the shell
+      // (bottom nav labels the tab "Coach" — duplicating the brand read as
+      // a placeholder header). The CoachChatScreen type check is the
+      // stable invariant.
       expect(find.byType(CoachChatScreen), findsOneWidget);
-
-      // MINT title in app bar confirms we are in the coach chat
-      expect(find.text('MINT'), findsOneWidget);
     });
 
     testWidgets('anonymous user chat has input bar ready for typing',

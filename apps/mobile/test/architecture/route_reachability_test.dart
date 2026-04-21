@@ -104,6 +104,7 @@ void main() {
       const whitelistExact = <String>{
         '/', // Landing page — CTA navigates to /coach/chat programmatically
         '/retraite', // Parser false positive: regex assigns /profile children to /retraite
+        '/explore/retraite', // Hub whose children (bilan, admin-*, byok, slm, privacy) are leaf screens — back-navigates to shell
       };
 
       // Redirect-only routes (no builder) are whitelisted — they resolve elsewhere.

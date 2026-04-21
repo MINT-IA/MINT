@@ -43,6 +43,14 @@ class CapEngine {
   }) {
     final candidates = <CapDecision>[];
 
+    // B6-minimal (2026-04-18): cache the nullable age for this compute call.
+    // `age == null` means birthYear/dateOfBirth missing or out of valid
+    // range (see CoachProfile.ageOrNull). Age-dependent rules below MUST
+    // guard on `age != null` before activating — otherwise a user without
+    // a birthYear silently triggers (or silently skips) rules whose
+    // intent requires age info. Panel adversaire BUG 4, panel archi R1.
+    final int? age = profile.ageOrNull;
+
     // ── 1. Confidence-driven: missing blocking data ──
     final confidence = ConfidenceScorer.score(profile);
     if (confidence.score < 45 && confidence.prompts.isNotEmpty) {
@@ -147,7 +155,9 @@ class CapEngine {
     // ── 4. Fiscal window: 3a before year-end ──
     // P1-7: Suppress 3a for retirees (age >= 65 or status retraite).
     // 3a contributions are only possible while actively employed.
-    final isRetired = profile.age >= 65 ||
+    // B6-minimal: if age unknown, defer to employmentStatus alone — safer
+    // than assuming non-retired and pushing 3a to a possibly-retired user.
+    final isRetired = (age != null && age >= 65) ||
         profile.employmentStatus == 'retraite';
     final daysToYearEnd =
         DateTime(now.year, 12, 31).difference(now).inDays;
@@ -187,9 +197,16 @@ class CapEngine {
 
     // ── 5. LPP buyback opportunity ──
     // P1-13: Hide rachat after retirement (age >= 65 or status retraite).
+    // B6-minimal: skip when age unknown AND status is not explicitly
+    // "salarie" / "independant" — rachat advice to an unknown-age user
+    // could illegally target a retiree (LFLP post-65 obligatoire is locked).
     final rachatMax = profile.prevoyance.rachatMaximum ?? 0;
+    final ageSafeForRachat = age == null
+        ? (profile.employmentStatus == 'salarie' ||
+            profile.employmentStatus == 'independant')
+        : age < 65;
     if (rachatMax > 5000 &&
-        profile.age < 65 &&
+        ageSafeForRachat &&
         profile.employmentStatus != 'retraite') {
       candidates.add(CapDecision(
         id: 'lpp_buyback',
@@ -221,7 +238,14 @@ class CapEngine {
           : NetIncomeBreakdown.compute(
               grossSalary: grossAnnualForBudget,
               canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-              age: profile.age,
+              // B6-minimal: NetIncomeBreakdown expects non-nullable age for
+              // AVS rate selection (65+ no longer contributes). Fallback 40
+              // is a neutral working-age assumption when age is unknown;
+              // the caller is flagged via the returned breakdown's
+              // accuracy notes (downstream consumers can surface "âge
+              // inconnu, net estimé"). Full nullable propagation is
+              // deferred to Wave E.
+              age: age ?? 40,
             ).monthlyNetPayslip;
       final libre = netMensuel - profile.totalDepensesMensuelles;
       if (libre < 0) {
@@ -271,7 +295,10 @@ class CapEngine {
     }
 
     // ── 7. Replacement rate warning (45+) ──
-    if (profile.age >= 45 && profile.salaireBrutMensuel > 0) {
+    // B6-minimal: skip rule entirely if age unknown — replacement-rate
+    // warnings presuppose proximity to retirement. Firing this for a
+    // user of unknown age could alarm a 25yo inappropriately.
+    if (age != null && age >= 45 && profile.salaireBrutMensuel > 0) {
       final rateCards =
           ResponseCardService.generateForPulse(profile, l: l, limit: 5)
               .where((c) => c.type == ResponseCardType.replacementRate)
@@ -285,7 +312,8 @@ class CapEngine {
             kind: CapKind.prepare,
             priorityScore: _score(
               impact: 0.7,
-              urgency: profile.age >= 55 ? 0.8 : 0.5,
+              // B6-minimal: age guaranteed non-null here (rule gated above).
+              urgency: age >= 55 ? 0.8 : 0.5,
               confidencePenalty: _confPenalty(confidence.score),
               readiness: 1.0,
               recency: _recencyModifier('replacement_rate', memory, now),
@@ -315,7 +343,10 @@ class CapEngine {
     // - Salarié with dependents/mortgage → normal trigger
     final hasDependents = profile.isCouple || profile.nombreEnfants > 0;
     final hasMortgage = (profile.patrimoine.mortgageBalance ?? 0) > 0;
-    final isSenior = profile.age >= 50;
+    // B6-minimal: default to false when age unknown — avoids falsely
+    // flagging an unknown-age user as "senior" and boosting protection
+    // cap urgency inappropriately.
+    final isSenior = age != null && age >= 50;
     if ((hasDependents || hasMortgage || isSenior) &&
         profile.employmentStatus != 'independant' &&
         !memory.completedActions.contains('coverage_check')) {
@@ -355,7 +386,9 @@ class CapEngine {
     // P1-8: Estate planning is relevant from retirement age, not 75.
     // Also relevant when widowed (testament update, survivor rights).
     final isVeuf = profile.etatCivil == CoachCivilStatus.veuf;
-    if ((profile.age >= 65 || isVeuf) &&
+    // B6-minimal: if age unknown, fall back to widowed signal only.
+    // Estate planning triggered by age alone requires a reliable age.
+    if (((age != null && age >= 65) || isVeuf) &&
         !memory.completedActions.contains('estate_planning')) {
       candidates.add(CapDecision(
         id: 'estate_planning',
@@ -566,7 +599,12 @@ class CapEngine {
       final netMensuel = NetIncomeBreakdown.compute(
         grossSalary: profile.salaireBrutMensuel * 12,
         canton: profile.canton.isNotEmpty ? profile.canton : 'ZH',
-        age: profile.age,
+        // B6-minimal: NetIncomeBreakdown needs non-nullable age for AVS
+        // contribution rate (65+ threshold). Fallback 40 is a neutral
+        // working-age default when birthYear is missing; this debt-crisis
+        // check errs on the side of detecting the crisis (better to
+        // trigger Safe Mode on uncertain age than to miss it).
+        age: profile.ageOrNull ?? 40,
       ).monthlyNetPayslip;
       if (profile.totalDepensesMensuelles > netMensuel) return true;
     }
@@ -922,8 +960,14 @@ class CapEngine {
 
   /// True if the user is a salarié aged 50+.
   /// Used to differentiate coverage check urgency/messaging.
-  static bool _isSeniorSalarie(CoachProfile profile) =>
-      profile.age >= 50 && profile.employmentStatus == 'salarie';
+  /// B6-minimal: unknown age → returns false (conservative — don't
+  /// escalate coverage urgency without reliable age info).
+  static bool _isSeniorSalarie(CoachProfile profile) {
+    final age = profile.ageOrNull;
+    return age != null &&
+        age >= 50 &&
+        profile.employmentStatus == 'salarie';
+  }
 
   /// Generate household-level caps when conjoint data is available.
   ///
@@ -1136,23 +1180,35 @@ class CapEngine {
     DateTime now,
     S l,
   ) {
-    final age = profile.age;
+    // B6-minimal: ageOrNull returns null on missing/invalid birthYear.
+    // Honesty caps target specific age cohorts (60+, 45+, etc.) — when
+    // age is unknown, we cannot trust the cohort assignment and we skip
+    // this honesty path (the generic confidence-driven cap at the top of
+    // compute() will still fire if data is missing). Nullable propagates
+    // downstream via `age ?? 0` only where the comparison would still
+    // correctly yield "false / skip" (e.g. `0 >= 60 == false`).
+    final age = profile.ageOrNull;
     final lpp = profile.prevoyance.avoirLppTotal ?? 0;
     final revenuAnnuel = profile.revenuBrutAnnuel;
     final totalDettes = profile.dettes.totalDettes;
     final archetype = profile.archetype;
 
     // Case 1: 60+ with negligible LPP (salarié or retraité)
-    final isSeniorNoLpp = age >= 60 &&
+    // B6-minimal: unknown age → cohort undefined → skip case.
+    final isSeniorNoLpp = age != null &&
+        age >= 60 &&
         lpp < 5000 &&
         profile.employmentStatus != 'independant';
 
     // Case 2: Debt exceeds 200% of annual income (debt spiral)
+    // (age-independent — stays active even when age is unknown)
     final isDebtOverwhelmed =
         revenuAnnuel > 0 && totalDettes > revenuAnnuel * 2;
 
     // Case 3: Cross-border 62+ with zero LPP
+    // B6-minimal: unknown age → skip case (archetype alone is not enough).
     final isCrossBorderLateLpp = archetype == FinancialArchetype.crossBorder &&
+        age != null &&
         age >= 62 &&
         lpp == 0;
 

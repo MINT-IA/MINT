@@ -16,6 +16,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/premium/mint_entrance.dart';
 import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Ecran de simulation du retrait EPL (Encouragement a la Propriete du Logement).
 ///
@@ -220,6 +221,19 @@ class _EplScreenState extends State<EplScreen> {
         // Gross annual salary
         final revenu = profile.revenuBrutAnnuel;
         if (revenu > 0) _grossAnnualSalary = revenu;
+
+        // Audit 2026-04-18 Q4 (swiss-brain ruling) : le blocage 3 ans LPP
+        // art. 79b al. 3 dépend de la DATE du dernier rachat (ATF 142 II
+        // 399, 148 II 189). On lit le plus récent `dateRachats` du profil
+        // pour alimenter `_aRachete` et `_anneesSDepuisRachat`.
+        final dates = profile.prevoyance.dateRachats;
+        if (dates.isNotEmpty) {
+          final lastRachat = dates.reduce((a, b) => a.isAfter(b) ? a : b);
+          final yearsSince =
+              DateTime.now().difference(lastRachat).inDays / 365.0;
+          _aRachete = yearsSince < 3.0;
+          _anneesSDepuisRachat = yearsSince.floor();
+        }
       });
     } catch (_) {
       // Provider not in tree (tests) — keep defaults
@@ -274,27 +288,37 @@ class _EplScreenState extends State<EplScreen> {
                 _buildSlidersSection(l),
                 const SizedBox(height: MintSpacing.lg),
 
-                // Results
-                _buildResultsSection(result, l),
-                const SizedBox(height: MintSpacing.lg),
+                // EPL result — gated in SafeMode (debt crisis).
+                // LP art. 5 escape note shown via reasons param (RULES.md §6).
+                SafeModeGate(
+                  hasDebt: lookupSafeModeFlag(context),
+                  reasons: [S.of(context)!.safeModeFormalDesendettementNote],
+                  child: Column(
+                    children: [
+                      // Results
+                      _buildResultsSection(result, l),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // Impact on benefits
-                if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildImpactSection(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Impact on benefits
+                      if (result.montantSouhaiteApplicable > 0) ...[
+                        _buildImpactSection(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
 
-                // Impact on retirement rente
-                if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildRenteImpactSection(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Impact on retirement rente
+                      if (result.montantSouhaiteApplicable > 0) ...[
+                        _buildRenteImpactSection(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
 
-                // Tax estimate
-                if (result.montantSouhaiteApplicable > 0) ...[
-                  _buildTaxCard(result, l),
-                  const SizedBox(height: MintSpacing.lg),
-                ],
+                      // Tax estimate
+                      if (result.montantSouhaiteApplicable > 0) ...[
+                        _buildTaxCard(result, l),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
+                    ],
+                  ),
+                ),
 
                 // Alerts
                 if (result.alerts.isNotEmpty) ...[
@@ -573,13 +597,19 @@ class _EplScreenState extends State<EplScreen> {
           _buildImpactRow(
             icon: Icons.accessible,
             label: l.eplReductionInvalidite,
-            amount: '-CHF ${formatChf(result.reductionRenteInvalidite)}',
+            // Null = "à demander à la caisse" (cf. audit P1-2, on ne
+            // magic-number plus les réductions de prestations risque).
+            amount: result.reductionRenteInvalidite == null
+                ? l.eplReductionAskCaisse
+                : '-CHF ${formatChf(result.reductionRenteInvalidite!)}',
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           _buildImpactRow(
             icon: Icons.heart_broken_outlined,
             label: l.eplReductionDeces,
-            amount: '-CHF ${formatChf(result.reductionCapitalDeces)}',
+            amount: result.reductionCapitalDeces == null
+                ? l.eplReductionAskCaisse
+                : '-CHF ${formatChf(result.reductionCapitalDeces!)}',
           ),
           const SizedBox(height: MintSpacing.sm + 4),
           Text(

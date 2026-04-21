@@ -18,6 +18,7 @@ import 'package:mint_mobile/widgets/premium/mint_narrative_card.dart';
 import 'package:mint_mobile/widgets/premium/mint_result_hero_card.dart';
 import 'package:mint_mobile/widgets/precision/smart_default_indicator.dart';
 import 'package:mint_mobile/widgets/premium/mint_surface.dart';
+import 'package:mint_mobile/widgets/common/safe_mode_gate.dart';
 
 /// Simulateur de rattrapage 3a retroactif (nouveaute 2026).
 ///
@@ -211,7 +212,7 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
           title: S.of(context)!.retroactive3aEmptyTitle,
           subtitle: S.of(context)!.retroactive3aEmptySubtitle,
           ctaLabel: S.of(context)!.retroactive3aEmptyCta,
-          onCta: () => context.push('/coach/chat'),
+          onCta: () => context.go('/coach/chat'),
         ),
       );
     }
@@ -258,20 +259,28 @@ class _Retroactive3aScreenState extends State<Retroactive3aScreen> {
                 MintEntrance(delay: const Duration(milliseconds: 200), child: _buildInputSection()),
                 const SizedBox(height: MintSpacing.lg),
 
-                // 3. Premier Éclairage
-                MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPremierEclairageCard(result)),
-                const SizedBox(height: MintSpacing.lg),
+                // 3–6. Result sections — gated in SafeMode (debt crisis)
+                SafeModeGate(
+                  hasDebt: lookupSafeModeFlag(context),
+                  child: Column(
+                    children: [
+                      // 3. Premier Éclairage
+                      MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPremierEclairageCard(result)),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // 4. Breakdown
-                MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBreakdownSection(result)),
-                const SizedBox(height: MintSpacing.lg),
+                      // 4. Breakdown
+                      MintEntrance(delay: const Duration(milliseconds: 400), child: _buildBreakdownSection(result)),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // 5. Avant / Apres
-                MintEntrance(delay: const Duration(milliseconds: 500), child: _buildImpactComparison(result)),
-                const SizedBox(height: MintSpacing.lg),
+                      // 5. Avant / Apres
+                      MintEntrance(delay: const Duration(milliseconds: 500), child: _buildImpactComparison(result)),
+                      const SizedBox(height: MintSpacing.lg),
 
-                // 6. Action Cards
-                _buildActionCards(),
+                      // 6. Action Cards
+                      _buildActionCards(),
+                    ],
+                  ),
+                ),
                 const SizedBox(height: MintSpacing.lg),
 
                 // 7. Disclaimer & Sources

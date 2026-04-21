@@ -1619,6 +1619,69 @@ class SIt extends S {
       'Completa la tua diagnosi per sbloccare il tuo piano mensile con i tuoi veri redditi e spese.';
 
   @override
+  String get budgetSetupTitle => 'Charges fixes';
+
+  @override
+  String get budgetSetupSubtitle =>
+      'Ce qui part chaque mois, quoi qu\'il arrive.';
+
+  @override
+  String get budgetSetupHousing => 'Loyer ou hypothèque';
+
+  @override
+  String get budgetSetupLamal => 'Assurance maladie';
+
+  @override
+  String get budgetSetupTransport => 'Transport';
+
+  @override
+  String get budgetSetupTelecom => 'Télécom';
+
+  @override
+  String get budgetSetupElectricity => 'Électricité';
+
+  @override
+  String get budgetSetupMedical => 'Frais médicaux';
+
+  @override
+  String get budgetSetupOther => 'Autres';
+
+  @override
+  String get budgetSetupAddOthers => 'Ajouter d\'autres postes';
+
+  @override
+  String get budgetSetupSave => 'Enregistrer';
+
+  @override
+  String get budgetSetupChatFallback => 'J\'en parle plutôt au coach';
+
+  @override
+  String get budgetSetupFieldPlaceholder => 'CHF / mois';
+
+  @override
+  String get budgetSetupRequired => 'Requis';
+
+  @override
+  String budgetSetupTotalFixed(String amount) {
+    return 'Total fixe : $amount CHF / mois';
+  }
+
+  @override
+  String budgetSetupResteAfterCharges(String amount) {
+    return 'Il te reste $amount CHF après tes charges.';
+  }
+
+  @override
+  String get budgetCardEmptyTitle => 'Tes charges fixes, au clair.';
+
+  @override
+  String get budgetCardEmptyBody =>
+      'Sept postes, deux minutes. Ensuite on calcule ce qu\'il te reste vraiment.';
+
+  @override
+  String get budgetCardEmptyAction => 'Poser mes charges';
+
+  @override
   String get budgetEmptyAction => 'Fare la mia diagnosi';
 
   @override
@@ -7839,7 +7902,7 @@ class SIt extends S {
   String get coachSources => 'Fonti';
 
   @override
-  String get coachInputHint => 'Dimmi cosa ti passa per la testa.';
+  String get coachInputHint => 'Dimmi.';
 
   @override
   String get coachUserMessage => 'Il tuo messaggio';
@@ -9369,11 +9432,11 @@ class SIt extends S {
       'In modalità protezione, le raccomandazioni 3a sono disattivate. La priorità è stabilizzare la situazione finanziaria.';
 
   @override
-  String get sim3aDebtStrategyTitle => 'Strategia bloccata';
+  String get sim3aDebtStrategyTitle => 'Strategia in pausa';
 
   @override
   String get sim3aDebtStrategyMessage =>
-      'Le strategie d\'investimento 3a sono disattivate finché hai debiti attivi. Rimborsare i debiti ha un rendimento più alto di qualsiasi investimento.';
+      'Le strategie d\'investimento 3a sono in pausa finché i tuoi debiti attivi gravano sul budget. Ordine consigliato: prima stabilizzare, poi investire.';
 
   @override
   String get realReturnTitle => 'Rendimento reale 3a';
@@ -10694,6 +10757,9 @@ class SIt extends S {
   String get eplReductionDeces => 'Riduzione capitale decesso (stima)';
 
   @override
+  String get eplReductionAskCaisse => 'Chiedi alla tua cassa';
+
+  @override
   String get eplImpactPrestationsNote =>
       'Il prelievo EPL riduce proporzionalmente le tue prestazioni di rischio. Verifica con la tua cassa pensione gli importi esatti e le possibilità di assicurazione complementare.';
 
@@ -11005,7 +11071,7 @@ class SIt extends S {
   String get retroactive3aTitle => 'Recupero 3a';
 
   @override
-  String get retroactive3aHeroTitle => 'Recupero 3a — Novità 2026';
+  String get retroactive3aHeroTitle => 'Recupero 3a — Novità 2025';
 
   @override
   String get retroactive3aHeroSubtitle =>
@@ -11655,14 +11721,14 @@ class SIt extends S {
 
   @override
   String get reportSafeMode3a =>
-      'Il comparatore 3a è disattivato finché hai debiti attivi. Rimborsare i debiti è prioritario prima di qualsiasi risparmio 3a.';
+      'Il comparatore 3a è in pausa finché i tuoi debiti attivi gravano sul budget. Priorità: stabilizzare la liquidità.';
 
   @override
-  String get reportSafeModeLpp => 'Riscatto LPP bloccato';
+  String get reportSafeModeLpp => 'Riscatto LPP in pausa';
 
   @override
   String get reportSafeModeLppMessage =>
-      'Il riscatto LPP è disattivato in modalità protezione. Rimborsa i tuoi debiti prima di bloccare liquidità nella previdenza.';
+      'Il riscatto LPP è in pausa in modalità protezione. Ordine consigliato: rimborsare i debiti prima di bloccare liquidità nella previdenza.';
 
   @override
   String get reportLppTitle => '💰 Strategia di Riscatto LPP';
@@ -18234,7 +18300,7 @@ class SIt extends S {
 
   @override
   String get portfolioSafeModeBody =>
-      'I consigli di allocazione sono disattivati in modalità protezione. La tua priorità è ridurre i debiti prima di ribilanciare il patrimonio.';
+      'I consigli di allocazione sono in pausa in modalità protezione. Ordine consigliato: ridurre i debiti prima di ribilanciare il patrimonio.';
 
   @override
   String get portfolioSafeModeLocked => 'Priorità al risanamento debiti';
@@ -19320,7 +19386,7 @@ class SIt extends S {
 
   @override
   String get safeModeMessage =>
-      'Per la tua sicurezza finanziaria, disattiviamo le ottimizzazioni avanzate finché un segnale di debito è attivo.';
+      'Finché un segnale di debito è attivo, le ottimizzazioni avanzate sono in pausa. Priorità: stabilizzare la liquidità. Il resto può aspettare.';
 
   @override
   String get safeModeTitle => 'Concentrazione Prioritaria';
@@ -20898,8 +20964,7 @@ class SIt extends S {
   String get intensityAdjustedDown => 'OK, abbasso di un livello.';
 
   @override
-  String get coachSuggestBudget =>
-      'Qual è il mio budget realistico per la pensione?';
+  String get coachSuggestBudget => 'Dove va il mio denaro ogni mese?';
 
   @override
   String get coachSuggestBudgetGap => 'Quanto mi manca al mese?';
@@ -21048,6 +21113,28 @@ class SIt extends S {
   String get coachSilentOpenerQuestion => 'Vuoi parlarne?';
 
   @override
+  String get coachOpenerIdentity => 'Ciao. Sono Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'Non vendo nulla, non valuto nulla, non ti paragono a nessuno. Ti aiuto solo a vedere chiaro in ciò che nessuno ha interesse a spiegarti.';
+
+  @override
+  String get coachOpenerQuestion => 'Da dove cominciamo?';
+
+  @override
+  String get coachStarterPaper => 'Un documento che non capisco';
+
+  @override
+  String get coachStarterChoice => 'Una scelta che devo fare';
+
+  @override
+  String get coachStarterCost => 'Qualcosa mi costa, non so cosa';
+
+  @override
+  String get coachStarterLurk => 'Guardo in giro, mi presento dopo';
+
+  @override
   String get coachProactiveOptIn =>
       'A proposito — vuoi che ti segnali le cose importanti quando apri l\'app? O preferisci che parliamo solo quando ne hai voglia?';
 
@@ -21059,7 +21146,7 @@ class SIt extends S {
 
   @override
   String get coachSilentOpenerReplacementRate =>
-      'Tasso di sostituzione alla pensione';
+      'Tasso di sostituzione proiettato';
 
   @override
   String get coachSilentOpenerFitnessScore => 'Punteggio di salute finanziaria';
@@ -21067,6 +21154,16 @@ class SIt extends S {
   @override
   String get coachSilentOpenerRetirementCapital =>
       'Capitale proiettato alla pensione';
+
+  @override
+  String get coachSilentOpenerProjectedCapital =>
+      'Capitale proiettato sul tuo orizzonte';
+
+  @override
+  String get coachSilentOpenerLppAvoir => 'Saldo LPP';
+
+  @override
+  String get coachSilentOpener3aEpargne => 'Risparmio 3a';
 
   @override
   String get confidenceLow =>
@@ -22362,11 +22459,10 @@ class SIt extends S {
   String get tonSectionLabel => 'Voce';
 
   @override
-  String get anonymousIntentLine1 =>
-      'I soldi, in Svizzera, sono il tema di cui nessuno parla.';
+  String get anonymousIntentLine1 => 'La tua vita finanziaria, in chiaro.';
 
   @override
-  String get anonymousIntentLine2 => 'Nemmeno con sé stessi.';
+  String get anonymousIntentLine2 => '';
 
   @override
   String get anonymousIntentPill1 =>
@@ -22844,4 +22940,131 @@ class SIt extends S {
   @override
   String get thirdPartyDeclarationNoticeLink =>
       'Senza il suo consenso, MINT non può trattare i dati di un\'altra persona.';
+
+  @override
+  String get monArgentTabTitle => 'I miei soldi';
+
+  @override
+  String get monArgentBudgetTitle => 'Il tuo budget questo mese';
+
+  @override
+  String get monArgentBudgetEmpty =>
+      'Imposta il tuo budget per vedere a che punto sei questo mese.';
+
+  @override
+  String get monArgentBudgetStart => 'Inizia';
+
+  @override
+  String get monArgentBudgetError => 'Impossibile caricare il budget.';
+
+  @override
+  String get monArgentBudgetIncome => 'Entrate';
+
+  @override
+  String get monArgentBudgetSpent => 'Uscite';
+
+  @override
+  String get monArgentBudgetRemaining => 'Rimane';
+
+  @override
+  String get monArgentRetry => 'Riprova';
+
+  @override
+  String get monArgentPatrimoineTitle => 'Il tuo punto di partenza';
+
+  @override
+  String get monArgentPatrimoineEmpty =>
+      'Scansiona un documento o parla con il coach per iniziare.';
+
+  @override
+  String get monArgentPatrimoineError => 'Impossibile caricare i tuoi dati.';
+
+  @override
+  String get monArgentPatrimoineNet => 'Netto';
+
+  @override
+  String get monArgentPatrimoinePartial =>
+      'Aggiungi i tuoi dati per una vista completa.';
+
+  @override
+  String get monArgentLpp => '2º pilastro';
+
+  @override
+  String get monArgentPillar3a => 'Pilastro 3a';
+
+  @override
+  String get monArgentEpargne => 'Risparmi';
+
+  @override
+  String get monArgentScan => 'Scansiona';
+
+  @override
+  String get monArgentEnrichCta =>
+      'Aggiungi documenti per una vista più precisa';
+
+  @override
+  String get tabAujourdhui => 'Oggi';
+
+  @override
+  String get tabMonArgent => 'I miei soldi';
+
+  @override
+  String get tabExplorer => 'Esplora';
+
+  @override
+  String get hubRetraite => 'Pensione e Previdenza';
+
+  @override
+  String get hubFamille => 'Famiglia';
+
+  @override
+  String get hubTravail => 'Lavoro e Statuto';
+
+  @override
+  String get hubLogement => 'Alloggio';
+
+  @override
+  String get hubFiscalite => 'Fiscalità';
+
+  @override
+  String get hubPatrimoine => 'Patrimonio e Successione';
+
+  @override
+  String get hubSante => 'Salute e Protezione';
+
+  @override
+  String get safeModeWhyBlockedSemantics => 'Perché è in pausa';
+
+  @override
+  String get safeModeWhyBlockedTitle => 'Perché è in pausa';
+
+  @override
+  String get safeModeWhyBlockedBody =>
+      'In modalità protezione, MINT privilegia la stabilità della liquidità prima delle ottimizzazioni fiscali e previdenziali.';
+
+  @override
+  String get safeModeWhyBlockedLink => 'Perché è in pausa?';
+
+  @override
+  String get safeModeFormalDesendettementNote =>
+      'Questi prelievi restano possibili in caso di procedura formale di risanamento del debito — parla con uno specialista.';
+
+  @override
+  String get scanSummaryLppCertificate => 'Certificato LPP scansionato';
+
+  @override
+  String get scanSummary3aAttestation => 'Attestato 3a scansionato';
+
+  @override
+  String get scanSummaryTaxDeclaration => 'Dichiarazione fiscale scansionata';
+
+  @override
+  String get scanSummaryAvsExtract => 'Estratto AVS scansionato';
+
+  @override
+  String get scanSummaryMortgageAttestation => 'Attestato ipoteca scansionato';
+
+  @override
+  String get scanSummarySalaryCertificate =>
+      'Certificato di stipendio scansionato';
 }

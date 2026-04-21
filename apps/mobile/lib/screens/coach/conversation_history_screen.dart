@@ -66,11 +66,11 @@ class _ConversationHistoryScreenState extends State<ConversationHistoryScreen> {
   void _openConversation(String conversationId) {
     // Navigate to chat screen with the conversation ID as a query parameter.
     // The chat screen will load the conversation from the store.
-    context.push('/coach/chat?conversationId=$conversationId');
+    context.go('/coach/chat?conversationId=$conversationId');
   }
 
   void _startNewConversation() {
-    context.push('/coach/chat');
+    context.go('/coach/chat');
   }
 
   @override

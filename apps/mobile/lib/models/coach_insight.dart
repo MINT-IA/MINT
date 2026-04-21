@@ -33,6 +33,16 @@ enum InsightType {
 
   /// A fact about the user's situation ("a un avoir LPP de ~70k").
   fact,
+
+  /// A durable event the user experienced. Unlike [fact] (mutable
+  /// assertion about state), [event] anchors a specific moment in time
+  /// the coach should remember and can reference later ("tu as scanné
+  /// ton certificat CPE mardi", "tu as reçu l'héritage en mars").
+  /// Added Wave A-MINIMAL 2026-04-18 for scan + life-event persistence.
+  /// Events live in a separate non-FIFO namespace in [CoachMemoryService]
+  /// so they survive the 50-insight pruning that would otherwise evict
+  /// them after a week of active `fact`-heavy coaching.
+  event,
 }
 
 /// A key insight extracted from a coach conversation.

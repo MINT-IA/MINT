@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+
+/// Read the SafeMode flag from [CoachProfileProvider] with graceful fallback.
+///
+/// Returns `false` when the provider isn't in the widget tree (unit widget
+/// tests pump isolated screens without the full shell). Production paths
+/// always have the provider injected via the top-level ChangeNotifierProvider
+/// so the flag is read correctly.
+bool lookupSafeModeFlag(BuildContext context) {
+  try {
+    return context.watch<CoachProfileProvider>().profile?.isInDebtCrisis ??
+        false;
+  } on ProviderNotFoundException {
+    return false;
+  }
+}
 
 class SafeModeGate extends StatelessWidget {
   final bool hasDebt;
@@ -90,7 +107,7 @@ class SafeModeGate extends StatelessWidget {
                 ],
                 const SizedBox(height: 12),
                 Semantics(
-                  label: 'Pourquoi est-ce bloqué',
+                  label: l.safeModeWhyBlockedSemantics,
                   button: true,
                   child: InkWell(
                     onTap: () {
@@ -112,13 +129,12 @@ class SafeModeGate extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pourquoi c’est bloqué',
+                              S.of(ctx)!.safeModeWhyBlockedTitle,
                               style: MintTextStyles.titleLarge(color: MintColors.textPrimary),
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'En mode protection, MINT priorise la stabilité de trésorerie '
-                              'avant les optimisations fiscales et prévoyance.',
+                              S.of(ctx)!.safeModeWhyBlockedBody,
                               style: MintTextStyles.bodySmall(color: MintColors.textSecondary).copyWith(height: 1.4),
                             ),
                             if (reasons.isNotEmpty) ...[
@@ -139,7 +155,7 @@ class SafeModeGate extends StatelessWidget {
                     );
                   },
                   child: Text(
-                    "Pourquoi est-ce bloqué ?",
+                    l.safeModeWhyBlockedLink,
                     style: MintTextStyles.labelMedium(color: MintColors.primary).copyWith(fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
                   ),
                 ),

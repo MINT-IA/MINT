@@ -99,8 +99,8 @@ void main() {
         isMarried: true,
       );
       expect(taxMarried, lessThan(taxSingle));
-      // ~15% discount
-      expect(taxMarried / taxSingle, closeTo(0.85, 0.05));
+      // Audit 2026-04-18 Q5 : ZH = splitting intégral → 0.73 (pas 0.85).
+      expect(taxMarried / taxSingle, closeTo(0.73, 0.02));
     });
 
     test('unknown canton falls back to default rate', () {

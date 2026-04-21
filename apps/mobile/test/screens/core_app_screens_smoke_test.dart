@@ -23,14 +23,13 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/subscription_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
-import 'package:mint_mobile/providers/user_activity_provider.dart';
-import 'package:mint_mobile/providers/anticipation_provider.dart';
-import 'package:mint_mobile/providers/contextual_card_provider.dart';
+// Wave E-PRIME (2026-04-18): UserActivityProvider / AnticipationProvider /
+// ContextualCardProvider / CoachEntryPayloadProvider deleted — Panel A façade
+// audit (0 consumer prod).
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/slm_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
-import 'package:mint_mobile/providers/coach_entry_payload_provider.dart';
 
 // Models
 import 'package:mint_mobile/models/profile.dart';
@@ -74,21 +73,13 @@ void main() {
         ChangeNotifierProvider<CoachProfileProvider>(
             create: (_) => CoachProfileProvider()),
         ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
-        ChangeNotifierProvider<UserActivityProvider>(
-            create: (_) => UserActivityProvider()),
         ChangeNotifierProvider<SlmProvider>(create: (_) => SlmProvider()),
         ChangeNotifierProvider<MintStateProvider>(
             create: (_) => MintStateProvider()),
-        ChangeNotifierProvider<CoachEntryPayloadProvider>(
-            create: (_) => CoachEntryPayloadProvider()),
         ChangeNotifierProvider<FinancialPlanProvider>(
             create: (_) => FinancialPlanProvider()),
         ChangeNotifierProvider<BiographyProvider>(
             create: (_) => BiographyProvider()),
-        ChangeNotifierProvider<AnticipationProvider>(
-            create: (_) => AnticipationProvider()),
-        ChangeNotifierProvider<ContextualCardProvider>(
-            create: (_) => ContextualCardProvider()),
       ],
       child: MaterialApp(
         locale: const Locale('fr'),

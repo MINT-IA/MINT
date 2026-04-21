@@ -126,10 +126,12 @@ RenteVsCapitalResult computeRenteVsCapital({
     throw ArgumentError('Canton non supporte: $canton');
   }
 
-  // Apply married discount (splitting cantonal ~15%)
-  final effectiveBaseRate = statutCivil == 'married'
-      ? baseRate * marriedCapitalTaxDiscount
-      : baseRate;
+  // Apply married discount — cantonal map, pas un scalaire uniforme.
+  // Audit 2026-04-18 Q5 : ZH/GE/ZG splitting intégral → ~0.70 ; VS → 0.81.
+  final discount = statutCivil == 'married'
+      ? marriedCapitalTaxDiscountFor(canton)
+      : 1.0;
+  final effectiveBaseRate = baseRate * discount;
 
   // Progressive tax calculation (mirrors backend)
   final impotRetrait = double.parse(

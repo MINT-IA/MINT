@@ -222,7 +222,7 @@ class TimelineProvider extends TensionCardProvider {
         id: 'document_$id',
         title: 'timelineDocument',
         subtitle: name,
-        deepLink: '/explorer',
+        deepLink: '/explore',
         date: date,
         visualState: TensionType.earned,
       ));

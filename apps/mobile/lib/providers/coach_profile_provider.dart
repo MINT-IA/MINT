@@ -1,4 +1,6 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show BuildContext;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -9,7 +11,9 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
@@ -175,6 +179,89 @@ class CoachProfileProvider extends ChangeNotifier {
   /// when the backend profile is empty.
   Future<void> triggerBackendSync() => _syncToBackend();
 
+  /// Pull fresh profile data from backend and merge into local state.
+  ///
+  /// Called after each coach chat exchange to capture data written by
+  /// save_fact (which executes server-side and never reaches Flutter).
+  /// Fire-and-forget: errors are caught silently so chat flow is never blocked.
+  ///
+  /// OBS-05 note: save_fact itself runs server-side (no mobile dispatch
+  /// point). This method is the closest mobile-side proxy to observe the
+  /// save_fact outcome — if the remote profile merges new financial fields,
+  /// a save_fact succeeded on the server. Breadcrumbs emitted here use
+  /// factKind = `'profile_sync'` as the coarse category since we cannot
+  /// know which individual factKind was written server-side without a
+  /// dedicated response header (deferred to Phase 31-02 backend work).
+  Future<void> syncFromBackend() async {
+    try {
+      final isLoggedIn = await AuthService.isLoggedIn();
+      if (!isLoggedIn) return;
+      final remoteData = await ApiService.get('/profiles/me');
+      if (remoteData is Map<String, dynamic>) {
+        mergeFromRemoteProfile(remoteData);
+        // Also merge financial fields that the basic merge doesn't cover.
+        _mergeFinancialFieldsFromRemote(remoteData);
+        // OBS-05 — save_fact success proxy breadcrumb (D-03 4-level).
+        // factKind is the coarse 'profile_sync' enum; the finer-grained
+        // per-field attribution is deferred to Phase 31-02 (backend can
+        // echo `facts_saved: [...]` in /profiles/me response).
+        MintBreadcrumbs.saveFact(
+          success: true,
+          factKind: 'profile_sync',
+        );
+      }
+    } catch (e) {
+      debugPrint('[CoachProfile] syncFromBackend failed (non-fatal): $e');
+      // OBS-05 — save_fact failure proxy breadcrumb. Error code is an
+      // enum (no raw exception message — may contain PII).
+      final code = e is ApiException
+          ? (e.isOffline ? 'offline' : 'api_error')
+          : 'unknown';
+      MintBreadcrumbs.saveFact(
+        success: false,
+        factKind: 'profile_sync',
+        errorCode: code,
+      );
+    }
+  }
+
+  /// Merge financial fields from backend that save_fact may have written.
+  ///
+  /// Complements [mergeFromRemoteProfile] which only covers identity fields.
+  /// Maps backend camelCase keys → wizard answer keys understood by
+  /// [CoachProfile.fromWizardAnswers], then calls [mergeAnswers] which
+  /// handles persistence + notifyListeners.
+  void _mergeFinancialFieldsFromRemote(Map<String, dynamic> remote) {
+    if (_profile == null) return;
+    final p = _profile!.prevoyance;
+    final partial = <String, dynamic>{};
+
+    // LPP avoir
+    final remoteLpp = (remote['avoirLpp'] as num?)?.toDouble();
+    if ((p.avoirLppTotal ?? 0) <= 0 && remoteLpp != null && remoteLpp > 0) {
+      partial['_coach_avoir_lpp'] = remoteLpp;
+    }
+    // LPP salaire assuré
+    final remoteSalaire = (remote['lppInsuredSalary'] as num?)?.toDouble();
+    if ((p.salaireAssure ?? 0) <= 0 && remoteSalaire != null && remoteSalaire > 0) {
+      partial['_coach_salaire_assure'] = remoteSalaire;
+    }
+    // LPP rachat max
+    final remoteRachat = (remote['lppBuybackMax'] as num?)?.toDouble();
+    if ((p.rachatMaximum ?? 0) <= 0 && remoteRachat != null && remoteRachat > 0) {
+      partial['_coach_rachat_maximum'] = remoteRachat;
+    }
+    // 3a balance
+    final remote3a = (remote['pillar3aBalance'] as num?)?.toDouble();
+    if ((p.totalEpargne3a ?? 0) <= 0 && remote3a != null && remote3a > 0) {
+      partial['_coach_total_3a'] = remote3a;
+    }
+
+    if (partial.isNotEmpty) {
+      mergeAnswers(partial); // handles persist + notifyListeners + backend sync
+    }
+  }
+
   String get personaKey {
     final p = _profile;
     if (p == null) return 'unknown';
@@ -335,6 +422,22 @@ class CoachProfileProvider extends ChangeNotifier {
         return;
       }
 
+      // Scan-first onboarding: if a document scan has written fields to
+      // answers (via updateFrom*Extraction persisting `_coach_*` keys)
+      // without any wizard being completed, hydrate from those so the
+      // enriched profile survives app restart instead of being lost.
+      final hasScanData = answers.keys.any((k) => k.startsWith('_coach_'));
+      if (hasScanData && answers.isNotEmpty) {
+        _profile = CoachProfile.fromWizardAnswers(answers);
+        _isPartialProfile = true;
+        await _mergePersistedData();
+        _isLoading = false;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        notifyListeners();
+        return;
+      }
+
       // No profile at all
       _profile = null;
       _isPartialProfile = false;
@@ -398,14 +501,132 @@ class CoachProfileProvider extends ChangeNotifier {
   /// overwriting the rest of the profile.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
-    final merged = Map<String, dynamic>.from(_lastAnswers)..addAll(partial);
+    // Deep-walk crack #15: always re-read the on-disk answers before
+    // merging. `_lastAnswers` is populated at startup by loadFromWizard
+    // but updateFrom*Extraction / budget setup / regex fallback each
+    // load+save independently. If mergeAnswers relied on the stale
+    // in-memory copy, a budget setup that ran after a scan would build
+    // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
+    // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
+    // after the card Budget populated. Read-then-merge-then-save is the
+    // only crash-safe discipline.
+    final current = await ReportPersistenceService.loadAnswers();
+    final merged = Map<String, dynamic>.from(current)..addAll(partial);
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
     await ReportPersistenceService.saveAnswers(merged);
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
     _syncToBackend(); // Fire-and-forget, does not block UI
+  }
+
+  /// Apply a `save_fact` tool call locally.
+  ///
+  /// Backend `save_fact` persists to `ProfileModel.data` only when `user_id`
+  /// is present. Anonymous local-mode users (the default for fresh installs)
+  /// never have a `user_id`, so the backend path hits `# Hors-DB path` and
+  /// returns "Fait noté (hors DB)" without persisting — the chat captures
+  /// data in theory but nothing lands in the profile.
+  ///
+  /// This method closes that gap: when the coach_chat_screen receives a
+  /// `save_fact` tool_use block, it dispatches here to translate the canonical
+  /// backend fact key (`incomeNetMonthly`, `canton`, `avoirLpp`, …) into the
+  /// wizard answer key(s) that `CoachProfile.fromWizardAnswers` reads, then
+  /// calls `mergeAnswers` to persist to SharedPreferences + refresh the
+  /// profile.
+  ///
+  /// Returns `true` when the fact was mapped and applied, `false` when the
+  /// key is unknown (caller can log — Claude occasionally hallucinates keys).
+  Future<bool> applySaveFact(
+    String factKey,
+    dynamic factValue, {
+    String confidence = 'medium',
+  }) async {
+    if (confidence == 'low') return false; // mirror backend skip
+    final mapped = _mapFactKeyToAnswers(factKey, factValue);
+    if (mapped.isEmpty) return false;
+    await mergeAnswers(mapped);
+    return true;
+  }
+
+  /// Translates a `save_fact` canonical key + value into the corresponding
+  /// wizard answer keys expected by `CoachProfile.fromWizardAnswers`.
+  /// Returns an empty map when the key is unknown.
+  Map<String, dynamic> _mapFactKeyToAnswers(String factKey, dynamic value) {
+    if (value == null) return const {};
+    switch (factKey) {
+      // Identity / location
+      case 'birthYear':
+        return {'q_birth_year': value};
+      case 'dateOfBirth':
+        return {'q_date_of_birth': value};
+      case 'canton':
+        return {'q_canton': value};
+      case 'commune':
+        return {'q_commune': value};
+      case 'householdType':
+        return {'q_civil_status': value};
+      case 'employmentStatus':
+        return {'q_employment_status': value};
+      case 'gender':
+        return {'q_gender': value};
+      case 'targetRetirementAge':
+        return {'q_target_retirement_age': value};
+      // Income — map each fact into a pay-frequency-consistent pair so
+      // fromWizardAnswers computes salaireBrutMensuel correctly.
+      case 'incomeNetMonthly':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'monthly',
+        };
+      case 'incomeNetYearly':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'yearly',
+        };
+      case 'incomeGrossMonthly':
+        final monthly = _asNum(value);
+        if (monthly == null) return const {};
+        return {'q_gross_salary_annual': monthly * 12};
+      case 'incomeGrossYearly':
+        return {'q_gross_salary_annual': value};
+      case 'employmentRate':
+        return {'q_employment_rate': value};
+      case 'annualBonus':
+        return {'q_annual_bonus': value};
+      // LPP — align with keys fromWizardAnswers reads for scan data
+      case 'avoirLpp':
+        return {'_coach_avoir_lpp': value};
+      case 'avoirLppObligatoire':
+        return {'_coach_avoir_lpp_oblig': value};
+      case 'avoirLppSurobligatoire':
+        return {'_coach_avoir_lpp_suroblig': value};
+      case 'lppInsuredSalary':
+        return {'_coach_salaire_assure': value};
+      case 'lppBuybackMax':
+        return {'_coach_rachat_maximum': value};
+      // 3a
+      case 'pillar3aAnnual':
+        return {'q_3a_annual_contribution': value};
+      case 'pillar3aBalance':
+        return {'q_total_3a': value};
+      // Savings / wealth / debt
+      case 'savingsMonthly':
+        return {'q_savings_monthly': value};
+      case 'totalSavings':
+      case 'wealthEstimate':
+        return {'q_epargne_liquide': value};
+      default:
+        return const {};
+    }
+  }
+
+  static num? _asNum(dynamic v) {
+    if (v is num) return v;
+    if (v is String) return num.tryParse(v);
+    return null;
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
@@ -754,6 +975,9 @@ class CoachProfileProvider extends ChangeNotifier {
     _persistFullProfile(updated);
     // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
     CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
+    // Also invalidate daily narrative cache so greeting / topTip / scenarios
+    // pick up new profile data instead of showing stale pre-scan copy.
+    CoachNarrativeService.invalidateCache(profile: updated);
     // FIX-HIGH-2: Invalidate CapMemory on significant profile change
     // to prevent stale caps from being re-served.
     CapMemoryStore.load().then((mem) {
@@ -1094,7 +1318,11 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    // Bootstrap scan-first onboarding: if no profile exists yet (fresh install,
+    // user scanned certificate before any wizard step), seed a default profile
+    // so extraction fields land somewhere. Without this, updateFrom*Extraction
+    // silently no-oped and next launch saw an empty Mon argent card.
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
     // FIX-095: Save previous state for undo capability.
@@ -1256,6 +1484,11 @@ class CoachProfileProvider extends ChangeNotifier {
     // W15: Auto-trigger snapshot after LPP certificate scan
     _createSnapshotFromProfile('document_scan');
 
+    // Invalidate daily narrative cache — greeting / topTip / scenarios were
+    // computed before scan data landed and now show stale "scanne ton
+    // certificat" copy when the user just did exactly that.
+    CoachNarrativeService.invalidateCache(profile: _profile);
+
     notifyListeners();
     _syncToBackend(); // Fire-and-forget, does not block UI
   }
@@ -1364,6 +1597,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1372,7 +1606,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Mappe les champs AVS extraits vers PrevoyanceProfile.
   /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
   Future<void> updateFromAvsExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
 
@@ -1494,6 +1728,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1506,7 +1741,7 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Reference: LIFD art. 33-33a (deductions), LIFD art. 38 (capital)
   Future<void> updateFromTaxExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
 
@@ -1594,6 +1829,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1602,7 +1838,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Stores: salaireBrutMensuel, nombreDeMois, bonusPourcentage.
   /// Tags dataSources as certificate. Stamps timestamps.
   Future<void> updateFromSalaryExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
     double? salaireBrut;
@@ -1666,6 +1902,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -2184,3 +2421,23 @@ class CoachProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
+/// Safe [CoachProfile] lookup extensions.
+///
+/// Screens that watch [CoachProfileProvider] for prefill / SafeMode decisions
+/// need to tolerate the provider being absent (isolated unit widget tests
+/// that pump a single screen without the full shell). These helpers return
+/// `null` / `false` instead of throwing [ProviderNotFoundException].
+extension CoachProfileContextLookup on BuildContext {
+  /// Read the current [CoachProfile] without subscribing. Returns `null` if
+  /// the provider isn't in the widget tree. Intended for `didChangeDependencies`
+  /// / `initState`-style eager reads (prefill).
+  CoachProfile? get coachProfileOrNull {
+    try {
+      return read<CoachProfileProvider>().profile;
+    } on ProviderNotFoundException {
+      return null;
+    }
+  }
+}
+

@@ -681,6 +681,92 @@
   },
   "budgetEmptyTitle": "Dein Budget",
   "budgetEmptyBody": "Schliesse deine Diagnose ab, um deinen Monatsplan mit echten Einnahmen und Ausgaben freizuschalten.",
+  "budgetSetupTitle": "Charges fixes",
+  "@budgetSetupTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSubtitle": "Ce qui part chaque mois, quoi qu'il arrive.",
+  "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupHousing": "Loyer ou hypothèque",
+  "@budgetSetupHousing": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupLamal": "Assurance maladie",
+  "@budgetSetupLamal": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTransport": "Transport",
+  "@budgetSetupTransport": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTelecom": "Télécom",
+  "@budgetSetupTelecom": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupElectricity": "Électricité",
+  "@budgetSetupElectricity": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupMedical": "Frais médicaux",
+  "@budgetSetupMedical": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupOther": "Autres",
+  "@budgetSetupOther": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupAddOthers": "Ajouter d'autres postes",
+  "@budgetSetupAddOthers": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSave": "Enregistrer",
+  "@budgetSetupSave": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupChatFallback": "J'en parle plutôt au coach",
+  "@budgetSetupChatFallback": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupFieldPlaceholder": "CHF / mois",
+  "@budgetSetupFieldPlaceholder": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupRequired": "Requis",
+  "@budgetSetupRequired": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTotalFixed": "Total fixe : {amount} CHF / mois",
+  "@budgetSetupTotalFixed": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetSetupResteAfterCharges": "Il te reste {amount} CHF après tes charges.",
+  "@budgetSetupResteAfterCharges": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetCardEmptyTitle": "Tes charges fixes, au clair.",
+  "@budgetCardEmptyTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyBody": "Sept postes, deux minutes. Ensuite on calcule ce qu'il te reste vraiment.",
+  "@budgetCardEmptyBody": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyAction": "Poser mes charges",
+  "@budgetCardEmptyAction": {
+    "description": "Budget setup label."
+  },
   "budgetEmptyAction": "Meine Diagnose starten",
   "budgetMonthlyTitle": "Monatsbudget",
   "budgetAvailableThisMonth": "Diesen Monat verfügbar",
@@ -3597,7 +3683,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Sag mir, was dir durch den Kopf geht.",
+  "coachInputHint": "Sag's mir.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4380,8 +4466,8 @@
   "sim3aDisclaimer": "Bildungsschätzung. Die tatsächlichen Einsparungen hängen von deinem Wohnort und deiner Familiensituation ab. Keine Finanzberatung (FIDLEG).",
   "sim3aDebtLockedTitle": "Entschuldung hat Vorrang",
   "sim3aDebtLockedMessage": "Im Schutzmodus sind 3a-Empfehlungen deaktiviert. Priorität ist die Stabilisierung deiner Finanzen vor Einzahlungen in die 3a.",
-  "sim3aDebtStrategyTitle": "Strategie gesperrt",
-  "sim3aDebtStrategyMessage": "3a-Anlagestrategien sind gesperrt, solange du aktive Schulden hast. Schuldenrückzahlung bringt eine höhere Rendite als jede Anlage.",
+  "sim3aDebtStrategyTitle": "Strategie pausiert",
+  "sim3aDebtStrategyMessage": "3a-Anlagestrategien sind pausiert, solange deine aktiven Schulden dein Budget belasten. Empfohlene Reihenfolge: erst stabilisieren, dann anlegen.",
   "realReturnTitle": "Reale Rendite 3a",
   "realReturnPremierEclairageLabel": "Äquivalenter Satz auf Nettoaufwand",
   "realReturnVsNominal": "vs {rate} % Netto-3a-Satz (brutto − Gebühren)",
@@ -5088,6 +5174,7 @@
   "eplSectionImpactPrestations": "Auswirkung auf Leistungen",
   "eplReductionInvalidite": "Invalidenrente Kürzung (jährliche Schätzung)",
   "eplReductionDeces": "Todesfallkapital Kürzung (Schätzung)",
+  "eplReductionAskCaisse": "Bei deiner Pensionskasse erfragen",
   "eplImpactPrestationsNote": "Der WEF-Bezug reduziert proportional deine Risikoleistungen. Erkundige dich bei deiner Pensionskasse nach den genauen Beträgen und Zusatzversicherungen.",
   "eplSectionImpactRente": "Auswirkung auf die Rente",
   "eplRenteSansEpl": "Rente ohne WEF",
@@ -5228,7 +5315,7 @@
   "repaymentTimelinePaiement": "Zahlung",
   "repaymentTimelineSolde": "Restschuld",
   "retroactive3aTitle": "3a Nachholung",
-  "retroactive3aHeroTitle": "3a Nachholung — Neu 2026",
+  "retroactive3aHeroTitle": "3a Nachholung — Neu seit 2025",
   "retroactive3aHeroSubtitle": "Hole bis zu 10 fehlende Beitragsjahre nach",
   "retroactive3aParametres": "Parameter",
   "retroactive3aAnneesARattraper": "Nachzuholende Jahre",
@@ -5534,9 +5621,9 @@
   },
   "reportSafeModePriority": "Priorität: Schuldenabbau",
   "reportSafeModeActions": "Deine Prioritätsmaßnahmen werden durch einen Schuldenabbauplan ersetzt. Stabilisiere deine Situation, bevor du Empfehlungen erkundest.",
-  "reportSafeMode3a": "Der 3a-Vergleich ist deaktiviert, solange du aktive Schulden hast. Die Rückzahlung hat Vorrang vor jeglichem 3a-Sparen.",
-  "reportSafeModeLpp": "BVG-Einkauf gesperrt",
-  "reportSafeModeLppMessage": "Der BVG-Einkauf ist im Schutzmodus deaktiviert. Zahle deine Schulden zurück, bevor du Liquidität in der Vorsorge bindest.",
+  "reportSafeMode3a": "Der 3a-Vergleich ist pausiert, solange deine aktiven Schulden dein Budget belasten. Priorität: Liquidität stabilisieren.",
+  "reportSafeModeLpp": "BVG-Einkauf pausiert",
+  "reportSafeModeLppMessage": "Der BVG-Einkauf ist im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor Liquidität in der Vorsorge gebunden wird.",
   "reportLppTitle": "💰 BVG-Einkauf-Strategie",
   "reportLppEconomie": "Gesamte Steuerersparnis: CHF {amount}",
   "@reportLppEconomie": {
@@ -8843,7 +8930,7 @@
   "portfolioNoData": "Keine Vermögensdaten angegeben.",
   "portfolioRepartitionEnveloppe": "Aufteilung nach Hülle",
   "portfolioReserveFondsUrgence": "Reserviert (Notfallfonds)",
-  "portfolioSafeModeBody": "Allokationsempfehlungen sind im Schutzmodus deaktiviert. Deine Priorität ist der Schuldenabbau vor der Umschichtung.",
+  "portfolioSafeModeBody": "Allokationsempfehlungen sind im Schutzmodus pausiert. Empfohlene Reihenfolge: Schulden abbauen, bevor das Portfolio umgeschichtet wird.",
   "portfolioSafeModeLocked": "Priorität Schuldenabbau",
   "portfolioValeurTotaleNette": "Nettovermögen",
   "proactiveConfidenceUp": "Dein Vertrauen ist seit dem letzten Mal um {delta} Punkte gestiegen.",
@@ -9157,7 +9244,7 @@
   "routeSuggestionCta": "Öffnen",
   "routeSuggestionPartialWarning": "Schätzung — unvollständige Daten",
   "safeModeCta": "Meinen Entschuldungsplan ansehen",
-  "safeModeMessage": "Für deine finanzielle Sicherheit deaktivieren wir erweiterte Optimierungen, solange ein Schuldsignal aktiv ist.",
+  "safeModeMessage": "Solange ein Schuldensignal aktiv ist, sind erweiterte Optimierungen pausiert. Priorität: Liquidität stabilisieren. Der Rest wartet.",
   "safeModeTitle": "Prioritätsfokus",
   "saronCostLabel": "Mehrkosten mit SARON",
   "saronEyebrow": "SARON vs. Festhypothek",
@@ -9727,7 +9814,7 @@
   "cashModeSubtitle": "Wie der Coach mit dir spricht",
   "intensityAdjustedUp": "OK, ich lege einen Zahn zu.",
   "intensityAdjustedDown": "OK, ich nehme es etwas zurück.",
-  "coachSuggestBudget": "Was ist mein realistisches Budget bei der Pensionierung?",
+  "coachSuggestBudget": "Wo geht mein Geld jeden Monat hin?",
   "coachSuggestBudgetGap": "Wie viel fehlt mir pro Monat?",
   "coachSuggestMortgage": "Kann ich mir einen Kauf leisten?",
   "coachSuggestMortgageCapacity": "Wie hoch ist meine Kreditkapazität?",
@@ -9795,12 +9882,43 @@
       "phase": "11-01"
     }
   },
+  "coachOpenerIdentity": "Hallo. Ich bin Mint.",
+  "@coachOpenerIdentity": {
+    "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
+  },
+  "coachOpenerPromise": "Ich verkaufe nichts, ich bewerte nichts, ich vergleiche dich mit niemandem. Ich helfe dir nur, klar zu sehen bei dem, was dir niemand erklären will.",
+  "@coachOpenerPromise": {
+    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+  },
+  "coachOpenerQuestion": "Womit fangen wir an?",
+  "@coachOpenerQuestion": {
+    "description": "First-contact opener closing question."
+  },
+  "coachStarterPaper": "Ein Dokument, das ich nicht verstehe",
+  "@coachStarterPaper": {
+    "description": "Conversation starter chip — routes to scanner."
+  },
+  "coachStarterChoice": "Eine Entscheidung, die ich treffen muss",
+  "@coachStarterChoice": {
+    "description": "Conversation starter chip — life events opener."
+  },
+  "coachStarterCost": "Etwas kostet mich, ich weiss nicht was",
+  "@coachStarterCost": {
+    "description": "Conversation starter chip — budget/fiscal opener."
+  },
+  "coachStarterLurk": "Ich schaue erst mal rum",
+  "@coachStarterLurk": {
+    "description": "Conversation starter chip — dismisses opener without forcing engagement."
+  },
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
   "coachOptInDecline": "Nein, ich komme wenn ich will",
-  "coachSilentOpenerReplacementRate": "Ersatzrate bei Pensionierung",
+  "coachSilentOpenerReplacementRate": "Projizierte Ersatzrate",
   "coachSilentOpenerFitnessScore": "Finanzieller Fitness-Score",
   "coachSilentOpenerRetirementCapital": "Projiziertes Pensionierungskapital",
+  "coachSilentOpenerProjectedCapital": "Projiziertes Kapital auf deinem Horizont",
+  "coachSilentOpenerLppAvoir": "BVG-Guthaben",
+  "coachSilentOpener3aEpargne": "3a-Ersparnis",
   "confidenceLow": "Deine Zahlen sind sehr ungefähr. Füge dein BVG-Zertifikat hinzu für +25%.",
   "confidenceMedium": "Guter Anfang. Scanne deinen AHV-Auszug um deine Beitragsjahre zu bestätigen.",
   "confidenceAction": "Mein BVG-Zertifikat scannen (+25% Genauigkeit)",
@@ -10468,13 +10586,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "Geld. In der Schweiz redet niemand darüber.",
+  "anonymousIntentLine1": "Dein Finanzleben, klar und deutlich.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Kurz und nüchtern — baut das Versprechen 'Wir klären auf. Du entscheidest.' darunter auf."
   },
-  "anonymousIntentLine2": "Nicht mal mit sich selbst.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "Ich zahle, ich unterschreibe, aber ich verstehe nicht alles",
   "@anonymousIntentPill1": {
@@ -10927,5 +11045,45 @@
   "thirdPartyInviteCta": "{name} zu MINT einladen",
   "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
   "thirdPartyInviteComingSoon": "Einladungen folgen bald — wir haben deine Absicht notiert.",
-  "thirdPartyDeclarationNoticeLink": "Ohne Einwilligung kann MINT die Daten einer anderen Person nicht verarbeiten."
+  "thirdPartyDeclarationNoticeLink": "Ohne Einwilligung kann MINT die Daten einer anderen Person nicht verarbeiten.",
+  "monArgentTabTitle": "Mein Geld",
+  "monArgentBudgetTitle": "Dein Budget diesen Monat",
+  "monArgentBudgetEmpty": "Erstelle dein Budget, um zu sehen, wo du diesen Monat stehst.",
+  "monArgentBudgetStart": "Starten",
+  "monArgentBudgetError": "Budget konnte nicht geladen werden.",
+  "monArgentBudgetIncome": "Einnahmen",
+  "monArgentBudgetSpent": "Ausgaben",
+  "monArgentBudgetRemaining": "Übrig",
+  "monArgentRetry": "Erneut versuchen",
+  "monArgentPatrimoineTitle": "Dein Ausgangspunkt",
+  "monArgentPatrimoineEmpty": "Scanne ein Dokument oder sprich mit dem Coach.",
+  "monArgentPatrimoineError": "Daten konnten nicht geladen werden.",
+  "monArgentPatrimoineNet": "Netto",
+  "monArgentPatrimoinePartial": "Ergänze deine Daten für eine vollständige Übersicht.",
+  "monArgentLpp": "2. Säule",
+  "monArgentPillar3a": "Säule 3a",
+  "monArgentEpargne": "Ersparnisse",
+  "monArgentScan": "Scannen",
+  "monArgentEnrichCta": "Ergänze dein Dossier für eine genauere Übersicht",
+  "tabAujourdhui": "Heute",
+  "tabMonArgent": "Mein Geld",
+  "tabExplorer": "Entdecken",
+  "hubRetraite": "Vorsorge & Rente",
+  "hubFamille": "Familie",
+  "hubTravail": "Arbeit & Status",
+  "hubLogement": "Wohnen",
+  "hubFiscalite": "Steuern",
+  "hubPatrimoine": "Vermögen & Erbschaft",
+  "hubSante": "Gesundheit & Schutz",
+  "safeModeWhyBlockedSemantics": "Warum ist das pausiert",
+  "safeModeWhyBlockedTitle": "Warum ist das pausiert",
+  "safeModeWhyBlockedBody": "Im Schutzmodus priorisiert MINT die Liquiditätsstabilisierung vor Steuer- und Vorsorgeoptimierungen.",
+  "safeModeWhyBlockedLink": "Warum ist das pausiert?",
+  "safeModeFormalDesendettementNote": "Diese Auszahlungen bleiben im Rahmen eines formellen Schuldenbereinigungsverfahrens möglich — sprich mit einem Spezialisten.",
+  "scanSummaryLppCertificate": "BVG-Ausweis gescannt",
+  "scanSummary3aAttestation": "Säule-3a-Bescheinigung gescannt",
+  "scanSummaryTaxDeclaration": "Steuererklärung gescannt",
+  "scanSummaryAvsExtract": "AHV-Auszug gescannt",
+  "scanSummaryMortgageAttestation": "Hypothekenbescheinigung gescannt",
+  "scanSummarySalaryCertificate": "Lohnausweis gescannt"
 }

@@ -12,6 +12,7 @@ import 'package:mint_mobile/widgets/premium/mint_amount_field.dart';
 import 'package:mint_mobile/widgets/premium/mint_picker_tile.dart';
 import 'package:mint_mobile/widgets/premium/mint_signal_row.dart';
 import 'package:mint_mobile/widgets/simulators/simulator_card.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 
 /// Swiss CHF formatter with apostrophe grouping.
 String _formatChfSwiss(double value) {
@@ -70,6 +71,28 @@ class _DivorceSimulatorScreenState extends State<DivorceSimulatorScreen> {
 
   // Checklist state
   List<bool> _checklistState = [];
+
+  bool _prefilled = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_prefilled) {
+      _prefilled = true;
+      final profile = context.coachProfileOrNull;
+      if (profile != null) {
+        final gross = profile.salaireBrutMensuel * 12;
+        if (gross > 0) _incomeConjoint1 = gross;
+        final lpp = profile.prevoyance.avoirLppTotal;
+        if (lpp != null && lpp > 0) _lppConjoint1 = lpp;
+        final p3a = profile.prevoyance.totalEpargne3a;
+        if (p3a > 0) _pillar3aConjoint1 = p3a;
+        if (profile.nombreEnfants > 0) {
+          _numberOfChildren = profile.nombreEnfants;
+        }
+      }
+    }
+  }
 
   @override
   void dispose() {

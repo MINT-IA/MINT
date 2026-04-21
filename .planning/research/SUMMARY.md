@@ -1,173 +1,230 @@
-# Project Research Summary
+# SUMMARY — MINT v2.8 "L'Oracle & La Boucle"
 
-**Project:** MINT v2.5 Transformation
-**Domain:** Swiss fintech education app — anonymous hook, premium conversion, behavioral commitment, couple mode, coach intelligence
-**Researched:** 2026-04-12
-**Confidence:** MEDIUM-HIGH
+Synthèse des 4 research files pour informer REQUIREMENTS.md et ROADMAP.md.
 
-## Executive Summary
+## 1. TL;DR
 
-MINT v2.5 transforms working infrastructure (v2.4 fixed plumbing) into a product that hooks, converts, and retains users. The research converges on a clear architecture: an anonymous-first funnel (felt-state pill to premier eclairage in 20 seconds, no auth required), a generous free tier gated by convenience rather than information access, and five behavioral innovations from the expert audit that no competitor implements (implementation intentions, fresh-start anchors, pre-mortem, asymmetric couple mode, provenance journal). The existing stack is remarkably complete — only 3 pubspec changes are needed (RevenueCat replaces raw IAP, flutter_local_notifications upgrade), and zero backend dependencies change.
+v2.8 n'est pas un milestone de features, c'est une intervention chirurgicale. MINT a perdu contact avec la réalité : **388 bare catches silencieux**, oracle absent, agents qui hallucinent, produit qu'on ne peut pas vérifier mécaniquement en <60s. Verdict panel unanime : les outils nécessaires **existent déjà en germe** (Sentry wirée, 12 gates CI, 8 flags, 52 redirect callbacks GoRouter, `tools/e2e_flow_smoke.sh`, SLOMonitor). **v2.8 = activer + assembler + fermer la boucle, pas construire from scratch.**
 
-The recommended approach is a strict 6-phase build ordered by dependency chain: anonymous flow first (unblocks user acquisition), premium gate second (must exist before premium features ship), commitment devices third (foundation for the living timeline), coach provenance fourth (pure backend, enriches all subsequent coach interactions), couple mode fifth (requires provenance and commitment infrastructure), living timeline last (aggregates everything). This order is non-negotiable because each phase's output is a hard dependency for the next. The critical risk is repeating the v2.4 "facade without wiring" pattern — components that compile and pass unit tests but are never connected end-to-end. Every phase must end with a creator device walkthrough, not just green tests.
-
-The biggest threats are: anonymous session orphaning on auth (conversation lost = trust destroyed), Apple App Store rejection for subscription implementation (weeks of delay), LSFin compliance breach via premium gate framing (criminal liability), and couple mode privacy leaks (nLPD violation). All are preventable with the mitigations documented in PITFALLS.md, but they require upfront decisions (RevenueCat vs raw IAP, free/premium line definition, partner data isolation model) made during Phase 1 planning, not mid-sprint.
-
-## Key Findings
-
-### Recommended Stack
-
-The existing stack covers 95% of needs. Net changes: remove `in_app_purchase` + `in_app_purchase_platform_interface`, add `purchases_flutter: ^9.16.0` + `purchases_ui_flutter: ^9.16.0` (RevenueCat), upgrade `flutter_local_notifications` to `^19.0.0`. Zero backend dependency changes.
-
-**Core additions:**
-- **RevenueCat** (`purchases_flutter`): Cross-platform subscriptions (Apple + Google + Web) — replaces 158-line iOS-only IAP service with ~50-line unified service. Free up to $2,500/month MTR. Handles receipt validation, entitlement sync, paywall A/B testing.
-- **flutter_local_notifications ^19.0.0**: Improved iOS exact scheduling reliability — needed for implementation intention reminders. Non-breaking upgrade from ^18.0.1.
-
-**Explicitly NOT adding:** Redis (code is ready but single-instance Railway suffices), Firebase Cloud Messaging (local notifications cover commitment devices), WebSockets (couple mode is asymmetric), riverpod/bloc (Provider is established across 9000+ tests), any timeline library (custom widget matches tension-based UX).
-
-### Expected Features
-
-**Must have (table stakes):**
-- Anonymous first interaction with premier eclairage in under 20 seconds
-- Conversation transfer post-login (anonymous session merges to authenticated user)
-- Clear free vs premium boundary (visible, generous, never gates critical information)
-- Premium paywall via RevenueCat (iOS + Android + Web, 15 CHF/month)
-- Profile data pre-fill from CoachProfile (never ask what MINT already knows)
-
-**Should have (differentiators — from 5-expert audit):**
-- Implementation intentions with WHEN/WHERE/IF-THEN follow-up (d=0.65 effect size, no competitor does this)
-- Fresh-start anchors on personal landmarks (birthday, new job, anniversary — NOT streaks)
-- Pre-mortem before irrevocable decisions (100% LSFin-compliant, zero competitors)
-- Asymmetric couple mode (private questionnaire, one partner only — YNAB/Plenty/Zeta all require both)
-- Provenance journal via coach conversation (tracks who recommended what, conversational not form-based)
-- Implicit earmarking via coach listening (respects mental money separation, zero UI needed)
-
-**Defer to v3.0+:**
-- Full living timeline (tension-based home screen) — start with simplified "3 tensions" card
-- Graduation Protocol (MINT teaches itself out of a job)
-- Dossier Federation (portable open-format dossier)
-- Political Pocket (collective action layer)
-
-### Architecture Approach
-
-Each feature integrates into the existing GoRouter/Provider/FastAPI architecture with minimal new components. The key architectural insight is SEPARATION: anonymous chat gets a separate endpoint (not a flag on authenticated), partner estimates live in CoachProfile (not HouseholdProvider), provenance is backend-only (never synced to Flutter), and premium gates use a single reusable `PremiumGateSheet` (not per-feature paywalls). The architecture adds ~7 new backend components (2 models, 2 services, 2 endpoints, 5 coach tools) and ~8 new Flutter components (1 screen, 3 providers, 3 widgets, 1 model).
-
-**Major components:**
-1. **Anonymous flow**: Separate `POST /api/v1/coach/anonymous` endpoint with reduced tools (READ only), `AnonymousChatScreen` without shell, session claim on auth
-2. **Commitment devices**: `commitment_devices` table + 3 new coach tools (`set_implementation_intention`, `set_fresh_start_anchor`, `set_pre_mortem`) + `CommitmentDeviceProvider` for home screen surfacing
-3. **Couple mode**: `PartnerEstimate` model in CoachProfile (not HouseholdProvider), `capture_partner_data` coach tool, couple-aware calculator wiring
-4. **Coach provenance**: `provenance_tags` table, `save_provenance_tag` internal tool (backend-only, never forwarded to Flutter), injected into coach context window
-5. **Premium gate**: Single `PremiumGateSheet` + `PremiumGateWrapper` components, RevenueCat as source of truth for mobile, Stripe for web
-6. **Living timeline**: `tension_engine` backend service aggregating deadlines/commitments/stale data/profile gaps, `TimelineProvider` driving dynamic home screen cards
-
-### Critical Pitfalls
-
-1. **Facade without wiring (meta-pitfall)**: v2.4 had 32 instances of code that existed but was never connected. Prevention: E2E checklist per feature, grep for zero-import files, mandatory device walkthrough. Applies to ALL phases.
-2. **Anonymous session orphaning**: User's first meaningful interaction vanishes on auth. Prevention: device-level `anon_session_id`, dedicated `POST /auth/claim-session` endpoint, atomic migration including RAG re-indexing.
-3. **Apple App Store rejection**: Subscription implementation rejected for terms visibility, IAP routing, or AI feature explanation. Prevention: RevenueCat abstracts Apple/Google, terms visible before purchase button, AI explained in review notes.
-4. **LSFin compliance breach via premium framing**: Marketing premium as "better advice" triggers FINMA (up to 3 years imprisonment). Prevention: premium gates tools/convenience, never advice quality. Banned copy: "meilleur conseil", "strategie optimale", "recommandations personnalisees".
-5. **Couple mode privacy leak**: Partner A's answers visible to Partner B (nLPD violation). Prevention: data belongs to entering user only, CoachContext never includes raw partner data, ComplianceGuard flags partner-specific reveals.
-
-## Implications for Roadmap
-
-### Phase 1: Anonymous Hook and Auth Bridge
-**Rationale:** This is the user acquisition funnel. Without it, nobody tries MINT. Every subsequent feature depends on having users.
-**Delivers:** Anonymous backend endpoint (3-turn limit), `AnonymousChatScreen`, `RouteScope.anonymous`, conversation claim on auth, premier eclairage in under 20 seconds.
-**Addresses:** Anonymous first interaction (table stakes), conversation transfer (table stakes)
-**Avoids:** Session orphaning (Pitfall 2), rate limiting killing the hook (Pitfall 9), conversation context lost post-auth (Pitfall 10)
-**Decision required:** Free/premium line definition (impacts all subsequent phases)
-
-### Phase 2: Premium Gate
-**Rationale:** Must exist before shipping any premium features (commitment devices, couple mode). Also: App Store Connect product setup takes 24-48h, so start early.
-**Delivers:** `PremiumGateSheet` + `PremiumGateWrapper`, RevenueCat integration (replace raw IAP), `FreeTrialBanner`, gates wired on existing screens.
-**Addresses:** Clear free vs premium line (table stakes), premium paywall (table stakes)
-**Avoids:** App Store rejection (Pitfall 3), webhook race conditions (Pitfall 4), LSFin framing violation (Pitfall 6), emergency info blocked (Pitfall 16), dual billing conflict (Pitfall 11)
-**Uses:** RevenueCat (`purchases_flutter: ^9.16.0`)
-
-### Phase 3: Commitment Devices
-**Rationale:** Foundation for the living timeline. Coach needs WRITE tools before the home screen can show commitment-driven tension cards. Also: the behavioral moat — no competitor does this.
-**Delivers:** `commitment_devices` table + migration, 3 new coach tools, `CommitmentDeviceProvider`, commitment cards on home screen, `flutter_local_notifications ^19.0.0` upgrade.
-**Addresses:** Implementation intentions (differentiator), fresh-start anchors (differentiator), pre-mortem (differentiator)
-**Avoids:** Notification permission fatigue (Pitfall 7), implementation intentions not persisted (Pitfall 12), fresh-start timezone bugs (Pitfall 13), pre-mortem anxiety (Pitfall 14)
-
-### Phase 4: Coach Provenance and Relational Intelligence
-**Rationale:** Pure backend work with zero Flutter changes. Once deployed, the coach immediately starts capturing provenance and earmarks in every conversation. Must exist before couple mode (partner's money tagging benefits from provenance).
-**Delivers:** `provenance_tags` table, `save_provenance_tag` internal tool, `coach_context_builder` injection, implicit earmarking via coach listening.
-**Addresses:** Provenance journal (differentiator), implicit earmarking (differentiator)
-**Avoids:** Provenance feeling like interrogation (Pitfall 15)
-
-### Phase 5: Couple Mode Dissymetrique
-**Rationale:** Requires provenance infrastructure (Phase 4) and commitment devices (Phase 3) to deliver the full couple experience. Also needs premium gate (Phase 2) since couple mode is a premium feature.
-**Delivers:** `PartnerEstimate` model, `CoupleProjectionService`, `capture_partner_data` coach tool, couple-aware AVS/LPP/tax calculations, "5 questions to ask your partner" output.
-**Addresses:** Asymmetric couple mode (differentiator)
-**Avoids:** Partner data isolation failure (Pitfall 5)
-
-### Phase 6: Living Timeline (Simplified)
-**Rationale:** Aggregates ALL previous features — commitment cards, stale data, trial status, profile gaps. Must come last because it renders outputs from every other phase.
-**Delivers:** `tension_engine` backend, `tensions` endpoint, `TimelineProvider`, `TensionCard` widgets, refactored `LandingScreen` driven by dynamic tension list.
-**Addresses:** Tension-based home screen direction (simplified "3 tensions" card, not full timeline)
-**Avoids:** Performance death on older devices (Pitfall 8), static widget list anti-pattern
-
-### Phase Ordering Rationale
-
-- **Dependency-driven**: Each phase's output is consumed by subsequent phases. Anonymous flow produces users, premium gate classifies them, commitment devices create actionable data, provenance enriches context, couple mode uses all of the above, timeline renders everything.
-- **Risk front-loading**: The two highest-risk phases (anonymous flow with session migration, premium gate with Apple review) come first. If either fails, discovery happens early, not at the end.
-- **Value delivery**: Phase 1 alone delivers a testable anonymous hook. Phase 1+2 delivers a monetizable product. Phase 1+2+3 delivers the behavioral moat. Each phase is independently valuable.
-- **One-person team constraint**: Phases are sized at 2-4 days each (estimated 15-20 days total). Each phase has a clear "done" signal that can be device-tested.
-
-### Research Flags
-
-Phases likely needing deeper research during planning:
-- **Phase 1 (Anonymous flow):** Session migration edge cases, RAG re-indexing strategy, rate limit tuning — needs `/gsd-research-phase`
-- **Phase 2 (Premium gate):** RevenueCat integration specifics, App Store Connect setup, entitlement sync with existing billing_service — needs `/gsd-research-phase`
-- **Phase 5 (Couple mode):** Partner data model design, couple calculator wiring, dissymmetric vs symmetric data boundary — needs `/gsd-research-phase`
-
-Phases with standard patterns (skip research-phase):
-- **Phase 3 (Commitment devices):** Well-documented SQLAlchemy model + coach tool pattern, notification scheduling is established
-- **Phase 4 (Coach provenance):** Pure backend, follows existing internal tool pattern exactly
-- **Phase 6 (Living timeline):** Provider + widget pattern, tension engine is a standard priority-sorted query
-
-## Confidence Assessment
-
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Stack | HIGH | Existing stack nearly complete. RevenueCat is industry standard. Changes are minimal and well-documented. |
-| Features | MEDIUM | Feature list is strong but no direct Swiss fintech education precedent exists. Competitor patterns are extrapolated from adjacent domains (Cleo, YNAB, Headspace). |
-| Architecture | HIGH | Every integration point verified against actual codebase. Component boundaries are clear. Build order is dependency-driven. |
-| Pitfalls | HIGH | Codebase-verified (v2.4 audit findings are direct evidence). Regulatory pitfalls confirmed against statutory law (LSFin, nLPD). |
-
-**Overall confidence:** MEDIUM-HIGH
-
-### Gaps to Address
-
-- **Conversion rate benchmarks**: No data on what anonymous-to-auth conversion rate to expect for a Swiss fintech education app. Will need to instrument and measure in Phase 1.
-- **RevenueCat migration path**: Existing `ios_iap_service.dart` has 158 lines of StoreKit ceremony. Migration to RevenueCat needs careful testing to ensure no existing Apple sandbox accounts are disrupted.
-- **Couple mode data model**: The boundary between `CoachProfile.partnerEstimate` (dissymmetric) and `HouseholdProvider` (symmetric Couple+ tier) needs an ADR before implementation.
-- **Tension scoring algorithm**: How to rank and order tensions on the home screen (urgency vs importance vs recency) is not yet defined. Needs design during Phase 6 planning.
-- **Premium pricing validation**: 15 CHF/month is assumed but untested. RevenueCat's paywall A/B testing should be used to validate before hard-committing.
-
-## Sources
-
-### Primary (HIGH confidence)
-- Codebase analysis: `app.dart`, `auth.py`, `coach_chat.py`, `billing.py`, `ios_iap_service.dart`, `notification_service.dart`, `subscription_service.dart` — direct code verification
-- `.planning/architecture/13-AUDIT.md` — 5-expert audit (game designer, screenwriter, behavioral economist, sociologist, philosopher)
-- `.planning/architecture/14-INFRA-AUDIT-FINDINGS.md` — v2.4 infrastructure audit (32 findings)
-- LSFin art. 44, nLPD — Swiss statutory law
-- [Apple App Store Review Guidelines](https://developer.apple.com/app-store/review/guidelines/)
-
-### Secondary (MEDIUM confidence)
-- [RevenueCat State of Subscription Apps 2026](https://www.revenuecat.com/state-of-subscription-apps/) — conversion benchmarks
-- [purchases_flutter on pub.dev](https://pub.dev/packages/purchases_flutter) — v9.16.1
-- [flutter_local_notifications on pub.dev](https://pub.dev/packages/flutter_local_notifications) — v19.5.0
-- [Gollwitzer 1999 implementation intentions meta-analysis](https://pubsonline.informs.org/doi/10.1287/mnsc.2014.1901) — d=0.65
-- [Dai/Milkman/Riis 2014 Fresh Start Effect](https://pubsonline.informs.org/doi/10.1287/mnsc.2014.1901) — temporal landmarks
-- [Klein 2007 Pre-mortem](https://www.researchgate.net/publication/3229642_Performing_a_Project_Premortem)
-- Competitor analysis: Cleo, YNAB, Wealthfront, Headspace, Plenty, stickK/Beeminder
-
-### Tertiary (LOW confidence)
-- Premium pricing (15 CHF/month) — untested assumption, needs A/B validation
-- Anonymous-to-auth conversion rate expectations — no Swiss fintech education precedent
+**La boucle inverse (ce qu'on ne fait PAS)** : 0 feature produit, 0 nouveau vendor (Datadog/LaunchDarkly/Amplitude refusés), 0 migration Dio, 0 OTel, 0 Patrol/Maestro, 0 Firebase Remote Config.
 
 ---
-*Research completed: 2026-04-12*
-*Ready for roadmap: yes*
+
+## 2. Stack additions (pin sheet)
+
+Versions exactes vérifiées pub.dev / PyPI / GitHub 2026-04 — deep-dive [STACK.md](STACK.md).
+
+| Dep | Current | v2.8 | Scope |
+|-----|---------|------|-------|
+| `sentry_flutter` | `^8.0.0` | **9.14.0** | mobile (Replay GA) |
+| `go_router` | `^13.2.0` | **14.8.1** | mobile (refreshListenable) |
+| `sentry-sdk[fastapi]` | `>=2.0.0,<3.0.0` | **==2.53.0** (pin exact) | backend |
+| lefthook | — | **2.1.5** | repo (brew) |
+| sentry-cli | — | **2.43.0** | dev host |
+| idb-companion | — | **1.1.8** | dev host (brew fb tap) |
+| fb-idb | — | **1.1.7** | dev host |
+
+**Bundle delta:** +~1.2 MB IPA / +~800 KB AAB (Replay native chunk).
+**Dev-loop:** +~600ms cold-start first-install (one-time).
+**Deferred v2.9+:** sentry_dio / Dio migration, OpenTelemetry FastAPI, screenshot pixel diff.
+
+---
+
+## 3. Feature table stakes (must ship v2.8)
+
+Par phase — deep-dive [FEATURES.md](FEATURES.md).
+
+**Phase 31 Instrumenter — LOW/MED**
+- Sentry Replay Flutter avec `maskAllText=true` + `maskAllImages=true` (nLPD non-négociable)
+- Global error boundary 3-prongs (`FlutterError.onError` + `PlatformDispatcher.onError` + `Isolate.addErrorListener`)
+- Global exception handler FastAPI fail-loud (trace_id + event_id dans response)
+- `SentryNavigatorObserver` sur GoRouter
+- Breadcrumb custom sur `ComplianceGuard`, `save_fact`, `FeatureFlags.refresh`
+- Trace_id round-trip via headers manuels sur `http` existant (pas Dio)
+
+**Phase 32 Cartographier — LOW**
+- Route manifest codegen depuis GoRouter source (147 routes + 52 redirect callbacks)
+- `/admin/routes` dashboard dev-only (compile `ENABLE_ADMIN=1` + runtime `AdminProvider.isAllowed`)
+- Data join : registry × Sentry Issues API × FeatureFlags × last-visited breadcrumbs
+- `tools/checks/route_registry_parity.py` lint CI
+
+**Phase 33 Kill-switches — MED**
+- Middleware GoRouter `requireFlag()` via `redirect` callback (insertion BEFORE auth guard à app.dart:177-261)
+- Extension `FeatureFlags` → `ChangeNotifier` + `refreshListenable` (hot-reload sans restart)
+- **Convergence 2 flag systems backend** : env-backed `FeatureFlags` (read) + Redis `FlagsService` (write) — route flags live in Redis, surface via `/config/feature-flags`
+- Admin `/admin/flags` 1-clic (`PATCH /admin/flags/{name}`)
+- Flag-group pattern (`enableExplorerRetraite` couvre 6 routes, évite flag rot)
+
+**Phase 34 Agent Guardrails — MED**
+- lefthook.yml pre-commit local (parallel, <5s target)
+- 5 nouveaux lints Python dans `tools/checks/` : `no_bare_catch.py`, `no_hardcoded_fr.py`, `accent_lint_fr.py`, `arb_parity.py`, `proof_of_read.py`
+- Ban `--no-verify` → `LEFTHOOK_BYPASS=1` grep-able
+- CI thinning : les 12 gates existants deviennent lefthook-first, CI garde heavy gates seulement (full test suites, readability, WCAG, PII, contracts, migrations)
+
+**Phase 35 Boucle Daily — MED**
+- `tools/dogfood/mint-dogfood.sh` : simctl iPhone 17 Pro, 8-step scenario, ~10 min unattended
+- `xcrun simctl` primary + `idb` fallback (accessibility tree queries)
+- Pull Sentry events last 15 min via `sentry-cli api`
+- Auto-PR si ≥1 P0 ou ≥3 P1 (pas spam)
+- `tools/dogfood/render_report.py` génère `.planning/dogfood/YYYY-MM-DD.md`
+
+**Phase 36 Finissage E2E — HIGH**
+- **P0-UUID** : fix backend UUID profile crash (`services/backend/app/schemas/profile.py`)
+- **P0-ANON** : one-line fix LandingScreen CTA `/coach/chat` → `/anonymous/chat`
+- **P0-SAVEFACT** : backend `save_fact` tool → mobile `CoachProfile` reactive invalidation
+- **P0-COACHTAB** : Coach tab routing stale fix
+- **388 bare catches → 0** : classification-first + batched 20/PR, backend 56 d'abord, mobile 332 après
+- **P0-MINTSHELL** : ARB parity audit 6 langues (labels DÉJÀ i18n-wired, pas rewrite — MEMORY.md était stale)
+- Accents 100% (lint gate green)
+- 23 redirects legacy : instrumenter analytics 32.4, sunset v2.9+ (PAS suppression v2.8)
+
+---
+
+## 4. Feature differentiators (descopable, ordre de sacrifice)
+
+Si budget serre, coupe dans cet ordre — deep-dive [FEATURES.md](FEATURES.md) §J.
+
+1. **Circuit breaker auto-off Sentry-threshold** (Phase 33 C5) — réutilise SLOMonitor mais non-critique v2.8
+2. **Heatmap user paths** (Phase 32 B4) — stats agrégées, nice-to-know pas must
+3. **Screenshot thumbnail refresh nightly** (Phase 32 B5) — static shots OK v2.8
+4. **Proof-of-read via Agent SDK** (Phase 34 D6) — git prepare-commit-msg existe à défaut
+5. **Screenshot diff J-1 vs J** (Phase 35 E7) — defer v2.9
+6. **Replay auto-tuning sample rate** (Phase 35 E6) — hardcoded 0.05 OK
+7. **Breadcrumb custom ComplianceGuard** (Phase 31 A7) — Sentry auto-capture suffit
+8. **Custom spans sur 4 appels LLM** (Phase 31 A8) — default Sentry tracing suffit
+9. **Performance budget par route** (Phase 33 C6) — LCP/TTI seulement si Flutter-web activé
+
+---
+
+## 5. Architecture — intégrations critiques
+
+Deep-dive [ARCHITECTURE.md](ARCHITECTURE.md).
+
+**3-prong error boundary (pas runZonedGuarded)** — patch [apps/mobile/lib/main.dart](apps/mobile/lib/main.dart) BEFORE `SentryFlutter.init` :
+
+```dart
+FlutterError.onError = (details) => FlutterError.presentError(details);
+PlatformDispatcher.instance.onError = (error, stack) => true;
+Isolate.current.addErrorListener(RawReceivePort((pair) async {
+  final err = (pair as List);
+  await Sentry.captureException(err.first, stackTrace: err.last);
+}).sendPort);
+```
+
+**Trace_id round-trip** — headers manuels sur `http: ^1.2.0` existant (pas Dio migration) :
+
+```dart
+'sentry-trace': span.toSentryTrace().value,
+'baggage': span.toBaggageHeader()?.value ?? '',
+```
+
+Backend `sentry-sdk[fastapi]` lit auto → cross-project link dans Sentry UI.
+
+**FeatureFlags refactor** — `ChangeNotifier` + static getters proxy (0 consumer change, 1-2h) → `GoRouter(refreshListenable: FeatureFlags.instance)` déclenche redirect live sur flip.
+
+**Findings importants du panel** :
+- **MintShell labels DÉJÀ i18n-wired** ([apps/mobile/lib/widgets/mint_shell.dart:50-65](apps/mobile/lib/widgets/mint_shell.dart)) utilisent `l.tabAujourdhui`, `l.tabMonArgent`, etc. MEMORY.md était stale. **P0-MINTSHELL = audit ARB parity, pas rewrite.**
+- **Anonymous flow = one-line fix** — `/anonymous/chat` + `AnonymousChatScreen` existent. Bug = LandingScreen CTA pointe `/coach/chat` (auth-gated). Bug de 10 secondes à fixer.
+- **2 flag systems backend coexistent** — env-backed `FeatureFlags` (read, `/config/feature-flags`) + Redis-backed `FlagsService` (write, `set_global()`, dogfood). Phase 33 DOIT les converger : route flags vivent Redis via FlagsService, surfacent via endpoint existant. **N'INVENTE PAS UN 3E.**
+- **SLOMonitor est déjà le primitive auto-rollback généralisable** — hardcode actuel `COACH_FSM_ENABLED`. Phase 33.5 = conversion vers registre `{flag, metric, threshold, window, breach_streak}`. Phase 27 devient fondation Phase 33.
+- **CI a 10 grep-style gates déjà** — Phase 34 les déplace vers lefthook pre-commit (<5s feedback). CI thinning = ~2 min réduction CI time.
+- **Existing `redirect:` callback à app.dart:177-261** = single insertion point Phase 33. `requireFlag()` check BEFORE existing scope switch. Zéro structural change.
+
+---
+
+## 6. Build order (dependency graph)
+
+**31 → 34 → (32 ∥ 33) → 35 → 36**
+
+- **31 d'abord** : taproot obligatoire, débloque tout le reste. Partial instrumentation (Replay sans traceparent) = 40% value + false confidence. **Tout ou rien.**
+- **34 en parallèle de 31** : guardrails protègent les phases suivantes. Peut shipper avant 32/33.
+- **32 ∥ 33 en parallèle** : disjoint concerns (cartographie vs kill-switch). Mais **lefthook de 34 doit être en place avant les deux**.
+- **35 après 31+32+33** : dogfood a besoin oracle + carte + kill-switches.
+- **36 dernier** : finissage utilise tous les outils précédents. **Budget 2-3 sem MINIMUM, non-empruntable.**
+
+**Edge critique** : **34.1 (lefthook install) → 34.3 (bare-catch lint actif) → 36.4 (fix 388 catches)**. Sans le lint qui bloque les nouveaux catches AVANT la migration, converger à 0 = moving target (agents introduisent 3 catches pendant qu'on en fixe 5).
+
+---
+
+## 7. Watch Out For (top 10 pitfalls)
+
+Deep-dive [PITFALLS.md](PITFALLS.md) — 36 pitfalls phase-specific + 4 meta.
+
+1. **PII leak Sentry Replay** (A1) — `maskAllText` désactivé accidentellement sur un screen sensible = violation nLPD + LSFin art. 7-10. **Audit manuel PII redaction AVANT flip prod flag**, artefact `.planning/research/SENTRY_REPLAY_REDACTION_AUDIT.md` obligatoire.
+2. **Déjà-vu pattern** (G1) — v2.4 "Fondation", v2.6 "Coach Qui Marche", v2.7 "Stabilisation" tous censés finir → v2.8 risque devenir prélude v2.9. **Kill-policy écrite PROJECT.md AVANT Phase 31** : "si v2.8 échoue, on kill features, on ne crée pas v2.9 stabilisation".
+3. **Budget tilt vers 31-34** (G2) — dashboards séduisants, 35-36 délivrent user-visible. **Budget dur par phase, Phase 36 non-empruntable.**
+4. **Dogfood fatigue** (E1) — mourir en 2 semaines sans discipline. **Hard-cap 10 min, creator-device weekly reste gold standard.**
+5. **Flag rot** (C4) — 20 flags v2.8 → 100 en 6 mois → 0 jamais supprimés = nouveau code mort. **Expiration date + owner + monthly cleanup obligatoires.**
+6. **Auto-migration 388 catches dangereuse** (F2) — script auto `logger.error + rethrow` casse fallback UX intentionnels. **Classification-first + batched 20/PR + flag rollback par batch.**
+7. **`--no-verify` abuse** (D2) — gates théâtre si lefthook >10s. **Cible <5s absolu, monitor via post-commit hook, alerte si >3/sem → gate trop strict.**
+8. **Screen board qui ment** (B1) — "last verified" stale → signal pollué. **Auto-refresh nightly, alerte si >7j, fail CI si snapshot >14j.**
+9. **Scope creep "fix + add"** (G3) — user voit route jaune → demande nouvelle feature → milestone dérive. **Règle 0 feature nouvelle scellée par ADR + décision écrite.**
+10. **Over-instrumentation** (A6) — si tout tracké, rien actionnable. **5-10 user journeys critiques instrumentés finement, reste default rates.**
+
+---
+
+## 8. Meta-decisions à sceller AVANT Phase 31
+
+Non-négociables, à écrire dans PROJECT.md Key Decisions avant le premier commit de code :
+
+- **Kill-policy** : "Si v2.8 exits unmet, on kill features, on ne crée pas v2.9 stabilisation." → ADR
+- **Budget dur par phase** (solo-dev cadence v2.4-v2.7) :
+  - Phase 31 : 1.5 sem
+  - Phase 34 : 1.5 sem (parallèle 31)
+  - Phase 32 : 1 sem
+  - Phase 33 : 1 sem (parallèle 32)
+  - Phase 35 : 1 sem
+  - **Phase 36 : 2-3 sem MINIMUM, non-empruntable**
+- **Sentry Replay PII redaction audit artefact obligatoire** avant flip prod flag sessionSampleRate>0
+- **1 dashboard consolidé** `/admin/health` (pas 5-7 surfaces séparées) — measurement tyranny = tout mesurer ≠ tout améliorer
+- **Binary-per-route flags seulement** (pas cohort/percentage, complexité inutile pour MINT solo)
+- **Redirects legacy : instrumenter analytics Phase 32, sunset v2.9+ après 30-day zero-traffic validation** (PAS suppression v2.8)
+
+---
+
+## 9. Open questions pour roadmapper/planner
+
+À résoudre day-1 de chaque phase (pas blocker research, mais pre-coding check) :
+
+- **Phase 31 D1** : Sentry pricing fresh fetch (sentry.io/pricing — training data stale)
+- **Phase 31 D2** : Railway/Cloudflare header propagation test — `curl -H "sentry-trace: xxx" mint-staging.up.railway.app/health` → le header survit-il ?
+- **Phase 31 D3** : HTTP client exact dans [apps/mobile/lib/services/api_service.dart](apps/mobile/lib/services/api_service.dart) — `http` vs Dio vs custom (conditionne A.4 approach)
+- **Phase 31 D4** : Sentry EU data residency confirmée dans org settings (nLPD bloquant)
+- **Phase 32 D5** : GCS bucket vs Sentry attachments pour screenshots (decision Phase 32 day 1)
+- **Phase 34 D6** : `.claude/agent-proof.json` writer existe-t-il ? Si non, Phase 34.6 ship le writer ensemble
+- **Phase 36 D7** : `responseMeta.profileInvalidated` field dans canonical OpenAPI — verify avant planning P0-SAVEFACT
+- **Pre-milestone** : Redirect 30-day dark period — démarrer Phase 32 entry ou Phase 31 (earlier = plus de data window Phase 36)
+
+---
+
+## 10. Fintech SF precedent (1 ligne par phase)
+
+| Phase | Precedent | Source |
+|-------|-----------|--------|
+| 31 Replay | **Cash App / Block** Session Replay mobile | Sentry case study 2024 + Block engineering blog |
+| 31 Trace_id | **Stripe Atlas mobile → API** distributed tracing, **Ramp iOS MTTR** | Sentry case studies |
+| 31 Error boundary | **Stripe Issuing iOS**, **Brex mobile** | industry-standard post-2023 (MEDIUM confidence) |
+| 32 Registry-as-code | **Linear** staff-email-gated debug routes | engineering talks (LOW confidence specifics) |
+| 33 Home-grown flags | **Monzo `flipr`** (Go), **Stripe `flagon`** (interne) | published references |
+| 34 lefthook | **JAX (Google)** migration mars 2026, **Evil Martians** | `jax-ml/jax#32846`, author portfolio |
+| 34 Custom lints | **Ramp** pre-commit, **Stripe `dirtytree`** | engineering blog 2024, 2019 OSS |
+| 35 Dogfood bot | **Cash App "shakebot"**, **Airbnb first-run tour**, **Linear Friday** | QCon 2023, public blogs |
+| 36 Bare-catch cleanup | **Stripe** "no silent swallows" linter | engineering blog 2022 |
+
+---
+
+## Confidence
+
+| Domaine | Niveau | Gap |
+|---------|--------|-----|
+| Stack versions | **HIGH** | Vérifiés pub.dev / PyPI / GitHub 2026-04 |
+| Architecture intégrations | **HIGH** | Cross-vérifié fichier par fichier codebase réel |
+| Features périmètre | **HIGH** | Chiffres codebase (147 routes, 12 gates, 388 catches, 52 redirects) |
+| Pitfalls MINT-specific | **HIGH** | Grounded MEMORY.md, PROJECT.md, doctrine (no_shortcuts, facade_sans_cablage) |
+| Pitfalls attribution fintech | **MEDIUM** | Practices internes HIGH, sources externes training-data based |
+| Sentry pricing/quotas | **LOW** | Fresh fetch day-1 Phase 31 obligatoire |
+| Railway/Cloudflare proxy behavior | **LOW** | Test curl staging avant A.4 coding |
+
+**Overall : MEDIUM-HIGH.** Les 2 LOW sont des vérifications <30 min à faire avant tout codage sur les sujets concernés.
+
+**Ready for roadmap.** 4 research files + SUMMARY.md disponibles. Roadmapper peut procéder à la définition des requirements et du roadmap phases 31-36.

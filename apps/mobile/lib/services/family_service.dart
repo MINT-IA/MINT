@@ -37,8 +37,50 @@ class FamilyService {
   /// Insurance deduction — single person.
   static const double deductionAssuranceCelibataire = 1800.0;
 
-  /// Deduction per child (LIFD art. 35 al. 1 let. a).
+  /// Deduction per child — federal (LIFD art. 35 al. 1 let. a, 2025 value).
   static const double deductionParEnfant = 6700.0;
+
+  /// Deduction per child — cantonal (LHID art. 9 al. 2 let. c).
+  /// AFC "Charge fiscale en Suisse 2024" tables, rounded to CHF 100.
+  /// When a canton is absent from the map, fall back to the federal
+  /// value (conservative — cantonal is almost always higher).
+  static const Map<String, double> deductionParEnfantCantonal = {
+    'GE': 13000.0,
+    'VD': 11000.0,
+    'NE': 9500.0,
+    'JU': 9500.0,
+    'FR': 9100.0,
+    'VS': 7450.0,
+    'TI': 11100.0,
+    'ZH': 9000.0,
+    'BE': 8000.0,
+    'BS': 7800.0,
+    'LU': 6700.0,
+    'ZG': 12000.0,
+    'SG': 10200.0,
+    'AG': 7000.0,
+    'TG': 7000.0,
+    'GR': 6500.0,
+    'SO': 6000.0,
+    'BL': 7500.0,
+    'SH': 8400.0,
+    'SZ': 9000.0,
+    'NW': 6500.0,
+    'OW': 6800.0,
+    'UR': 8000.0,
+    'AR': 6500.0,
+    'AI': 6000.0,
+    'GL': 7000.0,
+  };
+
+  /// Full child deduction (federal + cantonal) for a given canton. Used
+  /// by tax-projection services to avoid the outdated 6'500 CHF flat that
+  /// ignored the cantonal portion (Wave 7 fiscal audit P0-R4).
+  static double totalChildDeduction(String canton) {
+    final cantonCode = canton.isNotEmpty ? canton.toUpperCase() : '';
+    final cantonal = deductionParEnfantCantonal[cantonCode] ?? deductionParEnfant;
+    return deductionParEnfant + cantonal;
+  }
 
   /// Maximum childcare deduction (LIFD art. 33 al. 3).
   static const double deductionGardeMax = 25500.0;

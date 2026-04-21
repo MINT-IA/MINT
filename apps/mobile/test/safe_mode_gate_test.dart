@@ -137,7 +137,7 @@ void main() {
       expect(find.text('Rembourse tes dettes en priorite.'), findsOneWidget);
     });
 
-    testWidgets('shows "Pourquoi est-ce bloque ?" link', (tester) async {
+    testWidgets('shows "Pourquoi est-ce en pause ?" link', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           locale: Locale('fr'),
@@ -157,7 +157,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Pourquoi est-ce bloqué ?'), findsOneWidget);
+      // ARB key safeModeWhyBlockedLink updated in Change 3: "bloqué" → "en pause"
+      expect(find.text('Pourquoi est-ce en pause\u00a0?'), findsOneWidget);
     });
 
     testWidgets('shows lock icon when gated', (tester) async {
@@ -482,6 +483,13 @@ void main() {
       expect(titles, contains(sFr.lifeEventSugAchatImmo));
     });
 
+    // TODO(safe-mode): test that gate fires when Signal A triggers isInDebtCrisis
+    // TODO(safe-mode): test that gate fires when Signal B triggers isInDebtCrisis
+    // TODO(safe-mode): test that gate fires when Signal C triggers isInDebtCrisis
+    // TODO(safe-mode): test that reasons list is shown in why-blocked sheet
+    // TODO(safe-mode): test that ctaRoute navigates to désendettement screen
+    // TODO(safe-mode): test that gate clears when isInDebtCrisis becomes false (reactive)
+
     test('canton move suggested for high-tax cantons (GE, VD, NE, JU, BE, BS)',
         () {
       const highTaxCantons = ['GE', 'VD', 'NE', 'JU', 'BE', 'BS'];
@@ -523,5 +531,87 @@ void main() {
         reason: 'Low-tax canton ZG should not trigger canton move suggestion',
       );
     });
+  });
+
+  // ────────────────────────────────────────────────────────────
+  // GROUP 4: SafeModeGate smoke tests — hasDebt → gate contract
+  // ────────────────────────────────────────────────────────────
+  group('SafeModeGate — debt-crisis smoke tests', () {
+    testWidgets('smoke: hasDebt false → optimization child visible', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: Scaffold(
+            body: SafeModeGate(
+              hasDebt: false,
+              child: Text('3a optimization content'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('3a optimization content'), findsOneWidget);
+      expect(find.byIcon(Icons.lock_person), findsNothing);
+    });
+
+    testWidgets('smoke: hasDebt true → optimization child hidden, lock shown', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: Scaffold(
+            body: SafeModeGate(
+              hasDebt: true,
+              child: Text('LPP optimization content'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('LPP optimization content'), findsNothing);
+      expect(find.byIcon(Icons.lock_person), findsOneWidget);
+    });
+
+    testWidgets('smoke: reasons list rendered in gate body', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          locale: Locale('fr'),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          home: Scaffold(
+            body: SafeModeGate(
+              hasDebt: true,
+              reasons: ['LP art. 5 — retrait possible malgré les dettes'],
+              child: Text('EPL content'),
+            ),
+          ),
+        ),
+      );
+      expect(find.text('LP art. 5 — retrait possible malgré les dettes'), findsOneWidget);
+      expect(find.text('EPL content'), findsNothing);
+    });
+
+    // TODO(safe-mode): test that gate fires when Signal A triggers isInDebtCrisis
+    // TODO(safe-mode): test that gate fires when Signal B triggers isInDebtCrisis
+    // TODO(safe-mode): test that gate fires when Signal C triggers isInDebtCrisis
+    // TODO(safe-mode): test that ctaRoute navigates to désendettement screen
+    // TODO(safe-mode): test that gate clears when isInDebtCrisis becomes false (reactive)
+    // TODO(safe-mode): test that AgentTaskType.lppCertificateRequest blocked in SafeMode
   });
 }

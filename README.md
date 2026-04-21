@@ -18,3 +18,9 @@ Voir `AGENTS.md` pour le workflow.
 ## CI/CD
 Documentation complete: `docs/CICD_ARCHITECTURE.md`.
 
+## Developer Tools
+
+- **mint-routes** — route registry health CLI (Phase 32 MAP-02a). See
+  [docs/SETUP-MINT-ROUTES.md](docs/SETUP-MINT-ROUTES.md) for Keychain
+  setup + Sentry token scope + troubleshooting.
+

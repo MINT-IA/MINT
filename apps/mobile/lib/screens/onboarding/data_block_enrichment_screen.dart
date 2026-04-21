@@ -114,7 +114,7 @@ class _DataBlockEnrichmentScreenState
                 onToggle: (value) {
                   if (value) {
                     // Navigate to coach chat with structured topic
-                    context.push('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
+                    context.go('/coach/chat?topic=${Uri.encodeComponent(canonicalBlockType)}');
                   } else {
                     setState(() => _showCoachMode = false);
                   }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/profile_drawer.dart';
 
-/// Persistent 3-tab shell: Aujourd'hui | Coach | Explorer.
+/// Persistent 4-tab shell: Aujourd'hui | Mon argent | Coach | Explorer.
 ///
-/// Wire Spec V2 — Shell scaffold with Material 3 NavigationBar and
+/// Navigation V11 — Shell scaffold with Material 3 NavigationBar and
 /// ProfileDrawer mounted as endDrawer. Each tab preserves state via
 /// [StatefulShellRoute.indexedStack].
 class MintShell extends StatelessWidget {
@@ -31,31 +32,41 @@ class MintShell extends StatelessWidget {
     return Scaffold(
       body: navigationShell,
       endDrawer: const ProfileDrawer(),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: (index) => navigationShell.goBranch(
-          index,
-          initialLocation: index == navigationShell.currentIndex,
-        ),
-        backgroundColor: MintColors.craie,
-        indicatorColor: MintColors.success.withValues(alpha: 0.12),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.today_outlined),
-            selectedIcon: Icon(Icons.today, color: MintColors.success),
-            label: "Aujourd'hui",
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble, color: MintColors.success),
-            label: 'Coach',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore, color: MintColors.success),
-            label: 'Explorer',
-          ),
-        ],
+      bottomNavigationBar: Builder(
+        builder: (ctx) {
+          final l = S.of(ctx)!;
+          return NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: (index) => navigationShell.goBranch(
+              index,
+              initialLocation: index == navigationShell.currentIndex,
+            ),
+            backgroundColor: MintColors.craie,
+            indicatorColor: MintColors.success.withValues(alpha: 0.12),
+            destinations: [
+              NavigationDestination(
+                icon: const Icon(Icons.today_outlined),
+                selectedIcon: const Icon(Icons.today, color: MintColors.success),
+                label: l.tabAujourdhui,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.savings_outlined),
+                selectedIcon: const Icon(Icons.savings, color: MintColors.success),
+                label: l.tabMonArgent,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.chat_bubble_outline),
+                selectedIcon: const Icon(Icons.chat_bubble, color: MintColors.success),
+                label: l.tabCoach,
+              ),
+              NavigationDestination(
+                icon: const Icon(Icons.explore_outlined),
+                selectedIcon: const Icon(Icons.explore, color: MintColors.success),
+                label: l.tabExplorer,
+              ),
+            ],
+          );
+        },
       ),
     );
   }

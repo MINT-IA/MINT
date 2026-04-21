@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
+import 'package:mint_mobile/widgets/future_builder_safe.dart';
 
 class PrivacyCenterScreen extends StatefulWidget {
   const PrivacyCenterScreen({super.key});
@@ -94,13 +95,10 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
         ),
         iconTheme: const IconThemeData(color: MintColors.textPrimary),
       ),
-      body: FutureBuilder<List<ConsentReceipt>>(
+      body: FutureBuilderSafe<List<ConsentReceipt>>(
         future: _future,
-        builder: (ctx, snap) {
-          if (!snap.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final consents = snap.data!;
+        onRetry: _refresh,
+        builder: (ctx, consents) {
           final active = consents.where((c) => c.isActive).toList();
           final history = consents.where((c) => !c.isActive).toList();
           return RefreshIndicator(

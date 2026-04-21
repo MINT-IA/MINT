@@ -175,9 +175,12 @@ void main() {
       expect(answers['_coach_tax_revenu_imposable'], isNull);
     });
 
-    test('does nothing when no profile exists', () async {
+    test('bootstraps default profile when none exists (scan-first)', () async {
       final provider = CoachProfileProvider();
-      // No profile created
+      // No profile created — scan-first onboarding: extraction must seed
+      // a CoachProfile.defaults() instead of silent-dropping the fields,
+      // otherwise anon users scanning before onboarding lose their data
+      // on next launch (triage 2026-04-20).
 
       final fields = <ExtractedField>[
         const ExtractedField(
@@ -191,9 +194,10 @@ void main() {
         ),
       ];
 
-      // Should not throw
       await provider.updateFromTaxExtraction(fields);
-      expect(provider.profile, isNull);
+      // Profile must now exist so the extracted tax field lands somewhere
+      // downstream calculators can read.
+      expect(provider.profile, isNotNull);
     });
 
     test('ignores fields without profileField mapping', () async {

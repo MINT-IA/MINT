@@ -681,6 +681,92 @@
   },
   "budgetEmptyTitle": "Your budget",
   "budgetEmptyBody": "Complete your diagnosis to unlock your monthly plan with your real income and expenses.",
+  "budgetSetupTitle": "Fixed charges",
+  "@budgetSetupTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSubtitle": "What goes out every month, no matter what.",
+  "@budgetSetupSubtitle": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupHousing": "Rent or mortgage",
+  "@budgetSetupHousing": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupLamal": "Health insurance",
+  "@budgetSetupLamal": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTransport": "Transport",
+  "@budgetSetupTransport": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTelecom": "Telecom",
+  "@budgetSetupTelecom": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupElectricity": "Electricity",
+  "@budgetSetupElectricity": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupMedical": "Medical expenses",
+  "@budgetSetupMedical": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupOther": "Other",
+  "@budgetSetupOther": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupAddOthers": "Add more items",
+  "@budgetSetupAddOthers": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupSave": "Save",
+  "@budgetSetupSave": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupChatFallback": "I'd rather talk to the coach",
+  "@budgetSetupChatFallback": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupFieldPlaceholder": "CHF / month",
+  "@budgetSetupFieldPlaceholder": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupRequired": "Required",
+  "@budgetSetupRequired": {
+    "description": "Budget setup label."
+  },
+  "budgetSetupTotalFixed": "Fixed total: {amount} CHF / month",
+  "@budgetSetupTotalFixed": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetSetupResteAfterCharges": "You have {amount} CHF left after charges.",
+  "@budgetSetupResteAfterCharges": {
+    "description": "Budget setup label.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "budgetCardEmptyTitle": "Your fixed charges, clearly.",
+  "@budgetCardEmptyTitle": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyBody": "Seven items, two minutes. Then we calculate what truly remains.",
+  "@budgetCardEmptyBody": {
+    "description": "Budget setup label."
+  },
+  "budgetCardEmptyAction": "Set my charges",
+  "@budgetCardEmptyAction": {
+    "description": "Budget setup label."
+  },
   "budgetEmptyAction": "Start my diagnosis",
   "budgetMonthlyTitle": "Monthly Budget",
   "budgetAvailableThisMonth": "Available this month",
@@ -3597,7 +3683,7 @@
       "phase": "11-01"
     }
   },
-  "coachInputHint": "Tell me what's on your mind.",
+  "coachInputHint": "Tell me.",
   "@coachInputHint": {
     "x-mint-meta": {
       "level": "N2",
@@ -4380,8 +4466,8 @@
   "sim3aDisclaimer": "Educational estimate. Actual savings depend on your place of residence and family situation. Not financial advice (FinSA).",
   "sim3aDebtLockedTitle": "Debt repayment first",
   "sim3aDebtLockedMessage": "In safe mode, 3a action recommendations are disabled. The priority is to stabilise your finances before contributing to 3a.",
-  "sim3aDebtStrategyTitle": "Strategy locked",
-  "sim3aDebtStrategyMessage": "3a investment strategies are disabled while you have active debts. Repaying your debts yields a higher return than any investment.",
+  "sim3aDebtStrategyTitle": "Strategy on hold",
+  "sim3aDebtStrategyMessage": "3a investment strategies are on hold while your active debts weigh on your budget. Recommended order: stabilise first, invest later.",
   "realReturnTitle": "Real return 3a",
   "realReturnPremierEclairageLabel": "Equivalent rate on net effort",
   "realReturnVsNominal": "vs {rate}% net 3a rate (gross − fees)",
@@ -5088,6 +5174,7 @@
   "eplSectionImpactPrestations": "Impact on benefits",
   "eplReductionInvalidite": "Disability pension reduction (annual estimate)",
   "eplReductionDeces": "Death capital reduction (estimate)",
+  "eplReductionAskCaisse": "Ask your pension fund",
   "eplImpactPrestationsNote": "EPL withdrawal proportionally reduces your risk benefits. Check with your pension fund for exact amounts and supplementary insurance options.",
   "eplSectionImpactRente": "Impact on pension",
   "eplRenteSansEpl": "Pension without EPL",
@@ -5228,7 +5315,7 @@
   "repaymentTimelinePaiement": "Payment",
   "repaymentTimelineSolde": "Remaining balance",
   "retroactive3aTitle": "3a catch-up",
-  "retroactive3aHeroTitle": "3a catch-up — New in 2026",
+  "retroactive3aHeroTitle": "3a catch-up — New since 2025",
   "retroactive3aHeroSubtitle": "Catch up on up to 10 years of missed contributions",
   "retroactive3aParametres": "Parameters",
   "retroactive3aAnneesARattraper": "Years to catch up",
@@ -5534,9 +5621,9 @@
   },
   "reportSafeModePriority": "Priority: debt reduction",
   "reportSafeModeActions": "Your priority actions are replaced by a debt reduction plan. Stabilise your situation before exploring recommendations.",
-  "reportSafeMode3a": "The 3a comparator is disabled while you have active debts. Repaying debts takes priority over any 3a savings.",
-  "reportSafeModeLpp": "LPP buyback blocked",
-  "reportSafeModeLppMessage": "LPP buyback is disabled in protection mode. Repay your debts before locking liquidity in pension savings.",
+  "reportSafeMode3a": "The 3a comparator is on hold while your active debts weigh on your budget. Priority: stabilise your cash flow.",
+  "reportSafeModeLpp": "LPP buyback on hold",
+  "reportSafeModeLppMessage": "LPP buyback is on hold in protection mode. Recommended order: repay debts before locking liquidity in pension savings.",
   "reportLppTitle": "💰 LPP Buyback Strategy",
   "reportLppEconomie": "Total tax saving: CHF {amount}",
   "@reportLppEconomie": {
@@ -8843,7 +8930,7 @@
   "portfolioNoData": "No wealth data provided.",
   "portfolioRepartitionEnveloppe": "Allocation by Envelope",
   "portfolioReserveFondsUrgence": "Reserved (Emergency Fund)",
-  "portfolioSafeModeBody": "Allocation advice is disabled in protection mode. Your priority is reducing debt before rebalancing your portfolio.",
+  "portfolioSafeModeBody": "Allocation advice is on hold in protection mode. Recommended order: reduce your debts before rebalancing your portfolio.",
   "portfolioSafeModeLocked": "Debt reduction priority",
   "portfolioValeurTotaleNette": "Total Net Value",
   "proactiveConfidenceUp": "Your confidence score has improved by {delta} pts since last time.",
@@ -9157,7 +9244,7 @@
   "routeSuggestionCta": "Open",
   "routeSuggestionPartialWarning": "Estimate — incomplete data",
   "safeModeCta": "View my debt reduction plan",
-  "safeModeMessage": "For your financial safety, we disable advanced optimisations while a debt signal is active. The priority is building your security.",
+  "safeModeMessage": "While a debt signal is active, advanced optimisations are on hold. Priority: stabilise your cash flow. The rest can wait.",
   "safeModeTitle": "Priority Focus",
   "saronCostLabel": "additional cost with SARON",
   "saronEyebrow": "SARON vs Fixed rate",
@@ -9727,7 +9814,7 @@
   "cashModeSubtitle": "How the coach speaks to you",
   "intensityAdjustedUp": "OK, I’ve turned it up a notch.",
   "intensityAdjustedDown": "OK, I’ve toned it down a notch.",
-  "coachSuggestBudget": "What’s my realistic retirement budget?",
+  "coachSuggestBudget": "Where does my money go each month?",
   "coachSuggestBudgetGap": "How much am I short per month?",
   "coachSuggestMortgage": "Can I afford to buy a property?",
   "coachSuggestMortgageCapacity": "What’s my borrowing capacity?",
@@ -9795,12 +9882,43 @@
       "phase": "11-01"
     }
   },
+  "coachOpenerIdentity": "Hi. I'm Mint.",
+  "@coachOpenerIdentity": {
+    "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
+  },
+  "coachOpenerPromise": "I sell nothing, I rate nothing, I compare you to no one. I just help you see clearly into what no one has any interest in explaining to you.",
+  "@coachOpenerPromise": {
+    "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
+  },
+  "coachOpenerQuestion": "Where do we start?",
+  "@coachOpenerQuestion": {
+    "description": "First-contact opener closing question."
+  },
+  "coachStarterPaper": "A paper I don't understand",
+  "@coachStarterPaper": {
+    "description": "Conversation starter chip — routes to scanner."
+  },
+  "coachStarterChoice": "A choice I have to make",
+  "@coachStarterChoice": {
+    "description": "Conversation starter chip — life events opener."
+  },
+  "coachStarterCost": "Something that costs me, I don't know what",
+  "@coachStarterCost": {
+    "description": "Conversation starter chip — budget/fiscal opener."
+  },
+  "coachStarterLurk": "I'll just look around for now",
+  "@coachStarterLurk": {
+    "description": "Conversation starter chip — dismisses opener without forcing engagement."
+  },
   "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
   "coachOptInAccept": "Yes, flag for me",
   "coachOptInDecline": "No, I'll come when I want",
-  "coachSilentOpenerReplacementRate": "Retirement replacement rate",
+  "coachSilentOpenerReplacementRate": "Projected replacement rate",
   "coachSilentOpenerFitnessScore": "Financial fitness score",
   "coachSilentOpenerRetirementCapital": "Projected retirement capital",
+  "coachSilentOpenerProjectedCapital": "Projected capital on your horizon",
+  "coachSilentOpenerLppAvoir": "LPP balance",
+  "coachSilentOpener3aEpargne": "3a savings",
   "confidenceLow": "Your numbers are very approximate. Add your LPP certificate for +25%.",
   "confidenceMedium": "Good start. Scan your AVS statement to confirm your contribution years.",
   "confidenceAction": "Scan my LPP certificate (+25% accuracy)",
@@ -10468,13 +10586,13 @@
   "@tonSectionLabel": {
     "description": "Phase 12-01."
   },
-  "anonymousIntentLine1": "Money in Switzerland. The thing nobody talks about.",
+  "anonymousIntentLine1": "Your financial life, in plain sight.",
   "@anonymousIntentLine1": {
-    "description": "Anonymous intent screen — opening line about money taboo in Switzerland."
+    "description": "Landing opener. Short and sober — sets up the 'We clarify. You decide.' promise below."
   },
-  "anonymousIntentLine2": "Not even to themselves.",
+  "anonymousIntentLine2": "",
   "@anonymousIntentLine2": {
-    "description": "Anonymous intent screen — follow-up line."
+    "description": "Retired 2026-04-17."
   },
   "anonymousIntentPill1": "I pay, I sign, but I don't really get all of it",
   "@anonymousIntentPill1": {
@@ -10927,5 +11045,45 @@
   "thirdPartyInviteCta": "Invite {name} to MINT",
   "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
   "thirdPartyInviteComingSoon": "Invitations coming soon — we noted your intent.",
-  "thirdPartyDeclarationNoticeLink": "Without their consent, MINT cannot process another person's data."
+  "thirdPartyDeclarationNoticeLink": "Without their consent, MINT cannot process another person's data.",
+  "monArgentTabTitle": "My money",
+  "monArgentBudgetTitle": "Your budget this month",
+  "monArgentBudgetEmpty": "Set up your budget to see where you stand this month.",
+  "monArgentBudgetStart": "Get started",
+  "monArgentBudgetError": "Unable to load your budget.",
+  "monArgentBudgetIncome": "Income",
+  "monArgentBudgetSpent": "Expenses",
+  "monArgentBudgetRemaining": "Remaining",
+  "monArgentRetry": "Retry",
+  "monArgentPatrimoineTitle": "Your starting point",
+  "monArgentPatrimoineEmpty": "Scan a document or talk to the coach to get started.",
+  "monArgentPatrimoineError": "Unable to load your data.",
+  "monArgentPatrimoineNet": "Net",
+  "monArgentPatrimoinePartial": "Add your data for a complete view.",
+  "monArgentLpp": "Pillar 2",
+  "monArgentPillar3a": "Pillar 3a",
+  "monArgentEpargne": "Savings",
+  "monArgentScan": "Scan",
+  "monArgentEnrichCta": "Add documents for a more precise view",
+  "tabAujourdhui": "Today",
+  "tabMonArgent": "My money",
+  "tabExplorer": "Explore",
+  "hubRetraite": "Retirement & Pension",
+  "hubFamille": "Family",
+  "hubTravail": "Work & Status",
+  "hubLogement": "Housing",
+  "hubFiscalite": "Taxes",
+  "hubPatrimoine": "Wealth & Succession",
+  "hubSante": "Health & Protection",
+  "safeModeWhyBlockedSemantics": "Why is this on hold",
+  "safeModeWhyBlockedTitle": "Why it's on hold",
+  "safeModeWhyBlockedBody": "In protection mode, MINT prioritises cash flow stability before tax and pension optimisations.",
+  "safeModeWhyBlockedLink": "Why is this on hold?",
+  "safeModeFormalDesendettementNote": "These withdrawals remain possible under a formal debt resolution procedure — speak to a specialist.",
+  "scanSummaryLppCertificate": "LPP certificate scanned",
+  "scanSummary3aAttestation": "Pillar 3a attestation scanned",
+  "scanSummaryTaxDeclaration": "Tax declaration scanned",
+  "scanSummaryAvsExtract": "AVS extract scanned",
+  "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
+  "scanSummarySalaryCertificate": "Salary certificate scanned"
 }

@@ -512,6 +512,12 @@ void main() {
 
   group('CoachLlmService — conversation context (mock path)', () {
     test('mock response works with empty history', () async {
+      // Audit 2026-04-18 : le fallback offline a été de-biaisé — il ne
+      // mentionne plus "3a, LPP, retraite" comme liste d'outils mais
+      // "budget, simulateurs, dossier". Le test valide maintenant que le
+      // fallback est bien servi (non vide + localisé), pas qu'il mentionne
+      // un topic fiscal spécifique (ce qui poussait à la violation de
+      // CLAUDE.md anti-pattern #16).
       final response = await CoachLlmService.chat(
         userMessage: 'Mon 3a',
         profile: profile,
@@ -519,7 +525,9 @@ void main() {
         config: config,
       );
 
-      expect(response.message, contains('3a'));
+      expect(response.message, isNotEmpty);
+      expect(response.message.toLowerCase(),
+          anyOf(contains('coach'), contains('disponible')));
     });
 
     test('mock response works with prior history', () async {
