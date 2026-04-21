@@ -50,6 +50,20 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
   bool _showOptional = false;
   bool _saving = false;
 
+  // Median Swiss monthly values used as field placeholders. These are
+  // informative examples, not defaults — the field stays empty until
+  // the user types. Numbers held tight: rounded to readable amounts, no
+  // decimals, within the statistically-observed range for a single
+  // Swiss adult (OFS household-budget survey 2023). Not LSFin advice,
+  // purely illustrative guidance per feedback_no_vague_language.
+  static const _placeholderHousing = '2400';
+  static const _placeholderLamal = '380';
+  static const _placeholderTransport = '200';
+  static const _placeholderTelecom = '80';
+  static const _placeholderElectricity = '90';
+  static const _placeholderMedical = '120';
+  static const _placeholderOther = '250';
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +83,41 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
       _medical.text = _formatAmount(d.fraisMedicaux);
       _other.text = _formatAmount(d.autresDepensesFixes);
     });
+
+    // Live total ticker — rebuild on every field change so the user sees
+    // the running sum without tapping Save. Addresses deep-walk P2
+    // crack #14 (Budget setup: pas de total live pendant saisie).
+    for (final c in [
+      _housing,
+      _lamal,
+      _transport,
+      _telecom,
+      _electricity,
+      _medical,
+      _other,
+    ]) {
+      c.addListener(_onFieldChanged);
+    }
+  }
+
+  void _onFieldChanged() {
+    if (mounted) setState(() {});
+  }
+
+  double get _liveTotal {
+    double sum = 0;
+    for (final c in [
+      _housing,
+      _lamal,
+      _transport,
+      _telecom,
+      _electricity,
+      _medical,
+      _other,
+    ]) {
+      sum += _parseAmount(c.text) ?? 0;
+    }
+    return sum;
   }
 
   @override
@@ -161,20 +210,43 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
                     color: MintColors.textSecondary),
               ),
               const SizedBox(height: MintSpacing.lg),
-              _field(s.budgetSetupHousing, _housing, required: true),
-              _field(s.budgetSetupLamal, _lamal, required: true),
+              _field(s.budgetSetupHousing, _housing,
+                  required: true, placeholder: _placeholderHousing),
+              _field(s.budgetSetupLamal, _lamal,
+                  required: true, placeholder: _placeholderLamal),
               if (_showOptional) ...[
-                _field(s.budgetSetupTransport, _transport),
-                _field(s.budgetSetupTelecom, _telecom),
-                _field(s.budgetSetupElectricity, _electricity),
-                _field(s.budgetSetupMedical, _medical),
-                _field(s.budgetSetupOther, _other),
+                _field(s.budgetSetupTransport, _transport,
+                    placeholder: _placeholderTransport),
+                _field(s.budgetSetupTelecom, _telecom,
+                    placeholder: _placeholderTelecom),
+                _field(s.budgetSetupElectricity, _electricity,
+                    placeholder: _placeholderElectricity),
+                _field(s.budgetSetupMedical, _medical,
+                    placeholder: _placeholderMedical),
+                _field(s.budgetSetupOther, _other,
+                    placeholder: _placeholderOther),
               ] else
                 TextButton.icon(
                   onPressed: () => setState(() => _showOptional = true),
                   icon: const Icon(Icons.add, size: 18),
                   label: Text(s.budgetSetupAddOthers),
                 ),
+              if (_liveTotal > 0) ...[
+                const SizedBox(height: MintSpacing.md),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: MintColors.craie,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    s.budgetSetupTotalFixed(_formatAmount(_liveTotal)),
+                    style: MintTextStyles.labelLarge(
+                        color: MintColors.textPrimary),
+                  ),
+                ),
+              ],
               const SizedBox(height: MintSpacing.lg),
               FilledButton(
                 onPressed: _saving ? null : _save,
@@ -212,7 +284,12 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
     );
   }
 
-  Widget _field(String label, TextEditingController c, {bool required = false}) {
+  Widget _field(
+    String label,
+    TextEditingController c, {
+    bool required = false,
+    String? placeholder,
+  }) {
     final s = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(bottom: MintSpacing.md),
@@ -239,7 +316,7 @@ class _BudgetSetupScreenState extends State<BudgetSetupScreen> {
               FilteringTextInputFormatter.allow(RegExp(r"[0-9' ]")),
             ],
             decoration: InputDecoration(
-              hintText: s.budgetSetupFieldPlaceholder,
+              hintText: placeholder ?? s.budgetSetupFieldPlaceholder,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10)),
               contentPadding: const EdgeInsets.symmetric(
