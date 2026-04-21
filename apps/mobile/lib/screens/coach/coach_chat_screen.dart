@@ -16,6 +16,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_models.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
+import 'package:mint_mobile/services/chat/fact_extraction_fallback.dart';
 import 'package:mint_mobile/services/coach/compliance_guard.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
 import 'package:mint_mobile/services/response_card_service.dart';
@@ -1026,6 +1027,34 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       // Wire S58: extract and persist insight from BYOK/fallback exchange.
       _extractAndSaveInsight(text, cleanMessage);
 
+      // Dispatch `save_fact` tool_use blocks locally so that anonymous users
+      // (the default on fresh installs) actually persist the fields the coach
+      // just extracted. Backend `save_fact` only writes to ProfileModel.data
+      // when user_id is present — anon sessions fall through to "Fait noté
+      // (hors DB)" and lose the value otherwise.
+      if (mounted) {
+        final provider = context.read<CoachProfileProvider>();
+        for (final call in response.toolCalls) {
+          if (call.name != 'save_fact') continue;
+          final key = call.input['key'];
+          final value = call.input['value'];
+          final conf = call.input['confidence']?.toString() ?? 'medium';
+          if (key is String && value != null) {
+            unawaited(provider.applySaveFact(key, value, confidence: conf));
+          }
+        }
+
+        // Safety-net extraction: anonymous users don't get backend save_fact
+        // (user_id required) and the INTERNAL_TOOL_NAMES filter strips the
+        // tool from external_calls even for authenticated users. Run a
+        // first-person-only regex fallback on the user message so the
+        // profile actually fills when the user types « j'ai 34 ans, je
+        // gagne 7500 brut/mois ». Source: MVP-PLAN-2026-04-21 P0-MVP-1
+        // étape 1B. Never fires for canton/householdType — those require
+        // explicit LLM save_fact, not brittle regex.
+        unawaited(FactExtractionFallback.extract(text, provider));
+      }
+
       // Sync profile from backend after each coach exchange.
       // save_fact writes server-side; this pulls those updates into Flutter.
       if (mounted) {
@@ -1768,23 +1797,30 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       );
     }
 
+    // Sync local _profile from provider so keyData picks up scans / budget
+    // saves / save_fact writes that happened while the user was on another
+    // screen. Without this, a scanned LPP doesn't suppress the opener —
+    // deep walkthrough crack #8 « rupture de confiance ».
+    final freshProfile = context.watch<CoachProfileProvider>().profile;
+    if (freshProfile != null && !identical(freshProfile, _profile)) {
+      _profile = freshProfile;
+    }
+
     final keyData = _computeKeyNumber();
 
-    // If no financial data available, show a minimal empty state.
+    // If no financial data available, show the first-contact opener +
+    // 4 conversation starter chips. Gated on BOTH « no conversation yet »
+    // AND « no captured data yet » — either signal means first contact.
+    // The previous version checked only _messages.isEmpty, so after
+    // scan+confirm the user was thrown back into the opener (deep walk
+    // crack #8). Now: once the profile has LPP / 3a / fitness data,
+    // the silent opener takes over, never the first-contact one.
+    if (keyData == null && _messages.isEmpty) {
+      return _buildFirstContactOpener(s);
+    }
     if (keyData == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-          child: Text(
-            s.coachSilentOpenerQuestion,
-            style: TextStyle(
-              fontSize: 16,
-              fontStyle: FontStyle.italic,
-              color: MintColors.textSecondary.withValues(alpha: 0.7),
-            ),
-          ),
-        ),
-      );
+      // Fallback — profile empty but conversation started. Silent frame.
+      return const SizedBox.shrink();
     }
 
     return Center(
@@ -1821,6 +1857,100 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ),
       ),
     );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  FIRST-CONTACT OPENER (MVP P0-MVP-2)
+  // ════════════════════════════════════════════════════════════
+
+  /// Opener widget shown on the very first Parle-à-Mint tap for users with
+  /// no profile data and no message history. Combines a 3-line identity +
+  /// promise + question with 4 starter chips that route to the right flow.
+  /// Disappears as soon as the user types or taps a chip — respects the
+  /// « silent chat » doctrine (no widgets hanging around unused).
+  Widget _buildFirstContactOpener(S s) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            s.coachOpenerIdentity,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
+              color: MintColors.textPrimary,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            s.coachOpenerPromise,
+            style: const TextStyle(
+              fontSize: 15,
+              color: MintColors.textSecondary,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            s.coachOpenerQuestion,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: MintColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _OpenerChip(
+            label: s.coachStarterPaper,
+            onTap: () => _handleOpenerChip(_OpenerIntent.paper),
+          ),
+          const SizedBox(height: 10),
+          _OpenerChip(
+            label: s.coachStarterChoice,
+            onTap: () => _handleOpenerChip(_OpenerIntent.choice),
+          ),
+          const SizedBox(height: 10),
+          _OpenerChip(
+            label: s.coachStarterCost,
+            onTap: () => _handleOpenerChip(_OpenerIntent.cost),
+          ),
+          const SizedBox(height: 10),
+          _OpenerChip(
+            label: s.coachStarterLurk,
+            subtle: true,
+            onTap: () => _handleOpenerChip(_OpenerIntent.lurk),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleOpenerChip(_OpenerIntent intent) async {
+    // Mark the opener as seen so it doesn't re-render after a scan/chat
+    // returns to this screen. Uses the same flag the silent-opener hero
+    // number already depends on.
+    await ReportPersistenceService.markPremierEclairageSeen();
+    if (!mounted) return;
+    switch (intent) {
+      case _OpenerIntent.paper:
+        // Route directly to the scanner — the chip wording already made
+        // the intent clear, no need for an intermediate coach turn.
+        context.push('/scan');
+      case _OpenerIntent.choice:
+        // Pre-fills a user message so the coach has a context anchor
+        // rather than a cold « Dis-moi ». The user can still edit it.
+        _controller.text = 'Un choix que je dois faire';
+        _focusNode.requestFocus();
+      case _OpenerIntent.cost:
+        _controller.text =
+            "Un truc qui me coute chaque mois, je sais pas quoi";
+        _focusNode.requestFocus();
+      case _OpenerIntent.lurk:
+        // Opt-out: dismiss the opener without forcing any action.
+        if (mounted) setState(() {});
+    }
   }
 
   // ════════════════════════════════════════════════════════════
@@ -2065,4 +2195,53 @@ String? resolveIntentOpener(String chipKey, S l10n) {
     'intentChipAutre': l10n.coachOpenerIntentAutre,
   };
   return openers[chipKey];
+}
+
+/// Intent emitted when the user taps one of the 4 first-contact opener
+/// chips. Keeps the action dispatch in one switch rather than per-chip
+/// callbacks so the opener UI stays declarative.
+enum _OpenerIntent { paper, choice, cost, lurk }
+
+/// One starter chip in the first-contact opener. Rectangular pill with
+/// subtle border — intentionally not a filled button because MINT's
+/// opener isn't selling engagement, it's offering entry paths.
+class _OpenerChip extends StatelessWidget {
+  const _OpenerChip({
+    required this.label,
+    required this.onTap,
+    this.subtle = false,
+  });
+
+  final String label;
+  final VoidCallback onTap;
+  final bool subtle;
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor =
+        subtle ? MintColors.textSecondary : MintColors.textPrimary;
+    final borderColor = subtle
+        ? MintColors.textSecondary.withValues(alpha: 0.2)
+        : MintColors.textPrimary.withValues(alpha: 0.3);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+        decoration: BoxDecoration(
+          border: Border.all(color: borderColor),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: subtle ? FontWeight.w400 : FontWeight.w500,
+            color: textColor,
+          ),
+        ),
+      ),
+    );
+  }
 }

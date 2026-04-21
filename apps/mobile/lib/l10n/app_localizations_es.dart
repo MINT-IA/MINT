@@ -20993,6 +20993,28 @@ class SEs extends S {
   String get coachSilentOpenerQuestion => '¿Quieres hablar de esto?';
 
   @override
+  String get coachOpenerIdentity => 'Hola. Soy Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'No vendo nada, no califico nada, no te comparo con nadie. Solo te ayudo a ver claro en lo que nadie tiene interés en explicarte.';
+
+  @override
+  String get coachOpenerQuestion => '¿Por dónde empezamos?';
+
+  @override
+  String get coachStarterPaper => 'Un papel que no entiendo';
+
+  @override
+  String get coachStarterChoice => 'Una decisión que tengo que tomar';
+
+  @override
+  String get coachStarterCost => 'Algo me cuesta, no sé qué';
+
+  @override
+  String get coachStarterLurk => 'Solo miro, me presento después';
+
+  @override
   String get coachProactiveOptIn =>
       'Por cierto — ¿quieres que te señale las cosas importantes al abrir la app? ¿O prefieres que hablemos solo cuando te apetezca?';
 

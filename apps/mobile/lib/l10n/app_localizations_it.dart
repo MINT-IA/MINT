@@ -21050,6 +21050,28 @@ class SIt extends S {
   String get coachSilentOpenerQuestion => 'Vuoi parlarne?';
 
   @override
+  String get coachOpenerIdentity => 'Ciao. Sono Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'Non vendo nulla, non valuto nulla, non ti paragono a nessuno. Ti aiuto solo a vedere chiaro in ciò che nessuno ha interesse a spiegarti.';
+
+  @override
+  String get coachOpenerQuestion => 'Da dove cominciamo?';
+
+  @override
+  String get coachStarterPaper => 'Un documento che non capisco';
+
+  @override
+  String get coachStarterChoice => 'Una scelta che devo fare';
+
+  @override
+  String get coachStarterCost => 'Qualcosa mi costa, non so cosa';
+
+  @override
+  String get coachStarterLurk => 'Guardo in giro, mi presento dopo';
+
+  @override
   String get coachProactiveOptIn =>
       'A proposito — vuoi che ti segnali le cose importanti quando apri l\'app? O preferisci che parliamo solo quando ne hai voglia?';
 

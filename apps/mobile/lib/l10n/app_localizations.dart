@@ -36915,6 +36915,48 @@ abstract class S {
   /// **'Tu veux en parler ?'**
   String get coachSilentOpenerQuestion;
 
+  /// First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut. Moi c\'est Mint.'**
+  String get coachOpenerIdentity;
+
+  /// First-contact opener line 2 — trust promise. LSFin-compatible.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne vends rien, je ne note rien, je ne te compare à personne. Je t\'aide juste à voir clair dans ce que personne n\'a intérêt à t\'expliquer.'**
+  String get coachOpenerPromise;
+
+  /// First-contact opener closing question.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par quoi on commence ?'**
+  String get coachOpenerQuestion;
+
+  /// Conversation starter chip — routes to scanner.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un papier que je comprends pas'**
+  String get coachStarterPaper;
+
+  /// Conversation starter chip — life events opener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un choix que je dois faire'**
+  String get coachStarterChoice;
+
+  /// Conversation starter chip — budget/fiscal opener.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un truc qui me coûte, je sais pas quoi'**
+  String get coachStarterCost;
+
+  /// Conversation starter chip — dismisses opener without forcing engagement.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je regarde, je me présente après'**
+  String get coachStarterLurk;
+
   /// No description provided for @coachProactiveOptIn.
   ///
   /// In fr, this message translates to:

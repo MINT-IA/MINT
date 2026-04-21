@@ -16,6 +16,14 @@ pre-commit:
       # GUARD-01 (D-04 strict skeleton scope).
       run: python3 tools/checks/memory_retention.py
       tags: [memory, phase-30.5]
+    map-freshness-hint:
+      # Hint (not a gate) — when the commit touches a subsystem with a
+      # map in docs/*.md, remind the author (or their LLM agent) to
+      # consult the map. Exits 0 unconditionally. Hard gate promotion
+      # deferred to Phase 34 proof_of_read lint once that lands.
+      run: python3 tools/checks/map_freshness_hint.py {staged_files}
+      glob: "*.{dart,py}"
+      tags: [map, agents]
 
 skip:
   - merge

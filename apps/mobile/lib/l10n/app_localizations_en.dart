@@ -20883,6 +20883,28 @@ class SEn extends S {
   String get coachSilentOpenerQuestion => 'Want to talk about it?';
 
   @override
+  String get coachOpenerIdentity => 'Hi. I\'m Mint.';
+
+  @override
+  String get coachOpenerPromise =>
+      'I sell nothing, I rate nothing, I compare you to no one. I just help you see clearly into what no one has any interest in explaining to you.';
+
+  @override
+  String get coachOpenerQuestion => 'Where do we start?';
+
+  @override
+  String get coachStarterPaper => 'A paper I don\'t understand';
+
+  @override
+  String get coachStarterChoice => 'A choice I have to make';
+
+  @override
+  String get coachStarterCost => 'Something that costs me, I don\'t know what';
+
+  @override
+  String get coachStarterLurk => 'I\'ll just look around for now';
+
+  @override
   String get coachProactiveOptIn =>
       'By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?';
 

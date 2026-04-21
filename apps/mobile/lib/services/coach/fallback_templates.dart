@@ -133,7 +133,7 @@ class FallbackTemplates {
   static String premierEclairageReframe(CoachContext ctx) {
     final confidence = ctx.knownValues['confidence_score'] ?? 30;
     final hasCertifiedData = ctx.dataReliability.values
-        .any((v) => v == 'certified');
+        .any((v) => v == 'certificate');
 
     if (hasCertifiedData) {
       return 'Données certifiées — confiance ${confidence.toStringAsFixed(0)}\u00a0%. '
@@ -449,15 +449,18 @@ class FallbackTemplates {
   /// which key data is still missing or estimated.
   static String? _topEnrichmentAction(CoachContext ctx) {
     final rel = ctx.dataReliability;
-    // Priority 1: no certified LPP → suggest scan
+    // Priority 1: no certified LPP → suggest scan.
+    // Value string matches ProfileDataSource enum name — `'certificate'`,
+    // NOT `'certified'`. The typo made every greeting say "Scanne ton
+    // certificat LPP" even right after the user scanned one.
     final hasLpp = rel.entries.any(
-        (e) => e.key.contains('avoirLpp') && e.value == 'certified');
+        (e) => e.key.contains('avoirLpp') && e.value == 'certificate');
     if (!hasLpp) {
       return 'Scanne ton certificat LPP pour des projections plus fiables.';
     }
-    // Priority 2: no certified AVS → suggest scan
+    // Priority 2: no certified AVS → suggest scan (same enum typo).
     final hasAvs = rel.entries.any(
-        (e) => e.key.contains('anneesContribuees') && e.value == 'certified');
+        (e) => e.key.contains('anneesContribuees') && e.value == 'certificate');
     if (!hasAvs) {
       return 'Scanne ton extrait AVS pour affiner ta rente estimée.';
     }

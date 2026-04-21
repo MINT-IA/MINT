@@ -11,6 +11,7 @@ import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/minimal_profile_service.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/coach/coach_cache_service.dart';
+import 'package:mint_mobile/services/coach_narrative_service.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
@@ -421,6 +422,22 @@ class CoachProfileProvider extends ChangeNotifier {
         return;
       }
 
+      // Scan-first onboarding: if a document scan has written fields to
+      // answers (via updateFrom*Extraction persisting `_coach_*` keys)
+      // without any wizard being completed, hydrate from those so the
+      // enriched profile survives app restart instead of being lost.
+      final hasScanData = answers.keys.any((k) => k.startsWith('_coach_'));
+      if (hasScanData && answers.isNotEmpty) {
+        _profile = CoachProfile.fromWizardAnswers(answers);
+        _isPartialProfile = true;
+        await _mergePersistedData();
+        _isLoading = false;
+        _isLoaded = true;
+        _profileUpdatedSinceBudget = true;
+        notifyListeners();
+        return;
+      }
+
       // No profile at all
       _profile = null;
       _isPartialProfile = false;
@@ -484,14 +501,132 @@ class CoachProfileProvider extends ChangeNotifier {
   /// overwriting the rest of the profile.
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
     if (partial.isEmpty) return;
-    final merged = Map<String, dynamic>.from(_lastAnswers)..addAll(partial);
+    // Deep-walk crack #15: always re-read the on-disk answers before
+    // merging. `_lastAnswers` is populated at startup by loadFromWizard
+    // but updateFrom*Extraction / budget setup / regex fallback each
+    // load+save independently. If mergeAnswers relied on the stale
+    // in-memory copy, a budget setup that ran after a scan would build
+    // `merged` from {} + {q_housing, q_lamal} and overwrite the persisted
+    // `_coach_avoir_lpp` on disk — card Patrimoine would go empty right
+    // after the card Budget populated. Read-then-merge-then-save is the
+    // only crash-safe discipline.
+    final current = await ReportPersistenceService.loadAnswers();
+    final merged = Map<String, dynamic>.from(current)..addAll(partial);
     _lastAnswers = merged;
     _profile = CoachProfile.fromWizardAnswers(merged);
     _isLoaded = true;
     _profileUpdatedSinceBudget = true;
     await ReportPersistenceService.saveAnswers(merged);
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
     _syncToBackend(); // Fire-and-forget, does not block UI
+  }
+
+  /// Apply a `save_fact` tool call locally.
+  ///
+  /// Backend `save_fact` persists to `ProfileModel.data` only when `user_id`
+  /// is present. Anonymous local-mode users (the default for fresh installs)
+  /// never have a `user_id`, so the backend path hits `# Hors-DB path` and
+  /// returns "Fait noté (hors DB)" without persisting — the chat captures
+  /// data in theory but nothing lands in the profile.
+  ///
+  /// This method closes that gap: when the coach_chat_screen receives a
+  /// `save_fact` tool_use block, it dispatches here to translate the canonical
+  /// backend fact key (`incomeNetMonthly`, `canton`, `avoirLpp`, …) into the
+  /// wizard answer key(s) that `CoachProfile.fromWizardAnswers` reads, then
+  /// calls `mergeAnswers` to persist to SharedPreferences + refresh the
+  /// profile.
+  ///
+  /// Returns `true` when the fact was mapped and applied, `false` when the
+  /// key is unknown (caller can log — Claude occasionally hallucinates keys).
+  Future<bool> applySaveFact(
+    String factKey,
+    dynamic factValue, {
+    String confidence = 'medium',
+  }) async {
+    if (confidence == 'low') return false; // mirror backend skip
+    final mapped = _mapFactKeyToAnswers(factKey, factValue);
+    if (mapped.isEmpty) return false;
+    await mergeAnswers(mapped);
+    return true;
+  }
+
+  /// Translates a `save_fact` canonical key + value into the corresponding
+  /// wizard answer keys expected by `CoachProfile.fromWizardAnswers`.
+  /// Returns an empty map when the key is unknown.
+  Map<String, dynamic> _mapFactKeyToAnswers(String factKey, dynamic value) {
+    if (value == null) return const {};
+    switch (factKey) {
+      // Identity / location
+      case 'birthYear':
+        return {'q_birth_year': value};
+      case 'dateOfBirth':
+        return {'q_date_of_birth': value};
+      case 'canton':
+        return {'q_canton': value};
+      case 'commune':
+        return {'q_commune': value};
+      case 'householdType':
+        return {'q_civil_status': value};
+      case 'employmentStatus':
+        return {'q_employment_status': value};
+      case 'gender':
+        return {'q_gender': value};
+      case 'targetRetirementAge':
+        return {'q_target_retirement_age': value};
+      // Income — map each fact into a pay-frequency-consistent pair so
+      // fromWizardAnswers computes salaireBrutMensuel correctly.
+      case 'incomeNetMonthly':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'monthly',
+        };
+      case 'incomeNetYearly':
+        return {
+          'q_net_income_period_chf': value,
+          'q_pay_frequency': 'yearly',
+        };
+      case 'incomeGrossMonthly':
+        final monthly = _asNum(value);
+        if (monthly == null) return const {};
+        return {'q_gross_salary_annual': monthly * 12};
+      case 'incomeGrossYearly':
+        return {'q_gross_salary_annual': value};
+      case 'employmentRate':
+        return {'q_employment_rate': value};
+      case 'annualBonus':
+        return {'q_annual_bonus': value};
+      // LPP — align with keys fromWizardAnswers reads for scan data
+      case 'avoirLpp':
+        return {'_coach_avoir_lpp': value};
+      case 'avoirLppObligatoire':
+        return {'_coach_avoir_lpp_oblig': value};
+      case 'avoirLppSurobligatoire':
+        return {'_coach_avoir_lpp_suroblig': value};
+      case 'lppInsuredSalary':
+        return {'_coach_salaire_assure': value};
+      case 'lppBuybackMax':
+        return {'_coach_rachat_maximum': value};
+      // 3a
+      case 'pillar3aAnnual':
+        return {'q_3a_annual_contribution': value};
+      case 'pillar3aBalance':
+        return {'q_total_3a': value};
+      // Savings / wealth / debt
+      case 'savingsMonthly':
+        return {'q_savings_monthly': value};
+      case 'totalSavings':
+      case 'wealthEstimate':
+        return {'q_epargne_liquide': value};
+      default:
+        return const {};
+    }
+  }
+
+  static num? _asNum(dynamic v) {
+    if (v is num) return v;
+    if (v is String) return num.tryParse(v);
+    return null;
   }
 
   /// Met a jour le profil depuis le mini-onboarding (3-4 questions).
@@ -840,6 +975,9 @@ class CoachProfileProvider extends ChangeNotifier {
     _persistFullProfile(updated);
     // FIX-HIGH-1: Invalidate coach cache on profile change (was never called).
     CoachCacheService.invalidate(InvalidationTrigger.profileUpdate);
+    // Also invalidate daily narrative cache so greeting / topTip / scenarios
+    // pick up new profile data instead of showing stale pre-scan copy.
+    CoachNarrativeService.invalidateCache(profile: updated);
     // FIX-HIGH-2: Invalidate CapMemory on significant profile change
     // to prevent stale caps from being re-served.
     CapMemoryStore.load().then((mem) {
@@ -1180,7 +1318,11 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   Future<void> updateFromLppExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    // Bootstrap scan-first onboarding: if no profile exists yet (fresh install,
+    // user scanned certificate before any wizard step), seed a default profile
+    // so extraction fields land somewhere. Without this, updateFrom*Extraction
+    // silently no-oped and next launch saw an empty Mon argent card.
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
     // FIX-095: Save previous state for undo capability.
@@ -1342,6 +1484,11 @@ class CoachProfileProvider extends ChangeNotifier {
     // W15: Auto-trigger snapshot after LPP certificate scan
     _createSnapshotFromProfile('document_scan');
 
+    // Invalidate daily narrative cache — greeting / topTip / scenarios were
+    // computed before scan data landed and now show stale "scanne ton
+    // certificat" copy when the user just did exactly that.
+    CoachNarrativeService.invalidateCache(profile: _profile);
+
     notifyListeners();
     _syncToBackend(); // Fire-and-forget, does not block UI
   }
@@ -1450,6 +1597,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1458,7 +1606,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Mappe les champs AVS extraits vers PrevoyanceProfile.
   /// Reference: DATA_ACQUISITION_STRATEGY.md — Channel 1, Document C
   Future<void> updateFromAvsExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
 
@@ -1580,6 +1728,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1592,7 +1741,7 @@ class CoachProfileProvider extends ChangeNotifier {
   ///
   /// Reference: LIFD art. 33-33a (deductions), LIFD art. 38 (capital)
   Future<void> updateFromTaxExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
 
@@ -1680,6 +1829,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
@@ -1688,7 +1838,7 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Stores: salaireBrutMensuel, nombreDeMois, bonusPourcentage.
   /// Tags dataSources as certificate. Stamps timestamps.
   Future<void> updateFromSalaryExtraction(List<ExtractedField> fields) async {
-    if (_profile == null) return;
+    _profile ??= CoachProfile.defaults();
 
     final p = _profile!;
     double? salaireBrut;
@@ -1752,6 +1902,7 @@ class CoachProfileProvider extends ChangeNotifier {
     await ReportPersistenceService.saveAnswers(answers);
 
     _profileUpdatedSinceBudget = true;
+    CoachNarrativeService.invalidateCache(profile: _profile);
     notifyListeners();
   }
 
