@@ -1,0 +1,66 @@
+# .github/workflows/lefthook-ci.yml — Phase 34 GUARD-07 D-24 + GUARD-08 D-24
+#
+# PRIMARY ground-truth detector for lefthook bypasses that introduced a
+# regression. Complements `.github/workflows/bypass-audit.yml` (D-21), which
+# tracks bypass USAGE PATTERNS; this workflow catches any bypass whose
+# EFFECT a lint would have blocked, by re-running all lints on the PR range
+# inside a fresh ubuntu-latest worktree.
+#
+# Per RESEARCH §Pitfall 6: `LEFTHOOK_BYPASS=1` is runtime-only and leaves
+# no trace on the commit object. The only 100%-reliable detection of
+# bypass-induced regressions is re-running the hooks in CI on a clean
+# checkout — that is what this workflow does.
+#
+# Also catches the less-documented case: any contributor who used
+# `--no-verify` locally (CONTRIBUTING §3 forbids it) — their commits would
+# land without lefthook ever firing, but this CI job will flag the
+# regression before merge because it runs lefthook on the PR range.
+name: Lefthook CI (GUARD-07 D-24 / GUARD-08 D-24)
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+
+jobs:
+  lefthook-all:
+    name: Re-run lefthook on PR range
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install lefthook
+        run: |
+          curl -sSLf https://raw.githubusercontent.com/evilmartians/lefthook/master/install.sh \
+            | sh -s -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Validate lefthook.yml schema
+        run: lefthook validate
+
+      - name: Run pre-commit hooks over PR range (--all-files --force)
+        # --all-files: full-repo pass to catch bypass-introduced state.
+        # --force: don't skip when lefthook thinks files haven't changed.
+        # This is the expensive pass (~1-3 min on a big repo) but it's the
+        # only way to guarantee no bypassed-commit regression slipped in.
+        run: lefthook run pre-commit --all-files --force
+
+      - name: Run commit-msg hook against each new commit in PR range
+        # For each commit between the PR base and HEAD, extract the message
+        # into a tempfile and run the commit-msg hook. Catches commits that
+        # bypassed proof-of-read locally via LEFTHOOK_BYPASS=1 or --no-verify.
+        run: |
+          set -euo pipefail
+          git log --format=%H "origin/${{ github.base_ref }}..HEAD" | while read sha; do
+            if [ -z "$sha" ]; then continue; fi
+            git log -1 --format=%B "$sha" > /tmp/msg.txt
+            if ! lefthook run commit-msg --file /tmp/msg.txt; then
+              echo "::error sha=$sha::commit-msg check failed on this commit"
+              exit 1
+            fi
+          done
