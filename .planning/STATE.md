@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: "Completed 34-02-PLAN.md (GUARD-02 no_bare_catch diff-only lint, 12/12 pytest green, parallel:true flipped, P95 0.110s). Ready for Plan 34-03 (GUARD-03 no_hardcoded_fr)."
-last_updated: "2026-04-22T20:29:51.162Z"
+stopped_at: Completed 34-03-PLAN.md (GUARD-03 no_hardcoded_fr D-08/D-09/D-10 lint, 11/11 pytest green, glob-scoped to widgets/screens/features, P95 0.110s preserved). Ready for Plan 34-04 (GUARD-05 arb_parity).
+last_updated: "2026-04-22T20:40:59.395Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 30
-  completed_plans: 25
-  percent: 83
+  completed_plans: 26
+  percent: 87
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 4 of 8
+Plan: 5 of 8
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
@@ -101,6 +101,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 34 P00 | 10 min | 2 tasks | 28 files |
 | Phase 34 P01 | 6 min | 1 tasks | 7 files |
 | Phase 34 P02 | ~8min | 2 tasks | 4 files |
+| Phase 34 P03 | ~4min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,20 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-03 Decisions (GUARD-03 no_hardcoded_fr D-08/D-09/D-10, shipped 2026-04-22)
+
+- **34-03** (commits `1de6c2ba` → `6f58a21f` → `199f501f`): GUARD-03 activated via D-08 glob-scoped lefthook hook. `tools/checks/no_hardcoded_fr.py` rewrote 137 → 262 LOC (stdlib-only Python 3.9-compat) with 4 D-09 primary patterns (`_TEXT_CAPITALISED`, `_TEXT_ACCENT`, `_TITLE_PARAM`, `_LABEL_PARAM`) + 2 fallbacks (`_QUOTED_ACCENT`, `_QUOTED_FR_WORDS` early-ship) + 2 whitelist patterns (`_ACRONYM`, `_NUMERIC`) + D-10 preceding-line override. 11/11 pytest green in 0.03s.
+- **D-08 scope at glob layer, NOT in script** — `glob: "apps/mobile/lib/{widgets,screens,features}/**/*.dart"` narrows pre-commit to widget code only; lib/l10n, lib/models, lib/services, test, integration_test stay out of scope naturally. Script's DEFAULT_SCOPE stays at `apps/mobile/lib` for manual `--scope` audits. Resolves RESEARCH Open Question 3 without script refactor. Full-codebase i18n audit (~120 strings services/models per D4) remains Phase 36 FIX-06 scope.
+- **Preceding-line override mirrors Plan 34-02 verbatim** — `_override_in_preceding_line(lines, idx)` API shape + `_OVERRIDE = re.compile(r"//\s*lefthook-allow:hardcoded-fr:\s*(\S+(?:\s+\S+){2,})")` >=3-word reason enforcement. Same-line override also accepted via `_line_is_exempt` IGNORE_MARKERS + `_OVERRIDE.search(line)`. Phase 34 convention now established across GUARD-02 + GUARD-03 (Plans 04/05 will mirror).
+- **Whitelist negative-signal gating** — `_is_whitelisted_string()` fires only when line has no FR accent AND no FR function-word signal. Prevents `Text('ERR: erreur grave')` from bypassing via acronym prefix. Not in D-09 text but required for whitelist sanity; Claude discretion per CONTEXT "structure interne des nouveaux scripts Python — Claude flexible".
+- **Ordered pattern dispatch (most-specific → least)** — first match on a line wins (`continue` after append). Ensures `title: 'Bonjour monde'` yields `hardcoded-fr-title`, not generic `hardcoded-fr-words`. Single row per line.
+- **lefthook.yml 5 pre-commit commands + parallel:true preserved** — `no-hardcoded-fr` appended after `no-bare-catch`. `{staged_files}` pattern means zero cost on commits that don't touch the widget glob. Benchmark P95 0.110s unchanged (5 commands, 45x headroom vs 5s budget). GUARD-01 success criterion #1 uncompromised.
+- **Self-test extended per D-25** — `lefthook_self_test.sh` 4th section runs bad fixture (must rc=1) + good fixture (must rc=0) via direct `python3 --file` invocation. Pitfall-7 reminder banner cites Plans 01+02+03. Full self-test rc=0 with 4 sections green.
+- **Self-compliance (Pitfall 8) green** — `accent_lint_fr.py --file tools/checks/no_hardcoded_fr.py` rc=0; `--file lefthook.yml` rc=0 (Plan 02 Pitfall-8 fix preserved). Technical English throughout.
+- **Real widget no-false-positive** — `python3 tools/checks/no_hardcoded_fr.py --file apps/mobile/lib/widgets/mint_shell.dart` rc=0 on Julien's i18n-wired reference. Glob-scoped pre-commit + existing i18n discipline align.
+- **Requirements-completed: [GUARD-03]** — 3/8 Phase 34 requirements done (GUARD-04 Plan 01 + GUARD-02 Plan 02 + GUARD-03 Plan 03). Plans 34-04/05/06/07 still pending.
+- **Phase 36 FIX-06 decoupling confirmed** — ~120 existing hardcoded FR strings in services/models remain in-place without blocking commits. Pre-commit glob restricts scope to widgets/screens/features only. FIX-06 can converge backlog by batch knowing no new widget-layer FR enters without override.
 
 ### Phase 34-02 Decisions (GUARD-02 no_bare_catch diff-only lint, shipped 2026-04-22)
 
@@ -271,8 +286,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T20:29:51.159Z
-Stopped at: Completed 34-02-PLAN.md (GUARD-02 no_bare_catch diff-only lint, 12/12 pytest green, parallel:true flipped, P95 0.110s). Ready for Plan 34-03 (GUARD-03 no_hardcoded_fr).
+Last session: 2026-04-22T20:40:59.391Z
+Stopped at: Completed 34-03-PLAN.md (GUARD-03 no_hardcoded_fr D-08/D-09/D-10 lint, 11/11 pytest green, glob-scoped to widgets/screens/features, P95 0.110s preserved). Ready for Plan 34-04 (GUARD-05 arb_parity).
 Resume file: None
 
 ---

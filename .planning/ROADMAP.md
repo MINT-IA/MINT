@@ -231,7 +231,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] 34-00-PLAN.md — Wave 0: lefthook.yml schema fix (top-level skip: → nested) + baseline P95 benchmark + 15+ fixture files under tests/checks/fixtures/ (unblocks Waves 1-4)
 - [x] 34-01-PLAN.md — Wave 1: GUARD-04 accent_lint_fr activation — reconcile PATTERNS to CLAUDE.md §2 canonical 14 (add prevoyance/reperer/cle, remove specialistes/gerer/progres) + lefthook glob + pytest
 - [x] 34-02-PLAN.md — Wave 2: GUARD-02 no_bare_catch.py diff-only (D-07 critical — decouples from Phase 36 FIX-05) + Dart+Python patterns + D-06 exemptions + parallel: true flip + 12 pytest
-- [ ] 34-03-PLAN.md — Wave 3 ∥: GUARD-03 no_hardcoded_fr tightened per D-08/D-09/D-10 (scope glob + patterns + override) + 11 pytest
+- [x] 34-03-PLAN.md — Wave 3 ∥: GUARD-03 no_hardcoded_fr tightened per D-08/D-09/D-10 (scope glob + patterns + override) + 11 pytest
 - [ ] 34-04-PLAN.md — Wave 3 ∥: GUARD-05 arb_parity.py stdlib-only (D-13/D-14/D-15) — 6-lang keyset + ICU placeholder name parity, baseline 6707 keys × 6 langs PASSES + 9 pytest
 - [ ] 34-05-PLAN.md — Wave 3 ∥: GUARD-06 proof_of_read.py on commit-msg hook (D-04 AMENDED — single commit-msg block allowed) + T-34-SPOOF-01 mitigation (.planning/phases/ prefix) + 10 pytest
 - [ ] 34-06-PLAN.md — Wave 4 ∥: GUARD-07 CONTRIBUTING.md (new, LEFTHOOK_BYPASS convention + --no-verify ban) + bypass-audit.yml weekly cron + post-merge (D-21/D-22, secondary awareness)

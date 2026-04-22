@@ -75,7 +75,7 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 
 - [x] **GUARD-01**: lefthook 2.1.5 installed (brew) + `lefthook.yml` pre-commit parallel complet — target <5s absolu sur M-series Mac, scope changed-files only via glob filters. (Note : minimal lefthook installation déjà faite Phase 30.5 CTX-01 pour MEMORY.md gate. Phase 34 = full config avec tous les gates.)
 - [x] **GUARD-02**: `tools/checks/no_bare_catch.py` — refuse `} catch (e) {}` Dart + `except Exception:` Python sans log/rethrow, exempte `test/` + streams `async *`
-- [ ] **GUARD-03**: `tools/checks/no_hardcoded_fr.py` — scan Dart widgets pour strings FR hors `AppLocalizations`, exclut `lib/l10n/`
+- [x] **GUARD-03**: `tools/checks/no_hardcoded_fr.py` — scan Dart widgets pour strings FR hors `AppLocalizations`, exclut `lib/l10n/`
 - [x] **GUARD-04**: `tools/checks/accent_lint_fr.py` — ASCII-only flag sur `app_fr.arb` + `.dart` + `.py` (patterns : creer, decouvrir, eclairage, securite, liberer, preter, realiser, deja, recu, elaborer, regler)
 - [ ] **GUARD-05**: `tools/checks/arb_parity.py` — 6 ARB files (fr, en, de, es, it, pt) mêmes keyset, fail CI si drift
 - [ ] **GUARD-06**: `tools/checks/proof_of_read.py` — fallback léger (pas AST) — agent co-author commits doivent référencer `.planning/<phase>/READ.md` listant fichiers modifiés (complémentaire à CTX-04 UserPromptSubmit hook)
