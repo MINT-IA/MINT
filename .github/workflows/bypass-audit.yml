@@ -1,0 +1,130 @@
+# .github/workflows/bypass-audit.yml — Phase 34 GUARD-07 D-21/D-22.
+#
+# Secondary awareness tool for LEFTHOOK_BYPASS usage patterns on `dev`.
+# PRIMARY ground-truth for bypass-induced regressions:
+# .github/workflows/lefthook-ci.yml (D-24, Plan 34-07) — that job re-runs
+# all lints on every PR and fails loud on regressions.
+#
+# This job greps commit bodies on `dev` for `LEFTHOOK_BYPASS` and
+# `[bypass:` markers over the last 7 days and opens a
+# `bypass-audit`-labelled issue if the count exceeds 3 (D-22 threshold).
+# Manual triage — no bot auto-fix.
+#
+# Idempotency: if an open `bypass-audit` issue already exists for the
+# current week, the job appends a comment rather than opening a
+# duplicate (prevents noise on Monday-then-push-to-dev firings).
+#
+# The workflow itself always exits 0 — it's alerting, not gating.
+#
+# Scheduled Monday 09:00 UTC + post-merge to dev per D-21.
+name: Bypass audit (GUARD-07)
+
+on:
+  schedule:
+    # Monday 09:00 UTC per D-21
+    - cron: '0 9 * * 1'
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: Count bypass signals in last 7 days
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Count LEFTHOOK_BYPASS references in commit bodies on dev (7d window)
+        id: count
+        run: |
+          # D-21: grep commit bodies on dev for LEFTHOOK_BYPASS / [bypass:]
+          # voluntary signals per RESEARCH Open Question 6.
+          git fetch origin dev --depth=0 2>/dev/null || true
+          count=$(git log --since="7 days ago" --pretty=%B origin/dev 2>/dev/null \
+            | grep -c -E 'LEFTHOOK_BYPASS|\[bypass:' || true)
+          # grep -c returns 1 on no-match when pipefail would otherwise kill the
+          # step; the `|| true` above ensures we always land in the success path.
+          echo "count=${count}" >> "$GITHUB_OUTPUT"
+          echo "[bypass-audit] Found ${count} LEFTHOOK_BYPASS/[bypass:] references on dev (7d window)"
+
+      - name: Collect commit hashes for triage body (only if threshold exceeded)
+        id: commits
+        if: ${{ fromJSON(steps.count.outputs.count) > 3 }}
+        run: |
+          # Short hashes + author + subject line for manual triage.
+          triage=$(git log --since="7 days ago" --pretty='- %h %an — %s' origin/dev \
+            | grep -E 'LEFTHOOK_BYPASS|\[bypass:' || true)
+          {
+            echo 'triage<<TRIAGE_EOF'
+            printf '%s\n' "${triage:-(no commits matched the regex in git log subject lines — inspect bodies manually)}"
+            echo 'TRIAGE_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or update bypass-audit issue if threshold exceeded
+        if: ${{ fromJSON(steps.count.outputs.count) > 3 }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const count = '${{ steps.count.outputs.count }}';
+            const triage = `${{ steps.commits.outputs.triage }}`;
+            const weekTag = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+            const title = `bypass-audit: ${count} LEFTHOOK_BYPASS references (week of ${weekTag})`;
+
+            const body = [
+              `Weekly audit (GUARD-07 D-21) detected **${count} commits** with`,
+              `\`LEFTHOOK_BYPASS\` or \`[bypass:\` markers on \`dev\` in the last 7`,
+              `days (threshold=3 per CONTEXT.md D-22).`,
+              ``,
+              `**Commits flagged:**`,
+              ``,
+              triage,
+              ``,
+              `**Manual triage command:**`,
+              ``,
+              '```bash',
+              'git log --since="7 days ago" --grep="LEFTHOOK_BYPASS\\|\\[bypass:" origin/dev',
+              '```',
+              ``,
+              `**Note:** this audit is a secondary awareness tool. The primary`,
+              `ground-truth bypass detector is \`.github/workflows/lefthook-ci.yml\``,
+              `(GUARD-07 D-24, Plan 34-07) which re-runs all lints on every PR.`,
+              `If that job passes on the PRs in question, the bypasses did not`,
+              `introduce regressions — only the usage pattern is being flagged`,
+              `here for maintainer awareness.`,
+            ].join('\n');
+
+            // Idempotency: comment on an existing open bypass-audit issue
+            // rather than open a duplicate when both triggers fire in a week.
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'bypass-audit',
+              per_page: 10,
+            });
+
+            if (existing.data.length > 0) {
+              const issue = existing.data[0];
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `**Audit re-fired ${weekTag}** — count now **${count}** (threshold 3).\n\n${triage}`,
+              });
+              core.info(`[bypass-audit] appended comment to existing issue #${issue.number}`);
+            } else {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                labels: ['bypass-audit'],
+                body: body,
+              });
+              core.info(`[bypass-audit] opened issue #${created.data.number} — count=${count}`);
+            }
