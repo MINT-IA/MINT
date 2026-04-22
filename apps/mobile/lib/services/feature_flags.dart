@@ -79,6 +79,18 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  /// MVP wedge onboarding — storyboard v2 locked (2026-04-22).
+  /// 9-step flow with 4 intents, dossier densification, and 3 N2 scenes
+  /// (RenteTrouee / CapaciteAchat / 3aLevier) before magic-link sealing.
+  /// When true, the landing CTA routes new users into `/onb` instead of
+  /// the legacy coach anonymous flow.
+  ///
+  /// **Default: `false`** — rolled out via backend `applyFromMap` for staged
+  /// enablement (10% → 50% → 100%). Flip locally via GET
+  /// `/api/v1/config/feature-flags` returning `{"enableMvpWedgeOnboarding": true}`.
+  /// Kill-switch: backend set to false, no app redeploy needed.
+  static bool enableMvpWedgeOnboarding = false;
+
   // Phase 32 D-10 — local-only gate for /admin/*.
   // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
   // NO backend call (D-10 v4 kills proposed /api/v1/admin/me).
@@ -118,6 +130,9 @@ class FeatureFlags {
     }
     if (data.containsKey('enableAdminScreens')) {
       enableAdminScreens = data['enableAdminScreens'] == true;
+    }
+    if (data.containsKey('enableMvpWedgeOnboarding')) {
+      enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
     }
   }
 

@@ -23012,4 +23012,11 @@ class SPt extends S {
   @override
   String get scanSummarySalaryCertificate =>
       'Certificado de salário digitalizado';
+
+  @override
+  String get onboardingSealError =>
+      'Não foi possível selar o teu dossier. Verifica a tua conexão e tenta novamente.';
+
+  @override
+  String get onboardingSealRetry => 'Tentar novamente';
 }

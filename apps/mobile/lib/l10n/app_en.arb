@@ -11085,5 +11085,7 @@
   "scanSummaryTaxDeclaration": "Tax declaration scanned",
   "scanSummaryAvsExtract": "AVS extract scanned",
   "scanSummaryMortgageAttestation": "Mortgage attestation scanned",
-  "scanSummarySalaryCertificate": "Salary certificate scanned"
+  "scanSummarySalaryCertificate": "Salary certificate scanned",
+  "onboardingSealError": "Couldn't seal your dossier. Check your connection and try again.",
+  "onboardingSealRetry": "Try again"
 }

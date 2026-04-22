@@ -11085,5 +11085,7 @@
   "scanSummaryTaxDeclaration": "Steuererklärung gescannt",
   "scanSummaryAvsExtract": "AHV-Auszug gescannt",
   "scanSummaryMortgageAttestation": "Hypothekenbescheinigung gescannt",
-  "scanSummarySalaryCertificate": "Lohnausweis gescannt"
+  "scanSummarySalaryCertificate": "Lohnausweis gescannt",
+  "onboardingSealError": "Dein Dossier konnte nicht versiegelt werden. Prüfe deine Verbindung und versuche es erneut.",
+  "onboardingSealRetry": "Erneut versuchen"
 }

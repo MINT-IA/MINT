@@ -23061,4 +23061,11 @@ class SDe extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Lohnausweis gescannt';
+
+  @override
+  String get onboardingSealError =>
+      'Dein Dossier konnte nicht versiegelt werden. Prüfe deine Verbindung und versuche es erneut.';
+
+  @override
+  String get onboardingSealRetry => 'Erneut versuchen';
 }

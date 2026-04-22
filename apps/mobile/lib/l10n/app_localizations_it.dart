@@ -23066,4 +23066,11 @@ class SIt extends S {
   @override
   String get scanSummarySalaryCertificate =>
       'Certificato di stipendio scansionato';
+
+  @override
+  String get onboardingSealError =>
+      'Impossibile sigillare il tuo dossier. Verifica la connessione e riprova.';
+
+  @override
+  String get onboardingSealRetry => 'Riprova';
 }

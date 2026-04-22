@@ -11085,5 +11085,7 @@
   "scanSummaryTaxDeclaration": "Dichiarazione fiscale scansionata",
   "scanSummaryAvsExtract": "Estratto AVS scansionato",
   "scanSummaryMortgageAttestation": "Attestato ipoteca scansionato",
-  "scanSummarySalaryCertificate": "Certificato di stipendio scansionato"
+  "scanSummarySalaryCertificate": "Certificato di stipendio scansionato",
+  "onboardingSealError": "Impossibile sigillare il tuo dossier. Verifica la connessione e riprova.",
+  "onboardingSealRetry": "Riprova"
 }

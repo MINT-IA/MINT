@@ -40370,6 +40370,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Certificat de salaire scanné'**
   String get scanSummarySalaryCertificate;
+
+  /// MVP wedge T9 — error SnackBar shown when completeAndFlushToProfile throws (local persistence failure).
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de sceller ton dossier. Vérifie ta connexion et réessaie.'**
+  String get onboardingSealError;
+
+  /// MVP wedge T9 — SnackBar action label to retry sealing the dossier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get onboardingSealRetry;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {
