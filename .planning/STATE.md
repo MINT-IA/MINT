@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 34-00-PLAN.md (Wave 0 schema fix + baseline P95 0.120s + 26 fixture files for GUARD-02/03/04/05/06). Ready for Waves 1-4 parallel execution.
-last_updated: "2026-04-22T20:03:11.761Z"
+stopped_at: Completed 34-01-PLAN.md (GUARD-04 accent lint activated, PATTERNS reconciled w/ CLAUDE.md §2, 13+44 pytest green, benchmark 0.100s). Ready for Plan 34-02 (GUARD-02 no_bare_catch).
+last_updated: "2026-04-22T20:15:50.228Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 30
-  completed_plans: 23
-  percent: 77
+  completed_plans: 24
+  percent: 80
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 2 of 8
+Plan: 3 of 8
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
@@ -99,6 +99,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 30.7 P30.7-03 | 5min | 2 tasks | 5 files |
 | Phase 30.7 P30.7-04 | 35 min | 2 tasks (T1 trim + T2 checkpoint) | 1 file (CLAUDE.md) | 2026-04-22 |
 | Phase 34 P00 | 10 min | 2 tasks | 28 files |
+| Phase 34 P01 | 6 min | 1 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,18 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-01 Decisions (GUARD-04 accent-lint activation, shipped 2026-04-22)
+
+- **34-01** (commits `613aeb6b` → `066fb178`): GUARD-04 activated. `tools/checks/accent_lint_fr.py` PATTERNS list reconciled with CLAUDE.md §2 canonical 14 stems per D-11 — 3 Phase 30.5 early-ship extras removed (`specialistes`/`gerer`/`progres`), 3 missing canonical patterns added (`prevoyance`/`reperer`/`cle`). CLAUDE.md §2 is authoritative over MEMORY.md feedback snapshot that seeded the early-ship list.
+- **Lefthook accent-lint-fr command** wired into `lefthook.yml` pre-commit: glob `*.{dart,py,arb}` with explicit excludes for 5 non-FR ARBs (app_{en,de,es,it,pt}.arb per D-12) + `tests/checks/fixtures/**` + `tests/checks/test_accent_lint_fr.py` + `tools/mcp/mint-tools/tests/**` (Pitfall 7 — test files that legitimately contain ASCII stems as parametrize/test data must be exempted). Shell loop wrapper pattern (`for f in {staged_files}; do python3 ... --file "$f" || rc=1; done`) established as reusable idiom for single-file Python lints under lefthook.
+- **Phase 30.7 TOOL-04 parametrize cases updated in lockstep** — Rule 1 blocking auto-fix: `test_accent_lint_scan_text.py` + `test_check_accent_patterns.py` both had parametrize cases on the 3 removed stems. Updated both with matching D-11 comments. 44/44 MCP TOOL-04 tests green post-reconcile. MCP tool contract (`scan_text` signature `(int, str, str)`) preserved — no MCP wrapper code changed.
+- **Self-compliance (Pitfall 8) auto-fix** — Rule 2: initial docstring enumerated stems inline ("missing 3 canonical patterns (prevoyance/reperer/cle)"), fired `\\bprevoyance\\b` etc on the lint's own source. Rephrased to reference CLAUDE.md §2 authoritatively without naming stems in docstring body. `accent_lint_fr.py --file <self>` exits 0.
+- **pytest GUARD-04** — 13 cases covering cardinality (`len(PATTERNS) == 14`), canonical stem set equality, new-stem firing (`prevoyance`/`reperer`/`cle`), removed-stem silence (`specialistes`/`gerer`/`progres`), fixture scan (accent_bad/accent_good), MCP signature guard. All 13 green in 0.01s.
+- **Self-test extended per D-25** — `lefthook_self_test.sh` now runs 2 direct-invocation checks (bad fixture must exit 1, good fixture must exit 0) before the Pitfall-7 reminder banner. 30.5 retention-gate test preserved. Full self-test rc=0.
+- **Benchmark preserved** at P95 0.100s with 3 commands active (vs Wave 0 baseline 0.120s with 2) — 50x headroom vs 5s budget. GUARD-01 <5s success criterion uncompromised. accent-lint-fr adds ~0.02-0.03s per invocation on typical staged diff.
+- **Hook fires end-to-end (not façade)** — verified by staging a temp `.dart` file with `creer` → `lefthook run pre-commit` prints `🥊 accent-lint-fr (0.02 seconds)` with `exit status 1` (failing emoji = catches violation correctly).
+- **FIX-07 Phase 36 scope confirmed** — 899 existing violations on `apps/mobile/lib` when scanned full-scope (incl. 32 in generated `app_localizations_en.dart` using `prevoyance` as variable name from the ARB key). Plan 34-01 goal = ACTIVATE gate to prevent NEW regressions, NOT CONVERGE existing code. The lint is now the moving-target guard; FIX-07 batches backfill knowing no new violations enter on staged diffs.
 
 ### Phase 34-00 Decisions (Wave 0 scaffolding, shipped 2026-04-22)
 
@@ -244,8 +257,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T20:03:11.758Z
-Stopped at: Completed 34-00-PLAN.md (Wave 0 schema fix + baseline P95 0.120s + 26 fixture files for GUARD-02/03/04/05/06). Ready for Waves 1-4 parallel execution.
+Last session: 2026-04-22T20:15:50.225Z
+Stopped at: Completed 34-01-PLAN.md (GUARD-04 accent lint activated, PATTERNS reconciled w/ CLAUDE.md §2, 13+44 pytest green, benchmark 0.100s). Ready for Plan 34-02 (GUARD-02 no_bare_catch).
 Resume file: None
 
 ---
