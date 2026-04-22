@@ -23005,4 +23005,11 @@ class SEs extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificado de salario escaneado';
+
+  @override
+  String get onboardingSealError =>
+      'No se pudo sellar tu dossier. Verifica tu conexión e inténtalo de nuevo.';
+
+  @override
+  String get onboardingSealRetry => 'Reintentar';
 }

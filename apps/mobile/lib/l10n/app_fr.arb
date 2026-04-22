@@ -11874,5 +11874,9 @@
   "scanSummaryMortgageAttestation": "Attestation hypothèque scannée",
   "@scanSummaryMortgageAttestation": { "description": "Persistent event summary when a mortgage attestation is scanned." },
   "scanSummarySalaryCertificate": "Certificat de salaire scanné",
-  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." }
+  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." },
+  "onboardingSealError": "Impossible de sceller ton dossier. Vérifie ta connexion et réessaie.",
+  "@onboardingSealError": { "description": "MVP wedge T9 — error SnackBar shown when completeAndFlushToProfile throws (local persistence failure)." },
+  "onboardingSealRetry": "Réessayer",
+  "@onboardingSealRetry": { "description": "MVP wedge T9 — SnackBar action label to retry sealing the dossier." }
 }

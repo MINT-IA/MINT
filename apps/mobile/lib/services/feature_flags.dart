@@ -84,7 +84,12 @@ class FeatureFlags {
   /// (RenteTrouee / CapaciteAchat / 3aLevier) before magic-link sealing.
   /// When true, the landing CTA routes new users into `/onb` instead of
   /// the legacy coach anonymous flow.
-  static bool enableMvpWedgeOnboarding = true;
+  ///
+  /// **Default: `false`** — rolled out via backend `applyFromMap` for staged
+  /// enablement (10% → 50% → 100%). Flip locally via GET
+  /// `/api/v1/config/feature-flags` returning `{"enableMvpWedgeOnboarding": true}`.
+  /// Kill-switch: backend set to false, no app redeploy needed.
+  static bool enableMvpWedgeOnboarding = false;
 
   // Phase 32 D-10 — local-only gate for /admin/*.
   // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
@@ -125,6 +130,9 @@ class FeatureFlags {
     }
     if (data.containsKey('enableAdminScreens')) {
       enableAdminScreens = data['enableAdminScreens'] == true;
+    }
+    if (data.containsKey('enableMvpWedgeOnboarding')) {
+      enableMvpWedgeOnboarding = data['enableMvpWedgeOnboarding'] == true;
     }
   }
 

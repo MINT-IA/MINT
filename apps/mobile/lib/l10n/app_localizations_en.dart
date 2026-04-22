@@ -22894,4 +22894,11 @@ class SEn extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Salary certificate scanned';
+
+  @override
+  String get onboardingSealError =>
+      'Couldn\'t seal your dossier. Check your connection and try again.';
+
+  @override
+  String get onboardingSealRetry => 'Try again';
 }

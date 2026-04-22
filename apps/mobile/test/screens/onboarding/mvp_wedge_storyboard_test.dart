@@ -13,14 +13,19 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 
 class _FakeCoachProfileProvider extends CoachProfileProvider {
   final List<Map<String, dynamic>> mergedCalls = [];
+  bool throwOnMerge = false;
 
   @override
   Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+    if (throwOnMerge) {
+      throw StateError('test: mergeAnswers failed');
+    }
     mergedCalls.add(Map<String, dynamic>.from(partial));
   }
 
@@ -48,7 +53,12 @@ Future<void> _pumpShell(
   await tester.pumpWidget(
     ChangeNotifierProvider<CoachProfileProvider>.value(
       value: fake,
-      child: MaterialApp.router(routerConfig: router),
+      child: MaterialApp.router(
+        routerConfig: router,
+        localizationsDelegates: S.localizationsDelegates,
+        supportedLocales: S.supportedLocales,
+        locale: const Locale('fr'),
+      ),
     ),
   );
   await tester.pumpAndSettle();
@@ -228,5 +238,66 @@ void main() {
     expect(merged['q_net_income_period_chf'], 7600);
     expect(merged['q_net_income_confidence'], 'high');
     expect(merged.containsKey('q_net_income_range_low'), isFalse);
+  });
+
+  testWidgets(
+      'T9 seal failure: SnackBar shown, user stays on email step, can retry',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider()..throwOnMerge = true;
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    // Drive through T6 → T9
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Plus tard'));
+    await tester.pumpAndSettle();
+
+    // T9 — seal with a valid email while mergeAnswers throws.
+    await tester.enterText(find.byType(TextField), 'toi@adresse.ch');
+    await tester.pump();
+    await tester.tap(find.text('Sceller le dossier'));
+    await tester.pump(); // dispatch the tap
+    await tester.pump(const Duration(milliseconds: 50)); // let the throw land
+
+    // The error SnackBar is visible, dossier is NOT sealed.
+    expect(
+      find.textContaining('Impossible de sceller ton dossier'),
+      findsOneWidget,
+    );
+    expect(find.text('Réessayer'), findsOneWidget);
+    // User still sees the email input, not the "scellé" confirmation.
+    expect(find.text('Ton dossier est scellé.'), findsNothing);
+    // Primary CTA is back to un-saving state — no merged profile either.
+    expect(fake.mergedCalls, isEmpty);
+  });
+
+  testWidgets(
+      'T8 Creuser: wantsDeeper is persisted in merged answers at T9',
+      (tester) async {
+    final fake = _FakeCoachProfileProvider();
+    await _pumpShell(tester, fake);
+    await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
+    await _commonData(tester);
+
+    // T6 → T7 → T8 : user picks "Creuser" instead of "Plus tard".
+    await tester.tap(find.text('Voir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Creuser'));
+    await tester.pumpAndSettle();
+
+    // T9
+    await tester.enterText(find.byType(TextField), 'deep@t.ch');
+    await tester.pump();
+    await tester.tap(find.text('Sceller le dossier'));
+    await tester.pumpAndSettle();
+
+    final merged = fake.mergedCalls.single;
+    expect(merged['q_wants_deeper'], isTrue);
   });
 }

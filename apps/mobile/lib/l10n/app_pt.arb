@@ -11085,5 +11085,7 @@
   "scanSummaryTaxDeclaration": "Declaração fiscal digitalizada",
   "scanSummaryAvsExtract": "Extrato AVS digitalizado",
   "scanSummaryMortgageAttestation": "Atestação hipoteca digitalizada",
-  "scanSummarySalaryCertificate": "Certificado de salário digitalizado"
+  "scanSummarySalaryCertificate": "Certificado de salário digitalizado",
+  "onboardingSealError": "Não foi possível selar o teu dossier. Verifica a tua conexão e tenta novamente.",
+  "onboardingSealRetry": "Tentar novamente"
 }

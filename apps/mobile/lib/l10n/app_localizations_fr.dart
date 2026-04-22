@@ -23006,4 +23006,11 @@ class SFr extends S {
 
   @override
   String get scanSummarySalaryCertificate => 'Certificat de salaire scanné';
+
+  @override
+  String get onboardingSealError =>
+      'Impossible de sceller ton dossier. Vérifie ta connexion et réessaie.';
+
+  @override
+  String get onboardingSealRetry => 'Réessayer';
 }

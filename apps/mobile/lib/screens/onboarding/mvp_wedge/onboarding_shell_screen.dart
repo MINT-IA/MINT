@@ -8,12 +8,15 @@
 /// Doctrine : `.planning/mvp-wedge-onboarding-2026-04-21/STORYBOARD-FINAL-LOCKED.md`
 library;
 
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/onboarding_intent.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/onboarding/mvp_wedge/dossier_strip.dart';
@@ -898,9 +901,38 @@ class _MagicLinkStepState extends State<_MagicLinkStep> {
   Future<void> _seal() async {
     final provider = context.read<OnboardingProvider>();
     final coach = context.read<CoachProfileProvider>();
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = S.of(context)!;
     provider.setEmail(_controller.text.trim());
     setState(() => _saving = true);
-    await provider.completeAndFlushToProfile(coach);
+    try {
+      await provider.completeAndFlushToProfile(coach);
+    } catch (e, stack) {
+      dev.log(
+        'MVP wedge seal failed',
+        error: e,
+        stackTrace: stack,
+        name: 'Onboarding',
+      );
+      if (!mounted) return;
+      setState(() => _saving = false);
+      messenger?.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: MintColors.textPrimary,
+          content: Text(
+            l10n.onboardingSealError,
+            style: GoogleFonts.inter(color: MintColors.background),
+          ),
+          action: SnackBarAction(
+            label: l10n.onboardingSealRetry,
+            textColor: MintColors.background,
+            onPressed: _seal,
+          ),
+        ),
+      );
+      return;
+    }
     if (!mounted) return;
     setState(() {
       _saving = false;

@@ -184,6 +184,15 @@ class OnboardingProvider extends ChangeNotifier {
 
   /// Persiste la capture dans `wizard_answers_v2` + seed
   /// `CoachProfileProvider`. Appelé après la saisie de l'email au T9.
+  ///
+  /// Failure modes (both throw — caller MUST try/catch, never silent-swallow) :
+  /// - `saveAnswers` → disk full, corrupted SharedPreferences, SecureWizardStore
+  ///   KeyChain unavailable. Without this, the magic-link email is saved but
+  ///   the answers are lost → user re-onboarded from zero on reopen.
+  /// - `mergeAnswers` → same SharedPreferences bucket, plus CoachProfile
+  ///   derivation errors. Backend sync is already fire-and-forget inside
+  ///   `mergeAnswers` (see `_syncToBackend`), so a thrown exception here
+  ///   means local seed failed — NOT a backend outage.
   Future<void> completeAndFlushToProfile(
     CoachProfileProvider coachProvider,
   ) async {
@@ -203,6 +212,7 @@ class OnboardingProvider extends ChangeNotifier {
       answers['q_net_income_confidence'] = 'medium';
     }
     if (_email != null) answers['q_email'] = _email;
+    answers['q_wants_deeper'] = _wantsDeeper;
 
     await ReportPersistenceService.saveAnswers(answers);
     await coachProvider.mergeAnswers(answers);
