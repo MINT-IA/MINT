@@ -156,7 +156,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 **Plans**: 5 plans (Wave 0 scaffolding + Wave 1 tool modules × 2 parallel + Wave 2 MCP server + Wave 3 CLAUDE.md trim)
 - [x] 30.7-00-PLAN.md — Wave 0: venv + mcp>=1.9 pin + accent_lint_fr.scan_text additive helper + CLAUDE.md baseline capture + claude_md_bracket dry-run (TOOL-04 prep)
 - [x] 30.7-01-PLAN.md — Wave 1: TOOL-01 get_swiss_constants (RegulatoryRegistry wrap) + TOOL-02 check_banned_terms (ComplianceGuard wrap, 10k DoS cap, module-scope guard)
-- [ ] 30.7-02-PLAN.md — Wave 1 parallel: TOOL-03 validate_arb_parity (subprocess + graceful fallback pre-Phase-34) + TOOL-04 check_accent_patterns (Wave 0 scan_text wrap)
+- [x] 30.7-02-PLAN.md — Wave 1 parallel: TOOL-03 validate_arb_parity (subprocess + graceful fallback pre-Phase-34) + TOOL-04 check_accent_patterns (Wave 0 scan_text wrap)
 - [ ] 30.7-03-PLAN.md — Wave 2: FastMCP server.py with 4 @mcp.tool() decorators + stderr logging + pytest-asyncio integration tests + .mcp.json at repo root + README first-run/kill-switch
 - [ ] 30.7-04-PLAN.md — Wave 3: atomic CLAUDE.md trim commit -30% (NEVER #5 → check_banned_terms pointer, NEVER WHY compression, §4b TOOLS stanza) + human checkpoint + kill-switch rehearsal
 **Budget**: 2-3j (~0.5 sem)
