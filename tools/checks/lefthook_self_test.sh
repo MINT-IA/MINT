@@ -27,9 +27,13 @@ TOPICS="$MEM/topics"
 FIXTURE_NAMESPACED="$TOPICS/__LEFTHOOK_SELF_TEST_31d__.md"
 FIXTURE_BREACH="$TOPICS/stalenote_lefthook_selftest_31d.md"
 
+# Phase 34 Plan 02 — temp git repo for no_bare_catch diff-only smoke.
+TMP_LINT=$(mktemp -d)
+
 # EXIT trap: guaranteed cleanup even on early abort.
 cleanup() {
   rm -f "$FIXTURE_NAMESPACED" "$FIXTURE_BREACH"
+  rm -rf "$TMP_LINT"
 }
 trap cleanup EXIT
 
@@ -76,7 +80,50 @@ if ! python3 tools/checks/accent_lint_fr.py --file tests/checks/fixtures/accent_
 fi
 echo "[self-test] accent_lint_fr: OK (FAIL + PASS cases green)"
 
+# ─── Phase 34 Plan 02 — no_bare_catch FAIL + PASS cases (D-25) ───
+# Uses a temp git repo so the diff-only lint has an actual staged diff
+# to examine. Exercises process_file() end-to-end, not just chmod +x
+# (façade-sans-câblage guard per Pitfall 1).
+REPO_ROOT="$(pwd)"
+(
+  cd "$TMP_LINT"
+  git init -q
+  git config user.email test@example.com
+  git config user.name Test
+  cat > bad.dart <<'EOF'
+void f() {
+  try { x(); } catch (e) {}
+}
+EOF
+  git add bad.dart
+)
+echo "[self-test] no_bare_catch: scanning known-bad diff..."
+if python3 "$REPO_ROOT/tools/checks/no_bare_catch.py" --repo-root "$TMP_LINT" --file bad.dart >/dev/null 2>&1; then
+  echo "self-test: FAIL — no_bare_catch did not catch bad diff (façade sans câblage)"
+  exit 1
+fi
+(
+  cd "$TMP_LINT"
+  cat > good.dart <<'EOF'
+void f() {
+  try {
+    x();
+  } catch (e) {
+    Sentry.captureException(e);
+    rethrow;
+  }
+}
+EOF
+  git add good.dart
+)
+echo "[self-test] no_bare_catch: scanning known-good diff..."
+if ! python3 "$REPO_ROOT/tools/checks/no_bare_catch.py" --repo-root "$TMP_LINT" --file good.dart >/dev/null 2>&1; then
+  echo "self-test: FAIL — no_bare_catch wrongly flagged good diff"
+  exit 1
+fi
+echo "[self-test] no_bare_catch: OK (FAIL + PASS cases green)"
+
 echo "self-test: reminder — Phase 34 fixtures under tests/checks/fixtures/ must be"
 echo "  added to each new lint's lefthook 'exclude:' list (per Pitfall 7)."
-echo "  Plan 01 accent-lint-fr command excludes fixtures; Plans 02-05 must follow."
+echo "  Plans 01 + 02 exclude fixtures; Plans 03-05 must follow."
 exit 0

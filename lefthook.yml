@@ -1,15 +1,20 @@
-# lefthook.yml — Phase 34 Wave 0 schema fix (GUARD-01)
+# lefthook.yml — Phase 34 Wave 0 schema fix (GUARD-01) + Plan 02 flip
 # Schema migration: top-level `skip:` was invalid in lefthook 2.1.x
 # (rejected by `lefthook validate`). Moved under `pre-commit:` block.
 # 30.5 D-01 skeleton preserved verbatim (memory-retention-gate +
 # map-freshness-hint). Phase 34 Plans 01-07 add 5 new lints on top.
-# parallel: false maintained in Wave 0; Plan 02 flips to true once
-# no-bare-catch (read-only lint) lands per RESEARCH §Pattern 6.
+# Plan 02 flipped parallel (see `pre-commit` block) once no-bare-catch
+# (read-only lint) landed per RESEARCH Pattern 6.
 
 min_version: 2.1.5
 
 pre-commit:
-  parallel: false
+  # Phase 34 Plan 02 — flipped to true per RESEARCH Pattern 6. All 5 Phase 34
+  # commands (memory-retention-gate, map-freshness-hint, accent-lint-fr,
+  # no-bare-catch, + future GUARD-03/05 lints) are read-only: they invoke
+  # `git diff --staged` / file reads / regex only. Zero `.git/index.lock`
+  # contention. Exit code = max across commands (lefthook 2.1.x semantics).
+  parallel: true
   skip:
     - merge
     - rebase
@@ -28,8 +33,9 @@ pre-commit:
     #  - tests/checks/fixtures/** — Wave 0 fixtures contain deliberate bad
     #    accents as test input.
     #  - tools/mcp/mint-tools/tests/** — Phase 30.7 TOOL-04 parametrize
-    #    cases MUST contain ASCII-flattened stems verbatim ("creer" etc)
-    #    to assert scan_text fires. Scanning them would be Pitfall 7.
+    #    cases MUST contain the ASCII-flattened CLAUDE.md §2 stems verbatim
+    #    as test inputs to assert scan_text fires. Scanning them would be
+    #    Pitfall 7 (self-regression via legitimate test data).
     #  - tests/checks/test_accent_lint_fr.py — this lint's own pytest
     #    suite contains ASCII stems in its canonical set assertions.
     accent-lint-fr:
@@ -50,3 +56,21 @@ pre-commit:
         - "tests/checks/test_accent_lint_fr.py"
         - "tools/mcp/mint-tools/tests/**"
       tags: [i18n, phase-34]
+    # ─── Phase 34 GUARD-02 (diff-only, D-05/D-06/D-07) ───────────────────
+    # Scans ONLY the lines added by the staged diff (D-07) -- decouples
+    # Phase 34 from Phase 36 FIX-05 migration of 388 existing bare-catches.
+    # Dart `} catch (e) {}` + Python `except Exception: pass` without
+    # log/rethrow. Exemptions: test/integration_test paths, async *
+    # generators, inline `// lefthook-allow:bare-catch: <reason>` (>=3 words).
+    # `exclude:` is belt-and-braces for the 4 D-06 authorised path prefixes;
+    # the lint's `is_exempt_path()` also rejects them for pytest independence.
+    # No broad `tests/**` exclude (W1 guard).
+    no-bare-catch:
+      run: python3 tools/checks/no_bare_catch.py --staged
+      glob: "*.{dart,py}"
+      exclude:
+        - "apps/mobile/test/**"
+        - "apps/mobile/integration_test/**"
+        - "services/backend/tests/**"
+        - "tests/checks/fixtures/**"
+      tags: [safety, phase-34]
