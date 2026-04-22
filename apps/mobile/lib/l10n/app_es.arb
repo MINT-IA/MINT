@@ -2742,7 +2742,7 @@
   "forfaitFiscalSaving": "Économie forfait",
   "forfaitFiscalSurcharge": "Surcoût forfait",
   "forfaitFiscalPerYear": "par année",
-  "forfaitFiscalSemanticsLabel": "Comparación forfait fiscal. Imposición ordinaria: {ordinary}. Forfait fiscal: {forfait}.",
+  "forfaitFiscalSemanticsLabel": "Comparación forfait fiscal. Imposición ordinaria: {ordinary}. Forfait fiscal: {forfait}. Ahorro: {savings}.",
   "@forfaitFiscalSemanticsLabel": {
     "placeholders": {
       "ordinary": {
