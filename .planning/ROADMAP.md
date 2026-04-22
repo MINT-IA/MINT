@@ -106,7 +106,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend (completed 2026-04-19)
 - [x] **Phase 32: Cartographier** — Route registry-as-code **147 routes** (reconciled 2026-04-20) + CLI `./tools/mint-routes` live health + Flutter UI `/admin/routes` schema viewer + parity lint + analytics **43 legacy redirects** (reconciled) (completed 2026-04-20)
 - [ ] **Phase 33: Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems + admin UI
-- [ ] **Phase 34: Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch, hardcoded-FR, accent, ARB parity, proof-of-read) + CI thinning
+- [x] **Phase 34: Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch, hardcoded-FR, accent, ARB parity, proof-of-read) + CI thinning (completed 2026-04-22)
 - [ ] **Phase 35: Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
 - [ ] **Phase 36: Finissage E2E** — 4 P0 fixes (UUID / anonymous / save_fact / Coach tab) + 388 catches → 0 + MintShell ARB parity audit + accents 100%
 
@@ -235,7 +235,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] 34-04-PLAN.md — Wave 3 ∥: GUARD-05 arb_parity.py stdlib-only (D-13/D-14/D-15) — 6-lang keyset + ICU placeholder name parity, baseline 6707 keys × 6 langs PASSES + 9 pytest
 - [x] 34-05-PLAN.md — Wave 3 ∥: GUARD-06 proof_of_read.py on commit-msg hook (D-04 AMENDED — single commit-msg block allowed) + T-34-SPOOF-01 mitigation (.planning/phases/ prefix) + 10 pytest
 - [x] 34-06-PLAN.md — Wave 4 ∥: GUARD-07 CONTRIBUTING.md (new, LEFTHOOK_BYPASS convention + --no-verify ban) + bypass-audit.yml weekly cron + post-merge (D-21/D-22, secondary awareness)
-- [ ] 34-07-PLAN.md — Wave 4 ∥: GUARD-08 CI thinning (remove 4 lint invocations lines 161/207/211/448) + 4 migrated lints added to lefthook + lefthook-ci.yml D-24 primary ground-truth + final P95 <5s assertion
+- [x] 34-07-PLAN.md — Wave 4 ∥: GUARD-08 CI thinning (remove 4 lint invocations lines 161/207/211/448) + 4 migrated lints added to lefthook + lefthook-ci.yml D-24 primary ground-truth + final P95 <5s assertion
 **Budget**: 1.5 sem (peut emprunter de 31 seulement, parallèle possible avec 31)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. lefthook + lints, 0 UI à tester sur simulateur. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
