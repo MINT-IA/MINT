@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: verifying
-stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim, commit 43a38dff ; Julien approved cold-read + kill-switch rehearsal 2026-04-22 ; Phase 30.7 5/5 plans COMPLETE, ready for /gsd-verify-work 30.7 on feature/S30.7-tools-deterministes)
-last_updated: "2026-04-22T18:30:21.726Z"
+stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
+last_updated: "2026-04-22T18:39:43.015Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
@@ -39,8 +39,8 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 30.7 (Tools Déterministes) — COMPLETE (5/5 plans shipped)
-Plan: 5 of 5 complete
+Phase: 31
+Plan: Not started
 Status: Phase complete — ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1)
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
