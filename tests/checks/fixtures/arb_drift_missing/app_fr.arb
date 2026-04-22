@@ -1,0 +1,10 @@
+{
+  "@@locale": "fr",
+  "hello": "Bonjour {name}",
+  "@hello": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "goodbye": "Au revoir"
+}

@@ -59,4 +59,8 @@ if [ "$RC" -eq 0 ]; then
 fi
 
 echo "self-test: OK — lefthook caught the stale fixture as expected (exit $RC)"
+
+echo "self-test: reminder — Phase 34 fixtures under tests/checks/fixtures/ must be"
+echo "  added to each new lint's lefthook 'exclude:' list (per Pitfall 7)."
+echo "  This self-test still only exercises the 30.5 retention gate."
 exit 0

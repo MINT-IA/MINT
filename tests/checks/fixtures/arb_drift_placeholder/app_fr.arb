@@ -1,0 +1,9 @@
+{
+  "@@locale": "fr",
+  "welcome": "Bienvenue {name}",
+  "@welcome": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  }
+}

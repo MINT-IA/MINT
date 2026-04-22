@@ -1,0 +1,5 @@
+{
+  "@@locale": "it",
+  "hello": "Ciao {name}",
+  "goodbye": "Arrivederci"
+}

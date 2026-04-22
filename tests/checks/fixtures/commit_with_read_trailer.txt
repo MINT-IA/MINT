@@ -1,0 +1,6 @@
+feat(34): wire no_bare_catch lint
+
+Implements GUARD-02 per 34-CONTEXT.md D-05.
+
+Read: .planning/phases/34-agent-guardrails-m-caniques/34-02-READ.md
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
