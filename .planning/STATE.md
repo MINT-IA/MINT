@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: executing
-stopped_at: Completed 30.7-03-PLAN.md (FastMCP server + .mcp.json shipped, Wave 2 complete; Wave 3 CLAUDE.md trim unblocked)
-last_updated: "2026-04-22T17:48:23.525Z"
+status: verifying
+stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim, commit 43a38dff ; Julien approved cold-read + kill-switch rehearsal 2026-04-22 ; Phase 30.7 5/5 plans COMPLETE, ready for /gsd-verify-work 30.7 on feature/S30.7-tools-deterministes)
+last_updated: "2026-04-22T18:30:21.726Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 22
-  completed_plans: 21
-  percent: 95
+  completed_plans: 22
+  percent: 100
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -39,13 +39,13 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 30.7 (Tools Déterministes) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
+Phase: 30.7 (Tools Déterministes) — COMPLETE (5/5 plans shipped)
+Plan: 5 of 5 complete
+Status: Phase complete — ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1)
 Last activity: 2026-04-22
-Next: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` — 6/6 plans have SUMMARY, VALIDATION.md reflects reality (3 PASS + 3 BLOCKED + 0 FAIL), 3 RISK entries await Julien ack for nyquist_compliant flip
+Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
 
-Progress: [██████████] 100% (4/9 phases, 17/17 plans) — phase 32: 6/6 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui + 32-04 parity-lint + 32-05 ci-docs-validation green)
+Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Phase 30.7 5/5 shipped (30.7-00 wave0 + 30.7-01 tools 1+2 + 30.7-02 tools 3+4 + 30.7-03 mcp-server + 30.7-04 CLAUDE.md trim -30%) ; Phase 32 6/6 shipped (reconcile + registry + cli + admin-ui + parity-lint + ci-docs-validation).
 
 ## Build Order
 
@@ -97,6 +97,7 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 | Phase 30.7 P01 | 15 min | 2 tasks | 4 files |
 | Phase 30.7 P02 | 4min | 2 tasks | 4 files |
 | Phase 30.7 P30.7-03 | 5min | 2 tasks | 5 files |
+| Phase 30.7 P30.7-04 | 35 min | 2 tasks (T1 trim + T2 checkpoint) | 1 file (CLAUDE.md) | 2026-04-22 |
 
 ## Accumulated Context
 
@@ -112,6 +113,17 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 30.7-04 Decisions (CLAUDE.md Atomic Trim -30%, shipped 2026-04-22)
+
+- **30.7-04** (commit `43a38dff`): atomic CLAUDE.md trim 121 → 80 lines / 8019 → 5608 bytes / 2004 → 1402 est-tokens — **-30% on 3/3 dimensions** (lines -33.9%, bytes -30.1%, est_tokens -30.0%). Kill-policy -20% floor UNUSED, no escalation needed.
+- **TOOL-01..04 discoverability preserved**: §3 MCP TOOLS stanza inlined 2 dense lines naming all 4 tools (`get_swiss_constants`, `check_banned_terms`, `validate_arb_parity`, `check_accent_patterns`). Cross-pointers in NEVER #1 (validate_arb_parity) + NEVER #5 (check_banned_terms — body replaced by MCP pointer, not silently deleted) so agents hit the tool call-site in context rather than rederiving rules from memory.
+- **Liu 2024 byte-invariance preserved**: TOP 5 RULES CRITIQUES + BOTTOM 5 RULES CRITIQUES blocks kept byte-for-byte (modulo trailing whitespace), Rule #1 top-3 banned terms (« garanti » / « optimal » / « meilleur ») + Rule #2 `creer → créer` accent rule verbatim in both windows. Bracket lint `python3 tools/checks/claude_md_bracket.py` exits 0 post-trim ; 10 NEVER triplets preserved (grep -c == 10).
+- **Kill-switch rehearsal PASSED 2026-04-22** (T2 Step 3): `git revert 43a38dff` restores baseline exactly (121 / 8019 / 2004 matches `.claude_md_baseline.json`), `git reset --hard 43a38dff` re-applies trim cleanly, `--assert-delta 30` exits 0 post-reset with 3/3 PASS. Reversibility empirically mitigates threat T-30.7-04-03 (kill-switch broken + agents see neither rules nor tools). Restoration time <5s.
+- **Julien semantic cold-read APPROVED 2026-04-22** (T2 Step 1): all load-bearing info preserved ; meta-workflow conventions (Co-Authored-By attribution, LEFTHOOK_BYPASS escape hatch) moved OUT of CLAUDE.md body but still discoverable via `.claude/skills/mint-commit/SKILL.md` + `rules.md` + hook reminders — acceptable trade-off for -30% target.
+- **J0 fresh-session smoke (T2 Step 5) DEFERRED to post-merge operational validation** on creator's machine — requires fresh Claude Code session + `.mcp.json` first-run approval + `get_swiss_constants("pillar3a")` invocation. NOT a code gate, NOT a merge blocker — tool contract is already exercised by 78/78 Wave 2 pytest integration tests.
+- **Trim methodology** (2 compression passes): pass 1 merged §1 IDENTITY + §2 ARCHITECTURE (reclaim header overhead), compressed §4 ROLE ROUTING to 1 inline sentence, §5 DEV RULES from 5 bullets → 2, §6 NEVER triplets to one-liner `❌ X · ✅ Y · ⚠️ Z` format, §7 QUICK LINKS to 1 line. Pass 2 dropped file to 76 lines (below bracket-lint's 80-line minimum for 2×WINDOW_LINES bracketing) ; fixed by splitting NEVER #1 + NEVER #5 from `· ` separator format into 3-line bullet format (net +4 lines, -4 bytes) + bonus `"Quickref. Role detail" → "Detail"` trim (-15 bytes) that pushed bytes from 5623 to 5608, crossing the -30% threshold (5613).
+- **Token budget impact**: projected savings ~600 tokens/session × N sessions = massive cumulative gain for every future Claude Code session auto-loading CLAUDE.md. Phase 30.7 ship status: 4/4 tools live via MCP stdio + `.mcp.json` committed + CLAUDE.md trim verified + kill-switch rehearsed + 18+ tests green.
 
 ### Phase 30.6 Decisions (Context Sanity Advanced, shipped 2026-04-19)
 
@@ -221,9 +233,9 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T17:48:23.523Z
-Stopped at: Completed 30.7-03-PLAN.md (FastMCP server + .mcp.json shipped, Wave 2 complete; Wave 3 CLAUDE.md trim unblocked)
+Last session: 2026-04-22T18:15:00.000Z
+Stopped at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
 Resume file: None
 
 ---
-*Last activity: 2026-04-19 — v2.8 ROADMAP.md created, 8 phases (30.5 → 36), 48 REQ mapped 1:1, build order 30.5 → 30.6 → (31∥34) → (32∥33) → 35 → 36*
+*Last activity: 2026-04-22 — Phase 30.7 Tools Déterministes 5/5 plans shipped (Wave 0 scaffolding → Wave 1 tools 1-4 → Wave 2 MCP server + .mcp.json → Wave 3 CLAUDE.md trim -30%). TOOL-01..04 all complete. Next: `/gsd-verify-work 30.7` then unblock (31∥34) parallel window.*

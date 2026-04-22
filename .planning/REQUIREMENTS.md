@@ -171,10 +171,10 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 | CTX-03 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
 | CTX-04 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
 | CTX-05 | **30.6** | spike gate go/no-go | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
-| TOOL-01 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| TOOL-02 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| TOOL-03 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| TOOL-04 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
+| TOOL-01 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-01 get_swiss_constants + 30.7-03 MCP server + 30.7-04 CLAUDE.md pointer @ `43a38dff`) |
+| TOOL-02 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-01 check_banned_terms + 30.7-03 MCP server + 30.7-04 NEVER #5 pointer @ `43a38dff`) |
+| TOOL-03 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-02 validate_arb_parity + check_accent_patterns + 30.7-03 MCP server + 30.7-04 pointer @ `43a38dff`) |
+| TOOL-04 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-04 CLAUDE.md atomic trim -30% on 3/3 dims @ `43a38dff`, kill-switch rehearsed + Julien approved) |
 | OBS-01 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
 | OBS-02 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
 | OBS-03 | 31 | — | Complete 2026-04-19 (Plan 31-02) |
@@ -264,4 +264,4 @@ See [MILESTONES.md](MILESTONES.md) for accomplishments summary.
 
 ---
 *Requirements defined: 2026-04-12 (v2.5), 2026-04-14 (v2.7), 2026-04-19 (v2.8)*
-*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle requirements defined post-research ; traceability expanded per-REQ, count corrected 50→48*
+*Last updated: 2026-04-22 — Phase 30.7 Tools Déterministes COMPLETE : TOOL-01 / TOOL-02 / TOOL-03 / TOOL-04 all flipped to Complete (5/5 plans shipped, commit `43a38dff` caps the CLAUDE.md -30% atomic trim, Julien approved cold-read + kill-switch rehearsal).*
