@@ -23,6 +23,7 @@ Livrer **lefthook 2.1.5 pre-commit parallel <5s** avec **5 lints mécaniques act
 - **D-02** : **`parallel: true`** activé (Phase 30.5 D-04 notait `parallel: false until phase 34 — race conditions on .git/index.lock`). Budget <5s absolu mesuré sur M-series Mac avec diff typique (5 Dart + 3 Python staged). Mesure via `LEFTHOOK_PROFILE=1 time git commit --allow-empty -m 'perf'` capturé dans SUMMARY.
 - **D-03** : **Scope changed-files only** via `glob:` filter par commande (`*.dart`, `*.py`, `*_fr.arb`, etc.). Pas de full-repo scan dans aucun hook.
 - **D-04** : Installation via `brew install lefthook` + `lefthook install` post-clone documenté dans `CONTRIBUTING.md`. Version pin `min_version: 2.1.5`. Pas de `pre-push`, pas de `commit-msg` dans cette phase (reste pre-commit only).
+- **D-27 (amends D-04, per Plan 34-05 + RESEARCH Open Question 1)** : la scope D-04 « pre-commit only » est étendue à **un seul `commit-msg` block** dédié à GUARD-06 proof-of-read. Raison : le `Read:` trailer n'existe pas encore au moment du pre-commit (git n'a pas encore ouvert `COMMIT_EDITMSG`). Tous les autres lints (GUARD-01..05, GUARD-07, GUARD-08) restent pre-commit. Validé par Plan 34-05 Task 2A + SUMMARY.
 
 ### GUARD-02 — no_bare_catch lint (Dart + Python)
 - **D-05** : **Regex-first** (pas AST). Patterns détectés :

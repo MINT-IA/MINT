@@ -1267,37 +1267,43 @@ Line numbers verified on `feature/S30.7-tools-deterministes` HEAD 2026-04-22.
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Commit-msg hook scope (D-04 vs D-17)**
    - What we know: D-04 says "Pas de commit-msg dans cette phase". D-17 describes a check that requires commit-msg timing.
    - What's unclear: Was D-04 written before D-17 was finalized, or is there an implicit assumption GUARD-06 runs in `post-commit`?
    - Recommendation: Plan should surface this as an "amend D-04" or "use post-commit" decision point. Recommended: amend D-04 to allow exactly one `commit-msg:` block (the proof-of-read check). Justification: post-commit is too late (commit already written; `git commit --amend` required to fix).
+   - **→ RESOLVED** via Plan 34-05: D-04 amended (new D-27 in CONTEXT.md), commit-msg hook for proof-of-read only; no other lints migrate to commit-msg.
 
 2. **accent_lint_fr.py pattern reconciliation**
    - What we know: CLAUDE.md §2 lists 14 patterns. `tools/checks/accent_lint_fr.py` has 14 patterns but overlap is ~11 — `specialistes`/`gerer`/`progres` in script are not in CLAUDE.md; CLAUDE.md's `prevoyance`/`reperer`/`cle` are not in script.
    - What's unclear: Is the script's list or CLAUDE.md's list the authoritative one?
    - Recommendation: Plan GUARD-04 activation task should include a "reconcile to 14 canonical patterns" sub-step. Canonical source = CLAUDE.md §2 (user-facing doctrine). Add the 3 missing, remove the 3 extras or document them as bonus.
+   - **→ RESOLVED** via Plan 34-01: reconciled to CLAUDE.md §2 canonical 14-pattern set.
 
 3. **`no_hardcoded_fr.py` scope cleanup**
    - What we know: Script exists, early-ship covers the whole `apps/mobile/lib/`, excludes `lib/l10n/` + `test/`. D-08 narrows scope to widgets/screens/features only.
    - What's unclear: Should the early-ship version be moved/refactored, or kept and the lefthook `glob:` enforce the D-08 scope?
    - Recommendation: Enforce via lefthook `glob: "apps/mobile/lib/{widgets,screens,features}/**/*.dart"`. Keep Python script's internal `DEFAULT_SCOPE` broader for manual full-repo scans. Plan GUARD-03 task: minor script-internal changes to add `// lefthook-allow:hardcoded-fr:` override; glob does the scope restriction.
+   - **→ RESOLVED** via Plan 34-03: glob-based scope enforced in lefthook.yml filter; script DEFAULT_SCOPE left broader for manual audits.
 
 4. **Benchmark ground truth — is P95 <5s achievable?**
    - What we know: 5 new lints + 2 skeleton commands = 7 parallel commands.
    - What's unclear: Actual wall-time is unknown until measured. CONTEXT says "M-series Mac with diff typique 5 Dart + 3 Python". No data today.
    - Recommendation: Wave 0 MUST run `lefthook_benchmark.sh` and report P95 in the SUMMARY. If P95 >5s, the plan must have a documented escalation (CONTEXT specifics §1: "paralléliser davantage" or "déplacer un lint à CI").
+   - **→ RESOLVED** via Plan 34-00 (baseline capture) + Plan 34-07 (`--assert-p95=5` enforced as final gate with all 10 pre-commit lints active).
 
 5. **Is the proof-of-read `Read:` trailer a hard convention — what about squash merges?**
    - What we know: MINT uses squash-merge for `feature → dev`. `Co-Authored-By` trailers from feature branch commits get preserved in squash by `gh pr merge --squash` (if commit messages contain them).
    - What's unclear: When Phase 34 eventually squashes, will `Read:` trailers aggregate correctly? If multiple commits each had a `Read:` trailer, the squash message concatenates them but may dedupe or lose them per git's `--trailer` handling.
    - Recommendation: GUARD-06 runs per-commit on developer machine (and per-commit in `lefthook-ci.yml` D-24 via `git log --format=%B origin/<base>..HEAD`). Squash artefact is a separate question — if Julien wants "squashed commit must ALSO have Read: trailer aggregating all", that's v2.9. Phase 34 scope: per-commit on feature branches only.
+   - **→ RESOLVED** documented as out-of-scope Phase 34 (v2.9 squash-merge Read-trailer aggregation deferred).
 
 6. **`LEFTHOOK_BYPASS` detection in commit body — is it really grep-able?**
    - What we know: Env var is runtime-only and leaves no trace on the commit object.
    - What's unclear: D-20 and D-21 both imply "grep-able shell history" / "grep LEFTHOOK_BYPASS in commit bodies" — but the operator would have to manually add it to their commit message, which is a voluntary act.
    - Recommendation: Make D-20 CONTRIBUTING.md text state: "When you use `LEFTHOOK_BYPASS=1`, include `[bypass: <reason>]` in the commit message so the weekly audit can detect it." D-21 grep then picks up `LEFTHOOK_BYPASS` (env) or `[bypass:` (message convention). Treat D-24 (`lefthook-ci.yml`) as the PRIMARY ground-truth catcher.
+   - **→ RESOLVED** via Plan 34-06 (CONTRIBUTING.md `[bypass: <reason>]` convention + weekly audit workflow) + Plan 34-07 D-24 CI re-run as primary ground truth.
 
 ---
 
