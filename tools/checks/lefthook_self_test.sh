@@ -158,7 +158,28 @@ if ! python3 tools/checks/arb_parity.py --dir tests/checks/fixtures/arb_parity_p
 fi
 echo "[self-test] arb_parity: OK (FAIL + PASS cases green)"
 
+# ─── Phase 34 Plan 05 — proof_of_read FAIL + PASS cases (D-25) ───
+# Direct invocation against the Wave 0 commit-msg fixtures. Covers the
+# bypass path (human commit, no Claude trailer -> exit 0) and the
+# fail path (Claude trailer without Read: -> exit 1). The PASS case with
+# a valid Read: trailer requires an on-disk READ.md; that round-trip is
+# covered by pytest (test_proof_of_read.py) with tmp_path, not repeated
+# here to keep self-test runtime bounded and avoid depending on the
+# current working tree state of .planning/phases/.
+echo "[self-test] proof_of_read: human commit (no Claude trailer) must PASS..."
+if ! python3 tools/checks/proof_of_read.py --commit-msg-file tests/checks/fixtures/commit_human_no_claude.txt >/dev/null 2>&1; then
+  echo "self-test: FAIL — proof_of_read wrongly rejected human commit"
+  exit 1
+fi
+echo "[self-test] proof_of_read: Claude commit without Read: must FAIL..."
+if python3 tools/checks/proof_of_read.py --commit-msg-file tests/checks/fixtures/commit_without_read_trailer.txt >/dev/null 2>&1; then
+  echo "self-test: FAIL — proof_of_read did not catch missing Read: trailer"
+  exit 1
+fi
+echo "[self-test] proof_of_read: OK (human bypass + Claude-no-Read FAIL cases green)"
+
 echo "self-test: reminder — Phase 34 fixtures under tests/checks/fixtures/ must be"
 echo "  added to each new lint's lefthook 'exclude:' list (per Pitfall 7)."
-echo "  Plans 01 + 02 + 03 + 04 exclude fixtures; Plan 05 must follow."
+echo "  Plans 01 + 02 + 03 + 04 exclude fixtures; Plan 05 commit-msg hook"
+echo "  scans COMMIT_EDITMSG (not files) so fixture-exclusion N/A for it."
 exit 0

@@ -105,3 +105,26 @@ pre-commit:
       exclude:
         - "tests/checks/fixtures/**"
       tags: [i18n, phase-34]
+
+# ─── Phase 34 GUARD-06 proof-of-read (commit-msg hook) ────────────────────
+# D-04 AMENDED by CONTEXT D-27 (Plan 34-05 + RESEARCH Open Question 1
+# Option A): Phase 34 authorises EXACTLY ONE `commit-msg:` block,
+# dedicated to proof-of-read. No other lint migrates to commit-msg; all
+# GUARD-01..05/07/08 lints stay pre-commit.
+#
+# Rationale: D-17 requires access to the commit message text. Pre-commit
+# runs before the message is typed; post-commit runs after the commit is
+# written to history. Only `commit-msg` fires at the right moment with
+# `.git/COMMIT_EDITMSG` accessible via the `{1}` placeholder.
+#
+# Scope discipline: this block contains exactly ONE command. Do NOT add
+# other lints here. Future commit-msg lints require a new CONTEXT
+# amendment on top of D-27.
+commit-msg:
+  commands:
+    proof-of-read:
+      # {1} = path to .git/COMMIT_EDITMSG (lefthook 2.1.6 placeholder
+      # convention). Human commits (no Co-Authored-By: Claude trailer)
+      # bypass automatically per D-17.
+      run: python3 tools/checks/proof_of_read.py --commit-msg-file {1}
+      tags: [agents, proof-of-read, phase-34]
