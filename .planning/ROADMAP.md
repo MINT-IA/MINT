@@ -234,7 +234,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 - [x] 34-03-PLAN.md — Wave 3 ∥: GUARD-03 no_hardcoded_fr tightened per D-08/D-09/D-10 (scope glob + patterns + override) + 11 pytest
 - [x] 34-04-PLAN.md — Wave 3 ∥: GUARD-05 arb_parity.py stdlib-only (D-13/D-14/D-15) — 6-lang keyset + ICU placeholder name parity, baseline 6707 keys × 6 langs PASSES + 9 pytest
 - [x] 34-05-PLAN.md — Wave 3 ∥: GUARD-06 proof_of_read.py on commit-msg hook (D-04 AMENDED — single commit-msg block allowed) + T-34-SPOOF-01 mitigation (.planning/phases/ prefix) + 10 pytest
-- [ ] 34-06-PLAN.md — Wave 4 ∥: GUARD-07 CONTRIBUTING.md (new, LEFTHOOK_BYPASS convention + --no-verify ban) + bypass-audit.yml weekly cron + post-merge (D-21/D-22, secondary awareness)
+- [x] 34-06-PLAN.md — Wave 4 ∥: GUARD-07 CONTRIBUTING.md (new, LEFTHOOK_BYPASS convention + --no-verify ban) + bypass-audit.yml weekly cron + post-merge (D-21/D-22, secondary awareness)
 - [ ] 34-07-PLAN.md — Wave 4 ∥: GUARD-08 CI thinning (remove 4 lint invocations lines 161/207/211/448) + 4 migrated lints added to lefthook + lefthook-ci.yml D-24 primary ground-truth + final P95 <5s assertion
 **Budget**: 1.5 sem (peut emprunter de 31 seulement, parallèle possible avec 31)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. lefthook + lints, 0 UI à tester sur simulateur. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).

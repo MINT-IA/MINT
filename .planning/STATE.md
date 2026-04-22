@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 34-05-PLAN.md (GUARD-06 proof_of_read commit-msg hook, D-27 amendment live, T-34-SPOOF-01 mitigation, 12/12 pytest green, self-test 6 sections green, P95 0.090s unchanged, end-to-end self-compliance proven on Task 2 commit d4b5196e)
-last_updated: "2026-04-22T21:04:48.675Z"
+stopped_at: Completed 34-06-PLAN.md (GUARD-07 LEFTHOOK_BYPASS convention + weekly bypass-audit.yml workflow, D-20/D-21/D-22 triplet shipped, 4 deviations all Rule 1/2 additive, commits 75e1d6d7 + ba9cf0a3, 6/8 Phase 34 REQs complete, observation-window deferrals documented for /gsd-verify-work)
+last_updated: "2026-04-22T21:14:09.121Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 30
-  completed_plans: 28
-  percent: 93
+  completed_plans: 29
+  percent: 97
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
@@ -104,6 +104,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 34 P03 | ~4min | 2 tasks | 5 files |
 | Phase 34 P04 | 8min | 2 tasks | 7 files |
 | Phase 34 P05 | 15min | 2 tasks | 7 files |
+| Phase 34 P06 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,22 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-06 Decisions (GUARD-07 bypass convention + weekly audit, shipped 2026-04-22)
+
+- **34-06** (commits `75e1d6d7` → `ba9cf0a3`): GUARD-07 activated via D-20/D-21/D-22 inseparable triplet. CONTRIBUTING.md extended from 34-05 bootstrap (31 → 155 lines, 6 sections) with §3 bypass policy locking LEFTHOOK_BYPASS=1 as SOLE authorised bypass + `[bypass: <three-word-reason-minimum>]` commit-body marker (RESEARCH Open Question 6 recommendation) + explicit ban on `--no-verify` (no trace in commit object = defeats audit). `.github/workflows/bypass-audit.yml` shipped: Monday 09:00 UTC schedule cron + push-to-dev + workflow_dispatch triggers; grep regex `LEFTHOOK_BYPASS|\[bypass:` on 7-day `origin/dev` window; auto-issue label `bypass-audit` when count > 3 (D-22).
+- **Voluntary-signal design accepted** (RESEARCH Pitfall 6 + Open Question 6) — there is NO way to mechanically force operators to use `LEFTHOOK_BYPASS=1` instead of `--no-verify`. The weekly audit measures AWARENESS (did the operator voluntarily signal the bypass?); the ground-truth REGRESSION detector remains Plan 34-07 `lefthook-ci.yml` (D-24). Every audit surface (CONTRIBUTING §3, workflow header, issue body) cites Plan 34-07 explicitly — resolves RESEARCH Open Question 6 on complementarity.
+- **4 Rule 1/2 auto-fixes (all strictly additive, no scope creep)**:
+  - `workflow_dispatch` trigger added (Rule 2) — plan + RESEARCH Example 5 skeleton only listed schedule + push; without manual trigger, observation-window validation would require waiting until Monday 09:00 UTC for first firing.
+  - Idempotent issue creation via `listForRepo({state: 'open', labels: 'bypass-audit'})` → comment-on-existing vs create-new branch (Rule 2) — both schedule AND push can fire the same week; title includes week-tag YYYY-MM-DD so GitHub's native title dedup would not help.
+  - Triage body includes short hashes + authors + subjects via secondary `git log --pretty='- %h %an — %s'` pass (Rule 2) — plan body only included count + manual triage command; maintainer needs the commit list IN the issue.
+  - Grep regex expanded from `LEFTHOOK_BYPASS` (plan literal) to `LEFTHOOK_BYPASS|\[bypass:` (Rule 1 bug) — CONTRIBUTING.md §3 recommends operators type `[bypass: <reason>]` in commit body as PERSISTED audit signal (env var never touches commit object); using grep-for-env-var-only would under-count every well-behaved bypass.
+- **Traceability table in CONTRIBUTING.md §2** — 7 active lints mapped 1:1 to GUARD-01..06 requirements with scope + purpose, ready for onboarding any new dev (human or agent).
+- **Pattern C established (reusable)**: issue-creation idempotency via `listForRepo` preferable to GitHub's native dedup when titles include dynamic tags (week/date/build). Pattern applicable to any future scheduled audit that also accepts post-event triggers.
+- **Zero threat flags** — plan adds docs + CI workflow only. No new endpoints, no new auth paths, no schema changes. `permissions: issues: write` on default GITHUB_TOKEN (A9 — same scope as `sync-branches.yml` baseline).
+- **No user setup required** — workflow uses default `GITHUB_TOKEN` (A9 confirmed). No external secrets, no dashboard configuration beyond pre-existing "Allow GitHub Actions to create and approve pull requests" setting already used by `sync-branches.yml`.
+- **3 observation-window verifications documented** (VALIDATION.md §Manual-Only) — (1) Monday cron actually firing requires 7-day wait; (2) synthetic >3 detection requires deliberate operator bypasses over a week; (3) lefthook-ci.yml complementarity requires Plan 34-07 shipped + PRs through both gates. All 3 flagged `verify_type: observation_window` in SUMMARY — NOT gating for `/gsd-verify-work 34-06`.
+- **Requirements-completed: [GUARD-07]** — 6/8 Phase 34 requirements done (GUARD-02 + GUARD-03 + GUARD-04 + GUARD-05 + GUARD-06 + GUARD-07). Only GUARD-01 (lefthook foundation, implicitly shipped 34-00) and GUARD-08 (CI thinning + lefthook-ci.yml) remain — both owned by Plan 34-07 which is now unblocked.
 
 ### Phase 34-05 Decisions (GUARD-06 proof_of_read commit-msg hook + D-04→D-27 amendment, shipped 2026-04-22)
 
@@ -318,8 +335,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T21:04:48.672Z
-Stopped at: Completed 34-05-PLAN.md (GUARD-06 proof_of_read commit-msg hook, D-27 amendment live, T-34-SPOOF-01 mitigation, 12/12 pytest green, self-test 6 sections green, P95 0.090s unchanged, end-to-end self-compliance proven on Task 2 commit d4b5196e)
+Last session: 2026-04-22T21:14:09.117Z
+Stopped at: Completed 34-06-PLAN.md (GUARD-07 LEFTHOOK_BYPASS convention + weekly bypass-audit.yml workflow, D-20/D-21/D-22 triplet shipped, 4 deviations all Rule 1/2 additive, commits 75e1d6d7 + ba9cf0a3, 6/8 Phase 34 REQs complete, observation-window deferrals documented for /gsd-verify-work)
 Resume file: None
 
 ---
