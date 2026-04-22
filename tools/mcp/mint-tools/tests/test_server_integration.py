@@ -107,17 +107,18 @@ def test_no_stdout_pollution() -> None:
     Every non-empty stdout line MUST be valid JSON (the JSON-RPC frame from
     FastMCP's initial exchange) — any plain-text banner or logging leak fails.
     """
+    # stdin=DEVNULL → child sees immediate EOF on stdin, FastMCP stdio loop
+    # exits cleanly. Using PIPE + close() triggers a Python 3.11 ValueError
+    # in communicate() because it still tries to flush the closed pipe.
     proc = subprocess.Popen(
         [sys.executable, str(SERVER)],
-        stdin=subprocess.PIPE,
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=_server_env(),
         cwd=str(REPO_ROOT),
     )
     try:
-        assert proc.stdin is not None
-        proc.stdin.close()
         stdout, stderr = proc.communicate(timeout=15)
     except subprocess.TimeoutExpired:
         proc.kill()
