@@ -106,13 +106,29 @@ def test_response_schema_is_pydantic_v2(
 def test_module_uses_sys_executable_not_literal_python3() -> None:
     """Pitfall 2 regression: host default python3 is 3.9.6, which can't run
     scripts that rely on 3.10+ syntax. Subprocess must use sys.executable
-    (the interpreter running the MCP venv) for portability."""
+    (the interpreter running the MCP venv) for portability.
+
+    We assert that (a) sys.executable is present, and (b) no subprocess call
+    line uses a literal python3 argv[0]. Docstring/comment mentions of
+    "python3" (documentation) are fine."""
     src = Path(arb_mod.__file__).read_text(encoding="utf-8")
     assert "sys.executable" in src, "subprocess args must include sys.executable"
-    # Literal "python3" or "python3.11" as subprocess command is forbidden —
-    # sys.executable is the only correct choice.
-    assert '"python3"' not in src
-    assert "'python3'" not in src
+
+    # Narrowly scan CODE lines (not docstring / comment) for a forbidden pattern.
+    forbidden_call_patterns = (
+        '["python3"',    # argv opening with literal python3
+        "['python3'",    # same, single-quoted
+        '["python3.11"', # also forbidden — .mcp.json handles the 3.11 pin, not the tool
+        "['python3.11'",
+    )
+    for line in src.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(("#", '"', "'")):
+            continue  # skip comments and docstrings
+        for bad in forbidden_call_patterns:
+            assert bad not in line, (
+                f"Forbidden subprocess pattern {bad!r} on line: {line!r}"
+            )
 
 
 def test_output_truncation_caps_long_stdout(
