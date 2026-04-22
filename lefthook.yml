@@ -105,6 +105,39 @@ pre-commit:
       exclude:
         - "tests/checks/fixtures/**"
       tags: [i18n, phase-34]
+    # ─── Phase 34 GUARD-08 migrations (CI-first → lefthook-first, D-23) ───
+    # These 4 lints previously ran only in CI (ci.yml lines 161/207/211/448).
+    # Now they run locally pre-commit + in CI via lefthook-ci.yml (D-24) as
+    # the PRIMARY ground-truth bypass catcher. Invocation form: zero args —
+    # each script auto-scans its own configured scope (no --file per D-23
+    # RESEARCH §Example 1). Triggered only when the `glob:` filter matches
+    # a staged file — most commits skip these instantly (lefthook runs the
+    # script on each command only when any staged path matches the glob).
+    no-chiffre-choc:
+      # Glob intentionally narrowed to code extensions (dart/py/arb) only.
+      # Including .md would fire the full-repo scan on any README/docs edit
+      # — the script has no --file arg (D-23 scope is self-configured:
+      # apps/mobile/lib + services/backend/app + docs/ + tools/openapi)
+      # so each invocation is ~1-2s cold, far slower on iCloud-synced dirs.
+      # Doc .md files are still covered by lefthook-ci.yml (D-24) which
+      # re-runs the full script on PR range on clean CI runners.
+      run: python3 tools/checks/no_chiffre_choc.py
+      glob: "*.{dart,py,arb}"
+      exclude:
+        - "tests/checks/fixtures/**"
+      tags: [safety, phase-34, migrated]
+    landing-no-numbers:
+      run: python3 tools/checks/landing_no_numbers.py
+      glob: "apps/mobile/lib/screens/landing/**/*.dart"
+      tags: [safety, phase-34, migrated]
+    landing-no-financial-core:
+      run: python3 tools/checks/landing_no_financial_core.py
+      glob: "apps/mobile/lib/screens/landing/**/*.dart"
+      tags: [safety, phase-34, migrated]
+    route-registry-parity:
+      run: python3 tools/checks/route_registry_parity.py
+      glob: "apps/mobile/lib/{app.dart,routes/route_metadata.dart}"
+      tags: [maps, phase-34, migrated]
 
 # ─── Phase 34 GUARD-06 proof-of-read (commit-msg hook) ────────────────────
 # D-04 AMENDED by CONTEXT D-27 (Plan 34-05 + RESEARCH Open Question 1

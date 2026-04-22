@@ -156,9 +156,11 @@ jobs:
           pip install pip-audit
           pip-audit --skip-editable --desc on --ignore-vuln CVE-2026-4539
 
-      - name: Legacy token gate (no chiffre_choc)
-        working-directory: ${{ github.workspace }}
-        run: python3 tools/checks/no_chiffre_choc.py
+      # ─── Phase 34 GUARD-08 D-23 migration ────────────────────────────
+      # `no_chiffre_choc.py` moved to lefthook pre-commit (see lefthook.yml
+      # command `no-chiffre-choc`). D-24 lefthook-ci.yml re-runs it on every
+      # PR as the ground-truth bypass catcher, so CI coverage is preserved
+      # with a <2s lefthook hop instead of a per-PR setup-python job.
 
       # ─── Phase 8a / MTC-11, MTC-12: no legacy confidence render ─────
       - name: No legacy confidence render (Phase 8a gate)
@@ -201,14 +203,12 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/regional_microcopy_drift.py
 
-      # ─── Phase 7 / LAND-01, LAND-04: landing v2 calm-promise gates ──
-      - name: Landing v2 — no numbers / banned terms (LAND-04)
-        working-directory: ${{ github.workspace }}
-        run: python3 tools/checks/landing_no_numbers.py
-
-      - name: Landing v2 — no financial_core imports (LAND-01)
-        working-directory: ${{ github.workspace }}
-        run: python3 tools/checks/landing_no_financial_core.py
+      # ─── Phase 34 GUARD-08 D-23 migration ────────────────────────────
+      # `landing_no_numbers.py` (LAND-04) and `landing_no_financial_core.py`
+      # (LAND-01) moved to lefthook pre-commit (see lefthook.yml commands
+      # `landing-no-numbers` and `landing-no-financial-core`). D-24
+      # lefthook-ci.yml re-runs them on every PR. Landing-v2 globs are
+      # tightly scoped so pre-commit trigger rate on random diffs is ~0%.
 
       - name: Run tests
         env:
@@ -426,26 +426,12 @@ jobs:
           echo "Running golden helper unit tests (CI-safe subset)"
           flutter test test/goldens/helpers/ --reporter compact
 
-  # ─── Phase 32 Plan 32-05 / D-12 §1: route registry parity gate ──
-  # Runs the stdlib-only Python lint (tools/checks/route_registry_parity.py)
-  # on every push / PR. Compares 148 extracted GoRoute|ScopedGoRoute(path:)
-  # literals in app.dart against the 147 keys of kRouteRegistry, with
-  # symmetric KNOWN-MISSES exemption (1 admin-conditional + 7 nested
-  # /profile children = 140 comparison paths parity OK on pristine HEAD).
-  #
-  # Fails the PR on any drift in either direction. Runtime ~30 ms
-  # (1000× under the plan's 30 s budget). Stdlib-only (no pip install),
-  # matches Python 3.9 dev / 3.11 CI forward-compat pattern.
-  route-registry-parity:
-    name: Route registry parity (MAP-04)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Run parity lint
-        run: python3 tools/checks/route_registry_parity.py
+  # ─── Phase 34 GUARD-08 D-23 migration ───────────────────────────
+  # The `route-registry-parity` job (MAP-04, Phase 32 Plan 32-05 §1) has
+  # moved to lefthook pre-commit (see lefthook.yml command
+  # `route-registry-parity`). D-24 lefthook-ci.yml re-runs the full
+  # pre-commit bundle on every PR, so the parity gate still fires in CI
+  # — without the 15-30s setup-python job overhead per PR.
 
   # ─── Phase 32 Plan 32-05 / D-12 §2: mint-routes CLI DRY_RUN tests ─
   # Runs pytest on tests/tools/test_mint_routes.py (14 cases, Plan 02
@@ -523,9 +509,11 @@ jobs:
           echo "[OK] .cache/ is gitignored"
 
   # ─── Gate: all checks must pass ──────────────────────────────
+  # Phase 34 GUARD-08 D-23: route-registry-parity removed from needs list
+  # (migrated to lefthook pre-commit + lefthook-ci.yml D-24 ground-truth).
   ci-gate:
     name: CI Gate
-    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, route-registry-parity, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
+    needs: [changes, backend, flutter, readability, wcag-aa-all-touched, mint-routes-tests, admin-build-sanity, cache-gitignore-check]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -536,7 +524,6 @@ jobs:
           flutter="${{ needs.flutter.result }}"
           readability="${{ needs.readability.result }}"
           wcag="${{ needs.wcag-aa-all-touched.result }}"
-          parity="${{ needs.route-registry-parity.result }}"
           cli_tests="${{ needs.mint-routes-tests.result }}"
           admin_sanity="${{ needs.admin-build-sanity.result }}"
           cache_gi="${{ needs.cache-gitignore-check.result }}"
@@ -544,12 +531,11 @@ jobs:
           [[ "$flutter" == "skipped" ]] && flutter="success"
           [[ "$readability" == "skipped" ]] && readability="success"
           [[ "$wcag" == "skipped" ]] && wcag="success"
-          [[ "$parity" == "skipped" ]] && parity="success"
           [[ "$cli_tests" == "skipped" ]] && cli_tests="success"
           [[ "$admin_sanity" == "skipped" ]] && admin_sanity="success"
           [[ "$cache_gi" == "skipped" ]] && cache_gi="success"
-          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$parity" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
-            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag parity=$parity cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
+          if [[ "$backend" != "success" ]] || [[ "$flutter" != "success" ]] || [[ "$readability" != "success" ]] || [[ "$wcag" != "success" ]] || [[ "$cli_tests" != "success" ]] || [[ "$admin_sanity" != "success" ]] || [[ "$cache_gi" != "success" ]]; then
+            echo "CI failed — backend=$backend flutter=$flutter readability=$readability wcag=$wcag cli_tests=$cli_tests admin_sanity=$admin_sanity cache_gi=$cache_gi"
             exit 1
           fi
           echo "All checks passed"
