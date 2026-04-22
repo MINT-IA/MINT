@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 34-01-PLAN.md (GUARD-04 accent lint activated, PATTERNS reconciled w/ CLAUDE.md §2, 13+44 pytest green, benchmark 0.100s). Ready for Plan 34-02 (GUARD-02 no_bare_catch).
-last_updated: "2026-04-22T20:15:50.228Z"
+stopped_at: "Completed 34-02-PLAN.md (GUARD-02 no_bare_catch diff-only lint, 12/12 pytest green, parallel:true flipped, P95 0.110s). Ready for Plan 34-03 (GUARD-03 no_hardcoded_fr)."
+last_updated: "2026-04-22T20:29:51.162Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 30
-  completed_plans: 24
-  percent: 80
+  completed_plans: 25
+  percent: 83
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
@@ -100,6 +100,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 30.7 P30.7-04 | 35 min | 2 tasks (T1 trim + T2 checkpoint) | 1 file (CLAUDE.md) | 2026-04-22 |
 | Phase 34 P00 | 10 min | 2 tasks | 28 files |
 | Phase 34 P01 | 6 min | 1 tasks | 7 files |
+| Phase 34 P02 | ~8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,19 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-02 Decisions (GUARD-02 no_bare_catch diff-only lint, shipped 2026-04-22)
+
+- **34-02** (commits `ef9ede9c` → `794eaf14` → `51e56adc`): GUARD-02 activated day-1 via D-07 diff-only mode. `tools/checks/no_bare_catch.py` (255 LOC stdlib-only Python 3.9) scans ONLY lines ADDED in `git diff --staged --unified=0 --no-renames --diff-filter=AM` — decouples Phase 34 from Phase 36 FIX-05 migration of 388 existing bare-catches (332 mobile + 56 backend). Empirically proven: file with pre-existing bare-catch + unrelated line added → rc=0; same file + NEW bare-catch added → rc=1 with exactly 1 violation (not 2).
+- **Preceding-line override semantics (B1 fix)** — `_override_in_preceding(lines, added_line_no, is_python)` helper accepts `// lefthook-allow:bare-catch: <reason>` / `# lefthook-allow:bare-catch: <reason>` comments on the line IMMEDIATELY PRECEDING the bare-catch (not just same-line). Reason length >=3 whitespace-separated words enforced in shared `_has_valid_override`. This is the Phase 34 convention that Plan 34-03 `no_hardcoded_fr.py` must mirror.
+- **EXEMPT_PATH_PREFIXES strict 4-prefix scope (W1 fix)** — EXACTLY `apps/mobile/test/`, `apps/mobile/integration_test/`, `services/backend/tests/`, `tests/checks/fixtures/`. NO broad `tests/` — that would exempt any future top-level `tests/` directory beyond D-06 authorised scope. Unit-tested via `test_test_dir_exempt` + `test_integration_test_exempt` + `test_services_backend_tests_exempt`.
+- **parallel: true flipped** (D-02) — all 4 current pre-commit commands (memory-retention-gate + map-freshness-hint + accent-lint-fr + no-bare-catch) proven read-only per RESEARCH Pattern 6. Inline YAML comment justifies the flip; 30.5 D-04 caveat about `.git/index.lock` races does not apply (no command writes to the index). Benchmark P95 0.110s with 4 commands + parallel (vs 0.100s sequential Plan 01 with 3 commands) — modest goroutine overhead, still 45x headroom vs 5s budget.
+- **pytest GUARD-02** — 12 cases covering D-05 detection (Dart bare-catch empty + Python bare-except pass + Python bare-except colon EOL), D-06 exemptions (3 test-path variants + async* generator + preceding-line override valid + preceding-line override insufficient reason), D-07 diff-only (CRITICAL pre-existing-ignored + new-addition-flagged), and positive case (logged + rethrown passes). All 12 green in 0.90s.
+- **Self-test extended per D-25** — `lefthook_self_test.sh` now runs 2 direct-invocation checks via a temp git repo ($TMP_LINT via mktemp + EXIT trap cleanup): stages bad.dart (empty catch) → lint must FAIL; stages good.dart (Sentry + rethrow) → lint must PASS. Uses `--repo-root $TMP_LINT` harness to isolate from main working tree. Full self-test rc=0 with 3 green sections (retention + accent + no_bare_catch).
+- **Rule 1 blocking auto-fix** — Plan 01 inherited a Pitfall-8 drift in its lefthook.yml inline comment (literal quoted ASCII-flattened stem in prose matched `\b<stem>\b` regex). Plan 01 SUMMARY claimed `accent_lint_fr.py --file lefthook.yml` rc=0 but the comment drift landed after that check was run. Rewrote the comment to cite CLAUDE.md §2 authoritatively without quoting stems verbatim. `accent_lint_fr.py --file lefthook.yml` now rc=0.
+- **Self-compliance (Pitfall 8) green** — `accent_lint_fr.py --file tools/checks/no_bare_catch.py` rc=0; technical English diagnostics throughout, no FR prose, no ARB i18n (M-1 carve-out Phase 32-03 admin precedent).
+- **Requirements-completed: [GUARD-02]** — 2/8 Phase 34 requirements done (GUARD-04 Plan 01 + GUARD-02 Plan 02). Plan 34-03/04/05/06/07 still pending.
+- **FIX-05 Phase 36 decoupling confirmed** — D-07 diff-only mode ensures only NEW bare-catches fail the gate. The 388 existing bare-catches remain in-place without blocking commits. FIX-05 can now converge the backlog by batch (backend 56 first per CONTEXT §Deferred) knowing no new entries enter on staged diffs.
 
 ### Phase 34-01 Decisions (GUARD-04 accent-lint activation, shipped 2026-04-22)
 
@@ -257,8 +271,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T20:15:50.225Z
-Stopped at: Completed 34-01-PLAN.md (GUARD-04 accent lint activated, PATTERNS reconciled w/ CLAUDE.md §2, 13+44 pytest green, benchmark 0.100s). Ready for Plan 34-02 (GUARD-02 no_bare_catch).
+Last session: 2026-04-22T20:29:51.159Z
+Stopped at: Completed 34-02-PLAN.md (GUARD-02 no_bare_catch diff-only lint, 12/12 pytest green, parallel:true flipped, P95 0.110s). Ready for Plan 34-03 (GUARD-03 no_hardcoded_fr).
 Resume file: None
 
 ---
