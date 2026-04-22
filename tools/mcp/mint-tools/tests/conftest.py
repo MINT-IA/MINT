@@ -8,7 +8,8 @@ import pytest
 
 # Ensure services/backend is on sys.path so `from app.services.regulatory.registry import ...`
 # resolves in Wave 1 tests. Mirrors the .mcp.json PYTHONPATH injection.
-_REPO_ROOT = Path(__file__).resolve().parents[3]
+# conftest.py lives at tools/mcp/mint-tools/tests/conftest.py, so parents[4] == repo root.
+_REPO_ROOT = Path(__file__).resolve().parents[4]
 _BACKEND = _REPO_ROOT / "services" / "backend"
 if str(_BACKEND) not in sys.path:
     sys.path.insert(0, str(_BACKEND))
