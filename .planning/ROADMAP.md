@@ -227,7 +227,15 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   3. Une string FR hardcodée dans un widget Dart hors `lib/l10n/` FAIL le hook ; un accent manquant (creer, decouvrir, eclairage, securite, etc.) dans `.dart` / `.py` / `app_fr.arb` FAIL le hook ; un drift de keyset entre les 6 ARB (fr/en/de/es/it/pt) FAIL le hook.
   4. Un commit avec `LEFTHOOK_BYPASS=1` est traçable (grep-able dans shell history) ; CI post-merge re-run lefthook sur PR range et alerte si >3 bypass/semaine.
   5. Les 10 grep-style gates existants `tools/checks/*.py` sont migrés vers lefthook-first ; CI ne garde que les heavies (full test suites, readability, WCAG, PII, contracts, migrations) — CI time réduit d'environ 2 min.
-**Plans**: TBD
+**Plans**: 8 plans (Wave 0 fixtures/schema + Wave 1 activation + Wave 2 diff-only + Wave 3 parallel triple + Wave 4 bypass/CI)
+- [ ] 34-00-PLAN.md — Wave 0: lefthook.yml schema fix (top-level skip: → nested) + baseline P95 benchmark + 15+ fixture files under tests/checks/fixtures/ (unblocks Waves 1-4)
+- [ ] 34-01-PLAN.md — Wave 1: GUARD-04 accent_lint_fr activation — reconcile PATTERNS to CLAUDE.md §2 canonical 14 (add prevoyance/reperer/cle, remove specialistes/gerer/progres) + lefthook glob + pytest
+- [ ] 34-02-PLAN.md — Wave 2: GUARD-02 no_bare_catch.py diff-only (D-07 critical — decouples from Phase 36 FIX-05) + Dart+Python patterns + D-06 exemptions + parallel: true flip + 12 pytest
+- [ ] 34-03-PLAN.md — Wave 3 ∥: GUARD-03 no_hardcoded_fr tightened per D-08/D-09/D-10 (scope glob + patterns + override) + 11 pytest
+- [ ] 34-04-PLAN.md — Wave 3 ∥: GUARD-05 arb_parity.py stdlib-only (D-13/D-14/D-15) — 6-lang keyset + ICU placeholder name parity, baseline 6707 keys × 6 langs PASSES + 9 pytest
+- [ ] 34-05-PLAN.md — Wave 3 ∥: GUARD-06 proof_of_read.py on commit-msg hook (D-04 AMENDED — single commit-msg block allowed) + T-34-SPOOF-01 mitigation (.planning/phases/ prefix) + 10 pytest
+- [ ] 34-06-PLAN.md — Wave 4 ∥: GUARD-07 CONTRIBUTING.md (new, LEFTHOOK_BYPASS convention + --no-verify ban) + bypass-audit.yml weekly cron + post-merge (D-21/D-22, secondary awareness)
+- [ ] 34-07-PLAN.md — Wave 4 ∥: GUARD-08 CI thinning (remove 4 lint invocations lines 161/207/211/448) + 4 migrated lints added to lefthook + lefthook-ci.yml D-24 primary ground-truth + final P95 <5s assertion
 **Budget**: 1.5 sem (peut emprunter de 31 seulement, parallèle possible avec 31)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. lefthook + lints, 0 UI à tester sur simulateur. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
@@ -276,7 +284,7 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 | 31. Instrumenter | v2.8 | 0/5 | Plans ready | — |
 | 32. Cartographier | v2.8 | 5/6 | In Progress | — |
 | 33. Kill-switches | v2.8 | 0/0 | Not started | — |
-| 34. Agent Guardrails mécaniques | v2.8 | 0/0 | Not started | — |
+| 34. Agent Guardrails mécaniques | v2.8 | 0/8 | Plans ready | — |
 | 35. Boucle Daily | v2.8 | 0/0 | Not started | — |
 | 36. Finissage E2E | v2.8 | 0/0 | Not started | — |
 
@@ -286,4 +294,4 @@ Every Phase 36 P0 REQ (FIX-01..04) has a kill-switch flag provisioned in Phase 3
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-22 — Phase 30.7 Tools Déterministes COMPLETE (5/5 plans shipped : Wave 0 scaffolding + Wave 1 tools 1-4 + Wave 2 FastMCP server + Wave 3 CLAUDE.md atomic trim -30% @ 43a38dff). TOOL-01..04 all complete. Julien approved kill-switch rehearsal 2026-04-22. Next : `/gsd-verify-work 30.7` then unblock (31∥34) parallel window.*
+*Last updated: 2026-04-22 — Phase 34 Agent Guardrails mécaniques PLANNED (8 plans across 5 waves : Wave 0 schema fix + fixtures, Wave 1 accent activation, Wave 2 diff-only bare-catch, Wave 3 parallel triple hardcoded-fr+arb-parity+proof-of-read, Wave 4 parallel bypass-audit+CI-thinning). Requirements GUARD-01..08 distributed across plans; every REQ ID appears in at least one plan. D-04 amended to allow single commit-msg hook for proof-of-read (Option A per RESEARCH §Open Question 1). Next : `/gsd-execute-phase 34` after Phase 30.7 verify-work completes, parallelisable with Phase 31.*
