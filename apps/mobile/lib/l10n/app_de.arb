@@ -9886,7 +9886,7 @@
   "@coachOpenerIdentity": {
     "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data."
   },
-  "coachOpenerPromise": "Ich verkaufe nichts, ich bewerte nichts, ich vergleiche dich mit niemandem. Ich helfe dir nur, klar zu sehen bei dem, was dir niemand erklären will.",
+  "coachOpenerPromise": "Ich kenne dich. Ich sehe, was kommt. Ich begleite dich.",
   "@coachOpenerPromise": {
     "description": "First-contact opener line 2 — trust promise. LSFin-compatible."
   },

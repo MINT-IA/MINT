@@ -21116,8 +21116,7 @@ class SIt extends S {
   String get coachOpenerIdentity => 'Ciao. Sono Mint.';
 
   @override
-  String get coachOpenerPromise =>
-      'Non vendo nulla, non valuto nulla, non ti paragono a nessuno. Ti aiuto solo a vedere chiaro in ciò che nessuno ha interesse a spiegarti.';
+  String get coachOpenerPromise => 'Ti conosco. Vedo cosa arriva. Ti guido.';
 
   @override
   String get coachOpenerQuestion => 'Da dove cominciamo?';

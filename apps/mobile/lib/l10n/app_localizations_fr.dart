@@ -21056,19 +21056,19 @@ class SFr extends S {
 
   @override
   String get coachOpenerPromise =>
-      'Je ne vends rien, je ne note rien, je ne te compare à personne. Je t\'aide juste à voir clair dans ce que personne n\'a intérêt à t\'expliquer.';
+      'Je te connais. Je vois ce qui vient. Je te guide.';
 
   @override
   String get coachOpenerQuestion => 'Par quoi on commence ?';
 
   @override
-  String get coachStarterPaper => 'Un papier que je comprends pas';
+  String get coachStarterPaper => 'Un papier que je ne comprends pas';
 
   @override
   String get coachStarterChoice => 'Un choix que je dois faire';
 
   @override
-  String get coachStarterCost => 'Un truc qui me coûte, je sais pas quoi';
+  String get coachStarterCost => 'Un truc qui me coûte, je ne sais pas quoi';
 
   @override
   String get coachStarterLurk => 'Je regarde, je me présente après';
