@@ -4,7 +4,7 @@ milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: verifying
 stopped_at: Completed 34-07-PLAN.md — Phase 34 all 8 GUARDs complete, 8/8 plans shipped, final P95 0.110s, ready for /gsd-verify-work 34
-last_updated: "2026-04-22T21:39:30.333Z"
+last_updated: "2026-04-22T21:46:18.244Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
@@ -39,8 +39,8 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 8 of 8
+Phase: 35
+Plan: Not started
 Status: Phase complete — ready for verification
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
