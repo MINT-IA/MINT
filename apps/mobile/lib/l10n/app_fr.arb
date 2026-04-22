@@ -10351,7 +10351,7 @@
     "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data.",
     "x-mint-meta": { "level": "N3" }
   },
-  "coachOpenerPromise": "Je ne vends rien, je ne note rien, je ne te compare à personne. Je t'aide juste à voir clair dans ce que personne n'a intérêt à t'expliquer.",
+  "coachOpenerPromise": "Je te connais. Je vois ce qui vient. Je te guide.",
   "@coachOpenerPromise": {
     "description": "First-contact opener line 2 — trust promise. LSFin-compatible.",
     "x-mint-meta": { "level": "N3" }
@@ -10361,7 +10361,7 @@
     "description": "First-contact opener closing question.",
     "x-mint-meta": { "level": "N3" }
   },
-  "coachStarterPaper": "Un papier que je comprends pas",
+  "coachStarterPaper": "Un papier que je ne comprends pas",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner.",
     "x-mint-meta": { "level": "N3" }
@@ -10371,7 +10371,7 @@
     "description": "Conversation starter chip — life events opener.",
     "x-mint-meta": { "level": "N3" }
   },
-  "coachStarterCost": "Un truc qui me coûte, je sais pas quoi",
+  "coachStarterCost": "Un truc qui me coûte, je ne sais pas quoi",
   "@coachStarterCost": {
     "description": "Conversation starter chip — budget/fiscal opener.",
     "x-mint-meta": { "level": "N3" }

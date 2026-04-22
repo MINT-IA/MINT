@@ -21106,7 +21106,7 @@ class SDe extends S {
 
   @override
   String get coachOpenerPromise =>
-      'Ich verkaufe nichts, ich bewerte nichts, ich vergleiche dich mit niemandem. Ich helfe dir nur, klar zu sehen bei dem, was dir niemand erklären will.';
+      'Ich kenne dich. Ich sehe, was kommt. Ich begleite dich.';
 
   @override
   String get coachOpenerQuestion => 'Womit fangen wir an?';

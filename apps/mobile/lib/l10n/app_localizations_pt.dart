@@ -21062,8 +21062,7 @@ class SPt extends S {
   String get coachOpenerIdentity => 'Olá. Eu sou o Mint.';
 
   @override
-  String get coachOpenerPromise =>
-      'Não vendo nada, não classifico nada, não te comparo com ninguém. Só te ajudo a ver claro naquilo que ninguém tem interesse em te explicar.';
+  String get coachOpenerPromise => 'Conheço-te. Vejo o que vem. Guio-te.';
 
   @override
   String get coachOpenerQuestion => 'Por onde começamos?';

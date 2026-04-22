@@ -37038,7 +37038,7 @@ abstract class S {
   /// First-contact opener line 2 — trust promise. LSFin-compatible.
   ///
   /// In fr, this message translates to:
-  /// **'Je ne vends rien, je ne note rien, je ne te compare à personne. Je t\'aide juste à voir clair dans ce que personne n\'a intérêt à t\'expliquer.'**
+  /// **'Je te connais. Je vois ce qui vient. Je te guide.'**
   String get coachOpenerPromise;
 
   /// First-contact opener closing question.
@@ -37050,7 +37050,7 @@ abstract class S {
   /// Conversation starter chip — routes to scanner.
   ///
   /// In fr, this message translates to:
-  /// **'Un papier que je comprends pas'**
+  /// **'Un papier que je ne comprends pas'**
   String get coachStarterPaper;
 
   /// Conversation starter chip — life events opener.
@@ -37062,7 +37062,7 @@ abstract class S {
   /// Conversation starter chip — budget/fiscal opener.
   ///
   /// In fr, this message translates to:
-  /// **'Un truc qui me coûte, je sais pas quoi'**
+  /// **'Un truc qui me coûte, je ne sais pas quoi'**
   String get coachStarterCost;
 
   /// Conversation starter chip — dismisses opener without forcing engagement.

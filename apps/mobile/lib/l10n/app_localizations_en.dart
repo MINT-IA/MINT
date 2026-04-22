@@ -20950,7 +20950,7 @@ class SEn extends S {
 
   @override
   String get coachOpenerPromise =>
-      'I sell nothing, I rate nothing, I compare you to no one. I just help you see clearly into what no one has any interest in explaining to you.';
+      'I know you. I see what is coming. I guide you.';
 
   @override
   String get coachOpenerQuestion => 'Where do we start?';

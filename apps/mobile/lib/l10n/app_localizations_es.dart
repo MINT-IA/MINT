@@ -21059,8 +21059,7 @@ class SEs extends S {
   String get coachOpenerIdentity => 'Hola. Soy Mint.';
 
   @override
-  String get coachOpenerPromise =>
-      'No vendo nada, no califico nada, no te comparo con nadie. Solo te ayudo a ver claro en lo que nadie tiene interés en explicarte.';
+  String get coachOpenerPromise => 'Te conozco. Veo lo que viene. Te guío.';
 
   @override
   String get coachOpenerQuestion => '¿Por dónde empezamos?';
