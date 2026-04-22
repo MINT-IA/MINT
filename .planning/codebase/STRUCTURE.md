@@ -1,331 +1,251 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-04-05
+**Analysis Date:** 2026-04-22
 
 ## Directory Layout
 
 ```
-MINT/
+MINT/                              # Monorepo root
 ├── apps/
-│   └── mobile/                  # Flutter app (iOS/Android/Web)
-│       ├── lib/
-│       │   ├── constants/       # Centralized Swiss constants
-│       │   ├── data/            # Data layer (budget/)
-│       │   ├── domain/          # Domain layer (budget/)
-│       │   ├── l10n/            # i18n ARB files (6 languages)
-│       │   ├── models/          # Data models (25 files)
-│       │   ├── providers/       # Provider state management (14 files)
-│       │   ├── screens/         # Screens by module (~40 files + subdirs)
-│       │   ├── services/        # Business logic (~93 root + subdirs)
-│       │   ├── theme/           # MintColors, text styles, spacing
-│       │   ├── utils/           # Formatters, mixins
-│       │   └── widgets/         # Reusable widgets (245+ files in 20 subdirs)
-│       ├── test/                # Flutter tests (372 files)
-│       ├── ios/                 # iOS platform config
-│       ├── android/             # Android platform config
-│       └── web/                 # Web platform config
+│   └── mobile/                    # Flutter app (iOS/Android/Web)
+│       ├── lib/                   # All Dart source
+│       │   ├── main.dart          # App entry point
+│       │   ├── app.dart           # GoRouter + MultiProvider root (1857 lines)
+│       │   ├── constants/         # App-wide constants (social_insurance.dart etc.)
+│       │   ├── data/              # Static/bundled data (commune_data.dart, budget/)
+│       │   ├── domain/            # Domain value types (budget/)
+│       │   ├── l10n/              # Generated AppLocalizations (6 languages)
+│       │   ├── l10n_regional/     # Canton-specific microcopy
+│       │   ├── models/            # Dart data models (profile.dart, coach_profile.dart…)
+│       │   ├── providers/         # Provider ChangeNotifiers (state management)
+│       │   ├── router/            # RouteScope enum + ScopedGoRoute class
+│       │   ├── routes/            # Route metadata types (Phase 32 registry)
+│       │   ├── screens/           # Screen widgets by domain
+│       │   ├── services/          # Business logic, API calls, AI orchestration
+│       │   │   └── financial_core/ # ★ Pure financial calculators — source of truth
+│       │   ├── theme/             # Colors, text styles, spacing tokens
+│       │   ├── utils/             # Shared utilities (chf_formatter.dart…)
+│       │   └── widgets/           # Reusable widget library by domain
+│       ├── assets/                # Images, fonts, JSON data files
+│       ├── l10n/                  # ARB source files (fr/en/de/es/it/pt)
+│       ├── test/                  # Flutter unit + widget tests
+│       └── integration_test/      # Integration test stubs
 ├── services/
-│   └── backend/                 # FastAPI Python backend
+│   └── backend/                   # FastAPI backend (Python)
 │       ├── app/
-│       │   ├── api/v1/endpoints/  # REST endpoints (55 modules)
-│       │   ├── constants/       # Swiss regulatory constants
-│       │   ├── core/            # Config, DB, auth, rate limiting
-│       │   ├── models/          # SQLAlchemy ORM (16 models)
-│       │   ├── routes/          # (legacy, now empty)
-│       │   ├── schemas/         # Pydantic v2 schemas (40+ files)
-│       │   ├── services/        # Business logic (29 root + 16 subdirs)
-│       │   └── utils/           # Backend utilities
-│       ├── tests/               # pytest suite (120 files)
-│       ├── alembic/             # DB migrations
-│       ├── data/chromadb/       # RAG vector store data
-│       ├── migrations/          # Additional migration scripts
-│       └── scripts/             # Utility scripts
-├── docs/                        # Strategy, specs, design docs (60+ files)
-├── decisions/                   # Architecture Decision Records (7 ADRs)
-├── visions/                     # Product vision docs (5 files)
-├── education/
-│   └── inserts/                 # Educational content (concepts, FAQ, cantons)
-├── legal/                       # CGU, Privacy, Disclaimer, Mentions legales
-├── .claude/                     # Agent skills, hooks, workflows
-│   ├── skills/                  # 50+ agent skill definitions
-│   ├── hooks/                   # GSD workflow hooks (JS)
-│   ├── agents/                  # Agent configurations
-│   └── worktrees/               # Agent worktree checkouts
-├── .github/workflows/           # CI/CD (ci.yml, deploy-backend.yml, testflight.yml, etc.)
-└── .planning/                   # GSD planning documents
+│       │   ├── main.py            # FastAPI entry point
+│       │   ├── api/v1/
+│       │   │   ├── router.py      # Master API router (60+ modules)
+│       │   │   └── endpoints/     # One file per domain (coach_chat.py, auth.py…)
+│       │   ├── core/              # Config, DB, logging, rate limiting, Redis
+│       │   ├── middleware/        # Encryption context middleware
+│       │   ├── models/            # SQLAlchemy ORM models
+│       │   ├── routes/            # Backend route metadata (Phase 32)
+│       │   ├── schemas/           # Pydantic v2 request/response schemas
+│       │   ├── services/          # Domain services (coach/, llm/, rag/, fiscal/, …)
+│       │   └── utils/             # Shared utilities
+│       └── tests/                 # pytest test suite
+├── decisions/                     # Architecture Decision Records (ADRs)
+├── docs/                          # Project docs, AGENTS specs, design system
+│   └── AGENTS/                    # Role-scoped agent instructions
+│       ├── flutter.md
+│       ├── backend.md
+│       └── swiss-brain.md
+├── education/                     # RAG knowledge base (Swiss finance inserts)
+├── tools/                         # CLI tools, lint scripts (accent_lint, route CLI)
+├── scripts/                       # Dev/ops scripts
+└── .planning/                     # All planning artifacts (phases, milestones…)
+    └── codebase/                  # Codebase mapping documents (this file)
 ```
 
 ## Directory Purposes
 
-**`apps/mobile/lib/screens/`:**
-- Purpose: All app screens organized by feature domain
-- Contains: Dart screen widgets, one file per screen
-- Key subdirectories:
-  - `main_tabs/` — 3 main tabs: `mint_home_screen.dart`, `mint_coach_tab.dart`, `explore_tab.dart`
-  - `coach/` — Coach-related: chat, recap, retirement dashboard, decaissement, succession
-  - `onboarding/` — Onboarding flow: `intent_screen.dart`, `quick_start_screen.dart`, `chiffre_choc_screen.dart`
-  - `arbitrage/` — Side-by-side comparisons: rente vs capital, location vs propriete
-  - `mortgage/` — Affordability, amortization, EPL, SARON vs fixed
-  - `lpp_deep/` — LPP deep-dives: rachat, libre passage, EPL
-  - `pillar_3a_deep/` — 3a comparator, real return, staggered withdrawal, retroactive
-  - `explore/` — 7 thematic hubs: retraite, famille, travail, logement, fiscalite, patrimoine, sante
-  - `disability/` — Gap analysis, insurance, self-employed
-  - `debt_prevention/` — Debt ratio, repayment, help resources
-  - `document_scan/` — OCR scan, AVS guide, extraction review, impact
-  - `auth/` — Login, register, forgot password, verify email
-  - `profile/` — Financial summary, data transparency
-  - `budget/` — Budget container
-  - `household/` — Household management, invitation acceptance
-  - `open_banking/` — Hub, transactions, consents (feature-flagged)
+**`apps/mobile/lib/services/financial_core/`:**
+- Purpose: All Swiss financial math — pure static functions, zero Flutter dependency
+- Contains: `AvsCalculator`, `LppCalculator`, `TaxCalculator`, `CrossPillarCalculator`, `FriCalculator`, `HousingCostCalculator`, `ArbitrageEngine`, `MonteCarloService`, `ConfidenceScorer`, `BayesianEnricher`, `CoupleOptimizer`, `TornadoSensitivityService`, `WithdrawalSequencingService`
+- Key files: `apps/mobile/lib/services/financial_core/financial_core.dart` (barrel export), `avs_calculator.dart`, `lpp_calculator.dart`, `tax_calculator.dart`
+- Rule: NEVER re-implement a `_calculate*()` function outside this directory
 
-**`apps/mobile/lib/services/`:**
-- Purpose: All business logic, API calls, calculations
-- Contains: Service classes (mostly static or singleton)
-- Key subdirectories:
-  - `financial_core/` — 17 pure calculator files (AVS, LPP, tax, arbitrage, Monte Carlo, confidence, tornado, withdrawal sequencing). Barrel export: `financial_core.dart`
-  - `coach/` — 25 files: orchestrator, compliance guard, hallucination detector, fallback templates, prompt registry, context injector, conversation memory, voice chat, JITAI nudge, goal tracker, RAG retrieval
-  - `llm/` — 3 files: failover, provider health, response quality monitor
-  - `slm/` — On-device SLM engine (Gemma 3n)
-  - `confidence/` — Enhanced confidence service
-  - `voice/` — Voice config and services
-  - `memory/` — Conversation memory
-  - `nudge/` — JITAI nudge service
-  - `lifecycle/` — User lifecycle engine
-  - `simulators/` — Simulator services
-  - `navigation/` — Navigation helpers
-- Key root files: `api_service.dart` (HTTP client), `auth_service.dart`, `feature_flags.dart`, `regulatory_sync_service.dart`, `snapshot_service.dart`, `coach_llm_service.dart`
+**`apps/mobile/lib/screens/`:**
+- Purpose: One directory per domain feature area
+- Contains: `coach/` (CoachChatScreen, ConversationHistoryScreen, RetirementDashboardScreen…), `aujourdhui/`, `mon_argent/`, `explore/`, `arbitrage/`, `lpp_deep/`, `pillar_3a_deep/`, `mortgage/`, `onboarding/`, `auth/`, `budget/`, `profile/`, `settings/`, `admin/`, `household/`, `document_scan/`, `independants/`, `disability/`…
+- Key files: `apps/mobile/lib/screens/coach/coach_chat_screen.dart` (chat entry), `apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart` (Tab 0), `apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart` (Tab 1), `apps/mobile/lib/screens/explore/explorer_screen.dart` (Tab 3)
+
+**`apps/mobile/lib/services/coach/`:**
+- Purpose: All coach AI logic — context assembly, orchestration, compliance, memory
+- Key files: `coach_orchestrator.dart` (3-tier LLM chain), `context_injector_service.dart` (system prompt builder), `compliance_guard.dart`, `conversation_memory_service.dart`, `prompt_registry.dart`, `intent_router.dart`, `chat_tool_dispatcher.dart`, `tool_call_parser.dart`
 
 **`apps/mobile/lib/providers/`:**
-- Purpose: Reactive state containers (ChangeNotifier pattern)
-- Contains: 14 provider files + `budget/` subdirectory
-- Key files:
-  - `auth_provider.dart` — JWT auth state
-  - `profile_provider.dart` — User profile state
-  - `coach_profile_provider.dart` — Coach profile (central data model)
-  - `budget/budget_provider.dart` — Budget state (proxy of CoachProfileProvider)
-  - `mint_state_provider.dart` — Computed financial state (proxy of CoachProfileProvider)
-  - `onboarding_provider.dart` — Onboarding progress
-  - `byok_provider.dart` — Bring Your Own Key (LLM API key)
-  - `subscription_provider.dart` — Billing/subscription state
-  - `locale_provider.dart` — Language preference
-  - `household_provider.dart` — Household/couple data
-  - `slm_provider.dart` — On-device SLM state
+- Purpose: Flutter Provider ChangeNotifiers, instantiated in `MultiProvider` tree in `apps/mobile/lib/app.dart`
+- Key files: `profile_provider.dart`, `coach_profile_provider.dart` (primary user financial state), `auth_provider.dart`, `byok_provider.dart`, `mint_state_provider.dart`
+
+**`apps/mobile/lib/router/`:**
+- Purpose: Navigation primitives for Phase 32 route registry
+- Key files: `route_scope.dart` (public/onboarding/authenticated enum), `scoped_go_route.dart` (GoRoute subclass with scope field)
+
+**`apps/mobile/lib/routes/`:**
+- Purpose: Route metadata types for Phase 32 health registry + admin UI
+- Key files: `route_metadata.dart`, `route_category.dart`, `route_owner.dart`, `route_health_schema.dart`
 
 **`apps/mobile/lib/widgets/`:**
-- Purpose: Reusable UI components across screens
-- Contains: 245+ widget files in 20 subdirectories
-- Key subdirectories: `common/`, `coach/`, `dashboard/`, `educational/`, `premium/`, `pulse/`, `visualizations/`, `wizard/`, `arbitrage/`, `confidence/`, `profile/`, `report/`, `simulators/`
-
-**`apps/mobile/lib/models/`:**
-- Purpose: Data classes for app-wide use
-- Contains: 25 model files
-- Key files: `coach_profile.dart`, `profile.dart`, `session.dart`, `financial_report.dart`, `coach_entry_payload.dart`, `response_card.dart`, `wizard_question.dart`
-
-**`apps/mobile/lib/constants/`:**
-- Purpose: Centralized Swiss regulatory constants
-- Contains: `social_insurance.dart` (LPP/AVS/3a thresholds), `navigation_constants.dart`
-
-**`apps/mobile/lib/theme/`:**
-- Purpose: Design system tokens
-- Contains: `colors.dart` (MintColors palette), `mint_text_styles.dart`, `mint_spacing.dart`, `mint_motion.dart`
+- Purpose: Reusable widget library organized by domain
+- Key subdirs: `coach/` (lightning_menu, coach_message_bubble, coach_app_bar), `arbitrage/`, `confidence/`, `dashboard/`, `budget/`, `pulse/` (CAP card system)
 
 **`apps/mobile/lib/l10n/`:**
-- Purpose: Internationalization strings
-- Contains: 6 ARB files: `app_fr.arb` (template), `app_en.arb`, `app_de.arb`, `app_es.arb`, `app_it.arb`, `app_pt.arb`
+- Purpose: Generated Dart localization classes from ARB files
+- Key file: `app_localizations.dart` (generated, never edit manually)
+- Source ARBs: `apps/mobile/l10n/` — edit `.arb` files, then run `flutter gen-l10n`
 
 **`services/backend/app/api/v1/endpoints/`:**
-- Purpose: FastAPI route handlers
-- Contains: 55 endpoint modules
-- Key files: `auth.py`, `profiles.py`, `coach_chat.py`, `coach.py`, `retirement.py`, `arbitrage.py`, `mortgage.py`, `fiscal.py`, `lpp_deep.py`, `pillar_3a_deep.py`, `confidence.py`, `document_parser.py`, `rag.py`, `budget.py`, `admin.py`
+- Purpose: One FastAPI router per domain (60+ files)
+- Key files: `coach_chat.py` (main chat endpoint), `auth.py`, `profiles.py`, `scenarios.py`, `retirement.py`, `fiscal.py`, `mortgage.py`, `onboarding.dart`, `admin.py`
 
 **`services/backend/app/services/`:**
-- Purpose: Server-side business logic
-- Contains: 29 root service files + 16 subdirectory modules
-- Key subdirectories:
-  - `coach/` — Claude coach service, tools, compliance guard, hallucination detector, structured reasoning, prompt registry, fallback templates
-  - `rag/` — Vector store (ChromaDB), ingester, retriever, orchestrator, hybrid search, knowledge catalog, cantonal knowledge
-  - `arbitrage/` — Rente vs capital, location vs propriete, allocation annuelle, rachat vs marche
-  - `confidence/` — Enhanced confidence models and service
-  - `retirement/` — AVS estimation, LPP conversion, retirement budget
-  - `fiscal/` — Tax calculation services
-  - `mortgage/` — Mortgage calculation services
-  - `debt_prevention/` — Debt analysis services
-  - `docling/` — Document processing with extractors and templates
-  - `document_parser/` — Document parsing services
+- Purpose: Domain business logic, LLM orchestration, RAG
+- Key subdirs: `coach/` (claude_coach_service.py, compliance_guard.py, prompt_registry.py, coach_tools.py), `llm/` (router.py, bedrock_client.py, tier.py), `rag/` (vector_store.py, ingester.py, retriever.py), `compliance/`, `confidence/`, `fiscal/`, `retirement/`, `mortgage/`, `lpp_deep/`, `pillar_3a_deep/`
 
 **`services/backend/app/core/`:**
-- Purpose: Framework infrastructure
-- Contains: `config.py` (Settings via pydantic-settings), `database.py` (SQLAlchemy engine/session), `auth.py` (JWT verification), `rate_limit.py` (slowapi), `logging_config.py`
+- Purpose: Infrastructure — config, database, logging, rate limiting, Redis
+- Key files: `config.py` (Settings via pydantic-settings), `database.py` (SQLAlchemy engine + `get_db()` dependency), `logging_config.py` (structured JSON + `LoggingMiddleware`)
 
 **`services/backend/app/models/`:**
-- Purpose: SQLAlchemy ORM models
-- Contains: 16 model files
-- Key files: `user.py`, `profile_model.py`, `scenario.py`, `session_model.py`, `document.py`, `household.py`, `billing.py`, `snapshot.py`, `regulatory_parameter.py`, `consent.py`, `banking_consent.py`, `auth_security.py`, `token_blacklist.py`
+- Purpose: SQLAlchemy ORM models (persisted to SQLite/PostgreSQL)
+- Key files: `user.py`, `profile_model.py`, `scenario.py`, `document.py`, `snapshot.py`, `household.py`, `consent.py`
 
 **`services/backend/app/schemas/`:**
-- Purpose: Pydantic v2 request/response models
-- Contains: 40+ schema files with camelCase aliases
-- Pattern: `ConfigDict(populate_by_name=True)`, `alias_generator=to_camel`
+- Purpose: Pydantic v2 request/response schemas with camelCase aliases
+- Key files: `coach_chat.py`, `auth.py`, `profiles.py`, `common.py`
+
+**`decisions/`:**
+- Purpose: Architecture Decision Records — read before major structural changes
+- Key files: `ADR-20260223-unified-financial-engine.md` (financial_core mandate), `ADR-20260419-killed-gamification-layers.md`, `ADR-20260418-wave-order-daily-loop.md`
+
+**`education/`:**
+- Purpose: Swiss finance knowledge base — Markdown files auto-ingested into ChromaDB RAG on backend startup
 
 ## Key File Locations
 
 **Entry Points:**
-- `apps/mobile/lib/main.dart`: Flutter app bootstrap (init services, Sentry, runApp)
-- `apps/mobile/lib/app.dart`: GoRouter definition (~70 routes), MintApp widget with MultiProvider (14 providers), theme
-- `services/backend/app/main.py`: FastAPI app creation, middleware stack, lifespan handler, RAG auto-ingest
-- `services/backend/app/api/v1/router.py`: API router mounting all 55 endpoint modules under `/api/v1`
+- `apps/mobile/lib/main.dart`: Flutter app bootstrap (error boundary, API URL selection, SLM init, feature flags)
+- `apps/mobile/lib/app.dart`: GoRouter with all 147 routes + MultiProvider tree
+- `services/backend/app/main.py`: FastAPI app with middleware stack + lifespan hooks
+- `services/backend/app/api/v1/router.py`: All API route registrations
 
 **Configuration:**
-- `services/backend/app/core/config.py`: Backend Settings (env vars: DATABASE_URL, JWT, Anthropic, Stripe, Apple IAP, Sentry, Redis)
-- `apps/mobile/lib/services/feature_flags.dart`: Client feature flags (refreshed from backend)
-- `services/backend/app/services/feature_flags.py`: Server feature flags
-- `.github/workflows/ci.yml`: CI pipeline (flutter analyze, flutter test, pytest)
-- `apps/mobile/pubspec.yaml`: Flutter dependencies
-- `services/backend/requirements.txt` or `setup.py`: Python dependencies
+- `services/backend/app/core/config.py`: All backend settings via `pydantic-settings` (env-driven)
+- `apps/mobile/pubspec.yaml`: Flutter dependencies (provider 6.1.1, go_router 13.2.0, sentry_flutter 9.14.0)
+- `apps/mobile/lib/services/feature_flags.dart`: Runtime feature flags (SLM, Bedrock, kill-switches)
+- `apps/mobile/lib/services/regulatory_sync_service.dart`: Swiss regulatory constants (AVS limits, LPP rates) with disk cache + backend refresh
 
 **Core Logic:**
 - `apps/mobile/lib/services/financial_core/financial_core.dart`: Barrel export for all calculators
-- `apps/mobile/lib/services/financial_core/avs_calculator.dart`: AVS (1st pillar) calculations
-- `apps/mobile/lib/services/financial_core/lpp_calculator.dart`: LPP (2nd pillar) calculations
-- `apps/mobile/lib/services/financial_core/tax_calculator.dart`: Tax calculations (LIFD)
-- `apps/mobile/lib/services/financial_core/arbitrage_engine.dart`: Side-by-side scenario comparison
-- `apps/mobile/lib/services/financial_core/monte_carlo_service.dart`: Stochastic projections
-- `apps/mobile/lib/services/financial_core/confidence_scorer.dart`: 4-axis confidence scoring
-- `apps/mobile/lib/services/coach/coach_orchestrator.dart`: Coach AI priority chain (1090 lines)
-- `apps/mobile/lib/services/coach/compliance_guard.dart`: AI output compliance filter
-- `services/backend/app/services/coach/claude_coach_service.py`: System prompt builder
-- `services/backend/app/services/coach/coach_tools.py`: Tool definitions for Claude
-- `apps/mobile/lib/services/api_service.dart`: HTTP client with auth, error handling
-
-**Navigation:**
-- `apps/mobile/lib/app.dart` L161-974: GoRouter with all routes
-- `apps/mobile/lib/screens/main_navigation_shell.dart`: 3-tab shell + ProfileDrawer
+- `apps/mobile/lib/services/coach/coach_orchestrator.dart`: LLM tier chain (SLM → BYOK → fallback)
+- `apps/mobile/lib/services/coach/context_injector_service.dart`: System prompt assembly
+- `services/backend/app/services/coach/claude_coach_service.py`: Backend system prompt builder
+- `services/backend/app/services/llm/router.py`: Anthropic/Bedrock LLM router (singleton)
+- `apps/mobile/lib/services/api_service.dart`: All HTTP calls to backend with JWT injection
 
 **Testing:**
-- `apps/mobile/test/`: 372 Flutter test files
-- `apps/mobile/test/financial_core/`: Financial calculator tests
-- `apps/mobile/test/services/`: Service-level tests (coach, llm, confidence, etc.)
-- `apps/mobile/test/screens/`: Screen widget tests
-- `apps/mobile/test/golden/`: Golden test data (Julien + Lauren couple)
-- `services/backend/tests/`: 120 pytest files
+- `apps/mobile/test/`: Flutter tests (`flutter test`)
+- `services/backend/tests/`: pytest suite (`pytest tests/ -q`)
+- `services/backend/tests/fixtures/`: Golden test profiles (Julien + Lauren)
+
+**Navigation:**
+- `apps/mobile/lib/widgets/mint_shell.dart`: 4-tab `NavigationBar` shell (Aujourd'hui / Mon argent / Coach / Explorer)
+- `apps/mobile/lib/services/navigation/screen_registry.dart`: 147-entry declarative route registry with behavior classes
+- `apps/mobile/lib/services/navigation/mint_nav.dart`: Navigation helper for coach-driven screen routing
+- `apps/mobile/lib/screens/admin/routes_registry_screen.dart`: Admin UI for route health (Phase 32)
 
 ## Naming Conventions
 
-**Files:**
-- Flutter: `snake_case.dart` (e.g., `coach_orchestrator.dart`, `mint_home_screen.dart`)
-- Python: `snake_case.py` (e.g., `claude_coach_service.py`, `enhanced_confidence_service.py`)
-- Screen suffix: `*_screen.dart`
-- Service suffix: `*_service.dart` or `*_calculator.dart` or `*_engine.dart`
-- Provider suffix: `*_provider.dart`
-- Test suffix: `*_test.dart` (Flutter), `test_*.py` (Python)
+**Flutter Files:**
+- Screens: `snake_case_screen.dart` (e.g., `coach_chat_screen.dart`, `lpp_deep_screen.dart`)
+- Services: `snake_case_service.dart` or `snake_case_calculator.dart`
+- Providers: `snake_case_provider.dart`
+- Widgets: `snake_case_widget.dart` or descriptive `snake_case.dart`
+- Models: `snake_case.dart` (no `_model` suffix in Flutter, unlike backend)
 
-**Directories:**
-- Flutter screens: by domain (`coach/`, `arbitrage/`, `mortgage/`, `onboarding/`)
-- Backend services: by domain, matching endpoint structure (`coach/`, `arbitrage/`, `retirement/`)
-- Tests mirror source structure
+**Flutter Classes:**
+- Screens: `PascalCaseScreen` extends `StatelessWidget` or `StatefulWidget`
+- Providers: `PascalCaseProvider` extends `ChangeNotifier`
+- Services: `PascalCaseService` (static methods) or `PascalCaseService()` (instantiated)
+- Calculators: `PascalCaseCalculator` with static methods only
+
+**Backend Files:**
+- Endpoints: `snake_case.py` matching domain (e.g., `coach_chat.py`, `lpp_deep.py`)
+- Services: `snake_case_service.py`
+- Schemas: `snake_case.py` per domain, camelCase field aliases
+- Models: `snake_case.py` (ORM), suffix `_model.py` where conflict exists
+
+**Routes:**
+- Flutter GoRouter paths: kebab-case French (`/rente-vs-capital`, `/rachat-lpp`, `/pilier-3a`)
+- Backend API paths: kebab-case (`/api/v1/coach/chat`, `/api/v1/lpp-deep`, `/api/v1/3a-deep`)
+- Intent tags (ScreenRegistry): snake_case (`rente_vs_capital`, `rachat_lpp`)
 
 ## Where to Add New Code
 
-**New Screen:**
-- Implementation: `apps/mobile/lib/screens/{domain}/{feature_name}_screen.dart`
-- Route: Add GoRoute in `apps/mobile/lib/app.dart` in the appropriate section
-- Widgets: `apps/mobile/lib/widgets/{domain}/`
-- Tests: `apps/mobile/test/screens/{domain}/{feature_name}_screen_test.dart`
+**New simulator screen (financial tool):**
+- Implementation: `apps/mobile/lib/screens/<domain>/<screen_name>_screen.dart`
+- Calculations: Add to `apps/mobile/lib/services/financial_core/` if reusable; import via `financial_core.dart` barrel
+- Route: Add `ScopedGoRoute` in `apps/mobile/lib/app.dart`, register in `ScreenRegistry` at `apps/mobile/lib/services/navigation/screen_registry.dart`
+- Backend endpoint (if needed): `services/backend/app/api/v1/endpoints/<domain>.py` + register in `services/backend/app/api/v1/router.py`
+- Tests: `apps/mobile/test/<domain>_test.dart` + `services/backend/tests/test_<domain>.py`
 
-**New Financial Calculator:**
-- Implementation: `apps/mobile/lib/services/financial_core/{calculator_name}.dart`
-- Export: Add to `apps/mobile/lib/services/financial_core/financial_core.dart`
-- Tests: `apps/mobile/test/financial_core/{calculator_name}_test.dart` or `apps/mobile/test/services/financial_core/`
-- Rule: Must be pure function, no side effects, include legal references
-
-**New Service (Flutter):**
-- Implementation: `apps/mobile/lib/services/{service_name}.dart` or `apps/mobile/lib/services/{domain}/{service_name}.dart`
-- Tests: `apps/mobile/test/services/{domain}/{service_name}_test.dart`
-- Rule: Must use `financial_core/` for calculations, never reimplement
-
-**New API Endpoint:**
-- Endpoint: `services/backend/app/api/v1/endpoints/{domain}.py`
-- Router: Register in `services/backend/app/api/v1/router.py`
-- Schema: `services/backend/app/schemas/{domain}.py`
-- Service: `services/backend/app/services/{domain}/` or `services/backend/app/services/{service_name}.py`
-- Tests: `services/backend/tests/test_{domain}.py`
+**New life event flow:**
+- Screen directory: `apps/mobile/lib/screens/<event_name>/`
+- Backend service: `services/backend/app/services/<event_name>/`
+- Backend endpoint: `services/backend/app/api/v1/endpoints/<event_name>.py`
 
 **New Provider:**
-- Implementation: `apps/mobile/lib/providers/{name}_provider.dart`
-- Registration: Add to MultiProvider in `apps/mobile/lib/app.dart` L1020-1088
-- Tests: `apps/mobile/test/providers/{name}_provider_test.dart`
+- File: `apps/mobile/lib/providers/<name>_provider.dart`
+- Register: Add to `MultiProvider` list in `apps/mobile/lib/app.dart` (search for `MultiProvider(providers:`)
 
-**New Model:**
-- Flutter: `apps/mobile/lib/models/{name}.dart`
-- Backend ORM: `services/backend/app/models/{name}.py` + register in `__init__.py`
-- Backend Schema: `services/backend/app/schemas/{name}.py`
+**New backend service:**
+- File: `services/backend/app/services/<domain>_service.py` or `services/backend/app/services/<domain>/`
+- Schema: `services/backend/app/schemas/<domain>.py`
 
-**New i18n Strings:**
-- Add keys to ALL 6 ARB files in `apps/mobile/lib/l10n/` (fr is template)
-- Add keys at END of file (before closing `}`)
-- Run `flutter gen-l10n` after changes
+**New i18n string:**
+- Edit: `apps/mobile/l10n/app_fr.arb` (primary) + all 5 other language ARBs
+- Regenerate: `cd apps/mobile && flutter gen-l10n`
+- Usage: `AppLocalizations.of(context)!.yourKey` — NEVER `Text('hardcoded string')`
 
-**Utilities:**
-- Flutter: `apps/mobile/lib/utils/`
-- Backend: `services/backend/app/utils/`
+**New financial constant (Swiss law):**
+- Backend: `services/backend/app/services/regulatory/` + expose via `/api/v1/regulatory`
+- Frontend cache: `apps/mobile/lib/services/regulatory_sync_service.dart` loads and caches
 
 ## Special Directories
 
-**`apps/mobile/test/golden/`:**
-- Purpose: Golden test data (Julien + Lauren couple with known expected values)
-- Generated: No (manually maintained reference data)
-- Committed: Yes
-
-**`apps/mobile/test/golden_screenshots/`:**
-- Purpose: Golden screenshot tests
-- Generated: Yes (by Flutter golden test framework)
-- Committed: Yes (goldens/ reference images)
-
-**`services/backend/data/chromadb/`:**
-- Purpose: RAG vector store persistence (ChromaDB)
-- Generated: Yes (auto-ingested from `education/inserts/` at startup)
-- Committed: Partial (directory committed, data may be gitignored)
-
-**`services/backend/alembic/`:**
-- Purpose: Database migration scripts
-- Generated: Via alembic CLI
-- Committed: Yes
-
-**`education/inserts/`:**
-- Purpose: Educational content (concepts, FAQ, cantonal knowledge) used by RAG
-- Generated: No (manually authored markdown)
-- Committed: Yes
-
-**`.claude/skills/`:**
-- Purpose: Agent skill definitions for Claude Code workflows
+**`.planning/`:**
+- Purpose: All project planning — milestones, phases, handoffs, audits
 - Generated: No
 - Committed: Yes
 
-**`.github/workflows/`:**
-- Purpose: CI/CD pipeline definitions
-- Contains: `ci.yml` (main CI), `deploy-backend.yml`, `testflight.yml`, `web.yml`, `play-store.yml`, `sync-branches.yml`
+**`apps/mobile/build/`:**
+- Purpose: Flutter build output
+- Generated: Yes
+- Committed: No
+
+**`services/backend/app/**/__pycache__/`:**
+- Purpose: Python bytecode cache
+- Generated: Yes
+- Committed: No
+
+**`education/`:**
+- Purpose: RAG knowledge base — Swiss finance Markdown documents
+- Generated: No
+- Committed: Yes
+- Note: Auto-ingested into ChromaDB on backend startup if vector store is empty
+
+**`decisions/`:**
+- Purpose: ADRs — read before any structural change to financial calculations or architecture
+- Generated: No
 - Committed: Yes
 
-## File Statistics
-
-| Category | Count |
-|----------|-------|
-| Flutter source files (`apps/mobile/lib/`) | 652 |
-| Flutter test files (`apps/mobile/test/`) | 372 |
-| Backend source files (`services/backend/app/`) | 293 |
-| Backend test files (`services/backend/tests/`) | 120 |
-| API endpoint modules | 55 |
-| Pydantic schema files | 40+ |
-| SQLAlchemy model files | 16 |
-| Financial core calculators | 17 |
-| Coach service files (Flutter) | 25 |
-| Provider files | 14 |
-| Widget files | 245+ |
-| i18n ARB files | 6 |
-| GoRouter routes (approx) | ~70 canonical + ~15 legacy redirects |
-| ADR documents | 7 |
-| CI/CD workflows | 7 |
+**`apps/mobile/l10n/`:**
+- Purpose: Source ARB files for 6 languages (edit these, never the generated `lib/l10n/` files)
+- Generated: No (source); `lib/l10n/` is generated
+- Committed: Yes (both source ARBs and generated Dart)
 
 ---
 
-*Structure analysis: 2026-04-05*
+*Structure analysis: 2026-04-22*
