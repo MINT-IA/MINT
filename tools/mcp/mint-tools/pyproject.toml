@@ -8,3 +8,4 @@ requires-python = ">=3.10"
 testpaths = ["tests"]
 pythonpath = [".", "../../../services/backend"]
 addopts = "-ra --strict-markers"
+asyncio_mode = "auto"
