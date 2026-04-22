@@ -74,3 +74,20 @@ pre-commit:
         - "services/backend/tests/**"
         - "tests/checks/fixtures/**"
       tags: [safety, phase-34]
+    # ─── Phase 34 GUARD-03 (D-08 glob-scoped, D-09 patterns, D-10 override) ──
+    # D-08: glob restricts to widgets/screens/features only -- lib/models,
+    # lib/services, lib/l10n, test, integration_test stay out of scope
+    # (full-repo i18n audit = Phase 36 FIX-06). The Python script's
+    # DEFAULT_SCOPE remains broader for manual `--scope` audits.
+    # D-09: catches Text('<capitalised>...'), Text('<accented>'),
+    # title: / label: named-args, plus fallback 2-FR-function-words heuristic.
+    # Whitelist: short acronyms (<=5 chars), numeric strings.
+    # D-10: inline override `// lefthook-allow:hardcoded-fr: <3+ words>` on
+    # preceding line (mirrors Plan 34-02 no_bare_catch semantics).
+    # fixtures/** excluded per Pitfall 7 (legitimate FR test inputs).
+    no-hardcoded-fr:
+      run: python3 tools/checks/no_hardcoded_fr.py --file {staged_files}
+      glob: "apps/mobile/lib/{widgets,screens,features}/**/*.dart"
+      exclude:
+        - "tests/checks/fixtures/**"
+      tags: [i18n, phase-34]

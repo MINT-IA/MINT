@@ -123,7 +123,23 @@ if ! python3 "$REPO_ROOT/tools/checks/no_bare_catch.py" --repo-root "$TMP_LINT" 
 fi
 echo "[self-test] no_bare_catch: OK (FAIL + PASS cases green)"
 
+# ─── Phase 34 Plan 03 — no_hardcoded_fr FAIL + PASS cases (D-25) ───
+# Direct --file invocation against the Wave 0 fixtures; exercises D-09
+# patterns + D-10 preceding-line override + acronym whitelist end-to-end.
+# Pitfall 1 (façade) guard: the lint is run, not just chmod +x.
+echo "[self-test] no_hardcoded_fr: scanning known-bad fixture..."
+if python3 tools/checks/no_hardcoded_fr.py --file tests/checks/fixtures/hardcoded_fr_bad_widget.dart >/dev/null 2>&1; then
+  echo "self-test: FAIL — no_hardcoded_fr did not catch bad fixture (façade sans câblage)"
+  exit 1
+fi
+echo "[self-test] no_hardcoded_fr: scanning known-good fixture..."
+if ! python3 tools/checks/no_hardcoded_fr.py --file tests/checks/fixtures/hardcoded_fr_good_widget.dart >/dev/null 2>&1; then
+  echo "self-test: FAIL — no_hardcoded_fr wrongly flagged good fixture"
+  exit 1
+fi
+echo "[self-test] no_hardcoded_fr: OK (FAIL + PASS cases green)"
+
 echo "self-test: reminder — Phase 34 fixtures under tests/checks/fixtures/ must be"
 echo "  added to each new lint's lefthook 'exclude:' list (per Pitfall 7)."
-echo "  Plans 01 + 02 exclude fixtures; Plans 03-05 must follow."
+echo "  Plans 01 + 02 + 03 exclude fixtures; Plans 04-05 must follow."
 exit 0
