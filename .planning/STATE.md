@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 34-04-PLAN.md (GUARD-05 arb_parity, depth-aware ICU walker, 14/14 pytest green, production baseline 6707 keys × 6 langs + 568 @keys clean after Rule 1 fix of 3 pre-existing forfaitFiscal translation drifts in es/it/pt, P95 0.100s preserved). Ready for Plan 34-05 (GUARD-06 proof_of_read).
-last_updated: "2026-04-22T20:54:23.694Z"
+stopped_at: Completed 34-05-PLAN.md (GUARD-06 proof_of_read commit-msg hook, D-27 amendment live, T-34-SPOOF-01 mitigation, 12/12 pytest green, self-test 6 sections green, P95 0.090s unchanged, end-to-end self-compliance proven on Task 2 commit d4b5196e)
+last_updated: "2026-04-22T21:04:48.675Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 30
-  completed_plans: 27
-  percent: 90
+  completed_plans: 28
+  percent: 93
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 6 of 8
+Plan: 7 of 8
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
@@ -103,6 +103,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 34 P02 | ~8min | 2 tasks | 4 files |
 | Phase 34 P03 | ~4min | 2 tasks | 5 files |
 | Phase 34 P04 | 8min | 2 tasks | 7 files |
+| Phase 34 P05 | 15min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,21 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-05 Decisions (GUARD-06 proof_of_read commit-msg hook + D-04→D-27 amendment, shipped 2026-04-22)
+
+- **34-05** (commits `bab21843` → `3789426a` → `d4b5196e`): GUARD-06 activated via first-ever `commit-msg:` top-level block in `lefthook.yml`. `tools/checks/proof_of_read.py` ships stdlib-only Python 3.9 (147 LOC, argparse + re + pathlib). `check_commit_msg(msg, repo_root) -> (int, List[str])` pure function + `main()` wraps with argparse (`--commit-msg-file {1}` + `--repo-root` for test harness). Exit 0 = pass (human commit OR valid proof-of-read), 1 = fail. Technical English diagnostics throughout, no i18n (M-1 carve-out + Pitfall 8 self-compliance via `accent_lint_fr.py --file proof_of_read.py rc=0`).
+- **D-04 AMENDED in-flight via CONTEXT D-27** — Phase 34 originally stated "pas de commit-msg dans cette phase"; this plan surgically authorised ONE commit-msg block dedicated to proof-of-read. Inline YAML comment in `lefthook.yml` cites both `D-04 AMENDED` and `D-27` for traceability. No other Phase 34 lint migrates to commit-msg. Scope discipline statement inline: "future commit-msg lints require a new CONTEXT amendment on top of D-27".
+- **T-34-SPOOF-01 mitigation live** — hardcoded `ALLOWED_READ_PREFIX = '.planning/phases/'` constant. `Read:` trailer pointing at `/dev/null`, `/etc/passwd`, or unrelated relative paths (`README.md`) rejected with rc=1. 2 pytest cases (`test_read_path_outside_planning_fail` absolute + `test_read_path_relative_outside_planning_fail` relative) enforce. Rejected realpath-canonicalisation alternative: the threat is "point at real-but-irrelevant file", not "chroot escape"; a prefix check is cheaper + more auditable.
+- **D-17 human bypass short-circuits before Read: enforcement** — `TRAILER_CLAUDE.search(msg)` returns None → exit 0 silently with `[proof_of_read] OK - human commit (no Claude trailer), bypass`. Plain `git commit -m "fix typo"` from Julien lands without Read: trailer requirement.
+- **12/12 pytest green in 0.02s** covering: valid Claude+Read:+bullets PASS, missing Read: FAIL, missing file FAIL, human bypass PASS, T-34-SPOOF-01 absolute + relative FAIL, D-18 no-bullet FAIL, empty message PASS, 3 Wave 0 fixture round-trips, case-sensitivity contract. Full matrix for D-16/D-17/D-18 + security.
+- **Self-test 6th section green** — `lefthook_self_test.sh` now runs human-bypass PASS + Claude-no-Read: FAIL against Wave 0 fixtures (`commit_human_no_claude.txt` + `commit_without_read_trailer.txt`). PASS-with-Read: round-trip stays in pytest `tmp_path` to avoid depending on live working-tree state. Reminder banner updated: Plan 05 commit-msg hook scans COMMIT_EDITMSG (not files) so Pitfall 7 fixture-exclusion N/A for it.
+- **P95 pre-commit benchmark unchanged at 0.090s** — commit-msg runs on a separate hook trigger, so the 5s `pre-commit:` budget (GUARD-01 success criterion #1) is untouched. 55x headroom preserved with 5 active pre-commit commands + 1 commit-msg command.
+- **End-to-end self-compliance proven LIVE** — executor installed the commit-msg hook (`lefthook install --force` → `.git/hooks/commit-msg` registered) AFTER shipping the script + tests commit (`3789426a`, not gated) but BEFORE the lefthook wiring commit (`d4b5196e`, gated). `d4b5196e` passed the hook with a fresh `Read: .planning/phases/34-agent-guardrails-m-caniques/34-05-READ.md` trailer referencing the 14-bullet receipt file created at plan start. NO `--no-verify` used anywhere.
+- **Chicken-and-egg bootstrap strategy** — executor pre-created `.planning/phases/34-agent-guardrails-m-caniques/34-05-READ.md` in the RED commit (`bab21843`) so all 3 plan commits carry valid `Read:` trailers. Reusable pattern for future agent work: READ.md lands WITH the first commit of a plan, not after.
+- **CONTRIBUTING.md bootstrap** — new file with 2 short sections: "Pre-commit hooks (lefthook)" + "Agent commits (proof-of-read — GUARD-06)" with example trailer block. Kept minimal per plan's no-expansion instruction; Plan 34-06 will add the LEFTHOOK_BYPASS section.
+- **Requirements-completed: [GUARD-06]** — 5/8 Phase 34 requirements done (GUARD-02 + GUARD-03 + GUARD-04 + GUARD-05 + GUARD-06). Plans 34-06 (GUARD-07 bypass convention + audit) + 34-07 (GUARD-08 CI thinning) pending.
+- **LOC deviation [Rule 2 - doc]** — plan target ~80 LOC / acceptance 60-120; actual 147 LOC. Excess is substantive docstring (D-27 amendment live + T-34-SPOOF-01 rationale + D-17 bypass contract + exit code table) prioritised per user's emphasis. Behavioural logic itself is ~70 LOC. `min_lines: 60` frontmatter contract met.
 
 ### Phase 34-04 Decisions (GUARD-05 arb_parity stdlib + depth-aware ICU walker, shipped 2026-04-22)
 
@@ -302,8 +318,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T20:54:23.691Z
-Stopped at: Completed 34-04-PLAN.md (GUARD-05 arb_parity, depth-aware ICU walker, 14/14 pytest green, production baseline 6707 keys × 6 langs + 568 @keys clean after Rule 1 fix of 3 pre-existing forfaitFiscal translation drifts in es/it/pt, P95 0.100s preserved). Ready for Plan 34-05 (GUARD-06 proof_of_read).
+Last session: 2026-04-22T21:04:48.672Z
+Stopped at: Completed 34-05-PLAN.md (GUARD-06 proof_of_read commit-msg hook, D-27 amendment live, T-34-SPOOF-01 mitigation, 12/12 pytest green, self-test 6 sections green, P95 0.090s unchanged, end-to-end self-compliance proven on Task 2 commit d4b5196e)
 Resume file: None
 
 ---
