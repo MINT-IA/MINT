@@ -228,7 +228,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   4. Un commit avec `LEFTHOOK_BYPASS=1` est traçable (grep-able dans shell history) ; CI post-merge re-run lefthook sur PR range et alerte si >3 bypass/semaine.
   5. Les 10 grep-style gates existants `tools/checks/*.py` sont migrés vers lefthook-first ; CI ne garde que les heavies (full test suites, readability, WCAG, PII, contracts, migrations) — CI time réduit d'environ 2 min.
 **Plans**: 8 plans (Wave 0 fixtures/schema + Wave 1 activation + Wave 2 diff-only + Wave 3 parallel triple + Wave 4 bypass/CI)
-- [ ] 34-00-PLAN.md — Wave 0: lefthook.yml schema fix (top-level skip: → nested) + baseline P95 benchmark + 15+ fixture files under tests/checks/fixtures/ (unblocks Waves 1-4)
+- [x] 34-00-PLAN.md — Wave 0: lefthook.yml schema fix (top-level skip: → nested) + baseline P95 benchmark + 15+ fixture files under tests/checks/fixtures/ (unblocks Waves 1-4)
 - [ ] 34-01-PLAN.md — Wave 1: GUARD-04 accent_lint_fr activation — reconcile PATTERNS to CLAUDE.md §2 canonical 14 (add prevoyance/reperer/cle, remove specialistes/gerer/progres) + lefthook glob + pytest
 - [ ] 34-02-PLAN.md — Wave 2: GUARD-02 no_bare_catch.py diff-only (D-07 critical — decouples from Phase 36 FIX-05) + Dart+Python patterns + D-06 exemptions + parallel: true flip + 12 pytest
 - [ ] 34-03-PLAN.md — Wave 3 ∥: GUARD-03 no_hardcoded_fr tightened per D-08/D-09/D-10 (scope glob + patterns + override) + 11 pytest

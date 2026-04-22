@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
-status: verifying
-stopped_at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
-last_updated: "2026-04-22T18:39:43.015Z"
+status: executing
+stopped_at: Completed 34-00-PLAN.md (Wave 0 schema fix + baseline P95 0.120s + 26 fixture files for GUARD-02/03/04/05/06). Ready for Waves 1-4 parallel execution.
+last_updated: "2026-04-22T20:03:11.761Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  total_plans: 30
+  completed_plans: 23
+  percent: 77
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 30.7 — Tools Déterministes
+**Current focus:** Phase 34 — Agent Guardrails mécaniques
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,9 +39,9 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 31
-Plan: Not started
-Status: Phase complete — ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1)
+Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
+Plan: 2 of 8
+Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
 
@@ -98,6 +98,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 30.7 P02 | 4min | 2 tasks | 4 files |
 | Phase 30.7 P30.7-03 | 5min | 2 tasks | 5 files |
 | Phase 30.7 P30.7-04 | 35 min | 2 tasks (T1 trim + T2 checkpoint) | 1 file (CLAUDE.md) | 2026-04-22 |
+| Phase 34 P00 | 10 min | 2 tasks | 28 files |
 
 ## Accumulated Context
 
@@ -113,6 +114,16 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-00 Decisions (Wave 0 scaffolding, shipped 2026-04-22)
+
+- **34-00** (commits `59c8b1a8` → `5a8ffb33`): lefthook.yml schema migrated (`skip:` moved from top-level to nested under `pre-commit:`) — `lefthook validate` now exits 0 (was `skip: Value is array but should be object` per RESEARCH A7). 30.5 D-01 skeleton preserved verbatim (memory-retention-gate + map-freshness-hint). `parallel: false` maintained in Wave 0; Plan 34-02 flips to true once no-bare-catch (read-only) lands per RESEARCH Pattern 6.
+- **Baseline P95 captured empirically: 0.120s** over 8 runs (after 2-run warmup discard). Far below 5s budget (D-26). Plan 34-07 will enforce `tools/checks/lefthook_benchmark.sh --assert-p95=5` against this measurable baseline instead of a moving target. Budget headroom: 4.88s for 5 Phase 34 lints.
+- **26 fixture files landed** under `tests/checks/fixtures/` covering GUARD-02/03/04/05/06 contracts: 5 bare-catch (Dart/Python bad+good + async_star_exempt), 2 hardcoded-fr widgets (bad + good with inline `lefthook-allow:` override demo), 2 accent (bad ASCII-flattened + good accented), 14 ARB (6 parity_pass + 6 drift_missing with de missing `goodbye` + 2 drift_placeholder with fr/en type mismatch), 3 commit-msg (Claude+Read trailer / Claude-only / human-only).
+- **Pitfall 7 exclusion contract documented** in `tools/checks/lefthook_self_test.sh` — 3-line reminder banner printed on every self-test run: every new lint in Plans 34-01..05 must add `tests/checks/fixtures/**` to its `exclude:` list to prevent fixture-triggered self-regression. T-34-07 threat register mitigation.
+- **Pytest scaffolding** (`tests/checks/conftest.py`) provides `fixtures_dir` Path fixture + `tmp_git_repo` factory for Plans 34-02 diff-only tests. 18 tests collect clean (pre-existing Phase 32 tests + 0 Phase 34 tests yet — conftest importable without errors).
+- **D-27 anticipation**: commit-msg fixtures landed in Wave 0 even though GUARD-06 is Plan 34-05 scope. Atomic fixture set > fragmented per-plan additions. Single write, multiple plan consumers.
+- **Scope discipline**: pre-existing iCloud duplicate directories (`tests/checks/fixtures 2/`, `tools/checks/` ` 2.py` / ` 3.py` files per CONTEXT §Duplicates-to-watch) deliberately NOT touched — flagged as backlog, not in-scope for Phase 34.
 
 ### Phase 30.7-04 Decisions (CLAUDE.md Atomic Trim -30%, shipped 2026-04-22)
 
@@ -233,8 +244,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T18:15:00.000Z
-Stopped at: Completed 30.7-04-PLAN.md (CLAUDE.md -30% atomic trim shipped, commit `43a38dff` ; T2 semantic cold-read + kill-switch rehearsal APPROVED by Julien 2026-04-22 ; Phase 30.7 5/5 plans complete ; J0 fresh-session smoke deferred to post-merge operational validation on creator's machine — not a code gate). Ready for `/gsd-verify-work 30.7` + `/gsd-secure-phase 30.7` (Auto profile L1 per ADR-20260419-autonomous-profile-tiered).
+Last session: 2026-04-22T20:03:11.758Z
+Stopped at: Completed 34-00-PLAN.md (Wave 0 schema fix + baseline P95 0.120s + 26 fixture files for GUARD-02/03/04/05/06). Ready for Waves 1-4 parallel execution.
 Resume file: None
 
 ---

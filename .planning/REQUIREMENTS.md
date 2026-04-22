@@ -73,7 +73,7 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 
 **Note post-panel** : GUARD-09/10/11 (doc refonte + proof-of-read AST) hoistés vers Phase 30.5 CTX-* suite au débat panel. Phase 34 garde les 8 guards mécaniques (lints + CI thinning) — c'est le VRAI gardien long-terme selon Panel B + D (ROI mesurable, pas theater).
 
-- [ ] **GUARD-01**: lefthook 2.1.5 installed (brew) + `lefthook.yml` pre-commit parallel complet — target <5s absolu sur M-series Mac, scope changed-files only via glob filters. (Note : minimal lefthook installation déjà faite Phase 30.5 CTX-01 pour MEMORY.md gate. Phase 34 = full config avec tous les gates.)
+- [x] **GUARD-01**: lefthook 2.1.5 installed (brew) + `lefthook.yml` pre-commit parallel complet — target <5s absolu sur M-series Mac, scope changed-files only via glob filters. (Note : minimal lefthook installation déjà faite Phase 30.5 CTX-01 pour MEMORY.md gate. Phase 34 = full config avec tous les gates.)
 - [ ] **GUARD-02**: `tools/checks/no_bare_catch.py` — refuse `} catch (e) {}` Dart + `except Exception:` Python sans log/rethrow, exempte `test/` + streams `async *`
 - [ ] **GUARD-03**: `tools/checks/no_hardcoded_fr.py` — scan Dart widgets pour strings FR hors `AppLocalizations`, exclut `lib/l10n/`
 - [ ] **GUARD-04**: `tools/checks/accent_lint_fr.py` — ASCII-only flag sur `app_fr.arb` + `.dart` + `.py` (patterns : creer, decouvrir, eclairage, securite, liberer, preter, realiser, deja, recu, elaborer, regler)
