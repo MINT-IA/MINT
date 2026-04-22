@@ -77,7 +77,7 @@ Insight Panel C : les constantes financières + règles compliance gaspillent ~4
 - [x] **GUARD-02**: `tools/checks/no_bare_catch.py` — refuse `} catch (e) {}` Dart + `except Exception:` Python sans log/rethrow, exempte `test/` + streams `async *`
 - [x] **GUARD-03**: `tools/checks/no_hardcoded_fr.py` — scan Dart widgets pour strings FR hors `AppLocalizations`, exclut `lib/l10n/`
 - [x] **GUARD-04**: `tools/checks/accent_lint_fr.py` — ASCII-only flag sur `app_fr.arb` + `.dart` + `.py` (patterns : creer, decouvrir, eclairage, securite, liberer, preter, realiser, deja, recu, elaborer, regler)
-- [ ] **GUARD-05**: `tools/checks/arb_parity.py` — 6 ARB files (fr, en, de, es, it, pt) mêmes keyset, fail CI si drift
+- [x] **GUARD-05**: `tools/checks/arb_parity.py` — 6 ARB files (fr, en, de, es, it, pt) mêmes keyset, fail CI si drift
 - [ ] **GUARD-06**: `tools/checks/proof_of_read.py` — fallback léger (pas AST) — agent co-author commits doivent référencer `.planning/<phase>/READ.md` listant fichiers modifiés (complémentaire à CTX-04 UserPromptSubmit hook)
 - [ ] **GUARD-07**: `--no-verify` ban → `LEFTHOOK_BYPASS=1` convention (grep-able shell history) + CI post-merge audit re-run lefthook sur PR range + alerte si >3 bypass/semaine
 - [ ] **GUARD-08**: CI thinning — les 10 grep-style gates existants `tools/checks/*.py` deviennent lefthook-first, CI garde heavy gates only (full test suites, readability, WCAG, PII, contracts, migrations)

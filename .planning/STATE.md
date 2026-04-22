@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 34-03-PLAN.md (GUARD-03 no_hardcoded_fr D-08/D-09/D-10 lint, 11/11 pytest green, glob-scoped to widgets/screens/features, P95 0.110s preserved). Ready for Plan 34-04 (GUARD-05 arb_parity).
-last_updated: "2026-04-22T20:40:59.395Z"
+stopped_at: Completed 34-04-PLAN.md (GUARD-05 arb_parity, depth-aware ICU walker, 14/14 pytest green, production baseline 6707 keys × 6 langs + 568 @keys clean after Rule 1 fix of 3 pre-existing forfaitFiscal translation drifts in es/it/pt, P95 0.100s preserved). Ready for Plan 34-05 (GUARD-06 proof_of_read).
+last_updated: "2026-04-22T20:54:23.694Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 5
   total_plans: 30
-  completed_plans: 26
-  percent: 87
+  completed_plans: 27
+  percent: 90
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 34 (Agent Guardrails mécaniques) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 30.7` on `feature/S30.7-tools-deterministes` — 5/5 plans have SUMMARY, CLAUDE.md -30% trim @ 43a38dff, kill-switch rehearsed + Julien approved 2026-04-22, J0 fresh-session smoke deferred to post-merge operational validation (non-blocking). Also pending: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` (3 RISK entries await Julien ack for nyquist_compliant flip).
@@ -102,6 +102,7 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 | Phase 34 P01 | 6 min | 1 tasks | 7 files |
 | Phase 34 P02 | ~8min | 2 tasks | 4 files |
 | Phase 34 P03 | ~4min | 2 tasks | 5 files |
+| Phase 34 P04 | 8min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -117,6 +118,21 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 - **Headers manuels `sentry-trace` + `baggage` sur `http: ^1.2.0`** (pas migration Dio)
 - **Binary-per-route flags** (pas cohort/percentage)
 - **4 P0 kill flags provisioned in Phase 33** before Phase 36 begins: `enableProfileLoad` / `enableAnonymousFlow` / `enableSaveFactSync` / `enableCoachTab`
+
+### Phase 34-04 Decisions (GUARD-05 arb_parity stdlib + depth-aware ICU walker, shipped 2026-04-22)
+
+- **34-04** (commits `b3fd76b0` → `30c7c900` → `d91976f1`): GUARD-05 activated via D-13 key-set + placeholder parity lint on 6 ARB files (fr/en/de/es/it/pt). `tools/checks/arb_parity.py` ships stdlib-only Python 3.9 (361 LOC, json + re + argparse). Exit 0 on clean, 1 on drift. Production baseline empirically clean: 6707 non-@ keys × 6 langs, 568 placeholder-bearing @keys verified.
+- **Depth-aware ICU walker replaces RESEARCH Pattern 4 regex (Rule 1 auto-fix)** — the suggested one-liner `\{\s*([A-Za-z_]...)(?:[},]|\s)` falsely captures select variant labels: `{sex, select, male {il} female {elle} other {iel}}` returns `{sex, il, elle, iel}` not `{sex}`. Walker tracks stack of clause kinds (placeholder / plural_or_select / variant_body) and only emits identifiers at name-position. Single O(n) pass.
+- **ICU_KEYWORDS filter REMOVED at emission time (Rule 1 auto-fix)** — MINT production ARB uses `plural`/`number`/`date` as real placeholder names: `stepOcrContinueWith` + `stepOcrSnackSuccess` have placeholder literally named `plural` (referenced as `{plural}` for pluralisation suffix), `mortgageJourneyStepLabel` uses `number`, `mintHomeDeltaSince` / `planCard_targetDate` / `pensionFundSyncDate` / `dossierUpdatedOn` use `date`. Filtering would false-negative 7+ production keys. Walker structure already consumes type tokens (after first comma) via a dedicated branch that never touches `names.add()`, so no keyword blacklist needed.
+- **3 pre-existing translation drifts fixed (Rule 1 auto-fix)** — `forfaitFiscalSemanticsLabel` in es/it/pt was missing the final `Savings: {savings}` sentence (truncated translations). FR + EN + DE had the full 3-placeholder template. Added idiomatic target-language sentences: es `. Ahorro: {savings}.`, it `. Risparmio: {savings}.`, pt `. Economia: {savings}.`. Proves GUARD-05 caught a real production bug on first run — RESEARCH baseline claim of "all 6 langs PASS today" (lines 388-410) was stale, based on key-set comparison only, not placeholder-set comparison.
+- **Full 6-file scan per pre-commit event** — lefthook glob `apps/mobile/lib/l10n/app_*.arb` triggers the command when ANY ARB is staged; script internally scans all 6 via default `--dir`. Drift is a cross-file property (one language dropping a key must fail regardless of which file triggered the hook), so `{staged_files}` expansion would be unsound.
+- **pytest 14/14 green** covering: 4 fixture-directory scenarios (parity_pass, missing-key, extra-key, placeholder-drift), 7 extract_placeholders unit tests (simple, plural, select, typed, multiple, empty, DateTime), 2 defensive tests (missing file, malformed JSON), 1 production baseline integration. All in 0.06s.
+- **Self-test extended per D-25** — `lefthook_self_test.sh` 5th section runs bad fixture (`arb_drift_missing` with de missing `goodbye` → must rc=1) + clean fixture (`arb_parity_pass` → must rc=0). Pitfall-7 reminder banner now cites Plans 01+02+03+04.
+- **P95 benchmark 0.100s** — unchanged from Plan 03 (6 pre-commit commands active; 50x headroom vs 5s D-26 budget). GUARD-01 success criterion #1 uncompromised.
+- **Self-compliance (Pitfall 8) green** — `accent_lint_fr.py --file tools/checks/arb_parity.py` rc=0; `--file lefthook.yml` rc=0. Technical English diagnostics throughout, no i18n (M-1 carve-out for dev tooling precedent from Plan 32-03 admin).
+- **Requirements-completed: [GUARD-05]** — 4/8 Phase 34 requirements done (GUARD-04 Plan 01 + GUARD-02 Plan 02 + GUARD-03 Plan 03 + GUARD-05 Plan 04). Plans 34-05/06/07 still pending.
+- **FIX-06 Phase 36 decoupling confirmed** — GUARD-05 is the active prevention gate; FIX-06 (MintShell ARB parity audit) is the first human-driven full audit behind the gate. Thanks to GUARD-05 running today, the baseline was cleaned of 1 real drift — Phase 36 starts from a clean baseline.
+- **LOC deviation documented** — plan estimated 100-180 LOC; actual 361 LOC. Walker is inherently more complex than RESEARCH's one-line regex (plus extensive algorithm documentation). LOC budget assumed a regex solution that turned out unsound; correctness wins over LOC target.
 
 ### Phase 34-03 Decisions (GUARD-03 no_hardcoded_fr D-08/D-09/D-10, shipped 2026-04-22)
 
@@ -286,8 +302,8 @@ Progress: [██████████] 100% (5/9 phases, 22/22 plans) — Ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T20:40:59.391Z
-Stopped at: Completed 34-03-PLAN.md (GUARD-03 no_hardcoded_fr D-08/D-09/D-10 lint, 11/11 pytest green, glob-scoped to widgets/screens/features, P95 0.110s preserved). Ready for Plan 34-04 (GUARD-05 arb_parity).
+Last session: 2026-04-22T20:54:23.691Z
+Stopped at: Completed 34-04-PLAN.md (GUARD-05 arb_parity, depth-aware ICU walker, 14/14 pytest green, production baseline 6707 keys × 6 langs + 568 @keys clean after Rule 1 fix of 3 pre-existing forfaitFiscal translation drifts in es/it/pt, P95 0.100s preserved). Ready for Plan 34-05 (GUARD-06 proof_of_read).
 Resume file: None
 
 ---
