@@ -99,7 +99,7 @@ void main() {
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
-    expect(find.text('Il est temps que tu saches.'), findsOneWidget);
+    expect(find.text('Il est temps que tu comprennes.'), findsOneWidget);
     expect(find.text('Ouvrir'), findsOneWidget);
     expect(find.text('TON DOSSIER'), findsNothing);
   });

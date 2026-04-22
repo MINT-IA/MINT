@@ -168,7 +168,7 @@ class _EntryStep extends StatelessWidget {
         children: [
           const Spacer(),
           Text(
-            'Il est temps que tu saches.',
+            'Il est temps que tu comprennes.',
             textAlign: TextAlign.center,
             style: GoogleFonts.montserrat(
               fontSize: 28,
