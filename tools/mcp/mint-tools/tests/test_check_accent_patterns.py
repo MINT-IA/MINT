@@ -65,9 +65,11 @@ def test_single_violation_has_expected_fields() -> None:
         ("recu", "reçu"),
         ("elaborer", "élaborer"),
         ("regler", "régler"),
-        ("specialiste", "spécialiste(s)"),
-        ("gerer", "gérer"),
-        ("progres", "progrès"),
+        # Phase 34 Plan 01 D-11 reconciliation — 3 stems added, 3 removed.
+        # Canonical 14 now matches CLAUDE.md §2 exactly.
+        ("prevoyance", "prévoyance"),
+        ("reperer", "repérer"),
+        ("cle", "clé"),
     ],
 )
 def test_each_of_14_patterns_fires(ascii_word: str, expected_suggestion: str) -> None:

@@ -21,3 +21,32 @@ pre-commit:
       run: python3 tools/checks/map_freshness_hint.py {staged_files}
       glob: "*.{dart,py}"
       tags: [map, agents]
+    # ─── Phase 34 GUARD-04 (D-11 canonical 14 patterns, D-12 scope) ───
+    # Scans staged .dart, .py, .arb for ASCII-flattened FR accents.
+    # Exclusions (D-12 + Pitfall 7):
+    #  - 5 non-FR ARBs (en/de/es/it/pt) — no FR accents to enforce there.
+    #  - tests/checks/fixtures/** — Wave 0 fixtures contain deliberate bad
+    #    accents as test input.
+    #  - tools/mcp/mint-tools/tests/** — Phase 30.7 TOOL-04 parametrize
+    #    cases MUST contain ASCII-flattened stems verbatim ("creer" etc)
+    #    to assert scan_text fires. Scanning them would be Pitfall 7.
+    #  - tests/checks/test_accent_lint_fr.py — this lint's own pytest
+    #    suite contains ASCII stems in its canonical set assertions.
+    accent-lint-fr:
+      run: |
+        rc=0
+        for f in {staged_files}; do
+          python3 tools/checks/accent_lint_fr.py --file "$f" || rc=1
+        done
+        exit $rc
+      glob: "*.{dart,py,arb}"
+      exclude:
+        - "apps/mobile/lib/l10n/app_en.arb"
+        - "apps/mobile/lib/l10n/app_de.arb"
+        - "apps/mobile/lib/l10n/app_es.arb"
+        - "apps/mobile/lib/l10n/app_it.arb"
+        - "apps/mobile/lib/l10n/app_pt.arb"
+        - "tests/checks/fixtures/**"
+        - "tests/checks/test_accent_lint_fr.py"
+        - "tools/mcp/mint-tools/tests/**"
+      tags: [i18n, phase-34]

@@ -13,7 +13,12 @@ Phase 34 GUARD-04 will extend the pattern list and wire CI. Phase 30.5
 Plan 01 only needs the early-ship version to make `ingest_git.py` run lints
 on each Claude commit's diff and populate the `violations` table.
 
-Pattern list sourced from MEMORY.md feedback files + 30.5-CONTEXT.md D-14.
+Pattern list sourced from CLAUDE.md §2 (Top 5 Rules Critiques #2 —
+14 canonical accent patterns, authoritative per Phase 34 D-11).
+Phase 30.5 early-ship had 3 extras and was missing 3 canonical patterns —
+reconciled in Phase 34 Plan 01 (GUARD-04 activation). See
+CLAUDE.md §2 for the authoritative list and
+tests/checks/test_accent_lint_fr.py for the cardinality guard.
 Use --file <path> to lint a single file (pattern used by ingest_git.py).
 """
 from __future__ import annotations
@@ -37,9 +42,9 @@ PATTERNS: list[tuple[str, str]] = [
     (r"\brecu\b", "reçu"),
     (r"\belaborer\b", "élaborer"),
     (r"\bregler\b", "régler"),
-    (r"\bspecialistes?\b", "spécialiste(s)"),
-    (r"\bgerer\b", "gérer"),
-    (r"\bprogres\b", "progrès"),
+    (r"\bprevoyance\b", "prévoyance"),
+    (r"\breperer\b", "repérer"),
+    (r"\bcle\b", "clé"),
 ]
 
 TEXT_EXTS = {".dart", ".py", ".arb", ".md"}

@@ -57,9 +57,12 @@ def test_line_numbers_are_1_indexed() -> None:
         ("recu", "reçu"),
         ("elaborer", "élaborer"),
         ("regler", "régler"),
-        ("specialiste", "spécialiste(s)"),
-        ("gerer", "gérer"),
-        ("progres", "progrès"),
+        # Phase 34 Plan 01 D-11 reconciliation — 3 stems added, 3 removed.
+        # Canonical 14 now matches CLAUDE.md §2 exactly. See
+        # tests/checks/test_accent_lint_fr.py for the cardinality guard.
+        ("prevoyance", "prévoyance"),
+        ("reperer", "repérer"),
+        ("cle", "clé"),
     ],
 )
 def test_each_pattern_detected(ascii_word: str, expected_correction: str) -> None:
@@ -69,9 +72,11 @@ def test_each_pattern_detected(ascii_word: str, expected_correction: str) -> Non
     assert any(expected_correction in triplet[2] for triplet in out)
 
 
-def test_pattern_count_unchanged_from_phase_305() -> None:
-    """Phase 34 will extend PATTERNS. If count changes pre-Phase-34,
-    update the 14 parametrize cases above in lockstep."""
+def test_pattern_count_matches_claude_md_section_2() -> None:
+    """CLAUDE.md §2 defines exactly 14 canonical accent patterns. Phase 34
+    Plan 01 reconciled this list (D-11) — drift any direction fails here
+    AND in tests/checks/test_accent_lint_fr.py::test_pattern_set_matches_canonical.
+    """
     assert len(PATTERNS) == 14
 
 

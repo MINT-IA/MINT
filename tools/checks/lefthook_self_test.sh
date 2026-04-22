@@ -60,7 +60,23 @@ fi
 
 echo "self-test: OK — lefthook caught the stale fixture as expected (exit $RC)"
 
+# ─── Phase 34 Plan 01 — accent_lint_fr FAIL + PASS cases (D-25) ───
+# Proves accent_lint_fr actually catches ASCII-flattened FR accents and
+# does NOT false-flag properly accented content. Fires independent of the
+# lefthook hook wiring (direct python3 invocation — Pitfall 1 guard).
+echo "[self-test] accent_lint_fr: scanning known-bad fixture..."
+if python3 tools/checks/accent_lint_fr.py --file tests/checks/fixtures/accent_bad.dart >/dev/null 2>&1; then
+  echo "self-test: FAIL — accent_lint_fr did not catch bad fixture (façade sans câblage)"
+  exit 1
+fi
+echo "[self-test] accent_lint_fr: scanning known-good fixture..."
+if ! python3 tools/checks/accent_lint_fr.py --file tests/checks/fixtures/accent_good.dart >/dev/null 2>&1; then
+  echo "self-test: FAIL — accent_lint_fr wrongly flagged good fixture"
+  exit 1
+fi
+echo "[self-test] accent_lint_fr: OK (FAIL + PASS cases green)"
+
 echo "self-test: reminder — Phase 34 fixtures under tests/checks/fixtures/ must be"
 echo "  added to each new lint's lefthook 'exclude:' list (per Pitfall 7)."
-echo "  This self-test still only exercises the 30.5 retention gate."
+echo "  Plan 01 accent-lint-fr command excludes fixtures; Plans 02-05 must follow."
 exit 0
