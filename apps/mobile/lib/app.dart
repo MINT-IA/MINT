@@ -111,6 +111,7 @@ import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/locale_provider.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
 import 'package:mint_mobile/screens/onboarding/data_block_enrichment_screen.dart';
+import 'package:mint_mobile/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart';
 // intent_screen.dart DELETED (KILL-01, Phase 2)
 import 'package:mint_mobile/screens/arbitrage/arbitrage_bilan_screen.dart';
 import 'package:mint_mobile/screens/arbitrage/rente_vs_capital_screen.dart';
@@ -302,6 +303,14 @@ final _router = GoRouter(
       path: '/',
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
+    ),
+    // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
+    // with 4 intents + dossier densification + 3 N2 scenes + magic link.
+    // Doctrine: .planning/mvp-wedge-onboarding-2026-04-21/STORYBOARD-FINAL-LOCKED.md
+    ScopedGoRoute(
+      path: '/onb',
+      scope: RouteScope.public,
+      builder: (context, state) => const OnboardingShellScreen(),
     ),
     ScopedGoRoute(
       path: '/auth/login',

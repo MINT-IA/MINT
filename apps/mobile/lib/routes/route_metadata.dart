@@ -119,6 +119,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableAnonymousFlow',
     description: 'LandingScreen — first-run entry',
   ),
+  '/onb': RouteMeta(
+    path: '/onb',
+    category: RouteCategory.destination,
+    owner: RouteOwner.anonymous,
+    requiresAuth: false,
+    killFlag: 'enableMvpWedgeOnboarding',
+    description: 'MVP wedge onboarding v2 — 9-step intent-led dossier flow',
+  ),
 
   // ── Auth flows (public) ────────────────────────────────────────
   '/auth/login': RouteMeta(

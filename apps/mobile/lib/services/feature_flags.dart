@@ -79,6 +79,13 @@ class FeatureFlags {
   /// Admin screens: observability, analytics
   static bool enableAdminScreens = false;
 
+  /// MVP wedge onboarding — storyboard v2 locked (2026-04-22).
+  /// 9-step flow with 4 intents, dossier densification, and 3 N2 scenes
+  /// (RenteTrouee / CapaciteAchat / 3aLevier) before magic-link sealing.
+  /// When true, the landing CTA routes new users into `/onb` instead of
+  /// the legacy coach anonymous flow.
+  static bool enableMvpWedgeOnboarding = true;
+
   // Phase 32 D-10 — local-only gate for /admin/*.
   // Combined with compile-time ENABLE_ADMIN=1 via AdminGate.
   // NO backend call (D-10 v4 kills proposed /api/v1/admin/me).
