@@ -1,0 +1,10 @@
+[project]
+name = "mint-tools"
+version = "30.7.0"
+description = "MINT MCP tools server (get_swiss_constants / check_banned_terms / validate_arb_parity / check_accent_patterns). Dev-time only, Python 3.11+."
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "../../../services/backend"]
+addopts = "-ra --strict-markers"

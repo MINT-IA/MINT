@@ -94,3 +94,6 @@ tools/agent-drift/spikes/A7_headless_result.txt
 # Phase 31 walker.sh runtime output (timestamped screenshots, logs, sentry-event JSON dumps)
 .planning/walker/
 .cache/
+
+# Phase 30.7 MCP tools dedicated venv — gitignored per D-01 (reproducible via requirements.txt)
+tools/mcp/mint-tools/.venv/
