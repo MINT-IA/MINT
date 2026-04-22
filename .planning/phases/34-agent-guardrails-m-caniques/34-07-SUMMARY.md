@@ -221,6 +221,10 @@ None — the workflow runs on default GitHub Actions runners with default permis
 - **Phase 34 execute complete.** Next step (outside this plan's scope): `/gsd-verify-work 34` to run the 7-pass verifier across all 8 plans + observation-window deferrals.
 - **No open deferrals within Phase 34 scope.** 3 observation-window items (ci-time-reduction-measured / lefthook-ci-job-green-on-first-pr / first-synthetic-bypass-caught) are post-merge operational validation, correctly flagged for `/gsd-verify-work` to mark as deferred.
 
+## Self-Check: PASSED (post-commit re-run)
+
+All 5 target files FOUND on disk; all 2 task commits (`f1cf293c`, `3a6596e9`) plus final-metadata commit (`276b333b`) FOUND in git log; `grep -c "^- \[x\] \*\*GUARD-0[1-8]\*\*" .planning/REQUIREMENTS.md` = **8/8**; `bash tools/checks/lefthook_benchmark.sh --assert-p95=5` rc=0 with P95 = 0.100s (second run, confirms 0.110s first-run); `lefthook validate` rc=0.
+
 ---
 *Phase: 34-agent-guardrails-m-caniques*
 *Completed: 2026-04-22*
