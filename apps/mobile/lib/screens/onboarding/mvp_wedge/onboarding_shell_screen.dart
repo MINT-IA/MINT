@@ -468,7 +468,10 @@ class _CantonStep extends StatelessWidget {
 // T5 — Revenue (slider fourchette + lien exact)
 // ────────────────────────────────────────────────────────────────────
 
-const _kMinNet = 3000;
+// Bornes revenu net mensuel. 500 pour couvrir apprentis, étudiants
+// avec bourse, temps partiels, retraités modestes. 15000+ pour les
+// revenus cadres supérieurs — au-delà, l'user bascule en saisie exacte.
+const _kMinNet = 500;
 const _kMaxNet = 15000;
 const _kStep = 500;
 
@@ -883,12 +886,14 @@ class _MagicLinkStepState extends State<_MagicLinkStep> {
     super.dispose();
   }
 
-  bool _emailValid(String v) {
-    final trimmed = v.trim();
-    if (trimmed.length < 5) return false;
-    final at = trimmed.indexOf('@');
-    return at > 0 && at < trimmed.length - 3 && trimmed.contains('.');
-  }
+  // Regex emails RFC pragmatique : local-part autorisée (lettres,
+  // chiffres, . _ % + -), @, domaine avec au moins un point + TLD 2+.
+  // Match les cas courants, tolère majuscules.
+  static final _emailRe = RegExp(
+    r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
+  );
+
+  bool _emailValid(String v) => _emailRe.hasMatch(v.trim());
 
   Future<void> _seal() async {
     final provider = context.read<OnboardingProvider>();
@@ -928,14 +933,17 @@ class _MagicLinkStepState extends State<_MagicLinkStep> {
       );
     }
     return _StepScaffold(
-      prompt: 'Laisse-moi un mail. Je te retrouve demain.',
+      prompt: 'Ton dossier a besoin d\u2019une adresse.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           TextField(
             controller: _controller,
             keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
             autofocus: true,
+            autocorrect: false,
+            enableSuggestions: false,
             style: GoogleFonts.inter(
               fontSize: 22,
               fontWeight: FontWeight.w500,
@@ -951,10 +959,13 @@ class _MagicLinkStepState extends State<_MagicLinkStep> {
               border: const UnderlineInputBorder(),
             ),
             onChanged: (_) => setState(() {}),
+            onSubmitted: (_) {
+              if (!_saving && _emailValid(_controller.text)) _seal();
+            },
           ),
           const SizedBox(height: 8),
           Text(
-            'Un lien, aucun mot de passe. Pas de pub, pas de relance.',
+            'Un lien, pas de mot de passe. Aucune pub, aucune relance.',
             style: GoogleFonts.inter(
               fontSize: 13,
               color: MintColors.textSecondary,
@@ -962,7 +973,7 @@ class _MagicLinkStepState extends State<_MagicLinkStep> {
           ),
           const Spacer(),
           _PrimaryButton(
-            label: _saving ? 'On envoie…' : 'Recevoir le lien',
+            label: _saving ? 'On envoie\u2026' : 'Sceller le dossier',
             onPressed: (!_saving && _emailValid(_controller.text)) ? _seal : null,
           ),
         ],

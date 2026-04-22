@@ -150,14 +150,14 @@ void main() {
     await tester.tap(find.text('Plus tard'));
     await tester.pumpAndSettle();
     expect(
-      find.text('Laisse-moi un mail. Je te retrouve demain.'),
+      find.text('Ton dossier a besoin d\u2019une adresse.'),
       findsOneWidget,
     );
 
-    // T9 magic link: saisis un email valide et Recevoir le lien
+    // T9 magic link: saisis un email valide et Sceller le dossier
     await tester.enterText(find.byType(TextField), 'toi@adresse.ch');
     await tester.pump();
-    await tester.tap(find.text('Recevoir le lien'));
+    await tester.tap(find.text('Sceller le dossier'));
     await tester.pumpAndSettle();
 
     // Provider flushed exactly once with expected keys.
@@ -221,7 +221,7 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'exact@t.ch');
     await tester.pump();
-    await tester.tap(find.text('Recevoir le lien'));
+    await tester.tap(find.text('Sceller le dossier'));
     await tester.pumpAndSettle();
 
     final merged = fake.mergedCalls.single;
