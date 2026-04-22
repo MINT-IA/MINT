@@ -37,8 +37,8 @@ Foundation non-négociable phase 2/2 — refonte + hook + spike validation. Kill
 
 Insight Panel C : les constantes financières + règles compliance gaspillent ~400 tokens/turn dans CLAUDE.md. Les transformer en MCP tools `on-demand` économise 16k tokens/session × N sessions = gain massif cumulé.
 
-- [ ] **TOOL-01**: MCP tool `get_swiss_constants(category)` — catégories : pillar3a / lpp / avs / mortgage / tax. Retourne constantes 2025/2026 structurées (ex: `{pillar3a_salarie_lpp: 7258, pillar3a_independant_no_lpp: 36288}`). Source : `services/backend/app/constants/` (déjà single source of truth). Supprime les constantes hardcodées de CLAUDE.md §5 BUSINESS RULES (gain ~400 tokens/turn).
-- [ ] **TOOL-02**: MCP tool `check_banned_terms(text)` — wrap `ComplianceGuard` backend existant (déjà déployé Phase 29, sous-utilisé). Retourne `{banned_found: ["garanti", "optimal"], suggestions: ["pourrait", "envisager"]}` on-demand.
+- [x] **TOOL-01**: MCP tool `get_swiss_constants(category)` — catégories : pillar3a / lpp / avs / mortgage / tax. Retourne constantes 2025/2026 structurées (ex: `{pillar3a_salarie_lpp: 7258, pillar3a_independant_no_lpp: 36288}`). Source : `services/backend/app/constants/` (déjà single source of truth). Supprime les constantes hardcodées de CLAUDE.md §5 BUSINESS RULES (gain ~400 tokens/turn).
+- [x] **TOOL-02**: MCP tool `check_banned_terms(text)` — wrap `ComplianceGuard` backend existant (déjà déployé Phase 29, sous-utilisé). Retourne `{banned_found: ["garanti", "optimal"], suggestions: ["pourrait", "envisager"]}` on-demand.
 - [ ] **TOOL-03**: MCP tool `validate_arb_parity()` + `check_accent_patterns(text)` — wrap les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` (Phase 34) en MCP tools. Agent appelle on-demand au lieu de charger les listes patterns en mémoire permanente.
 - [x] **TOOL-04**: CLAUDE.md hook les 3 tools — remplace les sections §5 BUSINESS RULES (constantes) + §6 COMPLIANCE (banned terms list) par pointeurs "use `get_swiss_constants()` tool". Supprime ~800 tokens cumulés de CLAUDE.md core. Mesure : tokens core CLAUDE.md -30%, tools invoqués ≥1×/session sur tâches pertinentes.
 

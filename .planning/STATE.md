@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: "Completed 30.7-00-PLAN.md (Wave 0 scaffolding green: venv + scan_text + baseline)"
-last_updated: "2026-04-22T17:17:36.119Z"
+stopped_at: Completed 30.7-01-PLAN.md (TOOL-01 + TOOL-02 pure Python surfaces)
+last_updated: "2026-04-22T17:29:50.841Z"
 last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 4
   total_plans: 22
-  completed_plans: 18
-  percent: 82
+  completed_plans: 19
+  percent: 86
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -40,7 +40,7 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 ## Current Position
 
 Phase: 30.7 (Tools Déterministes) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-04-22
 Next: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` — 6/6 plans have SUMMARY, VALIDATION.md reflects reality (3 PASS + 3 BLOCKED + 0 FAIL), 3 RISK entries await Julien ack for nyquist_compliant flip
@@ -94,6 +94,7 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 | 32-04-parity-lint | 5 min  | 1     | 6     | 2026-04-20 |
 | Phase 32 P05 | 9min | 3 tasks | 5 files |
 | Phase 30.7 P00 | 28 min | 3 tasks | 12 files |
+| Phase 30.7 P01 | 15 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -218,8 +219,8 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 
 ## Session Continuity
 
-Last session: 2026-04-22T17:17:36.116Z
-Stopped at: Completed 30.7-00-PLAN.md (Wave 0 scaffolding green: venv + scan_text + baseline)
+Last session: 2026-04-22T17:29:50.838Z
+Stopped at: Completed 30.7-01-PLAN.md (TOOL-01 + TOOL-02 pure Python surfaces)
 Resume file: None
 
 ---
