@@ -54,12 +54,13 @@ EXCLUDE_SUBSTRINGS = (
 )
 
 
-def scan_file(path: Path) -> list[tuple[int, str, str]]:
-    """Return list of (lineno, snippet, pattern->correction) violations."""
-    try:
-        text = path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
-        return []
+def scan_text(text: str) -> list[tuple[int, str, str]]:
+    """Scan a raw text buffer for ASCII-flattened French accent patterns.
+
+    Returns list of (lineno, snippet, pattern->correction) violations. 1-indexed lines.
+    Backward-compatible with scan_file — shares the PATTERNS list.
+    Added in Phase 30.7 TOOL-04 MCP wrapper. Do NOT duplicate PATTERNS here.
+    """
     out: list[tuple[int, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
         for pat, correct in PATTERNS:
@@ -67,6 +68,15 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
                 snippet = line.strip()[:140]
                 out.append((lineno, snippet, f"{pat} -> {correct}"))
     return out
+
+
+def scan_file(path: Path) -> list[tuple[int, str, str]]:
+    """Return list of (lineno, snippet, pattern->correction) violations."""
+    try:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+    except OSError:
+        return []
+    return scan_text(text)
 
 
 def _collect_paths(scope: list[str]) -> list[Path]:
