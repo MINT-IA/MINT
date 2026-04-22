@@ -139,7 +139,26 @@ if ! python3 tools/checks/no_hardcoded_fr.py --file tests/checks/fixtures/hardco
 fi
 echo "[self-test] no_hardcoded_fr: OK (FAIL + PASS cases green)"
 
+# ─── Phase 34 Plan 04 — arb_parity FAIL + PASS cases (D-25) ───
+# Direct --dir invocation against the Wave 0 ARB fixture corpus. Exercises
+# D-13 key-parity check (missing-key fixture -> rc=1) + D-13 placeholder
+# parity (clean fixture -> rc=0). Pitfall 1 (façade) guard: the lint is
+# RUN, not just chmod +x. Baseline parity on apps/mobile/lib/l10n/ is
+# covered by pytest `test_production_arb_files_parity` — not repeated
+# here to keep self-test runtime bounded.
+echo "[self-test] arb_parity: scanning drift fixture (de missing 'goodbye')..."
+if python3 tools/checks/arb_parity.py --dir tests/checks/fixtures/arb_drift_missing >/dev/null 2>&1; then
+  echo "self-test: FAIL — arb_parity did not catch drift fixture (façade sans câblage)"
+  exit 1
+fi
+echo "[self-test] arb_parity: scanning parity-clean fixture (6 langs aligned)..."
+if ! python3 tools/checks/arb_parity.py --dir tests/checks/fixtures/arb_parity_pass >/dev/null 2>&1; then
+  echo "self-test: FAIL — arb_parity wrongly flagged clean fixture"
+  exit 1
+fi
+echo "[self-test] arb_parity: OK (FAIL + PASS cases green)"
+
 echo "self-test: reminder — Phase 34 fixtures under tests/checks/fixtures/ must be"
 echo "  added to each new lint's lefthook 'exclude:' list (per Pitfall 7)."
-echo "  Plans 01 + 02 + 03 exclude fixtures; Plans 04-05 must follow."
+echo "  Plans 01 + 02 + 03 + 04 exclude fixtures; Plan 05 must follow."
 exit 0

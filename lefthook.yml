@@ -91,3 +91,17 @@ pre-commit:
       exclude:
         - "tests/checks/fixtures/**"
       tags: [i18n, phase-34]
+    # ─── Phase 34 GUARD-05 (D-13 key-set parity + placeholder parity, D-14 stdlib-only) ───
+    # Triggered any time an ARB file is staged under apps/mobile/lib/l10n/.
+    # Runs the FULL 6-file cross-language parity check -- the lint must
+    # examine every language regardless of which ARB was staged, because
+    # drift is a cross-file property (one language dropping a key is a
+    # 6-file-wide fail). No {staged_files} expansion: the script scans the
+    # whole lib/l10n/ directory in one pass. Fixtures excluded per Pitfall 7.
+    # D-15: dead Dart-side orphan keys are out of scope (Phase 36 v2.9 cleanup).
+    arb-parity:
+      run: python3 tools/checks/arb_parity.py
+      glob: "apps/mobile/lib/l10n/app_*.arb"
+      exclude:
+        - "tests/checks/fixtures/**"
+      tags: [i18n, phase-34]
