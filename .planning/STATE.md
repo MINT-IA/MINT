@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.8
 milestone_name: L'Oracle & La Boucle — Overview
 status: executing
-stopped_at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
-last_updated: "2026-04-22T15:22:28.429Z"
-last_activity: 2026-04-22 -- Phase 30.7 planning complete
+stopped_at: "Completed 30.7-00-PLAN.md (Wave 0 scaffolding green: venv + scan_text + baseline)"
+last_updated: "2026-04-22T17:17:36.119Z"
+last_activity: 2026-04-22
 progress:
   total_phases: 9
   completed_phases: 4
   total_plans: 22
-  completed_plans: 17
-  percent: 77
+  completed_plans: 18
+  percent: 82
 ---
 
 # GSD State: MINT v2.8 — L'Oracle & La Boucle
@@ -21,7 +21,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-19)
 
 **Core value:** Toute route user-visible marche end-to-end et on le prouve mécaniquement ; on sait en <60s ce qui casse ; aucun agent ne peut ignorer son contexte ; Julien ouvre MINT 20 min sans taper un mur.
-**Current focus:** Phase 32 — cartographier
+**Current focus:** Phase 30.7 — Tools Déterministes
 
 ## Architecture Decisions (pre-phase, v2.8)
 
@@ -39,10 +39,10 @@ See: .planning/PROJECT.md (updated 2026-04-19)
 
 ## Current Position
 
-Phase: 33
-Plan: Not started
+Phase: 30.7 (Tools Déterministes) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-04-22 -- Phase 30.7 planning complete
+Last activity: 2026-04-22
 Next: `/gsd-verify-work 32` on `feature/v2.8-phase-32-cartographier` — 6/6 plans have SUMMARY, VALIDATION.md reflects reality (3 PASS + 3 BLOCKED + 0 FAIL), 3 RISK entries await Julien ack for nyquist_compliant flip
 
 Progress: [██████████] 100% (4/9 phases, 17/17 plans) — phase 32: 6/6 plans shipped (32-00 reconcile + 32-01 registry + 32-02 cli + 32-03 admin-ui + 32-04 parity-lint + 32-05 ci-docs-validation green)
@@ -93,6 +93,7 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 | 32-03-admin-ui  | 11 min   | 2     | 11    | 2026-04-20 |
 | 32-04-parity-lint | 5 min  | 1     | 6     | 2026-04-20 |
 | Phase 32 P05 | 9min | 3 tasks | 5 files |
+| Phase 30.7 P00 | 28 min | 3 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -217,8 +218,8 @@ Progress: [██████████] 100% (4/9 phases, 17/17 plans) — ph
 
 ## Session Continuity
 
-Last session: 2026-04-20T09:10:18.085Z
-Stopped at: Completed 32-05-ci-docs-validation-PLAN.md (Phase 32 COMPLETE at 6/6 plans; AMBER verdict, 3 RISK acks pending from Julien for J0 Tasks 2/3/6)
+Last session: 2026-04-22T17:17:36.116Z
+Stopped at: Completed 30.7-00-PLAN.md (Wave 0 scaffolding green: venv + scan_text + baseline)
 Resume file: None
 
 ---

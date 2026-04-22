@@ -154,7 +154,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   3. MCP tools `validate_arb_parity()` + `check_accent_patterns(text)` wrappent les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` de Phase 34 — les agents les appellent au lieu de charger les listes patterns en mémoire.
   4. `CLAUDE.md` core tokens -30% (suppression §5 BUSINESS RULES constantes + §6 COMPLIANCE banned terms list) ; les tools sont invoqués ≥1×/session sur tâches pertinentes (mesuré via dashboard Phase 30.5).
 **Plans**: 5 plans (Wave 0 scaffolding + Wave 1 tool modules × 2 parallel + Wave 2 MCP server + Wave 3 CLAUDE.md trim)
-- [ ] 30.7-00-PLAN.md — Wave 0: venv + mcp>=1.9 pin + accent_lint_fr.scan_text additive helper + CLAUDE.md baseline capture + claude_md_bracket dry-run (TOOL-04 prep)
+- [x] 30.7-00-PLAN.md — Wave 0: venv + mcp>=1.9 pin + accent_lint_fr.scan_text additive helper + CLAUDE.md baseline capture + claude_md_bracket dry-run (TOOL-04 prep)
 - [ ] 30.7-01-PLAN.md — Wave 1: TOOL-01 get_swiss_constants (RegulatoryRegistry wrap) + TOOL-02 check_banned_terms (ComplianceGuard wrap, 10k DoS cap, module-scope guard)
 - [ ] 30.7-02-PLAN.md — Wave 1 parallel: TOOL-03 validate_arb_parity (subprocess + graceful fallback pre-Phase-34) + TOOL-04 check_accent_patterns (Wave 0 scan_text wrap)
 - [ ] 30.7-03-PLAN.md — Wave 2: FastMCP server.py with 4 @mcp.tool() decorators + stderr logging + pytest-asyncio integration tests + .mcp.json at repo root + README first-run/kill-switch
