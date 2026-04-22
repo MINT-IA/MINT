@@ -1,0 +1,6 @@
+- .planning/phases/34-agent-guardrails-m-caniques/34-VERIFICATION.md — verifier output to inform HUMAN-UAT persistence
+- .planning/phases/34-agent-guardrails-m-caniques/34-07-SUMMARY.md — final plan ship state (P95, GUARDs, observation-window items)
+- .planning/phases/34-agent-guardrails-m-caniques/34-06-SUMMARY.md — bypass-audit.yml observation-window context
+- .planning/REQUIREMENTS.md — GUARD-01..08 completion state
+- .planning/phases/34-agent-guardrails-m-caniques/34-CONTEXT.md — D-27 amendment context
+- .planning/phases/34-agent-guardrails-m-caniques/34-VALIDATION.md — 3 manual-only test definitions
