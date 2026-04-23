@@ -111,6 +111,42 @@ localised to one line — it preserves every other lint check on the same
 commit and leaves a durable, grep-able audit trail right next to the
 exempted code.
 
+### Known bypass vectors (banned by convention — detected retroactively)
+
+Lefthook itself exposes several other env vars and flags that silently
+disable hooks without leaving a signal in the commit body. **All are
+banned by MINT convention — every one of them is a PR-blocking offence
+and must never appear in a commit sequence, scripts, or CI config.**
+
+Phase 34.1 audit (`.planning/phases/34-agent-guardrails-m-caniques/audits/01-ADVERSARIAL.md`)
+inventoried the following vectors:
+
+| Vector | Effect | Detection |
+|--------|--------|-----------|
+| `git commit --no-verify` / `-n` | Git skips ALL hooks | `lefthook-ci.yml` re-runs hooks on PR — catches the regression effect, not the bypass itself |
+| `LEFTHOOK=0 git commit` | Undocumented lefthook kill-switch | `bypass-audit.yml` grep (extended in Phase 34.1 Fix #2) |
+| `LEFTHOOK_EXCLUDE=<name>` | Targeted skip of one or more hooks | `bypass-audit.yml` grep (extended) |
+| `LEFTHOOK_RUN_ONLY=<name>` | Runs only named hooks, silently skips the rest | `bypass-audit.yml` grep (extended) |
+| `git -c core.hooksPath=/dev/null commit` | Per-invocation git flag defeats all hooks | `bypass-audit.yml` grep (extended) |
+| `git rebase -i` with `squash` / `fixup` | Resulting commit NEVER fires `commit-msg` hook | `lefthook-ci.yml` invokes `proof_of_read.py` per commit in PR range — catches missing `Read:` trailers |
+| `git cherry-pick <sha>` | Original message propagates; `commit-msg` hook does not re-fire against the new phase context | `lefthook-ci.yml` per-commit scan |
+| Deleting `.git/hooks/commit-msg` manually | Local silent bypass of Claude proof-of-read | `lefthook-ci.yml` re-runs on PR — authoritative ground truth |
+
+**Ground-truth authority**: `.github/workflows/lefthook-ci.yml`
+re-runs every lint on every commit in a PR range. It is the primary
+detector for the EFFECT of any bypass listed above (a regression
+would fail the CI job regardless of how the bypass was performed).
+`.github/workflows/bypass-audit.yml` is a secondary awareness tool
+that flags voluntary signal patterns — use it to identify contributors
+who are reaching for bypasses too often, not as your main security
+gate.
+
+**Operator discipline**: if you find yourself typing any of the
+commands in the table above, stop and either (a) fix the underlying
+problem so the lint passes cleanly, (b) add an inline `lefthook-allow`
+override with a real reason, or (c) escalate to the maintainer. There
+is no fourth path.
+
 ## 4. Agent commits (proof-of-read — GUARD-06)
 
 Commits carrying `Co-Authored-By: Claude` MUST include a `Read:` trailer
