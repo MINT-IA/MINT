@@ -52,6 +52,16 @@ pre-commit:
         - "apps/mobile/lib/l10n/app_es.arb"
         - "apps/mobile/lib/l10n/app_it.arb"
         - "apps/mobile/lib/l10n/app_pt.arb"
+        # Phase 34.1 Fix #6 — auto-gen Dart files from non-FR ARBs contain
+        # Dart parameter names like `String prevoyance` (identifiers, can't
+        # have accent) + foreign-language values (Spanish `deja` verb, etc.)
+        # that produce massive false positives. `app_localizations_fr.dart`
+        # is still scanned -- it's the one where accents SHOULD exist.
+        - "apps/mobile/lib/l10n/app_localizations_en.dart"
+        - "apps/mobile/lib/l10n/app_localizations_de.dart"
+        - "apps/mobile/lib/l10n/app_localizations_es.dart"
+        - "apps/mobile/lib/l10n/app_localizations_it.dart"
+        - "apps/mobile/lib/l10n/app_localizations_pt.dart"
         - "tests/checks/fixtures/**"
         - "tests/checks/test_accent_lint_fr.py"
         - "tools/mcp/mint-tools/tests/**"

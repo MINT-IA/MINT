@@ -5738,7 +5738,7 @@ class SEs extends S {
   @override
   String forfaitFiscalSemanticsLabel(
       String ordinary, String forfait, String savings) {
-    return 'Comparación forfait fiscal. Imposición ordinaria: $ordinary. Forfait fiscal: $forfait.';
+    return 'Comparación forfait fiscal. Imposición ordinaria: $ordinary. Forfait fiscal: $forfait. Ahorro: $savings.';
   }
 
   @override

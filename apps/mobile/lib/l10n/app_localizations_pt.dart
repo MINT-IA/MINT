@@ -5733,7 +5733,7 @@ class SPt extends S {
   @override
   String forfaitFiscalSemanticsLabel(
       String ordinary, String forfait, String savings) {
-    return 'Comparação forfait fiscal. Tributação ordinária: $ordinary. Forfait fiscal: $forfait.';
+    return 'Comparação forfait fiscal. Tributação ordinária: $ordinary. Forfait fiscal: $forfait. Economia: $savings.';
   }
 
   @override

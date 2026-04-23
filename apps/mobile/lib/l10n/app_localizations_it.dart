@@ -5746,7 +5746,7 @@ class SIt extends S {
   @override
   String forfaitFiscalSemanticsLabel(
       String ordinary, String forfait, String savings) {
-    return 'Confronto forfait fiscale. Imposizione ordinaria: $ordinary. Forfait fiscale: $forfait.';
+    return 'Confronto forfait fiscale. Imposizione ordinaria: $ordinary. Forfait fiscale: $forfait. Risparmio: $savings.';
   }
 
   @override
