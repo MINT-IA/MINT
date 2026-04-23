@@ -36,11 +36,13 @@ jobs:
           python-version: "3.11"
 
       - name: Install lefthook 2.1.6 (pinned — matches local min_version)
-        # Phase 34.1 Fix #1: pin to v2.1.6 (was unpinned `master`, supply-chain + drift risk).
+        # Phase 34.2 hotfix: install.sh at v2.1.6 tag returns 404 (upstream removed
+        # that path from tagged releases). Switch to npm which publishes a pinned
+        # binary distribution and fails loudly if the version is unavailable.
         run: |
-          curl -sSLf https://raw.githubusercontent.com/evilmartians/lefthook/v2.1.6/install.sh \
-            | sh -s -- -b "$HOME/.local/bin"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          set -euo pipefail
+          npm install -g lefthook@2.1.6
+          lefthook version
 
       - name: Confirm lefthook installed + config parses
         # Phase 34.1 Fix #1: replace bogus `lefthook validate` (not a 2.x subcommand).
