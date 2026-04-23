@@ -37,10 +37,10 @@ Foundation non-négociable phase 2/2 — refonte + hook + spike validation. Kill
 
 Insight Panel C : les constantes financières + règles compliance gaspillent ~400 tokens/turn dans CLAUDE.md. Les transformer en MCP tools `on-demand` économise 16k tokens/session × N sessions = gain massif cumulé.
 
-- [ ] **TOOL-01**: MCP tool `get_swiss_constants(category)` — catégories : pillar3a / lpp / avs / mortgage / tax. Retourne constantes 2025/2026 structurées (ex: `{pillar3a_salarie_lpp: 7258, pillar3a_independant_no_lpp: 36288}`). Source : `services/backend/app/constants/` (déjà single source of truth). Supprime les constantes hardcodées de CLAUDE.md §5 BUSINESS RULES (gain ~400 tokens/turn).
-- [ ] **TOOL-02**: MCP tool `check_banned_terms(text)` — wrap `ComplianceGuard` backend existant (déjà déployé Phase 29, sous-utilisé). Retourne `{banned_found: ["garanti", "optimal"], suggestions: ["pourrait", "envisager"]}` on-demand.
-- [ ] **TOOL-03**: MCP tool `validate_arb_parity()` + `check_accent_patterns(text)` — wrap les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` (Phase 34) en MCP tools. Agent appelle on-demand au lieu de charger les listes patterns en mémoire permanente.
-- [ ] **TOOL-04**: CLAUDE.md hook les 3 tools — remplace les sections §5 BUSINESS RULES (constantes) + §6 COMPLIANCE (banned terms list) par pointeurs "use `get_swiss_constants()` tool". Supprime ~800 tokens cumulés de CLAUDE.md core. Mesure : tokens core CLAUDE.md -30%, tools invoqués ≥1×/session sur tâches pertinentes.
+- [x] **TOOL-01**: MCP tool `get_swiss_constants(category)` — catégories : pillar3a / lpp / avs / mortgage / tax. Retourne constantes 2025/2026 structurées (ex: `{pillar3a_salarie_lpp: 7258, pillar3a_independant_no_lpp: 36288}`). Source : `services/backend/app/constants/` (déjà single source of truth). Supprime les constantes hardcodées de CLAUDE.md §5 BUSINESS RULES (gain ~400 tokens/turn).
+- [x] **TOOL-02**: MCP tool `check_banned_terms(text)` — wrap `ComplianceGuard` backend existant (déjà déployé Phase 29, sous-utilisé). Retourne `{banned_found: ["garanti", "optimal"], suggestions: ["pourrait", "envisager"]}` on-demand.
+- [x] **TOOL-03**: MCP tool `validate_arb_parity()` + `check_accent_patterns(text)` — wrap les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` (Phase 34) en MCP tools. Agent appelle on-demand au lieu de charger les listes patterns en mémoire permanente.
+- [x] **TOOL-04**: CLAUDE.md hook les 3 tools — remplace les sections §5 BUSINESS RULES (constantes) + §6 COMPLIANCE (banned terms list) par pointeurs "use `get_swiss_constants()` tool". Supprime ~800 tokens cumulés de CLAUDE.md core. Mesure : tokens core CLAUDE.md -30%, tools invoqués ≥1×/session sur tâches pertinentes.
 
 ### OBS — Observabilité / Oracle (Phase 31)
 
@@ -171,10 +171,10 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 | CTX-03 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
 | CTX-04 | **30.6** | — | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
 | CTX-05 | **30.6** | spike gate go/no-go | Pending, Phase 30.6 assigned (moved from 30.5 per 2026-04-19 split) |
-| TOOL-01 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| TOOL-02 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| TOOL-03 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
-| TOOL-04 | **30.7** | — | Pending, Phase 30.7 assigned (renumbered 30.6 → 30.7 per 2026-04-19 split) |
+| TOOL-01 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-01 get_swiss_constants + 30.7-03 MCP server + 30.7-04 CLAUDE.md pointer @ `43a38dff`) |
+| TOOL-02 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-01 check_banned_terms + 30.7-03 MCP server + 30.7-04 NEVER #5 pointer @ `43a38dff`) |
+| TOOL-03 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-02 validate_arb_parity + check_accent_patterns + 30.7-03 MCP server + 30.7-04 pointer @ `43a38dff`) |
+| TOOL-04 | **30.7** | — | Complete 2026-04-22 (Plan 30.7-04 CLAUDE.md atomic trim -30% on 3/3 dims @ `43a38dff`, kill-switch rehearsed + Julien approved) |
 | OBS-01 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
 | OBS-02 | 31 | — | Complete 2026-04-19 (Plan 31-01) |
 | OBS-03 | 31 | — | Complete 2026-04-19 (Plan 31-02) |
@@ -264,4 +264,4 @@ See [MILESTONES.md](MILESTONES.md) for accomplishments summary.
 
 ---
 *Requirements defined: 2026-04-12 (v2.5), 2026-04-14 (v2.7), 2026-04-19 (v2.8)*
-*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle requirements defined post-research ; traceability expanded per-REQ, count corrected 50→48*
+*Last updated: 2026-04-22 — Phase 30.7 Tools Déterministes COMPLETE : TOOL-01 / TOOL-02 / TOOL-03 / TOOL-04 all flipped to Complete (5/5 plans shipped, commit `43a38dff` caps the CLAUDE.md -30% atomic trim, Julien approved cold-read + kill-switch rehearsal).*

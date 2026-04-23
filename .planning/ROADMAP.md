@@ -102,7 +102,7 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
 
 - [x] **Phase 30.5: Context Sanity** — Fix MEMORY.md truncation + drift dashboard + CLAUDE.md restructure + UserPromptSubmit hook + spike validation go/no-go (completed 2026-04-19)
 - [x] **Phase 30.6: Context Sanity (Advanced)** — CLAUDE.md refonte <150L + UserPromptSubmit hook + CTX-05 spike go/no-go (kill-policy active) (completed 2026-04-19)
-- [ ] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (swiss_constants / banned_terms / arb_parity) — économise ~16k tokens/session
+- [x] **Phase 30.7: Tools Déterministes** — MCP tools on-demand (get_swiss_constants / check_banned_terms / validate_arb_parity / check_accent_patterns) + CLAUDE.md -30% atomic trim (commit `43a38dff`) — économise ~600 tokens/session × N sessions (5/5 plans shipped 2026-04-22, Julien approved cold-read + kill-switch rehearsal, J0 fresh-session smoke deferred to post-merge)
 - [x] **Phase 31: Instrumenter** — Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip mobile↔backend (completed 2026-04-19)
 - [x] **Phase 32: Cartographier** — Route registry-as-code **147 routes** (reconciled 2026-04-20) + CLI `./tools/mint-routes` live health + Flutter UI `/admin/routes` schema viewer + parity lint + analytics **43 legacy redirects** (reconciled) (completed 2026-04-20)
 - [ ] **Phase 33: Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems + admin UI
@@ -153,7 +153,12 @@ Full phase detail for v2.5 (Phases 13-18), v2.6 (Phases 19-26), v2.7 (Phases 27-
   2. MCP tool `check_banned_terms(text)` wrap `ComplianceGuard` backend existant et retourne `{banned_found: [...], suggestions: [...]}` on-demand.
   3. MCP tools `validate_arb_parity()` + `check_accent_patterns(text)` wrappent les lints `tools/checks/arb_parity.py` + `tools/checks/accent_lint_fr.py` de Phase 34 — les agents les appellent au lieu de charger les listes patterns en mémoire.
   4. `CLAUDE.md` core tokens -30% (suppression §5 BUSINESS RULES constantes + §6 COMPLIANCE banned terms list) ; les tools sont invoqués ≥1×/session sur tâches pertinentes (mesuré via dashboard Phase 30.5).
-**Plans**: TBD
+**Plans**: 5 plans (Wave 0 scaffolding + Wave 1 tool modules × 2 parallel + Wave 2 MCP server + Wave 3 CLAUDE.md trim)
+- [x] 30.7-00-PLAN.md — Wave 0: venv + mcp>=1.9 pin + accent_lint_fr.scan_text additive helper + CLAUDE.md baseline capture + claude_md_bracket dry-run (TOOL-04 prep)
+- [x] 30.7-01-PLAN.md — Wave 1: TOOL-01 get_swiss_constants (RegulatoryRegistry wrap) + TOOL-02 check_banned_terms (ComplianceGuard wrap, 10k DoS cap, module-scope guard)
+- [x] 30.7-02-PLAN.md — Wave 1 parallel: TOOL-03 validate_arb_parity (subprocess + graceful fallback pre-Phase-34) + TOOL-04 check_accent_patterns (Wave 0 scan_text wrap)
+- [x] 30.7-03-PLAN.md — Wave 2: FastMCP server.py with 4 @mcp.tool() decorators + stderr logging + pytest-asyncio integration tests + .mcp.json at repo root + README first-run/kill-switch
+- [x] 30.7-04-PLAN.md — Wave 3: atomic CLAUDE.md trim commit -30% (NEVER #5 → check_banned_terms pointer, NEVER WHY compression, §3 MCP TOOLS stanza) + human checkpoint + kill-switch rehearsal (shipped 2026-04-22, commit `43a38dff`, -30% on 3/3 dims, Julien approved cold-read + rehearsal ; J0 fresh-session smoke deferred to post-merge)
 **Budget**: 2-3j (~0.5 sem)
 **Auto profile**: **L1** (meta/dev-tooling) — `/gsd-execute-phase` + `gsd-verifier` 7-pass post-execute. MCP tools backend, 0 UI à tester sur simulateur. Voir [`decisions/ADR-20260419-autonomous-profile-tiered.md`](../decisions/ADR-20260419-autonomous-profile-tiered.md).
 
@@ -267,7 +272,7 @@ Kill-policy ADR gate: every Phase 36 P0 REQ must either ship with regression tes
 |-------|-----------|----------------|--------|-----------|
 | 30.5. Context Sanity | v2.8 | 0/6 | Plans ready | — |
 | 30.6. Context Sanity Advanced | v2.8 | 0/3 | Not started | — |
-| 30.7. Tools Déterministes | v2.8 | 0/0 | Not started | — |
+| 30.7. Tools Déterministes | v2.8 | 5/5 | Complete (ready for `/gsd-verify-work 30.7`) | 2026-04-22 |
 | 31. Instrumenter | v2.8 | 0/5 | Plans ready | — |
 | 32. Cartographier | v2.8 | 5/6 | In Progress | — |
 | 33. Kill-switches | v2.8 | 0/0 | Not started | — |
@@ -281,4 +286,4 @@ Every Phase 36 P0 REQ (FIX-01..04) has a kill-switch flag provisioned in Phase 3
 
 ---
 *Roadmap created: 2026-04-12*
-*Last updated: 2026-04-19 — v2.8 L'Oracle & La Boucle roadmap created post-panel-debate (8 phases, 48 REQ mapped 1:1). Phase 30.5 split into Core + Advanced on 2026-04-19 (expert panel Option F); Tools Déterministes renumbered 30.6 → 30.7. Build order 30.5 → 30.6 → 30.7 → (31∥34) → (32∥33) → 35 → 36.*
+*Last updated: 2026-04-22 — Phase 30.7 Tools Déterministes COMPLETE (5/5 plans shipped : Wave 0 scaffolding + Wave 1 tools 1-4 + Wave 2 FastMCP server + Wave 3 CLAUDE.md atomic trim -30% @ 43a38dff). TOOL-01..04 all complete. Julien approved kill-switch rehearsal 2026-04-22. Next : `/gsd-verify-work 30.7` then unblock (31∥34) parallel window.*
