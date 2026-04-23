@@ -22,10 +22,31 @@ import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-# --- Patterns (RESEARCH Pattern 3) ---------------------------------------
+# --- Patterns (RESEARCH Pattern 3, extended by Phase 34.1 Fix #3 ---------
+# ---  amends D-05 per audits/01-ADVERSARIAL.md + audits/05-REGEX) --------
+#
+# Phase 34.1: widen Dart identifier alternation from (e|_|err|error) to any
+# valid Dart identifier -- audit 01 showed `catch (ex)` / `catch (exception)`
+# bypass. Also allow optional second arg for `catch (e, stack)` (Dart idiom
+# for stack trace capture; still bare if body is empty).
+# Python: add one-liner `except ...: pass` patterns -- audit 05 demonstrated
+# that `except: pass` (the MOST common bare-except form) slipped through the
+# `$`-anchored empty-body regex entirely.
+
+_DART_IDENT = r'[a-zA-Z_][a-zA-Z0-9_]*'
+
 DART_BARE_CATCH = [
-    re.compile(r'}\s*catch\s*\(\s*(?:e|_|err|error)\s*\)\s*\{\s*\}'),
-    re.compile(r'on\s+\w+\s+catch\s*\(\s*(?:e|_|err)\s*\)\s*\{\s*\}'),
+    # `} catch (ident) {}` or `} catch (ident, stack) {}` -- empty body,
+    # any identifier name, optional 2nd stack-trace arg.
+    re.compile(
+        r'}\s*catch\s*\(\s*' + _DART_IDENT +
+        r'(?:\s*,\s*' + _DART_IDENT + r')?\s*\)\s*\{\s*\}'
+    ),
+    # `on TYPE catch (ident) {}` typed catch with empty body.
+    re.compile(
+        r'on\s+' + _DART_IDENT + r'\s+catch\s*\(\s*' + _DART_IDENT +
+        r'(?:\s*,\s*' + _DART_IDENT + r')?\s*\)\s*\{\s*\}'
+    ),
 ]
 DART_LOG_TOKENS = (
     'Sentry.captureException', 'Sentry.captureMessage', 'SentryBreadcrumb',
@@ -36,9 +57,23 @@ DART_LOG_TOKENS = (
 )
 
 PY_BARE_EXCEPT = [
+    # Empty-body forms (body on next line; surrounding-log check applies).
     re.compile(r'^\s*except\s*:\s*$'),
     re.compile(r'^\s*except\s+Exception\s*:\s*$'),
     re.compile(r'^\s*except\s+BaseException\s*:\s*$'),
+    # Typed catch empty body (Phase 34.1): `except ValueError:`.
+    re.compile(r'^\s*except\s+\w[\w\.]*\s*:\s*$'),
+    # Typed catch with `as` binding empty body: `except Exception as e:`.
+    re.compile(r'^\s*except\s+\w[\w\.]*\s+as\s+\w+\s*:\s*$'),
+    # Tuple catch empty body: `except (ValueError, TypeError):` or
+    # `except (ValueError, TypeError) as e:`.
+    re.compile(r'^\s*except\s+\([^)]*\)(?:\s+as\s+\w+)?\s*:\s*$'),
+    # One-liner same-line `pass` forms (Phase 34.1 Fix #3, audit 05 P0):
+    # `except: pass`, `except Exception: pass`, `except Exception as e: pass`,
+    # `except (A, B): pass`, `except (A, B) as e: pass`, optional trailing
+    # comment. Covers the canonical Python bare-except in the wild.
+    re.compile(r'^\s*except(?:\s+\w[\w\.]*(?:\s+as\s+\w+)?)?\s*:\s*pass\s*(?:#.*)?$'),
+    re.compile(r'^\s*except\s+\([^)]*\)(?:\s+as\s+\w+)?\s*:\s*pass\s*(?:#.*)?$'),
 ]
 PY_LOG_TOKENS = (
     'logger.', 'logging.', 'log.',

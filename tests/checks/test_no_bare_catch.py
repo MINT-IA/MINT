@@ -215,3 +215,103 @@ def test_logged_catch_passes(tmp_git_repo: Path):
     _stage(tmp_git_repo, "ok.dart", content)
     rc, _ = _run_lint(tmp_git_repo, ["ok.dart"])
     assert rc == 0
+
+
+# --- Phase 34.1 Fix #3: regex widening per audits/01 + audits/05 ---------
+# (amends D-05 -- documented as D-28 in CONTEXT.md)
+
+
+def test_dart_catch_ex_identifier_bypass(tmp_git_repo: Path):
+    """Audit 01 P0: `catch (ex)` -- identifier not in (e|_|err|error)."""
+    _stage(tmp_git_repo, "a.dart", "void f() {\n  try { x(); } catch (ex) {}\n}\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.dart"])
+    assert rc == 1
+
+
+def test_dart_catch_exception_identifier_bypass(tmp_git_repo: Path):
+    """Audit 01 P0: `catch (exception)` full identifier bypass."""
+    _stage(tmp_git_repo, "a.dart", "void f() {\n  try { x(); } catch (exception) {}\n}\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.dart"])
+    assert rc == 1
+
+
+def test_dart_catch_e_stack_two_arg_bypass(tmp_git_repo: Path):
+    """Audit 01 P0: `catch (e, stack)` two-arg bypass."""
+    _stage(tmp_git_repo, "a.dart", "void f() {\n  try { x(); } catch (e, stack) {}\n}\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.dart"])
+    assert rc == 1
+
+
+def test_dart_on_type_catch_two_arg(tmp_git_repo: Path):
+    """Audit 01: `on FormatException catch (e, s) {}` two-arg typed catch."""
+    _stage(tmp_git_repo, "a.dart", "void f() {\n  try { x(); } on FormatException catch (e, s) {}\n}\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.dart"])
+    assert rc == 1
+
+
+def test_python_except_pass_oneliner(tmp_git_repo: Path):
+    """Audit 05 P0: `except: pass` -- the canonical Python bare-except."""
+    _stage(tmp_git_repo, "a.py", "def f():\n    try:\n        x()\n    except: pass\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_exception_pass_oneliner(tmp_git_repo: Path):
+    """Audit 05 P0: `except Exception: pass` one-liner."""
+    _stage(tmp_git_repo, "a.py", "def f():\n    try:\n        x()\n    except Exception: pass\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_exc_as_e_pass_oneliner(tmp_git_repo: Path):
+    """Audit 05 P0: `except Exception as e: pass` one-liner with as binding."""
+    _stage(tmp_git_repo, "a.py", "def f():\n    try:\n        x()\n    except Exception as e: pass\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_tuple_pass_oneliner(tmp_git_repo: Path):
+    """Audit 05 P0: `except (A, B): pass` tuple one-liner."""
+    _stage(tmp_git_repo, "a.py", "def f():\n    try:\n        x()\n    except (ValueError, TypeError): pass\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_tuple_as_e_oneliner(tmp_git_repo: Path):
+    """Audit 05 P0: `except (A, B) as e: pass` tuple + as one-liner."""
+    _stage(
+        tmp_git_repo,
+        "a.py",
+        "def f():\n    try:\n        x()\n    except (ValueError, TypeError) as e: pass\n",
+    )
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_tuple_empty_body(tmp_git_repo: Path):
+    """`except (A, B):` with next-line pass is bare (no log)."""
+    _stage(
+        tmp_git_repo,
+        "a.py",
+        "def f():\n    try:\n        x()\n    except (ValueError, TypeError):\n        pass\n",
+    )
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_typed_no_as(tmp_git_repo: Path):
+    """`except ValueError:` typed-no-as empty body is still bare without log."""
+    _stage(
+        tmp_git_repo,
+        "a.py",
+        "def f():\n    try:\n        x()\n    except ValueError:\n        pass\n",
+    )
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1
+
+
+def test_python_except_pass_with_comment_still_fails(tmp_git_repo: Path):
+    """`except: pass  # noqa` -- trailing comment must not exempt."""
+    _stage(tmp_git_repo, "a.py", "def f():\n    try:\n        x()\n    except: pass  # noqa\n")
+    rc, _ = _run_lint(tmp_git_repo, ["a.py"])
+    assert rc == 1

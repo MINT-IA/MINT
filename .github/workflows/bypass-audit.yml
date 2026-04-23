@@ -40,26 +40,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Count LEFTHOOK_BYPASS references in commit bodies on dev (7d window)
+      - name: Count bypass signals in commit bodies on dev (7d window)
         id: count
         run: |
-          # D-21: grep commit bodies on dev for LEFTHOOK_BYPASS / [bypass:]
-          # voluntary signals per RESEARCH Open Question 6.
+          # Phase 34.1 Fix #2: extend regex to cover ALL known bypass vectors,
+          # not just LEFTHOOK_BYPASS. Closes P0 gap from audits/01-ADVERSARIAL.md
+          # (LEFTHOOK=0 / LEFTHOOK_EXCLUDE / LEFTHOOK_RUN_ONLY / core.hooksPath /
+          # --no-verify were all invisible to the original regex).
+          # --no-verify / core.hooksPath leave no trace unless mentioned in
+          # commit body — grepping is still worth doing for voluntary mentions.
           git fetch origin dev --depth=0 2>/dev/null || true
           count=$(git log --since="7 days ago" --pretty=%B origin/dev 2>/dev/null \
-            | grep -c -E 'LEFTHOOK_BYPASS|\[bypass:' || true)
-          # grep -c returns 1 on no-match when pipefail would otherwise kill the
-          # step; the `|| true` above ensures we always land in the success path.
+            | grep -c -E 'LEFTHOOK_BYPASS|LEFTHOOK=0|LEFTHOOK_EXCLUDE=|LEFTHOOK_RUN_ONLY=|core\.hooksPath|--no-verify|\[bypass:' || true)
           echo "count=${count}" >> "$GITHUB_OUTPUT"
-          echo "[bypass-audit] Found ${count} LEFTHOOK_BYPASS/[bypass:] references on dev (7d window)"
+          echo "[bypass-audit] Found ${count} bypass signal(s) on dev (7d window)"
 
       - name: Collect commit hashes for triage body (only if threshold exceeded)
         id: commits
         if: ${{ fromJSON(steps.count.outputs.count) > 3 }}
         run: |
-          # Short hashes + author + subject line for manual triage.
+          # Phase 34.1 Fix #2: same extended regex as step `count`.
           triage=$(git log --since="7 days ago" --pretty='- %h %an — %s' origin/dev \
-            | grep -E 'LEFTHOOK_BYPASS|\[bypass:' || true)
+            | grep -E 'LEFTHOOK_BYPASS|LEFTHOOK=0|LEFTHOOK_EXCLUDE=|LEFTHOOK_RUN_ONLY=|core\.hooksPath|--no-verify|\[bypass:' || true)
           {
             echo 'triage<<TRIAGE_EOF'
             printf '%s\n' "${triage:-(no commits matched the regex in git log subject lines — inspect bodies manually)}"
@@ -69,10 +71,16 @@ jobs:
       - name: Create or update bypass-audit issue if threshold exceeded
         if: ${{ fromJSON(steps.count.outputs.count) > 3 }}
         uses: actions/github-script@v7
+        env:
+          # Phase 34.1 Fix #2: pass outputs via env to avoid
+          # template-literal injection (commit subjects/author names are
+          # untrusted). Closes P2 from audits/04-CI-WORKFLOWS.md.
+          COUNT: ${{ steps.count.outputs.count }}
+          TRIAGE: ${{ steps.commits.outputs.triage }}
         with:
           script: |
-            const count = '${{ steps.count.outputs.count }}';
-            const triage = `${{ steps.commits.outputs.triage }}`;
+            const count = process.env.COUNT;
+            const triage = process.env.TRIAGE;
             const weekTag = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
             const title = `bypass-audit: ${count} LEFTHOOK_BYPASS references (week of ${weekTag})`;
 

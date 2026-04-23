@@ -25,6 +25,7 @@ jobs:
   lefthook-all:
     name: Re-run lefthook on PR range
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # Phase 34.1 Fix #1: prevent iCloud-style stalls
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,14 +35,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install lefthook
+      - name: Install lefthook 2.1.6 (pinned — matches local min_version)
+        # Phase 34.1 Fix #1: pin to v2.1.6 (was unpinned `master`, supply-chain + drift risk).
         run: |
-          curl -sSLf https://raw.githubusercontent.com/evilmartians/lefthook/master/install.sh \
+          curl -sSLf https://raw.githubusercontent.com/evilmartians/lefthook/v2.1.6/install.sh \
             | sh -s -- -b "$HOME/.local/bin"
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
-      - name: Validate lefthook.yml schema
-        run: lefthook validate
+      - name: Confirm lefthook installed + config parses
+        # Phase 34.1 Fix #1: replace bogus `lefthook validate` (not a 2.x subcommand).
+        # `lefthook dump` expands the full config — fails on invalid YAML or schema errors.
+        run: |
+          lefthook version
+          lefthook dump > /dev/null
 
       - name: Run pre-commit hooks over PR range (--all-files --force)
         # --all-files: full-repo pass to catch bypass-introduced state.
@@ -50,17 +56,25 @@ jobs:
         # only way to guarantee no bypassed-commit regression slipped in.
         run: lefthook run pre-commit --all-files --force
 
-      - name: Run commit-msg hook against each new commit in PR range
-        # For each commit between the PR base and HEAD, extract the message
-        # into a tempfile and run the commit-msg hook. Catches commits that
-        # bypassed proof-of-read locally via LEFTHOOK_BYPASS=1 or --no-verify.
+      - name: Run proof_of_read against each new commit in PR range
+        # Phase 34.1 Fix #1: invoke the underlying script directly with the
+        # message file as positional arg (was `lefthook run commit-msg --file <path>`
+        # which is NOT a valid lefthook 2.x invocation — --file flag does not
+        # exist, commit-msg hook expects positional {1}). Calling the script
+        # directly is equivalent to what lefthook would dispatch internally,
+        # and works on any runner that has python3.
         run: |
           set -euo pipefail
-          git log --format=%H "origin/${{ github.base_ref }}..HEAD" | while read sha; do
+          commits=$(git log --format=%H "origin/${{ github.base_ref }}..HEAD")
+          if [ -z "$commits" ]; then
+            echo "No new commits in PR range — nothing to check."
+            exit 0
+          fi
+          echo "$commits" | while read sha; do
             if [ -z "$sha" ]; then continue; fi
             git log -1 --format=%B "$sha" > /tmp/msg.txt
-            if ! lefthook run commit-msg --file /tmp/msg.txt; then
-              echo "::error sha=$sha::commit-msg check failed on this commit"
+            if ! python3 tools/checks/proof_of_read.py /tmp/msg.txt; then
+              echo "::error sha=$sha::proof-of-read check failed on this commit"
               exit 1
             fi
           done
