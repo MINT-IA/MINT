@@ -33,13 +33,27 @@ from pathlib import Path
 from typing import List, Tuple
 
 # --- Trailer detection (RESEARCH Pattern 5 + Example 4) ------------------
-# MULTILINE so `^` anchors to line starts (commit trailers live on own lines).
-TRAILER_CLAUDE = re.compile(r'^Co-Authored-By:\s+Claude', re.MULTILINE)
+# Phase 34.1 Fix #4: IGNORECASE -- Git canonical lowercase `Co-authored-by:`
+# was treated as human commit (entire doctrine bypassed). audits/01 + 05 P0.
+TRAILER_CLAUDE = re.compile(r'^Co-Authored-By:\s+Claude', re.MULTILINE | re.IGNORECASE)
 TRAILER_READ = re.compile(r'^Read:\s+(\S+)\s*$', re.MULTILINE)
 
 # D-16: Read: path must point inside .planning/phases/ (T-34-SPOOF-01
 # mitigation - prevents attacker-spoofed references to unrelated files).
 ALLOWED_READ_PREFIX = '.planning/phases/'
+
+
+def _trailer_block(msg: str) -> str:
+    """Extract the last paragraph of a commit message (Git trailer convention).
+
+    Phase 34.1 Fix #4 (audits/01 P0): trailers live in the FINAL paragraph
+    after the last blank line. The original code scanned the whole message
+    with MULTILINE anchors, so a `Read:` on the subject line or buried in
+    the body paragraph would pass. Restricting the search to the last
+    paragraph enforces the trailer convention and defeats that bypass.
+    """
+    paragraphs = [p for p in msg.strip().split('\n\n') if p.strip()]
+    return paragraphs[-1] if paragraphs else ''
 
 
 def check_commit_msg(msg: str, repo_root: Path) -> Tuple[int, List[str]]:
@@ -54,17 +68,23 @@ def check_commit_msg(msg: str, repo_root: Path) -> Tuple[int, List[str]]:
     if not msg.strip():
         return 0, []
 
-    if not TRAILER_CLAUDE.search(msg):
+    # Phase 34.1 Fix #4: only scan the Git trailer block (last paragraph).
+    trailer_block = _trailer_block(msg)
+
+    if not TRAILER_CLAUDE.search(trailer_block):
         # D-17 automatic bypass for human commits.
         return 0, ['[proof_of_read] OK - human commit (no Claude trailer), bypass']
 
-    match = TRAILER_READ.search(msg)
+    match = TRAILER_READ.search(trailer_block)
     if not match:
         messages.append(
             '[proof_of_read] FAIL - Claude-coauthored commit missing `Read:` trailer.'
         )
         messages.append(
             '  Required format: `Read: .planning/phases/<phase>/<padded>-READ.md`'
+        )
+        messages.append(
+            '  Trailer must be in the FINAL paragraph (Git trailer convention).'
         )
         messages.append('  Per CONTEXT 34-CONTEXT.md D-16 / D-17.')
         return 1, messages
@@ -81,11 +101,44 @@ def check_commit_msg(msg: str, repo_root: Path) -> Tuple[int, List[str]]:
         )
         return 1, messages
 
-    read_path = repo_root / read_path_str
-    if not read_path.exists():
+    # Phase 34.1 Fix #4 (audits/01 P0 + P2): canonicalise the path --
+    # resolve `..` traversal and symlinks -- then re-verify the prefix.
+    # Original code accepted `.planning/phases/../../etc/passwd` and
+    # symlinks pointing outside the allowed prefix.
+    read_path_raw = repo_root / read_path_str
+    try:
+        read_path = read_path_raw.resolve(strict=False)
+    # lefthook-allow:bare-catch: structured error surfaced via (rc, messages) return contract
+    except (OSError, RuntimeError) as exc:
         messages.append(
-            f'[proof_of_read] FAIL - Read: path does not exist on disk: '
-            f'{read_path_str}'
+            f'[proof_of_read] FAIL - Read: path resolution failed '
+            f'({type(exc).__name__}): {read_path_str}'
+        )
+        return 1, messages
+
+    allowed_root = (repo_root / ALLOWED_READ_PREFIX).resolve(strict=False)
+    try:
+        read_path.relative_to(allowed_root)
+    # lefthook-allow:bare-catch: relative_to raises ValueError on escape, caught deliberately
+    except ValueError:
+        messages.append(
+            f'[proof_of_read] FAIL - Read: resolved path escapes '
+            f'`{ALLOWED_READ_PREFIX}` after canonicalisation: '
+            f'{read_path_str} -> {read_path}'
+        )
+        return 1, messages
+
+    # Phase 34.1 Fix #4 (audits/01 P2): IsADirectoryError crash when
+    # Read: points to a directory. Check for regular file explicitly.
+    if not read_path.is_file():
+        if read_path.is_dir():
+            reason = 'is a directory, not a regular file'
+        elif not read_path.exists():
+            reason = 'does not exist on disk'
+        else:
+            reason = 'is a special file (socket/device/broken symlink)'
+        messages.append(
+            f'[proof_of_read] FAIL - Read: path {reason}: {read_path_str}'
         )
         return 1, messages
 

@@ -164,3 +164,73 @@ def test_claude_trailer_case_insensitive(tmp_path: Path) -> None:
     # Canonical casing should trip the check (no Read: -> FAIL).
     assert rc == 1
     assert any("Read:" in m for m in messages)
+
+
+# --- Phase 34.1 Fix #4: hardening per audits/01 P0 findings --------------
+
+
+def test_git_canonical_lowercase_co_authored_by_detected(tmp_path: Path) -> None:
+    """Audit 01 P0: `Co-authored-by:` (Git canonical lowercase 'a') was
+    treated as human commit entirely (whole doctrine bypassed).
+    Phase 34.1: regex is now IGNORECASE."""
+    msg = (
+        "feat: ship\n\n"
+        "Co-authored-by: Claude Sonnet <noreply@anthropic.com>\n"
+    )
+    rc, messages = lint.check_commit_msg(msg, tmp_path)
+    assert rc == 1, 'lowercase Co-authored-by must be treated as Claude commit'
+    assert any('Read:' in m for m in messages)
+
+
+def test_read_trailer_on_subject_line_rejected(tmp_path: Path) -> None:
+    """Audit 01 P0: `Read:` on subject line (not trailer block) was accepted.
+    Phase 34.1: trailers must be in the LAST paragraph (Git convention)."""
+    # Subject contains `Read:`, body has Claude trailer but no trailer Read:
+    msg = (
+        "Read: bogus but appears on subject\n"
+        "\n"
+        "This is the body paragraph.\n"
+        "\n"
+        "Co-Authored-By: Claude Opus\n"
+    )
+    rc, _ = lint.check_commit_msg(msg, tmp_path)
+    assert rc == 1
+
+
+def test_path_traversal_dotdot_blocked(tmp_path: Path) -> None:
+    """Audit 01 P2: `.planning/phases/../../../etc/passwd` passed prefix
+    check despite obviously escaping. Phase 34.1: canonicalise + re-check."""
+    # Point Read: at a path that starts with allowed prefix but `..` up and out
+    msg = (
+        "fix: traversal\n\n"
+        "Read: .planning/phases/../../etc/passwd\n"
+        "Co-Authored-By: Claude\n"
+    )
+    rc, messages = lint.check_commit_msg(msg, tmp_path)
+    assert rc == 1
+    assert any('escapes' in m or 'canonicalisation' in m for m in messages)
+
+
+def test_directory_read_path_fails_gracefully(tmp_path: Path) -> None:
+    """Audit 01 P2: IsADirectoryError crash when Read: pointed to a dir.
+    Phase 34.1: explicit is_file() check emits clean FAIL."""
+    # Create a directory at the expected path
+    phase_dir = tmp_path / ".planning" / "phases" / "34-agent-guardrails-m-caniques"
+    phase_dir.mkdir(parents=True)
+    msg = (
+        "fix: dir\n\n"
+        "Read: .planning/phases/34-agent-guardrails-m-caniques\n"
+        "Co-Authored-By: Claude\n"
+    )
+    rc, messages = lint.check_commit_msg(msg, tmp_path)
+    assert rc == 1
+    # Must emit a clean message, not crash
+    assert any('directory' in m for m in messages)
+
+
+def test_trailer_block_extraction() -> None:
+    """Phase 34.1 helper: trailer block is the last paragraph."""
+    assert lint._trailer_block("subject\n\nbody\n\ntrailer") == "trailer"
+    assert lint._trailer_block("only subject") == "only subject"
+    assert lint._trailer_block("") == ""
+    assert lint._trailer_block("a\n\nb\n\n\n\nc") == "c"
