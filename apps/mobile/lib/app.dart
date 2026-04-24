@@ -307,11 +307,14 @@ final _router = GoRouter(
     ),
     // Landing CTA target — flag-gated redirect. Keeps `LandingScreen`
     // pure (LAND-01: no `services/` imports in the widget itself).
+    // Default branch = /anonymous/chat (FIX-02: anonymous flow is the
+    // default entry, NOT the auth-gated /coach/chat). MVP wedge flag
+    // overrides to /onb when enabled for the guided intent storyboard.
     ScopedGoRoute(
       path: '/start',
       scope: RouteScope.public,
       redirect: (_, __) =>
-          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/coach/chat',
+          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
     ),
     // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
     // with 4 intents + dossier densification + 3 N2 scenes + magic link.

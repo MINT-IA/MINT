@@ -4,7 +4,7 @@
 //   • The 4 text surfaces render (wordmark, paragraphe-mère, CTA, legal).
 //   • Privacy micro-phrase is present.
 //   • No banned term (retirement framing, aggressive CTAs) is rendered.
-//   • CTA navigates to /coach/chat (KILL-05: no mandatory account creation).
+//   • CTA navigates to /anonymous/chat (FIX-02 default + KILL-05 no-account).
 //   • Reduced-motion fallback renders content on first pump (no wait).
 //
 // CONTEXT.md §2 D-01..D-13 | LAND-01, LAND-02, LAND-04, LAND-05, LAND-06.
@@ -30,12 +30,12 @@ GoRouter _buildRouter() {
       GoRoute(
         path: '/start',
         redirect: (_, __) =>
-            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/coach/chat',
+            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
       ),
       GoRoute(
-        path: '/coach/chat',
+        path: '/anonymous/chat',
         builder: (_, __) => const Scaffold(
-          body: Center(child: Text('COACH_CHAT_STUB')),
+          body: Center(child: Text('ANONYMOUS_CHAT_STUB')),
         ),
       ),
       GoRoute(
@@ -123,14 +123,14 @@ void main() {
       }
     });
 
-    testWidgets('CTA routes to /coach/chat (KILL-05)', (tester) async {
+    testWidgets('CTA routes to /anonymous/chat (FIX-02)', (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
       await tester.tap(find.byType(FilledButton));
       await tester.pumpAndSettle();
 
-      expect(find.text('COACH_CHAT_STUB'), findsOneWidget);
+      expect(find.text('ANONYMOUS_CHAT_STUB'), findsOneWidget);
     });
 
     testWidgets('reduced-motion: content visible on first pump', (tester) async {
