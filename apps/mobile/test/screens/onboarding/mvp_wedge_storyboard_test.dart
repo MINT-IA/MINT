@@ -1,9 +1,10 @@
-/// Integration test du storyboard onboarding v2 (locked 2026-04-22).
+/// Integration test du storyboard onboarding v2
+/// (locked 2026-04-22, T9 email-demain killed 2026-04-24).
 ///
 /// Vérifie les 3 flows intents (retraite / achat / impots) tour par
-/// tour, de T1 (landing) à T9 (magic link), avec assertion sur la
+/// tour, de T1 (landing) à T8 (bifurcation), avec assertion sur la
 /// densification du dossier à chaque tour et le flush vers
-/// CoachProfileProvider au tour 9.
+/// CoachProfileProvider au tour 8 (déclenché par Creuser ou Plus tard).
 library;
 
 import 'package:flutter/material.dart';
@@ -47,6 +48,10 @@ Future<void> _pumpShell(
       GoRoute(
         path: '/home',
         builder: (_, __) => const Scaffold(body: Text('home-landed')),
+      ),
+      GoRoute(
+        path: '/coach/chat',
+        builder: (_, __) => const Scaffold(body: Text('coach-chat-landed')),
       ),
     ],
   );
@@ -156,31 +161,27 @@ void main() {
       findsOneWidget,
     );
 
-    // T8 → T9 via Plus tard (ne pas creuser pendant le test)
+    // T8 bifurcation: tap "Plus tard" → flush + navigate to /home.
+    // (2026-04-24: T9 magic-link email scene killed, bifurcation is now
+    // terminal. Creuser → /coach/chat, Plus tard → /home.)
     await tester.tap(find.text('Plus tard'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Ton dossier a besoin d\u2019une adresse.'),
-      findsOneWidget,
-    );
 
-    // T9 magic link: saisis un email valide et Sceller le dossier
-    await tester.enterText(find.byType(TextField), 'toi@adresse.ch');
-    await tester.pump();
-    await tester.tap(find.text('Sceller le dossier'));
-    await tester.pumpAndSettle();
+    // Landed on /home (router stub shows 'home-landed').
+    expect(find.text('home-landed'), findsOneWidget);
 
-    // Provider flushed exactly once with expected keys.
+    // Provider flushed exactly once with expected keys (no q_email now).
     expect(fake.mergedCalls, hasLength(1));
     final merged = fake.mergedCalls.single;
     expect(merged['onb_intent'], 'impots');
     expect(merged['q_age'], 34);
     expect(merged['q_canton'], 'VD');
-    expect(merged['q_email'], 'toi@adresse.ch');
+    expect(merged.containsKey('q_email'), isFalse,
+        reason: 'email-demain scene killed 2026-04-24, no email captured');
     expect(merged['q_net_income_confidence'], 'medium');
-    // Revenu fourchette : borne basse 7000, borne haute 7500
     expect(merged['q_net_income_range_low'], 7000);
     expect(merged['q_net_income_range_high'], 7500);
+    expect(merged['q_wants_deeper'], false);
   });
 
   testWidgets('Intent achat: scene N2 affiche chiffre héros intervalle',
@@ -221,7 +222,7 @@ void main() {
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
-    // T6 → T7 → T8 → T9
+    // T6 → T7 → T8 (terminal) : Plus tard flushes + lands on /home.
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuer'));
@@ -229,11 +230,7 @@ void main() {
     await tester.tap(find.text('Plus tard'));
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byType(TextField), 'exact@t.ch');
-    await tester.pump();
-    await tester.tap(find.text('Sceller le dossier'));
-    await tester.pumpAndSettle();
-
+    expect(find.text('home-landed'), findsOneWidget);
     final merged = fake.mergedCalls.single;
     expect(merged['q_net_income_period_chf'], 7600);
     expect(merged['q_net_income_confidence'], 'high');
@@ -241,42 +238,40 @@ void main() {
   });
 
   testWidgets(
-      'T9 seal failure: SnackBar shown, user stays on email step, can retry',
+      'T8 seal failure: SnackBar shown on Plus tard, user stays on bifurcation',
       (tester) async {
     final fake = _FakeCoachProfileProvider()..throwOnMerge = true;
     await _pumpShell(tester, fake);
     await _commonEntry(tester, intentLabel: 'Ce que je toucherai, vraiment.');
     await _commonData(tester);
 
-    // Drive through T6 → T9
+    // T6 → T7 → T8
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Plus tard'));
-    await tester.pumpAndSettle();
 
-    // T9 — seal with a valid email while mergeAnswers throws.
-    await tester.enterText(find.byType(TextField), 'toi@adresse.ch');
-    await tester.pump();
-    await tester.tap(find.text('Sceller le dossier'));
+    // Tap Plus tard while mergeAnswers throws.
+    await tester.tap(find.text('Plus tard'));
     await tester.pump(); // dispatch the tap
     await tester.pump(const Duration(milliseconds: 50)); // let the throw land
 
-    // The error SnackBar is visible, dossier is NOT sealed.
+    // Error SnackBar visible, dossier NOT sealed, user still on bifurcation.
     expect(
       find.textContaining('Impossible de sceller ton dossier'),
       findsOneWidget,
     );
-    expect(find.text('Réessayer'), findsOneWidget);
-    // User still sees the email input, not the "scellé" confirmation.
-    expect(find.text('Ton dossier est scellé.'), findsNothing);
-    // Primary CTA is back to un-saving state — no merged profile either.
+    // "Réessayer" is the SnackBar action label from onboardingSealRetry.
+    expect(find.text('Plus tard'), findsOneWidget,
+        reason: 'User still on T8 bifurcation, not navigated to /home');
+    expect(find.text('home-landed'), findsNothing);
+    // mergeAnswers did throw — no successful merge recorded (fake only
+    // appends on success; it throws before appending).
     expect(fake.mergedCalls, isEmpty);
   });
 
   testWidgets(
-      'T8 Creuser: wantsDeeper is persisted in merged answers at T9',
+      'T8 Creuser: flushes wantsDeeper=true + navigates to /coach/chat',
       (tester) async {
     final fake = _FakeCoachProfileProvider();
     await _pumpShell(tester, fake);
@@ -291,11 +286,8 @@ void main() {
     await tester.tap(find.text('Creuser'));
     await tester.pumpAndSettle();
 
-    // T9
-    await tester.enterText(find.byType(TextField), 'deep@t.ch');
-    await tester.pump();
-    await tester.tap(find.text('Sceller le dossier'));
-    await tester.pumpAndSettle();
+    // Landed on /coach/chat (router stub shows 'coach-chat-landed').
+    expect(find.text('coach-chat-landed'), findsOneWidget);
 
     final merged = fake.mergedCalls.single;
     expect(merged['q_wants_deeper'], isTrue);

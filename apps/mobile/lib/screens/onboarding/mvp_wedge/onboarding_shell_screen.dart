@@ -83,8 +83,6 @@ class _OnboardingShellBody extends StatelessWidget {
         return const _SceneStep();
       case OnboardingStep.bifurcation:
         return const _BifurcationStep();
-      case OnboardingStep.magicLink:
-        return const _MagicLinkStep();
     }
   }
 }
@@ -817,8 +815,66 @@ class _SceneStep extends StatelessWidget {
 // T8 — Bifurcation [Creuser] / [Plus tard]
 // ────────────────────────────────────────────────────────────────────
 
-class _BifurcationStep extends StatelessWidget {
+/// Terminal step of the wedge since 2026-04-24.
+///
+/// Both buttons flush the dossier to CoachProfile + navigate:
+///   - Creuser   \u2192 /coach/chat (continue the conversation inline)
+///   - Plus tard \u2192 /home       (enter the shell with seeded profile)
+///
+/// Auth conversion happens later via the existing `auth_gate_bottom_sheet`
+/// after 3 anonymous messages \u2014 no email, no "I'll see you tomorrow"
+/// user-eject (killed per design panel 2026-04-24 P0-4).
+class _BifurcationStep extends StatefulWidget {
   const _BifurcationStep();
+
+  @override
+  State<_BifurcationStep> createState() => _BifurcationStepState();
+}
+
+class _BifurcationStepState extends State<_BifurcationStep> {
+  bool _sealing = false;
+
+  Future<void> _sealAndGo({required bool deeper}) async {
+    if (_sealing) return;
+    final provider = context.read<OnboardingProvider>();
+    final coach = context.read<CoachProfileProvider>();
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = S.of(context)!;
+    final router = GoRouter.of(context);
+
+    provider.setWantsDeeper(deeper);
+    setState(() => _sealing = true);
+    try {
+      await provider.completeAndFlushToProfile(coach);
+    } catch (e, stack) {
+      dev.log(
+        'MVP wedge seal failed',
+        error: e,
+        stackTrace: stack,
+        name: 'Onboarding',
+      );
+      if (!mounted) return;
+      setState(() => _sealing = false);
+      messenger?.showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: MintColors.textPrimary,
+          content: Text(
+            l10n.onboardingSealError,
+            style: GoogleFonts.inter(color: MintColors.background),
+          ),
+          action: SnackBarAction(
+            label: l10n.onboardingSealRetry,
+            textColor: MintColors.background,
+            onPressed: () => _sealAndGo(deeper: deeper),
+          ),
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    router.go(deeper ? '/coach/chat' : '/home');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -841,18 +897,12 @@ class _BifurcationStep extends StatelessWidget {
         children: [
           const Spacer(),
           _PrimaryButton(
-            label: 'Creuser',
-            onPressed: () {
-              provider.setWantsDeeper(true);
-              provider.advance();
-            },
+            label: _sealing ? 'On garde\u2026' : 'Creuser',
+            onPressed: _sealing ? null : () => _sealAndGo(deeper: true),
           ),
           const SizedBox(height: 10),
           TextButton(
-            onPressed: () {
-              provider.setWantsDeeper(false);
-              provider.advance();
-            },
+            onPressed: _sealing ? null : () => _sealAndGo(deeper: false),
             child: Text(
               'Plus tard',
               style: GoogleFonts.inter(
@@ -867,149 +917,3 @@ class _BifurcationStep extends StatelessWidget {
   }
 }
 
-// ────────────────────────────────────────────────────────────────────
-// T9 — Magic link (sceller le dossier)
-// ────────────────────────────────────────────────────────────────────
-
-class _MagicLinkStep extends StatefulWidget {
-  const _MagicLinkStep();
-
-  @override
-  State<_MagicLinkStep> createState() => _MagicLinkStepState();
-}
-
-class _MagicLinkStepState extends State<_MagicLinkStep> {
-  final _controller = TextEditingController();
-  bool _saving = false;
-  bool _done = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  // Regex emails RFC pragmatique : local-part autorisée (lettres,
-  // chiffres, . _ % + -), @, domaine avec au moins un point + TLD 2+.
-  // Match les cas courants, tolère majuscules.
-  static final _emailRe = RegExp(
-    r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
-  );
-
-  bool _emailValid(String v) => _emailRe.hasMatch(v.trim());
-
-  Future<void> _seal() async {
-    final provider = context.read<OnboardingProvider>();
-    final coach = context.read<CoachProfileProvider>();
-    final messenger = ScaffoldMessenger.maybeOf(context);
-    final l10n = S.of(context)!;
-    provider.setEmail(_controller.text.trim());
-    setState(() => _saving = true);
-    try {
-      await provider.completeAndFlushToProfile(coach);
-    } catch (e, stack) {
-      dev.log(
-        'MVP wedge seal failed',
-        error: e,
-        stackTrace: stack,
-        name: 'Onboarding',
-      );
-      if (!mounted) return;
-      setState(() => _saving = false);
-      messenger?.showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: MintColors.textPrimary,
-          content: Text(
-            l10n.onboardingSealError,
-            style: GoogleFonts.inter(color: MintColors.background),
-          ),
-          action: SnackBarAction(
-            label: l10n.onboardingSealRetry,
-            textColor: MintColors.background,
-            onPressed: _seal,
-          ),
-        ),
-      );
-      return;
-    }
-    if (!mounted) return;
-    setState(() {
-      _saving = false;
-      _done = true;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_done) {
-      return _StepScaffold(
-        prompt: 'Ton dossier est scellé.',
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Ouvre le lien qu\u2019on vient de t\u2019envoyer pour y revenir.',
-              style: GoogleFonts.inter(
-                fontSize: 15,
-                color: MintColors.textSecondary,
-              ),
-            ),
-            const Spacer(),
-            _PrimaryButton(
-              label: 'Terminer',
-              onPressed: () => context.go('/home'),
-            ),
-          ],
-        ),
-      );
-    }
-    return _StepScaffold(
-      prompt: 'Ton dossier a besoin d\u2019une adresse.',
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TextField(
-            controller: _controller,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.done,
-            autofocus: true,
-            autocorrect: false,
-            enableSuggestions: false,
-            style: GoogleFonts.inter(
-              fontSize: 22,
-              fontWeight: FontWeight.w500,
-              color: MintColors.textPrimary,
-            ),
-            decoration: InputDecoration(
-              hintText: 'toi@adresse.ch',
-              hintStyle: GoogleFonts.inter(
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-                color: MintColors.textSecondary.withValues(alpha: 0.35),
-              ),
-              border: const UnderlineInputBorder(),
-            ),
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (_) {
-              if (!_saving && _emailValid(_controller.text)) _seal();
-            },
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Un lien, pas de mot de passe. Aucune pub, aucune relance.',
-            style: GoogleFonts.inter(
-              fontSize: 13,
-              color: MintColors.textSecondary,
-            ),
-          ),
-          const Spacer(),
-          _PrimaryButton(
-            label: _saving ? 'On envoie\u2026' : 'Sceller le dossier',
-            onPressed: (!_saving && _emailValid(_controller.text)) ? _seal : null,
-          ),
-        ],
-      ),
-    );
-  }
-}
