@@ -99,7 +99,7 @@ Chaque FIX provisionné avec kill-switch flag AVANT Phase 36 (per kill-policy AD
 - [ ] **FIX-03** (kill: `enableSaveFactSync`): P0 save_fact sync backend→mobile — `responseMeta.profileInvalidated` field dans canonical OpenAPI, `CoachProfile` reactive invalidation, regression test Flutter
 - [ ] **FIX-04** (kill: `enableCoachTab`): P0 Coach tab routing stable — navigation state fix, regression test Flutter
 - [ ] **FIX-05**: 388 bare catches → 0 — classification-first (P0 : core flows / P1 : UX best-effort / P2 : test mocks exemptés), backend 56 d'abord (pattern simple), mobile 332 batched 20/PR, `tools/checks/no_bare_catch.py` (GUARD-02) empêche régression pendant migration
-- [ ] **FIX-06**: MintShell ARB parity 6 langs audit — labels `l.tabAujourdhui / l.tabMonArgent / l.tabCoach / l.tabExplorer` DÉJÀ i18n-wired ([apps/mobile/lib/widgets/mint_shell.dart:50-65](apps/mobile/lib/widgets/mint_shell.dart)), audit seulement : clés présentes dans fr/en/de/es/it/pt, pas de ASCII-only residue (pas rewrite, MEMORY.md était stale)
+- [x] **FIX-06**: MintShell ARB parity 6 langs audit — **PASS 2026-04-24** ([AUDIT.md](phases/30.13-fix-06-mintshell-arb-audit/AUDIT.md)). All 4 labels (`tabAujourdhui/tabMonArgent/tabCoach/tabExplorer`) present in fr/en/de/es/it/pt, wired at [mint_shell.dart:50-65](apps/mobile/lib/widgets/mint_shell.dart), zero ASCII residue. No rewrite needed.
 - [ ] **FIX-07**: Accents 100% — `tools/checks/accent_lint_fr.py` (GUARD-04) gate green sur `.dart` + `.py` + `.arb`
 - [ ] **FIX-08**: **43 redirects legacy** (reconciled 2026-04-20, ROADMAP estimate was 23) — analytics instrumentés (MAP-05, Phase 32), sunset DEFER v2.9+ (PAS suppression v2.8, zero-traffic validation d'abord)
 - [ ] **FIX-09**: Regression test par P0 fix — chaque FIX-01 à FIX-05 ship avec test qui aurait failé pre-fix (empêche régression future, enforcé par code review)
@@ -210,7 +210,7 @@ Every v2.8 REQ is mapped to exactly one phase. Status is `Pending, Phase X assig
 | FIX-03 | 36 | `enableSaveFactSync` | Pending, Phase 36 assigned |
 | FIX-04 | 36 | `enableCoachTab` | Pending, Phase 36 assigned |
 | FIX-05 | 36 | cross-cutting (guarded by GUARD-02) | Pending, Phase 36 assigned |
-| FIX-06 | 36 | — | Pending, Phase 36 assigned |
+| FIX-06 | 36 | — | **Done 2026-04-24** (audit-only pass) |
 | FIX-07 | 36 | enforced by GUARD-04 | Pending, Phase 36 assigned |
 | FIX-08 | 36 | defer v2.9+ | Pending, Phase 36 assigned |
 | FIX-09 | 36 | — | Pending, Phase 36 assigned |
