@@ -168,7 +168,15 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     description: 'Magic-link verification landing',
   ),
 
-  // ── Anonymous chat (public, outside shell) ─────────────────────
+  // ── Anonymous flow (public, outside shell) ─────────────────────
+  '/anonymous/intent': RouteMeta(
+    path: '/anonymous/intent',
+    category: RouteCategory.flow,
+    owner: RouteOwner.anonymous,
+    requiresAuth: false,
+    killFlag: 'enableAnonymousFlow',
+    description: 'Anonymous intent picker — felt-state pills + free-text entry point',
+  ),
   '/anonymous/chat': RouteMeta(
     path: '/anonymous/chat',
     category: RouteCategory.destination,
