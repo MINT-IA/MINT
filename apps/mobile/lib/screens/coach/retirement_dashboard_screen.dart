@@ -319,7 +319,9 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
         _seqRunId = extra['runId'] as String?;
         _seqStepId = extra['stepId'] as String?;
       }
-    } catch (_) {}
+    } catch (_) {
+      // GoRouterState unavailable (no active match) — no sequence context, fine.
+    }
   }
 
   void _emitFinalReturn() {

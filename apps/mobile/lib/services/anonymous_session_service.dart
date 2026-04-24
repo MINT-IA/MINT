@@ -59,11 +59,15 @@ class AnonymousSessionService {
   static Future<void> _delete(String key) async {
     try {
       await _secureStorage.delete(key: key);
-    } catch (_) {}
+    } catch (_) {
+      // keychain failure on sim — tolerate, SharedPreferences fallback handles it
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove('anonfb_$key');
-    } catch (_) {}
+    } catch (_) {
+      // both stores unreachable — caller will treat key as already absent
+    }
   }
 
   /// Returns existing session ID or creates a new UUID v4.
