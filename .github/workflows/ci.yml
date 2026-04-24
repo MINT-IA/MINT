@@ -154,7 +154,13 @@ jobs:
       - name: Security audit (pip-audit)
         run: |
           pip install pip-audit
-          pip-audit --skip-editable --desc on --ignore-vuln CVE-2026-4539
+          # CVE-2026-4539: pre-existing waiver.
+          # CVE-2026-3219: pip 26.0.1 tar+zip confusion, affects runner's
+          # bundled pip. Upstream fix in next pip release; waive until
+          # the GHA runner image bumps pip past the affected version.
+          pip-audit --skip-editable --desc on \
+            --ignore-vuln CVE-2026-4539 \
+            --ignore-vuln CVE-2026-3219
 
       - name: Legacy token gate (no chiffre_choc)
         working-directory: ${{ github.workspace }}
