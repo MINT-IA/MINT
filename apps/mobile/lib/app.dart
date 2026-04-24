@@ -15,6 +15,7 @@ import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
 import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
@@ -303,6 +304,14 @@ final _router = GoRouter(
       path: '/',
       scope: RouteScope.public,
       builder: (context, state) => const LandingScreen(),
+    ),
+    // Landing CTA target — flag-gated redirect. Keeps `LandingScreen`
+    // pure (LAND-01: no `services/` imports in the widget itself).
+    ScopedGoRoute(
+      path: '/start',
+      scope: RouteScope.public,
+      redirect: (_, __) =>
+          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/coach/chat',
     ),
     // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
     // with 4 intents + dossier densification + 3 N2 scenes + magic link.

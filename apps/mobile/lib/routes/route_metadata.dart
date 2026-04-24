@@ -119,6 +119,13 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableAnonymousFlow',
     description: 'LandingScreen — first-run entry',
   ),
+  '/start': RouteMeta(
+    path: '/start',
+    category: RouteCategory.alias,
+    owner: RouteOwner.anonymous,
+    requiresAuth: false,
+    description: 'Landing CTA redirect — flag-gated to /onb or /coach/chat',
+  ),
   '/onb': RouteMeta(
     path: '/onb',
     category: RouteCategory.destination,
