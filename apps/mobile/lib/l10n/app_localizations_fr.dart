@@ -22441,6 +22441,18 @@ class SFr extends S {
       'Je rencontre un problème technique. Réessaie dans un instant.';
 
   @override
+  String get anonymousChatErrorNetwork =>
+      'Pas de réseau. Vérifie ta connexion et réessaie.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'Je suis temporairement indisponible. Reviens dans quelques minutes.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Session expirée. Ferme et rouvre l\'app pour continuer.';
+
+  @override
   String get anonymousChatConversionPrompt =>
       'On a déjà découvert 3 choses ensemble. Si tu veux que je m’en souvienne…';
 

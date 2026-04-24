@@ -22494,6 +22494,18 @@ class SDe extends S {
       'Ich habe ein technisches Problem. Versuch es gleich nochmal.';
 
   @override
+  String get anonymousChatErrorNetwork =>
+      'Keine Verbindung. Prüfe dein Netzwerk und versuche es erneut.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'Vorübergehend nicht verfügbar. Komm in wenigen Minuten wieder.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Sitzung abgelaufen. Schließe und öffne die App erneut.';
+
+  @override
   String get anonymousChatConversionPrompt =>
       'Wir haben bereits 3 Dinge zusammen entdeckt. Wenn du willst, dass ich mich daran erinnere…';
 

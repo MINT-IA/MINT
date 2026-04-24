@@ -104,13 +104,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     final isError = response['error'] == true;
     final coachMessage = response['message'] as String? ?? '';
     final messagesRemaining = response['messagesRemaining'] as int? ?? -1;
+    final errorType = response['errorType'] as String?;
 
     if (isError || coachMessage.isEmpty) {
-      // Network/server error fallback
+      // Walk 2026-04-24 P0-2: map errorType → specific ARB copy instead of
+      // generic "Je rencontre un problème technique" for every failure mode.
       final l = S.of(context)!;
+      final text = switch (errorType) {
+        'network' => l.anonymousChatErrorNetwork,
+        'service' => l.anonymousChatErrorService,
+        'session' => l.anonymousChatErrorSession,
+        _ => l.anonymousChatError,
+      };
       setState(() {
         _messages.add(_ChatMessage(
-          text: l.anonymousChatError,
+          text: text,
           isUser: false,
           timestamp: DateTime.now(),
         ));

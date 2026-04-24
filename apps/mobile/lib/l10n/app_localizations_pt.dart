@@ -22445,6 +22445,18 @@ class SPt extends S {
       'Estou com um problema técnico. Tenta novamente num instante.';
 
   @override
+  String get anonymousChatErrorNetwork =>
+      'Sem conexão. Verifica a rede e tenta novamente.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'Temporariamente indisponível. Volta em alguns minutos.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Sessão expirada. Fecha e reabre a app.';
+
+  @override
   String get anonymousChatConversionPrompt =>
       'Já descobrimos 3 coisas juntos. Se quiseres que eu me lembre…';
 

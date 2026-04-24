@@ -193,22 +193,43 @@ class CoachChatApiService {
           'messagesRemaining': 0,
           'tokensUsed': 0,
         };
+      } else if (response.statusCode == 400) {
+        // Invalid or missing anonymous session header (walk 2026-04-24 P0-2).
+        return _anonymousFallback(errorType: 'session');
+      } else if (response.statusCode == 503 || response.statusCode >= 500) {
+        // Backend unavailable (often missing ANTHROPIC_API_KEY in dev, or
+        // Railway 5xx in prod). Differentiate from generic errors.
+        return _anonymousFallback(errorType: 'service');
       } else {
-        return _anonymousFallback();
+        return _anonymousFallback(errorType: 'unknown');
       }
+    } on http.ClientException catch (e) {
+      debugPrint('[CoachChatApi] Anonymous chat network error: $e');
+      return _anonymousFallback(errorType: 'network');
+    } on TimeoutException catch (e) {
+      debugPrint('[CoachChatApi] Anonymous chat timeout: $e');
+      return _anonymousFallback(errorType: 'network');
     } catch (e) {
       debugPrint('[CoachChatApi] Anonymous chat error: $e');
-      return _anonymousFallback();
+      return _anonymousFallback(errorType: 'unknown');
     }
   }
 
-  static Map<String, dynamic> _anonymousFallback() {
+  /// Fallback payload for anonymous chat errors.
+  ///
+  /// [errorType] distinguishes the cause so the UI can show appropriate copy:
+  ///   - `'network'` : no connectivity or timeout
+  ///   - `'service'` : backend 5xx / 503
+  ///   - `'session'` : 400 invalid session
+  ///   - `'unknown'` : anything else (ultimate fallback)
+  static Map<String, dynamic> _anonymousFallback({String errorType = 'unknown'}) {
     return {
       'message': '',
       'disclaimers': <String>[],
       'messagesRemaining': -1,
       'tokensUsed': 0,
       'error': true,
+      'errorType': errorType,
     };
   }
 
