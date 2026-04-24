@@ -22500,6 +22500,18 @@ class SIt extends S {
       'Ho un problema tecnico. Riprova tra un momento.';
 
   @override
+  String get anonymousChatErrorNetwork =>
+      'Nessuna rete. Controlla la connessione e riprova.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'Temporaneamente non disponibile. Torna tra qualche minuto.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Sessione scaduta. Chiudi e riapri l\'app.';
+
+  @override
   String get anonymousChatConversionPrompt =>
       'Abbiamo già scoperto 3 cose insieme. Se vuoi che le ricordi…';
 

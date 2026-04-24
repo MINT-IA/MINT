@@ -39381,6 +39381,24 @@ abstract class S {
   /// **'Je rencontre un problème technique. Réessaie dans un instant.'**
   String get anonymousChatError;
 
+  /// Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2).
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de réseau. Vérifie ta connexion et réessaie.'**
+  String get anonymousChatErrorNetwork;
+
+  /// Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev).
+  ///
+  /// In fr, this message translates to:
+  /// **'Je suis temporairement indisponible. Reviens dans quelques minutes.'**
+  String get anonymousChatErrorService;
+
+  /// Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired).
+  ///
+  /// In fr, this message translates to:
+  /// **'Session expirée. Ferme et rouvre l\'app pour continuer.'**
+  String get anonymousChatErrorSession;
+
   /// Anonymous chat — coach message before auth gate after 3rd response.
   ///
   /// In fr, this message translates to:

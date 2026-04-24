@@ -4769,7 +4769,7 @@
   "sim3aDebtLockedTitle": "Priorité au désendettement",
   "sim3aDebtLockedMessage": "En mode protection, les recommandations d'action 3a sont désactivées. La priorité est de stabiliser ta situation financière avant de verser dans le 3a.",
   "sim3aDebtStrategyTitle": "Stratégie en pause",
-  "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé\u00a0: stabiliser d'abord, placer ensuite.",
+  "sim3aDebtStrategyMessage": "Les stratégies d'investissement 3a sont en pause tant que tes dettes actives pèsent sur ton budget. Ordre recommandé : stabiliser d'abord, placer ensuite.",
   "realReturnTitle": "Rendement réel 3a",
   "realReturnPremierEclairageLabel": "Taux équivalent sur effort net",
   "realReturnVsNominal": "vs {rate} % taux net 3a (brut − frais)",
@@ -5923,9 +5923,9 @@
   },
   "reportSafeModePriority": "Priorité au désendettement",
   "reportSafeModeActions": "Tes actions prioritaires sont remplacées par un plan de désendettement. Stabilise ta situation avant d'explorer les recommandations.",
-  "reportSafeMode3a": "Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité\u00a0: stabiliser ta trésorerie.",
+  "reportSafeMode3a": "Le comparateur 3a est en pause tant que tes dettes actives pèsent sur ton budget. Priorité : stabiliser ta trésorerie.",
   "reportSafeModeLpp": "Rachat LPP en pause",
-  "reportSafeModeLppMessage": "Le rachat LPP est en pause en mode protection. L'ordre recommandé\u00a0: rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.",
+  "reportSafeModeLppMessage": "Le rachat LPP est en pause en mode protection. L'ordre recommandé : rembourser les dettes avant de bloquer de la liquidité dans la prévoyance.",
   "reportLppTitle": "💰 Stratégie Rachat LPP",
   "reportLppEconomie": "Économie fiscale totale : CHF {amount}",
   "@reportLppEconomie": {
@@ -9370,7 +9370,7 @@
   "portfolioNoData": "Aucune donnée patrimoniale renseignée.",
   "portfolioRepartitionEnveloppe": "Répartition par enveloppe",
   "portfolioReserveFondsUrgence": "Réservé (Fonds d'urgence)",
-  "portfolioSafeModeBody": "Les conseils d'allocation sont en pause en mode protection. Ordre recommandé\u00a0: réduire tes dettes avant de rééquilibrer ton patrimoine.",
+  "portfolioSafeModeBody": "Les conseils d'allocation sont en pause en mode protection. Ordre recommandé : réduire tes dettes avant de rééquilibrer ton patrimoine.",
   "portfolioSafeModeLocked": "Priorité au désendettement",
   "portfolioValeurTotaleNette": "Valeur totale nette",
   "proactiveConfidenceUp": "Ta confiance a progressé de {delta} pts depuis la dernière fois.",
@@ -9684,7 +9684,7 @@
   "routeSuggestionCta": "Ouvrir",
   "routeSuggestionPartialWarning": "Estimation — données incomplètes",
   "safeModeCta": "Voir mon plan de désendettement",
-  "safeModeMessage": "Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité\u00a0: stabiliser ta trésorerie. Le reste attendra.",
+  "safeModeMessage": "Tant qu’un signal de dette est actif, les optimisations avancées sont en pause. Priorité : stabiliser ta trésorerie. Le reste attendra.",
   "safeModeTitle": "Concentration Prioritaire",
   "saronCostLabel": "de coût supplémentaire avec SARON",
   "saronEyebrow": "SARON vs Taux fixe",
@@ -10349,37 +10349,51 @@
   "coachOpenerIdentity": "Salut. Moi c'est Mint.",
   "@coachOpenerIdentity": {
     "description": "First-contact opener line 1 — identity. Shown once on first Parle a Mint tap for a user with no profile data.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachOpenerPromise": "Je te connais. Je vois ce qui vient. Je te guide.",
   "@coachOpenerPromise": {
     "description": "First-contact opener line 2 — trust promise. LSFin-compatible.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachOpenerQuestion": "Par quoi on commence ?",
   "@coachOpenerQuestion": {
     "description": "First-contact opener closing question.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachStarterPaper": "Un papier que je ne comprends pas",
   "@coachStarterPaper": {
     "description": "Conversation starter chip — routes to scanner.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachStarterChoice": "Un choix que je dois faire",
   "@coachStarterChoice": {
     "description": "Conversation starter chip — life events opener.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachStarterCost": "Un truc qui me coûte, je ne sais pas quoi",
   "@coachStarterCost": {
     "description": "Conversation starter chip — budget/fiscal opener.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachStarterLurk": "Je regarde, je me présente après",
   "@coachStarterLurk": {
     "description": "Conversation starter chip — dismisses opener without forcing engagement.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
@@ -10390,17 +10404,23 @@
   "coachSilentOpenerProjectedCapital": "Capital projeté sur ton horizon",
   "@coachSilentOpenerProjectedCapital": {
     "description": "Silent opener label when the coach surfaces a generic projected-capital number across any life-event horizon (not only retraite). Wave 2 debias — replaces retirement-framed default.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSilentOpenerLppAvoir": "Avoir LPP",
   "@coachSilentOpenerLppAvoir": {
     "description": "Silent opener label for the user's current LPP balance, surfaced first when enriched via scan. Factual indicative voice.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "coachSilentOpener3aEpargne": "Épargne 3a",
   "@coachSilentOpener3aEpargne": {
     "description": "Silent opener label for 3a savings snapshot. Factual indicative voice.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "confidenceLow": "Tes chiffres sont très approximatifs. Ajoute ton certificat LPP pour +25 %.",
   "confidenceMedium": "Bon début. Scanne ton extrait AVS pour confirmer tes années de cotisation.",
@@ -11366,6 +11386,18 @@
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
   },
+  "anonymousChatErrorNetwork": "Pas de réseau. Vérifie ta connexion et réessaie.",
+  "@anonymousChatErrorNetwork": {
+    "description": "Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2)."
+  },
+  "anonymousChatErrorService": "Je suis temporairement indisponible. Reviens dans quelques minutes.",
+  "@anonymousChatErrorService": {
+    "description": "Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev)."
+  },
+  "anonymousChatErrorSession": "Session expirée. Ferme et rouvre l'app pour continuer.",
+  "@anonymousChatErrorSession": {
+    "description": "Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired)."
+  },
   "anonymousChatConversionPrompt": "On a déjà découvert 3 choses ensemble. Si tu veux que je m’en souvienne…",
   "@anonymousChatConversionPrompt": {
     "description": "Anonymous chat — coach message before auth gate after 3rd response."
@@ -11609,12 +11641,16 @@
   "coachResponseDegradedHint": "Réponse rapide",
   "@coachResponseDegradedHint": {
     "description": "v2.7 Task 8 — subtle chip shown below coach reply when Haiku fallback kicked in. NOT an error indicator.",
-    "x-mint-meta": { "level": "N2" }
+    "x-mint-meta": {
+      "level": "N2"
+    }
   },
   "coachBudgetDailyLimitReached": "On a déjà bien avancé aujourd'hui. Repose-toi, je t'attends demain.",
   "@coachBudgetDailyLimitReached": {
     "description": "v2.7 Task 4 — shown when user hits daily token budget hard cap.",
-    "x-mint-meta": { "level": "N3" }
+    "x-mint-meta": {
+      "level": "N3"
+    }
   },
   "docScanRejectedNonFinancial": "Cette image ne ressemble pas à un document financier. Réessaie avec une photo de ton certificat, ta fiche de salaire ou un relevé.",
   "@docScanRejectedNonFinancial": {
@@ -11749,11 +11785,13 @@
   "privacyCenterRevokedOn": "Révoqué le",
   "policyDiffTitle": "Mise à jour de la politique",
   "policyDiffAcceptDelta": "J'ai lu et j'accepte les changements",
-  "batchValidationTitle": "MINT a lu {count} chiffres. Tout bon\u00a0?",
+  "batchValidationTitle": "MINT a lu {count} chiffres. Tout bon ?",
   "@batchValidationTitle": {
     "description": "Phase 29-04 — BatchValidationBubble headline (PRIV-08).",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "batchValidationConfirmAll": "Tout bon",
@@ -11769,15 +11807,23 @@
   "@thirdPartyDeclarationTitle": {
     "description": "Phase 29-05 — title of the opposable declaration sheet."
   },
-  "thirdPartyDeclarationBody": "Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document\u00a0?",
+  "thirdPartyDeclarationBody": "Tu confirmes avoir obtenu le consentement de {name} pour que MINT traite ce document ?",
   "@thirdPartyDeclarationBody": {
     "description": "Phase 29-05 — single-subject declaration body.",
-    "placeholders": {"name": {"type": "String"}}
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
-  "thirdPartyDeclarationMultipleBody": "Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document\u00a0?",
+  "thirdPartyDeclarationMultipleBody": "Tu confirmes avoir obtenu le consentement de {names} pour que MINT traite ce document ?",
   "@thirdPartyDeclarationMultipleBody": {
     "description": "Phase 29-05 — multi-subject declaration body.",
-    "placeholders": {"names": {"type": "String"}}
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
   },
   "thirdPartyDeclarationConfirm": "Oui, j'ai son consentement",
   "@thirdPartyDeclarationConfirm": {
@@ -11790,7 +11836,11 @@
   "thirdPartyInviteCta": "Inviter {name} sur MINT",
   "@thirdPartyInviteCta": {
     "description": "Phase 29-05 — secondary CTA (logs intent, real invite deferred).",
-    "placeholders": {"name": {"type": "String"}}
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "thirdPartyInviteComingSoon": "Invitation bientôt disponible — on note ton intention.",
   "@thirdPartyInviteComingSoon": {
@@ -11801,82 +11851,156 @@
     "description": "Phase 29-05 — nLPD art. 19 notice text shown below the body."
   },
   "monArgentTabTitle": "Mon argent",
-  "@monArgentTabTitle": { "description": "Nav V11 — Mon argent tab AppBar title" },
+  "@monArgentTabTitle": {
+    "description": "Nav V11 — Mon argent tab AppBar title"
+  },
   "monArgentBudgetTitle": "Ton budget ce mois",
-  "@monArgentBudgetTitle": { "description": "Nav V11 — budget card header" },
+  "@monArgentBudgetTitle": {
+    "description": "Nav V11 — budget card header"
+  },
   "monArgentBudgetEmpty": "Définis ton budget pour voir où tu en es ce mois.",
-  "@monArgentBudgetEmpty": { "description": "Nav V11 — budget card empty state" },
+  "@monArgentBudgetEmpty": {
+    "description": "Nav V11 — budget card empty state"
+  },
   "monArgentBudgetStart": "Commencer",
-  "@monArgentBudgetStart": { "description": "Nav V11 — budget card empty CTA" },
+  "@monArgentBudgetStart": {
+    "description": "Nav V11 — budget card empty CTA"
+  },
   "monArgentBudgetError": "Impossible de charger ton budget.",
-  "@monArgentBudgetError": { "description": "Nav V11 — budget card error state" },
+  "@monArgentBudgetError": {
+    "description": "Nav V11 — budget card error state"
+  },
   "monArgentBudgetIncome": "Revenus",
-  "@monArgentBudgetIncome": { "description": "Nav V11 — budget income label" },
+  "@monArgentBudgetIncome": {
+    "description": "Nav V11 — budget income label"
+  },
   "monArgentBudgetSpent": "Dépenses",
-  "@monArgentBudgetSpent": { "description": "Nav V11 — budget expenses label" },
+  "@monArgentBudgetSpent": {
+    "description": "Nav V11 — budget expenses label"
+  },
   "monArgentBudgetRemaining": "Reste",
-  "@monArgentBudgetRemaining": { "description": "Nav V11 — budget remaining label" },
+  "@monArgentBudgetRemaining": {
+    "description": "Nav V11 — budget remaining label"
+  },
   "monArgentRetry": "Réessayer",
-  "@monArgentRetry": { "description": "Nav V11 — retry button" },
+  "@monArgentRetry": {
+    "description": "Nav V11 — retry button"
+  },
   "monArgentPatrimoineTitle": "Ton point de départ",
-  "@monArgentPatrimoineTitle": { "description": "Nav V11 — patrimoine card header" },
+  "@monArgentPatrimoineTitle": {
+    "description": "Nav V11 — patrimoine card header"
+  },
   "monArgentPatrimoineEmpty": "Scanne un document ou parle au coach pour commencer.",
-  "@monArgentPatrimoineEmpty": { "description": "Nav V11 — patrimoine card empty state" },
+  "@monArgentPatrimoineEmpty": {
+    "description": "Nav V11 — patrimoine card empty state"
+  },
   "monArgentPatrimoineError": "Impossible de charger tes données.",
-  "@monArgentPatrimoineError": { "description": "Nav V11 — patrimoine card error state" },
+  "@monArgentPatrimoineError": {
+    "description": "Nav V11 — patrimoine card error state"
+  },
   "monArgentPatrimoineNet": "Net",
-  "@monArgentPatrimoineNet": { "description": "Nav V11 — patrimoine net label" },
+  "@monArgentPatrimoineNet": {
+    "description": "Nav V11 — patrimoine net label"
+  },
   "monArgentPatrimoinePartial": "Ajoute tes données pour une vue complète.",
-  "@monArgentPatrimoinePartial": { "description": "Nav V11 — patrimoine partial state hint" },
+  "@monArgentPatrimoinePartial": {
+    "description": "Nav V11 — patrimoine partial state hint"
+  },
   "monArgentLpp": "2e pilier",
-  "@monArgentLpp": { "description": "Nav V11 — LPP label" },
+  "@monArgentLpp": {
+    "description": "Nav V11 — LPP label"
+  },
   "monArgentPillar3a": "3e pilier",
-  "@monArgentPillar3a": { "description": "Nav V11 — 3a label" },
+  "@monArgentPillar3a": {
+    "description": "Nav V11 — 3a label"
+  },
   "monArgentEpargne": "Épargne",
-  "@monArgentEpargne": { "description": "Nav V11 — savings label" },
+  "@monArgentEpargne": {
+    "description": "Nav V11 — savings label"
+  },
   "monArgentScan": "Scanner",
-  "@monArgentScan": { "description": "Nav V11 — scan button" },
+  "@monArgentScan": {
+    "description": "Nav V11 — scan button"
+  },
   "monArgentEnrichCta": "Enrichis ton dossier pour une vue plus précise",
-  "@monArgentEnrichCta": { "description": "Nav V11 — enrich CTA text" },
+  "@monArgentEnrichCta": {
+    "description": "Nav V11 — enrich CTA text"
+  },
   "tabAujourdhui": "Aujourd'hui",
-  "@tabAujourdhui": { "description": "Shell tab label — Today" },
+  "@tabAujourdhui": {
+    "description": "Shell tab label — Today"
+  },
   "tabMonArgent": "Mon argent",
-  "@tabMonArgent": { "description": "Shell tab label — My money" },
+  "@tabMonArgent": {
+    "description": "Shell tab label — My money"
+  },
   "tabExplorer": "Explorer",
-  "@tabExplorer": { "description": "Shell tab label — Explore" },
+  "@tabExplorer": {
+    "description": "Shell tab label — Explore"
+  },
   "hubRetraite": "Retraite & Prévoyance",
-  "@hubRetraite": { "description": "Explorer hub — Retirement" },
+  "@hubRetraite": {
+    "description": "Explorer hub — Retirement"
+  },
   "hubFamille": "Famille",
-  "@hubFamille": { "description": "Explorer hub — Family" },
+  "@hubFamille": {
+    "description": "Explorer hub — Family"
+  },
   "hubTravail": "Travail & Statut",
-  "@hubTravail": { "description": "Explorer hub — Work" },
+  "@hubTravail": {
+    "description": "Explorer hub — Work"
+  },
   "hubLogement": "Logement",
-  "@hubLogement": { "description": "Explorer hub — Housing" },
+  "@hubLogement": {
+    "description": "Explorer hub — Housing"
+  },
   "hubFiscalite": "Fiscalité",
-  "@hubFiscalite": { "description": "Explorer hub — Tax" },
+  "@hubFiscalite": {
+    "description": "Explorer hub — Tax"
+  },
   "hubPatrimoine": "Patrimoine & Succession",
-  "@hubPatrimoine": { "description": "Explorer hub — Wealth" },
+  "@hubPatrimoine": {
+    "description": "Explorer hub — Wealth"
+  },
   "hubSante": "Santé & Protection",
-  "@hubSante": { "description": "Explorer hub — Health" },
+  "@hubSante": {
+    "description": "Explorer hub — Health"
+  },
   "safeModeWhyBlockedSemantics": "Pourquoi est-ce en pause",
   "safeModeWhyBlockedTitle": "Pourquoi c'est en pause",
   "safeModeWhyBlockedBody": "En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.",
-  "safeModeWhyBlockedLink": "Pourquoi est-ce en pause\u00a0?",
+  "safeModeWhyBlockedLink": "Pourquoi est-ce en pause ?",
   "safeModeFormalDesendettementNote": "Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.",
   "scanSummaryLppCertificate": "Certificat LPP scanné",
-  "@scanSummaryLppCertificate": { "description": "Persistent event summary when an LPP certificate is scanned." },
+  "@scanSummaryLppCertificate": {
+    "description": "Persistent event summary when an LPP certificate is scanned."
+  },
   "scanSummary3aAttestation": "Attestation 3a scannée",
-  "@scanSummary3aAttestation": { "description": "Persistent event summary when a Pillar 3a attestation is scanned." },
+  "@scanSummary3aAttestation": {
+    "description": "Persistent event summary when a Pillar 3a attestation is scanned."
+  },
   "scanSummaryTaxDeclaration": "Déclaration fiscale scannée",
-  "@scanSummaryTaxDeclaration": { "description": "Persistent event summary when a tax declaration is scanned." },
+  "@scanSummaryTaxDeclaration": {
+    "description": "Persistent event summary when a tax declaration is scanned."
+  },
   "scanSummaryAvsExtract": "Extrait AVS scanné",
-  "@scanSummaryAvsExtract": { "description": "Persistent event summary when an AVS extract is scanned." },
+  "@scanSummaryAvsExtract": {
+    "description": "Persistent event summary when an AVS extract is scanned."
+  },
   "scanSummaryMortgageAttestation": "Attestation hypothèque scannée",
-  "@scanSummaryMortgageAttestation": { "description": "Persistent event summary when a mortgage attestation is scanned." },
+  "@scanSummaryMortgageAttestation": {
+    "description": "Persistent event summary when a mortgage attestation is scanned."
+  },
   "scanSummarySalaryCertificate": "Certificat de salaire scanné",
-  "@scanSummarySalaryCertificate": { "description": "Persistent event summary when a salary certificate is scanned." },
+  "@scanSummarySalaryCertificate": {
+    "description": "Persistent event summary when a salary certificate is scanned."
+  },
   "onboardingSealError": "Impossible de sceller ton dossier. Vérifie ta connexion et réessaie.",
-  "@onboardingSealError": { "description": "MVP wedge T9 — error SnackBar shown when completeAndFlushToProfile throws (local persistence failure)." },
+  "@onboardingSealError": {
+    "description": "MVP wedge T9 — error SnackBar shown when completeAndFlushToProfile throws (local persistence failure)."
+  },
   "onboardingSealRetry": "Réessayer",
-  "@onboardingSealRetry": { "description": "MVP wedge T9 — SnackBar action label to retry sealing the dossier." }
+  "@onboardingSealRetry": {
+    "description": "MVP wedge T9 — SnackBar action label to retry sealing the dossier."
+  }
 }

@@ -10638,6 +10638,18 @@
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
   },
+  "anonymousChatErrorNetwork": "No network. Check your connection and try again.",
+  "@anonymousChatErrorNetwork": {
+    "description": "Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2)."
+  },
+  "anonymousChatErrorService": "I'm temporarily unavailable. Come back in a few minutes.",
+  "@anonymousChatErrorService": {
+    "description": "Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev)."
+  },
+  "anonymousChatErrorSession": "Session expired. Close and reopen the app to continue.",
+  "@anonymousChatErrorSession": {
+    "description": "Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired)."
+  },
   "anonymousChatConversionPrompt": "We’ve already discovered 3 things together. If you want me to remember them…",
   "@anonymousChatConversionPrompt": {
     "description": "Anonymous chat — coach message before auth gate after 3rd response."
@@ -11023,7 +11035,9 @@
   "@batchValidationTitle": {
     "description": "Phase 29-04 — BatchValidationBubble headline (PRIV-08).",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "batchValidationConfirmAll": "All good",
@@ -11037,13 +11051,31 @@
   "humanReviewBadge": "Needs a human eye",
   "thirdPartyDeclarationTitle": "One moment before we continue",
   "thirdPartyDeclarationBody": "Do you confirm you obtained {name}'s consent for MINT to process this document?",
-  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyDeclarationBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationMultipleBody": "Do you confirm you obtained consent from {names} for MINT to process this document?",
-  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "@thirdPartyDeclarationMultipleBody": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationConfirm": "Yes, I have their consent",
   "thirdPartyDeclarationCancel": "No, cancel upload",
   "thirdPartyInviteCta": "Invite {name} to MINT",
-  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyInviteCta": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyInviteComingSoon": "Invitations coming soon — we noted your intent.",
   "thirdPartyDeclarationNoticeLink": "Without their consent, MINT cannot process another person's data.",
   "monArgentTabTitle": "My money",

@@ -22331,6 +22331,18 @@ class SEn extends S {
       'I’m having a technical issue. Try again in a moment.';
 
   @override
+  String get anonymousChatErrorNetwork =>
+      'No network. Check your connection and try again.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'I\'m temporarily unavailable. Come back in a few minutes.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Session expired. Close and reopen the app to continue.';
+
+  @override
   String get anonymousChatConversionPrompt =>
       'We’ve already discovered 3 things together. If you want me to remember them…';
 

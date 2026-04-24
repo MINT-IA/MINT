@@ -22439,6 +22439,18 @@ class SEs extends S {
       'Tengo un problema técnico. Inténtalo de nuevo en un momento.';
 
   @override
+  String get anonymousChatErrorNetwork =>
+      'Sin conexión. Revisa tu red y vuelve a intentarlo.';
+
+  @override
+  String get anonymousChatErrorService =>
+      'Temporalmente no disponible. Vuelve en unos minutos.';
+
+  @override
+  String get anonymousChatErrorSession =>
+      'Sesión expirada. Cierra y abre la app de nuevo.';
+
+  @override
   String get anonymousChatConversionPrompt =>
       'Ya hemos descubierto 3 cosas juntos. Si quieres que las recuerde…';
 

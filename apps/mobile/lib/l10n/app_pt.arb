@@ -10638,6 +10638,18 @@
   "@anonymousChatError": {
     "description": "Anonymous chat — fallback error message."
   },
+  "anonymousChatErrorNetwork": "Sem conexão. Verifica a rede e tenta novamente.",
+  "@anonymousChatErrorNetwork": {
+    "description": "Error shown when the anonymous chat request fails due to no network / timeout (walk 2026-04-24 P0-2)."
+  },
+  "anonymousChatErrorService": "Temporariamente indisponível. Volta em alguns minutos.",
+  "@anonymousChatErrorService": {
+    "description": "Error shown when backend returns 503 or 5xx (service unavailable, often missing ANTHROPIC_API_KEY in dev)."
+  },
+  "anonymousChatErrorSession": "Sessão expirada. Fecha e reabre a app.",
+  "@anonymousChatErrorSession": {
+    "description": "Error shown when backend returns 400 with invalid session (anonymous UUID invalid or expired)."
+  },
   "anonymousChatConversionPrompt": "Já descobrimos 3 coisas juntos. Se quiseres que eu me lembre…",
   "@anonymousChatConversionPrompt": {
     "description": "Anonymous chat — coach message before auth gate after 3rd response."
@@ -11023,7 +11035,9 @@
   "@batchValidationTitle": {
     "description": "Phase 29-04 — BatchValidationBubble título (PRIV-08).",
     "placeholders": {
-      "count": { "type": "int" }
+      "count": {
+        "type": "int"
+      }
     }
   },
   "batchValidationConfirmAll": "Tudo certo",
@@ -11037,13 +11051,31 @@
   "humanReviewBadge": "Precisa de olho humano",
   "thirdPartyDeclarationTitle": "Um momento antes de continuar",
   "thirdPartyDeclarationBody": "Confirmas ter obtido o consentimento de {name} para o MINT processar este documento?",
-  "@thirdPartyDeclarationBody": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyDeclarationBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationMultipleBody": "Confirmas ter obtido o consentimento de {names} para o MINT processar este documento?",
-  "@thirdPartyDeclarationMultipleBody": {"placeholders": {"names": {"type": "String"}}},
+  "@thirdPartyDeclarationMultipleBody": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyDeclarationConfirm": "Sim, tenho o seu consentimento",
   "thirdPartyDeclarationCancel": "Não, cancelar upload",
   "thirdPartyInviteCta": "Convidar {name} para o MINT",
-  "@thirdPartyInviteCta": {"placeholders": {"name": {"type": "String"}}},
+  "@thirdPartyInviteCta": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "thirdPartyInviteComingSoon": "Convites em breve — registámos a tua intenção.",
   "thirdPartyDeclarationNoticeLink": "Sem o consentimento dela, o MINT não pode tratar os dados de outra pessoa.",
   "monArgentTabTitle": "Meu dinheiro",
