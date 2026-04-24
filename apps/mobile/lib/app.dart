@@ -11,6 +11,7 @@ import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
 import 'package:mint_mobile/screens/anonymous/anonymous_chat_screen.dart';
+import 'package:mint_mobile/screens/anonymous/anonymous_intent_screen.dart';
 import 'package:mint_mobile/screens/auth/login_screen.dart';
 import 'package:mint_mobile/screens/auth/register_screen.dart';
 import 'package:mint_mobile/screens/auth/forgot_password_screen.dart';
@@ -125,7 +126,6 @@ import 'package:mint_mobile/screens/document_scan/document_scan_screen.dart';
 import 'package:mint_mobile/screens/document_scan/avs_guide_screen.dart';
 import 'package:mint_mobile/screens/document_scan/extraction_review_screen.dart';
 import 'package:mint_mobile/screens/document_scan/document_impact_screen.dart';
-import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
@@ -314,7 +314,7 @@ final _router = GoRouter(
       path: '/start',
       scope: RouteScope.public,
       redirect: (_, __) =>
-          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/chat',
+          FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/anonymous/intent',
     ),
     // MVP Wedge onboarding — storyboard v2 (2026-04-22). 9-step flow
     // with 4 intents + dossier densification + 3 N2 scenes + magic link.
@@ -352,6 +352,17 @@ final _router = GoRouter(
       ),
     ),
 
+    // ── Anonymous intent (public — felt-state pills + free-text) ──
+    // First screen for unauth users after landing CTA. Pill pick routes
+    // to /anonymous/chat?intent=X with auto-send. Without this, the chat
+    // screen renders empty (no greeting, no chips, placeholder "Ou dis-le
+    // comme tu veux" teases alternatives that never appeared) — walk report
+    // 2026-04-24 P0-1.
+    ScopedGoRoute(
+      path: '/anonymous/intent',
+      scope: RouteScope.public,
+      builder: (context, state) => const AnonymousIntentScreen(),
+    ),
     // ── Anonymous chat (public — outside shell, no tabs/drawer) ──
     ScopedGoRoute(
       path: '/anonymous/chat',
