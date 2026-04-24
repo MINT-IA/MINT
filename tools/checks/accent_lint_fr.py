@@ -51,6 +51,17 @@ EXCLUDE_SUBSTRINGS = (
     "/__pycache__/",
     "/docs/archive/",
     "/.planning/archives/",
+    # Test code is developer-facing, not user-facing. Excluded to avoid false
+    # positives on: (a) HTTP URL paths that MUST stay ASCII for REST compatibility,
+    # (b) intentional fixtures (test harnesses that feed the lint its own
+    # expected inputs), and (c) backend category / enum keys kept ASCII for
+    # DB and JSON serialization stability. User-facing accent correctness is
+    # enforced on lib/ + app/services/* sources.
+    "/tests/",
+    "/test/",
+    # Lint scripts themselves contain ASCII-flattened patterns by design
+    # (anti-patterns to detect). Skip self-scanning to avoid meta-loops.
+    "/tools/checks/",
 )
 
 
@@ -115,6 +126,12 @@ def main() -> int:
         if not target.exists():
             print(f"accent_lint_fr: file not found: {target}", file=sys.stderr)
             return 1
+        # Respect EXCLUDE_SUBSTRINGS for per-file mode too so lefthook
+        # staged-file invocations don't re-introduce the false positives
+        # that --all-files mode already filters out (tests, build artefacts).
+        rel = "/" + target.as_posix() + "/"
+        if any(ex in rel for ex in EXCLUDE_SUBSTRINGS):
+            return 0
         paths = [target]
     else:
         paths = _collect_paths(args.scope)
