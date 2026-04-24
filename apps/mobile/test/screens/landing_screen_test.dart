@@ -16,6 +16,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 
 GoRouter _buildRouter() {
   return GoRouter(
@@ -25,10 +26,22 @@ GoRouter _buildRouter() {
         path: '/',
         builder: (_, __) => const LandingScreen(),
       ),
+      // Mirror production /start redirect (flag-gated, landing purity).
+      GoRoute(
+        path: '/start',
+        redirect: (_, __) =>
+            FeatureFlags.enableMvpWedgeOnboarding ? '/onb' : '/coach/chat',
+      ),
       GoRoute(
         path: '/coach/chat',
         builder: (_, __) => const Scaffold(
           body: Center(child: Text('COACH_CHAT_STUB')),
+        ),
+      ),
+      GoRoute(
+        path: '/onb',
+        builder: (_, __) => const Scaffold(
+          body: Center(child: Text('ONB_STUB')),
         ),
       ),
       GoRoute(
