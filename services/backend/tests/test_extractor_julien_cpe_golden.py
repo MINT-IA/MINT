@@ -470,3 +470,88 @@ class TestHotelaCaissePatterns:
         )
         data = LPPCertificateExtractor().extract(text)
         assert data.assure_name == "Marie Dupont"
+
+    def test_assure_name_skips_fondation_noise_token(self):
+        """`Fondation Caritative` should NOT be picked — `fondation` is
+        in the cert-noise tokens list (any 'Fondation Xxx' line is the
+        caisse name, not a person)."""
+        text = (
+            "HOTELA Fondation LPP\n"
+            "Fondation Caritative\n"
+            "Marie Dupont\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.assure_name == "Marie Dupont"
+
+    def test_assure_name_skips_stiftung_noise_token_german(self):
+        """German equivalent: `Stiftung Test` skipped (caisse-noise)."""
+        text = (
+            "Pensionskasse Test\n"
+            "Stiftung Test\n"
+            "Hans Mueller\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.assure_name == "Hans Mueller"
+
+
+class TestHotelaPatternsAdditionalLanguages:
+    """Coverage for the DE / IT mirror patterns added with HOTELA."""
+
+    def test_caisse_name_matches_fondazione_lpp_italian(self):
+        text = (
+            "TestCassa Fondazione LPP\n"
+            "Certificato di previdenza 2026\n"
+            "Salario assicurato: 50000 CHF\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.caisse_name is not None
+        assert "Fondazione LPP" in data.caisse_name
+
+    def test_caisse_name_pensionskasse_with_bvg_stiftung_suffix(self):
+        """German cert opener: 'Pensionskasse BVG-Stiftung XYZ'."""
+        text = (
+            "Pensionskasse BVG-Stiftung Test\n"
+            "Vorsorgeausweis 2026\n"
+            "Versicherter Lohn: 60000 CHF\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        # Either pattern wins — both are valid descriptions.
+        assert data.caisse_name is not None
+        assert (
+            "Pensionskasse" in data.caisse_name
+            or "BVG-Stiftung" in data.caisse_name
+        )
+
+    def test_avoir_total_italian_clear_format(self):
+        """IT cert: amount on line, date as separate field."""
+        text = (
+            "Fondazione LPP\n"
+            "Avere totale al: 25'000 CHF\n"
+            "Data del certificato: 31.12.2025\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.avoir_vieillesse_total == 25000.0
+
+    def test_taux_conversion_german_age_pattern(self):
+        text = (
+            "BVG-Stiftung\n"
+            "Umwandlungssatz (65 Jahre): 6.8 %\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.taux_conversion_enveloppe == 6.8
+
+    def test_taux_conversion_italian_age_pattern(self):
+        text = (
+            "Fondazione LPP\n"
+            "Aliquota di conversione (65 anni): 6.8 %\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.taux_conversion_enveloppe == 6.8
+
+    def test_date_prestation_de_sortie_au_pattern(self):
+        text = (
+            "Fondation LPP\n"
+            "Prestation de sortie au 31.12.2025: 50000 CHF\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.date_certificat == "31.12.2025"
