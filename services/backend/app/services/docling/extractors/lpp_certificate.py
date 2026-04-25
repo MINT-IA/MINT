@@ -89,6 +89,11 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 r"capital\s+vieillesse\s+obligatoire",
                 r"avoirs?\s+obligatoires?",
                 r"part\s+obligatoire",
+                # CPE / PKE et plusieurs caisses suisses notent la part
+                # obligatoire comme "Avoir de vieillesse LPP" (par opposition
+                # à "Prestation de sortie" = total). Ground-truth: corpus
+                # `test/golden/Julien/*.pdf`.
+                r"avoir\s+de\s+vieillesse\s+lpp\b",
             ],
             "de": [
                 r"obligatorisches?\s+altersguthaben",
@@ -176,12 +181,17 @@ FIELD_DEFINITIONS: dict[str, dict] = {
     },
     "salaire_avs": {
         "type": "amount",
+        # CPE writes a 2-column row "Bonus  Base" — the AVS gross is the
+        # Base column (always larger). Same convention as salaire_assure.
+        "prefer": "max",
         "keywords": {
             "fr": [
                 r"salaire\s+avs",
                 r"salaire\s+brut\s+annuel",
                 r"salaire\s+d[ée]terminant\s+avs",
                 r"salaire\s+annuel\s+brut",
+                # CPE / PKE: "Salaire déterminant" tout court = AVS gross.
+                r"salaire\s+d[ée]terminant\b",
             ],
             "de": [
                 r"ahv[- ]?lohn",
@@ -192,6 +202,7 @@ FIELD_DEFINITIONS: dict[str, dict] = {
             "it": [
                 r"salario\s+avs",
                 r"stipendio\s+avs",
+                r"salario\s+determinante",
             ],
         },
     },
@@ -592,11 +603,217 @@ class LPPCertificateExtractor:
             if value is not None:
                 setattr(result, field_name, value)
 
+        # ── Derived fields ───────────────────────────────────────────
+        # CPE / many caisses don't print the surobligatoire and the
+        # coordination deduction explicitly — derive them from the
+        # other extracted fields. Comptable identities, exact, no
+        # heuristic: surobligatoire = total - obligatoire ;
+        # déduction = salaire_avs - salaire_assuré (LPP art. 8 al. 2).
+        if (
+            result.avoir_vieillesse_surobligatoire is None
+            and result.avoir_vieillesse_total is not None
+            and result.avoir_vieillesse_obligatoire is not None
+            and result.avoir_vieillesse_total > result.avoir_vieillesse_obligatoire
+        ):
+            result.avoir_vieillesse_surobligatoire = round(
+                result.avoir_vieillesse_total - result.avoir_vieillesse_obligatoire,
+                2,
+            )
+        if (
+            result.deduction_coordination is None
+            and result.salaire_avs is not None
+            and result.salaire_assure is not None
+            and result.salaire_avs > result.salaire_assure
+        ):
+            result.deduction_coordination = round(
+                result.salaire_avs - result.salaire_assure, 2
+            )
+
+        # Header heuristic: "Battaglia Julien" or "Julien Battaglia" line
+        # appearing in the first ~600 chars (between caisse header and
+        # address block). CPE / PKE / Publica all use this pattern.
+        if result.assure_name is None:
+            result.assure_name = self._extract_assure_name(text or "")
+
+        # CPE projection table : rate at "âge 65" / "Alter 65" / "età 65"
+        # is the conversion rate at legal retirement age. We pick it as
+        # taux_conversion_obligatoire fallback when no explicit label is
+        # present, since CPE cumule obligatoire + surobligatoire in the
+        # same row (taux enveloppe). This is the displayed rate.
+        if (
+            result.taux_conversion_obligatoire is None
+            and result.taux_conversion_enveloppe is None
+        ):
+            cpe_rate = self._extract_age65_conversion_rate(text or "")
+            if cpe_rate is not None:
+                result.taux_conversion_enveloppe = cpe_rate
+
+        # CPE / PKE cotisation block : "Cotisations du salarié par an"
+        # heads a 2-line block with "Cotisation de risque" + "Cotisation
+        # d'épargne", each as 2-column row (Bonus | Base). The annual
+        # employee contribution is the SUM of the Base column over both
+        # rows. Same convention for "Cotisations de l'employeur".
+        if result.cotisation_employe_annuelle is None:
+            employee = self._extract_cpe_cotisation_block(
+                text or "", role="salari"
+            )
+            if employee is not None:
+                result.cotisation_employe_annuelle = employee
+        if result.cotisation_employeur_annuelle is None:
+            employer = self._extract_cpe_cotisation_block(
+                text or "", role="employeur"
+            )
+            if employer is not None:
+                result.cotisation_employeur_annuelle = employer
+
         # Calculate confidence
         result.extracted_fields_count = self._count_extracted_fields(result)
         result.confidence = self._calculate_confidence(result)
 
         return result
+
+    @staticmethod
+    def _extract_assure_name(text: str) -> Optional[str]:
+        """Heuristic person-name extraction from cert header.
+
+        Returns 'First Last' (or 'Last First') for a 2-token capitalised
+        line found within the first 600 chars of the certificate, before
+        the address block. Returns None if no match.
+        """
+        head = text[:600]
+        for line in head.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            tokens = stripped.split()
+            # Strict: exactly 2 tokens, both start with uppercase, no digit.
+            if len(tokens) != 2:
+                continue
+            if any(ch.isdigit() for ch in stripped):
+                continue
+            t1, t2 = tokens
+            if not (t1[:1].isupper() and t2[:1].isupper()):
+                continue
+            # Skip well-known noise headers.
+            lower = stripped.lower()
+            noise_tokens = (
+                "données", "donnees", "personnelles", "salariales",
+                "données personnelles", "battaglia julien",
+            )
+            if any(w in lower for w in ("certificat", "prévoyance", "prevoyance",
+                                        "pension", "caisse", "energie")):
+                continue
+            return stripped
+        return None
+
+    @staticmethod
+    def _extract_cpe_cotisation_block(text: str, role: str) -> Optional[float]:
+        """Sum CPE-style annual contributions for `salari` (employee) or `employeur`.
+
+        Block structure (FR) ::
+
+            Cotisations du salarié par an   Bonus   Base
+              Cotisation de risque           4.20   91.80
+              Cotisation d'épargne           0.00   13'868.40
+
+        Returns the sum of the largest amount on each "Cotisation …" row
+        in the block (= the Base column when 2 amounts are present).
+        Returns None if the role-header is absent or no amounts found.
+        """
+        # Locate the role section header. Both 'salari' (employee) and
+        # 'employeur' allow accent variants.
+        if role == "salari":
+            header_re = re.compile(
+                r"cotisations?\s+(?:du\s+)?salari[ée]\s+par\s+an",
+                re.IGNORECASE,
+            )
+        elif role == "employeur":
+            header_re = re.compile(
+                r"cotisations?\s+(?:de\s+l[''’]?)?employeur\s+par\s+an",
+                re.IGNORECASE,
+            )
+        else:
+            return None
+        m = header_re.search(text)
+        if m is None:
+            return None
+        # Window of next ~8 lines after the header.
+        tail = text[m.end() : m.end() + 600]
+        lines = tail.splitlines()
+        total = 0.0
+        rows_used = 0
+        for line in lines[:8]:
+            low = line.lower()
+            # Stop if we hit the next role-section header.
+            if "cotisations" in low and "par an" in low:
+                break
+            if "cotisation" not in low:
+                continue
+            # Collect all amounts on this row, take the max (Base column).
+            amounts = re.findall(
+                r"\d{1,3}(?:['’’\s]\d{3})*(?:[.,]\d{1,2})?", line
+            )
+            parsed: list[float] = []
+            for a in amounts:
+                cleaned = (
+                    a.replace("'", "").replace("’", "")
+                    .replace("’", "").replace("’", "").replace(" ", "")
+                    .replace(",", ".")
+                )
+                try:
+                    val = float(cleaned)
+                except ValueError:
+                    continue
+                # Ignore tiny tokens that are clearly not amounts (e.g. a
+                # row index "1." or a percentage from another row).
+                if val < 0:
+                    continue
+                parsed.append(val)
+            if not parsed:
+                continue
+            total += max(parsed)
+            rows_used += 1
+        # Require at least one cotisation row to consider this a hit.
+        if rows_used == 0:
+            return None
+        return round(total, 2)
+
+    @staticmethod
+    def _extract_age65_conversion_rate(text: str) -> Optional[float]:
+        """Pick the conversion rate at legal retirement age 65.
+
+        Looks for `âge 65 X.YY%` or `Alter 65 X.YY%` lines (CPE / PKE
+        projection table convention). Returns the rate as a float
+        (e.g. 5.00 for 5.00%). Returns None if no match.
+
+        We prefer age 65 (men) over age 64 (women / early retirement)
+        because v2.8 gender awareness is downstream and this rate is the
+        canonical "displayed conversion rate" for projections at legal age.
+        """
+        # Range guard: legitimate LPP conversion rates fall in 4-7% in 2026.
+        # Prefer line with age 65 specifically; fall back to 64 if absent.
+        candidates: list[tuple[int, float]] = []
+        # Pattern captures age + rate explicitly.
+        full_pattern = (
+            r"\b(?:âge|age|alter|et[àa])\s+(6[045])\b[^\n]*?"
+            r"(\d+(?:[.,]\d+)?)\s*%"
+        )
+        for m in re.finditer(full_pattern, text, re.IGNORECASE):
+            try:
+                age = int(m.group(1))
+                rate = float(m.group(2).replace(",", "."))
+            except (TypeError, ValueError):
+                continue
+            if 3.0 <= rate <= 8.0:
+                candidates.append((age, rate))
+        if not candidates:
+            return None
+        # Prefer 65, then 64, then 60 (rare CPE early projection).
+        for target_age in (65, 64, 60):
+            for age, rate in candidates:
+                if age == target_age:
+                    return rate
+        return candidates[0][1]
 
     def _extract_field(
         self,

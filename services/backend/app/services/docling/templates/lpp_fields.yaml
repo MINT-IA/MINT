@@ -17,11 +17,18 @@ fields:
         - "avoir\\s+de\\s+vieillesse\\s+obligatoire"
         - "avoir\\s+vieillesse\\s+obligatoire"
         - "capital\\s+vieillesse\\s+obligatoire"
+        # CPE (Caisse Pension Energie) terminology — "Avoir de vieillesse LPP"
+        # = la part obligatoire par opposition à l'avoir total. Trouvé dans
+        # `test/golden/Julien/Télécharger le certificat de prévoyance.pdf`
+        # et les 5 autres PDFs CPE.
+        - "avoir\\s+de\\s+vieillesse\\s+lpp"
       de:
         - "obligatorisches?\\s+altersguthaben"
         - "altersguthaben\\s+obligatorium"
+        - "altersguthaben\\s+bvg"
       it:
         - "avere\\s+di\\s+vecchiaia\\s+obbligatorio"
+        - "avere\\s+di\\s+vecchiaia\\s+lpp"
 
   avoir_vieillesse_surobligatoire:
     type: amount
@@ -69,11 +76,15 @@ fields:
       fr:
         - "salaire\\s+avs"
         - "salaire\\s+brut\\s+annuel"
+        # CPE labels the AVS gross salary as "salaire déterminant".
+        - "salaire\\s+déterminant"
       de:
         - "ahv[- ]?lohn"
         - "massgebender\\s+lohn"
+        - "massgebendes?\\s+gehalt"
       it:
         - "salario\\s+avs"
+        - "salario\\s+determinante"
 
   deduction_coordination:
     type: amount
