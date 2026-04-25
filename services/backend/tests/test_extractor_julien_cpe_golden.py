@@ -201,3 +201,204 @@ def test_full_certificate_yields_at_least_15_fields(extracted):
         f"(was 15/18 after 2026-04-25 uplift)"
     )
     assert extracted.confidence >= 0.94
+
+
+# ── Unit tests for the new helpers (edge cases / coverage uplift) ───
+# These exercise paths that the integration test on Julien's PDF doesn't
+# hit (None returns, fallback ages, parser errors, role disambiguation).
+
+
+class TestExtractAssureName:
+    """Edge cases for `_extract_assure_name` static helper."""
+
+    def test_returns_none_when_text_empty(self):
+        assert LPPCertificateExtractor._extract_assure_name("") is None
+
+    def test_returns_none_when_only_caisse_header(self):
+        # All lines look like noise headers — must NOT pick anything.
+        text = (
+            "Caisse de Pension Energie\n"
+            "Certificat de prévoyance\n"
+            "Données personnelles\n"
+        )
+        assert LPPCertificateExtractor._extract_assure_name(text) is None
+
+    def test_skips_lines_with_digits(self):
+        text = (
+            "Caisse de Pension Energie\n"
+            "Téléphone 0212347688\n"
+            "Some Person\n"
+            "1950 Sion\n"
+        )
+        # "Some Person" matches 2-token capitalised, no digits → picked.
+        assert LPPCertificateExtractor._extract_assure_name(text) == "Some Person"
+
+    def test_ignores_three_token_lines(self):
+        text = (
+            "Caisse de Pension Energie\n"
+            "Pierre Marc Dupont\n"  # 3 tokens — must be skipped
+            "Anne Martin\n"  # 2 tokens — picked
+        )
+        assert LPPCertificateExtractor._extract_assure_name(text) == "Anne Martin"
+
+    def test_only_first_600_chars_searched(self):
+        text = "X\n" * 700 + "Anne Martin\n"
+        # The "Anne Martin" line is past 600 chars, must NOT be matched.
+        assert LPPCertificateExtractor._extract_assure_name(text) is None
+
+
+class TestExtractAge65ConversionRate:
+    """Edge cases for `_extract_age65_conversion_rate` static helper."""
+
+    def test_returns_none_when_no_age_row(self):
+        assert LPPCertificateExtractor._extract_age65_conversion_rate("") is None
+        assert (
+            LPPCertificateExtractor._extract_age65_conversion_rate(
+                "no age row here"
+            )
+            is None
+        )
+
+    def test_picks_age_65_over_age_64(self):
+        text = "âge 64 4.87%\nâge 65 5.00%"
+        rate = LPPCertificateExtractor._extract_age65_conversion_rate(text)
+        assert rate == 5.00
+
+    def test_falls_back_to_age_64_when_65_absent(self):
+        text = "âge 64 4.87%"
+        rate = LPPCertificateExtractor._extract_age65_conversion_rate(text)
+        assert rate == 4.87
+
+    def test_range_guard_rejects_out_of_band_values(self):
+        # 2.50% is below the 3% floor — must be rejected.
+        text = "âge 65 2.50%"
+        assert (
+            LPPCertificateExtractor._extract_age65_conversion_rate(text) is None
+        )
+        # 9.00% above 8% ceiling — also rejected.
+        text = "âge 65 9.00%"
+        assert (
+            LPPCertificateExtractor._extract_age65_conversion_rate(text) is None
+        )
+
+    def test_handles_comma_decimal_separator(self):
+        text = "âge 65 5,25%"
+        rate = LPPCertificateExtractor._extract_age65_conversion_rate(text)
+        assert rate == 5.25
+
+    def test_handles_german_alter_keyword(self):
+        text = "Alter 65 5.00%"
+        rate = LPPCertificateExtractor._extract_age65_conversion_rate(text)
+        assert rate == 5.00
+
+
+class TestExtractCpeCotisationBlock:
+    """Edge cases for `_extract_cpe_cotisation_block` static helper."""
+
+    def test_returns_none_when_role_invalid(self):
+        text = "Cotisations du salarié par an\n  Cotisation de risque 4.20 91.80\n"
+        # role argument restricted to 'salari' or 'employeur'.
+        assert (
+            LPPCertificateExtractor._extract_cpe_cotisation_block(
+                text, role="bogus"
+            )
+            is None
+        )
+
+    def test_returns_none_when_header_absent(self):
+        assert (
+            LPPCertificateExtractor._extract_cpe_cotisation_block(
+                "no cotisation block", role="salari"
+            )
+            is None
+        )
+
+    def test_employee_block_sums_base_column(self):
+        text = (
+            "Cotisations du salarié par an Bonus Base\n"
+            "  Cotisation de risque  4.20  91.80\n"
+            "  Cotisation d'épargne  0.00  13'868.40\n"
+            "Cotisations de l'employeur par an Bonus Base\n"
+            "  Cotisation de risque  6.00  138.00\n"
+        )
+        total = LPPCertificateExtractor._extract_cpe_cotisation_block(
+            text, role="salari"
+        )
+        # Stops at next 'Cotisations … par an' header → only employee rows.
+        assert total == 13960.20
+
+    def test_employer_block_skipped_when_only_salari_present(self):
+        text = (
+            "Cotisations du salarié par an Bonus Base\n"
+            "  Cotisation de risque  4.20  91.80\n"
+        )
+        # No employer header → returns None.
+        assert (
+            LPPCertificateExtractor._extract_cpe_cotisation_block(
+                text, role="employeur"
+            )
+            is None
+        )
+
+    def test_returns_none_when_block_has_no_amount_rows(self):
+        text = (
+            "Cotisations du salarié par an Bonus Base\n"
+            "  (no rows here)\n"
+        )
+        assert (
+            LPPCertificateExtractor._extract_cpe_cotisation_block(
+                text, role="salari"
+            )
+            is None
+        )
+
+
+class TestSurobligatoireDerivation:
+    """The derivation in extract() runs post-extraction. Ensure it's
+    skipped when surobligatoire is already present, and skipped when
+    total <= obligatoire (would yield 0 or negative — bug indicator)."""
+
+    def test_skipped_when_surobligatoire_already_set(self):
+        # Build a fake text with EXPLICIT surobligatoire mention. The
+        # extractor MUST keep that explicit value, not overwrite with
+        # the derivation.
+        text = (
+            "Avoir de vieillesse total 100000\n"
+            "Avoir de vieillesse obligatoire 30000\n"
+            "Avoir de vieillesse surobligatoire 99999\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        # Explicit value wins over derivation.
+        assert data.avoir_vieillesse_surobligatoire == 99999
+
+    def test_derivation_skipped_when_total_le_obligatoire(self):
+        # Pathological case: total < obligatoire (data corruption).
+        # Extractor must not produce a negative surobligatoire.
+        text = (
+            "Avoir de vieillesse total 30000\n"
+            "Avoir de vieillesse obligatoire 30000\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.avoir_vieillesse_surobligatoire is None
+
+
+class TestDeductionCoordinationDerivation:
+    def test_skipped_when_already_extracted(self):
+        text = (
+            "Salaire AVS 100000\n"
+            "Salaire assuré 70000\n"
+            "Déduction de coordination 25725\n"  # 25'725 = 2026 LPP value
+        )
+        data = LPPCertificateExtractor().extract(text)
+        # Explicit coordination value wins.
+        assert data.deduction_coordination == 25725
+
+    def test_skipped_when_avs_le_assure(self):
+        # Pathological: salaire_assure > salaire_avs (impossible per LPP).
+        # Must NOT compute negative deduction.
+        text = (
+            "Salaire AVS 50000\n"
+            "Salaire assuré 70000\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.deduction_coordination is None
