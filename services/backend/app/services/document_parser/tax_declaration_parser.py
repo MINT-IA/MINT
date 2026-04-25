@@ -99,10 +99,15 @@ TAX_FIELD_PATTERNS: dict[str, dict] = {
         "patterns": [
             r"imp[oô]t\s+f[ée]d[ée]ral\s+direct",
             r"imp[oô]t\s+f[ée]d[ée]ral",
-            r"ifd",
+            # `ifd` standalone matched the law name "LIFD" (Loi sur l'IFD)
+            # in citations like "(LIFD art. 33)" and stole the amount on
+            # that line (typically a 3a deduction). Require word boundary
+            # AND no preceding letter (rules out 'L' in 'LIFD'). 2026-04-25.
+            r"(?<![A-Za-z])ifd\b(?!\s*art)",
             r"direkte?\s+bundessteuer",
             r"bundessteuer",
-            r"dbst",
+            # Same fix for German DBST law reference.
+            r"(?<![A-Za-z])dbst\b(?!\s*art)",
         ],
     },
     "taux_marginal_effectif": {
