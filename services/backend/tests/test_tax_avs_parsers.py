@@ -736,3 +736,154 @@ class TestFieldPatterns:
         """AVS_HIGH_IMPACT_FIELDS est un sous-ensemble de AVS_FIELD_PATTERNS."""
         for field in AVS_HIGH_IMPACT_FIELDS:
             assert field in AVS_FIELD_PATTERNS, f"{field} absent de AVS_FIELD_PATTERNS"
+
+
+# ── Regression tests added 2026-04-25 (extraction uplift) ───────────
+
+
+class TestTaxLifdLawCitationDoesNotPickAmount:
+    """Regression: `(LIFD art. 33): 7'258 CHF` line was matching the
+    `ifd` pattern of impot_federal and stealing the 3a deduction
+    amount as if it was a federal tax. Fixed by negative lookbehind
+    on `[A-Za-z]ifd` and negative lookahead on `ifd\\s*art`."""
+
+    def test_lifd_article_citation_does_not_match_impot_federal(self):
+        """3a deduction line MUST NOT be matched as impot_federal."""
+        text = (
+            "Revenu brut: 122'207 CHF\n"
+            "Deductions:\n"
+            "3e pilier A (LIFD art. 33): 7'258 CHF\n"
+            "Revenu imposable: 112'400 CHF\n"
+        )
+        result = parse_tax_declaration(text)
+        federal = next(
+            (f for f in result.fields if f.field_name == "impot_federal"),
+            None,
+        )
+        assert federal is None, (
+            "Regression: LIFD law citation matched as impot_federal "
+            f"(value: {federal.value if federal else None})"
+        )
+
+    def test_explicit_impot_federal_still_matches(self):
+        """Real impot_federal label MUST still extract the amount."""
+        text = (
+            "Recapitulatif:\n"
+            "Impot federal direct: 8'200 CHF\n"
+            "Impot cantonal: 12'500 CHF\n"
+        )
+        result = parse_tax_declaration(text)
+        federal = next(
+            (f for f in result.fields if f.field_name == "impot_federal"),
+            None,
+        )
+        assert federal is not None
+        assert federal.value == 8200.0
+
+    def test_dbst_law_citation_does_not_match_german(self):
+        """Same fix for German DBST law citation."""
+        text = (
+            "Saulen 3a (DBSt art. 81): 7'056 CHF\n"
+            "Steuerbares Einkommen: 95'000 CHF\n"
+        )
+        result = parse_tax_declaration(text)
+        federal = next(
+            (f for f in result.fields if f.field_name == "impot_federal"),
+            None,
+        )
+        assert federal is None
+
+
+class TestAvsIkTableHeuristic:
+    """Regression: AVS IK extracts printed as YEAR/EMPLOYER/INCOME tables
+    were extracting 0 fields because no `années de cotisation` /
+    `RAMD` literal label was present. Fallback heuristic now derives
+    both from row count + mean income."""
+
+    def test_table_with_10_years_extracts_annees_and_ramd(self):
+        text = (
+            "Extrait du compte individuel AVS\n"
+            "Annee | Employeur | Revenu cotisant (CHF)\n"
+            "2016 | Employeur Test 1 | 95000\n"
+            "2017 | Employeur Test 2 | 97500\n"
+            "2018 | Employeur Test 3 | 100000\n"
+            "2019 | Employeur Test 4 | 103500\n"
+            "2020 | Employeur Test 5 | 108000\n"
+            "2021 | Employeur Test 6 | 111000\n"
+            "2022 | Employeur Test 7 | 114500\n"
+            "2023 | Employeur Test 8 | 117000\n"
+            "2024 | Employeur Test 9 | 119500\n"
+            "2025 | Employeur Test 10 | 122207\n"
+        )
+        result = parse_avs_extract(text)
+        annees = next(
+            (f for f in result.fields if f.field_name == "annees_cotisation"),
+            None,
+        )
+        ramd = next(
+            (f for f in result.fields if f.field_name == "ramd"), None
+        )
+        assert annees is not None and annees.value == 10.0, (
+            f"annees_cotisation mismatch: {annees.value if annees else None}"
+        )
+        assert ramd is not None
+        # Mean of (95000 + 97500 + 100000 + 103500 + 108000 + 111000 +
+        #          114500 + 117000 + 119500 + 122207) / 10 = 108_820.70
+        assert abs(ramd.value - 108_820.70) < 1.0
+        assert ramd.needs_review is True  # Heuristic, not official
+
+    def test_table_with_only_2_rows_does_not_trigger(self):
+        """Below the 3-row floor: no table extraction."""
+        text = (
+            "Annee | Employeur | Revenu\n"
+            "2024 | Test | 100000\n"
+            "2025 | Test | 105000\n"
+        )
+        result = parse_avs_extract(text)
+        # Neither annees nor ramd should be set from the table.
+        annees = next(
+            (f for f in result.fields if f.field_name == "annees_cotisation"),
+            None,
+        )
+        ramd = next(
+            (f for f in result.fields if f.field_name == "ramd"), None
+        )
+        assert annees is None and ramd is None
+
+    def test_employer_index_digits_ignored_for_income(self):
+        """`Employeur 5` digit 5 must NOT be picked as income."""
+        text = (
+            "Annee | Employeur | Revenu\n"
+            "2023 | Employeur 5 | 117000\n"
+            "2024 | Employeur 9 | 119500\n"
+            "2025 | Employeur 10 | 122000\n"
+        )
+        result = parse_avs_extract(text)
+        ramd = next(
+            (f for f in result.fields if f.field_name == "ramd"), None
+        )
+        assert ramd is not None
+        assert ramd.value > 100_000
+
+    def test_explicit_label_takes_precedence_over_table(self):
+        """If both an explicit RAMD label AND a table are present, the
+        explicit label must win (already in extracted_fields before
+        the table fallback runs)."""
+        text = (
+            "Annees de cotisation: 25\n"
+            "Revenu annuel moyen determinant (RAMD): 95'000 CHF\n"
+            "Annee | Employeur | Revenu\n"
+            "2023 | A | 80000\n"
+            "2024 | B | 82000\n"
+            "2025 | C | 84000\n"
+        )
+        result = parse_avs_extract(text)
+        annees = next(
+            (f for f in result.fields if f.field_name == "annees_cotisation"),
+            None,
+        )
+        ramd = next(
+            (f for f in result.fields if f.field_name == "ramd"), None
+        )
+        assert annees is not None and annees.value == 25.0
+        assert ramd is not None and ramd.value == 95000.0
