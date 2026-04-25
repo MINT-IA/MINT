@@ -40,8 +40,12 @@ enum OnboardingStep {
   revenue,     // T5 — slider fourchette + lien exact
   insight,     // T6 — N1 inline contextuel à l'intent
   scene,       // T7 — scène N2 interactive
-  bifurcation, // T8 — [Creuser] / [Plus tard]
-  magicLink,   // T9 — email pour sceller le dossier
+  bifurcation, // T8 — [Creuser] / [Plus tard] → flush + navigate
+  // T9 "magicLink" removed 2026-04-24 per design panel : user-eject
+  // pattern ("Laisse-moi un email, je te retrouve demain") violated
+  // retention. Bifurcation now flushes the dossier directly + navigates
+  // to /coach/chat or /home. Auth conversion happens inline via the
+  // existing auth_gate_bottom_sheet after 3 anonymous coach messages.
 }
 
 /// Niveau de confiance d'une donnée captée, aligné sur
@@ -59,8 +63,8 @@ class OnboardingProvider extends ChangeNotifier {
   String? _cantonCode;
   ({double low, double high})? _netMonthlyRange;
   double? _netMonthlyExact;
-  String? _email;
   bool _wantsDeeper = false;
+  bool _sealed = false;
 
   final Map<String, OnboardingConfidence> _confidenceByField = {};
 
@@ -71,12 +75,12 @@ class OnboardingProvider extends ChangeNotifier {
   String? get cantonCode => _cantonCode;
   ({double low, double high})? get netMonthlyRange => _netMonthlyRange;
   double? get netMonthlyExact => _netMonthlyExact;
-  String? get email => _email;
   bool get wantsDeeper => _wantsDeeper;
+  bool get sealed => _sealed;
   Map<String, OnboardingConfidence> get confidenceByField =>
       Map.unmodifiable(_confidenceByField);
 
-  bool get isCompleted => _step == OnboardingStep.magicLink && _email != null;
+  bool get isCompleted => _sealed;
 
   List<DossierEntry> get dossier {
     final list = _dossier.values.toList()
@@ -157,13 +161,6 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setEmail(String email) {
-    _email = email;
-    _confidenceByField['email'] = OnboardingConfidence.high;
-    _setDossier('email', 'Email', email, 4);
-    notifyListeners();
-  }
-
   // ── Step navigation ─────────────────────────────────────────────
 
   void goToStep(OnboardingStep s) {
@@ -183,12 +180,13 @@ class OnboardingProvider extends ChangeNotifier {
   // ── Flush to CoachProfile au tour 9 ─────────────────────────────
 
   /// Persiste la capture dans `wizard_answers_v2` + seed
-  /// `CoachProfileProvider`. Appelé après la saisie de l'email au T9.
+  /// `CoachProfileProvider`. Appelé au T8 bifurcation (was T9 avant
+  /// 2026-04-24 kill de la scène email-demain).
   ///
   /// Failure modes (both throw — caller MUST try/catch, never silent-swallow) :
   /// - `saveAnswers` → disk full, corrupted SharedPreferences, SecureWizardStore
-  ///   KeyChain unavailable. Without this, the magic-link email is saved but
-  ///   the answers are lost → user re-onboarded from zero on reopen.
+  ///   KeyChain unavailable. Without this, the dossier answers are lost →
+  ///   user re-onboarded from zero on reopen.
   /// - `mergeAnswers` → same SharedPreferences bucket, plus CoachProfile
   ///   derivation errors. Backend sync is already fire-and-forget inside
   ///   `mergeAnswers` (see `_syncToBackend`), so a thrown exception here
@@ -211,11 +209,12 @@ class OnboardingProvider extends ChangeNotifier {
       answers['q_net_income_range_high'] = _netMonthlyRange!.high;
       answers['q_net_income_confidence'] = 'medium';
     }
-    if (_email != null) answers['q_email'] = _email;
     answers['q_wants_deeper'] = _wantsDeeper;
 
     await ReportPersistenceService.saveAnswers(answers);
     await coachProvider.mergeAnswers(answers);
+    _sealed = true;
+    notifyListeners();
   }
 
   /// Format CHF suisse avec apostrophe comme séparateur de milliers.
