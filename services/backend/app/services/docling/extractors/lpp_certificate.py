@@ -143,15 +143,20 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 # certificate date — CPE / Publica / many other caisses use
                 # this wording instead of "avoir total" (2e pilier LPP art. 16).
                 r"prestation\s+de\s+sortie",
+                # HOTELA / Profond / SwissLife: "Avoir total au DATE"
+                # (without the "vieillesse" infix). 2026-04-25.
+                r"avoir\s+total\s+au\b",
             ],
             "de": [
                 r"altersguthaben\s+total",
                 r"totales?\s+altersguthaben",
                 r"gesamtes?\s+altersguthaben",
+                r"guthaben\s+total\s+per",
             ],
             "it": [
                 r"avere\s+di\s+vecchiaia\s+totale",
                 r"totale\s+avere\s+di\s+vecchiaia",
+                r"avere\s+totale\s+al\b",
             ],
         },
     },
@@ -265,13 +270,19 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 r"taux\s+de?\s+conversion\s+enveloppe",
                 r"taux\s+de?\s+conversion\s+global",
                 r"taux\s+d['\u2019]enveloppe",
+                # HOTELA / Profond : "Taux de conversion (65 ans): 6.8 %"
+                # generic "taux de conversion" + age annotation. Last
+                # priority so explicit obl/surobl/enveloppe wins first.
+                r"taux\s+de?\s+conversion\s*\(?\s*65",
             ],
             "de": [
                 r"umh[üu]llender?\s+umwandlungssatz",
                 r"gesamtumwandlungssatz",
+                r"umwandlungssatz\s*\(?\s*65",
             ],
             "it": [
                 r"aliquota\s+di\s+conversione\s+complessiva",
+                r"aliquota\s+di\s+conversione\s*\(?\s*65",
             ],
         },
     },
@@ -437,16 +448,20 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 r"caisse\s+de\s+pr[ée]voyance",
                 r"institution\s+de\s+pr[ée]voyance",
                 r"fondation\s+de\s+pr[ée]voyance",
+                # HOTELA, Profond, SwissLife etc. use "Fondation LPP".
+                r"fondation\s+lpp\b",
             ],
             "de": [
                 r"pensionskasse",
                 r"vorsorgeeinrichtung",
                 r"vorsorgestiftung",
+                r"bvg[- ]?stiftung",
             ],
             "it": [
                 r"cassa\s+pensione",
                 r"istituto\s+di\s+previdenza",
                 r"fondazione\s+di\s+previdenza",
+                r"fondazione\s+lpp\b",
             ],
         },
     },
@@ -458,17 +473,25 @@ FIELD_DEFINITIONS: dict[str, dict] = {
                 r"[ée]tabli\s+le",
                 r"valable\s+au",
                 r"situation\s+au",
+                # HOTELA / Profond : "Avoir total au DATE" + "Certificat
+                # de prévoyance annuel YYYY" → keep the inline "au DATE"
+                # marker as a fallback so the date is still found.
+                r"avoir\s+(?:de\s+vieillesse\s+)?total\s+au",
+                r"prestation\s+de\s+sortie\s+au",
+                r"certificat\s+de\s+pr[ée]voyance\s+(?:annuel\s+)?",
             ],
             "de": [
                 r"datum\s+des?\s+ausweises?",
                 r"erstellt\s+am",
                 r"stand\s+per",
                 r"g[üu]ltig\s+per",
+                r"vorsorgeausweis\s+(?:per|f[üu]r)",
             ],
             "it": [
                 r"data\s+del\s+certificato",
                 r"valido\s+al",
                 r"situazione\s+al",
+                r"certificato\s+di\s+previdenza",
             ],
         },
     },
@@ -685,6 +708,10 @@ class LPPCertificateExtractor:
             stripped = line.strip()
             if not stripped:
                 continue
+            # Field-label lines (`Canton: VS`, `Etat civil: marié`, etc.)
+            # are NOT names — fast reject.
+            if ":" in stripped:
+                continue
             tokens = stripped.split()
             # Strict: exactly 2 tokens, both start with uppercase, no digit.
             if len(tokens) != 2:
@@ -694,14 +721,21 @@ class LPPCertificateExtractor:
             t1, t2 = tokens
             if not (t1[:1].isupper() and t2[:1].isupper()):
                 continue
-            # Skip well-known noise headers.
+            # Skip well-known noise headers (caisses + cert vocabulary).
             lower = stripped.lower()
-            noise_tokens = (
-                "données", "donnees", "personnelles", "salariales",
-                "données personnelles", "battaglia julien",
-            )
-            if any(w in lower for w in ("certificat", "prévoyance", "prevoyance",
-                                        "pension", "caisse", "energie")):
+            if any(w in lower for w in (
+                "certificat", "prévoyance", "prevoyance",
+                "pension", "caisse", "energie",
+                "fondation", "stiftung", "donn", "données",
+            )):
+                continue
+            # Single-token "all caps" labels like "TON DOSSIER" leak
+            # through if they happen to span 2 tokens. Reject if either
+            # token is fully uppercase and short (<5 chars) — typical
+            # of acronyms like "VS", "AHV", "AVS".
+            if (t1.isupper() and len(t1) <= 4) or (
+                t2.isupper() and len(t2) <= 4
+            ):
                 continue
             return stripped
         return None

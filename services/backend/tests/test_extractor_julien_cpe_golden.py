@@ -402,3 +402,71 @@ class TestDeductionCoordinationDerivation:
         )
         data = LPPCertificateExtractor().extract(text)
         assert data.deduction_coordination is None
+
+
+# ── HOTELA / generic-cert patterns (PR S30.20) ──────────────────────
+
+
+class TestHotelaCaissePatterns:
+    """Regression: HOTELA uses 'Fondation LPP' as caisse type, has the
+    date inline as 'Avoir total au DATE', and prints conversion rate
+    as 'Taux de conversion (65 ans): X %'. None of these matched
+    before 2026-04-25."""
+
+    def test_caisse_name_matches_fondation_lpp(self):
+        text = (
+            "HOTELA Fondation LPP\n"
+            "Certificat de prévoyance annuel 2026\n"
+            "Salaire assuré: 40540 CHF\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.caisse_name is not None
+        assert "Fondation LPP" in data.caisse_name
+
+    def test_date_matches_avoir_total_au(self):
+        text = (
+            "Fondation LPP\n"
+            "Avoir total au 31.12.2025: 19620 CHF\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.date_certificat == "31.12.2025"
+
+    def test_avoir_total_without_vieillesse_word(self):
+        """HOTELA omits 'vieillesse' between 'avoir' and 'total'."""
+        text = (
+            "HOTELA Fondation LPP\n"
+            "Avoir total au 31.12.2025: 19'620 CHF\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.avoir_vieillesse_total == 19620.0
+
+    def test_taux_conversion_with_age_in_parentheses(self):
+        """HOTELA: 'Taux de conversion (65 ans): 6.8 %'."""
+        text = (
+            "Fondation LPP\n"
+            "Taux de conversion (65 ans): 6.8 %\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.taux_conversion_enveloppe == 6.8
+
+    def test_assure_name_skips_field_label_lines(self):
+        """Lines with `:` are field labels, not names."""
+        text = (
+            "HOTELA Fondation LPP\n"
+            "Certificat de prévoyance\n"
+            "Canton: VS\n"
+            "Marie Dupont\n"
+            "Donnees salariales:\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.assure_name == "Marie Dupont"
+
+    def test_assure_name_skips_short_acronym_tokens(self):
+        """`VS Sion` should NOT be picked as name (`VS` is an acronym)."""
+        text = (
+            "HOTELA Fondation LPP\n"
+            "VS Sion\n"
+            "Marie Dupont\n"
+        )
+        data = LPPCertificateExtractor().extract(text)
+        assert data.assure_name == "Marie Dupont"
