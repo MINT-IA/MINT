@@ -8,21 +8,23 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 
 **Un inconnu ouvre MINT, ressent quelque chose, tape sur une phrase, recoit une reponse qui le surprend, cree un compte pour ne pas perdre ca, et revient chaque mois parce que MINT sait des choses que personne d'autre ne sait sur sa vie financiere.**
 
-## Current Milestone: v2.8 L'Oracle & La Boucle
+## Current Milestone: v2.9 Coach Visuel Hybride
 
-**Goal:** Refonder le workflow de développement pour sortir de la façade-sans-câblage et du context-poisoning agent. À la fin de v2.8, toute route user-visible marche end-to-end et on le prouve mécaniquement. On sait en <60s ce qui casse (oracle = instrumentation + session replay + route-health board). Aucun agent ne peut ignorer son contexte (guardrails pre-commit). Julien ouvre MINT 20 min sans taper un mur.
+**Goal:** Verticale « Onboarding-to-First-Insight ». Un user qui arrive sur MINT a, en moins de 20 min, son profil financier sur les 6 axes suisses (AVS, LPP, 3a, salaire, fortune, charges) + un hero number actionnable « marge fiscale optimisable cette année » + un coach qui balance vignettes / scènes / canvas pour explorer les arbitrages (3a vs rachat LPP vs amortissement vs hypothèque) avec liens deep-dive vers les écrans Explorer existants.
 
-**Target features (workflow + finishing, zero new product features) — 8 phases** :
-- **30.5 Context Sanity** (5j non-empruntable) — Fix P0 runtime MEMORY.md truncation + instrumentation métriques drift (dashboard `/admin/agent-drift`) + CLAUDE.md restructure (lost-in-the-middle fix) + `UserPromptSubmit` hook 5 patterns MINT + spike validation go/no-go Phase 31
-- **30.6 Tools Déterministes** (2-3j) — MCP tools `get_swiss_constants` / `check_banned_terms` / `validate_arb_parity` (on-demand, économise ~16k tokens/session)
-- **31 Instrumenter** — Sentry Replay Flutter (9.14.0) + global error boundaries 3-prongs fail-loud + trace_id round-trip mobile→backend via headers sur `http` existant
-- **32 Cartographier** — Route registry-as-code 148 routes + `/admin/routes` dashboard dev-only + `route_registry_parity.py` lint + analytics redirects legacy
-- **33 Kill-switches** — Middleware GoRouter `requireFlag()` + FeatureFlags→ChangeNotifier + convergence 2 flag systems backend + admin `/admin/flags` 1-clic
-- **34 Agent Guardrails mécaniques** — lefthook 2.1.5 complet + 5 lints (bare-catch ban, hardcoded-FR, accent, ARB parity, proof-of-read léger) + CI thinning
-- **35 Boucle Daily** — `mint-dogfood.sh` (simctl iPhone 17 Pro, 8-step scenario, ~10 min) + auto-PR threshold + pull Sentry events
-- **36 Finissage E2E** (2-3 sem MINIMUM non-empruntable) — 4 P0 fixes (UUID / anonymous / save_fact / Coach tab) + 388 catches → 0 + MintShell ARB parity + accents 100%
+**4 phases planned:**
+- **Phase 40 — Marge fiscale backend** (3-5j) : pure function `compute_marge_fiscale(profile)` + endpoint + 10 unit tests
+- **Phase 41 — Hero + Vignettes L1** (1 sem) : `MargeFiscaleHero` + vignette inline chat
+- **Phase 42 — Scènes L2 interactives** (2 sem) : `MintSceneArbitrageRetraite` + `MintSceneArbitrageHypotheque`, slider live, début refactor `Stream<ChatMessage>`
+- **Phase 43 — Canvas L3 + lien Explorer** (1-2 sem) : `MintCanvasArbitrage` modal, return contract chat ← canvas
 
-**Règle inversée non-négociable v2.8**: 0 feature nouvelle. Zéro. Ce qui ne marche pas se kill (via flag) ou se répare. Compression = discipline transversale, chaque phase tue du code mort au passage.
+**Doctrine v2.9:** Le coach EST le produit. 3 niveaux de projection visuelle (vignette inline / scène interactive / canvas modal) intégrés dans le chat. Arbitrage live entre leviers fiscaux. Lien deep-dive vers écrans Explorer existants.
+
+**Carry-forward de v2.8:** FIX-01 UUID, FIX-03 save_fact, FIX-04 Coach tab, FIX-05 bare catches Wave 2+, FIX-07 234 backend accent violations, Phase 33 kill-flags (subset). Phase 34/35 deferred.
+
+## Previous Milestone: v2.8 L'Oracle & La Boucle (shipped 2026-04-25 with gaps)
+
+5 phases shipped (30.5 Context Sanity Core + 30.6 Advanced + 30.7 Tools Déterministes + 31 Instrumenter + 32 Cartographier) + 13 decimal patches (30.8-30.20: LAND-01 fix, FIX-02 anonymous CTA, doc extraction uplift, error mapping, etc.). 4 phases unshipped (33/34/35/36) — carried forward to v2.9 or deferred. Full audit: [milestones/v2.8-MILESTONE-AUDIT.md](milestones/v2.8-MILESTONE-AUDIT.md).
 
 ## Requirements
 
@@ -36,6 +38,16 @@ MINT is a Swiss financial lucidity & education app (Flutter + FastAPI) that give
 - ✓ Compliance guard (5 layers, PII scrubbing, disclaimer injection) — functional
 - ✓ CI pipeline (7 workflows, accessibility/readability gates) — healthy
 - ✓ Token security (JWT in SecureStorage, BYOK in SecureStorage) — proper compartmentation
+- ✓ MEMORY.md retention + dashboard agent-drift — v2.8 (CTX-01..02)
+- ✓ CLAUDE.md restructure + UserPromptSubmit hook — v2.8 (CTX-03..05)
+- ✓ MCP tools déterministes (get_swiss_constants / check_banned_terms / validate_arb_parity / check_accent_patterns) — v2.8 (TOOL-01..04)
+- ✓ Sentry Replay Flutter 9.14.0 + global error boundary 3-prongs + trace_id round-trip — v2.8 (OBS-01..07)
+- ✓ Route registry-as-code 150 routes + /admin/routes + parity lint — v2.8 (MAP-01..05)
+- ✓ LPP CPE / HOTELA extractor 8→15/18 fields + 56 regression tests — v2.8 (decimal 30.18-30.20)
+- ✓ Tax LIFD-citation false-positive fix + AVS IK table heuristic — v2.8 (decimal 30.19)
+- ✓ Anonymous flow `/anonymous/intent` route wired + error mapping — v2.8 (decimal 30.14-30.15)
+- ✓ Backend README first-run + ANTHROPIC_API_KEY documented — v2.8 (decimal 30.16)
+- ✓ MVP wedge T9 email-demain killed + DESIGN.md spec — v2.8 (decimal 30.17)
 
 ### Active
 
@@ -109,4 +121,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-19 after milestone v2.8 L'Oracle & La Boucle start*
+*Last updated: 2026-04-25 after v2.8 close (gaps_found, 5/9 phases shipped + 13 decimals) and v2.9 « Coach Visuel Hybride » open*
