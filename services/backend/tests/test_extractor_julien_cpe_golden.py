@@ -103,3 +103,101 @@ def test_minimum_fields_extracted(extracted):
     """After the patches, a real certificate should yield >=7 fields."""
     assert extracted.extracted_fields_count >= 7
     assert extracted.confidence >= 0.55
+
+
+# ── Coverage uplift 2026-04-25 ──────────────────────────────────────
+# The 6 assertions below were added after running the extractor against
+# the 6 PDF Julien golden corpus and finding 10/18 fields silently
+# missed (assure_name, avoir_obligatoire, salaire_avs, taux_conversion,
+# cotisations). All of them MUST now extract or the regression fires.
+
+
+def test_assure_name_is_julien_battaglia(extracted):
+    """Header heuristic: first 600 chars of cert contain 'Julien Battaglia'.
+
+    Pre-fix, assure_name was always None — the extractor had no name
+    pattern at all. Now extracted via header-line scan that excludes
+    caisse / certificat noise tokens.
+    """
+    assert extracted.assure_name is not None
+    name_norm = extracted.assure_name.lower()
+    assert "julien" in name_norm
+    assert "battaglia" in name_norm
+
+
+def test_avoir_vieillesse_obligatoire_from_lpp_label(extracted):
+    """CPE notes 'Avoir de vieillesse LPP 30'243.80' → obligatoire part.
+
+    Pre-fix, the YAML/dict only matched 'avoir vieillesse obligatoire'
+    keyword which never appears in CPE certs. The 'lpp' suffix variant
+    is now in the dict.
+    """
+    assert extracted.avoir_vieillesse_obligatoire == 30243.80
+
+
+def test_avoir_vieillesse_surobligatoire_derived(extracted):
+    """Comptable identity: total - obligatoire = surobligatoire.
+
+    CPE doesn't print this explicitly. The extractor derives it post-
+    extraction. 70'376.60 - 30'243.80 = 40'132.80.
+    """
+    assert extracted.avoir_vieillesse_surobligatoire == 40132.80
+
+
+def test_salaire_avs_from_salaire_determinant(extracted):
+    """CPE label 'Salaire déterminant 0.00 122'206.80' → AVS gross.
+
+    The 'Bonus | Base' bi-column means Base = 122'206.80 is the AVS
+    gross. Pre-fix, this field was None — pattern only matched
+    'salaire avs' literal which CPE never uses.
+    """
+    assert extracted.salaire_avs == 122206.80
+
+
+def test_deduction_coordination_derived(extracted):
+    """LPP art. 8 al. 2: déduction de coordination = AVS - assuré.
+
+    122'206.80 - 91'967.00 = 30'239.80. Derived post-extraction since
+    CPE doesn't print this number explicitly.
+    """
+    assert extracted.deduction_coordination == 30239.80
+
+
+def test_taux_conversion_at_age_65(extracted):
+    """CPE projection table row 'âge 65 5.00%' is the displayed
+    conversion rate. Stored as taux_conversion_enveloppe since CPE
+    doesn't separate obligatoire vs surobligatoire."""
+    assert extracted.taux_conversion_enveloppe == 5.00
+    # Must not pick the age-64 row by accident (was 4.87% — common bug).
+    assert extracted.taux_conversion_enveloppe != 4.87
+
+
+def test_cotisation_employe_sums_risque_plus_epargne(extracted):
+    """CPE 'Cotisations du salarié par an' block:
+        risque 91.80 + épargne 13'868.40 = 13'960.20 (Base column sum).
+    """
+    assert extracted.cotisation_employe_annuelle == 13960.20
+
+
+def test_cotisation_employeur_sums_risque_plus_epargne(extracted):
+    """CPE 'Cotisations de l'employeur par an' block:
+        risque 138.00 + épargne 15'276.00 = 15'414.00 (Base column sum).
+    """
+    assert extracted.cotisation_employeur_annuelle == 15414.00
+
+
+def test_full_certificate_yields_at_least_15_fields(extracted):
+    """Coverage floor on the full Julien CPE cert: 15/18 fields.
+
+    The 3 always-missing fields are by-design CPE limitations:
+      - taux_conversion_obligatoire / surobligatoire (CPE folds them
+        into a single rate displayed in the projection table)
+      - capital_deces (CPE doesn't print a single figure for this)
+
+    Anything below 15 is a regression.
+    """
+    assert extracted.extracted_fields_count >= 15, (
+        f"coverage drop: {extracted.extracted_fields_count}/18 "
+        f"(was 15/18 after 2026-04-25 uplift)"
+    )
+    assert extracted.confidence >= 0.94
