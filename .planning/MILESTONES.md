@@ -1,5 +1,36 @@
 # Milestones
 
+## v2.8 L'Oracle & La Boucle (Shipped: 2026-04-25)
+
+**Phases completed:** 5 phases, 17 plans, 40 tasks
+
+**Key accomplishments:**
+
+- pytest + node:test stubs, drift dashboard CLI skeleton, memory_gate CLI, 20 golden prompts, A4+A7 spikes (both GREEN), and CLAUDE.md structural lint skeletons — all 21 tests collected, smoke.sh green, zero production logic.
+- Ships CTX-02 end-to-end: 5-table drift.db schema, 6-subcommand CLI, 4 ingesters, 2 early-ship FR lints, gsd-prompt-guard.js v1.33.0 with never-throw context_hits logging, and baseline J0 snapshot locked per D-12 (drift=79.5%, context_hit=4.8%, token_cost=206.9M tokens/session avg). 9 pytest passes + 3 node test passes.
+- 1. [Rule 1 — Bug] Pre-existing orphan link in MEMORY.md surfaced by new verify gate
+- None — plan executed exactly as written.
+- Found during:
+- CTX-05 spike dogfoods the v2.8 context-sanity refonte by bumping `sentry_flutter 8 -> 9.14.0`, wrapping `MintApp` with `SentryWidget`, and pinning `options.privacy.maskAllText/maskAllImages = true` on a fresh-context branch; 5/5 mechanical grid + 0 dashboard regression = D-21 PASS, kill-policy D-01 Modeste 1 fallback NOT triggered, Phase 30.6 ships.
+- Dedicated Python 3.11 venv with pinned mcp SDK, additive scan_text(text) helper for accent_lint_fr.py, and CLAUDE.md baseline captured (121 lines / 8019 bytes / ~2004 est-tokens) for Wave 3 trim verification.
+- Shipped `get_swiss_constants(category)` and `check_banned_terms(text)` as pure Python wrappers over the backend RegulatoryRegistry singleton and ComplianceGuard Layer 1 — zero constant duplication, 21 new pytest cases green, ComplianceGuard cold-start 150 ms (target < 500 ms).
+- Shipped `validate_arb_parity()` (subprocess wrapper with Phase-34-graceful fallback) and `check_accent_patterns(text)` (wraps Wave 0 `scan_text`) as pure Python functions with Pydantic v2 response envelopes — 32 new pytest cases green, full suite 74 passing, zero PATTERNS duplication, `tools/checks/arb_parity.py` confirmed absent pre-Phase-34.
+- FastMCP stdio server shipped with 4 `@mcp.tool()` wrappers over Wave 1 surfaces, stdout is JSON-RPC only (Pitfall 1 regression gate green), `.mcp.json` at repo root pins `python3.11` + `PYTHONPATH` — Wave 3 CLAUDE.md trim unblocked.
+- CLAUDE.md trimmed atomically -30% on 3/3 dimensions via MCP tools migration. Commit `43a38dff` ships as the single-commit kill-switch target. T2 semantic cold-read + kill-switch rehearsal passed ; Julien APPROVED 2026-04-22. J0 fresh-session smoke deferred to post-merge on creator's machine (documented below).
+- 17 scaffolding artefacts + sentry-cli 3.3.5 + OBS-01 mechanically verified SHIPPED on CTX-05 output — Wave 1-4 executors now have mechanical gates (not façade claims).
+- 3 atomic commits on `feature/v2.8-phase-31-instrumenter`. 2 new lib files + 6 edits + 8 test files flipped live (15 tests green). 10 VALIDATION rows 31-01-01..10 automated green.
+- FastAPI `global_exception_handler` now surfaces `trace_id` + `sentry_event_id` in the 500 JSON body, echoes `X-Trace-Id` in headers, and reads inbound mobile `sentry-trace` to close the end-to-end Sentry cross-project link. 3 backend tests green, zero regression, staging integration proven.
+- OBS-06 kill-gate artefact signed `automated (pre-creator-device) — 2026-04-19`. 5 sensitive screens inventoried; 1 CustomPaint found, 1 wrapped in MintCustomPaintMask. audit_artefact_shape.py exit 0. Prod sessionSampleRate stays 0.0 per D-01 Option C — this plan does NOT authorise a prod flip.
+- OBS-07 budget artefact + fresh pricing fetch shipped. A3 assumption (Business tier $80/mo) VERIFIED on 2026-04-19. D-02 Option A single-project + env-tag and D-04 $160/mo ceiling documented end-to-end with quota projection, sample rate reference, spend alerting, 4 revisit triggers, and secrets inventory. sentry_quota_smoke.sh upgraded with 24h [PASS] probe + 30d MTD summary + pace heuristic + MINT_QUOTA_DRY_RUN fixture mode. Phase 31 now ready for `/gsd-verify-phase 31`.
+- Empirical 147-route + 43-redirect baseline locked against app.dart HEAD-b7a88cc8, M-3 per-site breadcrumb contract published, 10 Wave 0 scaffolds block no Wave 1-4 compilation errors.
+- `kRouteRegistry` const Map shipped with 147 RouteMeta entries bijective with app.dart paths, 15-owner enum locked, D-01 first-segment-wins rule enforced by 16 live tests (0 skipped).
+- `./tools/mint-routes` CLI shipped with 3 subcommands (health, redirects, reconcile) + purge-cache + --verify-token. nLPD D-09 controls active (5 regex redaction patterns + 7d cache TTL + token-scope verifier). Python↔Dart schema parity mechanically asserted via `kRouteHealthSchemaVersion = 1`. 14/14 pytest + 2/2 Flutter tests green, 0 skipped, 0 failed.
+- `/admin/routes` schema viewer shipped behind compile-time + runtime double gate (D-10). 43 legacy redirects emit `mint.routing.legacy_redirect.hit` breadcrumbs with path-only aggregates (nLPD D-09 §2). Admin mount emits `mint.admin.routes.viewed` aggregates-only processing record (nLPD Art. 12 / D-09 §4). All 4 Wave 0 Flutter stubs + 1 new pytest live. 31/31 Flutter tests + 3/3 pytest green.
+- Route registry parity lint shipped standalone per MAP-04. Regex extracts 148 path literals from app.dart, compares against 147 kRouteRegistry keys; 1 admin-conditional + 7 nested-profile entries exempted symmetrically via explicit allow-list in the lint source (KNOWN-MISSES.md Category 5 + 7) → 140 routes parity OK on pristine HEAD. 9/9 pytest green (including end-to-end shell-wrapper exercise). Runtime 30ms (CI budget 30s). stdlib-only (zero pip install on CI). lefthook.yml + .github/workflows/ci.yml untouched — wiring deferred to Phase 34 + Plan 05 respectively.
+- Wave 4b closing plan — 4 CI jobs wired (route-registry-parity + mint-routes-tests + admin-build-sanity + cache-gitignore-check) + operator playbook docs/SETUP-MINT-ROUTES.md + walker.sh `--admin-routes` smoke mode + 6 D-11 J0 empirical gates executed with explicit PASS/BLOCKED/FAIL verdicts per M-4 strict 3-branch hierarchy. Verdict: AMBER — 3 PASS (tree-shake + parity + DRY_RUN pytest) + 3 BLOCKED (Keychain inaccessible to non-interactive subprocess → Sentry smoke + live batch + walker screenshots deferred to Julien's local dev). `nyquist_compliant: false` STAYS false per strict 3-branch rule — Julien's acknowledgment of §Risks block is the gate, not the code state. Phase 32 ready for /gsd-verify-work + secure-phase; 0 FAIL outcomes, 0 code P0s, 0 regressions.
+
+---
+
 ## v2.7 Coach Stabilisation + Document Digestion (Shipped: `<PENDING_DEVICE_GATE>`)
 
 **Status:** Code-complete, awaiting creator-device walkthrough (GATE-01 iPhone + GATE-02 Android).
@@ -17,18 +48,22 @@ interne, sans jamais afficher "Analyse indisponible".
   `SLOMonitor` auto-rollback (2-consecutive-breach, 10-req floor); SHA256 idempotency;
   3 feature flags + admin endpoints for instant rollback; Flutter degraded chip (anti-shame
   italic textSecondary); agent loop re-prompt on empty-text tool_use (fixes MSG2).
+
 - **Phase 28 — Pipeline Document Honnête:** canonical `DocumentUnderstandingResult` Pydantic
   contract shared by coach + scanner + review; fused Vision call (classify + extract in one
   prompt); pymupdf encrypted-PDF preflight + pages_processed transparency; 4 opaque render_mode
   (confirm/ask/narrative/reject); SSE streaming (3 ordered events); native scanners (VisionKit
   iOS + ML Kit Android) + local image pre-reject (16 labels, fail-open); 4 UI bubbles +
   reduced ExtractionReviewSheet (snap 0.3/0.6/0.95).
+
 - **Phase 29 — Compliance & Privacy:** envelope encryption AES-256-GCM + per-user DEK vault +
   crypto-shredding; ISO 29184 granular consent (4 purposes) + HMAC + merkle chain; Presidio PII
+
   + regex fallback + FPE + fact_key allowlist (8 keys) + CI log-gate; VisionGuard Haiku
   LLM-as-judge (fail-closed) + NumericSanity deterministic bounds + FieldStatus.needs_review
   default; third-party opposable declaration + session-scoped routing; Bedrock EU router
   (off/shadow/primary) + two-stage image masker + DPA technical annex + legal checklist.
+
 - **Phase 30 — Device & Test Gate:** 10 PII-clean corpus fixtures + 17 Vision cassettes +
   golden flow pytest (17 parametrised + 2 aggregators, 19 green) + warn-only CI (graduates
   2026-04-28); bilingual FR/EN device-gate checklist (36 checkboxes covering 25 REQs);
@@ -38,6 +73,7 @@ interne, sans jamais afficher "Analyse indisponible".
 
 - **GATE-01, GATE-02** — creator-device walkthrough (iPhone + Android) blocking milestone
   shipped-date stamp. Checklist in `docs/DEVICE_GATE_V27_CHECKLIST.md`.
+
 - Pre-existing failures on `test_agent_loop.py` + `test_docling.py` (unrelated to v2.7, out-of-scope).
 - Encrypted-PDF VisionGuard overwrite (one-line fix deferred to v2.8).
 - Legal sign-off session pending (Walder Wyss / MLL Legal) — template in
