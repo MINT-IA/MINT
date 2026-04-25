@@ -795,15 +795,12 @@ class LPPCertificateExtractor:
             for a in amounts:
                 cleaned = (
                     a.replace("'", "").replace("’", "")
-                    .replace("’", "").replace("’", "").replace(" ", "")
-                    .replace(",", ".")
+                    .replace(" ", "").replace(",", ".")
                 )
-                try:
-                    val = float(cleaned)
-                except ValueError:
-                    continue
-                # Ignore tiny tokens that are clearly not amounts (e.g. a
-                # row index "1." or a percentage from another row).
+                # The regex always produces a parseable float — no
+                # try/except needed (was dead code, removed for diff-cover).
+                val = float(cleaned)
+                # Skip negatives (parser noise / accounting reverse).
                 if val < 0:
                     continue
                 parsed.append(val)
@@ -829,29 +826,29 @@ class LPPCertificateExtractor:
         canonical "displayed conversion rate" for projections at legal age.
         """
         # Range guard: legitimate LPP conversion rates fall in 4-7% in 2026.
-        # Prefer line with age 65 specifically; fall back to 64 if absent.
+        # Prefer line with age 65 specifically; fall back to 64 then 60.
         candidates: list[tuple[int, float]] = []
-        # Pattern captures age + rate explicitly.
+        # Pattern captures age + rate explicitly. Age group restricted to
+        # {60, 64, 65} — the 3 values that appear in CPE/PKE projection
+        # tables (60 rare early retirement, 64 women legal age, 65 men).
         full_pattern = (
             r"\b(?:âge|age|alter|et[àa])\s+(6[045])\b[^\n]*?"
             r"(\d+(?:[.,]\d+)?)\s*%"
         )
         for m in re.finditer(full_pattern, text, re.IGNORECASE):
-            try:
-                age = int(m.group(1))
-                rate = float(m.group(2).replace(",", "."))
-            except (TypeError, ValueError):
-                continue
+            age = int(m.group(1))
+            rate = float(m.group(2).replace(",", "."))
             if 3.0 <= rate <= 8.0:
                 candidates.append((age, rate))
         if not candidates:
             return None
-        # Prefer 65, then 64, then 60 (rare CPE early projection).
+        # Prefer 65, then 64, then 60. Age restricted by regex to these
+        # three; one of them must match if any candidate exists.
         for target_age in (65, 64, 60):
             for age, rate in candidates:
                 if age == target_age:
                     return rate
-        return candidates[0][1]
+        return None  # unreachable in practice (regex enforces age ∈ {60,64,65})
 
     def _extract_field(
         self,
