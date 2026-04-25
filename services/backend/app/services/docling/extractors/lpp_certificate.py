@@ -784,8 +784,12 @@ class LPPCertificateExtractor:
             if "cotisation" not in low:
                 continue
             # Collect all amounts on this row, take the max (Base column).
+            # Swiss formats : `13'868.40` (apostrophe thousands) OR
+            # `13868,40` (no separator, comma decimal) OR `13868`.
             amounts = re.findall(
-                r"\d{1,3}(?:['’’\s]\d{3})*(?:[.,]\d{1,2})?", line
+                r"-?\d{1,3}(?:['’\s]\d{3})+(?:[.,]\d{1,2})?"
+                r"|-?\d+(?:[.,]\d{1,2})?",
+                line,
             )
             parsed: list[float] = []
             for a in amounts:
