@@ -1,6 +1,9 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart' show Sentry, Hint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -169,8 +172,38 @@ class CoachProfileProvider extends ChangeNotifier {
         deviceId: deviceId,
         wizardAnswers: answers,
       );
-    } catch (e) {
+    } catch (e, st) {
+      // D-5 fix (audit Apr 29 / 2026-05-02): silent fire-and-forget was
+      // a P0 data-loss exposure (4 callsites — see lines 522, 820, 1284,
+      // 1493 — all calling _syncToBackend() without await). Conversion:
+      // failure is still non-fatal to local UX (chat keeps flowing), but
+      // it's now observable: dev sees the debugPrint, prod gets a
+      // captureException with stack trace, and Sentry breadcrumb stream
+      // shows the failure context (auth state, network state) for triage.
       debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
+      // ApiException carries a typed offline flag — categorise so we can
+      // distinguish offline-skip from server/auth/parse failures in
+      // triage. Same enum as `syncFromBackend` already uses (line ~218).
+      final code = e is ApiException
+          ? (e.isOffline ? 'offline' : 'api_error')
+          : 'unknown';
+      MintBreadcrumbs.saveFact(
+        success: false,
+        factKind: 'profile_sync_push',
+        errorCode: code,
+      );
+      // Capture only non-offline failures — offline is expected user
+      // behaviour, not an exception worth Sentry-ing. Hint helps Sentry
+      // group these distinctly from other exceptions in the app.
+      if (code != 'offline') {
+        unawaited(
+          Sentry.captureException(
+            e,
+            stackTrace: st,
+            hint: Hint.withMap({'origin': '_syncToBackend'}),
+          ),
+        );
+      }
     }
   }
 
