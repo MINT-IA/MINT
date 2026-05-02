@@ -28,7 +28,10 @@ import 'package:mint_mobile/services/financial_fitness_service.dart';
 import 'package:mint_mobile/services/forecaster_service.dart';
 import 'package:mint_mobile/services/pdf_service.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
+import 'package:mint_mobile/services/coach/proactive_trigger_service.dart'
+    show ProactiveTrigger, ProactiveTriggerType;
 import 'package:mint_mobile/services/rag_service.dart';
 import 'package:mint_mobile/widgets/coach/lightning_menu.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
@@ -160,6 +163,12 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Whether the proactive opt-in question has been shown this session.
   bool _optInShownThisSession = false;
+
+  /// Whether a `ProactiveTrigger` has been surfaced as an opener this
+  /// session. Per-day deduplication is upstream in
+  /// [ProactiveTriggerService.evaluate] (cooldown on evaluation date);
+  /// this flag prevents re-showing within a single screen lifetime.
+  bool _proactiveTriggerShownThisSession = false;
 
   /// Whether the user has already chosen an intensity (hides picker chips).
   bool _intensityChosen = false;
@@ -361,6 +370,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // not as a user message.
             _entryPayloadContext = payload.toContextInjection();
           }
+        } else if (!_isResumingConversation) {
+          // No entryPayload + authenticated + fresh conversation:
+          // surface a `MintStateProvider.pendingTrigger` if one was
+          // evaluated this calendar day. Single consumer of the
+          // proactive-trigger pipeline that was previously evaluated
+          // upstream but never displayed.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _maybeShowProactiveTrigger();
+          });
         }
       } else {
         // CHAT-01: Anonymous user (no profile) — show silent opener
@@ -490,6 +508,54 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       ));
     });
     _scrollToBottom();
+  }
+
+  /// Resolve a [ProactiveTrigger] to its localized opener string.
+  ///
+  /// `messageKey` on the trigger refers to a generated `AppLocalizations`
+  /// getter or method; the switch routes through the strongly-typed
+  /// API so missing params surface at compile time instead of runtime.
+  String _resolveProactiveOpener(S l, ProactiveTrigger t) {
+    switch (t.type) {
+      case ProactiveTriggerType.lifecyclePhaseChange:
+        return l.proactiveLifecycleChange;
+      case ProactiveTriggerType.weeklyRecapAvailable:
+        return l.proactiveWeeklyRecap;
+      case ProactiveTriggerType.goalMilestone:
+        return l.proactiveGoalMilestone(t.params?['progress'] ?? '');
+      case ProactiveTriggerType.seasonalReminder:
+        return l.proactiveSeasonalReminder(t.params?['event'] ?? '');
+      case ProactiveTriggerType.inactivityReturn:
+        return l.proactiveInactivityReturn(t.params?['days'] ?? '');
+      case ProactiveTriggerType.confidenceImproved:
+        return l.proactiveConfidenceUp(t.params?['delta'] ?? '');
+      case ProactiveTriggerType.newCapAvailable:
+        return l.proactiveNewCap;
+      case ProactiveTriggerType.contractDeadlineApproaching:
+        return l.proactiveContractDeadline(
+          t.params?['days'] ?? '',
+          t.params?['label'] ?? '',
+        );
+    }
+  }
+
+  /// If [MintStateProvider] holds a `pendingTrigger`, surface it as the
+  /// opening coach message. Per-day deduplication is enforced upstream
+  /// in [ProactiveTriggerService.evaluate]; this method also guards
+  /// re-show within a single screen lifetime via
+  /// [_proactiveTriggerShownThisSession].
+  void _maybeShowProactiveTrigger() {
+    if (_proactiveTriggerShownThisSession) return;
+    final stateProvider = context.read<MintStateProvider>();
+    final trigger = stateProvider.state?.pendingTrigger;
+    if (trigger == null) return;
+    _proactiveTriggerShownThisSession = true;
+    final opener = _resolveProactiveOpener(S.of(context)!, trigger);
+    _addCoachOpenerMessage(opener);
+    AnalyticsService().trackEvent('coach_proactive_trigger_shown', data: {
+      'type': trigger.type.name,
+      'has_intent_tag': trigger.intentTag != null,
+    });
   }
 
   /// Increment the conversation count in SharedPreferences.
