@@ -1,6 +1,9 @@
+import 'dart:async' show unawaited;
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:provider/provider.dart';
+import 'package:sentry_flutter/sentry_flutter.dart' show Sentry, Hint;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -169,8 +172,26 @@ class CoachProfileProvider extends ChangeNotifier {
         deviceId: deviceId,
         wizardAnswers: answers,
       );
-    } catch (e) {
+    } catch (e, st) {
+      // Non-fatal to local UX, but report so failures are not invisible.
       debugPrint('[CoachProfile] Backend sync failed (non-fatal): $e');
+      final code = e is ApiException
+          ? (e.isOffline ? 'offline' : 'api_error')
+          : 'unknown';
+      MintBreadcrumbs.saveFact(
+        success: false,
+        factKind: 'profile_sync_push',
+        errorCode: code,
+      );
+      if (code != 'offline') {
+        unawaited(
+          Sentry.captureException(
+            e,
+            stackTrace: st,
+            hint: Hint.withMap({'origin': '_syncToBackend'}),
+          ),
+        );
+      }
     }
   }
 
