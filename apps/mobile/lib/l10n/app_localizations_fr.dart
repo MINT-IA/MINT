@@ -7750,7 +7750,7 @@ class SFr extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Compte chiffré, synchronisé entre tes appareils. Tu pourras désactiver la sync depuis Réglages › Confidentialité.';
+      'Compte chiffré, synchronisé entre tes appareils. Tu pourras gérer la synchronisation depuis tes réglages bientôt.';
 
   @override
   String get authWhyCreateAccount => 'Pourquoi créer un compte ?';

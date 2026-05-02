@@ -3507,7 +3507,7 @@
   "authGateCreateAccount": "Create my account",
   "authGateLogin": "I already have an account",
   "authGatePrivacyNote": "Your data stays on your device and is encrypted.",
-  "authRegisterSubtitle": "Encrypted account, synced across your devices. You can turn off sync from Settings › Privacy.",
+  "authRegisterSubtitle": "Encrypted account, synced across your devices. Sync controls are coming to Settings soon.",
   "authWhyCreateAccount": "Why create an account?",
   "authBenefitProjections": "AVS/LPP projections aligned to your situation",
   "authBenefitCoach": "Personalised coach with your first name",

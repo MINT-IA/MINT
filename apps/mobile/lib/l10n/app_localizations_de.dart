@@ -7765,7 +7765,7 @@ class SDe extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Verschlüsseltes Konto, geräteübergreifend synchronisiert. Du kannst die Synchronisation in Einstellungen › Datenschutz deaktivieren.';
+      'Verschlüsseltes Konto, geräteübergreifend synchronisiert. Synchronisationssteuerung folgt bald in den Einstellungen.';
 
   @override
   String get authWhyCreateAccount => 'Warum ein Konto erstellen?';

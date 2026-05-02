@@ -7743,7 +7743,7 @@ class SPt extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Conta cifrada, sincronizada entre os teus dispositivos. Podes desativar a sincronização em Definições › Privacidade.';
+      'Conta cifrada, sincronizada entre os teus dispositivos. Os controlos de sincronização chegarão em breve às Definições.';
 
   @override
   String get authWhyCreateAccount => 'Porquê criar uma conta?';

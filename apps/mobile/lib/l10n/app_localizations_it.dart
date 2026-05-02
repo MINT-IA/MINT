@@ -7761,7 +7761,7 @@ class SIt extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Account criptato, sincronizzato tra i tuoi dispositivi. Puoi disattivare la sincronizzazione in Impostazioni › Privacy.';
+      'Account cifrato, sincronizzato tra i tuoi dispositivi. I controlli di sincronizzazione arriveranno presto in Impostazioni.';
 
   @override
   String get authWhyCreateAccount => 'Perché creare un account?';
