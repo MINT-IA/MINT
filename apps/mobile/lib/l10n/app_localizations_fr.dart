@@ -7750,7 +7750,7 @@ class SFr extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Compte optionnel : tes données restent locales par défaut';
+      'Compte chiffré, synchronisé entre tes appareils. Tu pourras désactiver la sync depuis Réglages › Confidentialité.';
 
   @override
   String get authWhyCreateAccount => 'Pourquoi créer un compte ?';

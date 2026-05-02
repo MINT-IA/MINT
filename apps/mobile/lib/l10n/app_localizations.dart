@@ -13767,7 +13767,7 @@ abstract class S {
   /// No description provided for @authRegisterSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Compte optionnel : tes données restent locales par défaut'**
+  /// **'Compte chiffré, synchronisé entre tes appareils. Tu pourras désactiver la sync depuis Réglages › Confidentialité.'**
   String get authRegisterSubtitle;
 
   /// No description provided for @authWhyCreateAccount.

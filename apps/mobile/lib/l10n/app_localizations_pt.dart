@@ -7743,7 +7743,7 @@ class SPt extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Conta opcional: os teus dados permanecem locais por padrão';
+      'Conta cifrada, sincronizada entre os teus dispositivos. Podes desativar a sincronização em Definições › Privacidade.';
 
   @override
   String get authWhyCreateAccount => 'Porquê criar uma conta?';

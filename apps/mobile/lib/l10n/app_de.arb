@@ -3507,7 +3507,7 @@
   "authGateCreateAccount": "Mein Konto erstellen",
   "authGateLogin": "Ich habe bereits ein Konto",
   "authGatePrivacyNote": "Deine Daten bleiben auf deinem Gerät und sind verschlüsselt.",
-  "authRegisterSubtitle": "Optionales Konto: deine Daten bleiben standardmässig lokal",
+  "authRegisterSubtitle": "Verschlüsseltes Konto, geräteübergreifend synchronisiert. Du kannst die Synchronisation in Einstellungen › Datenschutz deaktivieren.",
   "authWhyCreateAccount": "Warum ein Konto erstellen?",
   "authBenefitProjections": "AHV/BVG-Projektionen auf deine Situation abgestimmt",
   "authBenefitCoach": "Persönlicher Coach mit deinem Vornamen",

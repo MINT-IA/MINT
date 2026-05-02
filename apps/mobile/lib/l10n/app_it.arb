@@ -3507,7 +3507,7 @@
   "authGateCreateAccount": "Crea il mio account",
   "authGateLogin": "Ho già un account",
   "authGatePrivacyNote": "I tuoi dati restano sul tuo dispositivo e sono crittografati.",
-  "authRegisterSubtitle": "Account opzionale: i tuoi dati restano locali per impostazione predefinita",
+  "authRegisterSubtitle": "Account criptato, sincronizzato tra i tuoi dispositivi. Puoi disattivare la sincronizzazione in Impostazioni › Privacy.",
   "authWhyCreateAccount": "Perché creare un account?",
   "authBenefitProjections": "Proiezioni AVS/LPP adattate alla tua situazione",
   "authBenefitCoach": "Coach personalizzato con il tuo nome",

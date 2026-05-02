@@ -7761,7 +7761,7 @@ class SIt extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Account opzionale: i tuoi dati restano locali per impostazione predefinita';
+      'Account criptato, sincronizzato tra i tuoi dispositivi. Puoi disattivare la sincronizzazione in Impostazioni › Privacy.';
 
   @override
   String get authWhyCreateAccount => 'Perché creare un account?';

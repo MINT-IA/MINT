@@ -7701,7 +7701,7 @@ class SEn extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Optional account: your data stays local by default';
+      'Encrypted account, synced across your devices. You can turn off sync from Settings › Privacy.';
 
   @override
   String get authWhyCreateAccount => 'Why create an account?';
