@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -256,6 +257,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
             ),
 
+            // Visual demo teaser — shown after the first coach response
+            // (≥ 2 messages: 1 user + 1 coach) to demonstrate the « chat
+            // vivant » value prop while the user is still anonymous.
+            // Tap → /auth/login. Hidden once the auth gate locks (the
+            // locked CTA below already drives registration). HARDCODED
+            // FR strings for v1 ship; i18n migration tracked as follow-up.
+            if (!_isAuthGateLocked && _messages.length >= 2)
+              _buildVisualDemoTeaser(context),
+
             // Locked state — persistent CTA
             if (_isAuthGateLocked) ...[
               Container(
@@ -419,6 +429,182 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
       ),
     );
   }
+
+  // ───────────────────────────────────────────────────────────────────
+  //  Visual demo teaser (Anonymous Chat — feature-preview CTA)
+  //
+  //  Renders an inline « what MINT looks like once it knows you »
+  //  preview card after the first coach response. Built with theme
+  //  primitives only (no Phase 49.5 dependency, lands cleanly on dev).
+  //
+  //  Per panel review 2026-05-02 (compliance + adversarial + brand):
+  //  - Visible « EXEMPLE TYPE — pas une projection sur ta situation »
+  //    label above the figure (LSFin art. 7-8 salience).
+  //  - One chiffre-héros only (Handoff 2 §6 « UN SEUL chiffre »).
+  //  - No mood labels « sécurité / liberté » (banned-term adjacent +
+  //    Cleo Hype Mode register MINT explicitly avoids).
+  //  - Reframed phrase de recul as feature-description, not promise.
+  //  - CTA → /auth/register (panel-caught route mismatch).
+  //  - Semantics labels for a11y screen readers.
+  //
+  //  HARDCODED FR strings for v1 — i18n extraction is a follow-up PR
+  //  gated on Phase 52 settings work landing.
+  // ───────────────────────────────────────────────────────────────────
+  Widget _buildVisualDemoTeaser(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: MintColors.lightBorder, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Eyebrow — corail uppercase, Inter, tracked
+          Semantics(
+            label: 'Aperçu — MINT qui te connaît',
+            child: ExcludeSemantics(
+              child: Text(
+                'APERÇU — MINT QUI TE CONNAÎT',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  color: MintColors.corailDiscret,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.4,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Hero headline (Fraunces — editorial signature)
+          Text(
+            'Tes vrais chiffres.\nPas une démo générique.',
+            style: GoogleFonts.fraunces(
+              fontSize: 22,
+              color: MintColors.primary,
+              height: 1.25,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Visible salience label — REQUIRED above the figure per
+          // LSFin art. 7-8 (panel compliance review). Same prominence
+          // tier as the eyebrow so a quick visual scan can't miss it.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: MintColors.corailDiscret.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: MintColors.corailDiscret.withValues(alpha: 0.4),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              'EXEMPLE TYPE — pas une projection sur ta situation',
+              style: GoogleFonts.inter(
+                fontSize: 10.5,
+                color: MintColors.corailDiscret,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.6,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Single chiffre-héros (Handoff 2 §6 « UN SEUL chiffre »).
+          // AVS + LPP rente médiane Suisse, retraite à 65, carrière
+          // complète, salaire médian. Assumptions visible just below.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Semantics(
+                label: 'environ trois mille cent quatre-vingt-sept francs par mois',
+                child: ExcludeSemantics(
+                  child: Text(
+                    '3 187',
+                    style: GoogleFonts.fraunces(
+                      fontSize: 44,
+                      fontWeight: FontWeight.w500,
+                      color: MintColors.primary,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      height: 1.0,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'CHF / mois',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: MintColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Visible assumptions — replaces the « lump sum » + « mood »
+          // labels with concrete, defensible scenario context.
+          Text(
+            'AVS + LPP rente, exemple carrière complète à Genève',
+            style: GoogleFonts.inter(
+              fontSize: 11.5,
+              color: MintColors.textMuted,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Reframed phrase de recul — feature description, not promise.
+          // Removes « ces chiffres seraient les tiens » (which implied
+          // achievability) per LSFin art. 8 salience.
+          Text(
+            'Une fois ton vrai LPP renseigné, MINT calcule TES projections.',
+            style: GoogleFonts.fraunces(
+              fontSize: 13,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // CTA noir (Handoff 2 §6) — routes to /auth/register
+          // (panel code review caught the previous /auth/login mismatch).
+          SizedBox(
+            width: double.infinity,
+            child: Semantics(
+              label: 'Crée ton compte pour tes propres projections',
+              button: true,
+              child: TextButton(
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  context.go('/auth/register');
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: MintColors.primary,
+                  foregroundColor: MintColors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Crée ton compte pour tes propres projections',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
 }
 
 /// Animated dot for typing indicator.
