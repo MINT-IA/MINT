@@ -537,10 +537,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         children: [
           // Eyebrow — corail uppercase, Inter, tracked
           Semantics(
-            label: hasUserData ? 'Estimation indicative MINT' : 'Aperçu — MINT qui te connaît',
+            label: hasUserData ? 'Estimation indicative' : 'Aperçu',
             child: ExcludeSemantics(
               child: Text(
-                hasUserData ? 'ESTIMATION INDICATIVE' : 'APERÇU — MINT QUI TE CONNAÎT',
+                hasUserData ? 'ESTIMATION INDICATIVE' : 'APERÇU',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.corailDiscret,
@@ -550,20 +550,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 10),
-          // Hero headline (Fraunces — editorial signature)
-          Text(
-            hasUserData
-                ? 'Estimation indicative AVS.\nHypothèses ci-dessous.'
-                : 'Tes vrais chiffres.\nPas une démo générique.',
-            style: GoogleFonts.fraunces(
-              fontSize: 22,
-              color: MintColors.primary,
-              height: 1.25,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
+          // Hero headline removed (Julien feedback 2026-05-02 + literary
+          // expert lens added to panel pattern): « Tes vrais chiffres.
+          // Pas une démo générique. » was AI-generated-marketing copy
+          // (« malin pour être malin », parallel hyphen-pair clichéd
+          // structure VOICE_SYSTEM §1 explicitly bans). Per VOICE_SYSTEM §10
+          // « Le silence parle » — let the eyebrow + salience badge +
+          // figure carry the load. The data IS the message.
+          const SizedBox(height: 12),
           // Visible salience label — REQUIRED above the figure per
           // LSFin art. 7-8 (panel compliance review). Color flips
           // sauge → corail subtly when the figure is the user's own
