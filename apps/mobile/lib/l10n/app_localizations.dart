@@ -40515,6 +40515,30 @@ abstract class S {
   /// **'Entre 10 000 et 1 000 000 CHF par an.'**
   String get wedgeSalaryErrorOutOfRange;
 
+  /// No description provided for @coachOnboardingFirstUserMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Salut, je viens de créer mon compte. Par où je commence ?'**
+  String get coachOnboardingFirstUserMessage;
+
+  /// No description provided for @coachAnonymousAuthGateMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'On a déjà découvert quelques pistes ensemble. Crée ton compte pour que je me souvienne de tout.'**
+  String get coachAnonymousAuthGateMessage;
+
+  /// No description provided for @coachAuthGateChipRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer mon compte'**
+  String get coachAuthGateChipRegister;
+
+  /// No description provided for @coachAuthGateChipLogin.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'ai déjà un compte'**
+  String get coachAuthGateChipLogin;
+
   /// No description provided for @cantonLabel.
   ///
   /// In fr, this message translates to:

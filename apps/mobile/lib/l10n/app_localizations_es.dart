@@ -23096,5 +23096,19 @@ class SEs extends S {
       'Entre 10 000 y 1 000 000 CHF al año.';
 
   @override
+  String get coachOnboardingFirstUserMessage =>
+      'Hola, acabo de crear mi cuenta. ¿Por dónde empiezo?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'Ya hemos explorado algunas pistas juntos. Crea tu cuenta para que recuerde todo.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Crear mi cuenta';
+
+  @override
+  String get coachAuthGateChipLogin => 'Ya tengo una cuenta';
+
+  @override
   String get cantonLabel => 'Cantón';
 }

@@ -23098,5 +23098,19 @@ class SFr extends S {
       'Entre 10 000 et 1 000 000 CHF par an.';
 
   @override
+  String get coachOnboardingFirstUserMessage =>
+      'Salut, je viens de créer mon compte. Par où je commence ?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'On a déjà découvert quelques pistes ensemble. Crée ton compte pour que je me souvienne de tout.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Créer mon compte';
+
+  @override
+  String get coachAuthGateChipLogin => 'J\'ai déjà un compte';
+
+  @override
   String get cantonLabel => 'Canton';
 }

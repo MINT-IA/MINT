@@ -339,9 +339,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
             // Onboarding topic — send a real intake question instead of
             // injecting raw context. This replaces the old ?prompt=onboarding.
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _sendMessage(
-                'Salut, je viens de creer mon compte. Par ou je commence\u00a0?',
-              );
+              _sendMessage(S.of(context)!.coachOnboardingFirstUserMessage);
             });
           } else if (_isNotificationTopic(payload.topic)) {
             // Notification topics (monthlyCheckIn, commitmentReminder,
@@ -1256,14 +1254,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
   /// with tappable chips for register / login.
   void _showAnonymousAuthGate() {
     if (!mounted) return;
+    final s = S.of(context)!;
     setState(() {
       _messages.add(ChatMessage(
         role: 'assistant',
-        content:
-            'On a deja decouvert quelques pistes ensemble. '
-            'Cree ton compte pour que je me souvienne de tout.',
+        content: s.coachAnonymousAuthGateMessage,
         timestamp: DateTime.now(),
-        suggestedActions: ['Creer mon compte', 'J\'ai deja un compte'],
+        suggestedActions: [
+          s.coachAuthGateChipRegister,
+          s.coachAuthGateChipLogin,
+        ],
         tier: ChatTier.none,
       ));
     });
@@ -1607,11 +1607,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     final s = S.of(context)!;
 
     // Handle anonymous auth gate chips.
-    if (action == 'Creer mon compte') {
+    if (action == s.coachAuthGateChipRegister) {
       context.push('/auth/register');
       return;
     }
-    if (action == 'J\'ai deja un compte') {
+    if (action == s.coachAuthGateChipLogin) {
       context.push('/auth/login');
       return;
     }
