@@ -587,6 +587,44 @@ class ResponseCardService {
     return prompts.take(3).toList();
   }
 
+  /// Returns up to [limit] cards relevant to the user's profile, picked
+  /// without any user message. Used by the coach silent opener to surface
+  /// a contextual scene card alongside the key number — closes the gap
+  /// between the marketed Handoff 2 « scènes inline » and the actual
+  /// silent-opener UI which previously displayed only text.
+  ///
+  /// Priority mirrors `coach_chat_screen._computeKeyNumber`:
+  /// 1. LPP avoir present → buyback card
+  /// 2. 3a épargne present → pilier 3a card
+  /// 3. replacement-rate / projected-capital available → replacement
+  ///    rate card
+  /// Falls back to AVS gap card when none of the above resolve.
+  static List<ResponseCard> generateForSilentOpener(
+    CoachProfile profile, {
+    required S l,
+    int limit = 2,
+  }) {
+    final cards = <ResponseCard>[];
+    final avoirLpp = profile.prevoyance.avoirLppTotal;
+    if (avoirLpp != null && avoirLpp > 0) {
+      final c = _tryLppBuyback(profile, l);
+      if (c != null) cards.add(c);
+    }
+    if (profile.prevoyance.totalEpargne3a > 0) {
+      final c = _tryPillar3a(profile, l);
+      if (c != null) cards.add(c);
+    }
+    if (cards.isEmpty) {
+      final c = _tryReplacementRate(profile, l);
+      if (c != null) cards.add(c);
+    }
+    if (cards.isEmpty) {
+      final c = _tryAvsGap(profile, l);
+      if (c != null) cards.add(c);
+    }
+    return cards.take(limit).toList();
+  }
+
   // ════════════════════════════════════════════════════════════
   //  CARD GENERATORS
   // ════════════════════════════════════════════════════════════
