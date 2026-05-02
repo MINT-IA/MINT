@@ -243,13 +243,13 @@ void main() {
       expect(find.textContaining('er ton compte'), findsWidgets);
     });
 
-    testWidgets('shows subtitle about optional account and local mode',
+    testWidgets('shows subtitle about encrypted account and sync',
         (tester) async {
       await tester.pumpWidget(buildAuthTestable(const RegisterScreen()));
       await tester.pump();
 
       expect(
-        find.textContaining('Compte optionnel'),
+        find.textContaining('Compte chiffré'),
         findsOneWidget,
       );
     });
