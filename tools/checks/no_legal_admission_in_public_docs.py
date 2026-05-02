@@ -1,49 +1,25 @@
 #!/usr/bin/env python3
-"""Public-repo discipline gate — no legal-admission language in committed docs.
+"""Lint committed Markdown for forensic / loaded language.
 
-While `MINT-IA/MINT` is a PUBLIC GitHub repository (decision: stay public for
-GitHub Actions cost reasons until launch milestone), every committed `.md`
-document inside `.planning/`, `decisions/`, `docs/` and PR descriptions is
-publicly readable by anyone — including journalists (Kuketz / K-Tipp / Le Temps
-tech), regulators (FDPIC / FINMA), plaintiff lawyers, and competitors.
+Scans `.md` files under `.planning/`, `decisions/`, `docs/` for phrases that
+read as adverse admissions when quoted out of context (explicit "violates X",
+personal-liability framing, panel-panic adjectives). Citation-only references
+(e.g. "art. 6 nFADP") and descriptive findings ("contradiction", "gap") are
+left alone.
 
-Adverse admission patterns in such documents have been historically used as
-gold-mine evidence in regulatory proceedings (cf. FDPIC Digitec Galaxus /
-Ricardo precedents). This lint blocks committing forensic / panic / loaded
-language that could be quoted out of context to manufacture a story or
-support a complaint.
-
-What this gate BLOCKS (forensic admission patterns):
-  - « criminal exposure » / « risque pénal »
-  - « violates nFADP » / « violates LSFin » / « violates FINMA »
-  - « FDPIC violation » / « LSFin violation »
-  - explicit founder personal-liability phrasing (e.g. « founder personally »,
-    « CHF 250 000 contre le fondateur », « gegen den Gründer persönlich »)
-  - panic/loaded panel language (« legally survivable »,
-    « reputationally radioactive », « non-survivable », « MINT lied »,
-    « company-killing »)
-
-What this gate ALLOWS (benign regulatory citations):
-  - « art. 6 nFADP » / « LSFin art. 8 » / « LAVS art. 21 » — citation only,
-    no « violation » framing
-  - « FDPIC », « nFADP », « FINMA » mentions in context
-  - « contradiction » / « inconsistency » / « gap » as descriptive findings
-  - normal compliance discussion (e.g. « to comply with art. X »)
-
-Trigger: pre-commit (lefthook) on `.md` files under `.planning/`, `decisions/`,
-`docs/`. Also runnable manually:
+Usage:
 
     python3 tools/checks/no_legal_admission_in_public_docs.py
     python3 tools/checks/no_legal_admission_in_public_docs.py --paths file1.md file2.md
 
-Exit 0 on clean. Exit 1 with line diagnostic on fail. Override: prefix the
-offending line with the comment `<!-- ALLOW-LEGAL-ADMISSION: reason -->` on
-the same line — for legitimately needed forensic discussion that should
-nonetheless not be public (those should be moved to a private notes vault).
+Exit 0 on clean. Exit 1 with `::error` line diagnostics on hit. Per-line
+override: append `<!-- ALLOW-LEGAL-ADMISSION: reason -->` on the offending
+line.
 
-Reference: `.planning/decisions/2026-05-02-data-residency.md` originally
-contained these patterns and had to be sanitized post-ship by `c6b16229`.
-This gate prevents that situation from recurring.
+Notes:
+  - `--paths` bypasses the directory allowlist; pass it deliberately.
+  - Pattern list is conservative — extend via PR if a real-world hit slips
+    through.
 """
 from __future__ import annotations
 
@@ -59,16 +35,15 @@ SCAN_ROOTS = (
     REPO / "docs",
 )
 
-# Each pattern is (regex, label). Regex is case-insensitive. Use word
-# boundaries where appropriate to avoid false positives ("applied", "lied
-# about" → "lied" alone is too greedy without context).
+# Patterns are case-insensitive. `\b` boundaries avoid greedy hits on
+# unrelated tokens ("applied", "lied about", etc.).
 PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r"\bcriminal\s+exposure\b", re.I), "criminal exposure framing"),
     (re.compile(r"\brisque\s+p[ée]nal\b", re.I), "risque pénal explicit framing"),
     (re.compile(r"\bviolates?\s+(?:nFADP|LSFin|FINMA|LAVS|nLPD)\b", re.I), "explicit violation language"),
     (re.compile(r"\b(?:FDPIC|nFADP|nLPD|LSFin|FinSA)\s+violation\b", re.I), "regulator-violation framing"),
-    (re.compile(r"\bart\.\s*60\s+(?:nFADP|nLPD|FADP)\b", re.I), "art. 60 nFADP citation (criminal article)"),
-    (re.compile(r"\bCHF\s+250\s*[\.\s]?000\b", re.I), "CHF 250'000 personal-fine reference"),
+    (re.compile(r"\b(?:art\.?|article)\s*\.?\s*60\s+(?:nFADP|nLPD|FADP)\b", re.I), "art. 60 nFADP citation (criminal article)"),
+    (re.compile(r"\bCHF\s*250\s*[\.\s'’]?\s*000\b", re.I), "CHF 250'000 personal-fine reference"),
     (re.compile(r"\bfounder\s+(?:personally|criminally)\b", re.I), "founder personal-liability framing"),
     (re.compile(r"\bgegen\s+den\s+Gr[üu]nder\s+pers[öo]nlich\b", re.I), "DE founder personal-liability framing"),
     (re.compile(r"\b(?:contre|condamnation\s+de)\s+le\s+fondateur\b", re.I), "FR founder liability framing"),
@@ -83,6 +58,14 @@ PATTERNS: list[tuple[re.Pattern, str]] = [
 
 OVERRIDE_MARKER = "<!-- ALLOW-LEGAL-ADMISSION:"
 
+# Strip Markdown emphasis (`*`, `_`) before matching so that `**violates
+# nFADP**` is not bypassed by the `\b` boundary landing on `*`.
+_EMPHASIS = re.compile(r"[*_`]+")
+
+
+def _normalize(line: str) -> str:
+    return _EMPHASIS.sub(" ", line)
+
 
 def scan_file(path: Path) -> list[tuple[int, str, str]]:
     """Return list of (line_no, label, line_excerpt) for matches."""
@@ -94,8 +77,9 @@ def scan_file(path: Path) -> list[tuple[int, str, str]]:
     for i, line in enumerate(text.splitlines(), start=1):
         if OVERRIDE_MARKER in line:
             continue
+        normalized = _normalize(line)
         for pat, label in PATTERNS:
-            if pat.search(line):
+            if pat.search(normalized):
                 excerpt = line.strip()[:180]
                 findings.append((i, label, excerpt))
                 break  # one finding per line is enough
@@ -118,6 +102,7 @@ ALLOWLIST_PATTERNS: tuple[str, ...] = (
     # Archived milestones — historical state, not current claims.
     "/milestones/v2.0",
     "/_v2.7-archive/",
+    "/archive/",
     "/archive-",
     # Coaching prompts that include « bad example » copy as a teaching
     # device. These should ideally be sanitized but are spec docs not
@@ -174,37 +159,18 @@ def main() -> int:
 
     if total_failures:
         print()
+        print(f"no_legal_admission: {total_failures} hit(s). Suggested rewrites:")
+        print("  - « violates X » -> « tension à résoudre avec X »")
+        print("  - drop specific monetary amounts -> « material risk »")
+        print("  - « founder personally » -> « company »")
+        print("  - drop panel-panic adjectives (« legally survivable », etc.)")
         print(
-            f"❌ no_legal_admission: {total_failures} forensic / panic / loaded "
-            f"language hit(s) found. The repo is currently PUBLIC; these phrases "
-            f"would be quotable as adverse admission by a hostile journalist or "
-            f"regulator. Suggested fixes:"
-        )
-        print(
-            "  - Replace « violates X » with « tension à résoudre avec X »"
-        )
-        print(
-            "  - Drop specific risk amounts (« CHF 250'000 ») — say « material risk »"
-        )
-        print(
-            "  - Replace « founder personally » with « company »"
-        )
-        print(
-            "  - Drop panel panic phrases (« legally survivable », etc.)"
-        )
-        print(
-            "  - For legitimately-needed forensic discussion, move the file to a"
-            " private notes vault (1Password / Notion private workspace) and remove"
-            " from the public repo."
-        )
-        print(
-            "  - If the phrase MUST stay (e.g. quoting an external source), prefix"
-            " the line with `<!-- ALLOW-LEGAL-ADMISSION: <reason> -->` to whitelist"
-            " explicitly."
+            "  - if a hit must stay (quoting an external source), append "
+            "`<!-- ALLOW-LEGAL-ADMISSION: <reason> -->` on the line."
         )
         return 1
 
-    print(f"✓ no_legal_admission: scanned {len(targets)} doc(s), 0 forensic-language hits.")
+    print(f"no_legal_admission: scanned {len(targets)} doc(s), 0 hits.")
     return 0
 
 
