@@ -1627,7 +1627,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         ));
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: 'Parfait, je te signalerai ce qui compte.',
+          content: s.coachOptInAcknowledged,
           timestamp: DateTime.now(),
           tier: ChatTier.none,
         ));

@@ -21134,6 +21134,10 @@ class SDe extends S {
   String get coachOptInDecline => 'Nein, ich komme wenn ich will';
 
   @override
+  String get coachOptInAcknowledged =>
+      'Verstanden, ich melde dir, was wichtig ist.';
+
+  @override
   String get coachSilentOpenerReplacementRate => 'Projizierte Ersatzrate';
 
   @override

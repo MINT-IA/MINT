@@ -21087,6 +21087,10 @@ class SEs extends S {
   String get coachOptInDecline => 'No, vengo cuando quiera';
 
   @override
+  String get coachOptInAcknowledged =>
+      'Entendido, te avisaré de lo importante.';
+
+  @override
   String get coachSilentOpenerReplacementRate => 'Tasa de reemplazo proyectada';
 
   @override

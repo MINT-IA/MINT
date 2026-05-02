@@ -21090,6 +21090,10 @@ class SPt extends S {
   String get coachOptInDecline => 'Não, venho quando quiser';
 
   @override
+  String get coachOptInAcknowledged =>
+      'Entendido, vou sinalizar o que é importante.';
+
+  @override
   String get coachSilentOpenerReplacementRate =>
       'Taxa de substituição projetada';
 

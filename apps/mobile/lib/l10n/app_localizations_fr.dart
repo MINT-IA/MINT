@@ -21084,6 +21084,10 @@ class SFr extends S {
   String get coachOptInDecline => 'Non, je viens quand je veux';
 
   @override
+  String get coachOptInAcknowledged =>
+      'Bien noté, je te signalerai ce qui compte.';
+
+  @override
   String get coachSilentOpenerReplacementRate => 'Taux de remplacement projeté';
 
   @override
@@ -21691,7 +21695,7 @@ class SFr extends S {
 
   @override
   String checkInCoachSummary(String summary) {
-    return 'Parfait, $summary. C\'est noté !';
+    return 'Bien noté, $summary.';
   }
 
   @override
