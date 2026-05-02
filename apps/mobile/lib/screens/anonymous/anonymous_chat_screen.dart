@@ -60,6 +60,11 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   double? _wedgeAnnualSalary;
   final TextEditingController _wedgeSalaryController = TextEditingController();
 
+  /// Visible inline error for the wedge input. Per panel compliance review
+  /// (PR #424): silent rejection of out-of-range salaries violated nFADP
+  /// art. 6 al. 3 transparency spirit + UX. Now we surface a plain hint.
+  String? _wedgeError;
+
   @override
   void initState() {
     super.initState();
@@ -495,21 +500,28 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   //  gated on Phase 52 settings work landing.
   // ───────────────────────────────────────────────────────────────────
   Widget _buildVisualDemoTeaser(BuildContext context) {
-    // Wedge state: if user has provided a salary, compute REAL projection
-    // via AvsCalculator (financial_core barrel, ADR-20260223). Otherwise
-    // render the generic AVS-typical example for an at-a-glance preview.
+    // Wedge state: if user has provided a salary, compute an INDICATIVE
+    // estimate via AvsCalculator (financial_core barrel, ADR-20260223).
+    // Per panel review #424 (compliance + adversarial 2026-05-02): one
+    // input does NOT justify « TON » framing — defaults are baked in
+    // (currentAge=40, retirementAge=65, arrivalAge=20, no lacunes,
+    // no divorce, no child credits, refAge=65/male). Copy is therefore
+    // « ESTIMATION INDICATIVE » throughout, with assumptions surfaced.
     final hasUserData = _wedgeAnnualSalary != null && _wedgeAnnualSalary! > 0;
     final heroAmount = hasUserData
         ? _formatChfAmount(_computeAnonymousRenteEstimate(_wedgeAnnualSalary!))
         : '3 187';
     final salienceLabel = hasUserData
-        ? 'TON ESTIMATION RAPIDE — basée sur ton salaire annuel brut'
+        ? 'ESTIMATION INDICATIVE — carrière complète présumée, retraite à 65'
         : 'EXEMPLE TYPE — pas une projection sur ta situation';
     final assumptionsLine = hasUserData
-        ? 'AVS rente — hypothèse carrière complète, retraite à 65 ans'
+        ? 'Calcul AVS uniquement, hypothèses : 40 ans aujourd’hui, '
+            'carrière 45 ans (20 → 65), aucune lacune. Ton vrai chiffre dépend '
+            'de ton âge, ton genre, ton canton, ton LPP, tes lacunes.'
         : 'AVS + LPP rente, exemple carrière complète à Genève';
     final reculLine = hasUserData
-        ? 'Crée un compte pour affiner avec ton LPP, ton canton, tes lacunes.'
+        ? 'Avec un compte, MINT pourrait affiner avec ton âge réel, ton LPP, '
+            'ton canton et tes lacunes.'
         : 'Une fois ton vrai LPP renseigné, MINT calcule TES projections.';
 
     return Container(
@@ -525,10 +537,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         children: [
           // Eyebrow — corail uppercase, Inter, tracked
           Semantics(
-            label: hasUserData ? 'Ton estimation MINT' : 'Aperçu — MINT qui te connaît',
+            label: hasUserData ? 'Estimation indicative MINT' : 'Aperçu — MINT qui te connaît',
             child: ExcludeSemantics(
               child: Text(
-                hasUserData ? 'TON ESTIMATION MINT' : 'APERÇU — MINT QUI TE CONNAÎT',
+                hasUserData ? 'ESTIMATION INDICATIVE' : 'APERÇU — MINT QUI TE CONNAÎT',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.corailDiscret,
@@ -542,7 +554,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           // Hero headline (Fraunces — editorial signature)
           Text(
             hasUserData
-                ? 'Tes premiers vrais chiffres.\nUne projection rapide.'
+                ? 'Estimation indicative AVS.\nHypothèses ci-dessous.'
                 : 'Tes vrais chiffres.\nPas une démo générique.',
             style: GoogleFonts.fraunces(
               fontSize: 22,
@@ -807,22 +819,61 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
             ],
           ),
+          // Inline error (replaces silent no-op; nFADP art. 6 al. 3
+          // transparency + UX feedback per panel review).
+          if (_wedgeError != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              _wedgeError!,
+              style: GoogleFonts.inter(
+                fontSize: 11.5,
+                color: MintColors.corailDiscret,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+          // Micro-disclosure adjacent to the input (nFADP art. 6 al. 3
+          // transparency, panel compliance review). Salary stays local;
+          // calculation is performed device-side via AvsCalculator.
+          const SizedBox(height: 8),
+          Text(
+            'Ton salaire reste sur ton appareil. MINT ne l’envoie nulle part.',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textMuted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  /// Validate + commit a salary input. Strips spaces, parses, rejects
-  /// out-of-range silently (anonymous = low friction; real account
-  /// validates strictly). Triggers `setState` so the teaser flips to
-  /// its `hasUserData` branch.
+  /// Validate + commit a salary input. Strips spaces and the « . » /
+  /// « ' » thousand separators (DE-CH / FR-CH conventions). Surfaces a
+  /// visible inline hint when input is invalid (panel compliance review:
+  /// silent rejection violated nFADP art. 6 al. 3 transparency spirit).
+  /// Triggers `setState` so the teaser flips to its `hasUserData` branch.
   void _commitWedgeSalary(String raw) {
-    final cleaned = raw.replaceAll(RegExp(r'[\s ]'), '').trim();
+    final cleaned = raw
+        .replaceAll(RegExp(r"[\s '.]"), '')
+        .trim();
     final parsed = double.tryParse(cleaned);
-    if (parsed == null) return;
-    if (parsed < 10000 || parsed > 1000000) return;
+    if (parsed == null) {
+      setState(() {
+        _wedgeError = 'Saisis un montant en chiffres (ex. 95 000).';
+      });
+      return;
+    }
+    if (parsed < 10000 || parsed > 1000000) {
+      setState(() {
+        _wedgeError = 'Montant attendu entre 10 000 et 1 000 000 CHF.';
+      });
+      return;
+    }
     setState(() {
       _wedgeAnnualSalary = parsed;
+      _wedgeError = null;
     });
   }
 }
