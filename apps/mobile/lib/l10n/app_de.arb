@@ -9913,6 +9913,7 @@
   "coachProactiveOptIn": "Übrigens — soll ich dir wichtige Dinge anzeigen, wenn du die App öffnest? Oder möchtest du lieber nur reden, wenn du Lust hast?",
   "coachOptInAccept": "Ja, zeig mir an",
   "coachOptInDecline": "Nein, ich komme wenn ich will",
+  "coachOptInAcknowledged": "Verstanden, ich melde dir, was wichtig ist.",
   "coachSilentOpenerReplacementRate": "Projizierte Ersatzrate",
   "coachSilentOpenerFitnessScore": "Finanzieller Fitness-Score",
   "coachSilentOpenerRetirementCapital": "Projiziertes Pensionierungskapital",

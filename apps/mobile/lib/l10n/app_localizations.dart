@@ -37089,6 +37089,12 @@ abstract class S {
   /// **'Non, je viens quand je veux'**
   String get coachOptInDecline;
 
+  /// No description provided for @coachOptInAcknowledged.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bien noté, je te signalerai ce qui compte.'**
+  String get coachOptInAcknowledged;
+
   /// No description provided for @coachSilentOpenerReplacementRate.
   ///
   /// In fr, this message translates to:
@@ -38088,7 +38094,7 @@ abstract class S {
   /// No description provided for @checkInCoachSummary.
   ///
   /// In fr, this message translates to:
-  /// **'Parfait, {summary}. C\'est noté !'**
+  /// **'Bien noté, {summary}.'**
   String checkInCoachSummary(String summary);
 
   /// No description provided for @checkInErrorNoPlan.

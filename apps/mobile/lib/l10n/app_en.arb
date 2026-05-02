@@ -9913,6 +9913,7 @@
   "coachProactiveOptIn": "By the way — would you like me to flag important things when you open the app? Or do you prefer we only talk when you feel like it?",
   "coachOptInAccept": "Yes, flag for me",
   "coachOptInDecline": "No, I'll come when I want",
+  "coachOptInAcknowledged": "Got it — I'll flag what matters.",
   "coachSilentOpenerReplacementRate": "Projected replacement rate",
   "coachSilentOpenerFitnessScore": "Financial fitness score",
   "coachSilentOpenerRetirementCapital": "Projected retirement capital",

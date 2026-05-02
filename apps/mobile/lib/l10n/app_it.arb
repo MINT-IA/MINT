@@ -9913,6 +9913,7 @@
   "coachProactiveOptIn": "A proposito — vuoi che ti segnali le cose importanti quando apri l'app? O preferisci che parliamo solo quando ne hai voglia?",
   "coachOptInAccept": "Sì, segnalami",
   "coachOptInDecline": "No, vengo quando voglio",
+  "coachOptInAcknowledged": "Capito, ti segnalerò ciò che conta.",
   "coachSilentOpenerReplacementRate": "Tasso di sostituzione proiettato",
   "coachSilentOpenerFitnessScore": "Punteggio di salute finanziaria",
   "coachSilentOpenerRetirementCapital": "Capitale proiettato alla pensione",

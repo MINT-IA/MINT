@@ -20978,6 +20978,9 @@ class SEn extends S {
   String get coachOptInDecline => 'No, I\'ll come when I want';
 
   @override
+  String get coachOptInAcknowledged => 'Got it — I\'ll flag what matters.';
+
+  @override
   String get coachSilentOpenerReplacementRate => 'Projected replacement rate';
 
   @override

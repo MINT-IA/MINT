@@ -21144,6 +21144,9 @@ class SIt extends S {
   String get coachOptInDecline => 'No, vengo quando voglio';
 
   @override
+  String get coachOptInAcknowledged => 'Capito, ti segnalerò ciò che conta.';
+
+  @override
   String get coachSilentOpenerReplacementRate =>
       'Tasso di sostituzione proiettato';
 

@@ -10398,6 +10398,7 @@
   "coachProactiveOptIn": "Au fait — tu veux que je te signale les choses importantes quand tu ouvres l'app ? Ou tu préfères qu'on se parle seulement quand tu en as envie ?",
   "coachOptInAccept": "Oui, signale-moi",
   "coachOptInDecline": "Non, je viens quand je veux",
+  "coachOptInAcknowledged": "Bien noté, je te signalerai ce qui compte.",
   "coachSilentOpenerReplacementRate": "Taux de remplacement projeté",
   "coachSilentOpenerFitnessScore": "Score de santé financière",
   "coachSilentOpenerRetirementCapital": "Capital projeté à la retraite",
@@ -10820,7 +10821,7 @@
       }
     }
   },
-  "checkInCoachSummary": "Parfait, {summary}. C'est noté !",
+  "checkInCoachSummary": "Bien noté, {summary}.",
   "@checkInCoachSummary": {
     "placeholders": {
       "summary": {
