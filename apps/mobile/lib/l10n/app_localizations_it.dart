@@ -23155,4 +23155,7 @@ class SIt extends S {
   @override
   String get wedgeSalaryErrorOutOfRange =>
       'Tra 10 000 e 1 000 000 CHF all\'anno.';
+
+  @override
+  String get cantonLabel => 'Cantone';
 }

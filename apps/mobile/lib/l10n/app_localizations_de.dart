@@ -23151,4 +23151,7 @@ class SDe extends S {
   @override
   String get wedgeSalaryErrorOutOfRange =>
       'Zwischen 10 000 und 1 000 000 CHF pro Jahr.';
+
+  @override
+  String get cantonLabel => 'Kanton';
 }

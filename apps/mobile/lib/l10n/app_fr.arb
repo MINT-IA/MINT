@@ -12028,5 +12028,6 @@
   "wedgeSalaryInputActionSemantics": "Calculer mon estimation",
   "wedgeSalaryStaysOnDevice": "Ton salaire reste sur ton appareil. MINT ne l'envoie nulle part.",
   "wedgeSalaryErrorInvalid": "Entre un montant en chiffres, par exemple 95 000.",
-  "wedgeSalaryErrorOutOfRange": "Entre 10 000 et 1 000 000 CHF par an."
+  "wedgeSalaryErrorOutOfRange": "Entre 10 000 et 1 000 000 CHF par an.",
+  "cantonLabel": "Canton"
 }

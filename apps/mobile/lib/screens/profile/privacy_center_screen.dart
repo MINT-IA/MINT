@@ -81,9 +81,9 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
   Widget build(BuildContext context) {
     final l = S.of(context)!;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: MintColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: MintColors.white,
         elevation: 0,
         title: Text(
           l.privacyCenterTitle,
@@ -214,6 +214,10 @@ class _ConsentRow extends StatelessWidget {
           if (onRevoke != null)
             TextButton(
               onPressed: onRevoke,
+              style: TextButton.styleFrom(
+                minimumSize: const Size(0, 48),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
               child: Text(l.consentRevoke),
             ),
         ],
