@@ -1,19 +1,17 @@
 # Phase 52 — Auth Local-First Toggle (CONTEXT)
 
-**Status:** Open (planning)
-**Origin:** Companion phase to PR #422 (register subtitle l10n) + PR #423 (data residency decision doc). Without Phase 52 landing, PR #422's promise « Sync controls coming to Settings soon » remains a forward-looking statement without code behind it.
-**Decided by:** Julien signoff pending (data residency decision doc Status = Proposed).
+**Status:** Drafting
+**Origin:** Companion phase to PR #422 (register subtitle l10n) and the data-residency decision doc. PR #422's subtitle says « Sync controls coming to Settings soon »; Phase 52 is the code behind that line.
 
 ## Goal (one sentence)
 
-Refactor `auth_provider.dart` so account creation does NOT implicitly enable cloud sync, and add a Settings › Confidentialité toggle that lets the user explicitly opt IN to multi-device cloud sync. After Phase 52 lands, the « tes données restent sur ton appareil » strings across the app become universally accurate again.
+Refactor `auth_provider.dart` so account creation does not enable cloud sync as a side effect, and add a Settings › Confidentialité toggle that lets the user opt in or out of multi-device cloud sync. After Phase 52 lands, the « tes données restent sur ton appareil » strings across the app match the runtime behavior.
 
 ## Why now
 
-1. PR #422 shipped a forward-looking promise (« Sync controls coming to Settings soon ») in 6 locales. Phase 52 is what makes that promise true.
-2. The data residency decision doc (Path A v2.x → Q3 Swiss-region → v3.0 E2EE) explicitly identifies Phase 52 as the v2.x deliverable.
-3. Brand positioning « Ta lucidité. Ton appareil. Ton choix de synchroniser. » requires the toggle to exist.
-4. nFADP art. 19 (information at collection) + LSFin art. 8 (no overstatement of feature availability) — without Phase 52, the gap between « what we say » and « what the code does » remains material.
+1. PR #422 references Settings controls that do not yet exist; Phase 52 makes that copy match the code.
+2. The data-residency decision doc (Path A v2.x → Q3 Swiss-region → v3.0 E2EE) names Phase 52 as the v2.x deliverable.
+3. nFADP art. 19 (information at collection) and LSFin art. 8 (accurate description of feature availability) frame the alignment between in-app copy and runtime behavior.
 
 ## Locked decisions
 
@@ -27,13 +25,15 @@ A new `confidentialite_settings_screen.dart` lives next to the existing `langue_
 A single explicit toggle: « Synchronisation cloud (multi-appareils) » with subtitle « Sauvegarde + sync chiffrée sur nos serveurs européens. Activable / désactivable à tout moment. » Default OFF. When toggled ON, the next sync push goes through; when OFF, no further data leaves the device. Existing cloud-side data is NOT auto-deleted on toggle-off (user can issue a separate « Supprimer mes données cloud » action — out of scope for Phase 52, deferred to v2.11).
 
 ### D-04 — Backwards compatibility for existing accounts
-Existing users (registered before Phase 52) currently have `_isLocalMode = false` (silently set at register). On first launch post-update, we preserve their current behavior (cloud sync stays ON for them) but show a one-time « Nouvelle option : tu peux maintenant désactiver la synchronisation cloud depuis Réglages › Confidentialité » toast/sheet. Migration is opt-out for existing users (don't surprise-disable their sync), opt-IN for new users (default OFF).
+Existing users (registered before Phase 52) currently have `_isLocalMode = false` as part of the existing register flow. On first launch post-update, we preserve their current sync state and show a one-time « Nouvelle option : tu peux désactiver la synchronisation cloud depuis Réglages › Confidentialité » toast or sheet. New accounts default OFF; existing accounts retain whatever state they had. The migration toast surfaces the new control so existing users can adopt the new default if they wish — without changing their sync state without consent.
 
 ### D-05 — Transparent state surfacing
-The Profile screen displays a compact « Synchronisation : activée / désactivée » status row. The « Coach personnalisé » feature still works in both states — uses local SQLite for opted-out users, server-side coaching context for opted-in.
+The Profile screen displays a compact « Synchronisation : activée / désactivée » status row. The « Coach personnalisé » feature works in both states — local SQLite for opted-out users, server-side coaching context for opted-in.
 
-### D-06 — No backend changes in this phase
-The backend `_isLocalMode` flag is mobile-only state. The backend already accepts both authenticated AND anonymous calls. Mobile gates whether to push profile updates / chat history / documents to the backend based on the local flag. Zero backend code change in Phase 52 (server-side opt-out implementation = v2.11 if needed).
+### D-06 — Mobile state only in this phase; cloud-side deletion in v2.11
+The local-mode flag is mobile-only state. Mobile gates whether to push profile updates, chat history, and documents to the backend based on this flag. Phase 52 does not change backend code.
+
+The cloud-side data already pushed before a user toggles OFF stays on the backend until the v2.11 « Supprimer mes données cloud » action lands. The toggle subtitle and Settings page must say so explicitly, so a user toggling OFF understands that "no further data leaves the device" and "delete what is already on the server" are separate actions. nFADP art. 32 (right to deletion / Recht auf Löschung) is the handle for the v2.11 follow-up, not Phase 52.
 
 ### D-07 — String key naming convention
 New ARB keys prefixed `settingsPrivacy*`:
@@ -48,9 +48,9 @@ New ARB keys prefixed `settingsPrivacy*`:
 All 6 locales (FR canonical / EN / DE / ES / IT / PT). FR uses tutoiement.
 
 ### D-08 — Update register screen subtitle (post-Phase 52)
-After Phase 52 ships, update `authRegisterSubtitle` in 6 locales again — this time to the « really true » copy from the decision doc:
-- FR: « Crée un compte chiffré. La synchronisation entre tes appareils est désactivable depuis Réglages › Confidentialité (par défaut activée). »
-- (Or default-OFF + explicit opt-in framing depending on D-04 final wording — to confirm at PR time.)
+After Phase 52 ships, update `authRegisterSubtitle` in 6 locales to match D-01 (default OFF for new accounts):
+- FR: « Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l'activer depuis Réglages › Confidentialité. »
+- EN / DE / ES / IT / PT: equivalent default-OFF framing.
 
 ### D-09 — Test coverage
 - Widget test for the toggle Settings screen
@@ -64,11 +64,11 @@ Phase 52 produces `.planning/phases/52-auth-local-first-toggle/52-VERIFICATION-R
 
 ## Out of scope
 
-- Server-side cloud-data deletion when user opts out (deferred v2.11)
+- Server-side deletion of data already pushed before opt-out (deferred v2.11; nFADP art. 32 follow-up — see D-06)
 - Per-data-class opt-in (e.g., sync chat but not profile) — deferred v2.11
 - E2EE — deferred v3.0 (separate epic)
 - Swiss-region hosting migration — deferred Q3 2026 (separate phase)
-- Bulk sanitization of the « tes données restent sur ton appareil » strings across the app — they remain accurate post-Phase 52 (the toggle being default-OFF for new users + opt-out for existing makes the original claim true again)
+- Bulk rewrite of the « tes données restent sur ton appareil » strings across the app — they describe the new default once Phase 52 ships
 
 ## Risk register
 
@@ -99,10 +99,8 @@ Phase 52 produces `.planning/phases/52-auth-local-first-toggle/52-VERIFICATION-R
 
 ## References
 
-- `.planning/decisions/2026-05-02-data-residency.md` (Path A locked decision)
+- `.planning/decisions/2026-05-02-data-residency.md` (Path A — Proposed)
 - `.planning/reviews/2026-05-02-pr-batch-1.md` (panel review batch 1, identifies Phase 52 as required follow-up to PR #422)
-- `~/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/feedback_app_targets_staging_always.md`
-- `~/.claude/projects/-Users-julienbattaglia-Desktop-MINT-nosync/memory/feedback_public_repo_discipline.md`
 - PR #420, #421, #422, #423, #424, #425 (related ships in the 2026-05-02 session)
-- `apps/mobile/lib/providers/auth_provider.dart:135` (the `_isLocalMode = false` flip site to refactor)
+- `apps/mobile/lib/providers/auth_provider.dart` (`_isLocalMode = false` flip site to refactor)
 - `apps/mobile/lib/screens/settings/langue_settings_screen.dart` (sibling settings screen — pattern to follow)

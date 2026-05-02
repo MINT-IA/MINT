@@ -1,6 +1,6 @@
 # Phase 52 — Auth Local-First Toggle (PLAN)
 
-**Status:** Open (awaiting Julien signoff on data residency Path A decision)
+**Status:** Drafting
 **Companion CONTEXT:** `52-CONTEXT.md`
 **Estimated effort:** 2.5-3 days
 **Branch:** `feature/phase-52-auth-local-first-toggle` (from dev)
@@ -17,11 +17,11 @@ Make MINT's local-first promise structurally true: refactor `auth_provider.dart`
 - `apps/mobile/test/providers/auth_provider_test.dart`
 
 **Behavior:**
-- `_isLocalMode` defaults to `true` on fresh install (already does — line 138 « Local-mode default: true on fresh install »)
-- Register / login does NOT auto-flip `_isLocalMode = false` (REMOVE the silent flip at line 135)
-- New API: `Future<void> AuthProvider.toggleCloudSync(bool enabled)` — sets `_isLocalMode = !enabled`, persists to SharedPreferences, notifies listeners
-- New getter: `bool get isCloudSyncEnabled => !_isLocalMode`
-- Migration: existing accounts (registered pre-Phase 52 with `_isLocalMode = false`) keep their current state (don't surprise-disable). Detect by absence of a new key `auth_phase52_migrated` — set it true on first launch post-update.
+- `_isLocalMode` defaults to `true` on fresh install (already does — see the « Local-mode default: true on fresh install » comment).
+- Remove the assignment that flips `_isLocalMode = false` inside the existing register flow so register / login no longer changes the default.
+- New API: `Future<void> AuthProvider.toggleCloudSync(bool enabled)` — sets `_isLocalMode = !enabled`, persists to SharedPreferences, notifies listeners.
+- New getter: `bool get isCloudSyncEnabled => !_isLocalMode`.
+- Migration: existing accounts (registered pre-Phase 52 with `_isLocalMode = false`) keep their current state. Detect by absence of a new SharedPreferences key `auth_phase52_migrated` — set it true on first launch post-update.
 
 **Test:** widget tests for the API + integration test for register flow asserting `_isLocalMode == true` post-register.
 
@@ -79,15 +79,14 @@ Make MINT's local-first promise structurally true: refactor `auth_provider.dart`
 
 **Verify:** `flutter gen-l10n` regenerates dart files. `python3 tools/checks/accent_lint_fr.py --file app_fr.arb` clean. `arb_parity` check (existing) passes.
 
-### T-52-06 — Update `authRegisterSubtitle` to reflect post-Phase 52 reality
+### T-52-06 — Update `authRegisterSubtitle` to match Phase 52 default
 **Files:** 6 ARB locales
 
 **Behavior:**
-- After T-52-01 lands, the « bientôt / coming soon » caveat in PR #422's subtitle becomes obsolete. Update to:
-  - FR: « Compte chiffré. Synchronisation cloud désactivable depuis Réglages › Confidentialité. »
-  - EN: « Encrypted account. Cloud sync can be turned off in Settings › Privacy. »
-  - (DE / ES / IT / PT equivalents)
-- Drop the « bientôt / coming soon » framing entirely.
+- After T-52-01 lands, replace the placeholder copy from PR #422 with text that matches D-01 (default OFF for new accounts):
+  - FR: « Crée un compte chiffré. La synchronisation cloud est désactivée par défaut ; tu peux l'activer depuis Réglages › Confidentialité. »
+  - EN: « Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy. »
+  - DE / ES / IT / PT: equivalent default-OFF framing.
 
 ### T-52-07 — Live sim verification + HTML evidence report
 **Files:**
@@ -143,6 +142,5 @@ Make MINT's local-first promise structurally true: refactor `auth_provider.dart`
 
 ## Notes
 
-- This phase is gated on Julien's signoff of the data residency Path A decision (`.planning/decisions/2026-05-02-data-residency.md` Status = Proposed). Do NOT start implementation until signoff is confirmed.
-- The phase produces both standard GSD text artifacts (CONTEXT.md, PLAN.md, SUMMARY.md, VERIFICATION.md) AND an HTML report (per Julien instruction 2026-05-02 « En y intégrant ton fichier HTML, évidemment »).
-- `feedback_public_repo_discipline.md` applies — no forensic legal language in any commit / doc / PR description.
+- This phase tracks the data-residency decision doc (`.planning/decisions/2026-05-02-data-residency.md`, Status = Proposed). If Path A is replaced, revisit D-01 and D-04 before starting implementation.
+- The phase produces standard GSD text artifacts (CONTEXT.md, PLAN.md, SUMMARY.md, VERIFICATION.md) plus an HTML evidence report alongside.
