@@ -23084,4 +23084,71 @@ class SDe extends S {
 
   @override
   String get onboardingSealRetry => 'Erneut versuchen';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'BEISPIEL';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'RICHTWERT';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'BEISPIEL · keine Projektion deiner Situation';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Richtwert · vollständige Laufbahn, Pensionierung mit 65';
+
+  @override
+  String get wedgeTeaserAssumptionsExample =>
+      'Nur AHV, vollständige Laufbahn als Beispiel';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Annahmen: 40 Jahre, Laufbahn 20→65, keine Lücken, nur AHV. Dein tatsächlicher Wert ändert sich mit Alter, Geschlecht, Kanton, BVG.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Trage dein BVG ein, MINT projiziert deine eigenen Werte.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'Mit einem Konto verfeinert MINT mit Alter, BVG, Kanton und Lücken.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount Franken pro Monat';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / Monat';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Anpassen';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Erstelle dein Konto für eigene Projektionen';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Dein Bruttojahreslohn. Für eine schnelle Schätzung.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Berechnen';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Meine Schätzung berechnen';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Dein Lohn bleibt auf deinem Gerät. MINT sendet ihn nirgendwohin.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Gib einen Betrag in Ziffern ein, zum Beispiel 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Zwischen 10 000 und 1 000 000 CHF pro Jahr.';
 }

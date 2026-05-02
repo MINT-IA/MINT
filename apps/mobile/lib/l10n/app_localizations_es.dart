@@ -23027,4 +23027,71 @@ class SEs extends S {
 
   @override
   String get onboardingSealRetry => 'Reintentar';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'EJEMPLO';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'ESTIMACIÓN ORIENTATIVA';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'EJEMPLO · no es una proyección de tu situación';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Estimación orientativa · carrera completa, jubilación a los 65';
+
+  @override
+  String get wedgeTeaserAssumptionsExample =>
+      'Solo AVS, ejemplo de carrera completa';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Hipótesis: 40 años, carrera 20→65, sin lagunas, solo AVS. Tu cifra real cambia con tu edad, género, cantón y LPP.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Añade tu LPP y MINT proyecta tus propias cifras.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'Con una cuenta, MINT afina con tu edad, LPP, cantón y lagunas.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount francos al mes';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / mes';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Modificar';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Crea tu cuenta para tus propias proyecciones';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Tu salario bruto anual. Para una estimación rápida.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Calcular';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Calcular mi estimación';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Tu salario se queda en tu dispositivo. MINT no lo envía a ninguna parte.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Introduce un importe en cifras, por ejemplo 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Entre 10 000 y 1 000 000 CHF al año.';
 }

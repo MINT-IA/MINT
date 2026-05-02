@@ -23035,4 +23035,71 @@ class SPt extends S {
 
   @override
   String get onboardingSealRetry => 'Tentar novamente';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'EXEMPLO';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'ESTIMATIVA INDICATIVA';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'EXEMPLO · não é uma projeção da tua situação';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Estimativa indicativa · carreira completa, reforma aos 65';
+
+  @override
+  String get wedgeTeaserAssumptionsExample =>
+      'Apenas AVS, exemplo de carreira completa';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Hipóteses: 40 anos, carreira 20→65, sem lacunas, apenas AVS. O teu valor real varia com a idade, género, cantão e LPP.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Adiciona o teu LPP e MINT projeta os teus próprios números.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'Com uma conta, MINT refina com a tua idade, LPP, cantão e lacunas.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount francos por mês';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / mês';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Modificar';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Cria a tua conta para as tuas próprias projeções';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'O teu salário bruto anual. Para uma estimativa rápida.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Calcular';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Calcular a minha estimativa';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'O teu salário fica no teu dispositivo. MINT não o envia para nenhum lado.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Insere um montante em algarismos, por exemplo 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Entre 10 000 e 1 000 000 CHF por ano.';
 }

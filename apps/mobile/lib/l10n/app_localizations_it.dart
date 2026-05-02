@@ -23088,4 +23088,71 @@ class SIt extends S {
 
   @override
   String get onboardingSealRetry => 'Riprova';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'ESEMPIO';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'STIMA INDICATIVA';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'ESEMPIO · non è una proiezione della tua situazione';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Stima indicativa · carriera completa, pensionamento a 65 anni';
+
+  @override
+  String get wedgeTeaserAssumptionsExample =>
+      'Solo AVS, esempio di carriera completa';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Ipotesi: 40 anni, carriera 20→65, nessuna lacuna, solo AVS. La tua cifra reale cambia con età, genere, cantone, LPP.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Aggiungi il tuo LPP e MINT proietta i tuoi numeri.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'Con un account, MINT affina con età, LPP, cantone e lacune.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount franchi al mese';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / mese';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Modifica';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Crea il tuo account per le tue proiezioni';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Il tuo stipendio annuo lordo. Per una stima rapida.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Calcola';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Calcola la mia stima';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Il tuo stipendio resta sul tuo dispositivo. MINT non lo invia da nessuna parte.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Inserisci un importo in cifre, ad esempio 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Tra 10 000 e 1 000 000 CHF all\'anno.';
 }
