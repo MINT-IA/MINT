@@ -11139,5 +11139,9 @@
   "wedgeSalaryStaysOnDevice": "Dein Lohn bleibt auf deinem Gerät. MINT sendet ihn nirgendwohin.",
   "wedgeSalaryErrorInvalid": "Gib einen Betrag in Ziffern ein, zum Beispiel 95 000.",
   "wedgeSalaryErrorOutOfRange": "Zwischen 10 000 und 1 000 000 CHF pro Jahr.",
+  "coachOnboardingFirstUserMessage": "Hi, ich habe gerade ein Konto erstellt. Wo fange ich an?",
+  "coachAnonymousAuthGateMessage": "Wir haben schon ein paar Spuren zusammen erkundet. Erstelle dein Konto, damit ich mich an alles erinnere.",
+  "coachAuthGateChipRegister": "Konto erstellen",
+  "coachAuthGateChipLogin": "Ich habe schon ein Konto",
   "cantonLabel": "Kanton"
 }

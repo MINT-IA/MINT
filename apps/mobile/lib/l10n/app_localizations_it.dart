@@ -23157,5 +23157,19 @@ class SIt extends S {
       'Tra 10 000 e 1 000 000 CHF all\'anno.';
 
   @override
+  String get coachOnboardingFirstUserMessage =>
+      'Ciao, ho appena creato il mio account. Da dove comincio?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'Abbiamo già esplorato alcune piste insieme. Crea il tuo account così ricordo tutto.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Crea il mio account';
+
+  @override
+  String get coachAuthGateChipLogin => 'Ho già un account';
+
+  @override
   String get cantonLabel => 'Cantone';
 }

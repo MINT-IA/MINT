@@ -23104,5 +23104,19 @@ class SPt extends S {
       'Entre 10 000 e 1 000 000 CHF por ano.';
 
   @override
+  String get coachOnboardingFirstUserMessage =>
+      'Olá, acabei de criar a minha conta. Por onde começo?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'Já explorámos algumas pistas juntos. Cria a tua conta para eu me lembrar de tudo.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Criar a minha conta';
+
+  @override
+  String get coachAuthGateChipLogin => 'Já tenho uma conta';
+
+  @override
   String get cantonLabel => 'Cantão';
 }

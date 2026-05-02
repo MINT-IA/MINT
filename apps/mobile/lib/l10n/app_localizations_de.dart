@@ -23153,5 +23153,19 @@ class SDe extends S {
       'Zwischen 10 000 und 1 000 000 CHF pro Jahr.';
 
   @override
+  String get coachOnboardingFirstUserMessage =>
+      'Hi, ich habe gerade ein Konto erstellt. Wo fange ich an?';
+
+  @override
+  String get coachAnonymousAuthGateMessage =>
+      'Wir haben schon ein paar Spuren zusammen erkundet. Erstelle dein Konto, damit ich mich an alles erinnere.';
+
+  @override
+  String get coachAuthGateChipRegister => 'Konto erstellen';
+
+  @override
+  String get coachAuthGateChipLogin => 'Ich habe schon ein Konto';
+
+  @override
   String get cantonLabel => 'Kanton';
 }
