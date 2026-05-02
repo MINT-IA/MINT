@@ -22982,4 +22982,7 @@ class SEn extends S {
   @override
   String get wedgeSalaryErrorOutOfRange =>
       'Between 10 000 and 1 000 000 CHF per year.';
+
+  @override
+  String get cantonLabel => 'Canton';
 }

@@ -23096,4 +23096,7 @@ class SFr extends S {
   @override
   String get wedgeSalaryErrorOutOfRange =>
       'Entre 10 000 et 1 000 000 CHF par an.';
+
+  @override
+  String get cantonLabel => 'Canton';
 }

@@ -40514,6 +40514,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Entre 10 000 et 1 000 000 CHF par an.'**
   String get wedgeSalaryErrorOutOfRange;
+
+  /// No description provided for @cantonLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canton'**
+  String get cantonLabel;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

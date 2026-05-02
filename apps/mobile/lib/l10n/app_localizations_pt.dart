@@ -23102,4 +23102,7 @@ class SPt extends S {
   @override
   String get wedgeSalaryErrorOutOfRange =>
       'Entre 10 000 e 1 000 000 CHF por ano.';
+
+  @override
+  String get cantonLabel => 'Cantão';
 }
