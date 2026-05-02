@@ -12002,5 +12002,30 @@
   "onboardingSealRetry": "Réessayer",
   "@onboardingSealRetry": {
     "description": "MVP wedge T9 — SnackBar action label to retry sealing the dossier."
-  }
+  },
+  "wedgeTeaserEyebrowExample": "APERÇU",
+  "wedgeTeaserEyebrowEstimate": "ESTIMATION INDICATIVE",
+  "wedgeTeaserSalienceExample": "EXEMPLE TYPE · pas une projection sur ta situation",
+  "wedgeTeaserSalienceEstimate": "Estimation indicative · carrière complète, retraite à 65 ans",
+  "wedgeTeaserAssumptionsExample": "AVS seul, exemple carrière complète",
+  "wedgeTeaserAssumptionsEstimate": "Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.",
+  "wedgeTeaserReculExample": "Renseigne ton LPP, MINT calcule tes projections.",
+  "wedgeTeaserReculEstimate": "Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.",
+  "wedgeTeaserHeroSemantics": "{amount} francs par mois",
+  "@wedgeTeaserHeroSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "wedgeTeaserChfPerMonth": "CHF / mois",
+  "wedgeTeaserModifySalary": "Modifier",
+  "wedgeTeaserCtaRegister": "Crée ton compte pour tes propres projections",
+  "wedgeSalaryInputLabel": "Ton salaire annuel brut. Pour une estimation rapide.",
+  "wedgeSalaryInputAction": "Calculer",
+  "wedgeSalaryInputActionSemantics": "Calculer mon estimation",
+  "wedgeSalaryStaysOnDevice": "Ton salaire reste sur ton appareil. MINT ne l'envoie nulle part.",
+  "wedgeSalaryErrorInvalid": "Entre un montant en chiffres, par exemple 95 000.",
+  "wedgeSalaryErrorOutOfRange": "Entre 10 000 et 1 000 000 CHF par an."
 }

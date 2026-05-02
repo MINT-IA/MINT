@@ -23025,4 +23025,71 @@ class SFr extends S {
 
   @override
   String get onboardingSealRetry => 'Réessayer';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'APERÇU';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'ESTIMATION INDICATIVE';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'EXEMPLE TYPE · pas une projection sur ta situation';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Estimation indicative · carrière complète, retraite à 65 ans';
+
+  @override
+  String get wedgeTeaserAssumptionsExample =>
+      'AVS seul, exemple carrière complète';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Renseigne ton LPP, MINT calcule tes projections.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount francs par mois';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / mois';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Modifier';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Crée ton compte pour tes propres projections';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Ton salaire annuel brut. Pour une estimation rapide.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Calculer';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Calculer mon estimation';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Ton salaire reste sur ton appareil. MINT ne l\'envoie nulle part.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Entre un montant en chiffres, par exemple 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Entre 10 000 et 1 000 000 CHF par an.';
 }

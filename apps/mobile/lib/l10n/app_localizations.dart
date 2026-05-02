@@ -40400,6 +40400,114 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Réessayer'**
   String get onboardingSealRetry;
+
+  /// No description provided for @wedgeTeaserEyebrowExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'APERÇU'**
+  String get wedgeTeaserEyebrowExample;
+
+  /// No description provided for @wedgeTeaserEyebrowEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'ESTIMATION INDICATIVE'**
+  String get wedgeTeaserEyebrowEstimate;
+
+  /// No description provided for @wedgeTeaserSalienceExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'EXEMPLE TYPE · pas une projection sur ta situation'**
+  String get wedgeTeaserSalienceExample;
+
+  /// No description provided for @wedgeTeaserSalienceEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Estimation indicative · carrière complète, retraite à 65 ans'**
+  String get wedgeTeaserSalienceEstimate;
+
+  /// No description provided for @wedgeTeaserAssumptionsExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'AVS seul, exemple carrière complète'**
+  String get wedgeTeaserAssumptionsExample;
+
+  /// No description provided for @wedgeTeaserAssumptionsEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèses : 40 ans, carrière 20→65, aucune lacune, AVS seul. Ton vrai chiffre bouge avec ton âge, ton genre, ton canton, ton LPP.'**
+  String get wedgeTeaserAssumptionsEstimate;
+
+  /// No description provided for @wedgeTeaserReculExample.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renseigne ton LPP, MINT calcule tes projections.'**
+  String get wedgeTeaserReculExample;
+
+  /// No description provided for @wedgeTeaserReculEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avec un compte, MINT affine avec ton âge, ton LPP, ton canton, tes lacunes.'**
+  String get wedgeTeaserReculEstimate;
+
+  /// No description provided for @wedgeTeaserHeroSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'{amount} francs par mois'**
+  String wedgeTeaserHeroSemantics(String amount);
+
+  /// No description provided for @wedgeTeaserChfPerMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'CHF / mois'**
+  String get wedgeTeaserChfPerMonth;
+
+  /// No description provided for @wedgeTeaserModifySalary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get wedgeTeaserModifySalary;
+
+  /// No description provided for @wedgeTeaserCtaRegister.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crée ton compte pour tes propres projections'**
+  String get wedgeTeaserCtaRegister;
+
+  /// No description provided for @wedgeSalaryInputLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire annuel brut. Pour une estimation rapide.'**
+  String get wedgeSalaryInputLabel;
+
+  /// No description provided for @wedgeSalaryInputAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer'**
+  String get wedgeSalaryInputAction;
+
+  /// No description provided for @wedgeSalaryInputActionSemantics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Calculer mon estimation'**
+  String get wedgeSalaryInputActionSemantics;
+
+  /// No description provided for @wedgeSalaryStaysOnDevice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton salaire reste sur ton appareil. MINT ne l\'envoie nulle part.'**
+  String get wedgeSalaryStaysOnDevice;
+
+  /// No description provided for @wedgeSalaryErrorInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre un montant en chiffres, par exemple 95 000.'**
+  String get wedgeSalaryErrorInvalid;
+
+  /// No description provided for @wedgeSalaryErrorOutOfRange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entre 10 000 et 1 000 000 CHF par an.'**
+  String get wedgeSalaryErrorOutOfRange;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

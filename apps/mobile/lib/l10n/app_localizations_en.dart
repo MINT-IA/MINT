@@ -22913,4 +22913,70 @@ class SEn extends S {
 
   @override
   String get onboardingSealRetry => 'Try again';
+
+  @override
+  String get wedgeTeaserEyebrowExample => 'EXAMPLE';
+
+  @override
+  String get wedgeTeaserEyebrowEstimate => 'INDICATIVE ESTIMATE';
+
+  @override
+  String get wedgeTeaserSalienceExample =>
+      'EXAMPLE · not a projection of your situation';
+
+  @override
+  String get wedgeTeaserSalienceEstimate =>
+      'Indicative estimate · full career, retirement at 65';
+
+  @override
+  String get wedgeTeaserAssumptionsExample => 'AVS only, full career example';
+
+  @override
+  String get wedgeTeaserAssumptionsEstimate =>
+      'Assumptions: age 40, career 20→65, no gaps, AVS only. Your actual figure shifts with your age, gender, canton, LPP.';
+
+  @override
+  String get wedgeTeaserReculExample =>
+      'Add your LPP and MINT projects your own numbers.';
+
+  @override
+  String get wedgeTeaserReculEstimate =>
+      'With an account, MINT refines with your age, LPP, canton, and gaps.';
+
+  @override
+  String wedgeTeaserHeroSemantics(String amount) {
+    return '$amount francs per month';
+  }
+
+  @override
+  String get wedgeTeaserChfPerMonth => 'CHF / month';
+
+  @override
+  String get wedgeTeaserModifySalary => 'Edit';
+
+  @override
+  String get wedgeTeaserCtaRegister =>
+      'Create your account for your own projections';
+
+  @override
+  String get wedgeSalaryInputLabel =>
+      'Your gross annual salary. For a quick estimate.';
+
+  @override
+  String get wedgeSalaryInputAction => 'Calculate';
+
+  @override
+  String get wedgeSalaryInputActionSemantics => 'Calculate my estimate';
+
+  @override
+  String get wedgeSalaryStaysOnDevice =>
+      'Your salary stays on your device. MINT never sends it anywhere.';
+
+  @override
+  String get wedgeSalaryErrorInvalid =>
+      'Enter an amount in digits, for example 95 000.';
+
+  @override
+  String get wedgeSalaryErrorOutOfRange =>
+      'Between 10 000 and 1 000 000 CHF per year.';
 }

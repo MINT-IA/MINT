@@ -500,29 +500,25 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   //  gated on Phase 52 settings work landing.
   // ───────────────────────────────────────────────────────────────────
   Widget _buildVisualDemoTeaser(BuildContext context) {
+    final l = S.of(context)!;
     // Wedge state: if user has provided a salary, compute an INDICATIVE
     // estimate via AvsCalculator (financial_core barrel, ADR-20260223).
-    // Per panel review #424 (compliance + adversarial 2026-05-02): one
-    // input does NOT justify « TON » framing — defaults are baked in
-    // (currentAge=40, retirementAge=65, arrivalAge=20, no lacunes,
-    // no divorce, no child credits, refAge=65/male). Copy is therefore
-    // « ESTIMATION INDICATIVE » throughout, with assumptions surfaced.
+    // Defaults baked in (currentAge=40, retirementAge=65, arrivalAge=20,
+    // no lacunes, no divorce, no child credits, refAge=65/male) — copy
+    // says « estimation indicative » throughout with assumptions surfaced.
     final hasUserData = _wedgeAnnualSalary != null && _wedgeAnnualSalary! > 0;
     final heroAmount = hasUserData
         ? _formatChfAmount(_computeAnonymousRenteEstimate(_wedgeAnnualSalary!))
         : '3 187';
     final salienceLabel = hasUserData
-        ? 'ESTIMATION INDICATIVE — carrière complète présumée, retraite à 65'
-        : 'EXEMPLE TYPE — pas une projection sur ta situation';
+        ? l.wedgeTeaserSalienceEstimate
+        : l.wedgeTeaserSalienceExample;
     final assumptionsLine = hasUserData
-        ? 'Calcul AVS uniquement, hypothèses : 40 ans aujourd’hui, '
-            'carrière 45 ans (20 → 65), aucune lacune. Ton vrai chiffre dépend '
-            'de ton âge, ton genre, ton canton, ton LPP, tes lacunes.'
-        : 'AVS + LPP rente, exemple carrière complète à Genève';
+        ? l.wedgeTeaserAssumptionsEstimate
+        : l.wedgeTeaserAssumptionsExample;
     final reculLine = hasUserData
-        ? 'Avec un compte, MINT pourrait affiner avec ton âge réel, ton LPP, '
-            'ton canton et tes lacunes.'
-        : 'Une fois ton vrai LPP renseigné, MINT calcule TES projections.';
+        ? l.wedgeTeaserReculEstimate
+        : l.wedgeTeaserReculExample;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -535,15 +531,21 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Eyebrow — corail uppercase, Inter, tracked
+          // Eyebrow — uppercase, Inter, tracked. Color uses warningAaa
+          // (4.5:1 contrast on white) instead of corailDiscret which
+          // failed WCAG AA at this size.
           Semantics(
-            label: hasUserData ? 'Estimation indicative' : 'Aperçu',
+            label: hasUserData
+                ? l.wedgeTeaserEyebrowEstimate
+                : l.wedgeTeaserEyebrowExample,
             child: ExcludeSemantics(
               child: Text(
-                hasUserData ? 'ESTIMATION INDICATIVE' : 'APERÇU',
+                hasUserData
+                    ? l.wedgeTeaserEyebrowEstimate
+                    : l.wedgeTeaserEyebrowExample,
                 style: GoogleFonts.inter(
                   fontSize: 11,
-                  color: MintColors.corailDiscret,
+                  color: MintColors.warningAaa,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.4,
                 ),
@@ -566,24 +568,24 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: (hasUserData ? MintColors.saugeClaire : MintColors.corailDiscret)
-                  .withValues(alpha: 0.18),
+              color: (hasUserData ? MintColors.saugeClaire : MintColors.warningAaa)
+                  .withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: (hasUserData ? MintColors.saugeClaire : MintColors.corailDiscret)
-                    .withValues(alpha: 0.5),
+                color: (hasUserData ? MintColors.saugeClaire : MintColors.warningAaa)
+                    .withValues(alpha: 0.45),
                 width: 1,
               ),
             ),
             child: Text(
               salienceLabel,
               style: GoogleFonts.inter(
-                fontSize: 10.5,
+                fontSize: 11.5,
                 color: hasUserData
                     ? MintColors.primary
-                    : MintColors.corailDiscret,
+                    : MintColors.warningAaa,
                 fontWeight: FontWeight.w600,
-                letterSpacing: 0.6,
+                letterSpacing: 0.4,
               ),
             ),
           ),
@@ -597,7 +599,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Semantics(
-                label: '$heroAmount francs par mois',
+                label: l.wedgeTeaserHeroSemantics(heroAmount),
                 child: ExcludeSemantics(
                   child: Text(
                     heroAmount,
@@ -613,7 +615,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                'CHF / mois',
+                l.wedgeTeaserChfPerMonth,
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: MintColors.textSecondary,
@@ -639,7 +641,8 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           // this input collapses out.
           if (!hasUserData) _buildWedgeSalaryInput(context),
           if (hasUserData) ...[
-            // Subtle « modifier » affordance once the user has computed.
+            // Edit affordance once the user has computed. 48dp tap target
+            // restored (no shrinkWrap override) per a11y review.
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
@@ -651,16 +654,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                   });
                 },
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                 ),
                 child: Text(
-                  'modifier mon salaire',
+                  l.wedgeTeaserModifySalary,
                   style: GoogleFonts.inter(
-                    fontSize: 11.5,
-                    color: MintColors.textSecondary,
-                    decoration: TextDecoration.underline,
+                    fontSize: 13,
+                    color: MintColors.primary,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -683,7 +684,7 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           SizedBox(
             width: double.infinity,
             child: Semantics(
-              label: 'Crée ton compte pour tes propres projections',
+              label: l.wedgeTeaserCtaRegister,
               button: true,
               child: TextButton(
                 onPressed: () {
@@ -694,12 +695,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                   backgroundColor: MintColors.primary,
                   foregroundColor: MintColors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
+                  minimumSize: const Size(0, 48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: Text(
-                  'Crée ton compte pour tes propres projections',
+                  l.wedgeTeaserCtaRegister,
                   style: GoogleFonts.inter(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -719,13 +721,14 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   /// ADR-20260223 compliant). One field on purpose: low-intent
   /// anonymous flow stays frictionless.
   Widget _buildWedgeSalaryInput(BuildContext context) {
+    final l = S.of(context)!;
     return Padding(
       padding: const EdgeInsets.only(top: 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ton salaire annuel brut (CHF) — pour une estimation rapide',
+            l.wedgeSalaryInputLabel,
             style: GoogleFonts.inter(
               fontSize: 12,
               color: MintColors.textSecondary,
@@ -736,55 +739,59 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _wedgeSalaryController,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: false,
-                    signed: false,
-                  ),
-                  textInputAction: TextInputAction.done,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: MintColors.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: '95 000',
-                    hintStyle: GoogleFonts.inter(
+                child: Semantics(
+                  label: l.wedgeSalaryInputLabel,
+                  textField: true,
+                  child: TextField(
+                    controller: _wedgeSalaryController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: false,
+                      signed: false,
+                    ),
+                    textInputAction: TextInputAction.done,
+                    style: GoogleFonts.inter(
                       fontSize: 16,
-                      color: MintColors.textMuted,
+                      color: MintColors.primary,
+                      fontWeight: FontWeight.w500,
                     ),
-                    suffixText: 'CHF',
-                    suffixStyle: GoogleFonts.inter(
-                      fontSize: 13,
-                      color: MintColors.textSecondary,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: MintColors.lightBorder),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: MintColors.lightBorder),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(
-                        color: MintColors.primary,
-                        width: 1.5,
+                    decoration: InputDecoration(
+                      hintText: '95 000',
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: MintColors.textMuted,
+                      ),
+                      suffixText: 'CHF',
+                      suffixStyle: GoogleFonts.inter(
+                        fontSize: 13,
+                        color: MintColors.textSecondary,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: MintColors.lightBorder),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: MintColors.primary,
+                          width: 1.5,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
                       ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 12,
-                    ),
+                    onSubmitted: _commitWedgeSalary,
                   ),
-                  onSubmitted: _commitWedgeSalary,
                 ),
               ),
               const SizedBox(width: 8),
               Semantics(
-                label: 'Calculer mon estimation',
+                label: l.wedgeSalaryInputActionSemantics,
                 button: true,
                 child: TextButton(
                   onPressed: () {
@@ -798,12 +805,13 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
                       horizontal: 16,
                       vertical: 14,
                     ),
+                    minimumSize: const Size(0, 48),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   child: Text(
-                    'Calculer',
+                    l.wedgeSalaryInputAction,
                     style: GoogleFonts.inter(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -814,24 +822,22 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             ],
           ),
           // Inline error (replaces silent no-op; nFADP art. 6 al. 3
-          // transparency + UX feedback per panel review).
+          // transparency + UX feedback per panel review). errorAaa token
+          // (4.5:1 contrast on white) replaces corailDiscret which failed.
           if (_wedgeError != null) ...[
             const SizedBox(height: 6),
             Text(
               _wedgeError!,
               style: GoogleFonts.inter(
-                fontSize: 11.5,
-                color: MintColors.corailDiscret,
+                fontSize: 12,
+                color: MintColors.errorAaa,
                 fontWeight: FontWeight.w500,
               ),
             ),
           ],
-          // Micro-disclosure adjacent to the input (nFADP art. 6 al. 3
-          // transparency, panel compliance review). Salary stays local;
-          // calculation is performed device-side via AvsCalculator.
           const SizedBox(height: 8),
           Text(
-            'Ton salaire reste sur ton appareil. MINT ne l’envoie nulle part.',
+            l.wedgeSalaryStaysOnDevice,
             style: GoogleFonts.inter(
               fontSize: 11,
               color: MintColors.textMuted,
@@ -849,19 +855,20 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   /// silent rejection violated nFADP art. 6 al. 3 transparency spirit).
   /// Triggers `setState` so the teaser flips to its `hasUserData` branch.
   void _commitWedgeSalary(String raw) {
+    final l = S.of(context)!;
     final cleaned = raw
         .replaceAll(RegExp(r"[\s '.]"), '')
         .trim();
     final parsed = double.tryParse(cleaned);
     if (parsed == null) {
       setState(() {
-        _wedgeError = 'Saisis un montant en chiffres (ex. 95 000).';
+        _wedgeError = l.wedgeSalaryErrorInvalid;
       });
       return;
     }
     if (parsed < 10000 || parsed > 1000000) {
       setState(() {
-        _wedgeError = 'Montant attendu entre 10 000 et 1 000 000 CHF.';
+        _wedgeError = l.wedgeSalaryErrorOutOfRange;
       });
       return;
     }
