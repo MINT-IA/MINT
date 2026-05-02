@@ -39,6 +39,8 @@ import 'package:mint_mobile/widgets/coach/coach_app_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_input_bar.dart';
 import 'package:mint_mobile/widgets/coach/coach_loading_indicator.dart';
 import 'package:mint_mobile/widgets/coach/coach_message_bubble.dart';
+import 'package:mint_mobile/widgets/coach/response_card_widget.dart'
+    show ResponseCardStrip;
 import 'package:mint_mobile/models/coach_insight.dart';
 import 'package:mint_mobile/services/memory/coach_memory_service.dart';
 import 'package:mint_mobile/models/coach_entry_payload.dart';
@@ -1889,6 +1891,11 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       return const SizedBox.shrink();
     }
 
+    final silentOpenerCards = ResponseCardService.generateForSilentOpener(
+      _profile!,
+      l: s,
+    );
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
@@ -1919,6 +1926,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
               ),
               textAlign: TextAlign.center,
             ),
+            // Handoff 2 « scènes inline » applied to the silent opener:
+            // a single contextual scene card surfaces alongside the key
+            // number so the screen feels like a coach who already opened
+            // the right tab, not a static stat. Cards are picked from
+            // profile shape only — no user message required.
+            if (silentOpenerCards.isNotEmpty) ...[
+              const SizedBox(height: 28),
+              ResponseCardStrip(cards: silentOpenerCards),
+            ],
           ],
         ),
       ),
