@@ -256,6 +256,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
               ),
             ),
 
+            // Visual demo teaser — shown after the first coach response
+            // (≥ 2 messages: 1 user + 1 coach) to demonstrate the « chat
+            // vivant » value prop while the user is still anonymous.
+            // Tap → /auth/login. Hidden once the auth gate locks (the
+            // locked CTA below already drives registration). HARDCODED
+            // FR strings for v1 ship; i18n migration tracked as follow-up.
+            if (!_isAuthGateLocked && _messages.length >= 2)
+              _buildVisualDemoTeaser(context),
+
             // Locked state — persistent CTA
             if (_isAuthGateLocked) ...[
               Container(
@@ -416,6 +425,186 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             }),
           ),
         ),
+      ),
+    );
+  }
+
+  // ───────────────────────────────────────────────────────────────────
+  //  Visual demo teaser (Anonymous Chat Scene Gallery CTA)
+  //
+  //  Renders an inline « what you'd get with the full MINT » preview
+  //  card after the first coach response in the anonymous flow. Built
+  //  with theme primitives (no dependency on the Phase 49.5 chat-vivant
+  //  widgets which live on a separate feature branch — keeps this PR
+  //  cleanly mergeable to dev). Mock data is illustrative ONLY: the
+  //  numbers (3 187 CHF rente / 485 000 CHF capital) are typical Swiss
+  //  retirement projections at age 65, ARE NOT derived from the user's
+  //  profile, and ARE labelled as such (« Avec ton vrai LPP, ces chiffres
+  //  seraient les tiens. »). LSFin-clean: no banned terms; uses
+  //  « pourrait » / « envisager » framing implicitly via the contrast.
+  //
+  //  Tap → /auth/login. The card disappears once the auth gate locks
+  //  (the locked-CTA below already drives registration with its own
+  //  copy, no need to double up).
+  //
+  //  HARDCODED FR strings for v1: i18n migration is a follow-up PR
+  //  (would need 6 ARB keys × 6 locales). Acceptable scope tradeoff
+  //  for a teaser CTA that's anonymous-only and FR-canonical-first.
+  // ───────────────────────────────────────────────────────────────────
+  Widget _buildVisualDemoTeaser(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: MintColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: MintColors.lightBorder, width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Eyebrow — corail uppercase, Inter, tracked
+          Text(
+            'MINT EN MODE COMPLET',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.corailDiscret,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(height: 10),
+          // Hero headline (Fraunces — editorial signature)
+          Text(
+            'Tu vois ce qu’on dit.\nPas seulement ce qu’on raconte.',
+            style: GoogleFonts.fraunces(
+              fontSize: 22,
+              color: MintColors.primary,
+              height: 1.25,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 18),
+          // Mock projection: rente vs capital at retirement
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _miniProjectionColumn(
+                    label: 'RENTE',
+                    hero: '3 187',
+                    unit: 'CHF / mois',
+                    mood: 'sécurité',
+                    bg: MintColors.saugeClaire,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _miniProjectionColumn(
+                    label: 'CAPITAL',
+                    hero: '485 000',
+                    unit: 'CHF lump sum',
+                    mood: 'liberté',
+                    bg: MintColors.porcelaine,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          // Phrase de recul (Fraunces italic — the human anchor)
+          Text(
+            'Avec ton vrai LPP, ces chiffres seraient les tiens.',
+            style: GoogleFonts.fraunces(
+              fontSize: 13,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textSecondary,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 16),
+          // CTA noir (Handoff 2 §6 — CTA dans les scènes = noir,
+          // texte blanc, le reste joue le rôle)
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(
+              onPressed: () => context.go('/auth/login'),
+              style: TextButton.styleFrom(
+                backgroundColor: MintColors.primary,
+                foregroundColor: MintColors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Crée ton compte pour avoir le tien',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _miniProjectionColumn({
+    required String label,
+    required String hero,
+    required String unit,
+    required String mood,
+    required Color bg,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              color: MintColors.textSecondary,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            hero,
+            style: GoogleFonts.fraunces(
+              fontSize: 28,
+              fontWeight: FontWeight.w500,
+              color: MintColors.primary,
+              fontFeatures: const [FontFeature.tabularFigures()],
+              height: 1.0,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            unit,
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              color: MintColors.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            mood,
+            style: GoogleFonts.fraunces(
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+              color: MintColors.textSecondary,
+            ),
+          ),
+        ],
       ),
     );
   }
