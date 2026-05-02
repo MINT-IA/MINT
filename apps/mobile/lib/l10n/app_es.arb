@@ -3507,7 +3507,7 @@
   "authGateCreateAccount": "Crear mi cuenta",
   "authGateLogin": "Ya tengo una cuenta",
   "authGatePrivacyNote": "Tus datos permanecen en tu dispositivo y están cifrados.",
-  "authRegisterSubtitle": "Cuenta opcional: tus datos permanecen locales por defecto",
+  "authRegisterSubtitle": "Cuenta cifrada, sincronizada entre tus dispositivos. Los controles de sincronización llegarán pronto a Ajustes.",
   "authWhyCreateAccount": "¿Por qué crear una cuenta?",
   "authBenefitProjections": "Proyecciones AVS/LPP adaptadas a tu situación",
   "authBenefitCoach": "Coach personalizado con tu nombre",

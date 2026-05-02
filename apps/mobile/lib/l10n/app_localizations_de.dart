@@ -7765,7 +7765,7 @@ class SDe extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Optionales Konto: deine Daten bleiben standardmässig lokal';
+      'Verschlüsseltes Konto, geräteübergreifend synchronisiert. Synchronisationssteuerung folgt bald in den Einstellungen.';
 
   @override
   String get authWhyCreateAccount => 'Warum ein Konto erstellen?';

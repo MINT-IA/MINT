@@ -7749,7 +7749,7 @@ class SEs extends S {
 
   @override
   String get authRegisterSubtitle =>
-      'Cuenta opcional: tus datos permanecen locales por defecto';
+      'Cuenta cifrada, sincronizada entre tus dispositivos. Los controles de sincronización llegarán pronto a Ajustes.';
 
   @override
   String get authWhyCreateAccount => '¿Por qué crear una cuenta?';
