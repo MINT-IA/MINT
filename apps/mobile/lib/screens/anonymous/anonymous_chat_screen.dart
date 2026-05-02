@@ -8,6 +8,8 @@ import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/coach/coach_chat_api_service.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_llm_service.dart';
+// ADR-20260223: financial_core via barrel only — no direct sub-imports.
+import 'package:mint_mobile/services/financial_core/financial_core.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/widgets/auth/auth_gate_bottom_sheet.dart';
 
@@ -49,6 +51,15 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   bool _isAuthGateLocked = false;
   bool _intentSent = false;
 
+  /// User-provided gross annual salary for the anonymous AVS+LPP rente
+  /// quick estimate. Null until the user enters a value in the teaser.
+  /// When non-null, the teaser flips from « EXEMPLE TYPE » to a
+  /// computed projection via AvsCalculator + LppCalculator (real-data
+  /// wedge, ferme l'audit Bug #1 « anonymous user never sees the
+  /// chat-vivant value » per panel review 2026-05-02).
+  double? _wedgeAnnualSalary;
+  final TextEditingController _wedgeSalaryController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +78,40 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   void dispose() {
     _inputController.dispose();
     _scrollController.dispose();
+    _wedgeSalaryController.dispose();
     super.dispose();
+  }
+
+  /// Compute the anonymous user's AVS+LPP monthly rente projection from
+  /// their gross annual salary input. Per ADR-20260223 (financial_core
+  /// = single source of truth), uses `AvsCalculator.computeMonthlyRente`
+  /// from the barrel. Anonymous defaults: currentAge=40, retirementAge=65,
+  /// arrivalAge=20 (full Swiss career), no lacunes. The number returned
+  /// is intentionally an estimate, not a personalized projection — the
+  /// teaser labels it accordingly (« Estimation rapide » badge).
+  ///
+  /// Returns CHF/month rounded to nearest CHF.
+  int _computeAnonymousRenteEstimate(double grossAnnualSalary) {
+    final monthly = AvsCalculator.computeMonthlyRente(
+      currentAge: 40,
+      retirementAge: 65,
+      arrivalAge: 20,
+      grossAnnualSalary: grossAnnualSalary,
+    );
+    return monthly.round();
+  }
+
+  /// Format an integer CHF amount with French thousands separators
+  /// (« 3 187 » not « 3,187 » or « 3187 »). Uses fine-space (U+2009)
+  /// for visual rhythm — Inter renders it cleanly.
+  String _formatChfAmount(int amount) {
+    final str = amount.abs().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) buf.write(' ');
+      buf.write(str[i]);
+    }
+    return buf.toString();
   }
 
   Future<void> _sendMessage(String text) async {
@@ -451,6 +495,23 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
   //  gated on Phase 52 settings work landing.
   // ───────────────────────────────────────────────────────────────────
   Widget _buildVisualDemoTeaser(BuildContext context) {
+    // Wedge state: if user has provided a salary, compute REAL projection
+    // via AvsCalculator (financial_core barrel, ADR-20260223). Otherwise
+    // render the generic AVS-typical example for an at-a-glance preview.
+    final hasUserData = _wedgeAnnualSalary != null && _wedgeAnnualSalary! > 0;
+    final heroAmount = hasUserData
+        ? _formatChfAmount(_computeAnonymousRenteEstimate(_wedgeAnnualSalary!))
+        : '3 187';
+    final salienceLabel = hasUserData
+        ? 'TON ESTIMATION RAPIDE — basée sur ton salaire annuel brut'
+        : 'EXEMPLE TYPE — pas une projection sur ta situation';
+    final assumptionsLine = hasUserData
+        ? 'AVS rente — hypothèse carrière complète, retraite à 65 ans'
+        : 'AVS + LPP rente, exemple carrière complète à Genève';
+    final reculLine = hasUserData
+        ? 'Crée un compte pour affiner avec ton LPP, ton canton, tes lacunes.'
+        : 'Une fois ton vrai LPP renseigné, MINT calcule TES projections.';
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       padding: const EdgeInsets.all(18),
@@ -464,10 +525,10 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
         children: [
           // Eyebrow — corail uppercase, Inter, tracked
           Semantics(
-            label: 'Aperçu — MINT qui te connaît',
+            label: hasUserData ? 'Ton estimation MINT' : 'Aperçu — MINT qui te connaît',
             child: ExcludeSemantics(
               child: Text(
-                'APERÇU — MINT QUI TE CONNAÎT',
+                hasUserData ? 'TON ESTIMATION MINT' : 'APERÇU — MINT QUI TE CONNAÎT',
                 style: GoogleFonts.inter(
                   fontSize: 11,
                   color: MintColors.corailDiscret,
@@ -480,7 +541,9 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           const SizedBox(height: 10),
           // Hero headline (Fraunces — editorial signature)
           Text(
-            'Tes vrais chiffres.\nPas une démo générique.',
+            hasUserData
+                ? 'Tes premiers vrais chiffres.\nUne projection rapide.'
+                : 'Tes vrais chiffres.\nPas une démo générique.',
             style: GoogleFonts.fraunces(
               fontSize: 22,
               color: MintColors.primary,
@@ -490,23 +553,29 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           ),
           const SizedBox(height: 16),
           // Visible salience label — REQUIRED above the figure per
-          // LSFin art. 7-8 (panel compliance review). Same prominence
-          // tier as the eyebrow so a quick visual scan can't miss it.
+          // LSFin art. 7-8 (panel compliance review). Color flips
+          // sauge → corail subtly when the figure is the user's own
+          // estimate, but stays a salience label (never claims
+          // « guaranteed » / « will get » — uses « estimation »).
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: MintColors.corailDiscret.withValues(alpha: 0.12),
+              color: (hasUserData ? MintColors.saugeClaire : MintColors.corailDiscret)
+                  .withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: MintColors.corailDiscret.withValues(alpha: 0.4),
+                color: (hasUserData ? MintColors.saugeClaire : MintColors.corailDiscret)
+                    .withValues(alpha: 0.5),
                 width: 1,
               ),
             ),
             child: Text(
-              'EXEMPLE TYPE — pas une projection sur ta situation',
+              salienceLabel,
               style: GoogleFonts.inter(
                 fontSize: 10.5,
-                color: MintColors.corailDiscret,
+                color: hasUserData
+                    ? MintColors.primary
+                    : MintColors.corailDiscret,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.6,
               ),
@@ -514,17 +583,18 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
           ),
           const SizedBox(height: 12),
           // Single chiffre-héros (Handoff 2 §6 « UN SEUL chiffre »).
-          // AVS + LPP rente médiane Suisse, retraite à 65, carrière
-          // complète, salaire médian. Assumptions visible just below.
+          // When `hasUserData` is true, this is the live AvsCalculator
+          // result for the user's salary; otherwise the AVS-typical
+          // exemple. Either way one number, never two.
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
               Semantics(
-                label: 'environ trois mille cent quatre-vingt-sept francs par mois',
+                label: '$heroAmount francs par mois',
                 child: ExcludeSemantics(
                   child: Text(
-                    '3 187',
+                    heroAmount,
                     style: GoogleFonts.fraunces(
                       fontSize: 44,
                       fontWeight: FontWeight.w500,
@@ -547,21 +617,53 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          // Visible assumptions — replaces the « lump sum » + « mood »
-          // labels with concrete, defensible scenario context.
+          // Visible assumptions — concrete, defensible scenario context.
           Text(
-            'AVS + LPP rente, exemple carrière complète à Genève',
+            assumptionsLine,
             style: GoogleFonts.inter(
               fontSize: 11.5,
               color: MintColors.textMuted,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
+          // Real-data wedge — single salary input, computed via
+          // AvsCalculator from financial_core barrel (ADR-20260223).
+          // Shown ONLY when user hasn't yet provided a salary; once
+          // entered, the figure above flips to the real estimate and
+          // this input collapses out.
+          if (!hasUserData) _buildWedgeSalaryInput(context),
+          if (hasUserData) ...[
+            // Subtle « modifier » affordance once the user has computed.
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  setState(() {
+                    _wedgeAnnualSalary = null;
+                    _wedgeSalaryController.clear();
+                  });
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: Text(
+                  'modifier mon salaire',
+                  style: GoogleFonts.inter(
+                    fontSize: 11.5,
+                    color: MintColors.textSecondary,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
           // Reframed phrase de recul — feature description, not promise.
-          // Removes « ces chiffres seraient les tiens » (which implied
-          // achievability) per LSFin art. 8 salience.
           Text(
-            'Une fois ton vrai LPP renseigné, MINT calcule TES projections.',
+            reculLine,
             style: GoogleFonts.fraunces(
               fontSize: 13,
               fontStyle: FontStyle.italic,
@@ -605,6 +707,124 @@ class _AnonymousChatScreenState extends State<AnonymousChatScreen> {
     );
   }
 
+  /// Inline single-input wedge that lets the anonymous user provide
+  /// their gross annual salary and triggers a live AVS rente estimate
+  /// via `AvsCalculator.computeMonthlyRente` (financial_core barrel,
+  /// ADR-20260223 compliant). One field on purpose: low-intent
+  /// anonymous flow stays frictionless.
+  Widget _buildWedgeSalaryInput(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Ton salaire annuel brut (CHF) — pour une estimation rapide',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              color: MintColors.textSecondary,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _wedgeSalaryController,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: false,
+                    signed: false,
+                  ),
+                  textInputAction: TextInputAction.done,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: MintColors.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '95 000',
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: MintColors.textMuted,
+                    ),
+                    suffixText: 'CHF',
+                    suffixStyle: GoogleFonts.inter(
+                      fontSize: 13,
+                      color: MintColors.textSecondary,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: MintColors.lightBorder),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: MintColors.lightBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(
+                        color: MintColors.primary,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
+                    ),
+                  ),
+                  onSubmitted: _commitWedgeSalary,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Semantics(
+                label: 'Calculer mon estimation',
+                button: true,
+                child: TextButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    _commitWedgeSalary(_wedgeSalaryController.text);
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: MintColors.primary,
+                    foregroundColor: MintColors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    'Calculer',
+                    style: GoogleFonts.inter(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Validate + commit a salary input. Strips spaces, parses, rejects
+  /// out-of-range silently (anonymous = low friction; real account
+  /// validates strictly). Triggers `setState` so the teaser flips to
+  /// its `hasUserData` branch.
+  void _commitWedgeSalary(String raw) {
+    final cleaned = raw.replaceAll(RegExp(r'[\s ]'), '').trim();
+    final parsed = double.tryParse(cleaned);
+    if (parsed == null) return;
+    if (parsed < 10000 || parsed > 1000000) return;
+    setState(() {
+      _wedgeAnnualSalary = parsed;
+    });
+  }
 }
 
 /// Animated dot for typing indicator.
