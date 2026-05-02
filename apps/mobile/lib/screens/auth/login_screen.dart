@@ -239,7 +239,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: l10n.authSendLink,
                             button: true,
                             child: SizedBox(
-                              height: 48,
+                              // Material 3 spec primary CTA = 56 (matches
+                              // landing_screen.dart « Parle à Mint » CTA which
+                              // uses minimumSize: Size.fromHeight(56)).
+                              // 48px caused vertical clip on
+                              // « Recevoir un lien magique » (23 chars under
+                              // the project's font-scale exceeded the 48px
+                              // content area — visible bug confirmed via
+                              // live sim screenshot 2026-05-02).
+                              height: 56,
                               child: FilledButton(
                                 onPressed: authProvider.isLoading
                                     ? null
