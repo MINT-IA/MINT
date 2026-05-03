@@ -1654,7 +1654,7 @@ class MintScreenRegistry extends ScreenRegistry {
   // ─── ROUTABLE — life events ───────────────────────────────────────
   static const ScreenEntry _lifeEventDivorce = ScreenEntry(
     route: '/life-event/divorce',
-    intentTag: 'life_event_divorce',
+    intentTag: 'life_event_divorce_v2',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['canton'],
     optionalFields: ['householdType', 'totalSavings', 'avoirLpp'],
@@ -1740,7 +1740,7 @@ class MintScreenRegistry extends ScreenRegistry {
 
   static const ScreenEntry _retirementProjection = ScreenEntry(
     route: '/retirement/projection',
-    intentTag: 'retirement_projection',
+    intentTag: 'retirement_projection_v2',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut', 'avoirLpp', 'pillar3aBalance'],
@@ -1752,7 +1752,7 @@ class MintScreenRegistry extends ScreenRegistry {
   // ─── ROUTABLE — simulator variants ────────────────────────────────
   static const ScreenEntry _simulator3a = ScreenEntry(
     route: '/simulator/3a',
-    intentTag: 'simulator_3a',
+    intentTag: 'simulator_3a_v2',
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut'],
