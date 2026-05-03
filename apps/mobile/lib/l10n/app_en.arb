@@ -3489,7 +3489,7 @@
   "benchmarkBelowRange": "Your situation is below the typical range.",
   "benchmarkTypicalRange": "Typical range: {low} – {high}",
   "authGateDocScanTitle": "Secure your documents",
-  "authGateDocScanMessage": "Your certificates contain sensitive data. Create an account to protect them with end-to-end encryption.",
+  "authGateDocScanMessage": "Your certificates contain sensitive data. Create an account to encrypt them on our servers and access them from your devices — you can keep everything on-device at any time from Privacy.",
   "authGateSalaryTitle": "Protect your financial data",
   "authGateSalaryMessage": "Your salary and financial data deserve a secure vault.",
   "authGateCoachTitle": "The coach needs to know you",

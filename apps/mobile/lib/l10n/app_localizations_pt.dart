@@ -7505,7 +7505,7 @@ class SPt extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Os teus certificados contêm dados sensíveis. Cria uma conta para os proteger com encriptação ponto a ponto.';
+      'Os teus certificados contêm dados sensíveis. Cria uma conta para os cifrar nos nossos servidores e aceder-lhes a partir dos teus dispositivos — podes manter tudo localmente a qualquer momento em Privacidade.';
 
   @override
   String get authGateSalaryTitle => 'Protege os teus dados financeiros';

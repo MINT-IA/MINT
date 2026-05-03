@@ -7522,7 +7522,7 @@ class SIt extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'I tuoi certificati contengono dati sensibili. Crea un account per proteggerli con crittografia end-to-end.';
+      'I tuoi certificati contengono dati sensibili. Crea un account per cifrarli sui nostri server e accedervi dai tuoi dispositivi — puoi mantenere tutto in locale in qualsiasi momento da Privacy.';
 
   @override
   String get authGateSalaryTitle => 'Proteggi i tuoi dati finanziari';

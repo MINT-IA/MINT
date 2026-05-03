@@ -7526,7 +7526,7 @@ class SDe extends S {
 
   @override
   String get authGateDocScanMessage =>
-      'Deine Zertifikate enthalten sensible Daten. Erstelle ein Konto, um sie mit Ende-zu-Ende-Verschlüsselung zu schützen.';
+      'Deine Zertifikate enthalten sensible Daten. Erstelle ein Konto, um sie auf unseren Servern zu verschlüsseln und von deinen Geräten abzurufen — du kannst jederzeit alles lokal behalten unter Datenschutz.';
 
   @override
   String get authGateSalaryTitle => 'Schütze deine Finanzdaten';

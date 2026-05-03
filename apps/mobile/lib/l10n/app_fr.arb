@@ -3782,7 +3782,7 @@
     }
   },
   "authGateDocScanTitle": "Sécurise tes documents",
-  "authGateDocScanMessage": "Tes certificats contiennent des données sensibles. Crée un compte pour les protéger avec un chiffrement de bout en bout.",
+  "authGateDocScanMessage": "Tes certificats contiennent des données sensibles. Crée un compte pour les chiffrer sur nos serveurs et les retrouver depuis tes appareils — tu peux à tout moment garder tout en local depuis Confidentialité.",
   "authGateSalaryTitle": "Protège tes données financières",
   "authGateSalaryMessage": "Ton salaire et tes données financières méritent un coffre-fort sécurisé.",
   "authGateCoachTitle": "Le coach a besoin de te connaître",

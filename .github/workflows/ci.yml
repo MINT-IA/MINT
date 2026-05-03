@@ -216,6 +216,11 @@ jobs:
         working-directory: ${{ github.workspace }}
         run: python3 tools/checks/landing_no_financial_core.py
 
+      # ─── Phase 52.3 / TRUTH-CRYPTO: no false E2EE / zero-knowledge claim ──
+      - name: Truth-in-crypto sweep — no E2EE over-claim (Phase 52.3)
+        working-directory: ${{ github.workspace }}
+        run: python3 tools/checks/no_e2ee_overclaim.py
+
       - name: Run tests
         env:
           TESTING: "1"
