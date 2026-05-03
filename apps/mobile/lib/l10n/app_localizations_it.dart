@@ -23172,4 +23172,21 @@ class SIt extends S {
 
   @override
   String get cantonLabel => 'Cantone';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'È ora del punto mensile. Com\'è andata?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'Mi avevi detto che avresti $commitment. Fatto?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'Avevi un impegno da mantenere. Fatto?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'Nuovo mese. Da dove cominciamo?';
 }

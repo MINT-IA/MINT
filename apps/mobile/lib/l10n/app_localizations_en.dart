@@ -22999,4 +22999,21 @@ class SEn extends S {
 
   @override
   String get cantonLabel => 'Canton';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'Time for the monthly check-in. How was it?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'You told me you were going to $commitment. Done?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'You had a commitment to keep. Done?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'New month. Where do we start?';
 }

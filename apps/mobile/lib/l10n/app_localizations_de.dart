@@ -23168,4 +23168,21 @@ class SDe extends S {
 
   @override
   String get cantonLabel => 'Kanton';
+
+  @override
+  String get coachNotificationOpenerMonthlyCheckIn =>
+      'Zeit für den Monatsrückblick. Wie war\'s?';
+
+  @override
+  String coachNotificationOpenerCommitmentWithLabel(String commitment) {
+    return 'Du hast mir gesagt, du würdest $commitment. Erledigt?';
+  }
+
+  @override
+  String get coachNotificationOpenerCommitmentGeneric =>
+      'Du hattest eine Verpflichtung. Erledigt?';
+
+  @override
+  String get coachNotificationOpenerFreshStart =>
+      'Neuer Monat. Wo fangen wir an?';
 }
