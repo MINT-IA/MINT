@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MINT — Session 2026-05-04 — Phase 52.2 close-out + audit PASS</title>
+<style>
+  :root {
+    --primary: #003b2f;
+    --textPrimary: #1d1d1f;
+    --textSecondary: #525256;
+    --textMuted: #95989d;
+    --success: #157b35;
+    --warning: #8c3f06;
+    --error: #8b1d1d;
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e5e5e0;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 24px;
+         background: var(--bg); color: var(--textPrimary); line-height: 1.55; }
+  h1 { font-size: 28px; margin: 8px 0 4px; color: var(--primary); }
+  h2 { font-size: 22px; margin: 32px 0 8px; padding-bottom: 6px;
+       border-bottom: 1px solid var(--border); color: var(--primary); }
+  h3 { font-size: 17px; margin: 18px 0 6px; color: var(--textPrimary); }
+  .subtitle { color: var(--textSecondary); font-size: 14px; margin-bottom: 20px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px;
+          font-size: 11px; font-weight: 600; letter-spacing: 0.4px;
+          text-transform: uppercase; }
+  .b-pass { background: #e6f4ec; color: var(--success); }
+  .b-warn { background: #fbecde; color: var(--warning); }
+  .b-fail { background: #fbe6e6; color: var(--error); }
+  .b-info { background: #e9eef3; color: var(--textSecondary); }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0;
+          background: var(--surface); border: 1px solid var(--border); }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--border);
+          text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #f3f3ed; font-weight: 600; }
+  code { background: #f3f3ed; padding: 1px 5px; border-radius: 4px;
+         font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
+  pre { background: #1d1d1f; color: #f0f0f0; padding: 12px;
+        border-radius: 6px; overflow-x: auto; font-size: 13px; }
+  .meta { color: var(--textMuted); font-size: 12px; margin-top: 32px; }
+  ul, ol { margin: 8px 0 14px 22px; }
+</style>
+</head>
+<body>
+
+<h1>MINT — Session 2026-05-04 — Evidence Report</h1>
+<p class="subtitle">Phase 52.2 close-out · T-52-08 audit re-run PASS · Phase 52.1+52.2 fully closed</p>
+
+<h2>Section 1 — Headline outcome</h2>
+
+<p><strong>Phase 52.1 + 52.2 are fully closed</strong>, with the load-bearing audit question now demonstrably answered « yes, cloud sync OFF stops every PII write through the chat dispatcher, with zero false negatives ». PR #441 merged into dev; T-52-08 close-out audit re-run on dev tip returned <strong>VERDICT: PASS</strong>.</p>
+
+<table>
+<tr><th>Phase</th><th>Status</th><th>PRs landed</th><th>Audit</th></tr>
+<tr><td>52</td><td><span class="badge b-pass">closed</span></td><td>#435 #436 #437</td><td>T-52-08 BLOCK → triggered 52.1</td></tr>
+<tr><td>52.1</td><td><span class="badge b-pass">closed</span></td><td>#438 #439 #440</td><td>partial (3 false negatives caught by re-run)</td></tr>
+<tr><td>52.2</td><td><span class="badge b-pass">closed</span></td><td>#441</td><td><strong>T-52-08 re-run PASS</strong></td></tr>
+</table>
+
+<h2>Section 2 — PR #441 (Phase 52.2 fix)</h2>
+
+<p><strong>Title:</strong> <code>fix(phase-52.2): close T-52-08 audit BLOCK — add 3 missed write-tier handlers to persistence gate</code></p>
+
+<p><strong>What it shipped:</strong></p>
+<ul>
+  <li>Extended <code>_WRITE_TIER_TOOLS</code> from <code>{save_fact, save_insight}</code> to all 5 verified DB writers: <code>{save_fact, save_insight, save_provenance, save_earmark, remove_earmark}</code></li>
+  <li>Updated <code>test_coach_chat_persistence_gate.py</code>: 3 new <code>WRITE_TIER_FIXTURES</code>, hard-asserted expected set, cleaned read-tier list</li>
+  <li><strong>Pre-push sweep done before push</strong> (lesson from PR #439's 4 CI cycles): 12 callsites in <code>test_coach_intelligence.py</code> updated to pass <code>persistence_consent=True</code> on the write path</li>
+  <li>Appended backend-side WRITE-tier section to <code>BACKEND-WRITE-SURFACE.md</code> with audit-corrected whitelist + comment-block-scope lesson + AST-walk safety-net follow-up proposal</li>
+  <li>Updated Phase 52.1 HTML evidence report</li>
+</ul>
+
+<p><strong>Test gate:</strong></p>
+<pre>pytest tests/test_coach_chat_persistence_gate.py tests/test_coach_intelligence.py -v
+→ 57/57 passed in 0.23s
+
+pytest tests/  (full backend suite)
+→ 6032 passed, 6 skipped, 0 failed in 104.89s</pre>
+
+<p><strong>CI on PR #441:</strong> all checks green (Backend tests, Contracts drift, Route registry parity, mint-routes pytest, Admin build sanity, .cache/ gitignore, PII log gate, CI Gate). Squash-merged to dev as <code>25175116</code>.</p>
+
+<h2>Section 3 — Root cause of the audit BLOCK</h2>
+
+<p>The first pass (PR #439) had a comment at <code>coach_chat.py:1482</code>:</p>
+<pre># P14 commitment devices — ack-only handlers</pre>
+<p>This header was misread as covering the 5 handlers below it (<code>record_commitment</code>, <code>save_pre_mortem</code>, <code>save_provenance</code>, <code>save_earmark</code>, <code>remove_earmark</code>). It actually only applied to the two immediately below (<code>record_commitment</code> + <code>save_pre_mortem</code>). The 3 below those issue real DB writes:</p>
+
+<table>
+<tr><th>Tool</th><th>DB call</th><th>Line</th></tr>
+<tr><td><code>save_provenance</code></td><td><code>db.add(ProvenanceRecord) + db.commit()</code></td><td>coach_chat.py:1515-1516</td></tr>
+<tr><td><code>save_earmark</code></td><td><code>db.add(EarmarkTag) + db.commit()</code></td><td>coach_chat.py:1536-1537</td></tr>
+<tr><td><code>remove_earmark</code></td><td><code>db.delete(tag) + db.commit()</code></td><td>coach_chat.py:1555-1556</td></tr>
+</table>
+
+<p><strong>Lesson encoded:</strong> comment-block scope is not transitive. Each branch must be re-verified by reading the body, not the section header. Now hard-asserted by <code>test_write_tier_set_is_complete</code>.</p>
+
+<h2>Section 4 — T-52-08 audit re-run on dev (post-merge)</h2>
+
+<p><strong>Single load-bearing question:</strong> « With cloud sync OFF (<code>persistence_consent=False</code>), does the backend now demonstrably refuse EVERY write-tier chat tool, with NO false negatives left? »</p>
+
+<table>
+<tr><th>Step</th><th>Verdict</th><th>Evidence</th></tr>
+<tr><td>1. Whitelist + gate location</td><td><span class="badge b-pass">PASS</span></td><td><code>_WRITE_TIER_TOOLS</code> @ <code>:1181-1187</code>; gate fires BEFORE any other logic @ <code>:1228-1233</code></td></tr>
+<tr><td>2. 5/5 whitelisted tools verified to write to PII-bearing models</td><td><span class="badge b-pass">PASS</span></td><td>save_fact, save_insight, save_provenance, save_earmark, remove_earmark — exact <code>db.add</code>/<code>db.delete</code>/<code>db.commit</code> sites quoted</td></tr>
+<tr><td>3. False-negative sweep over <code>_execute_internal_tool</code> body</td><td><span class="badge b-pass">PASS</span></td><td>ZERO. Every <code>db.add</code>/<code>db.commit</code>/<code>db.delete</code> belongs to one of the 5 gated tools</td></tr>
+<tr><td>4. Test assertions</td><td><span class="badge b-pass">PASS</span></td><td>5-tool fixture parametrize + hard-asserted expected set + read-tier list excludes the 3 newly-gated</td></tr>
+<tr><td>5. Behavior proof</td><td><span class="badge b-pass">PASS</span></td><td>57/57 targeted tests pass</td></tr>
+</table>
+
+<p><strong>VERDICT: PASS.</strong> Cloud-sync OFF demonstrably stops every PII write through the chat dispatcher.</p>
+
+<h2>Section 5 — Process improvements applied</h2>
+
+<table>
+<tr><th>Discipline</th><th>Outcome this session</th></tr>
+<tr><td>Pre-push checklist (from <code>feedback_pre_push_checklist.md</code>)</td><td><span class="badge b-pass">applied</span> — sweep of 91 callsites done before push, not after CI fail. PR #441 went green on first try (vs PR #439's 4 cycles)</td></tr>
+<tr><td>HTML evidence report per phase (from <code>feedback_html_evidence_report.md</code>)</td><td><span class="badge b-pass">applied</span> — Phase 52.1 HTML updated with PR #441 + audit PASS verdict; this session report rolled up</td></tr>
+<tr><td>« Read audit verification logs first » (from <code>feedback_audit_verification_logs.md</code>)</td><td><span class="badge b-pass">applied</span> — re-verified the audit by reading the actual code, not just the panel summary</td></tr>
+<tr><td>Public-repo discipline</td><td><span class="badge b-pass">applied</span> — no forensic legal language in PR body / commit messages</td></tr>
+</table>
+
+<h2>Section 6 — Branch hygiene</h2>
+
+<p><code>fix/phase-52.2-write-tier-whitelist-completion</code> auto-deleted after squash-merge. Pending question for Julien: <code>feature/v2.9-phase-40-marge-fiscale</code> (the prior in-flight branch) — whether to delete after extracting any unmerged work.</p>
+
+<h2>Section 7 — Strategic next steps</h2>
+
+<ol>
+  <li><strong>Pause for Julien direction.</strong> The prior session report (<code>SESSION-2026-05-02-03.html</code>) projected « Phase 53 = document scan confidence UX » as the next strategic move, but no roadmap doc (<code>docs/ROADMAP_V2.md</code>, <code>.planning/MILESTONES.md</code>) currently defines a numbered Phase 53. The 8-area strategic survey referenced in the prior session is a session-level artifact, not a roadmap commitment.</li>
+  <li><strong>Open in-flight on the other branch.</strong> <code>feature/v2.9-phase-40-marge-fiscale</code> contains unmerged work for Phase 50.1.1 (i18n ARB drift reconciliation) and Phase 51 gap-closure (Plan 51-07). Decision needed: merge that branch first, or pivot to a new target.</li>
+  <li><strong>Optional process improvement</strong> (deferred) — the AST-walk dispatcher test from the audit panel: flag any branch containing <code>db.add</code>/<code>db.commit</code>/<code>db.delete</code> whose tool name is not in <code>_WRITE_TIER_TOOLS</code>. Would have caught this audit gap automatically. Tracked as v2.next.</li>
+</ol>
+
+<p class="meta">Generated 2026-05-04 by autonomous loop. Committed at <code>.planning/reports/SESSION-2026-05-04.html</code>. Updated on every PR landing in this session. Last commit referenced: <code>e0fd3125</code>.</p>
+
+</body>
+</html>
