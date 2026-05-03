@@ -1,0 +1,49 @@
+id	section	surface_file	surface_line	element	expected	tap_strategy	tap_x	tap_y	wait_max	skip_reason	notes
+4.1	ProfileDrawer	profile_drawer.dart	40	"Mon profil"	Navigates to `/profile`	centered_tap	195	400	6		
+4.2	ProfileDrawer	profile_drawer.dart	48	"Mon bilan"	Navigates to `/profile/bilan`	centered_tap	195	400	6		
+4.3	ProfileDrawer	profile_drawer.dart	57	"Couple" (visible only if `profile.isCouple`)	Navigates to `/couple`	centered_tap	195	400	6		Visible only when profile.isCouple == true
+4.4	ProfileDrawer	profile_drawer.dart	65	"Mes documents" — main tap	Navigates to `/documents`	centered_tap	195	400	6		
+4.5	ProfileDrawer	profile_drawer.dart	67	"Mes documents" — camera trailing action	Navigates to `/scan`	centered_tap	195	400	6		
+4.6	ProfileDrawer	profile_drawer.dart	75	"Historique coach"	Navigates to `/coach/history`	centered_tap	195	400	6		
+4.7	ProfileDrawer	profile_drawer.dart	98	"Clé API" (BYOK)	Navigates to `/profile/byok`	centered_tap	195	400	6		
+4.8	ProfileDrawer	profile_drawer.dart	104	"Confidentialité" (consent)	Navigates to `/profile/consent`	centered_tap	195	400	6		
+4.9	ProfileDrawer	profile_drawer.dart	110	"Langue"	**Known stub** — TODO inline language picker. Should at minimum no-op gracefully or surface a placeholder.	centered_tap	195	400	6	Known stub per scaffold line 113 — TODO inline language picker	
+4.10	ProfileDrawer	profile_drawer.dart	118	"Transparence des données"	Navigates to `/profile/data-transparency`	centered_tap	195	400	6		
+4.11	ProfileDrawer	profile_drawer.dart	124	"Contrôle confidentialité"	Navigates to `/profile/privacy-control`	centered_tap	195	400	6		
+4.12	ProfileDrawer	profile_drawer.dart	134	"Déconnexion"	Pops drawer + `context.go('/')` to landing	centered_tap	195	400	6		
+1.1	Tab1_Aujourdhui	mint_home_screen.dart	151	Premier éclairage card tap	Opens premier éclairage detail / triggers coach handoff	centered_tap	195	400	6		
+1.2	Tab1_Aujourdhui	mint_home_screen.dart	258	Premier éclairage CTA button	Triggers the éclairage primary action	centered_tap	195	400	6		
+1.3	Tab1_Aujourdhui	mint_home_screen.dart	340	Coach handoff card	Switches to Coach tab with payload	centered_tap	195	400	6		
+1.4	Tab1_Aujourdhui	mint_home_screen.dart	475	Hero card tap	`context.push(hero.route)` — opens hero target screen	centered_tap	195	400	6		
+1.5	Tab1_Aujourdhui	mint_home_screen.dart	484	Progress milestone card tap	`context.push(progress.route)` — opens progress detail	centered_tap	195	400	6		
+1.6	Tab1_Aujourdhui	mint_home_screen.dart	488	Action opportunity card tap	`context.push(action.route)` — opens action target	centered_tap	195	400	6		
+1.7	Tab1_Aujourdhui	mint_home_screen.dart	547	"Simuler" button on plan card	Runs simulation flow	centered_tap	195	400	6		
+1.8	Tab1_Aujourdhui	mint_home_screen.dart	569	"Parler au coach" button on plan card	Switches to Coach tab	centered_tap	195	400	6		
+1.9	Tab1_Aujourdhui	mint_home_screen.dart	663	Coach input bar — submit on enter	Sends message + switches to Coach tab	centered_tap	195	400	6		
+1.10	Tab1_Aujourdhui	mint_home_screen.dart	684	Coach input bar — send button	Sends message + switches to Coach tab	centered_tap	195	400	6		
+1.11	Tab1_Aujourdhui	mint_home_screen.dart	730	First check-in CTA card	Switches to Coach tab in check-in mode	centered_tap	195	400	6		Renders only when profile has no check-ins yet
+1.12	Tab1_Aujourdhui	mint_home_screen.dart	743	Anticipation signal card	Switches to Coach tab with anticipation payload	centered_tap	195	400	6		Renders only when AnticipationEngine has fresh signals
+1.13	Tab1_Aujourdhui	mint_home_screen.dart	758	Plan reality card	Switches to Coach tab with plan reality context	centered_tap	195	400	6		
+1.14	Tab1_Aujourdhui	mint_home_screen.dart	780	Generic contextual card wrapper	Routes to bound onTap handler	centered_tap	195	400	6		
+1.15	Tab1_Aujourdhui	mint_home_screen.dart	897	Contextual overflow card (more)	Expands or routes via intent tag	centered_tap	195	400	6		
+2.1	Tab2_Coach	coach_chat_screen.dart		Chat composer — text field submit	Sends message, streams response	centered_tap	195	400	6		
+2.2	Tab2_Coach	coach_chat_screen.dart		Chat composer — send button	Sends message, streams response	centered_tap	195	400	6		
+2.3	Tab2_Coach	coach_chat_screen.dart	1491	Suggestion chip in coach action panel	Routes to handler — opens screen, runs tool, or sends prompt	centered_tap	195	400	6		
+2.4	Tab2_Coach	coach_chat_screen.dart	1578	Intensity selector chip (check-in)	Selects intensity, advances flow	centered_tap	195	400	6		
+2.5	Tab2_Coach	(rendered via widget_renderer.dart)		`route_to_screen` tool result chip	Opens the routed screen	centered_tap	195	400	6	LLM-dependent: requires route_to_screen fixture	
+2.6	Tab2_Coach	(rendered via widget_renderer.dart)		`generate_document` tool result chip	Triggers document generation	centered_tap	195	400	6	LLM-dependent: requires generate_document fixture	
+2.7	Tab2_Coach	(rendered via widget_renderer.dart)		`generate_financial_plan` tool result widget	Shows the generated plan card	centered_tap	195	400	6	LLM-dependent: requires generate_financial_plan fixture	
+2.8	Tab2_Coach	(rendered via widget_renderer.dart	450)	`record_check_in` tool result widget	Shows confirmation, persists check-in	centered_tap	195	400	6	LLM-dependent: requires record_check_in fixture	
+2.9	Tab2_Coach	coach_chat_screen.dart		Conversation history button (app bar)	Opens `/coach/history`	centered_tap	195	400	6		
+2.10	Tab2_Coach	coach_chat_screen.dart		Lightning menu (widget shortcut)	Opens contextual widget picker	centered_tap	195	400	6		
+3.1	Tab3_Explorer	explore_tab.dart	488	Search bar — onChanged	Filters hub list / shows search results	centered_tap	195	400	6		
+3.2	Tab3_Explorer	explore_tab.dart	613	Search result tile tap	`context.push(entry.route)` — opens deep link	centered_tap	195	400	6		
+3.3	Tab3_Explorer	explore_tab.dart	576	Hub card — Retraite	`context.push('/explore/retraite')`	centered_tap	195	400	6		
+3.4	Tab3_Explorer	explore_tab.dart	576	Hub card — Famille	`context.push('/explore/famille')`	centered_tap	195	400	6		
+3.5	Tab3_Explorer	explore_tab.dart	576	Hub card — Travail & Statut	`context.push('/explore/travail')`	centered_tap	195	400	6		
+3.6	Tab3_Explorer	explore_tab.dart	576	Hub card — Logement	`context.push('/explore/logement')`	centered_tap	195	400	6		
+3.7	Tab3_Explorer	explore_tab.dart	576	Hub card — Fiscalité	`context.push('/explore/fiscalite')`	centered_tap	195	400	6		
+3.8	Tab3_Explorer	explore_tab.dart	576	Hub card — Patrimoine & Succession	`context.push('/explore/patrimoine')`	centered_tap	195	400	6		
+3.9	Tab3_Explorer	explore_tab.dart	576	Hub card — Santé & Protection	`context.push('/explore/sante')`	centered_tap	195	400	6		
+3.10	Tab3_Explorer	explore_tab.dart	577	"Blocked hub" bottom sheet — when readiness=blocked	Shows blocked sheet listing missing fields	centered_tap	195	400	6		Renders only when a hub is in 'blocked' readiness state
+3.11	Tab3_Explorer	explore_tab.dart	347	App bar action (menu / refresh)	Opens corresponding action	centered_tap	195	400	6		
