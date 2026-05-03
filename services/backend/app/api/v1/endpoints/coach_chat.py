@@ -1147,12 +1147,41 @@ _REPROMPT_EMPTY_END_TURN = (
 )
 
 
+# Phase 52.1 PR 2 — WRITE-tier tool whitelist. Each of these handlers
+# persists user-identifying data to the backend (ProfileModel.data,
+# CoachInsightRecord, partner estimate rows). When the request carries
+# `persistence_consent=False` (cloud-sync OFF on the mobile toggle),
+# every WRITE-tier call is refused server-side and the LLM receives a
+# stable rejection string so it can phrase its reply appropriately
+# (« Je note ça pour cette session uniquement »). LLM call itself
+# proceeds normally — there is no on-device LLM. See
+# .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md.
+_WRITE_TIER_TOOLS: frozenset[str] = frozenset({
+    "save_fact",
+    "save_insight",
+    "save_pre_mortem",
+    "save_provenance",
+    "save_earmark",
+    "save_partner_estimate",
+    "update_partner_estimate",
+    "record_check_in",
+})
+
+_PERSISTENCE_OFF_MARKER = (
+    "[persistence_off: write skipped — sync disabled. The user has cloud "
+    "sync OFF in Settings › Confidentialité; structured facts are kept on "
+    "their device only. Acknowledge by saying you'll keep this in mind for "
+    "the current conversation only.]"
+)
+
+
 def _execute_internal_tool(
     tool_call: dict,
     memory_block: Optional[str],
     profile_context: Optional[dict] = None,
     user_id: Optional[str] = None,
     db: Optional[Session] = None,
+    persistence_consent: bool = False,
 ) -> str:
     """Execute a single internal tool and return the result as text.
 
@@ -1164,12 +1193,25 @@ def _execute_internal_tool(
         tool_call: Dict with "name" and "input" keys (Anthropic format).
         memory_block: The serialized memory block from the request.
         profile_context: Sanitized profile data (for data lookup tools).
+        persistence_consent: Phase 52.1 PR 2 — when False, every
+            WRITE-tier tool (see `_WRITE_TIER_TOOLS`) is refused with
+            `_PERSISTENCE_OFF_MARKER`. LLM call itself is unaffected.
 
     Returns:
         Plain-text result string for the tool.
     """
     name = tool_call.get("name", "")
     raw_input = tool_call.get("input", {})
+
+    # Phase 52.1 PR 2 — gate WRITE-tier tools on `persistence_consent`.
+    # Runs BEFORE any other branch so the rejection is uniform and
+    # auditable (a single log line per skipped write).
+    if not persistence_consent and name in _WRITE_TIER_TOOLS:
+        logger.info(
+            "coach.write.skipped tool=%s reason=cloud_sync_off",
+            name,
+        )
+        return _PERSISTENCE_OFF_MARKER
 
     # P0-4: Validate tool arguments — type check and length limit.
     # LLM-generated arguments could be malformed or adversarially large.
@@ -1959,7 +2001,14 @@ async def _run_agent_loop(
         # Execute internal tools and collect results
         tool_results: list = []
         for call in internal_calls:
-            result_text = _execute_internal_tool(call, memory_block, profile_context, user_id=user_id, db=db)
+            result_text = _execute_internal_tool(
+                call,
+                memory_block,
+                profile_context,
+                user_id=user_id,
+                db=db,
+                persistence_consent=body.persistence_consent,
+            )
             # FIX-W12: Truncate tool results to prevent context explosion
             if len(result_text) > 500:
                 result_text = result_text[:500] + "... [tronqué]"
@@ -2208,14 +2257,26 @@ async def coach_chat(
     # are persisted to CoachInsightRecord — the same table save_insight
     # writes to. Dedup by (user_id, topic) means the LLM can still call
     # save_insight without double-counting.
-    try:
-        from app.services.coach.profile_extractor import (
-            extract_profile_facts,
-            facts_to_insight_rows,
+    #
+    # Phase 52.1 PR 2 — gate this post-hoc extractor on the same
+    # `persistence_consent` flag as the WRITE-tier tools. With sync
+    # OFF, the regex extractor must NOT write to CoachInsightRecord.
+    if not body.persistence_consent:
+        logger.info(
+            "coach.write.skipped tool=post_hoc_extractor reason=cloud_sync_off",
         )
-        from app.models.coach_insight import CoachInsightRecord
+    try:
+        # Skip the entire extractor when sync is OFF.
+        if not body.persistence_consent:
+            extracted_facts = []
+        else:
+            from app.services.coach.profile_extractor import (
+                extract_profile_facts,
+                facts_to_insight_rows,
+            )
+            from app.models.coach_insight import CoachInsightRecord
 
-        extracted_facts = extract_profile_facts(sanitized_message, safe_profile or {})
+            extracted_facts = extract_profile_facts(sanitized_message, safe_profile or {})
         if extracted_facts and _user and _user.id:
             now_extract = datetime.now(timezone.utc)
             for row in facts_to_insight_rows(extracted_facts, user_id=str(_user.id)):

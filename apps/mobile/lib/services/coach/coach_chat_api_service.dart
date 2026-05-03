@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
@@ -22,6 +23,22 @@ class CoachChatApiService {
 
   CoachChatApiService({String? baseUrl})
       : baseUrl = baseUrl ?? ApiService.baseUrl;
+
+  /// Phase 52.1 PR 2 — derive the `persistence_consent` flag for the
+  /// `/coach/chat` request body from the cloud-sync toggle.
+  ///
+  /// Returns `true` when sync is enabled (`auth_local_mode = false`),
+  /// `false` otherwise (default = sync OFF). Backend uses this flag
+  /// to gate every WRITE-tier tool. LLM call itself is always allowed.
+  ///
+  /// `@visibleForTesting` so unit tests can verify the prefs read
+  /// without spinning the full chat() flow (which requires secure
+  /// storage mocking for the auth check).
+  @visibleForTesting
+  static Future<bool> readPersistenceConsent() async {
+    final prefs = await SharedPreferences.getInstance();
+    return !(prefs.getBool('auth_local_mode') ?? true);
+  }
 
   /// Send a chat message via the server-key /coach/chat endpoint.
   ///
@@ -49,11 +66,21 @@ class CoachChatApiService {
       );
     }
 
+    // Phase 52.1 PR 2: read the cloud-sync toggle and pass it as
+    // `persistence_consent` to the backend. Backend uses this flag to
+    // gate every WRITE-tier tool (save_fact, save_insight, save_pre_mortem,
+    // save_provenance, save_earmark, save_partner_estimate,
+    // record_check_in, n5 marks). LLM call itself is always allowed —
+    // no on-device LLM exists. See
+    // .planning/decisions/2026-05-03-chat-under-cloud-sync-off.md.
+    final persistenceConsent = await readPersistenceConsent();
+
     final body = <String, dynamic>{
       'message': message,
       'provider': 'claude',
       'language': language,
       'cash_level': cashLevel.clamp(1, 5),
+      'persistence_consent': persistenceConsent,
     };
 
     if (profileContext != null) {
@@ -122,6 +149,15 @@ class CoachChatApiService {
     }
   }
 
+  /// Optional injectable HTTP client (visibleForTesting).
+  ///
+  /// When `null` (production), [_post] uses the package-level
+  /// `http.post`. Tests inject a `MockClient` (from
+  /// `package:http/testing`) to capture the actual request body and
+  /// assert on its content (e.g. that `persistence_consent` matches
+  /// the cloud-sync toggle state).
+  http.Client? testClient;
+
   /// Issue the authenticated POST with the given bearer token.
   ///
   /// Extracted so [chat] can retry with a freshly-refreshed token on 401
@@ -132,15 +168,18 @@ class CoachChatApiService {
     String token,
     Map<String, dynamic> body,
   ) {
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final encoded = jsonEncode(body);
+    if (testClient != null) {
+      return testClient!
+          .post(uri, headers: headers, body: encoded)
+          .timeout(const Duration(seconds: 50));
+    }
     return http
-        .post(
-          uri,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: jsonEncode(body),
-        )
+        .post(uri, headers: headers, body: encoded)
         .timeout(const Duration(seconds: 50));
   }
 
