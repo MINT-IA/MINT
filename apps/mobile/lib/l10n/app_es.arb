@@ -11156,5 +11156,6 @@
   "settingsPrivacyMigrationToast": "Nueva opción: puedes desactivar la sincronización en la nube desde Ajustes › Privacidad.",
   "settingsPrivacyDataLocation": "Tus datos quedan cifrados en tu dispositivo. Con la sincronización activada, también están cifrados en nuestros servidores europeos (Suiza/UE) — cifrado de extremo a extremo previsto en la v3.0.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Desactivar la sincronización no borra los datos ya guardados en nuestros servidores. Para eliminarlos, ve a Cuenta › Eliminar mi cuenta.",
-  "profileSyncRowHint": "Gestionar en Ajustes › Privacidad"
+  "profileSyncRowHint": "Gestionar en Ajustes › Privacidad",
+  "settingsPrivacyMigrationToastCta": "Ver"
 }

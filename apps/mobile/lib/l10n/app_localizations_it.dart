@@ -23221,4 +23221,7 @@ class SIt extends S {
 
   @override
   String get profileSyncRowHint => 'Gestisci in Impostazioni › Privacy';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'Vedi';
 }
