@@ -11160,5 +11160,10 @@
   "settingsPrivacyMigrationToastCta": "View",
   "aujourdhuiCommitmentsTitle": "Your recent commitments",
   "aujourdhuiCheckInsTitle": "Your latest check-ins",
-  "aujourdhuiResumeConversation": "Resume conversation"
+  "aujourdhuiResumeConversation": "Resume conversation",
+  "coachSequenceNextStepLabel": "Next step: {label}.",
+  "@coachSequenceNextStepLabel": {
+    "placeholders": {"label": {"type": "String"}}
+  },
+  "coachSequenceCompletedMessage": "You've completed this guided sequence."
 }

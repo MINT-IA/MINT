@@ -461,13 +461,21 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (!mounted) return;
     final action = result.action;
 
+    final l10n = S.of(context);
+
     if (action is AdvanceAction) {
       // Render the next step as a coach-side suggestion: a route
       // suggestion card pointing at the next step's screen.
+      // Phase 54-02 T-04: route the \u00ab \u00c9tape suivante : \u2026 \u00bb string
+      // through ARB so all 6 locales render correctly + the
+      // accent_lint_fr / no_hardcoded_fr lints don't regress.
+      final nextStepText = l10n != null
+          ? l10n.coachSequenceNextStepLabel(action.progressLabel)
+          : '\u00c9tape suivante : ${action.progressLabel}.';
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: '\u00c9tape suivante : ${action.progressLabel}.',
+          content: nextStepText,
           timestamp: DateTime.now(),
           richToolCalls: [
             RagToolCall(
@@ -486,10 +494,13 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     }
 
     if (action is CompleteAction) {
+      // Phase 54-02 T-04: ARB-route the completion string.
+      final completionText = l10n?.coachSequenceCompletedMessage ??
+          'Tu as termin\u00e9 cette s\u00e9quence guid\u00e9e.';
       setState(() {
         _messages.add(ChatMessage(
           role: 'assistant',
-          content: 'Tu as termin\u00e9 cette s\u00e9quence guid\u00e9e.',
+          content: completionText,
           timestamp: DateTime.now(),
         ));
       });
@@ -570,8 +581,31 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   /// Appends a coach-authored opening message to the conversation.
   /// Dismisses the silent opener so the chat feels like a live conversation.
-  void _addCoachOpenerMessage(String content) {
+  ///
+  /// Phase 54-02: when [intentTag] is non-null AND maps to a ScreenRegistry
+  /// entry, also emit a `route_to_screen` rich tool call so the existing
+  /// `widget_renderer._buildRouteSuggestion` path renders a tappable
+  /// `RouteSuggestionCard`. Without [intentTag], behavior is unchanged
+  /// (plain text bubble — legacy callers).
+  void _addCoachOpenerMessage(
+    String content, {
+    String? intentTag,
+    String? routeHint,
+    String? contextMessage,
+  }) {
     if (!mounted) return;
+    final richCalls = <RagToolCall>[];
+    if (intentTag != null && intentTag.isNotEmpty) {
+      richCalls.add(RagToolCall(
+        name: 'route_to_screen',
+        input: <String, dynamic>{
+          'intent': intentTag,
+          if (routeHint != null && routeHint.isNotEmpty) 'route': routeHint,
+          'context_message': contextMessage ?? content,
+          'prefill': const <String, dynamic>{},
+        },
+      ));
+    }
     setState(() {
       _showSilentOpener = false;
       _messages.add(ChatMessage(
@@ -579,6 +613,7 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
         content: content,
         timestamp: DateTime.now(),
         tier: ChatTier.none,
+        richToolCalls: richCalls,
       ));
     });
     _scrollToBottom();
@@ -625,7 +660,18 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
     if (trigger == null) return;
     _proactiveTriggerShownThisSession = true;
     final opener = _resolveProactiveOpener(S.of(context)!, trigger);
-    _addCoachOpenerMessage(opener);
+    // Phase 54-02: pass intentTag through so the opener renders a
+    // tappable chip via RouteSuggestionCard. The existing chip path
+    // (widget_renderer._buildRouteSuggestion) consumes p['intent'] +
+    // resolves the route via ChatToolDispatcher when no explicit
+    // route is provided. Falls back to plain bubble if intentTag is
+    // null (default for some trigger types per
+    // ProactiveTrigger.intentTag nullable contract).
+    _addCoachOpenerMessage(
+      opener,
+      intentTag: trigger.intentTag,
+      contextMessage: opener,
+    );
     AnalyticsService().trackEvent('coach_proactive_trigger_shown', data: {
       'type': trigger.type.name,
       'has_intent_tag': trigger.intentTag != null,

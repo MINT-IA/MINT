@@ -23229,4 +23229,13 @@ class SDe extends S {
 
   @override
   String get aujourdhuiResumeConversation => 'Gespräch fortsetzen';
+
+  @override
+  String coachSequenceNextStepLabel(String label) {
+    return 'Nächster Schritt: $label.';
+  }
+
+  @override
+  String get coachSequenceCompletedMessage =>
+      'Du hast diese geführte Sequenz abgeschlossen.';
 }

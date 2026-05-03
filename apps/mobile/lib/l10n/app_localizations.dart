@@ -40646,6 +40646,18 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Reprendre la conversation'**
   String get aujourdhuiResumeConversation;
+
+  /// No description provided for @coachSequenceNextStepLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étape suivante : {label}.'**
+  String coachSequenceNextStepLabel(String label);
+
+  /// No description provided for @coachSequenceCompletedMessage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as terminé cette séquence guidée.'**
+  String get coachSequenceCompletedMessage;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

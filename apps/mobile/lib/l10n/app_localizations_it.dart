@@ -23233,4 +23233,13 @@ class SIt extends S {
 
   @override
   String get aujourdhuiResumeConversation => 'Riprendi la conversazione';
+
+  @override
+  String coachSequenceNextStepLabel(String label) {
+    return 'Prossimo passo: $label.';
+  }
+
+  @override
+  String get coachSequenceCompletedMessage =>
+      'Hai completato questa sequenza guidata.';
 }
