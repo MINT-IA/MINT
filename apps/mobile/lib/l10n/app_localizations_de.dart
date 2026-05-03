@@ -23217,4 +23217,7 @@ class SDe extends S {
 
   @override
   String get profileSyncRowHint => 'Verwalten in Einstellungen › Datenschutz';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'Ansehen';
 }

@@ -23160,4 +23160,7 @@ class SEs extends S {
 
   @override
   String get profileSyncRowHint => 'Gestionar en Ajustes › Privacidad';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'Ver';
 }

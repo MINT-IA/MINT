@@ -23047,4 +23047,7 @@ class SEn extends S {
 
   @override
   String get profileSyncRowHint => 'Manage in Settings › Privacy';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'View';
 }

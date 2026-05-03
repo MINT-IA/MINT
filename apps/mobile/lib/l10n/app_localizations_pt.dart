@@ -23168,4 +23168,7 @@ class SPt extends S {
 
   @override
   String get profileSyncRowHint => 'Gerir em Definições › Privacidade';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'Ver';
 }

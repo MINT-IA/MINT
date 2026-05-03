@@ -23162,4 +23162,7 @@ class SFr extends S {
 
   @override
   String get profileSyncRowHint => 'Gérer dans Réglages › Confidentialité';
+
+  @override
+  String get settingsPrivacyMigrationToastCta => 'Voir';
 }

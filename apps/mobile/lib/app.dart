@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -151,6 +152,7 @@ import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
+final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 final _shellNavigatorKeyHome = GlobalKey<NavigatorState>(debugLabel: 'shellHome');
 final _shellNavigatorKeyMonArgent = GlobalKey<NavigatorState>(debugLabel: 'shellMonArgent');
 final _shellNavigatorKeyCoach = GlobalKey<NavigatorState>(debugLabel: 'shellCoach');
@@ -1550,20 +1552,26 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
         ),
       ],
       child: _AuthRouterBridge(
-        child: Builder(
-          builder: (context) {
-            final localeProvider = context.watch<LocaleProvider>();
-            return MaterialApp.router(
-              title: 'Mint',
-              debugShowCheckedModeBanner: false,
-              theme: _buildPremiumTheme(),
-              themeMode: ThemeMode.light,
-              routerConfig: _router,
-              localizationsDelegates: S.localizationsDelegates,
-              supportedLocales: S.supportedLocales,
-              locale: localeProvider.locale,
-            );
-          },
+        child: MigrationNoticeListener(
+          getMessenger: () => _scaffoldMessengerKey.currentState,
+          getNavContext: () => _rootNavigatorKey.currentContext,
+          onCtaTap: () => _router.go('/settings/confidentialite'),
+          child: Builder(
+            builder: (context) {
+              final localeProvider = context.watch<LocaleProvider>();
+              return MaterialApp.router(
+                title: 'Mint',
+                debugShowCheckedModeBanner: false,
+                theme: _buildPremiumTheme(),
+                themeMode: ThemeMode.light,
+                routerConfig: _router,
+                scaffoldMessengerKey: _scaffoldMessengerKey,
+                localizationsDelegates: S.localizationsDelegates,
+                supportedLocales: S.supportedLocales,
+                locale: localeProvider.locale,
+              );
+            },
+          ),
         ),
       ),
     );
@@ -1893,3 +1901,7 @@ class _AuthRouterBridgeState extends State<_AuthRouterBridge> {
   @override
   Widget build(BuildContext context) => widget.child;
 }
+
+// _MigrationNoticeListener (Phase 52 T-52-04) — extracted to
+// `apps/mobile/lib/widgets/auth/migration_notice_listener.dart`
+// for testability. The wrapper used at line ~1554 imports it.

@@ -40622,6 +40622,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Gérer dans Réglages › Confidentialité'**
   String get profileSyncRowHint;
+
+  /// No description provided for @settingsPrivacyMigrationToastCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get settingsPrivacyMigrationToastCta;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

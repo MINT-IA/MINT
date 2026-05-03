@@ -11156,5 +11156,6 @@
   "settingsPrivacyMigrationToast": "New option: you can turn off cloud sync from Settings › Privacy.",
   "settingsPrivacyDataLocation": "Your data stays encrypted at rest on your device. With sync on, it's also encrypted at rest on our European servers (Switzerland/EU) — end-to-end encryption planned for v3.0.",
   "settingsPrivacyCloudSyncOffServerCaveat": "Turning sync off doesn't delete data already saved to our servers. To remove it, go to Account › Delete my account.",
-  "profileSyncRowHint": "Manage in Settings › Privacy"
+  "profileSyncRowHint": "Manage in Settings › Privacy",
+  "settingsPrivacyMigrationToastCta": "View"
 }
