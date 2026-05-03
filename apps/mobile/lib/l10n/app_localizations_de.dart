@@ -23214,4 +23214,7 @@ class SDe extends S {
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
       'Die Synchronisation zu deaktivieren löscht nicht die Daten, die bereits auf unseren Servern gespeichert sind. Um sie zu entfernen, gehe zu Konto › Konto löschen.';
+
+  @override
+  String get profileSyncRowHint => 'Verwalten in Einstellungen › Datenschutz';
 }

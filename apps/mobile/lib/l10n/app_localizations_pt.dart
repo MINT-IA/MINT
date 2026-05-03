@@ -23165,4 +23165,7 @@ class SPt extends S {
   @override
   String get settingsPrivacyCloudSyncOffServerCaveat =>
       'Desativar a sincronização não apaga os dados já guardados nos nossos servidores. Para os remover, vai a Conta › Eliminar a minha conta.';
+
+  @override
+  String get profileSyncRowHint => 'Gerir em Definições › Privacidade';
 }
