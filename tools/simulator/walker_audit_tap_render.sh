@@ -223,8 +223,13 @@ if [ "$DRY_RUN" = "0" ]; then
   xcrun simctl boot "$DEVICE"
   open -a Simulator || true
 
-  echo "[walker] build: flutter build ios --simulator (archetype=$ARCHETYPE phase=54)"
-  (cd "$REPO_ROOT/apps/mobile" && flutter build ios --simulator \
+  echo "[walker] build: flutter build ios --simulator --no-codesign (archetype=$ARCHETYPE phase=54)"
+  # --no-codesign required when the working tree lives under an iCloud
+  # Drive `.nosync` mount (macOS Sequoia/Tahoe propagates
+  # `com.apple.provenance` xattrs that break codesign for sim builds).
+  # Sim builds don't need a real signature anyway. See walker.sh:582-586
+  # for the same fix on the legacy archetype walker.
+  (cd "$REPO_ROOT/apps/mobile" && flutter build ios --simulator --no-codesign \
     --dart-define=API_BASE_URL=https://mint-staging.up.railway.app/api/v1 \
     --dart-define=SENTRY_DSN="${SENTRY_DSN_STAGING}" \
     --dart-define=MINT_E2E_ARCHETYPE="$ARCHETYPE" \

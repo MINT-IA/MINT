@@ -73,6 +73,7 @@ key.properties
 coverage.xml
 # Golden test failures - never commit
 apps/mobile/test/golden_screenshots/failures/
+.planning/phases/*/screenshots/
 apps/mobile/test/goldens/failures/
 services/backend/MagicMock/
 test_anonymous_chat.db
