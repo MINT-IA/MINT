@@ -136,7 +136,39 @@ CI on PR #438: in flight</pre>
   <li>Anonymous → register « one-tap sync everything » UX pattern (Phase 53+)</li>
 </ul>
 
-<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-03 ~09:20. Updated on every PR landing in Phase 52.1.</p>
+<h2>Update — Phase 52.2 audit close-out (2026-05-04)</h2>
+
+<p><strong>T-52-08 close-out audit verdict:</strong> BLOCK on the Phase 52.1 PR 2 whitelist. The audit (re-verified by hand at <code>coach_chat.py:1496-1558</code>) found 3 handlers that issue real DB writes but were missing from <code>_WRITE_TIER_TOOLS</code>:</p>
+
+<ul>
+  <li><code>save_provenance</code> → <code>db.add(ProvenanceRecord(...))</code> @ <code>coach_chat.py:1510</code></li>
+  <li><code>save_earmark</code>    → <code>db.add(EarmarkTag(...))</code>     @ <code>coach_chat.py:1531</code></li>
+  <li><code>remove_earmark</code>  → <code>db.delete(tag)</code>              @ <code>coach_chat.py:1550</code></li>
+</ul>
+
+<p>Cloud-sync OFF was therefore still allowing those PII writes through. <strong>Root cause:</strong> the « # P14 commitment devices — ack-only handlers » comment at <code>coach_chat.py:1482</code> was misread as covering the 5 handlers below it; it actually only applied to the two immediately below (<code>record_commitment</code> + <code>save_pre_mortem</code>). Comment-block scope is not transitive.</p>
+
+<p><strong>Fix landed in PR #441 (<code>fix/phase-52.2-write-tier-whitelist-completion</code>):</strong></p>
+<ul>
+  <li>Extended <code>_WRITE_TIER_TOOLS</code> to all 5 verified writers</li>
+  <li>Updated <code>test_coach_chat_persistence_gate.py</code>: parametrized 3 new tools in <code>WRITE_TIER_FIXTURES</code>; updated <code>test_write_tier_set_is_complete</code> expected set; removed <code>save_provenance</code>/<code>save_earmark</code> from the read-tier « not in WRITE_TIER » list</li>
+  <li>Pre-push sweep (lesson from PR #439's 4 CI cycles): updated 12 <code>_execute_internal_tool</code> callsites in <code>test_coach_intelligence.py</code> to pass <code>persistence_consent=True</code> on the write path</li>
+  <li>Appended backend-side WRITE-tier section to <code>BACKEND-WRITE-SURFACE.md</code> documenting the audit-corrected whitelist + the lesson + a proposed AST-walk safety-net for v2.next</li>
+</ul>
+
+<pre>pytest tests/test_coach_chat_persistence_gate.py tests/test_coach_intelligence.py -v
+→ 57 passed
+
+pytest tests/  (full backend suite)
+→ 6032 passed, 6 skipped, 0 failed in 104.89s</pre>
+
+<p><strong>Acceptance criteria status update:</strong></p>
+<ul>
+  <li>(c) Chat behavior matches Option C — LLM call yes, structured fact writes refused server-side: ✅ PR #439 + PR #441 (5 of 5 verified writers gated)</li>
+  <li>Post-Phase-52.1 audit « does sync OFF actually stop backend writes? »: ✅ demonstrably yes, in code, after PR #441 merges (re-run T-52-08 to confirm CLOSE)</li>
+</ul>
+
+<p style="font-size: 12px; color: #95989d; margin-top: 32px;">Generated 2026-05-03 ~09:20. Updated 2026-05-04 with Phase 52.2 audit close-out (PR #441).</p>
 
 </body>
 </html>
